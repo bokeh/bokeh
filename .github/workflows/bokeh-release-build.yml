@@ -46,11 +46,13 @@ jobs:
         shell: bash -l {0}
         run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
-      - name: Install NPM
+      - name: Post install status
         shell: bash -l {0}
         run: |
-          npm install -g npm@8
-          npm --version
+          echo "$(which node) @ $(node --version)"
+          echo "$(which npm) @ $(npm --version)"
+          conda info
+          conda list
 
       - name: Build Release Tarball
         shell: bash -l {0}

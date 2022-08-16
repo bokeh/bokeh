@@ -32,12 +32,7 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Set,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Type
 
 # External imports
 import numpy as np
@@ -58,7 +53,7 @@ from .string import format_docstring
 #-----------------------------------------------------------------------------
 
 @lru_cache(None)
-def _compute_datetime_types() -> Set[type]:
+def _compute_datetime_types() -> set[type]:
     result = {dt.time, dt.datetime, np.datetime64}
     pd = import_optional('pandas')
     if pd:
@@ -234,10 +229,6 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
         array
 
     '''
-
-    if not isinstance(array, np.ndarray):
-        return array
-
     # not quite correct, truncates to ms..
     if array.dtype.kind == 'M':
         return array.astype('datetime64[us]').astype('int64') / 1000.0
@@ -348,7 +339,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
 
     return array
 
-def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
+def transform_series(series: pd.Series[Any] | pd.Index) -> npt.NDArray[Any]:
     ''' Transforms a Pandas series into serialized form
 
     Args:
@@ -359,11 +350,12 @@ def transform_series(series: pd.Series | pd.Index) -> npt.NDArray[Any]:
 
     '''
     pd = import_optional('pandas')
+    assert pd is not None
 
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
-        vals = series.to_timestamp().values  # type: ignore # pandas PeriodIndex type is misunderstood somehow
+        vals = series.to_timestamp().values
     else:
         vals = series.values
     return vals

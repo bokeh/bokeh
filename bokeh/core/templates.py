@@ -39,26 +39,44 @@ log = logging.getLogger(__name__)
 import sys
 from functools import lru_cache
 from os.path import dirname, join
-from typing import Any
+from typing import Any, Callable
 
 # External imports
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, Template
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    "JS_RESOURCES",
+    "CSS_RESOURCES",
+    "SCRIPT_TAG",
+    "PLOT_DIV",
+    "ROOT_DIV",
+    "DOC_JS",
+    "DOC_NB_JS",
+    "FILE",
+    "MACROS",
+    "NOTEBOOK_LOAD",
+    "AUTOLOAD_JS",
+    "AUTOLOAD_NB_JS",
+    "AUTOLOAD_TAG",
+    "AUTOLOAD_REQUEST_TAG",
+)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
 @lru_cache(None)
-def get_env():
+def get_env() -> Environment:
     ''' Get the correct Jinja2 Environment, also for frozen scripts.
     '''
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         # PyInstaller uses _MEIPASS and only works with jinja2.FileSystemLoader
-        templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
+        meipass: str = sys._MEIPASS # type: ignore[attr-defined]
+        templates_path = join(meipass, 'bokeh', 'core', '_templates')
     else:
         # Non-frozen Python and cx_Freeze can use __file__ directly
         templates_path = join(dirname(__file__), '_templates')
@@ -77,7 +95,22 @@ def get_env():
 # Code
 #-----------------------------------------------------------------------------
 
-_templates = dict(
+JS_RESOURCES: Template
+CSS_RESOURCES: Template
+SCRIPT_TAG: Template
+PLOT_DIV: Template
+ROOT_DIV: Template
+DOC_JS: Template
+DOC_NB_JS: Template
+FILE: Template
+MACROS: Template
+NOTEBOOK_LOAD: Template
+AUTOLOAD_JS: Template
+AUTOLOAD_NB_JS: Template
+AUTOLOAD_TAG: Template
+AUTOLOAD_REQUEST_TAG: Template
+
+_templates: dict[str, Callable[[], Template]] = dict(
     JS_RESOURCES=lambda: get_env().get_template("js_resources.html"),
     CSS_RESOURCES=lambda: get_env().get_template("css_resources.html"),
     SCRIPT_TAG=lambda: get_env().get_template("script_tag.html"),

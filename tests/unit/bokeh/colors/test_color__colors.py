@@ -235,6 +235,47 @@ class Test_RGB:
         assert c2.g == c.g
         assert c2.b == c.b
 
+    def test_from_hex_string(self) -> None:
+        # '#rrggbb'
+        c = bcc.RGB.from_hex_string("#A3B20F")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+        c = bcc.RGB.from_hex_string("#a3b20f")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 1.0)
+
+        # '#rrggbbaa'
+        c = bcc.RGB.from_hex_string("#A3B20FC0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+        c = bcc.RGB.from_hex_string("#a3b20fc0")
+        assert (c.r, c.g, c.b, c.a) == (163, 178, 15, 192/255.0)
+
+        # '#rgb'
+        c = bcc.RGB.from_hex_string("#7A3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+        c = bcc.RGB.from_hex_string("#7a3")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 1.0)
+
+        # '#rgba'
+        c = bcc.RGB.from_hex_string("#7A3B")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+        c = bcc.RGB.from_hex_string("#7a3b")
+        assert (c.r, c.g, c.b, c.a) == (119, 170, 51, 187/255.0)
+
+        # Invalid hex string
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#1")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#12")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#12345")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#1234567")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string("#123456789")
+        with pytest.raises(ValueError):
+            bcc.RGB.from_hex_string(" #abc")
+
     def test_from_hsl(self) -> None:
         c = bcc.HSL(10, 0.1, 0.2)
         c2 = bcc.RGB.from_hsl(c)
@@ -278,6 +319,10 @@ class Test_RGB:
     def test_to_hex(self) -> None:
         c = bcc.RGB(10, 20, 30)
         assert c.to_hex(), "#%02X%02X%02X" % (c.r, c.g, c.b)
+        assert bcc.RGB(10, 20, 30, 0.0).to_hex() == "#0A141E00"
+        assert bcc.RGB(10, 20, 30, 0.5).to_hex() == "#0A141E80"
+        assert bcc.RGB(10, 20, 30, 0.996).to_hex() == "#0A141EFE"
+        assert bcc.RGB(10, 20, 30, 1.0).to_hex() == "#0A141E"
 
     def test_to_hsl(self) -> None:
         c = bcc.RGB(255, 100, 0)

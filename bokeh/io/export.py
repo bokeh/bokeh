@@ -32,7 +32,6 @@ from typing import (
     Any,
     Iterator,
     List,
-    Tuple,
     cast,
 )
 
@@ -47,6 +46,8 @@ from ..core.types import PathLike
 from ..document import Document
 from ..embed import file_html
 from ..resources import INLINE, Resources
+from ..themes import Theme
+from .state import State, curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
@@ -71,7 +72,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> str:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> str:
     ''' Export the ``LayoutDOM`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -96,6 +97,10 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
 
+        state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
+
     Returns:
         filename (str) : the filename where the static file is saved.
 
@@ -108,7 +113,7 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    image = get_screenshot_as_png(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    image = get_screenshot_as_png(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
 
     if filename is None:
         filename = default_filename("png")
@@ -122,7 +127,7 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     return abspath(expanduser(filename))
 
 def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
     If the filename is not given, it is derived from the script name
@@ -146,6 +151,10 @@ def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5)
 
+        state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are saved.
 
@@ -154,11 +163,11 @@ def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
     return _write_collection(svgs, filename, "svg")
 
 def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5) -> List[str]:
+        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
 
@@ -183,6 +192,10 @@ def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width
         timeout (int) : the maximum amount of time (in seconds) to wait for
             Bokeh to initialize (default: 5) (Added in 1.1.1).
 
+        state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
+
     Returns:
         filenames (list(str)) : the list of filenames where the SVGs files are saved.
 
@@ -191,7 +204,7 @@ def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout)
+    svgs = get_svgs(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
 
     if len(svgs) == 0:
         log.warning("No SVG Plots were found.")
@@ -204,7 +217,7 @@ def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width
 #-----------------------------------------------------------------------------
 
 def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> Image.Image:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> Image.Image:
     ''' Get a screenshot of a ``LayoutDOM`` object.
 
     Args:
@@ -218,6 +231,10 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
             It will be used as a timeout for loading Bokeh, then when waiting for
             the layout to be rendered.
 
+        state (State, optional) :
+            A :class:`State` object. If None, then the current default
+            implicit state is used. (default: None).
+
     Returns:
         image (PIL.Image.Image) : a pillow image loaded from PNG.
 
@@ -229,7 +246,8 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        theme = (state or curstate()).document.theme
+        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
@@ -246,11 +264,12 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
                  .resize((width, height)))
 
 def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        theme = (state or curstate()).document.theme
+        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
@@ -262,11 +281,12 @@ def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeo
     return svgs
 
 def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None) -> List[str]:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
     with _tmp_html() as tmp:
-        html = get_layout_html(obj, resources=resources, width=width, height=height)
+        theme = (state or curstate()).document.theme
+        html = get_layout_html(obj, resources=resources, width=width, height=height, theme=theme)
         with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
@@ -278,7 +298,7 @@ def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, time
     return svgs
 
 def get_layout_html(obj: LayoutDOM | Document, *, resources: Resources = INLINE,
-        width: int | None = None, height: int | None = None) -> str:
+        width: int | None = None, height: int | None = None, theme: Theme | None = None) -> str:
     '''
 
     '''
@@ -299,7 +319,7 @@ def get_layout_html(obj: LayoutDOM | Document, *, resources: Resources = INLINE,
     """
 
     def html() -> str:
-        return file_html(obj, resources, title="", template=template, suppress_callback_warning=True, _always_new=True)
+        return file_html(obj, resources, title="", template=template, theme=theme, suppress_callback_warning=True, _always_new=True)
 
     if width is not None or height is not None:
         # Defer this import, it is expensive
@@ -363,12 +383,12 @@ def _resized(obj: Plot, width: int | None, height: int | None) -> Iterator[None]
     obj.width = old_width
     obj.height = old_height
 
-def _write_collection(items: List[str], filename: PathLike | None, ext: str) -> List[str]:
+def _write_collection(items: list[str], filename: PathLike | None, ext: str) -> list[str]:
     if filename is None:
         filename = default_filename(ext)
     filename = os.fspath(filename)
 
-    filenames: List[str] = []
+    filenames: list[str] = []
 
     def _indexed(name: str, i: int) -> str:
         basename, ext = splitext(name)
@@ -396,13 +416,13 @@ def _log_console(driver: WebDriver) -> None:
         for message in messages:
             log.warning(message)
 
-def _maximize_viewport(web_driver: WebDriver) -> Tuple[int, int, int]:
+def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
         const root_view = Object.values(Bokeh.index)[0]
         const {width, height} = root_view.el.getBoundingClientRect()
         return [width, height, window.devicePixelRatio]
     """
-    viewport_size: Tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
+    viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [

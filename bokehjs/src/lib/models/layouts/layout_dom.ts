@@ -6,6 +6,7 @@ import {Color} from "core/types"
 import {Align, SizingMode} from "core/enums"
 import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
 import {logger} from "core/logging"
+import {BBox} from "core/util/bbox"
 import {isNumber, isArray} from "core/util/types"
 import {color2css} from "core/util/color"
 import {assign} from "core/util/object"
@@ -37,6 +38,10 @@ export abstract class LayoutDOMView extends UIElementView {
   protected _viewport: Partial<Size> = {}
 
   layout: Layoutable
+
+  override get bbox(): BBox {
+    return this.layout.bbox
+  }
 
   readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
   readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
@@ -396,12 +401,23 @@ export abstract class LayoutDOMView extends UIElementView {
     })
   }
 
-  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = (() => {
+      switch (type) {
+        case "auto": // TODO: actually infer the best type
+        case "png": return "canvas"
+        case "svg": return "svg"
+      }
+    })()
+
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {width, height} = this.layout.bbox
+    const {x, y, width, height} = this.layout.bbox
     composite.resize(width, height)
+
+    const bg_color = getComputedStyle(this.el).backgroundColor
+    composite.ctx.fillStyle = bg_color
+    composite.ctx.fillRect(x, y, width, height)
 
     for (const view of this.child_views) {
       const region = view.export(type, hidpi)
@@ -415,7 +431,6 @@ export abstract class LayoutDOMView extends UIElementView {
   override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.box,
       children: this.child_views.map((child) => child.serializable_state()),
     }
   }

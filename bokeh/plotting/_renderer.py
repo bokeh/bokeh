@@ -284,7 +284,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
                 elif val.dtype == "uint8" and val.ndim == 1:  # greys
                     pass
                 elif val.dtype.kind == "U" and val.ndim == 1: # CSS strings
-                    pass # TODO: currently this gets converted to List[str] in the serializer
+                    pass # TODO: currently this gets converted to list[str] in the serializer
                 elif (val.dtype == "uint8" or val.dtype.kind == "f") and val.ndim == 2 and val.shape[1] in (3, 4): # RGB/RGBA
                     pass
                 else:

@@ -64,11 +64,13 @@ from typing import (
     ClassVar,
     Dict,
     Generic,
-    List,
     Tuple,
     TypedDict,
     TypeVar,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 import bokeh.util.serialization as bkserial
@@ -111,9 +113,9 @@ class BufferHeader(TypedDict):
 
 Content = TypeVar("Content")
 
-Metadata = Dict[str, Any]
+Metadata: TypeAlias = Dict[str, Any]
 
-BufferRef = Tuple[BufferHeader, bytes]
+BufferRef: TypeAlias = Tuple[BufferHeader, bytes]
 
 class Empty(TypedDict):
     pass
@@ -136,7 +138,7 @@ class Message(Generic[Content]):
     _metadata: Metadata
     _metadata_json: str | None
 
-    _buffers: List[Buffer]
+    _buffers: list[Buffer]
 
     def __init__(self, header: Header, metadata: Metadata, content: Content) -> None:
         ''' Initialize a new message from header, metadata, and content
@@ -400,7 +402,7 @@ class Message(Generic[Content]):
     # buffer properties
 
     @property
-    def buffers(self) -> List[Buffer]:
+    def buffers(self) -> list[Buffer]:
         return list(self._buffers)
 
 #-----------------------------------------------------------------------------

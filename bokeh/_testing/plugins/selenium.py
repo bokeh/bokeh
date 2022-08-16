@@ -25,7 +25,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     Iterator,
-    List,
     NoReturn,
     Sequence,
 )
@@ -53,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def pytest_report_collectionfinish(config: config.Config, startdir: py.path.local, items: Sequence[nodes.Item]) -> List[str]:
+def pytest_report_collectionfinish(config: config.Config, startdir: py.path.local, items: Sequence[nodes.Item]) -> list[str]:
     '''
 
     '''

@@ -22,9 +22,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import warnings
+from contextlib import contextmanager
 from typing import (
     Any,
-    List as TList,
+    Generator,
     Literal,
     overload,
 )
@@ -275,11 +276,11 @@ class Plot(LayoutDOM):
         return _list_attr_splat(self.xgrid + self.ygrid)
 
     @property
-    def tools(self) -> TList[Tool]:
+    def tools(self) -> list[Tool]:
         return self.toolbar.tools
 
     @tools.setter
-    def tools(self, tools: TList[Tool]):
+    def tools(self, tools: list[Tool]):
         self.toolbar.tools = tools
 
     def add_layout(self, obj: Renderer, place: PlaceType = "center") -> None:
@@ -423,9 +424,22 @@ class Plot(LayoutDOM):
         self.renderers.append(tile_renderer)
         return tile_renderer
 
+    @contextmanager
+    def hold(self, *, render: bool) -> Generator[None, None, None]:
+        ''' Takes care of turning a property on and off within a scope.
+
+        Args:
+            render (bool) :
+                Turns the property hold_render on and off.
+        '''
+        if render:
+            self.hold_render = True
+            yield
+            self.hold_render = False
+
     @error(REQUIRED_RANGE)
     def _check_required_range(self) -> str | None:
-        missing: TList[str] = []
+        missing: list[str] = []
         if not self.x_range: missing.append('x_range')
         if not self.y_range: missing.append('y_range')
         if missing:
@@ -433,7 +447,7 @@ class Plot(LayoutDOM):
 
     @error(REQUIRED_SCALE)
     def _check_required_scale(self) -> str | None:
-        missing: TList[str] = []
+        missing: list[str] = []
         if not self.x_scale: missing.append('x_scale')
         if not self.y_scale: missing.append('y_scale')
         if missing:
@@ -441,7 +455,7 @@ class Plot(LayoutDOM):
 
     @error(INCOMPATIBLE_SCALE_AND_RANGE)
     def _check_compatible_scale_and_ranges(self) -> str | None:
-        incompatible: TList[str] = []
+        incompatible: list[str] = []
         x_ranges = list(self.extra_x_ranges.values())
         if self.x_range: x_ranges.append(self.x_range)
         y_ranges = list(self.extra_y_ranges.values())
@@ -807,6 +821,33 @@ class Plot(LayoutDOM):
     values, undo all selections, and emit a ``Reset`` event. If customization
     is desired, this property may be set to ``"event_only"``, which will
     suppress all of the actions except the Reset event.
+    """)
+
+    hold_render = Bool(default=False, help="""
+    When set to True all requests to repaint the plot will be hold off.
+
+    This is useful when periodically updating many glyphs. For example, let's
+    assume we have 10 lines on a plot, each with its own datasource. We stream
+    to all of them every second in a for loop like so:
+
+    .. code:: python
+
+        for line in lines:
+            line.stream(new_points())
+
+    The problem with this code is that every stream triggers a re-rendering of
+    the plot. Even tough repainting only on the last stream would produce almost
+    identical visual effect. Especially for lines with many points this becomes
+    computationally expensive and can freeze your browser. Using a convenience
+    method `hold`, we can control when rendering is initiated like so:
+
+    .. code:: python
+
+        with plot.hold(render=True):
+            for line in lines:
+                line.stream(new_points())
+
+    In this case we render newly appended points only after the last stream.
     """)
 
 class GridPlot(LayoutDOM):

@@ -1,8 +1,8 @@
-import {ActionTool, ActionToolView} from "./action_tool"
+import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import * as p from "core/properties"
 import {tool_icon_undo} from "styles/icons.css"
 
-export class UndoToolView extends ActionToolView {
+export class UndoToolView extends PlotActionToolView {
   override model: UndoTool
 
   override connect_signals(): void {
@@ -22,12 +22,12 @@ export class UndoToolView extends ActionToolView {
 export namespace UndoTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props
+  export type Props = PlotActionTool.Props
 }
 
 export interface UndoTool extends UndoTool.Attrs {}
 
-export class UndoTool extends ActionTool {
+export class UndoTool extends PlotActionTool {
   override properties: UndoTool.Props
   override __view_type__: UndoToolView
 

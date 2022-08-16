@@ -4,7 +4,7 @@
 
 ----
 
-[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics, and affords high-performance interactivity over large or streaming datasets. Bokeh can help anyone who would like to quickly and easily make interactive plots, dashboards, and data applications.
+[Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
 
 <table>
 <tr>
@@ -124,7 +124,7 @@
 
 </table>
 
-*If you like Bokeh and would like to support our mission, please consider [making a donation](https://numfocus.org/donate-to-bokeh).*
+*Consider [making a donation](https://numfocus.org/donate-to-bokeh) if you enjoy using Bokeh and want to support its development.*
 
 <p>
 <table>
@@ -279,7 +279,7 @@ To install using pip, enter the following command at a Bash or Windows command p
 pip install bokeh
 ```
 
-For more information, refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html).
+Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for more details.
 
 ## Resources
 
@@ -291,7 +291,7 @@ Community support is available on the [Project Discourse](https://discourse.boke
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone interacting in the Bokeh project's codebases, issue trackers and discussion forums is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md).*
+*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/main/CODE_OF_CONDUCT.md).*
 
 ## Follow us
 
@@ -301,7 +301,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh) sponsorship as well as support by the organizations and companies below:
+The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as for monetary support from the organizations and companies listed below:
 
 <table align="center">
 <tr>
@@ -368,7 +368,7 @@ If your company uses Bokeh and is able to sponsor the project, please contact <a
 
 ### In-kind Support
 
-The Bokeh project is grateful for the donation of services and time from the following companies, supporting development as well as our collaboration, infrastructure, security, and vulnerability management:
+Non-monetary support can help with development, collaboration, infrastructure, security, and vulnerability management. The Bokeh project is grateful to the following companies for their donation of services:
 
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)

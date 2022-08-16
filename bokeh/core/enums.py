@@ -75,9 +75,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     Any,
-    Dict,
     Iterator,
-    List,
     Literal,
     get_args,
 )
@@ -98,6 +96,7 @@ __all__ = (
     'ButtonType',
     'CalendarPosition',
     'ContextWhich',
+    'CoordinateUnits',
     'DashPattern',
     'DateFormat',
     'DatetimeUnits',
@@ -171,7 +170,7 @@ class Enumeration:
     '''
     __slots__ = ()
 
-    _values: List[str]
+    _values: list[str]
     _default: str
     _case_sensitive: bool
     _quote: bool
@@ -235,7 +234,7 @@ def enumeration(*values: Any, case_sensitive: bool = True, quote: bool = False) 
     if len(values) != len(set(values)):
         raise ValueError(f"enumeration items must be unique, got {nice_join(values)}")
 
-    attrs: Dict[str, Any] = {value: value for value in values}
+    attrs: dict[str, Any] = {value: value for value in values}
     attrs.update({
         "_values": list(values),
         "_default": values[0],
@@ -277,6 +276,9 @@ CalendarPosition = enumeration("auto", "above", "below")
 #: Specify which tick to add additional context to
 ContextWhich = enumeration("start", "center", "end", "all")
 
+#: Specify units for mapping coordinates
+CoordinateUnits = enumeration("canvas", "screen", "data")
+
 #: Specify a named dashing patter for stroking lines
 DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 
@@ -292,6 +294,7 @@ DatetimeUnits = enumeration("microseconds", "milliseconds", "seconds", "minsec",
 Dimension = enumeration("width", "height")
 
 #: Specify a vertical/horizontal dimensions
+DimensionsType = Literal["width", "height", "both"]
 Dimensions = enumeration("width", "height", "both")
 
 #: Specify a stroke direction for circles, wedges, etc.

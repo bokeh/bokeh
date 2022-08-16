@@ -1,45 +1,30 @@
+[tool.pytest.ini_options]
+addopts = "--no-success-flaky-report"
+asyncio_mode = "strict"
+norecursedirs = "build _build node_modules"
+python_files = "*_tests.py *_test.py test_*.py"
+markers = [
+    "sampledata: a test for bokeh.sampledata",
+    "selenium: a test as requiring selenium",
+]
+
 [tool.mypy]
 python_version = "3.8"
 mypy_path = "typings/"
+files = ["typings", "bokeh", "release", "tests"]
+
+strict = true
 
 pretty = true
+show_column_numbers = true
 show_error_codes = true
 show_error_context = true
-show_column_numbers = true
-
-namespace_packages = true
-ignore_missing_imports = false
 
 disallow_any_unimported = true
-disallow_any_expr = false
-disallow_any_decorated = false
-disallow_any_explicit = false
-disallow_any_generics = true
-disallow_subclassing_any = true
-
-disallow_untyped_calls = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-strict_optional = true
-
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
+implicit_reexport = true
+namespace_packages = true
 warn_return_any = false
 warn_unreachable = true
-
-show_none_errors = true
-ignore_errors = false
-
-allow_untyped_globals = false
-allow_redefinition = false
-implicit_reexport = true
-strict_equality = true
-
-warn_unused_configs = true
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
@@ -51,39 +36,87 @@ ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "bokeh._testing",
+    "bokeh._testing", # TODO: .*
     "bokeh.client.states",
-    "bokeh.colors",
-    "bokeh.command",
+    "bokeh.colors.*",
+    "bokeh.command.*",
     "bokeh.core.json_encoder",
+
+    "bokeh.core.properties",
+    "bokeh.core.property", # TODO: .*
+    "bokeh.core.property_mixins",
+
+    #"bokeh.core.property.alias",
+    "bokeh.core.property.any",
+    "bokeh.core.property.auto",
+    #"bokeh.core.property.bases",
+    "bokeh.core.property.color",
+    #"bokeh.core.property.container",
+    #"bokeh.core.property.dataspec",
+    "bokeh.core.property.datetime",
+    #"bokeh.core.property.descriptor_factory",
+    #"bokeh.core.property.descriptors",
+    #"bokeh.core.property.either",
+    "bokeh.core.property.enum",
+    "bokeh.core.property.factors",
+    "bokeh.core.property.include",
+    #"bokeh.core.property.instance",
+    "bokeh.core.property.json",
+    "bokeh.core.property.nothing",
+    "bokeh.core.property.nullable",
+    "bokeh.core.property.numeric",
+    "bokeh.core.property.override",
+    "bokeh.core.property.pd",
+    "bokeh.core.property.primitive",
+    "bokeh.core.property.readonly",
+    "bokeh.core.property.required",
+    "bokeh.core.property.serialized",
+    "bokeh.core.property.singletons",
+    "bokeh.core.property.string",
+    #"bokeh.core.property.struct",
+    "bokeh.core.property.text_like",
+    #"bokeh.core.property.validation",
+    #"bokeh.core.property.vectorization",
+    #"bokeh.core.property.visual",
+    #"bokeh.core.property.wrappers",
+
     "bokeh.core.query",
     "bokeh.core.serialization",
+    "bokeh.core.templates",
     "bokeh.core.types",
     "bokeh.core.validation",
+
     "bokeh.document.callbacks",
     "bokeh.document.json",
     "bokeh.document.locking",
     "bokeh.document.models",
     "bokeh.document.modules",
+
     "bokeh.driving",
+
     "bokeh.embed.standalone",
     "bokeh.embed.wrappers",
-    "bokeh.ext",
-    "bokeh.io",
+
+    "bokeh.ext.*",
+    "bokeh.io.*",
+
     "bokeh.palettes",
     "bokeh.plotting._tools",
-    "bokeh.protocol",
-    "bokeh.sampledata",
+    "bokeh.protocol.*",
+    "bokeh.sampledata.*",
+
     "bokeh.server.callbacks",
     "bokeh.server.server",
+    "bokeh.server.tornado",
     "bokeh.server.urls",
     "bokeh.server.util",
-    "bokeh.util",
-    "tests.codebase",
+
+    "bokeh.util.*",
+    "tests.codebase.*",
     "tests.test_bokehjs",
     "tests.test_examples",
-    "tests.codebase",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",
+    #"tests.unit.bokeh.models._util_models",
 ]
 ignore_errors = false

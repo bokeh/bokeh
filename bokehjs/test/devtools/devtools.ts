@@ -83,11 +83,9 @@ type Result = {error: {str: string, stack?: string} | null, time: number, state?
 async function run_tests(): Promise<boolean> {
   let client
   let failure = false
-  let exception = false
-  let handle_exceptions = true
   try {
     client = await CDP({port})
-    const {Emulation, Network, Page, Runtime, Log, Performance} = client
+    const {Emulation, Network, Browser, Page, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
@@ -109,6 +107,8 @@ async function run_tests(): Promise<boolean> {
       type LogEntry = {level: "warning" | "error", text: string}
 
       let entries: LogEntry[] = []
+      let exceptions: Err[] = []
+
       Runtime.consoleAPICalled(({type, args}) => {
         if (type == "warning" || type == "error") {
           const text = args.map(({value}) => value ? value.toString() : "").join(" ")
@@ -124,9 +124,7 @@ async function run_tests(): Promise<boolean> {
       })
 
       Runtime.exceptionThrown(({exceptionDetails}) => {
-        exception = true
-        if (handle_exceptions)
-          console.log(handle_exception(exceptionDetails).text)
+        exceptions.push(handle_exception(exceptionDetails))
       })
 
       function fail(msg: string, code: number = 1): never {
@@ -198,13 +196,22 @@ async function run_tests(): Promise<boolean> {
 
       override_metrics()
 
+      await Browser.setPermission({
+        permission: {name: "clipboard-write"},
+        setting: "granted",
+      })
+
       const {errorText} = await Page.navigate({url})
 
       if (errorText != null) {
         fail(errorText)
       }
 
-      if (exception) {
+      if (exceptions.length != 0) {
+        for (const exc of exceptions) {
+          console.log(exc.text)
+        }
+
         fail(`failed to load ${url}`)
       }
 
@@ -215,8 +222,6 @@ async function run_tests(): Promise<boolean> {
       if (!ready) {
         fail(`failed to render ${url}`)
       }
-
-      handle_exceptions = false
 
       const result = await evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
@@ -265,18 +270,21 @@ async function run_tests(): Promise<boolean> {
 
       if (argv.k != null || argv.grep != null) {
         if (argv.k != null) {
-          const keyword = argv.k as string
+          const keywords: string[] = Array.isArray(argv.k) ? argv.k : [argv.k]
           for (const [suites, test] of test_suite) {
-            if (!description(suites, test).includes(keyword)) {
+            if (!keywords.some((keyword) => description(suites, test).includes(keyword))) {
               test.skip = true
             }
           }
         }
 
         if (argv.grep != null) {
-          const regex = new RegExp(argv.grep as string)
+          const regexes = (() => {
+            const arr = Array.isArray(argv.grep) ? argv.grep : [argv.grep]
+            return arr.map((str) => new RegExp(str as string))
+          })()
           for (const [suites, test] of test_suite) {
-            if (description(suites, test).match(regex) == null) {
+            if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
               test.skip = true
             }
           }
@@ -366,6 +374,7 @@ async function run_tests(): Promise<boolean> {
       try {
         for (const [suites, test, status] of test_suite) {
           entries = []
+          exceptions = []
 
           const baseline_name = encode(description(suites, test, "__"))
           status.baseline_name = baseline_name
@@ -399,6 +408,11 @@ async function run_tests(): Promise<boolean> {
                 if (errors.length != 0) {
                   status.errors.push(...errors.map((entry) => entry.text))
                   // status.failure = true // XXX: too chatty right now
+                }
+
+                if (exceptions.length != 0) {
+                  status.errors.push(...exceptions.map((exc) => exc.text))
+                  status.failure = true // XXX: too chatty right now
                 }
 
                 if (output instanceof Failure) {
@@ -591,7 +605,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 94
+const chromium_min_version = 103
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)

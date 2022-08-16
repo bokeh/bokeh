@@ -38,7 +38,7 @@ jobs:
         run: bash ci/build_bokehjs.sh
 
       - name: Upload BokehJS
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: bokehjs-build
           path: bokehjs-build.tgz
@@ -48,7 +48,7 @@ jobs:
         run: bash ci/build_conda_pacakge.sh
 
       - name: Upload conda package
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: conda-bld-noarch
           path: conda-bld-noarch.tgz
@@ -104,9 +104,8 @@ jobs:
       - name: MyPy
         shell: bash -l {0}
         run: |
-          mypy bokeh
-          mypy release
-          mypy tests
+          mypy --version
+          mypy
 
   examples:
     needs: build
@@ -124,13 +123,19 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          VER=95.0.4638.69
-          REV=chromium_1810
+          VER=103.0.5060.53
+          REV=chromium_2020
           URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
-          wget --no-verbose $URL/$REV.assert
-          wget --no-verbose $URL/$REV.snap
-          sudo snap ack $REV.assert
-          sudo snap install $REV.snap
+
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$VER" ]]; then
+            echo "Using pre-installed version of chromium"
+          else
+            wget --no-verbose $URL/$REV.assert
+            wget --no-verbose $URL/$REV.snap
+
+            sudo snap ack $REV.assert
+            sudo snap install $REV.snap
+          fi
 
       - name: Start chrome headless
         working-directory: ./bokehjs
@@ -165,7 +170,7 @@ jobs:
 
       - name: Upload report
         if: always()
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: examples-report
           path: examples-report
@@ -186,13 +191,19 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          VER=95.0.4638.69
-          REV=chromium_1810
+          VER=103.0.5060.53
+          REV=chromium_2020
           URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
-          wget --no-verbose $URL/$REV.assert
-          wget --no-verbose $URL/$REV.snap
-          sudo snap ack $REV.assert
-          sudo snap install $REV.snap
+
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$VER" ]]; then
+            echo "Using pre-installed version of chromium"
+          else
+            wget --no-verbose $URL/$REV.assert
+            wget --no-verbose $URL/$REV.snap
+
+            sudo snap ack $REV.assert
+            sudo snap install $REV.snap
+          fi
 
       - name: Run tests
         working-directory: bokehjs
@@ -296,6 +307,12 @@ jobs:
       - name: Build docs
         shell: bash -l {0}
         run: bash ci/build_docs.sh
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-html
+          path: sphinx/docs-html.tgz
 
   downstream:
     needs: build

@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 import asyncio
-from typing import List
 
 # Bokeh imports
 from bokeh.document.document import Document
@@ -38,7 +37,7 @@ import bokeh.document.locking as locking # isort:skip
 def test_next_tick_callback_works() -> None:
     d = locking.UnlockedDocumentProxy(Document())
     assert curdoc() is not d
-    curdoc_from_cb: List[Document] = []
+    curdoc_from_cb: list[Document] = []
     def cb():
         curdoc_from_cb.append(curdoc())
     callback_obj = d.add_next_tick_callback(cb)
@@ -60,7 +59,7 @@ def test_other_attrs_raise() -> None:
 def test_without_document_lock() -> None:
     d = Document()
     assert curdoc() is not d
-    curdoc_from_cb: List[Document] = []
+    curdoc_from_cb: list[Document] = []
     @locking.without_document_lock
     def cb():
         curdoc_from_cb.append(curdoc())

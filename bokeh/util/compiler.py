@@ -38,15 +38,12 @@ from typing import (
     Any,
     Callable,
     Dict,
-    List,
     Sequence,
-    Set,
-    Tuple,
     Type,
 )
 
 # Bokeh imports
-from ..model import Model
+from ..core.has_props import HasProps
 from ..settings import settings
 from .string import snakify
 
@@ -89,7 +86,7 @@ class CompilationError(RuntimeError):
     ''' A ``RuntimeError`` subclass for reporting JS compilation errors.
 
     '''
-    def __init__(self, error: Dict[str, str] | str) -> None:
+    def __init__(self, error: dict[str, str] | str) -> None:
         super().__init__()
         if isinstance(error, dict):
             self.line = error.get("line")
@@ -221,7 +218,7 @@ class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
-    def __init__(self, cls: Type[Model]) -> None:
+    def __init__(self, cls: Type[HasProps]) -> None:
         self.cls = cls
 
     @property
@@ -237,8 +234,8 @@ class CustomModel:
     def file(self) -> str | None:
         module = sys.modules[self.cls.__module__]
 
-        if hasattr(module, "__file__"):
-            return abspath(module.__file__)
+        if hasattr(module, "__file__") and (file := module.__file__) is not None:
+            return abspath(file)
         else:
             return None
 
@@ -270,7 +267,7 @@ class CustomModel:
         return impl
 
     @property
-    def dependencies(self) -> Dict[str, str]:
+    def dependencies(self) -> dict[str, str]:
         return getattr(self.cls, "__dependencies__", {})
 
     @property
@@ -288,7 +285,7 @@ def set_cache_hook(hook: Callable[[CustomModel, Implementation], AttrDict | None
     global _CACHING_IMPLEMENTATION
     _CACHING_IMPLEMENTATION = hook
 
-def calc_cache_key(custom_models: Dict[str, CustomModel]) -> str:
+def calc_cache_key(custom_models: dict[str, CustomModel]) -> str:
     ''' Generate a key to cache a custom extension implementation with.
 
     There is no metadata other than the Model classes, so this is the only
@@ -302,9 +299,9 @@ def calc_cache_key(custom_models: Dict[str, CustomModel]) -> str:
     encoded_names = ",".join(sorted(model_names)).encode('utf-8')
     return hashlib.sha256(encoded_names).hexdigest()
 
-_bundle_cache: Dict[str, str] = {}
+_bundle_cache: dict[str, str] = {}
 
-def bundle_models(models: Sequence[Type[Model]] | None) -> str | None:
+def bundle_models(models: Sequence[Type[HasProps]] | None) -> str | None:
     """Create a bundle of selected `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -439,7 +436,7 @@ def _npmjs_path() -> str:
 def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
-def _run(app: str, argv: List[str], input: Dict[str, Any] | None = None) -> str:
+def _run(app: str, argv: list[str], input: dict[str, Any] | None = None) -> str:
     proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
@@ -448,13 +445,13 @@ def _run(app: str, argv: List[str], input: Dict[str, Any] | None = None) -> str:
     else:
         return _crlf_cr_2_lf(stdout.decode('utf-8'))
 
-def _run_nodejs(argv: List[str], input: Dict[str, Any] | None = None) -> str:
+def _run_nodejs(argv: list[str], input: dict[str, Any] | None = None) -> str:
     return _run(_nodejs_path(), argv, input)
 
-def _run_npmjs(argv: List[str], input: Dict[str, Any] | None = None) -> str:
+def _run_npmjs(argv: list[str], input: dict[str, Any] | None = None) -> str:
     return _run(_npmjs_path(), argv, input)
 
-def _version(run_app: Callable[[List[str], Dict[str, Any] | None], str]) -> str | None:
+def _version(run_app: Callable[[list[str], dict[str, Any] | None], str]) -> str | None:
     try:
         version = run_app(["--version"], None)  # explicit None to make mypy happy
     except RuntimeError:
@@ -468,11 +465,11 @@ def _model_cache_no_op(model: CustomModel, implementation: Implementation) -> At
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
-def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, CustomModel] | None:
+def _get_custom_models(models: Sequence[Type[HasProps]] | None) -> dict[str, CustomModel] | None:
     """Returns CustomModels for models with a custom `__implementation__`"""
-    custom_models: Dict[str, CustomModel] = dict()
+    custom_models: dict[str, CustomModel] = dict()
 
-    for cls in models or Model.model_class_reverse_map.values():
+    for cls in models or HasProps.model_class_reverse_map.values():
         impl = getattr(cls, "__implementation__", None)
 
         if impl is not None:
@@ -481,12 +478,12 @@ def _get_custom_models(models: Sequence[Type[Model]] | None) -> Dict[str, Custom
 
     return custom_models if custom_models else None
 
-def _compile_models(custom_models: Dict[str, CustomModel]) -> Dict[str, AttrDict]:
+def _compile_models(custom_models: dict[str, CustomModel]) -> dict[str, AttrDict]:
     """Returns the compiled implementation of supplied `models`. """
     ordered_models = sorted(custom_models.values(), key=lambda model: model.full_name)
     custom_impls = {}
 
-    dependencies: List[Tuple[str, str]] = []
+    dependencies: list[tuple[str, str]] = []
     for model in ordered_models:
         dependencies.extend(list(model.dependencies.items()))
 
@@ -506,7 +503,7 @@ def _compile_models(custom_models: Dict[str, CustomModel]) -> Dict[str, AttrDict
 
     return custom_impls
 
-def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
+def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     """ Create a JavaScript bundle with selected `models`. """
     exports = []
     modules = []
@@ -524,7 +521,7 @@ def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
 
     extra_modules = {}
 
-    def resolve_modules(to_resolve: Set[str], root: str) -> Dict[str, str]:
+    def resolve_modules(to_resolve: set[str], root: str) -> dict[str, str]:
         resolved = {}
         for module in to_resolve:
             if module.startswith(("./", "../")):
@@ -568,7 +565,7 @@ def _bundle_models(custom_models: Dict[str, CustomModel]) -> str:
 
         return resolved
 
-    def resolve_deps(deps : List[str], root: str) -> Dict[str, str]:
+    def resolve_deps(deps : list[str], root: str) -> dict[str, str]:
         custom_modules = {model.module for model in custom_models.values()}
         missing = set(deps) - known_modules - custom_modules
         return resolve_modules(missing, root)

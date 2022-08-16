@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 from math import isnan
-from typing import Tuple
 
 # External imports
 import mock
@@ -59,7 +58,7 @@ You are attempting to set `plot.legend.location` on a plot that has zero legends
 Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
 
-def create_plot_and_tools(prefilled: bool = False) -> Tuple[Plot, PanTool, ResetTool]:
+def create_plot_and_tools(prefilled: bool = False) -> tuple[Plot, PanTool, ResetTool]:
     if prefilled:
         pan = PanTool()
         reset = ResetTool()

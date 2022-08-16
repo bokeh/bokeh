@@ -1,8 +1,8 @@
-import {ActionTool, ActionToolView} from "./action_tool"
+import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import * as p from "core/properties"
 import {tool_icon_reset} from "styles/icons.css"
 
-export class ResetToolView extends ActionToolView {
+export class ResetToolView extends PlotActionToolView {
   override model: ResetTool
 
   doit(): void {
@@ -14,12 +14,12 @@ export class ResetToolView extends ActionToolView {
 export namespace ResetTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ActionTool.Props
+  export type Props = PlotActionTool.Props
 }
 
 export interface ResetTool extends ResetTool.Attrs {}
 
-export class ResetTool extends ActionTool {
+export class ResetTool extends PlotActionTool {
   override properties: ResetTool.Props
   override __view_type__: ResetToolView
 

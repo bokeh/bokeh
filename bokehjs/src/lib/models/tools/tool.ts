@@ -7,7 +7,6 @@ import {MenuItem} from "core/util/menus"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Plot, PlotView} from "../plots/plot"
 import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
@@ -67,16 +66,6 @@ export type ToolAliases = {
 
 export abstract class ToolView extends View {
   override model: Tool
-
-  override readonly parent: PlotView
-
-  get plot_view(): PlotView {
-    return this.parent
-  }
-
-  get plot_model(): Plot {
-    return this.parent.model
-  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -174,7 +163,8 @@ export abstract class Tool extends Model {
   }
 
   get computed_icon(): string | undefined {
-    return this.icon ?? `.${this.tool_icon}`
+    const {icon, tool_icon} = this
+    return icon ?? (tool_icon != null ? `.${tool_icon}` : undefined)
   }
 
   get menu(): MenuItem[] | null {
@@ -207,12 +197,14 @@ export abstract class Tool extends Model {
 
   // utility function to return a tool name, modified
   // by the active dimensions. Used by tools that have dimensions
-  protected _get_dim_tooltip(dims: Dimensions): string {
+  protected _get_dim_tooltip(dims: Dimensions | "auto"): string {
     const {description, tool_name} = this
     if (description != null)
       return description
     else if (dims == "both")
       return tool_name
+    else if (dims == "auto")
+      return `${tool_name} (either x, y or both dimensions)`
     else
       return `${tool_name} (${dims == "width" ? "x" : "y"}-axis)`
   }

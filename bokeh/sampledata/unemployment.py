@@ -39,7 +39,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import csv
-from typing import Dict, Tuple
 
 # External imports
 from typing_extensions import TypeAlias
@@ -67,14 +66,14 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-State: TypeAlias = str
-County: TypeAlias = str
+State: TypeAlias = int
+County: TypeAlias = int
 
-def _read_data() -> Dict[Tuple[State, County], float]:
+def _read_data() -> dict[tuple[State, County], float]:
     '''
 
     '''
-    data = {}
+    data: dict[tuple[State, County], float] = {}
     with open_csv(external_path("unemployment09.csv")) as f:
         reader = csv.reader(f, delimiter=",", quotechar='"')
         for row in reader:

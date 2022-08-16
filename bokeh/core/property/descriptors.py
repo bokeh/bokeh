@@ -110,7 +110,6 @@ from .wrappers import PropertyValueColumnData, PropertyValueContainer
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps, Setter
-    from ..types import Unknown
     from .bases import Property
 
 #-----------------------------------------------------------------------------
@@ -282,7 +281,7 @@ class PropertyDescriptor(Generic[T]):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
-        if self.property._readonly and obj._initialized:
+        if self.property.readonly and obj._initialized:
             # Allow to set a value during object initialization (e.g. value -> value_throttled)
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
@@ -385,7 +384,7 @@ class PropertyDescriptor(Generic[T]):
         old = self._get(obj)
         self._set(obj, old, value, setter=setter)
 
-    def trigger_if_changed(self, obj: HasProps, old: Unknown) -> None:
+    def trigger_if_changed(self, obj: HasProps, old: Any) -> None:
         """ Send a change event notification if the property is set to a
         value is not equal to ``old``.
 
@@ -502,7 +501,7 @@ class PropertyDescriptor(Generic[T]):
 
         return default
 
-    def _set_value(self, obj: HasProps, value: Unknown) -> None:
+    def _set_value(self, obj: HasProps, value: Any) -> None:
         """ Actual descriptor value assignment. """
         if isinstance(value, PropertyValueContainer):
             value._register_owner(obj, self)
@@ -515,7 +514,7 @@ class PropertyDescriptor(Generic[T]):
 
         obj._property_values[self.name] = value
 
-    def _set(self, obj: HasProps, old: Unknown, value: Unknown, *,
+    def _set(self, obj: HasProps, old: Any, value: Any, *,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation helper to set property values.
 
@@ -578,7 +577,7 @@ class PropertyDescriptor(Generic[T]):
 
     # called when a container is mutated "behind our back" and
     # we detect it with our collection wrappers.
-    def _notify_mutated(self, obj: HasProps, old: Unknown, hint: DocumentPatchedEvent | None = None) -> None:
+    def _notify_mutated(self, obj: HasProps, old: Any, hint: DocumentPatchedEvent | None = None) -> None:
         """ A method to call when a container is mutated "behind our back"
         and we detect it with our |PropertyContainer| wrappers.
 
@@ -613,7 +612,7 @@ class PropertyDescriptor(Generic[T]):
 
         self._set(obj, old, value, hint=hint)
 
-    def _trigger(self, obj: HasProps, old: Unknown, value: Unknown, *,
+    def _trigger(self, obj: HasProps, old: Any, value: Any, *,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         """ Unconditionally send a change event notification for the property.
 
@@ -708,7 +707,7 @@ class ColumnDataPropertyDescriptor(PropertyDescriptor):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
-        if self.property._readonly and obj._initialized:
+        if self.property.readonly and obj._initialized:
             # Allow to set a value during object initialization (e.g. value -> value_throttled)
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")

@@ -21,19 +21,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import Dimension, SpatialUnits
+from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
-    Auto,
     Datetime,
     Either,
     Enum,
+    Factor,
     Float,
     Include,
     Instance,
     InstanceDefault,
     Null,
     Nullable,
-    NumberSpec,
     Override,
     Seq,
     UnitsSpec,
@@ -77,50 +76,50 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Either(Null, Auto, NumberSpec(), help="""
+    left = Either(Null, Float, Factor, help="""
     The x-coordinates of the left edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """)
 
-    left_units = Enum(SpatialUnits, default='data', help="""
+    left_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the left attribute. Interpreted as |data units| by
     default.
     """)
 
-    right = Either(Null, Auto, NumberSpec(), help="""
+    right = Either(Null, Float, Factor, help="""
     The x-coordinates of the right edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """)
 
-    right_units = Enum(SpatialUnits, default='data', help="""
+    right_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the right attribute. Interpreted as |data units| by
     default.
     """)
 
-    bottom = Either(Null, Auto, NumberSpec(), help="""
+    bottom = Either(Null, Float, Factor, help="""
     The y-coordinates of the bottom edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """)
 
-    bottom_units = Enum(SpatialUnits, default='data', help="""
+    bottom_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the bottom attribute. Interpreted as |data units| by
     default.
     """)
 
-    top = Either(Null, Auto, NumberSpec(), help="""
+    top = Either(Null, Float, Factor, help="""
     The y-coordinates of the top edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """)
 
-    top_units = Enum(SpatialUnits, default='data', help="""
+    top_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the top attribute. Interpreted as |data units| by
     default.
     """)
@@ -156,15 +155,15 @@ class Band(DataAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the lower portion of the filled area band.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the upper portion of the filled area band.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 
@@ -206,7 +205,7 @@ class PolyAnnotation(Annotation):
     The x-coordinates of the region to draw.
     """)
 
-    xs_units = Enum(SpatialUnits, default='data', help="""
+    xs_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``xs`` attribute. Interpreted as |data units| by
     default.
     """)
@@ -215,7 +214,7 @@ class PolyAnnotation(Annotation):
     The y-coordinates of the region to draw.
     """)
 
-    ys_units = Enum(SpatialUnits, default='data', help="""
+    ys_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``ys`` attribute. Interpreted as |data units| by
     default.
     """)
@@ -281,7 +280,7 @@ class Span(Annotation):
     converted to milliseconds-since-epoch.
     """).accepts(Datetime, convert_datetime_type)
 
-    location_units = Enum(SpatialUnits, default='data', help="""
+    location_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the location attribute. Interpreted as "data space"
     units by default.
     """)
@@ -306,7 +305,7 @@ class Whisker(DataAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    lower = UnitsSpec(default=field("lower"), units_enum=SpatialUnits, units_default="data", help="""
+    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the lower end of the whiskers.
     """)
 
@@ -314,7 +313,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    upper = UnitsSpec(default=field("upper"), units_enum=SpatialUnits, units_default="data", help="""
+    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
     The coordinates of the upper end of the whiskers.
     """)
 
@@ -322,7 +321,7 @@ class Whisker(DataAnnotation):
     Instance of ``ArrowHead``.
     """)
 
-    base = UnitsSpec(default=field("base"), units_enum=SpatialUnits, units_default="data", help="""
+    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
     The orthogonal coordinates of the upper and lower values.
     """)
 

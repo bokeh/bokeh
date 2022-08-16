@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.templates import SCRIPT_TAG  # type: ignore[attr-defined]
+from ..core.templates import SCRIPT_TAG
 from ..util.string import indent
 
 #-----------------------------------------------------------------------------

@@ -15,6 +15,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
+  PanTool,
   HoverTool,
   ZoomInTool,
   TileRenderer, WMTSTileSource,
@@ -36,7 +37,7 @@ import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {defer} from "@bokehjs/core/util/defer"
+import {defer, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
@@ -45,6 +46,7 @@ import {div, offset} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
+import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -1835,6 +1837,71 @@ describe("Bug", () => {
       p.grid.visible = false
       p.line([0, 1, 2, 2, 2], [2, 2, 2, 1, 0], {line_width: 30, line_join: "bevel"})
       await display(p)
+    })
+  })
+
+  describe("in issue #11946", () => {
+    it("doesn't allow to persist menus after a re-render", async () => {
+      const p = fig([200, 100], {toolbar_location: "right", tools: [new PanTool()]})
+      p.circle([1, 2, 3], [1, 2, 3])
+      const {view} = await display(p)
+
+      view.invalidate_render()
+
+      const tbpv = [...view.renderer_views.values()].find((view): view is ToolbarPanelView => view instanceof ToolbarPanelView)
+      assert(tbpv != null)
+
+      const [pan_button_view] = tbpv.toolbar_view.tool_button_views.values()
+      const pan_el = pan_button_view.el
+
+      const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
+      const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
+
+      // tool button press
+      pan_el.dispatchEvent(ev0)
+      await delay(300)
+      pan_el.dispatchEvent(ev1)
+    })
+  })
+
+  describe("in issue #11704", () => {
+    it("doesn't allow inclusion of circle radius in bounds computations", async () => {
+      const x = [0.4595279480396895, -0.6065711356206639, -0.0687886392916304, -0.07637863162673651, -0.5244521855365748, 0.46832138015416175]
+      const y = [0.604836077992458, 0.5442297884573969, -0.6203208740702811, 0.624789852804971, -0.08487633209696635, -0.08487633209696635]
+      const r = [0.16571899322942416, 0.16571899322942416, 0.23436204776786676, 0.37055893402381984, 0.4687240955357335, 0.5240494701550029]
+
+      const p = fig([300, 300], {match_aspect: true})
+      p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
+      p.circle({x, y, size: 4, color: "black"})
+
+      await display(p)
+    })
+
+    it("doesn't allow computation of tight bounds for circles", async () => {
+      const x = [-5, 0, 10, 15]
+      const y = [15, 0, 0, 15]
+      const r = [1, 8, 1, 2]
+
+      const p = fig([300, 300], {match_aspect: true})
+      p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
+      p.circle({x, y, size: 4, color: "black"})
+
+      await display(p)
+    })
+  })
+
+  describe("in issue #11033", () => {
+    it("prevents an update of plot layout after adding an axis", async () => {
+      const p = fig([350, 200])
+      p.circle({x: [1, 2, 3], y: [1, 2, 3], size: 20})
+      const {view} = await display(p)
+
+      for (const i of [1, 2, 3, 4, 5, 6]) {
+        const name = `y${i}`
+        p.extra_y_ranges = {...p.extra_y_ranges, [name]: new Range1d({start: 0, end: 10*i})}
+        p.add_layout(new LinearAxis({y_range_name: name}), "right")
+        await view.ready
+      }
     })
   })
 })

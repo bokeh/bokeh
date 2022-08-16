@@ -3,272 +3,277 @@
     {
       "path": "examples/plotting/file/marker_map.py",
       "name": "marker_map",
-      "alt": "Thumbnail link to the examples/file/marker_map.py example"
+      "alt": "Thumbnail link to the examples/plotting/file/marker_map.py example"
     },
     {
       "path": "examples/plotting/file/latex_blackbody_radiation.py",
       "name": "latex_blackbody_radiation",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/latex_blackbody_radiation.py example"
     },
     {
       "path": "examples/plotting/file/latex_normal_distribution.py",
       "name": "latex_normal_distribution",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/latex_normal_distribution.py example"
     },
     {
       "path": "examples/plotting/file/network_graph.py",
       "name": "network_graph",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/network_graph.py example"
     },
     {
       "path": "examples/plotting/file/hexbin.py",
       "name": "hexbin",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/hexbin.py example"
     },
     {
       "path": "examples/plotting/file/sprint.py",
       "name": "sprint",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/sprint.py example"
     },
     {
       "path": "examples/plotting/file/ridgeplot.py",
       "name": "ridgeplot",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/ridgeplot.py example"
     },
     {
       "path": "examples/plotting/file/hex_tile.py",
       "name": "hex_tile",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/hex_tile.py example"
     },
     {
       "path": "examples/plotting/file/bar_colormapped.py",
       "name": "bar_colormapped",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_colormapped.py example"
     },
     {
       "path": "examples/plotting/file/bar_intervals.py",
       "name": "bar_intervals",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_intervals.py example"
     },
     {
       "path": "examples/plotting/file/range_tool.py",
       "name": "range_tool",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/range_tool.py example"
     },
     {
       "path": "examples/plotting/file/pie.py",
       "name": "pie_chart",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/pie.py example"
     },
     {
       "path": "examples/plotting/file/bar_mixed.py",
       "name": "bar_mixed",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_mixed.py example"
     },
     {
       "path": "examples/plotting/file/bar_nested_colormapped.py",
       "name": "bar_nested_colormapped",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_nested_colormapped.py example"
     },
     {
       "path": "examples/plotting/file/categorical_heatmap.py",
       "name": "categorical_heatmap",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/categorical_heatmap.py example"
     },
     {
       "path": "examples/plotting/file/schrodinger.py",
       "name": "schrodinger",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/schrodinger.py example"
     },
     {
       "path": "examples/plotting/file/bar_pandas_groupby_colormapped.py",
       "name": "bar_pandas_groupby_colormapped",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_colormapped.py example"
     },
     {
       "path": "examples/plotting/file/bar_pandas_groupby_nested.py",
       "name": "bar_pandas_groupby_nested",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_nested.py example"
     },
     {
       "path": "examples/plotting/file/bar_stacked.py",
       "name": "bar_stacked",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_stacked.py example"
     },
     {
       "path": "examples/plotting/file/bar_stacked_split.py",
       "name": "bar_stacked_split",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_stacked_split.py example"
     },
     {
       "path": "examples/plotting/file/categorical_scatter_jitter.py",
       "name": "categorical_scatter_jitter",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/categorical_scatter_jitter.py example"
     },
     {
       "path": "examples/plotting/file/bar_nested.py",
       "name": "bar_nested",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_nested.py example"
     },
     {
       "path": "examples/plotting/file/candlestick.py",
       "name": "candlestick",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/candlestick.py example"
     },
     {
       "path": "examples/plotting/file/legend.py",
       "name": "legend",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/legend.py example"
     },
     {
       "path": "examples/plotting/file/bar_colors.py",
       "name": "bar_colors",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_colors.py example"
     },
     {
       "path": "examples/plotting/file/box_annotation.py",
       "name": "box_annotation",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/box_annotation.py example"
     },
     {
       "path": "examples/plotting/file/les_mis.py",
       "name": "les_mis",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/les_mis.py example"
     },
     {
       "path": "examples/plotting/file/bar_dodged.py",
       "name": "bar_dodged",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_dodged.py example"
     },
     {
       "path": "examples/plotting/file/unemployment.py",
       "name": "unemployment",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/unemployment.py example"
     },
     {
       "path": "examples/plotting/file/stocks.py",
       "name": "stocks",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/mastocksrker_map.py example"
     },
     {
       "path": "examples/plotting/file/hatch_grid_band.py",
       "name": "hatch_grid_band",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/hatch_grid_band.py example"
     },
     {
       "path": "examples/plotting/file/image_rgba.py",
       "name": "image_rgba",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/image_rgba.py example"
     },
     {
       "path": "examples/plotting/file/dotplot.py",
       "name": "dotplot",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/dotplot.py example"
     },
     {
       "path": "examples/plotting/file/periodic.py",
       "name": "periodic",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/periodic.py example"
     },
     {
       "path": "examples/plotting/file/histogram.py",
       "name": "histogram",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/histogram.py example"
     },
     {
       "path": "examples/plotting/file/image.py",
       "name": "image",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/image.py example"
     },
     {
       "path": "examples/plotting/file/slider.py",
       "name": "slider",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/slider.py example"
     },
     {
       "path": "examples/plotting/file/jitter.py",
       "name": "jitter",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/jitter.py example"
     },
     {
       "path": "examples/plotting/file/lorenz.py",
       "name": "lorenz",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/lorenz.py example"
     },
     {
       "path": "examples/plotting/file/color_scatter.py",
       "name": "color_scatter",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/color_scatter.py example"
     },
     {
       "path": "examples/plotting/file/color_sliders.py",
       "name": "color_sliders",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/color_sliders.py example"
     },
     {
       "path": "examples/models/file/iris_splom.py",
       "name": "iris_splom",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/iris_splom.py example"
     },
     {
       "path": "examples/models/file/anscombe.py",
       "name": "anscombe",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/anscombe.py example"
     },
     {
       "path": "examples/plotting/file/texas.py",
       "name": "texas",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/texas.py example"
     },
     {
       "path": "examples/plotting/file/markers.py",
       "name": "markers",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/markers.py example"
     },
     {
       "path": "examples/plotting/file/burtin.py",
       "name": "burtin",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/burtin.py example"
     },
     {
       "path": "examples/plotting/file/bar_basic.py",
       "name": "bar_basic",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bar_basic.py example"
     },
     {
       "path": "examples/plotting/file/stacked_area.py",
       "name": "stacked_area",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/stacked_area.py example"
     },
     {
       "path": "examples/plotting/file/elements.py",
       "name": "elements",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/elements.py example"
     },
     {
       "path": "examples/plotting/file/boxplot.py",
       "name": "boxplot",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/boxplot.py example"
     },
     {
       "path": "examples/plotting/file/logplot.py",
       "name": "logplot",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/logplot.py example"
     },
     {
       "path": "examples/plotting/file/eclipse.py",
       "name": "eclipse",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/eclipse.py example"
     },
     {
       "path": "examples/plotting/file/iris.py",
       "name": "iris",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/iris.py example"
     },
     {
       "path": "examples/plotting/file/bessel.py",
       "name": "bessel",
-      "alt": ""
+      "alt": "Thumbnail link to the examples/plotting/file/bessel.py example"
+     },
+     {
+      "path": "examples/plotting/file/contour.py",
+      "name": "contour",
+      "alt": "Thumbnail link to the examples/plotting/file/contour.py example"
      }
   ]
 }

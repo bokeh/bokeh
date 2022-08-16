@@ -76,7 +76,7 @@ export class GridView extends GuideRendererView {
   // {{{ TODO: state
   ranges(): [Range, Range] {
     const i = this.model.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const {ranges} = this.coordinates
     return [ranges[i], ranges[j]]
   }
@@ -120,11 +120,13 @@ export class GridView extends GuideRendererView {
 
   grid_coords(location: "major" | "minor", exclude_ends: boolean = true): [number[][], number[][]] {
     const i = this.model.dimension
-    const j = (i + 1) % 2
+    const j = 1 - i
     const [range, cross_range] = this.ranges()
 
-    let [start, end] = this.computed_bounds();
-    [start, end] = [Math.min(start, end), Math.max(start, end)]
+    const [start, end] = (() => {
+      const [start, end] = this.computed_bounds()
+      return [Math.min(start, end), Math.max(start, end)]
+    })()
 
     const coords: [number[][], number[][]] = [[], []]
 
@@ -142,8 +144,13 @@ export class GridView extends GuideRendererView {
     const min = range.min
     const max = range.max
 
-    const cmin = cross_range.min
-    const cmax = cross_range.max
+    const [cmin, cmax] = (() => {
+      const {cross_bounds} = this.model
+      if (cross_bounds == "auto")
+        return [cross_range.min, cross_range.max]
+      else
+        return cross_bounds
+    })()
 
     if (!exclude_ends) {
       if (ticks[0] != min)
@@ -177,6 +184,7 @@ export namespace Grid {
 
   export type Props = GuideRenderer.Props & {
     bounds: p.Property<[number, number] | "auto">
+    cross_bounds: p.Property<[number, number] | "auto">
     dimension: p.Property<0 | 1>
     axis: p.Property<Axis | null>
     ticker: p.Property<Ticker | null>
@@ -218,6 +226,7 @@ export class Grid extends GuideRenderer {
 
     this.define<Grid.Props>(({Number, Auto, Enum, Ref, Tuple, Or, Nullable}) => ({
       bounds:    [ Or(Tuple(Number, Number), Auto), "auto" ],
+      cross_bounds: [ Or(Tuple(Number, Number), Auto), "auto" ],
       dimension: [ Enum(0, 1), 0 ],
       axis:      [ Nullable(Ref(Axis)), null ],
       ticker:    [ Nullable(Ref(Ticker)), null ],

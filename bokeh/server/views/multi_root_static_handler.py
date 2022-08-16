@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from typing import Dict
 
 # External imports
 from tornado.web import HTTPError, StaticFileHandler
@@ -45,12 +44,12 @@ __all__ = (
 
 class MultiRootStaticHandler(StaticFileHandler):
 
-    def initialize(self, root: Dict[str, str]) -> None:
+    def initialize(self, root: dict[str, str]) -> None:
         self.root = root
         self.default_filename = None
 
     @classmethod
-    def get_absolute_path(cls, root: Dict[str, str], path: str) -> str:
+    def get_absolute_path(cls, root: dict[str, str], path: str) -> str:
         try:
             name, artifact_path = path.split(os.sep, 1)
         except ValueError:

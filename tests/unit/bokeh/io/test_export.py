@@ -17,7 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, List, Tuple
+import re
+from typing import TYPE_CHECKING
 
 # External imports
 from flaky import flaky
@@ -28,9 +29,11 @@ if TYPE_CHECKING:
 # Bokeh imports
 from bokeh.core.validation import silenced
 from bokeh.core.validation.warnings import MISSING_RENDERERS
+from bokeh.io.state import curstate
 from bokeh.io.webdriver import webdriver_control
 from bokeh.layouts import row
 from bokeh.models import (
+    Circle,
     ColumnDataSource,
     Plot,
     Range1d,
@@ -38,6 +41,7 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 from bokeh.resources import Resources
+from bokeh.themes import Theme
 
 # Module under test
 import bokeh.io.export as bie # isort:skip
@@ -65,7 +69,7 @@ def webdriver(request: pytest.FixtureRequest):
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -90,7 +94,7 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: Tuple[int, int]
 @flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
-def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: Tuple[int, int]) -> None:
+def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
     width, height = dimensions
     border = 5
 
@@ -154,7 +158,7 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svg(layout, driver=webdriver)
 
-    def output(data: str) -> List[str]:
+    def output(data: str) -> list[str]:
         return [
             '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
                 '<defs/>'
@@ -182,12 +186,13 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
-    plot = lambda color: Plot(
-        x_range=Range1d(), y_range=Range1d(),
-        height=20, width=20, toolbar_location=None,
-        outline_line_color=None, border_fill_color=None,
-        background_fill_color=color, output_backend="svg",
-    )
+    def plot(color: str):
+        return Plot(
+            x_range=Range1d(), y_range=Range1d(),
+            height=20, width=20, toolbar_location=None,
+            outline_line_color=None, border_fill_color=None,
+            background_fill_color=color, output_backend="svg",
+        )
 
     layout = row([plot("red"), plot("blue")])
 
@@ -198,6 +203,7 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     svgs2 = [
         '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="40" height="20">'
             '<defs/>'
+            '<path fill="rgb(0,0,0)" stroke="none" paint-order="stroke" d="M 0 0 L 40 0 L 40 20 L 0 20 L 0 0" fill-opacity="0"/>'
             '<path fill="rgb(255,0,0)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
             '<g transform="matrix(1, 0, 0, 1, 20, 0)">'
                 '<path fill="rgb(0,0,255)" stroke="none" paint-order="stroke" d="M 5.5 5.5 L 15.5 5.5 L 15.5 15.5 L 5.5 15.5 L 5.5 5.5" fill-opacity="1"/>'
@@ -207,6 +213,35 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
 
     assert svgs0 == svgs2
     assert svgs1 == svgs2
+
+@flaky(max_runs=10)
+@pytest.mark.selenium
+def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
+    state = curstate()
+    state.reset()
+    try:
+        state.document.theme = Theme(json={
+            "attrs": {
+                "Plot": {
+                    "background_fill_color": "#2f3f4f",
+                },
+            },
+        })
+
+        def p(color: str):
+            plot = Plot(
+                x_range=Range1d(-1, 1), y_range=Range1d(-1, 1),
+                height=200, width=200,
+                toolbar_location=None,
+                output_backend="svg",
+            )
+            plot.add_glyph(Circle(x=0, y=0, radius=1, fill_color=color))
+            return plot
+
+        [svg] = bie.get_svg(row([p("red"), p("blue")]), driver=webdriver)
+        assert len(re.findall(r'fill="rgb\(47,63,79\)"', svg)) == 2
+    finally:
+        state.reset()
 
 @flaky(max_runs=10)
 @pytest.mark.selenium
@@ -221,12 +256,13 @@ def test_get_svgs_no_svg_present() -> None:
 @flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
-    plot = lambda color: Plot(
-        x_range=Range1d(), y_range=Range1d(),
-        height=20, width=20, toolbar_location=None,
-        outline_line_color=None, border_fill_color=None,
-        background_fill_color=color, output_backend="svg",
-    )
+    def plot(color: str):
+        return Plot(
+            x_range=Range1d(), y_range=Range1d(),
+            height=20, width=20, toolbar_location=None,
+            outline_line_color=None, border_fill_color=None,
+            background_fill_color=color, output_backend="svg",
+        )
 
     layout = row([plot("red"), plot("blue")])
 

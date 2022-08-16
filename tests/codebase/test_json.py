@@ -19,7 +19,6 @@ import pytest ; pytest
 
 # Standard library imports
 import json
-from typing import List
 
 # Bokeh imports
 from bokeh._testing.util.project import TOP_PATH
@@ -39,7 +38,7 @@ def test_json() -> None:
     ''' Assures that JSON files are properly formatted
 
     '''
-    bad: List[str] = []
+    bad: list[str] = []
 
     for path in paths:
         f = open(TOP_PATH/path)

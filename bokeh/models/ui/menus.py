@@ -28,8 +28,8 @@ from ...core.properties import (
     Enum,
     Instance,
     List,
-    NonNullable as Required,
     Nullable,
+    Required,
     String,
 )
 from .icons import Icon

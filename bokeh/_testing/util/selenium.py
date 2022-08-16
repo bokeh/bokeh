@@ -21,13 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Sequence,
-    Set,
-)
+from typing import TYPE_CHECKING, Any, Sequence
 
 # External imports
 from selenium.webdriver.common.action_chains import ActionChains
@@ -89,31 +83,32 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 MATCHES_SCRIPT = """
-    function* descend(el, sel) {
+    function* descend(el, sel, parent) {
         if (el.matches(sel)) {
-            yield el
+            yield parent ? el.parentElement : el
         }
         if (el.shadowRoot) {
             for (const child of el.shadowRoot.children) {
-                yield* descend(child, sel)
+                yield* descend(child, sel, parent)
             }
         }
         for (const child of el.children) {
-            yield* descend(child, sel)
+            yield* descend(child, sel, parent)
         }
     }
 
     const selector = arguments[0]
     const root = arguments[1] ?? document.documentElement
+    const parent = arguments[2] ?? false
 
-    return [...descend(root, selector)]
+    return [...descend(root, selector, parent)]
 """
 
-def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> List[WebElement]:
-    return driver.execute_script(MATCHES_SCRIPT, selector, root)
+def find_matching_elements(driver: WebDriver, selector: str, *, root: WebElement | None = None, parent: bool = False) -> list[WebElement]:
+    return driver.execute_script(MATCHES_SCRIPT, selector, root, parent)
 
-def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None) -> WebElement:
-    elements = find_matching_elements(driver, selector, root=root)
+def find_matching_element(driver: WebDriver, selector: str, *, root: WebElement | None = None, parent: bool = False) -> WebElement:
+    elements = find_matching_elements(driver, selector, root=root, parent=parent)
     n = len(elements)
     if n == 0:
         raise ValueError("not found")
@@ -209,7 +204,7 @@ FIND_SCRIPT = """
     }
 """
 
-def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> List[WebElement]:
+def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> list[WebElement]:
     script = FIND_SCRIPT + """
     for (const els of find(Object.values(Bokeh.index))) {
         return els
@@ -402,7 +397,7 @@ def paste_values(driver: WebDriver, el: WebElement | None = None) -> None:
     # actions.send_keys(Keys.CONTROL, 'v')
     actions.perform()
 
-def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> List[str]:
+def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> list[str]:
     result = []
     rows = find_elements_for(driver, table, ".slick-row")
     for row in rows:
@@ -413,7 +408,7 @@ def get_table_column_cells(driver: WebDriver, table: DataTable, col: int) -> Lis
 def get_table_row(driver: WebDriver, table: DataTable, row: int) -> WebElement:
     return find_element_for(driver, table, f".slick-row:nth-child({row})")
 
-def get_table_selected_rows(driver: WebDriver, table: DataTable) -> Set[int]:
+def get_table_selected_rows(driver: WebDriver, table: DataTable) -> set[int]:
     result = set()
     rows = find_elements_for(driver, table, ".slick-row")
     for i, row in enumerate(rows):

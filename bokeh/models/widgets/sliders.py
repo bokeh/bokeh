@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
-import typing as tp
 from datetime import date, datetime
 
 # Bokeh imports
@@ -36,10 +35,10 @@ from ...core.properties import (
     Float,
     Instance,
     Int,
-    NonNullable,
     Nullable,
     Override,
     Readonly,
+    Required,
     String,
     Tuple,
 )
@@ -120,19 +119,19 @@ class Slider(AbstractSlider):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    start = NonNullable(Float, help="""
+    start = Required(Float, help="""
     The minimum allowable value.
     """)
 
-    end = NonNullable(Float, help="""
+    end = Required(Float, help="""
     The maximum allowable value.
     """)
 
-    value = NonNullable(Float, help="""
+    value = Required(Float, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(NonNullable(Float), help="""
+    value_throttled = Readonly(Required(Float), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
@@ -149,19 +148,19 @@ class RangeSlider(AbstractSlider):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    value = NonNullable(Tuple(Float, Float), help="""
+    value = Required(Tuple(Float, Float), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(NonNullable(Tuple(Float, Float)), help="""
+    value_throttled = Readonly(Required(Tuple(Float, Float)), help="""
     Initial or selected value, throttled according to report only on mouseup.
     """)
 
-    start = NonNullable(Float, help="""
+    start = Required(Float, help="""
     The minimum allowable value.
     """)
 
-    end = NonNullable(Float, help="""
+    end = Required(Float, help="""
     The maximum allowable value.
     """)
 
@@ -207,19 +206,19 @@ class DateSlider(AbstractSlider):
 
         return self.value
 
-    value = NonNullable(Datetime, help="""
+    value = Required(Datetime, help="""
     Initial or selected value.
     """)
 
-    value_throttled = Readonly(NonNullable(Datetime), help="""
+    value_throttled = Readonly(Required(Datetime), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = NonNullable(Datetime, help="""
+    start = Required(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = NonNullable(Datetime, help="""
+    end = Required(Datetime, help="""
     The maximum allowable value.
     """)
 
@@ -237,7 +236,7 @@ class DateRangeSlider(AbstractSlider):
         super().__init__(*args, **kwargs)
 
     @property
-    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
+    def value_as_datetime(self) -> tuple[datetime, datetime] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
 
@@ -257,7 +256,7 @@ class DateRangeSlider(AbstractSlider):
         return d1, d2
 
     @property
-    def value_as_date(self) -> tp.Tuple[date, date] | None:
+    def value_as_date(self) -> tuple[date, date] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         date objects.
 
@@ -278,19 +277,19 @@ class DateRangeSlider(AbstractSlider):
             d2 = v2
         return d1, d2
 
-    value = NonNullable(Tuple(Datetime, Datetime), help="""
+    value = Required(Tuple(Datetime, Datetime), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(NonNullable(Tuple(Datetime, Datetime)), help="""
+    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = NonNullable(Datetime, help="""
+    start = Required(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = NonNullable(Datetime, help="""
+    end = Required(Datetime, help="""
     The maximum allowable value.
     """)
 
@@ -308,7 +307,7 @@ class DatetimeRangeSlider(AbstractSlider):
         super().__init__(*args, **kwargs)
 
     @property
-    def value_as_datetime(self) -> tp.Tuple[datetime, datetime] | None:
+    def value_as_datetime(self) -> tuple[datetime, datetime] | None:
         ''' Convenience property to retrieve the value tuple as a tuple of
         datetime objects.
         '''
@@ -325,19 +324,19 @@ class DatetimeRangeSlider(AbstractSlider):
             d2 = v2
         return d1, d2
 
-    value = NonNullable(Tuple(Datetime, Datetime), help="""
+    value = Required(Tuple(Datetime, Datetime), help="""
     Initial or selected range.
     """)
 
-    value_throttled = Readonly(NonNullable(Tuple(Datetime, Datetime)), help="""
+    value_throttled = Readonly(Required(Tuple(Datetime, Datetime)), help="""
     Initial or selected value, throttled to report only on mouseup.
     """)
 
-    start = NonNullable(Datetime, help="""
+    start = Required(Datetime, help="""
     The minimum allowable value.
     """)
 
-    end = NonNullable(Datetime, help="""
+    end = Required(Datetime, help="""
     The maximum allowable value.
     """)
 

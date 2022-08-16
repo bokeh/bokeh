@@ -185,16 +185,16 @@ export class DataRange1d extends DataRange {
       let center, span: number
       if (max == min) {
         span = this.default_span + 0.001
-        center = Math.log(min) / Math.log(10)
+        center = Math.log10(min)
       } else {
         let log_min, log_max: number
         if (this.range_padding_units == "percent") {
-          log_min = Math.log(min) / Math.log(10)
-          log_max = Math.log(max) / Math.log(10)
+          log_min = Math.log10(min)
+          log_max = Math.log10(max)
           span = (log_max - log_min)*(1 + range_padding)
         } else {
-          log_min = Math.log(min - range_padding) / Math.log(10)
-          log_max = Math.log(max + range_padding) / Math.log(10)
+          log_min = Math.log10(min - range_padding)
+          log_max = Math.log10(max + range_padding)
           span = log_max - log_min
         }
         center = (log_min + log_max) / 2.0

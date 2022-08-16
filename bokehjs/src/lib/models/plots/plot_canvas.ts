@@ -10,7 +10,7 @@ import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
-import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
@@ -50,6 +50,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
+
+  get toolbar_panel(): ToolbarPanelView | undefined {
+    return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
+  }
 
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
@@ -559,22 +563,41 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {x_ranges, y_ranges} = this.frame
+    const {extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
+    this.on_change([extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
+      this.frame.x_range = this.model.x_range
+      this.frame.y_range = this.model.y_range
+      this.frame.in_x_scale = this.model.x_scale
+      this.frame.in_y_scale = this.model.y_scale
+      this.frame.extra_x_ranges = this.model.extra_x_ranges
+      this.frame.extra_y_ranges = this.model.extra_y_ranges
+      this.frame.extra_x_scales = this.model.extra_x_scales
+      this.frame.extra_y_scales = this.model.extra_y_scales
+      this.frame.configure_scales()
+    })
 
+    const {above, below, left, right, center, renderers} = this.model.properties
+    const panels = [above, below, left, right, center]
+    this.on_change(renderers, async () => {
+      await this.build_renderer_views()
+    })
+    this.on_change(panels, async () => {
+      await this.build_renderer_views()
+      this.invalidate_layout()
+    })
+
+    this.connect(this.model.toolbar.properties.tools.change, async () => {
+      await this.build_renderer_views()
+      await this.build_tool_views()
+    })
+
+    const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
       this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
     for (const [, range] of y_ranges) {
       this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
     }
-
-    const {above, below, left, right, center, renderers} = this.model.properties
-    this.on_change([above, below, left, right, center, renderers], async () => await this.build_renderer_views())
-
-    this.connect(this.model.toolbar.properties.tools.change, async () => {
-      await this.build_renderer_views()
-      await this.build_tool_views()
-    })
 
     this.connect(this.model.change, () => this.request_paint("everything"))
     this.connect(this.model.reset, () => this.reset())
@@ -599,6 +622,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
       this.invalidate_layout()
     })
+
+    const {hold_render} = this.model.properties
+    this.on_change(hold_render, () => this._hold_render_changed())
   }
 
   override has_finished(): boolean {
@@ -831,12 +857,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  to_blob(): Promise<Blob> {
-    return this.canvas_view.to_blob()
-  }
+  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = (() => {
+      switch (type) {
+        case "auto": return this.canvas_view.model.output_backend
+        case "png":  return "canvas"
+        case "svg":  return "svg"
+      }
+    })()
 
-  override export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
     const composite = new CanvasLayer(output_backend, hidpi)
 
     const {width, height} = this.layout.bbox
@@ -854,5 +883,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
     return {...state, children: [...children ?? [], ...renderers]}
+  }
+
+  protected _hold_render_changed(): void {
+    if (this.model.hold_render) {
+      this.pause()
+    } else {
+      this.unpause()
+    }
   }
 }

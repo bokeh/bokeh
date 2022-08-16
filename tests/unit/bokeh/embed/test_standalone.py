@@ -17,17 +17,14 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import json
 from collections import OrderedDict
 from copy import deepcopy
-from typing import (
-    Any,
-    Dict,
-    Set,
-    Tuple,
-)
+from typing import Any
 
 # External imports
 import bs4
+import numpy as np
 from jinja2 import Template
 from mock import MagicMock, patch
 from selenium.webdriver.common.by import By
@@ -63,7 +60,7 @@ def stable_id() -> ID:
 def test_plot() -> figure:
     from bokeh.plotting import figure
     test_plot = figure(title="'foo'")
-    test_plot.circle([1, 2], [2, 3])
+    test_plot.circle(np.array([1, 2]), np.array([2, 3]))
     return test_plot
 
 PAGE = Template("""
@@ -102,7 +99,7 @@ class Test_autoload_static:
     @pytest.mark.parametrize("version", ["1.4.0rc1", "2.0.0dev3"])
     @pytest.mark.selenium
     def test_js_dev_cdn(self, version: str, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "1.4.0rc1")
         monkeypatch.setattr(resources, "__version__", "1.4.0rc1")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -123,7 +120,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         r = deepcopy(CDN)
@@ -149,7 +146,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_dev_cdn(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0-foo")
         monkeypatch.setattr(resources, "__version__", "2.0.0-foo")
         js, tag = bes.autoload_static(test_plot, CDN, "some/path")
@@ -172,7 +169,7 @@ class Test_autoload_static:
 
     @pytest.mark.selenium
     def test_js_release_server(self, monkeypatch: pytest.MonkeyPatch, driver: WebDriver,
-            test_file_path_and_url: Tuple[str, str], test_plot: figure) -> None:
+            test_file_path_and_url: tuple[str, str], test_plot: figure) -> None:
         monkeypatch.setattr(buv, "__version__", "2.0.0")
         monkeypatch.setattr(resources, "__version__", "2.0.0")
         js, tag = bes.autoload_static(test_plot, resources.Resources(mode="server"), "some/path")
@@ -293,7 +290,7 @@ class Test_file_html:
     def test_return_type(self, test_plot: figure) -> None:
 
         class fake_template:
-            def __init__(self, tester: Any, user_template_variables: Set[str] | None = None) -> None:
+            def __init__(self, tester: Any, user_template_variables: set[str] | None = None) -> None:
                 self.tester = tester
                 self.template_variables = {
                     "title",
@@ -307,7 +304,7 @@ class Test_file_html:
                 if user_template_variables is not None:
                     self.template_variables.update(user_template_variables)
 
-            def render(self, template_variables: Dict[str, Any]) -> str:
+            def render(self, template_variables: dict[str, Any]) -> str:
                 assert self.template_variables.issubset(set(template_variables.keys()))
                 return "template result"
 
@@ -415,6 +412,10 @@ class Test_json_item:
         out = bes.json_item(test_plot)
         assert set(out.keys()) == JSON_ITEMS_KEYS
         assert out['doc']['version'] == __version__
+
+    def test_json_dumps(self, test_plot: figure) -> None:
+        doc_json = bes.json_item(test_plot)
+        assert isinstance(json.dumps(doc_json), str)
 
     @patch('bokeh.embed.standalone.OutputDocumentFor')
     def test_apply_theme(self, mock_OFD: MagicMock, test_plot: figure) -> None:

@@ -23,6 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import numbers
 
+# External imports
+import numpy as np
+
 # Bokeh imports
 from ._sphinx import property_link, register_type_link
 from .bases import Init, PrimitiveProperty
@@ -31,13 +34,7 @@ from .bases import Init, PrimitiveProperty
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-bokeh_bool_types = (bool,)
-try:
-    import numpy as np
-    bokeh_bool_types += (np.bool8,)
-except ImportError:
-    pass
-
+bokeh_bool_types = (bool, np.bool8)
 bokeh_integer_types = (numbers.Integral,)
 
 __all__ = (
@@ -62,9 +59,8 @@ class Null(PrimitiveProperty[None]):
 
     _underlying_type = (type(None),)
 
-    def __init__(self, default: Init[None] = None, *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[None] = None, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class Bool(PrimitiveProperty[bool]):
     """ Accept boolean values.
@@ -77,14 +73,6 @@ class Bool(PrimitiveProperty[bool]):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     Example:
 
@@ -106,9 +94,8 @@ class Bool(PrimitiveProperty[bool]):
 
     _underlying_type = bokeh_bool_types
 
-    def __init__(self, default: Init[bool] = False, *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[bool] = False, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class Complex(PrimitiveProperty[complex]):
     """ Accept complex floating point values.
@@ -122,21 +109,12 @@ class Complex(PrimitiveProperty[complex]):
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
 
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
     """
 
     _underlying_type = (numbers.Complex,)
 
-    def __init__(self, default: Init[complex] = 0j, *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[complex] = 0j, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class Int(PrimitiveProperty[int]):
     """ Accept signed integer values.
@@ -149,14 +127,6 @@ class Int(PrimitiveProperty[int]):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     Example:
 
@@ -178,9 +148,8 @@ class Int(PrimitiveProperty[int]):
 
     _underlying_type = bokeh_integer_types
 
-    def __init__(self, default: Init[int] = 0, *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[int] = 0, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class Float(PrimitiveProperty[float]):
     """ Accept floating point values.
@@ -193,14 +162,6 @@ class Float(PrimitiveProperty[float]):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     Example:
 
@@ -223,9 +184,8 @@ class Float(PrimitiveProperty[float]):
 
     _underlying_type = (numbers.Real,)
 
-    def __init__(self, default: Init[float] = 0.0, *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[float] = 0.0, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class Bytes(PrimitiveProperty[bytes]):
     """ Accept bytes values.
@@ -234,9 +194,8 @@ class Bytes(PrimitiveProperty[bytes]):
 
     _underlying_type = (bytes,)
 
-    def __init__(self, default: Init[bytes] = b"", *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[bytes] = b"", *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class String(PrimitiveProperty[str]):
     """ Accept string values.
@@ -249,14 +208,6 @@ class String(PrimitiveProperty[str]):
             A documentation string for this property. It will be automatically
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
-
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
 
     Example:
 
@@ -278,9 +229,8 @@ class String(PrimitiveProperty[str]):
 
     _underlying_type = (str,)
 
-    def __init__(self, default: Init[str] = "", *, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False):
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[str] = "", *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -295,5 +245,5 @@ class String(PrimitiveProperty[str]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Null)
-def _sphinx_type(obj):
+def _sphinx_type(obj: Null) -> str:
     return f"{property_link(obj)}"

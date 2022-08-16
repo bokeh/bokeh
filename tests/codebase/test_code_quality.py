@@ -27,7 +27,7 @@ from os.path import (
     split,
     splitext,
 )
-from typing import IO, List, Tuple
+from typing import IO
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -83,14 +83,14 @@ def use_tab_rule(fname: str) -> bool:
 exclude_paths = ("CHANGELOG",)
 
 exclude_exts = (
-    ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc", ".svg",
+    ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc",
     ".xml", ".shp", ".dbf", ".shx", "otf", ".eot", ".ttf", ".woff", ".woff2",
 )
 
 exclude_dirs = ()
 
-def collect_errors() -> List[str]:
-    errors: List[Tuple[str, str, int]] = []
+def collect_errors() -> list[str]:
+    errors: list[tuple[str, str, int]] = []
 
     def test_this_file(fname: str, test_file: IO[str]) -> None:
         line = None

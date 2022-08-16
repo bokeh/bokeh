@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Dict
+from typing import TYPE_CHECKING
 
 # External imports
 import jinja2
@@ -143,7 +143,7 @@ class Test_DirectoryHandler:
 
         doc = Document()
         source = nbformat.v4.new_notebook()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
@@ -166,7 +166,7 @@ class Test_DirectoryHandler:
         code = script_adds_two_roots('SomeModelInNbTestDirectory',
                                      'AnotherModelInNbTestDirectory')
         source.cells.append(nbformat.v4.new_code_cell(code))
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             handler.modify_document(doc)
@@ -252,7 +252,7 @@ some.foo = 57
 
     async def test_directory_with_server_lifecycle(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -277,7 +277,7 @@ some.foo = 57
 
     async def test_directory_with_app_hooks(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -315,7 +315,7 @@ some.foo = 57
 
     async def test_directory_with_request_handler(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -337,7 +337,7 @@ some.foo = 57
 
     def test_directory_with_static(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -358,7 +358,7 @@ some.foo = 57
 
     def test_directory_without_static(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -377,7 +377,7 @@ some.foo = 57
 
     def test_directory_with_template(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -396,7 +396,7 @@ some.foo = 57
 
     def test_directory_without_template(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             result['handler'] = handler
@@ -414,7 +414,7 @@ some.foo = 57
 
     def test_safe_to_fork(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             assert handler.safe_to_fork
@@ -430,7 +430,7 @@ some.foo = 57
 
     def test_url_path(self) -> None:
         doc = Document()
-        result: Dict[str, Handler] = {}
+        result: dict[str, Handler] = {}
         def load(filename: str):
             handler = bahd.DirectoryHandler(filename=filename)
             assert handler.safe_to_fork

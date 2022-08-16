@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
+from re import match
 from typing import Type, TypeVar
 
 # Bokeh imports
@@ -249,6 +250,38 @@ class RGB(Color):
         return value.to_rgb()
 
     @classmethod
+    def from_hex_string(cls, hex_string: str) -> RGB:
+        ''' Create an RGB color from a RGB(A) hex string.
+
+        Args:
+            hex_string (str) :
+                String containing hex-encoded RGBA(A) values. Valid formats
+                are '#rrggbb', '#rrggbbaa', '#rgb' and '#rgba'.
+
+        Returns:
+            :class:`~bokeh.colors.RGB`
+
+        '''
+        if isinstance(hex_string, str):
+            # Hex color as #rrggbbaa or #rrggbb
+            if match(r"#([\da-fA-F]{2}){3,4}\Z", hex_string):
+                r = int(hex_string[1:3], 16)
+                g = int(hex_string[3:5], 16)
+                b = int(hex_string[5:7], 16)
+                a = int(hex_string[7:9], 16) / 255.0 if len(hex_string) > 7 else 1.0
+                return RGB(r, g, b, a)
+
+            # Hex color as #rgb or #rgba
+            if match(r"#[\da-fA-F]{3,4}\Z", hex_string):
+                r = int(hex_string[1]*2, 16)
+                g = int(hex_string[2]*2, 16)
+                b = int(hex_string[3]*2, 16)
+                a = int(hex_string[4]*2, 16) / 255.0 if len(hex_string) > 4 else 1.0
+                return RGB(r, g, b, a)
+
+        raise ValueError(f"'{hex_string}' is not an RGB(A) hex color string")
+
+    @classmethod
     def from_rgb(cls, value: RGB) -> RGB:
         ''' Copy an RGB color from another RGB color value.
 
@@ -275,16 +308,20 @@ class RGB(Color):
             return f"rgba({self.r}, {self.g}, {self.b}, {self.a})"
 
     def to_hex(self) -> str:
-        ''' Return a hex color string for this RGB color.
+        ''' Return a hex color string for this RGB(A) color.
 
-        Any alpha value on this color is discarded, only hex color strings for
-        the RGB components are returned.
+        Any alpha value is only included in the output string if it is less
+        than 1.
 
         Returns:
-            str, ``"#RRGGBB"``
+            str, ``"#RRGGBBAA"`` if alpha is less than 1 and ``"#RRGGBB"``
+            otherwise
 
         '''
-        return "#%02X%02X%02X" % (self.r, self.g, self.b)
+        if self.a < 1.0:
+            return "#%02X%02X%02X%02X" % (self.r, self.g, self.b, round(self.a*255))
+        else:
+            return "#%02X%02X%02X" % (self.r, self.g, self.b)
 
     def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.

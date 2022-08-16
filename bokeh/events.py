@@ -68,8 +68,8 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     TYPE_CHECKING,
+    Any,
     ClassVar,
-    Dict,
     Literal,
     Type,
     TypedDict,
@@ -79,7 +79,7 @@ from typing import (
 from .core.serialization import Deserializer
 
 if TYPE_CHECKING:
-    from .core.types import GeometryData, Unknown
+    from .core.types import GeometryData
     from .model import Model
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
@@ -125,7 +125,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
+_CONCRETE_EVENT_CLASSES: dict[str, Type[Event]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
@@ -134,7 +134,7 @@ _CONCRETE_EVENT_CLASSES: Dict[str, Type[Event]] = {}
 class EventRep(TypedDict):
     type: Literal["event"]
     name: str
-    values: Dict[str, Unknown]
+    values: dict[str, Any]
 
 class Event:
     ''' Base class for all Bokeh events.

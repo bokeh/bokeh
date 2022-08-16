@@ -62,7 +62,7 @@ export class LassoSelectToolView extends SelectToolView {
   _clear_overlay(): void {
     this.sxs = []
     this.sys = []
-    this.model.overlay.update({xs: this.sxs, ys: this.sys})
+    this.model.overlay.clear()
   }
 
   _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {

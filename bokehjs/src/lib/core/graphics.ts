@@ -154,6 +154,7 @@ export abstract class GraphicsBox {
 export class TextBox extends GraphicsBox {
   text: string
   color: string
+  outline_color: string
   font: string
   line_height: number
   //padding: Padding
@@ -163,6 +164,7 @@ export class TextBox extends GraphicsBox {
   set visuals(v: visuals.Text["Values"]) {
     const color = v.color
     const alpha = v.alpha
+    const outline_color = v.outline_color
     const style = v.font_style
     let size = v.font_size
     const face = v.font
@@ -182,6 +184,7 @@ export class TextBox extends GraphicsBox {
     const font = `${style} ${size} ${face}`
     this.font = font
     this.color = color2css(color, alpha)
+    this.outline_color = color2css(outline_color, alpha)
     this.line_height = v.line_height
 
     const align = v.align
@@ -404,6 +407,7 @@ export class TextBox extends GraphicsBox {
 
     ctx.save()
     ctx.fillStyle = this.color
+    ctx.strokeStyle = this.outline_color
     ctx.font = this.font
     ctx.textAlign = "left"
     ctx.textBaseline = "alphabetic"
@@ -430,6 +434,7 @@ export class TextBox extends GraphicsBox {
         const word_spacing = (width - sum(word_widths))/(nwords - 1)
         for (let j = 0; j < nwords; j++) {
           ctx.fillText(words[j], xij, y)
+          ctx.strokeText(words[j], xij, y)
           xij += word_widths[j] + word_spacing
         }
         y += /*heights[i]*/ text_line.height + line_spacing
@@ -444,8 +449,12 @@ export class TextBox extends GraphicsBox {
           }
         })()
 
-        ctx.fillStyle = this.color
-        ctx.fillText(lines[i], xi, y + /*ascents[i]*/ text_line.ascent)
+        const linei = lines[i]
+        const yi = y + /*ascents[i]*/ text_line.ascent
+
+        ctx.fillText(linei, xi, yi)
+        ctx.strokeText(linei, xi, yi)
+
         y += /*heights[i]*/ text_line.height + line_spacing
       }
     }

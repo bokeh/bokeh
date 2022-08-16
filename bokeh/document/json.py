@@ -31,11 +31,13 @@ from typing import (
     Union,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 ## Bokeh imports
 if TYPE_CHECKING:
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
-    from ..core.types import Unknown
     from ..models.sources import DataDict
 
 #-----------------------------------------------------------------------------
@@ -52,20 +54,20 @@ __all__ = ()
 # Dev API
 #-----------------------------------------------------------------------------
 
-Patch = Any # TODO
+Patch: TypeAlias = Any # TODO
 
-Patches = Dict[str, List[Patch]]
+Patches: TypeAlias = Dict[str, List[Patch]]
 
 class ModelChanged(TypedDict):
     kind: Literal["ModelChanged"]
     model: Ref
     attr: str
-    new: Unknown
+    new: Any
 
 class MessageSent(TypedDict):
     kind: Literal["MessageSent"]
     msg_type: str
-    msg_data: Unknown | None
+    msg_data: Any | None
 
 class TitleChanged(TypedDict):
     kind: Literal["TitleChanged"]
@@ -84,7 +86,7 @@ class ColumnDataChanged(TypedDict):
     model: Ref
     attr: str
     data: DataDict
-    cols: List[str] | None
+    cols: list[str] | None
 
 class ColumnsStreamed(TypedDict):
     kind: Literal["ColumnsStreamed"]
@@ -99,7 +101,7 @@ class ColumnsPatched(TypedDict):
     attr: str
     patches: Patches
 
-DocumentPatched = Union[
+DocumentPatched: TypeAlias = Union[
     MessageSent,
     ModelChanged,
     ColumnDataChanged,
@@ -115,11 +117,11 @@ DocumentChanged = DocumentPatched
 class DocJson(TypedDict):
     version: str | None
     title: str | None
-    defs: List[ModelDef] | None
-    roots: List[ModelRep]
+    defs: list[ModelDef] | None
+    roots: list[ModelRep]
 
 class PatchJson(TypedDict):
-    events: List[DocumentChanged]
+    events: list[DocumentChanged]
 
 #-----------------------------------------------------------------------------
 # Private API

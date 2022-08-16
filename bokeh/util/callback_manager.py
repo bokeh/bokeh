@@ -27,16 +27,16 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
     Sequence,
     Type,
     Union,
     cast,
 )
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
-from ..core.types import Unknown
 from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
@@ -62,11 +62,11 @@ __all__ = (
 # TODO (bev) the situation with no-argument Button callbacks is a mess. We
 # should migrate to all callbacks receving the event as the param, even if that
 # means auto-magically wrapping user-supplied callbacks for awhile.
-EventCallbackWithEvent = Callable[[Event], None]
-EventCallbackWithoutEvent = Callable[[], None]
-EventCallback = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
+EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
+EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
+EventCallback: TypeAlias = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
 
-PropertyCallback = Callable[[str, Unknown, Unknown], None]
+PropertyCallback: TypeAlias = Callable[[str, Any, Any], None]
 
 class EventCallbackManager:
     ''' A mixin class to provide an interface for registering and
@@ -76,11 +76,11 @@ class EventCallbackManager:
 
     document: Document | None
     id: ID
-    subscribed_events: List[str]
-    _event_callbacks: Dict[str, List[EventCallback]]
+    subscribed_events: list[str]
+    _event_callbacks: dict[str, list[EventCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
+        super().__init__(*args, **kw)
         self._event_callbacks = {}
 
     def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
@@ -135,10 +135,10 @@ class PropertyCallbackManager:
     '''
 
     document: Document | None
-    _callbacks: Dict[str, List[PropertyCallback]]
+    _callbacks: dict[str, list[PropertyCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
-        super().__init__(*args, **kw)  # type: ignore[call-arg] # https://github.com/python/mypy/issues/5887
+        super().__init__(*args, **kw)
         self._callbacks = {}
 
     def on_change(self, attr: str, *callbacks: PropertyCallback) -> None:
@@ -171,7 +171,7 @@ class PropertyCallbackManager:
         for callback in callbacks:
             _callbacks.remove(callback)
 
-    def trigger(self, attr: str, old: Unknown, new: Unknown,
+    def trigger(self, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None) -> None:
         ''' Trigger callbacks for ``attr`` on this object.
 

@@ -36,6 +36,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from io import StringIO
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pandas import DataFrame
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -78,7 +82,7 @@ Diplococcus pneumoniae,          0.005,      11,           10,       positive
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data():
+def _read_data() -> DataFrame:
     '''
 
     '''

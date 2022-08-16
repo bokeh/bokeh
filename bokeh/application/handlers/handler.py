@@ -46,7 +46,7 @@ log = logging.getLogger(__name__)
 import os
 import sys
 import traceback
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ...document import Document
@@ -197,7 +197,7 @@ class Handler:
         '''
         pass
 
-    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
+    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

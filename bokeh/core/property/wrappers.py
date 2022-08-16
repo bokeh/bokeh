@@ -65,13 +65,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import copy
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Set,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
@@ -81,7 +75,6 @@ if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
     from ...models.sources import ColumnarDataSource
     from ..has_props import HasProps, Setter
-    from ..types import Unknown
     from .descriptors import PropertyDescriptor
 
 #-----------------------------------------------------------------------------
@@ -147,7 +140,7 @@ class PropertyValueContainer:
     those owners when mutating changes occur.
 
     """
-    _owners: Set[Tuple[HasProps, PropertyDescriptor[Any]]]
+    _owners: set[tuple[HasProps, PropertyDescriptor[Any]]]
 
     def __init__(self, *args, **kwargs) -> None:
         self._owners = set()
@@ -159,7 +152,7 @@ class PropertyValueContainer:
     def _unregister_owner(self, owner: HasProps, descriptor: PropertyDescriptor[Any]) -> None:
         self._owners.discard((owner, descriptor))
 
-    def _notify_owners(self, old: Unknown, hint: DocumentPatchedEvent | None = None) -> None:
+    def _notify_owners(self, old: Any, hint: DocumentPatchedEvent | None = None) -> None:
         for (owner, descriptor) in self._owners:
             descriptor._notify_mutated(owner, old, hint=hint)
 
@@ -394,7 +387,7 @@ class PropertyValueColumnData(PropertyValueDict):
         return result
 
     # don't wrap with notify_owner --- notifies owners explicitly
-    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: Dict[str, Any],
+    def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],
             rollover: int | None = None, setter: Setter | None = None) -> None:
         """ Internal implementation to handle special-casing stream events
         on ``ColumnDataSource`` columns.

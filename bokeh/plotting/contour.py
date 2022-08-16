@@ -18,17 +18,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    List,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Sequence, Union
 
 # External imports
 import numpy as np
 from numpy.typing import ArrayLike
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
@@ -44,8 +39,8 @@ if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: Union[ContourColor, Palette, PaletteCollection, ContourColor]
+    ContourColor: TypeAlias = Union[ColorLike, Sequence[ColorLike]]
+    ContourColorOrPalette: TypeAlias = Union[ContourColor, Palette, PaletteCollection, ContourColor]
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -64,15 +59,15 @@ __all__ = (
 class FillCoords:
     ''' Coordinates for all filled polygons over a whole sequence of contour levels.
     '''
-    xs: List[List[List[np.ndarray]]]
-    ys: List[List[List[np.ndarray]]]
+    xs: list[list[list[np.ndarray]]]
+    ys: list[list[list[np.ndarray]]]
 
 @dataclass(frozen=True)
 class LineCoords:
     ''' Coordinates for all contour lines over a whole sequence of contour levels.
     '''
-    xs: List[np.ndarray]
-    ys: List[np.ndarray]
+    xs: list[np.ndarray]
+    ys: list[np.ndarray]
 
 @dataclass(frozen=True)
 class ContourCoords:
@@ -107,8 +102,8 @@ class ContourData:
     ''' Complete geometry data for filled polygons and/or contour lines over a
     whole sequence of contour levels.
 
-    ``contour_data`` returns an object of this class that is then passed to
-    ``ContourRenderer.set_data``.
+    :func:`~bokeh.plotting.contour.contour_data` returns an object of
+    this class that can then be passed to :func:`bokeh.models.ContourRenderer.set_data`.
     '''
     fill_data: FillData | None
     line_data: LineData | None
@@ -123,7 +118,7 @@ def contour_data(
     want_line: bool = True,
 ) -> ContourData:
     ''' Return the contour data of filled and/or line contours that can be
-    passed to ``ContourRenderer.set_data``.
+    passed to :func:`bokeh.models.ContourRenderer.set_data`
     '''
     levels = _validate_levels(levels)
     if len(levels) < 2:
@@ -153,8 +148,54 @@ def from_contour(
     levels: ArrayLike | None = None,
     **visuals,  # This is union of LineProps, FillProps and HatchProps
 ) -> ContourRenderer:
-    # Don't call this directly, use figure.contour instead.
+    ''' Creates a :class:`bokeh.models.ContourRenderer` containing filled
+    polygons and/or contour lines.
 
+    Usually it is preferable to call :func:`~bokeh.plotting.figure.contour`
+    instead of this function.
+
+    Filled contour polygons are calculated if ``fill_color`` is set,
+    contour lines if ``line_color`` is set.
+
+    Args:
+        x (array-like[float] of shape (ny, nx) or (nx,), optional) :
+            The x-coordinates of the ``z`` values. May be 2D with the same
+            shape as ``z.shape``, or 1D with length ``nx = z.shape[1]``.
+            If not specified are assumed to be ``np.arange(nx)``. Must be
+            ordered monotonically.
+
+        y (array-like[float] of shape (ny, nx) or (ny,), optional) :
+            The y-coordinates of the ``z`` values. May be 2D with the same
+            shape as ``z.shape``, or 1D with length ``ny = z.shape[0]``.
+            If not specified are assumed to be ``np.arange(ny)``. Must be
+            ordered monotonically.
+
+        z (array-like[float] of shape (ny, nx)) :
+            A 2D NumPy array of gridded values to calculate the contours
+            of.  May be a masked array, and any invalid values (``np.inf``
+            or ``np.nan``) will also be masked out.
+
+        levels (array-like[float]) :
+            The z-levels to calculate the contours at, must be increasing.
+            Contour lines are calculated at each level and filled contours
+            are calculated between each adjacent pair of levels so the
+            number of sets of contour lines is ``len(levels)`` and the
+            number of sets of filled contour polygons is ``len(levels)-1``.
+
+        **visuals: |fill properties|, |hatch properties| and |line properties|
+            Fill and hatch properties are used for filled contours, line
+            properties for line contours. If using vectorized properties
+            then the correct number must be used, ``len(levels)`` for line
+            properties and ``len(levels)-1`` for fill and hatch properties.
+
+            ``fill_color`` and ``line_color`` are more flexible in that
+            they will accept longer sequences and interpolate them to the
+            required number using :func:`~bokeh.palettes.linear_palette`,
+            and also accept palette collections (dictionaries mapping from
+            integer length to color sequence) such as
+            `bokeh.palettes.Cividis`.
+
+    '''
     levels = _validate_levels(levels)
     if len(levels) < 2:
         want_fill = False
@@ -233,8 +274,8 @@ class SingleFillCoords:
     a separate NumPy array for each boundary of that polygon; the first array
     is always the outer boundary, subsequent arrays are holes.
     '''
-    xs: List[List[np.ndarray]]
-    ys: List[List[np.ndarray]]
+    xs: list[list[np.ndarray]]
+    ys: list[list[np.ndarray]]
 
 @dataclass(frozen=True)
 class SingleLineCoords:
@@ -248,7 +289,7 @@ class SingleLineCoords:
 
 def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     # Dict to sequence of colors such as palettes.cividis
-    if isinstance(color, Dict):
+    if isinstance(color, dict):
         color = color.get(n, None)
         if not color or len(color) != n:
             raise ValueError(f"Dict of colors does not contain a key of {n}")

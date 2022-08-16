@@ -39,6 +39,7 @@ from typing import (
 import tornado
 from tornado import gen
 from tornado.ioloop import IOLoop
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
@@ -74,17 +75,17 @@ def fixup_windows_event_loop_policy() -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-CallbackSync = Callable[[], None]
-CallbackAsync = Callable[[], Awaitable[None]]
-Callback = Union[CallbackSync, CallbackAsync]
+CallbackSync: TypeAlias = Callable[[], None]
+CallbackAsync: TypeAlias = Callable[[], Awaitable[None]]
+Callback: TypeAlias = Union[CallbackSync, CallbackAsync]
 
-InvokeResult = Union[Awaitable[None], Awaitable[List[Any]], Awaitable[Dict[Any, Any]]]
+InvokeResult: TypeAlias = Union[Awaitable[None], Awaitable[List[Any]], Awaitable[Dict[Any, Any]]]
 
-Remover = Callable[[], None]
+Remover: TypeAlias = Callable[[], None]
 
-Removers = Dict[ID, Remover]
+Removers: TypeAlias = Dict[ID, Remover]
 
-RemoversByCallable = Dict[Callback, Set[ID]]
+RemoversByCallable: TypeAlias = Dict[Callback, Set[ID]]
 
 class _AsyncPeriodic:
     ''' Like ioloop.PeriodicCallback except the 'func' can be async and return

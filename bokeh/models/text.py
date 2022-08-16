@@ -26,7 +26,7 @@ from ..core.properties import (
     Dict,
     Either,
     Int,
-    NonNullable,
+    Required,
     String,
     Tuple,
 )
@@ -60,7 +60,7 @@ class BaseText(Model):
 
         super().__init__(**kwargs)
 
-    text = NonNullable(String, help="""
+    text = Required(String, help="""
     The text value to render.
     """)
 

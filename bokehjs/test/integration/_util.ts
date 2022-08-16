@@ -6,7 +6,7 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {Figure, figure} from "@bokehjs/api/plotting"
 import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
-import {wait} from "@bokehjs/core/util/defer"
+import {delay} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"
 import {MathJaxProvider, NoProvider} from "@bokehjs/models/text/providers"
 import {MathTextView} from "@bokehjs/models/text/math_text"
@@ -35,7 +35,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
   async fetch() {
     this.status = "loading"
-    wait(50).then(() => {
+    delay(50).then(() => {
       this.status = "loaded"
       this.ready.emit()
     })

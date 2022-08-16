@@ -31,8 +31,8 @@
     "outDir": "./dist/lib",
     "paths": {
       "@bokehjs/*": [
-        "./node_modules/bokehjs/build/js/lib/*",
-        "./node_modules/bokehjs/build/js/types/*"
+        "./node_modules/@bokeh/bokehjs/build/js/lib/*",
+        "./node_modules/@bokeh/bokehjs/build/js/types/*"
       ]
     }
   },

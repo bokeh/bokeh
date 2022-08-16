@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import (
     AngleUnits,
-    SpatialUnits,
+    CoordinateUnits,
     TextAlign,
     VerticalAlign,
 )
@@ -35,10 +35,10 @@ from ...core.properties import (
     Enum,
     Float,
     Include,
-    NonNullable,
     NullStringSpec,
     NumberSpec,
     Override,
+    Required,
     TextLike,
     field,
 )
@@ -122,26 +122,26 @@ class Label(TextAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = NonNullable(Float, help="""
+    x = Required(Float, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """).accepts(Datetime, convert_datetime_type)
 
-    x_units = Enum(SpatialUnits, default='data', help="""
+    x_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as |data units| by
     default.
     """)
 
-    y = NonNullable(Float, help="""
+    y = Required(Float, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
 
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """).accepts(Datetime, convert_datetime_type)
 
-    y_units = Enum(SpatialUnits, default='data', help="""
+    y_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as |data units| by
     default.
     """)
@@ -201,7 +201,7 @@ class LabelSet(DataAnnotation):
     The x-coordinates to locate the text anchors.
     """)
 
-    x_units = Enum(SpatialUnits, default='data', help="""
+    x_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``xs`` attribute. Interpreted as |data units| by
     default.
     """)
@@ -210,7 +210,7 @@ class LabelSet(DataAnnotation):
     The y-coordinates to locate the text anchors.
     """)
 
-    y_units = Enum(SpatialUnits, default='data', help="""
+    y_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the ``ys`` attribute. Interpreted as |data units| by
     default.
     """)

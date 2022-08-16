@@ -386,6 +386,7 @@ to generate palettes of arbitrary size.
 .. autofunction:: bokeh.palettes.inferno(n)
 .. autofunction:: bokeh.palettes.linear_palette(palette, n)
 .. autofunction:: bokeh.palettes.magma(n)
+.. autofunction:: bokeh.palettes.varying_alpha_palette(palette, n, start_alpha, end_alpha)
 .. autofunction:: bokeh.palettes.viridis(n)
 
 Licenses
@@ -418,10 +419,17 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import Dict, List, Tuple
+from typing import TYPE_CHECKING, Dict, Tuple
 
 # External imports
 import numpy as np
+from typing_extensions import TypeAlias
+
+# Bokeh imports
+from .colors.util import NamedColor
+
+if TYPE_CHECKING:
+    from .colors.color import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -433,9 +441,9 @@ import numpy as np
 # General API
 #-----------------------------------------------------------------------------
 
-Palette = Tuple[str, ...]
-PaletteCollection = Dict[int, Palette]
-PaletteMap = Dict[str, PaletteCollection]
+Palette: TypeAlias = Tuple[str, ...]
+PaletteCollection: TypeAlias = Dict[int, Palette]
+PaletteMap: TypeAlias = Dict[str, PaletteCollection]
 
 YlGn3 = ("#31a354", "#addd8e", "#f7fcb9")
 YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")
@@ -1382,7 +1390,7 @@ Category20c = { 3:  Category20c_3,  4:  Category20c_4,  5:  Category20c_5,  6:  
                 18: Category20c_18, 19: Category20c_19, 20: Category20c_20 }
 Colorblind  = { 3: Colorblind3, 4: Colorblind4, 5: Colorblind5, 6: Colorblind6, 7: Colorblind7, 8: Colorblind8 }
 Bright = { 3: Bright3, 4: Bright4, 5: Bright5, 6: Bright6, 7: Bright7 }
-HighContrast: Dict[int, Tuple[str, ...]] = { 3: HighContrast3 }
+HighContrast: dict[int, tuple[str, ...]] = { 3: HighContrast3 }
 Vibrant = { 3: Vibrant3, 4: Vibrant4, 5: Vibrant5, 6: Vibrant6, 7: Vibrant7 }
 Muted = { 3: Muted3, 4: Muted4, 5: Muted5, 6: Muted6, 7: Muted7, 8: Muted8, 9: Muted9 }
 MediumContrast = { 3: MediumContrast3, 4: MediumContrast4, 5: MediumContrast5, 6: MediumContrast6 }
@@ -1562,8 +1570,76 @@ def diverging_palette(palette1: Palette, palette2: Palette, n: int, midpoint: fl
     # return piecewise linear interpolation of colors
     return linear_palette(palette1, n1) + linear_palette(palette2, n2)
 
+def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0, end_alpha: int = 255) -> Palette:
+    """ Generate a palette that is a single color with linearly varying alpha.
+
+    Alpha may vary from low to high or high to low, depending on the values of
+    ``start_alpha`` and ``end_alpha``.
+
+    Args:
+        color (str) :
+            Named color or RGB(A) hex color string. Any alpha component is
+            combined with the ``start_alpha`` to ``end_alpha`` range by
+            multiplying them together, so it is the maximum possible alpha that
+            can be obtained.
+
+        n (int, optional) :
+            The size of the palette to generate. If not specified uses the
+            maximum number of colors such that adjacent colors differ by an
+            alpha of 1.
+
+        start_alpha (int, optional) :
+            The alpha component of the start of the palette is this value (in
+            the range 0 to 255) multiplied by the alpha component of the
+            ``color`` argument.
+
+        end_alpha (int, optional) :
+            The alpha component of the end of the palette is this value (in
+            the range 0 to 255) multiplied by the alpha component of the
+            ``color`` argument.
+
+    Returns:
+        seq[str] : a sequence of hex RGBA color strings
+
+    Raises:
+        ValueError if ``color`` is not recognisable as a string name or hex
+            RGB(A) string, or if ``start_alpha`` or ``end_alpha`` are outside
+            the range 0 to 255 inclusive.
+
+    """
+
+    if not (0 <= start_alpha <= 255):
+        raise ValueError(f"start_alpha {start_alpha} must be in the range 0 to 255")
+
+    if not (0 <= end_alpha <= 255):
+        raise ValueError(f"end_alpha {end_alpha} must be in the range 0 to 255")
+
+    # Take a copy of RGB color as do not want to alter named colors
+    rgba = NamedColor.from_string(color).copy()
+
+    if rgba.a < 1.0:
+        start_alpha = round(start_alpha*rgba.a)
+        end_alpha = round(end_alpha*rgba.a)
+
+    if n is None or n < 1:
+        nn = int(abs(end_alpha - start_alpha)) + 1
+    else:
+        nn = n
+
+    # Convert alpha to range 0 to 1.
+    norm_start_alpha = start_alpha / 255.0
+    norm_end_alpha = end_alpha / 255.0
+
+    def set_alpha(rgba: RGB, i: int) -> RGB:
+        rgba.a = norm_start_alpha + (norm_end_alpha - norm_start_alpha)*i / (nn-1.0)
+        return rgba
+
+    palette = tuple(set_alpha(rgba, i).to_hex() for i in range(nn))
+
+    return palette
+
 def magma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Magma palette.
+    """ Generate a palette of colors from the Magma palette.
 
     The full Magma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1592,7 +1668,7 @@ def magma(n: int) -> Palette:
     return linear_palette(Magma256, n)
 
 def inferno(n: int) -> Palette:
-    """ Generate a palette of colors or from the Inferno palette.
+    """ Generate a palette of colors from the Inferno palette.
 
     The full Inferno palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1621,7 +1697,7 @@ def inferno(n: int) -> Palette:
     return linear_palette(Inferno256, n)
 
 def plasma(n: int) -> Palette:
-    """ Generate a palette of colors or from the Plasma palette.
+    """ Generate a palette of colors from the Plasma palette.
 
     The full Plasma palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1650,7 +1726,7 @@ def plasma(n: int) -> Palette:
     return linear_palette(Plasma256, n)
 
 def viridis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Viridis palette.
+    """ Generate a palette of colors from the Viridis palette.
 
     The full Viridis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1679,7 +1755,7 @@ def viridis(n: int) -> Palette:
     return linear_palette(Viridis256, n)
 
 def cividis(n: int) -> Palette:
-    """ Generate a palette of colors or from the Cividis palette.
+    """ Generate a palette of colors from the Cividis palette.
 
     The full Cividis palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1708,7 +1784,7 @@ def cividis(n: int) -> Palette:
     return linear_palette(Cividis256, n)
 
 def turbo(n: int) -> Palette:
-    """ Generate a palette of colors or from the Turbo palette.
+    """ Generate a palette of colors from the Turbo palette.
 
     Turbo is described here:
 
@@ -1741,7 +1817,7 @@ def turbo(n: int) -> Palette:
     return linear_palette(Turbo256, n)
 
 def grey(n: int) -> Palette:
-    """ Generate a palette of colors or from the Greys palette.
+    """ Generate a palette of colors from the Greys palette.
 
     The full Greys palette that serves as input for deriving new palettes
     has 256 colors, and looks like:
@@ -1816,7 +1892,7 @@ def gray(n: int) -> Palette:
 # Code
 #-----------------------------------------------------------------------------
 
-__palettes__: List[str] = []
+__palettes__: list[str] = []
 for name, palettes in sorted(all_palettes.items(), key=lambda arg: arg[0]):
     name = name + "_" if name[-1].isdigit() else name
     __palettes__ += [ name + str(index) for index in sorted(palettes.keys()) ]

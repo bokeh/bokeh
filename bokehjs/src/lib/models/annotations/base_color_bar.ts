@@ -71,6 +71,9 @@ export abstract class BaseColorBarView extends AnnotationView {
     this._minor_range = new Range1d({start: 0, end: 1})
     this._minor_scale = new LinearScale()
 
+    // configure some frame, update when the layout is know
+    this._frame = new CartesianFrame(this._major_scale, this._minor_scale, this._major_range, this._minor_range)
+
     this._axis = this._create_axis()
     this._apply_axis_properties()
 
@@ -157,6 +160,20 @@ export abstract class BaseColorBarView extends AnnotationView {
     this.connect(this._formatter.change, () => this.request_render())
   }
 
+  protected _update_frame(): void {
+    const [x_scale, y_scale, x_range, y_range] = (() => {
+      if (this.orientation == "horizontal")
+        return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
+      else
+        return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
+    })()
+    this._frame.in_x_scale = x_scale
+    this._frame.in_y_scale = y_scale
+    this._frame.x_range = x_range
+    this._frame.y_range = y_range
+    this._frame.configure_scales()
+  }
+
   override update_layout(): void {
     const {location, width: w, height: h, padding, margin} = this.model
 
@@ -206,6 +223,8 @@ export abstract class BaseColorBarView extends AnnotationView {
         return orientation
     })()
 
+    this._update_frame()
+
     const center_panel = new NodeLayout()
     const top_panel    = new VStack()
     const bottom_panel = new VStack()
@@ -217,14 +236,6 @@ export abstract class BaseColorBarView extends AnnotationView {
     bottom_panel.absolute = true
     left_panel.absolute = true
     right_panel.absolute = true
-
-    const [x_scale, y_scale, x_range, y_range] = (() => {
-      if (orientation == "horizontal")
-        return [this._major_scale, this._minor_scale, this._major_range, this._minor_range] as const
-      else
-        return [this._minor_scale, this._major_scale, this._minor_range, this._major_range] as const
-    })()
-    this._frame = new CartesianFrame(x_scale, y_scale, x_range, y_range)
 
     center_panel.on_resize((bbox) => this._frame.set_geometry(bbox))
 

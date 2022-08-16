@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    List,
-    Sequence,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Sequence
 
 if TYPE_CHECKING:
     from socket import socket
@@ -50,7 +45,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def bind_sockets(address: str | None, port: int) -> Tuple[List[socket], int]:
+def bind_sockets(address: str | None, port: int) -> tuple[list[socket], int]:
     ''' Bind a socket to a port on an address.
 
     Args:
@@ -105,7 +100,7 @@ def check_allowlist(host: str, allowlist: Sequence[str]) -> bool:
 
     return any(match_host(host, pattern) for pattern in allowlist)
 
-def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) -> List[str]:
+def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) -> list[str]:
     '''
 
     This allowlist can be used to restrict websocket or other connections to
@@ -139,7 +134,7 @@ def create_hosts_allowlist(host_list: Sequence[str] | None, port: int | None) ->
     if not host_list:
         return ['localhost:' + str(port)]
 
-    hosts: List[str] = []
+    hosts: list[str] = []
     for host in host_list:
         if '*' in host:
             log.warning(

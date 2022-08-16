@@ -57,14 +57,6 @@ class Any(Property[typing.Any]):
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
 
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
     Example:
 
         .. code-block:: python
@@ -88,9 +80,8 @@ class Any(Property[typing.Any]):
     """
 
     # TODO: default should be explicitly defined by the user (i.e. intrinsic here)
-    def __init__(self, default: Init[typing.Any] = None, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, default: Init[typing.Any] = None, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
 
 class AnyRef(Any):
     """ Accept all values and force reference discovery. """

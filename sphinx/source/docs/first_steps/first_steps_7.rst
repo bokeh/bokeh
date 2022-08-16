@@ -22,11 +22,14 @@ To customize the file Bokeh creates for your visualization, import and call the
 |output_file| function. ``output_file()`` accepts various file-related
 arguments. For example:
 
-* ``filename``: the filename for the HTML file. If you don't supply a file name,
-  Bokeh will use the file name of your python file as a filename for the HTML
-  file it creates.
+* ``filename``: the filename for the HTML file
 * ``title``: the title for you document (to be used in the HTML's ``<title>``
   tag)
+
+If you don't use the ``output_file()`` function to define a custom file name,
+Bokeh defaults to using the file name of the currently running Python script for
+the filename of the HTML output. If a script filename is not available (for
+instance, in a Jupyter notebook), then Bokeh will generate a random filename.
 
 Bokeh creates the HTML file when you call the |show| function. This function
 also automatically opens a web browser to display the HTML file.

@@ -29,6 +29,9 @@ export const ButtonType = Enum("default", "primary", "success", "warning", "dang
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")
 
+export type CoordinateUnits = "canvas" | "screen" | "data"
+export const CoordinateUnits = Enum("canvas", "screen", "data")
+
 export type ContextWhich = "start" | "center" | "end" | "all"
 export const ContextWhich = Enum("start", "center", "end", "all")
 

@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import Enum, Instance, NonNullable
+from ..core.properties import Enum, Instance, Required
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ class Decoration(Model):
     The graphical marking associated with this decoration, e.g. an arrow head.
     """)
 
-    node = NonNullable(Enum("start", "middle", "end"), help="""
+    node = Required(Enum("start", "middle", "end"), help="""
     The placement of the marking on the parent graphical object.
     """)
 

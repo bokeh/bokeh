@@ -108,7 +108,7 @@ UNSAFE_DOC_ATTR_USAGE_MSG = (
 )
 
 
-class UnlockedDocumentProxy:
+class UnlockedDocumentProxy: # TODO(mypy): this needs to implement Document interface
     ''' Wrap a Document object so that only methods that can safely be used
     from unlocked callbacks or threads are exposed. Attempts to otherwise
     access or change the Document results in an exception.

@@ -25,10 +25,12 @@ from dataclasses import dataclass, field, fields
 from typing import (
     Any,
     Iterable,
-    Tuple,
     TypeVar,
     Union,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -59,9 +61,9 @@ class _UnspecifiedType:
 Unspecified = _UnspecifiedType()
 
 _T = TypeVar("_T")
-NotRequired = Union[_UnspecifiedType, _T]
+NotRequired: TypeAlias = Union[_UnspecifiedType, _T]
 
-def entries(obj: Any) -> Iterable[Tuple[str, Any]]:
+def entries(obj: Any) -> Iterable[tuple[str, Any]]:
     """ Iterate over a dataclass' fields and their values. """
     if is_dataclass(obj):
         for f in fields(obj):

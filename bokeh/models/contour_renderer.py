@@ -4,8 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Models (mostly base classes) for the various kinds of renderer
-types that Bokeh supports.
+''' Renderer for contour lines and filled polygons.
 
 '''
 #-----------------------------------------------------------------------------
@@ -52,7 +51,7 @@ class ContourRenderer(DataRenderer):
     ''' Renderer for contour plots composed of filled polygons and/or lines.
 
     Rather than create these manually it is usually better to use
-    ``figure.contour`` instead.
+    :func:`~bokeh.plotting.figure.contour` instead.
     '''
 
     # explicit __init__ to support Init signatures
@@ -72,6 +71,12 @@ class ContourRenderer(DataRenderer):
     """)
 
     def set_data(self, data: ContourData) -> None:
+        ''' Set the contour line and filled polygon data to render.
+
+        Accepts a :class:`~bokeh.plotting.contour.ContourData` object, such as
+        is returned from :func:`~bokeh.plotting.contour.contour_data`.
+
+        '''
         if data.fill_data:
             # Convert dataclass to dict to add new fields and put into CDS.
             fill_data = data.fill_data.asdict()

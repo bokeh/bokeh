@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.has_props import abstract
-from ..core.properties import NonNullable as Required, String
+from ..core.properties import Required, String
 from ..core.property.bases import Init
 from ..core.property.singletons import Intrinsic
 from ..model import Model

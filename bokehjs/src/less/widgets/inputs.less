@@ -1,9 +1,5 @@
 @import "../_mixins.less";
 
-input[type=file]::file-selector-button {
-  font-family: inherit;
-}
-
 .bk-input {
   display: inline-block;
   width: 100%;
@@ -29,6 +25,19 @@ input[type=file]::file-selector-button {
     background-color: #eee;
     opacity: 1;
   }
+}
+
+input[type=file].bk-input {
+  // aligne the button with input's edge
+  padding-left: 0;
+}
+input[type=file]::file-selector-button {
+  // needed to override user-agent's defaults
+  // button styling is done in buttons.less
+  box-sizing: inherit;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 select:not([multiple]), select:not([size]) {
@@ -155,7 +164,7 @@ select[multiple], select[size], textarea {
     opacity: 0.5;
     width: 18px;
     height: 18px;
-    .icon-mask(var(--bokeh-icon-help2), gray);
+    .icon-mask(var(--bokeh-icon-help), gray);
   }
 }
 

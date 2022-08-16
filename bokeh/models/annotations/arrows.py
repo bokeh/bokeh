@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import SpatialUnits
+from ...core.enums import CoordinateUnits
 from ...core.has_props import abstract
 from ...core.properties import (
     Enum,
@@ -154,7 +154,7 @@ class Arrow(DataAnnotation):
     The y-coordinates to locate the start of the arrows.
     """)
 
-    start_units = Enum(SpatialUnits, default='data', help="""
+    start_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the start_x and start_y attributes. Interpreted as "data
     space" units by default.
     """)
@@ -171,7 +171,7 @@ class Arrow(DataAnnotation):
     The y-coordinates to locate the end of the arrows.
     """)
 
-    end_units = Enum(SpatialUnits, default='data', help="""
+    end_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the end_x and end_y attributes. Interpreted as "data
     space" units by default.
     """)

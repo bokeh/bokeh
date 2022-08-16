@@ -35,10 +35,10 @@ from ...core.properties import (
     Int,
     Interval,
     List,
+    NonNegative,
     Null,
     Nullable,
     Override,
-    PositiveInt,
     Readonly,
     String,
     Tuple,
@@ -107,7 +107,7 @@ class InputWidget(Widget):
 # General API
 #-----------------------------------------------------------------------------
 
-class FileInput(Widget):
+class FileInput(InputWidget):
     ''' Present a file-chooser dialog to users and return the contents of the
     selected files.
     '''
@@ -156,7 +156,7 @@ class FileInput(Widget):
         access to that information for security reasons.
     ''')
 
-    accept = String(default="", help="""
+    accept = Either(String, List(String), default="", help="""
     Comma-separated list of standard HTML file input filters that restrict what
     files the user can pick from. Values can be:
 
@@ -365,7 +365,7 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
-    min_characters = PositiveInt(default=2, help="""
+    min_characters = NonNegative(Int, default=2, help="""
     The number of characters a user must type before completions are presented.
     """)
 

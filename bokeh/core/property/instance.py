@@ -57,18 +57,11 @@ T = TypeVar("T", bound=Serializable)
 #-----------------------------------------------------------------------------
 
 class Instance(Property[T]):
-    """ Accept values that are instances of serializable types (e.g. |HasProps|).
+    """ Accept values that are instances of serializable types (e.g. |HasProps|). """
 
-    Args:
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
-    """
     _instance_type: Type[T] | Callable[[], Type[T]] | str
 
-    def __init__(self, instance_type: Type[T] | Callable[[], Type[T]] | str, default: Init[T] = Undefined,
-            help: str | None = None, readonly: bool = False, serialized: bool | None = None):
+    def __init__(self, instance_type: Type[T] | Callable[[], Type[T]] | str, default: Init[T] = Undefined, help: str | None = None):
         if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
             raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
@@ -77,7 +70,7 @@ class Instance(Property[T]):
 
         self._instance_type = instance_type
 
-        super().__init__(default=default, help=help, readonly=readonly, serialized=serialized)
+        super().__init__(default=default, help=help)
 
     @staticmethod
     def _assert_serializable(instance_type: Type[Any]) -> None:

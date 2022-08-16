@@ -126,11 +126,11 @@ directory, and run the following commands:
 .. code-block:: sh
 
     cd bokehjs
-    npm install -g npm@8
+    npm install --location=global npm@8
 
-If you do not want to install npm globally, leave out the ``-g`` flag. In this
-case, you need to adjust all subsequent ``npm`` commands to use the local
-version installed under ``bokehjs/node_modules``.
+If you do not want to install npm globally, leave out the ``--location=global``
+flag. In this case, you need to adjust all subsequent ``npm`` commands to use
+the local version installed under ``bokehjs/node_modules``.
 
 Next, still in the ``bokehjs`` subdirectory, run the following command
 to install all the JavaScript dependencies for BokehJS:

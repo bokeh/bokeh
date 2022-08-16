@@ -26,6 +26,11 @@ Additions
 
 Provides a replacement for a checkbox input.
 
+``varying_alpha_palette``
+.........................
+
+Generates a palette that is a single color with linearly varying alpha.
+
 Removals
 ~~~~~~~~
 
@@ -162,10 +167,25 @@ in ``Toolbar`` model.
 
 ``ToolButton`` abstract base class was merged into ``Tool`` model.
 
+``MyProperty(..., serialized=False)``
+.....................................
+
+``serialized`` argument was removed and ``serialized=False`` case was replaced
+width ``NotSerialized(MyProperty(...))``.
+
+``MyProperty(..., readonly=True)``
+..................................
+
+``readonly`` argument was removed and ``readonly=True`` case was replaced
+width ``Readonly(MyProperty(...))``.
+
 Renames
 ~~~~~~~
 
 * ``copy_to_clipboard`` icon was renamed to ``copy``
+
+* ``Theme`` support for color bars has had the key changed from ``ColorBar`` to
+  ``BaseColorBar`` so that it also supports ``ContourColorBar``.
 
 Runtime dependencies
 ~~~~~~~~~~~~~~~~~~~~
@@ -201,6 +221,19 @@ use ``toolbar_location=None``.
 This changed and now ``Tooltip`` can be used in various places in bokeh. This required
 changing its type from ``Annotation`` (annotations are canvas specific models) to new
 ``UIElement``, which is a base class for all user interface related models.
+
+``ColorBar`` has new attributes ``display_low`` and ``display_high``
+....................................................................
+
+``ColorBar`` new attributes ``display_low`` and ``display_high`` can be used to
+limit the range of colors displayed in a color bar without affecting the
+underlying color mapping.
+
+``RGB.to_hex()`` includes ``alpha``
+...................................
+
+Previously ``RGB.to_hex()`` ignored the alpha value in the string it returned.
+Now it is included in the string if it is less than the default value of 1.0.
 
 bokehjs changes
 ~~~~~~~~~~~~~~~

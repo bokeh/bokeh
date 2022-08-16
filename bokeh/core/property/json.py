@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from .primitive import String
 
@@ -52,16 +55,9 @@ class JSON(String):
             used by the :ref:`bokeh.sphinxext.bokeh_prop` extension when
             generating Spinx documentation. (default: None)
 
-        serialized (bool, optional) :
-            Whether attributes created from this property should be included
-            in serialization (default: True)
-
-        readonly (bool, optional) :
-            Whether attributes created from this property are read-only.
-            (default: False)
-
     """
-    def validate(self, value, detail=True):
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         try:

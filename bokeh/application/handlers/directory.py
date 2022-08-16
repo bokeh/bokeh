@@ -56,13 +56,7 @@ from os.path import (
     join,
 )
 from types import ModuleType
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Coroutine,
-    Dict,
-    List,
-)
+from typing import TYPE_CHECKING, Any, Coroutine
 
 # External imports
 from jinja2 import Environment, FileSystemLoader, Template
@@ -116,7 +110,7 @@ class DirectoryHandler(Handler):
     _static: str | None
     _template: Template | None
 
-    def __init__(self, *, filename: PathLike, argv: List[str] = []) -> None:
+    def __init__(self, *, filename: PathLike, argv: list[str] = []) -> None:
         '''
         Keywords:
             filename (str) : a path to an application directory with either "main.py" or "main.ipynb"
@@ -297,7 +291,7 @@ class DirectoryHandler(Handler):
         '''
         return self._lifecycle_handler.on_session_destroyed(session_context)
 
-    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
+    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 

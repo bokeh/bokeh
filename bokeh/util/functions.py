@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    List,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from inspect import Signature
@@ -55,7 +50,7 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-def get_param_info(sig: Signature) -> Tuple[List[str], List[Any]]:
+def get_param_info(sig: Signature) -> tuple[list[str], list[Any]]:
     ''' Find parameters with defaults and return them.
 
     Arguments:

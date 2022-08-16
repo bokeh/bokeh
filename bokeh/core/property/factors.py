@@ -18,10 +18,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import typing as tp
+
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
+from .bases import Init, SingleParameterizedProperty
 from .container import Seq, Tuple
 from .either import Either
-from .nullable import NonNullable
 from .primitive import String
 from .singletons import Intrinsic
 
@@ -42,19 +48,22 @@ L1Factor = String
 L2Factor = Tuple(String, String)
 L3Factor = Tuple(String, String, String)
 
-class Factor(NonNullable):
+FactorType: TypeAlias = tp.Union[str, tp.Tuple[str, str], tp.Tuple[str, str]]
+FactorSeqType: TypeAlias = tp.Union[tp.Sequence[str], tp.Sequence[tp.Tuple[str, str]], tp.Sequence[tp.Tuple[str, str]]]
+
+class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """
 
-    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False) -> None:
+    def __init__(self, default: Init[FactorType] = Intrinsic, *, help: str | None = None) -> None:
         type_param = Either(L1Factor, L2Factor, L3Factor)
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(type_param, default=default, help=help)
 
-class FactorSeq(NonNullable):
+class FactorSeq(SingleParameterizedProperty[FactorSeqType]):
     """ Represents a collection of categorical factors. """
 
-    def __init__(self, default=Intrinsic, *, help=None, serialized=None, readonly=False) -> None:
+    def __init__(self, default: Init[FactorSeqType] = Intrinsic, *, help: str | None = None) -> None:
         type_param = Either(Seq(L1Factor), Seq(L2Factor), Seq(L3Factor))
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

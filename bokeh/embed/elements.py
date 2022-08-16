@@ -22,13 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from html import escape
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-    Tuple,
-)
+from typing import TYPE_CHECKING, Any
 
 ## External imports
 if TYPE_CHECKING:
@@ -85,9 +79,9 @@ def div_for_render_item(item: RenderItem) -> str:
     '''
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
-def html_page_for_render_items(bundle: Bundle | Tuple[str, str], docs_json: Dict[ID, DocJson],
-        render_items: List[RenderItem], title: str, template: Template | str | None = None,
-        template_variables: Dict[str, Any] = {}) -> str:
+def html_page_for_render_items(bundle: Bundle | tuple[str, str], docs_json: dict[ID, DocJson],
+        render_items: list[RenderItem], title: str, template: Template | str | None = None,
+        template_variables: dict[str, Any] = {}) -> str:
     ''' Render an HTML page from a template and Bokeh render items.
 
     Args:
@@ -151,7 +145,7 @@ def html_page_for_render_items(bundle: Bundle | Tuple[str, str], docs_json: Dict
     html = template.render(context)
     return html
 
-def script_for_render_items(docs_json_or_id: ID | Dict[ID, DocJson], render_items: List[RenderItem],
+def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_items: list[RenderItem],
                             app_path: str | None = None, absolute_url: str | None = None) -> str:
     ''' Render an script for Bokeh render items.
     Args:

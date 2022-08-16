@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # External imports
 import numpy as np
 from mock import MagicMock, patch
@@ -52,20 +55,26 @@ class TestProperty:
         assert mock_validate.call_args[0] == (None, False)
 
     def test_serialized_default(self) -> None:
-        p = bcpb.Property()
-        assert p.serialized is True
-        assert p.readonly is False
+        class NormalProp(bcpb.Property[Any]):
+            pass
 
-        # readonly=True sets serialized=False if unspecified
-        p = bcpb.Property(readonly=True)
-        assert p.serialized is False
-        assert p.readonly is True
+        class ReadonlyProp(bcpb.Property[Any]):
+            _readonly = True
 
-        # explicit serialized value always respected
-        p = bcpb.Property(readonly=True, serialized=True)
-        assert p.serialized is True
-        assert p.readonly is True
+        class NotSerializedProp(bcpb.Property[Any]):
+            _serialized = False
 
+        p0 = NormalProp()
+        assert p0.serialized is True
+        assert p0.readonly is False
+
+        p1 = ReadonlyProp()
+        assert p1.serialized is False
+        assert p1.readonly is True
+
+        p2 = NotSerializedProp()
+        assert p2.serialized is False
+        assert p2.readonly is False
 
     def test_assert_bools(self) -> None:
         hp = HasProps()

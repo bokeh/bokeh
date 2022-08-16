@@ -68,7 +68,6 @@ export class ToolbarPanelView extends AnnotationView {
 
     if (this._invalidate_toolbar) {
       this.el.style.position = "absolute"
-      this.el.style.overflow = "hidden"
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
       this.toolbar_view.layout.bbox = bbox

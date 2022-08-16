@@ -23,12 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from typing import (
-    Any,
-    Dict,
-    Iterable,
-    overload,
-)
+from typing import Any, Iterable, overload
 from urllib.parse import quote_plus
 
 #-----------------------------------------------------------------------------
@@ -138,7 +133,7 @@ def format_docstring(docstring: str | None, *args: Any, **kwargs: Any) -> str | 
     return None if docstring is None else docstring.format(*args, **kwargs)
 
 
-def format_url_query_arguments(url: str, arguments: Dict[str, str] | None = None) -> str:
+def format_url_query_arguments(url: str, arguments: dict[str, str] | None = None) -> str:
     ''' Format a base URL with optional query arguments
 
     Args:

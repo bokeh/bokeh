@@ -29,15 +29,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
-    List,
-    Set,
     Type,
 )
 
 # Bokeh imports
 from ..core.enums import HoldPolicy, HoldPolicyType
-from ..core.types import Unknown
 from ..events import (
     _CONCRETE_EVENT_CLASSES,
     DocumentEvent,
@@ -74,7 +70,7 @@ __all__ = (
 Callback = Callable[[], None]
 Originator = Callable[..., Any]
 
-MessageCallback = Callable[[Unknown], None]
+MessageCallback = Callable[[Any], None]
 EventCallback = Callable[[Event], None]
 
 #-----------------------------------------------------------------------------
@@ -92,16 +88,16 @@ class DocumentCallbackManager:
 
     _document : weakref.ReferenceType[Document]
 
-    _change_callbacks: Dict[Any, DocumentChangeCallback]
-    _event_callbacks: Dict[str, List[EventCallback]]
-    _message_callbacks: Dict[str, List[MessageCallback]]
-    _session_destroyed_callbacks: Set[SessionDestroyedCallback]
-    _session_callbacks: Set[SessionCallback]
+    _change_callbacks: dict[Any, DocumentChangeCallback]
+    _event_callbacks: dict[str, list[EventCallback]]
+    _message_callbacks: dict[str, list[MessageCallback]]
+    _session_destroyed_callbacks: set[SessionDestroyedCallback]
+    _session_callbacks: set[SessionCallback]
 
-    _subscribed_models: Dict[str, Set[weakref.ReferenceType[Model]]]
+    _subscribed_models: dict[str, set[weakref.ReferenceType[Model]]]
 
     _hold: HoldPolicyType | None = None
-    _held_events: List[DocumentChangedEvent]
+    _held_events: list[DocumentChangedEvent]
 
     def __init__(self, document: Document):
         '''
@@ -127,21 +123,21 @@ class DocumentCallbackManager:
         self.on_message("bokeh_event", self.trigger_event)
 
     @property
-    def session_callbacks(self) -> List[SessionCallback]:
+    def session_callbacks(self) -> list[SessionCallback]:
         ''' A list of all the session callbacks for this document.
 
         '''
         return list(self._session_callbacks)
 
     @property
-    def session_destroyed_callbacks(self) -> Set[SessionDestroyedCallback]:
+    def session_destroyed_callbacks(self) -> set[SessionDestroyedCallback]:
         ''' A list of all the on_session_destroyed callbacks for this document.
 
         '''
         return self._session_destroyed_callbacks
 
     @session_destroyed_callbacks.setter
-    def session_destroyed_callbacks(self, callbacks: Set[SessionDestroyedCallback]) -> None:
+    def session_destroyed_callbacks(self, callbacks: set[SessionDestroyedCallback]) -> None:
         self._session_destroyed_callbacks = callbacks
 
     def add_session_callback(self, callback_obj: SessionCallback, callback: Callback, one_shot: bool) -> SessionCallback:
@@ -213,7 +209,7 @@ class DocumentCallbackManager:
     def hold_value(self) -> HoldPolicyType | None:
         return self._hold
 
-    def notify_change(self, model: Model, attr: str, old: Unknown, new: Unknown,
+    def notify_change(self, model: Model, attr: str, old: Any, new: Any,
             hint: DocumentPatchedEvent | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None) -> None:
         ''' Called by Model when it changes
 
@@ -413,7 +409,7 @@ def invoke_with_curdoc(doc: Document, f: Callable[[], None]) -> None:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _combine_document_events(new_event: DocumentChangedEvent, old_events: List[DocumentChangedEvent]) -> None:
+def _combine_document_events(new_event: DocumentChangedEvent, old_events: list[DocumentChangedEvent]) -> None:
     ''' Attempt to combine a new event with a list of previous events.
 
     The ``old_event`` will be scanned in reverse, and ``.combine(new_event)``

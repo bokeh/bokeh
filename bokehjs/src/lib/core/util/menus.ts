@@ -1,4 +1,4 @@
-import {div, style, classes, display, undisplay, empty, remove, Keys} from "../dom"
+import {div, style, classes, empty, remove, Keys} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
 
@@ -28,13 +28,16 @@ export type MenuEntry = {
 export type MenuItem = MenuEntry | null
 
 export type MenuOptions = {
+  target: HTMLElement
   orientation?: Orientation
   reversed?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
   extra_styles?: string[]
 }
 
-export class ContextMenu {
+//import {DOMComponentView} from "../dom_view"
+
+export class ContextMenu { //extends DOMComponentView {
   readonly el: HTMLElement = div()
   readonly shadow_el: ShadowRoot
   readonly stylesheet_el: HTMLStyleElement
@@ -49,12 +52,14 @@ export class ContextMenu {
     return this.items.length != 0
   }
 
+  readonly target: HTMLElement
   readonly orientation: Orientation
   readonly reversed: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: string[]
 
-  constructor(readonly items: MenuItem[], options: MenuOptions = {}) {
+  constructor(readonly items: MenuItem[], options: MenuOptions) {
+    this.target = options.target
     this.orientation = options.orientation ?? "vertical"
     this.reversed = options.reversed ?? false
     this.prevent_hide = options.prevent_hide
@@ -63,8 +68,6 @@ export class ContextMenu {
     this.shadow_el = this.el.attachShadow({mode: "open"})
     this.stylesheet_el = style({}, ...this.styles())
     this.shadow_el.appendChild(this.stylesheet_el)
-
-    undisplay(this.el)
   }
 
   protected _item_click = (entry: MenuEntry) => {
@@ -92,8 +95,8 @@ export class ContextMenu {
   }
 
   remove(): void {
-    remove(this.el)
     this._unlisten()
+    remove(this.el)
   }
 
   protected _listen(): void {
@@ -109,39 +112,35 @@ export class ContextMenu {
   }
 
   protected _position(at: At): void {
-    const parent_el = (() => {
-      if (this.el.parentNode instanceof ShadowRoot)
-        return this.el.parentNode.host
-      else
-        return this.el.parentElement
+    const pos = (() => {
+      if ("left_of" in at) {
+        const {left, top} = at.left_of.getBoundingClientRect()
+        return {right: left, top}
+      }
+      if ("right_of" in at) {
+        const {top, right} = at.right_of.getBoundingClientRect()
+        return {left: right, top}
+      }
+      if ("below" in at) {
+        const {left, bottom} = at.below.getBoundingClientRect()
+        return {left, top: bottom}
+      }
+      if ("above" in at) {
+        const {left, top} = at.above.getBoundingClientRect()
+        return {left, bottom: top}
+      }
+      return at
     })()
-    if (parent_el != null) {
-      const pos = (() => {
-        if ("left_of" in at) {
-          const {left, top} = at.left_of.getBoundingClientRect()
-          return {right: left, top}
-        }
-        if ("right_of" in at) {
-          const {top, right} = at.right_of.getBoundingClientRect()
-          return {left: right, top}
-        }
-        if ("below" in at) {
-          const {left, bottom} = at.below.getBoundingClientRect()
-          return {left, top: bottom}
-        }
-        if ("above" in at) {
-          const {left, top} = at.above.getBoundingClientRect()
-          return {left, bottom: top}
-        }
-        return at
-      })()
 
-      const parent = parent_el.getBoundingClientRect()
-      this.el.style.left = pos.left != null ? `${pos.left - parent.left}px` : ""
-      this.el.style.top = pos.top != null ? `${pos.top - parent.top}px` : ""
-      this.el.style.right = pos.right != null ? `${parent.right - pos.right}px` : ""
-      this.el.style.bottom = pos.bottom != null ? `${parent.bottom - pos.bottom}px` : ""
-    }
+    const rect = this.target.getBoundingClientRect()
+    const style = getComputedStyle(this.target)
+    const margin_left = parseFloat(style.marginLeft)
+    const margin_top = parseFloat(style.marginTop)
+
+    this.el.style.left = pos.left != null ? `${pos.left - (rect.left - margin_left)}px` : ""
+    this.el.style.top = pos.top != null ? `${pos.top - (rect.top - margin_top)}px` : ""
+    this.el.style.right = pos.right != null ? `${rect.right + margin_left - pos.right}px` : ""
+    this.el.style.bottom = pos.bottom != null ? `${rect.bottom + margin_top - pos.bottom}px` : ""
   }
 
   styles(): string[] {
@@ -192,8 +191,8 @@ export class ContextMenu {
       this.render()
       if (this.shadow_el.children.length == 0)
         return
+      (this.target.shadowRoot ?? this.target).appendChild(this.el)
       this._position(at ?? {left: 0, top: 0})
-      display(this.el)
       this._listen()
       this._open = true
     }
@@ -203,7 +202,7 @@ export class ContextMenu {
     if (this._open) {
       this._open = false
       this._unlisten()
-      undisplay(this.el)
+      remove(this.el)
     }
   }
 

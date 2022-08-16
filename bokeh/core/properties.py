@@ -94,10 +94,12 @@ Basic Properties
 .. autoclass:: JSON
 .. autoclass:: MarkerType
 .. autoclass:: MinMaxBounds
+.. autoclass:: NonNegative
 .. autoclass:: NonNegativeInt
 .. autoclass:: Nothing
 .. autoclass:: Null
 .. autoclass:: Percent
+.. autoclass:: Positive
 .. autoclass:: PositiveInt
 .. autoclass:: RGB
 .. autoclass:: Regex
@@ -148,7 +150,9 @@ Special Properties
 .. autoclass:: Include
 .. autoclass:: Nullable
 .. autoclass:: NonNullable
+.. autoclass:: NotSerialized
 .. autoclass:: Override
+.. autoclass:: Required
 
 Validation-only Properties
 --------------------------
@@ -233,8 +237,10 @@ __all__ = (
     'MathString',
     'MinMaxBounds',
     'NonEmpty',
+    'NonNegative',
     'NonNegativeInt',
     'NonNullable',
+    'NotSerialized',
     'Nothing',
     'Null',
     'NullStringSpec',
@@ -244,11 +250,13 @@ __all__ = (
     'PandasDataFrame',
     'PandasGroupBy',
     'Percent',
+    'Positive',
     'PositiveInt',
     'RGB',
     'Readonly',
     'Regex',
     'RelativeDelta',
+    'Required',
     'RestrictedDict',
     'Seq',
     'Size',
@@ -343,8 +351,10 @@ from .property.nullable import Nullable; Nullable
 from .property.numeric import Angle; Angle
 from .property.numeric import Byte; Byte
 from .property.numeric import Interval; Interval
+from .property.numeric import NonNegative; NonNegative
 from .property.numeric import NonNegativeInt; NonNegativeInt
 from .property.numeric import Percent; Percent
+from .property.numeric import Positive; Positive
 from .property.numeric import PositiveInt; PositiveInt
 from .property.numeric import Size; Size
 
@@ -362,6 +372,10 @@ from .property.primitive import Null; Null
 from .property.primitive import String; String
 
 from .property.readonly import Readonly; Readonly
+
+from .property.required import Required; Required
+
+from .property.serialized import NotSerialized; NotSerialized
 
 from .property.string import MathString; MathString
 from .property.string import Regex; Regex

@@ -27,7 +27,7 @@ from typing import Any
 # Bokeh imports
 from ... import colors
 from .. import enums
-from .bases import Property
+from .bases import Init, Property
 from .container import Tuple
 from .either import Either
 from .enum import Enum
@@ -56,7 +56,7 @@ class RGB(Property[colors.RGB]):
 
     """
 
-    def validate(self, value: Any, detail: bool = True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
         if isinstance(value, colors.RGB):
@@ -117,7 +117,7 @@ class Color(Either):
 
     """
 
-    def __init__(self, default=Undefined, help=None) -> None:
+    def __init__(self, default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined, *, help: str | None = None) -> None:
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
                  Regex(r"^#[0-9a-fA-F]{4}$"),
@@ -137,7 +137,7 @@ class Color(Either):
     def __str__(self) -> str:
         return self.__class__.__name__
 
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         if isinstance(value, tuple):
             value = colors.RGB(*value).to_css()
         return value
@@ -151,11 +151,13 @@ class ColorHex(Color):
 
     """
 
-    def transform(self, value):
+    def transform(self, value: Any) -> Any:
         if isinstance(value, str):
             value = value.lower()
             if value.startswith('rgb'):
-                value = colors.RGB(*[int(val) for val in re.findall(r"\d+", value)[:3]]).to_hex()
+                match = re.findall(r"[\d\.]+", value)
+                a = float(match[3]) if value[3] == 'a' else 1.0
+                value = colors.RGB(int(match[0]), int(match[1]), int(match[2]), a).to_hex()
             elif value in enums.NamedColor:
                 value = getattr(colors.named, value).to_hex()
         elif isinstance(value, tuple):
@@ -172,7 +174,7 @@ class Alpha(Percent):
     transparent and 1 being opaque).
     """
 
-    def __init__(self, default=1.0, help=None) -> None:
+    def __init__(self, default: Init[float] = 1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help)
 

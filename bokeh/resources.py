@@ -42,14 +42,15 @@ from typing import (
     Callable,
     ClassVar,
     Dict,
-    List,
     Literal,
     Protocol,
-    Tuple,
     Union,
     cast,
     get_args,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from . import __version__
@@ -70,10 +71,10 @@ DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
 DEFAULT_SERVER_HTTP_URL = f"http://{DEFAULT_SERVER_HOST}:{DEFAULT_SERVER_PORT}/"
 
-BaseMode = Literal["inline", "cdn", "server", "relative", "absolute"]
-DevMode = Literal["server-dev", "relative-dev", "absolute-dev"]
+BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
+DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
-ResourcesMode = Union[BaseMode, DevMode]
+ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
 
 # __all__ defined at the bottom on the class module
 
@@ -85,11 +86,11 @@ ResourcesMode = Union[BaseMode, DevMode]
 # Dev API
 # -----------------------------------------------------------------------------
 
-Hashes = Dict[str, str]
+Hashes: TypeAlias = Dict[str, str]
 
-_SRI_HASHES: Dict[str, Hashes] | None = None
+_SRI_HASHES: dict[str, Hashes] | None = None
 
-def get_all_sri_hashes() -> Dict[str, Hashes]:
+def get_all_sri_hashes() -> dict[str, Hashes]:
     """ Report SRI script hashes for all versions of BokehJS.
 
     Bokeh provides `Subresource Integrity`_ hashes for all JavaScript files that
@@ -211,7 +212,7 @@ def verify_sri_hashes() -> None:
     if len(hashes) > len(paths):
         raise RuntimeError("There are 'bokeh*.js' files missing in the package")
 
-    bad: List[str] = []
+    bad: list[str] = []
     for path in paths:
         name, suffix = basename(path).split(".", 1)
         filename = f"{name}-{__version__}.{suffix}"
@@ -234,16 +235,16 @@ class RuntimeMessage:
 # XXX: https://github.com/python/mypy/issues/5485
 class UrlsFn(Protocol):
     @staticmethod
-    def __call__(components: List[str], kind: Kind) -> List[str]: ...
+    def __call__(components: list[str], kind: Kind) -> list[str]: ...
 
 class HashesFn(Protocol):
     @staticmethod
-    def __call__(components: List[str], kind: Kind) -> Hashes: ...
+    def __call__(components: list[str], kind: Kind) -> Hashes: ...
 
 @dataclass
 class Urls:
     urls: UrlsFn
-    messages: List[RuntimeMessage] = field(default_factory=list)
+    messages: list[RuntimeMessage] = field(default_factory=list)
     hashes: HashesFn | None = None
 
 ResourceAttr = Literal["__css__", "__javascript__"]
@@ -253,12 +254,12 @@ class BaseResources:
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     mode: BaseMode
-    messages: List[RuntimeMessage]
+    messages: list[RuntimeMessage]
 
     _log_level: LogLevel
 
-    _js_components: ClassVar[List[str]]
-    _css_components: ClassVar[List[str]]
+    _js_components: ClassVar[list[str]]
+    _css_components: ClassVar[list[str]]
 
     def __init__(
         self,
@@ -269,7 +270,7 @@ class BaseResources:
         log_level: LogLevel | None = None,
         root_url: str | None = None,
         path_versioner: PathVersioner | None = None,
-        components: List[str] | None = None,
+        components: list[str] | None = None,
         base_dir: str | None = None, # TODO: PathLike
     ):
         self._components = components
@@ -348,25 +349,25 @@ class BaseResources:
 
     # Public methods ----------------------------------------------------------
 
-    def components(self, kind: Kind) -> List[str]:
+    def components(self, kind: Kind) -> list[str]:
         components = self.js_components if kind == "js" else self.css_components
         if self._components is not None:
             components = [c for c in components if c in self._components]
         return components
 
-    def _file_paths(self, kind: Kind) -> List[str]:
+    def _file_paths(self, kind: Kind) -> list[str]:
         minified = ".min" if not self.dev and self.minified else ""
 
         files = [f"{component}{minified}.{kind}" for component in self.components(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
-    def _collect_external_resources(self, resource_attr: ResourceAttr) -> List[str]:
+    def _collect_external_resources(self, resource_attr: ResourceAttr) -> list[str]:
         """ Collect external resources set on resource_attr attribute of all models."""
-        external_resources: List[str] = []
+        external_resources: list[str] = []
 
         for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
-            external: List[str] | str | None = getattr(cls, resource_attr, None)
+            external: list[str] | str | None = getattr(cls, resource_attr, None)
 
             if isinstance(external, str):
                 if external not in external_resources:
@@ -384,7 +385,7 @@ class BaseResources:
     def _server_urls(self) -> Urls:
         return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
 
-    def _resolve(self, kind: Kind) -> Tuple[List[str], List[str], Hashes]:
+    def _resolve(self, kind: Kind) -> tuple[list[str], list[str], Hashes]:
         paths = self._file_paths(kind)
         files, raw = [], []
         hashes = {}
@@ -473,13 +474,13 @@ class JSResources(BaseResources):
     # Properties --------------------------------------------------------------
 
     @property
-    def js_files(self) -> List[str]:
+    def js_files(self) -> list[str]:
         files, _, _ = self._resolve("js")
         external_resources = self._collect_external_resources("__javascript__")
         return external_resources + files
 
     @property
-    def js_raw(self) -> List[str]:
+    def js_raw(self) -> list[str]:
         _, raw, _ = self._resolve("js")
 
         if self.log_level is not None:
@@ -550,18 +551,18 @@ class CSSResources(BaseResources):
     # Properties --------------------------------------------------------------
 
     @property
-    def css_files(self) -> List[str]:
+    def css_files(self) -> list[str]:
         files, _, _ = self._resolve("css")
         external_resources = self._collect_external_resources("__css__")
         return external_resources + files
 
     @property
-    def css_raw(self) -> List[str]:
+    def css_raw(self) -> list[str]:
         _, raw, _ = self._resolve("css")
         return raw
 
     @property
-    def css_raw_str(self) -> List[str]:
+    def css_raw_str(self) -> list[str]:
         return [json.dumps(css) for css in self.css_raw]
 
     # Public methods ----------------------------------------------------------
@@ -750,7 +751,7 @@ def _compute_single_hash(path: str) -> str:
 # Code
 # -----------------------------------------------------------------------------
 
-ResourcesLike = Union[Resources, ResourcesMode]
+ResourcesLike: TypeAlias = Union[Resources, ResourcesMode]
 
 CDN = Resources(mode="cdn")
 

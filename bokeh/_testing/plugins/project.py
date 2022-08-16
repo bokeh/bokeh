@@ -29,9 +29,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Protocol,
-    Tuple,
 )
 
 # External imports
@@ -106,7 +104,7 @@ def output_file_url(request: pytest.FixtureRequest, file_server: SimpleWebServer
     return file_server.where_is(url)
 
 @pytest.fixture
-def test_file_path_and_url(request: pytest.FixtureRequest, file_server: SimpleWebServer) -> Tuple[str, str]:
+def test_file_path_and_url(request: pytest.FixtureRequest, file_server: SimpleWebServer) -> tuple[str, str]:
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
@@ -133,7 +131,7 @@ def find_free_port() -> int:
         return s.getsockname()[1]
 
 class BokehAppInfo(Protocol):
-    def __call__(self, modify_doc: ModifyDoc) -> Tuple[str, ws.MessageTestPort]: ...
+    def __call__(self, modify_doc: ModifyDoc) -> tuple[str, ws.MessageTestPort]: ...
 
 class HasNoConsoleErrors(Protocol):
     def __call__(self, webdriver: WebDriver) -> bool: ...
@@ -148,7 +146,7 @@ def bokeh_app_info(request: pytest.FixtureRequest, driver: WebDriver) -> BokehAp
 
     '''
 
-    def func(modify_doc: ModifyDoc) -> Tuple[str, ws.MessageTestPort]:
+    def func(modify_doc: ModifyDoc) -> tuple[str, ws.MessageTestPort]:
         ws._message_test_port = ws.MessageTestPort(sent=[], received=[])
         port = find_free_port()
         def worker() -> None:
@@ -231,7 +229,7 @@ class _CanvasMixin(_ElementMixin):
         return self._driver.execute_script('Bokeh.documents[0].get_model_by_name("custom-action").execute()')
 
     def get_toolbar_button(self, name: str) -> WebElement:
-        return find_matching_element(self._driver, f".bk-tool-icon-{name}")
+        return find_matching_element(self._driver, f".bk-tool-icon-{name}", parent=True)
 
 class _BokehPageMixin(_ElementMixin):
 
@@ -240,7 +238,7 @@ class _BokehPageMixin(_ElementMixin):
     _has_no_console_errors: HasNoConsoleErrors
 
     @property
-    def results(self) -> Dict[str, Any]:
+    def results(self) -> dict[str, Any]:
         WebDriverWait(self._driver, 10).until(EC.staleness_of(self.test_div))
         self.test_div = find_matching_element(self._driver, ".bokeh-test-div")
         return self._driver.execute_script(RESULTS)

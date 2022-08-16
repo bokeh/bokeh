@@ -298,6 +298,19 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
+  it("should support Text with text_outline_color", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.text({
+        x, y, text: "Some",
+        text_outline_color: "black", text_color: "yellow",
+        text_font_size: "30px", text_font_style: "bold",
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
   it("should support VArea", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})

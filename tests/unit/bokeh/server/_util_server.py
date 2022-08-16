@@ -18,12 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-)
+from typing import TYPE_CHECKING, Any
 
 # External imports
 from tornado.httpclient import AsyncHTTPClient, HTTPRequest
@@ -61,14 +56,14 @@ def url(server: Server, prefix: str = "") -> str:
 def ws_url(server: Server, prefix: str = "") -> str:
     return f"ws://localhost:{server.port}{prefix}/ws"
 
-async def http_get(io_loop: IOLoop, url: str, headers: Dict[str, str] | None = None) -> Any:
+async def http_get(io_loop: IOLoop, url: str, headers: dict[str, str] | None = None) -> Any:
     http_client = AsyncHTTPClient()
     if not headers:
         headers = {}
     return await http_client.fetch(url, headers=headers)
 
 async def websocket_open(io_loop: IOLoop, url: str, origin: str | None = None,
-        subprotocols: List[str] = []) -> WebSocketClientConnection:
+        subprotocols: list[str] = []) -> WebSocketClientConnection:
     request = HTTPRequest(url)
     if origin is not None:
         request.headers["Origin"] = origin

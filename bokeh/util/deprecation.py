@@ -21,6 +21,9 @@ log = logging.getLogger(__name__)
 import warnings  # lgtm [py/import-and-import-from]
 from typing import Tuple, overload
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
 from .warnings import BokehDeprecationWarning
 
@@ -33,7 +36,7 @@ __all__ = (
     'warn',
 )
 
-Version = Tuple[int, int, int]
+Version: TypeAlias = Tuple[int, int, int]
 
 #-----------------------------------------------------------------------------
 # General API

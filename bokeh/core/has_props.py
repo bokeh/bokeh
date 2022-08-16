@@ -34,13 +34,9 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
     Iterable,
-    List,
     Literal,
     NoReturn,
-    Set,
-    Tuple,
     Type,
     TypedDict,
     TypeVar,
@@ -55,6 +51,9 @@ if TYPE_CHECKING:
 else:
     from functools import lru_cache
 
+# External imports
+from typing_extensions import TypeAlias
+
 # Bokeh imports
 from ..util.string import append_docstring, nice_join
 from .property.descriptor_factory import PropertyDescriptorFactory
@@ -68,7 +67,7 @@ from .serialization import (
     Serializable,
     Serializer,
 )
-from .types import ID, Unknown
+from .types import ID
 
 if TYPE_CHECKING:
     from ..client.session import ClientSession
@@ -97,7 +96,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Setter = Union[ClientSession, ServerSession]
+    Setter: TypeAlias = Union[ClientSession, ServerSession]
 
 C = TypeVar("C", bound=Type["HasProps"])
 
@@ -114,8 +113,8 @@ def is_DataModel(cls: Type[HasProps]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
-def _overridden_defaults(class_dict: Dict[str, Any]) -> Dict[str, Unknown]:
-    overridden_defaults: Dict[str, Unknown] = {}
+def _overridden_defaults(class_dict: dict[str, Any]) -> dict[str, Any]:
+    overridden_defaults: dict[str, Any] = {}
     for name, prop in tuple(class_dict.items()):
         if isinstance(prop, Override):
             del class_dict[name]
@@ -123,8 +122,8 @@ def _overridden_defaults(class_dict: Dict[str, Any]) -> Dict[str, Unknown]:
                 overridden_defaults[name] = prop.default
     return overridden_defaults
 
-def _generators(class_dict: Dict[str, Any]):
-    generators: Dict[str, PropertyDescriptorFactory[Any]] = {}
+def _generators(class_dict: dict[str, Any]):
+    generators: dict[str, PropertyDescriptorFactory[Any]] = {}
     for name, generator in tuple(class_dict.items()):
         if isinstance(generator, PropertyDescriptorFactory):
             del class_dict[name]
@@ -142,11 +141,11 @@ class MetaHasProps(type):
 
     '''
 
-    __properties__: Dict[str, Property[Any]]
-    __overridden_defaults__: Dict[str, Unknown]
-    __themed_values__: Dict[str, Unknown]
+    __properties__: dict[str, Property[Any]]
+    __overridden_defaults__: dict[str, Any]
+    __themed_values__: dict[str, Any]
 
-    def __new__(cls, class_name: str, bases: Tuple[type, ...], class_dict: Dict[str, Any]):
+    def __new__(cls, class_name: str, bases: tuple[type, ...], class_dict: dict[str, Any]):
         '''
 
         '''
@@ -169,13 +168,13 @@ class MetaHasProps(type):
 
         return super().__new__(cls, class_name, bases, class_dict)
 
-    def __init__(cls, class_name: str, bases: Tuple[type, ...], _) -> None:
+    def __init__(cls, class_name: str, bases: tuple[type, ...], _) -> None:
         # HasProps itself may not have any properties defined
         if class_name == "HasProps":
             return
 
         # Check for improperly redeclared a Property attribute.
-        base_properties: Dict[str, Any] = {}
+        base_properties: dict[str, Any] = {}
         for base in (x for x in bases if issubclass(x, HasProps)):
             base_properties.update(base.properties(_with_props=True))
         own_properties = {k: v for k, v in cls.__dict__.items() if isinstance(v, PropertyDescriptor)}
@@ -208,9 +207,9 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     '''
     _initialized: bool = False
 
-    _property_values: Dict[str, Unknown]
-    _unstable_default_values: Dict[str, Unknown]
-    _unstable_themed_values: Dict[str, Unknown]
+    _property_values: dict[str, Any]
+    _unstable_default_values: dict[str, Any]
+    _unstable_themed_values: dict[str, Any]
 
     __view_model__: ClassVar[str]
     __view_module__: ClassVar[str]
@@ -218,7 +217,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     __implementation__: ClassVar[Any] # TODO: specific type
     __data_model__: ClassVar[bool]
 
-    model_class_reverse_map: ClassVar[Dict[str, Type[HasProps]]] = {}
+    model_class_reverse_map: ClassVar[dict[str, Type[HasProps]]] = {}
 
     @classmethod
     def __init_subclass__(cls):
@@ -276,7 +275,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         self._initialized = True
 
-    def __setattr__(self, name: str, value: Unknown) -> None:
+    def __setattr__(self, name: str, value: Any) -> None:
         ''' Intercept attribute setting on HasProps in order to special case
         a few situations:
 
@@ -474,16 +473,16 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     @overload
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: Literal[False] = False) -> Set[str]: ...
+    def properties(cls, *, _with_props: Literal[False] = False) -> set[str]: ...
 
     @overload
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: Literal[True] = True) -> Dict[str, Property[Any]]: ...
+    def properties(cls, *, _with_props: Literal[True] = True) -> dict[str, Property[Any]]: ...
 
     @classmethod
     @lru_cache(None)
-    def properties(cls, *, _with_props: bool = False) -> Set[str] | Dict[str, Property[Any]]:
+    def properties(cls, *, _with_props: bool = False) -> set[str] | dict[str, Property[Any]]:
         ''' Collect the names of properties on this class.
 
         .. warning::
@@ -495,7 +494,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             property names
 
         '''
-        props: Dict[str, Property[Any]] = {}
+        props: dict[str, Property[Any]] = {}
         for c in reversed(cls.__mro__):
             props.update(getattr(c, "__properties__", {}))
 
@@ -506,7 +505,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def properties_with_refs(cls) -> Dict[str, Property[Any]]:
+    def properties_with_refs(cls) -> dict[str, Property[Any]]:
         ''' Collect the names of all properties on this class that also have
         references.
 
@@ -521,7 +520,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
-    def dataspecs(cls) -> Dict[str, DataSpec]:
+    def dataspecs(cls) -> dict[str, DataSpec]:
         ''' Collect the names of all ``DataSpec`` properties on this class.
 
         This method *always* traverses the class hierarchy and includes
@@ -534,7 +533,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         from .property.dataspec import DataSpec  # avoid circular import
         return {k: v for k, v in cls.properties(_with_props=True).items() if isinstance(v, DataSpec)}
 
-    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Unknown]:
+    def properties_with_values(self, *, include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Collect a dict mapping property names to their values.
 
         This method *always* traverses the class hierarchy and includes
@@ -559,20 +558,20 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             include_defaults=include_defaults, include_undefined=include_undefined)
 
     @classmethod
-    def _overridden_defaults(cls) -> Dict[str, Unknown]:
+    def _overridden_defaults(cls) -> dict[str, Any]:
         ''' Returns a dictionary of defaults that have been overridden.
 
         .. note::
             This is an implementation detail of ``Property``.
 
         '''
-        defaults: Dict[str, Unknown] = {}
+        defaults: dict[str, Any] = {}
         for c in reversed(cls.__mro__):
             defaults.update(getattr(c, "__overridden_defaults__", {}))
         return defaults
 
     def query_properties_with_values(self, query: Callable[[PropertyDescriptor[Any]], bool], *,
-            include_defaults: bool = True, include_undefined: bool = False) -> Dict[str, Unknown]:
+            include_defaults: bool = True, include_undefined: bool = False) -> dict[str, Any]:
         ''' Query the properties values of |HasProps| instances with a
         predicate.
 
@@ -589,8 +588,8 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             dict : mapping of property names and values for matching properties
 
         '''
-        themed_keys: Set[str] = set()
-        result: Dict[str, Unknown] = {}
+        themed_keys: set[str] = set()
+        result: dict[str, Any] = {}
 
         if include_defaults:
             keys = self.properties(_with_props=True)
@@ -626,7 +625,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
         return result
 
-    def themed_values(self) -> Dict[str, Unknown] | None:
+    def themed_values(self) -> dict[str, Any] | None:
         ''' Get any theme-provided overrides.
 
         Results are returned as a dict from property name to value, or
@@ -638,7 +637,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         return getattr(self, '__themed_values__', None)
 
-    def apply_theme(self, property_values: Dict[str, Unknown]) -> None:
+    def apply_theme(self, property_values: dict[str, Any]) -> None:
         ''' Apply a set of theme values which will be used rather than
         defaults, but will not override application-set values.
 
@@ -659,13 +658,13 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         if old_dict is property_values:  # lgtm [py/comparison-using-is]
             return
 
-        removed: Set[str] = set()
+        removed: set[str] = set()
         # we're doing a little song-and-dance to avoid storing __themed_values__ or
         # an empty dict, if there's no theme that applies to this HasProps instance.
         if old_dict is not None:
             removed.update(set(old_dict.keys()))
         added = set(property_values.keys())
-        old_values: Dict[str, Unknown] = {}
+        old_values: dict[str, Any] = {}
         for k in added.union(removed):
             old_values[k] = getattr(self, k)
 
@@ -710,19 +709,19 @@ class _PropertyDef(TypedDict):
     name: str
     kind: KindRef
 class PropertyDef(_PropertyDef, total=False):
-    default: Unknown
+    default: Any
 
 class OverrideDef(TypedDict):
     name: str
-    default: Unknown
+    default: Any
 
 class _ModelDef(TypedDict):
     type: Literal["model"]
     name: str
 class ModelDef(_ModelDef, total=False):
     extends: Ref | None
-    properties: List[PropertyDef]
-    overrides: List[OverrideDef]
+    properties: list[PropertyDef]
+    overrides: list[OverrideDef]
 
 def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
@@ -734,7 +733,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
         return ref
 
     # TODO: consider supporting mixin models
-    bases: List[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    bases: list[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
     if len(bases) == 0:
         extends = None
     elif len(bases) == 1:
@@ -743,8 +742,8 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
     else:
         serializer.error("multiple bases are not supported")
 
-    properties: List[PropertyDef] = []
-    overrides: List[OverrideDef] = []
+    properties: list[PropertyDef] = []
+    overrides: list[OverrideDef] = []
 
     # TODO: don't use unordered sets
     for prop_name in cls.__properties__:

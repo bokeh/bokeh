@@ -25,10 +25,8 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Dict,
-    List,
     Literal,
     Sequence,
-    Tuple,
     Type,
     TypedDict,
     Union,
@@ -38,10 +36,11 @@ from typing import (
 
 # External imports
 from jinja2 import Template
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .. import __version__
-from ..core.templates import (  # type: ignore[attr-defined]
+from ..core.templates import (
     AUTOLOAD_JS,
     AUTOLOAD_TAG,
     FILE,
@@ -78,16 +77,16 @@ __all__ = (
     'json_item',
 )
 
-ModelLike = Union[Model, Document]
-ModelLikeCollection = Union[Sequence[ModelLike], Dict[str, ModelLike]]
+ModelLike: TypeAlias = Union[Model, Document]
+ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], Dict[str, ModelLike]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike = Union[None, Theme, Type[FromCurdoc]]
+ThemeLike: TypeAlias = Union[None, Theme, Type[FromCurdoc]]
 
-def autoload_static(model: Union[Model, Document], resources: Resources, script_path: str) -> Tuple[str, str]:
+def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
     Bokeh Plots.
 
@@ -139,27 +138,27 @@ def autoload_static(model: Union[Model, Document], resources: Resources, script_
 
 @overload
 def components(models: Model, wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, str]: ...
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, str]: ...
 @overload
 def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> Tuple[str, RenderRoot]: ...
+    theme: ThemeLike = ...) -> tuple[str, RenderRoot]: ...
 
 @overload
 def components(models: Sequence[Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Sequence[str]]: ...
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, Sequence[str]]: ...
 @overload
 def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> Tuple[str, Sequence[RenderRoot]]: ...
+    theme: ThemeLike = ...) -> tuple[str, Sequence[RenderRoot]]: ...
 
 @overload
-def components(models: Dict[str, Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
-    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> Tuple[str, Dict[str, str]]: ...
+def components(models: dict[str, Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+    wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, dict[str, str]]: ...
 @overload
-def components(models: Dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
-    theme: ThemeLike = ...) -> Tuple[str, Dict[str, RenderRoot]]: ...
+def components(models: dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
+    theme: ThemeLike = ...) -> tuple[str, dict[str, RenderRoot]]: ...
 
-def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: bool = True,
-               wrap_plot_info: bool = True, theme: ThemeLike = None) -> Tuple[str, Any]:
+def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: bool = True,
+               wrap_plot_info: bool = True, theme: ThemeLike = None) -> tuple[str, Any]:
     ''' Return HTML components to embed a Bokeh plot. The data for the plot is
     stored directly in the returned HTML.
 
@@ -248,7 +247,7 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
-    dict_type: Type[Dict[Any, Any]] = dict
+    dict_type: Type[dict[Any, Any]] = dict
     if isinstance(models, dict):
         dict_type = models.__class__
         model_keys = models.keys()
@@ -266,7 +265,7 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
     def div_for_root(root: RenderRoot) -> str:
         return ROOT_DIV.render(root=root, macros=MACROS)
 
-    results: List[str] | List[RenderRoot]
+    results: list[str] | list[RenderRoot]
     if wrap_plot_info:
         results = [div_for_root(root) for root in render_item.roots]
     else:
@@ -284,10 +283,10 @@ def components(models: Model | Sequence[Model] | Dict[str, Model], wrap_script: 
     return script, result
 
 def file_html(models: Model | Document | Sequence[Model],
-              resources: Resources | Tuple[JSResources | None, CSSResources | None] | None,
+              resources: Resources | tuple[JSResources | None, CSSResources | None] | None,
               title: str | None = None,
               template: Template | str = FILE,
-              template_variables: Dict[str, Any] = {},
+              template_variables: dict[str, Any] = {},
               theme: ThemeLike = None,
               suppress_callback_warning: bool = False,
               _always_new: bool = False) -> str:
@@ -416,9 +415,8 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -
     '''
     with OutputDocumentFor([model], apply_theme=theme) as doc:
         doc.title = ""
-        docs_json = standalone_docs_json([model])
+        [doc_json] = standalone_docs_json([model]).values()
 
-    doc_json = list(docs_json.values())[0]
     root_id = doc_json["roots"][0]["id"]
 
     return StandaloneEmbedJson(
@@ -436,7 +434,7 @@ def json_item(model: Model, target: ID | None = None, theme: ThemeLike = None) -
 # Private API
 #-----------------------------------------------------------------------------
 
-def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> ModelLikeCollection:
+def _check_models_or_docs(models: ModelLike | ModelLikeCollection) -> ModelLikeCollection:
     '''
 
     '''
@@ -462,7 +460,7 @@ def _check_models_or_docs(models: Union[ModelLike, ModelLikeCollection]) -> Mode
 
     return models
 
-def _title_from_models(models: Sequence[Union[Model, Document]], title: str | None) -> str:
+def _title_from_models(models: Sequence[Model | Document], title: str | None) -> str:
     # use override title
     if title is not None:
         return title

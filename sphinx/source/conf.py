@@ -86,6 +86,10 @@ autoclasstoc_sections = [
 
 autodoc_member_order = 'groupwise'
 
+autodoc_type_aliases = {
+    'ArrayLike': 'ArrayLike',  # This avoids complicated Unions in generated docs
+}
+
 copybutton_prompt_text = ">>> "
 
 bokeh_missing_google_api_key_ok = False

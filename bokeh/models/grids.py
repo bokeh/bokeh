@@ -72,6 +72,11 @@ class Grid(GuideRenderer):
     will span the entire visible range.
     """)
 
+    cross_bounds = Either(Auto, Tuple(Float, Float), help="""
+    Bounds for the rendered grid lines in the orthogonal direction. By default,
+    a grid will span the entire visible range.
+    """)
+
     axis = Nullable(Instance(Axis), help="""
     An Axis to delegate ticking to. If the ticker property is None, then the
     Grid will use the ticker on the specified axis for computing where to draw

@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import List
-
 # Module under test
 import bokeh.util.dataclasses as dc # isort:skip
 
@@ -33,7 +30,7 @@ import bokeh.util.dataclasses as dc # isort:skip
 @dc.dataclass
 class X:
     f0: int
-    f1: List[int]
+    f1: list[int]
     f2: X | None = None
     f3: dc.NotRequired[bool | None] = dc.Unspecified
 

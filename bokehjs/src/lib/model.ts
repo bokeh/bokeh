@@ -2,11 +2,13 @@ import {HasProps} from "./core/has_props"
 import {Class} from "./core/class"
 import {ModelEvent} from "./core/bokeh_events"
 import * as p from "./core/properties"
-import {isString} from "./core/util/types"
+import {isString, isPlainObject} from "./core/util/types"
 import {obj} from "./core/util/object"
 import {equals, Comparator} from "core/util/eq"
 import {logger} from "./core/logging"
 import {CallbackLike0} from "./models/callbacks/callback"
+
+export type ModelSelector<T> = Class<T> | string | {type: string}
 
 export namespace Model {
   export type Attrs = p.AttrsOf<Props>
@@ -119,16 +121,18 @@ export class Model extends HasProps {
     this.document!.event_manager.subscribed_models.delete(this)
   }
 
-  select<T extends HasProps>(selector: Class<T> | string): T[] {
+  select<T extends HasProps>(selector: ModelSelector<T>): T[] {
     if (isString(selector))
       return [...this.references()].filter((ref): ref is T => ref instanceof Model && ref.name === selector)
+    else if (isPlainObject(selector) && "type" in selector)
+      return [...this.references()].filter((ref): ref is T => ref.type == selector.type)
     else if (selector.prototype instanceof HasProps)
       return [...this.references()].filter((ref): ref is T => ref instanceof selector)
     else
       throw new Error("invalid selector")
   }
 
-  select_one<T extends HasProps>(selector: Class<T> | string): T | null {
+  select_one<T extends HasProps>(selector: ModelSelector<T>): T | null {
     const result = this.select(selector)
     switch (result.length) {
       case 0:

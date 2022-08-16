@@ -35,12 +35,8 @@ from os.path import (
 from typing import (
     TYPE_CHECKING,
     Callable,
-    Dict,
     Iterator,
-    List,
     Sequence,
-    Set,
-    Tuple,
     Type,
     TypedDict,
 )
@@ -102,14 +98,14 @@ class Style(Artifact):
 
 class Bundle:
 
-    js_files: List[str]
-    js_raw: List[str]
-    css_files: List[str]
-    css_raw: List[str]
+    js_files: list[str]
+    js_raw: list[str]
+    css_files: list[str]
+    css_raw: list[str]
     hashes: Hashes
 
-    def __init__(self, js_files: List[str] = [], js_raw: List[str] = [],
-            css_files: List[str] = [], css_raw: List[str] = [], hashes: Hashes = {}):
+    def __init__(self, js_files: list[str] = [], js_raw: list[str] = [],
+            css_files: list[str] = [], css_raw: list[str] = [], hashes: Hashes = {}):
         self.js_files = js_files[:]
         self.js_raw = js_raw[:]
         self.css_files = css_files[:]
@@ -133,11 +129,11 @@ class Bundle:
             return "\n".join(self.js_raw)
 
     @property
-    def js_urls(self) -> List[str]:
+    def js_urls(self) -> list[str]:
         return self.js_files
 
     @property
-    def css_urls(self) -> List[str]:
+    def css_urls(self) -> list[str]:
         return self.css_files
 
     def add(self, artifact: Artifact) -> None:
@@ -151,7 +147,7 @@ class Bundle:
             self.css_raw.append(artifact.content)
 
 def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
-        resources: BaseResources | Tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
+        resources: BaseResources | tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
@@ -190,10 +186,10 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
     use_gl      = _use_gl(objs)      if objs else True
     use_mathjax = _use_mathjax(objs) if objs else True
 
-    js_files: List[str] = []
-    js_raw: List[str] = []
-    css_files: List[str] = []
-    css_raw: List[str] = []
+    js_files: list[str] = []
+    js_raw: list[str] = []
+    css_files: list[str] = []
+    css_raw: list[str] = []
 
     if js_resources:
         js_resources = deepcopy(js_resources)
@@ -242,7 +238,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 #-----------------------------------------------------------------------------
 
 def _query_extensions(objs: Sequence[Model | Document], query: Callable[[Type[Model]], bool]) -> bool:
-    names: Set[str] = set()
+    names: set[str] = set()
 
     for obj in _all_objs(objs):
         if hasattr(obj, "__implementation__"):
@@ -275,11 +271,11 @@ class Pkg(TypedDict, total=False):
     module: str
     main: str
 
-extension_dirs: Dict[str, str] = {} # name -> path
+extension_dirs: dict[str, str] = {} # name -> path
 
-def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -> List[ExtensionEmbed]:
-    names: Set[str] = set()
-    bundles: List[ExtensionEmbed] = []
+def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -> list[ExtensionEmbed]:
+    names: set[str] = set()
+    bundles: list[ExtensionEmbed] = []
 
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
@@ -352,8 +348,8 @@ def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -
 
     return bundles
 
-def _all_objs(objs: Sequence[Model | Document]) -> Set[Model]:
-    all_objs: Set[Model] = set()
+def _all_objs(objs: Sequence[Model | Document]) -> set[Model]:
+    all_objs: set[Model] = set()
 
     for obj in objs:
         if isinstance(obj, Document):

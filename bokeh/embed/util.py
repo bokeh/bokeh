@@ -26,11 +26,8 @@ from contextlib import contextmanager
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Iterator,
-    List,
     Sequence,
-    Tuple,
     Type,
 )
 from weakref import WeakKeyDictionary
@@ -184,7 +181,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdo
 
 class RenderItem:
     def __init__(self, docid: ID | None = None, token: str | None = None, elementid: ID | None = None,
-            roots: List[Model] | Dict[Model, ID] | None = None, use_for_title: bool | None = None):
+            roots: list[Model] | dict[Model, ID] | None = None, use_for_title: bool | None = None):
 
         if (docid is None and token is None) or (docid is not None and token is not None):
             raise ValueError("either docid or sessionid must be provided")
@@ -200,8 +197,8 @@ class RenderItem:
         self.roots = RenderRoots(roots)
         self.use_for_title = use_for_title
 
-    def to_json(self) -> Dict[str, Any]:
-        json: Dict[str, Any] = {}
+    def to_json(self) -> dict[str, Any]:
+        json: dict[str, Any] = {}
 
         if self.docid is not None:
             json["docid"] = self.docid
@@ -246,7 +243,7 @@ class RenderRoot:
     name: str | None = field(default="", compare=False)
 
     #: A list of any user-supplied tag values for this root
-    tags: List[Any] = field(default_factory=list, compare=False)
+    tags: list[Any] = field(default_factory=list, compare=False)
 
     def __post_init__(self):
         # Model.name is nullable, and field() won't enforce the default when name=None
@@ -254,7 +251,7 @@ class RenderRoot:
 
 
 class RenderRoots:
-    def __init__(self, roots: Dict[Model, ID]) -> None:
+    def __init__(self, roots: dict[Model, ID]) -> None:
         self._roots = roots
 
     def __iter__(self) -> Iterator[RenderRoot]:
@@ -279,21 +276,21 @@ class RenderRoots:
     def __getattr__(self, key: str) -> RenderRoot:
         return self.__getitem__(key)
 
-    def to_json(self) -> Dict[ID, ID]:
+    def to_json(self) -> dict[ID, ID]:
         return {root.id: elementid for root, elementid in self._roots.items()}
 
     def __repr__(self) -> str:
         return repr(self._roots)
 
-def standalone_docs_json(models: Sequence[Model | Document]) -> Dict[ID, DocJson]:
+def standalone_docs_json(models: Sequence[Model | Document]) -> dict[ID, DocJson]:
     '''
 
     '''
     docs_json, _ = standalone_docs_json_and_render_items(models)
     return docs_json
 
-def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Model | Document],
-        suppress_callback_warning: bool = False) -> Tuple[Dict[ID, DocJson], List[RenderItem]]:
+def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Model | Document], *,
+        suppress_callback_warning: bool = False) -> tuple[dict[ID, DocJson], list[RenderItem]]:
     '''
 
     '''
@@ -306,7 +303,7 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
     if submodel_has_python_callbacks(models) and not suppress_callback_warning:
         log.warning(_CALLBACKS_WARNING)
 
-    docs: Dict[Document, Tuple[ID, Dict[Model, ID]]] = {}
+    docs: dict[Document, tuple[ID, dict[Model, ID]]] = {}
     for model_or_doc in models:
         if isinstance(model_or_doc, Document):
             model = None
@@ -329,11 +326,11 @@ def standalone_docs_json_and_render_items(models: Model | Document | Sequence[Mo
             for model in doc.roots:
                 roots[model] = make_globally_unique_id()
 
-    docs_json: Dict[ID, DocJson] = {}
+    docs_json: dict[ID, DocJson] = {}
     for doc, (docid, _) in docs.items():
-        docs_json[docid] = doc.to_json()
+        docs_json[docid] = doc.to_json(deferred=False)
 
-    render_items: List[RenderItem] = []
+    render_items: list[RenderItem] = []
     for _, (docid, roots) in docs.items():
         render_items.append(RenderItem(docid, roots=roots))
 

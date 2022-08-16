@@ -46,7 +46,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, cast
+from typing import TYPE_CHECKING, cast
 
 # Bokeh imports
 from ..core.types import PathLike
@@ -83,7 +83,7 @@ class State:
     _notebook: bool
     _notebook_type: NotebookType | None
     last_comms_handle: CommsHandle | None
-    uuid_to_server: Dict[ID, Server]
+    uuid_to_server: dict[ID, Server]
 
     def __init__(self) -> None:
         self.last_comms_handle = None

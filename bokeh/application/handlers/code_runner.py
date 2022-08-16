@@ -27,7 +27,7 @@ import sys
 import traceback
 from os.path import basename
 from types import CodeType, ModuleType
-from typing import Callable, List
+from typing import Callable
 
 # Bokeh imports
 from ...core.types import PathLike
@@ -63,7 +63,7 @@ class CodeRunner:
     _permanent_error_detail: str | None
     _path: PathLike
     _source: str
-    _argv: List[str]
+    _argv: list[str]
     _package: ModuleType | None
     ran: bool
 
@@ -71,7 +71,7 @@ class CodeRunner:
     _error: str | None
     _error_detail: str | None
 
-    def __init__(self, source: str, path: PathLike, argv: List[str], package: ModuleType | None = None) -> None:
+    def __init__(self, source: str, path: PathLike, argv: list[str], package: ModuleType | None = None) -> None:
         '''
 
         Args:

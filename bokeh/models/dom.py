@@ -28,8 +28,8 @@ from ..core.properties import (
     Either,
     Instance,
     List,
-    NonNullable as Required,
     Nullable,
+    Required,
     String,
 )
 from ..core.property.bases import Init
@@ -111,10 +111,10 @@ class TableRow(DOMElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-def vbox(children: List[DOMNode]) -> Div:
+def vbox(children: list[DOMNode]) -> Div:
     return Div(style=Styles(display="flex", flex_direction="column"), children=children)
 
-def hbox(children: List[DOMNode]) -> Div:
+def hbox(children: list[DOMNode]) -> Div:
     return Div(style=Styles(display="flex", flex_direction="row"), children=children)
 
 @abstract

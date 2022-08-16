@@ -61,14 +61,15 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Dict,
     List,
     Type,
     Union,
     cast,
 )
 
-## External imports
+# External imports
+from typing_extensions import TypeAlias
+
 if TYPE_CHECKING:
     import pandas as pd
 
@@ -89,7 +90,6 @@ from .json import (
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
-    from ..core.types import Unknown
     from ..model import Model
     from ..models.sources import DataDict
     from ..protocol.message import BufferRef
@@ -125,9 +125,9 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Buffers = Union[List[BufferRef], None]
+    Buffers: TypeAlias = Union[List[BufferRef], None]
 
-    Invoker = Callable[..., Any] # TODO
+    Invoker: TypeAlias = Callable[..., Any] # TODO
 
 class DocumentChangedMixin:
     def _document_changed(self, event: DocumentChangedEvent) -> None: ...
@@ -209,7 +209,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     kind: ClassVar[str]
 
-    _handlers: ClassVar[Dict[str, Type[DocumentPatchedEvent]]] = {}
+    _handlers: ClassVar[dict[str, Type[DocumentPatchedEvent]]] = {}
 
     def __init_subclass__(cls):
         cls._handlers[cls.kind] = cls
@@ -261,7 +261,7 @@ class MessageSentEvent(DocumentPatchedEvent):
 
     kind = "MessageSent"
 
-    def __init__(self, document: Document, msg_type: str, msg_data: Union[Any, bytes],
+    def __init__(self, document: Document, msg_type: str, msg_data: Any | bytes,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         super().__init__(document, setter, callback_invoker)
         self.msg_type = msg_type
@@ -293,7 +293,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
     kind = "ModelChanged"
 
-    def __init__(self, document: Document, model: Model, attr: str, new: Unknown,
+    def __init__(self, document: Document, model: Model, attr: str, new: Any,
             setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
@@ -391,7 +391,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
     kind = "ColumnDataChanged"
 
     def __init__(self, document: Document, model: Model, attr: str, data: DataDict | None = None,
-            cols: List[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+            cols: list[str] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
         '''
 
         Args:

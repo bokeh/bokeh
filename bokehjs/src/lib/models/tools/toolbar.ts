@@ -30,9 +30,13 @@ export class ToolbarView extends DOMComponentView {
   override model: Toolbar
   override el: HTMLElement
 
-  protected _tool_button_views: Map<ToolLike<Tool>, ToolButtonView>
+  readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
   protected _overflow_menu: ContextMenu
   protected _overflow_el?: HTMLElement
+
+  get overflow_el(): HTMLElement | undefined {
+    return this._overflow_el
+  }
 
   private _visible: boolean | null = null
   get visible(): boolean {
@@ -41,12 +45,12 @@ export class ToolbarView extends DOMComponentView {
 
   override initialize(): void {
     super.initialize()
-    this._tool_button_views = new Map()
 
     const {toolbar_location} = this.model
     const reversed = toolbar_location == "left" || toolbar_location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
     this._overflow_menu = new ContextMenu([], {
+      target: this.root.el,
       orientation,
       reversed,
       prevent_hide: (event) => {
@@ -75,12 +79,12 @@ export class ToolbarView extends DOMComponentView {
   }
 
   override remove(): void {
-    remove_views(this._tool_button_views)
+    remove_views(this.tool_button_views)
     super.remove()
   }
 
   protected async _build_tool_button_views(): Promise<void> {
-    await build_views(this._tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
+    await build_views(this.tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
   }
 
   set_visibility(visible: boolean): void {
@@ -112,14 +116,14 @@ export class ToolbarView extends DOMComponentView {
       size += horizontal ? width : height
     }
 
-    for (const [, button_view] of this._tool_button_views) {
+    for (const [, button_view] of this.tool_button_views) {
       button_view.render()
     }
 
     const bars: HTMLElement[][] = []
 
     const el = (tool: ToolLike<Tool>) => {
-      return this._tool_button_views.get(tool)!.el
+      return this.tool_button_views.get(tool)!.el
     }
 
     const {gestures} = this.model
@@ -137,7 +141,6 @@ export class ToolbarView extends DOMComponentView {
 
     let overflowed = false
     const overflow_size = 15
-    this.root.children_el.appendChild(this._overflow_menu.el)
     const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     this._overflow_el = overflow_el
     const toggle_menu = () => {
@@ -190,10 +193,11 @@ export class ToolbarView extends DOMComponentView {
     this._has_finished = true
   }
 
-  export(type: "png" | "svg", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "png" ? "canvas" : "svg"
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
     const canvas = new CanvasLayer(output_backend, hidpi)
-    canvas.resize(0, 0)
+    const {width, height} = this.layout.bbox
+    canvas.resize(width, height)
     return canvas
   }
 }

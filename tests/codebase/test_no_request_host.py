@@ -19,7 +19,7 @@ import pytest ; pytest
 
 # Standard library imports
 from subprocess import check_output
-from typing import IO, List, Tuple
+from typing import IO
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -39,8 +39,8 @@ def test_no_request_host() -> None:
 
 message = "File contains refers to 'request.host': {path}, line {line_no}."
 
-def collect_errors() -> List[str]:
-    errors: List[Tuple[str, str, int]] = []
+def collect_errors() -> list[str]:
+    errors: list[tuple[str, str, int]] = []
 
     def test_this_file(fname: str, test_file: IO[str]) -> None:
         for line_no, line in enumerate(test_file, 1):

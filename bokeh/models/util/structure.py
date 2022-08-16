@@ -36,7 +36,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from itertools import permutations
-from typing import TYPE_CHECKING, Dict, Set
+from typing import TYPE_CHECKING
 
 ## External dependencies
 if TYPE_CHECKING:
@@ -185,7 +185,7 @@ class _BokehStructureGraph:
             return answer1 | answer2 | answer3
 
         K = nx.DiGraph()
-        T: Dict[ID, Set[ID]] = {}
+        T: dict[ID, set[ID]] = {}
         for m in M.references():
             T[m.id] = {y.id for y in m.references()}
 

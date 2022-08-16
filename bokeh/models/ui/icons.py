@@ -30,7 +30,7 @@ from ...core.properties import (
     Enum,
     FontSize,
     Int,
-    NonNullable as Required,
+    Required,
     String,
 )
 from ...core.property.bases import Init

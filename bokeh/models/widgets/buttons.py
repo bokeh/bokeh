@@ -32,9 +32,9 @@ from ...core.properties import (
     Enum,
     Instance,
     List,
-    NonNullable as Required,
     Nullable,
     Override,
+    Required,
     String,
     Tuple,
 )

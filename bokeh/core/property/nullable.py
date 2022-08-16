@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 from typing import Any, TypeVar, Union
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import (
     Init,
@@ -29,6 +30,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
+from .required import Required
 from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
@@ -49,14 +51,13 @@ T = TypeVar("T")
 class Nullable(SingleParameterizedProperty[Union[T, None]]):
     """ A property accepting ``None`` or a value of some other type. """
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None, help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
 
     def transform(self, value: Any) -> T | None:
         return None if value is None else super().transform(value)
 
-    def wrap(self, value: Any):
+    def wrap(self, value: Any) -> Any:
         return None if value is None else super().wrap(value)
 
     def validate(self, value: Any, detail: bool = True) -> None:
@@ -73,12 +74,18 @@ class Nullable(SingleParameterizedProperty[Union[T, None]]):
         msg = "" if not detail else f"expected either None or a value of type {self.type_param}, got {value!r}"
         raise ValueError(msg)
 
-class NonNullable(SingleParameterizedProperty[T]):
-    """ A property accepting a value of some other type while having undefined default. """
+class NonNullable(Required[T]):
+    """
+    A property accepting a value of some other type while having undefined default.
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
-            help: str | None = None, serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(type_param, default=default, help=help, serialized=serialized, readonly=readonly)
+    .. deprecated:: 3.0.0
+
+        Use ``bokeh.core.property.required.Required`` instead.
+    """
+
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
+        deprecated((3, 0, 0), "NonNullable(Type)", "Required(Type)")
+        super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -94,5 +101,5 @@ class NonNullable(SingleParameterizedProperty[T]):
 
 @register_type_link(Nullable)
 @register_type_link(NonNullable)
-def _sphinx_type_link(obj: SingleParameterizedProperty[Any]):
+def _sphinx_type_link(obj: SingleParameterizedProperty[Any]) -> str:
     return f"{property_link(obj)}({type_link(obj.type_param)})"

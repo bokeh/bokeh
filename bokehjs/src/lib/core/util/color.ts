@@ -27,13 +27,6 @@ export function decode_rgba(rgba: uint32): RGBA {
   return [r, g, b, a]
 }
 
-export function compose_alpha(color: uint32, alpha: number): uint32 {
-  if ((color & 0xff) == 255)
-    return (color & 0xffffff00) | byte(alpha*255)
-  else
-    return color
-}
-
 export function color2rgba(color: Color | null, alpha?: number): RGBA {
   let r, g, b, a
   if (color == null)
@@ -47,8 +40,8 @@ export function color2rgba(color: Color | null, alpha?: number): RGBA {
     a = byte(a*255)
   }
 
-  if (a == 255 && alpha != null)
-    a = byte(alpha*255)
+  if (alpha != null && alpha < 1.0)
+    a = byte(alpha*a)
 
   return [r, g, b, a]
 }

@@ -42,6 +42,7 @@ from .primitive import (
     Null,
     String,
 )
+from .serialized import NotSerialized
 from .singletons import Undefined
 from .struct import Optional, Struct
 from .vectorization import (
@@ -174,7 +175,7 @@ class DataSpec(Either):
 
     """
 
-    def __init__(self, value_type, default, help=None) -> None:
+    def __init__(self, value_type, default, *, help: str | None = None) -> None:
         super().__init__(
             String,
             value_type,
@@ -241,7 +242,7 @@ class DataSpec(Either):
         return val
 
 class IntSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Int, default=default, help=help)
 
 class NumberSpec(DataSpec):
@@ -265,7 +266,7 @@ class NumberSpec(DataSpec):
 
     """
 
-    def __init__(self, default=Undefined, help=None, accept_datetime=True, accept_timedelta=True) -> None:
+    def __init__(self, default=Undefined, *, help: str | None = None, accept_datetime=True, accept_timedelta=True) -> None:
         super().__init__(Float, default=default, help=help)
         if accept_timedelta:
             self.accepts(TimeDelta, convert_timedelta_type)
@@ -278,12 +279,12 @@ class AlphaSpec(NumberSpec):
     Acceptable values are numbers in 0..1 range (transparent..opaque).
     """
 
-    def __init__(self, default=1.0, help=None) -> None:
+    def __init__(self, default=1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
-    def __init__(self, default=None, help=None) -> None:
+    def __init__(self, default=None, *, help: str | None = None) -> None:
         super().__init__(Nullable(String), default=default, help=help)
 
 class StringSpec(DataSpec):
@@ -301,7 +302,7 @@ class StringSpec(DataSpec):
         m.title = "foo"        # field
 
     """
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(String, default=default, help=help)
 
 class FontSizeSpec(DataSpec):
@@ -325,10 +326,10 @@ class FontSizeSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(FontSize, default=default, help=help)
 
-    def validate(self, value, detail=True):
+    def validate(self, value: Any, detail: bool = True) -> None:
         # We want to preserve existing semantics and be a little more restrictive. This
         # validations makes m.font_size = "" or m.font_size = "6" an error
         super().validate(value, detail)
@@ -339,27 +340,27 @@ class FontSizeSpec(DataSpec):
                 raise ValueError(msg)
 
 class FontStyleSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Enum(enums.FontStyle), default=default, help=help)
 
 class TextAlignSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Enum(enums.TextAlign), default=default, help=help)
 
 class TextBaselineSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Enum(enums.TextBaseline), default=default, help=help)
 
 class LineJoinSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Enum(enums.LineJoin), default=default, help=help)
 
 class LineCapSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Enum(enums.LineCap), default=default, help=help)
 
 class DashPatternSpec(DataSpec):
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(DashPattern, default=default, help=help)
 
 class HatchPatternSpec(DataSpec):
@@ -379,7 +380,7 @@ class HatchPatternSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(Nullable(HatchPatternType), default=default, help=help)
 
 class MarkerSpec(DataSpec):
@@ -399,7 +400,7 @@ class MarkerSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         super().__init__(MarkerType, default=default, help=help)
 
 class UnitsSpec(NumberSpec):
@@ -408,10 +409,10 @@ class UnitsSpec(NumberSpec):
 
     """
 
-    def __init__(self, default, units_enum, units_default, help=None) -> None:
+    def __init__(self, default, units_enum, units_default, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
 
-        units_type = Enum(units_enum, default=units_default, serialized=False, help=f"""
+        units_type = NotSerialized(Enum(units_enum), default=units_default, help=f"""
         Units to use for the associated property: {nice_join(units_enum)}
         """)
         self._units_type = self._validate_type_param(units_type, help_allowed=True)
@@ -477,7 +478,7 @@ class AngleSpec(UnitsSpec):
     Acceptable values for units are ``"deg"``, ``"rad"``, ``"grad"`` and ``"turn"``.
 
     """
-    def __init__(self, default=Undefined, units_default="rad", help=None) -> None:
+    def __init__(self, default=Undefined, units_default="rad", *, help: str | None = None) -> None:
         super().__init__(default=default, units_enum=enums.AngleUnits, units_default=units_default, help=help)
 
 class DistanceSpec(UnitsSpec):
@@ -487,7 +488,7 @@ class DistanceSpec(UnitsSpec):
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
     """
-    def __init__(self, default=Undefined, units_default="data", help=None) -> None:
+    def __init__(self, default=Undefined, units_default="data", *, help: str | None = None) -> None:
         super().__init__(default=default, units_enum=enums.SpatialUnits, units_default=units_default, help=help)
 
     def prepare_value(self, cls, name, value):
@@ -500,7 +501,7 @@ class DistanceSpec(UnitsSpec):
 
 class NullDistanceSpec(DistanceSpec):
 
-    def __init__(self, default=None, units_default="data", help=None) -> None:
+    def __init__(self, default=None, units_default="data", *, help: str | None = None) -> None:
         super().__init__(default=default, units_default=units_default, help=help)
         self.value_type = Nullable(Float)
         self._type_params = [Null()] + self._type_params
@@ -565,7 +566,7 @@ class ColorSpec(DataSpec):
 
     """
 
-    def __init__(self, default, help=None) -> None:
+    def __init__(self, default, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"
         super().__init__(Nullable(Color), default=default, help=help)
 

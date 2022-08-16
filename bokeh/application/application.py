@@ -36,10 +36,10 @@ from typing import (
     Awaitable,
     Callable,
     ClassVar,
-    Dict,
-    List,
-    Tuple,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
@@ -70,7 +70,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-Callback = Callable[[], None]
+Callback: TypeAlias = Callable[[], None]
 
 class Application:
     ''' An Application is a factory for Document instances.
@@ -86,10 +86,10 @@ class Application:
     _is_a_bokeh_application_class: ClassVar[bool] = True
 
     _static_path: str | None
-    _handlers: List[Handler]
-    _metadata: Dict[str, Any] | None
+    _handlers: list[Handler]
+    _metadata: dict[str, Any] | None
 
-    def __init__(self, *handlers: Handler, metadata: Dict[str, Any] | None = None) -> None:
+    def __init__(self, *handlers: Handler, metadata: dict[str, Any] | None = None) -> None:
         ''' Application factory.
 
         Args:
@@ -126,14 +126,14 @@ class Application:
     # Properties --------------------------------------------------------------
 
     @property
-    def handlers(self) -> Tuple[Handler, ...]:
+    def handlers(self) -> tuple[Handler, ...]:
         ''' The ordered list of handlers this Application is configured with.
 
         '''
         return tuple(self._handlers)
 
     @property
-    def metadata(self) -> Dict[str, Any] | None:
+    def metadata(self) -> dict[str, Any] | None:
         ''' Arbitrary user-supplied metadata to associate with this application.
 
         '''
@@ -250,7 +250,7 @@ class Application:
             await h.on_session_destroyed(session_context)
         return None
 
-    def process_request(self, request: HTTPServerRequest) -> Dict[str, Any]:
+    def process_request(self, request: HTTPServerRequest) -> dict[str, Any]:
         ''' Processes incoming HTTP request returning a dictionary of
         additional data to add to the session_context.
 
@@ -261,7 +261,7 @@ class Application:
             A dictionary of JSON serializable data to be included on
             the session context.
         '''
-        request_data: Dict[str, Any] = {}
+        request_data: dict[str, Any] = {}
         for h in self._handlers:
             request_data.update(h.process_request(request))
         return request_data
@@ -279,7 +279,7 @@ class ServerContext(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def sessions(self) -> List[ServerSession]:
+    def sessions(self) -> list[ServerSession]:
         ''' ``SessionContext`` instances belonging to this application.
 
         *Subclasses must implement this method.*

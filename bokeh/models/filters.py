@@ -25,8 +25,8 @@ from ..core.properties import (
     Instance,
     Int,
     NonEmpty,
-    NonNullable,
     Nullable,
+    Required,
     RestrictedDict,
     Seq,
     String,
@@ -94,7 +94,7 @@ class InversionFilter(Filter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operand = NonNullable(Instance(Filter), help="""
+    operand = Required(Instance(Filter), help="""
     Indices produced by this filter will be inverted.
     """)
 
@@ -105,7 +105,7 @@ class IntersectionFilter(Filter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
     Indices produced by a collection of these filters will be intersected.
     """)
 
@@ -116,7 +116,7 @@ class UnionFilter(Filter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
     Indices produced by a collection of these filters will be unioned.
     """)
 
@@ -127,7 +127,7 @@ class DifferenceFilter(Filter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
     Indices produced by a collection of these filters will be subtracted.
     """)
 
@@ -138,7 +138,7 @@ class SymmetricDifferenceFilter(Filter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = NonNullable(NonEmpty(Seq(Instance(Filter))), help="""
+    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
     Indices produced by a collection of these filters will be xored.
     """)
 
@@ -176,11 +176,11 @@ class GroupFilter(Filter):
     column column_name match the group variable.
     '''
 
-    column_name = NonNullable(String, help="""
+    column_name = Required(String, help="""
     The name of the column to perform the group filtering operation on.
     """)
 
-    group = NonNullable(String, help="""
+    group = Required(String, help="""
     The value of the column indicating the rows of data to keep.
     """)
 

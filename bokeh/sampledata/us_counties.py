@@ -43,12 +43,10 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 import xml.etree.ElementTree as et
-from typing import (
-    Dict,
-    List,
-    Tuple,
-    TypedDict,
-)
+from typing import TypedDict
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
@@ -73,20 +71,23 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
+State: TypeAlias = int
+County: TypeAlias = int
+
 class CountyData(TypedDict):
     name: str
     detailed_name: str
     state: str
-    lats: List[float]
-    lons: List[float]
+    lats: list[float]
+    lons: list[float]
 
-def _read_data() -> Dict[Tuple[int, int], CountyData]:
+nan = float('NaN')
+
+def _read_data() -> dict[tuple[State, County], CountyData]:
     '''
 
     '''
-    nan = float('NaN')
-
-    data = {}
+    data: dict[tuple[State, County], CountyData] = {}
 
     with open_csv(external_path('US_Counties.csv')) as f:
         next(f)
@@ -94,17 +95,18 @@ def _read_data() -> Dict[Tuple[int, int], CountyData]:
         for row in reader:
             name, _, state, _, geometry, _, _, _, det_name, state_id, county_id, _, _ = row
             xml = et.fromstring(geometry)
-            lats: List[float] = []
-            lons: List[float] = []
+            lats: list[float] = []
+            lons: list[float] = []
             for i, poly in enumerate(xml.findall('.//outerBoundaryIs/LinearRing/coordinates')):
                 if i > 0:
                     lats.append(nan)
                     lons.append(nan)
+                assert isinstance(poly.text, str)
                 coords = (c.split(',')[:2] for c in poly.text.split())
                 lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in coords]))
                 lats.extend(lat)
                 lons.extend(lon)
-            data[(int(state_id), int(county_id))] = dict(
+            data[(int(state_id), int(county_id))] = CountyData(
                 name = name,
                 detailed_name = det_name,
                 state = state,

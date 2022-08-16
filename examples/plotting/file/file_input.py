@@ -3,7 +3,7 @@ from bokeh.models import CustomJS, Div, FileInput
 from bokeh.plotting import output_file, show
 
 # Set up widgets
-file_input = FileInput(accept=".csv,.json")
+file_input = FileInput(title="Select files:", accept=".csv,.json")
 para = Div(text="<h1>FileInput Values:</h1><p>filename:<p>b64 value:")
 
 # Create CustomJS callback to display file_input attributes on change

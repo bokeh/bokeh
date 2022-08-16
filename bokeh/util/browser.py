@@ -23,12 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import webbrowser
 from os.path import abspath
-from typing import (
-    Dict,
-    Literal,
-    Protocol,
-    cast,
-)
+from typing import Literal, Protocol, cast
 
 # Bokeh imports
 from ..settings import settings
@@ -40,7 +35,7 @@ from ..settings import settings
 BrowserTarget = Literal["same", "window", "tab"]
 TargetCode = Literal[0, 1, 2]
 
-NEW_PARAM: Dict[BrowserTarget, TargetCode] = {"same": 0, "window": 1, "tab": 2}
+NEW_PARAM: dict[BrowserTarget, TargetCode] = {"same": 0, "window": 1, "tab": 2}
 
 __all__ = (
     'DummyWebBrowser',

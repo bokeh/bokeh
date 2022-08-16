@@ -39,9 +39,8 @@ __all__ = (
 class Nothing(Property[NoReturn]):
     """ The bottom type of bokeh's type system. It doesn't accept any values. """
 
-    def __init__(self, help: str | None = None,
-            serialized: bool | None = None, readonly: bool = False) -> None:
-        super().__init__(default=Undefined, help=help, serialized=serialized, readonly=readonly)
+    def __init__(self, *, help: str | None = None) -> None:
+        super().__init__(default=Undefined, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         raise ValueError("no value is allowed")

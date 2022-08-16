@@ -24,7 +24,7 @@ from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
 
 
-def make_calendar(year, month, firstweekday="Mon"):
+def make_calendar(year: int, month: int, firstweekday: str = "Mon") -> Plot:
     firstweekday = list(day_abbrs).index(firstweekday)
     calendar = Calendar(firstweekday=firstweekday)
 

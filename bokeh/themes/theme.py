@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Type,
     overload,
 )
@@ -34,7 +33,7 @@ import yaml
 
 # Bokeh imports
 from ..core.has_props import HasProps
-from ..core.types import PathLike, Unknown
+from ..core.types import PathLike
 from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
@@ -47,7 +46,7 @@ if TYPE_CHECKING:
 # whenever we cache that there's nothing themed for a class, we
 # use this same dict instance, so we don't have a zillion empty
 # dicts in our caches.
-_empty_dict: Dict[str, Unknown] = {}
+_empty_dict: dict[str, Any] = {}
 
 __all__ = (
     'Theme',
@@ -145,20 +144,20 @@ class Theme:
 
     '''
 
-    _by_class_cache: Dict[str, Dict[str, Unknown]]
+    _by_class_cache: dict[str, dict[str, Any]]
 
-    _line_defaults: Dict[str, Unknown]
-    _fill_defaults: Dict[str, Unknown]
-    _text_defaults: Dict[str, Unknown]
+    _line_defaults: dict[str, Any]
+    _fill_defaults: dict[str, Any]
+    _text_defaults: dict[str, Any]
 
-    _json: Dict[str, Any]
+    _json: dict[str, Any]
 
     @overload
     def __init__(self, filename: PathLike) -> None: ...
     @overload
-    def __init__(self, json: Dict[str, Any]) -> None: ...
+    def __init__(self, json: dict[str, Any]) -> None: ...
 
-    def __init__(self, filename: PathLike | None = None, json: Dict[str, Any] | None = None) -> None:
+    def __init__(self, filename: PathLike | None = None, json: dict[str, Any] | None = None) -> None:
         if (filename is not None) and (json is not None):
             raise ValueError("Theme should be constructed from a file or from json not both")
 
@@ -199,7 +198,7 @@ class Theme:
         # class.
         self._by_class_cache = {}
 
-    def _add_glyph_defaults(self, cls: Type[HasProps], props: Dict[str, Unknown]) -> None:
+    def _add_glyph_defaults(self, cls: Type[HasProps], props: dict[str, Any]) -> None:
         from ..models.glyphs import Glyph
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
@@ -209,10 +208,10 @@ class Theme:
             if hasattr(cls, "text_alpha"):
                 props.update(self._text_defaults)
 
-    def _for_class(self, cls: Type[Model]) -> Dict[str, Unknown]:
+    def _for_class(self, cls: Type[Model]) -> dict[str, Any]:
         if cls.__name__ not in self._by_class_cache:
             attrs = self._json['attrs']
-            combined: Dict[str, Unknown] = {}
+            combined: dict[str, Any] = {}
             # we go in reverse order so that subclass props override base class
             for base in cls.__mro__[-2::-1]:
                 if not issubclass(base, HasProps):

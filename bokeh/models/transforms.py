@@ -31,8 +31,8 @@ from ..core.properties import (
     Enum,
     Float,
     Instance,
-    NonNullable,
     Nullable,
+    Required,
     Seq,
     String,
 )
@@ -223,11 +223,11 @@ class Interpolator(Transform):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = NonNullable(Either(String, Seq(Float)), help="""
+    x = Required(Either(String, Seq(Float)), help="""
     Independent coordinate denoting the location of a point.
     """)
 
-    y = NonNullable(Either(String, Seq(Float)), help="""
+    y = Required(Either(String, Seq(Float)), help="""
     Dependant coordinate denoting the value of a point at a location.
     """)
 

@@ -23,13 +23,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os  # lgtm [py/unused-import]
 from typing import (
-    Any,
     Literal,
     NewType,
     Sequence,
     TypedDict,
     Union,
 )
+
+# External imports
+from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -38,7 +40,6 @@ from typing import (
 __all__ = (
     "ID",
     "PathLike",
-    "Unknown",
 )
 
 #-----------------------------------------------------------------------------
@@ -51,9 +52,7 @@ __all__ = (
 
 ID = NewType("ID", str)
 
-PathLike = Union[str, "os.PathLike[str]"]
-
-Unknown = Any
+PathLike: TypeAlias = Union[str, "os.PathLike[str]"]
 
 # TODO: move this to types/geometry.py
 class PointGeometry(TypedDict):
@@ -79,7 +78,7 @@ class PolyGeometry(TypedDict):
     sx: Sequence[float]
     sy: Sequence[float]
 
-Geometry = Union[PointGeometry, SpanGeometry, RectGeometry, PolyGeometry]
+Geometry: TypeAlias = Union[PointGeometry, SpanGeometry, RectGeometry, PolyGeometry]
 
 class PointGeometryData(PointGeometry):
     x: float
@@ -99,7 +98,7 @@ class PolyGeometryData(PolyGeometry):
     x: Sequence[float]
     y: Sequence[float]
 
-GeometryData = Union[PointGeometryData, SpanGeometryData, RectGeometryData, PolyGeometryData]
+GeometryData: TypeAlias = Union[PointGeometryData, SpanGeometryData, RectGeometryData, PolyGeometryData]
 
 #-----------------------------------------------------------------------------
 # Private API

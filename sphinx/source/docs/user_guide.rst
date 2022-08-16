@@ -21,6 +21,7 @@ User guide
     user_guide/server
     user_guide/jupyter
     user_guide/export
+    user_guide/specialized
     user_guide/embed
     user_guide/cli
     user_guide/extensions
@@ -30,7 +31,7 @@ User guide
 
 In this user guide, you will find detailed descriptions and examples that
 describe many common tasks that you can accomplish with Bokeh. To get started
-with Bokeh, you should first completed the steps described in
+with Bokeh, you should first complete the steps described in
 :ref:`first_steps_installing`.
 
 .. tip::

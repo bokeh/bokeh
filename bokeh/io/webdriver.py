@@ -28,17 +28,11 @@ import_required("selenium.webdriver",
 # Standard library imports
 import atexit
 import os
-from os.path import (
-    devnull,
-    dirname,
-    isfile,
-    join,
-)
+from os.path import devnull, isfile
 from shutil import which
-from typing import List, Literal, Set
+from typing import Literal
 
 # External imports
-from selenium import webdriver
 from selenium.webdriver.remote.webdriver import WebDriver
 
 #-----------------------------------------------------------------------------
@@ -68,33 +62,20 @@ def create_firefox_webdriver() -> WebDriver:
     if geckodriver is None:
         raise RuntimeError("geckodriver is not installed or not present on PATH")
 
-    firefox_paths = [
-        join(dirname(firefox), "FirefoxApp", "firefox"),
-        join(dirname(firefox), "FirefoxApp", "Contents", "MacOS", "firefox"),
-    ]
+    from selenium.webdriver.firefox.options import Options
+    from selenium.webdriver.firefox.service import Service
+    from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
 
-    for firefox_path in firefox_paths:
-        if _is_executable(firefox_path):
-            binary_path = firefox_path
-            break
-    else:
-        binary_path = firefox
+    service = Service(log_path=devnull)
 
-    from selenium.webdriver.firefox.firefox_binary import FirefoxBinary  # type: ignore [import]
-    binary = FirefoxBinary(binary_path)
-
-    options = webdriver.firefox.options.Options()
+    options = Options()
     options.add_argument("--headless")
 
-    return webdriver.Firefox(  # type: ignore [attr-defined]
-        options=options,
-        firefox_binary=binary,
-        executable_path=geckodriver,
-        service_log_path=devnull,
-    )
+    return Firefox(service=service, options=options)
 
-def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriver:
-    options = webdriver.chrome.options.Options()
+def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriver:
+    from selenium.webdriver.chrome.options import Options
+    options = Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
     options.add_argument("--force-device-scale-factor=1")
@@ -102,7 +83,9 @@ def create_chromium_webdriver(extra_options: List[str] | None = None) -> WebDriv
     if extra_options:
         for op in extra_options:
             options.add_argument(op)
-    return webdriver.Chrome(options=options)  # type: ignore [attr-defined]
+
+    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+    return Chrome(options=options)
 
 #-----------------------------------------------------------------------------
 # Private API
@@ -129,7 +112,7 @@ class _WebdriverState:
     kind: DriverKind | None
 
     current: WebDriver | None
-    _drivers: Set[WebDriver]
+    _drivers: set[WebDriver]
 
     def __init__(self, *, kind: DriverKind | None = None, reuse: bool = True) -> None:
         self.kind = kind

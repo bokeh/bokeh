@@ -24,9 +24,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import ClassVar, TypeVar
+
 # Bokeh imports
 from .bases import Property
-from .descriptors import AliasPropertyDescriptor
+from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,11 +39,13 @@ __all__ = (
     "Alias",
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Alias(Property): # lgtm [py/missing-call-to-init]
+class Alias(Property[T]): # lgtm [py/missing-call-to-init]
     """
     Alias another property of a model.
 
@@ -65,15 +70,15 @@ class Alias(Property): # lgtm [py/missing-call-to-init]
     help: str | None
 
     # Alias is somewhat a quasi-property
-    readonly = False
-    serialized = False
+    readonly: ClassVar[bool] = False
+    serialized: ClassVar[bool] = False
     _default = None
 
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
         self.aliased_name = aliased_name
         self.help = help
 
-    def make_descriptors(self, base_name):
+    def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``AliasPropertyDescriptor`` instances to
         install on a class, in order to delegate attribute access to this
         property.
