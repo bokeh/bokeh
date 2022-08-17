@@ -128,7 +128,7 @@ export abstract class UIElementView extends DOMComponentView {
     const apply = (name: string, value: unknown) => {
       const known = this.el.style.hasOwnProperty(name)
       if (known && isString(value)) {
-        this.el.style.setProperty(name, value)
+        this.el.style[name as any] = value
       }
       return known
     }

@@ -2,6 +2,7 @@ import {expect} from "../unit/assertions"
 import {display, fig, row, grid} from "./_util"
 
 import {Spacer, Tabs, TabPanel, GroupBox, Column} from "@bokehjs/models/layouts"
+import {Pane} from "@bokehjs/models/ui"
 import {TextInput} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
@@ -11,6 +12,19 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {color2css} from "@bokehjs/core/util/color"
 import {figure, gridplot} from "@bokehjs/api/plotting"
 import {BasicTickFormatter} from "@bokehjs/models/formatters"
+
+describe("UIElement", () => {
+  it("should support dashed, snake and camel CSS property names in styles", async () => {
+    const common = {width: "100px", height: "100px"}
+
+    const p0 = new Pane({styles: {...common, "background-color": "red"}})
+    const p1 = new Pane({styles: {...common, background_color: "green"}})
+    const p2 = new Pane({styles: {...common, backgroundColor: "blue"}})
+
+    const layout = new Pane({styles: {display: "inline-flex"}, children: [p0, p1, p2]})
+    await display(layout, [350, 150])
+  })
+})
 
 const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
@@ -23,7 +37,7 @@ const spacer =
       min_width, min_height,
       max_width, max_height,
       styles: {
-        backgroundColor: color2css(color),
+        background_color: color2css(color),
       },
     })
   }
