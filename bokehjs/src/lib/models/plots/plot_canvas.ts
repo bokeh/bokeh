@@ -21,11 +21,11 @@ import {RangesUpdate} from "core/bokeh_events"
 import {Side, RenderLevel} from "core/enums"
 import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
-import {isArray, isNumber} from "core/util/types"
+import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {SizingPolicy, Layoutable, Percent} from "core/layout"
+import {SizingPolicy, Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
@@ -36,6 +36,8 @@ import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import {StyleSheetLike, px} from "core/dom"
+
+const {max} = Math
 
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
@@ -53,8 +55,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override styles(): StyleSheetLike[] {
     return [...super.styles(), `
       .bk-Canvas {
-        width: 100%;
-        height: 100%;
+        grid-row-start: 1;
+        grid-row-end: span 3;
+        grid-column-start: 1;
+        grid-column-end: span 3;
       }
     `]
   }
@@ -303,10 +307,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     type Panels = (Axis | Annotation | Annotation[])[]
 
-    const above: Panels = copy(this.model.above)
-    const below: Panels = copy(this.model.below)
-    const left:  Panels = copy(this.model.left)
-    const right: Panels = copy(this.model.right)
+    const outer_above: Panels = copy(this.model.above)
+    const outer_below: Panels = copy(this.model.below)
+    const outer_left:  Panels = copy(this.model.left)
+    const outer_right: Panels = copy(this.model.right)
 
     const inner_above: Panels = []
     const inner_below: Panels = []
@@ -315,10 +319,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const get_side = (side: Side, inner: boolean = false): Panels => {
       switch (side) {
-        case "above": return inner ? inner_above : above
-        case "below": return inner ? inner_below : below
-        case "left":  return inner ? inner_left  : left
-        case "right": return inner ? inner_right : right
+        case "above": return inner ? inner_above : outer_above
+        case "below": return inner ? inner_below : outer_below
+        case "left":  return inner ? inner_left  : outer_left
+        case "right": return inner ? inner_right : outer_right
       }
     }
 
@@ -441,26 +445,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {frame_width, frame_height} = this.model
 
-    if (frame_width != null || frame_height != null) {
-      const {min_width, min_height} = this.model
-
-      function to_css(value: number | Percent) {
-        return isNumber(value) ? px(value) : `${value.percent}%`
-      }
-
-      const fw = frame_width == null ? "0px" : px(frame_width)
-      const fh = frame_height == null ? "0px" : px(frame_height)
-      const mw = min_width == null ? "0px" : to_css(min_width)
-      const mh = min_height == null ? "0px" : to_css(min_height)
-
-      this._style.append(`
-        :host {
-          min-width: max(${fw}, ${mw});
-          min-height: max(${fh}, ${mh});
-        }
-      `)
-    }
-
     center_panel.set_sizing({
       ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
@@ -468,10 +452,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
     })
     center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
 
-    top_panel.children    = reversed(set_layouts("above", above))
-    bottom_panel.children =          set_layouts("below", below)
-    left_panel.children   = reversed(set_layouts("left",  left))
-    right_panel.children  =          set_layouts("right", right)
+    top_panel.children    = reversed(set_layouts("above", outer_above))
+    bottom_panel.children =          set_layouts("below", outer_below)
+    left_panel.children   = reversed(set_layouts("left",  outer_left))
+    right_panel.children  =          set_layouts("right", outer_right)
 
     inner_top_panel.children    = set_layouts("above", inner_above)
     inner_bottom_panel.children = set_layouts("below", inner_below)
@@ -505,6 +489,33 @@ export class PlotView extends LayoutDOMView implements Renderable {
       layout.inner_right_panel = inner_right_panel
 
     this.layout = layout
+
+    const frame = {
+      width: frame_width == null ? "1fr" : px(frame_width),
+      height: frame_height == null ? "1fr" : px(frame_height),
+    }
+
+    const top = top_panel.measure({width: Infinity, height: Infinity})
+    const bottom = bottom_panel.measure({width: Infinity, height: Infinity})
+    const left = left_panel.measure({width: Infinity, height: Infinity})
+    const right = right_panel.measure({width: Infinity, height: Infinity})
+
+    const top_height = max(top.height, layout.min_border.top)
+    const bottom_height = max(bottom.height, layout.min_border.bottom)
+    const left_width = max(left.width, layout.min_border.left)
+    const right_width = max(right.width, layout.min_border.right)
+
+    this._style.append(`
+      :host {
+        display: grid;
+        grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
+        grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
+        grid-template-areas:
+          ". t ."
+          "l c r"
+          ". b .";
+      }
+    `)
   }
 
   get axis_views(): AxisView[] {
