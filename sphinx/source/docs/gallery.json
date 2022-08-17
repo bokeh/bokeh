@@ -18,7 +18,7 @@
     {
       "path": "examples/plotting/file/network_graph.py",
       "name": "network_graph",
-      "alt": "Thumbnail link to the examples/plotting/file/network_graph.py example show a network graph plot f the NetworkX karate club dataset with large circles for vertices."
+      "alt": "Thumbnail link to the examples/plotting/file/network_graph.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
     },
     {
       "path": "examples/plotting/file/hexbin.py",
@@ -53,12 +53,12 @@
     {
       "path": "examples/plotting/file/range_tool.py",
       "name": "range_tool",
-      "alt": "Thumbnail link to the examples/plotting/file/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for conrolling the viewport of the top plot."
+      "alt": "Thumbnail link to the examples/plotting/file/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
     },
     {
       "path": "examples/plotting/file/pie.py",
       "name": "pie_chart",
-      "alt": "Thumbnail link to the examples/plotting/file/pie.py example shows a pie chart of random data wth a legend."
+      "alt": "Thumbnail link to the examples/plotting/file/pie.py example shows a pie chart of random data with a legend."
     },
     {
       "path": "examples/plotting/file/bar_mixed.py",
@@ -83,12 +83,12 @@
     {
       "path": "examples/plotting/file/bar_pandas_groupby_colormapped.py",
       "name": "bar_pandas_groupby_colormapped",
-      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_colormapped.py example shows a A bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
+      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_colormapped.py example shows a bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
     },
     {
       "path": "examples/plotting/file/bar_pandas_groupby_nested.py",
       "name": "bar_pandas_groupby_nested",
-      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_nested.py example shows a a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
+      "alt": "Thumbnail link to the examples/plotting/file/bar_pandas_groupby_nested.py example shows a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
     },
     {
       "path": "examples/plotting/file/bar_stacked.py",
@@ -138,7 +138,7 @@
     {
       "path": "examples/plotting/file/bar_dodged.py",
       "name": "bar_dodged",
-      "alt": "Thumbnail link to the examples/plotting/file/bar_dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and ed bar illustrated in the accompanying legend."
+      "alt": "Thumbnail link to the examples/plotting/file/bar_dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
     },
     {
       "path": "examples/plotting/file/unemployment.py",
@@ -158,7 +158,7 @@
     {
       "path": "examples/plotting/file/image_rgba.py",
       "name": "image_rgba",
-      "alt": "Thumbnail link to the examples/plotting/file/image_rgba.py example shows and image plot of synthetic RGBA data."
+      "alt": "Thumbnail link to the examples/plotting/file/image_rgba.py example shows an image plot of synthetic RGBA data."
     },
     {
       "path": "examples/plotting/file/dotplot.py",
@@ -183,7 +183,7 @@
     {
       "path": "examples/plotting/file/slider.py",
       "name": "slider",
-      "alt": "Thumbnail link to the examples/plotting/file/slider.py example shows a layout with a sin plot on the left and sliders on the right to control the sine wave propertes such as frequency and phase."
+      "alt": "Thumbnail link to the examples/plotting/file/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
     },
     {
       "path": "examples/plotting/file/jitter.py",
@@ -203,7 +203,7 @@
     {
       "path": "examples/plotting/file/color_sliders.py",
       "name": "color_sliders",
-      "alt": "Thumbnail link to the examples/plotting/file/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on th right. A colorbar with hover tool is underneath."
+      "alt": "Thumbnail link to the examples/plotting/file/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
     },
     {
       "path": "examples/models/file/iris_splom.py",
@@ -213,12 +213,12 @@
     {
       "path": "examples/models/file/anscombe.py",
       "name": "anscombe",
-      "alt": "Thumbnail link to the examples/plotting/file/anscombe.py example shows s gridplot of four scatter and regression lines plots illustrating Anscombe's Quartet."
+      "alt": "Thumbnail link to the examples/plotting/file/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
     },
     {
       "path": "examples/plotting/file/texas.py",
       "name": "texas",
-      "alt": "Thumbnail link to the examples/plotting/file/texas.py example shows a color-mapped map plot based on Texas unemployment rate per count, colormapped using the Viridis palette."
+      "alt": "Thumbnail link to the examples/plotting/file/texas.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
     },
     {
       "path": "examples/plotting/file/markers.py",
@@ -233,7 +233,7 @@
     {
       "path": "examples/plotting/file/bar_basic.py",
       "name": "bar_basic",
-      "alt": "Thumbnail link to the examples/plotting/file/bar_basic.py example showing a simple bar chart for  counts for categories of fruits."
+      "alt": "Thumbnail link to the examples/plotting/file/bar_basic.py example shows a simple bar chart for counts for categories of fruits."
     },
     {
       "path": "examples/plotting/file/stacked_area.py",
@@ -273,7 +273,7 @@
      {
       "path": "examples/plotting/file/contour.py",
       "name": "contour",
-      "alt": "Thumbnail link to the examples/plotting/file/contour.py example showa an iso-contour plot with ten levels between -2 and 2."
+      "alt": "Thumbnail link to the examples/plotting/file/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
      }
   ]
 }

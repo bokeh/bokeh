@@ -620,7 +620,7 @@ class ResetTool(PlotActionTool):
 
     .. |reset_icon| image:: /_images/icons/Reset.png
         :height: 24px
-        :alt: Icon of two arrows on a circular arcs forming a circle representing the reset tool in the toolbar.
+        :alt: Icon of two arrows on a circular arc forming a circle representing the reset tool in the toolbar.
 
     '''
 
@@ -761,7 +761,7 @@ class BoxZoomTool(Drag):
 
     .. |box_zoom_icon| image:: /_images/icons/BoxZoom.png
         :height: 24px
-        :alt: Icon of a dashed box with an hourglass in the upper right representing the box-zoom tool in the toolbar.
+        :alt: Icon of a dashed box with a magnifying glass in the upper right representing the box-zoom tool in the toolbar.
 
     .. note::
         ``BoxZoomTool`` is incompatible with ``GMapPlot`` due to the manner in
@@ -810,7 +810,7 @@ class ZoomInTool(PlotActionTool):
 
     .. |zoom_in_icon| image:: /_images/icons/ZoomIn.png
         :height: 24px
-        :alt: Icon of a plus sign next to an hourglass representing the zoom-in tool in the toolbar.
+        :alt: Icon of a plus sign next to a magnifying glass representing the zoom-in tool in the toolbar.
 
     '''
 
@@ -838,7 +838,7 @@ class ZoomOutTool(PlotActionTool):
 
     .. |zoom_out_icon| image:: /_images/icons/ZoomOut.png
         :height: 24px
-        :alt: Icon of a minus sign next to an hourglass representing the zoom-out tool in the toolbar.
+        :alt: Icon of a minus sign next to a magnifying glass representing the zoom-out tool in the toolbar.
 
     '''
 
