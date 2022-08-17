@@ -24,9 +24,6 @@ import time
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehServerPage, SinglePlotPage
-from bokeh._testing.util.compare import cds_data_almost_equal
-from bokeh._testing.util.selenium import RECORD
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
@@ -39,13 +36,16 @@ from bokeh.models import (
     PolyEditTool,
     Range1d,
 )
+from tests.support.plugins.project import BokehServerPage, SinglePlotPage
+from tests.support.util.compare import cds_data_almost_equal
+from tests.support.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def _make_plot() -> Plot:

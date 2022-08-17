@@ -25,7 +25,6 @@ from copy import copy
 import numpy as np
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps, Local
 from bokeh.core.property.vectorization import (
     Field,
@@ -33,6 +32,7 @@ from bokeh.core.property.vectorization import (
     field,
     value,
 )
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.dataspec as bcpd # isort:skip

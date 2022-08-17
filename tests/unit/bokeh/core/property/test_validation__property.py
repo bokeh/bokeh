@@ -20,7 +20,6 @@ import pytest ; pytest
 import re
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
     Angle,
@@ -57,6 +56,7 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.core.property.bases import validation_on
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.validation as bcpv # isort:skip

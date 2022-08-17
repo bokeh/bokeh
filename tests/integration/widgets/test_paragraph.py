@@ -21,16 +21,16 @@ import pytest ; pytest
 from html import escape
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage
-from bokeh._testing.util.selenium import find_element_for
 from bokeh.models import Paragraph
+from tests.support.plugins.project import BokehModelPage
+from tests.support.util.selenium import find_element_for
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 text = """

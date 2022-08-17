@@ -35,9 +35,9 @@ import requests_unixsocket
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.util.env import envset
 from bokeh.command.subcommand import Argument
 from bokeh.resources import DEFAULT_SERVER_PORT
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.command.subcommands.serve as bcss  # isort:skip

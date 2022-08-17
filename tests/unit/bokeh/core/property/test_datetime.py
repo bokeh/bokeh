@@ -23,8 +23,8 @@ import datetime
 import numpy as np
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.util.serialization import convert_date_to_datetime
+from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
 

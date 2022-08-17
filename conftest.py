@@ -7,10 +7,10 @@
 from __future__ import annotations
 
 pytest_plugins = (
-    "bokeh._testing.plugins.ipython",
-    "bokeh._testing.plugins.managed_server_loop",
-    "bokeh._testing.plugins.networkx",
-    "bokeh._testing.plugins.pandas",
+    "tests.support.plugins.ipython",
+    "tests.support.plugins.managed_server_loop",
+    "tests.support.plugins.networkx",
+    "tests.support.plugins.pandas",
 )
 
 # Standard library imports

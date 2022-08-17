@@ -21,8 +21,6 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage, SinglePlotPage
-from bokeh._testing.util.selenium import RECORD, enter_text_in_element, find_element_for
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
@@ -33,13 +31,15 @@ from bokeh.models import (
     Range1d,
     TextInput,
 )
+from tests.support.plugins.project import BokehModelPage, BokehServerPage, SinglePlotPage
+from tests.support.util.selenium import RECORD, enter_text_in_element, find_element_for
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def mk_modify_doc(text_input: TextInput) -> tuple[ModifyDoc, Plot]:

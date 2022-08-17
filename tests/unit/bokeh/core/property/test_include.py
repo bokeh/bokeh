@@ -17,9 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import Int, Override, String
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.include as bcpi # isort:skip

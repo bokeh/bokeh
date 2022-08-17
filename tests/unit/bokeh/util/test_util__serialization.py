@@ -24,7 +24,7 @@ import numpy as np
 import pytz
 
 # Bokeh imports
-from bokeh._testing.util.env import envset
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.util.serialization as bus # isort:skip

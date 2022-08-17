@@ -40,7 +40,6 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 
 # Bokeh imports
-from bokeh._testing.plugins.managed_server_loop import MSL
 from bokeh.application import Application
 from bokeh.application.handlers import Handler
 from bokeh.client import pull_session
@@ -55,6 +54,7 @@ from bokeh.util.token import (
     get_session_id,
     get_token_payload,
 )
+from tests.support.plugins.managed_server_loop import MSL
 
 # Module under test
 import bokeh.server.server as server # isort:skip

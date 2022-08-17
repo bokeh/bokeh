@@ -23,13 +23,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
-from bokeh._testing.util.selenium import (
-    RECORD,
-    enter_text_in_element,
-    find_element_for,
-    hover_element,
-)
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
 from bokeh.models import (
@@ -40,13 +33,20 @@ from bokeh.models import (
     Plot,
     Range1d,
 )
+from tests.support.plugins.project import BokehModelPage, BokehServerPage
+from tests.support.util.selenium import (
+    RECORD,
+    enter_text_in_element,
+    find_element_for,
+    hover_element,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def mk_modify_doc(input_box: AutocompleteInput) -> tuple[ModifyDoc, Plot]:

@@ -26,7 +26,6 @@ from typing import Any, Sequence
 import numpy as np
 
 # Bokeh imports
-from bokeh._testing.util.types import Capture
 from bokeh.colors import RGB
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
@@ -53,6 +52,7 @@ from bokeh.core.serialization import (
 )
 from bokeh.model import Model
 from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
+from tests.support.util.types import Capture
 
 #-----------------------------------------------------------------------------
 # Setup

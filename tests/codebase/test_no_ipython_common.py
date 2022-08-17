@@ -22,7 +22,7 @@ from subprocess import run
 from sys import executable as python
 
 # Bokeh imports
-from bokeh._testing.util.project import ls_modules, verify_clean_imports
+from tests.support.util.project import ls_modules, verify_clean_imports
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -30,7 +30,7 @@ from bokeh._testing.util.project import ls_modules, verify_clean_imports
 
 # There should not be unprotected IPython imports /anywhere/
 IPYTHON_ALLOWED = (
-    "bokeh._testing",
+    "tests.support",
 )
 
 MODULES = ls_modules(skip_prefixes=IPYTHON_ALLOWED)

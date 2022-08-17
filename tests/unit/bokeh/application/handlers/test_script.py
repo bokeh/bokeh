@@ -17,8 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.filesystem import with_file_contents
 from bokeh.document import Document
+from tests.support.util.filesystem import with_file_contents
 
 # Module under test
 import bokeh.application.handlers.script as bahs # isort:skip

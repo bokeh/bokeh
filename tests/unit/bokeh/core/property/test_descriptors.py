@@ -23,9 +23,9 @@ import typing as tp
 from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import Int, List, Nullable
 from bokeh.model import Model
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.property.descriptors as bcpd # isort:skip

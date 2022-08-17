@@ -17,8 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.filesystem import with_file_contents
 from bokeh.application.handlers.handler import Handler
+from tests.support.util.filesystem import with_file_contents
 
 # Module under test
 import bokeh.application.handlers.server_request_handler as basrh # isort:skip
