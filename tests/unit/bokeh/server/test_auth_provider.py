@@ -23,8 +23,8 @@ from types import ModuleType
 from tornado.web import RequestHandler
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.filesystem import with_file_contents, with_file_contents_async
+from tests.support.util.api import verify_all
+from tests.support.util.filesystem import with_file_contents, with_file_contents_async
 
 # Module under test
 import bokeh.server.auth_provider as bsa # isort:skip

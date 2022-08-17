@@ -66,6 +66,7 @@ jobs:
         run: bash ci/verify_pip_install_from_sdist.sh
 
   codebase:
+    needs: build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -81,11 +82,26 @@ jobs:
           git config --global core.autocrlf false
 
       - uses: actions/checkout@v2
+
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
           environment-file: ci/environment-test-3.9.yml
+
+      - name: Download Bokehjs
+        uses: actions/download-artifact@v1
+        with:
+          name: bokehjs-build
+
+      - name: Download conda package
+        uses: actions/download-artifact@v1
+        with:
+          name: conda-bld-noarch
+
+      - name: Unpack artifacts
+        shell: bash -l {0}
+        run: bash ci/unpack_artifacts.sh
 
       - name: Cache node modules
         uses: actions/cache@v1
@@ -96,6 +112,21 @@ jobs:
       - name: Install node modules
         shell: bash -l {0}
         run: bash ci/install_node_modules.sh
+
+      - name: Install Bokeh package
+        shell: bash -l {0}
+        run: |
+          conda install --yes --quiet --offline /tmp/conda-bld/noarch/bokeh-*.bz2
+
+      - name: Cache sampledata
+        uses: actions/cache@v1
+        with:
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
+
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       # Don't cache sampledata - want to test at least one real download
 

@@ -20,7 +20,6 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.has_props import HasProps
 from bokeh.core.properties import (
     Alias,
@@ -38,6 +37,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.models import Plot
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.properties as bcp # isort:skip

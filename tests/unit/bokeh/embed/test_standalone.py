@@ -49,8 +49,8 @@ import bokeh.embed.standalone as bes # isort:skip
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
-    "bokeh._testing.plugins.selenium",
+    "tests.support.plugins.project",
+    "tests.support.plugins.selenium",
 )
 
 def stable_id() -> ID:

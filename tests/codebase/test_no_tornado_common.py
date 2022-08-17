@@ -22,14 +22,14 @@ from subprocess import run
 from sys import executable as python
 
 # Bokeh imports
-from bokeh._testing.util.project import ls_modules, verify_clean_imports
+from tests.support.util.project import ls_modules, verify_clean_imports
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 TORNADO_ALLOWED = (
-    "bokeh._testing",
+    "tests.support",
     "bokeh.client",
     "bokeh.command",
     "bokeh.io.notebook",

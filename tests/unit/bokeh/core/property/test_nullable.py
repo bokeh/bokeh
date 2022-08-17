@@ -20,7 +20,6 @@ import pytest ; pytest
 import warnings
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import (
     Dict,
     Instance,
@@ -30,6 +29,7 @@ from bokeh.core.properties import (
 )
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
 from bokeh.util.warnings import BokehDeprecationWarning
+from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
 

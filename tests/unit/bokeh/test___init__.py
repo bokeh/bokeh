@@ -20,9 +20,9 @@ import pytest ; pytest
 import warnings
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.types import Capture
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
+from tests.support.util.api import verify_all
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh as b # isort:skip

@@ -22,8 +22,6 @@ from flaky import flaky
 from selenium.webdriver.common.by import By
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
-from bokeh._testing.util.selenium import RECORD, find_element_for, find_elements_for
 from bokeh.layouts import column
 from bokeh.models import (
     Circle,
@@ -33,13 +31,15 @@ from bokeh.models import (
     RadioGroup,
     Range1d,
 )
+from tests.support.plugins.project import BokehModelPage, BokehServerPage
+from tests.support.util.selenium import RECORD, find_element_for, find_elements_for
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 LABELS = ["Option 1", "Option 2", "Option 3"]

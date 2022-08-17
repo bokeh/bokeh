@@ -1,12 +1,16 @@
 [tool.pytest.ini_options]
 addopts = "--no-success-flaky-report"
 asyncio_mode = "strict"
-norecursedirs = "build _build node_modules"
+norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
 markers = [
     "sampledata: a test for bokeh.sampledata",
     "selenium: a test as requiring selenium",
 ]
+
+[tool.coverage.run]
+source = ["bokeh"]
+omit = ["*sphinxext/*"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -36,7 +40,6 @@ ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = [
-    "bokeh._testing", # TODO: .*
     "bokeh.client.states",
     "bokeh.colors.*",
     "bokeh.command.*",

@@ -17,7 +17,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.property.vectorization import Expr, Field
 from bokeh.models import (
     CategoricalColorMapper,
@@ -31,6 +30,7 @@ from bokeh.models import (
     LogColorMapper,
     Stack,
 )
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.transform as bt # isort:skip

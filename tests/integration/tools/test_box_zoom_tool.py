@@ -18,8 +18,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.plugins.project import SinglePlotPage
-from bokeh._testing.util.selenium import RECORD
 from bokeh.core.enums import DimensionsType
 from bokeh.models import (
     BoxZoomTool,
@@ -30,13 +28,15 @@ from bokeh.models import (
     Range1d,
     Rect,
 )
+from tests.support.plugins.project import SinglePlotPage
+from tests.support.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def _make_plot(tool):

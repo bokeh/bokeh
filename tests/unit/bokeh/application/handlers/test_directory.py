@@ -23,9 +23,9 @@ from typing import TYPE_CHECKING
 import jinja2
 
 # Bokeh imports
-from bokeh._testing.util.filesystem import with_directory_contents
 from bokeh.core.templates import FILE
 from bokeh.document import Document
+from tests.support.util.filesystem import with_directory_contents
 
 if TYPE_CHECKING:
     from bokeh.application.handlers.handler import Handler

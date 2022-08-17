@@ -21,19 +21,6 @@ import pytest ; pytest
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehServerPage, SinglePlotPage
-from bokeh._testing.util.selenium import (
-    RECORD,
-    alt_click,
-    enter_text_in_cell,
-    find_element_for,
-    get_table_cell,
-    get_table_column_cells,
-    get_table_row,
-    get_table_selected_rows,
-    shift_click,
-    sort_table_column,
-)
 from bokeh.layouts import column
 from bokeh.models import (
     Button,
@@ -47,13 +34,26 @@ from bokeh.models import (
     TableColumn,
     TapTool,
 )
+from tests.support.plugins.project import BokehServerPage, SinglePlotPage
+from tests.support.util.selenium import (
+    RECORD,
+    alt_click,
+    enter_text_in_cell,
+    find_element_for,
+    get_table_cell,
+    get_table_column_cells,
+    get_table_row,
+    get_table_selected_rows,
+    shift_click,
+    sort_table_column,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def _is_cds_data_patch(evt):

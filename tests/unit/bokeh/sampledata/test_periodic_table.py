@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
+from tests.support.util.api import verify_all
 
 # Module under test
 #import bokeh.sampledata.periodic_table as bsp # isort:skip

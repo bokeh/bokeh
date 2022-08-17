@@ -21,7 +21,7 @@ import pytest ; pytest
 import json
 
 # Bokeh imports
-from bokeh._testing.util.project import TOP_PATH
+from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests

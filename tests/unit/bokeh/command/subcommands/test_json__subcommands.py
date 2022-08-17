@@ -21,10 +21,10 @@ import argparse
 import os
 
 # Bokeh imports
-from bokeh._testing.util.filesystem import TmpDir, WorkingDir, with_directory_contents
-from bokeh._testing.util.types import Capture
 from bokeh.command.bootstrap import main
 from bokeh.command.subcommand import Argument
+from tests.support.util.filesystem import TmpDir, WorkingDir, with_directory_contents
+from tests.support.util.types import Capture
 
 from _util_subcommands import basic_scatter_script
 

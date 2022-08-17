@@ -47,29 +47,29 @@ if TYPE_CHECKING:
 
 # Bokeh imports
 import bokeh.server.views.ws as ws
-from bokeh._testing.util.selenium import (
+from bokeh.application.handlers.function import ModifyDoc
+from bokeh.io import save
+from bokeh.models import LayoutDOM, Plot
+from bokeh.server.server import Server
+from tests.support.util.selenium import (
     INIT,
     RESULTS,
     find_matching_element,
     get_events_el,
 )
-from bokeh.application.handlers.function import ModifyDoc
-from bokeh.io import save
-from bokeh.models import LayoutDOM, Plot
-from bokeh.server.server import Server
 
 if TYPE_CHECKING:
-    from bokeh._testing.plugins.file_server import SimpleWebServer
     from bokeh.model import Model
+    from tests.support.plugins.file_server import SimpleWebServer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
-    "bokeh._testing.plugins.file_server",
-    "bokeh._testing.plugins.selenium",
+    "tests.support.plugins.project",
+    "tests.support.plugins.file_server",
+    "tests.support.plugins.selenium",
 )
 
 __all__ = (

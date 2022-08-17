@@ -17,9 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.colors import named
 from bokeh.palettes import __palettes__
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.core.enums as bce # isort:skip

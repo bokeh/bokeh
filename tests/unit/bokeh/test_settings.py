@@ -20,8 +20,8 @@ import pytest ; pytest
 import logging
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.env import envset
+from tests.support.util.api import verify_all
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.settings as bs # isort:skip

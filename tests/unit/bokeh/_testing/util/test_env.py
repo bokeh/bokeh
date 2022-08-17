@@ -20,10 +20,10 @@ import pytest ; pytest
 import os
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
+from tests.support.util.api import verify_all
 
 # Module under test
-import bokeh._testing.util.env as _tue # isort:skip
+import tests.support.util.env as _tue # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

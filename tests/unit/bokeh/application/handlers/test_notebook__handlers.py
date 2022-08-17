@@ -22,8 +22,8 @@ import nbformat
 from packaging import version
 
 # Bokeh imports
-from bokeh._testing.util.filesystem import with_temporary_file
 from bokeh.document import Document
+from tests.support.util.filesystem import with_temporary_file
 
 # Module under test
 import bokeh.application.handlers.notebook as bahn # isort:skip
