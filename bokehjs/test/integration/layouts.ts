@@ -3,13 +3,13 @@ import {display, fig, row, grid} from "./_util"
 
 import {Spacer, Tabs, TabPanel, GroupBox, Column} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
-import {TextInput} from "@bokehjs/models/widgets"
+import {TextInput, Button} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
 import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {color2css} from "@bokehjs/core/util/color"
+import {color2css, is_dark, RGBA} from "@bokehjs/core/util/color"
 import {figure, gridplot} from "@bokehjs/api/plotting"
 import {BasicTickFormatter} from "@bokehjs/models/formatters"
 
@@ -245,6 +245,32 @@ describe("GridBox", () => {
 
     const l = grid(items)
     await display(l, [600, 600])
+  })
+
+  it("should allow 10x20 grids of buttons", async () => {
+    const ncols = 10
+    const nrows = 20
+
+    const items = new Matrix(nrows, ncols, (row, col) => {
+      const x = 100.0/ncols*col
+      const y = 100.0/nrows*row
+      const rgba: RGBA = [Math.floor(50 + 2*x), Math.floor(30 + 2*y), 150, 255]
+      return new Button({
+        label: `${row},${col}`,
+        sizing_mode: "scale_width",
+        margin: null,
+        stylesheets: [`
+          .bk-btn {
+            background-color: ${color2css(rgba)};
+            color: ${is_dark(rgba) ? "white" : "black"};
+            font-size: 75%;
+          }
+        `],
+      })
+    })
+
+    const l = grid(items, {spacing: 5})
+    await display(l, [700, 700])
   })
 })
 
