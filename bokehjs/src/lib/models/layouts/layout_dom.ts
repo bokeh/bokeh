@@ -3,7 +3,7 @@ import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, SizingMode} from "core/enums"
-import {px, StyleSheet, StyleSheetLike} from "core/dom"
+import {px, StyleSheet, StyleSheetLike, CSSOurStyles} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
@@ -154,51 +154,44 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
-    const {width, height} = sizing
-
-    this._style.replace(`
-      :host {
-        width: ${css_sizing(sizing.width_policy, width)};
-        height: ${css_sizing(sizing.height_policy, height)};
-      }
-    `)
-
     function to_css(value: number | Percent) {
       return isNumber(value) ? px(value) : `${value.percent}%`
     }
 
+    const styles: CSSOurStyles = {}
+
+    const {width, height} = sizing
+    styles.width = css_sizing(sizing.width_policy, width)
+    styles.height = css_sizing(sizing.height_policy, height)
+
     const {min_width, max_width} = this.model
     const {min_height, max_height} = this.model
 
-    this._style.append(`
-      :host {
-        min-width: ${min_width == null ? "0px" : to_css(min_width)};
-        min-height: ${min_height == null ? "0px" : to_css(min_height)};
-      }
-    `)
+    styles.min_width = min_width == null ? "0px" : to_css(min_width)
+    styles.min_height = min_height == null ? "0px" : to_css(min_height)
 
     if (max_width != null)
-      this._style.append(`:host { max-width: ${to_css(max_width)}; }`)
+      styles.max_width = to_css(max_width)
     if (max_height != null)
-      this._style.append(`:host { max-height: ${to_css(max_height)}; }`)
+      styles.max_height = to_css(max_height)
 
     const {aspect_ratio} = sizing
     if (aspect_ratio == "auto") {
       if (width != null && height != null)
-        this._style.append(`:host { aspect-ratio: ${width} / ${height}; }`)
+        styles.aspect_ratio = `${width} / ${height}`
     } else if (isNumber(aspect_ratio))
-      this._style.append(`:host { aspect-ratio: ${aspect_ratio}; }`)
+      styles.aspect_ratio = `${aspect_ratio}`
 
     const {margin} = this.model
     if (margin != null) {
       if (isNumber(margin))
-        this._style.append(`:host { margin: ${px(margin)}; }`)
+        styles.margin = px(margin)
       else if (margin.length == 2) {
         const [vertical, horizontal] = margin
-        this._style.append(`:host { margin: ${px(vertical)} ${px(horizontal)}; }`)
+        styles.margin = `${px(vertical)} ${px(horizontal)}`
       } else {
         const [top, right, bottom, left] = margin
-        this._style.append(`:host { margin: ${px(top)} ${px(right)} ${px(bottom)} ${px(left)}; }`)
+        styles.margin = `${px(top)} ${px(right)} ${px(bottom)} ${px(left)}`
       }
     }
 
@@ -213,13 +206,11 @@ export abstract class LayoutDOMView extends UIElementView {
         }
       })()
 
-      this._style.append(`
-        :host {
-          resize: ${resize};
-          overflow: auto;
-        }
-      `)
+      styles.resize = resize
+      styles.overflow = "auto"
     }
+
+    this._style.replace(":host", styles)
   }
 
   update_layout(): void {

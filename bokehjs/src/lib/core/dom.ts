@@ -396,6 +396,8 @@ export enum Keys {
   Delete    = 46,
 }
 
+import {CSSOurStyles} from "./css"
+
 export class StyleSheet {
   readonly el: HTMLStyleElement
 
@@ -407,18 +409,33 @@ export class StyleSheet {
     this.replace("")
   }
 
-  replace(css: string): void {
-    this.el.textContent = css
+  private *_to_rules(styles: CSSOurStyles) {
+    // TODO: prefixing
+    for (const [attr, value] of entries(styles)) {
+      const name = attr.replace(/_/g, "-")
+      yield `${name}: ${value};`
+    }
   }
 
-  prepend(css: string): void {
-    const text = this.el.textContent ?? ""
-    this.el.textContent = `${css}\n${text}`
+  private _to_css(css: string, styles: CSSOurStyles | undefined): string {
+    if (styles == null)
+      return css
+    else
+      return `${css}{${[...this._to_rules(styles)].join("")}}`
   }
 
-  append(css: string): void {
+  replace(css: string, styles?: CSSOurStyles): void {
+    this.el.textContent = this._to_css(css, styles)
+  }
+
+  prepend(css: string, styles?: CSSOurStyles): void {
     const text = this.el.textContent ?? ""
-    this.el.textContent = `${text}\n${css}`
+    this.el.textContent = `${this._to_css(css, styles)}\n${text}`
+  }
+
+  append(css: string, styles?: CSSOurStyles): void {
+    const text = this.el.textContent ?? ""
+    this.el.textContent = `${text}\n${this._to_css(css, styles)}`
   }
 
   remove(): void {
