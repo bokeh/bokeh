@@ -66,6 +66,7 @@ jobs:
         run: bash ci/verify_pip_install_from_sdist.sh
 
   codebase:
+    needs: build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -81,21 +82,21 @@ jobs:
           git config --global core.autocrlf false
 
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
-        with:
-          miniconda-version: 'latest'
-          activate-environment: bk-test
-          environment-file: ci/environment-test-3.9.yml
 
-      - name: Cache node modules
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.8'
+
+      - name: Cache sampledata
         uses: actions/cache@v1
         with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
+          path: ~/.bokeh/data
+          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
 
-      - name: Install node modules
+      - name: Install sampledata
         shell: bash -l {0}
-        run: bash ci/install_node_modules.sh
+        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       # Don't cache sampledata - want to test at least one real download
 
