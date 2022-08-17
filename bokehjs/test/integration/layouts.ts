@@ -8,6 +8,7 @@ import {Color} from "@bokehjs/core/types"
 import {Location} from "@bokehjs/core/enums"
 import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
+import {color2css} from "@bokehjs/core/util/color"
 import {figure, gridplot} from "@bokehjs/api/plotting"
 import {BasicTickFormatter} from "@bokehjs/models/formatters"
 
@@ -21,7 +22,9 @@ const spacer =
       width, height,
       min_width, min_height,
       max_width, max_height,
-      background: color,
+      styles: {
+        backgroundColor: color2css(color),
+      },
     })
   }
 

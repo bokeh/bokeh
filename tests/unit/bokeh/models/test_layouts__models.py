@@ -16,8 +16,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Type
+
 # Bokeh imports
-from bokeh.models import ColumnDataSource, Slider
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
 
 # Module under test
@@ -31,19 +34,19 @@ from bokeh.models.layouts import Row, Column, LayoutDOM # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def check_props(layout):
+def check_props(layout: LayoutDOM):
     assert layout.width is None
     assert layout.height is None
     assert layout.children == []
 
-def check_props_with_sizing_mode(layout):
+def check_props_with_sizing_mode(layout: LayoutDOM):
     assert layout.width is None
     assert layout.height is None
     assert layout.children == []
     assert layout.sizing_mode is None
 
 
-def check_children_prop(layout_callable):
+def check_children_prop(layout_callable: Type[Row | Column]):
     ## component subclasses are layouts, widgets and plots
     components = [Row(), Column(), figure()]
 
@@ -70,23 +73,6 @@ def test_Column() -> None:
     check_children_prop(Column)
 
 
-def check_widget_box_children_prop(layout_callable):
-    ## component subclasses are layouts, widgets and plots
-    components = [Slider()]
-
-    # Test layout accepts splatted components
-    layout1 = layout_callable(*components)
-    assert layout1.children == components
-
-    # Test layout accepts children argument
-    layout2 = layout_callable(children=components)
-    assert layout2.children == components
-
-    # Test value error raised when non-layout is provided as children
-    with pytest.raises(ValueError):
-        layout_callable(children=[ColumnDataSource()])
-
-
 def test_LayoutDOM_css_classes() -> None:
     m = LayoutDOM()
     assert m.css_classes == []
@@ -95,6 +81,15 @@ def test_LayoutDOM_css_classes() -> None:
     m.css_classes = ('bar', )
     assert m.css_classes == ['bar']
 
+
+def test_LayoutDOM_backgroud() -> None:
+    obj = LayoutDOM(background="#aabbccff")
+    assert obj.styles["background-color"] == "#aabbccff"
+
+    obj = LayoutDOM()
+    assert "background-color" not in obj.styles
+    obj.background = "#aabbccff"
+    assert obj.styles["background-color"] == "#aabbccff"
 
 #-----------------------------------------------------------------------------
 # Dev API

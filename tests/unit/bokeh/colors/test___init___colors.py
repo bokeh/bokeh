@@ -28,6 +28,7 @@ import bokeh.colors as bc # isort:skip
 
 ALL = (
     'Color',
+    'ColorLike',
     'HSL',
     'RGB',
     'groups',

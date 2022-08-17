@@ -935,7 +935,7 @@ describe("Bug", () => {
       const p1 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
       p0.circle([0, 1, 2], [3, 4, 5])
       p1.circle([1, 2, 3], [4, 5, 6])
-      return row([p0, p1], {sizing_mode: "scale_width", background: "orange"})
+      return row([p0, p1], {sizing_mode: "scale_width", styles: {backgroundColor: "orange"}})
     }
 
     it("results in incorrect layout when viewport is smaller than optimal size", async () => {

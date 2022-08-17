@@ -2,11 +2,9 @@ import {UIElement, UIElementView} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
-import {Color} from "core/types"
 import {Align, Dimensions, SizingMode} from "core/enums"
 import {px, StyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
-import {color2css} from "core/util/color"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
@@ -89,7 +87,6 @@ export abstract class LayoutDOMView extends UIElementView {
     ], () => this.invalidate_layout())
 
     this.on_change([
-      p.background,
       p.css_classes,
       p.stylesheets,
     ], () => this.invalidate_render())
@@ -131,9 +128,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override render(): void {
     super.render()
-
-    const {background} = this.model
-    this.el.style.backgroundColor = background != null ? color2css(background) : ""
 
     this.class_list.add(...this.css_classes())
 
@@ -438,7 +432,6 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align] | "auto">
-    background: p.Property<Color | null>
     css_classes: p.Property<string[]>
     context_menu: p.Property<Menu | null>
     resizable: p.Property<boolean | Dimensions>
@@ -457,7 +450,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, String, Auto, Array, Tuple, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -474,7 +467,6 @@ export abstract class LayoutDOM extends UIElement {
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
-        background:    [ Nullable(Color), null ],
         css_classes:   [ Array(String), [] ],
         context_menu:  [ Nullable(Ref(Menu)), null ],
         resizable:     [ Or(Boolean, Dimensions), false ],

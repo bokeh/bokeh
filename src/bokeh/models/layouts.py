@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..colors import RGB, Color, ColorLike
 from ..core.enums import (
     Align,
     Dimensions,
@@ -32,7 +33,6 @@ from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
     Bool,
-    Color,
     Dict,
     Either,
     Enum,
@@ -256,10 +256,6 @@ class LayoutDOM(UIElement):
     grid track align).
     """)
 
-    background = Nullable(Color, help="""
-    Background color of the component.
-    """)
-
     # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
     css_classes = List(String, help="""
     A list of CSS class names to add to this DOM element. Note: the class names are
@@ -281,6 +277,20 @@ class LayoutDOM(UIElement):
     resizable = Either(Bool, Enum(Dimensions), default=False, help="""
     Whether the layout is interactively resizable, and if so in which dimensions.
     """)
+
+    def _set_background(self, color: ColorLike) -> None:
+        """ Background color of the component. """
+        if isinstance(color, Color):
+            color = color.to_css()
+        elif isinstance(color, tuple):
+            color = RGB.from_tuple(color).to_css()
+
+        if isinstance(self.styles, dict):
+            self.styles["background-color"] = color
+        else:
+            self.styles.background_color = color
+
+    background = property(None, _set_background)
 
     @warning(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
