@@ -59,8 +59,8 @@ class Test_Div:
 
         assert page.has_no_console_errors()
 
-    def test_set_style(self, bokeh_model_page: BokehModelPage) -> None:
-        div = Div(text=text, style={'font-size': '26px'})
+    def test_set_styles(self, bokeh_model_page: BokehModelPage) -> None:
+        div = Div(text=text, styles={'font-size': '26px'})
         page = bokeh_model_page(div)
 
         el = find_element_for(page.driver, div)
