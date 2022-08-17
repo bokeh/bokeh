@@ -390,7 +390,7 @@ class PanTool(Drag):
 
     .. |pan_icon| image:: /_images/icons/Pan.png
         :height: 24px
-        :alt: Icon of a four arrows meeting in a plus shape representing the pan tool in the toolbar.
+        :alt: Icon of four arrows meeting in a plus shape representing the pan tool in the toolbar.
 
     '''
 
