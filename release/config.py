@@ -19,7 +19,7 @@ from .logger import LOG, Scrubber
 __all__ = ("Config",)
 
 # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
-ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))((dev|rc)(\d+))?$")
+ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))(\.(dev|rc)(\d+))?$")
 
 FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 

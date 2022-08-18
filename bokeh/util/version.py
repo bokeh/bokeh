@@ -74,7 +74,7 @@ def is_full_release(version: str | None = None) -> bool:
 
 def _base_version_helper(version: str) -> str:
     import re
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
     match = VERSION_PAT.search(version)
     assert match is not None
     return match.group(1)
