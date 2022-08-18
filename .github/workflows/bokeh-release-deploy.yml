@@ -4,12 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0dev8)"
+        description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0.dev8)"
         required: true
-
-env:
-  CONDA_BASE_REQS: "conda=4.8.1 conda-build=3.18.10 conda-verify=3.4.2 ripgrep=0.10.0 jinja2"
-  CONDA_ENV_REQS: "python=3.8 jinja2 yaml pyyaml"
 
 jobs:
 
@@ -17,7 +13,7 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-      - name: Verify Maintainer Authorization
+      - name: Check Maintainer
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
           RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
