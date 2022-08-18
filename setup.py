@@ -4,250 +4,141 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Setup script for Bokeh.
-
-Two separate components comprise Bokeh:
-
-* A JavaScript runtime BokehJS that draws and handles events in browsers
-* Python "bindings" and an optional server for interacting with BokehJS
-
-The BokehJS library is written in TypeScript, which requires a compilation
-step to build BokehJS. This makes the Bokeh setup and install process more
-complicated than typical pure Python projects.
-
-'''
 
 # Standard library imports
-import os
-import re
-import subprocess
-import sys
-import time
-from glob import glob
-from os.path import dirname, exists, join, realpath
+import glob, os, re, subprocess, sys, time
+from itertools import product
+from pathlib import Path
 from shutil import copy, copytree, rmtree
+from textwrap import indent
+from typing import NoReturn
 
 # External imports
-from setuptools import setup
+from setuptools import Command, setup
+from setuptools.command.build import build
 
 # -----------------------------------------------------------------------------
-# UI helpers
+# Helpers
 # -----------------------------------------------------------------------------
 
 try:
     import colorama
-
-    if sys.platform == "win32":
-        colorama.init()
-
+    if sys.platform == "win32": colorama.init()
     def bright(text: str) -> str: return f"{colorama.Style.BRIGHT}{text}{colorama.Style.RESET_ALL}"
     def dim(text: str) -> str: return f"{colorama.Style.DIM}{text}{colorama.Style.RESET_ALL}"
     def red(text: str) -> str: return f"{colorama.Fore.RED}{text}{colorama.Style.RESET_ALL}"
     def green(text: str) -> str: return f"{colorama.Fore.GREEN}{text}{colorama.Style.RESET_ALL}"
     def yellow(text: str) -> str: return f"{colorama.Fore.YELLOW}{text}{colorama.Style.RESET_ALL}"
 except ModuleNotFoundError:
-    def ident(text: str) -> str: return text
-    bright = dim = red = green = yellow = ident
+    def _plain(text: str) -> str: return text
+    bright = dim = red = green = yellow = _plain
 
-def show_bokehjs(bokehjs_action, develop=False):
-    print("\nInstalled Bokeh for DEVELOPMENT:" if develop else "Installed Bokeh:")
+ROOT = Path(__file__).resolve().parent
+BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
+BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
+PKG_STATIC = ROOT / 'bokeh' / 'server' / 'static'
+PKG_JS = PKG_STATIC / 'js'
+PKG_TSLIB = PKG_STATIC / 'lib'
+COMPONENTS = ("bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-api", "bokeh-gl", "bokeh-mathjax")
+JS_FILES = [f"{c}{m}.js" for c, m in product(COMPONENTS, ("", ".min"))]
 
-    if bokehjs_action == "built":
-        kind = bright(yellow("NEWLY BUILT"))
-        loc = "bokehjs/build"
-    elif bokehjs_action == "installed":
-        kind = bright(yellow("PREVIOUSLY BUILT"))
-        loc = "bokehjs/build"
-    else:
-        kind = bright(yellow("PACKAGED"))
-        loc = "bokeh.server.static"
-    print(f"  - using {kind} BokehJS, from {loc}\n\n")
-
-# -----------------------------------------------------------------------------
-# Helpers for operations in the bokehjs dir
-# -----------------------------------------------------------------------------
-
-def build_or_install_bokehjs() -> str:
-    ROOT = dirname(realpath(__file__))
-    if exists(join(ROOT, 'PKG-INFO')):
-        return "packaged"
-
-    action = os.environ.get("BOKEHJS_ACTION", "build")
-
-    if action == "install":
-        install_js()
-        return "installed"
-
-    if action == "build":
-        build_js()
-        install_js()
-        return "built"
-
-    raise RuntimeError(f"Unrecognized action {action!r}")
-
-def build_js():
-    ''' Build BokehJS files under the ``bokehjs`` source subdirectory.
-
-    Also prints a table of statistics about the generated assets (file sizes,
-    etc.) or any error messages if the build fails.
-
-    Note this function only builds BokehJS assets, it does not install them
-    into the python source tree.
-
-    '''
-    print("Building BokehJS... ", end="")
-    sys.stdout.flush()
-    os.chdir('bokehjs')
-
-    cmd = ["node", "make", "build"]
-
-    t0 = time.time()
+def build_js() -> None:
+    print("\nBuilding BokehJS... ", end="")
     try:
-        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        t0 = time.time()
+        proc = subprocess.run(["node", "make", "build"], capture_output=True, cwd="bokehjs")
+        t1 = time.time()
     except OSError as e:
-        print(BUILD_EXEC_FAIL_MSG % (cmd, e))
-        sys.exit(1)
-    finally:
-        os.chdir('..')
+        die(BUILD_EXEC_FAIL_MSG.format(exc=e))
 
-    result = proc.wait()
-    t1 = time.time()
+    if proc.returncode != 0:
+        out = indent(proc.stdout.decode('ascii', errors='ignore'), '    ')
+        err = indent(proc.stderr.decode('ascii', errors='ignore'), '    ')
+        die(BUILD_FAIL_MSG.format(stdout=red(out), stderr=red(err)))
 
-    if result != 0:
-        indented_msg = ""
-        outmsg = proc.stdout.read().decode('ascii', errors='ignore')
-        outmsg = "\n".join("    " + x for x in outmsg.split("\n"))
-        errmsg = proc.stderr.read().decode('ascii', errors='ignore')
-        errmsg = "\n".join("    " + x for x in errmsg.split("\n"))
-        print(BUILD_FAIL_MSG % (red(outmsg), red(errmsg)))
-        sys.exit(1)
-
-    indented_msg = ""
-    msg = proc.stdout.read().decode('ascii', errors='ignore')
+    out = proc.stdout.decode('ascii', errors='ignore')
     pat = re.compile(r"(\[.*\]) (.*)", re.DOTALL)
-    for line in msg.strip().split("\n"):
-        m = pat.match(line)
-        if not m: continue # skip generate.py output lines
-        stamp, txt = m.groups()
-        indented_msg += "   " + dim(green(stamp)) + " " + dim(txt) + "\n"
-    print(BUILD_SUCCESS_MSG % indented_msg)
-    print("Build time: %s" % bright(yellow("%0.1f seconds" % (t1-t0))))
-    print()
+    msg = []
+    for line in out.strip().split("\n"):
+        if m := pat.match(line):
+            stamp, txt = m.groups()
+            msg.append(f"   {dim(green(stamp))} {dim(txt)}")
+    print(BUILD_SUCCESS_MSG.format(msg="\n".join(msg)))
+    print(f"\n Build time: {bright(yellow(f'{t1-t0:0.1f} seconds'))}\n")
+
     print("Build artifact sizes:")
     try:
-        def size(*path):
-            return os.stat(join("bokehjs", "build", *path)).st_size / 2**10
+        for fn in JS_FILES:
+            size = os.stat(BUILD_JS / fn).st_size / 2**10
+            print(f"  - {fn:<20} : {size:6.1f} KB")
+    except FileNotFoundError as e:
+        die(BUILD_SIZE_FAIL_MSG.format(exc=e))
 
-        print("  - bokeh.js              : %6.1f KB" % size("js", "bokeh.js"))
-        print("  - bokeh.min.js          : %6.1f KB" % size("js", "bokeh.min.js"))
+def install_js() -> None:
+    print("\nInstalling BokehJS... ", end="")
 
-        print("  - bokeh-widgets.js      : %6.1f KB" % size("js", "bokeh-widgets.js"))
-        print("  - bokeh-widgets.min.js  : %6.1f KB" % size("js", "bokeh-widgets.min.js"))
+    missing = [fn for fn in JS_FILES if not (BUILD_JS / fn).exists()]
+    if missing:
+        die(BOKEHJS_INSTALL_FAIL.format(missing=", ".join(missing)))
 
-        print("  - bokeh-tables.js       : %6.1f KB" % size("js", "bokeh-tables.js"))
-        print("  - bokeh-tables.min.js   : %6.1f KB" % size("js", "bokeh-tables.min.js"))
+    if PKG_JS.exists():
+        rmtree(PKG_JS)
+    copytree(BUILD_JS, PKG_JS)
 
-        print("  - bokeh-api.js          : %6.1f KB" % size("js", "bokeh-api.js"))
-        print("  - bokeh-api.min.js      : %6.1f KB" % size("js", "bokeh-api.min.js"))
+    if PKG_TSLIB.exists():
+        rmtree(PKG_TSLIB)
+    if BUILD_TSLIB.exists():
+        os.mkdir(PKG_TSLIB)
+        for lib_file in glob.glob(str(BUILD_TSLIB / "lib.*.d.ts")):
+            copy(lib_file, PKG_TSLIB)
 
-        print("  - bokeh-gl.js           : %6.1f KB" % size("js", "bokeh-gl.js"))
-        print("  - bokeh-gl.min.js       : %6.1f KB" % size("js", "bokeh-gl.min.js"))
+    print(SUCCESS)
 
-        print("  - bokeh-mathjax.js      : %6.1f KB" % size("js", "bokeh-mathjax.js"))
-        print("  - bokeh-mathjax.min.js  : %6.1f KB" % size("js", "bokeh-mathjax.min.js"))
-    except Exception as e:
-        print(BUILD_SIZE_FAIL_MSG % e)
-        sys.exit(1)
+def build_or_install_bokehjs() -> None:
+    action = os.environ.get("BOKEHJS_ACTION", "build")
+    if (ROOT / 'PKG-INFO').exists():
+        kind, loc = "PACKAGED", "bokeh.server.static"
+    elif action == "install":
+        install_js()
+        kind, loc = "PREVIOUSLY BUILT", "bokehjs/build"
+    elif action == "build":
+        build_js()
+        install_js()
+        kind, loc = "NEWLY BUILT", "bokehjs/build"
+    else:
+        raise ValueError(f"Unrecognized action {action!r}")
+    print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
 
-def install_js():
-    ''' Copy built BokehJS files into the Python source tree.
+def die(x: str) -> NoReturn:
+    print(f"{x}\n")
+    sys.exit(1)
 
-    Returns:
-        None
-
-    '''
-    ROOT = dirname(realpath(__file__))
-    BOKEHJSROOT = join(ROOT, 'bokehjs')
-    BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
-    JS = join(BOKEHJSBUILD, 'js')
-    SERVER = join(ROOT, 'bokeh/server')
-    TSLIB = join(BOKEHJSROOT , 'node_modules/typescript/lib')
-
-    target_jsdir = join(SERVER, 'static', 'js')
-    target_tslibdir = join(SERVER, 'static', 'lib')
-
-    STATIC_ASSETS = [
-        join(JS,  'bokeh.js'),
-        join(JS,  'bokeh.min.js'),
-    ]
-    if not all(exists(a) for a in STATIC_ASSETS):
-        print(BOKEHJS_INSTALL_FAIL)
-        sys.exit(1)
-
-    if exists(target_jsdir):
-        rmtree(target_jsdir)
-    copytree(JS, target_jsdir)
-
-    if exists(target_tslibdir):
-        rmtree(target_tslibdir)
-    if exists(TSLIB):
-        os.mkdir(target_tslibdir)
-        for lib_file in glob(join(TSLIB, "lib.*.d.ts")):
-            copy(lib_file, target_tslibdir)
-
-# -----------------------------------------------------------------------------
-# Status and error message strings
-# -----------------------------------------------------------------------------
-
-BOKEHJS_INSTALL_FAIL = """
-
-ERROR: Cannot install BokehJS: files missing in `./bokehjs/build`.
-
-Please refer the Contributor Guide for building BokehJS:
-
-    https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html.
-"""
-
-BUILD_EXEC_FAIL_MSG = bright(red("Failed.")) + """
-
-ERROR: subprocess.Popen(%r) failed to execute:
-
-    %s
-
-Please refer the Contributor Guide for building BokehJS:
-
-    https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html.
-"""
-
-BUILD_FAIL_MSG = bright(red("Failed.")) + """
-
-ERROR: 'node make build' returned the following
+SUCCESS = f"{bright(green('Success!'))}\n"
+FAILED = f"{bright(red('Failed.'))}\n"
+BUILD_SUCCESS_MSG =f"{SUCCESS}\nBuild output:\n\n{{msg}}"
+BUILD_SIZE_FAIL_MSG = f"{FAILED}\nERROR: could not determine sizes:\n\n     {{exc}}"
+BOKEHJS_INSTALL_FAIL = f"{FAILED}\nERROR: Cannot install BokehJS: files missing in bokehjs/build:\n\n    {{missing}}"
+BUILD_EXEC_FAIL_MSG = f"{FAILED}\nERROR: 'node make build' failed to execute:\n\n    {{exc}}"
+BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 
 ---- on stdout:
-%s
+{{stdout}}
 
 ---- on stderr:
-%s
+{{stderr}}
 """
-
-BUILD_SIZE_FAIL_MSG = """
-ERROR: could not determine sizes:
-
-    %s
-"""
-
-BUILD_SUCCESS_MSG = bright(green("Success!")) + """
-
-Build output:
-
-%s"""
 
 # -----------------------------------------------------------------------------
 # Setuptools
 # -----------------------------------------------------------------------------
 
-bokehjs_action = build_or_install_bokehjs()
+class Build(build):
+    sub_commands = [("build_js", None), *build.sub_commands]
 
-setup()
+class BuildJS(Command):
+    def initialize_options(self) -> None: pass
+    def finalize_options(self) -> None: pass
+    def run(self) -> None:
+        build_or_install_bokehjs()
 
-show_bokehjs(bokehjs_action)
+setup(cmdclass={"build_js": BuildJS, "build": Build})
