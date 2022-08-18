@@ -1,11 +1,6 @@
-# Include only unit tests
-prune tests
-graft tests/unit
-
-# Don't include documentation
-prune sphinx
-
 # Things to always exclude
+prune sphinx
+prune tests
 global-exclude .git*
 global-exclude .ipynb_checkpoints
 global-exclude *.py[co]
