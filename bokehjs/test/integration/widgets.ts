@@ -3,7 +3,7 @@ import {display, row, column} from "./_util"
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
-import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {ColumnDataSource} from "@bokehjs/models"
 
 import {
   Button, Toggle, Dropdown,
@@ -17,7 +17,12 @@ import {
   Paragraph, Div, PreText,
 } from "@bokehjs/models/widgets"
 
-import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
+import {
+  DataTable, DataCube,
+  TableColumn,
+  StringFormatter,
+  SumAggregator, GroupingInfo,
+} from "@bokehjs/models/widgets/tables"
 
 describe("Widgets", () => {
   it("should allow Button", async () => {
@@ -308,6 +313,39 @@ describe("Widgets", () => {
     const {view} = await display(table, [600, 400])
     foo_col.visible = false
     await view.ready
+  })
+
+  it("should allow DataCube", async () => {
+    const source = new ColumnDataSource({
+      data: {
+        d0: ["A", "E", "E", "E", "J", "L", "M"],
+        d1: ["B", "D", "D", "H", "K", "L", "N"],
+        d2: ["C", "F", "G", "H", "K", "L", "O"],
+        px: [10, 20, 30, 40, 50, 60, 70],
+      },
+    })
+
+    const target = new ColumnDataSource({
+      data: {
+        row_indices: [],
+        labels: [],
+      },
+    })
+
+    const formatter = new StringFormatter({font_style: "bold"})
+
+    const columns = [
+      new TableColumn({field: "d2", title: "Name", width: 80, sortable: false, formatter}),
+      new TableColumn({field: "px", title: "Price", width: 40, sortable: false}),
+    ]
+
+    const grouping = [
+      new GroupingInfo({getter: "d0", aggregators: [new SumAggregator({field_: "px"})]}),
+      new GroupingInfo({getter: "d1", aggregators: [new SumAggregator({field_: "px"})]}),
+    ]
+
+    const cube = new DataCube({source, columns, grouping, target, width: 400, height: 200})
+    await display(cube)
   })
 
   it("should allow TeX on Divs with mathstrings", async () => {
