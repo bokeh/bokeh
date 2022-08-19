@@ -6,7 +6,7 @@
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import glob, os, re, subprocess, sys, time
+import os, re, subprocess, sys, time
 from itertools import product
 from pathlib import Path
 from shutil import copy, copytree, rmtree
@@ -69,7 +69,7 @@ def build_js() -> None:
     print("Build artifact sizes:")
     try:
         for fn in JS_FILES:
-            size = os.stat(BUILD_JS / fn).st_size / 2**10
+            size = (BUILD_JS / fn).stat().st_size / 2**10
             print(f"  - {fn:<20} : {size:6.1f} KB")
     except FileNotFoundError as e:
         die(BUILD_SIZE_FAIL_MSG.format(exc=e))
@@ -88,8 +88,8 @@ def install_js() -> None:
     if PKG_TSLIB.exists():
         rmtree(PKG_TSLIB)
     if BUILD_TSLIB.exists():
-        os.mkdir(PKG_TSLIB)
-        for lib_file in glob.glob(str(BUILD_TSLIB / "lib.*.d.ts")):
+        PKG_TSLIB.mkdir()
+        for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
             copy(lib_file, PKG_TSLIB)
 
     print(SUCCESS)
