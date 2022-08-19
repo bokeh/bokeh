@@ -95,7 +95,6 @@ jobs:
 
       - name: Install chromium
         if: runner.os == 'Linux'
-        shell: bash
         run: |
           VER=103.0.5060.53
           REV=chromium_2020
@@ -123,7 +122,6 @@ jobs:
 
       - name: Collect results
         if: always()
-        shell: bash
         run: |
           DST="examples-report"
           mkdir -p ${DST}
@@ -152,7 +150,6 @@ jobs:
 
       - name: Install chromium
         if: runner.os == 'Linux'
-        shell: bash
         run: |
           VER=103.0.5060.53
           REV=chromium_2020
