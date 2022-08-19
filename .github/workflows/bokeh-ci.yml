@@ -26,17 +26,12 @@ jobs:
           activate-environment: bk-test
           environment-file: ci/environment-build.yml
 
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-
       - name: Install node modules
         run: bash ci/install_node_modules.sh
 
       - name: Build BokehJS
-        run: bash ci/build_bokehjs.sh
+        working-directory: ./bokehjs
+        run: node make build
 
       - name: Build pip pacakges
         env:
