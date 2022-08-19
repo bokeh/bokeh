@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 import warnings
 
 # Bokeh imports
@@ -79,7 +80,8 @@ def test___version___type() -> None:
     assert isinstance(b.__version__, str)
 
 def test___version___defined() -> None:
-    assert b.__version__ != 'unknown'
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
+    assert VERSION_PAT.match(b.__version__.strip(".dirty"))
 
 def test_license(capsys: Capture) -> None:
     b.license()

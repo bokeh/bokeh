@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import hashlib
 import re
+import sys
 from os.path import abspath, join, split
 
 # Bokeh imports
@@ -82,13 +83,17 @@ def test_no_white_space_in_top_of_html() -> None:
     any_character = re.compile(r"\S")
     assert(any_character.search(lines[0]) is not None)
 
-def test_dont_start_script_on_same_line_after_another_ends() -> None:
-    modes: list[ResourcesMode] = ["inline", "cdn", "server", "relative", "absolute"]
-    for mode in modes:
-        lines = get_html_lines(mode)
-        for line in lines:
-            if "<script" in line and "</script" in line:
-                assert line.rfind("<script") < line.rfind("</script")
+MODES: list[ResourcesMode] = ["inline", "cdn", "server", "absolute"]
+if sys.platform != "win32":
+    MODES.append("relative")
+
+@pytest.mark.parametrize("mode", MODES)
+def test_dont_start_script_on_same_line_after_another_ends(mode: ResourcesMode) -> None:
+    lines = get_html_lines(mode)
+    for line in lines:
+        if "<script" in line and "</script" in line:
+            assert line.rfind("<script") < line.rfind("</script")
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

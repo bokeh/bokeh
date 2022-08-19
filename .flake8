@@ -14,11 +14,3 @@ exclude = __init__.py,node_modules
 ignore = E,W
 select = F,E101,E111,E501,Y
 max-line-length = 165
-
-[versioneer]
-VCS = git
-versionfile_source = bokeh/_version.py
-versionfile_build = bokeh/_version.py
-tag_prefix =
-parentdir_prefix = Bokeh-
-style = pep440

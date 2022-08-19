@@ -1,11 +1,6 @@
-# Include only unit tests
-prune tests
-graft tests/unit
-
-# Don't include documentation
-prune sphinx
-
 # Things to always exclude
+prune sphinx
+prune tests
 global-exclude .git*
 global-exclude .ipynb_checkpoints
 global-exclude *.py[co]
@@ -13,12 +8,8 @@ global-exclude __pycache__/**
 
 # Top-level Config
 include CHANGELOG
-include classifiers.txt
 include LICENSE.txt
 include MANIFEST.in
-include setup.cfg
-include versioneer.py
-include _setup_support.py
 
 # Package files and data
 include bokeh/LICENSE.txt

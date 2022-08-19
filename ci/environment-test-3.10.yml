@@ -35,6 +35,7 @@ dependencies:
   - networkx
   - nodejs 16.*
   - pandas
+  - pre-commit
   - psutil
   - pydot
   - pygments
@@ -44,13 +45,13 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - requests >=1.2.3
-  - selenium 4.2
   - scipy
-  - pre-commit
+  - selenium 4.2
+  - toml
 
   # examples
-  - flask >=1.0
   - django
+  - flask >=1.0
   - h5py
   - icalendar
   - networkx
@@ -69,9 +70,10 @@ dependencies:
     - requests-unixsocket >= 0.3.0
     - sphinx >5.1
     - sphinx-copybutton
-    - sphinxext-opengraph
     - sphinx-design
+    - sphinxext-opengraph
     # tests
+    - flake8-pyi
     - pandas-stubs
     - types-boto
     - types-colorama
@@ -79,4 +81,3 @@ dependencies:
     - types-pillow
     - types-pyyaml
     - types-requests
-    - flake8-pyi
