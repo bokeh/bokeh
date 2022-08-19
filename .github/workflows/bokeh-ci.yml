@@ -42,13 +42,15 @@ jobs:
         run: bash ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
-        run: bash ci/build_conda_pacakge.sh
+        run: |
+          export VERSION="$(echo "$(ls dist/*.whl)" | cut -d- -f2)"
+          conda build conda.recipe --build-only --no-verify --output-folder /tmp/bld
 
       - name: Upload conda package
         uses: actions/upload-artifact@v3
         with:
           name: conda-bld-noarch
-          path: /tmp/conda-bld-noarch.tgz
+          path: /tmp/bld/noarch
 
   codebase:
     needs: build
@@ -122,8 +124,9 @@ jobs:
 
       - name: Collect results
         if: always()
+        env:
+          DST: "examples-report"
         run: |
-          DST="examples-report"
           mkdir -p ${DST}
           cp --parents examples-report.html $(cat .images-list) ${DST}
 

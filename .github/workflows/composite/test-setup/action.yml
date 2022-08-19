@@ -27,17 +27,13 @@ runs:
         environment-file: ci/environment-test-${{ inputs.test-env }}.yml
 
     - name: Download conda package
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: conda-bld-noarch
 
-    - name: Extract conda package
-      shell: bash -l {0}
-      run: tar xzf conda-bld-noarch/conda-bld-noarch.tgz -C /tmp
-
     - name: Install conda package
       shell: bash -l {0}
-      run: conda install --yes --quiet --offline /tmp/conda-bld/noarch/bokeh-*.bz2
+      run: conda install --yes --quiet --offline /tmp/bld/noarch/bokeh-*.bz2
 
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
