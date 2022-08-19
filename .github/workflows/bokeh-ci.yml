@@ -77,9 +77,7 @@ jobs:
         run: pytest --color=yes tests/codebase
 
       - name: MyPy
-        run: |
-          mypy --version
-          mypy
+        run: mypy --version && mypy
 
   examples:
     needs: build
