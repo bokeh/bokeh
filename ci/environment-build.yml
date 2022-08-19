@@ -3,7 +3,9 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
-  - conda-build=3.21.7
+
+  - build
+  - conda-build=3.22.0
   - conda-verify=3.4.2
   - libiconv
   - nodejs 16.*

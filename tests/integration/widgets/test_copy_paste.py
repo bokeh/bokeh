@@ -21,13 +21,6 @@ import pytest ; pytest
 from time import sleep
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage
-from bokeh._testing.util.selenium import (
-    copy_table_rows,
-    enter_text_with_click_enter,
-    find_element_for,
-    paste_values,
-)
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource,
@@ -35,13 +28,20 @@ from bokeh.models import (
     Div,
     TableColumn,
 )
+from tests.support.plugins.project import BokehModelPage
+from tests.support.util.selenium import (
+    copy_table_rows,
+    enter_text_with_click_enter,
+    find_element_for,
+    paste_values,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

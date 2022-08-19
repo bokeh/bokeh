@@ -24,7 +24,7 @@ from os.path import join
 from subprocess import run
 
 # Bokeh imports
-from bokeh._testing.util.project import TOP_PATH
+from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests

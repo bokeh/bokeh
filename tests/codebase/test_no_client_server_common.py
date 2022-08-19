@@ -22,7 +22,7 @@ from subprocess import run
 from sys import executable as python
 
 # Bokeh imports
-from bokeh._testing.util.project import verify_clean_imports
+from tests.support.util.project import verify_clean_imports
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -24,7 +24,7 @@ import tempfile
 from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh._testing.util.types import Capture
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh.command.util as util # isort:skip

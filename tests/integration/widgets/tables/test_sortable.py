@@ -18,16 +18,16 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage
-from bokeh._testing.util.selenium import get_table_cell, get_table_header
 from bokeh.models import ColumnDataSource, DataTable, TableColumn
+from tests.support.plugins.project import BokehModelPage
+from tests.support.util.selenium import get_table_cell, get_table_header
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

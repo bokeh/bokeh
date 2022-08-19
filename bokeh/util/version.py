@@ -40,7 +40,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from .._version import get_versions
+from .. import __version__
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -74,7 +74,7 @@ def is_full_release(version: str | None = None) -> bool:
 
 def _base_version_helper(version: str) -> str:
     import re
-    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:dev|rc).*)?")
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
     match = VERSION_PAT.search(version)
     assert match is not None
     return match.group(1)
@@ -82,6 +82,3 @@ def _base_version_helper(version: str) -> str:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
-
-__version__ = get_versions()['version']
-del get_versions

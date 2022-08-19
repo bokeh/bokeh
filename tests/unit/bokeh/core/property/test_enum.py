@@ -17,8 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.enums import LineJoin, NamedColor
+from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
 

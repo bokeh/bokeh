@@ -24,19 +24,19 @@ import time
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehServerPage
-from bokeh._testing.util.selenium import find_element_for
 from bokeh.events import LODEnd, LODStart, RangesUpdate
 from bokeh.layouts import column
 from bokeh.models import Button, Plot, Range1d
 from bokeh.plotting import figure
+from tests.support.plugins.project import BokehServerPage
+from tests.support.util.selenium import find_element_for
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

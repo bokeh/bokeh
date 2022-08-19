@@ -671,7 +671,7 @@ class SessionCoordinates:
 # Private API
 # -----------------------------------------------------------------------------
 
-_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(dev|rc)")
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(\.dev|\.rc)")
 
 
 def _cdn_base_url() -> str:
@@ -682,6 +682,9 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
     if version is None:
         docs_cdn = settings.docs_cdn()
         version = docs_cdn if docs_cdn else __version__.split("+")[0]
+
+    # for dev/rc releases replace ".dev" with "dev" and ".rc" with "rc"
+    js_version = version.replace(".dev", "dev").replace(".rc", "rc")
 
     # check if we want minified js and css
     _minified = ".min" if minified else ""
@@ -694,7 +697,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
     container = dev_container if _DEV_PAT.match(version) else rel_container
 
     def mk_filename(comp: str, kind: Kind) -> str:
-        return f"{comp}-{version}{_minified}.{kind}"
+        return f"{comp}-{js_version}{_minified}.{kind}"
 
     def mk_url(comp: str, kind: Kind) -> str:
         return f"{base_url}/{container}/" + mk_filename(comp, kind)
@@ -705,7 +708,7 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
         result.messages.append(RuntimeMessage(
             type="warn",
             text=(
-                f"Requesting CDN BokehJS version '{version}' from Bokeh development version '{__version__}'. "
+                f"Requesting CDN BokehJS version '{version}' from local development version '{__version__}'. "
                 "This configuration is unsupported and may not work!"
             ),
         ))

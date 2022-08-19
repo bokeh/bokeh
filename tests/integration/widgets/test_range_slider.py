@@ -24,18 +24,6 @@ from time import sleep
 from flaky import flaky
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage, BokehServerPage
-from bokeh._testing.util.selenium import (
-    RECORD,
-    Keys,
-    drag_range_slider,
-    find_element_for,
-    find_elements_for,
-    get_slider_bar_color,
-    get_slider_title_text,
-    get_slider_title_value,
-    select_element_and_press_key,
-)
 from bokeh.layouts import column
 from bokeh.models import (
     Circle,
@@ -46,13 +34,25 @@ from bokeh.models import (
     RangeSlider,
 )
 from bokeh.models.formatters import BasicTickFormatter
+from tests.support.plugins.project import BokehModelPage, BokehServerPage
+from tests.support.util.selenium import (
+    RECORD,
+    Keys,
+    drag_range_slider,
+    find_element_for,
+    find_elements_for,
+    get_slider_bar_color,
+    get_slider_title_text,
+    get_slider_title_value,
+    select_element_and_press_key,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

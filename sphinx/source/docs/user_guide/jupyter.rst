@@ -37,6 +37,7 @@ See a screenshot of Jupyter below:
 .. image:: /_images/notebook_inline.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of a Jupyter notebook displaying a Bokeh scatterplot inline after calling show().
 
 To have a single notebook output cell display multiple plots, call |show|
 multiple times in the input cell. The plots will display in order.
@@ -44,6 +45,7 @@ multiple times in the input cell. The plots will display in order.
 .. image:: /_images/notebook_inline_multiple.png
     :scale: 50 %
     :align: center
+    :alt:  Screenshot of a Jupyter notebook displaying multiple Bokeh scatterplots inline after calling show() multiple times.
 
 JupyterLab
 ''''''''''
@@ -86,9 +88,10 @@ older than 3.0, see the `README`_ in the GitHub repository of `jupyter_bokeh`_.
 Once you have jupyter_bokeh installed, you can use Bokeh just like you would
 with a :ref:`classic notebook <userguide_jupyter_notebook_inline_plots>`.
 
-.. image:: /_images/joyplot_jupyter_lab.png
+.. image:: /_images/ridgeplot_jupyter_lab.png
     :scale: 25 %
     :align: center
+    :alt: Screenshot of Jupyterlab with a Bokeh ridgeplot displayed inline.
 
 .. _jupyter_bokeh: https://github.com/bokeh/jupyter_bokeh
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
@@ -186,6 +189,7 @@ opened. The **Trust Notebook** option is typically located under the
 .. image:: /_images/notebook_trust.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of the Jupyter File menu expanded to show the Trust Notebook option.
 
 .. _userguide_jupyter_notebook_slides:
 
@@ -223,30 +227,35 @@ The following screenshots illustrate basic usage of notebook handles:
 .. image:: /_images/notebook_comms1.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of Jupyter showing Bokeh push_notebook being imported .
 
 2. Create some plots and pass ``notebook_handle=True`` to |show|:
 
 .. image:: /_images/notebook_comms2.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of Jupyter with Bokeh content created with notebook comms enabled.
 
 3. Check that the handle is associated with the output cell for ``In[2]`` just displayed:
 
 .. image:: /_images/notebook_comms3.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of Jupyter showing the representation of a notebook comms handle in an output cell.
 
 4. Update some properties of the plot, then call |push_notebook| with the handle:
 
 .. image:: /_images/notebook_comms4.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of Jupyter input cell modifying Bokeh properties and calling push_notebook.
 
 5. Note that the output cell for ``In[2]`` has changed (*without* being re-executed):
 
 .. image:: /_images/notebook_comms5.png
     :scale: 50 %
     :align: center
+    :alt: Screenshot of Jupyter showing the previous plot updated in place, with glyph color white now.
 
 See the following notebooks for more detailed examples of notebook handle use:
 
@@ -270,7 +279,7 @@ notebook below:
 .. image:: /_images/notebook_interactors.png
     :scale: 50 %
     :align: center
-
+    :alt: Screenshot of Jupyter showing a Bokeh plot together with ipywidget sliders.
 
 .. |bokeh.io| replace:: :ref:`bokeh.io <bokeh.io>`
 

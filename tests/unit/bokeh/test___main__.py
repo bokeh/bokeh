@@ -20,7 +20,7 @@ import pytest ; pytest
 from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
+from tests.support.util.api import verify_all
 
 # Module under test
 import bokeh.__main__ as bm # isort:skip

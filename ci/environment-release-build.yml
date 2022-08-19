@@ -18,8 +18,9 @@ dependencies:
 
   # build
   - boto
+  - build
   - colorama
-  - conda-build=3.21.7
+  - conda-build=3.22.0
   - conda-verify=3.4.2
   - libiconv
   - nodejs 16.*
@@ -39,6 +40,7 @@ dependencies:
   - pygments
   - pyshp
   - scipy
+  - toml
 
   # pip dependencies
   - pip
@@ -48,5 +50,5 @@ dependencies:
     - pydata_sphinx_theme >=0.9
     - sphinx >5.1
     - sphinx-copybutton
-    - sphinxext-opengraph
     - sphinx-design
+    - sphinxext-opengraph

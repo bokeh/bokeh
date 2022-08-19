@@ -22,9 +22,6 @@ import re
 # External imports
 import mock
 
-# Bokeh imports
-from bokeh._version import get_versions
-
 # Module under test
 import bokeh.util.version as buv # isort:skip
 
@@ -37,15 +34,6 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-class Test___version__:
-    def test_basic(self) -> None:
-        assert isinstance(buv.__version__, str)
-
-        # ignore ".dirty" due to weird CI environment inconsistency
-        assert buv.__version__.strip(".dirty") == get_versions()['version'].strip(".dirty")
-
 
 class Test_base_version:
     def test_returns_helper(self) -> None:
@@ -62,7 +50,7 @@ class Test_is_full_release:
         monkeypatch.setattr(buv, '__version__', "1.5.0")
         assert buv.is_full_release()
 
-    @pytest.mark.parametrize('v', ("1.2.3dev2", "1.4.5rc3", "junk"))
+    @pytest.mark.parametrize('v', ("1.2.3.dev2", "1.4.5.rc3", "junk"))
     def test_mock_not_full(self, monkeypatch: pytest.MonkeyPatch, v: str) -> None:
         monkeypatch.setattr(buv, '__version__', v)
         assert not buv.is_full_release()
@@ -82,12 +70,12 @@ class Test__base_version_helper:
         assert buv._base_version_helper("1.2.3") == "1.2.3"
 
     def test_dev_version_stripped(self) -> None:
-        assert buv._base_version_helper("0.2.3dev2") == "0.2.3"
-        assert buv._base_version_helper("1.2.3dev10") == "1.2.3"
+        assert buv._base_version_helper("0.2.3.dev2") == "0.2.3"
+        assert buv._base_version_helper("1.2.3.dev10") == "1.2.3"
 
     def test_rc_version_stripped(self) -> None:
-        assert buv._base_version_helper("0.2.3rc2") == "0.2.3"
-        assert buv._base_version_helper("1.2.3rc10") == "1.2.3"
+        assert buv._base_version_helper("0.2.3.rc2") == "0.2.3"
+        assert buv._base_version_helper("1.2.3.rc10") == "1.2.3"
 
 #-----------------------------------------------------------------------------
 # Code

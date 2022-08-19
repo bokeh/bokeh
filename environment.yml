@@ -5,8 +5,8 @@ dependencies:
   - python>=3.8
 
   # build
-  - setuptools
   - nodejs 16.*
+  - setuptools
   - yaml
 
   # runtime
@@ -44,6 +44,7 @@ dependencies:
   - nodejs 16.*
   - numba
   - pandas
+  - pre-commit
   - psutil
   - pydot
   - pytest 6.2*
@@ -52,13 +53,13 @@ dependencies:
   - pytest-html
   - pytest-xdist
   - requests >=1.2.3
-  - selenium 4.2
   - scipy
-  - pre-commit
+  - selenium 4.2
+  - toml
 
   # examples
-  - flask >=1.0
   - django
+  - flask >=1.0
   - h5py
   - icalendar
   - networkx
@@ -67,10 +68,10 @@ dependencies:
   - pyshp
   - scikit-learn
   - sympy
-  #- ipywidgets_bokeh >=1.0.0
-  #- ipywidgets >=7.5.0
-  #- ipyvolume
   #- ipyleaflet
+  #- ipyvolume
+  #- ipywidgets >=7.5.0
+  #- ipywidgets_bokeh >=1.0.0
 
   # pip dependencies
   - pip
@@ -82,13 +83,13 @@ dependencies:
     - requests-unixsocket >= 0.3.0
     - sphinx >5.1
     - sphinx-copybutton
-    - sphinxext-opengraph
     - sphinx-design
+    - sphinxext-opengraph
     # tests
+    - flake8-pyi
     - types-boto
     - types-colorama
     - types-mock
     - types-pillow
     - types-pyyaml
     - types-requests
-    - flake8-pyi

@@ -20,7 +20,6 @@ import pytest ; pytest
 from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
 from bokeh.core.properties import (
     Angle,
     Any,
@@ -46,6 +45,7 @@ from bokeh.core.properties import (
     Tuple,
 )
 from bokeh.models import ColumnDataSource
+from tests.support.util.api import verify_all
 
 from _util_property import _TestModel
 

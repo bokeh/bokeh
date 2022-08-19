@@ -37,11 +37,15 @@ jobs:
         shell: bash -l {0}
         run: bash ci/build_bokehjs.sh
 
-      - name: Upload BokehJS
-        uses: actions/upload-artifact@v3
-        with:
-          name: bokehjs-build
-          path: bokehjs-build.tgz
+      - name: Build pip pacakges
+        env:
+          BOKEHJS_ACTION: 'install'
+        shell: bash -l {0}
+        run: python -m build -s -w .
+
+      - name: Verify pip install from sdist
+        shell: bash -l {0}
+        run: bash ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
         shell: bash -l {0}
@@ -51,21 +55,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: conda-bld-noarch
-          path: conda-bld-noarch.tgz
-
-      - name: Build sdist package
-        shell: bash -l {0}
-        run: python setup.py sdist --install-js
-
-      - name: Build wheel package
-        shell: bash -l {0}
-        run: python setup.py bdist_wheel --install-js
-
-      - name: Verify pip install from sdist
-        shell: bash -l {0}
-        run: bash ci/verify_pip_install_from_sdist.sh
+          path: /tmp/conda-bld-noarch.tgz
 
   codebase:
+    needs: build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -74,28 +67,20 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        shell: bash -l {0}
+        run: |
+          git config --global core.autocrlf false
+
       - uses: actions/checkout@v2
-      - uses: conda-incubator/setup-miniconda@v2
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
         with:
-          miniconda-version: 'latest'
-          activate-environment: bk-test
-          environment-file: ci/environment-test-3.9.yml
-
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-
-      - name: Install node modules
-        shell: bash -l {0}
-        run: bash ci/install_node_modules.sh
-
-      # Don't cache sampledata - want to test at least one real download
-
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+          test-env: '3.9'
+          source-tree: 'keep'
+          sampledata: 'cache'
 
       - name: Run codebase checks
         shell: bash -l {0}
@@ -118,6 +103,8 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: '3.8'
+          source-tree: 'delete'
+          sampledata: 'cache'
 
       - name: Install chromium
         if: runner.os == 'Linux'
@@ -141,16 +128,6 @@ jobs:
         working-directory: ./bokehjs
         shell: bash -l {0}
         run: node make test:spawn:headless # starts chrome in the background on port 9222
-
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
 
       - name: Run tests
         env:
@@ -186,6 +163,8 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: '3.8'
+          source-tree: 'keep'
+          sampledata: 'cache'
 
       - name: Install chromium
         if: runner.os == 'Linux'
@@ -221,6 +200,8 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: '3.8'
+          source-tree: 'delete'
+          sampledata: 'cache'
 
       - name: Run tests
         shell: bash -l {0}
@@ -244,22 +225,17 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+          sampledata: 'cache'
 
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
-
-      - name: Run tests
+      - name: Ensure Python version
         shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
-          pytest --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+
+      - name: Run tests
+        shell: bash -l {0}
+        run: pytest --cov=bokeh --color=yes tests/unit
 
   minimal-deps:
     needs: build
@@ -277,10 +253,13 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: 'minimal-deps'
+          source-tree: 'delete'
+          # don't install sampledata for minimal tests
+          sampledata: 'none'
 
       - name: Run tests
         shell: bash -l {0}
-        run: pytest -m "not sampledata" --cov=bokeh --cov-config=tests/.coveragerc --color=yes tests/unit
+        run: pytest -m "not sampledata" --cov=bokeh --color=yes tests/unit
 
   documentation:
     needs: build
@@ -293,16 +272,9 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: '3.8'
-
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
-
-      - name: Install sampledata
-        shell: bash -l {0}
-        run: python -c 'import bokeh; bokeh.sampledata.download(progress=False)'
+          source-tree: 'delete'
+          # don't cache sampledata - want to test at least one real download
+          sampledata: 'download'
 
       - name: Build docs
         shell: bash -l {0}
@@ -325,6 +297,8 @@ jobs:
         uses: ./.github/workflows/composite/test-setup
         with:
           test-env: 'downstream'
+          source-tree: 'delete'
+          sampledata: 'none'
 
       - name: Install downstream packages
         shell: bash -l {0}

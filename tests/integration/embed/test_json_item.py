@@ -34,8 +34,8 @@ from bokeh.resources import INLINE
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
-    "bokeh._testing.plugins.selenium",
+    "tests.support.plugins.project",
+    "tests.support.plugins.selenium",
 )
 
 PAGE = Template("""

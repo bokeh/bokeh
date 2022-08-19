@@ -194,31 +194,31 @@ To uninstall the Git hooks, run the following command from the top level of your
 ----------------------------
 
 Once you have all the required dependencies installed, the simplest way to
-build and install Bokeh and BokehJS is to use the ``setup.py`` script. This
+build and install Bokeh and BokehJS is to run ``pip install``. This
 script is located at the top level of the *source checkout* directory.
 
-The ``setup.py`` script has two main modes of operation:
+The ``pip`` command offers two main modes of operation:
 
-``python setup.py develop``
+``pip install -e .``
     Bokeh will be installed to refer to your local source directory. Any changes
     you make to the Python source code will be available immediately without
     any additional steps. **This is the recommended mode when working on the
     Bokeh codebase.**
 
-``python setup.py install``
+``pip install .``
     Bokeh will be installed in your local Python ``site-packages`` directory.
     In this mode, any changes to the Python source code will have no effect
-    until you run ``setup.py install`` again.
+    until you run ``pip install .`` again.
 
 Running either of those two commands also builds and installs a local version of
 :term:`BokehJS`. If you want to skip building a new version of BokehJS and use a
-different local version instead, use the ``--install-js`` flag:
-``python setup.py develop --install-js``
+different local version instead, set the ``BOKEHJS_ACTION`` environment variable:
+``BOKEHJS_ACTION="install" pip install -e .``
 
 .. note::
     You need to **rebuild BokehJS each time the BokehJS source code changes**.
     This can be necessary because you made changes yourself or because you
-    pulled updated code from GitHub. Re-run ``python setup.py develop`` to build
+    pulled updated code from GitHub. Re-run ``pip install -e .`` to build
     and install BokehJS.
 
     Occasionally, the **list of JavaScript dependencies also changes**. If this

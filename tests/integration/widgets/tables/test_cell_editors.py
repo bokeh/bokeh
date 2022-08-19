@@ -21,14 +21,6 @@ import pytest ; pytest
 from time import sleep
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage
-from bokeh._testing.util.selenium import (
-    RECORD,
-    enter_text_in_cell,
-    enter_text_in_cell_with_click_enter,
-    escape_cell,
-    get_table_cell,
-)
 from bokeh.models import (
     ColumnDataSource,
     CustomJS,
@@ -38,13 +30,21 @@ from bokeh.models import (
     StringEditor,
     TableColumn,
 )
+from tests.support.plugins.project import BokehModelPage
+from tests.support.util.selenium import (
+    RECORD,
+    enter_text_in_cell,
+    enter_text_in_cell_with_click_enter,
+    escape_cell,
+    get_table_cell,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

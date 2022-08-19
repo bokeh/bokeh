@@ -22,7 +22,7 @@ from os import chdir
 from subprocess import run
 
 # Bokeh imports
-from bokeh._testing.util.project import TOP_PATH, ls_files
+from tests.support.util.project import TOP_PATH, ls_files
 
 #-----------------------------------------------------------------------------
 # Tests

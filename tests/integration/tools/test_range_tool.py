@@ -18,8 +18,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from bokeh._testing.plugins.project import SinglePlotPage
-from bokeh._testing.util.selenium import RECORD
 from bokeh.models import (
     ColumnDataSource,
     CustomJS,
@@ -28,6 +26,8 @@ from bokeh.models import (
     RangeTool,
     Rect,
 )
+from tests.support.plugins.project import SinglePlotPage
+from tests.support.util.selenium import RECORD
 
 #-----------------------------------------------------------------------------
 # Tests
@@ -37,7 +37,7 @@ from bokeh.models import (
 # TODO (bev) Add tests with both x_range and y_range
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 def _make_plot():

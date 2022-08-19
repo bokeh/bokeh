@@ -24,14 +24,6 @@ from time import sleep
 from selenium.webdriver.common.keys import Keys
 
 # Bokeh imports
-from bokeh._testing.plugins.project import BokehModelPage
-from bokeh._testing.util.selenium import (
-    RECORD,
-    enter_text_in_element,
-    find_element_for,
-    get_table_row,
-    shift_click,
-)
 from bokeh.layouts import column
 from bokeh.models import (
     ColumnDataSource,
@@ -40,13 +32,21 @@ from bokeh.models import (
     TableColumn,
     TextInput,
 )
+from tests.support.plugins.project import BokehModelPage
+from tests.support.util.selenium import (
+    RECORD,
+    enter_text_in_element,
+    find_element_for,
+    get_table_row,
+    shift_click,
+)
 
 #-----------------------------------------------------------------------------
 # Tests
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.project",
+    "tests.support.plugins.project",
 )
 
 

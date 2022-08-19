@@ -28,8 +28,6 @@ from tornado.httpclient import HTTPError
 
 # Bokeh imports
 import bokeh.document as document
-from bokeh._testing.plugins.managed_server_loop import MSL
-from bokeh._testing.util.env import envset
 from bokeh.application import Application
 from bokeh.application.handlers import FunctionHandler
 from bokeh.client import ClientSession, pull_session, push_session
@@ -50,6 +48,8 @@ from bokeh.document.events import ModelChangedEvent, TitleChangedEvent
 from bokeh.model import Model
 from bokeh.models import ColumnDataSource, Plot
 from bokeh.util.token import generate_jwt_token
+from tests.support.plugins.managed_server_loop import MSL
+from tests.support.util.env import envset
 
 from server._util_server import (
     http_get,

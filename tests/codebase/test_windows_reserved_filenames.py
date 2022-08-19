@@ -22,8 +22,8 @@ import os
 from os.path import join, splitext
 
 # Bokeh imports
-from bokeh._testing.util.project import TOP_PATH
 from bokeh.util.string import nice_join
+from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------
 # Tests

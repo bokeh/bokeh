@@ -44,8 +44,6 @@ import _pytest.python
 from typing_extensions import TypeAlias
 
 # Bokeh imports
-from bokeh._testing.util.examples import Example, Flags, collect_examples
-from bokeh._testing.util.screenshot import JSResult, run_in_chrome
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
 from bokeh.core.types import ID
@@ -57,13 +55,15 @@ from bokeh.util.terminal import (
     warn,
     white,
 )
+from tests.support.util.examples import Example, Flags, collect_examples
+from tests.support.util.screenshot import JSResult, run_in_chrome
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 pytest_plugins = (
-    "bokeh._testing.plugins.bokeh_server",
+    "tests.support.plugins.bokeh_server",
 )
 
 BASE_DIR = abspath(dirname(dirname(__file__)))

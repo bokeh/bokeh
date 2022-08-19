@@ -20,13 +20,13 @@ import pytest ; pytest
 from os.path import dirname, join
 
 # Bokeh imports
-from bokeh._testing.util.env import envset
 from bokeh.document import Document
 from bokeh.embed.bundle import extension_dirs
 from bokeh.ext import build
 from bokeh.model import Model
 from bokeh.models import Plot
 from bokeh.resources import INLINE
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.embed.bundle as beb # isort:skip

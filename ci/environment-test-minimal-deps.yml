@@ -33,6 +33,7 @@ dependencies:
   - mock
   - nbconvert >=5.4
   - nodejs 16.*
+  - pre-commit
   - psutil
   - pydot
   - pygments
@@ -43,7 +44,6 @@ dependencies:
   - pytest-xdist
   - requests >=1.2.3
   - selenium 4.2
-  - pre-commit
 
   # examples
   - django
@@ -61,13 +61,13 @@ dependencies:
     - requests-unixsocket >= 0.3.0
     - sphinx >5.1
     - sphinx-copybutton
-    - sphinxext-opengraph
     - sphinx-design
+    - sphinxext-opengraph
     # tests
+    - flake8-pyi
     - types-boto
     - types-colorama
     - types-mock
     - types-pillow
     - types-pyyaml
     - types-requests
-    - flake8-pyi

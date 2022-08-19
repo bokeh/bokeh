@@ -23,7 +23,7 @@ from sys import executable as python
 from typing import Sequence
 
 # Bokeh imports
-from bokeh._testing.util.project import ls_modules
+from tests.support.util.project import ls_modules
 
 #-----------------------------------------------------------------------------
 # Tests

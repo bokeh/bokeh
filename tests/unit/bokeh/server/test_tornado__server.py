@@ -25,14 +25,14 @@ from _util_server import http_get, url
 from tornado.web import StaticFileHandler
 
 # Bokeh imports
-from bokeh._testing.plugins.managed_server_loop import MSL
-from bokeh._testing.util.env import envset
 from bokeh.application import Application
 from bokeh.client import pull_session
 from bokeh.core.types import ID
 from bokeh.server.auth_provider import NullAuth
 from bokeh.server.views.static_handler import StaticHandler
 from bokeh.server.views.ws import WSHandler
+from tests.support.plugins.managed_server_loop import MSL
+from tests.support.util.env import envset
 
 # Module under test
 import bokeh.server.tornado as bst # isort:skip

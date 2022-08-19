@@ -17,12 +17,13 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import re
 import warnings
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.types import Capture
 from bokeh.util.warnings import BokehDeprecationWarning, BokehUserWarning
+from tests.support.util.api import verify_all
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh as b # isort:skip
@@ -79,7 +80,8 @@ def test___version___type() -> None:
     assert isinstance(b.__version__, str)
 
 def test___version___defined() -> None:
-    assert b.__version__ != 'unknown'
+    VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)((?:\.dev|\.rc).*)?")
+    assert VERSION_PAT.match(b.__version__.strip(".dirty"))
 
 def test_license(capsys: Capture) -> None:
     b.license()

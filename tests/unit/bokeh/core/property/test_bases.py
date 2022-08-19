@@ -24,9 +24,9 @@ import numpy as np
 from mock import MagicMock, patch
 
 # Bokeh imports
-from bokeh._testing.util.api import verify_all
-from bokeh._testing.util.types import Capture
 from bokeh.core.has_props import HasProps
+from tests.support.util.api import verify_all
+from tests.support.util.types import Capture
 
 # Module under test
 import bokeh.core.property.bases as bcpb # isort:skip
