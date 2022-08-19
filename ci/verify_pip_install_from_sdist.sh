@@ -3,9 +3,8 @@
 set -x #echo on
 set -e #exit on error
 
-pushd dist
-tar xvzf bokeh-*.tar.gz
-cd `ls -d */ | cut -f1 -d'/'`
+mkdir /tmp/sdist
+tar xvzf dist/bokeh-*.tar.gz -C /tmp/sdist --strip-components=1
+cd /tmp/sdist
 pip install .
 bokeh info
-popd
