@@ -260,7 +260,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: docs-html
-          path: sphinx/docs-html.tgz
+          path: sphinx/build-html
 
   downstream:
     needs: build
