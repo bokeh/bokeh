@@ -14,5 +14,3 @@ else
     echo "Expected Google Analytics script source not found in built documentation"
     exit 1
 fi
-
-tar cvzf docs-html.tgz build/html
