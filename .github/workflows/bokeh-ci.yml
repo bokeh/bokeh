@@ -41,7 +41,7 @@ jobs:
       - name: Build pip pacakges
         env:
           BOKEHJS_ACTION: 'install'
-        run: python -m build -s -w .
+        run: python -m build .
 
       - name: Verify pip install from sdist
         run: bash ci/verify_pip_install_from_sdist.sh
