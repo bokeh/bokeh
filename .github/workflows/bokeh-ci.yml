@@ -207,8 +207,7 @@ jobs:
           sampledata: 'cache'
 
       - name: Ensure Python version
-        run: |
-          if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: Run tests
         run: pytest --cov=bokeh --color=yes tests/unit
