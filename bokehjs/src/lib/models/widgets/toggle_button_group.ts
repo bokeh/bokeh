@@ -1,7 +1,7 @@
 import {OrientedControl, OrientedControlView} from "./oriented_control"
 import {ButtonClick} from "core/bokeh_events"
 import {ButtonType} from "core/enums"
-import {div, StyleSheetLike} from "core/dom"
+import {button, div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -35,15 +35,15 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
     super.render()
 
     this._buttons = this.model.labels.map((label, i) => {
-      const button = div({
+      const button_el = button({
         class: [buttons.btn, buttons[`btn_${this.model.button_type}` as const]],
         disabled: this.model.disabled,
       }, label)
-      button.addEventListener("click", () => {
+      button_el.addEventListener("click", () => {
         this.change_active(i)
         this.model.trigger_event(new ButtonClick())
       })
-      return button
+      return button_el
     })
 
     this._update_active()
