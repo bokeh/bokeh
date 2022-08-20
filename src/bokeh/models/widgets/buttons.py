@@ -230,8 +230,6 @@ class HelpButton(AbstractButton):
     description of a widget's or component's function.
     """)
 
-    width = Override(default=18)
-
     label = Override(default="")
 
     icon = Override(default=lambda: BuiltinIcon("help", size=18))
