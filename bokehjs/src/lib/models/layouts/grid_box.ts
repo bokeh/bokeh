@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {px} from "core/dom"
+import {px, CSSOurStyles} from "core/dom"
 import {RowsSizing, ColsSizing, Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
 import {keys} from "core/util/object"
@@ -25,16 +25,16 @@ export class GridBoxView extends LayoutDOMView {
   override _update_layout(): void {
     super._update_layout()
 
-    const {style} = this.el
-    style.display = "grid"
+    const styles: CSSOurStyles = {}
+    styles.display = "grid"
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model
       return isNumber(spacing) ? [spacing, spacing] : spacing
     })()
 
-    style.rowGap = px(row_gap)
-    style.columnGap = px(column_gap)
+    styles.row_gap = px(row_gap)
+    styles.column_gap = px(column_gap)
 
     let nrows = 0
     let ncols = 0
@@ -48,10 +48,12 @@ export class GridBoxView extends LayoutDOMView {
       ncols = max(ncols, col + col_span)
 
       // CSS grid is 1-based, but layout is 0-based
-      view.el.style.gridRowStart = `${row + 1}`
-      view.el.style.gridRowEnd = `span ${row_span}`
-      view.el.style.gridColumnStart = `${col + 1}`
-      view.el.style.gridColumnEnd = `span ${col_span}`
+      const styles: CSSOurStyles = {}
+      styles.grid_row_start = `${row + 1}`
+      styles.grid_row_end = `span ${row_span}`
+      styles.grid_column_start = `${col + 1}`
+      styles.grid_column_end = `span ${col_span}`
+      view.style.append(":host", styles)
 
       if (view instanceof LayoutDOMView && view.layout != null) {
         const r0 = row
@@ -70,8 +72,10 @@ export class GridBoxView extends LayoutDOMView {
       ncols = max(ncols, ...keys(cols).map((i) => parseInt(i)))
     }
 
-    style.gridTemplateRows = `repeat(${nrows}, 1fr)`    // TODO: this.model.rows
-    style.gridTemplateColumns = `repeat(${ncols}, 1fr)` // TODO: this.model.cols
+    styles.grid_template_rows = `repeat(${nrows}, 1fr)`    // TODO: this.model.rows
+    styles.grid_template_columns = `repeat(${ncols}, 1fr)` // TODO: this.model.cols
+
+    this.style.append(":host", styles)
 
     if (layoutable.size != 0) {
       this.layout = new GridAlignmentLayout(layoutable)

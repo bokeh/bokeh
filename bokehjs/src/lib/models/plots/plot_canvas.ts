@@ -505,7 +505,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const left_width = max(left.width, layout.min_border.left)
     const right_width = max(right.width, layout.min_border.right)
 
-    this._style.append(`
+    this.style.append(`
       :host {
         display: grid;
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;

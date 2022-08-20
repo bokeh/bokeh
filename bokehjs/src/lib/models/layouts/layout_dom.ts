@@ -3,7 +3,7 @@ import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, SizingMode} from "core/enums"
-import {px, StyleSheet, StyleSheetLike, CSSOurStyles} from "core/dom"
+import {px, CSSOurStyles} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
@@ -94,13 +94,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override css_classes(): string[] {
     return [...super.css_classes(), ...this.model.css_classes]
-  }
-
-  protected readonly _style = new StyleSheet()
-  readonly stylesheet_for_parent = new StyleSheet()
-
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._style, this.stylesheet_for_parent]
   }
 
   override *children(): IterViews {
@@ -210,10 +203,12 @@ export abstract class LayoutDOMView extends UIElementView {
       styles.overflow = "auto"
     }
 
-    this._style.replace(":host", styles)
+    this.style.append(":host", styles)
   }
 
   update_layout(): void {
+    this.update_style()
+
     for (const child_view of this.child_views) {
       if (child_view instanceof LayoutDOMView)
         child_view.update_layout()
@@ -260,7 +255,6 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override after_render(): void {
-    super.after_render()
     this.update_layout()
     this.compute_layout()
   }

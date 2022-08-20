@@ -1,3 +1,8 @@
+type GlobalValues = "inherit" | "initial" | "revert" | "revert-layer" | "unset"
+type FlexDirection = GlobalValues | "row" | "row-reverse" | "column" | "column-reverse"
+type Position = GlobalValues | "static" | "relative" | "absolute" | "fixed" | "sticky"
+type Display = GlobalValues | "block" | "inline" | "inline-block" | "flex" | "inline-flex" | "grid" | "inline-grid" | "flow-root" | "none" | "contents"
+
 type CSSStylesCamel = {
   accentColor?: string | null
   alignContent?: string | null
@@ -126,7 +131,7 @@ type CSSStylesCamel = {
   counterSet?: string | null
   cursor?: string | null
   direction?: string | null
-  display?: string | null
+  display?: Display | null
   dominantBaseline?: string | null
   emptyCells?: string | null
   fill?: string | null
@@ -135,7 +140,7 @@ type CSSStylesCamel = {
   filter?: string | null
   flex?: string | null
   flexBasis?: string | null
-  flexDirection?: string | null
+  flexDirection?: FlexDirection | null
   flexFlow?: string | null
   flexGrow?: string | null
   flexShrink?: string | null
@@ -283,7 +288,7 @@ type CSSStylesCamel = {
   placeItems?: string | null
   placeSelf?: string | null
   pointerEvents?: string | null
-  position?: string | null
+  position?: Position | null
   quotes?: string | null
   resize?: string | null
   right?: string | null
@@ -512,7 +517,7 @@ type CSSStylesDashed = {
   "counter-set"?: string | null
   "cursor"?: string | null
   "direction"?: string | null
-  "display"?: string | null
+  "display"?: Display | null
   "dominant-baseline"?: string | null
   "empty-cells"?: string | null
   "fill"?: string | null
@@ -521,7 +526,7 @@ type CSSStylesDashed = {
   "filter"?: string | null
   "flex"?: string | null
   "flex-basis"?: string | null
-  "flex-direction"?: string | null
+  "flex-direction"?: FlexDirection | null
   "flex-flow"?: string | null
   "flex-grow"?: string | null
   "flex-shrink"?: string | null
@@ -669,7 +674,7 @@ type CSSStylesDashed = {
   "place-items"?: string | null
   "place-self"?: string | null
   "pointer-events"?: string | null
-  "position"?: string | null
+  "position"?: Position | null
   "quotes"?: string | null
   "resize"?: string | null
   "right"?: string | null
@@ -898,7 +903,7 @@ type CSSStylesSnake = {
   counter_set?: string | null
   cursor?: string | null
   direction?: string | null
-  display?: string | null
+  display?: Display | null
   dominant_baseline?: string | null
   empty_cells?: string | null
   fill?: string | null
@@ -907,7 +912,7 @@ type CSSStylesSnake = {
   filter?: string | null
   flex?: string | null
   flex_basis?: string | null
-  flex_direction?: string | null
+  flex_direction?: FlexDirection | null
   flex_flow?: string | null
   flex_grow?: string | null
   flex_shrink?: string | null
@@ -1055,7 +1060,7 @@ type CSSStylesSnake = {
   place_items?: string | null
   place_self?: string | null
   pointer_events?: string | null
-  position?: string | null
+  position?: Position | null
   quotes?: string | null
   resize?: string | null
   right?: string | null

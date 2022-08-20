@@ -9,7 +9,7 @@ import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
 import {isString, isPlainObject} from "core/util/types"
 import * as p from "core/properties"
-import ui_css from "styles/ui_element.css"
+import ui_css from "styles/ui.css"
 
 const {round} = Math
 
@@ -29,13 +29,31 @@ export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
   protected readonly _display = new StyleSheet()
+  readonly style = new StyleSheet()
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), ui_css, this._display]
+  get stylesheets(): StyleSheet[] {
+    return [...this._stylesheets()]
   }
 
-  override css_classes(): string[] {
-    return [...super.css_classes(), `bk-${this.model.type}`]
+  public *_stylesheets(): Iterable<StyleSheet> {
+    yield this.style
+    yield this._display
+  }
+
+  get classes(): string[] {
+    return [...this.css_classes(), ...this._classes()]
+  }
+
+  public *_classes(): Iterable<string> {
+    yield `bk-${this.model.type}`
+  }
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), ui_css]
+  }
+
+  update_style(): void {
+    this.style.clear()
   }
 
   private _bbox?: BBox
@@ -109,14 +127,19 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   override render(): void {
-    super.render()
+    this.empty()
+    this._apply_stylesheets(this.styles())
+    this._apply_stylesheets(this.stylesheets)
     this._apply_stylesheets(this.model.stylesheets)
     this._apply_styles()
+    this._apply_classes(this.classes)
     this._apply_classes(this.model.classes)
     this._apply_visible()
   }
 
   after_render(): void {
+    this.update_style()
+
     if (!this.model.visible) {
       this.finish()
     }

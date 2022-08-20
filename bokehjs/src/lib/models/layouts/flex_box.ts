@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {StyleSheet, StyleSheetLike, px} from "core/dom"
+import {px} from "core/dom"
 import * as p from "core/properties"
 import {assert, unreachable} from "core/util/assert"
 
@@ -18,22 +18,14 @@ export abstract class FlexBoxView extends LayoutDOMView {
     return this.model.children
   }
 
-  private readonly _flex = new StyleSheet()
-
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._flex]
-  }
-
   override _update_layout(): void {
     super._update_layout()
 
-    this._flex.replace(`
-      :host {
-        display: flex;
-        flex-direction: ${this._direction};
-        gap: ${px(this.model.spacing)};
-      }
-    `)
+    this.style.append(":host", {
+      display: "flex",
+      flex_direction: this._direction,
+      gap: px(this.model.spacing),
+    })
 
     const layoutable = []
 
@@ -53,7 +45,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
         }
       })()
 
-      const align = (() => {
+      const align_self = (() => {
         const policy = this._direction == "row" ? sizing.height_policy : sizing.width_policy
         switch (policy) {
           case "fixed":
@@ -64,12 +56,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
         }
       })()
 
-      view.stylesheet_for_parent.replace(`
-        :host {
-          flex: ${flex};
-          align-self: ${align};
-        }
-      `)
+      view.style.append(":host", {flex, align_self})
 
       if (view.layout != null) {
         layoutable.push(view)
