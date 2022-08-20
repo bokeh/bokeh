@@ -95,7 +95,7 @@ functionality.
 .. _bokeh.util.token:
 
 ``bokeh.util.token``
--------------------------
+--------------------
 
 .. automodule:: bokeh.util.token
   :members:
@@ -103,7 +103,7 @@ functionality.
 .. _bokeh.util.strings:
 
 ``bokeh.util.strings``
----------------------
+----------------------
 
 .. automodule:: bokeh.util.strings
   :members:
