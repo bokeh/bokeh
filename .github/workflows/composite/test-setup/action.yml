@@ -30,6 +30,7 @@ runs:
       uses: actions/download-artifact@v3
       with:
         name: conda-bld-noarch
+        path: /tmp/bld/noarch
 
     - name: Install conda package
       shell: bash -l {0}

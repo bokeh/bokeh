@@ -36,10 +36,11 @@ jobs:
       - name: Build pip pacakges
         env:
           BOKEHJS_ACTION: 'install'
-        run: python -m build .
+        # only build a wheel, sdists are broken
+        run: python -m build -w .
 
-      - name: Verify pip install from sdist
-        run: bash ci/verify_pip_install_from_sdist.sh
+      # - name: Verify pip install from sdist
+      #   run: bash ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
         run: |

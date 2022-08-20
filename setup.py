@@ -16,6 +16,7 @@ from typing import NoReturn
 # External imports
 from setuptools import Command, setup
 from setuptools.command.build import build
+from setuptools.command.sdist import sdist
 
 # -----------------------------------------------------------------------------
 # Helpers
