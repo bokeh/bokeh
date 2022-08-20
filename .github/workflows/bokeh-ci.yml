@@ -7,6 +7,10 @@ on:
       - branch-*
   pull_request:
 
+defaults:
+  run:
+    shell: bash -l {0}
+
 jobs:
 
   build:
@@ -15,40 +19,29 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          # fetch full history to get proper version on build
-          fetch-depth: 0
+          fetch-depth: 0 # full history to get proper build version
       - uses: conda-incubator/setup-miniconda@v2
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
           environment-file: ci/environment-build.yml
 
-      - name: Cache node modules
-        uses: actions/cache@v1
-        with:
-          path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
-          key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
-
       - name: Install node modules
-        shell: bash -l {0}
         run: bash ci/install_node_modules.sh
 
       - name: Build BokehJS
-        shell: bash -l {0}
-        run: bash ci/build_bokehjs.sh
+        working-directory: ./bokehjs
+        run: node make build
 
       - name: Build pip pacakges
         env:
           BOKEHJS_ACTION: 'install'
-        shell: bash -l {0}
         run: python -m build -s -w .
 
       - name: Verify pip install from sdist
-        shell: bash -l {0}
         run: bash ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
-        shell: bash -l {0}
         run: bash ci/build_conda_pacakge.sh
 
       - name: Upload conda package
@@ -69,9 +62,7 @@ jobs:
     steps:
       - name: Configure line endings in git
         if: runner.os == 'Windows'
-        shell: bash -l {0}
-        run: |
-          git config --global core.autocrlf false
+        run: git config --global core.autocrlf false
 
       - uses: actions/checkout@v2
 
@@ -83,14 +74,10 @@ jobs:
           sampledata: 'cache'
 
       - name: Run codebase checks
-        shell: bash -l {0}
         run: pytest --color=yes tests/codebase
 
       - name: MyPy
-        shell: bash -l {0}
-        run: |
-          mypy --version
-          mypy
+        run: mypy --version && mypy
 
   examples:
     needs: build
@@ -108,7 +95,6 @@ jobs:
 
       - name: Install chromium
         if: runner.os == 'Linux'
-        shell: bash
         run: |
           VER=103.0.5060.53
           REV=chromium_2020
@@ -126,20 +112,16 @@ jobs:
 
       - name: Start chrome headless
         working-directory: ./bokehjs
-        shell: bash -l {0}
         run: node make test:spawn:headless # starts chrome in the background on port 9222
 
       - name: Run tests
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        shell: bash -l {0}
-        run: |
-          pytest -s -v --color=yes --tb line tests/test_examples.py
+        run: pytest -s -v --color=yes --tb line tests/test_examples.py
 
       - name: Collect results
         if: always()
-        shell: bash
         run: |
           DST="examples-report"
           mkdir -p ${DST}
@@ -168,7 +150,6 @@ jobs:
 
       - name: Install chromium
         if: runner.os == 'Linux'
-        shell: bash
         run: |
           VER=103.0.5060.53
           REV=chromium_2020
@@ -186,7 +167,6 @@ jobs:
 
       - name: Run tests
         working-directory: bokehjs
-        shell: bash -l {0}
         run: node make test --screenshot=skip
 
   integration-tests:
@@ -204,7 +184,6 @@ jobs:
           sampledata: 'cache'
 
       - name: Run tests
-        shell: bash -l {0}
         run: pytest -v --tb=short --driver chrome --color=yes tests/integration
 
   unit-test:
@@ -229,12 +208,10 @@ jobs:
           sampledata: 'cache'
 
       - name: Ensure Python version
-        shell: bash -l {0}
         run: |
           if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: Run tests
-        shell: bash -l {0}
         run: pytest --cov=bokeh --color=yes tests/unit
 
   minimal-deps:
@@ -254,11 +231,9 @@ jobs:
         with:
           test-env: 'minimal-deps'
           source-tree: 'delete'
-          # don't install sampledata for minimal tests
-          sampledata: 'none'
+          sampledata: 'none' # no sampledata for minimal tests
 
       - name: Run tests
-        shell: bash -l {0}
         run: pytest -m "not sampledata" --cov=bokeh --color=yes tests/unit
 
   documentation:
@@ -273,18 +248,16 @@ jobs:
         with:
           test-env: '3.8'
           source-tree: 'delete'
-          # don't cache sampledata - want to test at least one real download
-          sampledata: 'download'
+          sampledata: 'download' # test at least one real download
 
       - name: Build docs
-        shell: bash -l {0}
         run: bash ci/build_docs.sh
 
       - name: Upload docs
         uses: actions/upload-artifact@v3
         with:
           name: docs-html
-          path: sphinx/docs-html.tgz
+          path: sphinx/build-html
 
   downstream:
     needs: build
@@ -301,9 +274,7 @@ jobs:
           sampledata: 'none'
 
       - name: Install downstream packages
-        shell: bash -l {0}
         run: bash ci/install_downstream_packages.sh
 
       - name: Run tests
-        shell: bash -l {0}
         run: bash ci/run_downstream_tests.sh
