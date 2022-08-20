@@ -75,13 +75,6 @@ class Config:
             return VersionType.FULL
 
     @property
-    def pep440_version(self) -> str:
-        # pep 440 requires "." before "dev"
-        if self.version_type == VersionType.DEV:
-            return f"{self.base_version}.{self.ext_type}{self.ext_number}"
-        return self.version
-
-    @property
     def js_version(self) -> str:
         if self.ext is None:
             return self.version
