@@ -194,7 +194,7 @@ class TestResources:
         result = _get_cdn_urls(version=v)
         url = result.urls(["bokeh"], "js")[0]
         assert "bokeh/dev" in url
-        assert "".join(v.rsplit(".", 1)) in url
+        assert v in url
 
     def test_cdn(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr(resources, "__version__", "1.0")

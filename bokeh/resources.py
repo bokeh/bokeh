@@ -683,21 +683,12 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
         docs_cdn = settings.docs_cdn()
         version = docs_cdn if docs_cdn else __version__.split("+")[0]
 
-    # for dev/rc releases replace ".dev" with "dev" and ".rc" with "rc"
-    js_version = version.replace(".dev", "dev").replace(".rc", "rc")
-
-    # check if we want minified js and css
-    _minified = ".min" if minified else ""
-
     base_url = _cdn_base_url()
-    dev_container = "bokeh/dev"
-    rel_container = "bokeh/release"
 
-    # check the 'dev' fingerprint
-    container = dev_container if _DEV_PAT.match(version) else rel_container
+    container = "bokeh/dev" if _DEV_PAT.match(version) else "bokeh/release"
 
     def mk_filename(comp: str, kind: Kind) -> str:
-        return f"{comp}-{js_version}{_minified}.{kind}"
+        return f"{comp}-{version}{'.min' if minified else ''}.{kind}"
 
     def mk_url(comp: str, kind: Kind) -> str:
         return f"{base_url}/{container}/" + mk_filename(comp, kind)
