@@ -339,6 +339,8 @@ A widget allowing users to choose a file and store its contents.
 
 More information can be found in the reference guide entry for |FileInput|.
 
+.. _userguide_interaction_widgets_examples_helpbutton:
+
 HelpButton
 ~~~~~~~~~~
 
