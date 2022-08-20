@@ -267,12 +267,20 @@ class Spinner(NumericInput):
 class ToggleInput(Widget):
     """ Base class for toggleable (boolean) input widgets. """
 
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
     active = Bool(default=False, help="""
     The state of the widget.
     """)
 
 class Checkbox(ToggleInput):
     """ A checkbox widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     label = String(default="", help="""
     The label next to the checkbox.

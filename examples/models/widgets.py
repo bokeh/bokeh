@@ -13,7 +13,7 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
+from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
                           DateSlider, Dialog, Div, Dropdown, GroupBox, HelpButton,
@@ -106,6 +106,10 @@ color_picker = ColorPicker(color="red", title="Choose color:", description=toolt
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
+checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
+
+checkbox_1 = Checkbox(active=True, label="Active checkbox")
+
 switch_0 = Switch(active=False)
 
 switch_1 = Switch(active=True, context_menu=Menu())
@@ -191,6 +195,8 @@ widgets = Column(children=[
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
+            checkbox_0,
+            checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
             group_box,
             paragraph, div, pre_text,
