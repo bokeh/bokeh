@@ -413,8 +413,10 @@ export class StyleSheet {
   private *_to_rules(styles: CSSOurStyles) {
     // TODO: prefixing
     for (const [attr, value] of entries(styles)) {
-      const name = attr.replace(/_/g, "-")
-      yield `${name}: ${value};`
+      if (value != null) {
+        const name = attr.replace(/_/g, "-")
+        yield `${name}: ${value};`
+      }
     }
   }
 

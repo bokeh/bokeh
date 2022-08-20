@@ -50,7 +50,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
         switch (policy) {
           case "fixed":
           case "fit":
-          case "min": return (this._direction == "row" ? sizing.valign : sizing.halign) ?? "unset"
+          case "min": return this._direction == "row" ? sizing.valign : sizing.halign
           case "max": return "stretch"
           default: unreachable()
         }
