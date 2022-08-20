@@ -34,7 +34,9 @@ runs:
 
     - name: Install conda package
       shell: bash -l {0}
-      run: conda install --yes --quiet --offline /tmp/bld/noarch/bokeh-*.bz2
+      run: |
+        ls /tmp/bld/noarch
+        conda install --yes --quiet --offline /tmp/bld/noarch/bokeh-*.bz2
 
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
