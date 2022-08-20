@@ -11,6 +11,10 @@ defaults:
   run:
     shell: bash -l {0}
 
+env:
+  CHROME_VER: "103.0.5060.53"
+  CHROME_REV: "chromium_2020"
+
 jobs:
 
   build:
@@ -96,18 +100,15 @@ jobs:
       - name: Install chromium
         if: runner.os == 'Linux'
         run: |
-          VER=103.0.5060.53
-          REV=chromium_2020
-          URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
-
-          if [[ "$(chromium --version | cut -d' ' -f2)" = "$VER" ]]; then
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
             echo "Using pre-installed version of chromium"
           else
-            wget --no-verbose $URL/$REV.assert
-            wget --no-verbose $URL/$REV.snap
+            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
+            wget --no-verbose $URL/$CHROME_REV.assert
+            wget --no-verbose $URL/$CHROME_REV.snap
 
-            sudo snap ack $REV.assert
-            sudo snap install $REV.snap
+            sudo snap ack $CHROME_REV.assert
+            sudo snap install $CHROME_REV.snap
           fi
 
       - name: Start chrome headless
@@ -122,8 +123,9 @@ jobs:
 
       - name: Collect results
         if: always()
+        env:
+          DST: "examples-report"
         run: |
-          DST="examples-report"
           mkdir -p ${DST}
           cp --parents examples-report.html $(cat .images-list) ${DST}
 
@@ -151,18 +153,15 @@ jobs:
       - name: Install chromium
         if: runner.os == 'Linux'
         run: |
-          VER=103.0.5060.53
-          REV=chromium_2020
-          URL=https://github.com/bokeh/chromium/raw/main/linux/$VER
-
-          if [[ "$(chromium --version | cut -d' ' -f2)" = "$VER" ]]; then
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
             echo "Using pre-installed version of chromium"
           else
-            wget --no-verbose $URL/$REV.assert
-            wget --no-verbose $URL/$REV.snap
+            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
+            wget --no-verbose $URL/$CHROME_REV.assert
+            wget --no-verbose $URL/$CHROME_REV.snap
 
-            sudo snap ack $REV.assert
-            sudo snap install $REV.snap
+            sudo snap ack $CHROME_REV.assert
+            sudo snap install $CHROME_REV.snap
           fi
 
       - name: Run tests
@@ -208,8 +207,7 @@ jobs:
           sampledata: 'cache'
 
       - name: Ensure Python version
-        run: |
-          if [[ ! "$(python -c 'import platform; print(platform.python_version())' | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
       - name: Run tests
         run: pytest --cov=bokeh --color=yes tests/unit
@@ -257,7 +255,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: docs-html
-          path: sphinx/build-html
+          path: sphinx/docs-html.tgz
 
   downstream:
     needs: build

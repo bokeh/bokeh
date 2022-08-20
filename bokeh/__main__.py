@@ -55,7 +55,7 @@ def main():
 
     from bokeh.command.bootstrap import main as _main
 
-   # Main entry point (see setup.py)
+   # Main entry point (see pyproject.toml)
     _main(sys.argv)
 
 #-----------------------------------------------------------------------------
