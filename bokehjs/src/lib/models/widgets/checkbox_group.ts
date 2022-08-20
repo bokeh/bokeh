@@ -1,13 +1,28 @@
 import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
-
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
+import {enumerate} from "core/util/iterator"
 import * as p from "core/properties"
-
 import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends ToggleInputGroupView {
   override model: CheckboxGroup
+
+  get active(): Set<number> {
+    return new Set(this.model.active)
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      const {active} = this
+      for (const [input_el, i] of enumerate(this._inputs)) {
+        input_el.toggleAttribute("checked", active.has(i))
+      }
+    })
+  }
 
   override render(): void {
     super.render()
@@ -35,7 +50,7 @@ export class CheckboxGroupView extends ToggleInputGroupView {
   }
 
   change_active(i: number): void {
-    const active = new Set(this.model.active)
+    const {active} = this
     active.has(i) ? active.delete(i) : active.add(i)
     this.model.active = [...active].sort()
   }
@@ -46,8 +61,6 @@ export namespace CheckboxGroup {
 
   export type Props = ToggleInputGroup.Props & {
     active: p.Property<number[]>
-    labels: p.Property<string[]>
-    inline: p.Property<boolean>
   }
 }
 
@@ -64,10 +77,8 @@ export class CheckboxGroup extends ToggleInputGroup {
   static {
     this.prototype.default_view = CheckboxGroupView
 
-    this.define<CheckboxGroup.Props>(({Boolean, Int, String, Array}) => ({
+    this.define<CheckboxGroup.Props>(({Int, Array}) => ({
       active: [ Array(Int), [] ],
-      labels: [ Array(String), [] ],
-      inline: [ Boolean, false ],
     }))
   }
 }

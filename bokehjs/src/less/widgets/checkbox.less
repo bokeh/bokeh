@@ -1,0 +1,10 @@
+  // XXX: this is horrible, but at least looks good by default
+  input[type="checkbox"], input[type="radio"] {
+    margin: 0;
+
+    & + * {
+      position: relative;
+      top: -2px;
+      margin-left: 3px;
+    }
+  }

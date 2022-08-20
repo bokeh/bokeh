@@ -53,6 +53,7 @@ from .widget import Widget
 
 __all__ = (
     'AutocompleteInput',
+    'Checkbox',
     'ColorPicker',
     'DatePicker',
     'FileInput',
@@ -262,16 +263,27 @@ class Spinner(NumericInput):
     mouse wheel is used to change the input
     """)
 
-class Switch(Widget):
+@abstract
+class ToggleInput(Widget):
+    """ Base class for toggleable (boolean) input widgets. """
+
+    active = Bool(default=False, help="""
+    The state of the widget.
+    """)
+
+class Checkbox(ToggleInput):
+    """ A checkbox widget. """
+
+    label = String(default="", help="""
+    The label next to the checkbox.
+    """)
+
+class Switch(ToggleInput):
     """ A checkbox-like widget. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    active = Bool(default=False, help="""
-    The state of the widget.
-    """)
 
     width = Override(default=32)
 

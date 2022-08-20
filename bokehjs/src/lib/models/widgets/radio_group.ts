@@ -1,13 +1,24 @@
-import {input, label, div, span} from "core/dom"
-import {uniqueId} from "core/util/string"
-import * as p from "core/properties"
-
 import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
-
+import {input, label, div, span} from "core/dom"
+import {unique_id} from "core/util/string"
+import {enumerate} from "core/util/iterator"
+import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends ToggleInputGroupView {
   override model: RadioGroup
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      const {active} = this.model
+      for (const [input_el, i] of enumerate(this._inputs)) {
+        input_el.toggleAttribute("checked", active == i)
+      }
+    })
+  }
 
   override render(): void {
     super.render()
@@ -15,7 +26,7 @@ export class RadioGroupView extends ToggleInputGroupView {
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
     this.shadow_el.appendChild(group)
 
-    const name = uniqueId()
+    const name = unique_id()
     const {active, labels} = this.model
 
     this._inputs = []
@@ -44,8 +55,6 @@ export namespace RadioGroup {
 
   export type Props = ToggleInputGroup.Props & {
     active: p.Property<number | null>
-    labels: p.Property<string[]>
-    inline: p.Property<boolean>
   }
 }
 
@@ -62,10 +71,8 @@ export class RadioGroup extends ToggleInputGroup {
   static {
     this.prototype.default_view = RadioGroupView
 
-    this.define<RadioGroup.Props>(({Boolean, Int, String, Array, Nullable}) => ({
-      active:   [ Nullable(Int), null ],
-      labels:   [ Array(String), [] ],
-      inline:   [ Boolean, false ],
+    this.define<RadioGroup.Props>(({Int, Nullable}) => ({
+      active: [ Nullable(Int), null ],
     }))
   }
 }

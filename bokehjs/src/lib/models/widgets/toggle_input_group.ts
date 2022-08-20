@@ -1,8 +1,8 @@
 import {Control, ControlView} from "./control"
 import {StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
-
 import inputs_css from "styles/widgets/inputs.css"
+import checkbox_css from "styles/widgets/checkbox.css"
 
 export abstract class ToggleInputGroupView extends ControlView {
   override model: ToggleInputGroup
@@ -14,18 +14,23 @@ export abstract class ToggleInputGroupView extends ControlView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+
+    const {labels, inline} = this.model.properties
+    this.on_change([labels, inline], () => this.render())
   }
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), inputs_css]
+    return [...super.styles(), inputs_css, checkbox_css]
   }
 }
 
 export namespace ToggleInputGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Control.Props
+  export type Props = Control.Props & {
+    labels: p.Property<string[]>
+    inline: p.Property<boolean>
+  }
 }
 
 export interface ToggleInputGroup extends ToggleInputGroup.Attrs {}
@@ -36,5 +41,12 @@ export abstract class ToggleInputGroup extends Control {
 
   constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
     super(attrs)
+  }
+
+  static {
+    this.define<ToggleInputGroup.Props>(({Boolean, String, Array}) => ({
+      labels: [ Array(String), [] ],
+      inline: [ Boolean, false ],
+    }))
   }
 }
