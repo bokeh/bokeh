@@ -100,12 +100,12 @@ functionality.
 .. automodule:: bokeh.util.token
   :members:
 
-.. _bokeh.util.string:
+.. _bokeh.util.strings:
 
-``bokeh.util.string``
+``bokeh.util.strings``
 ---------------------
 
-.. automodule:: bokeh.util.string
+.. automodule:: bokeh.util.strings
   :members:
 
 .. _bokeh.util.tornado:

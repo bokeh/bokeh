@@ -44,7 +44,7 @@ from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ...util.dependencies import import_optional
-from ...util.string import nice_join
+from ...util.strings import nice_join
 from ..has_props import HasProps
 from ._sphinx import property_link, register_type_link, type_link
 from .descriptor_factory import PropertyDescriptorFactory

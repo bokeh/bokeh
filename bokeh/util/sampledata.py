@@ -13,16 +13,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import logging # isort:skip
-log = logging.getLogger(__name__)
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
-# imports are generally deferrered in this module
-
 # Standard library imports
 import hashlib
 import json
@@ -46,6 +36,16 @@ from typing import (
 )
 from urllib.parse import urljoin
 from urllib.request import urlopen
+
+# skip logging imports so that this module may be run as a script  # isort:skip
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
+# imports are generally deferrered in this module
+
 
 # External library imports
 if TYPE_CHECKING:
@@ -245,3 +245,8 @@ def _download_file(base_url: str, filename: str, data_dir: str, progress: bool =
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+# This is necessary so that we can run the sampledata download code in the
+# release build, before an actual package exists.
+if __name__ == "__main__":
+    download(progress=False)

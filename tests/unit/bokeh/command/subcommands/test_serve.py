@@ -124,7 +124,7 @@ def test_help() -> None:
     assert bcss.Serve.help == "Run a Bokeh server hosting one or more applications"
 
 def test_args() -> None:
-    from bokeh.util.string import nice_join
+    from bokeh.util.strings import nice_join
 
     assert bcss.Serve.args == (
         ('--port', Argument(

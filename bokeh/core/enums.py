@@ -82,7 +82,7 @@ from typing import (
 
 # Bokeh imports
 from .. import colors, palettes
-from ..util.string import nice_join
+from ..util.strings import nice_join
 
 #-----------------------------------------------------------------------------
 # Globals and constants

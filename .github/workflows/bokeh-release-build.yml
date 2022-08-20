@@ -38,11 +38,9 @@ jobs:
           activate-environment: bk-release-build
           environment-file: ci/environment-release-build.yml
 
-      - name: Cache sampledata
-        uses: actions/cache@v1
-        with:
-          path: ~/.bokeh/data
-          key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
+      - name: Install sampledata
+        shell: bash -l {0}
+        run: python bokeh/util/sampledata.py
 
       - name: Post install status
         shell: bash -l {0}

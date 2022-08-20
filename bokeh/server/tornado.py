@@ -48,7 +48,7 @@ from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.dependencies import import_optional
-from ..util.string import format_docstring
+from ..util.strings import format_docstring
 from ..util.tornado import fixup_windows_event_loop_policy
 from .auth_provider import NullAuth
 from .connection import ServerConnection

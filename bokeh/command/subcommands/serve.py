@@ -437,7 +437,7 @@ from bokeh.server.auth_provider import AuthModule, NullAuth
 from bokeh.server.tornado import DEFAULT_SESSION_TOKEN_EXPIRATION, DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES
 from bokeh.settings import settings
 from bokeh.util.logconfig import basicConfig
-from bokeh.util.string import format_docstring, nice_join
+from bokeh.util.strings import format_docstring, nice_join
 
 # Bokeh imports
 from ..subcommand import Argument, Subcommand

@@ -23,7 +23,7 @@ import numpy as np
 # Bokeh imports
 from ..core.properties import field, value
 from ..models import Legend, LegendItem
-from ..util.string import nice_join
+from ..util.strings import nice_join
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 from typing import Any, overload
 
 # Bokeh imports
-from ...util.string import nice_join
+from ...util.strings import nice_join
 from .. import enums
 from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init

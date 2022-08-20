@@ -59,7 +59,7 @@ from ..events import Event
 from ..model import Model
 from ..themes import Theme, built_in_themes, default as default_theme
 from ..util.serialization import make_id
-from ..util.string import nice_join
+from ..util.strings import nice_join
 from ..util.version import __version__
 from .callbacks import (
     Callback,

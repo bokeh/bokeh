@@ -46,7 +46,7 @@ if TYPE_CHECKING:
 from ..core.types import ID
 from ..settings import settings
 from .dependencies import import_optional
-from .string import format_docstring
+from .strings import format_docstring
 
 #-----------------------------------------------------------------------------
 # Globals and constants

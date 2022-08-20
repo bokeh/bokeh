@@ -50,7 +50,7 @@ from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.deprecation import deprecated
-from ..util.string import format_docstring
+from ..util.strings import format_docstring
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
