@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {UIElement} from "../ui/ui_element"
 import {fieldset, legend, input, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import group_box_css from "styles/group_box.css"
@@ -15,7 +16,7 @@ export class GroupBoxView extends LayoutDOMView {
     this.connect(this.model.properties.child.change, () => this.rebuild())
   }
 
-  get child_models(): LayoutDOM[] {
+  get child_models(): UIElement[] {
     return [this.model.child]
   }
 
@@ -40,7 +41,7 @@ export namespace GroupBox {
 
   export type Props = LayoutDOM.Props & {
     title: p.Property<string | null>
-    child: p.Property<LayoutDOM>
+    child: p.Property<UIElement>
     checkable: p.Property<boolean>
   }
 }
@@ -60,7 +61,7 @@ export class GroupBox extends LayoutDOM {
 
     this.define<GroupBox.Props>(({Boolean, String, Nullable, Ref}) => ({
       title: [ Nullable(String), null ],
-      child: [ Ref(LayoutDOM) ],
+      child: [ Ref(UIElement) ],
       checkable: [ Boolean, false ],
     }))
   }

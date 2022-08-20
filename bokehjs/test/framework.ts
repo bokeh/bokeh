@@ -358,7 +358,14 @@ import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {GridPlot} from "@bokehjs/models/plots"
 import {Button, Div} from "@bokehjs/models/widgets"
 
-function _infer_viewport(obj: LayoutDOM): Size {
+function _infer_viewport(obj: UIElement): Size {
+  if (obj instanceof LayoutDOM)
+    return _infer_layoutdom_viewport(obj)
+  else
+    return {width: Infinity, height: Infinity}
+}
+
+function _infer_layoutdom_viewport(obj: LayoutDOM): Size {
   const {sizing_mode, width_policy, height_policy} = obj
 
   let width = 0

@@ -57,6 +57,7 @@ from .models import (
     Tool,
     Toolbar,
     ToolProxy,
+    UIElement,
 )
 from .util.dataclasses import dataclass
 
@@ -78,11 +79,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @overload
-def row(children: list[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+def row(children: list[UIElement], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
 @overload
-def row(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
+def row(*children: UIElement, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row: ...
 
-def row(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
+def row(*children: UIElement | list[UIElement], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Row:
     """ Create a row of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -113,11 +114,11 @@ def row(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | No
     return Row(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 @overload
-def column(children: list[LayoutDOM], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
+def column(children: list[UIElement], *, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 @overload
-def column(*children: LayoutDOM, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
+def column(*children: UIElement, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column: ...
 
-def column(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
+def column(*children: UIElement | list[UIElement], sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a column of Bokeh Layout objects. Forces all objects to
     have the same sizing_mode, which is required for complex layouts to work.
 
@@ -148,7 +149,7 @@ def column(*children: LayoutDOM | list[LayoutDOM], sizing_mode: SizingModeType |
     return Column(children=_children, sizing_mode=sizing_mode, **kwargs)
 
 
-def layout(*args: LayoutDOM, children: list[LayoutDOM] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
+def layout(*args: UIElement, children: list[UIElement] | None = None, sizing_mode: SizingModeType | None = None, **kwargs: Any) -> Column:
     """ Create a grid-based arrangement of Bokeh Layout objects.
 
     Args:
@@ -185,7 +186,7 @@ def layout(*args: LayoutDOM, children: list[LayoutDOM] | None = None, sizing_mod
     return _create_grid(_children, sizing_mode, **kwargs)
 
 def gridplot(
-        children: list[list[LayoutDOM | None]], *,
+        children: list[list[UIElement | None]], *,
         sizing_mode: SizingModeType | None = None,
         toolbar_location: LocationType | None = "above",
         ncols: int | None = None,
@@ -265,7 +266,7 @@ def gridplot(
 
     # Make the grid
     tools: list[Tool | ToolProxy] = []
-    items: list[tuple[LayoutDOM, int, int]] = []
+    items: list[tuple[UIElement, int, int]] = []
 
     for y, row in enumerate(children):
         for x, item in enumerate(row):
@@ -286,8 +287,10 @@ def gridplot(
                     item.sizing_mode = sizing_mode
 
                 items.append((item, y, x))
+            elif isinstance(item, UIElement):
+                continue
             else:
-                raise ValueError("Only LayoutDOM items can be inserted into a grid")
+                raise ValueError("Only UIElement and LayoutDOM items can be inserted into a grid")
 
     def merge(cls: Type[Tool], group: list[Tool]):
         if issubclass(cls, (SaveTool, CopyTool, SettingsTool, FullscreenTool)):
@@ -300,15 +303,15 @@ def gridplot(
 
 # XXX https://github.com/python/mypy/issues/731
 @overload
-def grid(children: list[LayoutDOM | list[LayoutDOM | list[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
+def grid(children: list[UIElement | list[UIElement | list[Any]]], *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 @overload
 def grid(children: Row | Column, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 @overload
-def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int) -> GridBox: ...
+def grid(children: list[UIElement | None], *, sizing_mode: SizingModeType | None = ..., nrows: int) -> GridBox: ...
 @overload
-def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., ncols: int) -> GridBox: ...
+def grid(children: list[UIElement | None], *, sizing_mode: SizingModeType | None = ..., ncols: int) -> GridBox: ...
 @overload
-def grid(children: list[LayoutDOM | None], *, sizing_mode: SizingModeType | None = ..., nrows: int, ncols: int) -> GridBox: ...
+def grid(children: list[UIElement | None], *, sizing_mode: SizingModeType | None = ..., nrows: int, ncols: int) -> GridBox: ...
 @overload
 def grid(children: str, *, sizing_mode: SizingModeType | None = ...) -> GridBox: ...
 
@@ -567,23 +570,26 @@ def _parse_children_arg(*args: L | list[L], children: list[L] | None = None) -> 
 
     return children
 
-def _handle_child_sizing(children: list[LayoutDOM], sizing_mode: SizingModeType | None, *, widget: str) -> None:
+def _handle_child_sizing(children: list[UIElement], sizing_mode: SizingModeType | None, *, widget: str) -> None:
     for item in children:
+        if isinstance(item, UIElement):
+            continue
         if not isinstance(item, LayoutDOM):
             raise ValueError(f"Only LayoutDOM items can be inserted into a {widget}. Tried to insert: {item} of type {type(item)}")
         if sizing_mode is not None and _has_auto_sizing(item):
             item.sizing_mode = sizing_mode
 
-
-def _create_grid(iterable: Iterable[LayoutDOM | list[LayoutDOM]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
+def _create_grid(iterable: Iterable[UIElement | list[UIElement]], sizing_mode: SizingModeType | None, layer: int = 0, **kwargs) -> Row | Column:
     """Recursively create grid from input lists."""
-    return_list: list[LayoutDOM] = []
+    return_list: list[UIElement] = []
     for item in iterable:
         if isinstance(item, list):
             return_list.append(_create_grid(item, sizing_mode, layer + 1))
         elif isinstance(item, LayoutDOM):
             if sizing_mode is not None and _has_auto_sizing(item):
                 item.sizing_mode = sizing_mode
+            return_list.append(item)
+        elif isinstance(item, UIElement):
             return_list.append(item)
         else:
             raise ValueError(

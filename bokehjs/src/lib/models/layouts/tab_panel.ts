@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {LayoutDOM} from "./layout_dom"
+import {UIElement} from "../ui/ui_element"
 import * as p from "core/properties"
 
 export namespace TabPanel {
@@ -7,7 +7,7 @@ export namespace TabPanel {
 
   export type Props = Model.Props & {
     title: p.Property<string>
-    child: p.Property<LayoutDOM>
+    child: p.Property<UIElement>
     closable: p.Property<boolean>
     disabled: p.Property<boolean>
   }
@@ -25,7 +25,7 @@ export class TabPanel extends Model {
   static {
     this.define<TabPanel.Props>(({Boolean, String, Ref}) => ({
       title:    [ String, "" ],
-      child:    [ Ref(LayoutDOM) ],
+      child:    [ Ref(UIElement) ],
       closable: [ Boolean, false ],
       disabled: [ Boolean, false ],
     }))

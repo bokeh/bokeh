@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {UIElement} from "../ui/ui_element"
 import {px} from "core/dom"
 import * as p from "core/properties"
 import {assert, unreachable} from "core/util/assert"
@@ -14,7 +15,7 @@ export abstract class FlexBoxView extends LayoutDOMView {
     this.connect(this.model.properties.children.change, () => this.rebuild())
   }
 
-  get child_models(): LayoutDOM[] {
+  get child_models(): UIElement[] {
     return this.model.children
   }
 
@@ -155,7 +156,7 @@ export namespace FlexBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    children: p.Property<LayoutDOM[]>
+    children: p.Property<UIElement[]>
     spacing: p.Property<number>
   }
 }
@@ -172,7 +173,7 @@ export abstract class FlexBox extends LayoutDOM {
 
   static {
     this.define<FlexBox.Props>(({Number, Array, Ref}) => ({
-      children: [ Array(Ref(LayoutDOM)), [] ],
+      children: [ Array(Ref(UIElement)), [] ],
       spacing:  [ Number, 0 ],
     }))
   }

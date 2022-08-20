@@ -6,6 +6,7 @@ import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
+import {UIElement} from "../ui/ui_element"
 
 import tabs_css, * as tabs from "styles/tabs.css"
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -33,7 +34,7 @@ export class TabsView extends LayoutDOMView {
     return [...super.styles(), tabs_css, buttons_css, caret_css, icons_css]
   }
 
-  get child_models(): LayoutDOM[] {
+  get child_models(): UIElement[] {
     return this.model.tabs.map((tab) => tab.child)
   }
 

@@ -366,8 +366,8 @@ class GridBox(LayoutDOM):
         super().__init__(*args, **kwargs)
 
     children = List(Either(
-        Tuple(Instance(LayoutDOM), Int, Int),
-        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
+        Tuple(Instance(UIElement), Int, Int),
+        Tuple(Instance(UIElement), Int, Int, Int, Int)), default=[], help="""
     A list of children with their associated position in the grid (row, column).
     """)
 
@@ -440,7 +440,7 @@ class FlexBox(LayoutDOM):
         if len(self.children) != len(set(self.children)):
             return str(self)
 
-    children = List(Instance(LayoutDOM), help="""
+    children = List(Instance(UIElement), help="""
     The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
 
@@ -494,7 +494,7 @@ class TabPanel(Model):
     The text title of the panel.
     """)
 
-    child = Instance(LayoutDOM, help="""
+    child = Instance(UIElement, help="""
     The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
     """)
 
@@ -521,7 +521,7 @@ class Tabs(LayoutDOM):
 
     tabs = List(Instance(TabPanel), help="""
     The list of child panel widgets.
-    """).accepts(List(Tuple(String, Instance(LayoutDOM))),
+    """).accepts(List(Tuple(String, Instance(UIElement))),
                  lambda items: [ TabPanel(title=title, child=child) for (title, child) in items ])
 
     tabs_location = Enum(Location, default="above", help="""
@@ -545,7 +545,7 @@ class GroupBox(LayoutDOM):
     The title text of the group. If not provided, only the frame will be showed.
     """)
 
-    child = Instance(LayoutDOM, help="""
+    child = Instance(UIElement, help="""
     The child UI element. This can be a single UI control, widget, etc., or
     a container layout like ``Column`` or ``Row``, or a combitation of layouts.
     """)

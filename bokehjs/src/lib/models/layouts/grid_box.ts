@@ -1,4 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {UIElement} from "../ui/ui_element"
 import {px, CSSOurStyles} from "core/dom"
 import {RowsSizing, ColsSizing, Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
@@ -18,7 +19,7 @@ export class GridBoxView extends LayoutDOMView {
     this.on_change([children, rows, cols, spacing], () => this.rebuild())
   }
 
-  get child_models(): LayoutDOM[] {
+  get child_models(): UIElement[] {
     return this.model.children.map(([child]) => child)
   }
 
@@ -167,7 +168,7 @@ export namespace GridBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    children: p.Property<[LayoutDOM, number, number, number?, number?][]>
+    children: p.Property<[UIElement, number, number, number?, number?][]>
     rows: p.Property<RowsSizing>
     cols: p.Property<ColsSizing>
     spacing: p.Property<number | [number, number]>
@@ -188,7 +189,7 @@ export class GridBox extends LayoutDOM {
     this.prototype.default_view = GridBoxView
 
     this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({
-      children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
+      children: [ Array(Tuple(Ref(UIElement), Int, Int, Opt(Int), Opt(Int))), [] ],
       rows:     [ Any /*TODO*/, "auto" ],
       cols:     [ Any /*TODO*/, "auto" ],
       spacing:  [ Or(Number, Tuple(Number, Number)), 0 ],
