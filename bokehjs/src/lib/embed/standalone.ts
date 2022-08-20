@@ -14,7 +14,7 @@ export async function add_document_standalone(document: Document, element: HTMLE
   // call, so we can remove the views we create.
   const views = new ViewManager()
 
-  async function render_model(model: HasProps): Promise<View> {
+  async function render_view(model: HasProps): Promise<void> {
     const view = await build_view(model, {parent: null, owner: views})
 
     if (view instanceof DOMView) {
@@ -25,8 +25,13 @@ export async function add_document_standalone(document: Document, element: HTMLE
 
     views.add(view)
     index[model.id] = view
+  }
 
-    return view
+  async function render_model(model: HasProps): Promise<void> {
+    if (model.default_view != null)
+      await render_view(model)
+    else
+      document.notify_idle(model)
   }
 
   function unrender_model(model: HasProps): void {
