@@ -9,6 +9,41 @@ import choices_css from "styles/widgets/choices.css"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
+function retarget<T extends Event>(event: T): T {
+  Object.defineProperty(event, "target", {
+    get: () => event.composedPath()[0] ?? null,
+    configurable: true,
+  })
+  return event
+}
+
+class OurChoices extends Choices {
+  override _onFocus(event: FocusEvent): void {
+    super._onFocus(retarget(event))
+  }
+  override _onBlur(event: FocusEvent): void {
+    super._onBlur(retarget(event))
+  }
+  override _onKeyUp(event: KeyboardEvent): void {
+    super._onKeyUp(retarget(event))
+  }
+  override _onKeyDown(event: KeyboardEvent): void {
+    super._onKeyDown(retarget(event))
+  }
+  override _onClick(event: MouseEvent): void {
+    super._onClick(retarget(event))
+  }
+  override _onTouchEnd(event: TouchEvent): void {
+    super._onTouchEnd(retarget(event))
+  }
+  override _onMouseDown(event: MouseEvent): void {
+    super._onMouseDown(retarget(event))
+  }
+  override _onMouseOver(event: MouseEvent): void {
+    super._onMouseOver(retarget(event))
+  }
+}
+
 export class MultiChoiceView extends InputWidgetView {
   override model: MultiChoice
 
@@ -53,7 +88,7 @@ export class MultiChoiceView extends InputWidgetView {
     const item = `choices__item ${fill}`
     const button = `choices__button ${fill}`
 
-    const options = {
+    const options: Partial<Choices["config"]> = {
       choices,
       duplicateItemsAllowed: false,
       shouldSort: false,
@@ -65,7 +100,7 @@ export class MultiChoiceView extends InputWidgetView {
       searchResultLimit: this.model.search_option_limit ?? undefined,
     }
 
-    this.choice_el = new Choices(this.input_el, options)
+    this.choice_el = new OurChoices(this.input_el, options)
     this.input_el.addEventListener("change", () => this.change_input())
   }
 
