@@ -23,8 +23,7 @@ __all__ = (
     "build_bokehjs",
     "build_conda_packages",
     "build_docs",
-    "build_sdist_packages",
-    "build_wheel_packages",
+    "build_pip_packages",
     "dev_install",
     "install_bokehjs",
     "npm_install",
@@ -73,20 +72,12 @@ def build_docs(config: Config, system: System) -> ActionReturn:
         return FAILED("Docs build did NOT succeed", details=e.args)
 
 
-def build_sdist_packages(config: Config, system: System) -> ActionReturn:
+def build_pip_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python -m build -s .", BOKEHJS_ACTION="install")
-        return PASSED("sdist package build succeeded")
+        system.run("python -m build .", BOKEHJS_ACTION="install")
+        return PASSED("pip packages build succeeded")
     except RuntimeError as e:
-        return FAILED("sdist package build did NOT succeed", details=e.args)
-
-
-def build_wheel_packages(config: Config, system: System) -> ActionReturn:
-    try:
-        system.run("python -m build -w .", BOKEHJS_ACTION="install")
-        return PASSED("wheel package build succeeded")
-    except RuntimeError as e:
-        return FAILED("wheel package build did NOT succeed", details=e.args)
+        return FAILED("pip packages build did NOT succeed", details=e.args)
 
 
 def dev_install(config: Config, system: System) -> ActionReturn:
