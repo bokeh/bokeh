@@ -22,7 +22,7 @@ import os
 from os.path import join, splitext
 
 # Bokeh imports
-from bokeh.util.string import nice_join
+from bokeh.util.strings import nice_join
 from tests.support.util.project import TOP_PATH
 
 #-----------------------------------------------------------------------------

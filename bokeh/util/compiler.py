@@ -45,7 +45,7 @@ from typing import (
 # Bokeh imports
 from ..core.has_props import HasProps
 from ..settings import settings
-from .string import snakify
+from .strings import snakify
 
 #-----------------------------------------------------------------------------
 # Globals and constants

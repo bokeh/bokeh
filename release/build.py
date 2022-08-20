@@ -37,7 +37,7 @@ __all__ = (
 def build_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("bokehjs")
-        system.run("node make")
+        system.run("node make build")
         system.cd("..")
         return PASSED("BokehJS build succeeded")
     except RuntimeError as e:

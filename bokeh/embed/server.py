@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
 from ..util.serialization import make_id
-from ..util.string import format_docstring
+from ..util.strings import format_docstring
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
 from .util import RenderItem

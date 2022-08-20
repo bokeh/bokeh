@@ -95,7 +95,7 @@ from ..core.validation.errors import (
     NO_RANGE_TOOL_RANGES,
 )
 from ..model import Model
-from ..util.string import nice_join
+from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation
 from .callbacks import Callback
 from .dom import Template
