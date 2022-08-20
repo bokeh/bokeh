@@ -1,3 +1,3 @@
 import {task} from "../task"
 
-task("default", ["build", "install"])
+task("default", ["build"])
