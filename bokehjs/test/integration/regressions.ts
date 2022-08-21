@@ -747,6 +747,13 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #9764", () => {
+    it("prevents display of MultiChoice placeholder", async () => {
+      const widget = new MultiChoice({placeholder: "Choose ...", options: ["1", "2", "3"], width: 200})
+      await display(widget, [250, 100])
+    })
+  })
+
   describe("in issue #10452", () => {
     it("prevents changing MultiChoice.disabled property", async () => {
       const widget = new MultiChoice({value: ["2", "3"], options: ["1", "2", "3"], width: 200})

@@ -77,7 +77,7 @@ select = Select(options=["Option 1", "Option 2", "Option 3"])
 
 multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
 
-multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)])
+multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)], placeholder="Choose your option ...")
 
 slider = Slider(value=10, start=0, end=100, step=0.5)
 
