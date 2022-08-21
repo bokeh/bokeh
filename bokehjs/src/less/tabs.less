@@ -56,11 +56,17 @@
   .bk-tab {
     padding: 4px 8px; // var(--padding-vertical) var(--padding-horizontal);
     border: solid transparent;
+    outline: 0;
+    outline-offset: -5px;
     white-space: nowrap;
     cursor: pointer;
 
     &:hover {
       background-color: lighten(black, 95%);
+    }
+
+    &:focus, &:active {
+      outline: 1px dotted #ccc;
     }
 
     &.bk-active {

@@ -1,4 +1,4 @@
-import {div, show, hide, children/*, size, scroll_size, display, undisplay*/, StyleSheetLike} from "core/dom"
+import {div, button, show, hide, children/*, size, scroll_size, display, undisplay*/, StyleSheetLike} from "core/dom"
 import {sum, remove_at} from "core/util/array"
 import {clamp} from "core/util/math"
 import {Location} from "core/enums"
@@ -124,7 +124,7 @@ export class TabsView extends LayoutDOMView {
     const {active} = this.model
 
     const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: [tabs.tab, i == active ? tabs.active : null]}, tab.title)
+      const el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
       el.addEventListener("click", (event) => {
         if (this.model.disabled)
           return
@@ -152,8 +152,8 @@ export class TabsView extends LayoutDOMView {
     this.headers_el = div({class: [tabs.headers]}, headers)
     this.wrapper_el = div({class: tabs.headers_wrapper}, this.headers_el)
 
-    this.left_el = div({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [caret.caret, tabs.left]}))
-    this.right_el = div({class: [buttons.btn, buttons.btn_default]}, div({class: [caret.caret, tabs.right]}))
+    this.left_el = button({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [caret.caret, tabs.left]}))
+    this.right_el = button({class: [buttons.btn, buttons.btn_default]}, div({class: [caret.caret, tabs.right]}))
 
     this.left_el.addEventListener("click", () => this.do_scroll("left"))
     this.right_el.addEventListener("click", () => this.do_scroll("right"))
