@@ -55,6 +55,8 @@ tooltips in action.
     ``position`` properties to be set. The tooltip will not be rendered if
     either of those two properties does not have a value assigned to it.
 
+.. _userguide_interaction_tooltips_supported:
+
 UI elements supporting tooltips
 -------------------------------
 
@@ -150,15 +152,35 @@ button with a "?" symbol. When the button is clicked or hovered over, the
 
     show(row(radio_button_group, help_button))
 
+See :ref:`userguide_interaction_widgets_examples_helpbutton` for more
+information.
+
 Adding tooltip to arbitrary UI elements
 ---------------------------------------
 
-using the element id!
+In addition to adding tooltips to :ref:`elements that specifically support it
+<userguide_interaction_tooltips_supported>`, you can also add tooltips to
+arbitrary UI element.
 
-target property of tooltip
+Use the ``target`` property of a ``Tooltip`` object to link this tooltip to an
+UI element. The target property accepts to ways to identify which UI element
+you want to attach the tooltip to:
 
-then use
-doc.add_root
+* an instance of any Bokeh model
+* an instance of one of the :class:`~bokeh.models.selectors` models representing
+  a CSS selector for the element you want to attach the tooltip to
+
+After defining your Tooltip object and specifying the target, you need to add
+the tooltip to the :class:`~bokeh.document`.
+
+The following example uses both a Bokeh model (for ``text_input``) and a
+:class:`~bokeh.models.selectors` object (for ``div``) to attach a tooltip:
+
+TBD: create new document, add objects, and generate output
 
 The inspector tooltip
 ---------------------
+
+helpful for development.
+user this tooltip to get an overview of the current state of the Bokeh document
+and its contents.
