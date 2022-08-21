@@ -31,7 +31,7 @@ export class CheckboxView extends ToggleInputView {
   }
 
   protected _update_active(): void {
-    this.checkbox_el.toggleAttribute("checked", this.model.active)
+    this.checkbox_el.checked = this.model.active
   }
 
   protected _update_disabled(): void {

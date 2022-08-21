@@ -15,7 +15,7 @@ export class RadioGroupView extends ToggleInputGroupView {
     this.on_change(active, () => {
       const {active} = this.model
       for (const [input_el, i] of enumerate(this._inputs)) {
-        input_el.toggleAttribute("checked", active == i)
+        input_el.checked = active == i
       }
     })
   }
