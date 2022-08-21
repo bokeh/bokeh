@@ -707,6 +707,31 @@ export class PlotView extends LayoutDOMView implements Renderable {
     super._after_layout()
     this.unpause(true)
 
+    const left = this.layout.left_panel.bbox
+    const right = this.layout.right_panel.bbox
+    const center = this.layout.center_panel.bbox
+    const top = this.layout.top_panel.bbox
+    const bottom = this.layout.bottom_panel.bbox
+    const {bbox} = this.layout
+
+    const top_height = top.bottom
+    const bottom_height = bbox.height - bottom.top
+    const left_width = left.right
+    const right_width = bbox.width - right.left
+
+    // TODO: don't replace here
+    this.canvas.style.replace(`
+      .bk-layer.bk-events {
+        display: grid;
+        grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
+        grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
+        grid-template-areas:
+          ". t ."
+          "l c r"
+          ". b .";
+      }
+    `)
+
     for (const [, child_view] of this.renderer_views) {
       if (child_view instanceof AnnotationView)
         child_view.after_layout?.()
