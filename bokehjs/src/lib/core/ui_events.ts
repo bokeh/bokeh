@@ -301,7 +301,7 @@ export class UIEventBus implements EventListenerObject {
   protected _hit_test_plot(sx: number, sy: number): PlotView | null {
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
-      if (plot_view.layout.bbox.relative()/*XXX*/.contains(sx, sy))
+      if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy))
         return plot_view
     }
 

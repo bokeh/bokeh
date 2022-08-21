@@ -217,12 +217,24 @@ export abstract class LayoutDOMView extends UIElementView {
     this._update_layout()
   }
 
+  get is_managed(): boolean {
+    return this.parent instanceof LayoutDOMView
+  }
+
   compute_layout(): void {
-    if (this.parent instanceof LayoutDOMView && this.parent.layout != null)
+    if (this.parent instanceof LayoutDOMView) {
+    //if (this.is_managed) {
       this.parent.compute_layout()
-    else {
+    } else {
       this.update_bbox()
-      this.layout?.compute(this.bbox.size)
+      if (this.layout != null)
+        this.layout.compute(this.bbox.size)
+      else {
+        for (const child_view of this.child_views) {
+          if (child_view instanceof LayoutDOMView && child_view.layout != null)
+            child_view.layout.compute(child_view.bbox.size)
+        }
+      }
       this.after_layout()
     }
   }
@@ -255,8 +267,10 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override after_render(): void {
-    this.update_layout()
-    this.compute_layout()
+    if (!this.is_managed) {
+      this.update_layout()
+      this.compute_layout()
+    }
   }
 
   build(): this {

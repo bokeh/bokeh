@@ -712,7 +712,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const center = this.layout.center_panel.bbox
     const top = this.layout.top_panel.bbox
     const bottom = this.layout.bottom_panel.bbox
-    const {bbox} = this.layout
+    const {bbox} = this
 
     const top_height = top.bottom
     const bottom_height = bbox.height - bottom.top
@@ -742,8 +742,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.model.setv({
       inner_width: Math.round(this.frame.bbox.width),
       inner_height: Math.round(this.frame.bbox.height),
-      outer_width: Math.round(this.layout.bbox.width),
-      outer_height: Math.round(this.layout.bbox.height),
+      outer_width: Math.round(this.bbox.width),
+      outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
 
     if (this.model.match_aspect !== false) {
@@ -752,9 +752,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.unpause(true)
     }
 
-    if (!this._outer_bbox.equals(this.layout.bbox)) {
+    if (!this._outer_bbox.equals(this.bbox)) {
       this.canvas_view.resize() // XXX temporary hack
-      this._outer_bbox = this.layout.bbox
+      this._outer_bbox = this.bbox
       this._invalidate_all = true
       this._needs_paint = true
     }
@@ -910,7 +910,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]
+    const [cx, cy, cw, ch] = [0, 0, this.bbox.width, this.bbox.height]
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
@@ -932,10 +932,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.layout.bbox.width) {
+      if (x0 + w == this.bbox.width) {
         w -= 1
       }
-      if (y0 + h == this.layout.bbox.height) {
+      if (y0 + h == this.bbox.height) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
