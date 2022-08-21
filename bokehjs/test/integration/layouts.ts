@@ -258,7 +258,7 @@ describe("GridBox", () => {
       return new Button({
         label: `${row},${col}`,
         sizing_mode: "scale_width",
-        margin: null,
+        margin: 0,
         stylesheets: [`
           .bk-btn {
             background-color: ${color2css(rgba)};

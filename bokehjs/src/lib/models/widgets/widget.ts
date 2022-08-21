@@ -6,6 +6,11 @@ import * as p from "core/properties"
 export abstract class WidgetView extends LayoutDOMView {
   override model: Widget
 
+  override update_style(): void {
+    super.update_style()
+    this.style.append(":host", {margin: "5px"})
+  }
+
   get child_models(): LayoutDOM[] {
     return []
   }
@@ -79,9 +84,5 @@ export abstract class Widget extends LayoutDOM {
     this.define<Widget.Props>(({Number}) => ({
       default_size: [ Number, 300 ],
     }))
-
-    this.override<Widget.Props>({
-      margin: 5,
-    })
   }
 }

@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Int, Override
+from ...core.properties import Int
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------
@@ -61,8 +61,6 @@ class Widget(LayoutDOM):
 
     The dominating dimension is determined by widget orientation.
     """)
-
-    margin = Override(default=5)
 
 #-----------------------------------------------------------------------------
 # Private API
