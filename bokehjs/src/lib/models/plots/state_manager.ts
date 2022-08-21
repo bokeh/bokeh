@@ -13,12 +13,14 @@ export type StateInfo = {
   }
 }
 
+type StateEntry = {type: string, state: StateInfo}
+
 export class StateManager {
   constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {}
 
   readonly changed: Signal0<this["parent"]> = new Signal0(this.parent, "state_changed")
 
-  protected history: {type: string, state: StateInfo}[] = []
+  protected history: StateEntry[] = []
   protected index: number = -1
 
   protected _do_state_change(index: number): StateInfo {
@@ -30,6 +32,10 @@ export class StateManager {
     this.parent.update_selection(state.selection)
 
     return state
+  }
+
+  peek(): StateEntry | null {
+    return this.can_undo ? this.history[this.index] : null
   }
 
   push(type: string, new_state: Partial<StateInfo>): void {

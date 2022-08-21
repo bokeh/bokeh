@@ -2,7 +2,7 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
 import * as p from "core/properties"
-import {PanEvent, KeyEvent} from "core/ui_events"
+import {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
 import {MenuItem} from "core/util/menus"
@@ -152,6 +152,12 @@ export class BoxZoomToolView extends GestureToolView {
     }
   }
 
+  override _doubletap(_ev: TapEvent): void {
+    const {state} = this.plot_view
+    if (state.peek()?.type == "box_zoom")
+      state.undo()
+  }
+
   _update([sx0, sx1]: Point, [sy0, sy1]: Point): void {
     // If the viewing window is too small, no-op: it is likely that the user did
     // not intend to make this box zoom and instead was trying to cancel out of the
@@ -238,7 +244,7 @@ export class BoxZoomTool extends GestureTool {
   }
 
   override tool_name = "Box Zoom"
-  override event_type = "pan" as "pan"
+  override event_type = ["pan" as "pan", "tap" as "tap"]
   override default_order = 20
 
   override get computed_icon(): string {
