@@ -11,10 +11,12 @@ from itertools import product
 from pathlib import Path
 from shutil import copy, copytree, rmtree
 from textwrap import indent
-from typing import NoReturn
+from typing import Iterator, NoReturn
 
 # External imports
-from setuptools import setup
+from setuptools import Command, setup
+from setuptools.command.sdist import sdist
+from setuptools.command.build import build
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -131,6 +133,49 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 # Setuptools
 # -----------------------------------------------------------------------------
 
-build_or_install_bokehjs()
+# JS files should be available from the sdist, to avoid requiring users
+# to setup a JS development environment when building from source.
+# This would normally mean that BuildJS is eligible as an sdist sub-command.
+# However `sdist` does not run during editable installs, so we also need BuildJS
+# to be a sub-command of build.
 
-setup()
+class Sdist(sdist):
+    sub_commands = [("build_js", None), *sdist.sub_commands]
+
+class Build(build):
+    sub_commands = [("build_js_editable_mode", None), *build.sub_commands]
+
+class BuildJS(Command):
+    def initialize_options(self) -> None: pass
+    def finalize_options(self) -> None: pass
+
+    def run(self) -> None:
+        build_or_install_bokehjs()
+        self.add_missing_packages()
+
+    def add_missing_packages(self) -> None:
+        """Add packages that may not exist on disk when packages.find configuration is expanded."""
+        extra = (
+            ".".join([*Path(parent).relative_to(ROOT).parts, d])
+            for parent, dirs, _ in os.walk(PKG_STATIC)
+            for d in dirs
+        )
+        already_included = set(self.distribution.packages)
+        missing = (p for p in extra if p not in already_included)
+        self.distribution.packages.extend(missing)
+
+class BuildJSEditableMode(BuildJS):
+    def initialize_options(self) -> None:
+        self.editable_mode = False
+    def run(self) -> None:
+        if self.editable_mode:  # set by setuptools
+            super().run()
+
+setup(
+    cmdclass={
+        "sdist": Sdist,
+        "build": Build,
+        "build_js": BuildJS,
+        "build_js_editable_mode": BuildJSEditableMode,
+    }
+)
