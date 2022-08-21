@@ -48,7 +48,7 @@ export class MultiChoiceView extends InputWidgetView {
   override model: MultiChoice
 
   override input_el: HTMLSelectElement
-  protected choice_el: Choices
+  choice_el: Choices
 
   override connect_signals(): void {
     super.connect_signals()
@@ -90,6 +90,7 @@ export class MultiChoiceView extends InputWidgetView {
 
     const options: Partial<Choices["config"]> = {
       choices,
+      itemSelectText: "",
       duplicateItemsAllowed: false,
       shouldSort: false,
       removeItemButton: this.model.delete_button,

@@ -50,6 +50,10 @@
 
 .choices__list--dropdown, .choices__list[aria-expanded] {
   .bring-to-front();
+
+  & .choices__item--selectable {
+    padding-right: 0;
+  }
 }
 
 .choices[data-type*=select-multiple] .choices__button.light {

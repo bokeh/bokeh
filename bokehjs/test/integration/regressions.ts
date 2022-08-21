@@ -798,7 +798,7 @@ describe("Bug", () => {
       const {view} = await display(layout, [350, 250])
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
-      (choices_view as any /*protected*/).choice_el.showDropdown()
+      choices_view.choice_el.showDropdown()
       await defer()
     })
   })
@@ -822,7 +822,18 @@ describe("Bug", () => {
       await show(plot, el)
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
-      (choices_view as any /*protected*/).choice_el.showDropdown()
+      choices_view.choice_el.showDropdown()
+      await defer()
+    })
+  })
+
+  describe("in issue #12115", () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown items correctly", async () => {
+      const columns = ["Apple", "Pear", "Banana"]
+      const choices = new MultiChoice({options: columns, width: 75, width_policy: "fixed"})
+
+      const {view} = await display(choices, [100, 200])
+      view.choice_el.showDropdown()
       await defer()
     })
   })
