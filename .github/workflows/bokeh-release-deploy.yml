@@ -73,7 +73,7 @@ jobs:
 
     steps:
       - name: Build check (${{ matrix.check }})
-        run: python -m release ${{ maxtrix.check }}
+        run: python -m release "${{ maxtrix.check }}"
 
   deploy:
     runs-on: ubuntu-20.04
@@ -87,4 +87,4 @@ jobs:
 
     steps:
       - name: Deploy (${{ matrix.step }})
-        run: python -m release ${{ maxtrix.step }}
+        run: python -m release "${{ maxtrix.step }}"
