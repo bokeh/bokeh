@@ -158,13 +158,13 @@ information.
 Adding tooltip to arbitrary UI elements
 ---------------------------------------
 
-In addition to adding tooltips to :ref:`elements that specifically support it
+In addition to adding tooltips to :ref:`elements that explicitly support it
 <userguide_interaction_tooltips_supported>`, you can also add tooltips to
 arbitrary UI element.
 
 Use the ``target`` property of a ``Tooltip`` object to link this tooltip to an
-UI element. The target property accepts to ways to identify which UI element
-you want to attach the tooltip to:
+UI element. You have two options to identify an UI element to the ``target``
+property:
 
 * an instance of any Bokeh model
 * an instance of one of the :class:`~bokeh.models.selectors` models representing

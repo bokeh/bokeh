@@ -5,13 +5,12 @@ Adding widgets
 
 Widgets are interactive control and display elements that can be added to Bokeh
 documents to provide a front end user interface to a visualization. Widgets can
-be added directly to the document root or nested inside a layout.
+be added directly to the document root or be nested inside a layout.
 
-You can use widgets to drive new computations, update plots, and connect to
-other programmatic functionality. When used with the :ref:`Bokeh server
-<userguide_server>`, widgets can run arbitrary Python code, enabling complex
-applications. Widgets can also be used without the Bokeh server in standalone
-HTML documents through the browser's JavaScript runtime.
+Bokeh's widgets offer a range of
+:ref:`interactive features <userguide_interaction_widgets_callbacks>` that you
+can use to drive new computations, update plots, and connect to other
+programmatic functionality.
 
 Bokeh provides a simple :ref:`default set of widgets
 <userguide_interaction_widgets_examples>`. You can create your own
@@ -29,143 +28,31 @@ interactively manipulate data and properties of objects in your visualization.
 Bokeh uses callbacks to handle these interactions. There are two types of
 callbacks:
 
-* :ref:`userguide_interaction_widgets_callbacks_javascript`
-* :ref:`userguide_interaction_widgets_callbacks_python`
+* :ref:`userguide_interaction_jscallbacks`
+* :ref:`userguide_interaction_callbacks_python`
 
-Which one to use depends on whether you are using Bokeh server or are generating
-standalone HTML output:
+Which one to use depends on whether you are using
+:ref:`Bokeh server <userguide_server>` or are generating standalone HTML output:
 
 * If you want to use widgets to interact with Bokeh objects in a **standalone**
   HTML document, the browser needs to handle all interactivity. Therefore,
-  you can only use :ref:`userguide_interaction_widgets_callbacks_javascript`.
+  you can only use :ref:`userguide_interaction_jscallbacks`.
   You can write your own Javascript code, or use Bokeh's pre-defined Python
   conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
   which generate the necessary JavaScript code for you.
 * If you want to use widgets in connection with a **Bokeh server**, the server
   can handle some interactivity. This allows you to use :ref:`callbacks
-  written in Python <userguide_interaction_widgets_callbacks_python>`.
+  written in Python <userguide_interaction_callbacks_python>`.
   Additionally, since the visualization itself is displayed in a browser, you
-  still can use :ref:`userguide_interaction_widgets_callbacks_javascript` as
+  still can use :ref:`userguide_interaction_jscallbacks` as
   well!
-
-.. _userguide_interaction_widgets_callbacks_javascript:
-
-JavaScript callbacks
-~~~~~~~~~~~~~~~~~~~~
-
-TBD: link to :ref:`userguide_interaction_jscallbacks` - maybe also create
-a separate chapter for Python callbacks and link those chapters instead of
-writing too much about callbacks in this widget chapter?
-
-The simplest version of interactive callbacks are JavaScript callbacks that run
-directly in the browser.
-
-Every widget has a ``.js_on_change`` property. The callback assigned to this
-property will be called whenever the state of the widget changes.
-
-Some widget also have a``.js_on_event`` property. The callback assigned to this
-property will be called whenever an event occurs in the browser. [TBD: do any widgets other than button/dropdownbutton use this?]
-
-There are three options for generating a JavaScript callback:
-
-
-* Using the ``js_link`` Python convenience method:
-
-* using the SetValue Python object
-    var
-
-* writing custom JavaScript code with the CustomJS object
-
-
-
-
-
-For more information about the attributes to watch using ``.js_on_change``, see the
-respective entry for a widget under |bokeh.models| in the |reference guide|.
-
-
-https://docs.bokeh.org/en/latest/docs/gallery/color_sliders.html
-
-.. Warning::
-    The explicit purpose of the ``CustomJS`` Model is to embed raw JavaScript
-    code for a browser to execute. If any part of the code is derived from
-    untrusted user inputs, then you must take appropriate care to sanitize the
-    user input prior to passing it to Bokeh.
-
-
-.. _userguide_interaction_widgets_callbacks_python:
-
-Python callbacks
-~~~~~~~~~~~~~~~~
-
-Python callbacks (sometimes also called *event handlers*) are Python functions
-that you can attach to widgets. These callbacks are only available in connection
-with the :ref:`Bokeh server <userguide_server>`
-
-These
-functions are called when certain attributes on the widget are changed.
-The function signature of event handlers is determined by how they are attached
-to widgets (whether by ``.on_change`` or ``.on_event``, for example).
-
-All widgets have an ``.on_change`` method that takes an attribute name and one
-or more event handlers as parameters. These handlers are expected to have the
-function signature, ``(attr, old, new)``, where ``attr`` refers to the changed
-attribute's name, and ``old`` and ``new`` refer to the previous and updated
-values of the attribute.
-
-.. code-block:: python
-
-    def my_text_input_handler(attr, old, new):
-        print("Previous label: " + old)
-        print("Updated label: " + new)
-
-    text_input = TextInput(value="default", title="Label:")
-    text_input.on_change("value", my_text_input_handler)
-
-Additionally, some widgets, including the button, dropdown, and checkbox, have
-an ``.on_event`` method that takes an event handler as its only parameter. For
-a plain ``Button``, this handler is called without parameters. For the other
-widgets with ``.on_event``, the handler is passed the new attribute value.
-
-.. code-block:: python
-
-    def my_radio_handler(new):
-        print('Radio button option ' + str(new) + ' selected.')
-
-    radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-    radio_group.on_event('button_click', my_radio_handler)
-
-https://github.com/bokeh/bokeh/tree/master/examples/app/weather
-
-.. raw:: html
-
-    <div>
-    <iframe
-        src="https://demo.bokeh.org/sliders"
-        frameborder="0"
-        style="overflow:hidden;height:400px;width: 90%;
-
-        -moz-transform-origin: top left;
-        -webkit-transform-origin: top left;
-        -o-transform-origin: top left;
-        -ms-transform-origin: top left;
-        transform-origin: top left;"
-        height="460"
-    ></iframe>
-    </div>
-
-
-
-
-For more information about the attributes to watch using ``.on_change``, see the
-respective entry for a widget under |bokeh.models| in the |reference guide|.
 
 .. _userguide_interaction_widgets_tootltips:
 
 Widget tooltips
 ---------------
 
-[TBD]
+[TBD] Link to tooltip / Special UI elements chapter
 
 .. _userguide_interaction_widgets_examples:
 
@@ -227,6 +114,8 @@ selected simultaneously:
     :source-position: below
 
 More information can be found in the reference guide entry for |CheckboxButtonGroup|.
+
+.. _userguide_interaction_widgets_examples_checkboxgroup:
 
 CheckboxGroup
 ~~~~~~~~~~~~~
@@ -310,6 +199,8 @@ A widget for displaying text that can support HTML in a <div> tag:
     :source-position: below
 
 More information can be found in the reference guide entry for |Div|.
+
+.. _userguide_interaction_widgets_examples_dropdown:
 
 Dropdown
 ~~~~~~~~

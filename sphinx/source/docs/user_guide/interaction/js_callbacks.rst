@@ -3,33 +3,81 @@
 JavaScript callbacks
 --------------------
 
-While the main goal of Bokeh is to provide a path to create rich interactive
-visualizations in the browser purely from Python, there will always be
-specialized use-cases that are outside the capabilities of the core library.
+The main goal of Bokeh is to provide a path to create rich interactive
+visualizations in the browser purely from Python. However, there will always be
+use-cases that go beyond the capabilities of the pre-defined core library.
+
 For this reason, Bokeh provides different ways for users to supply custom
-JavaScript when necessary, so that users may add custom or specialized
-behaviors in response to property changes and other events.
+JavaScript when necessary. This way, you can add custom or specialized
+behaviors in response to property changes and other events in the browser.
 
-One mechanism is the ability to add entire new custom extension models,
-as described in :ref:`userguide_extensions`. However, it is also possible
-to supply small snippets of JavaScript as callbacks to use, e.g when property
-values change or when UI or other events occur. This kind of callback can be
-used to add interesting interactions to Bokeh documents without requiring
-a Bokeh server (but can also be used in conjunction with a Bokeh server).
+.. note::
+    As the name implies, JavaScript callbacks are snippets of JavaScript code
+    that are executed in the browser. If you are looking for interactive
+    callbacks that are based solely on Python and can be run with Bokeh Server,
+    see :ref:`userguide_interaction_callbacks_python`.
 
-.. warning::
-    The explicit purpose of these callbacks is to embed *raw JavaScript
-    code* for a browser to execute. If any part of the code is derived from
-    untrusted user inputs, then you must take appropriate care to sanitize
-    the user input prior to passing it to Bokeh.
+There are mainly three **options for generating a JavaScript callback**:
+
+* Use the ``js_link`` Python convenience method. This method helps you link
+  properties of different models together. Whith this method, Bokeh creates
+  the necessary JavaScript code for you automatically. See
+  :ref:`userguide_interaction_linked` for details.
+* Use the ``SetValue`` Python object to dynamically set the property of one
+  object depending on a specific event of another object. See
+  :ref:`userguide_interaction_jscallbacks_setvalue` for more information.
+* Write custom JavaScript code with the ``CustomJS`` object. See
+  :ref:`userguide_interaction_jscallbacks_customjs` for more information.
+
+A JavaScript callback is triggered when certain events occur in the browser.
+There are two main **types of JavaScript callback triggers**:
+
+* Most Bokeh objects have a ``.js_on_change`` property (all
+  :ref:`widgets <userguide_interaction_widgets>`, for example). The callback
+  assigned to this property will be called whenever the state of the object
+  changes. See :ref:`userguide_interaction_jscallbacks_js_on_change` for more
+  information.
+* Some :ref:`widgets <userguide_interaction_widgets>` also have a
+  ``.js_on_event`` property. The callback assigned to this property will be
+  called whenever a specific event occurs in the browser.
+
+.. Warning::
+    The explicit purpose of the ``CustomJS`` Model is to embed raw JavaScript
+    code for a browser to execute. If any part of the code is derived from
+    untrusted user inputs, then you **must take appropriate care to sanitize the
+    user input** prior to passing it to Bokeh.
+
+Additionally, you can add entire new custom extension models by writing your
+own :ref:`Bokeh extension <userguide_extensions>`.
+
+.. _userguide_interaction_jscallbacks_setvalue:
+
+SetValue callbacks
+~~~~~~~~~~~~~~~~~~
+
+Use the :class:`~bokeh.models.SetValue` model to dynamically set specific
+properties of an object when an event occurs in the browser. With this model,
+you can
+
+The ``SetValue`` model has the following properties:
+
+* ``obj``: The object to set the value on.
+* ``attr``: The property of the object to modify.
+* ``value``: The value to set for the object's property.
+
+Based on these parameters, Bokeh creates the necessary JavaScript code
+automatically:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_setvalue.py
+    :source-position: below
 
 .. _userguide_interaction_jscallbacks_customjs:
 
 CustomJS callbacks
 ~~~~~~~~~~~~~~~~~~
 
-To supply a snippet of JavaScript code that should be executed (in the
-browser) when some event occurs, use the ``CustomJS`` model:
+Use the :class:`~bokeh.models.CustomJS` model to supply a custom snippet of
+JavaScript code to run in the browser when an event occurs.
 
 .. code:: python
 
@@ -54,16 +102,17 @@ Note that in addition to the ``code`` property, ``CustomJS`` also accepts
 an ``args`` property that maps string names to Bokeh models. Any Bokeh
 models that are configured in ``args`` (on the "Python side") will
 automatically be available to the JavaScript code by the corresponding name.
+
 Additionally, the model that triggers the callback (that is the model that
 the callback is attached to) will be available as ``cb_obj``.
 
-.. _userguide_interaction_jscallbacks_customjs_properties:
+.. _userguide_interaction_jscallbacks_js_on_change:
 
-CustomJS for model property events
+``js_on_change`` callback triggers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These ``CustomJS`` callbacks can be attached to property change events on
-any Bokeh model, using the ``js_on_change`` method of Bokeh models:
+``CustomJS`` and ``SetValue`` callbacks can be attached to property change
+events on any Bokeh model, using the ``js_on_change`` method of Bokeh models:
 
 .. code:: python
 
@@ -72,33 +121,35 @@ any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     # execute a callback whenever p.x_range.start changes
     p.x_range.js_on_change('start', callback)
 
-It should be mentioned that the first parameter to ``js_on_change`` is
-actually the name of a BokehJS event. The full format for a property
-change event is, for example, ``"change:start"``, but Bokeh will automatically
-convert any property name into one of these BokehJS change events for you.
-Additionally, some Bokeh models have additional specialized events. For
-example, the ``ColumnDataSource`` also supports ``"patch"`` and ``"stream"``
-events, for executing ``CustomJS`` callbacks whenever the data source is
-patched or streamed to.
+The first parameter to ``js_on_change`` is actually the name of a BokehJS event.
+The full format for a property change event is, for example, ``"change:start"``.
+However, Bokeh will automatically convert any property name into one of these
+BokehJS change events for you.
 
-Below is an example that shows how to attach a ``CustomJS`` callback to a
-``Slider`` widget, so that whenever the slider value updates, the callback
-is executed to update some data:
+Some Bokeh models have additional, specialized events. For example, the
+:class:`~bokeh.models.ColumnDataSource` model also supports ``"patch"`` and
+``"stream"`` events. You can use these events to trigger ``CustomJS`` callbacks
+whenever the data source is patched or streamed to.
+
+The following example attaches a ``CustomJS`` callback to a ``Slider`` widget.
+Whenever the slider value updates, the callback updates the plot data with a
+custom formula:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_callbacks_js_on_change.py
     :source-position: above
 
-.. _userguide_interaction_jscallbacks_customjs_interactions:
+.. _userguide_interaction_jscallbacks_customjs_js_on_event:
 
-CustomJS for user interaction events
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``js_on_event`` callback triggers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to responding to property change events using js_on_change, Bokeh
-allows CustomJS callbacks to be triggered by specific interaction events with
-the plot canvas, on button click events, and on LOD (Level-of-Detail) events.
+In addition to responding to property change events using ``js_on_change``,
+Bokeh allows ``CustomJS`` and ``SetValue`` callbacks to be triggered by specific
+interaction events with the plot canvas, on button click events, and on LOD
+(Level-of-Detail) events.
 
-These event callbacks are defined on models using the js_on_event method,
-with the callback receiving the event object as a locally defined cb_obj
+These event callbacks are defined on models using the ``js_on_event`` method,
+with the callback receiving the event object as a locally defined ``cb_obj``
 variable:
 
 .. code:: python
@@ -224,4 +275,4 @@ to open an URL whenever the user clicks on a circle.
 Please note that ``OpenURL`` callbacks specifically and only work with
 ``TapTool``, and are only invoked when a glyph is hit. That is, they do not
 execute on every tap. If you would like to execute a callback on every
-mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
+mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_js_on_event`.

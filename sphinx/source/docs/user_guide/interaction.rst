@@ -21,13 +21,17 @@ JavaScript required.
     client-side JavaScript callbacks, or with real Python code in a Bokeh
     server application.
 
+:ref:`userguide_interaction_jscallbacks`
+    Bokeh's ``CustomJS`` callbacks allow you to define JavaScript-based custom
+    interactivity for various widgets and events in Bokeh documents.
+
+:ref:`userguide_interaction_jscallbacks`
+    In :ref:`Bokeh Server apps <userguide_server>`, you can use Bokeh's Python
+    callbacks to define custom interactivity for various widgets and events.
+
 :ref:`userguide_interaction_tooltips`
     Bokeh lets you use tooltips to add additional information to most UI
     elements in your visualization.
-
-:ref:`userguide_interaction_jscallbacks`
-    See how to attach ``CustomJS`` callbacks to various widgets and events
-    in Bokeh documents.
 
 .. toctree::
    :hidden:
@@ -35,5 +39,6 @@ JavaScript required.
    interaction/linking
    interaction/legends
    interaction/widgets
+   interaction/js_callbacks
+   interaction/python_callbacks
    interaction/tooltips
-   interaction/callbacks
