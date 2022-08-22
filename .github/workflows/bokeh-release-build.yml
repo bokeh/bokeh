@@ -1,5 +1,18 @@
 name: Release - Build
 
+env:
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  BOKEH_VERSION: ${{ github.event.inputs.version }}
+  GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+  RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
+  SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
+
+defaults:
+  run:
+     shell: bash -l {0}
+
 on:
   workflow_dispatch:
     inputs:
@@ -9,14 +22,15 @@ on:
 
 jobs:
 
-  build:
-    runs-on: ubuntu-18.04
+  setup:
+    runs-on: ubuntu-20.04
+
+    outputs:
+      checks: ${{ steps.generate-build-config.outputs.checks }}
+      steps: ${{ steps.generate-build-config.outputs.steps }}
 
     steps:
       - name: Check Maintainer
-        env:
-          BOKEH_VERSION: ${{ github.event.inputs.version }}
-          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
         run: |
           if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
             echo
@@ -39,25 +53,50 @@ jobs:
           environment-file: ci/environment-release-build.yml
 
       - name: Install sampledata
-        shell: bash -l {0}
         run: python bokeh/util/sampledata.py
 
-      - name: Post install status
-        shell: bash -l {0}
+      - name: Post install report
         run: |
           echo "$(which node) @ $(node --version)"
           echo "$(which npm) @ $(npm --version)"
           conda info
           conda list
 
-      - name: Build Release Tarball
-        shell: bash -l {0}
-        env:
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          BOKEH_VERSION: ${{ github.event.inputs.version }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
+      - name: Generate build configuration
+        id: generate-build-config
         run: |
-           python -m release build $BOKEH_VERSION
+          python -m release generate-config $BOKEH_VERSION
+
+          CHECKS=`python -m release generate-build-checks`
+          echo ::set-output name=checks::${CHECKS}
+
+          STEPS=`python -m release generate-build-steps`
+          echo ::set-output name=steps::${STEPS}
+
+  checks:
+    runs-on: ubuntu-20.04
+    needs:
+      - setup
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        check: ${{ fromJSON(needs.setup.outputs.checks) }}
+
+    steps:
+      - name: Build check (${{ matrix.check }})
+        run: python -m release ${{ maxtrix.check }}
+
+  build:
+    runs-on: ubuntu-20.04
+    needs:
+      - checks
+
+    strategy:
+      max-parallel: 1
+      matrix:
+        step: ${{ fromJSON(needs.setup.outputs.steps) }}
+
+    steps:
+      - name: Build {{ matrix.step }})
+        run: python -m release ${{ maxtrix.step }}
