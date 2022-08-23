@@ -1,5 +1,21 @@
 @import "./_mixins.less";
 
+:host {
+  display: flex;
+}
+
+.bk-tabs-header {
+  flex: 0 0 auto;
+}
+
+.bk-stack {
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+  grid-template-areas: "stack";
+}
+
 .bk-tabs-header {
   display: flex;
   flex-wrap: nowrap;
@@ -50,7 +66,7 @@
     position: relative;
     display: flex;
     flex-wrap: nowrap;
-    align-items: center;
+    align-items: stretch;
   }
 
   .bk-tab {
@@ -60,6 +76,7 @@
     outline-offset: -5px;
     white-space: nowrap;
     cursor: pointer;
+    text-align: center;
 
     &:hover {
       background-color: lighten(black, 95%);

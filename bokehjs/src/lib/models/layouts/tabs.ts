@@ -1,4 +1,5 @@
 import {div, button, show, hide, children/*, size, scroll_size, display, undisplay*/, StyleSheetLike} from "core/dom"
+import {FlexDirection} from "core/css"
 import {sum, remove_at} from "core/util/array"
 import {clamp} from "core/util/math"
 import {Location} from "core/enums"
@@ -41,37 +42,20 @@ export class TabsView extends LayoutDOMView {
   override _update_layout(): void {
     super._update_layout()
 
-    const {style} = this.el
-    style.display = "flex"
+    const [flex_direction, order]: [FlexDirection, "0" | "1"] = (() => {
+      switch (this.model.tabs_location) {
+        case "above": return ["column", "0"]
+        case "below": return ["column", "1"]
+        case "left": return ["row", "0"]
+        case "right": return ["row", "1"]
+      }
+    })()
 
-    switch (this.model.tabs_location) {
-      case "above": {
-        style.flexDirection = "column"
-        this.header_el.style.order = "0"
-        break
-      }
-      case "below": {
-        style.flexDirection = "column"
-        this.header_el.style.order = "1"
-        break
-      }
-      case "left": {
-        style.flexDirection = "row"
-        this.header_el.style.order = "0"
-        break
-      }
-      case "right": {
-        style.flexDirection = "row"
-        this.header_el.style.order = "1"
-        break
-      }
-    }
-
-    this.el.style.flex = "1 1 auto"
-    this.header_el.style.flex = "0 0 auto"
+    this.style.append(":host", {flex_direction})
+    this.style.append(".bk-tabs-header", {order})
 
     for (const child of this.child_views) {
-      child.el.style.gridArea = "1 / 1 / 1 / 1"
+      child.style.append(":host", {grid_area: "stack"})
     }
   }
 
@@ -158,19 +142,13 @@ export class TabsView extends LayoutDOMView {
     this.left_el.addEventListener("click", () => this.do_scroll("left"))
     this.right_el.addEventListener("click", () => this.do_scroll("right"))
 
-    this.scroll_el = div({class: buttons.btn_group}, this.left_el, this.right_el)
+    // TODO: this.scroll_el = div({class: ["bk-scroll", buttons.btn_group]}, this.left_el, this.right_el)
 
     const loc = this.model.tabs_location
     this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
     this.shadow_el.appendChild(this.header_el)
 
-    this.stack_el = div({
-      style: {
-        display: "grid",
-        gridTemplateRows: "1fr",
-        gridTemplateColumns: "1fr",
-      },
-    })
+    this.stack_el = div({class: "bk-stack"})
     this.shadow_el.appendChild(this.stack_el)
 
     for (const child of this.child_views) {

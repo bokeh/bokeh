@@ -1,7 +1,7 @@
-type GlobalValues = "inherit" | "initial" | "revert" | "revert-layer" | "unset"
-type FlexDirection = GlobalValues | "row" | "row-reverse" | "column" | "column-reverse"
-type Position = GlobalValues | "static" | "relative" | "absolute" | "fixed" | "sticky"
-type Display = GlobalValues | "block" | "inline" | "inline-block" | "flex" | "inline-flex" | "grid" | "inline-grid" | "flow-root" | "none" | "contents"
+export type GlobalValues = "inherit" | "initial" | "revert" | "revert-layer" | "unset"
+export type FlexDirection = GlobalValues | "row" | "row-reverse" | "column" | "column-reverse"
+export type Position = GlobalValues | "static" | "relative" | "absolute" | "fixed" | "sticky"
+export type Display = GlobalValues | "block" | "inline" | "inline-block" | "flex" | "inline-flex" | "grid" | "inline-grid" | "flow-root" | "none" | "contents"
 
 type CSSStylesCamel = {
   accentColor?: string | null
