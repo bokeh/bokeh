@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 # -----------------------------------------------------------------------------
-""" Basic webserver for developing Bokeh documention locally.
+""" Basic webserver for developing Bokeh documentation locally.
 
 Executing this script will automatically open a browser tab to the locally
 built documentation index page.
@@ -20,9 +20,6 @@ to combine this usage with other make targets in a single invovation, e.g.
 
 will clean any previous docs output, build all the documentation from scratch,
 and then run this script to serve and display the results.
-
-To preview how an alert banner would appear in the built documentation, set the
-environment variable ``BOKEH_DOCS_ALERT`` to the desired alert string.
 
 For more information about building Bokeh's documentation, see the Developer's
 Guide:
@@ -42,7 +39,6 @@ from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
 from tornado.wsgi import WSGIContainer
 
-from bokeh.settings import settings
 from bokeh.util.tornado import fixup_windows_event_loop_policy
 
 IOLOOP = None
@@ -57,14 +53,9 @@ def root():
     return redirect(url_for("en/latest/index.html"))
 
 
-@app.route("/alert.html")  # type: ignore
-def alert():
-    return settings.docs_alert() or ""
-
-
-@app.route("/versions.json")
-def versions():
-    return flask.send_from_directory(SPHINX_TOP, "versions.json")
+@app.route("/switcher.json")
+def switcher():
+    return flask.send_from_directory(SPHINX_TOP, "switcher.json")
 
 
 @app.route("/en/latest/<path:filename>")

@@ -34,9 +34,7 @@ extensions = [
     'autoclasstoc',
     'sphinxext.opengraph',
     'sphinx_copybutton',
-    'sphinx_panels',
-#    'sphinx_reredirects',
-    'sphinx_tabs.tabs',
+    'sphinx_design',
     'sphinx.ext.autodoc',
     'sphinx.ext.autosummary',
     'sphinx.ext.ifconfig',
@@ -64,18 +62,22 @@ extensions = [
     'bokeh.sphinxext.collapsible_code_block',
 ]
 
-needs_sphinx = '4.1'
+needs_sphinx = '4.3.2'
 
 rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
 
 autoclasstoc_sections = [
-        'public-attrs',
-        'public-methods',
+    'public-attrs',
+    'public-methods',
 ]
 
 autodoc_member_order = 'groupwise'
+
+autodoc_type_aliases = {
+    'ArrayLike': 'ArrayLike',  # This avoids complicated Unions in generated docs
+}
 
 copybutton_prompt_text = ">>> "
 
@@ -106,20 +108,12 @@ ogp_custom_meta_tags = [
     '<meta name="image" property="og:image" content="http://static.bokeh.org/og/logotype-on-hex.png">',
 ]
 
-panels_add_bootstrap_css = False
-
-sphinx_tabs_disable_tab_closing = True
-
 pygments_style = 'sphinx'
-
-redirects = {
-    "docs/installation": "first_steps/installation.html",
-    "docs/user_guide/quickstart": "../first_steps.html",
-}
 
 # -- Options for HTML output ---------------------------------------------------
 
 html_context = {
+    'default_mode': 'light',
     'AUTHOR': author,
     'DESCRIPTION': 'Bokeh visualization library, documentation site.',
     'SITEMAP_BASE_URL': 'https://docs.bokeh.org/en/', # Trailing slash is needed
@@ -132,14 +126,25 @@ html_static_path = ['_static']
 
 html_theme ='pydata_sphinx_theme'
 
+html_title = f"{project} {version} Documentation"
+
+# html_logo configured in navbar-logo.html
+
 html_theme_options = {
     'external_links': [
         {'name': 'Tutorial',  'url': 'https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb'},
         {'name': 'Community', 'url': 'https://discourse.bokeh.org'}
     ],
+    "switcher": {
+        "json_url": "https://docs.bokeh.org/switcher.json",
+        "version_match": version,
+    },
+    "pygment_light_style": "xcode",
     'github_url': 'https://github.com/bokeh/bokeh',
     'google_analytics_id': 'UA-27761864-7',
     "navbar_align": "left",
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "navbar_end": ["navbar-icon-links"],
     'show_toc_level': 2,
     'twitter_url': 'https://twitter.com/bokeh',
     "favicons": [
@@ -166,8 +171,6 @@ html_sidebars = {
   "docs/gallery/**": [],
   "index": [],
 }
-
-html_title = f"{project} {version} Documentation"
 
 templates_path = ['_templates']
 
