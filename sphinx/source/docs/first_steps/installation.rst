@@ -25,41 +25,43 @@ If you use Anaconda on your system, installing with ``conda`` is the recommended
 method. Otherwise, use ``pip``.
 
 
-.. panels::
+.. grid:: 1 1 2 2
 
-    Installing with ``conda``
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    .. grid-item-card::
 
-    Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
-    this command to install Bokeh:
+        Installing with ``conda``
+        ^^^
 
-    .. code-block:: sh
+        Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
+        this command to install Bokeh:
 
-        conda install bokeh
+        .. code-block:: sh
 
-    Alternatively, if you want to make sure you always have the most recent
-    version of Bokeh after each new release, install from the
-    `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
+            conda install bokeh
 
-    .. code-block:: sh
+        Alternatively, if you want to make sure you always have the most recent
+        version of Bokeh after each new release, install from the
+        `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
 
-        conda install -c bokeh bokeh
+        .. code-block:: sh
 
-    ---
+            conda install -c bokeh bokeh
 
-    Installing with ``pip``
-    ^^^^^^^^^^^^^^^^^^^^^^^
+    .. grid-item-card::
 
-    Use this command to install Bokeh:
+        Installing with ``pip``
+        ^^^
 
-    .. code-block:: sh
+        Use this command to install Bokeh:
 
-        pip install bokeh
+        .. code-block:: sh
 
-    .. note::
-        On some systems, pip displays an error message about the wheel package
-        when installing tornado. This is a `known issue`_, you can usually
-        ignore the error.
+            pip install bokeh
+
+        .. note::
+            On some systems, pip displays an error message about the wheel package
+            when installing tornado. This is a `known issue`_, you can usually
+            ignore the error.
 
 Checking your installation
 --------------------------

@@ -279,37 +279,55 @@ Use ``absolute-dev``
     from the static directory of your locally installed Bokeh library. This way,
     Bokeh will also use unminified BokehJS resources for improved readability.
 
-    .. tabs::
+    .. tab-set::
 
-        .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-            export BOKEH_RESOURCES=absolute-dev
+            .. code-block:: sh
 
-        .. code-tab:: PowerShell Windows (PS)
+                export BOKEH_RESOURCES=absolute-dev
 
-            $Env:BOKEH_RESOURCES = "absolute-dev"
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-            set BOKEH_RESOURCES=absolute-dev
+                $Env:BOKEH_RESOURCES = "absolute-dev"
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_RESOURCES=absolute-dev
 
 Use ``inline``
     Set ``BOKEH_RESOURCES`` to ``inline`` to include all necessary local
     JavaScript resources directly inside the generated HTML file.
 
-    .. tabs::
+    .. tab-set::
 
-        .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-            export BOKEH_RESOURCES=inline
+            .. code-block:: sh
 
-        .. code-tab:: PowerShell Windows (PS)
+                export BOKEH_RESOURCES=inline
 
-            $Env:BOKEH_RESOURCES = "inline"
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-            set BOKEH_RESOURCES=inline
+                $Env:BOKEH_RESOURCES = "inline"
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_RESOURCES=inline
 
 Use ``server-dev``
     Set ``BOKEH_RESOURCES`` to ``server-dev`` to load your local BokehJS through
@@ -317,38 +335,56 @@ Use ``server-dev``
 
     First, start a local server.
 
-    .. tabs::
+    .. tab-set::
 
-        .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-            BOKEH_DEV=true bokeh static
+            .. code-block:: sh
 
-        .. code-tab:: PowerShell Windows (PS)
+                BOKEH_DEV=true bokeh static
 
-            $Env:BOKEH_DEV = "true"
-            bokeh static
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-            set BOKEH_DEV=true
-            bokeh static
+                $Env:BOKEH_DEV = "true"
+                bokeh.exe static
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_DEV=true
+                bokeh static
 
     Next, open a new terminal window and set ``BOKEH_RESOURCES`` to
     ``server-dev``.
 
-    .. tabs::
+    .. tab-set::
 
-        .. code-tab:: sh Linux/macOS
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-            export BOKEH_RESOURCES=server-dev
+            .. code-block:: sh
 
-        .. code-tab:: PowerShell Windows (PS)
+               export BOKEH_RESOURCES=server-dev
 
-            $Env:BOKEH_RESOURCES = "server-dev"
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-tab:: doscon Windows (CMD)
+            .. code-block:: powershell
 
-            set BOKEH_RESOURCES=server-dev
+                $Env:BOKEH_RESOURCES = "server-dev"
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                set BOKEH_RESOURCES=server-dev
 
     This way, you have access to more development functions, such as
     `source maps` to help debug the original TypeScript instead of the compiled
@@ -365,19 +401,28 @@ the variable ``BOKEH_DEV``.
 
 To enable development settings, set ``BOKEH_DEV`` to ``true``:
 
-.. tabs::
+.. tab-set::
 
-    .. code-tab:: sh Linux/macOS
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-        export BOKEH_DEV=true
+        .. code-block:: sh
 
-    .. code-tab:: PowerShell Windows (PS)
+            export BOKEH_DEV=true
 
-        $Env:BOKEH_DEV = "true"
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-    .. code-tab:: doscon Windows (CMD)
+        .. code-block:: powershell
 
-        set BOKEH_DEV=true
+            $Env:BOKEH_DEV = "true"
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set BOKEH_DEV=true
 
 Setting ``BOKEH_DEV`` to ``true`` is equivalent to setting all of the following
 variables individually:
@@ -444,21 +489,30 @@ Make sure the :ref:`environment variable <contributor_guide_setup_environment_va
 your local version of BokehJS. In the *source checkout* directory, run the
 following command(s):
 
-.. tabs::
+.. tab-set::
 
-    .. code-tab:: sh Linux/macOS
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-        BOKEH_RESOURCES=inline python examples/plotting/file/marker_map.py
+        .. code-block:: sh
 
-    .. code-tab:: PowerShell Windows (PS)
+            BOKEH_RESOURCES=inline python examples/plotting/file/marker_map.py
 
-        $Env:BOKEH_RESOURCES = "inline"
-        python.exe .\examples\plotting\file\marker_map.py
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-    .. code-tab:: doscon Windows (CMD)
+        .. code-block:: powershell
 
-        set BOKEH_RESOURCES=inline
-        python examples\plotting\file\marker_map.py
+            $Env:BOKEH_RESOURCES = "inline"
+            python.exe .\examples\plotting\file\marker_map.py
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set BOKEH_RESOURCES=inline
+            python examples\plotting\file\marker_map.py
 
 This creates a file ``marker_map.html`` locally. When you open this file in a web
 browser, it should display this visualization:
@@ -476,21 +530,30 @@ Another way to use Bokeh is as a :term:`server <Server>`. Set the
 ``BOKEH_DEV=false`` and run the ``bokeh serve`` command in the *source
 checkout* directory:
 
-.. tabs::
+.. tab-set::
 
-    .. code-tab:: sh Linux/macOS
+    .. tab-item:: Linux/macOS
+        :sync: sh
 
-        BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
+        .. code-block:: sh
 
-    .. code-tab:: PowerShell Windows (PS)
+            BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
 
-        $Env:BOKEH_DEV = "False"
-        python.exe -m bokeh serve --show .\examples\app\sliders.py
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-    .. code-tab:: doscon Windows (CMD)
+        .. code-block:: powershell
 
-        set BOKEH_DEV=false
-        python -m bokeh serve --show examples\app\sliders.py
+            $Env:BOKEH_DEV = "False"
+            python.exe -m bokeh serve --show .\examples\app\sliders.py
+
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
+
+        .. code-block:: doscon
+
+            set BOKEH_DEV=false
+            python -m bokeh serve --show examples\app\sliders.py
 
 This should open up a browser with an interactive figure:
 
