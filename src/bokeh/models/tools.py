@@ -80,6 +80,7 @@ from ..core.properties import (
     Required,
     Seq,
     String,
+    Struct,
     Tuple,
 )
 from ..core.validation import error
@@ -95,7 +96,7 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.strings import nice_join
-from .annotations import BoxAnnotation, PolyAnnotation
+from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
 from .dom import Template
 from .glyphs import (
@@ -707,6 +708,11 @@ class CrosshairTool(InspectTool):
     horizontal line will be drawn. If only "height" is supplied, only a
     vertical line will be drawn.
     """)
+
+    spans = Struct(width=Instance(Span), height=Instance(Span), default=dict(
+        width=Span(dimension="width", location_units="canvas"),
+        height=Span(dimension="height", location_units="canvas"),
+    ))
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.

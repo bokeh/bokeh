@@ -63,6 +63,8 @@ export type Position = HorizontalPosition & VerticalPosition
 export type CoordinateMapper = {
   compute: (v: number) => number
   v_compute: (vv: Arrayable<number>) => ScreenArray
+  invert: (sv: number) => number
+  v_invert: (svv: ScreenArray) => Arrayable<number>
 }
 
 export class BBox implements Rect, Equatable {
@@ -310,12 +312,23 @@ export class BBox implements Rect, Equatable {
         return this.left + x
       },
       v_compute: (xx: Arrayable<number>): ScreenArray => {
-        const _xx = new ScreenArray(xx.length)
+        const sxx = new ScreenArray(xx.length)
         const left = this.left
         for (let i = 0; i < xx.length; i++) {
-          _xx[i] = left + xx[i]
+          sxx[i] = left + xx[i]
         }
-        return _xx
+        return sxx
+      },
+      invert: (sx: number): number => {
+        return sx - this.left
+      },
+      v_invert: (sxx: ScreenArray): Arrayable<number> => {
+        const xx = new ScreenArray(sxx.length)
+        const left = this.left
+        for (let i = 0; i < sxx.length; i++) {
+          xx[i] = sxx[i] - left
+        }
+        return xx
       },
     }
   }
@@ -326,12 +339,23 @@ export class BBox implements Rect, Equatable {
         return this.bottom - y
       },
       v_compute: (yy: Arrayable<number>): ScreenArray => {
-        const _yy = new ScreenArray(yy.length)
+        const syy = new ScreenArray(yy.length)
         const bottom = this.bottom
         for (let i = 0; i < yy.length; i++) {
-          _yy[i] = bottom - yy[i]
+          syy[i] = bottom - yy[i]
         }
-        return _yy
+        return syy
+      },
+      invert: (sy: number): number => {
+        return this.bottom - sy
+      },
+      v_invert: (syy: ScreenArray): Arrayable<number> => {
+        const yy = new ScreenArray(syy.length)
+        const bottom = this.bottom
+        for (let i = 0; i < syy.length; i++) {
+          yy[i] = bottom - syy[i]
+        }
+        return yy
       },
     }
   }

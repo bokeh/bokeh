@@ -27,12 +27,28 @@ export class CrosshairToolView extends InspectToolView {
     this._update_spans(null, null)
   }
 
-  _update_spans(x: number | null, y: number | null): void {
+  _update_spans(sx: number | null, sy: number | null): void {
+    const {width, height} = this.model.spans
+    const {frame} = this.plot_view
+
+    function yinvert(sv: number) {
+      switch (width.location_units) {
+        case "canvas": return sv
+        case "screen": return frame.bbox.yview.invert(sv)
+        case "data":   return frame.y_scale.invert(sv)
+      }
+    }
+    function xinvert(sv: number) {
+      switch (height.location_units) {
+        case "canvas": return sv
+        case "screen": return frame.bbox.xview.invert(sv)
+        case "data":   return frame.x_scale.invert(sv)
+      }
+    }
+
     const dims = this.model.dimensions
-    if (dims == "width" || dims == "both")
-      this.model.spans.width.location  = y
-    if (dims == "height" || dims == "both")
-      this.model.spans.height.location = x
+    width.location = sy != null && (dims == "width" || dims == "both") ? yinvert(sy) : null
+    height.location = sx != null && (dims == "height" || dims == "both") ? xinvert(sx) : null
   }
 }
 
@@ -41,11 +57,10 @@ export namespace CrosshairTool {
 
   export type Props = InspectTool.Props & {
     dimensions: p.Property<Dimensions>
+    spans: p.Property<{width: Span, height: Span}>
     line_color: p.Property<Color>
     line_width: p.Property<number>
     line_alpha: p.Property<number>
-
-    spans: p.Property<{width: Span, height: Span}>
   }
 }
 
@@ -62,8 +77,15 @@ export class CrosshairTool extends InspectTool {
   static {
     this.prototype.default_view = CrosshairToolView
 
-    this.define<CrosshairTool.Props>(({Alpha, Number, Color}) => ({
+    this.define<CrosshairTool.Props>(({Alpha, Number, Color, Struct, Ref}) => ({
       dimensions: [ Dimensions, "both" ],
+      spans: [
+        Struct({width: Ref(Span), height: Ref(Span)}),
+        (self) => ({
+          width: span(self as CrosshairTool, "width"),
+          height: span(self as CrosshairTool, "height"),
+        }),
+      ],
       line_color: [ Color, "black" ],
       line_width: [ Number, 1 ],
       line_alpha: [ Alpha, 1 ],
@@ -79,16 +101,6 @@ export class CrosshairTool extends InspectTool {
         line_alpha: self.line_alpha,
       })
     }
-
-    this.internal<CrosshairTool.Props>(({Struct, Ref}) => ({
-      spans: [
-        Struct({width: Ref(Span), height: Ref(Span)}),
-        (self) => ({
-          width: span(self as CrosshairTool, "width"),
-          height: span(self as CrosshairTool, "height"),
-        }),
-      ],
-    }))
 
     this.register_alias("crosshair", () => new CrosshairTool())
   }
