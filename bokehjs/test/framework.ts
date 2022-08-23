@@ -263,7 +263,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
         if (test.viewport != null) {
           const [vw, vh] = test.viewport
           if (width > vw || height > vh)
-            throw new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+            error = new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
         }
         const rect = test.el!.getBoundingClientRect()
         const left = rect.left + window.pageXOffset - document.documentElement.clientLeft

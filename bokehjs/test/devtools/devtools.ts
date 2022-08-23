@@ -423,18 +423,21 @@ async function run_tests(): Promise<boolean> {
                   status.timeout = true
                 } else {
                   const result = output.value
+
                   if (result.error != null) {
                     const {str, stack} = result.error
                     status.errors.push(stack ?? str)
                     status.failure = true
-                  } else if (baselines_root != null) {
+                  }
+
+                  if (baselines_root != null) {
+                    const baseline_path = path.join(baselines_root, platform, baseline_name)
+
                     const {state} = result
                     if (state == null) {
                       status.errors.push("state not present in output")
                       status.failure = true
                     } else {
-                      const baseline_path = path.join(baselines_root, platform, baseline_name)
-
                       await (async () => {
                         const baseline_file = `${baseline_path}.blf`
                         const baseline = create_baseline([state])
@@ -452,55 +455,55 @@ async function run_tests(): Promise<boolean> {
                           status.errors.push(diff)
                         }
                       })()
+                    }
 
-                      await (async () => {
-                        const {bbox} = result
-                        if (bbox != null) {
-                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                          const current = Buffer.from(image.data, "base64")
-                          status.image = current
+                    await (async () => {
+                      const {bbox} = result
+                      if (bbox != null) {
+                        const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                        const current = Buffer.from(image.data, "base64")
+                        status.image = current
 
-                          const image_file = `${baseline_path}.png`
-                          const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file, ref)
+                        const image_file = `${baseline_path}.png`
+                        const write_image = async () => fs.promises.writeFile(image_file, current)
+                        const existing = load_baseline_image(image_file, ref)
 
-                          switch (argv.screenshot) {
-                            case undefined:
-                            case "test":
-                              if (existing == null) {
-                                status.failure = true
-                                status.errors.push("missing baseline image")
-                                await write_image()
-                              } else {
-                                status.reference = existing
+                        switch (argv.screenshot) {
+                          case undefined:
+                          case "test":
+                            if (existing == null) {
+                              status.failure = true
+                              status.errors.push("missing baseline image")
+                              await write_image()
+                            } else {
+                              status.reference = existing
 
-                                if (!existing.equals(current)) {
-                                  const diff_result = diff_image(existing, current)
-                                  if (diff_result != null) {
-                                    may_retry = true
-                                    const {diff, pixels, percent} = diff_result
-                                    const threshold = test.threshold ?? 0
-                                    if (pixels > threshold) {
-                                      await write_image()
-                                      status.failure = true
-                                      status.image_diff = diff
-                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
-                                    }
+                              if (!existing.equals(current)) {
+                                const diff_result = diff_image(existing, current)
+                                if (diff_result != null) {
+                                  may_retry = true
+                                  const {diff, pixels, percent} = diff_result
+                                  const threshold = test.threshold ?? 0
+                                  if (pixels > threshold) {
+                                    await write_image()
+                                    status.failure = true
+                                    status.image_diff = diff
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
                                   }
                                 }
                               }
-                              break
-                            case "save":
-                              await write_image()
-                              break
-                            case "skip":
-                              break
-                            default:
-                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
-                          }
+                            }
+                            break
+                          case "save":
+                            await write_image()
+                            break
+                          case "skip":
+                            break
+                          default:
+                            throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
                         }
-                      })()
-                    }
+                      }
+                    })()
                   }
                 }
               } finally {
