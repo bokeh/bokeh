@@ -298,7 +298,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._needs_paint = true
 
     const layout = new BorderLayout()
-    layout.set_sizing({width_policy: "max", height_policy: "max"})
+    layout.set_sizing({
+      width_policy: "max", height_policy: "max",
+      visible: this.model.visible,
+    })
 
     if (this.visuals.outline_line.doit) {
       const width = this.visuals.outline_line.line_width.get_value()

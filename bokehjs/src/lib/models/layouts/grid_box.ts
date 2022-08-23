@@ -124,8 +124,8 @@ class GridAlignmentLayout extends Layoutable {
       const {layout, bbox} = child
       assert(layout != null)
 
-      const size_hint = child.layout!.measure(bbox)
-      return {layout, bbox, size_hint}
+      const size_hint = layout.measure(bbox)
+      return {child, layout, bbox, size_hint}
     })
 
     const row_extents = Array(items.nrows).fill(null).map(() => ({top: 0, bottom: 0}))

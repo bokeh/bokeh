@@ -175,6 +175,11 @@ export class BBox implements Rect, Equatable {
     return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
   }
 
+  get is_empty(): boolean {
+    const {x0, x1, y0, y1} = this
+    return x0 == 0 && x1 == 0 && y0 == 0 && y1 == 0
+  }
+
   get left(): number { return this.x0 }
   get top(): number { return this.y0 }
   get right(): number { return this.x1 }
