@@ -10,7 +10,6 @@ graft bokeh/server/static
 exclude bokeh/server/static/js/*.json
 global-exclude *.js.map
 global-exclude *.ts.map
-prune bokeh/server/static/js/types
 include bokeh/server/static/js/bokeh.json
 include bokeh/server/views/*.html
 include bokeh/server/views/*.ico
