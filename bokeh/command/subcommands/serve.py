@@ -788,6 +788,10 @@ class Serve(Subcommand):
         return dict(server_kwargs)
     
     def customize_server(self, server: Server) -> Server:
+        '''Allows subclasses to customize the ``server``.
+
+        Should apply modifications to the server and wrap it or return the same instance.
+        '''
         return server
 
     def invoke(self, args: argparse.Namespace) -> None:
