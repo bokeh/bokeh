@@ -82,7 +82,7 @@ for the remainder of this document.
 
 The Bokeh repository you just cloned to your local hard drive contains
 :ref:`test environment files <contributor_guide_testing_ci_environments>`
-in the :bokeh-tree:`conda` folder. In these files are all the necessary
+in the :bokeh-tree:`conda` folder. In these files is all the necessary
 information to automatically create a basic development environment. The name of
 this virtual environment will be ``bkdev``.
 
