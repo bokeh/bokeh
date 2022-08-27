@@ -444,7 +444,7 @@ from ..subcommand import Argument, Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
 
 if TYPE_CHECKING:
-    from bokeh.server import Server
+    from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
 # Globals and constants
