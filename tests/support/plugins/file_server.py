@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 import os
 import threading
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 from typing import Any
 from urllib.request import URLopener
 
@@ -41,7 +42,7 @@ DEFAULT_HOST = "127.0.0.1"
 
 DEFAULT_PORT = 8000
 
-HTML_ROOT = os.path.dirname(__file__)
+HTML_ROOT = Path(__file__).parent.parent.parent # ../..
 
 WEBDRIVER = os.environ.get('WEBDRIVER', "<undefined>")
 
@@ -59,9 +60,12 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
     """Http handler."""
     def do_GET(self) -> None:
         """GET method handler."""
-        path = self.path[1:].split("?")[0]
+        # depending on Python version, leading / may be present or not
+        path = self.path.split("?")[0] # TODO: .removeprefix("/")
+        if path.startswith("/"):
+            path = path[1:]
         try:
-            with open(os.path.join(HTML_ROOT, path), mode="rb") as f:  # lgtm [py/path-injection]
+            with open(HTML_ROOT / path, mode="rb") as f:  # lgtm [py/path-injection]
                 self.send_response(200)
                 self.send_header("Content-type", "text/html")
                 self.end_headers()
@@ -112,7 +116,8 @@ class SimpleWebServer:
         log.info("Shutting down the webserver")
         self.thread.join()
 
-    def where_is(self, path: str) -> str:
+    def where_is(self, path: Path) -> str:
+        path = str(path.relative_to(HTML_ROOT)).replace('\\', '/') # Windows-proof
         return f"http://{self.host}:{self.port}/{path}"
 
 @pytest.fixture(scope='session')
@@ -134,7 +139,7 @@ def file_server(request: pytest.FixtureRequest) -> SimpleWebServer:
 # Code
 #-----------------------------------------------------------------------------
 
-_html_root_error_message = "Can't find 'common_web' directory, try setting WEBDRIVER environment variable WEBDRIVER:" + WEBDRIVER + "  HTML_ROOT:" + HTML_ROOT
+_html_root_error_message = f"Can't find 'common_web' directory, try setting WEBDRIVER environment variable WEBDRIVER: {WEBDRIVER} HTML_ROOT: {HTML_ROOT}"
 
 if not os.path.isdir(HTML_ROOT):
     log.error(_html_root_error_message)

@@ -18,5 +18,5 @@ dependencies:
 
   # tests
   - flaky
-  - pytest 6.2*
+  - pytest >=7.0
   - scipy
