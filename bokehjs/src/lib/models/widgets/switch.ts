@@ -31,11 +31,12 @@ export class SwitchView extends ToggleInputView {
 
   override render(): void {
     super.render()
+    this.bar_el = div({class: "bar"})
     this.knob_el = div({class: "knob", tabIndex: 0})
-    this.bar_el = div({class: "bar"}, this.knob_el)
+    const body_el = div({class: "body"}, this.bar_el, this.knob_el)
     this._update_active()
     this._update_disabled()
-    this.shadow_el.appendChild(this.bar_el)
+    this.shadow_el.appendChild(body_el)
   }
 
   protected _update_active(): void {
