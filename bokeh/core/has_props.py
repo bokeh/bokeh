@@ -55,7 +55,7 @@ else:
 from typing_extensions import TypeAlias
 
 # Bokeh imports
-from ..util.string import append_docstring, nice_join
+from ..util.strings import append_docstring, nice_join
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override

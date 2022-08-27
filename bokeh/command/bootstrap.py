@@ -50,7 +50,7 @@ from typing import Sequence
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
-from bokeh.util.string import nice_join
+from bokeh.util.strings import nice_join
 
 # Bokeh imports
 from . import subcommands

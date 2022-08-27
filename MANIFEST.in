@@ -1,27 +1,19 @@
-# Things to always exclude
-prune sphinx
-prune tests
-global-exclude .git*
-global-exclude .ipynb_checkpoints
-global-exclude *.py[co]
-global-exclude __pycache__/**
-
 # Top-level Config
 include CHANGELOG
-include LICENSE.txt
-include MANIFEST.in
+prune tests
 
 # Package files and data
-include bokeh/LICENSE.txt
-include bokeh/py.typed
 graft bokeh/core/_templates
 graft bokeh/sampledata/_data
 graft bokeh/sphinxext/_templates
 graft bokeh/server/static
 exclude bokeh/server/static/js/*.json
 global-exclude *.js.map
+global-exclude *.ts.map
 include bokeh/server/static/js/bokeh.json
 include bokeh/server/views/*.html
 include bokeh/server/views/*.ico
 include bokeh/util/sampledata.json
 include bokeh/_sri.json
+include bokeh/LICENSE.txt
+include bokeh/py.typed

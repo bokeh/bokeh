@@ -23,8 +23,7 @@ __all__ = (
     "build_bokehjs",
     "build_conda_packages",
     "build_docs",
-    "build_sdist_packages",
-    "build_wheel_packages",
+    "build_pip_packages",
     "dev_install",
     "install_bokehjs",
     "npm_install",
@@ -38,7 +37,7 @@ __all__ = (
 def build_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("bokehjs")
-        system.run("node make")
+        system.run("node make build")
         system.cd("..")
         return PASSED("BokehJS build succeeded")
     except RuntimeError as e:
@@ -57,7 +56,7 @@ def build_npm_packages(config: Config, system: System) -> ActionReturn:
 
 def build_conda_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("conda build conda.recipe --quiet --no-test --output-folder .")
+        system.run("conda build conda.recipe --no-test --output-folder .", VERSION=config.version)
         return PASSED("conda package build succeeded")
     except RuntimeError as e:
         return FAILED("conda package build did NOT succeed", details=e.args)
@@ -73,25 +72,17 @@ def build_docs(config: Config, system: System) -> ActionReturn:
         return FAILED("Docs build did NOT succeed", details=e.args)
 
 
-def build_sdist_packages(config: Config, system: System) -> ActionReturn:
+def build_pip_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python setup.py sdist --install-js --formats=gztar")
-        return PASSED("sdist package build succeeded")
+        system.run("python -m build .", BOKEHJS_ACTION="install")
+        return PASSED("pip packages build succeeded")
     except RuntimeError as e:
-        return FAILED("sdist package build did NOT succeed", details=e.args)
-
-
-def build_wheel_packages(config: Config, system: System) -> ActionReturn:
-    try:
-        system.run("python setup.py bdist_wheel --install-js")
-        return PASSED("wheel package build succeeded")
-    except RuntimeError as e:
-        return FAILED("wheel package build did NOT succeed", details=e.args)
+        return FAILED("pip packages build did NOT succeed", details=e.args)
 
 
 def dev_install(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python setup.py develop --install-js")
+        system.run("pip install -e .", BOKEHJS_ACTION="install")
         return PASSED("Bokeh dev install succeeded")
     except RuntimeError as e:
         return FAILED("Bokeh dev install did NOT succeed", details=e.args)
@@ -99,7 +90,7 @@ def dev_install(config: Config, system: System) -> ActionReturn:
 
 def install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("python setup.py --install-js")
+        system.run("pip install .", BOKEHJS_ACTION="install")
         return PASSED("BokehJS install succeeded")
     except RuntimeError as e:
         return FAILED("BokehJS install did NOT succeed", details=e.args)
@@ -122,8 +113,8 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"mkdir {dirname}")
         system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
         system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
-        system.run(f"cp dist/bokeh-{config.pep440_version}.tar.gz {dirname}")
-        system.run(f"cp dist/bokeh-{config.pep440_version}-py3-none-any.whl {dirname}")
+        system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
+        system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
         system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
         system.run(f"mkdir -p {dirname}/sphinx/build")

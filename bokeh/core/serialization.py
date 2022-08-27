@@ -441,10 +441,12 @@ class Serializer:
         if np.issubdtype(type(obj), np.bool_):
             return self._encode_bool(bool(obj))
 
-        if _HAS_PANDAS and obj.__module__ is not None and obj.__module__.startswith("pandas"):
-            pd = import_optional("pandas")
-            if pd and isinstance(obj, (pd.Series, pd.Index)):
-                return self._encode_ndarray(transform_series(obj))
+        if _HAS_PANDAS:
+            module = type(obj).__module__
+            if module is not None and module.startswith("pandas"):
+                pd = import_optional("pandas")
+                if pd and isinstance(obj, (pd.Series, pd.Index)):
+                    return self._encode_ndarray(transform_series(obj))
 
         self.error(f"can't serialize {type(obj)}")
 

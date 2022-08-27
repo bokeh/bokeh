@@ -109,6 +109,15 @@ class TestSerializer:
 
         assert encoder.buffers == []
 
+    def test_non_serializable(self):
+        encoder = Serializer()
+
+        with pytest.raises(SerializationError):
+            encoder.encode(property())
+
+        with pytest.raises(SerializationError):
+            encoder.encode(range(0, 10))
+
     def test_max_int(self, capsys: Capture) -> None:
         encoder = Serializer()
         rep = encoder.encode(2**64)

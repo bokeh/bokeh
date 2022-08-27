@@ -50,7 +50,7 @@ from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.deprecation import deprecated
-from ..util.string import format_docstring
+from ..util.strings import format_docstring
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
@@ -63,6 +63,7 @@ __all__ = (
     "CategoricalTickFormatter",
     "CustomJSTickFormatter",
     "DatetimeTickFormatter",
+    "FuncTickFormatter",
     "LogTickFormatter",
     "MercatorTickFormatter",
     "NumeralTickFormatter",
@@ -384,6 +385,11 @@ class CustomJSTickFormatter(TickFormatter):
             return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
             '''
     """)
+
+def FuncTickFormatter(*args, **kw):
+    from bokeh.util.deprecation import deprecated
+    deprecated((3, 0, 0), "FuncTickFormatter", "CustomJSTickFormatter")
+    return CustomJSTickFormatter(*args, **kw)
 
 def _deprecated_datetime_list_format(fmt: list[str]) -> str:
     deprecated("Passing lists of formats for DatetimeTickFormatter scales was deprecated in Bokeh 3.0. Configure a single string format for each scale")

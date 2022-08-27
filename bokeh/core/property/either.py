@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 from typing import Any, Type
 
 # Bokeh imports
-from ...util.string import nice_join
+from ...util.strings import nice_join
 from ._sphinx import property_link, register_type_link, type_link
 from .bases import ParameterizedProperty, Property
 from .singletons import Intrinsic

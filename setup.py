@@ -14,8 +14,7 @@ from textwrap import indent
 from typing import NoReturn
 
 # External imports
-from setuptools import Command, setup
-from setuptools.command.build import build
+from setuptools import setup
 
 # -----------------------------------------------------------------------------
 # Helpers
@@ -132,13 +131,6 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 # Setuptools
 # -----------------------------------------------------------------------------
 
-class Build(build):
-    sub_commands = [("build_js", None), *build.sub_commands]
+build_or_install_bokehjs()
 
-class BuildJS(Command):
-    def initialize_options(self) -> None: pass
-    def finalize_options(self) -> None: pass
-    def run(self) -> None:
-        build_or_install_bokehjs()
-
-setup(cmdclass={"build_js": BuildJS, "build": Build})
+setup()

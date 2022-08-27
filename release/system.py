@@ -11,6 +11,7 @@ from __future__ import annotations
 
 # Standard library imports
 import os
+import sys
 from subprocess import PIPE, STDOUT, run as stdlib_run
 from typing import Any
 
@@ -48,7 +49,7 @@ class System:
 
     def abort(self) -> None:
         """"""
-        raise RuntimeError()
+        sys.exit(1)
 
     def cd(self, new_dir: str) -> None:
         """"""

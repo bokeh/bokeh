@@ -27,7 +27,7 @@ import numpy as np
 # Bokeh imports
 from ..core.properties import ColorSpec
 from ..models import ColumnarDataSource, ColumnDataSource, GlyphRenderer
-from ..util.string import nice_join
+from ..util.strings import nice_join
 from ._legends import pop_legend_kwarg, update_legend
 
 #-----------------------------------------------------------------------------

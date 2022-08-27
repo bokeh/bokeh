@@ -37,7 +37,7 @@ from ..core.types import ID
 from ..protocol import Protocol
 from ..protocol.exceptions import MessageError, ProtocolError, ValidationError
 from ..protocol.receiver import Receiver
-from ..util.string import format_url_query_arguments
+from ..util.strings import format_url_query_arguments
 from ..util.tornado import fixup_windows_event_loop_policy
 from .states import (
     CONNECTED_AFTER_ACK,

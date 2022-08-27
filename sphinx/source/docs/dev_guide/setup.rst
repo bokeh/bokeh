@@ -194,10 +194,12 @@ To uninstall the Git hooks, run the following command from the top level of your
 ----------------------------
 
 Once you have all the required dependencies installed, the simplest way to
-build and install Bokeh and BokehJS is to run ``pip install``. This
-script is located at the top level of the *source checkout* directory.
+build and install Bokeh and BokehJS is to use `pip`_. ``pip`` is the package
+installer for Python and is automatically installed when you
+:ref:`set up the conda environment <contributor_guide_setup_creating_conda_env>`.
+Make sure you have activated the ``bkdev`` environment before running ``pip``.
 
-The ``pip`` command offers two main modes of operation:
+There are two ways to install a local development version of Bokeh with ``pip``:
 
 ``pip install -e .``
     Bokeh will be installed to refer to your local source directory. Any changes
@@ -232,7 +234,7 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
 
 .. _contributor_guide_setup_sample_data:
 
-7. Download sample data
+1. Download sample data
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your
@@ -609,5 +611,6 @@ Slack`_.
 .. _ESLint: https://eslint.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy
+.. _pip: https://pip.pypa.io/
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts
 .. _source maps: https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map

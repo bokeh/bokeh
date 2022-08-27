@@ -20,7 +20,7 @@ import pytest ; pytest
 from urllib.parse import quote_plus
 
 # Module under test
-import bokeh.util.string as bus # isort:skip
+import bokeh.util.strings as bus # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

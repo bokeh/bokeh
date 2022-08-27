@@ -17,7 +17,7 @@ various sources in the Bokeh project structure:
 
 ``:bokeh-pull:`` : link to a pull request
 
-``:bokeh-requires:`` : list the install requires from setup.py
+``:bokeh-requires:`` : list the install requires from pyproject.toml
 
 ``:bokeh-tree:`` : (versioned) link to a source tree URL
 
@@ -128,7 +128,7 @@ def bokeh_issue(name, rawtext, text, lineno, inliner, options=None, content=None
 
 
 def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None):
-    """Provide the minimum supported Python version from setup.py.
+    """Provide the minimum supported Python version from pyproject.toml.
 
     Returns 2 part tuple containing list of nodes to insert into the
     document and a list of system messages.  Both are allowed to be
