@@ -92,7 +92,6 @@ def output_file_url(request: pytest.FixtureRequest, file_server: SimpleWebServer
     filename = request.function.__name__ + '.html'
     file_obj = request.fspath.dirpath().join(filename)
     file_path = file_obj.strpath
-    url = file_path.replace('\\', '/')  # Windows-proof
 
     output_file(file_path, mode='inline')
 
@@ -101,22 +100,19 @@ def output_file_url(request: pytest.FixtureRequest, file_server: SimpleWebServer
             file_obj.remove()
     request.addfinalizer(tear_down)
 
-    return file_server.where_is(url)
+    return file_server.where_is(file_path)
 
 @pytest.fixture
 def test_file_path_and_url(request: pytest.FixtureRequest, file_server: SimpleWebServer) -> tuple[str, str]:
-    filename = request.function.__name__ + '.html'
-    file_obj = request.fspath.dirpath().join(filename)
-    file_path = file_obj.strpath
-    url = file_path.replace('\\', '/')  # Windows-proof
+    file_name = request.function.__name__ + '.html'
+    file_path = request.node.path.with_name(file_name)
 
     def tear_down() -> None:
-        if file_obj.isfile():
-            file_obj.remove()
+        if file_path.is_file():
+            file_path.unlink()
     request.addfinalizer(tear_down)
 
-    return file_path, file_server.where_is(url)
-
+    return file_path, file_server.where_is(file_path)
 
 class _ExitHandler(RequestHandler):
     def initialize(self, io_loop: IOLoop) -> None:
