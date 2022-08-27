@@ -19,16 +19,17 @@ export class PasswordInputView extends TextInputView {
 
     this.toggle_el = div({class: "bk-toggle"})
     this.toggle_el.addEventListener("click", () => {
-      const {input_el} = this
-      input_el.type = input_el.type == "password" ? "text" : "password"
+      const {input_el, toggle_el} = this
+      const is_visible = input_el.type == "text"
+      toggle_el.classList.toggle("bk-visible", !is_visible)
+      input_el.type = is_visible ? "password" : "text"
     })
-    this.input_el.after(this.toggle_el)
+    this.shadow_el.append(this.toggle_el)
   }
 }
 
 export namespace PasswordInput {
   export type Attrs = p.AttrsOf<Props>
-
   export type Props = TextInput.Props
 }
 
