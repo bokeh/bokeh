@@ -1,5 +1,0 @@
-**/.git
-**/*.pyc
-**/*.pyo
-bokehjs/node_modules/*
-bokehjs/build/*
