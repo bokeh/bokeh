@@ -1,11 +1,11 @@
-{% set data = load_file_data('../pyproject.toml', from_recipe_dir=True) %}
+{% set data = load_file_data('../../pyproject.toml', from_recipe_dir=True) %}
 
 package:
   name: bokeh
   version: {{ VERSION }}
 
 source:
-  url: ../dist/bokeh-{{ VERSION }}-py3-none-any.whl
+  url: ../../dist/bokeh-{{ VERSION }}-py3-none-any.whl
 
 build:
   noarch: python

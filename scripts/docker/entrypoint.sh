@@ -15,7 +15,7 @@ if [ "${BOKEH_DOCKER_CHROME_VERSION:-0}" == 1 ]; then
     exit 1
 fi
 
-if [ ! -d .git ] || [ ! -f environment.yml ]; then
+if [ ! -d .git ] || [ ! -f conda/environment-test-3.10.yml ]; then
     echo "Directory does not contain Bokeh git repo."
     exit 2
 fi
@@ -23,7 +23,7 @@ fi
 if [ "${BOKEH_DOCKER_CONDA:-1}" == 1 ]; then
     # Check environment file exists.
     BOKEH_DOCKER_PY=${BOKEH_DOCKER_PY:-$DEFAULT_PY}
-    ENV_YML_FILE=ci/environment-test-$BOKEH_DOCKER_PY.yml
+    ENV_YML_FILE=conda/environment-test-$BOKEH_DOCKER_PY.yml
     if [ ! -f $ENV_YML_FILE ]; then
         echo "Cannot find environment file $ENV_YML_FILE"
         exit 3
@@ -56,11 +56,11 @@ fi
 google-chrome --version
 
 if [ "${BOKEH_DOCKER_BUILD:-0}" == 1 ]; then
-    bash ci/docker/bokeh_docker_build.sh
+    bash scripts/docker/bokeh_docker_build.sh
 fi
 
 if [ "${BOKEH_DOCKER_TEST:-0}" == 1 ]; then
-    bash ci/docker/bokeh_docker_test.sh
+    bash scripts/docker/bokeh_docker_test.sh
 fi
 
 /bin/bash "$@"

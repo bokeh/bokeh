@@ -126,7 +126,9 @@ root level of your *source checkout* directory to update ``bkdev``:
 
 .. code-block:: sh
 
-    conda env update --file environment.yml --prune
+    conda env update --file <environment file> --prune
+
+using the environment file you originally used to create ``bkdev``.
 
 Some of the examples in the documentation require additional sample data. Use
 this command to automatically download and install the

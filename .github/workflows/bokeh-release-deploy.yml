@@ -39,7 +39,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-release-deploy
-          environment-file: ci/environment-release-deploy.yml
+          environment-file: conda/environment-release-deploy.yml
 
       - name: Deploy Release Tarball
         env:

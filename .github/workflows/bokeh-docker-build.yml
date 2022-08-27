@@ -30,7 +30,7 @@ jobs:
       - name: Build image
         uses: docker/build-push-action@v2
         with:
-          context: ci/docker
+          context: scripts/docker
           load: true
           tags: |
             bokeh-dev:latest
@@ -40,7 +40,7 @@ jobs:
         env:
           BOKEH_DOCKER_CHROME_VERSION: 1
         run: |
-          echo "chrome_version=$(ci/docker/docker_run.sh bokeh-dev | tail -1 | awk -F'.' '{print $1}')" >> $GITHUB_ENV
+          echo "chrome_version=$(scripts/docker/docker_run.sh bokeh-dev | tail -1 | awk -F'.' '{print $1}')" >> $GITHUB_ENV
 
       - name: Tag image with chrome version
         run: |
