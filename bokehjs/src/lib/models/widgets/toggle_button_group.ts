@@ -9,10 +9,6 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class ToggleButtonGroupView extends OrientedControlView {
   override model: ToggleButtonGroup
 
-  protected override get default_size(): number | null {
-    return this.model.orientation == "horizontal" ? super.default_size : null
-  }
-
   protected _buttons: HTMLElement[]
   *controls() {
     yield* (this._buttons as any) // TODO: HTMLButtonElement[]

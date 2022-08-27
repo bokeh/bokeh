@@ -64,10 +64,7 @@ export abstract class WidgetView extends LayoutDOMView {
 
 export namespace Widget {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = LayoutDOM.Props & {
-    default_size: p.Property<number>
-  }
+  export type Props = LayoutDOM.Props
 }
 
 export interface Widget extends Widget.Attrs {}
@@ -78,11 +75,5 @@ export abstract class Widget extends LayoutDOM {
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
-  }
-
-  static {
-    this.define<Widget.Props>(({Number}) => ({
-      default_size: [ Number, 300 ],
-    }))
   }
 }
