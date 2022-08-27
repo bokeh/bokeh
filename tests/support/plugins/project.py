@@ -89,15 +89,14 @@ __all__ = (
 @pytest.fixture
 def output_file_url(request: pytest.FixtureRequest, file_server: SimpleWebServer) -> str:
     from bokeh.io import output_file
-    filename = request.function.__name__ + '.html'
-    file_obj = request.fspath.dirpath().join(filename)
-    file_path = file_obj.strpath
+    file_name = request.function.__name__ + '.html'
+    file_path = request.node.path.with_name(file_name)
 
     output_file(file_path, mode='inline')
 
     def tear_down() -> None:
-        if file_obj.isfile():
-            file_obj.remove()
+        if file_path.is_file():
+            file_path.unlink()
     request.addfinalizer(tear_down)
 
     return file_server.where_is(file_path)
