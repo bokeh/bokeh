@@ -10,7 +10,7 @@ import {
   Checkbox, Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  TextInput, AutocompleteInput, TextAreaInput, FileInput,
+  TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
@@ -157,6 +157,18 @@ describe("Widgets", () => {
   it.allowing(8)("should allow TextInput with title, prefix and suffix", async () => {
     const obj = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T\u2092", suffix: "\u2103"})
     await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow PasswordInput", async () => {
+    const obj = new PasswordInput({value: "foo"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow PasswordInput with password visible", async () => {
+    const obj = new PasswordInput({value: "foo"})
+    const {view} = await display(obj, [500, 100])
+    const ev = new MouseEvent("click", {bubbles: true})
+    view.toggle_el.dispatchEvent(ev)
   })
 
   it.allowing(8)("should allow AutocompleteInput", async () => {

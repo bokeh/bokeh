@@ -18,9 +18,9 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbo
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
                           DateSlider, Dialog, Div, Dropdown, GroupBox, HelpButton,
                           Inspector, IntEditor, Menu, MultiChoice, MultiSelect,
-                          NumberEditor, NumberFormatter, Paragraph, PreText,
-                          RadioButtonGroup, RadioGroup, RangeSlider, Row, Select,
-                          SelectEditor, SetValue, Slider, Spinner, StringEditor,
+                          NumberEditor, NumberFormatter, Paragraph, PasswordInput,
+                          PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
+                          Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
                           StringFormatter, SVGIcon, Switch, TableColumn, TablerIcon,
                           TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
@@ -63,6 +63,8 @@ radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"
 
 checkbox_button_group_vertical = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1], orientation="vertical")
 radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0, orientation="vertical")
+
+password_input = PasswordInput(placeholder="Choose your password ...")
 
 text_input = TextInput(placeholder="Enter value ...")
 
@@ -191,7 +193,7 @@ widgets = Column(children=[
             Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
-            text_input, text_input_units, autocomplete_input, text_area,
+            password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,

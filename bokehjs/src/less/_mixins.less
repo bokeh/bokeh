@@ -35,3 +35,35 @@
   -webkit-user-drag: none;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
+
+.mask-image(@image) {
+  mask-image: @image;
+  -webkit-mask-image: @image;
+}
+
+.mask-size(@size) {
+  mask-size: @size;
+  -webkit-mask-size: @size;
+}
+
+.mask-position(@position) {
+  mask-position: @position;
+  -webkit-mask-position: @position;
+}
+
+.mask-repeat(@repeat) {
+  mask-repeat: @repeat;
+  -webkit-mask-repeat: @repeat;
+}
+
+.tool-icon-mask(@icon) {
+  background-color: var(--bokeh-icon-color);
+  .mask-image(@icon);
+}
+
+.icon-mask(@icon) {
+  .tool-icon-mask(@icon);
+  .mask-size(100% 100%);
+  .mask-position(center center);
+  .mask-repeat(no-repeat);
+}

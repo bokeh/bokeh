@@ -1,12 +1,12 @@
+@import "./_mixins.less";
+
 .tool-icon(@icon, @file) {
   @path: "../../../docs/bokeh/source/_images/icons";
   background-image: var(@icon, data-uri("@{path}/@{file}.png"));
 }
 
-.tool-icon-mask(@icon) {
-  mask-image: @icon;
-  -webkit-mask-image: @icon;
-  background-color: #a1a6a9;
+:host {
+  --bokeh-icon-color: #a1a6a9;
 }
 
 .bk-tool-icon-copy {
@@ -201,6 +201,14 @@
   .tool-icon-mask(var(--bokeh-icon-caret-right));
 }
 
+.bk-tool-icon-see-on {
+  .tool-icon-mask(var(--bokeh-icon-see-on));
+}
+
+.bk-tool-icon-see-off {
+  .tool-icon-mask(var(--bokeh-icon-see-off));
+}
+
 :host {
   // Based on https://tabler-icons.io/ (MIT License)
   --bokeh-icon-question-mark: data-uri("icons/question-mark.svg");
@@ -248,4 +256,7 @@
   --bokeh-icon-caret-down: data-uri("icons/caret-down.svg");
   --bokeh-icon-caret-left: data-uri("icons/caret-left.svg");
   --bokeh-icon-caret-right: data-uri("icons/caret-right.svg");
+
+  --bokeh-icon-see-on: data-uri("icons/see-on.svg");
+  --bokeh-icon-see-off: data-uri("icons/see-off.svg");
 }
