@@ -80,17 +80,20 @@ for the remainder of this document.
 3. Create a conda environment
 -----------------------------
 
-The Bokeh repository you just cloned to your local hard drive contains an
-:bokeh-tree:`environment.yml` file. In this file is all the necessary
+The Bokeh repository you just cloned to your local hard drive contains
+:ref:`test environment files <contributor_guide_testing_ci_environments>`
+in the :bokeh-tree:`conda` folder. In these files are all the necessary
 information to automatically create a basic development environment. The name of
 this virtual environment will be ``bkdev``.
 
 Use ``conda env create`` at the root level of your *source checkout* directory
-to set up the environment and install all necessary packages:
+to set up the environment and install all necessary packages. The "test"
+environment files are versioned by Python version. For example, to install
+an environment for Python 3.10, invoke:
 
 .. code-block:: sh
 
-    conda env create -f environment.yml
+    conda env create -f conda/environment-test-3.10.yml
 
 Then, activate the environment:
 
@@ -100,9 +103,9 @@ Then, activate the environment:
 
 .. note::
     To update your local environment, use
-    ``conda env update -f environment.yml``. Updating your local environment
-    is necessary whenever the dependencies in ``environment.yml`` change. This
-    can happen when the environment file is updated in the main Bokeh repository
+    ``conda env update -f <environment file>``. Updating your local environment
+    is necessary whenever the dependencies in the test environments change. This
+    can happen when the environment files are updated in the main Bokeh repository
     or when you switch branches to work on different issues, for example.
 
 To learn more about creating and managing conda environments, see `Managing

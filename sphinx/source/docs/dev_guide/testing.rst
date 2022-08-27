@@ -457,9 +457,8 @@ Environment files
 
 Bokeh's CI runs tests on Linux, macOS, and Windows. It also runs tests with
 different versions of Python. The various testing environments are defined
-in their respective YAML files in the :bokeh-tree:`ci` folder. In case you add
-or change dependencies, you need to update these files, in addition to
-:bokeh-tree:`environment.yml` in the *source checkout* directory.
+in their respective YAML files in the :bokeh-tree:`conda` folder. In case you
+add or change dependencies, you need to update these files.
 
 Etiquette
 ~~~~~~~~~

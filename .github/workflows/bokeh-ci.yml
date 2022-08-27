@@ -28,10 +28,10 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-test
-          environment-file: ci/environment-build.yml
+          environment-file: conda/environment-build.yml
 
       - name: Install node modules
-        run: bash ci/install_node_modules.sh
+        run: bash scripts/ci/install_node_modules.sh
 
       - name: Build BokehJS
         working-directory: ./bokehjs
@@ -43,10 +43,10 @@ jobs:
         run: python -m build .
 
       - name: Verify pip install from sdist
-        run: bash ci/verify_pip_install_from_sdist.sh
+        run: bash scripts/ci/verify_pip_install_from_sdist.sh
 
       - name: Build conda package
-        run: bash ci/build_conda_pacakge.sh
+        run: bash scripts/ci/build_conda_pacakge.sh
 
       - name: Upload conda package
         uses: actions/upload-artifact@v3
@@ -249,7 +249,7 @@ jobs:
           sampledata: 'download' # test at least one real download
 
       - name: Build docs
-        run: bash ci/build_docs.sh
+        run: bash scripts/ci/build_docs.sh
 
       - name: Upload docs
         uses: actions/upload-artifact@v3
@@ -272,7 +272,7 @@ jobs:
           sampledata: 'none'
 
       - name: Install downstream packages
-        run: bash ci/install_downstream_packages.sh
+        run: bash scripts/ci/install_downstream_packages.sh
 
       - name: Run tests
-        run: bash ci/run_downstream_tests.sh
+        run: bash scripts/ci/run_downstream_tests.sh

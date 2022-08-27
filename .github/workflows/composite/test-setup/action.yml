@@ -24,7 +24,7 @@ runs:
       with:
         miniconda-version: 'latest'
         activate-environment: bk-test
-        environment-file: ci/environment-test-${{ inputs.test-env }}.yml
+        environment-file: conda/environment-test-${{ inputs.test-env }}.yml
 
     - name: Download conda package
       uses: actions/download-artifact@v1
@@ -49,7 +49,7 @@ runs:
     - name: Install node modules
       if: ${{ inputs.source-tree == 'keep' }}
       shell: bash -l {0}
-      run: bash ci/install_node_modules.sh
+      run: bash scripts/ci/install_node_modules.sh
 
     - name: Cache sampledata
       if: ${{ inputs.sampledata == 'cache' }}

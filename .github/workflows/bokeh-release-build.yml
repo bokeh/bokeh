@@ -41,7 +41,7 @@ jobs:
         with:
           miniconda-version: 'latest'
           activate-environment: bk-release-build
-          environment-file: ci/environment-release-build.yml
+          environment-file: conda/environment-release-build.yml
 
       - name: Install sampledata
         run: python bokeh/util/sampledata.py
