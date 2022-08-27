@@ -81,6 +81,7 @@ jobs:
         run: pytest --color=yes tests/codebase
 
       - name: MyPy
+        if: success() || failure()
         run: mypy --version && mypy
 
   examples:
