@@ -13,6 +13,7 @@
 
 # coverage reports
 /.coverage
+/coverage.xml
 
 # ipython files
 **/.ipynb_checkpoints
