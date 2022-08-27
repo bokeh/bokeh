@@ -425,7 +425,7 @@ import argparse
 import os
 from fnmatch import fnmatch
 from glob import glob
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # External imports
 from tornado.autoreload import watch
@@ -442,6 +442,9 @@ from bokeh.util.strings import format_docstring, nice_join
 # Bokeh imports
 from ..subcommand import Argument, Subcommand
 from ..util import build_single_handler_applications, die, report_server_init_errors
+
+if TYPE_CHECKING:
+    from bokeh.server.server import Server
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -784,6 +787,13 @@ class Serve(Subcommand):
         '''
         return dict(server_kwargs)
 
+    def customize_server(self, server: Server) -> Server:
+        '''Allows subclasses to customize the ``server``.
+
+        Should apply modifications to the server and wrap it or return the same instance.
+        '''
+        return server
+
     def invoke(self, args: argparse.Namespace) -> None:
         '''
 
@@ -967,6 +977,9 @@ class Serve(Subcommand):
                     log.info("Bokeh app running at: %s" % url)
 
                 log.info("Starting Bokeh server with process id: %d" % os.getpid())
+
+            server = self.customize_server(server)
+
             server.run_until_shutdown()
 
 #-----------------------------------------------------------------------------
