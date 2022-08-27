@@ -155,8 +155,8 @@ button with a "?" symbol. When the button is clicked or hovered over, the
 See :ref:`userguide_interaction_widgets_examples_helpbutton` for more
 information.
 
-Adding tooltip to arbitrary UI elements
----------------------------------------
+Adding tooltips to arbitrary UI elements
+----------------------------------------
 
 In addition to adding tooltips to :ref:`elements that explicitly support it
 <userguide_interaction_tooltips_supported>`, you can also add tooltips to
@@ -178,9 +178,14 @@ The following example uses both a Bokeh model (for ``text_input``) and a
 
 TBD: create new document, add objects, and generate output
 
-The inspector tooltip
----------------------
+Other UI elements
+-----------------
 
-helpful for development.
-user this tooltip to get an overview of the current state of the Bokeh document
-and its contents.
+Bokeh also supports additional UI elements that you can use to add more
+information to a Bokeh document. For example, the
+:class:`~bokeh.models.Dialog` model allows you to define a dialog overlay, while
+the and :class:`~bokeh.models.Menu ` model allows you to define a custom menu
+context menu.
+
+See :bokeh-tree:`examples/models/file/widgets.py` for examples of these UI
+elements.
