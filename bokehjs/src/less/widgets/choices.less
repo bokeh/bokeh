@@ -15,6 +15,10 @@
   }
 }
 
+input[type="search"] {
+  margin: 0;
+}
+
 .choices__inner .choices__item.light {
   background-color: rgba(0,126,255,.08);
   border-radius: 5px;
@@ -41,7 +45,8 @@
   background: transparent;
   border: 1px solid darkgray;
   border-radius: 5px;
-  min-height: unset;
+  min-height: 0;
+  padding: calc(var(--padding-vertical) / 2) var(--padding-horizontal);
 }
 
 .choices__list {

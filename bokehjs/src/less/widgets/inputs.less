@@ -1,10 +1,14 @@
 @import "../_mixins.less";
 
+:host {
+  --input-min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+}
+
 .bk-input {
   display: inline-block;
   width: 100%;
   flex-grow: 1;
-  min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+  min-height: var(--input-min-height);
   padding: 0 var(--padding-horizontal);
   background-color: #fff;
   border: 1px solid #ccc;
