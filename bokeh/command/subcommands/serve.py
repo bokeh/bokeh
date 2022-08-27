@@ -786,7 +786,7 @@ class Serve(Subcommand):
         Should modify and return a copy of the ``server_kwargs`` dictionary.
         '''
         return dict(server_kwargs)
-    
+
     def customize_server(self, server: Server) -> Server:
         '''Allows subclasses to customize the ``server``.
 
