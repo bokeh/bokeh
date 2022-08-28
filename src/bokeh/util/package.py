@@ -103,7 +103,7 @@ def validate(*, version: str | None = None, build_dir: str | None = None) -> lis
 
 # Support basic ``python -m bokeh.util.package <version> <build_dir>`` usage
 #
-# No serious arg parging, only intended for use in CI
+# No serious arg parsing, only intended for use in CI
 if __name__ == "__main__":
     import sys
     version = sys.argv[1] if len(sys.argv) >= 2 else None
