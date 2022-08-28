@@ -44,7 +44,7 @@ describe("Examples", () => {
       return fig
     }
 
-    const layout = new Row({children: [hm(), dot()], sizing_mode: "scale_width"})
+    const layout = new Row({children: [hm(), dot()]})
     await display(layout)
   })
 })
