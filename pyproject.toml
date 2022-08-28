@@ -63,7 +63,7 @@ repository = "https://github.com/bokeh/bokeh"
 bokeh = "bokeh.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["bokeh", "bokeh.*"]
+where = ["src"]
 
 [tool.setuptools-git-versioning]
 enabled = true
@@ -87,7 +87,7 @@ omit = ["*sphinxext/*"]
 [tool.mypy]
 python_version = "3.8"
 mypy_path = "typings/"
-files = ["typings", "bokeh", "release", "tests"]
+files = ["typings", "src/bokeh", "release", "tests"]
 
 strict = true
 
