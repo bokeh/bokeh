@@ -2,7 +2,7 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {UIElement} from "../ui/ui_element"
 import {px} from "core/dom"
 import * as p from "core/properties"
-import {assert, unreachable} from "core/util/assert"
+import {assert} from "core/util/assert"
 
 type Direction = "row" | "column"
 
@@ -38,22 +38,22 @@ export abstract class FlexBoxView extends LayoutDOMView {
       const flex = (() => {
         const policy = this._direction == "row" ? sizing.width_policy : sizing.height_policy
         switch (policy) {
+          case "auto":
           case "fixed": return "0 0 auto"
           case "fit": return "1 1 auto"
           case "min": return "0 1 auto"
           case "max": return "1 0 auto"
-          default: unreachable()
         }
       })()
 
       const align_self = (() => {
         const policy = this._direction == "row" ? sizing.height_policy : sizing.width_policy
         switch (policy) {
+          case "auto":
           case "fixed":
           case "fit":
           case "min": return this._direction == "row" ? sizing.valign : sizing.halign
           case "max": return "stretch"
-          default: unreachable()
         }
       })()
 

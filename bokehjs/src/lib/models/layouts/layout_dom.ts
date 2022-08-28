@@ -14,8 +14,8 @@ import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
 export type DOMBoxSizing = {
-  width_policy: SizingPolicy
-  height_policy: SizingPolicy
+  width_policy: SizingPolicy | "auto"
+  height_policy: SizingPolicy | "auto"
   width: number | null
   height: number | null
   aspect_ratio: number | "auto" | null
@@ -131,11 +131,16 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
+  protected readonly _auto_width: "auto" | "max-content" = "max-content"
+  protected readonly _auto_height: "auto" | "max-content" = "max-content"
+
   protected _update_layout(): void {
     const sizing = this.box_sizing()
 
-    function css_sizing(policy: SizingPolicy, size: number | null) {
+    function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
       switch (policy) {
+        case "auto":
+          return size != null ? px(size) : auto_size
         case "fixed":
           return size != null ? px(size) : "max-content"
         case "fit":
@@ -154,8 +159,8 @@ export abstract class LayoutDOMView extends UIElementView {
     const styles: CSSOurStyles = {}
 
     const {width, height} = sizing
-    styles.width = css_sizing(sizing.width_policy, width)
-    styles.height = css_sizing(sizing.height_policy, height)
+    styles.width = css_sizing(sizing.width_policy, width, this._auto_width)
+    styles.height = css_sizing(sizing.height_policy, height, this._auto_height)
 
     const {min_width, max_width} = this.model
     const {min_height, max_height} = this.model
@@ -310,20 +315,8 @@ export abstract class LayoutDOMView extends UIElementView {
     return true
   }
 
-  protected _width_policy(): SizingPolicy {
-    return "fixed"
-  }
-
-  protected _height_policy(): SizingPolicy {
-    return "fixed"
-  }
-
   box_sizing(): DOMBoxSizing {
     let {width_policy, height_policy, aspect_ratio} = this.model
-    if (width_policy == "auto")
-      width_policy = this._width_policy()
-    if (height_policy == "auto")
-      height_policy = this._height_policy()
 
     const {sizing_mode} = this.model
     if (sizing_mode != null) {

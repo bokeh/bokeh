@@ -27,7 +27,10 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   protected slider_el?: HTMLElement
   protected title_el: HTMLElement
 
-  *controls() {
+  protected override readonly _auto_width = "auto"
+  protected override readonly _auto_height = "auto"
+
+  public *controls() {
     yield this.slider_el as HTMLInputElement
   }
 

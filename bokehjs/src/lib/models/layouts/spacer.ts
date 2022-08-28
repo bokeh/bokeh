@@ -7,6 +7,9 @@ export class SpacerView extends LayoutDOMView {
   get child_models(): LayoutDOM[] {
     return []
   }
+
+  protected override readonly _auto_width = "auto"
+  protected override readonly _auto_height = "auto"
 }
 
 export namespace Spacer {

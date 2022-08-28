@@ -5,7 +5,7 @@ import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {Selection} from "../selections/selection"
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView, DOMBoxSizing} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
@@ -25,7 +25,7 @@ import {isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {SizingPolicy, Layoutable} from "core/layout"
+import {Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
@@ -282,12 +282,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager.update_dataranges()
   }
 
-  protected override _width_policy(): SizingPolicy {
-    return this.model.frame_width == null ? super._width_policy() : "min"
-  }
+  override box_sizing(): DOMBoxSizing {
+    const {width_policy, height_policy, ...sizing} = super.box_sizing()
+    const {frame_width, frame_height} = this.model
 
-  protected override _height_policy(): SizingPolicy {
-    return this.model.frame_height == null ? super._height_policy() : "min"
+    return {
+      ...sizing,
+      width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
+      height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
+    }
   }
 
   override _update_layout(): void {
