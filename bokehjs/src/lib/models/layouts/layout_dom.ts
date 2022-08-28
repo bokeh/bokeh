@@ -135,8 +135,6 @@ export abstract class LayoutDOMView extends UIElementView {
   protected readonly _auto_height: "auto" | "max-content" = "max-content"
 
   protected _update_layout(): void {
-    const sizing = this.box_sizing()
-
     function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
       switch (policy) {
         case "auto":
@@ -158,9 +156,59 @@ export abstract class LayoutDOMView extends UIElementView {
 
     const styles: CSSOurStyles = {}
 
-    const {width, height} = sizing
-    styles.width = css_sizing(sizing.width_policy, width, this._auto_width)
-    styles.height = css_sizing(sizing.height_policy, height, this._auto_height)
+    const sizing = this.box_sizing()
+    const {width_policy, height_policy, width, height, aspect_ratio} = sizing
+
+    const computed_aspect = (() => {
+      if (aspect_ratio == "auto") {
+        if (width != null && height != null)
+          return width/height
+      } else if (isNumber(aspect_ratio))
+        return aspect_ratio
+
+      return null
+    })()
+
+    if (aspect_ratio == "auto") {
+      if (width != null && height != null)
+        styles.aspect_ratio = `${width} / ${height}`
+      else
+        styles.aspect_ratio = "auto"
+    } else if (isNumber(aspect_ratio))
+      styles.aspect_ratio = `${aspect_ratio}`
+
+    const [css_width, css_height] = (() => {
+      const css_width = css_sizing(width_policy, width, this._auto_width)
+      const css_height = css_sizing(height_policy, height, this._auto_height)
+
+      if (aspect_ratio != null) {
+        if (width_policy != height_policy) {
+          if (width_policy == "fixed")
+            return [css_width, "auto"]
+          if (height_policy == "fixed")
+            return ["auto", css_height]
+          if (width_policy == "max")
+            return [css_width, "auto"]
+          if (height_policy == "max")
+            return ["auto", css_height]
+          return ["auto", "auto"]
+        } else {
+          if (width_policy != "fixed" && height_policy != "fixed") {
+            if (computed_aspect != null) {
+              if (computed_aspect >= 1)
+                return [css_width, "auto"]
+              else
+                return ["auto", css_height]
+            }
+          }
+        }
+      }
+
+      return [css_width, css_height]
+    })()
+
+    styles.width = css_width
+    styles.height = css_height
 
     const {min_width, max_width} = this.model
     const {min_height, max_height} = this.model
@@ -172,13 +220,6 @@ export abstract class LayoutDOMView extends UIElementView {
       styles.max_width = to_css(max_width)
     if (max_height != null)
       styles.max_height = to_css(max_height)
-
-    const {aspect_ratio} = sizing
-    if (aspect_ratio == "auto") {
-      if (width != null && height != null)
-        styles.aspect_ratio = `${width} / ${height}`
-    } else if (isNumber(aspect_ratio))
-      styles.aspect_ratio = `${aspect_ratio}`
 
     const {margin} = this.model
     if (margin != null) {
