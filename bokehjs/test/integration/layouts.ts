@@ -1,7 +1,7 @@
 import {expect} from "../unit/assertions"
 import {display, fig, row, grid} from "./_util"
 
-import {Spacer, Tabs, TabPanel, GroupBox, Column} from "@bokehjs/models/layouts"
+import {Spacer, Tabs, TabPanel, GridBox, GroupBox, Column} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
 import {TextInput, Button} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
@@ -230,6 +230,65 @@ describe("3x3 GridBox", () => {
 })
 
 describe("GridBox", () => {
+  const s = (color: Color) => new Spacer({styles: {background_color: color2css(color)}})
+
+  it("should allow 3x3 grid of fixed width and height", async () => {
+    const grid = new GridBox({
+      width: 300,
+      height: 300,
+      children: [
+        [s("red"),  0, 0], [s("green"),  0, 1], [s("blue"),   0, 2],
+        [s("gray"), 1, 0], [s("orange"), 1, 1], [s("purple"), 1, 2],
+        [s("aqua"), 2, 0], [s("maroon"), 2, 1], [s("yellow"), 2, 2],
+      ],
+    })
+
+    await display(grid, [350, 350])
+  })
+
+  it("should allow 4x3 grid of fixed width and height", async () => {
+    const grid = new GridBox({
+      width: 300,
+      height: 400,
+      children: [
+        [s("red"),  0, 0], [s("green"),  0, 1], [s("blue"),   0, 2],
+        [s("gray"), 1, 0], [s("orange"), 1, 1], [s("purple"), 1, 2],
+        [s("aqua"), 2, 0], [s("maroon"), 2, 1], [s("yellow"), 2, 2],
+        [s("pink"), 3, 0], [s("plum"),   3, 1], [s("lime"),   3, 2],
+      ],
+    })
+
+    await display(grid, [350, 450])
+  })
+
+  it("should allow 3x4 grid of fixed width and height", async () => {
+    const grid = new GridBox({
+      width: 400,
+      height: 300,
+      children: [
+        [s("red"),  0, 0], [s("green"),  0, 1], [s("blue"),   0, 2], [s("pink"), 0, 3],
+        [s("gray"), 1, 0], [s("orange"), 1, 1], [s("purple"), 1, 2], [s("plum"), 1, 3],
+        [s("aqua"), 2, 0], [s("maroon"), 2, 1], [s("yellow"), 2, 2], [s("lime"), 2, 3],
+      ],
+    })
+
+    await display(grid, [450, 350])
+  })
+
+  it("should allow 4x4 grid with spans of fixed width and height", async () => {
+    const grid = new GridBox({
+      width: 400,
+      height: 400,
+      children: [
+        [s("red"),  0, 0, 1, 2], [s("green"),  0, 2], [s("blue"), 0, 3, 4, 1],
+        [s("gray"), 1, 0, 2, 1], [s("orange"), 1, 1, 2, 2],
+        [s("aqua"), 3, 0, 1, 2], [s("yellow"), 3, 2],
+      ],
+    })
+
+    await display(grid, [450, 450])
+  })
+
   it("should allow 20x20 grids of 25x25 px spacers", async () => {
     const s0 = spacer("fixed", "fixed", 25, 25)
 
@@ -243,8 +302,10 @@ describe("GridBox", () => {
       return s0([r, g, b])
     })
 
-    const l = grid(items)
-    await display(l, [600, 600])
+    const children = items.to_sparse()
+    const grid = new GridBox({children})
+
+    await display(grid, [600, 600])
   })
 
   it("should allow 10x20 grids of buttons", async () => {
@@ -269,8 +330,10 @@ describe("GridBox", () => {
       })
     })
 
-    const l = grid(items, {spacing: 5})
-    await display(l, [700, 700])
+    const children = items.to_sparse()
+    const grid = new GridBox({children, spacing: 5})
+
+    await display(grid, [700, 700])
   })
 })
 
