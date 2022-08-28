@@ -1,8 +1,9 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {GridAlignmentLayout} from "./alignments"
+import {Container} from "core/layout/grid"
 import {UIElement} from "../ui/ui_element"
 import {px} from "core/dom"
 import * as p from "core/properties"
-import {assert} from "core/util/assert"
 
 type Direction = "row" | "column"
 
@@ -28,7 +29,9 @@ export abstract class FlexBoxView extends LayoutDOMView {
       gap: px(this.model.spacing),
     })
 
-    const layoutable = []
+    const layoutable = new Container<LayoutDOMView>()
+    let r0 = 0
+    let c0 = 0
 
     for (const view of this.child_views) {
       if (!(view instanceof LayoutDOMView))
@@ -60,94 +63,20 @@ export abstract class FlexBoxView extends LayoutDOMView {
       view.style.append(":host", {flex, align_self})
 
       if (view.layout != null) {
-        layoutable.push(view)
+        layoutable.add({r0, c0, r1: r0 + 1, c1: c0 + 1}, view)
+
+        if (this._direction == "row")
+          c0 += 1
+        else
+          r0 += 1
       }
     }
 
-    if (layoutable.length != 0) {
-      this.layout = new CSSAlignmentLayout(this._direction, layoutable)
+    if (layoutable.size != 0) {
+      this.layout = new GridAlignmentLayout(layoutable)
       this.layout.set_sizing()
     } else {
       delete this.layout
-    }
-  }
-}
-
-import {Layoutable} from "core/layout/layoutable"
-import {Sizeable, SizeHint, Size} from "core/layout"
-import {Extents} from "core/types"
-import {BBox} from "core/util/bbox"
-
-class CSSAlignmentLayout extends Layoutable {
-  constructor(readonly direction: Direction, readonly children: LayoutDOMView[]) {
-    super()
-  }
-
-  protected _measure(_viewport: Sizeable): SizeHint {
-    return {width: 0, height: 0}
-  }
-
-  override compute(viewport: Partial<Size> = {}): void {
-    const {width, height} = viewport
-    assert(width != null && height != null)
-
-    const size_hint: SizeHint = {width, height}
-    const outer = new BBox({left: 0, top: 0, width, height})
-
-    let inner: BBox | undefined = undefined
-
-    if (size_hint.inner != null) {
-      const {left, top, right, bottom} = size_hint.inner
-      inner = new BBox({left, top, right: width - right, bottom: height - bottom})
-    }
-
-    this.set_geometry(outer, inner)
-  }
-
-  override _set_geometry(outer: BBox, inner: BBox): void {
-    super._set_geometry(outer, inner)
-
-    const sizing = []
-    for (const child of this.children) {
-      const {layout} = child
-      if (layout != null) {
-        const {bbox} = child
-        const size_hint = layout.measure(bbox)
-        sizing.push({layout, bbox, size_hint})
-      }
-    }
-
-    const extents: Extents = {left: 0, right: 0, top: 0, bottom: 0}
-
-    for (const {size_hint} of sizing) {
-      const {inner} = size_hint
-      if (inner != null) {
-        extents.left = Math.max(extents.left, inner.left)
-        extents.right = Math.max(extents.right, inner.right)
-        extents.top = Math.max(extents.top, inner.top)
-        extents.bottom = Math.max(extents.bottom, inner.bottom)
-      }
-    }
-
-    for (const {layout, bbox, size_hint} of sizing) {
-      const outer_bbox = bbox
-      const inner_bbox = (() => {
-        const {inner} = size_hint
-        if (inner != null) {
-          const {left, right, top, bottom} = (() => {
-            if (this.direction == "row")
-              return {left: inner.left, right: inner.right, top: extents.top, bottom: extents.bottom}
-            else
-              return {left: extents.left, right: extents.right, top: inner.top, bottom: inner.bottom}
-          })()
-
-          const {width, height} = outer_bbox
-          return BBox.from_lrtb({left, top, right: width - right, bottom: height - bottom})
-        } else
-          return undefined
-      })()
-
-      layout.set_geometry(outer_bbox, inner_bbox)
     }
   }
 }
