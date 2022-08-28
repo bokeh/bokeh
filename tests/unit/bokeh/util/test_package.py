@@ -73,8 +73,8 @@ def test_version_mismatch_full_no_given(mock_vsrih: MagicMock, monkeypatch: pyte
 
 def test_version_missing_build_dir(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(bup, '__version__', "0.1.2.rc12")
-    errors = bup.validate(build_dir="/foo/bar")
-    assert any(err.startswith("missing build dir file: /foo/bar/js") for err in errors)
+    errors = bup.validate(build_dir="/foobuild")
+    assert any("foobuild" in err for err in errors)
 
 #-----------------------------------------------------------------------------
 # Dev API
