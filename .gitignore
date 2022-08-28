@@ -9,7 +9,7 @@
 /sphinx/build
 
 # Egg metadata
-/*.egg-info
+**/*.egg-info*
 
 # coverage reports
 /.coverage

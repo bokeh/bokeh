@@ -3,17 +3,17 @@ include CHANGELOG
 prune tests
 
 # Package files and data
-graft bokeh/core/_templates
-graft bokeh/sampledata/_data
-graft bokeh/sphinxext/_templates
-graft bokeh/server/static
-exclude bokeh/server/static/js/*.json
+graft src/bokeh/core/_templates
+graft src/bokeh/sampledata/_data
+graft src/bokeh/sphinxext/_templates
+graft src/bokeh/server/static
+exclude src/bokeh/server/static/js/*.json
 global-exclude *.js.map
 global-exclude *.ts.map
-include bokeh/server/static/js/bokeh.json
-include bokeh/server/views/*.html
-include bokeh/server/views/*.ico
-include bokeh/util/sampledata.json
-include bokeh/_sri.json
-include bokeh/LICENSE.txt
-include bokeh/py.typed
+include src/bokeh/server/static/js/bokeh.json
+include src/bokeh/server/views/*.html
+include src/bokeh/server/views/*.ico
+include src/bokeh/util/sampledata.json
+include src/bokeh/_sri.json
+include src/bokeh/LICENSE.txt
+include src/bokeh/py.typed

@@ -6,8 +6,8 @@ extraction:
     index:
       exclude:
         - bokehjs/src/lib/core/property_mixins.ts
-        - bokeh/core/_templates
-        - bokeh/sphinxext/_templates
+        - src/bokeh/core/_templates
+        - src/bokeh/sphinxext/_templates
   python:
     python_setup:
       requirements_files: false
