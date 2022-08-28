@@ -48,6 +48,7 @@ from ..core.properties import (
     Struct,
     Tuple,
 )
+from ..core.property.struct import Optional
 from ..core.validation import error, warning
 from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
 from ..core.validation.warnings import (
@@ -70,11 +71,13 @@ __all__ = (
     'FlexBox',
     'GridBox',
     'GroupBox',
+    'HBox',
     'LayoutDOM',
     'Row',
     'Spacer',
     'TabPanel',
     'Tabs',
+    'VBox',
 )
 
 #-----------------------------------------------------------------------------
@@ -400,6 +403,66 @@ class GridBox(LayoutDOM):
     @error(REPEATED_LAYOUT_CHILD)
     def _check_repeated_layout_children(self):
         children = [ child[0] for child in self.children ]
+        if len(children) != len(set(children)):
+            return str(self)
+
+class HBox(LayoutDOM):
+    """ A CSS grid-based horizontal box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    items = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
+    A list of children with their associated position in the horizontal box (optional; column number, span).
+    """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
+
+    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    Describes how the grid should maintain its columns' widths.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    spacing = Int(default=0, help="""
+    The gap between children (in pixels).
+    """)
+
+    @error(REPEATED_LAYOUT_CHILD)
+    def _check_repeated_layout_children(self):
+        children = [ item["child"] for item in self.items ]
+        if len(children) != len(set(children)):
+            return str(self)
+
+class VBox(LayoutDOM):
+    """ A CSS grid-based vertical box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    items = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
+    A list of children with their associated position in the vertical box (optional; row number, span).
+    """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
+
+    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    Describes how the grid should maintain its rows' heights.
+
+    .. note::
+        This is an experimental feature and may change in future. Use it at your
+        own discretion.
+
+    """)
+
+    spacing = Int(default=0, help="""
+    The gap between children (in pixels).
+    """)
+
+    @error(REPEATED_LAYOUT_CHILD)
+    def _check_repeated_layout_children(self):
+        children = [ item["child"] for item in self.items ]
         if len(children) != len(set(children)):
             return str(self)
 

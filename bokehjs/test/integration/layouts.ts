@@ -1,7 +1,7 @@
 import {expect} from "../unit/assertions"
 import {display, fig, row, grid} from "./_util"
 
-import {Spacer, Tabs, TabPanel, GridBox, GroupBox, Row, Column} from "@bokehjs/models/layouts"
+import {Spacer, Tabs, TabPanel, GridBox, GroupBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
 import {TextInput, Button} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
@@ -229,28 +229,28 @@ describe("3x3 GridBox", () => {
   })
 })
 
+const s = (color: Color) => new Spacer({
+  sizing_mode: "fixed",
+  width: 100,
+  height: 100,
+  styles: {background_color: color2css(color)},
+})
+
+function plot(a: number, b: number, color: Color) {
+  const p = fig([200, 200])
+  p.add_layout(new LinearAxis(), "above")
+  p.add_layout(new LinearAxis(), "right")
+  p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+  p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+  p.xaxis.major_label_orientation = "vertical"
+  p.yaxis.major_label_orientation = "horizontal"
+  const xs = [1, 2, 3].map((c) => c*a)
+  const ys = [1, 2, 3].map((c) => c*b)
+  p.circle(xs, ys, {size: 10, color})
+  return p
+}
+
 describe("FlexBox", () => {
-  const s = (color: Color) => new Spacer({
-    sizing_mode: "fixed",
-    width: 100,
-    height: 100,
-    styles: {background_color: color2css(color)},
-  })
-
-  function plot(a: number, b: number, color: Color) {
-    const p = fig([200, 200])
-    p.add_layout(new LinearAxis(), "above")
-    p.add_layout(new LinearAxis(), "right")
-    p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-    p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
-    p.xaxis.major_label_orientation = "vertical"
-    p.yaxis.major_label_orientation = "horizontal"
-    const xs = [1, 2, 3].map((c) => c*a)
-    const ys = [1, 2, 3].map((c) => c*b)
-    p.circle(xs, ys, {size: 10, color})
-    return p
-  }
-
   describe("should support Row layout", () => {
     it("with 3 spacers of 100x100 size", async () => {
       const row = new Row({
@@ -293,6 +293,58 @@ describe("FlexBox", () => {
 
       await display(row, [250, 650])
     })
+  })
+})
+
+describe("HBox", () => {
+  it("should allow 3 spacers of 100x100 size", async () => {
+    const row = new HBox({
+      items: [
+        {child: s("red")},
+        {child: s("green")},
+        {child: s("blue")},
+      ],
+    })
+
+    await display(row, [350, 150])
+  })
+
+  it("should allow 3 plots of 200x200 size", async () => {
+    const row = new HBox({
+      items: [
+        {child: plot(10**0, 10**0, "red")},
+        {child: plot(10**2, 10**2, "green")},
+        {child: plot(10**4, 10**4, "blue")},
+      ],
+    })
+
+    await display(row, [650, 250])
+  })
+})
+
+describe("VBox", () => {
+  it("should allow 3 spacers of 100x100 size", async () => {
+    const row = new VBox({
+      items: [
+        {child: s("red")},
+        {child: s("green")},
+        {child: s("blue")},
+      ],
+    })
+
+    await display(row, [150, 350])
+  })
+
+  it("should allow 3 plots of 200x200 size", async () => {
+    const row = new VBox({
+      items: [
+        {child: plot(10**0, 10**0, "red")},
+        {child: plot(10**2, 10**2, "green")},
+        {child: plot(10**4, 10**4, "blue")},
+      ],
+    })
+
+    await display(row, [250, 650])
   })
 })
 
