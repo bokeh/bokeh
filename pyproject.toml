@@ -86,8 +86,8 @@ omit = ["*sphinxext/*"]
 
 [tool.mypy]
 python_version = "3.8"
-mypy_path = "typings/"
-files = ["typings", "src/bokeh", "release", "tests"]
+mypy_path = "src/typings/"
+files = ["src/typings", "src/bokeh", "release", "tests"]
 
 strict = true
 
