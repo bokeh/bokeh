@@ -64,6 +64,10 @@ export abstract class UIElementView extends DOMComponentView {
     return this._bbox!
   }
 
+  update_bbox(): void {
+    this._update_bbox()
+  }
+
   protected _update_bbox(): void {
     const bbox = (() => {
       if (this.el.offsetParent != null) {

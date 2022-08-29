@@ -297,13 +297,12 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
-  update_bbox(): void {
+  override update_bbox(): void {
     for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView)
-        child_view.update_bbox()
+      child_view.update_bbox()
     }
 
-    this._update_bbox()
+    super.update_bbox()
   }
 
   protected _after_layout(): void {}
