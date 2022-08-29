@@ -1,7 +1,3 @@
-# Top-level Config
-include CHANGELOG
-prune tests
-
 # Package files and data
 graft src/bokeh/core/_templates
 graft src/bokeh/sampledata/_data

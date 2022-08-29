@@ -4,6 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+from __future__ import annotations
 
 # Standard library imports
 import os, re, subprocess, sys, time
@@ -14,11 +15,11 @@ from textwrap import indent
 from typing import NoReturn
 
 # External imports
-from setuptools import setup
+from setuptools import Command, setup  # type: ignore[import]
+from setuptools.command.build import build  # type: ignore[import]
+from setuptools.command.sdist import sdist  # type: ignore[import]
 
-# -----------------------------------------------------------------------------
-# Helpers
-# -----------------------------------------------------------------------------
+# --- Helpers ----------------------------------------------------------------
 
 try:
     import colorama
@@ -33,9 +34,10 @@ except ModuleNotFoundError:
     bright = dim = red = green = yellow = _plain
 
 ROOT = Path(__file__).resolve().parent
+SRC_ROOT = ROOT / "src"
 BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
 BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
-PKG_STATIC = ROOT / 'src' / 'bokeh' / 'server' / 'static'
+PKG_STATIC = SRC_ROOT / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
 PKG_TSLIB = PKG_STATIC / 'lib'
 COMPONENTS = ("bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-api", "bokeh-gl", "bokeh-mathjax")
@@ -73,7 +75,7 @@ def build_js() -> None:
     except FileNotFoundError as e:
         die(BUILD_SIZE_FAIL_MSG.format(exc=e))
 
-def install_js() -> None:
+def install_js() -> tuple[str, ...]:
     print("\nInstalling BokehJS... ", end="")
 
     missing = [fn for fn in JS_FILES if not (BUILD_JS / fn).exists()]
@@ -93,20 +95,27 @@ def install_js() -> None:
 
     print(SUCCESS)
 
-def build_or_install_bokehjs() -> None:
+    return tuple(
+        ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
+        for parent, dirs, _ in os.walk(PKG_STATIC) for d in dirs
+    )
+
+def build_or_install_bokehjs() -> set[str]:
     action = os.environ.get("BOKEHJS_ACTION", "build")
     if (ROOT / 'PKG-INFO').exists():
         kind, loc = "PACKAGED", "bokeh.server.static"
+        new_pkgs: tuple[str, ...] = ()
     elif action == "install":
-        install_js()
         kind, loc = "PREVIOUSLY BUILT", "bokehjs/build"
+        new_pkgs = install_js()
     elif action == "build":
-        build_js()
-        install_js()
         kind, loc = "NEWLY BUILT", "bokehjs/build"
+        build_js()
+        new_pkgs = install_js()
     else:
         raise ValueError(f"Unrecognized action {action!r}")
     print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
+    return set(new_pkgs)
 
 def die(x: str) -> NoReturn:
     print(f"{x}\n")
@@ -127,10 +136,20 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 {{stderr}}
 """
 
-# -----------------------------------------------------------------------------
-# Setuptools
-# -----------------------------------------------------------------------------
+# --- Setuptools -------------------------------------------------------------
 
-build_or_install_bokehjs()
+class Build(build):  # type: ignore
+    sub_commands = [("build_js", None), *build.sub_commands]
 
-setup()
+class Sdist(sdist):  # type: ignore
+    sub_commands = [("build_js", None), *sdist.sub_commands]
+
+class BuildJS(Command):  # type: ignore
+    def initialize_options(self) -> None: pass
+    def finalize_options(self) -> None: pass
+    def run(self) -> None:
+        new = build_or_install_bokehjs()
+        existing = set(self.distribution.packages)
+        self.distribution.packages.extend(tuple(new-existing))
+
+setup(cmdclass={"build_js": BuildJS, "build": Build, "sdist": Sdist})
