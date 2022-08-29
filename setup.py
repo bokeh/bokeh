@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 ROOT = Path(__file__).resolve().parent
 BUILD_JS = ROOT / 'bokehjs' / 'build' / 'js'
 BUILD_TSLIB = ROOT / 'bokehjs' / 'node_modules' / 'typescript' / 'lib'
-PKG_STATIC = ROOT / 'bokeh' / 'server' / 'static'
+PKG_STATIC = ROOT / 'src' / 'bokeh' / 'server' / 'static'
 PKG_JS = PKG_STATIC / 'js'
 PKG_TSLIB = PKG_STATIC / 'lib'
 COMPONENTS = ("bokeh", "bokeh-widgets", "bokeh-tables", "bokeh-api", "bokeh-gl", "bokeh-mathjax")

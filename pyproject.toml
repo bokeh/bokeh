@@ -10,6 +10,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
     "Jinja2 >=2.9",
+    "contourpy >=1",
     "numpy >=1.11.3",
     "packaging >=16.8",
     "pillow >=7.1.0",
@@ -62,7 +63,7 @@ repository = "https://github.com/bokeh/bokeh"
 bokeh = "bokeh.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["bokeh", "bokeh.*"]
+where = ["src"]
 
 [tool.setuptools-git-versioning]
 enabled = true
@@ -85,8 +86,8 @@ omit = ["*sphinxext/*"]
 
 [tool.mypy]
 python_version = "3.8"
-mypy_path = "typings/"
-files = ["typings", "bokeh", "release", "tests"]
+mypy_path = "src/typings/"
+files = ["src/typings", "src/bokeh", "release", "tests"]
 
 strict = true
 

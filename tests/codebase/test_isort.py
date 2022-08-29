@@ -29,7 +29,7 @@ from tests.support.util.project import TOP_PATH
 #-----------------------------------------------------------------------------
 
 def test_isort_bokeh() -> None:
-    isort("bokeh")
+    isort("src/bokeh")
 
 def test_isort_examples() -> None:
     isort("examples")
@@ -44,7 +44,7 @@ def test_isort_tests() -> None:
     isort("tests")
 
 def test_isort_typings() -> None:
-    isort("typings")
+    isort("src/typings")
 
 #-----------------------------------------------------------------------------
 # Support

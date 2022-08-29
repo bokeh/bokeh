@@ -46,10 +46,10 @@ def ls_files(*patterns: str) -> list[str]:
     proc = run(["git", "ls-files", "--", *patterns], capture_output=True)
     return proc.stdout.decode("utf-8").split("\n")
 
-def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> list[str]:
+def ls_modules(*, skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> list[str]:
     modules: list[str] = []
 
-    files = ls_files(f"{dir}/**.py")
+    files = ls_files("src/bokeh/**.py")
 
     for file in files:
         if not file:
@@ -58,7 +58,7 @@ def ls_modules(*, dir: str = "bokeh", skip_prefixes: Sequence[str] = [], skip_ma
         if file.endswith("__main__.py") and skip_main:
             continue
 
-        module = file.replace("/", ".").replace(".py", "").replace(".__init__", "")
+        module = file.strip("src/").replace("/", ".").replace(".py", "").replace(".__init__", "")
 
         if any(module.startswith(prefix) for prefix in skip_prefixes):
             continue

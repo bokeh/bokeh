@@ -2,7 +2,7 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.10
 
   # runtime
   - contourpy >=1
@@ -12,7 +12,7 @@ dependencies:
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
-  - tornado 5.1.*
+  - tornado >=5
   - typing_extensions >=3.10.0
   - xyzservices>=2021.09.1
 
@@ -32,24 +32,33 @@ dependencies:
   - isort 5.8
   - mock
   - nbconvert >=5.4
+  - networkx
   - nodejs 16.*
+  - pandas
   - pre-commit
   - psutil
   - pydot
   - pygments
-  - pytest 6.2*
-  - pytest-asyncio=0.12.0
+  - pytest >=7.0
+  - pytest-asyncio >=0.18.1
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
   - requests >=1.2.3
+  - scipy
   - selenium 4.2
+  - toml
 
   # examples
   - django
+  - flask >=1.0
   - h5py
   - icalendar
+  - networkx
+  - notebook
   - pyshp
+  - scikit-learn
+  - sympy
 
   # pip dependencies
   - pip
@@ -65,6 +74,7 @@ dependencies:
     - sphinxext-opengraph
     # tests
     - flake8-pyi
+    - pandas-stubs
     - types-boto
     - types-colorama
     - types-mock

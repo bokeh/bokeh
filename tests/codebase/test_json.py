@@ -28,8 +28,8 @@ from tests.support.util.project import TOP_PATH
 #-----------------------------------------------------------------------------
 
 paths = [
-    "bokeh/_sri.json",
-    "bokeh/util/sampledata.json",
+    "src/bokeh/_sri.json",
+    "src/bokeh/util/sampledata.json",
     "sphinx/source/docs/gallery.json",
     "sphinx/switcher.json",
 ]

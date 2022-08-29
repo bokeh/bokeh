@@ -56,7 +56,7 @@ def build_npm_packages(config: Config, system: System) -> ActionReturn:
 
 def build_conda_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("conda build conda.recipe --no-test --output-folder .", VERSION=config.version)
+        system.run("conda build conda/recipe --no-test --output-folder .", VERSION=config.version)
         return PASSED("conda package build succeeded")
     except RuntimeError as e:
         return FAILED("conda package build did NOT succeed", details=e.args)

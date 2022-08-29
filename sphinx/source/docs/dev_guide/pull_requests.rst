@@ -152,9 +152,8 @@ Things to keep in mind when working on a pull request:
   `Bokeh's BSD license`_ and that you think would be useful to add to Bokeh,
   :ref:`file an issue <contributor_guide_issues>` and start a discussion first.
 * In case your pull request includes additional or updated dependencies, you
-  not only need to update :bokeh-tree:`environment.yml` but also the
-  :ref:`environment files Bokeh's CI <contributor_guide_testing_ci_environments>`
-  in the :bokeh-tree:`ci` folder.
+  need to update :ref:`Bokeh's environment files <contributor_guide_testing_ci_environments>`
+  in the :bokeh-tree:`conda` folder.
 
 See the `"Pull Requests" section in BEP 1: Issues and PRs management <wiki pull requests_>`_
 for more information about labels and the pull request management process.
