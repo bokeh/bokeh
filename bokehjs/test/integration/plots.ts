@@ -6,7 +6,7 @@ import {display, fig, row} from "./_util"
 import {figure} from "@bokehjs/api/plotting"
 import {Location} from "@bokehjs/core/enums"
 import {assert} from "@bokehjs/core/util/assert"
-import {Range1d, LinearScale, LinearAxis, ColumnDataSource} from "@bokehjs/models"
+import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("Plot", () => {
@@ -249,9 +249,11 @@ describe("Plot", () => {
   it("should allow to fully repaint canvas after viewport resize", async () => {
     const plot = fig([200, 200], {sizing_mode: "stretch_both"})
     plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
-    const {view, el} = await display(plot, [200, 200])
-    el.style.width = "300px"
-    el.style.height = "300px"
+
+    const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
+    const {view} = await display(pane, [350, 350])
+
+    pane.styles = {width: "300px", height: "300px"}
     await view.ready
   })
 

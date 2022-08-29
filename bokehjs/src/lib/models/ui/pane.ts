@@ -1,5 +1,6 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {ViewStorage, build_views, remove_views} from "core/build_views"
+import {SerializableState} from "core/view"
 import * as p from "core/properties"
 
 export class PaneView extends UIElementView {
@@ -27,6 +28,13 @@ export class PaneView extends UIElementView {
       this.shadow_el.appendChild(child_view.el)
       child_view.render()
       child_view.after_render()
+    }
+  }
+
+  override serializable_state(): SerializableState {
+    return {
+      ...super.serializable_state(),
+      children: this.child_views.map((child) => child.serializable_state()),
     }
   }
 }

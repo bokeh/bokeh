@@ -1,3 +1,4 @@
-Plot bbox=[0, 0, 300, 300]
-  LinearAxis bbox=[20, 278, 275, 22]
-  LinearAxis bbox=[0, 5, 20, 273]
+Pane bbox=[0, 0, 300, 300]
+  Plot bbox=[0, 0, 300, 300]
+    LinearAxis bbox=[20, 278, 275, 22]
+    LinearAxis bbox=[0, 5, 20, 273]
