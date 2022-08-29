@@ -10,10 +10,9 @@ export abstract class ControlView extends WidgetView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const p = this.model.properties
-    this.on_change(p.disabled, () => {
+    this.connect(this.disabled, (disabled) => {
       for (const el of this.controls()) {
-        toggle_attribute(el, "disabled", this.model.disabled)
+        toggle_attribute(el, "disabled", disabled)
       }
     })
   }

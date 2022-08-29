@@ -1,11 +1,13 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {UIElement} from "../ui/ui_element"
-import {fieldset, legend, input, StyleSheetLike} from "core/dom"
+import {fieldset, legend, input, display, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import group_box_css from "styles/group_box.css"
 
 export class GroupBoxView extends LayoutDOMView {
   override model: GroupBox
+
+  checkbox_el: HTMLInputElement
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), group_box_css]
@@ -14,6 +16,14 @@ export class GroupBoxView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.child.change, () => this.rebuild())
+
+    const {checkable, disabled} = this.model.properties
+    this.on_change(checkable, () => {
+      display(this.checkbox_el, this.model.checkable)
+    })
+    this.on_change(disabled, () => {
+      this.checkbox_el.checked = !this.model.disabled
+    })
   }
 
   get child_models(): UIElement[] {
@@ -26,15 +36,18 @@ export class GroupBoxView extends LayoutDOMView {
     const {checkable, disabled, title} = this.model
     const [child_view] = this.child_views
 
-    const checkbox_el = checkable ? input({type: "checkbox", checked: !disabled}) : null
-    const title_el = legend({}, checkbox_el, title)
+    this.checkbox_el = input({type: "checkbox", checked: !disabled})
+    this.checkbox_el.addEventListener("change", () => {
+      this.model.disabled = !this.checkbox_el.checked
+    })
+    display(this.checkbox_el, checkable)
+
+    const title_el = legend({}, this.checkbox_el, title)
 
     const fieldset_el = fieldset({}, title_el, child_view.el)
     this.shadow_el.appendChild(fieldset_el)
   }
 }
-
-// TODO: support `disabled` propagation
 
 export namespace GroupBox {
   export type Attrs = p.AttrsOf<Props>

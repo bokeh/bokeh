@@ -184,8 +184,8 @@ export function empty(node: Node, attrs: boolean = false): void {
   }
 }
 
-export function display(element: HTMLElement): void {
-  element.style.display = ""
+export function display(element: HTMLElement, display: boolean = true): void {
+  element.style.display = display ? "" : "none"
 }
 
 export function undisplay(element: HTMLElement): void {

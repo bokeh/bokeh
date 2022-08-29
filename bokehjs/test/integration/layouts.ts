@@ -665,4 +665,23 @@ describe("GroupBox", () => {
     })
     await display(group_box, [400, 200])
   })
+
+  it.allowing(3*8)("should allow changing disabled state with a checkbox", async () => {
+    const group_box = new GroupBox({
+      title: "Head offset:",
+      checkable: true,
+      disabled: false,
+      child: new Column({
+        children: [
+          new TextInput({placeholder: "Enter value ...", prefix: "X", suffix: "mm"}),
+          new TextInput({placeholder: "Enter value ...", prefix: "Y", suffix: "mm"}),
+          new TextInput({placeholder: "Enter value ...", prefix: "Z", suffix: "mm"}),
+        ],
+      }),
+    })
+    const {view} = await display(group_box, [400, 200])
+
+    view.checkbox_el.dispatchEvent(new MouseEvent("click"))
+    await view.ready
+  })
 })

@@ -34,6 +34,8 @@ export abstract class LayoutDOMView extends UIElementView {
   readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
   readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
 
+  readonly disabled = new Signal<boolean, this>(this, "disabled")
+
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
   }
@@ -75,7 +77,17 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     })
 
+    if (this.parent instanceof LayoutDOMView) {
+      this.connect(this.parent.disabled, (disabled) => {
+        this.disabled.emit(disabled || this.model.disabled)
+      })
+    }
+
     const p = this.model.properties
+    this.on_change(p.disabled, () => {
+      this.disabled.emit(this.model.disabled)
+    })
+
     this.on_change([
       p.width, p.height,
       p.min_width, p.min_height,
