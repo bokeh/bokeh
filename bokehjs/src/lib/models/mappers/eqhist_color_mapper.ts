@@ -31,7 +31,7 @@ export class EqHistColorMapper extends ScanningColorMapper {
 
   // Public for unit tests
   /*protected*/ scan(data: Arrayable<number>, n: number): ScanningScanData {
-    
+
     console.log("EQ_HIST_COLOR_MAPPER scan()")
 
     const low = this.low != null ? this.low : min(data)

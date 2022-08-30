@@ -40,12 +40,7 @@ export class StackColorMapper extends ColorMapper {
 
   protected override _v_compute<T>(_data: Arrayable<number>, _values: Arrayable<T>,
       _palette: Arrayable<T>, _colors: {nan_color: T}): void {
-
-
     unreachable()
-    //this.alpha_mapper._v_compute(_data, _values, _palette, _colors)
-
-
   }
 
   // Mix across colors.
@@ -106,24 +101,9 @@ export class StackColorMapper extends ColorMapper {
     }
 
     // Calculate alphas using alpha_mapper.
-    const start_alpha = 0  // from property???
-    const end_alpha = 255  // from property???
-    const diff_alpha = end_alpha - start_alpha
-    const alpha_len = Math.abs(diff_alpha) + 1
-    const alpha_palette = new Uint32Array(alpha_len)  // Is this length correct????
-    // This palette is a varying_alpha_palette. Maybe need JS function for this.
-    for (let i = 0; i < alpha_len; i++)
-      alpha_palette[i] = byte(start_alpha + diff_alpha*i / (alpha_len-1))
-
-    //const alpha_palette = this.alpha_mapper.palette
-    console.log("alpha_palette", alpha_palette)
-
+    const alpha_palette = _convert_palette(this.alpha_mapper.palette)
     const alphas = new Uint32Array(n)
-    // Might be better if fn below wasn't public and called alpha_mapper.v_compute but
-    // with own values array (here the alphas array).  Then colors would be correct?
     this.alpha_mapper._v_compute(totals, alphas, alpha_palette, colors)
-
-    console.log("alphas", alphas)
 
     // Combine RGBA and alphas.
     for (let i = 0; i < n; i++) {

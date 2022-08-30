@@ -41,6 +41,7 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   get color_mapper(): ColorMapper {
+    // Color mapper that is used to render this colorbar.
     let mapper = this.model.color_mapper
     if (mapper instanceof StackColorMapper)
       mapper = mapper.alpha_mapper
