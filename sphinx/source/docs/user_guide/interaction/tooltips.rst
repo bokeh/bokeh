@@ -184,8 +184,8 @@ Other UI elements
 Bokeh also supports additional UI elements that you can use to add more
 information to a Bokeh document. For example, the
 :class:`~bokeh.models.Dialog` model allows you to define a dialog overlay, while
-the and :class:`~bokeh.models.Menu ` model allows you to define a custom menu
-context menu.
+the :class:`~bokeh.models.Menu` model allows you to define a custom context
+menu.
 
 See :bokeh-tree:`examples/models/file/widgets.py` for examples of these UI
 elements.
