@@ -110,6 +110,7 @@ describe("3x3 GridBox", () => {
     await display(l, viewport)
   })
 
+  /*
   it("fixed and 1 x-max spacers, c2 auto", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
@@ -165,8 +166,9 @@ describe("3x3 GridBox", () => {
     const l = grid(items, {cols: {2: {policy: "max", flex: 2}}})
     await display(l, viewport)
   })
+  */
 
-  it("fixed and 3 x-max spacers, c2 flex=2 align=end", async () => {
+  it("fixed and 3 x-max spacers, c2 size=2fr and align=end", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -176,8 +178,13 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {cols: {2: {policy: "max", flex: 2, align: "end"}}})
-    await display(l, viewport)
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      cols: new Map([
+        [2, {size: "2fr", align: "end"}],
+      ]),
+    })
+    await display(grid, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=start", async () => {
@@ -189,11 +196,12 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const l = grid(items, {
-      rows: {"*": {policy: "auto", align: "start"}},
-      cols: {"*": {policy: "auto", align: "start"}},
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      rows: {align: "start"},
+      cols: {align: "start"},
     })
-    await display(l, viewport)
+    await display(grid, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=center", async () => {
@@ -205,11 +213,12 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const l = grid(items, {
-      rows: {"*": {policy: "auto", align: "center"}},
-      cols: {"*": {policy: "auto", align: "center"}},
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      rows: {align: "center"},
+      cols: {align: "center"},
     })
-    await display(l, viewport)
+    await display(grid, viewport)
   })
 
   it("fixed, inconsistent width/height, row/col auto align=end", async () => {
@@ -221,11 +230,12 @@ describe("3x3 GridBox", () => {
       [s(90, 90), s(60, 90), s(60, 30)],
     ])
 
-    const l = grid(items, {
-      rows: {"*": {policy: "auto", align: "end"}},
-      cols: {"*": {policy: "auto", align: "end"}},
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      rows: {align: "end"},
+      cols: {align: "end"},
     })
-    await display(l, viewport)
+    await display(grid, viewport)
   })
 })
 

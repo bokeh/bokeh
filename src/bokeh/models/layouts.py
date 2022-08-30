@@ -31,9 +31,9 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Any,
     Auto,
     Bool,
-    Dict,
     Either,
     Enum,
     Float,
@@ -343,24 +343,7 @@ class Spacer(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-
-QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
-
-TrackAlign = Either(Auto, Enum(Align))
-
-RowSizing = Either(
-    QuickTrackSizing,
-    Struct(policy=Enum("auto", "min"), align=TrackAlign),
-    Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
-
-ColSizing = Either(
-    QuickTrackSizing,
-    Struct(policy=Enum("auto", "min"), align=TrackAlign),
-    Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
-
-IntOrString = Either(Int, String) # XXX: work around issue #8166
+TracksSizing = Any
 
 class GridBox(LayoutDOM):
 
@@ -374,22 +357,12 @@ class GridBox(LayoutDOM):
     A list of children with their associated position in the grid (row, column).
     """)
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""
@@ -417,13 +390,8 @@ class HBox(LayoutDOM):
     A list of children with their associated position in the horizontal box (optional; column number, span).
     """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Int(default=0, help="""
@@ -447,13 +415,8 @@ class VBox(LayoutDOM):
     A list of children with their associated position in the vertical box (optional; row number, span).
     """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Int(default=0, help="""

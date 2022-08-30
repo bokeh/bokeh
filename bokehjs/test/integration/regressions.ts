@@ -858,11 +858,11 @@ describe("Bug", () => {
       p2.circle({x: [1, 0], y: [0, 1], color: "green"})
       const box = new GridBox({
         children: [[p1, 0, 0], [p2, 0, 1]],
-        cols: {0: 300, 1: 300},
+        cols: ["300px", "300px"],
         sizing_mode: "fixed",
       })
       const {view} = await display(box, [600, 300])
-      box.cols = {0: 100, 1: 500}
+      box.cols = ["100px", "500px"]
       await view.ready
     })
   })

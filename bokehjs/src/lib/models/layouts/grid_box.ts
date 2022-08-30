@@ -2,13 +2,22 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {UIElement} from "../ui/ui_element"
 import {px, CSSOurStyles} from "core/dom"
-import {RowsSizing, ColsSizing, Container} from "core/layout/grid"
+import {Container} from "core/layout/grid"
+import {Enum} from "core/kinds"
 import {enumerate} from "core/util/iterator"
-import {keys} from "core/util/object"
-import {isNumber, isPlainObject} from "core/util/types"
+import {isNumber, isString, isArray} from "core/util/types"
 import * as p from "core/properties"
 
 const {max} = Math
+
+export type TrackAlign = "start" | "center" | "end" | "auto"
+export const TrackAlign = Enum("start", "center", "end", "auto")
+
+export type TrackSize = string // CSS track size, e.g. 1fr
+export type TrackSizing = {size?: TrackSize, align?: TrackAlign}
+export type TrackSizingLike = TrackSize | TrackSizing
+
+export type TracksSizing = TrackSizingLike | TrackSizingLike[] | Map<number, TrackSizingLike>
 
 export class GridBoxView extends LayoutDOMView {
   override model: GridBox
@@ -66,15 +75,62 @@ export class GridBoxView extends LayoutDOMView {
     }
 
     const {rows, cols} = this.model
-    if (isPlainObject(rows)) {
-      nrows = max(nrows, ...keys(rows).map((i) => parseInt(i)))
-    }
-    if (isPlainObject(cols)) {
-      ncols = max(ncols, ...keys(cols).map((i) => parseInt(i)))
+    if (rows instanceof Map)
+      nrows = max(nrows, ...rows.keys())
+    else if (isArray(rows))
+      nrows = max(nrows, rows.length)
+
+    if (cols instanceof Map)
+      ncols = max(ncols, ...cols.keys())
+    else if (isArray(cols))
+      ncols = max(ncols, cols.length)
+
+    function parse_sizing(tracks: TracksSizing | null, template: TrackSizing[]): void {
+      if (tracks instanceof Map) {
+        for (const [i, spec] of tracks.entries()) {
+          if (isString(spec))
+            template[i].size = spec
+          else
+            template[i] = spec
+        }
+      } else if (isArray(tracks)) {
+        for (const [spec, i] of enumerate(tracks)) {
+          if (isString(spec))
+            template[i].size = spec
+          else
+            template[i] = spec
+        }
+      } else if (tracks != null) {
+        for (const row of template) {
+          if (isString(tracks))
+            row.size = tracks
+          else {
+            row.size = tracks.size
+            row.align = tracks.align
+          }
+        }
+      }
     }
 
-    styles.grid_template_rows = `repeat(${nrows}, 1fr)`    // TODO: this.model.rows
-    styles.grid_template_columns = `repeat(${ncols}, 1fr)` // TODO: this.model.cols
+    const rows_template: TrackSizing[] = Array(nrows).fill(null).map(() => ({}))
+    const cols_template: TrackSizing[] = Array(ncols).fill(null).map(() => ({}))
+
+    parse_sizing(rows, rows_template)
+    parse_sizing(cols, cols_template)
+
+    for (const [[, row, col], i] of enumerate(this.model.children)) {
+      const child = this.child_views[i]
+
+      const {halign, valign} = child.box_sizing()
+      child.style.append(":host", {
+        justify_self: halign ?? cols_template[col].align,
+        align_self: valign ?? rows_template[row].align,
+      })
+    }
+
+    const default_size = "1fr"
+    styles.grid_template_rows = rows_template.map(({size}) => size ?? default_size).join(" ")
+    styles.grid_template_columns = cols_template.map(({size}) => size ?? default_size).join(" ")
 
     this.style.append(":host", styles)
 
@@ -92,8 +148,8 @@ export namespace GridBox {
 
   export type Props = LayoutDOM.Props & {
     children: p.Property<[UIElement, number, number, number?, number?][]>
-    rows: p.Property<RowsSizing>
-    cols: p.Property<ColsSizing>
+    rows: p.Property<TracksSizing | null>
+    cols: p.Property<TracksSizing | null>
     spacing: p.Property<number | [number, number]>
   }
 }
@@ -111,11 +167,17 @@ export class GridBox extends LayoutDOM {
   static {
     this.prototype.default_view = GridBoxView
 
-    this.define<GridBox.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt}) => ({
-      children: [ Array(Tuple(Ref(UIElement), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows:     [ Any /*TODO*/, "auto" ],
-      cols:     [ Any /*TODO*/, "auto" ],
-      spacing:  [ Or(Number, Tuple(Number, Number)), 0 ],
-    }))
+    this.define<GridBox.Props>(({Int, Number, String, Tuple, Array, Ref, Or, Struct, Opt, Map, Nullable}) => {
+      const TrackSize = String
+      const TrackSizing = Struct({size: Opt(TrackSize), align: Opt(TrackAlign)})
+      const TrackSizingLike = Or(TrackSize, TrackSizing)
+      const TracksSizing = Or(TrackSizingLike, Array(TrackSizingLike), Map(Int, TrackSizingLike))
+      return {
+        children: [ Array(Tuple(Ref(UIElement), Int, Int, Opt(Int), Opt(Int))), [] ],
+        rows:     [ Nullable(TracksSizing), null ],
+        cols:     [ Nullable(TracksSizing), null ],
+        spacing:  [ Or(Number, Tuple(Number, Number)), 0 ],
+      }
+    })
   }
 }

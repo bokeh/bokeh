@@ -1,4 +1,4 @@
-import {UIElement, UIElementView} from "../ui/ui_element"
+import {UIElement, UIElementView, DOMBoxSizing} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
@@ -13,15 +13,7 @@ import {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
-export type DOMBoxSizing = {
-  width_policy: SizingPolicy | "auto"
-  height_policy: SizingPolicy | "auto"
-  width: number | null
-  height: number | null
-  aspect_ratio: number | "auto" | null
-  halign?: Align
-  valign?: Align
-}
+export {DOMBoxSizing}
 
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
@@ -367,7 +359,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return true
   }
 
-  box_sizing(): DOMBoxSizing {
+  override box_sizing(): DOMBoxSizing {
     let {width_policy, height_policy, aspect_ratio} = this.model
 
     const {sizing_mode} = this.model

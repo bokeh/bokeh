@@ -1,9 +1,8 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {GridBox, GridBoxView} from "../layouts/grid_box"
+import {GridBox, GridBoxView, TracksSizing} from "../layouts/grid_box"
 import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
-import {RowsSizing, ColsSizing} from "core/layout/grid"
 import {CanvasLayer} from "core/util/canvas"
 import {build_views, remove_views, ViewStorage} from "core/build_views"
 import {Location} from "core/enums"
@@ -138,8 +137,8 @@ export namespace GridPlot {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     children: p.Property<[LayoutDOM, number, number, number?, number?][]>
-    rows: p.Property<RowsSizing>
-    cols: p.Property<ColsSizing>
+    rows: p.Property<TracksSizing | null>
+    cols: p.Property<TracksSizing | null>
     spacing: p.Property<number | [number, number]>
   }
 }
@@ -161,8 +160,8 @@ export class GridPlot extends LayoutDOM {
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows: [ Any /*TODO*/, "auto" ],
-      cols: [ Any /*TODO*/, "auto" ],
+      rows: [ Nullable(Any) /*TODO*/, null ],
+      cols: [ Nullable(Any) /*TODO*/, null ],
       spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
     }))
   }

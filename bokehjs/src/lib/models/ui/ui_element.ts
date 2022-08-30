@@ -1,6 +1,8 @@
 import {Model} from "../../model"
 import {Styles} from "../dom/styles"
 import {logger} from "core/logging"
+import {Align} from "core/enums"
+import {SizingPolicy} from "core/layout"
 import {DOMComponentView} from "core/dom_view"
 import {SerializableState} from "core/view"
 import {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
@@ -10,6 +12,16 @@ import {BBox} from "core/util/bbox"
 import {isString, isPlainObject} from "core/util/types"
 import * as p from "core/properties"
 import ui_css from "styles/ui.css"
+
+export type DOMBoxSizing = {
+  width_policy: SizingPolicy | "auto"
+  height_policy: SizingPolicy | "auto"
+  width: number | null
+  height: number | null
+  aspect_ratio: number | "auto" | null
+  halign?: Align
+  valign?: Align
+}
 
 const {round} = Math
 
@@ -54,6 +66,14 @@ export abstract class UIElementView extends DOMComponentView {
 
   update_style(): void {
     this.style.clear()
+  }
+
+  box_sizing(): DOMBoxSizing {
+    return {
+      width_policy: "auto", height_policy: "auto",
+      width: null, height: null,
+      aspect_ratio: null,
+    }
   }
 
   private _bbox?: BBox

@@ -76,13 +76,7 @@ from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .layouts import (
-    ColSizing,
-    IntOrString,
-    LayoutDOM,
-    QuickTrackSizing,
-    RowSizing,
-)
+from .layouts import LayoutDOM, TracksSizing
 from .ranges import (
     DataRange1d,
     FactorRange,
@@ -876,22 +870,12 @@ class GridPlot(LayoutDOM):
     index and optional row and column spans (the defaul span is 1).
     """)
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""

@@ -1,11 +1,11 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
+import {TracksSizing} from "./grid_box"
 import {UIElement} from "../ui/ui_element"
 import {px, CSSOurStyles} from "core/dom"
 import {Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
-import {keys} from "core/util/object"
-import {isNumber, isPlainObject} from "core/util/types"
+import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
 const {max} = Math
@@ -66,9 +66,12 @@ export class VBoxView extends LayoutDOMView {
     }
 
     const {rows} = this.model
-    if (isPlainObject(rows)) {
-      nrows = max(nrows, ...keys(rows).map((i) => parseInt(i)))
-    }
+    if (rows instanceof Map)
+      nrows = max(nrows, ...rows.keys())
+    else if (isArray(rows))
+      nrows = max(nrows, rows.length)
+
+    // TODO: just share the implementation with GridBox
 
     styles.grid_template_rows = `repeat(${nrows}, 1fr)`
     styles.grid_template_columns = "1fr"
@@ -89,7 +92,7 @@ export namespace VBox {
 
   export type Props = LayoutDOM.Props & {
     items: p.Property<Item[]>
-    rows: p.Property<"auto">
+    rows: p.Property<TracksSizing | null>
     spacing: p.Property<number>
   }
 }
@@ -107,9 +110,9 @@ export class VBox extends LayoutDOM {
   static {
     this.prototype.default_view = VBoxView
 
-    this.define<VBox.Props>(({Int, Number, Struct, Array, Ref, Opt, Auto}) => ({
+    this.define<VBox.Props>(({Any, Int, Number, Struct, Array, Ref, Opt, Nullable}) => ({
       items: [ Array(Struct({child: Ref(UIElement), row: Opt(Int), span: Opt(Int)})), [] ],
-      rows: [ Auto, "auto" ],
+      rows: [ Nullable(Any), null ],
       spacing: [ Number, 0 ],
     }))
   }

@@ -1,11 +1,11 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
+import {TracksSizing} from "./grid_box"
 import {UIElement} from "../ui/ui_element"
 import {px, CSSOurStyles} from "core/dom"
 import {Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
-import {keys} from "core/util/object"
-import {isNumber, isPlainObject} from "core/util/types"
+import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
 const {max} = Math
@@ -66,9 +66,12 @@ export class HBoxView extends LayoutDOMView {
     }
 
     const {cols} = this.model
-    if (isPlainObject(cols)) {
-      ncols = max(ncols, ...keys(cols).map((i) => parseInt(i)))
-    }
+    if (cols instanceof Map)
+      ncols = max(ncols, ...cols.keys())
+    else if (isArray(cols))
+      ncols = max(ncols, cols.length)
+
+    // TODO: just share the implementation with GridBox
 
     styles.grid_template_rows = "1fr"
     styles.grid_template_columns = `repeat(${ncols}, 1fr)`
@@ -89,7 +92,7 @@ export namespace HBox {
 
   export type Props = LayoutDOM.Props & {
     items: p.Property<Item[]>
-    cols: p.Property<"auto">
+    cols: p.Property<TracksSizing | null>
     spacing: p.Property<number>
   }
 }
@@ -107,9 +110,9 @@ export class HBox extends LayoutDOM {
   static {
     this.prototype.default_view = HBoxView
 
-    this.define<HBox.Props>(({Int, Number, Struct, Array, Ref, Opt, Auto}) => ({
+    this.define<HBox.Props>(({Any, Int, Number, Struct, Array, Ref, Opt, Nullable}) => ({
       items: [ Array(Struct({child: Ref(UIElement), col: Opt(Int), span: Opt(Int)})), [] ],
-      cols: [ Auto, "auto" ],
+      cols: [ Nullable(Any), null ],
       spacing: [ Number, 0 ],
     }))
   }
