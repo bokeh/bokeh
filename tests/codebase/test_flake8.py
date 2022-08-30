@@ -29,7 +29,7 @@ from tests.support.util.project import TOP_PATH, ls_files
 #-----------------------------------------------------------------------------
 
 def test_flake8_bokeh() -> None:
-    flake8("bokeh")
+    flake8("src/bokeh")
 
 def test_flake8_examples() -> None:
     flake8("examples")
