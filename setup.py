@@ -15,7 +15,7 @@ from textwrap import indent
 from typing import NoReturn
 
 # External imports
-from setuptools import Command, setup  # type: ignore[import]
+from setuptools import setup  # type: ignore[import]
 from setuptools.command.build import build  # type: ignore[import]
 from setuptools.command.sdist import sdist  # type: ignore[import]
 
@@ -75,7 +75,7 @@ def build_js() -> None:
     except FileNotFoundError as e:
         die(BUILD_SIZE_FAIL_MSG.format(exc=e))
 
-def install_js() -> tuple[str, ...]:
+def install_js() -> None:
     print("\nInstalling BokehJS... ", end="")
 
     missing = [fn for fn in JS_FILES if not (BUILD_JS / fn).exists()]
@@ -95,27 +95,20 @@ def install_js() -> tuple[str, ...]:
 
     print(SUCCESS)
 
-    return tuple(
-        ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
-        for parent, dirs, _ in os.walk(PKG_STATIC) for d in dirs
-    )
-
-def build_or_install_bokehjs() -> set[str]:
+def build_or_install_bokehjs() -> None:
     action = os.environ.get("BOKEHJS_ACTION", "build")
     if (ROOT / 'PKG-INFO').exists():
         kind, loc = "PACKAGED", "bokeh.server.static"
-        new_pkgs: tuple[str, ...] = ()
     elif action == "install":
         kind, loc = "PREVIOUSLY BUILT", "bokehjs/build"
-        new_pkgs = install_js()
+        install_js()
     elif action == "build":
         kind, loc = "NEWLY BUILT", "bokehjs/build"
         build_js()
-        new_pkgs = install_js()
+        install_js()
     else:
         raise ValueError(f"Unrecognized action {action!r}")
     print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
-    return set(new_pkgs)
 
 def die(x: str) -> NoReturn:
     print(f"{x}\n")
@@ -139,17 +132,13 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 # --- Setuptools -------------------------------------------------------------
 
 class Build(build):  # type: ignore
-    sub_commands = [("build_js", None), *build.sub_commands]
+    def run(self) -> None:
+        build_or_install_bokehjs()
+        super().run()
 
 class Sdist(sdist):  # type: ignore
-    sub_commands = [("build_js", None), *sdist.sub_commands]
-
-class BuildJS(Command):  # type: ignore
-    def initialize_options(self) -> None: pass
-    def finalize_options(self) -> None: pass
     def run(self) -> None:
-        new = build_or_install_bokehjs()
-        existing = set(self.distribution.packages)
-        self.distribution.packages.extend(tuple(new-existing))
+        build_or_install_bokehjs()
+        super().run()
 
-setup(cmdclass={"build_js": BuildJS, "build": Build, "sdist": Sdist})
+setup(cmdclass={"build": Build, "sdist": Sdist})
