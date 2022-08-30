@@ -115,7 +115,12 @@ export class StackColorMapper extends ColorMapper {
     for (let i = 0; i < alpha_len; i++)
       alpha_palette[i] = byte(start_alpha + diff_alpha*i / (alpha_len-1))
 
+    //const alpha_palette = this.alpha_mapper.palette
+    console.log("alpha_palette", alpha_palette)
+
     const alphas = new Uint32Array(n)
+    // Might be better if fn below wasn't public and called alpha_mapper.v_compute but
+    // with own values array (here the alphas array).  Then colors would be correct?
     this.alpha_mapper._v_compute(totals, alphas, alpha_palette, colors)
 
     console.log("alphas", alphas)
@@ -124,7 +129,7 @@ export class StackColorMapper extends ColorMapper {
     for (let i = 0; i < n; i++) {
       // Combining two bytes here, maybe losing too much precision?
       // Should be in separate function in core/util/color.ts
-      const alpha = byte((values[i] & 0xff)*alphas[i] / 255.0)
+      const alpha = byte((values[i] & 0xff)*(alphas[i] & 0xff) / 255.0)
       values[i] = (values[i] & 0xffffff00) | alpha
     }
   }
