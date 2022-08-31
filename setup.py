@@ -17,6 +17,7 @@ from typing import NoReturn
 # External imports
 from setuptools import setup  # type: ignore[import]
 from setuptools.command.build import build  # type: ignore[import]
+from setuptools.command.editable_wheel import editable_wheel  # type: ignore[import]
 from setuptools.command.sdist import sdist  # type: ignore[import]
 
 # --- Helpers ----------------------------------------------------------------
@@ -75,7 +76,7 @@ def build_js() -> None:
     except FileNotFoundError as e:
         die(BUILD_SIZE_FAIL_MSG.format(exc=e))
 
-def install_js() -> None:
+def install_js(packages: list[str]) -> None:
     print("\nInstalling BokehJS... ", end="")
 
     missing = [fn for fn in JS_FILES if not (BUILD_JS / fn).exists()]
@@ -93,19 +94,26 @@ def install_js() -> None:
         for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
             copy(lib_file, PKG_TSLIB)
 
+    new = set(
+        ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
+        for parent, dirs, _ in os.walk(PKG_STATIC) for d in dirs
+    )
+    existing = set(packages)
+    packages.extend(tuple(new-existing))
+
     print(SUCCESS)
 
-def build_or_install_bokehjs() -> None:
+def build_or_install_bokehjs(packages: list[str]) -> None:
     action = os.environ.get("BOKEHJS_ACTION", "build")
     if (ROOT / 'PKG-INFO').exists():
         kind, loc = "PACKAGED", "bokeh.server.static"
     elif action == "install":
         kind, loc = "PREVIOUSLY BUILT", "bokehjs/build"
-        install_js()
+        install_js(packages)
     elif action == "build":
         kind, loc = "NEWLY BUILT", "bokehjs/build"
         build_js()
-        install_js()
+        install_js(packages)
     else:
         raise ValueError(f"Unrecognized action {action!r}")
     print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
@@ -133,12 +141,17 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 
 class Build(build):  # type: ignore
     def run(self) -> None:
-        build_or_install_bokehjs()
+        build_or_install_bokehjs(self.distribution.packages)
+        super().run()
+
+class EditableWheel(editable_wheel):  # type: ignore
+    def run(self) -> None:
+        build_or_install_bokehjs(self.distribution.packages)
         super().run()
 
 class Sdist(sdist):  # type: ignore
     def run(self) -> None:
-        build_or_install_bokehjs()
+        build_or_install_bokehjs(self.distribution.packages)
         super().run()
 
-setup(cmdclass={"build": Build, "sdist": Sdist})
+setup(cmdclass={"build": Build, "editable_wheel": EditableWheel, "sdist": Sdist})
