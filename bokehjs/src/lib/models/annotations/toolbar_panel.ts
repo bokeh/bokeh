@@ -17,6 +17,10 @@ export class ToolbarPanelView extends AnnotationView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
+  override has_finished(): boolean {
+    return super.has_finished() && this.toolbar_view.has_finished()
+  }
+
   toolbar_view: ToolbarView
   el: HTMLElement
 

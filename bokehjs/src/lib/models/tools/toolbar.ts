@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
-import {every, sort_by, includes, intersection} from "core/util/array"
+import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join} from "core/util/iterator"
 import {values, entries} from "core/util/object"
 import {isString, isArray} from "core/util/types"
@@ -165,11 +165,12 @@ export class ToolbarView extends UIElementView {
 
     const overflow_size = 15
     const {bbox} = this
+    const overflow_cls = horizontal ? toolbars.right : toolbars.above
     let overflowed = false
 
     for (const el of join<HTMLElement>(non_empty, divider)) {
       if (overflowed) {
-        this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
+        this._overflow_menu.items.push({content: el, class: overflow_cls})
       } else {
         this.shadow_el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
@@ -179,9 +180,8 @@ export class ToolbarView extends UIElementView {
           this.shadow_el.removeChild(el)
           this.shadow_el.appendChild(this._overflow_el)
 
-          const {items} = this._overflow_menu
-          items.splice(0, items.length)
-          items.push({content: el})
+          clear(this._overflow_menu.items)
+          this._overflow_menu.items.push({content: el, class: overflow_cls})
         }
       }
     }
