@@ -256,6 +256,10 @@ export abstract class AbstractSlider extends OrientedControl {
         bar_color:       [ Color, "#e6e6e6" ],
       }
     })
+
+    this.override<AbstractSlider.Props>({
+      width: 300, // sliders don't have any intrinsic width
+    })
   }
 
   behaviour: "drag" | "tap"

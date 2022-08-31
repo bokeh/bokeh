@@ -103,6 +103,8 @@ class AbstractSlider(Widget):
     bar_color = Color(default="#e6e6e6", help="""
     """)
 
+    width = Override(default=300)
+
     @error(EQUAL_SLIDER_START_END)
     def _check_missing_dimension(self):
         if hasattr(self, 'start') and hasattr(self, 'end'):
