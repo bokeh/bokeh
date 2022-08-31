@@ -61,18 +61,67 @@ export class GridAlignmentLayout extends Layoutable {
 
     items.foreach(({r0, c0, r1, c1}, {layout, size_hint, bbox}) => {
       const outer_bbox = bbox
-      const inner_bbox = (() => {
-        const {inner} = size_hint
-        if (inner != null) {
-          const left = col_extents[c0].left
-          const right = col_extents[c1].right
-          const top = row_extents[r0].top
-          const bottom = row_extents[r1].bottom
+      const inner_bbox = size_hint.inner == null ? undefined : (() => {
+        const {inner, align} = size_hint
 
-          const {width, height} = outer_bbox
-          return BBox.from_lrtb({left, top, right: width - right, bottom: height - bottom})
-        } else
-          return undefined
+        const align_left = align?.left ?? true
+        const align_right = align?.right ?? true
+        const align_top = align?.top ?? true
+        const align_bottom = align?.bottom ?? true
+
+        const fixed_width = align?.fixed_width ?? false
+        const fixed_height = align?.fixed_height ?? false
+
+        const {left, right} = (() => {
+          if (fixed_width) {
+            const inner_width = outer_bbox.width - inner.right - inner.left
+
+            if (align_left) {
+              const left = col_extents[c0].left
+              const right = outer_bbox.width - (left + inner_width)
+              return {left, right}
+            } else if (align_right) {
+              const right = col_extents[c1].right
+              const left = outer_bbox.width - (right + inner_width)
+              return {left, right}
+            } else {
+              const left = inner.left
+              const right = inner.right
+              return {left, right}
+            }
+          } else {
+            const left = align_left ? col_extents[c0].left : inner.left
+            const right = align_right ? col_extents[c1].right : inner.right
+            return {left, right}
+          }
+        })()
+
+        const {top, bottom} = (() => {
+          if (fixed_height) {
+            const inner_height = outer_bbox.height - inner.bottom - inner.top
+
+            if (align_top) {
+              const top = row_extents[r0].top
+              const bottom = outer_bbox.height - (top + inner_height)
+              return {top, bottom}
+            } else if (align_bottom) {
+              const bottom = row_extents[r1].bottom
+              const top = outer_bbox.height - (bottom + inner_height)
+              return {top, bottom}
+            } else {
+              const top = inner.top
+              const bottom = inner.bottom
+              return {top, bottom}
+            }
+          } else {
+            const top = align_top ? row_extents[r0].top : inner.top
+            const bottom = align_bottom ? row_extents[r1].bottom : inner.bottom
+            return {top, bottom}
+          }
+        })()
+
+        const {width, height} = outer_bbox
+        return BBox.from_lrtb({left, top, right: width - right, bottom: height - bottom})
       })()
 
       layout.set_geometry(outer_bbox, inner_bbox)

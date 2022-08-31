@@ -11,7 +11,7 @@ import {range} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {color2css, is_dark, RGBA} from "@bokehjs/core/util/color"
 import {figure, gridplot} from "@bokehjs/api/plotting"
-import {BasicTickFormatter, LinearAxis} from "@bokehjs/models"
+import {BasicTickFormatter, LinearAxis, Plot} from "@bokehjs/models"
 
 describe("UIElement", () => {
   it("should support dashed, snake and camel CSS property names in styles", async () => {
@@ -246,8 +246,8 @@ const s = (color: Color) => new Spacer({
   styles: {background_color: color2css(color)},
 })
 
-function plot(a: number, b: number, color: Color) {
-  const p = fig([200, 200])
+function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
+  const p = fig([200, 200], plot_args)
   p.add_layout(new LinearAxis(), "above")
   p.add_layout(new LinearAxis(), "right")
   p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
@@ -412,6 +412,21 @@ describe("GridBox", () => {
         [s("red"),  0, 0, 1, 2], [s("green"),  0, 2], [s("blue"), 0, 3, 4, 1],
         [s("gray"), 1, 0, 2, 1], [s("orange"), 1, 1, 2, 2],
         [s("aqua"), 3, 0, 1, 2], [s("yellow"), 3, 2],
+      ],
+    })
+
+    await display(grid, [450, 450])
+  })
+
+  it("should allow 2x2 grid with mixed frame alignment", async () => {
+    const grid = new GridBox({
+      width: 400,
+      height: 400,
+      children: [
+        [plot(10**0, 10**0, "red"), 0, 0],
+        [plot(10**2, 10**2, "green", {frame_align: {left: false}}), 0, 1],
+        [plot(10**2, 10**2, "gray", {frame_align: {top: false, bottom: false}}), 1, 0],
+        [plot(10**4, 10**4, "orange"), 1, 1],
       ],
     })
 

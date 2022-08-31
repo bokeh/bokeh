@@ -6,6 +6,7 @@ import {Location, OutputBackend, Place, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
+import {LRTB} from "core/util/bbox"
 
 import {LayoutDOM} from "../layouts/layout_dom"
 import {Axis} from "../axes/axis"
@@ -41,6 +42,7 @@ export namespace Plot {
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
+    frame_align: p.Property<boolean | Partial<LRTB<boolean>>>
 
     title: p.Property<Title | string | null>
     title_location: p.Property<Location | null>
@@ -127,7 +129,7 @@ export class Plot extends LayoutDOM {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+    this.define<Plot.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
@@ -135,6 +137,7 @@ export class Plot extends LayoutDOM {
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
+      frame_align:       [ Or(Boolean, Struct({left: Opt(Boolean), right: Opt(Boolean), top: Opt(Boolean), bottom: Opt(Boolean)})), true ],
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
       title:             [ Or(Ref(Title), String, Null), "", {

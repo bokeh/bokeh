@@ -57,8 +57,10 @@ from ..core.properties import (
     Override,
     Readonly,
     String,
+    Struct,
     Tuple,
 )
+from ..core.property.struct import Optional
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -102,6 +104,9 @@ __all__ = (
     'GridPlot',
     'Plot',
 )
+
+def LRTB(type: Any) -> Struct:
+    return Struct(left=type, right=type, top=type, bottom=type)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -639,6 +644,15 @@ class Plot(LayoutDOM):
     frame_height = Nullable(Int, help="""
     The height of a plot frame or the inner height of a plot, excluding any
     axes, titles, border padding, etc.
+    """)
+
+    frame_align = Either(Bool, LRTB(Optional(Bool)), default=True, help="""
+    Allows to specify which frame edges to align in multiple-plot layouts.
+
+    The default is to align all edges, but users can opt-out from alignment
+    of each individual edge or all edges. Note also that other proproperties
+    may disable alignment of certain edges, especially when using fixed frame
+    size (``frame_width`` and ``frame_height`` properties).
     """)
 
     inner_width = Readonly(Int, help="""

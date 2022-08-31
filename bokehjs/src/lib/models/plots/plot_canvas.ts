@@ -21,7 +21,7 @@ import {RangesUpdate} from "core/bokeh_events"
 import {Side, RenderLevel} from "core/enums"
 import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
-import {isArray} from "core/util/types"
+import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
@@ -301,6 +301,17 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._needs_paint = true
 
     const layout = new BorderLayout()
+
+    const {frame_align} = this.model
+    layout.aligns = (() => {
+      if (isBoolean(frame_align))
+        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
+      else {
+        const {left=true, right=true, top=true, bottom=true} = frame_align
+        return {left, right, top, bottom}
+      }
+    })()
+
     layout.set_sizing({
       width_policy: "max", height_policy: "max",
       visible: this.model.visible,

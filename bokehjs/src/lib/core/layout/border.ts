@@ -1,6 +1,6 @@
 import {SizeHint, Size, Sizeable, Margin} from "./types"
 import {Layoutable} from "./layoutable"
-import {BBox} from "../util/bbox"
+import {BBox, LRTB} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
   override *[Symbol.iterator]() {
@@ -22,6 +22,8 @@ export class BorderLayout extends Layoutable {
   inner_bottom_panel?: Layoutable
   inner_left_panel?: Layoutable
   inner_right_panel?: Layoutable
+
+  aligns: LRTB<boolean> = {left: true, right: true, top: true, bottom: true}
 
   min_border: Margin = {left: 0, top: 0, right: 0, bottom: 0}
   padding: Margin = {left: 0, top: 0, right: 0, bottom: 0}
@@ -54,7 +56,11 @@ export class BorderLayout extends Layoutable {
 
     const align = (() => {
       const {width_policy, height_policy} = this.center_panel.sizing
-      return width_policy != "fixed" && height_policy != "fixed"
+      return {
+        ...this.aligns,
+        fixed_width: width_policy == "fixed",
+        fixed_height: height_policy == "fixed",
+      }
     })()
 
     return {width, height, inner: {left, right, top, bottom}, align}

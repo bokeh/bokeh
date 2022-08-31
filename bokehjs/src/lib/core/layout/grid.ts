@@ -611,17 +611,17 @@ export class Grid extends Layoutable {
       if (size_hint.inner != null) {
         let inner = inner_bbox(size_hint.inner)
 
-        if (size_hint.align !== false) {
-          const top = row_aligns[r0].start.get(outer.top)
-          const bottom = row_aligns[r1].end.get(rows[r1].bottom - outer.bottom)
+        //if (size_hint.align !== false) {
+        const top = row_aligns[r0].start.get(outer.top)
+        const bottom = row_aligns[r1].end.get(rows[r1].bottom - outer.bottom)
 
-          const left = col_aligns[c0].start.get(outer.left)
-          const right = col_aligns[c1].end.get(cols[c1].right - outer.right)
+        const left = col_aligns[c0].start.get(outer.left)
+        const right = col_aligns[c1].end.get(cols[c1].right - outer.right)
 
-          try {
-            inner = inner_bbox({top, bottom, left, right})
-          } catch {}
-        }
+        try {
+          inner = inner_bbox({top, bottom, left, right})
+        } catch {}
+        //}
 
         item.inner = inner
       } else
