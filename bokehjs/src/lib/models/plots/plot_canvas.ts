@@ -495,16 +495,22 @@ export class PlotView extends LayoutDOMView implements Renderable {
       layout.inner_right_panel = inner_right_panel
 
     this.layout = layout
+  }
+
+  protected override _measure_layout(): void {
+    const {frame_width, frame_height} = this.model
 
     const frame = {
       width: frame_width == null ? "1fr" : px(frame_width),
       height: frame_height == null ? "1fr" : px(frame_height),
     }
 
-    const top = top_panel.measure({width: Infinity, height: Infinity})
-    const bottom = bottom_panel.measure({width: Infinity, height: Infinity})
-    const left = left_panel.measure({width: Infinity, height: Infinity})
-    const right = right_panel.measure({width: Infinity, height: Infinity})
+    const {layout} = this
+
+    const top = layout.top_panel.measure({width: Infinity, height: Infinity})
+    const bottom = layout.bottom_panel.measure({width: Infinity, height: Infinity})
+    const left = layout.left_panel.measure({width: Infinity, height: Infinity})
+    const right = layout.right_panel.measure({width: Infinity, height: Infinity})
 
     const top_height = max(top.height, layout.min_border.top)
     const bottom_height = max(bottom.height, layout.min_border.bottom)
@@ -517,9 +523,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
         grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
         grid-template-areas:
-          ". t ."
-          "l c r"
-          ". b .";
+          ".    above  .    "
+          "left center right"
+          ".    below  .    ";
       }
     `)
   }
@@ -732,9 +738,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
         grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
         grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
         grid-template-areas:
-          ". t ."
-          "l c r"
-          ". b .";
+          ".    above  .    "
+          "left center right"
+          ".    below  .    ";
       }
     `)
 

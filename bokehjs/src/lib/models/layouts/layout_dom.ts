@@ -271,12 +271,29 @@ export abstract class LayoutDOMView extends UIElementView {
     return this.parent instanceof LayoutDOMView
   }
 
+  /**
+   * Update CSS layout with computed values from canvas layout.
+   * This can be done more frequently than `_update_layout()`.
+   */
+  protected _measure_layout(): void {}
+
+  measure_layout(): void {
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.measure_layout()
+    }
+
+    this._measure_layout()
+  }
+
   compute_layout(): void {
     if (this.parent instanceof LayoutDOMView) {
     //if (this.is_managed) {
       this.parent.compute_layout()
     } else {
+      this.measure_layout()
       this.update_bbox()
+
       if (this.layout != null)
         this.layout.compute(this.bbox.size)
       else {
@@ -317,8 +334,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override after_render(): void {
     if (!this.is_managed) {
-      this.update_layout()
-      this.compute_layout()
+      this.invalidate_layout()
     }
   }
 
