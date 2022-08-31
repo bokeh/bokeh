@@ -45,6 +45,12 @@ jobs:
       - name: Verify pip install from sdist
         run: bash scripts/ci/verify_pip_install_from_sdist.sh
 
+      - name: Verify pip install using sdist
+        run: bash scripts/ci/verify_pip_install_using_sdist.sh
+
+      - name: Verify pip install using wheel
+        run: bash scripts/ci/verify_pip_install_using_wheel.sh
+
       - name: Build conda package
         run: bash scripts/ci/build_conda_pacakge.sh
 
