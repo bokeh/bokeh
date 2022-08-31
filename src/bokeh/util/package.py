@@ -87,6 +87,9 @@ def validate(*, version: str | None = None, build_dir: str | None = None) -> lis
             except FileNotFoundError:
                 errors.append(f"missing build dir file: {build_path}")
 
+    if not Path(__file__).parents[1].joinpath("py.typed").exists():
+        errors.append("py.typed is missing")
+
     return errors
 
 #-----------------------------------------------------------------------------
