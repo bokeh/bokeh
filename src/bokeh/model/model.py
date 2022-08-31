@@ -97,7 +97,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         obj._id = kwargs.pop("id", make_id())
         return obj
 
-    def __init__(self, *args, **kwargs: Any) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        if args:
+            raise ValueError("positional arguments are not allowed")
 
         # "id" is popped from **kw in __new__, so in an ideal world I don't
         # think it should be here too. But Python has subtle behavior here, so

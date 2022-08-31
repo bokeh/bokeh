@@ -260,6 +260,10 @@ def test_select() -> None:
     root2.set_select(SomeModel, dict(name='new_name'))
     assert {root2} == set(root2.select(dict(name="new_name")))
 
+def test_args_pass_through():
+    with pytest.raises(ValueError, match=r"positional arguments are not allowed"):
+        SomeModel(1, b="a")
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
