@@ -54,6 +54,9 @@ jobs:
       - name: Build conda package
         run: bash scripts/ci/build_conda_pacakge.sh
 
+      - name: Verify conda install
+        run: bash scripts/ci/verify_conda_install.sh
+
       - name: Upload conda package
         uses: actions/upload-artifact@v3
         with:
