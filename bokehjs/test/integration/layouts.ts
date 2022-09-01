@@ -1,5 +1,5 @@
 import {expect} from "../unit/assertions"
-import {display, fig, row, grid} from "./_util"
+import {display, fig} from "./_util"
 
 import {Spacer, Tabs, TabPanel, GridBox, GroupBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
@@ -30,36 +30,72 @@ const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
    width: number | null, height: number | null,
    min_width?: number, min_height?: number,
-   max_width?: number, max_height?: number) => (color: Color): Spacer => {
+   max_width?: number, max_height?: number) => (color: Color, alpha: number = 1.0): Spacer => {
     return new Spacer({
       width_policy, height_policy,
       width, height,
       min_width, min_height,
       max_width, max_height,
       styles: {
-        background_color: color2css(color),
+        background_color: color2css(color, alpha),
       },
     })
   }
 
 describe("Row", () => {
-  it("should allow to expand when child policy is max", async () => {
-    const s0 = spacer("max", "fixed", null, 40)("red")
-    const s1 = spacer("min", "fixed", 120, 30)("green")
+  it("should allow to expand horizontally when width policy is 'max'", async () => {
+    const s0 = spacer("max", "fixed", null, 40)("red", 0.5)
+    const s1 = spacer("fixed", "fixed", 60, 30)("green", 0.5)
 
-    const l = row([s0, s1])
-    await display(l, [300, 300])
+    const row = new Row({
+      children: [s0, s1],
+      width_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(row, [200, 100])
   })
+})
 
-  /* XXX: fix "max" column policy
-  it("should allow to expand when column policy is max", async () => {
-    const s0 = spacer("fixed", "fixed", 80, 40)("red")
-    const s1 = spacer("fixed", "fixed", 120, 30)("green")
+describe("Column", () => {
+  it("should allow to expand vertically when height policy is 'max'", async () => {
+    const s0 = spacer("fixed", "max", 40, null)("red", 0.5)
+    const s1 = spacer("fixed", "fixed", 30, 60)("green", 0.5)
 
-    const l = row([s0, s1], {cols: {0: "max", 1: "min"}})
-    await display(l, [300, 300])
+    const col = new Column({
+      children: [s0, s1],
+      height_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(col, [100, 200])
   })
-  */
+})
+
+describe("HBox", () => {
+  it("should allow to expand horizontally when width policy is 'max'", async () => {
+    const s0 = spacer("max", "fixed", null, 40)("red", 0.5)
+    const s1 = spacer("fixed", "fixed", 60, 30)("green", 0.5)
+
+    const row = new HBox({
+      items: [{child: s0}, {child: s1}],
+      width_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(row, [200, 100])
+  })
+})
+
+describe("VBox", () => {
+  it("should allow to expand vertically when height policy is 'max'", async () => {
+    const s0 = spacer("fixed", "max", 40, null)("red", 0.5)
+    const s1 = spacer("fixed", "fixed", 30, 60)("green", 0.5)
+
+    const col = new VBox({
+      items: [{child: s0}, {child: s1}],
+      height_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(col, [100, 200])
+  })
 })
 
 describe("3x3 GridBox", () => {
@@ -80,8 +116,10 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items)
-    await display(l, viewport)
+    const grid = new GridBox({
+      children: items.to_sparse(),
+    })
+    await display(grid, viewport)
   })
 
   it("fixed spacers 50px x 50px, spacing 5px", async () => {
@@ -93,8 +131,11 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {spacing: 5})
-    await display(l, viewport)
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      spacing: 5,
+    })
+    await display(grid, viewport)
   })
 
   it("fixed spacers 50px x 50px, vspacing 5px, hspacing 10px", async () => {
@@ -106,8 +147,11 @@ describe("3x3 GridBox", () => {
       [s0, s0, s0],
     ])
 
-    const l = grid(items, {spacing: [5, 10]})
-    await display(l, viewport)
+    const grid = new GridBox({
+      children: items.to_sparse(),
+      spacing: [5, 10],
+    })
+    await display(grid, viewport)
   })
 
   /*

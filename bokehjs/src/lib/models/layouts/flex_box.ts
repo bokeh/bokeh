@@ -40,12 +40,14 @@ export abstract class FlexBoxView extends LayoutDOMView {
       const sizing = view.box_sizing()
       const flex = (() => {
         const policy = this._direction == "row" ? sizing.width_policy : sizing.height_policy
+        const size = this._direction == "row" ? sizing.width : sizing.height
+        const basis = size != null ? px(size) : "auto"
         switch (policy) {
           case "auto":
-          case "fixed": return "0 0 auto"
+          case "fixed": return `0 0 ${basis}`
           case "fit": return "1 1 auto"
           case "min": return "0 1 auto"
-          case "max": return "1 0 auto"
+          case "max": return "1 0 0px"
         }
       })()
 
