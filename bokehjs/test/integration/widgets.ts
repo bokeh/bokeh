@@ -1,9 +1,9 @@
-import {display, row, column} from "./_util"
+import {display, column} from "./_util"
 
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
-import {ColumnDataSource} from "@bokehjs/models"
+import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
   Button, Toggle, Dropdown,
@@ -418,12 +418,11 @@ describe("Widgets", () => {
 })
 
 describe("Rows of widgets", () => {
-
   it.allowing(7)("should allow different content and fixed height", async () => {
     const w0 = new TextInput({value: "Widget 1"})
     const w1 = new TextInput({value: "Widget 2", height: 50})
-    const layout = row([w0, w1])
-    await display(layout, [700, 100])
+    const row = new Row({children: [w0, w1]})
+    await display(row, [700, 100])
   })
 
   it("should allow DataTable to fill row", async () => {
@@ -432,7 +431,7 @@ describe("Rows of widgets", () => {
     const bar_col = new TableColumn({field: "bar", title: "Bar"})
     const columns = [index_col, bar_col]
     const table = new DataTable({source, columns, autosize_mode: "fit_columns", sizing_mode: "stretch_both"})
-    const layout = row([table], {width: 400, height: 100})
-    await display(layout, [400, 100])
+    const row = new Row({children: [table], width: 400, height: 100})
+    await display(row, [400, 100])
   })
 })
