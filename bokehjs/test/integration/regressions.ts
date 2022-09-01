@@ -21,6 +21,7 @@ import {
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
+  Column,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup, Div} from "@bokehjs/models/widgets"
@@ -2004,6 +2005,22 @@ describe("Bug", () => {
         },
       })
       await display(radio_group, [400, 50])
+    })
+  })
+
+  describe("in issue #12205", () => {
+    it("prevents expansion of Div when using sizing_mode='stretch_width'", async () => {
+      const div = new Div({
+        text: "Some text",
+        sizing_mode: "stretch_width",
+        styles: {border: "1px solid red"},
+      })
+
+      const plot = fig([300, 300], {sizing_mode: "stretch_width"})
+      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+
+      const col = new Column({children: [div, plot], sizing_mode: "stretch_width"})
+      await display(col, [300, 350])
     })
   })
 })
