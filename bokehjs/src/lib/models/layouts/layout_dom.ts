@@ -222,10 +222,23 @@ export abstract class LayoutDOMView extends UIElementView {
     styles.min_width = min_width == null ? "0px" : to_css(min_width)
     styles.min_height = min_height == null ? "0px" : to_css(min_height)
 
-    if (max_width != null)
-      styles.max_width = to_css(max_width)
-    if (max_height != null)
-      styles.max_height = to_css(max_height)
+    if (this.is_layout_root) {
+      if (max_width != null)
+        styles.max_width = to_css(max_width)
+
+      if (max_height != null)
+        styles.max_height = to_css(max_height)
+    } else {
+      if (max_width != null)
+        styles.max_width = `min(${to_css(max_width)}, 100%)`
+      else
+        styles.max_width = "100%"
+
+      if (max_height != null)
+        styles.max_height = `min(${to_css(max_height)}, 100%)`
+      else
+        styles.max_height = "100%"
+    }
 
     const {margin} = this.model
     if (margin != null) {
