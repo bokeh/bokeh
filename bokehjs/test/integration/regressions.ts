@@ -1992,4 +1992,18 @@ describe("Bug", () => {
       await display(row([p0, p1, p2]))
     })
   })
+
+  describe("in issue #12155", () => {
+    it("prevents computing correct layout for inline radio group", async () => {
+      const radio_group = new RadioGroup({
+        labels: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
+        inline: true,
+        active: 0,
+        styles: {
+          background_color: "red",
+        },
+      })
+      await display(radio_group, [400, 50])
+    })
+  })
 })
