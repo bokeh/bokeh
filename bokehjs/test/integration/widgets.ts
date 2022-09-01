@@ -307,7 +307,9 @@ describe("Widgets", () => {
     await display(table, [600, 400])
   })
 
-  it("should allow DataTable in fit_viewport mode", async () => {
+  // TODO: fit_viewport needs a redesign
+  // TODO: add support for xfail()
+  it.skip("should allow DataTable in fit_viewport mode", async () => {
     const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
     const index_col = new TableColumn({field: "index", title: "Index"})
     const bar_col = new TableColumn({field: "bar", title: "Bar"})
