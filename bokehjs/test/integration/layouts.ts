@@ -30,22 +30,22 @@ const spacer =
   (width_policy: SizingPolicy, height_policy: SizingPolicy,
    width: number | null, height: number | null,
    min_width?: number, min_height?: number,
-   max_width?: number, max_height?: number) => (color: Color, alpha: number = 1.0): Spacer => {
+   max_width?: number, max_height?: number) => (color: Color): Spacer => {
     return new Spacer({
       width_policy, height_policy,
       width, height,
       min_width, min_height,
       max_width, max_height,
       styles: {
-        background_color: color2css(color, alpha),
+        background_color: color2css(color),
       },
     })
   }
 
 describe("Row", () => {
   it("should allow to expand horizontally when width policy is 'max'", async () => {
-    const s0 = spacer("max", "fixed", null, 40)("red", 0.5)
-    const s1 = spacer("fixed", "fixed", 60, 30)("green", 0.5)
+    const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
 
     const row = new Row({
       children: [s0, s1],
@@ -58,8 +58,8 @@ describe("Row", () => {
 
 describe("Column", () => {
   it("should allow to expand vertically when height policy is 'max'", async () => {
-    const s0 = spacer("fixed", "max", 40, null)("red", 0.5)
-    const s1 = spacer("fixed", "fixed", 30, 60)("green", 0.5)
+    const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
 
     const col = new Column({
       children: [s0, s1],
@@ -72,8 +72,8 @@ describe("Column", () => {
 
 describe("HBox", () => {
   it("should allow to expand horizontally when width policy is 'max'", async () => {
-    const s0 = spacer("max", "fixed", null, 40)("red", 0.5)
-    const s1 = spacer("fixed", "fixed", 60, 30)("green", 0.5)
+    const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
 
     const row = new HBox({
       items: [{child: s0}, {child: s1}],
@@ -86,8 +86,8 @@ describe("HBox", () => {
 
 describe("VBox", () => {
   it("should allow to expand vertically when height policy is 'max'", async () => {
-    const s0 = spacer("fixed", "max", 40, null)("red", 0.5)
-    const s1 = spacer("fixed", "fixed", 30, 60)("green", 0.5)
+    const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
 
     const col = new VBox({
       items: [{child: s0}, {child: s1}],
