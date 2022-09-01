@@ -35,7 +35,9 @@ import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import {StyleSheetLike, px} from "core/dom"
+import {StyleSheet, StyleSheetLike, px} from "core/dom"
+
+import plots_css from "styles/plots.css"
 
 const {max} = Math
 
@@ -52,15 +54,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.canvas_view
   }
 
+  protected _computed_style = new StyleSheet()
+
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), `
-      .bk-Canvas {
-        grid-row-start: 1;
-        grid-row-end: span 3;
-        grid-column-start: 1;
-        grid-column-end: span 3;
-      }
-    `]
+    return [...super.styles(), plots_css, this._computed_style]
   }
 
   protected _title?: Title
@@ -528,15 +525,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const left_width = max(left.width, layout.min_border.left)
     const right_width = max(right.width, layout.min_border.right)
 
-    this.style.append(`
+    this._computed_style.replace(`
       :host {
-        display: grid;
         grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
         grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
-        grid-template-areas:
-          ".    above  .    "
-          "left center right"
-          ".    below  .    ";
       }
     `)
   }
@@ -742,16 +734,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const left_width = left.right
     const right_width = bbox.width - right.left
 
-    // TODO: don't replace here
+    // TODO: don't replace here; inject stylesheet?
     this.canvas.style.replace(`
       .bk-layer.bk-events {
         display: grid;
-        grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
-        grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
         grid-template-areas:
           ".    above  .    "
           "left center right"
           ".    below  .    ";
+        grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
+        grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
       }
     `)
 
