@@ -1663,6 +1663,10 @@ describe("Bug", () => {
       const button = new Button({label: "Click!"})
 
       const gp = gridplot([[plot, div], [null, button]], {merge_tools: true, toolbar_location: "above"})
+
+      gp.rows = "max-content"
+      gp.cols = "max-content"
+
       await display(gp)
     })
   })
