@@ -1,7 +1,6 @@
-import {div, button, show, hide, children/*, size, scroll_size, display, undisplay*/, StyleSheetLike} from "core/dom"
+import {div, show, hide, children, StyleSheetLike} from "core/dom"
 import {FlexDirection} from "core/css"
-import {sum, remove_at} from "core/util/array"
-import {clamp} from "core/util/math"
+import {remove_at} from "core/util/array"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -10,19 +9,12 @@ import {TabPanel} from "./tab_panel"
 import {UIElement} from "../ui/ui_element"
 
 import tabs_css, * as tabs from "styles/tabs.css"
-import buttons_css, * as buttons from "styles/buttons.css"
-import caret_css, * as caret from "styles/caret.css"
 import icons_css from "styles/icons.css"
 
 export class TabsView extends LayoutDOMView {
   override model: Tabs
 
   protected header_el: HTMLElement
-  protected wrapper_el: HTMLElement
-  protected scroll_el: HTMLElement
-  protected headers_el: HTMLElement
-  protected left_el: HTMLElement
-  protected right_el: HTMLElement
   protected stack_el: HTMLElement
 
   override connect_signals(): void {
@@ -32,7 +24,7 @@ export class TabsView extends LayoutDOMView {
   }
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), tabs_css, buttons_css, caret_css, icons_css]
+    return [...super.styles(), tabs_css, icons_css]
   }
 
   get child_models(): UIElement[] {
@@ -42,17 +34,16 @@ export class TabsView extends LayoutDOMView {
   override _update_layout(): void {
     super._update_layout()
 
-    const [flex_direction, order]: [FlexDirection, "0" | "1"] = (() => {
+    const flex_direction: FlexDirection = (() => {
       switch (this.model.tabs_location) {
-        case "above": return ["column", "0"]
-        case "below": return ["column", "1"]
-        case "left": return ["row", "0"]
-        case "right": return ["row", "1"]
+        case "above":
+        case "below": return "column"
+        case "left":
+        case "right": return "row"
       }
     })()
 
     this.style.append(":host", {flex_direction})
-    this.style.append(".bk-tabs-header", {order})
 
     for (const child of this.child_views) {
       child.style.append(":host", {grid_area: "stack"})
@@ -61,35 +52,6 @@ export class TabsView extends LayoutDOMView {
 
   override _after_layout(): void {
     super._after_layout()
-
-    /*
-    const loc = this.model.tabs_location
-    const vertical = loc == "above" || loc == "below"
-
-    const scroll_el_size = size(this.scroll_el)
-    const headers_el_size = scroll_size(this.headers_el)
-    if (vertical) {
-      const width = parseFloat(getComputedStyle(this.header_el).width)
-      if (headers_el_size.width > width) {
-        this.wrapper_el.style.maxWidth = `${width - scroll_el_size.width}px`
-        display(this.scroll_el)
-        this.do_scroll(this.model.active)
-      } else {
-        this.wrapper_el.style.maxWidth = ""
-        undisplay(this.scroll_el)
-      }
-    } else {
-      const height = parseFloat(getComputedStyle(this.header_el).height)
-      if (headers_el_size.height > height) {
-        this.wrapper_el.style.maxHeight = `${height - scroll_el_size.height}px`
-        display(this.scroll_el)
-        this.do_scroll(this.model.active)
-      } else {
-        this.wrapper_el.style.maxHeight = ""
-        undisplay(this.scroll_el)
-      }
-    }
-    */
 
     const {child_views} = this
     for (const child_view of child_views)
@@ -133,19 +95,9 @@ export class TabsView extends LayoutDOMView {
       }
       return el
     })
-    this.headers_el = div({class: [tabs.headers]}, headers)
-    this.wrapper_el = div({class: tabs.headers_wrapper}, this.headers_el)
-
-    this.left_el = button({class: [buttons.btn, buttons.btn_default], disabled: ""}, div({class: [caret.caret, tabs.left]}))
-    this.right_el = button({class: [buttons.btn, buttons.btn_default]}, div({class: [caret.caret, tabs.right]}))
-
-    this.left_el.addEventListener("click", () => this.do_scroll("left"))
-    this.right_el.addEventListener("click", () => this.do_scroll("right"))
-
-    // TODO: this.scroll_el = div({class: ["bk-scroll", buttons.btn_group]}, this.left_el, this.right_el)
 
     const loc = this.model.tabs_location
-    this.header_el = div({class: [tabs.tabs_header, tabs[loc]]}, this.scroll_el, this.wrapper_el)
+    this.header_el = div({class: [tabs.header, tabs[loc]]}, headers)
     this.shadow_el.appendChild(this.header_el)
 
     this.stack_el = div({class: "bk-stack"})
@@ -153,45 +105,6 @@ export class TabsView extends LayoutDOMView {
 
     for (const child of this.child_views) {
       this.stack_el.appendChild(child.el)
-    }
-  }
-
-  private _scroll_index = 0
-  protected do_scroll(target: "left" | "right" | number): void {
-    const ntabs = this.model.tabs.length
-
-    if (target == "left")
-      this._scroll_index -= 1
-    else if (target == "right")
-      this._scroll_index += 1
-    else
-      this._scroll_index = target
-
-    this._scroll_index = clamp(this._scroll_index, 0, ntabs - 1)
-
-    if (this._scroll_index == 0)
-      this.left_el.setAttribute("disabled", "")
-    else
-      this.left_el.removeAttribute("disabled")
-
-    if (this._scroll_index == ntabs - 1)
-      this.right_el.setAttribute("disabled", "")
-    else
-      this.right_el.removeAttribute("disabled")
-
-    const sizes = children(this.headers_el)
-      .slice(0, this._scroll_index)
-      .map((el) => el.getBoundingClientRect())
-
-    const loc = this.model.tabs_location
-    const vertical = loc == "above" || loc == "below"
-
-    if (vertical) {
-      const left = -sum(sizes.map((size) => size.width))
-      this.headers_el.style.left = `${left}px`
-    } else {
-      const top = -sum(sizes.map((size) => size.height))
-      this.headers_el.style.top = `${top}px`
     }
   }
 
@@ -204,7 +117,7 @@ export class TabsView extends LayoutDOMView {
   on_active_change(): void {
     const i = this.model.active
 
-    const headers = children(this.headers_el)
+    const headers = children(this.header_el)
     for (const el of headers)
       el.classList.remove(tabs.active)
 
