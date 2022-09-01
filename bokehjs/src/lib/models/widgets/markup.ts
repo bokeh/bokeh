@@ -9,7 +9,7 @@ export abstract class MarkupView extends WidgetView {
 
   protected markup_el: HTMLElement
 
-  protected override readonly _auto_width = "auto"
+  protected override readonly _auto_width = "fit-content"
   protected override readonly _auto_height = "auto"
 
   override async lazy_initialize() {

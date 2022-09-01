@@ -15,6 +15,8 @@ import {SerializableState} from "core/view"
 
 export {DOMBoxSizing}
 
+type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
+
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
   override parent: DOMElementView | null
@@ -135,8 +137,8 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
-  protected readonly _auto_width: "auto" | "max-content" = "max-content"
-  protected readonly _auto_height: "auto" | "max-content" = "max-content"
+  protected readonly _auto_width: CSSSizeKeyword = "fit-content"
+  protected readonly _auto_height: CSSSizeKeyword = "fit-content"
 
   protected _update_layout(): void {
     function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
@@ -144,9 +146,9 @@ export abstract class LayoutDOMView extends UIElementView {
         case "auto":
           return size != null ? px(size) : auto_size
         case "fixed":
-          return size != null ? px(size) : "max-content"
+          return size != null ? px(size) : "fit-content"
         case "fit":
-          return "max-content"
+          return "fit-content"
         case "min":
           return "min-content"
         case "max":
