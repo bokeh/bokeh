@@ -26,6 +26,10 @@ from .build import (
     update_bokehjs_versions,
     update_changelog,
     update_hash_manifest,
+    verify_conda_install,
+    verify_pip_install_from_sdist,
+    verify_pip_install_using_sdist,
+    verify_pip_install_using_wheel,
 )
 from .checks import (
     check_anaconda_present,
@@ -114,6 +118,10 @@ BUILD_STEPS: StepListType = (
     build_pip_packages,
     build_conda_packages,
     build_docs,
+    verify_pip_install_from_sdist,
+    verify_pip_install_using_sdist,
+    verify_pip_install_using_wheel,
+    verify_conda_install,
     pack_deployment_tarball,
     upload_deployment_tarball,
     publish_bokehjs_to_cdn,
