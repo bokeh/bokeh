@@ -61,7 +61,7 @@ export class LabelSetView extends DataAnnotationView {
       if (!isFinite(sx_i + sy_i + angle_i) || text_i == null)
         continue
 
-      this._paint(ctx, i, text_i, sx_i, sy_i, angle_i)
+      this._paint(ctx, i, `${text_i}`, sx_i, sy_i, angle_i)
     }
   }
 
