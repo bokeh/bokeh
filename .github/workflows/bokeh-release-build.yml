@@ -44,7 +44,7 @@ jobs:
           environment-file: conda/environment-release-build.yml
 
       - name: Install sampledata
-        run: python bokeh/util/sampledata.py
+        run: python src/bokeh/util/sampledata.py
 
       - name: Post install status
         run: |
