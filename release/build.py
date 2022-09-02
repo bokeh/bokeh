@@ -31,6 +31,10 @@ __all__ = (
     "update_bokehjs_versions",
     "update_changelog",
     "update_hash_manifest",
+    "verify_conda_install",
+    "verify_pip_install_from_sdist",
+    "verify_pip_install_using_sdist",
+    "verify_pip_install_using_wheel",
 )
 
 
@@ -188,3 +192,31 @@ def update_hash_manifest(config: Config, system: System) -> ActionReturn:
         return PASSED("Updated SRI hash manifest")
     except RuntimeError as e:
         return FAILED("SRI hash manifest update failed", details=e.args)
+
+def verify_pip_install_from_sdist(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("bash scripts/ci/verify_pip_install_from_sdist.sh", VERSION=config.version)
+        return PASSED("Verified pip install from sdist")
+    except RuntimeError as e:
+        return FAILED("Verify pip install from sdist failed", details=e.args)
+
+def verify_pip_install_using_sdist(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("bash scripts/ci/verify_pip_install_using_sdist.sh", VERSION=config.version)
+        return PASSED("Verified pip install using sdist")
+    except RuntimeError as e:
+        return FAILED("Verify pip install using sdist failed", details=e.args)
+
+def verify_pip_install_using_wheel(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("bash scripts/ci/verify_pip_install_using_wheel.sh", VERSION=config.version)
+        return PASSED("Verified pip install using wheel")
+    except RuntimeError as e:
+        return FAILED("Verify pip install using wheel failed", details=e.args)
+
+def verify_conda_install(config: Config, system: System) -> ActionReturn:
+    try:
+        system.run("bash scripts/ci/verify_conda_install.sh", VERSION=config.version, LOC="noarch")
+        return PASSED("Verified conda install")
+    except RuntimeError as e:
+        return FAILED("Verify conda install failed", details=e.args)
