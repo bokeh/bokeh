@@ -4,8 +4,8 @@ set -eu
 
 echo "Start of $0"
 
-bash ci/install_node_modules.sh
-python setup.py install
+bash scripts/install_node_modules.sh
+pip install -ve .
 
 python -m bokeh info
 

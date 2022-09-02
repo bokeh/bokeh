@@ -23,13 +23,13 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
 
       - name: Build image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: scripts/docker
           load: true
@@ -38,23 +38,23 @@ jobs:
             bokeh-dev:${{ env.iso_date }}
             bokeh-dev:${{ env.branch_name }}
 
-      - name: Save image to tar file
-        run: |
-          docker save -o bokeh-dev.tar bokeh-dev
+      ############# Start of ECR upload block ###############
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          name: artifact
-          path: bokeh-dev.tar
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
 
-      - name: Run tests
-        if: ${{ github.event.inputs.run_tests }}
-        run: |
-          docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id -u):$(id -g) --rm -e BOKEH_DOCKER_BUILD=1 -e BOKEH_DOCKER_TEST=1 bokeh-dev:latest
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Collect results
-        if: ${{ github.event.inputs.run_tests }}
+      - name: Upload image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: some_name_related_to_bokeh
         run: |
           OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
           SRC="bokehjs/test/baselines/${OS}"
