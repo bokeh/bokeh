@@ -1904,4 +1904,30 @@ describe("Bug", () => {
       }
     })
   })
+
+  describe("in issue #12127", () => {
+    it("prevents displaying non-text labels in LabelSet", async () => {
+      const p = fig([200, 200], {
+        x_range: new Range1d({start: -1, end: 2}),
+        y_range: new Range1d({start: -1, end: 2}),
+      })
+
+      const source = new ColumnDataSource({data: {
+        a: [0, 0, 1, 1],
+        b: [0, 1, 0, 1],
+        c: [6, 7, 8, 9],
+      }})
+
+      const labels = new LabelSet({
+        x: {field: "a"},
+        y: {field: "b"},
+        text: {field: "c"},
+        source,
+      })
+
+      p.add_layout(labels)
+
+      await display(p)
+    })
+  })
 })
