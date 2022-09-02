@@ -671,6 +671,18 @@ describe("Tabs", () => {
     obj.tabs[1].disabled = true
     await display(obj, [200, 150])
   })
+
+  it("should allow axis alignment across tabs", async () => {
+    const tabs = new Tabs({
+      tabs: [
+        new TabPanel({title: "Tab 0", child: plot(10**0, 10**0, "red")}),
+        new TabPanel({title: "Tab 1", child: plot(10**2, 10**2, "green")}),
+        new TabPanel({title: "Tab 2", child: plot(10**4, 10**4, "blue")}),
+      ],
+      tabs_location: "above",
+    })
+    await display(tabs, [250, 250])
+  })
 })
 
 describe("gridplot()", () => {

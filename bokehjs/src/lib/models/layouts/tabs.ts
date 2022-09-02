@@ -1,11 +1,13 @@
 import {div, show, hide, children, StyleSheetLike} from "core/dom"
 import {FlexDirection} from "core/css"
 import {remove_at} from "core/util/array"
+import {Container} from "core/layout/grid"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
+import {GridAlignmentLayout} from "./alignments"
 import {UIElement} from "../ui/ui_element"
 
 import tabs_css, * as tabs from "styles/tabs.css"
@@ -45,8 +47,21 @@ export class TabsView extends LayoutDOMView {
 
     this.style.append(":host", {flex_direction})
 
-    for (const child of this.child_views) {
-      child.style.append(":host", {grid_area: "stack"})
+    const layoutable = new Container<LayoutDOMView>()
+
+    for (const view of this.child_views) {
+      view.style.append(":host", {grid_area: "stack"})
+
+      if (view instanceof LayoutDOMView && view.layout != null) {
+        layoutable.add({r0: 0, c0: 0, r1: 1, c1: 1}, view)
+      }
+    }
+
+    if (layoutable.size != 0) {
+      this.layout = new GridAlignmentLayout(layoutable)
+      this.layout.set_sizing()
+    } else {
+      delete this.layout
     }
   }
 
