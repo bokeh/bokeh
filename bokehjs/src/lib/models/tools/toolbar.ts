@@ -98,8 +98,8 @@ export class ToolbarView extends UIElementView {
     this.el.classList.toggle(toolbars.hidden, !this.visible)
   }
 
-  override after_resize(): void {
-    super.after_resize()
+  override _after_resize(): void {
+    super._after_resize()
     this.render()
   }
 

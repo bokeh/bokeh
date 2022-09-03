@@ -155,10 +155,10 @@ export class CanvasView extends UIElementView {
     `)
   }
 
-  override after_resize(): void {
+  override _after_resize(): void {
     if (this.plot_views.length != 0)
       return // XXX temporary hack
-    super.after_resize()
+    super._after_resize()
     const {width, height} = this.bbox
     this.primary.resize(width, height)
     this.overlays.resize(width, height)

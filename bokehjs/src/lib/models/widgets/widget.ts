@@ -26,8 +26,8 @@ export abstract class WidgetView extends LayoutDOMView {
       await this.provider.fetch()
   }
 
-  override after_layout(): void {
-    super.after_layout()
+  override _after_layout(): void {
+    super._after_layout()
 
     if (this.provider.status == "loading")
       this._has_finished = false

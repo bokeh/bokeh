@@ -168,8 +168,8 @@ export class DataTableView extends WidgetView {
     return [...super.styles(), slickgrid_css, tables_css]
   }
 
-  override after_resize(): void {
-    super.after_resize()
+  override _after_resize(): void {
+    super._after_resize()
     this.grid.resizeCanvas()
     this.updateLayout(true, false)
   }

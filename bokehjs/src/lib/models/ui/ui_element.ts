@@ -141,8 +141,11 @@ export abstract class UIElementView extends DOMComponentView {
     super.remove()
   }
 
+  protected _after_resize(): void {}
+
   after_resize(): void {
-    this._update_bbox()
+    this.update_bbox()
+    this._after_resize()
     this.finish()
   }
 

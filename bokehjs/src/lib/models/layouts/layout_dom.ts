@@ -39,7 +39,8 @@ export abstract class LayoutDOMView extends UIElementView {
     this._child_views = new Map()
   }
 
-  override after_resize(): void {
+  override _after_resize(): void {
+    super._after_resize()
     this.compute_layout()
   }
 
@@ -338,7 +339,6 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     this._after_layout()
-    this.finish()
   }
 
   override render_to(element: Node): void {
@@ -350,6 +350,10 @@ export abstract class LayoutDOMView extends UIElementView {
   override after_render(): void {
     if (!this.is_managed) {
       this.invalidate_layout()
+    }
+
+    if (!this.model.visible) {
+      this.finish()
     }
   }
 
