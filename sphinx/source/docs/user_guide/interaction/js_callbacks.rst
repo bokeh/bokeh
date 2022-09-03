@@ -121,11 +121,6 @@ events on any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     # execute a callback whenever p.x_range.start changes
     p.x_range.js_on_change('start', callback)
 
-The first parameter to ``js_on_change`` is actually the name of a BokehJS event.
-The full format for a property change event is, for example, ``"change:start"``.
-However, Bokeh will automatically convert any property name into one of these
-BokehJS change events for you.
-
 Some Bokeh models have additional, specialized events. For example, the
 :class:`~bokeh.models.ColumnDataSource` model also supports ``"patch"`` and
 ``"stream"`` events. You can use these events to trigger ``CustomJS`` callbacks
