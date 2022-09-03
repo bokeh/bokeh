@@ -22,6 +22,7 @@ import {
   Renderer,
   ImageURLTexture,
   Column,
+  Pane,
 } from "@bokehjs/models"
 
 import {Button, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div} from "@bokehjs/models/widgets"
@@ -2037,6 +2038,24 @@ describe("Bug", () => {
 
       group.labels = [...group.labels, "Button 2"]
       await view.ready
+    })
+  })
+
+  describe("in issue #9208", () => {
+    it("makes a 'stretch_width' and large height child overflow x when y scrollbar is present", async () => {
+      const plot = fig([200, 600], {
+        width_policy: "max",
+        height_policy: "fixed",
+        toolbar_location: "right",
+      })
+      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+
+      const pane = new Pane({
+        styles: {width: "300px", height: "300px", overflow_y: "scroll"},
+        children: [plot],
+      })
+
+      await display(pane, [350, 350])
     })
   })
 })
