@@ -231,12 +231,12 @@ export abstract class LayoutDOMView extends UIElementView {
     } else {
       if (max_width != null)
         styles.max_width = `min(${to_css(max_width)}, 100%)`
-      else
+      else if (width_policy != "fixed")
         styles.max_width = "100%"
 
       if (max_height != null)
         styles.max_height = `min(${to_css(max_height)}, 100%)`
-      else
+      else if (height_policy != "fixed")
         styles.max_height = "100%"
     }
 
