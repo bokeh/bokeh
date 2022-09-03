@@ -132,6 +132,7 @@ __all__ = (
     'RenderLevel',
     'ResetPolicy',
     'RoundingFunction',
+    'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
@@ -432,6 +433,9 @@ ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Scrollbar policies
+ScrollbarPolicy = enumeration("auto", "visible", "hidden")
 
 #: Selection modes
 SelectionMode = enumeration("replace", "append", "intersect", "subtract")

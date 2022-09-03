@@ -26,6 +26,7 @@ from ..core.enums import (
     Align,
     Dimensions,
     Location,
+    ScrollbarPolicy,
     SizingMode,
     SizingPolicy,
 )
@@ -74,6 +75,7 @@ __all__ = (
     'HBox',
     'LayoutDOM',
     'Row',
+    'ScrollBox',
     'Spacer',
     'TabPanel',
     'Tabs',
@@ -580,6 +582,28 @@ class GroupBox(LayoutDOM):
     Whether to allow disabling this group (all its children) via a checkbox
     in the UI. This allows to broadcast ``disabled`` state across multiple
     UI controls that support that state.
+    """)
+
+class ScrollBox(LayoutDOM):
+    ''' A panel that allows to scroll overflowing UI elements.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    child = Instance(UIElement, help="""
+    The child UI element. This can be a single UI control, widget, etc., or
+    a container layout like ``Column`` or ``Row``, or a combitation of layouts.
+    """)
+
+    horizontal_scrollbar = Enum(ScrollbarPolicy, default="auto", help="""
+    The visibility of the horizontal scrollbar.
+    """)
+
+    vertical_scrollbar = Enum(ScrollbarPolicy, default="auto", help="""
+    The visibility of the vertical scrollbar.
     """)
 
 #-----------------------------------------------------------------------------

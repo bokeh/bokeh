@@ -148,6 +148,9 @@ export const ResetPolicy = Enum("standard", "event_only")
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction = Enum("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
+export type ScrollbarPolicy = typeof ScrollbarPolicy["__type__"]
+export const ScrollbarPolicy = Enum("auto", "visible", "hidden")
+
 export type SelectionMode = "replace" | "append" | "intersect" | "subtract"
 export const SelectionMode = Enum("replace", "append", "intersect", "subtract")
 

@@ -1,7 +1,7 @@
 import {expect} from "../unit/assertions"
 import {display, fig} from "./_util"
 
-import {Spacer, Tabs, TabPanel, GridBox, GroupBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
+import {Spacer, Tabs, TabPanel, GridBox, GroupBox, ScrollBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
 import {TextInput, Button} from "@bokehjs/models/widgets"
 import {SizingPolicy} from "@bokehjs/core/layout"
@@ -764,5 +764,23 @@ describe("GroupBox", () => {
 
     view.checkbox_el.dispatchEvent(new MouseEvent("click"))
     await view.ready
+  })
+})
+
+describe("ScrollBox", () => {
+  it("should allow to scroll a fixed sized plot with sizing_mode='fixed'", async () => {
+    const child = plot(10**2, 10**4, "blue", {
+      toolbar_location: "left",
+      width: 300,
+      height: 300,
+      sizing_mode: "fixed",
+    })
+    const scroll_box = new ScrollBox({
+      child,
+      width: 200,
+      height: 200,
+      sizing_mode: "fixed",
+    })
+    await display(scroll_box, [250, 250])
   })
 })
