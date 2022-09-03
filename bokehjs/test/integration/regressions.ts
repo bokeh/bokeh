@@ -24,7 +24,7 @@ import {
   Column,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice, RadioGroup, Div} from "@bokehjs/models/widgets"
+import {Button, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -2021,6 +2021,22 @@ describe("Bug", () => {
 
       const col = new Column({children: [div, plot], sizing_mode: "stretch_width"})
       await display(col, [300, 350])
+    })
+  })
+
+  describe("in issue #9113", () => {
+    it("prevents layout update when adding new toggle group buttons", async () => {
+      const group = new RadioButtonGroup({labels: []})
+      const {view} = await display(group, [300, 100])
+
+      group.labels = [...group.labels, "Button 0"]
+      await view.ready
+
+      group.labels = [...group.labels, "Button 1"]
+      await view.ready
+
+      group.labels = [...group.labels, "Button 2"]
+      await view.ready
     })
   })
 })
