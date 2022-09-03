@@ -60,7 +60,7 @@ def build_npm_packages(config: Config, system: System) -> ActionReturn:
 
 def build_conda_packages(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("conda build conda/recipe --no-test --output-folder .", VERSION=config.version)
+        system.run("conda build conda/recipe --no-test", VERSION=config.version)
         return PASSED("conda package build succeeded")
     except RuntimeError as e:
         return FAILED("conda package build did NOT succeed", details=e.args)
@@ -116,7 +116,7 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         filename = f"{dirname}.tgz"
         system.run(f"mkdir {dirname}")
         system.run(f"cp bokehjs/bokeh-bokehjs-{config.js_version}.tgz {dirname}")
-        system.run(f"cp noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
+        system.run(f"cp $CONDA_PREFIX/conda-bld/noarch/bokeh-{config.version}-py_0.tar.bz2 {dirname}")
         system.run(f"cp dist/bokeh-{config.version}.tar.gz {dirname}")
         system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
@@ -216,7 +216,7 @@ def verify_pip_install_using_wheel(config: Config, system: System) -> ActionRetu
 
 def verify_conda_install(config: Config, system: System) -> ActionReturn:
     try:
-        system.run("bash scripts/ci/verify_conda_install.sh", VERSION=config.version, LOC="noarch")
+        system.run("bash scripts/ci/verify_conda_install.sh", VERSION=config.version)
         return PASSED("Verified conda install")
     except RuntimeError as e:
         return FAILED("Verify conda install failed", details=e.args)
