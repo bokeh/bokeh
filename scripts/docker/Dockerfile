@@ -31,8 +31,9 @@ RUN curl -LO https://dl.google.com/linux/direct/$CHROME_DEB && \
     rm -rf /var/lib/apt/lists/*
 
 # Download correct version of chromedriver and put in path.
-RUN CHROME_VERSION=$(google-chrome --version | awk '{print $NF}') && \
-    curl -LO https://chromedriver.storage.googleapis.com/$CHROME_VERSION/chromedriver_linux64.zip && \
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $NF}' | sed 's/\.[0-9]\+$//g') && \
+    DRIVER_VERSION=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION) && \
+    curl -LO https://chromedriver.storage.googleapis.com/$DRIVER_VERSION/chromedriver_linux64.zip && \
     unzip chromedriver_linux64.zip && \
     mv chromedriver /usr/bin && \
     rm chromedriver_linux64.zip
