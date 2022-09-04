@@ -582,12 +582,12 @@ describe("Tabs", () => {
 
   it("should allow tabs header location above with overflow", async () => {
     const obj = tabs("above", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [300, 150])
   })
 
   it("should allow tabs header location below with overflow", async () => {
     const obj = tabs("below", ["red", "green", "blue", "cyan", "magenta"])
-    await display(obj, [200, 150])
+    await display(obj, [300, 150])
   })
 
   it("should allow tabs header location left with overflow", async () => {
@@ -603,13 +603,13 @@ describe("Tabs", () => {
   it("should allow tabs header location above with overflow and active off-screen", async () => {
     const obj = tabs("above", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [300, 150])
   })
 
   it("should allow tabs header location below with overflow and active off-screen", async () => {
     const obj = tabs("below", ["red", "green", "blue", "cyan", "magenta"])
     obj.active = 3
-    await display(obj, [200, 150])
+    await display(obj, [300, 150])
   })
 
   it("should allow tabs header location left with overflow and active off-screen", async () => {
