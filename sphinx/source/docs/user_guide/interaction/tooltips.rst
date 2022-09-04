@@ -31,21 +31,8 @@ The content of a ``Tooltip`` is defined with its ``content`` property.
 
 This content either can be either a plaintext string or an HTML object:
 
-.. bokeh-plot::
+.. bokeh-plot:: docs/user_guide/examples/interaction_tooltip_content.py
     :source-position: above
-
-    from bokeh.models import Tooltip, TextInput
-    from bokeh.models.dom import HTML
-    from bokeh.layouts import column
-    from bokeh.io import show
-
-    plaintext_tooltip = Tooltip(content="plain text tooltip", position="right")
-    html_tooltip = Tooltip(content=HTML("<b>HTML</b> tooltip"), position="right")
-
-    input_with_plaintext_tooltip = TextInput(value="default", title="Label:", description=plaintext_tooltip)
-    input_with_html_tooltip = TextInput(value="default", title="Label2:", description=html_tooltip)
-
-    show(column(input_with_plaintext_tooltip, input_with_html_tooltip))
 
 Hover over or tap the "?" Symbol next to the inputs' titles to see the
 tooltips in action.
@@ -71,19 +58,8 @@ that takes a :class:`~bokeh.models.Tooltip` object as its value. The tooltips
 defined by the ``description`` property are displayed when a user hovers or
 taps the "?" symbol next to the input widget's title:
 
-.. bokeh-plot::
+.. bokeh-plot:: docs/user_guide/examples/interaction_tooltip_description.py
     :source-position: above
-
-    from bokeh.io import show
-    from bokeh.models import MultiChoice, Tooltip
-
-    OPTIONS = ["foo", "bar", "baz", "quux"]
-
-    tooltip = Tooltip(content="Choose any number of the predefined items", position="right")
-
-    multi_choice = MultiChoice(value=OPTIONS[:2], options=OPTIONS, title="Choose values:", description=tooltip)
-
-    show(multi_choice)
 
 .. note::
     Since the ``description`` tooltip is tied to the input widget's title, this only
@@ -137,20 +113,8 @@ doesn't have built-in support for tooltips, you can use the
 button with a "?" symbol. When the button is clicked or hovered over, the
 ``Tooltip`` object passed to the HelpButton's ``tooltip`` property is displayed.
 
-.. bokeh-plot::
+.. bokeh-plot:: docs/user_guide/examples/interaction_tooltip_helpbutton.py
     :source-position: above
-
-    from bokeh.models import HelpButton, RadioButtonGroup, Tooltip
-    from bokeh.io import show
-    from bokeh.layouts import row
-
-    LABELS = ["Option 1", "Option 2", "Option 3"]
-
-    radio_button_group = RadioButtonGroup(labels=LABELS, active=0)
-    tooltip = Tooltip(content=f"Select one of the following options: {', '.join(LABELS)}", position="right")
-    help_button = HelpButton(tooltip=tooltip)
-
-    show(row(radio_button_group, help_button))
 
 See :ref:`userguide_interaction_widgets_examples_helpbutton` for more
 information.
