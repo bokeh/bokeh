@@ -25,7 +25,7 @@ import {
   Pane,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div} from "@bokehjs/models/widgets"
+import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -2056,6 +2056,33 @@ describe("Bug", () => {
       })
 
       await display(pane, [350, 350])
+    })
+  })
+
+  describe("in issue #11339", () => {
+    it("collapses layout after toggling visiblity", async () => {
+      const toggle = new Toggle({label: "Click", active: true})
+      const select1 = new Select({title: "Select 1:", options: ["1", "2"]})
+      const select2 = new Select({title: "Select 2:", options: ["1", "2"]})
+      const div = new Div({text: "Some text"})
+
+      const selects = new Column({children: [select1, select2]})
+      const layout = new Column({children: [new Column({children: [toggle, selects]}), div]})
+
+      // Defer to make sure CSS layout is done after each step. The last one isn't
+      // strictly necessary, because test framework defers anyway after a test and
+      // before collecting results and capturing screenshots.
+      const {view} = await display(layout, [100, 200])
+      await defer()
+
+      // We aren't clicking on the button, because it doesn't affect the outcome.
+      selects.visible = false
+      await view.ready
+      await defer()
+
+      selects.visible = true
+      await view.ready
+      await defer()
     })
   })
 })

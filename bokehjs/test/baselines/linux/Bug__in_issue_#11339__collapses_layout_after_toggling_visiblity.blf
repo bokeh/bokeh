@@ -1,0 +1,7 @@
+Column bbox=[0, 0, 68, 186]
+  Column bbox=[0, 0, 62, 157]
+    Toggle bbox=[5, 5, 52, 28]
+    Column bbox=[0, 38, 59, 119]
+      Select bbox=[5, 5, 49, 50]
+      Select bbox=[5, 65, 49, 50]
+  Div bbox=[5, 162, 58, 19]
