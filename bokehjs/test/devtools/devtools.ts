@@ -371,8 +371,57 @@ async function run_tests(): Promise<boolean> {
 
       await add_datapoint()
 
+      const out_stream = await (async () => {
+        if (baselines_root != null) {
+          const report_out = path.join(baselines_root, platform, "report.out")
+          await fs.promises.writeFile(report_out, "")
+
+          const stream = fs.createWriteStream(report_out, {flags: "a"})
+          stream.write(`Tests report output generated on ${new Date().toISOString()}:\n`)
+          return stream
+        } else
+          return null
+      })()
+
+      function format_output(test_case: TestItem): string | null {
+        const [suites, test, status] = test_case
+
+        if ((status.failure ?? false) || (status.timeout ?? false)) {
+          const output = []
+
+          let depth = 0
+          for (const suite of [...suites, test]) {
+            const is_last = depth == suites.length
+            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
+            output.push(`${prefix} ${suite.description}`)
+            depth++
+          }
+
+          for (const error of status.errors) {
+            output.push(error)
+          }
+
+          return output.join("\n")
+        } else {
+          return null
+        }
+      }
+
+      function append_report_out(test_case: TestItem): void {
+        if (out_stream != null) {
+          const output = format_output(test_case)
+          if (output != null) {
+            out_stream.write("\n")
+            out_stream.write(output)
+            out_stream.write("\n")
+          }
+        }
+      }
+
       try {
-        for (const [suites, test, status] of test_suite) {
+        for (const test_case of test_suite) {
+          const [suites, test, status] = test_case
+
           entries = []
           exceptions = []
 
@@ -530,26 +579,24 @@ async function run_tests(): Promise<boolean> {
           if ((status.failure ?? false) || (status.timeout ?? false))
             failures++
 
+          append_report_out(test_case)
           progress.increment(1, state())
         }
       } finally {
         progress.stop()
       }
 
-      for (const [suites, test, status] of test_suite) {
-        if ((status.failure ?? false) || (status.timeout ?? false)) {
-          console.log("")
+      if (out_stream) {
+        out_stream.write("\n")
+        out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failures} failures.\n`)
+        out_stream.end()
+      }
 
-          let depth = 0
-          for (const suite of [...suites, test]) {
-            const is_last = depth == suites.length
-            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-            console.log(`${prefix} ${suite.description}`)
-            depth++
-          }
-          for (const error of status.errors) {
-            console.log(error)
-          }
+      for (const test_case of test_suite) {
+        const output = format_output(test_case)
+        if (output != null) {
+          console.log("")
+          console.log(output)
         }
       }
 
@@ -568,6 +615,7 @@ async function run_tests(): Promise<boolean> {
 
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
         files.delete("report.json")
+        files.delete("report.out")
 
         for (const name of baseline_names) {
           files.delete(`${name}.blf`)
