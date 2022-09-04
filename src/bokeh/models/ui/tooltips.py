@@ -75,7 +75,8 @@ class Tooltip(UIElement):
     """)
 
     content = Required(Either(String, Instance(HTML)), help="""
-    Either plain text or rich HTML tooltip's contents.
+    The tooltip's content. Can be a plaintext string or a :class:`~bokeh.models.HTML`
+    object.
     """)
 
     attachment = Either(Enum(TooltipAttachment), Auto, default="auto", help="""

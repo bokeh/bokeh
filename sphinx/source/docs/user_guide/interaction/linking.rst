@@ -44,8 +44,8 @@ Linked properties
 ~~~~~~~~~~~~~~~~~
 
 It is also possible to link values of Bokeh model properties together so that
-they remain synchronized, using the ``js_link`` method. The example below links
-a circle glyph radius to the value of a Slider widget:
+they remain synchronized, using the :func:`~bokeh.model.Model.js_link` method.
+The example below links a circle glyph radius to the value of a Slider widget:
 
 .. bokeh-plot:: docs/user_guide/examples/interaction_linked_properties.py
     :source-position: above

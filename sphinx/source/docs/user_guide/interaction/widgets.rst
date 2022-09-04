@@ -3,75 +3,81 @@
 Adding widgets
 ==============
 
-Widgets are interactive controls that can be added to Bokeh applications to
-provide a front end user interface to a visualization. They can drive new
-computations, update plots, and connect to other programmatic functionality.
-When used with the Bokeh server, widgets can run arbitrary Python code, enabling
-complex applications. Widgets can also be used without the Bokeh server in
-standalone HTML documents through the browser's JavaScript runtime.
+Widgets are interactive control and display elements that can be added to Bokeh
+documents to provide a front end user interface to a visualization. Widgets can
+be added directly to the document root or be nested inside a layout.
 
-.. _userguide_interaction_widgets_callbacks:
+Bokeh's widgets offer a range of
+:ref:`interactive features <userguide_interaction_widgets_callbacks>` that you
+can use to drive new computations, update plots, and connect to other
+programmatic functionality.
 
-Callbacks
----------
-
-To use widgets, you must add them to your document and define their callbacks.
-Widgets can be added directly to the document root or nested inside a layout.
-There are two ways to use a widget's functionality:
-
-    * A ``CustomJS`` callback (see :ref:`userguide_interaction_jscallbacks`).
-      This approach will work in standalone HTML documents or Bokeh server apps.
-    * Use ``bokeh serve`` to start a Bokeh server and set up event handlers with
-      ``.on_change`` or ``.on_event``.
-
-Event handlers are Python functions that users can attach to widgets. These
-functions are then called when certain attributes on the widget are changed.
-The function signature of event handlers is determined by how they are attached
-to widgets (whether by ``.on_change`` or ``.on_event``, for example).
-
-All widgets have an ``.on_change`` method that takes an attribute name and one
-or more event handlers as parameters. These handlers are expected to have the
-function signature, ``(attr, old, new)``, where ``attr`` refers to the changed
-attribute's name, and ``old`` and ``new`` refer to the previous and updated
-values of the attribute.
-
-.. code-block:: python
-
-    def my_text_input_handler(attr, old, new):
-        print("Previous label: " + old)
-        print("Updated label: " + new)
-
-    text_input = TextInput(value="default", title="Label:")
-    text_input.on_change("value", my_text_input_handler)
-
-Additionally, some widgets, including the button, dropdown, and checkbox, have
-an ``.on_event`` method that takes an event handler as its only parameter. For
-a plain ``Button``, this handler is called without parameters. For the other
-widgets with ``.on_event``, the handler is passed the new attribute value.
-
-.. code-block:: python
-
-    def my_radio_handler(new):
-        print('Radio button option ' + str(new) + ' selected.')
-
-    radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
-    radio_group.on_event('button_click', my_radio_handler)
-
-Bokeh provides a simple default set of widgets. Users can create their own
+Bokeh provides a simple :ref:`default set of widgets
+<userguide_interaction_widgets_examples>`. You can create your own
 custom widgets, or wrap different third party widget libraries by creating
 custom extensions as described in :ref:`userguide_extensions`.
 
-For more information about the attributes to watch using ``.on_change``, see the
-|reference guide|. (Information about widgets is found under |bokeh.models|.)
+.. _userguide_interaction_widgets_callbacks:
+
+Widget interactivity
+--------------------
+
+While some widgets are only meant to display data, others can be used to
+interactively manipulate data and properties of objects in your visualization.
+
+Bokeh uses callbacks to handle these interactions. There are two types of
+callbacks:
+
+* :ref:`userguide_interaction_jscallbacks`
+* :ref:`userguide_interaction_callbacks_python`
+
+Which one to use depends on whether you are using
+:ref:`Bokeh server <userguide_server>` or are generating standalone HTML output:
+
+* If you want to use widgets to interact with Bokeh objects in a **standalone**
+  HTML document, the browser needs to handle all interactivity. Therefore,
+  you can only use :ref:`userguide_interaction_jscallbacks`.
+  You can write your own Javascript code, or use Bokeh's pre-defined Python
+  conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
+  which generate the necessary JavaScript code for you.
+* If you want to use widgets in connection with a **Bokeh server**, the server
+  can handle some interactivity. This allows you to use :ref:`callbacks
+  written in Python <userguide_interaction_callbacks_python>`.
+  Additionally, since the visualization itself is displayed in a browser, you
+  still can use :ref:`userguide_interaction_jscallbacks` as
+  well!
+
+.. _userguide_interaction_widgets_tootltips:
+
+Widget tooltips
+---------------
+
+[TBD] Link to tooltip / Special UI elements chapter
 
 .. _userguide_interaction_widgets_examples:
 
-Examples
---------
+Bokeh's built-in widgets
+------------------------
 
-The sections below collect short but complete examples of using all the built-in
-widgets. Many of the examples print output that can be observed by looking at
-your browser JavaScript console log.
+The sections below are examples for all widgets available in Bokeh. Many of the
+examples print output that can be observed by looking at your browser's
+JavaScript console log.
+
+.. _userguide_interaction_widgets_examples_autocompleteinput:
+
+AutocompleteInput
+~~~~~~~~~~~~~~~~~
+
+The AutocompleteInput widget is a general-purpose text input widget that uses
+a list of possible inputs to provide autocomplete while typing.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_autocompleteinput.py
+    :source-position: below
+
+More information about buttons can be found in the reference guide entry for
+|AutocompleteInput|.
+
+.. _userguide_interaction_widgets_examples_button:
 
 Button
 ~~~~~~
@@ -81,7 +87,22 @@ Bokeh provides a simple Button:
 .. bokeh-plot:: docs/user_guide/examples/interaction_button.py
     :source-position: below
 
-More information can be found in the Reference for |Button|.
+Use the button's ``button_type`` property to change the style of the button. See
+:attr:`~bokeh.models.Button.button_type` for possible values.
+
+Optionally, you can add an icon to a button by passing one of Bokeh's icon
+objects to the button's ``icon`` parameter:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_button_icon.py
+    :source-position: below
+
+Bokeh supports the following kinds of icons on buttons:
+
+* :class:`~bokeh.models.BuiltinIcon`: A set of built-in icons provided by Bokeh (see :class:`~bokeh.models.BuiltinIcon` for a list of available icons)
+* :class:`~bokeh.models.SVGIcon`: An arbitrary SVG icon
+* :class:`~bokeh.models.TablerIcon`: An icon from the `Tabler icon set <https://tabler-icons.io/>`_ (requires an active internet connection)
+
+More information about buttons can be found in the reference guide entry for |Button|.
 
 CheckboxButtonGroup
 ~~~~~~~~~~~~~~~~~~~
@@ -92,7 +113,9 @@ selected simultaneously:
 .. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_button_group.py
     :source-position: below
 
-More information can be found in the Reference for |CheckboxButtonGroup|.
+More information can be found in the reference guide entry for |CheckboxButtonGroup|.
+
+.. _userguide_interaction_widgets_examples_checkboxgroup:
 
 CheckboxGroup
 ~~~~~~~~~~~~~
@@ -102,7 +125,9 @@ A standard checkbox:
 .. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_group.py
     :source-position: below
 
-More information can be found in the Reference for |CheckboxGroup|.
+More information can be found in the reference guide entry for |CheckboxGroup|.
+
+.. _userguide_interaction_widgets_examples_colorpicker:
 
 ColorPicker
 ~~~~~~~~~~~
@@ -112,7 +137,7 @@ A widget to allow the user to specify an RGB color value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_colorpicker.py
     :source-position: below
 
-More information can be found in the Reference for |ColorPicker|.
+More information can be found in the reference guide entry for |ColorPicker|.
 
 .. _userguide_interaction_widgets_examples_datatable:
 
@@ -127,7 +152,9 @@ plot and the table (even in static HTML documents).
 .. bokeh-plot:: docs/user_guide/examples/interaction_data_table.py
     :source-position: below
 
-More information can be found in the Reference for |DataTable|.
+More information can be found in the reference guide entry for |DataTable|.
+
+.. _userguide_interaction_widgets_examples_datepicker:
 
 DatePicker
 ~~~~~~~~~~~
@@ -137,7 +164,7 @@ A widget to allow the user to specify a date value.
 .. bokeh-plot:: docs/user_guide/examples/interaction_datepicker.py
     :source-position: below
 
-More information can be found in the Reference for |DatePicker|.
+More information can be found in the reference guide entry for |DatePicker|.
 
 DateRangeSlider
 ~~~~~~~~~~~~~~~
@@ -148,7 +175,7 @@ values, a ``step`` size in units of days, an initial ``value``, and a ``title``:
 .. bokeh-plot:: docs/user_guide/examples/interaction_daterangeslider.py
     :source-position: below
 
-More information can be found in the Reference for |DateRangeSlider|.
+More information can be found in the reference guide entry for |DateRangeSlider|.
 
 DatetimeRangeSlider
 ~~~~~~~~~~~~~~~~~~~
@@ -159,7 +186,7 @@ that it uses datetimes that include hours, minutes and seconds:
 .. bokeh-plot:: docs/user_guide/examples/interaction_datetimerangeslider.py
     :source-position: below
 
-More information can be found in the Reference for |DatetimeRangeSlider|.
+More information can be found in the reference guide entry for |DatetimeRangeSlider|.
 
 .. _userguide_interaction_widgets_div:
 
@@ -171,7 +198,9 @@ A widget for displaying text that can support HTML in a <div> tag:
 .. bokeh-plot:: docs/user_guide/examples/interaction_div.py
     :source-position: below
 
-More information can be found in the Reference for |Div|.
+More information can be found in the reference guide entry for |Div|.
+
+.. _userguide_interaction_widgets_examples_dropdown:
 
 Dropdown
 ~~~~~~~~
@@ -182,7 +211,14 @@ clicked.
 .. bokeh-plot:: docs/user_guide/examples/interaction_dropdown.py
     :source-position: below
 
-More information can be found in the Reference for |Dropdown|.
+Similar to the :ref:`userguide_interaction_widgets_examples_button` widget, the
+dropdown button can also use an :class:`~bokeh.models.Icon` (such as
+:class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
+:class:`~bokeh.models.TablerIcon`).`
+
+More information can be found in the reference guide entry for |Dropdown|.
+
+.. _userguide_interaction_widgets_examples_fileinput:
 
 FileInput
 ~~~~~~~~~
@@ -192,7 +228,29 @@ A widget allowing users to choose a file and store its contents.
 .. bokeh-plot:: docs/user_guide/examples/interaction_fileinput.py
     :source-position: below
 
-More information can be found in the Reference for |FileInput|.
+More information can be found in the reference guide entry for |FileInput|.
+
+.. _userguide_interaction_widgets_examples_helpbutton:
+
+HelpButton
+~~~~~~~~~~
+
+A widget that provides a help symbol that displays additional text in a
+:class:`~bokeh.models.Tooltip` when hovered over or clicked.
+
+The default behavior of the help button's tooltip is as follows:
+
+* If the mouse is hovered over the help button, the tooltip is closed
+  automatically once the mouse is moved away.
+* If the help button is clicked, the tooltip will be persistent. The user needs
+  to click the "x" symbol in the top right corner of the tooltip to close it.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_helpbutton.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |HelpButton|.
+
+.. _userguide_interaction_widgets_examples_multichoice:
 
 MultiChoice
 ~~~~~~~~~~~
@@ -203,7 +261,9 @@ horizontal layout:
 .. bokeh-plot:: docs/user_guide/examples/interaction_multichoice.py
     :source-position: below
 
-More information can be found in the Reference for |MultiChoice|.
+More information can be found in the reference guide entry for |MultiChoice|.
+
+.. _userguide_interaction_widgets_examples_multiselect:
 
 MultiSelect
 ~~~~~~~~~~~
@@ -213,7 +273,19 @@ A multi-select widget to present multiple available options in vertical list:
 .. bokeh-plot:: docs/user_guide/examples/interaction_multiselect.py
     :source-position: below
 
-More information can be found in the Reference for |MultiSelect|.
+More information can be found in the reference guide entry for |MultiSelect|.
+
+.. _userguide_interaction_widgets_examples_numericinput:
+
+NumericInput
+~~~~~~~~~~~~
+
+A widget to allow the user to enter a numeric value.
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_numericinput.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |NumericInput|.
 
 .. _userguide_interaction_widgets_paragraph:
 
@@ -225,7 +297,9 @@ A widget for displaying a block of text in an HTML <p> tag:
 .. bokeh-plot:: docs/user_guide/examples/interaction_paragraph.py
     :source-position: below
 
-More information can be found in the Reference for |Paragraph|.
+More information can be found in the reference guide entry for |Paragraph|.
+
+.. _userguide_interaction_widgets_examples_passwordinput:
 
 PasswordInput
 ~~~~~~~~~~~~~
@@ -235,7 +309,7 @@ A text input that obscures the entered text:
 .. bokeh-plot:: docs/user_guide/examples/interaction_passwordinput.py
     :source-position: below
 
-More information can be found in the Reference for |PasswordInput|.
+More information can be found in the reference guide entry for |PasswordInput|.
 
 PreText
 ~~~~~~~
@@ -245,7 +319,7 @@ A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
 .. bokeh-plot:: docs/user_guide/examples/interaction_pretext.py
     :source-position: below
 
-More information can be found in the Reference for |PreText|.
+More information can be found in the reference guide entry for |PreText|.
 
 RadioButtonGroup
 ~~~~~~~~~~~~~~~~
@@ -255,7 +329,7 @@ A radio button group can have at most one selected button at a time:
 .. bokeh-plot:: docs/user_guide/examples/interaction_radio_button_group.py
     :source-position: below
 
-More information can be found in the Reference for |RadioButtonGroup|.
+More information can be found in the reference guide entry for |RadioButtonGroup|.
 
 RadioGroup
 ~~~~~~~~~~
@@ -265,7 +339,7 @@ A radio group uses standard radio button appearance:
 .. bokeh-plot:: docs/user_guide/examples/interaction_radio_group.py
     :source-position: below
 
-More information can be found in the Reference for |RadioGroup|.
+More information can be found in the reference guide entry for |RadioGroup|.
 
 .. _userguide_interaction_widgets_range_slider:
 
@@ -278,7 +352,9 @@ an initial ``value``, and a ``title``:
 .. bokeh-plot:: docs/user_guide/examples/interaction_range_slider.py
     :source-position: below
 
-More information can be found in the Reference for |RangeSlider|.
+More information can be found in the reference guide entry for |RangeSlider|.
+
+.. _userguide_interaction_widgets_examples_select:
 
 Select
 ~~~~~~
@@ -288,7 +364,7 @@ A single selection widget:
 .. bokeh-plot:: docs/user_guide/examples/interaction_select.py
     :source-position: below
 
-More information can be found in the Reference for |Select|.
+More information can be found in the reference guide entry for |Select|.
 
 .. _userguide_interaction_widgets_slider:
 
@@ -301,7 +377,9 @@ an initial ``value``, and a ``title``:
 .. bokeh-plot:: docs/user_guide/examples/interaction_slider.py
     :source-position: below
 
-More information can be found in the Reference for |Slider|.
+More information can be found in the reference guide entry for |Slider|.
+
+.. _userguide_interaction_widgets_examples_spinner:
 
 Spinner
 ~~~~~~~
@@ -311,7 +389,19 @@ A numeric spinner widget:
 .. bokeh-plot:: docs/user_guide/examples/interaction_spinner.py
     :source-position: below
 
-More information can be found in the Reference for |Spinner|.
+More information can be found in the reference guide entry for |Spinner|.
+
+.. _userguide_interaction_widgets_examples_switch:
+
+Switch
+~~~~~~
+
+An on/off toggle switch:
+
+.. bokeh-plot:: docs/user_guide/examples/interaction_switch.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |Switch|.
 
 Tabs
 ~~~~
@@ -321,7 +411,9 @@ Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 .. bokeh-plot:: docs/user_guide/examples/interaction_tab_panes.py
     :source-position: below
 
-More information can be found in the Reference for |Tabs|.
+More information can be found in the reference guide entry for |Tabs|.
+
+.. _userguide_interaction_widgets_examples_textareainput:
 
 TextAreaInput
 ~~~~~~~~~~~~~
@@ -331,7 +423,9 @@ A widget for collecting multiple lines of text from a user:
 .. bokeh-plot:: docs/user_guide/examples/interaction_textareainput.py
     :source-position: below
 
-More information can be found in the Reference for |TextAreaInput|.
+More information can be found in the reference guide entry for |TextAreaInput|.
+
+.. _userguide_interaction_widgets_examples_textinput:
 
 TextInput
 ~~~~~~~~~
@@ -341,7 +435,7 @@ A widget for collecting a line of text from a user:
 .. bokeh-plot:: docs/user_guide/examples/interaction_textinput.py
     :source-position: below
 
-More information can be found in the Reference for |TextInput|.
+More information can be found in the reference guide entry for |TextInput|.
 
 Toggle
 ~~~~~~
@@ -351,8 +445,14 @@ The toggle button holds an on/off state:
 .. bokeh-plot:: docs/user_guide/examples/interaction_toggle_button.py
     :source-position: below
 
-More information can be found in the Reference for |Toggle|.
+Like with a standard :ref:`userguide_interaction_widgets_examples_button`
+widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
+:class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
+:class:`~bokeh.models.TablerIcon`).`
 
+More information can be found in the reference guide entry for |Toggle|.
+
+.. |AutocompleteInput|      replace:: :class:`~bokeh.models.widgets.inputs.AutocompleteInput`
 .. |Button|                 replace:: :class:`~bokeh.models.widgets.buttons.Button`
 .. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.widgets.groups.CheckboxButtonGroup`
 .. |CheckboxGroup|          replace:: :class:`~bokeh.models.widgets.groups.CheckboxGroup`
@@ -364,8 +464,10 @@ More information can be found in the Reference for |Toggle|.
 .. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
 .. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
 .. |FileInput|              replace:: :class:`~bokeh.models.widgets.inputs.FileInput`
+.. |HelpButton|             replace:: :class:`~bokeh.models.widgets.buttons.HelpButton`
 .. |MultiChoice|            replace:: :class:`~bokeh.models.widgets.inputs.MultiChoice`
 .. |MultiSelect|            replace:: :class:`~bokeh.models.widgets.inputs.MultiSelect`
+.. |NumericInput|           replace:: :class:`~bokeh.models.widgets.inputs.NumericInput`
 .. |Paragraph|              replace:: :class:`~bokeh.models.widgets.markups.Paragraph`
 .. |PasswordInput|          replace:: :class:`~bokeh.models.widgets.inputs.PasswordInput`
 .. |PreText|                replace:: :class:`~bokeh.models.widgets.markups.PreText`
@@ -375,6 +477,7 @@ More information can be found in the Reference for |Toggle|.
 .. |Select|                 replace:: :class:`~bokeh.models.widgets.inputs.Select`
 .. |Slider|                 replace:: :class:`~bokeh.models.widgets.sliders.Slider`
 .. |Spinner|                replace:: :class:`~bokeh.models.widgets.inputs.Spinner`
+.. |Switch|                 replace:: :class:`~bokeh.models.widgets.inputs.Switch`
 .. |Tabs|                   replace:: :class:`~bokeh.models.layouts.Tabs`
 .. |TextAreaInput|          replace:: :class:`~bokeh.models.widgets.inputs.TextAreaInput`
 .. |TextInput|              replace:: :class:`~bokeh.models.widgets.inputs.TextInput`

@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 """
-
+Models representing selector queries for UI components.
 """
 
 #-----------------------------------------------------------------------------
@@ -44,25 +44,25 @@ __all__ = (
 
 @abstract
 class Selector(Model):
-    """ Represents a CSS selector query. """
+    """ Base class for selector queries. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
 class ByID(Selector):
-    """ Represents an ID selector query. """
+    """ Represents a CSS ID selector query. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, query: Init[str] = Intrinsic, **kwargs) -> None:
         super().__init__(query=query, **kwargs)
 
     query = Required(String, help="""
-    Element ID without ``#`` prefix. Alternatively use ``ByCSS("#id")``.
+    Element CSS ID without ``#`` prefix. Alternatively use ``ByCSS("#id")``.
     """)
 
 class ByClass(Selector):
-    """ Represents an ID selector query. """
+    """ Represents a CSS class selector query. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, query: Init[str] = Intrinsic, **kwargs) -> None:

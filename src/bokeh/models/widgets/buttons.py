@@ -76,7 +76,20 @@ class ButtonLike(HasProps):
         super().__init__(*args, **kwargs)
 
     button_type = Enum(ButtonType, help="""
-    A style for the button, signifying it's role.
+    A style for the button, signifying it's role. Possible values are one of the
+    following:
+
+    .. bokeh-plot::
+        :source-position: none
+
+        from bokeh.core.enums import ButtonType
+        from bokeh.io import show
+        from bokeh.layouts import column
+        from bokeh.models import Button
+
+        show(column(
+            [Button(label=button_type, button_type=button_type) for button_type in ButtonType]
+            ))
     """)
 
 @abstract
@@ -94,7 +107,9 @@ class AbstractButton(Widget, ButtonLike):
     """)
 
     icon = Nullable(Instance(Icon), help="""
-    An optional image appearing to the left of button's text.
+    An optional image appearing to the left of button's text. An instance of
+    :class:`~bokeh.models.Icon` (such as :class:`~bokeh.models.BuiltinIcon`,
+    :class:`~bokeh.models.SVGIcon`, or :class:`~bokeh.models.TablerIcon`).`
     """)
 
 #-----------------------------------------------------------------------------
@@ -202,15 +217,17 @@ class Dropdown(AbstractButton):
         self.js_on_event(MenuItemClick, handler)
 
 class HelpButton(AbstractButton):
-    """ """
+    """ A button with a help symbol that displays additional text when hovered
+    over or clicked.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     tooltip = Required(Instance(Tooltip), help="""
-    A tooltip with rich HTML contents, providing general help or description
-    of a widget's or component's function.
+    A tooltip with plain text or rich HTML contents, providing general help or
+    description of a widget's or component's function.
     """)
 
     width = Override(default=18)

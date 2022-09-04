@@ -97,6 +97,7 @@ class AbstractSlider(Widget):
     """)
 
     tooltips = Bool(default=True, help="""
+    Display the slider's current value in a tooltip.
     """)
 
     bar_color = Color(default="#e6e6e6", help="""

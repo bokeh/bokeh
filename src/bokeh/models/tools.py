@@ -691,7 +691,7 @@ class TapTool(Tap, SelectTool):
     .. note::
         This callback does *not* execute on every tap, only when a glyph is
         "hit". If you would like to execute a callback on every mouse tap,
-        please see :ref:`userguide_interaction_jscallbacks_customjs_interactions`.
+        please see :ref:`userguide_interaction_jscallbacks_customjs_js_on_event`.
 
     """)
 

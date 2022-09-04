@@ -92,11 +92,12 @@ page_step_multiplier = ValueOf(obj=spinner, attr="page_step_multiplier")
 tooltip_0 = Tooltip(content=HTML(f"""\
 <b>Click</b> on arrows to increment/decrement the value or
 <br>
-<b>press</b> for quicker updates with a value multiplier (currently <ref id="{page_step_multiplier.id}"></ref>).
+<b>press</b> page up / page down keys for quicker updates with a value multiplier
+(currently <ref id="{page_step_multiplier.id}"></ref>).
 """, refs=[page_step_multiplier]), position="right", target=spinner, closable=True, visible=True)
 
 tooltip_1 = Tooltip(content=HTML("""\
-Your <b>choice</b> of color.<br>See more in bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
+Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
 """), position="right")
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
@@ -185,7 +186,7 @@ widgets = Column(children=[
 ])
 
 tooltip_2 = Tooltip(content=HTML("""\
-This example shows all widgets available in bokeh.<br>To learn more about using widgets, see bokeh's
+This example shows all widgets available in Bokeh.<br>To learn more about using widgets, see Bokeh's
 <a href="https://docs.bokeh.org/en/latest/docs/user_guide/interaction/widgets.html">documentation</a>
 regarding this topic.
 """), position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)

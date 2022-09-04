@@ -43,7 +43,8 @@ __all__ = (
 
 @abstract
 class UIElement(Model):
-    """ Base class for user interface elements. """
+    """ Base class for user interface elements.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:

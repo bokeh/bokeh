@@ -187,9 +187,9 @@ Protected branches
 To uninstall the Git hooks, run the following command from the top level of your
 *source checkout* directory:
 
-    .. code-block:: sh
+.. code-block:: sh
 
-        python scripts/hooks/uninstall.py
+    python scripts/hooks/uninstall.py
 
 .. _contributor_guide_setup_install_locally:
 
@@ -237,7 +237,7 @@ different local version instead, set the ``BOKEHJS_ACTION`` environment variable
 
 .. _contributor_guide_setup_sample_data:
 
-1. Download sample data
+7. Download sample data
 -----------------------
 
 Several tests and examples require Bokeh's sample data to be available on your

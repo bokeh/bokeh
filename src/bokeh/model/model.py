@@ -69,7 +69,7 @@ __all__ = (
 
 @abstract
 class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackManager):
-    ''' Base class for all objects stored in Bokeh  |Document| instances.
+    ''' Base class for all objects stored in Bokeh |Document| instances.
 
     '''
 
@@ -317,8 +317,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
     def js_link(self, attr: str, other: Model, other_attr: str, attr_selector: int | str | None = None) -> None:
         ''' Link two Bokeh model properties using JavaScript.
 
-        This is a convenience method that simplifies adding a CustomJS callback
-        to update one Bokeh model property whenever another changes value.
+        This is a convenience method that simplifies adding a
+        :class:`~bokeh.models.CustomJS` callback to update one Bokeh model
+        property whenever another changes value.
 
         Args:
 
@@ -396,7 +397,8 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         self.js_on_change(attr, cb)
 
     def js_on_change(self, event: str, *callbacks: JSEventCallback) -> None:
-        ''' Attach a ``CustomJS`` callback to an arbitrary BokehJS model event.
+        ''' Attach a :class:`~bokeh.models.CustomJS` callback to an arbitrary
+        BokehJS model event.
 
         On the BokehJS side, change events for model properties have the
         form ``"change:property_name"``. As a convenience, if the event name
