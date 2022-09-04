@@ -43,7 +43,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         run: |
-          docker build -t $ECR_REGISTRY/bokeh-dev:${{ env.iso_date }} scripts/docker
+          docker build -t $ECR_REGISTRY/e9u3b2f3/bokeh-dev:${{ env.iso_date }} scripts/docker
           docker push $ECR_REGISTRY/e9u3b2f3/bokeh-dev:${{ env.iso_date }}
 
 
