@@ -31,7 +31,41 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..model import Model
-from .annotations import *  # lgtm [py/polluting-import]
+from . import (
+    annotations,
+    axes,
+    callbacks,
+    canvas,
+    contour_renderer,
+    coordinates,
+    css,
+    expressions,
+    filters,
+    formatters,
+    glyphs,
+    graphs,
+    grids,
+    labeling,
+    layouts,
+    map_plots,
+    mappers,
+    plots,
+    ranges,
+    renderers,
+    scales,
+    selections,
+    selectors,
+    sources,
+    text,
+    textures,
+    tickers,
+    tiles,
+    tools,
+    transforms,
+    ui,
+    widgets,
+)
+from .annotations import *
 from .axes import *
 from .callbacks import *
 from .canvas import *
@@ -62,13 +96,47 @@ from .tiles import *
 from .tools import *
 from .transforms import *
 from .ui import *
-from .widgets import *  # lgtm [py/polluting-import]
+from .widgets import *
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    "Model",
+    *annotations.__all__,
+    *axes.__all__,
+    *callbacks.__all__,
+    *canvas.__all__,
+    *contour_renderer.__all__,
+    *coordinates.__all__,
+    *css.__all__,
+    *expressions.__all__,
+    *filters.__all__,
+    *formatters.__all__,
+    *glyphs.__all__,
+    *graphs.__all__,
+    *grids.__all__,
+    *labeling.__all__,
+    *layouts.__all__,
+    *map_plots.__all__,
+    *mappers.__all__,
+    *plots.__all__,
+    *ranges.__all__,
+    *renderers.__all__,
+    *scales.__all__,
+    *selections.__all__,
+    *selectors.__all__,
+    *sources.__all__,
+    *text.__all__,
+    *textures.__all__,
+    *tickers.__all__,
+    *tiles.__all__,
+    *tools.__all__,
+    *transforms.__all__,
+    *ui.__all__,
+    *widgets.__all__,
+)
 
 #-----------------------------------------------------------------------------
 # General API

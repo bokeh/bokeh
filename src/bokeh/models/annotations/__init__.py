@@ -20,10 +20,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from . import (
+    annotation,
+    arrows,
+    geometry,
+    html,
+    labels,
+    legends,
+)
 from .annotation import *
 from .arrows import *
 from .geometry import *
-from .html import *  # lgtm [py/polluting-import]
+from .html import *
 from .labels import *
 from .legends import *
 
@@ -31,7 +39,14 @@ from .legends import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    *annotation.__all__,
+    *arrows.__all__,
+    *geometry.__all__,
+    *html.__all__,
+    *labels.__all__,
+    *legends.__all__,
+)
 
 #-----------------------------------------------------------------------------
 # General API

@@ -358,7 +358,7 @@ class Test_file_html:
 
     def test_entire_doc_is_not_used(self) -> None:
         from bokeh.document import Document
-        from bokeh.models import Button
+        from bokeh.models.widgets import Button
 
         fig = figure()
         fig.x([0], [0])

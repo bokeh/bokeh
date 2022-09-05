@@ -32,7 +32,7 @@ from bokeh.document.events import DocumentChangedEvent, SessionCallbackAdded, Se
 from bokeh.document.locking import UnlockedDocumentProxy
 from bokeh.events import ButtonClick, DocumentReady
 from bokeh.io import curdoc
-from bokeh.models import Button, Div
+from bokeh.models.widgets import Button, Div
 from bokeh.server.callbacks import SessionCallback
 from bokeh.util.logconfig import basicConfig
 
