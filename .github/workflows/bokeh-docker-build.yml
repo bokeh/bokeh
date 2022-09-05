@@ -53,7 +53,7 @@ jobs:
           
       - name: Push image to Docker
         run: |
-          docker push bokeh/bokeh-dev::${{ env.iso_date }}
+          docker push bokeh/bokeh-dev:${{ env.iso_date }}
 
 
 
