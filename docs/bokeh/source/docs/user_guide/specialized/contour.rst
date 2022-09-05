@@ -83,7 +83,7 @@ Bokeh can generate animated contour plots using ``bokeh serve`` as the contour
 calculations occur in Python. Here is an example taken from
 ``examples/app/contour_animated.py``:
 
-.. bokeh-plot:: ../../examples/app/contour_animated.py
+.. bokeh-plot:: ../../../examples/app/contour_animated.py
     :source-position: above
 
 To run this on a Bokeh server use

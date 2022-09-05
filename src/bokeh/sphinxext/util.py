@@ -44,7 +44,7 @@ __all__ = ("get_sphinx_resources",)
 # Dev API
 # -----------------------------------------------------------------------------
 
-TOP_PATH = PurePath(os.getcwd()).parent.parent
+TOP_PATH = PurePath(os.getcwd()).parents[1]
 
 def get_sphinx_resources(include_bokehjs_api=False):
     docs_cdn = settings.docs_cdn()
