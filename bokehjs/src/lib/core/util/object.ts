@@ -96,6 +96,6 @@ export class Dict<V> implements Map<string, V> {
   }
 }
 
-export function obj<V>(o: {[key: string]: V}): Dict<V> {
+export function dict<V>(o: {[key: string]: V}): Dict<V> {
   return new Dict(o)
 }
