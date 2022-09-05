@@ -21,11 +21,11 @@ import {
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
-  Column,
+  Row, Column,
   Pane,
 } from "@bokehjs/models"
 
-import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div} from "@bokehjs/models/widgets"
+import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -2083,6 +2083,35 @@ describe("Bug", () => {
       selects.visible = true
       await view.ready
       await defer()
+    })
+  })
+
+  describe("in issue #4817", () => {
+    it("doesn't correctly align widgets after adding text to a widget", async () => {
+      const button = new Button({label: "Say"})
+      const input = new TextInput({value: "Bokeh"})
+      const output = new Div()
+
+      button.on_click(() => {
+        output.text = `Hello, ${input.value}!`
+      })
+
+      const layout = new Column({
+        children: [
+          new Row({children: [button, input]}),
+          output,
+        ],
+      })
+
+      const {view} = await display(layout, [300, 100])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      const ev = new MouseEvent("click", {bubbles: true})
+      button_view.button_el.dispatchEvent(ev)
+
+      await view.ready
     })
   })
 })
