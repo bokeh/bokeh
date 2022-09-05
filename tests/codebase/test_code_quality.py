@@ -80,7 +80,7 @@ def tab_in_leading(s: str) -> bool:
 def use_tab_rule(fname: str) -> bool:
     return not (basename(fname) == 'Makefile' or splitext(fname)[1] == '.bat')
 
-exclude_paths = ("CHANGELOG",)
+exclude_paths = ("docs/CHANGELOG",)
 
 exclude_exts = (
     ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc",

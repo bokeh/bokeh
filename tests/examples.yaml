@@ -24,5 +24,5 @@
 
 - path: "examples/integration/*"
 
-- path: "sphinx/source/docs/user_guide/examples"
+- path: "docs/bokeh/source/docs/user_guide/examples"
   no_js: ["geo_gmap.py"]

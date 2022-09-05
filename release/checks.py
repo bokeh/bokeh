@@ -77,7 +77,7 @@ def check_repo_is_bokeh(config: Config, system: System) -> ActionReturn:
 @skip_for_prerelease
 def check_release_notes_present(config: Config, system: System) -> ActionReturn:
     try:
-        if os.path.exists(Path(f"sphinx/source/docs/releases/{config.version}.rst")):
+        if os.path.exists(Path(f"docs/bokeh/source/docs/releases/{config.version}.rst")):
             return PASSED(f"Release notes file '{config.version}.rst' exists")
         else:
             return FAILED(f"Release notes file '{config.version}.rst' does NOT exist")
@@ -131,7 +131,7 @@ def check_checkout_matches_remote(config: Config, system: System) -> ActionRetur
 @skip_for_prerelease
 def check_docs_version_config(config: Config, system: System) -> ActionReturn:
     try:
-        with open(Path("sphinx/switcher.json")) as fp:
+        with open(Path("docs/bokeh/switcher.json")) as fp:
             versions = json.load(fp)
             all_versions = versions["all"]
             latest_version = versions["latest"]

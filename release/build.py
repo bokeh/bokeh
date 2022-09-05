@@ -68,9 +68,9 @@ def build_conda_packages(config: Config, system: System) -> ActionReturn:
 
 def build_docs(config: Config, system: System) -> ActionReturn:
     try:
-        system.cd("sphinx")
+        system.cd("docs/bokeh")
         system.run("make clean all", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
-        system.cd("..")
+        system.cd("../..")
         return PASSED("Docs build succeeded")
     except RuntimeError as e:
         return FAILED("Docs build did NOT succeed", details=e.args)
@@ -121,9 +121,9 @@ def pack_deployment_tarball(config: Config, system: System) -> ActionReturn:
         system.run(f"cp dist/bokeh-{config.version}-py3-none-any.whl {dirname}")
         system.run(f"mkdir {dirname}/bokehjs")
         system.run(f"cp -r bokehjs/build {dirname}/bokehjs")
-        system.run(f"mkdir -p {dirname}/sphinx/build")
-        system.run(f"cp -r sphinx/build/html {dirname}/sphinx/build")
-        system.run(f"cp -r sphinx/switcher.json {dirname}/sphinx")
+        system.run(f"mkdir -p {dirname}/docs/bokeh/build")
+        system.run(f"cp -r docs/bokeh/build/html {dirname}/docs/bokeh/build")
+        system.run(f"cp -r docs/bokeh/switcher.json {dirname}/docs/bokeh")
         system.run(f"tar cvf {filename} {dirname}")
         return PASSED(f"Packed deployment tarball {filename!r}")
     except RuntimeError as e:

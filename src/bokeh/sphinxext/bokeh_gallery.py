@@ -135,7 +135,7 @@ def config_inited_handler(app, config):
             continue
 
         with open(detail_file_path, "w") as f:
-            source_path = abspath(join(app.srcdir, "..", "..", detail["path"]))
+            source_path = abspath(join(app.srcdir, "..", "..", "..", detail["path"]))
             f.write(GALLERY_DETAIL.render(filename=detail["name"], source_path=source_path, ref=detail["ref"]))
 
     for extra_file in extras:
