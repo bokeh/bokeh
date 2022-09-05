@@ -63,7 +63,7 @@ def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None,
     ``/foo/myplot.html``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, use the default state configuration.

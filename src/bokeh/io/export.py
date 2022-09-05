@@ -51,8 +51,8 @@ from .state import State, curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
-    from ..models.layouts import LayoutDOM
     from ..models.plots import Plot
+    from ..models.ui import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -71,15 +71,15 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
+def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> str:
-    ''' Export the ``LayoutDOM`` object or document as a PNG.
+    ''' Export the ``UIElement`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
     ``/foo/myplot.py`` will create ``/foo/myplot.png``)
 
     Args:
-        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
             object or Document to export.
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
@@ -126,7 +126,7 @@ def export_png(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
 
     return abspath(expanduser(filename))
 
-def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, width: int | None = None,
+def export_svg(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
         height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
     ''' Export a layout as SVG file or a document as a set of SVG files.
 
@@ -134,7 +134,7 @@ def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, infer from the filename.
@@ -166,7 +166,7 @@ def export_svg(obj: LayoutDOM | Document, *, filename: PathLike | None = None, w
     svgs = get_svg(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
     return _write_collection(svgs, filename, "svg")
 
-def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width: int | None = None,
+def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width: int | None = None,
         height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> list[str]:
     ''' Export the SVG-enabled plots within a layout. Each plot will result
     in a distinct SVG file.
@@ -175,7 +175,7 @@ def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width
     (e.g. ``/foo/myplot.py`` will create ``/foo/myplot.svg``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (str, optional) : filename to save document under (default: None)
             If None, infer from the filename.
@@ -216,12 +216,12 @@ def export_svgs(obj: LayoutDOM | Document, *, filename: str | None = None, width
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> Image.Image:
-    ''' Get a screenshot of a ``LayoutDOM`` object.
+    ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
-        obj (LayoutDOM or Document) : a Layout (Row/Column), Plot or Widget
+        obj (UIElement or Document) : a Layout (Row/Column), Plot or Widget
             object or Document to export.
 
         driver (selenium.webdriver) : a selenium webdriver instance to use
@@ -263,7 +263,7 @@ def get_screenshot_as_png(obj: LayoutDOM | Document, *, driver: WebDriver | None
                  .crop((0, 0, width*dpr, height*dpr))
                  .resize((width, height)))
 
-def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
@@ -280,7 +280,7 @@ def get_svg(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeo
 
     return svgs
 
-def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, timeout: int = 5,
+def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
     from .webdriver import webdriver_control
 
@@ -297,7 +297,7 @@ def get_svgs(obj: LayoutDOM | Document, *, driver: WebDriver | None = None, time
 
     return svgs
 
-def get_layout_html(obj: LayoutDOM | Document, *, resources: Resources = INLINE,
+def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
         width: int | None = None, height: int | None = None, theme: Theme | None = None) -> str:
     '''
 
@@ -436,6 +436,7 @@ def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     web_driver.set_window_size(width + eps, height + eps)
     return viewport_size
 
+# TODO: consider UIElement like Pane
 _SVGS_SCRIPT = """
 const {LayoutDOMView} = Bokeh.require("models/layouts/layout_dom")
 const {PlotView} = Bokeh.require("models/plots/plot")

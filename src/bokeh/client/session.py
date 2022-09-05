@@ -52,7 +52,7 @@ from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 if TYPE_CHECKING:
     from ..document.events import DocumentPatchedEvent, SessionCallbackAdded, SessionCallbackRemoved
-    from ..models.layouts import LayoutDOM
+    from ..models.ui import UIElement
     from ..protocol.messages.patch_doc import patch_doc
     from ..protocol.messages.server_info_reply import ServerInfo
     from ..server.callbacks import DocumentCallbackGroup
@@ -474,12 +474,12 @@ class ClientSession:
         '''
         return self._connection.request_server_info()
 
-    def show(self, obj: LayoutDOM | None = None, browser: str | None = None,
+    def show(self, obj: UIElement | None = None, browser: str | None = None,
             new: Literal["tab", "window"] = "tab") -> None:
         ''' Open a browser displaying this session.
 
         Args:
-            obj (LayoutDOM object, optional) : a Layout (Row/Column),
+            obj (UIElement object, optional) : a Layout (Row/Column),
                 Plot or Widget object to display. The object will be added
                 to the session's document.
 
