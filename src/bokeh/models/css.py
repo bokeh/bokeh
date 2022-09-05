@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.properties import Nullable, String
-from ..model import Model, Qualified
+from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Styles(Model, Qualified):
+class Styles(Model):
     """ Allows to configure style attribute of DOM elements. """
 
     # explicit __init__ to support Init signatures

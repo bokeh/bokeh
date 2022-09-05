@@ -37,6 +37,7 @@ from .callbacks import *
 from .canvas import *
 from .contour_renderer import *
 from .coordinates import *
+from .css import *
 from .expressions import *
 from .filters import *
 from .formatters import *
