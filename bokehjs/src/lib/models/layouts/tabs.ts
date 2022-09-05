@@ -21,8 +21,9 @@ export class TabsView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.tabs.change, () => this.rebuild())
-    this.connect(this.model.properties.active.change, () => this.on_active_change())
+    const {tabs, active} = this.model.properties
+    this.on_change(tabs, () => this.update_children())
+    this.on_change(active, () => this.update_active())
   }
 
   override styles(): StyleSheetLike[] {
@@ -129,7 +130,7 @@ export class TabsView extends LayoutDOMView {
     }
   }
 
-  on_active_change(): void {
+  update_active(): void {
     const i = this.model.active
 
     const headers = children(this.header_el)

@@ -13,9 +13,9 @@ export class ScrollBoxView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.child.change, () => this.rebuild())
 
-    const {horizontal_scrollbar, vertical_scrollbar} = this.model.properties
+    const {child, horizontal_scrollbar, vertical_scrollbar} = this.model.properties
+    this.on_change(child, () => this.update_children())
     this.on_change([horizontal_scrollbar, vertical_scrollbar], () => this.invalidate_layout())
   }
 

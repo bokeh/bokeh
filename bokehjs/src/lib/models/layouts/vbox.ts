@@ -18,7 +18,8 @@ export class VBoxView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
     const {items, rows, spacing} = this.model.properties
-    this.on_change([items, rows, spacing], () => this.rebuild())
+    this.on_change(items, () => this.update_children())
+    this.on_change([rows, spacing], () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {

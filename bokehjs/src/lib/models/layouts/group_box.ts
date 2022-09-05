@@ -8,6 +8,7 @@ export class GroupBoxView extends LayoutDOMView {
   override model: GroupBox
 
   checkbox_el: HTMLInputElement
+  fieldset_el: HTMLFieldSetElement
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), group_box_css]
@@ -15,7 +16,8 @@ export class GroupBoxView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.child.change, () => this.rebuild())
+    const {child} = this.model.properties
+    this.on_change(child, () => this.update_children())
 
     const {checkable, disabled} = this.model.properties
     this.on_change(checkable, () => {
@@ -34,7 +36,6 @@ export class GroupBoxView extends LayoutDOMView {
     super.render()
 
     const {checkable, disabled, title} = this.model
-    const [child_view] = this.child_views
 
     this.checkbox_el = input({type: "checkbox", checked: !disabled})
     this.checkbox_el.addEventListener("change", () => {
@@ -44,8 +45,14 @@ export class GroupBoxView extends LayoutDOMView {
 
     const title_el = legend({}, this.checkbox_el, title)
 
-    const fieldset_el = fieldset({}, title_el, child_view.el)
-    this.shadow_el.appendChild(fieldset_el)
+    const child_els = this.child_views.map((child) => child.el)
+    this.fieldset_el = fieldset({}, title_el, ...child_els)
+    this.shadow_el.appendChild(this.fieldset_el)
+  }
+
+  protected override _update_children(): void {
+    const child_els = this.child_views.map((child) => child.el)
+    this.fieldset_el.append(...child_els)
   }
 }
 

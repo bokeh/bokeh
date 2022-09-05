@@ -25,7 +25,7 @@ export class GridBoxView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
     const {children, rows, cols, spacing} = this.model.properties
-    this.on_change(children, () => this.rebuild())
+    this.on_change(children, () => this.update_children())
     this.on_change([rows, cols, spacing], () => this.invalidate_layout())
   }
 

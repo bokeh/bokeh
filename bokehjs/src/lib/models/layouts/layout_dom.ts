@@ -3,7 +3,7 @@ import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, SizingMode} from "core/enums"
-import {px, CSSOurStyles} from "core/dom"
+import {remove, px, CSSOurStyles} from "core/dom"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
@@ -114,7 +114,7 @@ export abstract class LayoutDOMView extends UIElementView {
     return this.child_models.map((child) => this._child_views.get(child)!)
   }
 
-  async build_child_views(): Promise<void> {
+  async build_child_views(): Promise<UIElementView[]> {
     const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
 
     for (const view of removed) {
@@ -124,6 +124,8 @@ export abstract class LayoutDOMView extends UIElementView {
     for (const view of created) {
       this._resize_observer.observe(view.el, {box: "border-box"})
     }
+
+    return created
   }
 
   override render(): void {
@@ -136,6 +138,28 @@ export abstract class LayoutDOMView extends UIElementView {
       child_view.render()
       child_view.after_render()
     }
+  }
+
+  protected _update_children(): void {}
+
+  async update_children(): Promise<void> {
+    const created_children = new Set(await this.build_child_views())
+
+    for (const child_view of this.child_views) {
+      remove(child_view.el)
+    }
+
+    for (const child_view of this.child_views) {
+      this.shadow_el.appendChild(child_view.el)
+
+      if (created_children.has(child_view)) {
+        child_view.render()
+        child_view.after_render()
+      }
+    }
+
+    this._update_children()
+    this.invalidate_layout()
   }
 
   protected readonly _auto_width: CSSSizeKeyword = "fit-content"

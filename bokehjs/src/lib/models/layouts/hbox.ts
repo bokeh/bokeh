@@ -18,7 +18,8 @@ export class HBoxView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
     const {items, cols, spacing} = this.model.properties
-    this.on_change([items, cols, spacing], () => this.rebuild())
+    this.on_change(items, () => this.update_children())
+    this.on_change([cols, spacing], () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
