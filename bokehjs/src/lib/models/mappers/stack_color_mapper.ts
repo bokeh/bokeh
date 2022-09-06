@@ -43,13 +43,19 @@ export class StackColorMapper extends ColorMapper {
     unreachable()
   }
 
-  // Mix across colors.
+  // Weighted mix of colors.
   // This could be in core/util/color.ts
-  protected _mix_colors(colors_rgba: Array<uint32>, weights: Array<number>, divisor: number): uint32 {
+  protected _mix_colors(colors_rgba: Array<uint32>, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
+    if (isNaN(total_weight))
+      return nan_color
+
     let r = 0.0, g = 0.0, b = 0.0, a = 0.0
     const n = weights.length
     for (let i = 0; i < n; i++) {
-      const weight = weights[i] / divisor
+      if (isNaN(weights[i]))
+        continue
+
+      const weight = weights[i] / total_weight
       r += colors_rgba[i*4  ]*weight
       g += colors_rgba[i*4+1]*weight
       b += colors_rgba[i*4+2]*weight
@@ -69,8 +75,6 @@ export class StackColorMapper extends ColorMapper {
     const nstack = data.length / n
     assert(nstack == ncolor, `Expected ${nstack} not ${ncolor} colors in palette`)
 
-    // Needs to be NaNs not zeros...
-
     // Color mixing is performed separately on each RGBA component, decode them just once
     const palette_as_rgba = new Array<uint32>(ncolor*4)
     for (let i = 0; i < ncolor; i++) {
@@ -83,20 +87,23 @@ export class StackColorMapper extends ColorMapper {
 
     // Mix colors based on weights.
     const {nan_color} = colors
-    const totals = new Array<number>(n).fill(0)  // Array of totals per pixel
+    const totals = new Array<number>(n)  // Array of totals per pixel
     const weights = new Array<number>(ncolor)  // For single pixel
     for (let i = 0; i < n; i++) {
+      let total = NaN
       for (let icol = 0; icol < ncolor; icol++) {
         const val = data[i*ncolor + icol]
         weights[icol] = val
-        totals[i] += val
+        if (!isNaN(val)) {
+          if (isNaN(total))
+            total = val
+          else
+            total += val
+        }
       }
 
-      if (totals[i] == 0)
-        values[i] = nan_color
-      else {
-        values[i] = this._mix_colors(palette_as_rgba, weights, totals[i])
-      }
+      values[i] = this._mix_colors(palette_as_rgba, nan_color, weights, total)
+      totals[i] = total
     }
 
     // Calculate alphas using alpha_mapper.
@@ -110,6 +117,9 @@ export class StackColorMapper extends ColorMapper {
       // Should be in separate function in core/util/color.ts
       const alpha = byte((values[i] & 0xff)*(alphas[i] & 0xff) / 255.0)
       values[i] = (values[i] & 0xffffff00) | alpha
+      
+      //const [r, g, b, a] = decode_rgba(values[i])
+      //console.log(i, r, g, b, a)
     }
   }
 }
