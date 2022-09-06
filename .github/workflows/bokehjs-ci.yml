@@ -5,7 +5,11 @@ on:
     branches:
       - main
       - branch-*
+    paths:
+      #- 'bokehjs/**'   #### temporarily removed ####
   pull_request:
+    paths:
+      #- 'bokehjs/**'   #### temporarily removed ####
 
 env:
   CHROME_VER: "107.0.5304.87"
