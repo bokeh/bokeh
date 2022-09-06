@@ -10,6 +10,7 @@ import * as p from "core/properties"
 import {build_views} from "core/build_views"
 import {DOMElementView} from "core/dom_view"
 import {Layoutable, SizingPolicy, Percent} from "core/layout"
+import {defer} from "core/util/defer"
 import {CanvasLayer} from "core/util/canvas"
 import {SerializableState} from "core/view"
 
@@ -39,7 +40,10 @@ export abstract class LayoutDOMView extends UIElementView {
     this._child_views = new Map()
   }
 
+  private _resized = false
+
   override _after_resize(): void {
+    this._resized = true
     super._after_resize()
     this.compute_layout()
   }
@@ -376,8 +380,18 @@ export abstract class LayoutDOMView extends UIElementView {
       this.invalidate_layout()
     }
 
-    if (!this.model.visible) {
-      this.finish()
+    if (!this._has_finished) {
+      if (!this.model.visible) {
+        this.finish()
+      } else  {
+        // In case after_resize() wasn't called (see regression test for issue
+        // #9113), then wait one macro task and consider this view finished.
+        defer().then(() => {
+          if (!this._resized) {
+            this.finish()
+          }
+        })
+      }
     }
   }
 
