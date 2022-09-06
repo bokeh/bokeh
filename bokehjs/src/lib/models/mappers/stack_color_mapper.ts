@@ -68,7 +68,6 @@ export class StackColorMapper extends ColorMapper {
     const ncolor = palette.length
     const nstack = data.length / n
     assert(nstack == ncolor, `Expected ${nstack} not ${ncolor} colors in palette`)
-    console.log("n", n, "ncolor", ncolor, "nstack", nstack)
 
     // Needs to be NaNs not zeros...
 

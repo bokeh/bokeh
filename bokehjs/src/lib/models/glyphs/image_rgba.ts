@@ -11,7 +11,7 @@ export class ImageRGBAView extends ImageBaseView {
   declare model: ImageRGBA
   declare visuals: ImageRGBA.Visuals
 
-  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
+  protected _flat_img_to_buf8(img: Arrayable<number>, _length_divisor: number): Uint8ClampedArray {
     let array: TypedArray
     if (isArray(img)) {
       array = new Uint32Array(img)

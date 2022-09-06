@@ -104,7 +104,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.restore()
   }
 
-  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
     this._set_width_height_data()
@@ -118,7 +118,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       this._height[i] = img.shape[0]
       this._width[i] = img.shape[1]
 
-      const buf8 = this._flat_img_to_buf8(img)
+      const buf8 = this._flat_img_to_buf8(img, 1)
       this._set_image_data_from_buffer(i, buf8)
     }
   }

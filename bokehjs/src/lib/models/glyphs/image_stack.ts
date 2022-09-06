@@ -4,7 +4,6 @@ import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
-//import {Context2d} from "core/util/canvas"
 
 export type ImageStackData = ImageDataBase
 
@@ -22,7 +21,6 @@ export class ImageStackView extends ImageBaseView {
   protected override _set_data(indices: number[] | null): void {
 
     // Based on ImageBase._set_data (which is for 2D images)
-    console.log("ImageStack._set_data", indices)
 
     this._set_width_heigh_data()
 
@@ -35,8 +33,7 @@ export class ImageStackView extends ImageBaseView {
       this._height[i] = img.shape[0]
       this._width[i] = img.shape[1]
 
-      const buf8 = this._flat_img_to_buf8(img)
-      console.log(buf8[0])
+      const buf8 = this._flat_img_to_buf8(img, img.shape[2])
       this._set_image_data_from_buffer(i, buf8)
     }
   }
@@ -49,12 +46,10 @@ export class ImageStackView extends ImageBaseView {
     }
   }
 
-  protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
+  protected _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray {
     const mapper = this.model.color_mapper
-    console.log("mapper", mapper)
     const cmap = mapper.rgba_mapper
-    console.log("rgba_mapper", cmap)
-    return cmap.v_compute(img, 2)
+    return cmap.v_compute(img, length_divisor)         // hard-coded length_divisor arg
   }
 }
 
