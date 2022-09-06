@@ -3,10 +3,14 @@ name: Docker image - Build
 on:
   workflow_dispatch:
     inputs:
-      run_tests:
-        description: 'Run tests (0 or 1)'
+      push_or_save_image:
+        type: choice
+        description: What to do with image?
+        options:
+        - "Push to Docker Hub"
+        - "Save as artifact"
         required: true
-        default: '0'
+        default: "Push to Docker Hub"
 
 jobs:
   docker_build:
@@ -44,11 +48,8 @@ jobs:
             bokeh/bokeh-dev:${{ env.iso_date }}
             bokeh/bokeh-dev:${{ env.branch_name }}
 
-
-
-
-
       - name: Push image to Docker Hub
+        if: ${{ inputs.push_or_save_image }} == "Push to Docker Hub"
         uses: docker/build-push-action@v3
         with:
           context: scripts/docker
@@ -58,49 +59,14 @@ jobs:
             bokeh/bokeh-dev:${{ env.iso_date }}
             bokeh/bokeh-dev:${{ env.branch_name }}
 
+      - name: Save image to tar file
+        if: ${{ inputs.push_to_docker_hub }} == "Save as artifact"
+        run: |
+          docker save -o bokeh-dev.tar bokeh/bokeh-dev
 
-
-
-#      - name: Build and tag image
-#        run: |
-#          docker build -t bokeh/bokeh-dev:${{ env.iso_date }} scripts/docker
-#
-#      - name: Push image to Docker
-#        run: |
-#          docker push bokeh/bokeh-dev:${{ env.iso_date }}
-
-
-#      - name: Save image to tar file
-#        run: |
-#          docker save -o bokeh-dev.tar bokeh-dev
-
-#      - name: Upload artifact
-#        uses: actions/upload-artifact@v2
-#        with:
-#          name: artifact
-#          path: bokeh-dev.tar
-
-#      - name: Run tests
-#        if: ${{ github.event.inputs.run_tests }}
-#        run: |
-#          docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id -u):$(id -g) --rm -e BOKEH_DOCKER_BUILD=1 -e BOKEH_DOCKER_TEST=1 bokeh-dev:latest
-
-#      - name: Collect results
-#        if: ${{ github.event.inputs.run_tests }}
-#        run: |
-#          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-#          SRC="bokehjs/test/baselines/${OS}"
-#          DST="bokehjs-report/${SRC}"
-#          mkdir -p ${DST}
-#          if [[ -e ${SRC}/report.json ]];
-#          then
-#            CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
-#            cp ${SRC}/report.json ${CHANGED} ${DST}
-#          fi
-
-#      - name: Upload test report
-#        if: ${{ github.event.inputs.run_tests }}
-#        uses: actions/upload-artifact@v1
-#        with:
-#          name: artifact
-#          path: bokehjs-report
+      - name: Upload artifact
+        if: ${{ inputs.push_to_docker_hub }} == "Save as artifact"
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact
+          path: bokeh-dev.tar
