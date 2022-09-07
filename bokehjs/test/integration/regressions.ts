@@ -40,7 +40,7 @@ import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {defer, delay} from "@bokehjs/core/util/defer"
+import {delay, paint} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
@@ -802,7 +802,7 @@ describe("Bug", () => {
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
       choices_view.choice_el.showDropdown()
-      await defer()
+      await paint()
     })
   })
 
@@ -826,7 +826,7 @@ describe("Bug", () => {
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
       choices_view.choice_el.showDropdown()
-      await defer()
+      await paint()
     })
   })
 
@@ -837,7 +837,7 @@ describe("Bug", () => {
 
       const {view} = await display(choices, [100, 200])
       view.choice_el.showDropdown()
-      await defer()
+      await paint()
     })
   })
 
@@ -2033,12 +2033,15 @@ describe("Bug", () => {
 
       group.labels = [...group.labels, "Button 0"]
       await view.ready
+      await paint()
 
       group.labels = [...group.labels, "Button 1"]
       await view.ready
+      await paint()
 
       group.labels = [...group.labels, "Button 2"]
       await view.ready
+      await paint()
     })
   })
 
@@ -2074,16 +2077,16 @@ describe("Bug", () => {
       // strictly necessary, because test framework defers anyway after a test and
       // before collecting results and capturing screenshots.
       const {view} = await display(layout, [100, 200])
-      await defer()
+      await paint()
 
       // We aren't clicking on the button, because it doesn't affect the outcome.
       selects.visible = false
       await view.ready
-      await defer()
+      await paint()
 
       selects.visible = true
       await view.ready
-      await defer()
+      await paint()
     })
   })
 
@@ -2113,6 +2116,7 @@ describe("Bug", () => {
       button_view.button_el.dispatchEvent(ev)
 
       await view.ready
+      await paint()
     })
   })
 

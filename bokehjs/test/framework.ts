@@ -1,5 +1,4 @@
 import "./setup"
-import defer from "./defer"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {View} from "@bokehjs/core/view"
@@ -11,6 +10,7 @@ import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
+import {defer, paint} from "@bokehjs/core/util/defer"
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -238,7 +238,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
 
     try {
       await fn()
-      await defer()
+      await paint()
     } catch (err) {
       error = err instanceof Error ? err : new Error(`${err}`)
     } finally {
