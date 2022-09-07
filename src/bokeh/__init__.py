@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import importlib.metadata
+from pathlib import Path
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -66,8 +67,7 @@ def license():
         None
 
     '''
-    from os.path import join
-    with open(join(__path__[0], 'LICENSE.txt')) as lic:
+    with open(Path(__file__).parent / 'LICENSE.txt') as lic:
         print(lic.read())
 
 #-----------------------------------------------------------------------------
