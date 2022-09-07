@@ -310,10 +310,12 @@ def main(milestone, log_level, verbose, check_only, allow_closed):
     elif check_only:
         sys.exit(0)
 
-    with open(REPO_ROOT / "CHANGELOG") as f:
+    CHANGELOG = REPO_ROOT / "docs" / "CHANGELOG"
+
+    with open(CHANGELOG) as f:
         old_changelog = f.read()
 
-    out = open(REPO_ROOT / "CHANGELOG", mode="w")
+    out = open(CHANGELOG, mode="w")
 
     out.write(f"{datetime.date.today()} {milestone:>8}:\n")
     out.write("--------------------\n")

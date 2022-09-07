@@ -275,7 +275,7 @@ class BokehPlotDirective(BokehDirective):
 
 def builder_inited(app):
     app.env.bokeh_plot_auxdir = join(app.env.doctreedir, "bokeh_plot")
-    ensuredir(app.env.bokeh_plot_auxdir)  # sphinx/build/doctrees/bokeh_plot
+    ensuredir(app.env.bokeh_plot_auxdir)  # docs/bokeh/build/doctrees/bokeh_plot
 
     if not hasattr(app.env, "bokeh_plot_files"):
         app.env.bokeh_plot_files = set()
