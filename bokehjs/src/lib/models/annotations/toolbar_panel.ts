@@ -84,6 +84,7 @@ export class ToolbarPanelView extends AnnotationView {
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
       this.toolbar_view.render()
+      this.toolbar_view.after_render()
       this._invalidate_toolbar = false
     }
 

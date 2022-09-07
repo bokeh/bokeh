@@ -381,7 +381,7 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     if (!this._has_finished) {
-      if (!this.model.visible) {
+      if (!this._is_displayed) {
         this.finish()
       } else  {
         // In case after_resize() wasn't called (see regression test for issue

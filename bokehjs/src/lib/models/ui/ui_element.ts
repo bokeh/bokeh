@@ -168,9 +168,13 @@ export abstract class UIElementView extends DOMComponentView {
   after_render(): void {
     this.update_style()
 
-    if (!this.model.visible) {
+    if (!this._is_displayed) {
       this.finish()
     }
+  }
+
+  protected get _is_displayed(): boolean {
+    return this.el.offsetParent != null // TODO: position == "sticky"
   }
 
   protected _apply_styles(): void {
