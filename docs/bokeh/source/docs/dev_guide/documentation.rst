@@ -179,12 +179,12 @@ will now set this environment variable for you.
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can find all source files for Bokeh's documentation in the ``sphinx``
+You can find all source files for Bokeh's documentation in the ``docs/bokeh/``
 directory of the Bokeh source tree.
 
 .. code-block:: sh
 
-    cd sphinx
+    cd docs/bokeh/
 
 Sphinx uses the standard Unix ``make`` command to control the build process. For
 Windows users, the ``sphinx`` directory includes the file ``make.bat``. Use this

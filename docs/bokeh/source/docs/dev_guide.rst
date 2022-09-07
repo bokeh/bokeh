@@ -245,7 +245,7 @@ updates and news about Bokeh. And we always appreciate it if you tag Bokeh's
 accounts when you talk about anything that you made with Bokeh!
 
 
-.. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/CODE_OF_CONDUCT.md
+.. _Code of Conduct: https://github.com/bokeh/bokeh/blob/master/docs/CODE_OF_CONDUCT.md
 .. _request an invitation: https://slack-invite.bokeh.org/
 .. _wiki on Bokeh's GitHub repository: https://github.com/bokeh/bokeh/wiki
 .. _Bokeh Enhancement Proposals: https://github.com/bokeh/bokeh/wiki
