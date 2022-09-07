@@ -1,6 +1,5 @@
 import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
-import {ColorMapper} from "../mappers/color_mapper"
-import {LinearColorMapper} from "../mappers/linear_color_mapper"
+import {StackColorMapper} from "../mappers/stack_color_mapper"
 import {Arrayable} from "core/types"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
@@ -49,18 +48,15 @@ export class ImageStackView extends ImageBaseView {
   protected _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray {
     const mapper = this.model.color_mapper
     const cmap = mapper.rgba_mapper
-    return cmap.v_compute(img, length_divisor)         // hard-coded length_divisor arg
+    return cmap.v_compute(img, length_divisor)
   }
 }
-
-// NOTE: this needs to be redefined here, because palettes are located in bokeh-api.js bundle
-const Greys9 = () => ["#000000", "#252525", "#525252", "#737373", "#969696", "#bdbdbd", "#d9d9d9", "#f0f0f0", "#ffffff"]
 
 export namespace ImageStack {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ImageBase.Props & {
-    color_mapper: p.Property<ColorMapper>
+    color_mapper: p.Property<StackColorMapper>
   }
 
   export type Visuals = ImageBase.Visuals
@@ -80,7 +76,7 @@ export class ImageStack extends ImageBase {
     this.prototype.default_view = ImageStackView
 
     this.define<ImageStack.Props>(({Ref}) => ({
-      color_mapper: [ Ref(ColorMapper), () => new LinearColorMapper({palette: Greys9()}) ],
+      color_mapper: [ Ref(StackColorMapper) ],
     }))
   }
 }

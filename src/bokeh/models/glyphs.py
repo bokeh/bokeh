@@ -92,7 +92,7 @@ from .glyph import (
     TextGlyph,
     XYGlyph,
 )
-from .mappers import ColorMapper, LinearColorMapper
+from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -796,8 +796,7 @@ class ImageStack(ImageBase):
     The 3D arrays of data for the images.
     """)
 
-    # Probably should always be one of the new compound stack color mappers...
-    color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""
+    color_mapper = Instance(StackColorMapper, help="""
     """)
 
 class ImageURL(XYGlyph):

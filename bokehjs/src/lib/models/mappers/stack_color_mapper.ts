@@ -10,15 +10,15 @@ export namespace StackColorMapper {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColorMapper.Props & {
-      alpha_mapper: p.Property<ContinuousColorMapper>
-      color_baseline: p.Property<number | null>
+    alpha_mapper: p.Property<ContinuousColorMapper>
+    color_baseline: p.Property<number | null>
   }
 }
 
 export interface StackColorMapper extends StackColorMapper.Attrs {}
 
 export class StackColorMapper extends ColorMapper {
-    override properties: StackColorMapper.Props
+  override properties: StackColorMapper.Props
 
   constructor(attrs?: Partial<StackColorMapper.Attrs>) {
     super(attrs)
@@ -33,17 +33,6 @@ export class StackColorMapper extends ColorMapper {
     })
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-
-
-  }
-
-  protected override _v_compute<T>(_data: Arrayable<number>, _values: Arrayable<T>,
-      _palette: Arrayable<T>, _colors: {nan_color: T}): void {
-    unreachable()
-  }
-
   // Weighted mix of colors.
   // This could be in core/util/color.ts
   protected _mix_colors(colors_rgba: Array<uint32>, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
@@ -52,17 +41,41 @@ export class StackColorMapper extends ColorMapper {
 
     let r = 0.0, g = 0.0, b = 0.0, a = 0.0
     const n = weights.length
-    for (let i = 0; i < n; i++) {
-      if (isNaN(weights[i]))
-        continue
 
-      const weight = weights[i] / total_weight
-      r += colors_rgba[i*4  ]*weight
-      g += colors_rgba[i*4+1]*weight
-      b += colors_rgba[i*4+2]*weight
-      a += colors_rgba[i*4+3]*weight
+    if (total_weight != 0) {
+      for (let i = 0; i < n; i++) {
+        if (isNaN(weights[i]))
+          continue
+
+        const weight = weights[i] / total_weight
+        r += colors_rgba[i*4  ]*weight
+        g += colors_rgba[i*4+1]*weight
+        b += colors_rgba[i*4+2]*weight
+        a += colors_rgba[i*4+3]*weight
+      }
+    } else {
+      // Special case if total is zero then take mean color of all non-nan categories.
+      let count = 0
+      for (let i = 0; i < n; i++) {
+        if (weights[i] == 0) {
+          r += colors_rgba[i*4  ]
+          g += colors_rgba[i*4+1]
+          b += colors_rgba[i*4+2]
+          a += colors_rgba[i*4+3]
+          count++
+        }
+      }
+      r /= count
+      g /= count
+      b /= count
+      a /= count
     }
     return encode_rgba([byte(r), byte(g), byte(b), byte(a)])
+  }
+
+  protected override _v_compute<T>(_data: Arrayable<number>, _values: Arrayable<T>,
+      _palette: Arrayable<T>, _colors: {nan_color: T}): void {
+    unreachable()
   }
 
   protected override _v_compute_uint32(data: ArrayableOf<number>, values: Arrayable<uint32>,
