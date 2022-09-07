@@ -2131,4 +2131,53 @@ describe("Bug", () => {
       await display(tabs, [550, 350])
     })
   })
+
+  describe("in issue #10125", () => {
+    function make() {
+      const button = new Button({label: "Click me!"})
+
+      const radios = new RadioGroup({
+        labels: ["hello", "there"],
+        active: 0,
+        inline: true,
+      })
+
+      const text_input1 = new TextInput({value: "0.0", title: "text-input1"})
+      const text_input2 = new TextInput({value: "1.0", title: "text-input2"})
+      const text_input3 = new TextInput({value: "2.0", title: "text-input3"})
+
+      const plot = figure({width: 300, height: 300, title: "test plot"})
+      plot.line({x: [1, 2, 3], y: [2, 4, 6]})
+
+      const hidden_widgets = new Row({
+        children: [
+          new Column({children: [radios, text_input1, text_input2, text_input3]}),
+          plot,
+        ],
+        visible: false,
+      })
+      button.on_click(() => hidden_widgets.visible = true)
+
+      const layout = new Column({children: [button, hidden_widgets]})
+      return {layout, button}
+    }
+
+    it("doesn't allow signal idle with invisible UI components", async () => {
+      const {layout} = make()
+      await display(layout, [100, 50])
+    })
+
+    it("doesn't correctly display layout when visiblity changes", async () => {
+      const {layout, button} = make()
+      const {view} = await display(layout, [550, 350])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      const ev = new MouseEvent("click", {bubbles: true})
+      button_view.button_el.dispatchEvent(ev)
+
+      await view.ready
+    })
+  })
 })
