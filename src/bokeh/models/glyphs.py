@@ -800,9 +800,6 @@ class ImageStack(ImageBase):
     color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""
     """)
 
-
-    
-
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
 

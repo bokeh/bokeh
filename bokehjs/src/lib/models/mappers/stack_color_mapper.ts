@@ -1,10 +1,9 @@
 import {ColorMapper, _convert_palette, _convert_color} from "./color_mapper"
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import * as p from "core/properties"
-//import {Arrayable, Color} from "core/types"
 import {Arrayable, ArrayableOf, uint32} from "core/types"
+import {min} from "core/util/arrayable"
 import {assert, unreachable} from "core/util/assert"
-//import {assert} from "core/util/assert"
 import {byte, decode_rgba, encode_rgba} from "core/util/color"
 
 export namespace StackColorMapper {
@@ -12,6 +11,7 @@ export namespace StackColorMapper {
 
   export type Props = ColorMapper.Props & {
       alpha_mapper: p.Property<ContinuousColorMapper>
+      color_baseline: p.Property<number | null>
   }
 }
 
@@ -25,9 +25,10 @@ export class StackColorMapper extends ColorMapper {
   }
 
   static {
-    this.define<StackColorMapper.Props>(({Ref}) => {
+    this.define<StackColorMapper.Props>(({Nullable, Number, Ref}) => {
       return {
-        alpha_mapper: [ Ref(ContinuousColorMapper) ],
+        alpha_mapper:   [ Ref(ContinuousColorMapper) ],
+        color_baseline: [ Nullable(Number), null ],
       }
     })
   }
@@ -64,11 +65,10 @@ export class StackColorMapper extends ColorMapper {
     return encode_rgba([byte(r), byte(g), byte(b), byte(a)])
   }
 
-  protected override _v_compute_uint32(data: ArrayableOf<uint32>, values: Arrayable<uint32>,
+  protected override _v_compute_uint32(data: ArrayableOf<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
 
     // If always receive 3D array then do not need the outside length_divisor????
-    console.log("XXX SPECIAL _v_compute_uint32", data, values, palette, colors)
 
     const n = values.length  // Number of pixels/elements
     const ncolor = palette.length
@@ -83,6 +83,16 @@ export class StackColorMapper extends ColorMapper {
       palette_as_rgba[i*4+1] = g
       palette_as_rgba[i*4+2] = b
       palette_as_rgba[i*4+3] = a
+    }
+
+    // If color_baseline not specified, use nan-aware minimum of data.
+    const color_baseline = this.color_baseline
+    const baseline = color_baseline == null ? min(data) : color_baseline
+    if (baseline != 0) {
+      for (let i = 0, length = data.length; i < length; i++) {
+        // Subtract baseline and clip to zero. Datashader only clips non-integers.
+        data[i] = Math.max(data[i] - baseline, 0)
+      }
     }
 
     // Mix colors based on weights.
@@ -117,7 +127,7 @@ export class StackColorMapper extends ColorMapper {
       // Should be in separate function in core/util/color.ts
       const alpha = byte((values[i] & 0xff)*(alphas[i] & 0xff) / 255.0)
       values[i] = (values[i] & 0xffffff00) | alpha
-      
+
       //const [r, g, b, a] = decode_rgba(values[i])
       //console.log(i, r, g, b, a)
     }

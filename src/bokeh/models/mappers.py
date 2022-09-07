@@ -329,6 +329,8 @@ class StackColorMapper(ColorMapper):
     alpha_mapper = Instance(ContinuousColorMapper, help="""
     """)
 
+    color_baseline = Nullable(Float, help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API
