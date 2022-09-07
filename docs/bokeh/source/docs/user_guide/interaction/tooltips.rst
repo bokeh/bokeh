@@ -151,5 +151,5 @@ information to a Bokeh document. For example, the
 the :class:`~bokeh.models.Menu` model allows you to define a custom context
 menu.
 
-See :bokeh-tree:`examples/models/file/widgets.py` for examples of these UI
+See :bokeh-tree:`examples/models/widgets.py` for examples of these UI
 elements.

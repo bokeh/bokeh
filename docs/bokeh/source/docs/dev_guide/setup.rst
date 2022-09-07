@@ -506,7 +506,7 @@ following command(s):
 
         .. code-block:: sh
 
-            BOKEH_RESOURCES=inline python examples/plotting/file/marker_map.py
+            BOKEH_RESOURCES=inline python examples/plotting/marker_map.py
 
     .. tab-item:: Windows (PS)
         :sync: ps

@@ -1,4 +1,4 @@
-- path: "examples/models/file"
+- path: "examples/models"
   slow: ["choropleth.py"]
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
 
@@ -8,7 +8,7 @@
 
 - path: "examples/webgl"
 
-- path: "examples/plotting/file"
+- path: "examples/plotting"
   slow: ["choropleth.py"]
   no_js: ["gmap.py"]
   skip: ["dynamic_map.py"]
