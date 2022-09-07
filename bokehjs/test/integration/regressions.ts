@@ -23,6 +23,7 @@ import {
   ImageURLTexture,
   Row, Column,
   Pane,
+  Tabs, TabPanel,
 } from "@bokehjs/models"
 
 import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
@@ -41,7 +42,7 @@ import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
 import {defer, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
-import {Figure, show} from "@bokehjs/api/plotting"
+import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
@@ -2112,6 +2113,22 @@ describe("Bug", () => {
       button_view.button_el.dispatchEvent(ev)
 
       await view.ready
+    })
+  })
+
+  describe("in issue #9133", () => {
+    it("doesn't allow to set fixed size of Tabs layout", async () => {
+      const p1 = figure({width: 300, height: 300})
+      p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+
+      const p2 = figure({width: 300, height: 300})
+      p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
+
+      const tab1 = new TabPanel({child: p1, title: "circle"})
+      const tab2 = new TabPanel({child: p2, title: "line"})
+      const tabs = new Tabs({tabs: [tab1, tab2], width: 500})
+
+      await display(tabs, [550, 350])
     })
   })
 })
