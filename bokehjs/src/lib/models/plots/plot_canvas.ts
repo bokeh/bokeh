@@ -315,7 +315,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     layout.set_sizing({
       width_policy: "max", height_policy: "max",
-      visible: this.model.visible,
+      visible: this._is_displayed,
     })
 
     if (this.visuals.outline_line.doit) {
