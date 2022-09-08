@@ -19,7 +19,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.properties import Instance, List
+from ...core.properties import (
+    Either,
+    Instance,
+    List,
+    String,
+)
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -45,7 +50,7 @@ class Pane(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    children = List(Instance(UIElement), default=[], help="""
+    children = List(Either(String, Instance(UIElement)), default=[], help="""
     """)
 
 #-----------------------------------------------------------------------------

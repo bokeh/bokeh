@@ -1,19 +1,28 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {ViewStorage, build_views, remove_views} from "core/build_views"
 import {SerializableState} from "core/view"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 export class PaneView extends UIElementView {
   override model: Pane
 
+  protected get _ui_elements(): UIElement[] {
+    return this.model.children.filter((child): child is UIElement => child instanceof UIElement)
+  }
+
   protected _child_views: ViewStorage<UIElement> = new Map()
   get child_views(): UIElementView[] {
-    return this.model.children.map((child) => this._child_views.get(child)!)
+    return this._ui_elements.map((child) => this._child_views.get(child)!)
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this._child_views, this.model.children, {parent: this})
+    await this._rebuild_views()
+  }
+
+  protected async _rebuild_views(): Promise<void> {
+    await build_views(this._child_views, this._ui_elements, {parent: this})
   }
 
   override remove(): void {
@@ -21,13 +30,28 @@ export class PaneView extends UIElementView {
     super.remove()
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+    const {children} = this.model.properties
+    this.on_change(children, () => {
+      this._rebuild_views()
+      this.render()
+    })
+  }
+
   override render(): void {
     super.render()
 
-    for (const child_view of this.child_views) {
-      this.shadow_el.appendChild(child_view.el)
-      child_view.render()
-      child_view.after_render()
+    for (const child of this.model.children) {
+      if (isString(child)) {
+        const text = document.createTextNode(child)
+        this.shadow_el.append(text)
+      } else {
+        const child_view = this._child_views.get(child)!
+        this.shadow_el.append(child_view.el)
+        child_view.render()
+        child_view.after_render()
+      }
     }
   }
 
@@ -55,7 +79,7 @@ export namespace Pane {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    children: p.Property<UIElement[]>
+    children: p.Property<(string | UIElement)[]>
   }
 }
 
@@ -72,8 +96,8 @@ export class Pane extends UIElement {
   static {
     this.prototype.default_view = PaneView
 
-    this.define<Pane.Props>(({Array, Ref}) => ({
-      children: [ Array(Ref(UIElement)), [] ],
+    this.define<Pane.Props>(({String, Array, Ref, Or}) => ({
+      children: [ Array(Or(String, Ref(UIElement))), [] ],
     }))
   }
 }
