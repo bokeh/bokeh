@@ -10,7 +10,12 @@ import {div, empty} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
-import {defer, paint} from "@bokehjs/core/util/defer"
+import {defer} from "@bokehjs/core/util/defer"
+
+let ready: () => Promise<void> = defer
+export function set_ready(fn: () => Promise<void>): void {
+  ready = fn
+}
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -238,7 +243,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
 
     try {
       await fn()
-      await paint()
+      await ready()
     } catch (err) {
       error = err instanceof Error ? err : new Error(`${err}`)
     } finally {

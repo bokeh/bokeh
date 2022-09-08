@@ -3,6 +3,7 @@ import {argv} from "yargs"
 import {join, delimiter, basename, extname, dirname} from "path"
 import chalk from "chalk"
 import which from "which"
+import fs from "fs"
 
 import {task, task2, success, passthrough, BuildError} from "../task"
 import * as paths from "../paths"
@@ -255,7 +256,7 @@ function compile(name: string, options?: {auto_index?: boolean}) {
         if (file.startsWith(base_dir) && (file.endsWith(".ts") || file.endsWith(".tsx"))) {
           const ext = extname(file)
           const name = basename(file, ext)
-          if (!name.startsWith("_") && !name.endsWith(".d")) {
+          if (!name.startsWith("_") && !name.endsWith(".d") && name != "index") {
             const dir = dirname(file).replace(base_dir, "").replace(/^\//, "")
             const module = dir == "" ? `./${name}` : [".", ...dir.split("/"), name].join("/")
             imports.push(`import "${module}"`)
@@ -264,8 +265,13 @@ function compile(name: string, options?: {auto_index?: boolean}) {
       }
 
       const index = `${base_dir}/index.ts`
-      const source = imports.join("\n")
 
+      if (fs.existsSync(index)) {
+        const content = fs.readFileSync(index, {encoding: "utf-8"})
+        imports.unshift(content)
+      }
+
+      const source = imports.join("\n")
       return new Map([[index, source]])
     },
   })
