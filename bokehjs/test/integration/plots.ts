@@ -238,6 +238,34 @@ describe("Plot", () => {
     })
   })
 
+  it("should support 'block' flow mode", async () => {
+    const plot = fig([50, 30], {
+      flow_mode: "block",
+      styles: {vertical_align: "middle"},
+      x_axis_type: null, y_axis_type: null,
+    })
+    plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
+
+    const pane = new Pane({
+      children: ["This plot should", plot, "create its own block."],
+    })
+    await display(pane, [300, 100])
+  })
+
+  it("should support 'inline' flow mode", async () => {
+    const plot = fig([50, 30], {
+      flow_mode: "inline",
+      styles: {vertical_align: "middle"},
+      x_axis_type: null, y_axis_type: null,
+    })
+    plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
+
+    const pane = new Pane({
+      children: ["This plot should", plot, "be displayed inline."],
+    })
+    await display(pane, [300, 100])
+  })
+
   it("should allow to resize itself when width changes", async () => {
     const plot = fig([200, 200])
     plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
