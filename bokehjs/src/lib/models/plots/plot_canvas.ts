@@ -5,7 +5,7 @@ import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {Selection} from "../selections/selection"
-import {LayoutDOM, LayoutDOMView, DOMBoxSizing} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
@@ -288,6 +288,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
       width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
       height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
     }
+  }
+
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   override _update_layout(): void {

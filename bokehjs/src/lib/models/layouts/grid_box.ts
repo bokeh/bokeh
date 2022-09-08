@@ -1,4 +1,4 @@
-import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {UIElement} from "../ui/ui_element"
 import {px, CSSOurStyles} from "core/dom"
@@ -33,11 +33,14 @@ export class GridBoxView extends LayoutDOMView {
     return this.model.children.map(([child]) => child)
   }
 
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "grid"}
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
     const styles: CSSOurStyles = {}
-    styles.display = "grid"
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model

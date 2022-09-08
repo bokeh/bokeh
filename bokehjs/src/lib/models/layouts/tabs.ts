@@ -5,7 +5,7 @@ import {Container} from "core/layout/grid"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
-import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
 import {GridAlignmentLayout} from "./alignments"
 import {UIElement} from "../ui/ui_element"
@@ -32,6 +32,10 @@ export class TabsView extends LayoutDOMView {
 
   get child_models(): UIElement[] {
     return this.model.tabs.map((tab) => tab.child)
+  }
+
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flex"}
   }
 
   override _update_layout(): void {

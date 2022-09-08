@@ -2,8 +2,9 @@ import {UIElement, UIElementView, DOMBoxSizing} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
-import {Align, Dimensions, SizingMode} from "core/enums"
+import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {remove, px, CSSOurStyles} from "core/dom"
+import {Display} from "core/css"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
@@ -12,11 +13,17 @@ import {DOMElementView} from "core/dom_view"
 import {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {defer} from "core/util/defer"
 import {CanvasLayer} from "core/util/canvas"
+import {unreachable} from "core/util/assert"
 import {SerializableState} from "core/view"
 
 export {DOMBoxSizing}
 
-type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
+export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
+
+type InnerDisplay = "block" | "inline"
+type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
+
+export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
@@ -92,7 +99,8 @@ export abstract class LayoutDOMView extends UIElementView {
       p.min_width, p.min_height,
       p.max_width, p.max_height,
       p.margin,
-      p.width_policy, p.height_policy, p.sizing_mode,
+      p.width_policy, p.height_policy,
+      p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
     ], () => this.invalidate_layout())
@@ -169,6 +177,10 @@ export abstract class LayoutDOMView extends UIElementView {
   protected readonly _auto_width: CSSSizeKeyword = "fit-content"
   protected readonly _auto_height: CSSSizeKeyword = "fit-content"
 
+  protected _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flow"}
+  }
+
   protected _update_layout(): void {
     function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
       switch (policy) {
@@ -185,11 +197,32 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
+    function css_display(display: FullDisplay): Display {
+      // Convert to legacy values due to limitted browser support.
+      const {inner, outer} = display
+      switch (`${inner} ${outer}`) {
+        case "block flow": return "block"
+        case "inline flow": return "inline"
+        case "block flow-root": return "flow-root"
+        case "inline flow-root": return "inline-block"
+        case "block flex": return "flex"
+        case "inline flex": return "inline-flex"
+        case "block grid": return "grid"
+        case "inline grid": return "inline-grid"
+        case "block table": return "table"
+        case "inline table": return "inline-table"
+        default: unreachable()
+      }
+    }
+
     function to_css(value: number | Percent) {
       return isNumber(value) ? px(value) : `${value.percent}%`
     }
 
     const styles: CSSOurStyles = {}
+
+    const display = this._intrinsic_display()
+    styles.display = css_display(display)
 
     const sizing = this.box_sizing()
     const {width_policy, height_policy, width, height, aspect_ratio} = sizing
@@ -538,6 +571,7 @@ export namespace LayoutDOM {
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
+    flow_mode: p.Property<FlowMode>
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align] | "auto">
@@ -573,6 +607,7 @@ export abstract class LayoutDOM extends UIElement {
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
+        flow_mode:     [ FlowMode, "block" ],
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],

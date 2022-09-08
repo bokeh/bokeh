@@ -105,6 +105,7 @@ __all__ = (
     'Direction',
     'Enumeration',
     'enumeration',
+    'FlowMode',
     'FontStyle',
     'HAlign',
     'HatchPattern',
@@ -300,6 +301,9 @@ Dimensions = enumeration("width", "height", "both")
 
 #: Specify a stroke direction for circles, wedges, etc.
 Direction = enumeration("clock", "anticlock")
+
+#: Specify the flow behavior in CSS layouts.
+FlowMode = enumeration("block", "inline")
 
 #: Specify the font style for rendering text
 FontStyle = enumeration("normal", "italic", "bold", "bold italic")

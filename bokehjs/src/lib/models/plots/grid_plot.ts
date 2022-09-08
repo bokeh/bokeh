@@ -1,4 +1,4 @@
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView, FullDisplay} from "../layouts/layout_dom"
 import {GridBox, GridBoxView, TracksSizing} from "../layouts/grid_box"
 import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {UIElement} from "../ui/ui_element"
@@ -82,14 +82,15 @@ export class GridPlotView extends LayoutDOMView {
     return [this.model.toolbar, this._grid_box]
   }
 
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flex"}
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
-    const {style} = this.el
-    style.display = "flex"
-
     const {location} = this.model.toolbar
-    const direction = (() => {
+    const flex_direction = (() => {
       switch (location) {
         case "above": return "column"
         case "below": return "column-reverse"
@@ -97,7 +98,7 @@ export class GridPlotView extends LayoutDOMView {
         case "right": return "row-reverse"
       }
     })()
-    style.flexDirection = direction
+    this.style.append(":host", {flex_direction})
   }
 
   override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {

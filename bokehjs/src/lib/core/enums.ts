@@ -47,6 +47,9 @@ export const Direction = Enum("clock", "anticlock")
 export type Distribution = "uniform" | "normal"
 export const Distribution = Enum("uniform", "normal")
 
+export type FlowMode = typeof FlowMode["__type__"]
+export const FlowMode = Enum("block", "inline")
+
 export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
 

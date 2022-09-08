@@ -1,4 +1,4 @@
-import {LayoutDOM, LayoutDOMView} from "./layout_dom"
+import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {TracksSizing} from "./grid_box"
 import {UIElement} from "../ui/ui_element"
@@ -26,11 +26,14 @@ export class HBoxView extends LayoutDOMView {
     return this.model.items.map(({child}) => child)
   }
 
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "grid"}
+  }
+
   override _update_layout(): void {
     super._update_layout()
 
     const styles: CSSOurStyles = {}
-    styles.display = "grid"
 
     const [row_gap, column_gap] = (() => {
       const {spacing} = this.model

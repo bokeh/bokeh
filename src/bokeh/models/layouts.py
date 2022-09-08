@@ -25,6 +25,7 @@ from ..colors import RGB, Color, ColorLike
 from ..core.enums import (
     Align,
     Dimensions,
+    FlowMode,
     Location,
     ScrollbarPolicy,
     SizingMode,
@@ -209,6 +210,10 @@ class LayoutDOM(UIElement):
     Otherwise, if set to ``"auto"``, component's preferred width and height will
     be used to determine the aspect (if not set, no aspect will be preserved).
 
+    """)
+
+    flow_mode = Enum(FlowMode, default="block", help="""
+    Defines whether the layout will flow in the ``block`` or ``inline`` dimension.
     """)
 
     sizing_mode = Nullable(Enum(SizingMode), help="""
