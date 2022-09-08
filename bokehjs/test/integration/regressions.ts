@@ -2120,6 +2120,20 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #4403", () => {
+    it("doesn't allow layout resize when parent element's size changed", async () => {
+      const plot = figure({sizing_mode: "stretch_both"})
+      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+
+      const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
+      const {view} = await display(pane, [350, 350])
+      await paint()
+
+      pane.styles = {width: "300px", height: "300px"}
+      await view.ready
+    })
+  })
+
   describe("in issue #9133", () => {
     it("doesn't allow to set fixed size of Tabs layout", async () => {
       const p1 = figure({width: 300, height: 300})
