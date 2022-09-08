@@ -32,9 +32,9 @@ import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Document} from "@bokehjs/document"
-import {Color} from "@bokehjs/core/types"
+import {Color, Arrayable} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
-import {subsets} from "@bokehjs/core/util/iterator"
+import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -2147,6 +2147,67 @@ describe("Bug", () => {
       const tabs = new Tabs({tabs: [tab1, tab2], width: 500})
 
       await display(tabs, [550, 350])
+    })
+  })
+
+  describe("in issue #9992", () => {
+    it("doesn't correctly display layout when visiblity changes", async () => {
+      function create_figure(x: Arrayable<number>, y: Arrayable<number>, log_scale: boolean = false) {
+        const plot = figure({width: 300, height: 300, y_axis_type: log_scale ? "log" : "linear"})
+        plot.line(x, y, {line_width: 3, line_alpha: 0.6})
+        return plot
+      }
+
+      function create_tabs(plot0: Plot, plot1: Plot, name: string) {
+        const tab0 = new TabPanel({child: plot0, title: "Linear"})
+        const tab1 = new TabPanel({child: plot1, title: "Logarithmic"})
+        return new Tabs({tabs: [tab0, tab1], name})
+      }
+
+      function create_selector(figs: Tabs[]) {
+        const names = figs.map((fig) => fig.name) as string[]
+        const selector = new Select({title: "Select Curve", value: names[0], options: names, width: 200})
+
+        for (const fig of tail(figs)) {
+          fig.visible = false
+        }
+
+        selector.on_change(selector.properties.value, () => {
+          const selected = selector.value
+          for (const fig of figs) {
+            fig.visible = fig.name == selected
+          }
+        })
+
+        return selector
+      }
+
+      const x = np.linspace(0, 10)
+
+      const fig_lin_lin = create_figure(x, x)
+      const fig_lin_log = create_figure(x, x, true)
+      const fig_lin = create_tabs(fig_lin_lin, fig_lin_log, "Linear")
+
+      const fig_quad_lin = create_figure(x, np.pow(x, 2))
+      const fig_quad_log = create_figure(x, np.pow(x, 2), true)
+      const fig_quad = create_tabs(fig_quad_lin, fig_quad_log, "Quadratic")
+
+      const fig_exp_lin = create_figure(x, np.exp(x))
+      const fig_exp_log = create_figure(x, np.exp(x), true)
+      const fig_exp = create_tabs(fig_exp_lin, fig_exp_log, "Exponential")
+
+      const figs = [fig_lin, fig_quad, fig_exp]
+
+      const selector = create_selector(figs)
+      const layout = column([selector, ...figs])
+
+      const {view} = await display(layout, [450, 450])
+
+      selector.value = "Exponential"
+      await view.ready
+
+      fig_exp.active = 1
+      await view.ready
     })
   })
 
