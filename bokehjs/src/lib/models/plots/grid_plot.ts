@@ -1,5 +1,6 @@
 import {LayoutDOM, LayoutDOMView, FullDisplay} from "../layouts/layout_dom"
-import {GridBox, GridBoxView, TracksSizing} from "../layouts/grid_box"
+import {GridBox, GridBoxView} from "../layouts/grid_box"
+import {TracksSizing} from "../layouts/css_grid_box"
 import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
@@ -157,12 +158,12 @@ export class GridPlot extends LayoutDOM {
   static {
     this.prototype.default_view = GridPlotView
 
-    this.define<GridPlot.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
+    this.define<GridPlot.Props>(({Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows: [ Nullable(Any) /*TODO*/, null ],
-      cols: [ Nullable(Any) /*TODO*/, null ],
+      rows: [ Nullable(TracksSizing), null ],
+      cols: [ Nullable(TracksSizing), null ],
       spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
     }))
   }

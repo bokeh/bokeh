@@ -401,7 +401,7 @@ class HBox(LayoutDOM):
     Describes how the grid should maintain its columns' widths.
     """)
 
-    spacing = Int(default=0, help="""
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
     The gap between children (in pixels).
     """)
 
@@ -426,7 +426,7 @@ class VBox(LayoutDOM):
     Describes how the grid should maintain its rows' heights.
     """)
 
-    spacing = Int(default=0, help="""
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
     The gap between children (in pixels).
     """)
 

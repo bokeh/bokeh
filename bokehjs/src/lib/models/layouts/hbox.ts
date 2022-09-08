@@ -1,109 +1,44 @@
-import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
-import {GridAlignmentLayout} from "./alignments"
-import {TracksSizing} from "./grid_box"
+import {CSSGridBox, CSSGridBoxView, TracksSizing} from "./css_grid_box"
 import {UIElement} from "../ui/ui_element"
-import {px, CSSOurStyles} from "core/dom"
-import {Container} from "core/layout/grid"
-import {enumerate} from "core/util/iterator"
-import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
-
-const {max} = Math
 
 type ChildItem = {child: UIElement, col?: number, span?: number}
 
-export class HBoxView extends LayoutDOMView {
+export class HBoxView extends CSSGridBoxView {
   override model: HBox
 
   override connect_signals(): void {
     super.connect_signals()
-    const {children, cols, spacing} = this.model.properties
+    const {children, cols} = this.model.properties
     this.on_change(children, () => this.update_children())
-    this.on_change([cols, spacing], () => this.invalidate_layout())
+    this.on_change(cols, () => this.invalidate_layout())
   }
 
-  get child_models(): UIElement[] {
-    return this.model.children.map(({child}) => child)
+  protected get _children(): [UIElement, number, number, number?, number?][] {
+    return this.model.children.map(({child, col, span}, i) => [child, 0, col ?? i, 1, span ?? 1])
   }
 
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
+  protected get _rows(): TracksSizing | null {
+    return null
   }
 
-  override _update_layout(): void {
-    super._update_layout()
-
-    const styles: CSSOurStyles = {}
-
-    const [row_gap, column_gap] = (() => {
-      const {spacing} = this.model
-      return isNumber(spacing) ? [spacing, spacing] : spacing
-    })()
-
-    styles.row_gap = px(row_gap)
-    styles.column_gap = px(column_gap)
-
-    let ncols = 0
-
-    const layoutable = new Container<LayoutDOMView>()
-
-    for (const [{col=ncols, span=1}, i] of enumerate(this.model.children)) {
-      const view = this.child_views[i]
-
-      ncols = max(ncols, col + span)
-
-      // CSS grid is 1-based, but layout is 0-based
-      const styles: CSSOurStyles = {}
-      styles.grid_row_start = `${1}`
-      styles.grid_row_end = `span ${1}`
-      styles.grid_column_start = `${col + 1}`
-      styles.grid_column_end = `span ${span}`
-      view.style.append(":host", styles)
-
-      if (view instanceof LayoutDOMView && view.layout != null) {
-        const r0 = 0
-        const c0 = col
-        const r1 = 1
-        const c1 = col + span - 1
-        layoutable.add({r0, c0, r1, c1}, view)
-      }
-    }
-
-    const {cols} = this.model
-    if (cols instanceof Map)
-      ncols = max(ncols, ...cols.keys())
-    else if (isArray(cols))
-      ncols = max(ncols, cols.length)
-
-    // TODO: just share the implementation with GridBox
-
-    styles.grid_template_rows = "1fr"
-    styles.grid_template_columns = `repeat(${ncols}, 1fr)`
-
-    this.style.append(":host", styles)
-
-    if (layoutable.size != 0) {
-      this.layout = new GridAlignmentLayout(layoutable)
-      this.layout.set_sizing()
-    } else {
-      delete this.layout
-    }
+  protected get _cols(): TracksSizing | null {
+    return this.model.cols
   }
 }
 
 export namespace HBox {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = LayoutDOM.Props & {
+  export type Props = CSSGridBox.Props & {
     children: p.Property<ChildItem[]>
     cols: p.Property<TracksSizing | null>
-    spacing: p.Property<number>
   }
 }
 
 export interface HBox extends HBox.Attrs {}
 
-export class HBox extends LayoutDOM {
+export class HBox extends CSSGridBox {
   override properties: HBox.Props
   override __view_type__: HBoxView
 
@@ -114,10 +49,9 @@ export class HBox extends LayoutDOM {
   static {
     this.prototype.default_view = HBoxView
 
-    this.define<HBox.Props>(({Any, Int, Number, Struct, Array, Ref, Opt, Nullable}) => ({
+    this.define<HBox.Props>(({Int, Struct, Array, Ref, Opt, Nullable}) => ({
       children: [ Array(Struct({child: Ref(UIElement), col: Opt(Int), span: Opt(Int)})), [] ],
-      cols: [ Nullable(Any), null ],
-      spacing: [ Number, 0 ],
+      cols: [ Nullable(TracksSizing), null ],
     }))
   }
 }
