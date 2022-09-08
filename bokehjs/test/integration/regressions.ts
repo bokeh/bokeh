@@ -2027,7 +2027,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #9113", () => {
-    it("prevents layout update when adding new toggle group buttons", async () => {
+    it.allowing(8)("prevents layout update when adding new toggle group buttons", async () => {
       const group = new RadioButtonGroup({labels: []})
       const {view} = await display(group, [300, 100])
 
