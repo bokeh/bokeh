@@ -2134,6 +2134,37 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #8469", () => {
+    it("makes child layout update invalidate and re-render entire layout", async () => {
+      const p0 = figure({width: 300, height: 300})
+      p0.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      const button = new Button({label: "click"})
+      const column = new Column({children: [new Column({children: [button, p0]})]})
+      const tab0 = new TabPanel({child: column, title: "circle"})
+
+      const p1 = figure({width: 300, height: 300})
+      p1.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
+      const tab1 = new TabPanel({child: p1, title: "line"})
+
+      const tabs = new Tabs({tabs: [tab0, tab1]})
+      button.on_click(() => {
+        column.children = [...column.children, new Button({label: "new button"})]
+      })
+
+      const {view} = await display(tabs, [350, 450])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      for (const _ of range(0, 5)) {
+        const ev = new MouseEvent("click", {bubbles: true})
+        button_view.button_el.dispatchEvent(ev)
+        await view.ready
+        await paint()
+      }
+    })
+  })
+
   describe("in issue #9133", () => {
     it("doesn't allow to set fixed size of Tabs layout", async () => {
       const p1 = figure({width: 300, height: 300})
