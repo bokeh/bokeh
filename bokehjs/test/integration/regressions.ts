@@ -2151,7 +2151,7 @@ describe("Bug", () => {
         column.children = [...column.children, new Button({label: "new button"})]
       })
 
-      const {view} = await display(tabs, [350, 450])
+      const {view} = await display(tabs, [350, 650])
 
       const button_view = view.owner.find_one(button)
       assert(button_view != null)

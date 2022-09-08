@@ -444,8 +444,14 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   invalidate_layout(): void {
-    this.update_layout()
-    this.compute_layout()
+    // TODO: it would be better and more efficient to do a localized
+    // update, but for now this guarantees consistent state of layout.
+    if (this.parent instanceof LayoutDOMView) {
+      this.parent.invalidate_layout()
+    } else {
+      this.update_layout()
+      this.compute_layout()
+    }
   }
 
   invalidate_render(): void {
