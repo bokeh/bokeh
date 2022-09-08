@@ -274,17 +274,6 @@ describe("Plot", () => {
     await view.ready
   })
 
-  it("should allow to fully repaint canvas after viewport resize", async () => {
-    const plot = fig([200, 200], {sizing_mode: "stretch_both"})
-    plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
-
-    const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
-    const {view} = await display(pane, [350, 350])
-
-    pane.styles = {width: "300px", height: "300px"}
-    await view.ready
-  })
-
   describe("in issue #7217", () => {
     it("should support axes with different scales", async () => {
       // TODO:
