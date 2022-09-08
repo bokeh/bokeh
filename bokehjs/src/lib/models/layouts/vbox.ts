@@ -10,20 +10,20 @@ import * as p from "core/properties"
 
 const {max} = Math
 
-type Item = {child: UIElement, row?: number, span?: number}
+type ChildItem = {child: UIElement, row?: number, span?: number}
 
 export class VBoxView extends LayoutDOMView {
   override model: VBox
 
   override connect_signals(): void {
     super.connect_signals()
-    const {items, rows, spacing} = this.model.properties
-    this.on_change(items, () => this.update_children())
+    const {children, rows, spacing} = this.model.properties
+    this.on_change(children, () => this.update_children())
     this.on_change([rows, spacing], () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
-    return this.model.items.map(({child}) => child)
+    return this.model.children.map(({child}) => child)
   }
 
   protected override _intrinsic_display(): FullDisplay {
@@ -47,7 +47,7 @@ export class VBoxView extends LayoutDOMView {
 
     const layoutable = new Container<LayoutDOMView>()
 
-    for (const [{row=nrows, span=1}, i] of enumerate(this.model.items)) {
+    for (const [{row=nrows, span=1}, i] of enumerate(this.model.children)) {
       const view = this.child_views[i]
 
       nrows = max(nrows, row + span)
@@ -95,7 +95,7 @@ export namespace VBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    items: p.Property<Item[]>
+    children: p.Property<ChildItem[]>
     rows: p.Property<TracksSizing | null>
     spacing: p.Property<number>
   }
@@ -115,7 +115,7 @@ export class VBox extends LayoutDOM {
     this.prototype.default_view = VBoxView
 
     this.define<VBox.Props>(({Any, Int, Number, Struct, Array, Ref, Opt, Nullable}) => ({
-      items: [ Array(Struct({child: Ref(UIElement), row: Opt(Int), span: Opt(Int)})), [] ],
+      children: [ Array(Struct({child: Ref(UIElement), row: Opt(Int), span: Opt(Int)})), [] ],
       rows: [ Nullable(Any), null ],
       spacing: [ Number, 0 ],
     }))

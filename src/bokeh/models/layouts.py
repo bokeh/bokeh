@@ -393,7 +393,7 @@ class HBox(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    items = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
+    children = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
     A list of children with their associated position in the horizontal box (optional; column number, span).
     """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
 
@@ -418,7 +418,7 @@ class VBox(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    items = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
+    children = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
     A list of children with their associated position in the vertical box (optional; row number, span).
     """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
 

@@ -10,20 +10,20 @@ import * as p from "core/properties"
 
 const {max} = Math
 
-type Item = {child: UIElement, col?: number, span?: number}
+type ChildItem = {child: UIElement, col?: number, span?: number}
 
 export class HBoxView extends LayoutDOMView {
   override model: HBox
 
   override connect_signals(): void {
     super.connect_signals()
-    const {items, cols, spacing} = this.model.properties
-    this.on_change(items, () => this.update_children())
+    const {children, cols, spacing} = this.model.properties
+    this.on_change(children, () => this.update_children())
     this.on_change([cols, spacing], () => this.invalidate_layout())
   }
 
   get child_models(): UIElement[] {
-    return this.model.items.map(({child}) => child)
+    return this.model.children.map(({child}) => child)
   }
 
   protected override _intrinsic_display(): FullDisplay {
@@ -47,7 +47,7 @@ export class HBoxView extends LayoutDOMView {
 
     const layoutable = new Container<LayoutDOMView>()
 
-    for (const [{col=ncols, span=1}, i] of enumerate(this.model.items)) {
+    for (const [{col=ncols, span=1}, i] of enumerate(this.model.children)) {
       const view = this.child_views[i]
 
       ncols = max(ncols, col + span)
@@ -95,7 +95,7 @@ export namespace HBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    items: p.Property<Item[]>
+    children: p.Property<ChildItem[]>
     cols: p.Property<TracksSizing | null>
     spacing: p.Property<number>
   }
@@ -115,7 +115,7 @@ export class HBox extends LayoutDOM {
     this.prototype.default_view = HBoxView
 
     this.define<HBox.Props>(({Any, Int, Number, Struct, Array, Ref, Opt, Nullable}) => ({
-      items: [ Array(Struct({child: Ref(UIElement), col: Opt(Int), span: Opt(Int)})), [] ],
+      children: [ Array(Struct({child: Ref(UIElement), col: Opt(Int), span: Opt(Int)})), [] ],
       cols: [ Nullable(Any), null ],
       spacing: [ Number, 0 ],
     }))

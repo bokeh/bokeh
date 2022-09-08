@@ -76,7 +76,7 @@ describe("HBox", () => {
     const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
 
     const row = new HBox({
-      items: [{child: s0}, {child: s1}],
+      children: [{child: s0}, {child: s1}],
       width_policy: "max",
       styles: {background_color: "orange"},
     })
@@ -90,7 +90,7 @@ describe("VBox", () => {
     const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
 
     const col = new VBox({
-      items: [{child: s0}, {child: s1}],
+      children: [{child: s0}, {child: s1}],
       height_policy: "max",
       styles: {background_color: "orange"},
     })
@@ -353,7 +353,7 @@ describe("FlexBox", () => {
 describe("HBox", () => {
   it("should allow 3 spacers of 100x100 size", async () => {
     const row = new HBox({
-      items: [
+      children: [
         {child: s("red")},
         {child: s("green")},
         {child: s("blue")},
@@ -365,7 +365,7 @@ describe("HBox", () => {
 
   it("should allow 3 plots of 200x200 size", async () => {
     const row = new HBox({
-      items: [
+      children: [
         {child: plot(10**0, 10**0, "red")},
         {child: plot(10**2, 10**2, "green")},
         {child: plot(10**4, 10**4, "blue")},
@@ -379,7 +379,7 @@ describe("HBox", () => {
 describe("VBox", () => {
   it("should allow 3 spacers of 100x100 size", async () => {
     const row = new VBox({
-      items: [
+      children: [
         {child: s("red")},
         {child: s("green")},
         {child: s("blue")},
@@ -391,7 +391,7 @@ describe("VBox", () => {
 
   it("should allow 3 plots of 200x200 size", async () => {
     const row = new VBox({
-      items: [
+      children: [
         {child: plot(10**0, 10**0, "red")},
         {child: plot(10**2, 10**2, "green")},
         {child: plot(10**4, 10**4, "blue")},
