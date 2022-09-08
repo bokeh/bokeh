@@ -2064,7 +2064,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11339", () => {
-    it("collapses layout after toggling visiblity", async () => {
+    it.allowing(2*8)("collapses layout after toggling visiblity", async () => {
       const toggle = new Toggle({label: "Click", active: true})
       const select1 = new Select({title: "Select 1:", options: ["1", "2"]})
       const select2 = new Select({title: "Select 2:", options: ["1", "2"]})
