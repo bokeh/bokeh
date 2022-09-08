@@ -541,7 +541,7 @@ class Tabs(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    __example__ = "sphinx/source/docs/user_guide/examples/interaction_tab_panes.py"
+    __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_tab_panes.py"
 
     tabs = List(Instance(Panel), help="""
     The list of child panel widgets.

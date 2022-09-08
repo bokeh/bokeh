@@ -37,8 +37,8 @@ def test_isort_examples() -> None:
 def test_isort_release() -> None:
     isort("release")
 
-def test_isort_sphinx() -> None:
-    isort("sphinx")
+def test_isort_docs_bokeh() -> None:
+    isort("docs/bokeh")
 
 def test_isort_tests() -> None:
     isort("tests")

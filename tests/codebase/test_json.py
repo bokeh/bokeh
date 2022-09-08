@@ -30,8 +30,8 @@ from tests.support.util.project import TOP_PATH
 paths = [
     "src/bokeh/_sri.json",
     "src/bokeh/util/sampledata.json",
-    "sphinx/source/docs/gallery.json",
-    "sphinx/switcher.json",
+    "docs/bokeh/source/docs/gallery.json",
+    "docs/bokeh/switcher.json",
 ]
 
 def test_json() -> None:

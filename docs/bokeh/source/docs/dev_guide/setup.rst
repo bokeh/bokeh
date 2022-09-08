@@ -83,17 +83,22 @@ for the remainder of this document.
 The Bokeh repository you just cloned to your local hard drive contains
 :ref:`test environment files <contributor_guide_testing_ci_environments>`
 in the :bokeh-tree:`conda` folder. In these files is all the necessary
-information to automatically create a basic development environment. The name of
-this virtual environment will be ``bkdev``.
+information to automatically create a basic development environment.
 
 Use ``conda env create`` at the root level of your *source checkout* directory
 to set up the environment and install all necessary packages. The "test"
-environment files are versioned by Python version. For example, to install
-an environment for Python 3.10, invoke:
+environment files are versioned by Python version.
+
+For example, to install an environment for Python 3.10, invoke:
 
 .. code-block:: sh
 
-    conda env create -f conda/environment-test-3.10.yml
+    conda env create -n bkdev -f conda/environment-test-3.10.yml
+
+.. note::
+    Use the ``conda -n bkdev`` option to make ``bkdev`` the name of your
+    environment. The remainder of this chapter and all other chapters in this
+    guide assume that this is the name of your environment.
 
 Then, activate the environment:
 
@@ -113,7 +118,7 @@ environments`_ in the `Conda documentation`_.
 
 .. _contributor_guide_setup_installing_node_packages:
 
-4. Install Node packages
+1. Install Node packages
 ------------------------
 
 Building BokehJS also requires installing JavaScript dependencies using

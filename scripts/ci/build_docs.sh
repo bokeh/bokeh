@@ -2,7 +2,7 @@
 
 set -x #echo on
 
-cd sphinx
+cd docs/bokeh
 export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
 make SPHINXOPTS=-v all
 

@@ -179,12 +179,12 @@ will now set this environment variable for you.
 3. Build Bokeh's documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can find all source files for Bokeh's documentation in the ``sphinx``
+You can find all source files for Bokeh's documentation in the ``docs/bokeh/``
 directory of the Bokeh source tree.
 
 .. code-block:: sh
 
-    cd sphinx
+    cd docs/bokeh/
 
 Sphinx uses the standard Unix ``make`` command to control the build process. For
 Windows users, the ``sphinx`` directory includes the file ``make.bat``. Use this
@@ -326,7 +326,7 @@ elements:
   those texts to generate the :ref:`reference guide <refguide>` section of
   Bokeh's documentation.
 
-In the file :bokeh-tree:`sphinx/source/rst_epilog.txt`, you can find many common
+In the file :bokeh-tree:`docs/bokeh/source/rst_epilog.txt`, you can find many common
 substitutions used across the narrative documentation as well as docstrings and
 model help texts. This file is loaded as the
 :confval:`epilog.rst environment variable <sphinx:rst_epilog>` for Bokeh's
@@ -347,7 +347,7 @@ Bokeh's narrative documentation consists of these four elements:
 
 Sphinx generates each of those elements from reStructuredText (.rst) files. To
 edit any of those elements, open the corresponding ReST source file in the
-``sphinx/source/docs`` folder of the Bokeh source tree.
+``docs/bokeh/source/docs`` folder of the Bokeh source tree.
 
 For information on how to format text using reStructuredText, see the
 :doc:`reStructuredText primer on the Sphinx website <sphinx:usage/restructuredtext/basics>`
@@ -437,9 +437,9 @@ For example:
 .. note::
   `Release Notes`_ are generally handled by the Bokeh core team as part of
   Bokeh's `release management`_. Each release should add a new file under
-  ``sphinx/source/docs/releases`` that briefly describes the changes in the
+  ``docs/bokeh/source/docs/releases`` that briefly describes the changes in the
   release, including any migration notes. The filename should be
-  ``<version>.rst``, for example ``sphinx/source/docs/releases/0.12.7.rst``.The
+  ``<version>.rst``, for example ``docs/bokeh/source/docs/releases/0.12.7.rst``.The
   Sphinx build will automatically add this content to the list of all releases.
 
 .. _open documentation issues: https://github.com/bokeh/bokeh/issues?q=is%3Aopen+is%3Aissue+label%3A%22tag%3A+component%3A+docs%22

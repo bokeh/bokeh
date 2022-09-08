@@ -120,7 +120,7 @@ _EXAMPLE_TEMPLATE = '''
     Example
     -------
 
-    .. bokeh-plot:: ../../{path}
+    .. bokeh-plot:: ../../../{path}
         :source-position: below
 
 '''

@@ -48,7 +48,7 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
 
 def publish_documentation(config: Config, system: System) -> ActionReturn:
     version, release_level = config.version, config.release_level
-    path = f"deployment-{version}/sphinx/build/html"
+    path = f"deployment-{version}/docs/bokeh/build/html"
     flags = "--acl bucket-owner-full-control --cache-control max-age=31536000,public"
     try:
         if config.prerelease:
