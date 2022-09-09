@@ -1930,4 +1930,28 @@ describe("Bug", () => {
       await display(p)
     })
   })
+
+  describe("in issue #12357", () => {
+    it("should not render size 0 webgl markers", async () => {
+      const x = [0, 1, 2, 3]
+      const size = [5, 0, 0, 5]
+      const fill_color = "orange"
+      const line_color = "black"
+
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.xgrid.visible = false
+        p.ygrid.visible = false
+        p.circle(x, 0, {size, fill_color, line_color})
+        p.scatter(x, 1, {marker: "circle", size, fill_color, line_color})
+        p.scatter(x, 2, {marker: "square", size, fill_color, line_color})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
+  })
 })

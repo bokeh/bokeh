@@ -40,7 +40,7 @@ varying vec2 v_hatch_coords;
 
 void main()
 {
-  if (a_show < 0.5) {
+  if (a_show < 0.5 || a_width <= 0.0 || a_height <= 0.0) {
     // Do not show this rect.
     gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
     return;
