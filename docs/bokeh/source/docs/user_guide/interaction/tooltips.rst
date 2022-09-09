@@ -137,11 +137,6 @@ property:
 After defining your Tooltip object and specifying the target, you need to add
 the tooltip to the :class:`~bokeh.document`.
 
-The following example uses both a Bokeh model (for ``text_input``) and a
-:class:`~bokeh.models.selectors` object (for ``div``) to attach a tooltip:
-
-TBD: create new document, add objects, and generate output
-
 Other UI elements
 -----------------
 
