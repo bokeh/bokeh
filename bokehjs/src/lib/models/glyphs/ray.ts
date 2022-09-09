@@ -36,31 +36,31 @@ export class RayView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: RayData): void {
+    if (!this.visuals.line.doit)
+      return
+
     const {sx, sy, slength, angle} = data ?? this
 
-    if (this.visuals.line.doit) {
-      for (const i of indices) {
-        const sx_i = sx[i]
-        const sy_i = sy[i]
-        const angle_i = angle.get(i)
-        const slength_i = slength[i]
+    for (const i of indices) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const angle_i = angle.get(i)
+      const slength_i = slength[i]
 
-        if (!isFinite(sx_i + sy_i + angle_i + slength_i))
-          continue
+      if (!isFinite(sx_i + sy_i + angle_i + slength_i))
+        continue
 
-        ctx.translate(sx_i, sy_i)
-        ctx.rotate(angle_i)
+      ctx.translate(sx_i, sy_i)
+      ctx.rotate(angle_i)
 
-        ctx.beginPath()
-        ctx.moveTo(0, 0)
-        ctx.lineTo(slength_i, 0)
+      ctx.beginPath()
+      ctx.moveTo(0, 0)
+      ctx.lineTo(slength_i, 0)
 
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
+      this.visuals.line.apply(ctx, i)
 
-        ctx.rotate(-angle_i)
-        ctx.translate(-sx_i, -sy_i)
-      }
+      ctx.rotate(-angle_i)
+      ctx.translate(-sx_i, -sy_i)
     }
   }
 

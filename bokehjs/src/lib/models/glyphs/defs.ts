@@ -114,11 +114,8 @@ function circle_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisua
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    _one_cross(ctx, r)
-    ctx.stroke()
-  }
+  _one_cross(ctx, r)
+  visuals.line.apply(ctx, i)
 }
 
 function circle_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
@@ -132,11 +129,8 @@ function circle_y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals):
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    _one_y(ctx, r)
-    ctx.stroke()
-  }
+  _one_y(ctx, r)
+  visuals.line.apply(ctx, i)
 }
 
 function circle_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
@@ -145,11 +139,8 @@ function circle_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals):
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    _one_x(ctx, r)
-    ctx.stroke()
-  }
+  _one_x(ctx, r)
+  visuals.line.apply(ctx, i)
 }
 
 function cross(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
@@ -172,14 +163,11 @@ function diamond_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisu
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    ctx.moveTo(0,  r)
-    ctx.lineTo(0, -r)
-    ctx.moveTo(-r/1.5,  0)
-    ctx.lineTo(r/1.5,  0)
-    ctx.stroke()
-  }
+  ctx.moveTo(0,  r)
+  ctx.lineTo(0, -r)
+  ctx.moveTo(-r/1.5,  0)
+  ctx.lineTo(r/1.5,  0)
+  visuals.line.apply(ctx, i)
 }
 
 function diamond_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
@@ -271,11 +259,8 @@ function square_cross(ctx: Context2d, i: number, r: number, visuals: VectorVisua
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    _one_cross(ctx, r)
-    ctx.stroke()
-  }
+  _one_cross(ctx, r)
+  visuals.line.apply(ctx, i)
 }
 
 function square_dot(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
@@ -291,14 +276,11 @@ function square_x(ctx: Context2d, i: number, r: number, visuals: VectorVisuals):
   visuals.fill.apply(ctx, i)
   visuals.hatch.apply(ctx, i)
 
-  if (visuals.line.doit) {
-    visuals.line.set_vectorize(ctx, i)
-    ctx.moveTo(-r,  r)
-    ctx.lineTo(r, -r)
-    ctx.moveTo(-r, -r)
-    ctx.lineTo(r,  r)
-    ctx.stroke()
-  }
+  ctx.moveTo(-r,  r)
+  ctx.lineTo(r, -r)
+  ctx.moveTo(-r, -r)
+  ctx.lineTo(r,  r)
+  visuals.line.apply(ctx, i)
 }
 
 function star(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {

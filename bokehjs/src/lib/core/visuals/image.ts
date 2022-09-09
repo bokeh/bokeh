@@ -70,8 +70,14 @@ export class ImageVector extends VisualUniforms {
     return true
   }
 
+  v_doit(i: number): boolean {
+    if (this.global_alpha.get(i) == 0)
+      return false
+    return true
+  }
+
   apply(ctx: Context2d, i: number): boolean {
-    const {doit} = this
+    const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
     }

@@ -35,11 +35,10 @@ export class WhiskerView extends UpperLowerView {
   paint(ctx: Context2d): void {
     if (this.visuals.line.doit) {
       for (let i = 0, end = this._lower_sx.length; i < end; i++) {
-        this.visuals.line.set_vectorize(ctx, i)
         ctx.beginPath()
         ctx.moveTo(this._lower_sx[i], this._lower_sy[i])
         ctx.lineTo(this._upper_sx[i], this._upper_sy[i])
-        ctx.stroke()
+        this.visuals.line.apply(ctx, i)
       }
     }
 

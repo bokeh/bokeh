@@ -123,44 +123,45 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
-    if (this.visuals.fill.doit || this.visuals.line.doit) {
-      const {sxs, sys} = data ?? this
+    if (!this.visuals.fill.doit && !this.visuals.line.doit)
+      return
 
-      for (const i of indices) {
-        ctx.beginPath()
+    const {sxs, sys} = data ?? this
 
-        const sx_i = sxs[i]
-        const sy_i = sys[i]
+    for (const i of indices) {
+      ctx.beginPath()
 
-        const nj = Math.min(sx_i.length, sy_i.length)
-        for (let j = 0; j < nj; j++) {
-          const sx_ij = sx_i[j]
-          const sy_ij = sy_i[j]
+      const sx_i = sxs[i]
+      const sy_i = sys[i]
 
-          const nk = Math.min(sx_ij.length, sy_ij.length)
-          for (let k = 0; k < nk; k++) {
-            const sx_ijk = sx_ij[k]
-            const sy_ijk = sy_ij[k]
+      const nj = Math.min(sx_i.length, sy_i.length)
+      for (let j = 0; j < nj; j++) {
+        const sx_ij = sx_i[j]
+        const sy_ij = sy_i[j]
 
-            const nl = Math.min(sx_ijk.length, sy_ijk.length)
-            for (let l = 0; l < nl; l++) {
-              const sx_ijkl = sx_ijk[l]
-              const sy_ijkl = sy_ijk[l]
+        const nk = Math.min(sx_ij.length, sy_ij.length)
+        for (let k = 0; k < nk; k++) {
+          const sx_ijk = sx_ij[k]
+          const sy_ijk = sy_ij[k]
 
-              if (l == 0)
-                ctx.moveTo(sx_ijkl, sy_ijkl)
-              else
-                ctx.lineTo(sx_ijkl, sy_ijkl)
-            }
+          const nl = Math.min(sx_ijk.length, sy_ijk.length)
+          for (let l = 0; l < nl; l++) {
+            const sx_ijkl = sx_ijk[l]
+            const sy_ijkl = sy_ijk[l]
 
-            ctx.closePath()
+            if (l == 0)
+              ctx.moveTo(sx_ijkl, sy_ijkl)
+            else
+              ctx.lineTo(sx_ijkl, sy_ijkl)
           }
-        }
 
-        this.visuals.fill.apply(ctx, i, "evenodd")
-        this.visuals.hatch.apply(ctx, i, "evenodd")
-        this.visuals.line.apply(ctx, i)
+          ctx.closePath()
+        }
       }
+
+      this.visuals.fill.apply(ctx, i, "evenodd")
+      this.visuals.hatch.apply(ctx, i, "evenodd")
+      this.visuals.line.apply(ctx, i)
     }
   }
 
