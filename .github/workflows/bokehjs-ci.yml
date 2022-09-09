@@ -116,11 +116,14 @@ jobs:
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0 # full history to get proper build version
 
       - name: Start Docker container, build Bokeh and run tests.
         env:
           BOKEH_DOCKER_BUILD: 1
           BOKEH_DOCKER_TEST: 1
+          BOKEH_DOCKER_INTERACTIVE: 0
         run: |
           scripts/docker/docker_run.sh $IMAGE_TAG
 

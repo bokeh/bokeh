@@ -14,6 +14,7 @@ fi
 IMAGE_AND_TAG=$1
 UID_GID="`id -u`:`id -g`"
 
+# Environment variables that are passed in to Docker container.
 ENV_VARS=""
 for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_TEST BOKEH_DOCKER_CHROME_VERSION; do
     if [ -n "${!name+set}" ]; then
@@ -22,6 +23,9 @@ for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_T
 done
 
 INTERACTIVE="-it"
+if [ "${BOKEH_DOCKER_INTERACTIVE:-0}" == 0 ]; then
+    INTERACTIVE=""
+fi
 if [ "${BOKEH_DOCKER_CHROME_VERSION:-0}" == 1 ]; then
     # If only want chrome version, do not need to run interactively.
     INTERACTIVE=""
