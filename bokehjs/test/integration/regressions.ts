@@ -1954,4 +1954,20 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
   })
+
+  describe("in issue #12361", () => {
+    it("prevents correct rendering with vectorized line_width == 0", async () => {
+      function plot(output_backend: OutputBackend) {
+        const p = fig([150, 200], {title: output_backend, output_backend})
+        p.circle({x: 0, y: [0, 1, 2, 3], fill_color: "orange", size: 12, line_width: [0, 5, 0, 5]})
+        return p
+      }
+
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
+
+      await display(row([p0, p1, p2]))
+    })
+  })
 })
