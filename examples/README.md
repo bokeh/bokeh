@@ -31,20 +31,14 @@ or walk through a particular example in additional detail.
 This directory contains examples that use the lowest-level
 [`bokeh.models`](https://docs.bokeh.org/en/latest/docs/reference/models.html)
 interface. For more information about Bokeh models see [the concepts section of
-the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html)
+the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
 
 ### [`plotting`](plotting/)
 
 This directory contains example using the
-[`bokeh.plotting`](https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html)
-interface. There are three subdirectories illustrating output in three
-different modes:
-
-* `file` examples that output to static HTML files
-
-* `notebook` examples that display inline in [Jupyter](http://jupyter.org) notebooks
-
-* `server` examples that send output to a Bokeh server, using the python client library for the server
+[`bokeh.plotting`](https://docs.bokeh.org/en/latest/docs/reference/plotting.html)
+interface. For more information about Bokeh plotting see [the concepts section of
+the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
 
 ### [`webgl`](webgl/)
 

@@ -178,7 +178,7 @@ Manual legends
 To build a legend by hand, don't use any of the ``legend`` arguments and instead
 assign values to the various properties of a |Legend| object directly.
 
-See :bokeh-tree:`examples/models/file/legends.py` for an example.
+See :bokeh-tree:`examples/models/legends.py` for an example.
 
 Explicit index
 ~~~~~~~~~~~~~~

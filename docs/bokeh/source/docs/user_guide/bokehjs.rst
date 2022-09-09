@@ -95,7 +95,7 @@ The JavaScript ``Bokeh.Plotting`` API is a port of the Python
 reference in addition to the material provided here.
 
 The JavaScript sample below is very similar to the Python code in
-:bokeh-tree:`examples/plotting/file/color_scatter.py`:
+:bokeh-tree:`examples/plotting/color_scatter.py`:
 
 .. bokehjs-content::
     :title: Bokeh color scatter

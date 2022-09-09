@@ -431,7 +431,7 @@ used to flip the image vertically or horizontally within its drawing region.
 The example below lets you explore all the different combinations of
 ``anchor`` an ``origin`` for a simple 2x2 image.
 
-.. bokeh-plot:: ../../../examples/plotting/file/image_origin_anchor.py
+.. bokeh-plot:: ../../../examples/plotting/image_origin_anchor.py
     :source-position: none
 
 .. _userguide_plotting_segments_rays:
