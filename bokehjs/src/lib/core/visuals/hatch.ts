@@ -304,8 +304,21 @@ export class HatchVector extends VisualUniforms {
     return this._static_doit
   }
 
+  v_doit(i: number): boolean {
+    if (!this.doit)
+      return false
+    if (this.hatch_color.get(i) == 0)
+      return false
+    if (this.hatch_alpha.get(i) == 0)
+      return false
+    const pattern = this.hatch_pattern.get(i)
+    if (pattern == " " || pattern == "blank" || pattern == null)
+      return false
+    return true
+  }
+
   apply(ctx: Context2d, i: number, rule?: CanvasFillRule): boolean {
-    const {doit} = this
+    const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
       ctx.layer.undo_transform(() => ctx.fill(rule))

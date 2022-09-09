@@ -183,6 +183,22 @@ export class TextVector extends VisualUniforms {
     return true
   }
 
+  v_doit(i: number): boolean {
+    if (this.text_color.get(i) == 0)
+      return false
+    if (this.text_alpha.get(i) == 0)
+      return false
+    return true
+  }
+
+  apply(ctx: Context2d, i: number): boolean {
+    const doit = this.v_doit(i)
+    if (doit) {
+      this.set_vectorize(ctx, i)
+    }
+    return doit
+  }
+
   set_vectorize(ctx: Context2d, i: number): void {
     this._assert_font(i)
 

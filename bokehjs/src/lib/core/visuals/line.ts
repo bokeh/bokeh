@@ -142,8 +142,18 @@ export class LineVector extends VisualUniforms {
     return true
   }
 
+  v_doit(i: number): boolean {
+    if (this.line_color.get(i) == 0)
+      return false
+    if (this.line_alpha.get(i) == 0)
+      return false
+    if (this.line_width.get(i) == 0)
+      return false
+    return true
+  }
+
   apply(ctx: Context2d, i: number): boolean {
-    const {doit} = this
+    const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
       ctx.stroke()

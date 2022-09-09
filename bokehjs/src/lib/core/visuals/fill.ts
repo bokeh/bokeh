@@ -89,8 +89,16 @@ export class FillVector extends VisualUniforms {
     return true
   }
 
+  v_doit(i: number): boolean {
+    if (this.fill_color.get(i) == 0)
+      return false
+    if (this.fill_alpha.get(i) == 0)
+      return false
+    return true
+  }
+
   apply(ctx: Context2d, i: number, rule?: CanvasFillRule): boolean {
-    const {doit} = this
+    const doit = this.v_doit(i)
     if (doit) {
       this.set_vectorize(ctx, i)
       ctx.fill(rule)
