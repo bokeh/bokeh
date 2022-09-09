@@ -139,41 +139,42 @@ export class ArrowView extends DataAnnotationView {
         ctx.restore()
       }
 
-      if (this.visuals.line.doit) {
-        ctx.save()
+      if (!this.visuals.line.doit)
+        continue
 
-        if (start != null || end != null) {
-          ctx.beginPath()
-          ctx.rect(x, y, width, height)
+      ctx.save()
 
-          if (end != null) {
-            ctx.save()
-            ctx.translate(_sx_end[i], _sy_end[i])
-            ctx.rotate(_angles[i])
-            end.clip(ctx, i)
-            ctx.restore()
-          }
+      if (start != null || end != null) {
+        ctx.beginPath()
+        ctx.rect(x, y, width, height)
 
-          if (start != null) {
-            ctx.save()
-            ctx.translate(_sx_start[i], _sy_start[i])
-            ctx.rotate(_angles[i] + Math.PI)
-            start.clip(ctx, i)
-            ctx.restore()
-          }
-
-          ctx.closePath()
-          ctx.clip()
+        if (end != null) {
+          ctx.save()
+          ctx.translate(_sx_end[i], _sy_end[i])
+          ctx.rotate(_angles[i])
+          end.clip(ctx, i)
+          ctx.restore()
         }
 
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.beginPath()
-        ctx.moveTo(_sx_start[i], _sy_start[i])
-        ctx.lineTo(_sx_end[i], _sy_end[i])
-        ctx.stroke()
+        if (start != null) {
+          ctx.save()
+          ctx.translate(_sx_start[i], _sy_start[i])
+          ctx.rotate(_angles[i] + Math.PI)
+          start.clip(ctx, i)
+          ctx.restore()
+        }
 
-        ctx.restore()
+        ctx.closePath()
+        ctx.clip()
       }
+
+      ctx.beginPath()
+      ctx.moveTo(_sx_start[i], _sy_start[i])
+      ctx.lineTo(_sx_end[i], _sy_end[i])
+
+      this.visuals.line.apply(ctx, i)
+
+      ctx.restore()
     }
   }
 }

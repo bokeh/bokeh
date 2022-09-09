@@ -78,27 +78,27 @@ export class QuadraticView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: QuadraticData): void {
-    if (this.visuals.line.doit) {
-      const {sx0, sy0, sx1, sy1, scx, scy} = data ?? this
+    if (!this.visuals.line.doit)
+      return
 
-      for (const i of indices) {
-        const sx0_i = sx0[i]
-        const sy0_i = sy0[i]
-        const sx1_i = sx1[i]
-        const sy1_i = sy1[i]
-        const scx_i = scx[i]
-        const scy_i = scy[i]
+    const {sx0, sy0, sx1, sy1, scx, scy} = data ?? this
 
-        if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
-          continue
+    for (const i of indices) {
+      const sx0_i = sx0[i]
+      const sy0_i = sy0[i]
+      const sx1_i = sx1[i]
+      const sy1_i = sy1[i]
+      const scx_i = scx[i]
+      const scy_i = scy[i]
 
-        ctx.beginPath()
-        ctx.moveTo(sx0_i, sy0_i)
-        ctx.quadraticCurveTo(scx_i, scy_i, sx1_i, sy1_i)
+      if (!isFinite(sx0_i + sy0_i + sx1_i + sy1_i + scx_i + scy_i))
+        continue
 
-        this.visuals.line.set_vectorize(ctx, i)
-        ctx.stroke()
-      }
+      ctx.beginPath()
+      ctx.moveTo(sx0_i, sy0_i)
+      ctx.quadraticCurveTo(scx_i, scy_i, sx1_i, sy1_i)
+
+      this.visuals.line.apply(ctx, i)
     }
   }
 

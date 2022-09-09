@@ -47,17 +47,18 @@ export class TextView extends XYGlyphView {
       if (!isFinite(sx_i + sy_i + x_offset_i + y_offset_i + angle_i) || label_i == null)
         continue
 
-      if (this.visuals.text.doit) {
-        label_i.visuals = this.visuals.text.values(i)
-        // TODO: perhaps this should be in _map_data()
-        label_i.position = {
-          sx: sx_i + x_offset_i,
-          sy: sy_i + y_offset_i,
-        }
-        label_i.angle = angle_i
-        label_i.align = "auto"
-        label_i.paint(ctx)
+      if (!this.visuals.text.v_doit(i))
+        continue
+
+      label_i.visuals = this.visuals.text.values(i)
+      // TODO: perhaps this should be in _map_data()
+      label_i.position = {
+        sx: sx_i + x_offset_i,
+        sy: sy_i + y_offset_i,
       }
+      label_i.angle = angle_i
+      label_i.align = "auto"
+      label_i.paint(ctx)
     }
   }
 
