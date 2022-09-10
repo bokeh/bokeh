@@ -37,15 +37,10 @@ export interface ColorMapper extends ColorMapper.Attrs {}
 export abstract class ColorMapper extends Mapper<Color> {
   override properties: ColorMapper.Props
 
-  metrics_change: Signal0<this>
+  readonly metrics_change = new Signal0(this, "metrics_change")
 
   constructor(attrs?: Partial<ColorMapper.Attrs>) {
     super(attrs)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.metrics_change = new Signal0(this, "metrics_change")
   }
 
   static {
