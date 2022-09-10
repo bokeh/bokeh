@@ -65,9 +65,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     this.change.emit()
   }
 
-  MatricsType: {min: number, max: number}
+  MetricsType: {min: number, max: number}
 
-  get metrics(): this["MatricsType"] {
+  get metrics(): this["MetricsType"] {
     if (this._scan_data == null) {
       this.update_data()
     }
