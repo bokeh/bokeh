@@ -13,5 +13,3 @@ associated with your data. A simple, but typical complete example of this API lo
     output_file("foo.html")
 
     show(p)
-
-The [`file`](/file)  subdirectory contains examples that output to static HTML files

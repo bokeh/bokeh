@@ -87,7 +87,7 @@ Python integration tests use pytest fixtures to handle the web driver
 configuration and interaction with Selenium. Depending on which context you
 want to test an object in, choose from ``bokeh_model_page``,
 ``single_plot_page``, or ``bokeh_server_page``. See
-:bokeh-tree:`bokeh/_testing/plugins/project.py` for more details.
+:bokeh-tree:`tests/support/plugins/project.py` for more details.
 
 Follow these guidelines when adding or updating Python integration tests:
 
