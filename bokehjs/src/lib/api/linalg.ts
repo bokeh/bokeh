@@ -359,6 +359,20 @@ export namespace np {
         const array = this._random.normal(loc, scale, size)
         return ndarray(array.buffer, {shape: [size], dtype: "float64"})
       }
+
+      random(): number
+      random(size: number | number[]): NDArray
+
+      random(size?: number | number[]): number | NDArray {
+        if (size == null)
+          return this._random.float()
+        else {
+          const shape = isNumber(size) ? [size] : size
+          const n = shape.reduce((product, value) => product*value)
+          const data = this._random.floats(n)
+          return ndarray(data, {shape, dtype: "float64"})
+        }
+      }
     }
 
     export function default_rng(seed?: number): RandomGenerator {
