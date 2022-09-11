@@ -76,7 +76,7 @@ class PandasGroupBy(Property["GroupBy[Any]"]):
         super().validate(value, detail)
 
         import pandas as pd
-        if isinstance(value, pd.core.groupby.GroupBy):
+        if isinstance(value, pd.core.groupby.GroupBy):  # type: ignore
             return
 
         msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"

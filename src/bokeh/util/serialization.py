@@ -183,7 +183,7 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
     # Pandas Period
     if isinstance(obj, pd.Period):
-        return obj.to_timestamp().value / 10**6.0
+        return obj.to_timestamp().value / 10**6.0  # type: ignore
 
     # Pandas Timestamp
     if isinstance(obj, pd.Timestamp):
@@ -353,7 +353,7 @@ def transform_series(series: pd.Series[Any] | pd.Index) -> npt.NDArray[Any]:
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
-        vals = series.to_timestamp().values
+        vals = series.to_timestamp().values  # type: ignore
     else:
         vals = series.values
     return vals
