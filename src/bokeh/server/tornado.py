@@ -760,10 +760,9 @@ class BokehTornado(TornadoApplication):
         objs = [x for x in gc.get_objects() if isinstance(x, ModuleType) and "bokeh_app_" in str(x)]
         log.debug(f"  uncollected modules: {len(objs)}")
 
-        pd = import_optional('pandas')
-        if pd:
-            objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
-            log.debug("  uncollected DataFrames: %d", len(objs))
+        import pandas as pd
+        objs = [x for x in all_objs if isinstance(x, pd.DataFrame)]
+        log.debug("  uncollected DataFrames: %d", len(objs))
 
         # uncomment (and install pympler) for mem usage by type report
         # from operator import itemgetter

@@ -11,7 +11,13 @@
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations
+from __future__ import annotations # isort:skip
+
+# NOTE: skip logging imports so that this module may be run as a script
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
 # Standard library imports
 import hashlib
@@ -28,28 +34,15 @@ from os.path import (
     splitext,
 )
 from sys import stdout
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    TextIO,
-    cast,
-)
+from typing import TYPE_CHECKING, Any, TextIO
 from urllib.parse import urljoin
 from urllib.request import urlopen
 
-# skip logging imports so that this module may be run as a script  # isort:skip
-
-#-----------------------------------------------------------------------------
-# Imports
-#-----------------------------------------------------------------------------
-
-# NOTE: since downloading sampledata is not a common occurrnce, non-stdlib
+# NOTE: since downloading sampledata is not a common occurrence, non-stdlib
 # imports are generally deferrered in this module
 
-
-# External library imports
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -97,13 +90,12 @@ def download(progress: bool = True) -> None:
 # Dev API
 #-----------------------------------------------------------------------------
 
-def external_csv(module: str, name: str, **kw: Any) -> DataFrame:
+def external_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
     '''
 
     '''
-    from .dependencies import import_required
-    pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
-    return cast(Any, pd).read_csv(external_path(name), **kw)
+    import pandas as pd
+    return pd.read_csv(external_path(name), **kw)
 
 def external_data_dir(create: bool = False) -> str:
     '''
@@ -144,12 +136,11 @@ def external_path(filename: str) -> str:
         raise RuntimeError('Could not locate external data file %s. Please execute bokeh.sampledata.download()' % fn)
     return fn
 
-def package_csv(module: str, name: str, **kw: Any) -> DataFrame:
+def package_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
     '''
 
     '''
-    from .dependencies import import_required
-    pd = import_required('pandas', f'{module} sample data requires Pandas (http://pandas.pydata.org) to be installed')
+    import pandas as pd
     return pd.read_csv(package_path(name), **kw)
 
 

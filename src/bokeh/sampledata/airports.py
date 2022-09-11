@@ -35,12 +35,11 @@ log = logging.getLogger(__name__)
 import json
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pandas import DataFrame
-
 # Bokeh imports
-from ..util.dependencies import import_required
 from ..util.sampledata import external_path
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,12 +61,12 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data() -> DataFrame:
+def _read_data() -> pd.DataFrame:
     '''
 
     '''
-    pd = import_required('pandas', 'airports sample data requires Pandas (http://pandas.pydata.org) to be installed')
     with open(external_path('airports.json'), 'r') as f:
+        import pandas as pd
         content = f.read()
         airports = json.loads(content)
         schema = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]

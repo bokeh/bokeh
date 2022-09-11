@@ -21,6 +21,7 @@ import datetime
 
 # External imports
 import numpy as np
+import pandas as pd
 import pytz
 
 # Bokeh imports
@@ -84,24 +85,21 @@ def test_binary_array_types() -> None:
     for dtype in dtypes:
         assert dtype in bus.BINARY_ARRAY_TYPES
 
-def test_datetime_types(pd) -> None:
-    if pd is None:
-        assert len(bus.DATETIME_TYPES) == 3
-    else:
-        assert len(bus.DATETIME_TYPES) == 7
+def test_datetime_types() -> None:
+    assert len(bus.DATETIME_TYPES) == 7
 
 def test_is_timedelta_type_non_pandas_types() -> None:
     assert bus.is_timedelta_type(datetime.timedelta(3000))
     assert bus.is_timedelta_type(np.timedelta64(3000, 'ms'))
 
-def test_is_timedelta_type_pandas_types(pd) -> None:
+def test_is_timedelta_type_pandas_types() -> None:
     assert bus.is_timedelta_type(pd.Timedelta("3000ms"))
 
 def test_convert_timedelta_type_non_pandas_types() -> None:
     assert bus.convert_timedelta_type(datetime.timedelta(3000)) == 259200000000.0
     assert bus.convert_timedelta_type(np.timedelta64(3000, 'ms')) == 3000.
 
-def test_convert_timedelta_type_pandas_types(pd) -> None:
+def test_convert_timedelta_type_pandas_types() -> None:
     assert bus.convert_timedelta_type(pd.Timedelta("3000ms")) == 3000.0
 
 def test_is_datetime_type_non_pandas_types() -> None:
@@ -109,7 +107,7 @@ def test_is_datetime_type_non_pandas_types() -> None:
     assert bus.is_datetime_type(datetime.time(3, 54))
     assert bus.is_datetime_type(np.datetime64("2011-05-11"))
 
-def test_is_datetime_type_pandas_types(pd) -> None:
+def test_is_datetime_type_pandas_types() -> None:
     assert bus.is_datetime_type(pd.Timestamp(3000000))
     assert bus.is_datetime_type(pd.Period('1900', 'A-DEC'))
     assert bus.is_datetime_type(pd.NaT)
@@ -122,7 +120,7 @@ def test_convert_datetime_type_non_pandas_types() -> None:
     assert bus.convert_datetime_type(datetime.date(2016, 5, 11)) == 1462924800000.0
     assert bus.convert_datetime_type(np.datetime64("2016-05-11")) == 1462924800000.0
 
-def test_convert_datetime_type_pandas_types(pd) -> None:
+def test_convert_datetime_type_pandas_types() -> None:
     assert bus.convert_datetime_type(pd.Timestamp(3000000)) == 3.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == -2208988800000.0
     assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
@@ -155,7 +153,7 @@ def test_transform_array(dt) -> None:
     out = bus.transform_array(a)
     assert isinstance(out, np.ndarray)
 
-def test_transform_series(pd) -> None:
+def test_transform_series() -> None:
     # default int seems to be int64, can't be encoded!
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df)

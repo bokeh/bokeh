@@ -39,11 +39,9 @@ from typing import (
 )
 
 # External imports
-import numpy as np
 from typing_extensions import TypeAlias
 
 # Bokeh imports
-from ...util.dependencies import import_optional
 from ...util.strings import nice_join
 from ..has_props import HasProps
 from ._sphinx import property_link, register_type_link, type_link
@@ -219,16 +217,17 @@ class Property(PropertyDescriptorFactory[T]):
             True, if new and old match, False otherwise
 
         """
+        import numpy as np
+        import pandas as pd
+
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
-        pd = import_optional('pandas')
-        if pd:
-            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
-                return np.array_equal(new, old)
+        if isinstance(new, pd.Series) or isinstance(old, pd.Series):
+            return np.array_equal(new, old)
 
-            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
-                return np.array_equal(new, old)
+        if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+            return np.array_equal(new, old)
 
         try:
 

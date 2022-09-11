@@ -34,7 +34,6 @@ dependencies:
   - nbconvert >=5.4
   - networkx
   - nodejs 16.*
-  - pandas
   - pre-commit
   - psutil
   - pydot

@@ -45,7 +45,6 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
-from .dependencies import import_optional
 from .strings import format_docstring
 
 #-----------------------------------------------------------------------------
@@ -54,13 +53,13 @@ from .strings import format_docstring
 
 @lru_cache(None)
 def _compute_datetime_types() -> set[type]:
+    import pandas as pd
+
     result = {dt.time, dt.datetime, np.datetime64}
-    pd = import_optional('pandas')
-    if pd:
-        result.add(pd.Timestamp)
-        result.add(pd.Timedelta)
-        result.add(pd.Period)
-        result.add(type(pd.NaT))
+    result.add(pd.Timestamp)
+    result.add(pd.Timedelta)
+    result.add(pd.Period)
+    result.add(type(pd.NaT))
     return result
 
 def __getattr__(name: str) -> Any:
@@ -176,22 +175,22 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
         float : milliseconds
 
     '''
-    pd = import_optional('pandas')
+    import pandas as pd
 
     # Pandas NaT
-    if pd and obj is pd.NaT:
+    if obj is pd.NaT:
         return np.nan
 
     # Pandas Period
-    if pd and isinstance(obj, pd.Period):
+    if isinstance(obj, pd.Period):
         return obj.to_timestamp().value / 10**6.0
 
     # Pandas Timestamp
-    if pd and isinstance(obj, pd.Timestamp):
+    if isinstance(obj, pd.Timestamp):
         return obj.value / 10**6.0
 
     # Pandas Timedelta
-    elif pd and isinstance(obj, pd.Timedelta):
+    elif isinstance(obj, pd.Timedelta):
         return obj.value / 10**6.0
 
     # Datetime (datetime is a subclass of date)
@@ -349,8 +348,7 @@ def transform_series(series: pd.Series[Any] | pd.Index) -> npt.NDArray[Any]:
         ndarray
 
     '''
-    pd = import_optional('pandas')
-    assert pd is not None
+    import pandas as pd
 
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type

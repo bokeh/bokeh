@@ -13,6 +13,7 @@ dependencies = [
     "contourpy >=1",
     "numpy >=1.11.3",
     "packaging >=16.8",
+    "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=5.1",

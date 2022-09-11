@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import pandas as pd
+
 # Bokeh imports
 from bokeh.core.properties import field
 from bokeh.models import (
@@ -42,7 +45,7 @@ import bokeh.plotting._graph as bpg # isort:skip
 
 
 class Test_get_graph_kwargs:
-    def test_convert_dataframes_to_sources(self, pd) -> None:
+    def test_convert_dataframes_to_sources(self) -> None:
         node_source = pd.DataFrame(data=dict(foo=[]))
         edge_source = pd.DataFrame(data=dict(start=[], end=[], bar=[]))
 

@@ -21,6 +21,7 @@ import datetime
 
 # External imports
 import numpy as np
+import pandas as pd
 
 # Bokeh imports
 from bokeh.models import (
@@ -100,13 +101,13 @@ class Test_get_range:
         assert isinstance(r, FactorRange)
         assert r.factors == list(f)
 
-    def test_with_series(self, pd) -> None:
+    def test_with_series(self) -> None:
         r = bpp.get_range(pd.Series([20, 30]))
         assert isinstance(r, Range1d)
         assert r.start == 20
         assert r.end == 30
 
-    def test_with_too_long_series(self, pd) -> None:
+    def test_with_too_long_series(self) -> None:
         with pytest.raises(ValueError):
             bpp.get_range(pd.Series([20, 30, 40]))
 
@@ -129,7 +130,7 @@ class Test_get_range:
         assert r.start == 1.2
         assert r.end == 10
 
-    def test_with_pandas_group(self, pd) -> None:
+    def test_with_pandas_group(self) -> None:
         from bokeh.sampledata.iris import flowers
         g = flowers.groupby('species')
         r = bpp.get_range(g)

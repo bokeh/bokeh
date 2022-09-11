@@ -21,6 +21,7 @@ from typing import Any
 
 # External imports
 import numpy as np
+import pandas as pd
 from mock import MagicMock, patch
 
 # Bokeh imports
@@ -176,7 +177,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_series_values(self, capsys: Capture, pd) -> None:
+    def test_matches_dicts_with_series_values(self, capsys: Capture) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))
@@ -193,7 +194,7 @@ class TestProperty:
         out, err = capsys.readouterr()
         assert err == ""
 
-    def test_matches_dicts_with_index_values(self, capsys: Capture, pd) -> None:
+    def test_matches_dicts_with_index_values(self, capsys: Capture) -> None:
         p = bcpb.Property()
         d1 = pd.DataFrame(dict(foo=np.arange(10)))
         d2 = pd.DataFrame(dict(foo=np.arange(10)))

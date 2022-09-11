@@ -29,7 +29,7 @@ from bokeh.plotting import figure
 # General API
 #-----------------------------------------------------------------------------
 
-def test_structure(pd):
+def test_structure():
     f = figure(width=400,height=400)
     f.line(x=[1,2,3],y=[1,2,3])
     K = generate_structure_plot(f)

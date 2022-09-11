@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import pandas as pd
+
 # Bokeh imports
 from tests.support.util.api import verify_all
 
@@ -37,7 +40,7 @@ ALL = (
 Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.autompg2", ALL))
 
 @pytest.mark.sampledata
-def test_autompg2(pd) -> None:
+def test_autompg2() -> None:
     import bokeh.sampledata.autompg2 as bsa
     assert isinstance(bsa.autompg2, pd.DataFrame)
 

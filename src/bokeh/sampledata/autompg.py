@@ -39,11 +39,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from pandas import DataFrame
-
 # Bokeh imports
 from ..util.sampledata import package_csv
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,7 +67,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 
-def _clean_data(df: DataFrame) -> DataFrame:
+def _clean_data(df: pd.DataFrame) -> pd.DataFrame:
     '''
 
     '''

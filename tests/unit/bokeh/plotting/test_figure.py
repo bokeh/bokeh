@@ -19,6 +19,9 @@ import pytest ; pytest
 # Standard library imports
 import re
 
+# External imports
+import pandas as pd
+
 # Bokeh imports
 from bokeh.core.enums import MarkerType
 from bokeh.core.properties import value
@@ -217,7 +220,7 @@ class Testfigure:
         dct = {'x': [1, 2, 3], 'y': [2, 3, 4]}
         p.circle(x='x', y='y', source=dct)
 
-    def test_columnsource_auto_conversion_from_pandas(self, pd) -> None:
+    def test_columnsource_auto_conversion_from_pandas(self) -> None:
         p = bpf.figure()
         df = pd.DataFrame({'x': [1, 2, 3], 'y': [2, 3, 4]})
         p.circle(x='x', y='y', source=df)
@@ -385,7 +388,7 @@ def Test_figure_legends_DEPRECATED(obejct):
         assert len(legends) == 1
         assert legends[0].items[0].label == {'value': 'milk'}
 
-    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(self, p, pd) -> None:
+    def test_glyph_label_is_legend_if_column_in_df_datasource_is_added_as_legend(self, p) -> None:
         source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
         p.circle(x='x', y='y', legend='label', source=source)
         legends = p.select(Legend)
@@ -393,7 +396,7 @@ def Test_figure_legends_DEPRECATED(obejct):
         assert legends[0].items[0].label == {'field': 'label'}
 
 
-    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(self, p, pd) -> None:
+    def test_glyph_label_is_value_if_column_not_in_df_datasource_is_added_as_legend(self, p) -> None:
         source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
         p.circle(x='x', y='y', legend='milk', source=source)
         legends = p.select(Legend)
@@ -521,7 +524,7 @@ def Test_figure_legends(obejct):
 
     # XXX (bev) this doesn't work yet because compound behaviour depends on renderer sources
     # matching, but passing a df means every renderer gets its own new source
-    # def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field_with_df_source(self, p, pd) -> None:
+    # def test_compound_legend_behavior_initiated_if_labels_are_same_on_multiple_renderers_and_are_field_with_df_source(self, p) -> None:
     #     source = pd.DataFrame(data=dict(x=[1, 2, 3], y=[1, 2, 3], label=['a', 'b', 'c']))
     #     # label is a field
     #     square = p.square(x='x', y='y', legend_label='label', source=source)

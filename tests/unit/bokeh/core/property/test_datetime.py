@@ -21,6 +21,7 @@ import datetime
 
 # External imports
 import numpy as np
+import pandas as pd
 
 # Bokeh imports
 from bokeh.util.serialization import convert_date_to_datetime
@@ -77,7 +78,7 @@ class Test_Date:
 
 
 class Test_Datetime:
-    def test_valid(self, pd) -> None:
+    def test_valid(self) -> None:
         prop = bcpd.Datetime()
         assert prop.is_valid(-1.0)
         assert prop.is_valid(-1)

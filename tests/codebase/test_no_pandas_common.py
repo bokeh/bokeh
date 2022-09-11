@@ -44,7 +44,7 @@ MODULES = ls_modules(skip_prefixes=PANDAS_ALLOWED)
 #     proc = run([python, "-c", verify_clean_imports('pandas', [module])])
 #     assert proc.returncode == 0, f"pandas imported in common module {module}"
 
-def test_no_pands_common_combined() -> None:
+def test_no_pandas_common_combined() -> None:
     ''' In order to keep the initial import times reasonable,  import
     of Bokeh should not result in any Pandas code being imported. This
     test ensures that importing basic modules does not bring in pandas.
