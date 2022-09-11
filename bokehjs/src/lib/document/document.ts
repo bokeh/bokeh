@@ -13,7 +13,9 @@ import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {copy, includes} from "core/util/array"
+import {entries} from "core/util/object"
 import * as sets from "core/util/set"
+import {CallbackLike} from "models/callbacks/callback"
 import {Model} from "model"
 import {ModelDef, decode_def} from "./defs"
 import {
@@ -26,6 +28,8 @@ Deserializer.register("model", decode_def)
 
 export type Out<T> = T
 
+export type JSEventCallback = CallbackLike<Document, [BokehEvent]>
+
 // Dispatches events to the subscribed models
 export class EventManager {
   subscribed_models: Set<Model> = new Set()
@@ -35,6 +39,7 @@ export class EventManager {
   send_event(bokeh_event: BokehEvent): void {
     const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event)
     this.document._trigger_on_change(event)
+    this.document._trigger_on_event(bokeh_event)
   }
 
   trigger(event: ModelEvent): void {
@@ -51,6 +56,7 @@ export type DocJson = {
   title?: string
   defs?: ModelDef[]
   roots: ModelRep[]
+  callbacks?: {[key: string]: ModelRep[]}
 }
 
 export type Patch = {
@@ -75,6 +81,7 @@ export class Document implements Equatable {
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
+  protected _js_callbacks: Map<string, JSEventCallback[]>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakSet<HasProps>
   protected _interactive_timestamp: number | null
@@ -91,6 +98,7 @@ export class Document implements Equatable {
     this._new_models = new Set()
     this._all_models_freeze_count = 0
     this._callbacks = new Map()
+    this._js_callbacks = new Map()
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
@@ -355,6 +363,21 @@ export class Document implements Equatable {
     }
   }
 
+  _trigger_on_event(event: BokehEvent): void {
+    const callbacks = this._js_callbacks.get(event.event_name)
+    if (callbacks != null) {
+      for (const callback of callbacks) {
+        callback.execute(this, event)
+      }
+    }
+  }
+
+  // TODO: API (needs PR #11915)
+  on_event(event: string, ...callbacks: JSEventCallback[]): void {
+    const existing = this._js_callbacks.get(event) ?? []
+    this._js_callbacks.set(event, [...existing, ...callbacks])
+  }
+
   to_json_string(include_defaults: boolean = true): string {
     return JSON.stringify(this.to_json(include_defaults))
   }
@@ -405,16 +428,29 @@ export class Document implements Equatable {
     doc.on_change(listener, true)
 
     const deserializer = new Deserializer(resolver, doc._all_models, (obj) => obj.attach_document(doc))
+
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
+    const callbacks = (() => {
+      if (doc_json.callbacks != null)
+        return deserializer.decode(doc_json.callbacks) as {[key: string]: JSEventCallback[]}
+      else
+        return {}
+    })()
+
     doc.remove_on_change(listener)
+
+    for (const [event, event_callbacks] of entries(callbacks)) {
+      doc.on_event(event, ...event_callbacks)
+    }
 
     for (const root of roots) {
       doc.add_root(root)
     }
 
-    if (doc_json.title != null)
+    if (doc_json.title != null) {
       doc.set_title(doc_json.title)
+    }
 
     doc._pop_all_models_freeze()
     return doc

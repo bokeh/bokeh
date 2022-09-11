@@ -208,6 +208,7 @@ export class ClientConnection {
 
   protected _on_close(event: CloseEvent, reject: Rejecter): void {
     logger.info(`Lost websocket ${this._number} connection, ${event.code} (${event.reason})`)
+    this.session?.notify_disconnected()
     this.socket = null
 
     this._pending_replies.forEach((pr) => pr.reject("Disconnected"))

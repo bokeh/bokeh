@@ -117,6 +117,7 @@ class DocJson(TypedDict):
     title: str | None
     defs: list[ModelDef] | None
     roots: list[ModelRep]
+    callbacks: dict[str, list[ModelRep]]
 
 class PatchJson(TypedDict):
     events: list[DocumentChanged]

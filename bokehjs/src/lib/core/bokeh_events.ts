@@ -107,8 +107,26 @@ export abstract class ModelEvent extends BokehEvent {
   }
 }
 
+export abstract class DocumentEvent extends BokehEvent {}
+
 @event("document_ready")
-export class DocumentReady extends BokehEvent {
+export class DocumentReady extends DocumentEvent {
+  protected get event_values(): Attrs {
+    return {}
+  }
+}
+
+export abstract class ConnectionEvent extends DocumentEvent {}
+
+@event("reconnected")
+export class Reconnected extends ConnectionEvent {
+  protected get event_values(): Attrs {
+    return {}
+  }
+}
+
+@event("disconnected")
+export class Disconnected extends ConnectionEvent {
   protected get event_values(): Attrs {
     return {}
   }

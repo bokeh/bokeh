@@ -1,4 +1,5 @@
 import {Document, DocumentEvent, DocumentEventBatch} from "document"
+import {Reconnected, Disconnected} from "core/bokeh_events"
 import type {Patch} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
@@ -41,6 +42,14 @@ export class ClientSession {
       default:
         logger.debug(`Doing nothing with message '${msgtype}'`)
     }
+  }
+
+  notify_reconnected(): void {
+    this.document.event_manager.send_event(new Reconnected())
+  }
+
+  notify_disconnected(): void {
+    this.document.event_manager.send_event(new Disconnected())
   }
 
   close(): void {

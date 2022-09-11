@@ -89,6 +89,8 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'Reconnected',
+    'Disconnected',
     'ButtonClick',
     'DocumentEvent',
     'DocumentReady',
@@ -196,6 +198,22 @@ class DocumentReady(DocumentEvent):
     '''
     event_name = 'document_ready'
 
+class ConnectionEvent(DocumentEvent):
+    ''' Base class for connection status related events.
+
+    '''
+
+class Reconnected(DocumentEvent):
+    ''' Announce when a connection to the server/client was regained.
+
+    '''
+    event_name = 'reconnected'
+
+class Disconnected(DocumentEvent):
+    ''' Announce when a connection to the server/client was lost.
+
+    '''
+    event_name = 'disconnected'
 
 class ModelEvent(Event):
     ''' Base class for all Bokeh Model events.
