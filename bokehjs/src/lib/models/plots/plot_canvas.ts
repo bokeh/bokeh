@@ -765,7 +765,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
 
-    if (this.model.match_aspect !== false) {
+    if (this.model.match_aspect) {
       this.pause()
       this._range_manager.update_dataranges()
       this.unpause(true)
