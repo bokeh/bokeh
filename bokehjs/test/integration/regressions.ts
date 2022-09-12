@@ -1662,9 +1662,11 @@ describe("Bug", () => {
       await view.ready
     })
 
+    /* XXX: enabling this makes this test unpredictable.
     after_each(() => {
       document.fonts.delete(font)
     })
+    */
   })
 
   describe("in issue #11035", () => {
