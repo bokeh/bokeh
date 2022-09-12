@@ -103,6 +103,12 @@ namespace_packages = true
 warn_return_any = false
 warn_unreachable = true
 
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]
+
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
 module = [
