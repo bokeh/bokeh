@@ -4,12 +4,6 @@
 /build
 /dist
 /MANIFEST
-
-# sphinx build directory
-/sphinx/build
-/docs/bokeh/build
-
-# Egg metadata
 **/*.egg-info*
 
 # coverage reports
@@ -19,20 +13,19 @@
 # ipython files
 **/.ipynb_checkpoints
 
-# tests/examples
-/tests/examples/report.html
-/examples.log
-/tests/**/examples.log
-/examples/custom/font-awesome/package-lock.json
+# HTML files
+*.html
+
+# node things
+**/node_modules
+**/package-lock.json
+**/dist
+**/.bokeh
 
 # conda build
 /linux-64
 /osx-64
 /win-64
-
-# pytest
-/.cache/
-/.pytest_cache/
 
 # dev files
 *.patch
@@ -57,13 +50,18 @@
 *.dmg
 *.gz
 *.iso
+*.png
 *.tar
 *.tgz
 *.zip
 
+# test files
+/.cache/
+/.pytest_cache/
 /.mypy_cache/
 /.images-list
-/examples-report.html
+examples-report.html
+examples.log
 
 # used by docker container
 .conda_docker
