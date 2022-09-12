@@ -110,6 +110,27 @@ describe("Plot", () => {
     })
   })
 
+  it("should support match_aspect", async () => {
+    function plot(match_aspect: boolean) {
+      const p = figure({
+        sizing_mode: "fixed",
+        width: 300,
+        height: 300,
+        match_aspect,
+        title: `match_aspect == ${match_aspect}`,
+      })
+      p.rect({x: 0, y: 0, width: 300, height: 300, line_color: "black"})
+      p.circle({x: 0, y: 0, radius: 150, radius_units: "data", line_color: "black", fill_color: "grey"})
+      return p
+    }
+
+    const pane = new Pane({
+      styles: {display: "flex", flex_direction: "row"},
+      children: [plot(true), plot(false)],
+    })
+    await display(pane, [650, 350])
+  })
+
   it("should allow fixed x fixed plot", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "fixed", height: 200})
     p.circle([0, 5, 10], [0, 5, 10], {size: 10})
