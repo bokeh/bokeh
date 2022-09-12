@@ -1,4 +1,4 @@
-build
-source/**/*.html
-source/docs/gallery/*
-source/docs/examples/*
+/build
+/source/**/*.html
+/source/docs/gallery/*
+/source/docs/examples/*
