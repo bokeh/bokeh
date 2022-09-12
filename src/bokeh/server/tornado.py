@@ -478,7 +478,7 @@ class BokehTornado(TornadoApplication):
         else:
             self._mem_job = None
 
-        self._cleanup_job = PeriodicCallback(self._cleanup_sessions, # type: ignore
+        self._cleanup_job = PeriodicCallback(self._cleanup_sessions,
                                              self._check_unused_sessions_milliseconds)
 
         if self._keep_alive_milliseconds > 0:
