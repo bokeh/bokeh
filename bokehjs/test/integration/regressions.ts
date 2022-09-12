@@ -1617,43 +1617,53 @@ describe("Bug", () => {
   })
 
   describe("in issue #9448", () => {
-    it("prevents correct text rendering with lazily loaded fonts", async () => {
-      const url = "/assets/fonts/vujahday/VujahdayScript-Regular.ttf"
-      const font = new FontFace("VujahdayScript", `url(${url})`)
+    const url = "/assets/fonts/vujahday/VujahdayScript-Regular.ttf"
+    const font = new FontFace("VujahdayScript", `url(${url})`)
+
+    before_each(() => {
       document.fonts.add(font)
+    })
 
-      expect(document.fonts.check("normal 12px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 22px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 26px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 30px VujahdayScript")).to.be.false
+    function assert_fonts(status: boolean) {
+      expect(document.fonts.check("normal 12px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 22px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 26px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 30px VujahdayScript")).to.be.equal(status)
+    }
 
-      try {
-        const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
+    it("prevents correct text rendering with lazily loaded fonts", async () => {
+      assert_fonts(false)
 
-        p.xaxis.axis_label = "X-Axis"
-        p.xaxis.axis_label_text_font = "VujahdayScript"
-        p.xaxis.axis_label_text_font_size = "22px"
-        p.xaxis.major_label_text_font = "VujahdayScript"
-        p.xaxis.major_label_text_font_size = "12px"
+      const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
 
-        p.yaxis.axis_label = "Y-Axis"
-        p.yaxis.axis_label_text_font = "VujahdayScript"
-        p.yaxis.axis_label_text_font_size = "26px"
-        p.yaxis.major_label_text_font = "VujahdayScript"
-        p.yaxis.major_label_text_font_size = "12px"
+      p.xaxis.axis_label = "X-Axis"
+      p.xaxis.axis_label_text_font = "VujahdayScript"
+      p.xaxis.axis_label_text_font_size = "22px"
+      p.xaxis.major_label_text_font = "VujahdayScript"
+      p.xaxis.major_label_text_font_size = "12px"
 
-        p.text({
-          x: [0, 1, 2], y: [0, 1, 2],
-          text: ["Śome 0", "Sómę 1", "Šome 2"],
-          text_font: "VujahdayScript", text_font_size: "30px",
-        })
+      p.yaxis.axis_label = "Y-Axis"
+      p.yaxis.axis_label_text_font = "VujahdayScript"
+      p.yaxis.axis_label_text_font_size = "26px"
+      p.yaxis.major_label_text_font = "VujahdayScript"
+      p.yaxis.major_label_text_font_size = "12px"
 
-        const {view} = await display(p)
-        await document.fonts.ready
-        await view.ready
-      } finally {
-        document.fonts.delete(font)
-      }
+      p.text({
+        x: [0, 1, 2], y: [0, 1, 2],
+        text: ["Śome 0", "Sómę 1", "Šome 2"],
+        text_font: "VujahdayScript", text_font_size: "30px",
+      })
+
+      const {view} = await display(p)
+
+      await document.fonts.ready
+      assert_fonts(true)
+
+      await view.ready
+    })
+
+    after_each(() => {
+      document.fonts.delete(font)
     })
   })
 
