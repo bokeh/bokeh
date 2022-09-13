@@ -41,7 +41,7 @@ import {defer, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
-import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
+import {Spectral10, Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
@@ -1968,6 +1968,44 @@ describe("Bug", () => {
       const p2 = plot("webgl")
 
       await display(row([p0, p1, p2]))
+    })
+  })
+
+  describe("in issue #12355", () => {
+    function make_plot() {
+      const rng = np.random.default_rng(3841)
+      const n = 20
+      const data0 = rng.random([n, n])
+      const data1 = ndarray(f`${data0} + 1.0`, {shape: data0.shape}) // TODO: bug in map()
+
+      const color_mapper = new LinearColorMapper({palette: Spectral10})
+
+      const plot = fig([600, 300])
+
+      const glyph_renderer = plot.image({
+        image: [data0, data1],
+        x: [0, 1.1],
+        y: 0,
+        dw: 1,
+        dh: 1,
+        color_mapper,
+      })
+
+      const cbar = new ColorBar({color_mapper})
+      plot.add_layout(cbar, "right")
+
+      return {plot, glyph_renderer, color_mapper}
+    }
+
+    it("prevents consideration of all data when color mapping with explicit domain", async () => {
+      const {plot, glyph_renderer, color_mapper} = make_plot()
+      color_mapper.domain = [[glyph_renderer, "image"]]
+      await display(plot)
+    })
+
+    it("prevents consideration of all data when color mapping with implicit domain", async () => {
+      const {plot} = make_plot()
+      await display(plot)
     })
   })
 })
