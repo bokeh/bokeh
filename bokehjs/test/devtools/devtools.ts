@@ -12,6 +12,35 @@ import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
+const MAX_INT32 = 2147483647
+export class Random {
+  private seed: number
+
+  constructor(seed: number) {
+    this.seed = seed % MAX_INT32
+    if (this.seed <= 0)
+      this.seed += MAX_INT32 - 1
+  }
+
+  integer(): number {
+    this.seed = (48271*this.seed) % MAX_INT32
+    return this.seed
+  }
+
+  float(): number {
+    return (this.integer() - 1) / (MAX_INT32 - 1)
+  }
+}
+
+function shuffle<T>(array: T[], random: Random): void {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(random.float()*(i + 1))
+    const temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+}
+
 let rl: readline.Interface | undefined
 if (process.platform == "win32") {
   rl = readline.createInterface({
@@ -36,6 +65,8 @@ process.on("exit", () => {
 const url = argv._[0] as string
 const port = parseInt(argv.port as string | undefined ?? "9222")
 const ref = (argv.ref ?? "HEAD") as string
+const randomize = (argv.randomize ?? false) as boolean
+const seed = argv.seed != null ? Number(argv.seed) : Date.now()
 
 interface CallFrame {
   name: string
@@ -267,6 +298,12 @@ async function run_tests(): Promise<boolean> {
 
       const all_tests = [...iter(top_level)]
       const test_suite = all_tests
+
+      if (randomize) {
+        const random = new Random(seed)
+        console.log(`randomizing with seed ${seed}`)
+        shuffle(test_suite, random)
+      }
 
       if (argv.k != null || argv.grep != null) {
         if (argv.k != null) {
