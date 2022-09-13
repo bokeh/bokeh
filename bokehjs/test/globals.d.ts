@@ -4,9 +4,14 @@ declare type AsyncFunc = () => Promise<void>
 declare type Fn = (fn: Func | AsyncFunc) => void
 declare type Decl = (description: string, fn: Func | AsyncFunc) => void
 
+declare type TestSettings = {
+  threshold?: number
+  retries?: number
+}
+
 declare type It = Decl & {
   skip: Decl
-  allowing: (threshold: number) => Decl
+  allowing: (settings: number | TestSettings) => Decl
   dpr: (dpr: number) => Decl
 }
 

@@ -1,8 +1,20 @@
 import {expect} from "assertions"
 
-import {reverse, enumerate, join, interleave, map, flat_map, every, some, combinations, subsets} from "@bokehjs/core/util/iterator"
+import {
+  range, reverse, enumerate, skip, tail, join, interleave,
+  map, flat_map, every, some, combinations, subsets,
+} from "@bokehjs/core/util/iterator"
 
 describe("core/util/iterator module", () => {
+  it("implements range() function", () => {
+    expect([...range(0)]).to.be.equal([])
+    expect([...range(0, 0)]).to.be.equal([])
+    expect([...range(5)]).to.be.equal([0, 1, 2, 3, 4])
+    expect([...range(0, 5)]).to.be.equal([0, 1, 2, 3, 4])
+    expect([...range(1, 6)]).to.be.equal([1, 2, 3, 4, 5])
+    expect([...range(0, 10, 2)]).to.be.equal([0, 2, 4, 6, 8])
+  })
+
   it("implements reverse() function", () => {
     expect([...reverse([])]).to.be.equal([])
     expect([...reverse([10, "d", "e", 3, 17, "a"])]).to.be.equal(["a", 17, 3, "e", "d", 10])
@@ -13,6 +25,29 @@ describe("core/util/iterator module", () => {
     expect([...enumerate(["a"])]).to.be.equal([["a", 0]])
     expect([...enumerate(["a", "b"])]).to.be.equal([["a", 0], ["b", 1]])
     expect([...enumerate(["a", "b", "c"])]).to.be.equal([["a", 0], ["b", 1], ["c", 2]])
+  })
+
+  it("implements skip() function", () => {
+    expect([...skip(range(0, 5), 0)]).to.be.equal([0, 1, 2, 3, 4])
+    expect([...skip(range(0, 5), 1)]).to.be.equal([1, 2, 3, 4])
+    expect([...skip(range(0, 5), 2)]).to.be.equal([2, 3, 4])
+    expect([...skip(range(0, 5), 3)]).to.be.equal([3, 4])
+    expect([...skip(range(0, 5), 4)]).to.be.equal([4])
+    expect([...skip(range(0, 5), 5)]).to.be.equal([])
+    expect([...skip(range(0, 5), 6)]).to.be.equal([])
+
+    expect([...skip([0, 1, 2, 3, 4], 0)]).to.be.equal([0, 1, 2, 3, 4])
+    expect([...skip([0, 1, 2, 3, 4], 1)]).to.be.equal([1, 2, 3, 4])
+    expect([...skip([0, 1, 2, 3, 4], 2)]).to.be.equal([2, 3, 4])
+    expect([...skip([0, 1, 2, 3, 4], 3)]).to.be.equal([3, 4])
+    expect([...skip([0, 1, 2, 3, 4], 4)]).to.be.equal([4])
+    expect([...skip([0, 1, 2, 3, 4], 5)]).to.be.equal([])
+    expect([...skip([0, 1, 2, 3, 4], 6)]).to.be.equal([])
+  })
+
+  it("implements tail() function", () => {
+    expect([...tail(range(0, 0))]).to.be.equal([])
+    expect([...tail(range(0, 5))]).to.be.equal([1, 2, 3, 4])
   })
 
   it("implements join() function", () => {

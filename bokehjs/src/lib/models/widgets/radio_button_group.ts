@@ -1,11 +1,9 @@
-import {ButtonGroup, ButtonGroupView} from "./button_group"
+import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
 
-import {classes} from "core/dom"
 import * as p from "core/properties"
-
 import * as buttons from "styles/buttons.css"
 
-export class RadioButtonGroupView extends ButtonGroupView {
+export class RadioButtonGroupView extends ToggleButtonGroupView {
   override model: RadioButtonGroup
 
   change_active(i: number): void {
@@ -17,8 +15,8 @@ export class RadioButtonGroupView extends ButtonGroupView {
   protected _update_active(): void {
     const {active} = this.model
 
-    this._buttons.forEach((button, i) => {
-      classes(button).toggle(buttons.active, active === i)
+    this._buttons.forEach((button_el, i) => {
+      button_el.classList.toggle(buttons.active, active === i)
     })
   }
 }
@@ -26,14 +24,14 @@ export class RadioButtonGroupView extends ButtonGroupView {
 export namespace RadioButtonGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ButtonGroup.Props & {
+  export type Props = ToggleButtonGroup.Props & {
     active: p.Property<number | null>
   }
 }
 
 export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
-export class RadioButtonGroup extends ButtonGroup {
+export class RadioButtonGroup extends ToggleButtonGroup {
   override properties: RadioButtonGroup.Props
   override __view_type__: RadioButtonGroupView
 

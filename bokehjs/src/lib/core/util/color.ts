@@ -27,23 +27,26 @@ export function decode_rgba(rgba: uint32): RGBA {
   return [r, g, b, a]
 }
 
-export function color2rgba(color: Color | null, alpha?: number): RGBA {
-  let r, g, b, a
-  if (color == null)
-    [r, g, b, a] = transparent()
-  else if (isInteger(color))
-    [r, g, b, a] = decode_rgba(color)
-  else if (isString(color))
-    [r, g, b, a] = css4_parse(color) ?? transparent()
-  else {
-    [r, g, b, a=1.0] = color
-    a = byte(a*255)
-  }
+export function color2rgba(color: Color | null, alpha: number = 1.0): RGBA {
+  const [r, g, b, a] = (() => {
+    if (color == null)
+      return transparent()
+    else if (isInteger(color))
+      return decode_rgba(color)
+    else if (isString(color))
+      return css4_parse(color) ?? transparent()
+    else {
+      if (color.length == 2) {
+        const [name, alpha] = color
+        return color2rgba(name, alpha)
+      } else {
+        const [r, g, b, a=1.0] = color
+        return [r, g, b, byte(a*255)]
+      }
+    }
+  })()
 
-  if (alpha != null && alpha < 1.0)
-    a = byte(alpha*a)
-
-  return [r, g, b, a]
+  return [r, g, b, byte(alpha*a)]
 }
 
 const _hex_table: {[key: number]: string} = {

@@ -1,4 +1,3 @@
-import {CachedVariadicBox} from "core/layout/html"
 import {div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {Widget, WidgetView} from "./widget"
@@ -7,9 +6,11 @@ import clearfix_css, {clearfix} from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
   override model: Markup
-  override layout: CachedVariadicBox
 
   protected markup_el: HTMLElement
+
+  protected override readonly _auto_width = "fit-content"
+  protected override readonly _auto_height = "auto"
 
   override async lazy_initialize() {
     await super.lazy_initialize()
@@ -26,9 +27,7 @@ export abstract class MarkupView extends WidgetView {
   }
 
   protected rerender() {
-    this.layout.invalidate_cache()
     this.render()
-    this.root.compute_layout() // XXX: invalidate_layout?
   }
 
   override connect_signals(): void {
@@ -40,11 +39,6 @@ export abstract class MarkupView extends WidgetView {
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), clearfix_css, "p { margin: 0; }"]
-  }
-
-  override _update_layout(): void {
-    this.layout = new CachedVariadicBox(this.el)
-    this.layout.set_sizing(this.box_sizing())
   }
 
   override render(): void {

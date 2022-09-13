@@ -4,7 +4,7 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
 
 .. bokeh-example-metadata::
     :sampledata: autompg2, iris
-    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.Panel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle # noqa: E501
+    :apis: bokeh.models.AutocompleteInput, bokeh.models.Button, bokeh.models.CheckboxButtonGroup, bokeh.models.CheckboxGroup, bokeh.models.ColorPicker, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.DataTable, bokeh.models.DatePicker, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.Dropdown, bokeh.models.IntEditor, bokeh.models.MultiChoice, bokeh.models.MultiSelect, bokeh.models.NumberEditor, bokeh.models.NumberFormatter, bokeh.models.TabPanel, bokeh.models.Paragraph, bokeh.models.PreText, bokeh.models.RadioButtonGroup, bokeh.models.RadioGroup, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Select, bokeh.models.SelectEditor, bokeh.models.Slider, bokeh.models.Spinner, bokeh.models.StringEditor, bokeh.models.StringFormatter, bokeh.models.TableColumn, bokeh.models.Tabs, bokeh.models.TextAreaInput, bokeh.models.TextInput, bokeh.models.Toggle # noqa: E501
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
     :keywords: widgets, select, button, slider, figure
 
@@ -13,16 +13,16 @@ from datetime import date
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS,
+from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
-                          DateSlider, Dialog, Div, Dropdown, HelpButton, Inspector,
-                          IntEditor, Menu, MultiChoice, MultiSelect, NumberEditor,
-                          NumberFormatter, Panel, Paragraph, PreText, RadioButtonGroup,
-                          RadioGroup, RangeSlider, Row, Select, SelectEditor, SetValue,
-                          Slider, Spinner, StringEditor, StringFormatter, SVGIcon,
-                          Switch, TableColumn, TablerIcon, Tabs, TextAreaInput,
-                          TextInput, Toggle, Tooltip)
+                          DateSlider, Dialog, Div, Dropdown, GroupBox, HelpButton,
+                          Inspector, IntEditor, Menu, MultiChoice, MultiSelect,
+                          NumberEditor, NumberFormatter, Paragraph, PasswordInput,
+                          PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
+                          Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
+                          StringFormatter, SVGIcon, Switch, TableColumn, TablerIcon,
+                          TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -64,7 +64,11 @@ radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"
 checkbox_button_group_vertical = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1], orientation="vertical")
 radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0, orientation="vertical")
 
+password_input = PasswordInput(placeholder="Choose your password ...")
+
 text_input = TextInput(placeholder="Enter value ...")
+
+text_input_units = TextInput(title="Initial temperature:", placeholder="Enter temperature ...", prefix="T\u2092", suffix="\u2103")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
 autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
@@ -75,7 +79,7 @@ select = Select(options=["Option 1", "Option 2", "Option 3"])
 
 multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
 
-multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)])
+multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)], placeholder="Choose your option ...")
 
 slider = Slider(value=10, start=0, end=100, step=0.5)
 
@@ -104,6 +108,10 @@ color_picker = ColorPicker(color="red", title="Choose color:", description=toolt
 
 date_picker = DatePicker(value=date(2017, 8, 1))
 
+checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
+
+checkbox_1 = Checkbox(active=True, label="Active checkbox")
+
 switch_0 = Switch(active=False)
 
 switch_1 = Switch(active=True, context_menu=Menu())
@@ -114,6 +122,18 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
+group_box = GroupBox(
+    title="Head offset:",
+    checkable=True,
+    child=Column(
+        children=[
+            TextInput(prefix="X", suffix="mm"),
+            TextInput(prefix="Y", suffix="mm"),
+            TextInput(prefix="Z", suffix="mm"),
+        ],
+    ),
+)
+
 paragraph = Paragraph(text="some text")
 
 div = Div(text="some <b>text</b>")
@@ -123,7 +143,7 @@ pre_text = PreText(text="some text")
 def mk_tab(color: str):
     plot = figure(width=300, height=300)
     plot.scatter(flowers["petal_length"], flowers["petal_width"], color=color, fill_alpha=0.2, size=12)
-    return Panel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
+    return TabPanel(title=f"Tab 1: {color.capitalize()}", child=plot, closable=True)
 
 tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
@@ -173,11 +193,14 @@ widgets = Column(children=[
             Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
-            text_input, autocomplete_input, text_area,
+            password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker, date_picker,
+            checkbox_0,
+            checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
+            group_box,
             paragraph, div, pre_text,
         ]),
         tabs,

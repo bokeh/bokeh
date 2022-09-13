@@ -1,11 +1,9 @@
-import {ButtonGroup, ButtonGroupView} from "./button_group"
+import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
 
-import {classes} from "core/dom"
 import * as p from "core/properties"
-
 import * as buttons from "styles/buttons.css"
 
-export class CheckboxButtonGroupView extends ButtonGroupView {
+export class CheckboxButtonGroupView extends ToggleButtonGroupView {
   override model: CheckboxButtonGroup
 
   get active(): Set<number> {
@@ -21,8 +19,8 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
   protected _update_active(): void {
     const {active} = this
 
-    this._buttons.forEach((button, i) => {
-      classes(button).toggle(buttons.active, active.has(i))
+    this._buttons.forEach((button_el, i) => {
+      button_el.classList.toggle(buttons.active, active.has(i))
     })
   }
 }
@@ -30,14 +28,14 @@ export class CheckboxButtonGroupView extends ButtonGroupView {
 export namespace CheckboxButtonGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = ButtonGroup.Props & {
+  export type Props = ToggleButtonGroup.Props & {
     active: p.Property<number[]>
   }
 }
 
 export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
-export class CheckboxButtonGroup extends ButtonGroup {
+export class CheckboxButtonGroup extends ToggleButtonGroup {
   override properties: CheckboxButtonGroup.Props
   override __view_type__: CheckboxButtonGroupView
 

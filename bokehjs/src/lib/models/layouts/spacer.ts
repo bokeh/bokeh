@@ -1,5 +1,4 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
@@ -9,10 +8,8 @@ export class SpacerView extends LayoutDOMView {
     return []
   }
 
-  override _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing(this.box_sizing())
-  }
+  protected override readonly _auto_width = "auto"
+  protected override readonly _auto_height = "auto"
 }
 
 export namespace Spacer {

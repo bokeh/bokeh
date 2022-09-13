@@ -1,27 +1,41 @@
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {ToolbarBox, ToolbarBoxView} from "../tools/toolbar_box"
-import {Toolbar} from "../tools/toolbar"
+import {LayoutDOM, LayoutDOMView, FullDisplay} from "../layouts/layout_dom"
+import {GridBox, GridBoxView} from "../layouts/grid_box"
+import {TracksSizing} from "../layouts/css_grid_box"
+import {Toolbar, ToolbarView} from "../tools/toolbar"
+import {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
-import {Grid, RowsSizing, ColsSizing, Row, Column} from "core/layout/grid"
 import {CanvasLayer} from "core/util/canvas"
 import {build_views, remove_views, ViewStorage} from "core/build_views"
 import {Location} from "core/enums"
-import {div, position} from "core/dom"
 import * as p from "core/properties"
 
 export class GridPlotView extends LayoutDOMView {
   override model: GridPlot
 
-  protected _toolbar: ToolbarBox
+  protected _grid_box: GridBox
 
-  get toolbar_box_view(): ToolbarBoxView {
-    return this.child_views.find((v) => v.model == this._toolbar) as ToolbarBoxView
+  get toolbar_view(): ToolbarView {
+    return this.child_views.find((v) => v.model == this.model.toolbar) as ToolbarView
+  }
+
+  get grid_box_view(): GridBoxView {
+    return this.child_views.find((v) => v.model == this._grid_box) as GridBoxView
+  }
+
+  protected _update_location(): void {
+    const location = this.model.toolbar_location
+    if (location == null)
+      this.model.toolbar.visible = false
+    else
+      this.model.toolbar.setv({visible: true, location})
   }
 
   override initialize(): void {
     super.initialize()
-    const {toolbar, toolbar_location} = this.model
-    this._toolbar = new ToolbarBox({toolbar, toolbar_location: toolbar_location ?? "above"})
+    this._update_location()
+
+    const {children, rows, cols, spacing} = this.model
+    this._grid_box = new GridBox({children, rows, cols, spacing})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -31,17 +45,25 @@ export class GridPlotView extends LayoutDOMView {
 
   override connect_signals(): void {
     super.connect_signals()
+
     const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
     this.on_change(toolbar_location, () => {
-      const {toolbar_location} = this.model
-      this._toolbar.toolbar_location = toolbar_location ?? "above"
+      this._update_location()
+      this.rebuild()
     })
-    this.on_change([toolbar, toolbar_location, children, rows, cols, spacing], () => {
+    this.on_change([toolbar, children, rows, cols, spacing], () => {
       this.rebuild()
     })
 
     this.on_change(this.model.toolbar.properties.tools, async () => {
       await this.build_tool_views()
+    })
+
+    this.mouseenter.connect(() => {
+      this.toolbar_view.set_visibility(true)
+    })
+    this.mouseleave.connect(() => {
+      this.toolbar_view.set_visibility(false)
     })
   }
 
@@ -57,58 +79,27 @@ export class GridPlotView extends LayoutDOMView {
     await build_views(this._tool_views, tools, {parent: this})
   }
 
-  get child_models(): LayoutDOM[] {
-    return [this._toolbar, ...this.model.children.map(([child]) => child)]
+  get child_models(): UIElement[] {
+    return [this.model.toolbar, this._grid_box]
   }
 
-  protected grid: Grid
-  protected grid_el: HTMLElement
-
-  override render(): void {
-    super.render()
-
-    this.grid_el = div({style: {position: "absolute"}})
-    this.shadow_el.appendChild(this.grid_el)
-
-    for (const child_view of this.child_views) {
-      if (child_view instanceof ToolbarBoxView)
-        continue
-      this.grid_el.appendChild(child_view.el)
-    }
-  }
-
-  override update_position(): void {
-    super.update_position()
-    position(this.grid_el, this.grid.bbox)
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flex"}
   }
 
   override _update_layout(): void {
-    const grid = this.grid = new Grid()
-    grid.rows = this.model.rows
-    grid.cols = this.model.cols
-    grid.spacing = this.model.spacing
+    super._update_layout()
 
-    for (const [child, row, col, row_span, col_span] of this.model.children) {
-      const child_view = this._child_views.get(child)!
-      grid.items.push({layout: child_view.layout, row, col, row_span, col_span})
-    }
-    grid.set_sizing(this.box_sizing())
-
-    const {toolbar_location} = this.model
-    if (toolbar_location == null)
-      this.layout = grid
-    else {
-      this.layout = (() => {
-        const tb = this.toolbar_box_view.layout
-        switch (toolbar_location) {
-          case "above": return new Column([tb, grid])
-          case "below": return new Column([grid, tb])
-          case "left":  return new Row([tb, grid])
-          case "right": return new Row([grid, tb])
-        }
-      })()
-      this.layout.set_sizing(this.box_sizing())
-    }
+    const {location} = this.model.toolbar
+    const flex_direction = (() => {
+      switch (location) {
+        case "above": return "column"
+        case "below": return "column-reverse"
+        case "left":  return "row"
+        case "right": return "row-reverse"
+      }
+    })()
+    this.style.append(":host", {flex_direction})
   }
 
   override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
@@ -122,7 +113,7 @@ export class GridPlotView extends LayoutDOMView {
 
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {x, y, width, height} = this.grid.bbox.relative()
+    const {x, y, width, height} = this.grid_box_view.bbox.relative()
     composite.resize(width, height)
     composite.ctx.save()
 
@@ -132,7 +123,7 @@ export class GridPlotView extends LayoutDOMView {
 
     for (const view of this.child_views) {
       const region = view.export(type, hidpi)
-      const {x, y} = view.layout.bbox
+      const {x, y} = view.bbox
       composite.ctx.drawImage(region.canvas, x, y)
     }
 
@@ -148,8 +139,8 @@ export namespace GridPlot {
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     children: p.Property<[LayoutDOM, number, number, number?, number?][]>
-    rows: p.Property<RowsSizing>
-    cols: p.Property<ColsSizing>
+    rows: p.Property<TracksSizing | null>
+    cols: p.Property<TracksSizing | null>
     spacing: p.Property<number | [number, number]>
   }
 }
@@ -167,13 +158,13 @@ export class GridPlot extends LayoutDOM {
   static {
     this.prototype.default_view = GridPlotView
 
-    this.define<GridPlot.Props>(({Any, Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
-      toolbar:          [ Ref(Toolbar), () => new Toolbar() ],
+    this.define<GridPlot.Props>(({Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
+      toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
-      children:         [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows:             [ Any /*TODO*/, "auto" ],
-      cols:             [ Any /*TODO*/, "auto" ],
-      spacing:          [ Or(Number, Tuple(Number, Number)), 0 ],
+      children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
+      rows: [ Nullable(TracksSizing), null ],
+      cols: [ Nullable(TracksSizing), null ],
+      spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
     }))
   }
 }

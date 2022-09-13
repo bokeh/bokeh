@@ -1,0 +1,8 @@
+GridBox bbox=[0, 0, 400, 400]
+  Spacer bbox=[0, 0, 200, 100]
+  Spacer bbox=[200, 0, 100, 100]
+  Spacer bbox=[300, 0, 100, 400]
+  Spacer bbox=[0, 100, 100, 200]
+  Spacer bbox=[100, 100, 200, 200]
+  Spacer bbox=[0, 300, 200, 100]
+  Spacer bbox=[200, 300, 100, 100]

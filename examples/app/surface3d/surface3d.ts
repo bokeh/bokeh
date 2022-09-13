@@ -9,13 +9,13 @@
 // Making it easy to hook up python data analytics tools (NumPy, SciPy,
 // Pandas, etc.) to web presentations using the Bokeh server.
 
-import {HTMLBox, HTMLBoxView} from "models/layouts/html_box"
+import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import * as p from "core/properties"
 
 declare namespace vis {
   class Graph3d {
-    constructor(el: HTMLElement, data: object, OPTIONS: object)
+    constructor(el: HTMLElement | DocumentFragment, data: object, OPTIONS: object)
     setData(data: vis.DataSet): void
   }
 
@@ -45,13 +45,17 @@ const OPTIONS = {
 
 // To create custom model extensions that will render on to the HTML canvas or
 // into the DOM, we must create a View subclass for the model. In this case we
-// will subclass from the existing BokehJS ``HTMLBoxView``, corresponding to our.
-export class Surface3dView extends HTMLBoxView {
+// will subclass from the existing BokehJS ``LayoutDOMView``, corresponding to our.
+export class Surface3dView extends LayoutDOMView {
   model: Surface3d
 
   private _graph: vis.Graph3d
 
-  render(): void {
+  get child_models(): LayoutDOM[] {
+    return []
+  }
+
+  override render(): void {
     super.render()
     // Create a new Graph3s using the vis.js API. This assumes the vis.js has
     // already been loaded (e.g. in a custom app template). In the future Bokeh
@@ -61,10 +65,10 @@ export class Surface3dView extends HTMLBoxView {
     // Bokeh views ignore this default <div>, and instead do things like draw
     // to the HTML canvas. In this case though, we use the <div> to attach a
     // Graph3d to the DOM.
-    this._graph = new vis.Graph3d(this.el, this.get_data(), this.model.options)
+    this._graph = new vis.Graph3d(this.shadow_el, this.get_data(), this.model.options)
   }
 
-  connect_signals(): void {
+  override connect_signals(): void {
     super.connect_signals()
     // Set listener so that when the Bokeh data source has a change
     // event, we can process the new data
@@ -91,12 +95,12 @@ export class Surface3dView extends HTMLBoxView {
 // We must also create a corresponding JavaScript model subclass to
 // correspond to the python Bokeh model subclass. In this case, since we want
 // an element that can position itself in the DOM according to a Bokeh layout,
-// we subclass from ``HTMLBox``
+// we subclass from ``LayoutDOM``
 
 export namespace Surface3d {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HTMLBox.Props & {
+  export type Props = LayoutDOM.Props & {
     x: p.Property<string>
     y: p.Property<string>
     z: p.Property<string>
@@ -107,7 +111,7 @@ export namespace Surface3d {
 
 export interface Surface3d extends Surface3d.Attrs {}
 
-export class Surface3d extends HTMLBox {
+export class Surface3d extends LayoutDOM {
   properties: Surface3d.Props
   __view_type__: Surface3dView
 

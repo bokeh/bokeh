@@ -6,7 +6,7 @@ import {display, fig, row} from "./_util"
 import {figure} from "@bokehjs/api/plotting"
 import {Location} from "@bokehjs/core/enums"
 import {assert} from "@bokehjs/core/util/assert"
-import {Range1d, LinearScale, LinearAxis, ColumnDataSource} from "@bokehjs/models"
+import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("Plot", () => {
@@ -108,6 +108,27 @@ describe("Plot", () => {
       const {view} = await display(f("right"))
       click(view)
     })
+  })
+
+  it("should support match_aspect", async () => {
+    function plot(match_aspect: boolean) {
+      const p = figure({
+        sizing_mode: "fixed",
+        width: 300,
+        height: 300,
+        match_aspect,
+        title: `match_aspect == ${match_aspect}`,
+      })
+      p.rect({x: 0, y: 0, width: 300, height: 300, line_color: "black"})
+      p.circle({x: 0, y: 0, radius: 150, radius_units: "data", line_color: "black", fill_color: "grey"})
+      return p
+    }
+
+    const pane = new Pane({
+      styles: {display: "flex", flex_direction: "row"},
+      children: [plot(true), plot(false)],
+    })
+    await display(pane, [650, 350])
   })
 
   it("should allow fixed x fixed plot", async () => {
@@ -238,21 +259,39 @@ describe("Plot", () => {
     })
   })
 
+  it("should support 'block' flow mode", async () => {
+    const plot = fig([50, 30], {
+      flow_mode: "block",
+      styles: {vertical_align: "middle"},
+      x_axis_type: null, y_axis_type: null,
+    })
+    plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
+
+    const pane = new Pane({
+      children: ["This plot should", plot, "create its own block."],
+    })
+    await display(pane, [300, 100])
+  })
+
+  it("should support 'inline' flow mode", async () => {
+    const plot = fig([50, 30], {
+      flow_mode: "inline",
+      styles: {vertical_align: "middle"},
+      x_axis_type: null, y_axis_type: null,
+    })
+    plot.vbar({x: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], top: [10, 3, 7, 2, 6, 9, 8, 1, 2, 7]})
+
+    const pane = new Pane({
+      children: ["This plot should", plot, "be displayed inline."],
+    })
+    await display(pane, [300, 100])
+  })
+
   it("should allow to resize itself when width changes", async () => {
     const plot = fig([200, 200])
     plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
     const {view} = await display(plot, [450, 250])
     plot.width = 400
-    await view.ready
-  })
-
-  it("should allow to fully repaint canvas after viewport resize", async () => {
-    const plot = fig([200, 200], {sizing_mode: "stretch_both"})
-    plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
-    const {view, el} = await display(plot, [200, 200])
-    el.style.width = "300px"
-    el.style.height = "300px"
-    view.resize_layout() // TODO: ResizeObserver
     await view.ready
   })
 

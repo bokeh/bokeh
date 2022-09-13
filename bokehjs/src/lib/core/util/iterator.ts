@@ -1,4 +1,23 @@
-import {range} from "./array"
+import {range as arange} from "./array"
+import {assert} from "./assert"
+
+const {abs, ceil, max} = Math
+
+export function* range(start: number, stop?: number, step: number = 1): Iterable<number> {
+  assert(step > 0)
+
+  if (stop == null) {
+    stop = start
+    start = 0
+  }
+
+  const delta = start <= stop ? step : -step
+  const length = max(ceil(abs(stop - start) / step), 0)
+
+  for (let i = 0; i < length; i++, start += delta) {
+    yield start
+  }
+}
 
 export function* reverse<T>(array: T[]): Iterable<T> {
   const n = array.length
@@ -13,6 +32,21 @@ export function* enumerate<T>(seq: Iterable<T>): Iterable<[T, number]> {
   for (const item of seq) {
     yield [item, i++]
   }
+}
+
+export function* skip<T>(seq: Iterable<T>, n: number): Iterable<T> {
+  assert(n >= 0)
+
+  for (const value of seq) {
+    if (n == 0)
+      yield value
+    else
+      n -= 1
+  }
+}
+
+export function* tail<T>(seq: Iterable<T>): Iterable<T> {
+  yield* skip(seq, 1)
 }
 
 export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Iterable<T> {
@@ -74,12 +108,12 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
   const n = seq.length
   if (r > n)
     return
-  const indices = range(r)
+  const indices = arange(r)
 
   yield indices.map((i) => seq[i])
   while (true) {
     let k: number | undefined
-    for (const i of reverse(range(r))) {
+    for (const i of reverse(arange(r))) {
       if (indices[i] != i + n - r) {
         k = i
         break
@@ -88,7 +122,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
     if (k == null)
       return
     indices[k] += 1
-    for (const j of range(k + 1, r)) {
+    for (const j of arange(k + 1, r)) {
       indices[j] = indices[j-1] + 1
     }
     yield indices.map((i) => seq[i])
@@ -96,7 +130,7 @@ export function* combinations<T>(seq: T[], r: number): Iterable<T[]> {
 }
 
 export function* subsets<T>(seq: T[]): Iterable<T[]> {
-  for (const k of range(seq.length + 1)) {
+  for (const k of arange(seq.length + 1)) {
     yield* combinations(seq, k)
   }
 }

@@ -5,109 +5,130 @@ import {color2rgba, css4_parse, brightness} from "@bokehjs/core/util/color"
 describe("core/util/color module", () => {
   const halfgray = color2rgba("rgb(128, 128, 128)")
 
-  it("should turn 6-element hex colors to tuples", () => {
-    expect(color2rgba("#000000")).to.be.equal([0, 0, 0, 255])
-    expect(color2rgba("#ff0000")).to.be.equal([255, 0, 0, 255])
-    expect(color2rgba("#00ff00")).to.be.equal([0, 255, 0, 255])
-    expect(color2rgba("#0000ff")).to.be.equal([0, 0, 255, 255])
-    expect(color2rgba("#ffffff")).to.be.equal([255, 255, 255, 255])
-    expect(color2rgba("#808080")).to.be.equal(halfgray)
-  })
+  describe("implements color2rgba() function", () => {
 
-  it("should turn 6-element hex colors to tuples, with separate alpha", () => {
-    expect(color2rgba("#000000", 0.5)).to.be.equal([0, 0, 0, 128])
-    expect(color2rgba("#ff0000", 1.0)).to.be.equal([255, 0, 0, 255])
-    expect(color2rgba("#00ff00", 0.2)).to.be.equal([0, 255, 0, 51])
-    expect(color2rgba("#0000ff", 0.8)).to.be.equal([0, 0, 255, 204])
-    expect(color2rgba("#ffffff", 0.0)).to.be.equal([255, 255, 255, 0])
-    expect(color2rgba("#808080", 1.0)).to.be.equal(halfgray)
-  })
+    it("which should support 6-element hex colors", () => {
+      expect(color2rgba("#000000")).to.be.equal([0, 0, 0, 255])
+      expect(color2rgba("#ff0000")).to.be.equal([255, 0, 0, 255])
+      expect(color2rgba("#00ff00")).to.be.equal([0, 255, 0, 255])
+      expect(color2rgba("#0000ff")).to.be.equal([0, 0, 255, 255])
+      expect(color2rgba("#ffffff")).to.be.equal([255, 255, 255, 255])
+      expect(color2rgba("#808080")).to.be.equal(halfgray)
+    })
 
-  it("should turn 8-element hex colors to tuples", () => {
-    expect(color2rgba("#000000ff")).to.be.equal([0, 0, 0, 255])
-    expect(color2rgba("#ff000080")).to.be.equal([255, 0, 0, 128])
-    expect(color2rgba("#00ff0080")).to.be.equal([0, 255, 0, 128])
-    expect(color2rgba("#0000ff00")).to.be.equal([0, 0, 255, 0])
-    expect(color2rgba("#ffffffff")).to.be.equal([255, 255, 255, 255])
-    expect(color2rgba("#808080ff")).to.be.equal(halfgray)
-  })
+    it("which should support 6-element hex colors with separate alpha", () => {
+      expect(color2rgba("#000000", 0.5)).to.be.equal([0, 0, 0, 128])
+      expect(color2rgba("#ff0000", 1.0)).to.be.equal([255, 0, 0, 255])
+      expect(color2rgba("#00ff00", 0.2)).to.be.equal([0, 255, 0, 51])
+      expect(color2rgba("#0000ff", 0.8)).to.be.equal([0, 0, 255, 204])
+      expect(color2rgba("#ffffff", 0.0)).to.be.equal([255, 255, 255, 0])
+      expect(color2rgba("#808080", 1.0)).to.be.equal(halfgray)
+    })
 
-  it("should turn 8-element hex colors to tuples, with separate alpha", () => {
-    expect(color2rgba("#000000ff", 0.5)).to.be.equal([0, 0, 0, 128])
-    expect(color2rgba("#ff000080", 1.0)).to.be.equal([255, 0, 0, 128])
-    expect(color2rgba("#00ff0080", 0.2)).to.be.equal([0, 255, 0, 26])
-    expect(color2rgba("#0000ff00", 0.8)).to.be.equal([0, 0, 255, 0])
-    expect(color2rgba("#ffffffff", 0.0)).to.be.equal([255, 255, 255, 0])
-    expect(color2rgba("#808080ff", 1.0)).to.be.equal(halfgray)
-  })
+    it("which should support 8-element hex colors", () => {
+      expect(color2rgba("#000000ff")).to.be.equal([0, 0, 0, 255])
+      expect(color2rgba("#ff000080")).to.be.equal([255, 0, 0, 128])
+      expect(color2rgba("#00ff0080")).to.be.equal([0, 255, 0, 128])
+      expect(color2rgba("#0000ff00")).to.be.equal([0, 0, 255, 0])
+      expect(color2rgba("#ffffffff")).to.be.equal([255, 255, 255, 255])
+      expect(color2rgba("#808080ff")).to.be.equal(halfgray)
+    })
 
-  it("should turn 3-element hex colors to tuples", () => {
-    expect(color2rgba("#000")).to.be.equal([0, 0, 0, 255])
-    expect(color2rgba("#f00")).to.be.equal([255, 0, 0, 255])
-    expect(color2rgba("#0f0")).to.be.equal([0, 255, 0, 255])
-    expect(color2rgba("#00f")).to.be.equal([0, 0, 255, 255])
-    expect(color2rgba("#fff")).to.be.equal([255, 255, 255, 255])
-  })
+    it("which should support 8-element hex colors with separate alpha", () => {
+      expect(color2rgba("#000000ff", 0.5)).to.be.equal([0, 0, 0, 128])
+      expect(color2rgba("#ff000080", 1.0)).to.be.equal([255, 0, 0, 128])
+      expect(color2rgba("#00ff0080", 0.2)).to.be.equal([0, 255, 0, 26])
+      expect(color2rgba("#0000ff00", 0.8)).to.be.equal([0, 0, 255, 0])
+      expect(color2rgba("#ffffffff", 0.0)).to.be.equal([255, 255, 255, 0])
+      expect(color2rgba("#808080ff", 1.0)).to.be.equal(halfgray)
+    })
 
-  it("should turn 3-element hex colors to tuples, with separate alpha", () => {
-    expect(color2rgba("#000", 1.0)).to.be.equal([0, 0, 0, 255])
-    expect(color2rgba("#f00", 0.0)).to.be.equal([255, 0, 0, 0])
-    expect(color2rgba("#0f0", 0.5)).to.be.equal([0, 255, 0, 128])
-    expect(color2rgba("#00f", 0.2)).to.be.equal([0, 0, 255, 51])
-    expect(color2rgba("#fff", 0.8)).to.be.equal([255, 255, 255, 204])
-  })
+    it("which should support 3-element hex colors", () => {
+      expect(color2rgba("#000")).to.be.equal([0, 0, 0, 255])
+      expect(color2rgba("#f00")).to.be.equal([255, 0, 0, 255])
+      expect(color2rgba("#0f0")).to.be.equal([0, 255, 0, 255])
+      expect(color2rgba("#00f")).to.be.equal([0, 0, 255, 255])
+      expect(color2rgba("#fff")).to.be.equal([255, 255, 255, 255])
+    })
 
-  it("should turn known css color names to tuples", () => {
-    expect(color2rgba("red")).to.be.equal([255, 0, 0, 255])
-    expect(color2rgba("yellow")).to.be.equal([255, 255, 0, 255])
-    expect(color2rgba("gray")).to.be.equal(halfgray)
-  })
+    it("which should support 3-element hex colors with separate alpha", () => {
+      expect(color2rgba("#000", 1.0)).to.be.equal([0, 0, 0, 255])
+      expect(color2rgba("#f00", 0.0)).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba("#0f0", 0.5)).to.be.equal([0, 255, 0, 128])
+      expect(color2rgba("#00f", 0.2)).to.be.equal([0, 0, 255, 51])
+      expect(color2rgba("#fff", 0.8)).to.be.equal([255, 255, 255, 204])
+    })
 
-  it("should turn known css color names to tuples, with separate alpha", () => {
-    expect(color2rgba("red", 0.5)).to.be.equal([255, 0, 0, 128])
-    expect(color2rgba("yellow", 0.0)).to.be.equal([255, 255, 0, 0])
-    expect(color2rgba("blue", 0.2)).to.be.equal([0, 0, 255, 51])
-    expect(color2rgba("gray", 1.0)).to.be.equal(halfgray)
-  })
+    it("which should support known css color names", () => {
+      expect(color2rgba("red")).to.be.equal([255, 0, 0, 255])
+      expect(color2rgba("yellow")).to.be.equal([255, 255, 0, 255])
+      expect(color2rgba("gray")).to.be.equal(halfgray)
+    })
 
-  it("should turn known rgb() colors to tuples", () => {
-    expect(color2rgba("rgb(0, 0, 0)")).to.be.equal([0, 0, 0, 255])
-    expect(color2rgba("rgb(255, 0, 0)")).to.be.equal([255, 0, 0, 255])
-    expect(color2rgba("rgb(0, 255, 0)")).to.be.equal([0, 255, 0, 255])
-    expect(color2rgba("rgb(0, 0, 255)")).to.be.equal([0, 0, 255, 255])
-    expect(color2rgba("rgb(128, 128, 128)")).to.be.equal(halfgray)
-  })
+    it("which should support known css color names with separate alpha", () => {
+      expect(color2rgba("red", 0.5)).to.be.equal([255, 0, 0, 128])
+      expect(color2rgba("yellow", 0.0)).to.be.equal([255, 255, 0, 0])
+      expect(color2rgba("blue", 0.2)).to.be.equal([0, 0, 255, 51])
+      expect(color2rgba("gray", 1.0)).to.be.equal(halfgray)
+    })
 
-  it("should turn known rgb() colors to tuples, with separate alpha", () => {
-    expect(color2rgba("rgb(0, 0, 0)", 0.5)).to.be.equal([0, 0, 0, 128])
-    expect(color2rgba("rgb(255, 0, 0)", 0.0)).to.be.equal([255, 0, 0, 0])
-    expect(color2rgba("rgb(0, 255, 0)", 1.0)).to.be.equal([0, 255, 0, 255])
-    expect(color2rgba("rgb(0, 0, 255)", 0.2)).to.be.equal([0, 0, 255, 51])
-    expect(color2rgba("rgb(128, 128, 128)", 1.0)).to.be.equal(halfgray)
-  })
+    it("which should support known rgb() colors", () => {
+      expect(color2rgba("rgb(0, 0, 0)")).to.be.equal([0, 0, 0, 255])
+      expect(color2rgba("rgb(255, 0, 0)")).to.be.equal([255, 0, 0, 255])
+      expect(color2rgba("rgb(0, 255, 0)")).to.be.equal([0, 255, 0, 255])
+      expect(color2rgba("rgb(0, 0, 255)")).to.be.equal([0, 0, 255, 255])
+      expect(color2rgba("rgb(128, 128, 128)")).to.be.equal(halfgray)
+    })
 
-  it("should turn rgba() colors to tuples", () => {
-    expect(color2rgba("rgba(0, 0, 0, 0)")).to.be.equal([0, 0, 0, 0])
-    expect(color2rgba("rgba(0, 255, 0, 0.2)")).to.be.equal([0, 255, 0, 51])
-    expect(color2rgba("rgba(255, 0, 0, 0.4)")).to.be.equal([255, 0, 0, 102])
-    expect(color2rgba("rgba(0, 0, 128, 0.8)")).to.be.equal([0, 0, 128, 204])
-    expect(color2rgba("rgba(0, 128, 0, 1.0)")).to.be.equal([0, 128, 0, 255])
-  })
+    it("which should support known rgb() colors with separate alpha", () => {
+      expect(color2rgba("rgb(0, 0, 0)", 0.5)).to.be.equal([0, 0, 0, 128])
+      expect(color2rgba("rgb(255, 0, 0)", 0.0)).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba("rgb(0, 255, 0)", 1.0)).to.be.equal([0, 255, 0, 255])
+      expect(color2rgba("rgb(0, 0, 255)", 0.2)).to.be.equal([0, 0, 255, 51])
+      expect(color2rgba("rgb(128, 128, 128)", 1.0)).to.be.equal(halfgray)
+    })
 
-  it("should turn rgba() colors to tuples, with separate alpha", () => {
-    expect(color2rgba("rgba(0, 0, 0, 0)", 1.0)).to.be.equal([0, 0, 0, 0])
-    expect(color2rgba("rgba(0, 0, 0, 0)", 0.5)).to.be.equal([0, 0, 0, 0])
-    expect(color2rgba("rgba(255, 0, 0, 0.4)", 0)).to.be.equal([255, 0, 0, 0])
-    expect(color2rgba("rgba(255, 0, 0, 0.4)", 0.5)).to.be.equal([255, 0, 0, 51])
-    expect(color2rgba("rgba(255, 0, 0, 0.4)", 1.0)).to.be.equal([255, 0, 0, 102])
-    expect(color2rgba("rgba(0, 128, 0, 1.0)", 0)).to.be.equal([0, 128, 0, 0])
-    expect(color2rgba("rgba(0, 128, 0, 1.0)", 0.5)).to.be.equal([0, 128, 0, 128])
-    expect(color2rgba("rgba(0, 128, 0, 1.0)", 1.0)).to.be.equal([0, 128, 0, 255])
-  })
+    it("which should support rgba() colors", () => {
+      expect(color2rgba("rgba(0, 0, 0, 0)")).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba("rgba(0, 255, 0, 0.2)")).to.be.equal([0, 255, 0, 51])
+      expect(color2rgba("rgba(255, 0, 0, 0.4)")).to.be.equal([255, 0, 0, 102])
+      expect(color2rgba("rgba(0, 0, 128, 0.8)")).to.be.equal([0, 0, 128, 204])
+      expect(color2rgba("rgba(0, 128, 0, 1.0)")).to.be.equal([0, 128, 0, 255])
+    })
 
-  it("should clamp alpha between 0 and 1", () => {
-    expect(color2rgba("rgb(128, 128, 128)", 1.1)).to.be.equal([128, 128, 128, 255])
-    expect(color2rgba("rgb(128, 128, 128)", -0.1)).to.be.equal([128, 128, 128, 0])
+    it("which should support rgba() colors with separate alpha", () => {
+      expect(color2rgba("rgba(0, 0, 0, 0)", 1.0)).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba("rgba(0, 0, 0, 0)", 0.5)).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba("rgba(255, 0, 0, 0.4)", 0)).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba("rgba(255, 0, 0, 0.4)", 0.5)).to.be.equal([255, 0, 0, 51])
+      expect(color2rgba("rgba(255, 0, 0, 0.4)", 1.0)).to.be.equal([255, 0, 0, 102])
+      expect(color2rgba("rgba(0, 128, 0, 1.0)", 0)).to.be.equal([0, 128, 0, 0])
+      expect(color2rgba("rgba(0, 128, 0, 1.0)", 0.5)).to.be.equal([0, 128, 0, 128])
+      expect(color2rgba("rgba(0, 128, 0, 1.0)", 1.0)).to.be.equal([0, 128, 0, 255])
+    })
+
+    it("which should support 2-tuple [CSS, alpha] inputs", () => {
+      expect(color2rgba(["transparent", 0.0])).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba(["transparent", 0.8])).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba(["red", 0.0])).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba(["red", 0.8])).to.be.equal([255, 0, 0, 204])
+      expect(color2rgba(["rgb(255 0 0)", 0.0])).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba(["rgb(255 0 0)", 0.8])).to.be.equal([255, 0, 0, 204])
+    })
+
+    it("which should support 2-tuple [CSS, alpha] inputs with separate alpha", () => {
+      expect(color2rgba(["transparent", 0.0], 0.5)).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba(["transparent", 0.8], 0.5)).to.be.equal([0, 0, 0, 0])
+      expect(color2rgba(["red", 0.0], 0.5)).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba(["red", 0.8], 0.5)).to.be.equal([255, 0, 0, 102])
+      expect(color2rgba(["rgb(255 0 0)", 0.0], 0.5)).to.be.equal([255, 0, 0, 0])
+      expect(color2rgba(["rgb(255 0 0)", 0.8], 0.5)).to.be.equal([255, 0, 0, 102])
+    })
+
+    it("which should clamp alpha between 0 and 1", () => {
+      expect(color2rgba("rgb(128, 128, 128)", 1.1)).to.be.equal([128, 128, 128, 255])
+      expect(color2rgba("rgb(128, 128, 128)", -0.1)).to.be.equal([128, 128, 128, 0])
+    })
   })
 
   describe("should support css4_parse() function", () => {

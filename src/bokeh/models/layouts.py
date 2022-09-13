@@ -21,18 +21,21 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ..colors import RGB, Color, ColorLike
 from ..core.enums import (
     Align,
+    Dimensions,
+    FlowMode,
     Location,
+    ScrollbarPolicy,
     SizingMode,
     SizingPolicy,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Any,
     Auto,
     Bool,
-    Color,
-    Dict,
     Either,
     Enum,
     Float,
@@ -47,6 +50,7 @@ from ..core.properties import (
     Struct,
     Tuple,
 )
+from ..core.property.struct import Optional
 from ..core.validation import error, warning
 from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
 from ..core.validation.warnings import (
@@ -65,15 +69,18 @@ from .ui.ui_element import UIElement
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'Box',
     'Column',
+    'FlexBox',
     'GridBox',
-    'HTMLBox',
+    'GroupBox',
+    'HBox',
     'LayoutDOM',
-    'Panel',
     'Row',
+    'ScrollBox',
     'Spacer',
+    'TabPanel',
     'Tabs',
+    'VBox',
 )
 
 #-----------------------------------------------------------------------------
@@ -124,13 +131,12 @@ class LayoutDOM(UIElement):
     Maximal height of the component (in pixels) if height is adjustable.
     """)
 
-    margin = Nullable(Tuple(Int, Int, Int, Int), default=(0, 0, 0, 0), help="""
+    margin = Nullable(Either(Int, Tuple(Int, Int), Tuple(Int, Int, Int, Int)), help="""
     Allows to create additional space around the component.
     The values in the tuple are ordered as follows - Margin-Top, Margin-Right, Margin-Bottom and Margin-Left,
     similar to CSS standards.
     Negative margin values may be used to shrink the space from any direction.
-    """).accepts(Tuple(Int, Int), lambda v_h: (v_h[0], v_h[1], v_h[0], v_h[1])) \
-        .accepts(Int, lambda m: (m, m, m, m))
+    """)
 
     width_policy = Either(Auto, Enum(SizingPolicy), default="auto", help="""
     Describes how the component should maintain its width.
@@ -206,6 +212,10 @@ class LayoutDOM(UIElement):
 
     """)
 
+    flow_mode = Enum(FlowMode, default="block", help="""
+    Defines whether the layout will flow in the ``block`` or ``inline`` dimension.
+    """)
+
     sizing_mode = Nullable(Enum(SizingMode), help="""
     How the component should size itself.
 
@@ -248,16 +258,12 @@ class LayoutDOM(UIElement):
 
     """)
 
-    align = Either(Enum(Align), Tuple(Enum(Align), Enum(Align)), default="start", help="""
+    align = Either(Auto, Enum(Align), Tuple(Enum(Align), Enum(Align)), default="auto", help="""
     The alignment point within the parent container.
 
     This property is useful only if this component is a child element of a layout
     (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
     grid track align).
-    """)
-
-    background = Nullable(Color, help="""
-    Background color of the component.
     """)
 
     # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
@@ -269,16 +275,6 @@ class LayoutDOM(UIElement):
     property will always contain a list.
     """).accepts(Seq(String), lambda x: list(x))
 
-    style = Dict(String, String, help="""
-    Inline CSS styles applied to this DOM element.
-    """)
-
-    stylesheets = List(String, help="""
-    Additional style sheets to use for this DOM element. Note that all bokeh's components
-    use shadow DOM, thus any included style sheets must reflect that, e.g. use ``:host``
-    CSS pseudo selector to access the root DOM element.
-    """)
-
     context_menu = Nullable(Instance(Menu), default=None, help="""
     A menu to display when user right clicks on the component.
 
@@ -287,6 +283,24 @@ class LayoutDOM(UIElement):
         twice. The second click closes the Bokeh context menu and falls back
         back the native one.
     """)
+
+    resizable = Either(Bool, Enum(Dimensions), default=False, help="""
+    Whether the layout is interactively resizable, and if so in which dimensions.
+    """)
+
+    def _set_background(self, color: ColorLike) -> None:
+        """ Background color of the component. """
+        if isinstance(color, Color):
+            color = color.to_css()
+        elif isinstance(color, tuple):
+            color = RGB.from_tuple(color).to_css()
+
+        if isinstance(self.styles, dict):
+            self.styles["background-color"] = color
+        else:
+            self.styles.background_color = color
+
+    background = property(None, _set_background)
 
     @warning(FIXED_SIZING_MODE)
     def _check_fixed_sizing_mode(self):
@@ -326,16 +340,6 @@ class LayoutDOM(UIElement):
             return self.height
         return None
 
-@abstract
-class HTMLBox(LayoutDOM):
-    ''' A component which size is determined by its HTML content.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
 
 class Spacer(LayoutDOM):
     ''' A container for space used to fill an empty spot in a row or column.
@@ -346,24 +350,7 @@ class Spacer(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-
-QuickTrackSizing = Either(Enum("auto", "min", "fit", "max"), Int)
-
-TrackAlign = Either(Auto, Enum(Align))
-
-RowSizing = Either(
-    QuickTrackSizing,
-    Struct(policy=Enum("auto", "min"), align=TrackAlign),
-    Struct(policy=Enum("fixed"), height=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
-
-ColSizing = Either(
-    QuickTrackSizing,
-    Struct(policy=Enum("auto", "min"), align=TrackAlign),
-    Struct(policy=Enum("fixed"), width=Int, align=TrackAlign),
-    Struct(policy=Enum("fit", "max"), flex=Float, align=TrackAlign))
-
-IntOrString = Either(Int, String) # XXX: work around issue #8166
+TracksSizing = Any
 
 class GridBox(LayoutDOM):
 
@@ -372,27 +359,17 @@ class GridBox(LayoutDOM):
         super().__init__(*args, **kwargs)
 
     children = List(Either(
-        Tuple(Instance(LayoutDOM), Int, Int),
-        Tuple(Instance(LayoutDOM), Int, Int, Int, Int)), default=[], help="""
+        Tuple(Instance(UIElement), Int, Int),
+        Tuple(Instance(UIElement), Int, Int, Int, Int)), default=[], help="""
     A list of children with their associated position in the grid (row, column).
     """)
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""
@@ -409,8 +386,58 @@ class GridBox(LayoutDOM):
         if len(children) != len(set(children)):
             return str(self)
 
+class HBox(LayoutDOM):
+    """ A CSS grid-based horizontal box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    children = List(Struct(child=Instance(UIElement), col=Optional(Int), span=Optional(Int)), default=[], help="""
+    A list of children with their associated position in the horizontal box (optional; column number, span).
+    """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
+
+    cols = Nullable(TracksSizing, default=None, help="""
+    Describes how the grid should maintain its columns' widths.
+    """)
+
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
+    """)
+
+    @error(REPEATED_LAYOUT_CHILD)
+    def _check_repeated_layout_children(self):
+        children = [ item["child"] for item in self.items ]
+        if len(children) != len(set(children)):
+            return str(self)
+
+class VBox(LayoutDOM):
+    """ A CSS grid-based vertical box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    children = List(Struct(child=Instance(UIElement), row=Optional(Int), span=Optional(Int)), default=[], help="""
+    A list of children with their associated position in the vertical box (optional; row number, span).
+    """).accepts(List(Instance(UIElement)), lambda children: [ dict(child=child) for child in children ])
+
+    rows = Nullable(TracksSizing, default=None, help="""
+    Describes how the grid should maintain its rows' heights.
+    """)
+
+    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    The gap between children (in pixels).
+    """)
+
+    @error(REPEATED_LAYOUT_CHILD)
+    def _check_repeated_layout_children(self):
+        children = [ item["child"] for item in self.items ]
+        if len(children) != len(set(children)):
+            return str(self)
+
 @abstract
-class Box(LayoutDOM):
+class FlexBox(LayoutDOM):
     ''' Abstract base class for Row and Column. Do not use directly.
 
     '''
@@ -446,7 +473,7 @@ class Box(LayoutDOM):
         if len(self.children) != len(set(self.children)):
             return str(self)
 
-    children = List(Instance(LayoutDOM), help="""
+    children = List(Instance(UIElement), help="""
     The list of children, which can be other components including plots, rows, columns, and widgets.
     """)
 
@@ -455,7 +482,7 @@ class Box(LayoutDOM):
     """)
 
 
-class Row(Box):
+class Row(FlexBox):
     ''' Lay out child components in a single horizontal row.
 
     Children can be specified as positional arguments, as a single argument
@@ -466,21 +493,12 @@ class Row(Box):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
-    Describes how the component should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
-    """)
-
     def _sphinx_height_hint(self) -> int|None:
         if any(x._sphinx_height_hint() is None for x in self.children):
             return None
         return max(x._sphinx_height_hint() for x in self.children)
 
-class Column(Box):
+class Column(FlexBox):
     ''' Lay out child components in a single vertical row.
 
     Children can be specified as positional arguments, as a single argument
@@ -491,21 +509,12 @@ class Column(Box):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
-    Describes how the component should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
-    """)
-
     def _sphinx_height_hint(self) -> int|None:
         if any(x._sphinx_height_hint() is None for x in self.children):
             return None
         return sum(x._sphinx_height_hint() for x in self.children)
 
-class Panel(Model):
+class TabPanel(Model):
     ''' A single-widget container with title bar and controls.
 
     '''
@@ -518,7 +527,7 @@ class Panel(Model):
     The text title of the panel.
     """)
 
-    child = Instance(LayoutDOM, help="""
+    child = Instance(UIElement, help="""
     The child widget. If you need more children, use a layout widget, e.g. a ``Column``.
     """)
 
@@ -543,10 +552,10 @@ class Tabs(LayoutDOM):
 
     __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_tab_panes.py"
 
-    tabs = List(Instance(Panel), help="""
+    tabs = List(Instance(TabPanel), help="""
     The list of child panel widgets.
-    """).accepts(List(Tuple(String, Instance(LayoutDOM))),
-                 lambda items: [ Panel(title=title, child=child) for (title, child) in items ])
+    """).accepts(List(Tuple(String, Instance(UIElement))),
+                 lambda items: [ TabPanel(title=title, child=child) for (title, child) in items ])
 
     tabs_location = Enum(Location, default="above", help="""
     The location of the buttons that activate tabs.
@@ -554,6 +563,52 @@ class Tabs(LayoutDOM):
 
     active = Int(0, help="""
     The index of the active tab.
+    """)
+
+class GroupBox(LayoutDOM):
+    ''' A panel that allows to group UI elements.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    title = Nullable(String, help="""
+    The title text of the group. If not provided, only the frame will be showed.
+    """)
+
+    child = Instance(UIElement, help="""
+    The child UI element. This can be a single UI control, widget, etc., or
+    a container layout like ``Column`` or ``Row``, or a combitation of layouts.
+    """)
+
+    checkable = Bool(False, help="""
+    Whether to allow disabling this group (all its children) via a checkbox
+    in the UI. This allows to broadcast ``disabled`` state across multiple
+    UI controls that support that state.
+    """)
+
+class ScrollBox(LayoutDOM):
+    ''' A panel that allows to scroll overflowing UI elements.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    child = Instance(UIElement, help="""
+    The child UI element. This can be a single UI control, widget, etc., or
+    a container layout like ``Column`` or ``Row``, or a combitation of layouts.
+    """)
+
+    horizontal_scrollbar = Enum(ScrollbarPolicy, default="auto", help="""
+    The visibility of the horizontal scrollbar.
+    """)
+
+    vertical_scrollbar = Enum(ScrollbarPolicy, default="auto", help="""
+    The visibility of the vertical scrollbar.
     """)
 
 #-----------------------------------------------------------------------------

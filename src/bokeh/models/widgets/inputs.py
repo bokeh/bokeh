@@ -53,6 +53,7 @@ from .widget import Widget
 
 __all__ = (
     'AutocompleteInput',
+    'Checkbox',
     'ColorPicker',
     'DatePicker',
     'FileInput',
@@ -262,8 +263,9 @@ class Spinner(NumericInput):
     mouse wheel is used to change the input
     """)
 
-class Switch(Widget):
-    """ A checkbox-like widget. """
+@abstract
+class ToggleInput(Widget):
+    """ Base class for toggleable (boolean) input widgets. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -272,6 +274,24 @@ class Switch(Widget):
     active = Bool(default=False, help="""
     The state of the widget.
     """)
+
+class Checkbox(ToggleInput):
+    """ A checkbox widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    label = String(default="", help="""
+    The label next to the checkbox.
+    """)
+
+class Switch(ToggleInput):
+    """ A checkbox-like widget. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
     width = Override(default=32)
 
@@ -314,6 +334,15 @@ class TextInput(TextLikeInput):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    prefix = Nullable(String, help="""
+    An optional string prefix to display before the input. This is useful to
+    indicate e.g. a variable the entered value will be assigned to.
+    """)
+
+    suffix = Nullable(String, help="""
+    An optional string suffix to display after the input. This is useful to
+    indicate e.g. the units of measurement of the entered value.
+    """)
 
 class TextAreaInput(TextLikeInput):
     ''' Multi-line input widget.

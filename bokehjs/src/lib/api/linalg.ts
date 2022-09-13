@@ -29,8 +29,8 @@ export namespace np {
     return ndarray(array, {shape: [array.length], dtype: "float64"})
   }
 
-  export function linspace(start: number, end: number, step: number): NDArray {
-    const array = _linspace(start, end, step)
+  export function linspace(start: number, end: number, num: number = 100): NDArray {
+    const array = _linspace(start, end, num)
     return ndarray(array, {shape: [array.length], dtype: "float64"})
   }
 

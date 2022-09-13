@@ -1,11 +1,10 @@
 import {expect} from "assertions"
+import {display} from "../../../_util"
 
-import {Document} from "@bokehjs/document"
 import {Tool} from "@bokehjs/models/tools/tool"
 import {WheelPanTool, WheelPanToolView} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("WheelPanTool", () => {
 
@@ -33,9 +32,8 @@ describe("WheelPanTool", () => {
         y_range: new Range1d({start: 0, end: 1}),
       })
       plot.add_tools(tool)
-      const document = new Document()
-      document.add_root(plot)
-      return (await build_view(plot)).build()
+      const {view} = await display(plot)
+      return view
     }
 
     it("should translate x-range in positive direction", async () => {

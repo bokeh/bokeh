@@ -21,28 +21,31 @@ import {
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
+  Row, Column,
+  Pane,
+  Tabs, TabPanel,
 } from "@bokehjs/models"
 
-import {Button, Select, MultiSelect, MultiChoice, RadioGroup, Div} from "@bokehjs/models/widgets"
+import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Document} from "@bokehjs/document"
-import {Color} from "@bokehjs/core/types"
+import {Color, Arrayable} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
-import {subsets} from "@bokehjs/core/util/iterator"
+import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {defer, delay} from "@bokehjs/core/util/defer"
+import {delay, paint} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
-import {Figure, show} from "@bokehjs/api/plotting"
+import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
-import {div, offset} from "@bokehjs/core/dom"
+import {div, offset_bbox} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
@@ -747,6 +750,13 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #9764", () => {
+    it("prevents display of MultiChoice placeholder", async () => {
+      const widget = new MultiChoice({placeholder: "Choose ...", options: ["1", "2", "3"], width: 200})
+      await display(widget, [250, 100])
+    })
+  })
+
   describe("in issue #10452", () => {
     it("prevents changing MultiChoice.disabled property", async () => {
       const widget = new MultiChoice({value: ["2", "3"], options: ["1", "2", "3"], width: 200})
@@ -791,8 +801,8 @@ describe("Bug", () => {
       const {view} = await display(layout, [350, 250])
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
-      (choices_view as any /*protected*/).choice_el.showDropdown()
-      await defer()
+      choices_view.choice_el.showDropdown()
+      await paint()
     })
   })
 
@@ -815,8 +825,19 @@ describe("Bug", () => {
       await show(plot, el)
 
       const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
-      (choices_view as any /*protected*/).choice_el.showDropdown()
-      await defer()
+      choices_view.choice_el.showDropdown()
+      await paint()
+    })
+  })
+
+  describe("in issue #12115", () => {
+    it.allowing(16)("prevents showing MultiChoice's dropdown items correctly", async () => {
+      const columns = ["Apple", "Pear", "Banana"]
+      const choices = new MultiChoice({options: columns, width: 75, width_policy: "fixed"})
+
+      const {view} = await display(choices, [100, 200])
+      view.choice_el.showDropdown()
+      await paint()
     })
   })
 
@@ -840,11 +861,11 @@ describe("Bug", () => {
       p2.circle({x: [1, 0], y: [0, 1], color: "green"})
       const box = new GridBox({
         children: [[p1, 0, 0], [p2, 0, 1]],
-        cols: {0: 300, 1: 300},
+        cols: ["300px", "300px"],
         sizing_mode: "fixed",
       })
       const {view} = await display(box, [600, 300])
-      box.cols = {0: 100, 1: 500}
+      box.cols = ["100px", "500px"]
       await view.ready
     })
   })
@@ -935,7 +956,7 @@ describe("Bug", () => {
       const p1 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
       p0.circle([0, 1, 2], [3, 4, 5])
       p1.circle([1, 2, 3], [4, 5, 6])
-      return row([p0, p1], {sizing_mode: "scale_width", background: "orange"})
+      return row([p0, p1], {sizing_mode: "scale_width", styles: {background_color: "orange"}})
     }
 
     it("results in incorrect layout when viewport is smaller than optimal size", async () => {
@@ -1184,7 +1205,7 @@ describe("Bug", () => {
       const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
 
       const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset(ui.hit_area)
+      const {left, top} = offset_bbox(ui.hit_area)
 
       const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
       ui.hit_area.dispatchEvent(ev)
@@ -1239,7 +1260,7 @@ describe("Bug", () => {
         const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
 
         const ui = plot_view.canvas_view.ui_event_bus
-        const {left, top} = offset(ui.hit_area)
+        const {left, top} = offset_bbox(ui.hit_area)
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
         ui.hit_area.dispatchEvent(ev)
@@ -1596,43 +1617,54 @@ describe("Bug", () => {
   })
 
   describe("in issue #9448", () => {
-    it("prevents correct text rendering with lazily loaded fonts", async () => {
-      const url = "/assets/fonts/vujahday/VujahdayScript-Regular.ttf"
-      const font = new FontFace("VujahdayScript", `url(${url})`)
+    const url = "/assets/fonts/vujahday/VujahdayScript-Regular.ttf"
+    const font = new FontFace("VujahdayScript", `url(${url})`)
+
+    before_each(() => {
       document.fonts.add(font)
+    })
 
-      expect(document.fonts.check("normal 12px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 22px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 26px VujahdayScript")).to.be.false
-      expect(document.fonts.check("normal 30px VujahdayScript")).to.be.false
+    function assert_fonts(status: boolean) {
+      expect(document.fonts.check("normal 12px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 22px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 26px VujahdayScript")).to.be.equal(status)
+      expect(document.fonts.check("normal 30px VujahdayScript")).to.be.equal(status)
+    }
 
-      try {
-        const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
+    it("prevents correct text rendering with lazily loaded fonts", async () => {
+      assert_fonts(false)
 
-        p.xaxis.axis_label = "X-Axis"
-        p.xaxis.axis_label_text_font = "VujahdayScript"
-        p.xaxis.axis_label_text_font_size = "22px"
-        p.xaxis.major_label_text_font = "VujahdayScript"
-        p.xaxis.major_label_text_font_size = "12px"
+      const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
 
-        p.yaxis.axis_label = "Y-Axis"
-        p.yaxis.axis_label_text_font = "VujahdayScript"
-        p.yaxis.axis_label_text_font_size = "26px"
-        p.yaxis.major_label_text_font = "VujahdayScript"
-        p.yaxis.major_label_text_font_size = "12px"
+      p.xaxis.axis_label = "X-Axis"
+      p.xaxis.axis_label_text_font = "VujahdayScript"
+      p.xaxis.axis_label_text_font_size = "22px"
+      p.xaxis.major_label_text_font = "VujahdayScript"
+      p.xaxis.major_label_text_font_size = "12px"
 
-        p.text({
-          x: [0, 1, 2], y: [0, 1, 2],
-          text: ["Śome 0", "Sómę 1", "Šome 2"],
-          text_font: "VujahdayScript", text_font_size: "30px",
-        })
+      p.yaxis.axis_label = "Y-Axis"
+      p.yaxis.axis_label_text_font = "VujahdayScript"
+      p.yaxis.axis_label_text_font_size = "26px"
+      p.yaxis.major_label_text_font = "VujahdayScript"
+      p.yaxis.major_label_text_font_size = "12px"
 
-        const {view} = await display(p)
-        await document.fonts.ready
-        await view.ready
-      } finally {
-        document.fonts.delete(font)
-      }
+      p.text({
+        x: [0, 1, 2], y: [0, 1, 2],
+        text: ["Śome 0", "Sómę 1", "Šome 2"],
+        text_font: "VujahdayScript", text_font_size: "30px",
+      })
+
+      const {view} = await display(p)
+
+      await document.fonts.ready
+      assert_fonts(true)
+
+      await view.ready
+    })
+
+    after_each(() => {
+      const deleted = document.fonts.delete(font)
+      assert(deleted, "font cleanup failed")
     })
   })
 
@@ -1645,6 +1677,10 @@ describe("Bug", () => {
       const button = new Button({label: "Click!"})
 
       const gp = gridplot([[plot, div], [null, button]], {merge_tools: true, toolbar_location: "above"})
+
+      gp.rows = "max-content"
+      gp.cols = "max-content"
+
       await display(gp)
     })
   })
@@ -1968,6 +2004,301 @@ describe("Bug", () => {
       const p2 = plot("webgl")
 
       await display(row([p0, p1, p2]))
+    })
+  })
+
+  describe("in issue #12155", () => {
+    it("prevents computing correct layout for inline radio group", async () => {
+      const radio_group = new RadioGroup({
+        labels: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
+        inline: true,
+        active: 0,
+        styles: {
+          background_color: "red",
+        },
+      })
+      await display(radio_group, [400, 50])
+    })
+  })
+
+  describe("in issue #12205", () => {
+    it("prevents expansion of Div when using sizing_mode='stretch_width'", async () => {
+      const div = new Div({
+        text: "Some text",
+        sizing_mode: "stretch_width",
+        styles: {border: "1px solid red"},
+      })
+
+      const plot = fig([300, 300], {sizing_mode: "stretch_width"})
+      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+
+      const col = new Column({children: [div, plot], sizing_mode: "stretch_width"})
+      await display(col, [300, 350])
+    })
+  })
+
+  describe("in issue #9113", () => {
+    it.allowing(8)("prevents layout update when adding new toggle group buttons", async () => {
+      const group = new RadioButtonGroup({labels: []})
+      const {view} = await display(group, [300, 100])
+
+      group.labels = [...group.labels, "Button 0"]
+      await view.ready
+      await paint()
+
+      group.labels = [...group.labels, "Button 1"]
+      await view.ready
+      await paint()
+
+      group.labels = [...group.labels, "Button 2"]
+      await view.ready
+      await paint()
+    })
+  })
+
+  describe("in issue #9208", () => {
+    it("makes a 'stretch_width' and large height child overflow x when y scrollbar is present", async () => {
+      const plot = fig([200, 600], {
+        width_policy: "max",
+        height_policy: "fixed",
+        toolbar_location: "right",
+      })
+      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+
+      const pane = new Pane({
+        styles: {width: "300px", height: "300px", overflow_y: "scroll"},
+        children: [plot],
+      })
+
+      await display(pane, [350, 350])
+    })
+  })
+
+  describe("in issue #11339", () => {
+    it.allowing(2*8)("collapses layout after toggling visiblity", async () => {
+      const toggle = new Toggle({label: "Click", active: true})
+      const select1 = new Select({title: "Select 1:", options: ["1", "2"]})
+      const select2 = new Select({title: "Select 2:", options: ["1", "2"]})
+      const div = new Div({text: "Some text"})
+
+      const selects = new Column({children: [select1, select2]})
+      const layout = new Column({children: [new Column({children: [toggle, selects]}), div]})
+
+      // Defer to make sure CSS layout is done after each step. The last one isn't
+      // strictly necessary, because test framework defers anyway after a test and
+      // before collecting results and capturing screenshots.
+      const {view} = await display(layout, [100, 200])
+      await paint()
+
+      // We aren't clicking on the button, because it doesn't affect the outcome.
+      selects.visible = false
+      await view.ready
+      await paint()
+
+      selects.visible = true
+      await view.ready
+      await paint()
+    })
+  })
+
+  describe("in issue #4817", () => {
+    it("doesn't correctly align widgets after adding text to a widget", async () => {
+      const button = new Button({label: "Say"})
+      const input = new TextInput({value: "Bokeh"})
+      const output = new Div()
+
+      button.on_click(() => {
+        output.text = `Hello, ${input.value}!`
+      })
+
+      const layout = new Column({
+        children: [
+          new Row({children: [button, input]}),
+          output,
+        ],
+      })
+
+      const {view} = await display(layout, [300, 100])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      const ev = new MouseEvent("click", {bubbles: true})
+      button_view.button_el.dispatchEvent(ev)
+
+      await view.ready
+      await paint()
+    })
+  })
+
+  describe("in issue #4403", () => {
+    it("doesn't allow layout resize when parent element's size changed", async () => {
+      const plot = figure({sizing_mode: "stretch_both"})
+      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+
+      const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
+      const {view} = await display(pane, [350, 350])
+      await paint()
+
+      pane.styles = {width: "300px", height: "300px"}
+      await view.ready
+    })
+  })
+
+  describe("in issue #8469", () => {
+    it("makes child layout update invalidate and re-render entire layout", async () => {
+      const p0 = figure({width: 300, height: 300})
+      p0.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      const button = new Button({label: "click"})
+      const column = new Column({children: [new Column({children: [button, p0]})]})
+      const tab0 = new TabPanel({child: column, title: "circle"})
+
+      const p1 = figure({width: 300, height: 300})
+      p1.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
+      const tab1 = new TabPanel({child: p1, title: "line"})
+
+      const tabs = new Tabs({tabs: [tab0, tab1]})
+      button.on_click(() => {
+        column.children = [...column.children, new Button({label: "new button"})]
+      })
+
+      const {view} = await display(tabs, [350, 650])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      for (const _ of range(0, 5)) {
+        const ev = new MouseEvent("click", {bubbles: true})
+        button_view.button_el.dispatchEvent(ev)
+        await view.ready
+        await paint()
+      }
+    })
+  })
+
+  describe("in issue #9133", () => {
+    it("doesn't allow to set fixed size of Tabs layout", async () => {
+      const p1 = figure({width: 300, height: 300})
+      p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+
+      const p2 = figure({width: 300, height: 300})
+      p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
+
+      const tab1 = new TabPanel({child: p1, title: "circle"})
+      const tab2 = new TabPanel({child: p2, title: "line"})
+      const tabs = new Tabs({tabs: [tab1, tab2], width: 500})
+
+      await display(tabs, [550, 350])
+    })
+  })
+
+  describe("in issue #9992", () => {
+    it("doesn't correctly display layout when visiblity changes", async () => {
+      function create_figure(x: Arrayable<number>, y: Arrayable<number>, log_scale: boolean = false) {
+        const plot = figure({width: 300, height: 300, y_axis_type: log_scale ? "log" : "linear"})
+        plot.line(x, y, {line_width: 3, line_alpha: 0.6})
+        return plot
+      }
+
+      function create_tabs(plot0: Plot, plot1: Plot, name: string) {
+        const tab0 = new TabPanel({child: plot0, title: "Linear"})
+        const tab1 = new TabPanel({child: plot1, title: "Logarithmic"})
+        return new Tabs({tabs: [tab0, tab1], name})
+      }
+
+      function create_selector(figs: Tabs[]) {
+        const names = figs.map((fig) => fig.name) as string[]
+        const selector = new Select({title: "Select Curve", value: names[0], options: names, width: 200})
+
+        for (const fig of tail(figs)) {
+          fig.visible = false
+        }
+
+        selector.on_change(selector.properties.value, () => {
+          const selected = selector.value
+          for (const fig of figs) {
+            fig.visible = fig.name == selected
+          }
+        })
+
+        return selector
+      }
+
+      const x = np.linspace(0, 10)
+
+      const fig_lin_lin = create_figure(x, x)
+      const fig_lin_log = create_figure(x, x, true)
+      const fig_lin = create_tabs(fig_lin_lin, fig_lin_log, "Linear")
+
+      const fig_quad_lin = create_figure(x, np.pow(x, 2))
+      const fig_quad_log = create_figure(x, np.pow(x, 2), true)
+      const fig_quad = create_tabs(fig_quad_lin, fig_quad_log, "Quadratic")
+
+      const fig_exp_lin = create_figure(x, np.exp(x))
+      const fig_exp_log = create_figure(x, np.exp(x), true)
+      const fig_exp = create_tabs(fig_exp_lin, fig_exp_log, "Exponential")
+
+      const figs = [fig_lin, fig_quad, fig_exp]
+
+      const selector = create_selector(figs)
+      const layout = column([selector, ...figs])
+
+      const {view} = await display(layout, [450, 450])
+
+      selector.value = "Exponential"
+      await view.ready
+
+      fig_exp.active = 1
+      await view.ready
+    })
+  })
+
+  describe("in issue #10125", () => {
+    function make() {
+      const button = new Button({label: "Click me!"})
+
+      const radios = new RadioGroup({
+        labels: ["hello", "there"],
+        active: 0,
+        inline: true,
+      })
+
+      const text_input1 = new TextInput({value: "0.0", title: "text-input1"})
+      const text_input2 = new TextInput({value: "1.0", title: "text-input2"})
+      const text_input3 = new TextInput({value: "2.0", title: "text-input3"})
+
+      const plot = figure({width: 300, height: 300, title: "test plot"})
+      plot.line({x: [1, 2, 3], y: [2, 4, 6]})
+
+      const hidden_widgets = new Row({
+        children: [
+          new Column({children: [radios, text_input1, text_input2, text_input3]}),
+          plot,
+        ],
+        visible: false,
+      })
+      button.on_click(() => hidden_widgets.visible = true)
+
+      const layout = new Column({children: [button, hidden_widgets]})
+      return {layout, button}
+    }
+
+    it("doesn't allow signal idle with invisible UI components", async () => {
+      const {layout} = make()
+      await display(layout, [100, 50])
+    })
+
+    it("doesn't correctly display layout when visiblity changes", async () => {
+      const {layout, button} = make()
+      const {view} = await display(layout, [550, 350])
+
+      const button_view = view.owner.find_one(button)
+      assert(button_view != null)
+
+      const ev = new MouseEvent("click", {bubbles: true})
+      button_view.button_el.dispatchEvent(ev)
+
+      await view.ready
     })
   })
 })

@@ -1,5 +1,7 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
+
+import {expect} from "assertions"
+import {display} from "../_util"
 
 import * as dom from "@bokehjs/core/dom"
 import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
@@ -16,6 +18,7 @@ import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import {build_view} from "@bokehjs/core/build_views"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("ui_event_bus module", () => {
 
@@ -24,7 +27,8 @@ describe("ui_event_bus module", () => {
       x_range: new Range1d({start: 0, end: 1}),
       y_range: new Range1d({start: 0, end: 1}),
     })
-    return (await build_view(plot)).build()
+    const {view} = await display(plot)
+    return view
   }
 
   let hammer_stub: sinon.SinonStub
@@ -271,7 +275,7 @@ describe("ui_event_bus module", () => {
     let spy: sinon.SinonSpy
 
     before_each(() => {
-      dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      dom_stub = sinon.stub(dom, "offset_bbox").returns(new BBox({top: 0, left: 0, width: 600, height: 660}))
       spy = sinon.spy(plot_view.model, "trigger_event")
     })
 
@@ -323,7 +327,7 @@ describe("ui_event_bus module", () => {
     let spy_uievent: sinon.SinonSpy
 
     before_each(() => {
-      dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      dom_stub = sinon.stub(dom, "offset_bbox").returns(new BBox({top: 0, left: 0, width: 600, height: 660}))
       // The BokehEvent that is triggered by the plot
       spy_plot = sinon.spy(plot_view.model, "trigger_event")
       // The event is that triggered on UIEvent for tool interactions
@@ -400,7 +404,7 @@ describe("ui_event_bus module", () => {
 
       ui_event_bus._pan_start(e)
 
-      expect(spy_plot.callCount).to.be.equal(1)
+      expect(spy_plot.callCount).to.be.equal(2) // lod_start and pan_start events
       expect(spy_uievent.callCount).to.be.equal(1)
     })
 
@@ -419,7 +423,7 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start({...e, type: "panstart"})
       ui_event_bus._pan(e)
 
-      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_plot.callCount).to.be.equal(3) // lod_start, pan_start and pan events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
@@ -438,7 +442,7 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start({...e, type: "panstart"})
       ui_event_bus._pan_end(e)
 
-      expect(spy_plot.callCount).to.be.equal(3) // Also RangesUpdate event
+      expect(spy_plot.callCount).to.be.equal(4) // lod_start, pan_start, ranges_update and pan_end events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 

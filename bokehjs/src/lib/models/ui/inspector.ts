@@ -2,7 +2,6 @@ import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
 import {div, span, input, empty, Keys, StyleSheetLike} from "core/dom"
-import {assert} from "core/util/assert"
 import {to_string} from "core/util/pretty"
 import {Model} from "model"
 import {Document} from "document"
@@ -142,10 +141,6 @@ export class HTMLPrinter {
 export class InspectorView extends UIElementView {
   override model: Inspector
 
-  override initialize(): void {
-    super.initialize()
-  }
-
   override styles(): StyleSheetLike[] {
     return [...super.styles(), inspector_css]
   }
@@ -155,15 +150,12 @@ export class InspectorView extends UIElementView {
   private watched_props: Set<p.Property> = new Set()
 
   override render(): void {
-    this.empty()
+    super.render()
 
     if (this.prev_listener != null)
       diagnostics.disconnect(this.prev_listener)
 
-    const {document} = this.model
-    assert(document != null)
-
-    const models_list: [Model, HTMLElement][] = []
+    const models_list: [HasProps, HTMLElement][] = []
     const props_list: [p.Property, HTMLElement][] = []
     const watches_list: [p.Property, HTMLElement][] = []
 
@@ -294,12 +286,12 @@ export class InspectorView extends UIElementView {
       return printer.to_html(obj)
     }
 
-    const render_models = (doc: Document) => {
+    const render_models = (models: Iterable<HasProps>, doc: Document | null) => {
       clear(models_list)
       empty(models_list_el)
 
-      const roots = new Set(doc.roots())
-      for (const model of doc._all_models.values()) {
+      const roots = doc != null ? new Set(doc.roots()) : new Set()
+      for (const model of models) {
         const root = roots.has(model) ? span({class: "tag"}, "root") : null
         const ref_el = span({class: "model-ref", tabIndex: 0}, to_html(model), root)
         ref_el.addEventListener("keydown", (event) => {
@@ -413,12 +405,26 @@ export class InspectorView extends UIElementView {
     }
 
     this.shadow_el.appendChild(inspector_el)
-    render_models(document)
 
-    const roots = document.roots()
-    if (roots.length != 0) {
-      const [root] = roots
-      render_props(root)
+    const {target} = this.model
+    if (target != null) {
+      const models = target.references()
+      const {document} = target
+
+      render_models(models, document)
+      render_props(target)
+    } else {
+      const {document} = this.model
+      if (document != null) {
+        const models = document._all_models.values()
+        render_models(models, document)
+
+        const roots = document.roots()
+        if (roots.length != 0) {
+          const [root] = roots
+          render_props(root)
+        }
+      }
     }
 
     render_watches()
@@ -427,7 +433,9 @@ export class InspectorView extends UIElementView {
 
 export namespace Inspector {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = UIElement.Props
+  export type Props = UIElement.Props & {
+    target: p.Property<HasProps | null>
+  }
 }
 
 export interface Inspector extends Inspector.Attrs {}
@@ -443,6 +451,8 @@ export class Inspector extends UIElement {
   static {
     this.prototype.default_view = InspectorView
 
-    this.define<Inspector.Props>(({}) => ({}))
+    this.define<Inspector.Props>(({Ref, Nullable}) => ({
+      target: [ Nullable(Ref(HasProps)), null ],
+    }))
   }
 }

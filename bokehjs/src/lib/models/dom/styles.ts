@@ -18,6 +18,7 @@ export namespace Styles {
     animation_name: p.Property<string | null>
     animation_play_state: p.Property<string | null>
     animation_timing_function: p.Property<string | null>
+    aspect_ratio: p.Property<string | null>
     backface_visibility: p.Property<string | null>
     background: p.Property<string | null>
     background_attachment: p.Property<string | null>
@@ -109,8 +110,6 @@ export namespace Styles {
     content: p.Property<string | null>
     counter_increment: p.Property<string | null>
     counter_reset: p.Property<string | null>
-    css_float: p.Property<string | null>
-    css_text: p.Property<string | null>
     cursor: p.Property<string | null>
     direction: p.Property<string | null>
     display: p.Property<string | null>
@@ -325,7 +324,6 @@ export interface Styles extends Styles.Attrs {}
 
 export class Styles extends Model {
   override properties: Styles.Props
-  static override __module__ = "bokeh.models.css"
 
   constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)
@@ -347,6 +345,7 @@ export class Styles extends Model {
       animation_name: [ Nullable(String), null ],
       animation_play_state: [ Nullable(String), null ],
       animation_timing_function: [ Nullable(String), null ],
+      aspect_ratio: [ Nullable(String), null ],
       backface_visibility: [ Nullable(String), null ],
       background: [ Nullable(String), null ],
       background_attachment: [ Nullable(String), null ],
@@ -438,8 +437,6 @@ export class Styles extends Model {
       content: [ Nullable(String), null ],
       counter_increment: [ Nullable(String), null ],
       counter_reset: [ Nullable(String), null ],
-      css_float: [ Nullable(String), null ],
-      css_text: [ Nullable(String), null ],
       cursor: [ Nullable(String), null ],
       direction: [ Nullable(String), null ],
       display: [ Nullable(String), null ],

@@ -12,6 +12,35 @@ import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
+const MAX_INT32 = 2147483647
+export class Random {
+  private seed: number
+
+  constructor(seed: number) {
+    this.seed = seed % MAX_INT32
+    if (this.seed <= 0)
+      this.seed += MAX_INT32 - 1
+  }
+
+  integer(): number {
+    this.seed = (48271*this.seed) % MAX_INT32
+    return this.seed
+  }
+
+  float(): number {
+    return (this.integer() - 1) / (MAX_INT32 - 1)
+  }
+}
+
+function shuffle<T>(array: T[], random: Random): void {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(random.float()*(i + 1))
+    const temp = array[i]
+    array[i] = array[j]
+    array[j] = temp
+  }
+}
+
 let rl: readline.Interface | undefined
 if (process.platform == "win32") {
   rl = readline.createInterface({
@@ -36,6 +65,8 @@ process.on("exit", () => {
 const url = argv._[0] as string
 const port = parseInt(argv.port as string | undefined ?? "9222")
 const ref = (argv.ref ?? "HEAD") as string
+const randomize = (argv.randomize ?? false) as boolean
+const seed = argv.seed != null ? Number(argv.seed) : Date.now()
 
 interface CallFrame {
   name: string
@@ -76,7 +107,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, threshold?: number, dpr?: number}
+type Test = {description: string, skip: boolean, threshold?: number, retries?: number, dpr?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -268,6 +299,12 @@ async function run_tests(): Promise<boolean> {
       const all_tests = [...iter(top_level)]
       const test_suite = all_tests
 
+      if (randomize) {
+        const random = new Random(seed)
+        console.log(`randomizing with seed ${seed}`)
+        shuffle(test_suite, random)
+      }
+
       if (argv.k != null || argv.grep != null) {
         if (argv.k != null) {
           const keywords: string[] = Array.isArray(argv.k) ? argv.k : [argv.k]
@@ -371,8 +408,57 @@ async function run_tests(): Promise<boolean> {
 
       await add_datapoint()
 
+      const out_stream = await (async () => {
+        if (baselines_root != null) {
+          const report_out = path.join(baselines_root, platform, "report.out")
+          await fs.promises.writeFile(report_out, "")
+
+          const stream = fs.createWriteStream(report_out, {flags: "a"})
+          stream.write(`Tests report output generated on ${new Date().toISOString()}:\n`)
+          return stream
+        } else
+          return null
+      })()
+
+      function format_output(test_case: TestItem): string | null {
+        const [suites, test, status] = test_case
+
+        if ((status.failure ?? false) || (status.timeout ?? false)) {
+          const output = []
+
+          let depth = 0
+          for (const suite of [...suites, test]) {
+            const is_last = depth == suites.length
+            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
+            output.push(`${prefix} ${suite.description}`)
+            depth++
+          }
+
+          for (const error of status.errors) {
+            output.push(error)
+          }
+
+          return output.join("\n")
+        } else {
+          return null
+        }
+      }
+
+      function append_report_out(test_case: TestItem): void {
+        if (out_stream != null) {
+          const output = format_output(test_case)
+          if (output != null) {
+            out_stream.write("\n")
+            out_stream.write(output)
+            out_stream.write("\n")
+          }
+        }
+      }
+
       try {
-        for (const [suites, test, status] of test_suite) {
+        for (const test_case of test_suite) {
+          const [suites, test, status] = test_case
+
           entries = []
           exceptions = []
 
@@ -389,7 +475,7 @@ async function run_tests(): Promise<boolean> {
           if (test.skip) {
             status.skipped = true
           } else {
-            async function run_test(i: number | null, status: Status): Promise<boolean> {
+            async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
               const output = await (async () => {
@@ -423,18 +509,21 @@ async function run_tests(): Promise<boolean> {
                   status.timeout = true
                 } else {
                   const result = output.value
+
                   if (result.error != null) {
                     const {str, stack} = result.error
                     status.errors.push(stack ?? str)
                     status.failure = true
-                  } else if (baselines_root != null) {
+                  }
+
+                  if (baselines_root != null) {
+                    const baseline_path = path.join(baselines_root, platform, baseline_name)
+
                     const {state} = result
                     if (state == null) {
                       status.errors.push("state not present in output")
                       status.failure = true
                     } else {
-                      const baseline_path = path.join(baselines_root, platform, baseline_name)
-
                       await (async () => {
                         const baseline_file = `${baseline_path}.blf`
                         const baseline = create_baseline([state])
@@ -445,6 +534,9 @@ async function run_tests(): Promise<boolean> {
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
+                          } else {
+                            if (test.retries != null)
+                              may_retry = true
                           }
                           const diff = diff_baseline(baseline_file, ref)
                           status.failure = true
@@ -452,55 +544,55 @@ async function run_tests(): Promise<boolean> {
                           status.errors.push(diff)
                         }
                       })()
+                    }
 
-                      await (async () => {
-                        const {bbox} = result
-                        if (bbox != null) {
-                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                          const current = Buffer.from(image.data, "base64")
-                          status.image = current
+                    await (async () => {
+                      const {bbox} = result
+                      if (bbox != null) {
+                        const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                        const current = Buffer.from(image.data, "base64")
+                        status.image = current
 
-                          const image_file = `${baseline_path}.png`
-                          const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file, ref)
+                        const image_file = `${baseline_path}.png`
+                        const write_image = async () => fs.promises.writeFile(image_file, current)
+                        const existing = load_baseline_image(image_file, ref)
 
-                          switch (argv.screenshot) {
-                            case undefined:
-                            case "test":
-                              if (existing == null) {
-                                status.failure = true
-                                status.errors.push("missing baseline image")
-                                await write_image()
-                              } else {
-                                status.reference = existing
+                        switch (argv.screenshot) {
+                          case undefined:
+                          case "test":
+                            if (existing == null) {
+                              status.failure = true
+                              status.errors.push("missing baseline image")
+                              await write_image()
+                            } else {
+                              status.reference = existing
 
-                                if (!existing.equals(current)) {
-                                  const diff_result = diff_image(existing, current)
-                                  if (diff_result != null) {
-                                    may_retry = true
-                                    const {diff, pixels, percent} = diff_result
-                                    const threshold = test.threshold ?? 0
-                                    if (pixels > threshold) {
-                                      await write_image()
-                                      status.failure = true
-                                      status.image_diff = diff
-                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
-                                    }
+                              if (!existing.equals(current)) {
+                                const diff_result = diff_image(existing, current)
+                                if (diff_result != null) {
+                                  may_retry = true
+                                  const {diff, pixels, percent} = diff_result
+                                  const threshold = test.threshold ?? 0
+                                  if (pixels > threshold) {
+                                    await write_image()
+                                    status.failure = true
+                                    status.image_diff = diff
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${attempt != null ? ` (attempt=${attempt})` : ""}`)
                                   }
                                 }
                               }
-                              break
-                            case "save":
-                              await write_image()
-                              break
-                            case "skip":
-                              break
-                            default:
-                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
-                          }
+                            }
+                            break
+                          case "save":
+                            await write_image()
+                            break
+                          case "skip":
+                            break
+                          default:
+                            throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
                         }
-                      })()
-                    }
+                      }
+                    })()
                   }
                 }
               } finally {
@@ -514,10 +606,14 @@ async function run_tests(): Promise<boolean> {
               return may_retry
             }
 
-            const retry = await run_test(null, status)
-            if (argv.retry && retry) {
-              for (let i = 0; i < 10; i++) {
-                await run_test(i, status)
+            const do_retry = await run_test(null, status)
+            if ((argv.retry || test.retries != null) && do_retry) {
+              const retries = test.retries ?? 10
+
+              for (let i = 0; i < retries; i++) {
+                const do_retry = await run_test(i, status)
+                if (!do_retry)
+                  break
               }
             }
           }
@@ -527,26 +623,24 @@ async function run_tests(): Promise<boolean> {
           if ((status.failure ?? false) || (status.timeout ?? false))
             failures++
 
+          append_report_out(test_case)
           progress.increment(1, state())
         }
       } finally {
         progress.stop()
       }
 
-      for (const [suites, test, status] of test_suite) {
-        if ((status.failure ?? false) || (status.timeout ?? false)) {
-          console.log("")
+      if (out_stream) {
+        out_stream.write("\n")
+        out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failures} failures.\n`)
+        out_stream.end()
+      }
 
-          let depth = 0
-          for (const suite of [...suites, test]) {
-            const is_last = depth == suites.length
-            const prefix = depth == 0 ? chalk.red("\u2717") : `${" ".repeat(depth)}\u2514${is_last ? "\u2500" : "\u252c"}\u2500`
-            console.log(`${prefix} ${suite.description}`)
-            depth++
-          }
-          for (const error of status.errors) {
-            console.log(error)
-          }
+      for (const test_case of test_suite) {
+        const output = format_output(test_case)
+        if (output != null) {
+          console.log("")
+          console.log(output)
         }
       }
 
@@ -565,6 +659,7 @@ async function run_tests(): Promise<boolean> {
 
         const files = new Set(await fs.promises.readdir(path.join(baselines_root, platform)))
         files.delete("report.json")
+        files.delete("report.out")
 
         for (const name of baseline_names) {
           files.delete(`${name}.blf`)

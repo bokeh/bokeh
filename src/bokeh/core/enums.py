@@ -105,6 +105,7 @@ __all__ = (
     'Direction',
     'Enumeration',
     'enumeration',
+    'FlowMode',
     'FontStyle',
     'HAlign',
     'HatchPattern',
@@ -132,6 +133,7 @@ __all__ = (
     'RenderLevel',
     'ResetPolicy',
     'RoundingFunction',
+    'ScrollbarPolicy',
     'SelectionMode',
     'SizingMode',
     'SizingPolicy',
@@ -300,6 +302,9 @@ Dimensions = enumeration("width", "height", "both")
 #: Specify a stroke direction for circles, wedges, etc.
 Direction = enumeration("clock", "anticlock")
 
+#: Specify the flow behavior in CSS layouts.
+FlowMode = enumeration("block", "inline")
+
 #: Specify the font style for rendering text
 FontStyle = enumeration("normal", "italic", "bold", "bold italic")
 
@@ -432,6 +437,9 @@ ResetPolicy = enumeration("standard", "event_only")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
+
+#: Scrollbar policies
+ScrollbarPolicy = enumeration("auto", "visible", "hidden")
 
 #: Selection modes
 SelectionMode = enumeration("replace", "append", "intersect", "subtract")

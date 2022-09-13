@@ -4,10 +4,6 @@ import * as p from "core/properties"
 
 export abstract class OrientedControlView extends ControlView {
   override model: OrientedControl
-
-  protected override get orientation(): Orientation {
-    return this.model.orientation
-  }
 }
 
 export namespace OrientedControl {

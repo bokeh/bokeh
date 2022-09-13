@@ -1,15 +1,14 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Canvas} from "@bokehjs/models/canvas/canvas"
-import {build_view} from "@bokehjs/core/build_views"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 
 describe("Canvas", () => {
   describe("should support composing layers", () => {
     it.dpr(1)("with devicePixelRatio == 1", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true})
-      const canvas_view = await build_view(canvas)
-      canvas_view.resize(600, 600)
+      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const {view: canvas_view} = await display(canvas, null)
       expect(canvas_view.pixel_ratio).to.be.equal(1)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(600)
@@ -17,9 +16,8 @@ describe("Canvas", () => {
     })
 
     it.dpr(2)("with devicePixelRatio == 2", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true})
-      const canvas_view = await build_view(canvas)
-      canvas_view.resize(600, 600)
+      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const {view: canvas_view} = await display(canvas, null)
       expect(canvas_view.pixel_ratio).to.be.equal(2)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(1200)
@@ -27,9 +25,8 @@ describe("Canvas", () => {
     })
 
     it.dpr(3)("with devicePixelRatio == 3", async () => {
-      const canvas = new Canvas({output_backend: "canvas", hidpi: true})
-      const canvas_view = await build_view(canvas)
-      canvas_view.resize(600, 600)
+      const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const {view: canvas_view} = await display(canvas, null)
       expect(canvas_view.pixel_ratio).to.be.equal(3)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(1800)
@@ -37,10 +34,9 @@ describe("Canvas", () => {
     })
 
     it("with SVG backend", async () => {
-      const canvas = new Canvas({output_backend: "svg", hidpi: true})
-      const canvas_view = await build_view(canvas)
+      const canvas = new Canvas({output_backend: "svg", hidpi: true, styles: {width: "600px", height: "600px"}})
+      const {view: canvas_view} = await display(canvas, null)
 
-      canvas_view.resize(600, 600)
       canvas_view.primary.prepare()
       canvas_view.overlays.prepare()
 

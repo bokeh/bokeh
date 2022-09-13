@@ -7,7 +7,7 @@
 
 json = {
     "attrs": {
-        "figure" : {
+        "Plot": {
             "background_fill_color": "#000000",
             "border_fill_color": "#FFFFFF",
             "outline_line_color": "#000000",

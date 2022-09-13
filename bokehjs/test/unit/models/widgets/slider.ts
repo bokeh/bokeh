@@ -1,17 +1,18 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("SliderView", () => {
 
   it("_calc_from should return integer if start/end/step all integers", async () => {
     const s = new Slider({start: 0, end: 10, step: 1, value: 0})
-    const sv = (await build_view(s)).build()
+    const {view: sv} = await display(s, null)
 
-    const r = (sv as any /* XXX: protected */)._calc_from([5.0])
+    /* @ts-ignore */
+    const r = sv._calc_from([5.0])
     expect(r).to.be.equal(5)
     expect(isInteger(r)).to.be.true
   })
@@ -49,7 +50,7 @@ describe("DateSliderView", () => {
     const end = 1451952000000 // 05 Jan 2016
     const value = 1451779200000 // 03 Jan 2016
     const slider = new DateSlider({start, end, value, step: 1})
-    const view = (await build_view(slider)).build()
+    const {view} = await display(slider, null)
 
     const [next_step] = view._steps()
 
@@ -75,7 +76,7 @@ describe("DateRangeSliderView", () => {
     const start = 1451606400000 // 01 Jan 2016
     const end = 1451952000000 // 05 Jan 2016
     const slider = new DateRangeSlider({start, end, value: [start, end], step: 1})
-    const view = (await build_view(slider)).build()
+    const {view} = await display(slider, null)
 
     const [next_left_step, next_right_step] = view._steps()
 

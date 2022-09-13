@@ -2,7 +2,7 @@ import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
 import {logger} from "./logging"
-import {offset, Keys} from "./dom"
+import {offset_bbox, Keys} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
@@ -122,6 +122,7 @@ export class UIEventBus implements EventListenerObject {
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
   private readonly hammer = new Hammer(this.hit_area, {
+    cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
     touchAction: "auto",
     inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
@@ -300,7 +301,7 @@ export class UIEventBus implements EventListenerObject {
   protected _hit_test_plot(sx: number, sy: number): PlotView | null {
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
-      if (plot_view.layout.bbox.relative()/*XXX*/.contains(sx, sy))
+      if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy))
         return plot_view
     }
 
@@ -553,7 +554,7 @@ export class UIEventBus implements EventListenerObject {
 
   /*private*/ _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
-    const {left, top} = offset(this.hit_area)
+    const {left, top} = offset_bbox(this.hit_area)
     return {
       sx: pageX - left,
       sy: pageY - top,

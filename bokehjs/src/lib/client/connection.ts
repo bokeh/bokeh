@@ -114,9 +114,10 @@ export class ClientConnection {
   }
 
   send(message: Message<unknown>): void {
-    if (this.socket == null)
-      throw new Error(`not connected so cannot send ${message}`)
-    message.send(this.socket)
+    if (this.socket != null)
+      message.send(this.socket)
+    else
+      logger.error("not connected so cannot send", message)
   }
 
   async send_with_reply<T>(message: Message<unknown>): Promise<Message<T>> {

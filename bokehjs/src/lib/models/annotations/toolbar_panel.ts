@@ -17,6 +17,10 @@ export class ToolbarPanelView extends AnnotationView {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
   }
 
+  override has_finished(): boolean {
+    return super.has_finished() && this.toolbar_view.has_finished()
+  }
+
   toolbar_view: ToolbarView
   el: HTMLElement
 
@@ -28,7 +32,7 @@ export class ToolbarPanelView extends AnnotationView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    this.toolbar_view = await build_view(this.model.toolbar, {parent: this as any}) // XXX: ???
+    this.toolbar_view = await build_view(this.model.toolbar, {parent: this.canvas})
   }
 
   override connect_signals(): void {
@@ -58,6 +62,15 @@ export class ToolbarPanelView extends AnnotationView {
   private _previous_bbox: BBox = new BBox()
 
   protected _render(): void {
+    const {style} = this.toolbar_view.el
+    if (this.toolbar_view.model.horizontal) {
+      style.width = "100%"
+      style.height = "unset"
+    } else {
+      style.width = "unset"
+      style.height = "100%"
+    }
+
     // TODO: this should be handled by the layout
     const {bbox} = this.layout
     if (!this._previous_bbox.equals(bbox)) {
@@ -70,10 +83,8 @@ export class ToolbarPanelView extends AnnotationView {
       this.el.style.position = "absolute"
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
-      this.toolbar_view.layout.bbox = bbox
       this.toolbar_view.render()
-      if (this.model.inner)
-        this.toolbar_view.el.classList.add("bk-inner")
+      this.toolbar_view.after_render()
       this._invalidate_toolbar = false
     }
 
@@ -94,7 +105,6 @@ export namespace ToolbarPanel {
 
   export type Props = Annotation.Props & {
     toolbar: p.Property<Toolbar>
-    inner: p.Property<boolean>
   }
 }
 
@@ -113,10 +123,6 @@ export class ToolbarPanel extends Annotation {
 
     this.define<ToolbarPanel.Props>(({Ref}) => ({
       toolbar: [ Ref(Toolbar) ],
-    }))
-
-    this.internal<ToolbarPanel.Props>(({Boolean}) => ({
-      inner: [ Boolean, false ],
     }))
   }
 }

@@ -25,7 +25,15 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import Type, TypeVar
+from typing import (
+    Tuple,
+    Type,
+    TypeVar,
+    Union,
+)
+
+# External imports
+from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
@@ -37,11 +45,16 @@ from ..util.deprecation import deprecated
 
 __all__ = (
     'Color',
+    'ColorLike',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+RGBTuple = Union[Tuple[int, int, int], Tuple[int, int, int, float]]
+
+ColorLike: TypeAlias = Union[str, "Color", RGBTuple]
 
 Self = TypeVar("Self", bound="Color")
 
@@ -280,6 +293,16 @@ class RGB(Color):
                 return RGB(r, g, b, a)
 
         raise ValueError(f"'{hex_string}' is not an RGB(A) hex color string")
+
+    @classmethod
+    def from_tuple(cls, value: RGBTuple) -> RGB:
+        ''' Initialize ``RGB`` instance from a 3- or 4-tuple. '''
+        if len(value) == 3:
+            r, g, b = value         # type:ignore # https://github.com/python/mypy/issues/1178
+            return RGB(r, g, b)
+        else:
+            r, g, b, a = value      # type:ignore # https://github.com/python/mypy/issues/1178
+            return RGB(r, g, b, a)
 
     @classmethod
     def from_rgb(cls, value: RGB) -> RGB:

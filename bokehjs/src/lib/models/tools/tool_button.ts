@@ -8,7 +8,7 @@ import {startsWith} from "core/util/string"
 import {reversed} from "core/util/array"
 
 import tools_css, * as tools from "styles/tool_button.css"
-import icons_css from "styles/icons.css"
+import icons_css, * as icons from "styles/icons.css"
 
 import type {ToolbarView} from "./toolbar"
 import type {Tool} from "./tool"
@@ -32,7 +32,7 @@ export abstract class ToolButtonView extends DOMElementView {
         }
       })
     } else {
-      const location = this.parent.model.toolbar_location
+      const {location} = this.parent.model
       const reverse = location == "left" || location == "above"
       const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
       this._menu = new ContextMenu(!reverse ? items : reversed(items), {
@@ -42,6 +42,7 @@ export abstract class ToolButtonView extends DOMElementView {
       })
 
       this._hammer = new Hammer(this.el, {
+        cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
         touchAction: "auto",
         inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
       })
@@ -79,7 +80,7 @@ export abstract class ToolButtonView extends DOMElementView {
   }
 
   override css_classes(): string[] {
-    return super.css_classes().concat(tools.toolbar_button)
+    return super.css_classes().concat(tools.tool_button)
   }
 
   override render(): void {
@@ -87,6 +88,20 @@ export abstract class ToolButtonView extends DOMElementView {
 
     const icon_el = div({class: tools.tool_icon})
     this.el.appendChild(icon_el)
+
+    if (this.model.menu != null) {
+      const icon = (() => {
+        switch (this.parent.model.location) {
+          case "above": return icons.tool_icon_chevron_down
+          case "below": return icons.tool_icon_chevron_up
+          case "left":  return icons.tool_icon_chevron_right
+          case "right": return icons.tool_icon_chevron_left
+        }
+      })()
+
+      const chevron_el = div({class: [tools.tool_chevron, icon]})
+      this.el.appendChild(chevron_el)
+    }
 
     const icon = this.model.computed_icon
     if (icon != null) {
@@ -112,7 +127,7 @@ export abstract class ToolButtonView extends DOMElementView {
 
   protected _pressed(): void {
     const at = (() => {
-      switch (this.parent.model.toolbar_location) {
+      switch (this.parent.model.location) {
         case "right": return {left_of:  this.el}
         case "left":  return {right_of: this.el}
         case "above": return {below: this.el}

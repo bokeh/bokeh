@@ -1,0 +1,5 @@
+Column bbox=[0, 0, 300, 331]
+  Div bbox=[5, 5, 290, 21]
+  Plot bbox=[0, 31, 300, 300]
+    LinearAxis bbox=[20, 278, 275, 22]
+    LinearAxis bbox=[0, 5, 20, 273]

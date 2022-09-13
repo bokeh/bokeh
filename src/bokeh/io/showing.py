@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 from typing_extensions import TypeGuard
 
 # Bokeh imports
-from ..models.layouts import LayoutDOM
+from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
 from .notebook import run_notebook_hook
 from .saving import save
@@ -52,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
+def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
         notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     ''' Immediately display a Bokeh object or application.
 
@@ -60,7 +60,7 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
         cell to display multiple objects. The objects are displayed in order.
 
     Args:
-        obj (LayoutDOM or Application or callable) :
+        obj (UIElement or Application or callable) :
             A Bokeh object to display.
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
@@ -140,7 +140,7 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
     '''
     state = curstate()
 
-    if isinstance(obj, LayoutDOM):
+    if isinstance(obj, UIElement):
         return _show_with_state(obj, state, browser, new, notebook_handle=notebook_handle)
 
     def is_application(obj: Any) -> TypeGuard[Application]:
@@ -164,19 +164,19 @@ def show(obj: LayoutDOM | Application | ModifyDoc, browser: str | None = None, n
 
 _BAD_SHOW_MSG = """Invalid object to show. The object to passed to show must be one of:
 
-* a LayoutDOM (e.g. a Plot or Widget or Layout)
+* a UIElement (e.g. a plot, figure, widget or layout)
 * a Bokeh Application
 * a callable suitable to an application FunctionHandler
 """
 
-def _show_file_with_state(obj: LayoutDOM, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
+def _show_file_with_state(obj: UIElement, state: State, new: BrowserTarget, controller: BrowserLike) -> None:
     '''
 
     '''
     filename = save(obj, state=state)
     controller.open("file://" + filename, new=NEW_PARAM[new])
 
-def _show_with_state(obj: LayoutDOM, state: State, browser: str | None,
+def _show_with_state(obj: UIElement, state: State, browser: str | None,
         new: BrowserTarget, notebook_handle: bool = False) -> CommsHandle | None:
     '''
 

@@ -12,8 +12,8 @@ export class SVGIconView extends IconView {
     return [...super.styles(), this._style]
   }
 
-  render(): void {
-    this.empty()
+  override render(): void {
+    super.render()
 
     const size = (() => {
       const {size} = this.model

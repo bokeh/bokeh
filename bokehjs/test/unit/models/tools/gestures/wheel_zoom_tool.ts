@@ -1,11 +1,10 @@
 import {expect} from "assertions"
+import {display} from "../../../_util"
 
-import {Document} from "@bokehjs/document"
 import {Tool} from "@bokehjs/models/tools/tool"
 import {WheelZoomTool, WheelZoomToolView} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("WheelZoomTool", () => {
 
@@ -41,9 +40,8 @@ describe("WheelZoomTool", () => {
         y_range: new Range1d({start: -1, end: 1}),
       })
       plot.add_tools(tool)
-      const document = new Document()
-      document.add_root(plot)
-      return (await build_view(plot)).build()
+      const {view} = await display(plot)
+      return view
     }
 
     it("should zoom in both ranges", async () => {

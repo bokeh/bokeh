@@ -108,7 +108,7 @@ export class TooltipView extends UIElementView {
   }
 
   override render(): void {
-    this.empty()
+    super.render()
 
     this._html?.render()
     this.content_el = div({class: tooltips.tooltip_content}, this.content)

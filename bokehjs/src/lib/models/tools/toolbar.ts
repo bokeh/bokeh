@@ -2,16 +2,13 @@ import {logger} from "core/logging"
 import {div, a, Keys, StyleSheetLike} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
-import {DOMComponentView} from "core/dom_view"
+import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
-import {every, sort_by, includes, intersection} from "core/util/array"
+import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join} from "core/util/iterator"
 import {values, entries} from "core/util/object"
 import {isString, isArray} from "core/util/types"
-import {CanvasLayer} from "core/util/canvas"
-import {BBox} from "core/util/bbox"
-import {Model} from "model"
 import {Tool} from "./tool"
 import {ToolProxy, ToolLike} from "./tool_proxy"
 import {ToolButtonView} from "./tool_button"
@@ -26,35 +23,34 @@ import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
-export class ToolbarView extends DOMComponentView {
+export class ToolbarView extends UIElementView {
   override model: Toolbar
-  override el: HTMLElement
 
   readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
   protected _overflow_menu: ContextMenu
-  protected _overflow_el?: HTMLElement
+  protected _overflow_el: HTMLElement
 
-  get overflow_el(): HTMLElement | undefined {
+  get overflow_el(): HTMLElement {
     return this._overflow_el
   }
 
   private _visible: boolean | null = null
   get visible(): boolean {
-    return !this.model.autohide || (this._visible ?? false)
+    return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
   }
 
   override initialize(): void {
     super.initialize()
 
-    const {toolbar_location} = this.model
-    const reversed = toolbar_location == "left" || toolbar_location == "above"
+    const {location} = this.model
+    const reversed = location == "left" || location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
     this._overflow_menu = new ContextMenu([], {
       target: this.root.el,
       orientation,
       reversed,
       prevent_hide: (event) => {
-        return this._overflow_el != null ? event.composedPath().includes(this._overflow_el) : false
+        return event.composedPath().includes(this._overflow_el)
       },
       extra_styles: [tools_css],
     })
@@ -67,11 +63,15 @@ export class ToolbarView extends DOMComponentView {
 
   override connect_signals(): void {
     super.connect_signals()
+
     this.connect(this.model.properties.tools.change, async () => {
       await this._build_tool_button_views()
       this.render()
     })
-    this.connect(this.model.properties.autohide.change, () => this._on_visible_change())
+
+    this.connect(this.model.properties.autohide.change, () => {
+      this._on_visible_change()
+    })
   }
 
   override styles(): StyleSheetLike[] {
@@ -98,11 +98,16 @@ export class ToolbarView extends DOMComponentView {
     this.el.classList.toggle(toolbars.hidden, !this.visible)
   }
 
-  override render(): void {
-    this.empty()
+  override _after_resize(): void {
+    super._after_resize()
+    this.render()
+  }
 
-    this.el.className = ""
-    this.el.classList.add(toolbars[this.model.toolbar_location])
+  override render(): void {
+    super.render()
+
+    this.el.classList.add(toolbars[this.model.location])
+    this.el.classList.toggle(toolbars.inner, this.model.inner)
     this._on_visible_change()
 
     const {horizontal} = this.model
@@ -137,19 +142,14 @@ export class ToolbarView extends DOMComponentView {
     const non_empty = bars.filter((bar) => bar.length != 0)
     const divider = () => div({class: tools.divider})
 
-    const {bbox} = this.layout
-
-    let overflowed = false
-    const overflow_size = 15
-    const overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
-    this._overflow_el = overflow_el
+    this._overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     const toggle_menu = () => {
       const at = (() => {
-        switch (this.model.toolbar_location) {
-          case "right": return {left_of:  overflow_el}
-          case "left":  return {right_of: overflow_el}
-          case "above": return {below: overflow_el}
-          case "below": return {above: overflow_el}
+        switch (this.model.location) {
+          case "right": return {left_of:  this._overflow_el}
+          case "left":  return {right_of: this._overflow_el}
+          case "above": return {below: this._overflow_el}
+          case "below": return {above: this._overflow_el}
         }
       })()
       this._overflow_menu.toggle(at)
@@ -163,9 +163,14 @@ export class ToolbarView extends DOMComponentView {
       }
     })
 
+    const overflow_size = 15
+    const {bbox} = this
+    const overflow_cls = horizontal ? toolbars.right : toolbars.above
+    let overflowed = false
+
     for (const el of join<HTMLElement>(non_empty, divider)) {
       if (overflowed) {
-        this._overflow_menu.items.push({content: el, class: horizontal ? toolbars.right : toolbars.above})
+        this._overflow_menu.items.push({content: el, class: overflow_cls})
       } else {
         this.shadow_el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
@@ -175,30 +180,11 @@ export class ToolbarView extends DOMComponentView {
           this.shadow_el.removeChild(el)
           this.shadow_el.appendChild(this._overflow_el)
 
-          const {items} = this._overflow_menu
-          items.splice(0, items.length)
-          items.push({content: el})
+          clear(this._overflow_menu.items)
+          this._overflow_menu.items.push({content: el, class: overflow_cls})
         }
       }
     }
-  }
-
-  layout = {bbox: new BBox()}
-
-  update_layout(): void {}
-
-  update_position(): void {}
-
-  after_layout(): void {
-    this._has_finished = true
-  }
-
-  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
-    const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
-    const canvas = new CanvasLayer(output_backend, hidpi)
-    const {width, height} = this.layout.bbox
-    canvas.resize(width, height)
-    return canvas
   }
 }
 
@@ -237,11 +223,14 @@ type ActiveGestureToolsProps = {
 export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Model.Props & {
+  export type Props = UIElement.Props & {
     tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     logo: p.Property<Logo | null>
     autohide: p.Property<boolean>
-    toolbar_location: p.Property<Location>
+
+    // internal
+    location: p.Property<Location>
+    inner: p.Property<boolean>
 
     gestures: p.Property<GesturesMap>
     actions: p.Property<ToolLike<ActionTool>[]>
@@ -270,7 +259,7 @@ function create_gesture_map(): GesturesMap {
   }
 }
 
-export class Toolbar extends Model {
+export class Toolbar extends UIElement {
   override properties: Toolbar.Props
   override __view_type__: ToolbarView
 
@@ -292,7 +281,7 @@ export class Toolbar extends Model {
       active_multi:   [ Any /*Or(Ref(GestureTool), Auto, Null)*/, "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Any, Array, Ref, Or/*, Struct, Nullable*/}) => {
+    this.internal<Toolbar.Props>(({Any, Array, Boolean, Ref, Or/*, Struct, Nullable*/}) => {
       /*
       const GestureEntry = Struct({
         tools: Array(Ref(GestureTool)),
@@ -312,21 +301,22 @@ export class Toolbar extends Model {
       })
       */
       return {
+        location:         [ Location, "right" ],
+        inner:            [ Boolean, false ],
         gestures:         [ Any, /*GestureMap,*/ create_gesture_map ],
         actions:          [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors:       [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
         help:             [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
-        toolbar_location: [ Location, "right" ],
       }
     })
   }
 
   get horizontal(): boolean {
-    return this.toolbar_location == "above" || this.toolbar_location == "below"
+    return this.location == "above" || this.location == "below"
   }
 
   get vertical(): boolean {
-    return this.toolbar_location == "left" || this.toolbar_location == "right"
+    return this.location == "left" || this.location == "right"
   }
 
   override connect_signals(): void {

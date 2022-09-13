@@ -1,4 +1,5 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {Axis} from "@bokehjs/models/axes/axis"
 import {BasicTicker} from "@bokehjs/models/tickers/basic_ticker"
@@ -7,7 +8,6 @@ import {FixedTicker} from "@bokehjs/models/tickers/fixed_ticker"
 import {Grid} from "@bokehjs/models/grids/grid"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("Grid", () => {
 
@@ -22,7 +22,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.computed_bounds()).to.be.equal([2, 8])
@@ -39,7 +39,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "left")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.computed_bounds()).to.be.equal([0, 10])
@@ -56,7 +56,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker, bounds: [1, 9]})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.computed_bounds()).to.be.equal([1, 9])
@@ -73,7 +73,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.grid_coords("major")).to.be.equal([
@@ -93,7 +93,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "below")
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([
@@ -113,7 +113,7 @@ describe("Grid", () => {
     plot.add_layout(axis, "below")
     const grid = new Grid({axis})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([
@@ -136,7 +136,7 @@ describe("Grid", () => {
     const ticker = new BasicTicker()
     const grid = new Grid({axis, ticker})
     plot.add_layout(grid, "center")
-    const plot_view = (await build_view(plot)).build()
+    const {view: plot_view} = await display(plot)
     const grid_view = plot_view.renderer_view(grid)!
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([

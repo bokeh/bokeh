@@ -45,7 +45,7 @@ from .models.mappers import (
 from .models.transforms import Dodge, Jitter
 
 if TYPE_CHECKING:
-    from .colors import Color
+    from .colors import ColorLike
     from .core.enums import JitterRandomDistributionType
     from .models.ranges import Range
     from .models.transforms import Transform
@@ -72,8 +72,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    ColorLike: TypeAlias = Union[str, Color, Tuple[int, int, int], Tuple[int, int, int, float]]
-
     Factors: TypeAlias = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:

@@ -1,7 +1,7 @@
 import {expect} from "assertions"
+import {display} from "../../_util"
 
 import {MultiSelect} from "@bokehjs/models/widgets/multiselect"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("MultiSelect", () => {
 
@@ -10,7 +10,7 @@ describe("MultiSelect", () => {
       value: ["foo", "quux"],
       options: [["foo", "Foo"], ["bar", "BAR"],  ["baz", "bAz"], ["quux", "quux"]],
     })
-    const sv = (await build_view(s)).build()
+    const {view: sv} = await display(s, null)
 
     const option0 = sv.shadow_el.querySelectorAll<HTMLOptionElement>('option[value="foo"]')
     expect(option0.length).to.be.equal(1)

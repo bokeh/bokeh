@@ -3,19 +3,16 @@ import {display} from "./_util"
 import icons_css, * as icons from "@bokehjs/styles/icons.css"
 import {entries} from "@bokehjs/core/util/object"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
-import {div, StyleSheetLike} from "@bokehjs/core/dom"
+import {div} from "@bokehjs/core/dom"
 import * as p from "@bokehjs/core/properties"
 
 export class FlexDivView extends UIElementView {
   override model!: FlexDiv
   static override tag_name = "div" as const
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), ...this.model.stylesheets]
-  }
+  override render(): void {
+    super.render()
 
-  render() {
-    this.empty()
     for (const child of this.model.children) {
       this.shadow_el.appendChild(child)
     }
@@ -25,7 +22,6 @@ export class FlexDivView extends UIElementView {
 export namespace FlexDiv {
   export type Attrs = p.AttrsOf<Props>
   export type Props = UIElement.Props & {
-    stylesheets: p.Property<string[]>
     children: p.Property<Node[]>
   }
 }
@@ -43,8 +39,7 @@ export class FlexDiv extends UIElement {
   static {
     this.prototype.default_view = FlexDivView
 
-    this.define<FlexDiv.Props>(({String, Array, DOMNode}) => ({
-      stylesheets: [ Array(String), [] ],
+    this.define<FlexDiv.Props>(({Array, DOMNode}) => ({
       children: [ Array(DOMNode), [] ],
     }))
   }

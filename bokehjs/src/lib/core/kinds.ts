@@ -1,7 +1,7 @@
 import * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {size} from "./util/object"
+import {keys} from "./util/object"
 
 type ESMap<K, V> = globalThis.Map<K, V>
 const ESMap = globalThis.Map
@@ -162,14 +162,14 @@ export namespace Kinds {
         return false
 
       const {struct_type} = this
-      if (size(struct_type) != size(value))
-        return false
+
+      for (const key of keys(value)) {
+        if (!hasOwnProperty.call(struct_type, key))
+          return false
+      }
 
       for (const key in struct_type) {
         if (hasOwnProperty.call(struct_type, key)) {
-          if (!hasOwnProperty.call(value, key))
-            return false
-
           const item_type = struct_type[key]
           const item = value[key]
 
@@ -196,7 +196,7 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      return `Array(${this.item_type.toString()})`
+      return `Arrayable(${this.item_type.toString()})`
     }
   }
 

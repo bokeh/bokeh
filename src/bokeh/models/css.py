@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.properties import Nullable, String
-from ..model import Model, Qualified
+from ..model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -36,7 +36,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Styles(Model, Qualified):
+class Styles(Model):
     """ Allows to configure style attribute of DOM elements. """
 
     # explicit __init__ to support Init signatures
@@ -57,6 +57,7 @@ class Styles(Model, Qualified):
     animation_name = Nullable(String)
     animation_play_state = Nullable(String)
     animation_timing_function = Nullable(String)
+    aspect_ratio = Nullable(String)
     backface_visibility = Nullable(String)
     background = Nullable(String)
     background_attachment = Nullable(String)
@@ -148,8 +149,6 @@ class Styles(Model, Qualified):
     content = Nullable(String)
     counter_increment = Nullable(String)
     counter_reset = Nullable(String)
-    css_float = Nullable(String)
-    css_text = Nullable(String)
     cursor = Nullable(String)
     direction = Nullable(String)
     display = Nullable(String)

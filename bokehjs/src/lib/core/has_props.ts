@@ -88,7 +88,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   /** @prototype */
-  default_view: Class<View, [View.Options]>
+  default_view?: Class<View, [View.Options]>
 
   /** @prototype */
   _props: {[key: string]: {

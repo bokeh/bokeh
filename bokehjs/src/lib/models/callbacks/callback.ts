@@ -1,8 +1,10 @@
 import {Model} from "../../model"
 import * as p from "core/properties"
 
+export type CallbackFn<Obj, Args extends any[], Ret = void> = (obj: Obj, ...args: Args) => Ret
+
 export type CallbackLike<Obj, Args extends any[], Ret = void> = {
-  execute: (obj: Obj, ...args: Args) => Ret
+  execute: CallbackFn<Obj, Args, Ret>
 }
 
 export type CallbackLike0<Obj, Ret = void> = CallbackLike<Obj, [], Ret>

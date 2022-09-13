@@ -4,6 +4,8 @@ import {Enum} from "../kinds"
 import {Size, Extents} from "../types"
 export {Size}
 
+import {LRTB} from "../util/bbox"
+
 const {min, max} = Math
 
 export class Sizeable implements Size {
@@ -68,7 +70,10 @@ export class Sizeable implements Size {
 
 export type Margin = Extents
 
-export type SizeHint = Size & {inner?: Margin, align?: boolean}
+export type SizeHint = Size & {
+  inner?: Extents
+  align?: LRTB<boolean> & {fixed_width?: boolean, fixed_height?: boolean}
+}
 
 export type SizingPolicy = "fixed" | "fit" | "min" | "max"
 export const SizingPolicy = Enum("fixed", "fit", "min", "max")
@@ -91,6 +96,7 @@ export type BoxSizing = {
   aspect?: number
   margin: Margin
   visible: boolean
-  halign: Align
-  valign: Align
+
+  halign?: Align
+  valign?: Align
 }

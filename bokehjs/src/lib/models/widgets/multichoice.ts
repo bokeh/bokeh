@@ -2,7 +2,6 @@ import Choices from "choices.js"
 
 import {select, StyleSheetLike} from "core/dom"
 import {isString} from "core/util/types"
-import {CachedVariadicBox} from "core/layout/html"
 import * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
@@ -10,11 +9,46 @@ import choices_css from "styles/widgets/choices.css"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 
+function retarget<T extends Event>(event: T): T {
+  Object.defineProperty(event, "target", {
+    get: () => event.composedPath()[0] ?? null,
+    configurable: true,
+  })
+  return event
+}
+
+class OurChoices extends Choices {
+  override _onFocus(event: FocusEvent): void {
+    super._onFocus(retarget(event))
+  }
+  override _onBlur(event: FocusEvent): void {
+    super._onBlur(retarget(event))
+  }
+  override _onKeyUp(event: KeyboardEvent): void {
+    super._onKeyUp(retarget(event))
+  }
+  override _onKeyDown(event: KeyboardEvent): void {
+    super._onKeyDown(retarget(event))
+  }
+  override _onClick(event: MouseEvent): void {
+    super._onClick(retarget(event))
+  }
+  override _onTouchEnd(event: TouchEvent): void {
+    super._onTouchEnd(retarget(event))
+  }
+  override _onMouseDown(event: MouseEvent): void {
+    super._onMouseDown(retarget(event))
+  }
+  override _onMouseOver(event: MouseEvent): void {
+    super._onMouseOver(retarget(event))
+  }
+}
+
 export class MultiChoiceView extends InputWidgetView {
   override model: MultiChoice
 
   override input_el: HTMLSelectElement
-  protected choice_el: Choices
+  choice_el: Choices
 
   override connect_signals(): void {
     super.connect_signals()
@@ -26,11 +60,6 @@ export class MultiChoiceView extends InputWidgetView {
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), choices_css]
-  }
-
-  override _update_layout(): void {
-    this.layout = new CachedVariadicBox(this.el)
-    this.layout.set_sizing(this.box_sizing())
   }
 
   override render(): void {
@@ -59,8 +88,9 @@ export class MultiChoiceView extends InputWidgetView {
     const item = `choices__item ${fill}`
     const button = `choices__button ${fill}`
 
-    const options = {
+    const options: Partial<Choices["config"]> = {
       choices,
+      itemSelectText: "",
       duplicateItemsAllowed: false,
       shouldSort: false,
       removeItemButton: this.model.delete_button,
@@ -71,16 +101,9 @@ export class MultiChoiceView extends InputWidgetView {
       searchResultLimit: this.model.search_option_limit ?? undefined,
     }
 
-    this.choice_el = new Choices(this.input_el, options)
-    const height = (): number => (this.choice_el as any).containerOuter.element.getBoundingClientRect().height
-    if (this._last_height != null && this._last_height != height()) {
-      this.root.invalidate_layout()
-    }
-    this._last_height = height()
+    this.choice_el = new OurChoices(this.input_el, options)
     this.input_el.addEventListener("change", () => this.change_input())
   }
-
-  private _last_height: number | null = null
 
   set_disabled(): void {
     if (this.model.disabled)

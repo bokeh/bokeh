@@ -1,30 +1,19 @@
-import {Box, BoxView} from "./box"
-import {Row as RowLayout, ColsSizing} from "core/layout/grid"
+import {FlexBox, FlexBoxView} from "./flex_box"
 import * as p from "core/properties"
 
-export class RowView extends BoxView {
+export class RowView extends FlexBoxView {
   override model: Row
-
-  override _update_layout(): void {
-    const items = this.child_views.map((child) => child.layout)
-    this.layout = new RowLayout(items)
-    this.layout.cols = this.model.cols
-    this.layout.spacing = [0, this.model.spacing]
-    this.layout.set_sizing(this.box_sizing())
-  }
+  protected _direction = "row" as const
 }
 
 export namespace Row {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Box.Props & {
-    cols: p.Property<ColsSizing>
-  }
+  export type Props = FlexBox.Props
 }
 
 export interface Row extends Row.Attrs {}
 
-export class Row extends Box {
+export class Row extends FlexBox {
   override properties: Row.Props
   override __view_type__: RowView
 
@@ -34,9 +23,5 @@ export class Row extends Box {
 
   static {
     this.prototype.default_view = RowView
-
-    this.define<Row.Props>(({Any}) => ({
-      cols: [ Any /*TODO*/, "auto" ],
-    }))
   }
 }

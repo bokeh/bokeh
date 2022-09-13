@@ -27,7 +27,10 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   protected slider_el?: HTMLElement
   protected title_el: HTMLElement
 
-  *controls() {
+  protected override readonly _auto_width = "auto"
+  protected override readonly _auto_height = "auto"
+
+  public *controls() {
     yield this.slider_el as HTMLInputElement
   }
 
@@ -252,6 +255,10 @@ export abstract class AbstractSlider extends OrientedControl {
         tooltips:        [ Boolean, true ],
         bar_color:       [ Color, "#e6e6e6" ],
       }
+    })
+
+    this.override<AbstractSlider.Props>({
+      width: 300, // sliders don't have any intrinsic width
     })
   }
 

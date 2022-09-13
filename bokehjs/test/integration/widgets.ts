@@ -1,23 +1,28 @@
-import {display, row, column} from "./_util"
+import {display, column} from "./_util"
 
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
-import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {ColumnDataSource, Row} from "@bokehjs/models"
 
 import {
   Button, Toggle, Dropdown,
-  Switch,
+  Checkbox, Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  TextInput, AutocompleteInput, TextAreaInput, FileInput,
+  TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   DatePicker,
   Paragraph, Div, PreText,
 } from "@bokehjs/models/widgets"
 
-import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
+import {
+  DataTable, DataCube,
+  TableColumn,
+  StringFormatter,
+  SumAggregator, GroupingInfo,
+} from "@bokehjs/models/widgets/tables"
 
 describe("Widgets", () => {
   it("should allow Button", async () => {
@@ -79,6 +84,16 @@ describe("Widgets", () => {
     await view.ready
   })
 
+  it("should allow Checkbox with active=false", async () => {
+    const obj = new Checkbox({active: false, label: "Inactive checkbox"})
+    await display(obj, [500, 50])
+  })
+
+  it("should allow Checkbox with active=true", async () => {
+    const obj = new Checkbox({active: true, label: "Active checkbox"})
+    await display(obj, [500, 50])
+  })
+
   it("should allow Switch with active=false", async () => {
     const obj = new Switch({active: false})
     await display(obj, [500, 50])
@@ -122,6 +137,38 @@ describe("Widgets", () => {
   it.allowing(8)("should allow TextInput", async () => {
     const obj = new TextInput({placeholder: "Enter value ..."})
     await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with prefix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", prefix: "T"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with suffix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with prefix and suffix", async () => {
+    const obj = new TextInput({placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow TextInput with title, prefix and suffix", async () => {
+    const obj = new TextInput({title: "Initial temperature:", placeholder: "Enter temperature ...", prefix: "T", suffix: "\u2103"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow PasswordInput", async () => {
+    const obj = new PasswordInput({value: "foo"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow PasswordInput with password visible", async () => {
+    const obj = new PasswordInput({value: "foo"})
+    const {view} = await display(obj, [500, 100])
+    const ev = new MouseEvent("click", {bubbles: true})
+    view.toggle_el.dispatchEvent(ev)
   })
 
   it.allowing(8)("should allow AutocompleteInput", async () => {
@@ -228,7 +275,7 @@ describe("Widgets", () => {
 
   it("should allow Div with float children", async () => {
     const html = 'Some <b>bold text<b/>.<div style="float: left; width: 40px; height: 40px; background-color: red"></div>'
-    const obj = new Div({text: html, style: {border: "1px dotted blue", padding: "5px"}})
+    const obj = new Div({text: html, styles: {border: "1px dotted blue", padding: "5px"}})
     await display(obj, [500, 100])
   })
 
@@ -260,7 +307,9 @@ describe("Widgets", () => {
     await display(table, [600, 400])
   })
 
-  it("should allow DataTable in fit_viewport mode", async () => {
+  // TODO: fit_viewport needs a redesign
+  // TODO: add support for xfail()
+  it.skip("should allow DataTable in fit_viewport mode", async () => {
     const source = new ColumnDataSource({data: {index: [0, 1, 2, 10], bar: [3.4, 1.2, 0, -10]}})
     const index_col = new TableColumn({field: "index", title: "Index"})
     const bar_col = new TableColumn({field: "bar", title: "Bar"})
@@ -288,6 +337,39 @@ describe("Widgets", () => {
     const {view} = await display(table, [600, 400])
     foo_col.visible = false
     await view.ready
+  })
+
+  it("should allow DataCube", async () => {
+    const source = new ColumnDataSource({
+      data: {
+        d0: ["A", "E", "E", "E", "J", "L", "M"],
+        d1: ["B", "D", "D", "H", "K", "L", "N"],
+        d2: ["C", "F", "G", "H", "K", "L", "O"],
+        px: [10, 20, 30, 40, 50, 60, 70],
+      },
+    })
+
+    const target = new ColumnDataSource({
+      data: {
+        row_indices: [],
+        labels: [],
+      },
+    })
+
+    const formatter = new StringFormatter({font_style: "bold"})
+
+    const columns = [
+      new TableColumn({field: "d2", title: "Name", width: 80, sortable: false, formatter}),
+      new TableColumn({field: "px", title: "Price", width: 40, sortable: false}),
+    ]
+
+    const grouping = [
+      new GroupingInfo({getter: "d0", aggregators: [new SumAggregator({field_: "px"})]}),
+      new GroupingInfo({getter: "d1", aggregators: [new SumAggregator({field_: "px"})]}),
+    ]
+
+    const cube = new DataCube({source, columns, grouping, target, width: 400, height: 200})
+    await display(cube)
   })
 
   it("should allow TeX on Divs with mathstrings", async () => {
@@ -338,12 +420,11 @@ describe("Widgets", () => {
 })
 
 describe("Rows of widgets", () => {
-
   it.allowing(7)("should allow different content and fixed height", async () => {
     const w0 = new TextInput({value: "Widget 1"})
     const w1 = new TextInput({value: "Widget 2", height: 50})
-    const layout = row([w0, w1])
-    await display(layout, [700, 100])
+    const row = new Row({children: [w0, w1]})
+    await display(row, [700, 100])
   })
 
   it("should allow DataTable to fill row", async () => {
@@ -352,7 +433,7 @@ describe("Rows of widgets", () => {
     const bar_col = new TableColumn({field: "bar", title: "Bar"})
     const columns = [index_col, bar_col]
     const table = new DataTable({source, columns, autosize_mode: "fit_columns", sizing_mode: "stretch_both"})
-    const layout = row([table], {width: 400, height: 100})
-    await display(layout, [400, 100])
+    const row = new Row({children: [table], width: 400, height: 100})
+    await display(row, [400, 100])
   })
 })

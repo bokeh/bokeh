@@ -1,5 +1,5 @@
 attrs:
-    Figure:
+    Plot:
         background_fill_color: "#DDDDDD"
         outline_line_color: white
         toolbar_location: above

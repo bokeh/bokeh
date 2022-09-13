@@ -10,13 +10,12 @@ import {ViewManager} from "core/view"
 import {DocsJson, RenderItem, Roots} from "./json"
 import {add_document_standalone} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
-import {BOKEH_ROOT, _resolve_element, _resolve_root_elements} from "./dom"
+import {_resolve_element, _resolve_root_elements} from "./dom"
 
 export {DocsJson, RenderItem, Roots} from "./json"
 export {add_document_standalone, index} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"
-export {BOKEH_ROOT} from "./dom"
 
 export type JsonItem = {doc: DocJson, root_id: ID, target_id: ID}
 
@@ -27,10 +26,6 @@ export async function embed_item(item: JsonItem, target?: ID | HTMLElement): Pro
 
   if (target == null)
     target = item.target_id
-
-  const element = isString(target) ? document.getElementById(target) : target
-  if (element != null)
-    element.classList.add(BOKEH_ROOT)
 
   const roots: Roots = {[item.root_id]: target}
   const render_item: RenderItem = {roots, root_ids: [item.root_id], docid: doc_id}

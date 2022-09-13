@@ -16,8 +16,8 @@ export class BuiltinIconView extends IconView {
     return [...super.styles(), icons_css, this._style]
   }
 
-  render(): void {
-    this.empty()
+  override render(): void {
+    super.render()
 
     const icon = `var(--bokeh-icon-${this.model.icon_name})`
     const color = color2css(this.model.color)

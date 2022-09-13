@@ -22,7 +22,7 @@ p = figure(width=800, height=300, y_range=DAYS, x_axis_type='datetime',
 
 p.scatter(x='time', y=jitter('day', width=0.6, range=p.y_range),  source=source, alpha=0.3)
 
-p.xaxis.formatter.days = ['%Hh']
+p.xaxis.formatter.days = '%Hh'
 p.x_range.range_padding = 0
 p.ygrid.grid_line_color = None
 

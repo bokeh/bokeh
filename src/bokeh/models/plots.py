@@ -57,8 +57,10 @@ from ..core.properties import (
     Override,
     Readonly,
     String,
+    Struct,
     Tuple,
 )
+from ..core.property.struct import Optional
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps
 from ..core.query import find
 from ..core.validation import error, warning
@@ -76,13 +78,7 @@ from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
 from .grids import Grid
-from .layouts import (
-    ColSizing,
-    IntOrString,
-    LayoutDOM,
-    QuickTrackSizing,
-    RowSizing,
-)
+from .layouts import LayoutDOM, TracksSizing
 from .ranges import (
     DataRange1d,
     FactorRange,
@@ -108,6 +104,9 @@ __all__ = (
     'GridPlot',
     'Plot',
 )
+
+def LRTB(type: Any) -> Struct:
+    return Struct(left=type, right=type, top=type, bottom=type)
 
 #-----------------------------------------------------------------------------
 # General API
@@ -647,6 +646,15 @@ class Plot(LayoutDOM):
     axes, titles, border padding, etc.
     """)
 
+    frame_align = Either(Bool, LRTB(Optional(Bool)), default=True, help="""
+    Allows to specify which frame edges to align in multiple-plot layouts.
+
+    The default is to align all edges, but users can opt-out from alignment
+    of each individual edge or all edges. Note also that other proproperties
+    may disable alignment of certain edges, especially when using fixed frame
+    size (``frame_width`` and ``frame_height`` properties).
+    """)
+
     inner_width = Readonly(Int, help="""
     This is the exact width of the plotting canvas, i.e. the width of
     the actual plot, without toolbars etc. Note this is computed in a
@@ -876,22 +884,12 @@ class GridPlot(LayoutDOM):
     index and optional row and column spans (the defaul span is 1).
     """)
 
-    rows = Either(QuickTrackSizing, Dict(IntOrString, RowSizing), default="auto", help="""
+    rows = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its rows' heights.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
-    cols = Either(QuickTrackSizing, Dict(IntOrString, ColSizing), default="auto", help="""
+    cols = Nullable(TracksSizing, default=None, help="""
     Describes how the grid should maintain its columns' widths.
-
-    .. note::
-        This is an experimental feature and may change in future. Use it at your
-        own discretion.
-
     """)
 
     spacing = Either(Int, Tuple(Int, Int), default=0, help="""

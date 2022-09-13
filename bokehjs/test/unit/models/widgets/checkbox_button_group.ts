@@ -1,23 +1,24 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
 
+import {expect} from "assertions"
+import {display} from "../../_util"
+
 import {CheckboxButtonGroup} from "@bokehjs/models/widgets/checkbox_button_group"
-import {build_view} from "@bokehjs/core/build_views"
 
 describe("CheckboxButtonGroup", () => {
 
   describe("change_active", () => {
 
     it("should add arg to active if not present", async () => {
-      const g = new CheckboxButtonGroup({active: [0, 2]})
-      const view = (await build_view(g)).build()
+      const g = new CheckboxButtonGroup({active: [0, 2], labels: ["foo", "bar", "baz"]})
+      const {view} = await display(g, null)
       view.change_active(1)
       expect(g.active).to.be.equal([0, 1, 2])
     })
 
     it("should remove arg from active if is present", async () => {
-      const g = new CheckboxButtonGroup({active: [0, 1, 2]})
-      const view = (await build_view(g)).build()
+      const g = new CheckboxButtonGroup({active: [0, 1, 2], labels: ["foo", "bar", "baz"]})
+      const {view} = await display(g, null)
       view.change_active(1)
       expect(g.active).to.be.equal([0, 2])
       view.change_active(2)
@@ -26,7 +27,7 @@ describe("CheckboxButtonGroup", () => {
 
     it("should trigger on change", async () => {
       const g = new CheckboxButtonGroup({active: [0, 1, 2], labels: ["foo", "bar", "baz"]})
-      const view = (await build_view(g)).build()
+      const {view} = await display(g, null)
 
       const spy = sinon.spy(view, "change_active")
       expect(spy.called).to.be.false

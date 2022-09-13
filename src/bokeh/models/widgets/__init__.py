@@ -19,11 +19,19 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from . import (
+    buttons,
+    groups,
+    inputs,
+    markups,
+    sliders,
+    tables,
+    widget,
+)
 from .buttons import *
 from .groups import *
 from .inputs import *
 from .markups import *
-from .panels import *
 from .sliders import *
 from .tables import *
 from .widget import *
@@ -31,6 +39,16 @@ from .widget import *
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    *buttons.__all__,
+    *groups.__all__,
+    *inputs.__all__,
+    *markups.__all__,
+    *sliders.__all__,
+    *tables.__all__,
+    *widget.__all__,
+)
 
 #-----------------------------------------------------------------------------
 # General API

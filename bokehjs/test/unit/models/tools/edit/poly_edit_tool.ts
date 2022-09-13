@@ -1,5 +1,7 @@
-import {expect} from "assertions"
 import * as sinon from "sinon"
+
+import {expect} from "assertions"
+import {display} from "../../../_util"
 
 import {Keys} from "@bokehjs/core/dom"
 import {build_view} from "@bokehjs/core/build_views"
@@ -34,7 +36,7 @@ async function make_testcase(): Promise<PolyEditTestCase> {
     y_range: new Range1d({start: -1, end: 1}),
   })
 
-  const plot_view = (await build_view(plot)).build()
+  const {view: plot_view} = await display(plot)
 
   const data = {
     xs: [[0, 0.5, 1], [0, 0.5, 1]],

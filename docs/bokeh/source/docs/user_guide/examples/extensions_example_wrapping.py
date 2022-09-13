@@ -15,12 +15,11 @@ TS_CODE = """
 
 import {LayoutDOM, LayoutDOMView} from "models/layouts/layout_dom"
 import {ColumnDataSource} from "models/sources/column_data_source"
-import {LayoutItem} from "core/layout"
 import * as p from "core/properties"
 
 declare namespace vis {
   class Graph3d {
-    constructor(el: HTMLElement, data: object, OPTIONS: object)
+    constructor(el: HTMLElement | DocumentFragment, data: object, OPTIONS: object)
     setData(data: vis.DataSet): void
   }
 
@@ -75,7 +74,7 @@ export class Surface3dView extends LayoutDOMView {
     // Many Bokeh views ignore this default <div>, and instead do things like
     // draw to the HTML canvas. In this case though, we use the <div> to attach
     // a Graph3d to the DOM.
-    this._graph = new vis.Graph3d(this.el, this.get_data(), OPTIONS)
+    this._graph = new vis.Graph3d(this.shadow_el, this.get_data(), OPTIONS)
 
     // Set a listener so that when the Bokeh data source has a change
     // event, we can process the new data
@@ -101,11 +100,6 @@ export class Surface3dView extends LayoutDOMView {
 
   get child_models(): LayoutDOM[] {
     return []
-  }
-
-  _update_layout(): void {
-    this.layout = new LayoutItem()
-    this.layout.set_sizing(this.box_sizing())
   }
 }
 

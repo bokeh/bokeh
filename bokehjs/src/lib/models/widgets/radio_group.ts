@@ -1,13 +1,24 @@
+import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 import {input, label, div, span} from "core/dom"
-import {uniqueId} from "core/util/string"
+import {unique_id} from "core/util/string"
+import {enumerate} from "core/util/iterator"
 import * as p from "core/properties"
-
-import {InputGroup, InputGroupView} from "./input_group"
-
 import * as inputs from "styles/widgets/inputs.css"
 
-export class RadioGroupView extends InputGroupView {
+export class RadioGroupView extends ToggleInputGroupView {
   override model: RadioGroup
+
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      const {active} = this.model
+      for (const [input_el, i] of enumerate(this._inputs)) {
+        input_el.checked = active == i
+      }
+    })
+  }
 
   override render(): void {
     super.render()
@@ -15,7 +26,7 @@ export class RadioGroupView extends InputGroupView {
     const group = div({class: [inputs.input_group, this.model.inline ? inputs.inline : null]})
     this.shadow_el.appendChild(group)
 
-    const name = uniqueId()
+    const name = unique_id()
     const {active, labels} = this.model
 
     this._inputs = []
@@ -42,16 +53,14 @@ export class RadioGroupView extends InputGroupView {
 export namespace RadioGroup {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = InputGroup.Props & {
+  export type Props = ToggleInputGroup.Props & {
     active: p.Property<number | null>
-    labels: p.Property<string[]>
-    inline: p.Property<boolean>
   }
 }
 
 export interface RadioGroup extends RadioGroup.Attrs {}
 
-export class RadioGroup extends InputGroup {
+export class RadioGroup extends ToggleInputGroup {
   override properties: RadioGroup.Props
   override __view_type__: RadioGroupView
 
@@ -62,10 +71,8 @@ export class RadioGroup extends InputGroup {
   static {
     this.prototype.default_view = RadioGroupView
 
-    this.define<RadioGroup.Props>(({Boolean, Int, String, Array, Nullable}) => ({
-      active:   [ Nullable(Int), null ],
-      labels:   [ Array(String), [] ],
-      inline:   [ Boolean, false ],
+    this.define<RadioGroup.Props>(({Int, Nullable}) => ({
+      active: [ Nullable(Int), null ],
     }))
   }
 }

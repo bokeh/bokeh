@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from . import html_annotation, labels, toolbars
 from .html_annotation import *
 from .labels import *
 from .toolbars import *
@@ -28,7 +29,11 @@ from .toolbars import *
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-# __all__ = include all explicit transitive imports above
+__all__ = (
+    *html_annotation.__all__,
+    *labels.__all__,
+    *toolbars.__all__,
+)
 
 #-----------------------------------------------------------------------------
 # General API

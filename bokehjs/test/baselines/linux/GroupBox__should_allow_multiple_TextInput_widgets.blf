@@ -1,0 +1,5 @@
+GroupBox bbox=[0, 0, 319, 156]
+  Column bbox=[13, 24, 294, 123]
+    TextInput bbox=[5, 5, 284, 31]
+    TextInput bbox=[5, 46, 284, 31]
+    TextInput bbox=[5, 87, 284, 31]

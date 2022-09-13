@@ -22,8 +22,17 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
-from ...core.properties import Bool
+from ...core.properties import (
+    Bool,
+    Dict,
+    Either,
+    Instance,
+    List,
+    Nullable,
+    String,
+)
 from ...model import Model
+from ..css import Styles
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,6 +61,23 @@ class UIElement(Model):
 
     visible = Bool(default=True, help="""
     Whether the component should be displayed on screen.
+    """)
+
+    classes = List(String, default=[], help="""
+    List of additional CSS classes to add to the underlying DOM element.
+    """)
+
+    styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
+    Inline CSS styles applied to the underlying DOM element.
+    """)
+
+    stylesheets = List(Either(String,
+        Dict(String, Either(Dict(String, Nullable(String)), Instance(Styles)))), help="""
+    Additional style-sheets to use for the underlying DOM element.
+
+    Note that all bokeh's components use shadow DOM, thus any included style
+    sheets must reflect that, e.g. use ``:host`` CSS pseudo selector to access
+    the root DOM element.
     """)
 
 #-----------------------------------------------------------------------------

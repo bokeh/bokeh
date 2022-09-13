@@ -1,15 +1,21 @@
 import "./setup"
-import defer from "./defer"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
+import {View} from "@bokehjs/core/view"
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {Document} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
-import {div, empty} from "@bokehjs/core/dom"
+import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
-import {isString, isArray} from "@bokehjs/core/util/types"
+import {isNumber, isString, isArray} from "@bokehjs/core/util/types"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
+import {defer} from "@bokehjs/core/util/defer"
+
+let ready: () => Promise<void> = defer
+export function set_ready(fn: () => Promise<void>): void {
+  ready = fn
+}
 
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
@@ -22,9 +28,11 @@ export type Decl = {
 export type Test = Decl & {
   description: string
   skip: boolean
-  view?: UIElementView
+  views: View[]
   el?: HTMLElement
+  viewport?: [number, number]
   threshold?: number
+  retries?: number
   dpr?: number
 }
 
@@ -53,20 +61,30 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
 type ItFn = (description: string, fn: Func | AsyncFunc) => Test
 type _It = ItFn & {
   skip: ItFn
-  allowing: (threshold: number) => ItFn
+  allowing: (settings: number | TestSettings) => ItFn
   dpr: (dpr: number) => ItFn
 }
 
 function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
-  const test = {description, fn, skip}
+  const test = {description, fn, skip, views: []}
   stack[0].tests.push(test)
   return test
 }
 
-export function allowing(threshold: number): ItFn {
+export type TestSettings = {
+  threshold?: number
+  retries?: number
+}
+
+export function allowing(settings: number | TestSettings): ItFn {
   return (description: string, fn: Func | AsyncFunc): Test => {
     const test = it(description, fn)
-    test.threshold = threshold
+    if (isNumber(settings)) {
+      test.threshold = settings
+    } else {
+      test.threshold = settings.threshold
+      test.retries = settings.retries
+    }
     return test
   }
 }
@@ -202,15 +220,15 @@ export async function clear(seq: TestSeq): Promise<void> {
 const container = document.querySelector(".container")!
 
 function _clear_test(test: Test): void {
-  if (test.view != null) {
-    const {model} = test.view
+  for (const view of test.views) {
+    const {model} = view
     if (model.document != null) {
       model.document.remove_root(model)
     } else {
-      test.view.remove()
+      view.remove()
     }
-    test.view = undefined
   }
+  test.views = []
   if (test.el != null) {
     test.el.remove()
     test.el = undefined
@@ -226,61 +244,64 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const desc = div({class: "description"}, description(suites, test, " ⇒ "))
   container.appendChild(desc)
 
-  for (const suite of suites) {
-    for (const {fn} of suite.before_each)
-      await fn()
-  }
-
   current_test = test
-  try {
-    await fn()
-    await defer()
-  } catch (err) {
-    error = err instanceof Error ? err : new Error(`${err}`)
-  } finally {
-    current_test = null
 
+  try {
     for (const suite of suites) {
-      for (const {fn} of suite.after_each)
+      for (const {fn} of suite.before_each)
         await fn()
     }
+
+    try {
+      await fn()
+      await ready()
+    } catch (err) {
+      error = err instanceof Error ? err : new Error(`${err}`)
+    } finally {
+      for (const suite of suites) {
+        for (const {fn} of suite.after_each)
+          await fn()
+      }
+    }
+  } finally {
+    current_test = null
   }
 
   const end = Date.now()
   const time = end - start
 
-  if (error == null && test.view != null) {
-    try {
-      const {width, height} = test.view.bbox
-      const rect = test.el!.getBoundingClientRect()
-      if (width > rect.width || height > rect.height)
-        throw new Error(`viewport size exceeded [${width}, ${height}] > [${rect.width}, ${rect.height}]`)
-      const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
-      const top = rect.top + window.pageYOffset - document.documentElement.clientTop
-      const bbox = {x: left, y: top, width: rect.width, height: rect.height}
-      const state = test.view.serializable_state()
-      return {error, time, state, bbox}
-    } catch (err) {
-      error = err instanceof Error ? err : new Error(`${err}`)
+  if (error == null) {
+    for (const view of test.views) {
+      if (!(view instanceof UIElementView))
+        continue
+      try {
+        const {width, height} = view.bbox
+        if (test.viewport != null) {
+          const [vw, vh] = test.viewport
+          if (width > vw || height > vh)
+            error = new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+        }
+        const bbox = offset_bbox(test.el!).box
+        const state = view.serializable_state()
+        return {error, time, state, bbox}
+      } catch (err) {
+        error = err instanceof Error ? err : new Error(`${err}`)
+      }
     }
   }
   return {error, time}
 }
 
-export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}>
+export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{views: ViewOf<HasProps>[], el: HTMLElement}>
 export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}>
 
-export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto", el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement}> {
+export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto",
+    el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement} | {views: ViewOf<HasProps>[], el: HTMLElement}> {
   const test = current_test
-  assert(test != null, "display() must be called in it(...) block")
-
-  if (obj instanceof Document) {
-    assert(obj.roots().length == 1)
-    assert(obj.roots()[0] instanceof UIElement)
-  }
+  assert(test != null, "display() must be called in it(...) or before*() blocks")
 
   const margin = 50
-  const size = (() => {
+  const size: [number, number] | null = (() => {
     if (viewport == null)
       return null
     else if (viewport == "auto") {
@@ -299,18 +320,32 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
 
   const viewport_el = (() => {
     if (size == null)
-      return div({style: {width: "max-content", height: "max-content", overflow: "visible"}}, el)
+      return div({class: "viewport", style: {width: "max-content", height: "max-content", overflow: "visible"}}, el)
     else {
       const [width, height] = size
-      return div({style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
+      return div({class: "viewport", style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
+    }
+  })()
+
+  const doc = (() => {
+    if (obj instanceof Document)
+      return obj
+    else {
+      const doc = new Document()
+      doc.add_root(obj)
+      return doc
     }
   })()
 
   container.appendChild(viewport_el)
-  const view = await show(obj, el ?? viewport_el)
-  test.view = (isArray(view) ? view[0] : view) as UIElementView
+  const views = await show(doc, el ?? viewport_el)
+  test.views = views
   test.el = viewport_el
-  return {view: test.view, el: viewport_el}
+  test.viewport = size ?? undefined
+  if (obj instanceof Document)
+    return {views: test.views, el: viewport_el}
+  else
+    return {view: test.views[0], el: viewport_el}
 }
 
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
@@ -332,11 +367,18 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 import {sum} from "@bokehjs/core/util/array"
 import {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
-import {ToolbarBox} from "@bokehjs/models/tools/toolbar_box"
+import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {GridPlot} from "@bokehjs/models/plots"
 import {Button, Div} from "@bokehjs/models/widgets"
 
-function _infer_viewport(obj: LayoutDOM): Size {
+function _infer_viewport(obj: UIElement): Size {
+  if (obj instanceof LayoutDOM)
+    return _infer_layoutdom_viewport(obj)
+  else
+    return {width: Infinity, height: Infinity}
+}
+
+function _infer_layoutdom_viewport(obj: LayoutDOM): Size {
   const {sizing_mode, width_policy, height_policy} = obj
 
   let width = 0
@@ -395,8 +437,8 @@ function _infer_viewport(obj: LayoutDOM): Size {
             break
         }
       }
-    } else if (obj instanceof ToolbarBox) {
-      switch (obj.toolbar_location) {
+    } else if (obj instanceof Toolbar) {
+      switch (obj.location) {
         case "above":
         case "below":
           width = 0

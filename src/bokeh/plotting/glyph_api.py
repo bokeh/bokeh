@@ -25,7 +25,7 @@ from ..models import glyphs
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
-    from ..models.canvas import CoordinateMapping
+    from ..models.coordinates import CoordinateMapping
     from ..models.plots import Plot
     from ..models.renderers import GlyphRenderer
 

@@ -1,0 +1,4 @@
+Column bbox=[0, 0, 100, 300]
+  Spacer bbox=[0, 0, 100, 100]
+  Spacer bbox=[0, 100, 100, 100]
+  Spacer bbox=[0, 200, 100, 100]

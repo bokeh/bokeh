@@ -1,10 +1,14 @@
 @import "../_mixins.less";
 
+:host {
+  --input-min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+}
+
 .bk-input {
   display: inline-block;
   width: 100%;
   flex-grow: 1;
-  min-height: calc(var(--line-height-computed) + 2*var(--padding-vertical) + 2px);
+  min-height: var(--input-min-height);
   padding: 0 var(--padding-horizontal);
   background-color: #fff;
   border: 1px solid #ccc;
@@ -24,6 +28,51 @@
     cursor: not-allowed;
     background-color: #eee;
     opacity: 1;
+  }
+}
+
+.bk-input-container {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+
+  .bk-input-prefix, .bk-input-suffix {
+    display: flex;
+    align-items: center;
+    flex: 0 1 0;
+    border: 1px solid #ccc;
+    border-radius: var(--border-radius);
+    padding: 0 var(--padding-horizontal);
+    background-color: #e6e6e6;
+  }
+
+  .bk-input-prefix {
+    border-right: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  .bk-input-suffix {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .bk-input {
+    flex: 1 0 0;
+  }
+
+  .bk-input:not(:first-child) {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  .bk-input:not(:last-child) {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 }
 
@@ -49,6 +98,7 @@ select:not([multiple]), select:not([size]) {
     background-position: right 0.5em center;
     background-size: 8px 6px;
     background-repeat: no-repeat;
+    padding-right: calc(var(--padding-horizontal) + 8px);
   }
 }
 
@@ -77,17 +127,6 @@ select[multiple], select[size], textarea {
 
     & > *:not(:first-child) {
       margin-left: 5px;
-    }
-  }
-
-  // XXX: this is horrible, but at least looks good by default
-  input[type="checkbox"], input[type="radio"] {
-    margin: 0;
-
-    & + span {
-      position: relative;
-      top: -2px;
-      margin-left: 3px;
     }
   }
 

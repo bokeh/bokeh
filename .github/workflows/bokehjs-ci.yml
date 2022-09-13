@@ -99,7 +99,7 @@ jobs:
           if [[ -e ${SRC}/report.json ]];
           then
             CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
-            cp ${SRC}/report.json ${CHANGED} ${DST}
+            cp ${SRC}/report.{json,out} ${CHANGED} ${DST}
           fi
 
       - name: Upload report

@@ -9,7 +9,7 @@ def make_figure(output_backend):
     x = np.linspace(0.1, 5, 100)
 
     p = figure(y_axis_type="log",
-               y_range=(0.001, 10**22),
+               y_range=(0.001, 10.0**22),
                width=400,
                height=400,
                toolbar_location=None,

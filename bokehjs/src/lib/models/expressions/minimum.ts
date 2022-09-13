@@ -1,6 +1,6 @@
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ScalarExpression} from "./expression"
-import {obj} from "core/util/object"
+import {dict} from "core/util/object"
 import {min} from "core/util/array"
 import * as p from "core/properties"
 
@@ -30,7 +30,7 @@ export class Minimum extends ScalarExpression<number> {
   }
 
   protected _compute(source: ColumnarDataSource): number {
-    const column = obj(source.data).get(this.field) ?? []
+    const column = dict(source.data).get(this.field) ?? []
     return Math.min(this.initial, min(column))
   }
 }

@@ -108,9 +108,9 @@ for slider in [delta_slider, gamma_slider, omega_slider]:
 
 big = {"font-size": "150%"}
 col = [
-    Div(text="Duffing oscillator", style=big),
-    Div(text=r"$$\frac{d^2x}{dt^2} + \delta \frac{dx}{dt} - \frac{dV}{dx} = \gamma \cos \omega t,$$", style=big),
-    Div(text=r"where $$\frac{dV}{dx} = -x^3 + x$$", style=big),
+    Div(text="Duffing oscillator", styles=big),
+    Div(text=r"$$\frac{d^2x}{dt^2} + \delta \frac{dx}{dt} - \frac{dV}{dx} = \gamma \cos \omega t,$$", styles=big),
+    Div(text=r"where $$\frac{dV}{dx} = -x^3 + x$$", styles=big),
     Paragraph(text="Equation is integrated forward in time using implicit finite difference method."),
     Paragraph(text=r"$$x_i$$ is the value of $$x$$ at time $$t_i = i \Delta t$$ for integer $$i$$ and fixed timestep $$\Delta t$$."),
     Paragraph(text=r"$$x_{i+1}$$ is determined from $$x_{i-1}$$ and $$x_i$$ using"),

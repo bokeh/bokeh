@@ -1,7 +1,7 @@
 import {Range} from "../ranges/range"
 import {DataRange1d, Bounds} from "../ranges/data_range1d"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {CoordinateMapping} from "../canvas/coordinates"
+import {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
 import {Interval} from "core/types"
 import {logger} from "core/logging"

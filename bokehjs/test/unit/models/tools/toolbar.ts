@@ -3,7 +3,6 @@ import {fig, display} from "../../_util"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
-import {ToolbarBoxView} from "@bokehjs/models/tools/toolbar_box"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
@@ -94,22 +93,22 @@ describe("Toolbar", () => {
       gp.toolbar.autohide = true
 
       const {view} = await display(gp)
-      const tbv = view.child_views[0] as ToolbarBoxView
+      const tbv = view.toolbar_view
 
-      expect(tbv.toolbar_view.visible).to.be.false
-      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+      expect(tbv.visible).to.be.false
+      expect(tbv.el.classList.contains("bk-hidden")).to.be.true
 
       const ev0 = new MouseEvent("mouseenter", {clientX: 0, clientY: 0})
       view.el.dispatchEvent(ev0)
 
-      expect(tbv.toolbar_view.visible).to.be.true
-      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.false
+      expect(tbv.visible).to.be.true
+      expect(tbv.el.classList.contains("bk-hidden")).to.be.false
 
       const ev1 = new MouseEvent("mouseleave", {clientX: 0, clientY: 0})
       view.el.dispatchEvent(ev1)
 
-      expect(tbv.toolbar_view.visible).to.be.false
-      expect(tbv.toolbar_view.el.classList.contains("bk-hidden")).to.be.true
+      expect(tbv.visible).to.be.false
+      expect(tbv.el.classList.contains("bk-hidden")).to.be.true
     })
   })
 

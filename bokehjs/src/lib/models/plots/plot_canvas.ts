@@ -5,7 +5,7 @@ import {DataRenderer} from "../renderers/data_renderer"
 import {Tool, ToolView} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {Selection} from "../selections/selection"
-import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
 import {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
@@ -21,19 +21,25 @@ import {RangesUpdate} from "core/bokeh_events"
 import {Side, RenderLevel} from "core/enums"
 import {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
-import {isArray} from "core/util/types"
+import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {SizingPolicy, Layoutable} from "core/layout"
+import {Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
+import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
+import {StyleSheet, StyleSheetLike, px} from "core/dom"
+
+import plots_css from "styles/plots.css"
+
+const {max} = Math
 
 export class PlotView extends LayoutDOMView implements Renderable {
   override model: Plot
@@ -48,6 +54,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.canvas_view
   }
 
+  protected _computed_style = new StyleSheet()
+
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), plots_css, this._computed_style]
+  }
+
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
 
@@ -58,7 +70,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
-  protected _needs_layout: boolean = false
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
@@ -93,6 +104,19 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
     return view
+  }
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
 
   /*protected*/ renderer_views: Map<Renderer, RendererView>
@@ -155,7 +179,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   request_layout(): void {
-    this._needs_layout = true
     this.request_paint("everything")
   }
 
@@ -234,8 +257,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {toolbar_location, toolbar_inner, toolbar} = this.model
     if (toolbar_location != null) {
-      this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
-      toolbar.toolbar_location = toolbar_location
+      this._toolbar = new ToolbarPanel({toolbar})
+      toolbar.location = toolbar_location
+      toolbar.inner = toolbar_inner
     }
   }
 
@@ -253,33 +277,56 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager.update_dataranges()
   }
 
-  protected override _width_policy(): SizingPolicy {
-    return this.model.frame_width == null ? super._width_policy() : "min"
+  override box_sizing(): DOMBoxSizing {
+    const {width_policy, height_policy, ...sizing} = super.box_sizing()
+    const {frame_width, frame_height} = this.model
+
+    return {
+      ...sizing,
+      width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
+      height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
+    }
   }
 
-  protected override _height_policy(): SizingPolicy {
-    return this.model.frame_height == null ? super._height_policy() : "min"
+  protected override _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   override _update_layout(): void {
+    super._update_layout()
+
     // TODO: invalidating all should imply "needs paint"
     this._invalidate_all = true
     this._needs_paint = true
 
-    this.layout = new BorderLayout()
-    this.layout.set_sizing(this.box_sizing())
+    const layout = new BorderLayout()
+
+    const {frame_align} = this.model
+    layout.aligns = (() => {
+      if (isBoolean(frame_align))
+        return {left: frame_align, right: frame_align, top: frame_align, bottom: frame_align}
+      else {
+        const {left=true, right=true, top=true, bottom=true} = frame_align
+        return {left, right, top, bottom}
+      }
+    })()
+
+    layout.set_sizing({
+      width_policy: "max", height_policy: "max",
+      visible: this._is_displayed,
+    })
 
     if (this.visuals.outline_line.doit) {
       const width = this.visuals.outline_line.line_width.get_value()
-      this.layout.center_border_width = width
+      layout.center_border_width = width
     }
 
     type Panels = (Axis | Annotation | Annotation[])[]
 
-    const above: Panels = copy(this.model.above)
-    const below: Panels = copy(this.model.below)
-    const left:  Panels = copy(this.model.left)
-    const right: Panels = copy(this.model.right)
+    const outer_above: Panels = copy(this.model.above)
+    const outer_below: Panels = copy(this.model.below)
+    const outer_left:  Panels = copy(this.model.left)
+    const outer_right: Panels = copy(this.model.right)
 
     const inner_above: Panels = []
     const inner_below: Panels = []
@@ -288,10 +335,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const get_side = (side: Side, inner: boolean = false): Panels => {
       switch (side) {
-        case "above": return inner ? inner_above : above
-        case "below": return inner ? inner_below : below
-        case "left":  return inner ? inner_left  : left
-        case "right": return inner ? inner_right : right
+        case "above": return inner ? inner_above : outer_above
+        case "below": return inner ? inner_below : outer_below
+        case "left":  return inner ? inner_left  : outer_left
+        case "right": return inner ? inner_right : outer_right
       }
     }
 
@@ -301,17 +348,17 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     if (this._toolbar != null) {
-      const {toolbar_location} = this._toolbar.toolbar
+      const {location} = this._toolbar.toolbar
 
       if (!this.model.toolbar_inner) {
-        const panels = get_side(toolbar_location)
+        const panels = get_side(location)
         let push_toolbar = true
 
         if (this.model.toolbar_sticky) {
           for (let i = 0; i < panels.length; i++) {
             const panel = panels[i]
             if (panel instanceof Title) {
-              if (toolbar_location == "above" || toolbar_location == "below")
+              if (location == "above" || location == "below")
                 panels[i] = [panel, this._toolbar]
               else
                 panels[i] = [this._toolbar, panel]
@@ -324,7 +371,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (push_toolbar)
           panels.push(this._toolbar)
       } else {
-        const panels = get_side(toolbar_location, true)
+        const panels = get_side(location, true)
         panels.push(this._toolbar)
       }
     }
@@ -370,7 +417,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     const min_border = this.model.min_border ?? 0
-    this.layout.min_border = {
+    layout.min_border = {
       left:   this.model.min_border_left   ?? min_border,
       top:    this.model.min_border_top    ?? min_border,
       right:  this.model.min_border_right  ?? min_border,
@@ -413,6 +460,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       })
 
     const {frame_width, frame_height} = this.model
+
     center_panel.set_sizing({
       ...(frame_width  != null ? {width_policy:  "fixed", width:  frame_width} : {width_policy:  "fit"}),
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
@@ -420,41 +468,71 @@ export class PlotView extends LayoutDOMView implements Renderable {
     })
     center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
 
-    top_panel.children    = reversed(set_layouts("above", above))
-    bottom_panel.children =          set_layouts("below", below)
-    left_panel.children   = reversed(set_layouts("left",  left))
-    right_panel.children  =          set_layouts("right", right)
+    top_panel.children    = reversed(set_layouts("above", outer_above))
+    bottom_panel.children =          set_layouts("below", outer_below)
+    left_panel.children   = reversed(set_layouts("left",  outer_left))
+    right_panel.children  =          set_layouts("right", outer_right)
 
     inner_top_panel.children    = set_layouts("above", inner_above)
     inner_bottom_panel.children = set_layouts("below", inner_below)
     inner_left_panel.children   = set_layouts("left",  inner_left)
     inner_right_panel.children  = set_layouts("right", inner_right)
 
-    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_border.top*/})
-    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: this.layout.min_width.bottom*/})
-    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.left*/})
-    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: this.layout.min_width.right*/})
+    top_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: layout.min_border.top*/})
+    bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"/*, min_height: layout.min_width.bottom*/})
+    left_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: layout.min_width.left*/})
+    right_panel.set_sizing({width_policy: "min", height_policy: "fit"/*, min_width: layout.min_width.right*/})
 
     inner_top_panel.set_sizing({width_policy: "fit", height_policy: "min"})
     inner_bottom_panel.set_sizing({width_policy: "fit", height_policy: "min"})
     inner_left_panel.set_sizing({width_policy: "min", height_policy: "fit"})
     inner_right_panel.set_sizing({width_policy: "min", height_policy: "fit"})
 
-    this.layout.center_panel = center_panel
+    layout.center_panel = center_panel
 
-    this.layout.top_panel = top_panel
-    this.layout.bottom_panel = bottom_panel
-    this.layout.left_panel = left_panel
-    this.layout.right_panel = right_panel
+    layout.top_panel = top_panel
+    layout.bottom_panel = bottom_panel
+    layout.left_panel = left_panel
+    layout.right_panel = right_panel
 
     if (inner_top_panel.children.length != 0)
-      this.layout.inner_top_panel = inner_top_panel
+      layout.inner_top_panel = inner_top_panel
     if (inner_bottom_panel.children.length != 0)
-      this.layout.inner_bottom_panel = inner_bottom_panel
+      layout.inner_bottom_panel = inner_bottom_panel
     if (inner_left_panel.children.length != 0)
-      this.layout.inner_left_panel = inner_left_panel
+      layout.inner_left_panel = inner_left_panel
     if (inner_right_panel.children.length != 0)
-      this.layout.inner_right_panel = inner_right_panel
+      layout.inner_right_panel = inner_right_panel
+
+    this.layout = layout
+  }
+
+  protected override _measure_layout(): void {
+    const {frame_width, frame_height} = this.model
+
+    const frame = {
+      width: frame_width == null ? "1fr" : px(frame_width),
+      height: frame_height == null ? "1fr" : px(frame_height),
+    }
+
+    const {layout} = this
+
+    const top = layout.top_panel.measure({width: Infinity, height: Infinity})
+    const bottom = layout.bottom_panel.measure({width: Infinity, height: Infinity})
+    const left = layout.left_panel.measure({width: Infinity, height: Infinity})
+    const right = layout.right_panel.measure({width: Infinity, height: Infinity})
+
+    const top_height = max(top.height, layout.min_border.top)
+    const bottom_height = max(bottom.height, layout.min_border.bottom)
+    const left_width = max(left.width, layout.min_border.left)
+    const right_width = max(right.width, layout.min_border.right)
+
+    this._computed_style.replace(`
+      :host {
+        grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
+        grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
+      }
+    `)
   }
 
   get axis_views(): AxisView[] {
@@ -508,8 +586,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.update_selection(null)
   }
 
-  protected _invalidate_layout(): void {
-    const needs_layout = () => {
+  protected _invalidate_layout_if_needed(): void {
+    const needs_layout = (() => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout?.has_size_changed() ?? false) {
@@ -518,10 +596,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
         }
       }
       return false
-    }
+    })()
 
-    if (needs_layout())
-      this.root.compute_layout()
+    if (needs_layout) {
+      this.compute_layout()
+    }
   }
 
   get_renderer_views(): RendererView[] {
@@ -556,8 +635,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   async build_tool_views(): Promise<void> {
     const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
-    const new_tool_views = await build_views(this.tool_views, [...tool_models], {parent: this})
-    new_tool_views.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
+    const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
+    created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
   }
 
   override connect_signals(): void {
@@ -593,10 +672,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint("everything") })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint("everything") })
     }
 
     this.connect(this.model.change, () => this.request_paint("everything"))
@@ -607,7 +686,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       const {toolbar_location} = this.model
       if (this._toolbar != null) {
         if (toolbar_location != null) {
-          this._toolbar.toolbar.toolbar_location = toolbar_location
+          this._toolbar.toolbar.location = toolbar_location
         } else {
           this._toolbar = undefined
           await this.build_renderer_views()
@@ -615,8 +694,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
       } else {
         if (toolbar_location != null) {
           const {toolbar, toolbar_inner} = this.model
-          this._toolbar = new ToolbarPanel({toolbar, inner: toolbar_inner})
-          toolbar.toolbar_location = toolbar_location
+          this._toolbar = new ToolbarPanel({toolbar})
+          toolbar.location = toolbar_location
+          toolbar.inner = toolbar_inner
           await this.build_renderer_views()
         }
       }
@@ -641,34 +721,56 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return true
   }
 
-  override after_layout(): void {
-    super.after_layout()
+  override _after_layout(): void {
+    super._after_layout()
     this.unpause(true)
+
+    const left = this.layout.left_panel.bbox
+    const right = this.layout.right_panel.bbox
+    const center = this.layout.center_panel.bbox
+    const top = this.layout.top_panel.bbox
+    const bottom = this.layout.bottom_panel.bbox
+    const {bbox} = this
+
+    const top_height = top.bottom
+    const bottom_height = bbox.height - bottom.top
+    const left_width = left.right
+    const right_width = bbox.width - right.left
+
+    // TODO: don't replace here; inject stylesheet?
+    this.canvas.style.replace(`
+      .bk-layer.bk-events {
+        display: grid;
+        grid-template-areas:
+          ".    above  .    "
+          "left center right"
+          ".    below  .    ";
+        grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
+        grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
+      }
+    `)
 
     for (const [, child_view] of this.renderer_views) {
       if (child_view instanceof AnnotationView)
         child_view.after_layout?.()
     }
 
-    this._needs_layout = false
-
     this.model.setv({
       inner_width: Math.round(this.frame.bbox.width),
       inner_height: Math.round(this.frame.bbox.height),
-      outer_width: Math.round(this.layout.bbox.width),
-      outer_height: Math.round(this.layout.bbox.height),
+      outer_width: Math.round(this.bbox.width),
+      outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
 
-    if (this.model.match_aspect !== false) {
+    if (this.model.match_aspect) {
       this.pause()
       this._range_manager.update_dataranges()
       this.unpause(true)
     }
 
-    if (!this._outer_bbox.equals(this.layout.bbox)) {
-      const {width, height} = this.layout.bbox
-      this.canvas_view.resize(width, height)
-      this._outer_bbox = this.layout.bbox
+    if (!this._outer_bbox.equals(this.bbox)) {
+      this.canvas_view.resize() // XXX temporary hack
+      this._outer_bbox = this.bbox
       this._invalidate_all = true
       this._needs_paint = true
     }
@@ -688,8 +790,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   repaint(): void {
-    if (this._needs_layout)
-      this._invalidate_layout()
+    this._invalidate_layout_if_needed()
     this.paint()
   }
 
@@ -725,7 +826,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     if (this._range_manager.invalidate_dataranges) {
       this._range_manager.update_dataranges()
-      this._invalidate_layout()
+      this._invalidate_layout_if_needed()
     }
 
     let do_primary = false
@@ -824,7 +925,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.layout.bbox.width, this.layout.bbox.height]
+    const [cx, cy, cw, ch] = [0, 0, this.bbox.width, this.bbox.height]
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
@@ -846,10 +947,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
       let [x0, y0, w, h] = frame_box
       // XXX: shrink outline region by 1px to make right and bottom lines visible
       // if they are on the edge of the canvas.
-      if (x0 + w == this.layout.bbox.width) {
+      if (x0 + w == this.bbox.width) {
         w -= 1
       }
-      if (y0 + h == this.layout.bbox.height) {
+      if (y0 + h == this.bbox.height) {
         h -= 1
       }
       ctx.strokeRect(x0, y0, w, h)
@@ -868,11 +969,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {width, height} = this.layout.bbox
+    const {width, height} = this.bbox
     composite.resize(width, height)
 
-    const {canvas} = this.canvas_view.compose()
-    composite.ctx.drawImage(canvas, 0, 0)
+    if (width != 0 && height != 0) {
+      const {canvas} = this.canvas_view.compose()
+      composite.ctx.drawImage(canvas, 0, 0)
+    }
 
     return composite
   }

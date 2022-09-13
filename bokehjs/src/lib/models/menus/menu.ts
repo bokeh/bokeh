@@ -26,8 +26,9 @@ export class MenuView extends UIElementView {
     super.remove()
   }
 
-  render(): void {
-    this.empty()
+  override render(): void {
+    super.render()
+
     this.el.classList.add(menus[this.model.orientation])
 
     const items = (() => {

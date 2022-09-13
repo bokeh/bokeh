@@ -8,7 +8,7 @@ export type ByteOrder = "little" | "big"
 
 export type ID = string
 
-export type Color = string | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
+export type Color = string | [name: string, alpha: number] | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
 
 export type ColorArray = Uint32Array
 export const ColorArray = Uint32Array

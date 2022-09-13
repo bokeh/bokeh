@@ -256,10 +256,10 @@ class Test_components:
         assert len(els) == 1
 
         el = els[0]
-        assert set(el.attrs) == {"class", "id", "data-root-id"}
-        assert el.attrs["class"] == ["bk-root"]
+        assert set(el.attrs) == {"data-root-id", "id", "style"}
         assert el.attrs["id"] == "ID"
         assert el.attrs["data-root-id"] == test_plot.id
+        assert el.attrs["style"] == "display: contents;"
         assert el.string is None
 
     def test_script_is_utf8_encoded(self, test_plot: figure) -> None:
@@ -358,7 +358,7 @@ class Test_file_html:
 
     def test_entire_doc_is_not_used(self) -> None:
         from bokeh.document import Document
-        from bokeh.models import Button
+        from bokeh.models.widgets import Button
 
         fig = figure()
         fig.x([0], [0])

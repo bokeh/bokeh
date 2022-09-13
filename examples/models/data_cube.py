@@ -23,7 +23,7 @@ columns = [
 
 grouping = [
     GroupingInfo(getter='d0', aggregators=[SumAggregator(field_='px')]),
-    GroupingInfo(getter='d1', aggregators=[SumAggregator(field_='px')])
+    GroupingInfo(getter='d1', aggregators=[SumAggregator(field_='px')]),
 ]
 
 cube = DataCube(source=source, columns=columns, grouping=grouping, target=target)

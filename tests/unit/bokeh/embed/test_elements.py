@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.types import ID
 from bokeh.embed.util import RenderItem
 
 # Module under test
@@ -34,11 +35,11 @@ import bokeh.embed.elements as bee # isort:skip
 # Dev API
 #-----------------------------------------------------------------------------
 
-
 class Test_div_for_render_item:
     def test_render(self) -> None:
-        render_item = RenderItem(docid="doc123", elementid="foo123")
-        assert bee.div_for_render_item(render_item).strip() == """<div class="bk-root" id="foo123"></div>"""
+        render_item = RenderItem(docid=ID("doc123"), elementid=ID("foo123"))
+        assert bee.div_for_render_item(render_item).strip() == \
+            """<div id="foo123" style="display: contents;"></div>"""
 
 class Test_html_page_for_render_items:
     pass

@@ -13,7 +13,7 @@ export abstract class AbstractButtonView extends ControlView {
 
   protected icon_view?: IconView
 
-  protected button_el: HTMLButtonElement
+  button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
   *controls() {

@@ -1,17 +1,16 @@
-import {HasProps} from "core/has_props"
 import {settings} from "core/settings"
-import {DOMView} from "core/dom_view"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {div, append} from "core/dom"
 import {OutputBackend} from "core/enums"
-import {extend} from "core/util/object"
 import {UIEventBus} from "core/ui_events"
-import {BBox} from "core/util/bbox"
 import {load_module} from "core/util/modules"
 import {Context2d, CanvasLayer} from "core/util/canvas"
-import {PlotView} from "../plots/plot"
+import {UIElement, UIElementView} from "../ui/ui_element"
+import {type PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
+import {StyleSheet, StyleSheetLike} from "core/dom"
+import canvas_css from "styles/canvas.css"
 
 export type FrameBox = [number, number, number, number]
 
@@ -68,18 +67,8 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
   }
 })()
 
-const style = {
-  position: "absolute",
-  top: "0",
-  left: "0",
-  zIndex: "0", // establish a stacking context
-}
-
-export class CanvasView extends DOMView {
+export class CanvasView extends UIElementView {
   override model: Canvas
-  override el: HTMLElement
-
-  bbox: BBox = new BBox()
 
   webgl: WebGLState | null = null
 
@@ -91,25 +80,16 @@ export class CanvasView extends DOMView {
 
   ui_event_bus: UIEventBus
 
+  protected _size = new StyleSheet()
+
   override initialize(): void {
     super.initialize()
 
-    this.underlays_el = div({style})
+    this.underlays_el = div({class: "bk-layer"})
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
-    this.overlays_el = div({style})
-    this.events_el = div({style})
-
-    const elements = [
-      this.underlays_el,
-      this.primary.el,
-      this.overlays.el,
-      this.overlays_el,
-      this.events_el,
-    ]
-
-    this.el.style.position = "relative"
-    append(this.el, ...elements)
+    this.overlays_el = div({class: "bk-layer"})
+    this.events_el = div({class: ["bk-layer", "bk-events"]})
 
     this.ui_event_bus = new UIEventBus(this)
   }
@@ -129,8 +109,22 @@ export class CanvasView extends DOMView {
     super.remove()
   }
 
+  override styles(): StyleSheetLike[] {
+    return [...super.styles(), canvas_css, this._size]
+  }
+
   override render(): void {
-    // TODO
+    super.render()
+
+    const elements = [
+      this.underlays_el,
+      this.primary.el,
+      this.overlays.el,
+      this.overlays_el,
+      this.events_el,
+    ]
+
+    append(this.shadow_el, ...elements)
   }
 
   add_underlay(el: HTMLElement): void {
@@ -149,20 +143,32 @@ export class CanvasView extends DOMView {
     return this.primary.pixel_ratio // XXX: primary
   }
 
-  resize(width: number, height: number): void {
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+  override _update_bbox(): void {
+    super._update_bbox()
 
-    const style = {
-      width: `${width}px`,
-      height: `${height}px`,
+    const {width, height} = this.bbox
+    this._size.replace(`
+    .bk-layer {
+      width: ${width}px;
+      height: ${height}px;
     }
+    `)
+  }
 
-    extend(this.el.style, style)
-    extend(this.underlays_el.style, style)
+  override _after_resize(): void {
+    if (this.plot_views.length != 0)
+      return // XXX temporary hack
+    super._after_resize()
+    const {width, height} = this.bbox
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
-    extend(this.overlays_el.style, style)
-    extend(this.events_el.style, style)
+  }
+
+  resize(): void {
+    this._update_bbox()
+    const {width, height} = this.bbox
+    this.primary.resize(width, height)
+    this.overlays.resize(width, height)
   }
 
   prepare_webgl(frame_box: FrameBox): void {
@@ -231,7 +237,7 @@ export class CanvasView extends DOMView {
     return this.compose().to_blob()
   }
 
-  plot_views: PlotView[]
+  plot_views: PlotView[] = []
   /*
   get plot_views(): PlotView[] {
     return [] // XXX
@@ -242,7 +248,7 @@ export class CanvasView extends DOMView {
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = HasProps.Props & {
+  export type Props = UIElement.Props & {
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
@@ -250,7 +256,7 @@ export namespace Canvas {
 
 export interface Canvas extends Canvas.Attrs {}
 
-export class Canvas extends HasProps {
+export class Canvas extends UIElement {
   override properties: Canvas.Props
   override __view_type__: CanvasView
 
@@ -261,7 +267,7 @@ export class Canvas extends HasProps {
   static {
     this.prototype.default_view = CanvasView
 
-    this.internal<Canvas.Props>(({Boolean}) => ({
+    this.define<Canvas.Props>(({Boolean}) => ({
       hidpi:          [ Boolean, true ],
       output_backend: [ OutputBackend, "canvas" ],
     }))

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from os.path import abspath, expanduser
+from typing import Sequence
 from warnings import warn
 
 # External imports
@@ -30,7 +31,7 @@ from jinja2 import Template
 # Bokeh imports
 from ..core.templates import FILE
 from ..core.types import PathLike
-from ..models.layouts import LayoutDOM
+from ..models.ui import UIElement
 from ..resources import Resources, ResourcesLike
 from ..settings import settings
 from ..themes import Theme
@@ -51,7 +52,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesLike | None = None,
+def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None, resources: ResourcesLike | None = None,
         title: str | None = None, template: Template | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
@@ -62,7 +63,7 @@ def save(obj: LayoutDOM, filename: PathLike | None = None, resources: ResourcesL
     ``/foo/myplot.html``)
 
     Args:
-        obj (LayoutDOM object) : a Layout (Row/Column), Plot or Widget object to display
+        obj (UIElement object) : a Layout (Row/Column), Plot or Widget object to display
 
         filename (PathLike, e.g. str, Path, optional) : filename to save document under (default: None)
             If None, use the default state configuration.
@@ -154,7 +155,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
 
     return DEFAULT_TITLE
 
-def _save_helper(obj: LayoutDOM, filename: PathLike, resources: Resources | None,
+def _save_helper(obj: UIElement | Sequence[UIElement], filename: PathLike, resources: Resources | None,
         title: str | None, template: Template | None, theme: Theme | None = None) -> None:
     '''
 

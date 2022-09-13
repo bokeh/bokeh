@@ -1,4 +1,6 @@
-import {build_view} from "@bokehjs/core/build_views"
+import {expect} from "assertions"
+import {display, fig} from "../../../_util"
+
 import {assert} from "@bokehjs/core/util/assert"
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -6,29 +8,27 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HoverTool, HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
-import {expect} from "assertions"
-import {display, fig} from "_util"
-import {create_glyph_view} from "../../glyphs/_util"
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: CircleView}> {
-  const plot = new Plot({
-    x_range: new Range1d({start: -1, end: 1}),
-    y_range: new Range1d({start: -1, end: 1}),
-  })
-
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
   const data_source = new ColumnDataSource({data})
 
   const glyph = new Circle({x: {field: "x"}, y: {field: "y"}})
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
+  const plot = new Plot({
+    x_range: new Range1d({start: -1, end: 1}),
+    y_range: new Range1d({start: -1, end: 1}),
+    renderers: [glyph_renderer],
+  })
+
   const hover_tool = new HoverTool({active: true, renderers: [glyph_renderer]})
   plot.add_tools(hover_tool)
 
-  const plot_view = (await build_view(plot)).build()
-  const hover_view = plot_view.tool_views.get(hover_tool)! as HoverToolView
+  const {view: plot_view} = await display(plot)
 
-  const glyph_view = await create_glyph_view(glyph, data)
+  const hover_view = plot_view.tool_views.get(hover_tool)! as HoverToolView
+  const glyph_view = plot_view.renderer_view(glyph_renderer)!.glyph as CircleView
 
   return {hover_view, data_source, glyph_view}
 }

@@ -5,6 +5,70 @@ import {Class} from "./class"
 import {serialize, Serializable, Serializer} from "./serialization"
 import {equals, Equatable, Comparator} from "./util/eq"
 
+export type BokehEventType =
+  "document_ready" |
+  ModelEventType
+
+export type ModelEventType =
+  "button_click" |
+  "menu_item_click" |
+  UIEventType
+
+export type UIEventType =
+  "lodstart" |
+  "lodend" |
+  "rangesupdate" |
+  "selectiongeometry" |
+  "reset" |
+  PointEventType
+
+export type PointEventType =
+  "pan" |
+  "pinch" |
+  "rotate" |
+  "wheel" |
+  "mousemove" |
+  "mouseenter" |
+  "mouseleave" |
+  "tap" |
+  "doubletap" |
+  "press" |
+  "pressup" |
+  "panstart" |
+  "panend" |
+  "pinchstart" |
+  "pinchend" |
+  "rotatestart" |
+  "rotateend"
+
+export type BokehEventMap = {
+  document_ready: DocumentReady
+  button_click: ButtonClick
+  menu_item_click: MenuItemClick
+  lodstart: LODStart
+  lodend: LODEnd
+  rangesupdate: RangesUpdate
+  selectiongeometry: SelectionGeometry
+  reset: Reset
+  pan: Pan
+  pinch: Pinch
+  rotate: Rotate
+  wheel: MouseWheel
+  mousemove: MouseMove
+  mouseenter: MouseEnter
+  mouseleave: MouseLeave
+  tap: Tap
+  doubletap: DoubleTap
+  press: Press
+  pressup: PressUp
+  panstart: PanStart
+  panend: PanEnd
+  pinchstart: PinchStart
+  pinchend: PinchEnd
+  rotatestart: RotateStart
+  rotateend: RotateEnd
+}
+
 export type BokehEventRep = {
   type: "event"
   name: string

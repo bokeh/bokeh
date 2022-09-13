@@ -1,40 +1,42 @@
-import {Widget, WidgetView} from "./widget"
-import {div, StyleSheetLike} from "core/dom"
-
+import {ToggleInput, ToggleInputView} from "./toggle_input"
+import {div, StyleSheetLike, Keys} from "core/dom"
 import * as p from "core/properties"
 import switch_css from "styles/widgets/switch.css"
 
-export class SwitchView extends WidgetView {
+export class SwitchView extends ToggleInputView {
   override model: Switch
 
   protected knob_el: HTMLElement
   protected bar_el: HTMLElement
 
-  override connect_signals(): void {
-    super.connect_signals()
-
-    const {active, disabled} = this.model.properties
-    this.on_change(active, () => this._update_active())
-    this.on_change(disabled, () => this._update_disabled())
-
-    this.el.addEventListener("click", () => {
-      if (!this.model.disabled) {
-        this.model.active = !this.model.active
-      }
-    })
-  }
-
   override styles(): StyleSheetLike[] {
     return [...super.styles(), switch_css]
   }
 
+  override connect_signals(): void {
+    super.connect_signals()
+
+    this.el.addEventListener("keydown", (event) => {
+      switch (event.keyCode) {
+        case Keys.Enter:
+        case Keys.Space: {
+          event.preventDefault()
+          this._toggle_active()
+          break
+        }
+      }
+    })
+    this.el.addEventListener("click", () => this._toggle_active())
+  }
+
   override render(): void {
     super.render()
-    this.knob_el = div({class: "knob"})
-    this.bar_el = div({class: "bar"}, this.knob_el)
-    this.shadow_el.appendChild(this.bar_el)
+    this.bar_el = div({class: "bar"})
+    this.knob_el = div({class: "knob", tabIndex: 0})
+    const body_el = div({class: "body"}, this.bar_el, this.knob_el)
     this._update_active()
     this._update_disabled()
+    this.shadow_el.appendChild(body_el)
   }
 
   protected _update_active(): void {
@@ -48,15 +50,12 @@ export class SwitchView extends WidgetView {
 
 export namespace Switch {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Widget.Props & {
-    active: p.Property<boolean>
-  }
+  export type Props = ToggleInput.Props
 }
 
 export interface Switch extends Switch.Attrs {}
 
-export class Switch extends Widget {
+export class Switch extends ToggleInput {
   override properties: Switch.Props
   override __view_type__: SwitchView
 
@@ -66,10 +65,6 @@ export class Switch extends Widget {
 
   static {
     this.prototype.default_view = SwitchView
-
-    this.define<Switch.Props>(({Boolean}) => ({
-      active: [ Boolean, false ],
-    }))
 
     this.override<Switch.Props>({
       width: 32,

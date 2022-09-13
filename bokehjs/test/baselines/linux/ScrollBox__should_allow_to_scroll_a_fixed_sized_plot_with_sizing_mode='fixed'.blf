@@ -1,0 +1,7 @@
+ScrollBox bbox=[0, 0, 200, 200]
+  Plot bbox=[0, 0, 300, 300]
+    LinearAxis bbox=[75, 0, 180, 33]
+    LinearAxis bbox=[75, 267, 180, 33]
+    LinearAxis bbox=[30, 33, 45, 234]
+    LinearAxis bbox=[255, 33, 45, 234]
+    ToolbarPanel bbox=[0, 33, 30, 234]

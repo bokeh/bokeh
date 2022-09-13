@@ -1,72 +1,58 @@
-import {UIElement, UIElementView} from "../ui/ui_element"
+import {UIElement, UIElementView, DOMBoxSizing} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
 import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
-import {Color} from "core/types"
-import {Align, SizingMode} from "core/enums"
-import {position, classes, extents, undisplayed, StyleSheetLike} from "core/dom"
-import {logger} from "core/logging"
-import {BBox} from "core/util/bbox"
+import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
+import {remove, px, CSSOurStyles} from "core/dom"
+import {Display} from "core/css"
 import {isNumber, isArray} from "core/util/types"
-import {color2css} from "core/util/color"
-import {assign} from "core/util/object"
-import {parse_css_font_size} from "core/util/text"
 import * as p from "core/properties"
 
 import {build_views} from "core/build_views"
-import {DOMComponentView} from "core/dom_view"
-import {SizingPolicy, BoxSizing, Size, Layoutable} from "core/layout"
+import {DOMElementView} from "core/dom_view"
+import {Layoutable, SizingPolicy, Percent} from "core/layout"
+import {defer} from "core/util/defer"
 import {CanvasLayer} from "core/util/canvas"
+import {unreachable} from "core/util/assert"
 import {SerializableState} from "core/view"
+
+export {DOMBoxSizing}
+
+export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
+
+type InnerDisplay = "block" | "inline"
+type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
+
+export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
 export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
+  override parent: DOMElementView | null
 
-  override root: LayoutDOMView
-  override readonly parent: DOMComponentView
+  protected _child_views: Map<UIElement, UIElementView>
 
-  override el: HTMLElement
-
-  protected _child_views: Map<LayoutDOM, LayoutDOMView>
-
-  protected _on_resize?: () => void
-
-  protected _offset_parent: Element | null = null
-
-  protected _parent_observer?: number
-
-  protected _viewport: Partial<Size> = {}
-
-  layout: Layoutable
-
-  override get bbox(): BBox {
-    return this.layout.bbox
-  }
+  layout?: Layoutable
 
   readonly mouseenter = new Signal<MouseEvent, this>(this, "mouseenter")
   readonly mouseleave = new Signal<MouseEvent, this>(this, "mouseleave")
+
+  readonly disabled = new Signal<boolean, this>(this, "disabled")
 
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
   }
 
-  get base_font_size(): number | null {
-    const font_size = getComputedStyle(this.el).fontSize
-    const result = parse_css_font_size(font_size)
-
-    if (result != null) {
-      const {value, unit} = result
-      if (unit == "px")
-        return value
-    }
-
-    return null
-  }
-
   override initialize(): void {
     super.initialize()
-    this.el.style.position = this.is_layout_root ? "relative" : "absolute"
     this._child_views = new Map()
+  }
+
+  private _resized = false
+
+  override _after_resize(): void {
+    this._resized = true
+    super._after_resize()
+    this.compute_layout()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -97,57 +83,36 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     })
 
-    if (this.is_layout_root) {
-      this._on_resize = () => this.resize_layout()
-      window.addEventListener("resize", this._on_resize)
-
-      this._parent_observer = setInterval(() => {
-        const offset_parent = this.el.offsetParent
-
-        if (this._offset_parent != offset_parent) {
-          this._offset_parent = offset_parent
-
-          if (offset_parent != null) {
-            this.compute_viewport()
-            this.invalidate_layout()
-          }
-        }
-      }, 250)
+    if (this.parent instanceof LayoutDOMView) {
+      this.connect(this.parent.disabled, (disabled) => {
+        this.disabled.emit(disabled || this.model.disabled)
+      })
     }
 
     const p = this.model.properties
+    this.on_change(p.disabled, () => {
+      this.disabled.emit(this.model.disabled)
+    })
+
     this.on_change([
       p.width, p.height,
       p.min_width, p.min_height,
       p.max_width, p.max_height,
       p.margin,
-      p.width_policy, p.height_policy, p.sizing_mode,
+      p.width_policy, p.height_policy,
+      p.flow_mode, p.sizing_mode,
       p.aspect_ratio,
       p.visible,
     ], () => this.invalidate_layout())
 
     this.on_change([
-      p.background,
       p.css_classes,
-      p.style,
       p.stylesheets,
     ], () => this.invalidate_render())
   }
 
-  override disconnect_signals(): void {
-    if (this._parent_observer != null)
-      clearTimeout(this._parent_observer)
-    if (this._on_resize != null)
-      window.removeEventListener("resize", this._on_resize)
-    super.disconnect_signals()
-  }
-
   override css_classes(): string[] {
     return [...super.css_classes(), ...this.model.css_classes]
-  }
-
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), ...this.model.stylesheets]
   }
 
   override *children(): IterViews {
@@ -155,68 +120,312 @@ export abstract class LayoutDOMView extends UIElementView {
     yield* this.child_views
   }
 
-  abstract get child_models(): LayoutDOM[]
+  abstract get child_models(): UIElement[]
 
-  get child_views(): LayoutDOMView[] {
+  get child_views(): UIElementView[] {
     return this.child_models.map((child) => this._child_views.get(child)!)
   }
 
-  async build_child_views(): Promise<void> {
-    await build_views(this._child_views, this.child_models, {parent: this})
+  async build_child_views(): Promise<UIElementView[]> {
+    const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
+
+    for (const view of removed) {
+      this._resize_observer.unobserve(view.el)
+    }
+
+    for (const view of created) {
+      this._resize_observer.observe(view.el, {box: "border-box"})
+    }
+
+    return created
   }
 
   override render(): void {
-    this.empty()
+    super.render()
 
-    assign(this.el.style, this.model.style)
-
-    const {background} = this.model
-    this.el.style.backgroundColor = background != null ? color2css(background) : ""
-
-    classes(this.el).clear().add(...this.css_classes())
+    this.class_list.add(...this.css_classes())
 
     for (const child_view of this.child_views) {
       this.shadow_el.appendChild(child_view.el)
       child_view.render()
+      child_view.after_render()
     }
   }
 
-  abstract _update_layout(): void
+  protected _update_children(): void {}
+
+  async update_children(): Promise<void> {
+    const created_children = new Set(await this.build_child_views())
+
+    for (const child_view of this.child_views) {
+      remove(child_view.el)
+    }
+
+    for (const child_view of this.child_views) {
+      this.shadow_el.appendChild(child_view.el)
+
+      if (created_children.has(child_view)) {
+        child_view.render()
+        child_view.after_render()
+      }
+    }
+
+    this._update_children()
+    this.invalidate_layout()
+  }
+
+  protected readonly _auto_width: CSSSizeKeyword = "fit-content"
+  protected readonly _auto_height: CSSSizeKeyword = "fit-content"
+
+  protected _intrinsic_display(): FullDisplay {
+    return {inner: this.model.flow_mode, outer: "flow"}
+  }
+
+  protected _update_layout(): void {
+    function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
+      switch (policy) {
+        case "auto":
+          return size != null ? px(size) : auto_size
+        case "fixed":
+          return size != null ? px(size) : "fit-content"
+        case "fit":
+          return "fit-content"
+        case "min":
+          return "min-content"
+        case "max":
+          return "100%"
+      }
+    }
+
+    function css_display(display: FullDisplay): Display {
+      // Convert to legacy values due to limitted browser support.
+      const {inner, outer} = display
+      switch (`${inner} ${outer}`) {
+        case "block flow": return "block"
+        case "inline flow": return "inline"
+        case "block flow-root": return "flow-root"
+        case "inline flow-root": return "inline-block"
+        case "block flex": return "flex"
+        case "inline flex": return "inline-flex"
+        case "block grid": return "grid"
+        case "inline grid": return "inline-grid"
+        case "block table": return "table"
+        case "inline table": return "inline-table"
+        default: unreachable()
+      }
+    }
+
+    function to_css(value: number | Percent) {
+      return isNumber(value) ? px(value) : `${value.percent}%`
+    }
+
+    const styles: CSSOurStyles = {}
+
+    const display = this._intrinsic_display()
+    styles.display = css_display(display)
+
+    const sizing = this.box_sizing()
+    const {width_policy, height_policy, width, height, aspect_ratio} = sizing
+
+    const computed_aspect = (() => {
+      if (aspect_ratio == "auto") {
+        if (width != null && height != null)
+          return width/height
+      } else if (isNumber(aspect_ratio))
+        return aspect_ratio
+
+      return null
+    })()
+
+    if (aspect_ratio == "auto") {
+      if (width != null && height != null)
+        styles.aspect_ratio = `${width} / ${height}`
+      else
+        styles.aspect_ratio = "auto"
+    } else if (isNumber(aspect_ratio))
+      styles.aspect_ratio = `${aspect_ratio}`
+
+    const [css_width, css_height] = (() => {
+      const css_width = css_sizing(width_policy, width, this._auto_width)
+      const css_height = css_sizing(height_policy, height, this._auto_height)
+
+      if (aspect_ratio != null) {
+        if (width_policy != height_policy) {
+          if (width_policy == "fixed")
+            return [css_width, "auto"]
+          if (height_policy == "fixed")
+            return ["auto", css_height]
+          if (width_policy == "max")
+            return [css_width, "auto"]
+          if (height_policy == "max")
+            return ["auto", css_height]
+          return ["auto", "auto"]
+        } else {
+          if (width_policy != "fixed" && height_policy != "fixed") {
+            if (computed_aspect != null) {
+              if (computed_aspect >= 1)
+                return [css_width, "auto"]
+              else
+                return ["auto", css_height]
+            }
+          }
+        }
+      }
+
+      return [css_width, css_height]
+    })()
+
+    styles.width = css_width
+    styles.height = css_height
+
+    const {min_width, max_width} = this.model
+    const {min_height, max_height} = this.model
+
+    styles.min_width = min_width == null ? "0px" : to_css(min_width)
+    styles.min_height = min_height == null ? "0px" : to_css(min_height)
+
+    if (this.is_layout_root) {
+      if (max_width != null)
+        styles.max_width = to_css(max_width)
+
+      if (max_height != null)
+        styles.max_height = to_css(max_height)
+    } else {
+      if (max_width != null)
+        styles.max_width = `min(${to_css(max_width)}, 100%)`
+      else if (width_policy != "fixed")
+        styles.max_width = "100%"
+
+      if (max_height != null)
+        styles.max_height = `min(${to_css(max_height)}, 100%)`
+      else if (height_policy != "fixed")
+        styles.max_height = "100%"
+    }
+
+    const {margin} = this.model
+    if (margin != null) {
+      if (isNumber(margin))
+        styles.margin = px(margin)
+      else if (margin.length == 2) {
+        const [vertical, horizontal] = margin
+        styles.margin = `${px(vertical)} ${px(horizontal)}`
+      } else {
+        const [top, right, bottom, left] = margin
+        styles.margin = `${px(top)} ${px(right)} ${px(bottom)} ${px(left)}`
+      }
+    }
+
+    const {resizable} = this.model
+    if (resizable !== false) {
+      const resize = (() => {
+        switch (resizable) {
+          case "width": return "horizontal"
+          case "height": return "vertical"
+          case true:
+          case "both": return "both"
+        }
+      })()
+
+      styles.resize = resize
+      styles.overflow = "auto"
+    }
+
+    this.style.append(":host", styles)
+  }
 
   update_layout(): void {
-    for (const child_view of this.child_views)
-      child_view.update_layout()
+    this.update_style()
+
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.update_layout()
+    }
 
     this._update_layout()
   }
 
-  update_position(): void {
-    this.el.style.display = this.model.visible ? "block" : "none"
-
-    const margin = this.is_layout_root ? this.layout.sizing.margin : undefined
-    position(this.el, this.layout.bbox, margin)
-
-    for (const child_view of this.child_views)
-      child_view.update_position()
+  get is_managed(): boolean {
+    return this.parent instanceof LayoutDOMView
   }
+
+  /**
+   * Update CSS layout with computed values from canvas layout.
+   * This can be done more frequently than `_update_layout()`.
+   */
+  protected _measure_layout(): void {}
+
+  measure_layout(): void {
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.measure_layout()
+    }
+
+    this._measure_layout()
+  }
+
+  compute_layout(): void {
+    if (this.parent instanceof LayoutDOMView) {
+    //if (this.is_managed) {
+      this.parent.compute_layout()
+    } else {
+      this.measure_layout()
+      this.update_bbox()
+
+      if (this.layout != null)
+        this.layout.compute(this.bbox.size)
+      else {
+        for (const child_view of this.child_views) {
+          if (child_view instanceof LayoutDOMView && child_view.layout != null)
+            child_view.layout.compute(child_view.bbox.size)
+        }
+      }
+      this.after_layout()
+    }
+  }
+
+  override update_bbox(): void {
+    for (const child_view of this.child_views) {
+      child_view.update_bbox()
+    }
+
+    super.update_bbox()
+  }
+
+  protected _after_layout(): void {}
 
   after_layout(): void {
-    for (const child_view of this.child_views)
-      child_view.after_layout()
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.after_layout()
+    }
 
-    this._has_finished = true
+    this._after_layout()
   }
 
-  compute_viewport(): void {
-    this._viewport = this._viewport_size()
-  }
-
-  override renderTo(element: Node): void {
+  override render_to(element: Node): void {
     element.appendChild(this.el)
-    this._offset_parent = this.el.offsetParent
-    this.compute_viewport()
     this.build()
     this.notify_finished()
+  }
+
+  override after_render(): void {
+    if (!this.is_managed) {
+      this.invalidate_layout()
+    }
+
+    if (!this._has_finished) {
+      if (!this._is_displayed) {
+        this.finish()
+      } else  {
+        // In case after_resize() wasn't called (see regression test for issue
+        // #9113), then wait one macro task and consider this view finished.
+        defer().then(() => {
+          if (!this._resized) {
+            this.finish()
+          }
+        })
+      }
+    }
   }
 
   build(): this {
@@ -224,8 +433,7 @@ export abstract class LayoutDOMView extends UIElementView {
       throw new Error(`${this.toString()} is not a root layout`)
 
     this.render()
-    this.update_layout()
-    this.compute_layout()
+    this.after_render()
 
     return this
   }
@@ -235,22 +443,15 @@ export abstract class LayoutDOMView extends UIElementView {
     this.invalidate_render()
   }
 
-  compute_layout(): void {
-    const start = Date.now()
-    this.layout.compute(this._viewport)
-    this.update_position()
-    this.after_layout()
-    logger.debug(`layout computed in ${Date.now() - start} ms`)
-  }
-
-  resize_layout(): void {
-    this.root.compute_viewport()
-    this.root.compute_layout()
-  }
-
   invalidate_layout(): void {
-    this.root.update_layout()
-    this.root.compute_layout()
+    // TODO: it would be better and more efficient to do a localized
+    // update, but for now this guarantees consistent state of layout.
+    if (this.parent instanceof LayoutDOMView) {
+      this.parent.invalidate_layout()
+    } else {
+      this.update_layout()
+      this.compute_layout()
+    }
   }
 
   invalidate_render(): void {
@@ -270,20 +471,8 @@ export abstract class LayoutDOMView extends UIElementView {
     return true
   }
 
-  protected _width_policy(): SizingPolicy {
-    return this.model.width != null ? "fixed" : "fit"
-  }
-
-  protected _height_policy(): SizingPolicy {
-    return this.model.height != null ? "fixed" : "fit"
-  }
-
-  box_sizing(): Partial<BoxSizing> {
+  override box_sizing(): DOMBoxSizing {
     let {width_policy, height_policy, aspect_ratio} = this.model
-    if (width_policy == "auto")
-      width_policy = this._width_policy()
-    if (height_policy == "auto")
-      height_policy = this._height_policy()
 
     const {sizing_mode} = this.model
     if (sizing_mode != null) {
@@ -316,92 +505,30 @@ export abstract class LayoutDOMView extends UIElementView {
       }
     }
 
-    const sizing: Partial<BoxSizing> = {width_policy, height_policy}
-
-    const {min_width, min_height} = this.model
-    if (min_width != null)
-      sizing.min_width = min_width
-    if (min_height != null)
-      sizing.min_height = min_height
+    const [halign, valign] = (() => {
+      const {align} = this.model
+      if (align == "auto")
+        return [undefined, undefined]
+      else if (isArray(align))
+        return align
+      else
+        return [align, align]
+    })()
 
     const {width, height} = this.model
-    if (width != null)
-      sizing.width = width
-    if (height != null)
-      sizing.height = height
 
-    const {max_width, max_height} = this.model
-    if (max_width != null)
-      sizing.max_width = max_width
-    if (max_height != null)
-      sizing.max_height = max_height
-
-    if (aspect_ratio == "auto" && width != null && height != null)
-      sizing.aspect = width/height
-    else if (isNumber(aspect_ratio))
-      sizing.aspect = aspect_ratio
-
-    const {margin} = this.model
-    if (margin != null) {
-      if (isNumber(margin))
-        sizing.margin = {top: margin, right: margin, bottom: margin, left: margin}
-      else if (margin.length == 2) {
-        const [vertical, horizontal] = margin
-        sizing.margin = {top: vertical, right: horizontal, bottom: vertical, left: horizontal}
-      } else {
-        const [top, right, bottom, left] = margin
-        sizing.margin = {top, right, bottom, left}
-      }
+    return {
+      width_policy,
+      height_policy,
+      width,
+      height,
+      aspect_ratio,
+      halign,
+      valign,
     }
-
-    sizing.visible = this.model.visible
-
-    const {align} = this.model
-    if (isArray(align))
-      [sizing.halign, sizing.valign] = align
-    else
-      sizing.halign = sizing.valign = align
-
-    return sizing
   }
 
-  protected _viewport_size(): Partial<Size> {
-    return undisplayed(this.el, () => {
-      let measuring: HTMLElement | null = this.el
-
-      while (measuring = measuring.parentElement) {
-        // .bk-root element doesn't bring any value
-        if (measuring.classList.contains("bk-root"))
-          continue
-
-        // we reached <body> element, so use viewport size
-        if (measuring == document.body) {
-          const {margin: {left, right, top, bottom}} = extents(document.body)
-          const width  = Math.ceil(document.documentElement.clientWidth  - left - right)
-          const height = Math.ceil(document.documentElement.clientHeight - top  - bottom)
-          return {width, height}
-        }
-
-        // stop on first element with sensible dimensions
-        const {padding: {left, right, top, bottom}} = extents(measuring)
-        const {width, height} = measuring.getBoundingClientRect()
-
-        const inner_width = Math.ceil(width - left - right)
-        const inner_height = Math.ceil(height - top - bottom)
-
-        if (inner_width > 0 || inner_height > 0)
-          return {
-            width: inner_width > 0 ? inner_width : undefined,
-            height: inner_height > 0 ? inner_height : undefined,
-          }
-      }
-
-      // this element is detached from DOM
-      return {}
-    })
-  }
-
-  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
     const output_backend = (() => {
       switch (type) {
         case "auto": // TODO: actually infer the best type
@@ -412,7 +539,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
     const composite = new CanvasLayer(output_backend, hidpi)
 
-    const {x, y, width, height} = this.layout.bbox
+    const {x, y, width, height} = this.bbox
     composite.resize(width, height)
 
     const bg_color = getComputedStyle(this.el).backgroundColor
@@ -421,7 +548,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
     for (const view of this.child_views) {
       const region = view.export(type, hidpi)
-      const {x, y} = view.layout.bbox
+      const {x, y} = view.bbox
       composite.ctx.drawImage(region.canvas, x, y)
     }
 
@@ -435,10 +562,6 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 }
-
-export type FilterStrings<T> = {[K in keyof T & string as T[K] extends string ? K : never]?: T[K]}
-
-export type CSSInlineStyle = FilterStrings<CSSStyleDeclaration>
 
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
@@ -454,14 +577,13 @@ export namespace LayoutDOM {
     width_policy: p.Property<SizingPolicy | "auto">
     height_policy: p.Property<SizingPolicy | "auto">
     aspect_ratio: p.Property<number | "auto" | null>
+    flow_mode: p.Property<FlowMode>
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
-    align: p.Property<Align | [Align, Align]>
-    background: p.Property<Color | null>
+    align: p.Property<Align | [Align, Align] | "auto">
     css_classes: p.Property<string[]>
-    style: p.Property<CSSInlineStyle>
-    stylesheets: p.Property<string[]>
     context_menu: p.Property<Menu | null>
+    resizable: p.Property<boolean | Dimensions>
   }
 }
 
@@ -477,7 +599,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Color, Array, Tuple, Dict, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, String, Auto, Array, Tuple, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -487,18 +609,17 @@ export abstract class LayoutDOM extends UIElement {
         min_height:    [ Nullable(Number), null ],
         max_width:     [ Nullable(Number), null ],
         max_height:    [ Nullable(Number), null ],
-        margin:        [ Nullable(Or(Number, Number2, Number4)), [0, 0, 0, 0] ],
+        margin:        [ Nullable(Or(Number, Number2, Number4)), null ],
         width_policy:  [ Or(SizingPolicy, Auto), "auto" ],
         height_policy: [ Or(SizingPolicy, Auto), "auto" ],
         aspect_ratio:  [ Or(Number, Auto, Null), null ],
+        flow_mode:     [ FlowMode, "block" ],
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
-        align:         [ Or(Align, Tuple(Align, Align)), "start" ],
-        background:    [ Nullable(Color), null ],
+        align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
         css_classes:   [ Array(String), [] ],
-        style:         [ Dict(String), {} ], // TODO: add validation for CSSInlineStyle
-        stylesheets:   [ Array(String), [] ],
         context_menu:  [ Nullable(Ref(Menu)), null ],
+        resizable:     [ Or(Boolean, Dimensions), false ],
       }
     })
   }

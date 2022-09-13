@@ -46,12 +46,14 @@ export class TablerIconView extends IconView {
     TablerIconView._fonts.initialize()
   }
 
-  render(): void {
-    this.empty()
+  override render(): void {
+    super.render()
+
     const size = (() => {
       const {size} = this.model
       return isNumber(size) ? `${size}px` : size
     })()
+
     this._style.replace(`
       :host {
         display: inline-block;
@@ -59,6 +61,7 @@ export class TablerIconView extends IconView {
         font-size: ${size};
       }
     `)
+
     const icon = span({class: ["ti", `ti-${this.model.icon_name}`]})
     this.shadow_el.appendChild(icon)
   }
