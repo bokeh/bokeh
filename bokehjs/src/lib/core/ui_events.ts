@@ -2,7 +2,7 @@ import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
 import {logger} from "./logging"
-import {offset, Keys} from "./dom"
+import {offset_bbox, Keys} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
@@ -554,7 +554,7 @@ export class UIEventBus implements EventListenerObject {
 
   /*private*/ _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
-    const {left, top} = offset(this.hit_area)
+    const {left, top} = offset_bbox(this.hit_area)
     return {
       sx: pageX - left,
       sy: pageY - top,

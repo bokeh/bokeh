@@ -10,7 +10,7 @@ import {
 import {assert} from "@bokehjs/core/util/assert"
 import {build_view} from "@bokehjs/core/build_views"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
-import {offset} from "@bokehjs/core/dom"
+import {offset_bbox} from "@bokehjs/core/dom"
 import {Color} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -146,7 +146,7 @@ describe("Bug", () => {
         const lnv = view.renderer_views.get(renderer)!
         const ln_spy = sinon.spy(lnv, "request_render")
         const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset(ui.hit_area)
+        const {left, top} = offset_bbox(ui.hit_area)
 
         for (let i = 0; i <= 1; i += 0.2) {
           const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
@@ -176,7 +176,7 @@ describe("Bug", () => {
       const gv = view.renderer_views.get(renderer)!
       const gv_spy = sinon.spy(gv, "request_render")
       const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset(ui.hit_area)
+      const {left, top} = offset_bbox(ui.hit_area)
 
       for (let i = 0; i <= 1; i += 0.2) {
         const [[sx], [sy]] = gv.coordinates.map_to_screen([i], [i])
@@ -382,7 +382,7 @@ describe("Bug", () => {
 
       async function tap(sx: number, sy: number) {
         const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset(ui.hit_area)
+        const {left, top} = offset_bbox(ui.hit_area)
         const ev = new MouseEvent("click", {clientX: left + sx, clientY: top + sy})
         const hev = {
           type: "tap",

@@ -45,7 +45,7 @@ import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
-import {div, offset} from "@bokehjs/core/dom"
+import {div, offset_bbox} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
@@ -1205,7 +1205,7 @@ describe("Bug", () => {
       const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
 
       const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset(ui.hit_area)
+      const {left, top} = offset_bbox(ui.hit_area)
 
       const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
       ui.hit_area.dispatchEvent(ev)
@@ -1260,7 +1260,7 @@ describe("Bug", () => {
         const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
 
         const ui = plot_view.canvas_view.ui_event_bus
-        const {left, top} = offset(ui.hit_area)
+        const {left, top} = offset_bbox(ui.hit_area)
 
         const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
         ui.hit_area.dispatchEvent(ev)

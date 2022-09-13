@@ -6,7 +6,7 @@ import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {Document} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
-import {div, empty} from "@bokehjs/core/dom"
+import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
 import {isString, isArray} from "@bokehjs/core/util/types"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
@@ -270,10 +270,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
           if (width > vw || height > vh)
             error = new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
         }
-        const rect = test.el!.getBoundingClientRect()
-        const left = rect.left + window.pageXOffset - document.documentElement.clientLeft
-        const top = rect.top + window.pageYOffset - document.documentElement.clientTop
-        const bbox = {x: left, y: top, width: rect.width, height: rect.height}
+        const bbox = offset_bbox(test.el!).box
         const state = view.serializable_state()
         return {error, time, state, bbox}
       } catch (err) {

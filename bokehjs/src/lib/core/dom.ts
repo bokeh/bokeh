@@ -200,25 +200,21 @@ export function hide(element: HTMLElement): void {
   element.style.visibility = "hidden"
 }
 
-export function offset(element: Element) {
-  const rect = element.getBoundingClientRect()
-  return {
-    top:  rect.top  + window.pageYOffset - document.documentElement.clientTop,
-    left: rect.left + window.pageXOffset - document.documentElement.clientLeft,
-  }
-}
-
-export function matches(el: HTMLElement, selector: string): boolean {
-  const p: any = Element.prototype
-  const f = p.matches ?? p.webkitMatchesSelector ?? p.mozMatchesSelector ?? p.msMatchesSelector
-  return f.call(el, selector)
+export function offset_bbox(element: Element): BBox {
+  const {top, left, width, height} = element.getBoundingClientRect()
+  return new BBox({
+    left: left + window.pageXOffset - document.documentElement.clientLeft,
+    top:  top  + window.pageYOffset - document.documentElement.clientTop,
+    width,
+    height,
+  })
 }
 
 export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   let node: HTMLElement | null = el
 
   while (node = node.parentElement) {
-    if (matches(node, selector))
+    if (node.matches(selector))
       return node
   }
 

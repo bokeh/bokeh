@@ -18,6 +18,7 @@ import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import {build_view} from "@bokehjs/core/build_views"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("ui_event_bus module", () => {
 
@@ -274,7 +275,7 @@ describe("ui_event_bus module", () => {
     let spy: sinon.SinonSpy
 
     before_each(() => {
-      dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      dom_stub = sinon.stub(dom, "offset_bbox").returns(new BBox({top: 0, left: 0, width: 600, height: 660}))
       spy = sinon.spy(plot_view.model, "trigger_event")
     })
 
@@ -326,7 +327,7 @@ describe("ui_event_bus module", () => {
     let spy_uievent: sinon.SinonSpy
 
     before_each(() => {
-      dom_stub = sinon.stub(dom, "offset").returns({top: 0, left: 0})
+      dom_stub = sinon.stub(dom, "offset_bbox").returns(new BBox({top: 0, left: 0, width: 600, height: 660}))
       // The BokehEvent that is triggered by the plot
       spy_plot = sinon.spy(plot_view.model, "trigger_event")
       // The event is that triggered on UIEvent for tool interactions
