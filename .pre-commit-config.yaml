@@ -1,25 +1,68 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
+
 ---
+default_stages: [push]
+
 repos:
   - repo: local
     hooks:
-      - id: run-codebase-tests
-        name: Run Pytest on codebase tests
-        description: This hook checks for codebase tests.
-        entry: pytest tests/codebase
+      - id: run-code-quality
+        name: Run code quality checks
+        entry: pytest tests/codebase/test_code_quality.py
         language: conda
-        # Mandatory - otherwise `pre-commit` passes the names of all files to be
-        # committed:
         pass_filenames: false
-        stages: [push]
+
+      - id: run-eslint
+        name: Run ESLint
+        entry: pytest tests/codebase/test_eslint.py
+        language: conda
+        pass_filenames: false
+
+      - id: run-isort
+        name: Run isort checks
+        entry: pytest tests/codebase/test_isort.py
+        language: conda
+        pass_filenames: false
+
+      - id: run-flake8
+        name: Run flake8 checks
+        entry: pytest tests/codebase/test_flake8.py
+        language: conda
+        pass_filenames: false
+
+      - id: validate-json
+        name: Validate JSON files
+        entry: pytest tests/codebase/test_json.py
+        language: conda
+        pass_filenames: false
+
+      - id: validate-license
+        name: Validate LICENSE file
+        entry: pytest tests/codebase/test_license.py
+        language: conda
+        pass_filenames: false
+
+      - id: check-exclusions
+        name: Verify package exclusions
+        entry: pytest tests/codebase -k test_no
+        language: conda
+        pass_filenames: false
+
+      - id: check-optimized
+        name: Verify that OO mode works
+        entry: pytest tests/codebase/test_python_execution_with_OO.py
+        language: conda
+        pass_filenames: false
+
+      - id: check-windows-filenames
+        name: Check for reserved windows filenames
+        entry: pytest tests/codebase/test_windows_reserved_filenames.py
+        language: conda
+        pass_filenames: false
 
       - id: protect-branches
         name: Protect Git branches
-        description: This hook avoid pushing to the protected Git branches.
         entry: python scripts/hooks/protect_branches.py
         language: conda
-        # Mandatory - otherwise `pre-commit` passes the names of all files to be
-        # committed:
         pass_filenames: false
-        stages: [push]
