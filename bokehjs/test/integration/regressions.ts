@@ -1663,7 +1663,8 @@ describe("Bug", () => {
     })
 
     after_each(() => {
-      document.fonts.delete(font)
+      const deleted = document.fonts.delete(font)
+      assert(deleted, "font cleanup failed")
     })
   })
 
