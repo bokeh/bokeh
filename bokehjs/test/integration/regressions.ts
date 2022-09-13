@@ -1631,7 +1631,7 @@ describe("Bug", () => {
       expect(document.fonts.check("normal 30px VujahdayScript")).to.be.equal(status)
     }
 
-    it("prevents correct text rendering with lazily loaded fonts", async () => {
+    it.allowing({retries: 3})("prevents correct text rendering with lazily loaded fonts", async () => {
       assert_fonts(false)
 
       const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
@@ -1662,11 +1662,9 @@ describe("Bug", () => {
       await view.ready
     })
 
-    /* XXX: enabling this makes this test unpredictable.
     after_each(() => {
       document.fonts.delete(font)
     })
-    */
   })
 
   describe("in issue #11035", () => {

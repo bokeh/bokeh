@@ -93,7 +93,7 @@ describe("HexTile glyph", () => {
     await display(p2)
   })
 
-  it("should support 'pointytop' orientation and aspect_scale=0.5", async () => {
+  it.allowing({retries: 3})("should support 'pointytop' orientation and aspect_scale=0.5", async () => {
     const p3 = fig([300, 300], {match_aspect: true, title: "pointytop, aspect_scale=0.5"})
     p3.hex_tile(pr, pq, {line_color: "white", fill_color: colors, orientation: "pointytop", aspect_scale: 0.5})
     await display(p3)

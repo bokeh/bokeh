@@ -76,7 +76,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, threshold?: number, dpr?: number}
+type Test = {description: string, skip: boolean, threshold?: number, retries?: number, dpr?: number}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -438,7 +438,7 @@ async function run_tests(): Promise<boolean> {
           if (test.skip) {
             status.skipped = true
           } else {
-            async function run_test(i: number | null, status: Status): Promise<boolean> {
+            async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
               const output = await (async () => {
@@ -497,6 +497,9 @@ async function run_tests(): Promise<boolean> {
                         if (existing != baseline) {
                           if (existing == null) {
                             status.errors.push("missing baseline")
+                          } else {
+                            if (test.retries != null)
+                              may_retry = true
                           }
                           const diff = diff_baseline(baseline_file, ref)
                           status.failure = true
@@ -537,7 +540,7 @@ async function run_tests(): Promise<boolean> {
                                     await write_image()
                                     status.failure = true
                                     status.image_diff = diff
-                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${i != null ? ` (i=${i})` : ""}`)
+                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${attempt != null ? ` (attempt=${attempt})` : ""}`)
                                   }
                                 }
                               }
@@ -566,10 +569,14 @@ async function run_tests(): Promise<boolean> {
               return may_retry
             }
 
-            const retry = await run_test(null, status)
-            if (argv.retry && retry) {
-              for (let i = 0; i < 10; i++) {
-                await run_test(i, status)
+            const do_retry = await run_test(null, status)
+            if ((argv.retry || test.retries != null) && do_retry) {
+              const retries = test.retries ?? 10
+
+              for (let i = 0; i < retries; i++) {
+                const do_retry = await run_test(i, status)
+                if (!do_retry)
+                  break
               }
             }
           }

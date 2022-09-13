@@ -8,7 +8,7 @@ import {Document} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
-import {isString, isArray} from "@bokehjs/core/util/types"
+import {isNumber, isString, isArray} from "@bokehjs/core/util/types"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
 
@@ -32,6 +32,7 @@ export type Test = Decl & {
   el?: HTMLElement
   viewport?: [number, number]
   threshold?: number
+  retries?: number
   dpr?: number
 }
 
@@ -60,7 +61,7 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
 type ItFn = (description: string, fn: Func | AsyncFunc) => Test
 type _It = ItFn & {
   skip: ItFn
-  allowing: (threshold: number) => ItFn
+  allowing: (settings: number | TestSettings) => ItFn
   dpr: (dpr: number) => ItFn
 }
 
@@ -70,10 +71,20 @@ function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
   return test
 }
 
-export function allowing(threshold: number): ItFn {
+export type TestSettings = {
+  threshold?: number
+  retries?: number
+}
+
+export function allowing(settings: number | TestSettings): ItFn {
   return (description: string, fn: Func | AsyncFunc): Test => {
     const test = it(description, fn)
-    test.threshold = threshold
+    if (isNumber(settings)) {
+      test.threshold = settings
+    } else {
+      test.threshold = settings.threshold
+      test.retries = settings.retries
+    }
     return test
   }
 }
