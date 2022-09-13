@@ -70,7 +70,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
-  protected _needs_layout: boolean = false
   protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
@@ -180,7 +179,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   request_layout(): void {
-    this._needs_layout = true
     this.request_paint("everything")
   }
 
@@ -588,8 +586,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.update_selection(null)
   }
 
-  protected _invalidate_layout(): void {
-    const needs_layout = () => {
+  protected _invalidate_layout_if_needed(): void {
+    const needs_layout = (() => {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout?.has_size_changed() ?? false) {
@@ -598,10 +596,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
         }
       }
       return false
-    }
+    })()
 
-    if (needs_layout())
-      this./*root.*/compute_layout()
+    if (needs_layout) {
+      this.compute_layout()
+    }
   }
 
   get_renderer_views(): RendererView[] {
@@ -673,10 +672,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint("everything") })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this._needs_layout = true; this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint("everything") })
     }
 
     this.connect(this.model.change, () => this.request_paint("everything"))
@@ -756,8 +755,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
         child_view.after_layout?.()
     }
 
-    this._needs_layout = false
-
     this.model.setv({
       inner_width: Math.round(this.frame.bbox.width),
       inner_height: Math.round(this.frame.bbox.height),
@@ -793,8 +790,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   repaint(): void {
-    if (this._needs_layout)
-      this._invalidate_layout()
+    this._invalidate_layout_if_needed()
     this.paint()
   }
 
@@ -830,7 +826,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     if (this._range_manager.invalidate_dataranges) {
       this._range_manager.update_dataranges()
-      this._invalidate_layout()
+      this._invalidate_layout_if_needed()
     }
 
     let do_primary = false
