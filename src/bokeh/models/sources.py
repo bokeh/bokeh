@@ -544,7 +544,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if needs_length_check:
             lengths: set[int] = set()
-            arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
+            arr_types = (np.ndarray, pd.Series)
             for _, x in new_data.items():
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:

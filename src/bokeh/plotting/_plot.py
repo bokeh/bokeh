@@ -70,7 +70,7 @@ def get_range(range_input):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
-    if pd and isinstance(range_input, pd.Series):
+    if isinstance(range_input, pd.Series):
         range_input = range_input.values
     if isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, str) for x in range_input):
