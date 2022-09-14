@@ -1,2 +1,3 @@
 Plot bbox=[0, 0, 100, 300]
+  CartesianFrame bbox=[91, 20, 9, 260]
   CategoricalAxis bbox=[0, 20, 91, 260]

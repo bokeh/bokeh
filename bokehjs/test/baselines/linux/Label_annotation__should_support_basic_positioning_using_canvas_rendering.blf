@@ -1,4 +1,5 @@
 Plot bbox=[0, 0, 600, 600]
+  CartesianFrame bbox=[138, 112, 350, 354]
   Label bbox=[138, 77, 350, 35]
   Label bbox=[138, 0, 350, 77]
   LinearAxis bbox=[138, 466, 350, 22]
