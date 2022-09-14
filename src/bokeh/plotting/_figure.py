@@ -24,14 +24,14 @@ from numpy.typing import ArrayLike
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
-    Any,
     Auto,
     Either,
     Enum,
+    Float,
     Instance,
+    InstanceDefault,
     Int,
     List,
-    Null,
     Nullable,
     Seq,
     String,
@@ -41,6 +41,7 @@ from ..core.properties import (
 from ..models import (
     ColumnDataSource,
     CoordinateMapping,
+    DataRange1d,
     GraphRenderer,
     Plot,
     Range,
@@ -755,27 +756,27 @@ class BaseFigureOptions(Options):
     A label for the y-axis.
     """)
 
-    active_drag = Either(Null, Auto, String, Instance(Drag), default="auto", help="""
+    active_drag = Nullable(Either(Auto, String, Instance(Drag)), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_inspect = Either(Null, Auto, String, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
+    active_inspect = Nullable(Either(Auto, String, Instance(InspectTool), Seq(Instance(InspectTool))), default="auto", help="""
     Which drag tool should initially be active.
     """)
 
-    active_scroll = Either(Null, Auto, String, Instance(Scroll), default="auto", help="""
+    active_scroll = Nullable(Either(Auto, String, Instance(Scroll)), default="auto", help="""
     Which scroll tool should initially be active.
     """)
 
-    active_tap = Either(Null, Auto, String, Instance(Tap), default="auto", help="""
+    active_tap = Nullable(Either(Auto, String, Instance(Tap)), default="auto", help="""
     Which tap tool should initially be active.
     """)
 
-    active_multi = Either(Null, Auto, String, Instance(GestureTool), default="auto", help="""
+    active_multi = Nullable(Either(Auto, String, Instance(GestureTool)), default="auto", help="""
     Specify an active multi-gesture tool, for instance an edit tool or a range tool.
     """)
 
-    tooltips = Either(Null, Instance(Template), String, List(Tuple(String, String)), help="""
+    tooltips = Nullable(Either(Instance(Template), String, List(Tuple(String, String))), help="""
     An optional argument to configure tooltips for the Figure. This argument
     accepts the same values as the ``HoverTool.tooltips`` property. If a hover
     tool is specified in the ``tools`` argument, this value will override that
@@ -786,19 +787,19 @@ class BaseFigureOptions(Options):
 
 class FigureOptions(BaseFigureOptions):
 
-    x_range = Any(help="""
+    x_range = Either(Instance(Range), Tuple(Float, Float), Seq(String), Instance("pandas.Series"), default=InstanceDefault(DataRange1d), help="""
     Customize the x-range of the plot.
     """)
 
-    y_range = Any(help="""
+    y_range = Either(Instance(Range), Tuple(Float, Float), Seq(String), Instance("pandas.Series"), default=InstanceDefault(DataRange1d), help="""
     Customize the y-range of the plot.
     """)
 
-    x_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    x_axis_type = Nullable(Either(Auto, Enum("linear", "log", "datetime", "mercator")), default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = Either(Null, Auto, Enum("linear", "log", "datetime", "mercator"), default="auto", help="""
+    y_axis_type = Nullable(Either(Auto, Enum("linear", "log", "datetime", "mercator")), default="auto", help="""
     The type of the y-axis.
     """)
 
