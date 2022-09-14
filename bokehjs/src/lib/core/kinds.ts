@@ -109,9 +109,10 @@ export namespace Kinds {
     }
   }
 
-  export type TupleKind<T extends unknown[]> = {[K in keyof T]: T[K] extends T[number] ? Kind<T[K]> : never}
+  // See https://github.com/microsoft/TypeScript/issues/49556.
+  export type TupleKind<T extends unknown[]> = {[K in keyof T]: Kind<T[K]>}
 
-  export class Or<T extends unknown[]> extends Kind<T[number]> {
+  export class Or<T extends [unknown, ...unknown[]]> extends Kind<T[number]> {
     constructor(readonly types: TupleKind<T>) {
       super()
       this.types = types
@@ -447,7 +448,7 @@ export const Regex = (regex: RegExp) => new Kinds.Regex(regex)
 export const Null = new Kinds.Null()
 export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nullable(base_type)
 export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)
-export const Or = <T extends unknown[]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
+export const Or = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends object>(struct_type: {[key in keyof T]: Kind<T[key]>}) => new Kinds.Struct(struct_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
