@@ -47,7 +47,7 @@ function _get_session(websocket_url: string, token: string, args_string: string)
 // Fill element with the roots from token
 export async function add_document_from_session(websocket_url: string, token: string, element: HTMLElement,
     roots: HTMLElement[] = [], use_for_title: boolean = false): Promise<ViewManager> {
-  const args_string = window.location.search.substr(1)
+  const args_string = window.location.search.substring(1)
   let session: ClientSession
   try {
     session = await _get_session(websocket_url, token, args_string)
