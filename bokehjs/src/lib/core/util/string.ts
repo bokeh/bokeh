@@ -29,9 +29,6 @@ export function unique_id(prefix?: string): string {
     return id
 }
 
-/** @deprecated */
-export const uniqueId = unique_id
-
 export function escape(s: string): string {
   return s.replace(/(?:[&<>"'`])/g, (ch) => {
     switch (ch) {

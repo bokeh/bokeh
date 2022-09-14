@@ -8,7 +8,7 @@ import * as p from "./properties"
 import * as k from "./kinds"
 import {Property} from "./properties"
 import {assert} from "./util/assert"
-import {uniqueId} from "./util/string"
+import {unique_id} from "./util/string"
 import {keys, values, entries, extend, is_empty, Dict} from "./util/object"
 import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
@@ -289,7 +289,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     super()
 
     const deferred = isPlainObject(attrs) && "id" in attrs
-    this.id = deferred ? attrs.id as string : uniqueId()
+    this.id = deferred ? attrs.id as string : unique_id()
 
     for (const [name, {type, default_value, options}] of entries(this._props)) {
       let property: p.Property<unknown>

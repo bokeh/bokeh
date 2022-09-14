@@ -3,7 +3,7 @@ import {CellEditor, StringEditor} from "./cell_editors"
 import {ColumnType} from "./definitions"
 
 import * as p from "core/properties"
-import {uniqueId} from "core/util/string"
+import {unique_id} from "core/util/string"
 import {Sort} from "core/enums"
 import {Model} from "../../../model"
 
@@ -46,7 +46,7 @@ export class TableColumn extends Model {
 
   toColumn(): ColumnType {
     return {
-      id: uniqueId(),
+      id: unique_id(),
       field: this.field,
       name: this.title ?? this.field,
       width: this.width,
