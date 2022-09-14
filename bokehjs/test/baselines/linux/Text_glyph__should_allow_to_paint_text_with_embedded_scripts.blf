@@ -1,3 +1,4 @@
 Plot bbox=[0, 0, 250, 100]
+  CartesianFrame bbox=[29, 5, 216, 73]
   LinearAxis bbox=[29, 78, 216, 22]
   LinearAxis bbox=[0, 5, 29, 73]

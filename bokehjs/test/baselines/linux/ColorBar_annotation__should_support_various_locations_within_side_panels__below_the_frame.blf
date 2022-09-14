@@ -1,4 +1,5 @@
 Plot bbox=[0, 0, 300, 600]
+  CartesianFrame bbox=[29, 5, 266, 253]
   LinearAxis bbox=[29, 258, 266, 22]
   ColorBar bbox=[29, 280, 266, 80]
     Title bbox=[39, 290, 100, 19]
