@@ -34,38 +34,12 @@
     </a>
     </div>
   </td>
-</tr>
 
-<tr>
   <td>License</td>
   <td>
     <a href="https://github.com/bokeh/bokeh/blob/master/LICENSE.txt">
     <img src="https://img.shields.io/github/license/bokeh/bokeh.svg"
          alt="Bokeh license (BSD 3-clause)" />
-    </a>
-  </td>
-
-  <td>People</td>
-  <td>
-    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
-         alt="GitHub contributors" />
-  </td>
-</tr>
-
-<tr>
-  <td>Sponsorship</td>
-  <td>
-    <a href="http://numfocus.org">
-    <img src="https://img.shields.io/badge/powered%20by-NumFOCUS-black.svg?style=flat&colorA=5B5B5B&colorB=007D8A"
-         alt="Powered by NumFOCUS" />
-    </a>
-  </td>
-
-  <td>Live Tutorial</td>
-  <td>
-    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
-    <img src="https://mybinder.org/badge_logo.svg"
-         alt="Live Bokeh tutorial notebooks on MyBinder" />
     </a>
   </td>
 </tr>
@@ -99,32 +73,51 @@
       </a>
     </div>
   </td>
-
+  <td>Coverage</td>
+  <td>
+    <a href="https://codecov.io/gh/bokeh/bokeh" > 
+    <img alt="Codecov coverage percentage" src="https://codecov.io/gh/bokeh/bokeh/branch/branch-3.0/graph/badge.svg?token=bhEzGkDUaw"/> 
+    </a>
+  </td>
 </tr>
 
+
+<!-- 
 <tr>
-    <td>Support</td>
+  <td>People</td>
+  <td>
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
+         alt="GitHub contributors" />
+  </td>
+</tr> -->
+
+<tr>
+  <td>Community</td>
   <td>
     <a href="https://discourse.bokeh.org">
     <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
          alt="Community Support on discourse.bokeh.org" />
     </a>
   </td>
-
-
+  <td>Live Tutorial</td>
+  <td>
+    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
+    <img src="https://mybinder.org/badge_logo.svg"
+         alt="Live Bokeh tutorial notebooks on MyBinder" />
+    </a>
+  </td>
   <td>Twitter</td>
   <td>
     <a href="https://twitter.com/bokeh">
     <img src="https://img.shields.io/twitter/follow/bokeh.svg?style=social&label=Follow"
          alt="Follow Bokeh on Twitter" />
     </a>
-
   </td>
 </tr>
 
 </table>
 
-*Consider [making a donation](https://numfocus.org/donate-to-bokeh) if you enjoy using Bokeh and want to support its development.*
+*Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
 
 <p>
 <table>
@@ -317,28 +310,20 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="CZI Logo" width="200"/>
     </a>
   </td>
-  <td>
-    <a href="https://www.quansight.com">
-    <img src="https://static.bokeh.org/sponsor/quansight.png"
-         alt="Quansight Logo" width="200"/>
-    </a>
-  </td>
- </tr>
-<tr>
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
     <img src="https://static.bokeh.org/sponsor/blackstone.png"
          alt="Blackstone Logo" width="400"/>
     </a>
   </td>
+ </tr>
+ <tr>
   <td>
     <a href="https://tidelift.com/">
     <img src="https://static.bokeh.org/sponsor/tidelift.svg"
          alt="TideLift Logo" width="200"/>
     </a>
   </td>
- </tr>
- <tr>
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
