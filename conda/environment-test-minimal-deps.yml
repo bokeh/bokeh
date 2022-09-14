@@ -24,7 +24,6 @@ dependencies:
   - colorama
   - colorcet
   - coverage
-  - django 3.*
   - firefox =>96
   - flake8
   - flaky
@@ -47,7 +46,6 @@ dependencies:
   - selenium 4.2
 
   # examples
-  - django
   - h5py
   - icalendar
   - pyshp
