@@ -4,7 +4,6 @@ import {DOMElementView, DOMComponentView} from "core/dom_view"
 import {div, empty, Keys, StyleSheetLike} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
-import {startsWith} from "core/util/string"
 import {reversed} from "core/util/array"
 
 import tools_css, * as tools from "styles/tool_button.css"
@@ -105,12 +104,12 @@ export abstract class ToolButtonView extends DOMElementView {
 
     const icon = this.model.computed_icon
     if (icon != null) {
-      if (startsWith(icon, "data:image")) {
+      if (icon.startsWith("data:image")) {
         const url = `url("${encodeURI(icon)}")`
         icon_el.style.backgroundImage = url
-      } else if (startsWith(icon, "--")) {
+      } else if (icon.startsWith("--")) {
         icon_el.style.backgroundImage = `var(${icon})`
-      } else if (startsWith(icon, ".")) {
+      } else if (icon.startsWith(".")) {
         const cls = icon.substring(1)
         icon_el.classList.add(cls)
       } else if (ToolIcon.valid(icon)) {

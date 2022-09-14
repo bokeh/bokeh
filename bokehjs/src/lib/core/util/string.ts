@@ -1,9 +1,5 @@
 import {settings} from "../settings"
 
-export function startsWith(str: string, searchString: string, position: number = 0): boolean {
-  return str.substr(position, searchString.length) == searchString
-}
-
 export function uuid4(): string {
   // from ipython project
   // http://www.ietf.org/rfc/rfc4122.txt
