@@ -75,21 +75,11 @@
   </td>
   <td>Coverage</td>
   <td>
-    <a href="https://codecov.io/gh/bokeh/bokeh" > 
-    <img alt="Codecov coverage percentage" src="https://codecov.io/gh/bokeh/bokeh/branch/branch-3.0/graph/badge.svg?token=bhEzGkDUaw"/> 
+    <a href="https://codecov.io/gh/bokeh/bokeh" >
+    <img alt="Codecov coverage percentage" src="https://codecov.io/gh/bokeh/bokeh/branch/branch-3.0/graph/badge.svg?token=bhEzGkDUaw"/>
     </a>
   </td>
 </tr>
-
-
-<!-- 
-<tr>
-  <td>People</td>
-  <td>
-    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
-         alt="GitHub contributors" />
-  </td>
-</tr> -->
 
 <tr>
   <td>Community</td>
