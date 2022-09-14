@@ -52,7 +52,18 @@ from bokeh.plotting import _figure as bpf # isort:skip
 #-----------------------------------------------------------------------------
 
 
-class Testfigure:
+class Test_figure:
+
+    def test_init(self) -> None:
+        f0 = bpf.figure(x_axis_type="linear")
+        assert isinstance(f0, bpf.figure)
+
+        with pytest.raises(ValueError, match="linear"): # TODO: ValidationError
+            bpf.figure(x_axis_type="lnear")
+
+        with pytest.raises(AttributeError, match="x_axis_type"):
+            bpf.figure(x_axis_typ="linear")
+
     def test_basic(self) -> None:
         p = bpf.figure()
         q = bpf.figure()

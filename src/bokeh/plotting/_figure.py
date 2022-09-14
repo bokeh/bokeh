@@ -174,6 +174,12 @@ class figure(Plot, GlyphAPI):
 
     def __init__(self, *arg, **kw) -> None:
         opts = FigureOptions(kw)
+
+        names = self.properties()
+        for name in kw.keys():
+            if name not in names:
+                self._raise_attribute_error_with_matches(name, names | opts.properties())
+
         super().__init__(*arg, **kw)
 
         self.x_range = get_range(opts.x_range)
