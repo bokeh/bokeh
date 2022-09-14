@@ -33,10 +33,6 @@ runs:
         name: wheel-package
         path: dist/
 
-    - name: Echo download path
-      shell: bash -l {0}
-      run: echo ${{steps.download.outputs.download-path}}
-
     - name: Install wheel package
       shell: bash -l {0}
       run: pip install dist/bokeh-*-py3-none-any.whl
