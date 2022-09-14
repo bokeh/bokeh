@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
-from ...util.dependencies import import_optional
 from .bases import Property
 
 if TYPE_CHECKING:
@@ -57,8 +56,8 @@ class PandasDataFrame(Property["DataFrame"]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        pd = import_optional('pandas')
-        if pd and isinstance(value, pd.DataFrame):
+        import pandas as pd
+        if isinstance(value, pd.DataFrame):
             return
 
         msg = "" if not detail else f"expected Pandas DataFrame, got {value!r}"
@@ -76,8 +75,8 @@ class PandasGroupBy(Property["GroupBy[Any]"]):
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
 
-        pd = import_optional('pandas')
-        if pd and isinstance(value, pd.core.groupby.GroupBy):
+        import pandas as pd
+        if isinstance(value, pd.core.groupby.GroupBy):  # type: ignore
             return
 
         msg = "" if not detail else f"expected Pandas GroupBy, got {value!r}"

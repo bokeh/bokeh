@@ -30,13 +30,13 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from pandas import DataFrame
+from typing import TYPE_CHECKING, Any, cast
 
 # Bokeh imports
 from ..util.sampledata import package_csv
+
+if TYPE_CHECKING:
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,16 +58,14 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data() -> DataFrame:
+def _read_data() -> pd.DataFrame:
     '''
 
     '''
-    from ..util.dependencies import import_required
-    module = 'commits'
-    pd = import_required('pandas', '%s sample data requires Pandas (http://pandas.pydata.org) to be installed' % module)
+    import pandas as pd
 
-    data = package_csv(module, 'commits.txt.gz', parse_dates=True, header=None, names=['day', 'datetime'], index_col='datetime')
-    data.index = pd.to_datetime(data.index, utc=True,).tz_convert('US/Central')
+    data = package_csv('commits', 'commits.txt.gz', parse_dates=True, header=None, names=['day', 'datetime'], index_col='datetime')
+    data.index = cast(Any, pd.to_datetime(data.index, utc=True,).tz_convert('US/Central'))
     data['time'] = data.index.time # type: ignore[attr-defined]
 
     return data

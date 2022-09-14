@@ -38,10 +38,6 @@ log = logging.getLogger(__name__)
 from itertools import permutations
 from typing import TYPE_CHECKING
 
-## External dependencies
-if TYPE_CHECKING:
-    import pandas as pd
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -64,9 +60,10 @@ from bokeh.models import (
     TableColumn,
     TapTool,
 )
-from bokeh.util.dependencies import import_required
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from ...core.types import ID
     from ...model import Model
 
@@ -307,7 +304,7 @@ class _BokehStructureGraph:
         analyzed. Used as datasource to show attributes.
 
         """
-        pd = import_required("pandas", "Structure graphs require Pandas (http://pandas.pydata.org) to be installed")
+        import pandas as pd
         df = pd.DataFrame()
         for x in self._graph.nodes(data=True):
             M = self._model.select_one(dict(id=x[0]))

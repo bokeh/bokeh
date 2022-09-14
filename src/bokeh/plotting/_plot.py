@@ -42,7 +42,6 @@ from ..models import (
     Range,
     Range1d,
 )
-from ..util.dependencies import import_optional
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -63,10 +62,11 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def get_range(range_input):
+    import pandas as pd
+
     if range_input is None:
         return DataRange1d()
-    pd = import_optional('pandas')
-    if pd and isinstance(range_input, pd.core.groupby.GroupBy):
+    if isinstance(range_input, pd.core.groupby.GroupBy):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input

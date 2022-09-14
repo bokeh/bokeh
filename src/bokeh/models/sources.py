@@ -31,6 +31,7 @@ from typing import (
 )
 
 # External imports
+import numpy as np
 from typing_extensions import TypeAlias
 
 # Bokeh imports
@@ -54,7 +55,6 @@ from ..core.properties import (
     String,
 )
 from ..model import Model
-from ..util.dependencies import import_optional
 from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
 from ..util.warnings import BokehUserWarning
@@ -63,6 +63,8 @@ from .filters import AllIndices, Filter, IntersectionFilter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from ..core.has_props import Setter
 
 #-----------------------------------------------------------------------------
@@ -86,7 +88,6 @@ __all__ = (
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    import pandas as pd
 
     DataDict: TypeAlias = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
 
@@ -228,11 +229,11 @@ class ColumnDataSource(ColumnarDataSource):
         # TODO (bev) invalid to pass args and "data", check and raise exception
         raw_data: DataDict = kwargs.pop("data", {})
 
+        import pandas as pd
         if not isinstance(raw_data, dict):
-            pd = import_optional('pandas')
-            if pd and isinstance(raw_data, pd.DataFrame):
+            if isinstance(raw_data, pd.DataFrame):
                 raw_data = self._data_from_df(raw_data)
-            elif pd and isinstance(raw_data, pd.core.groupby.GroupBy):
+            elif isinstance(raw_data, pd.core.groupby.GroupBy):
                 raw_data = self._data_from_groupby(raw_data)
             else:
                 raise ValueError(f"expected a dict or pandas.DataFrame, got {raw_data}")
@@ -258,7 +259,7 @@ class ColumnDataSource(ColumnarDataSource):
             dict[str, np.array]
 
         '''
-        pd = import_optional('pandas')
+        import pandas as pd
 
         _df = df.copy()
 
@@ -374,9 +375,7 @@ class ColumnDataSource(ColumnarDataSource):
             DataFrame
 
         '''
-        pd = import_optional('pandas')
-        if not pd:
-            raise RuntimeError('Pandas must be installed to convert to a Pandas Dataframe')
+        import pandas as pd
         return pd.DataFrame(self.data)
 
     def add(self, data: Sequence[Any], name: str | None = None) -> str:
@@ -511,10 +510,11 @@ class ColumnDataSource(ColumnarDataSource):
             source.stream(new_data)
 
         '''
+        import pandas as pd
+
         needs_length_check = True
 
-        pd = import_optional('pandas')
-        if pd and isinstance(new_data, (pd.Series, pd.DataFrame)):
+        if isinstance(new_data, (pd.Series, pd.DataFrame)):
             if isinstance(new_data, pd.Series):
                 new_data = new_data.to_frame().T
 
@@ -542,7 +542,6 @@ class ColumnDataSource(ColumnarDataSource):
             else:
                 raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
 
-        import numpy as np
         if needs_length_check:
             lengths: set[int] = set()
             arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
@@ -669,8 +668,6 @@ class ColumnDataSource(ColumnarDataSource):
         For a more comprehensive complete example, see :bokeh-tree:`examples/howto/patch_app.py`.
 
         '''
-        import numpy as np
-
         extra = set(patches.keys()) - set(self.data.keys())
 
         if extra:

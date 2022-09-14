@@ -16,6 +16,9 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import pandas as pd
+
 # Bokeh imports
 from tests.support.util.api import verify_all
 
@@ -39,7 +42,7 @@ ALL = (
 
 
 class Test_PandasDataFrame:
-    def test_valid(self, pd) -> None:
+    def test_valid(self) -> None:
         prop = bcpp.PandasDataFrame()
         assert prop.is_valid(pd.DataFrame())
 
@@ -55,7 +58,7 @@ class Test_PandasDataFrame:
 
 
 class Test_PandasGroupBy:
-    def test_valid(self, pd) -> None:
+    def test_valid(self) -> None:
         prop = bcpp.PandasGroupBy()
         assert prop.is_valid(pd.core.groupby.GroupBy(pd.DataFrame()))
 

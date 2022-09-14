@@ -126,12 +126,6 @@ NetworkX
     Necessary to use the :func:`~bokeh.plotting.graph.from_networkx` function
     to generate Bokeh graph renderers directly from NetworkX data.
 
-pandas
-    Necessary for the :func:`~bokeh.plotting.figure.hexbin` function.
-    Additionally, having pandas installed makes some aspects of Bokeh simpler
-    to use. For example, glyph functions are able to automatically convert
-    pandas DataFrames to Bokeh data sources.
-
 psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 

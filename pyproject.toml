@@ -13,6 +13,7 @@ dependencies = [
     "contourpy >=1",
     "numpy >=1.11.3",
     "packaging >=16.8",
+    "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=5.1",
@@ -101,6 +102,12 @@ implicit_reexport = true
 namespace_packages = true
 warn_return_any = false
 warn_unreachable = true
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+]
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

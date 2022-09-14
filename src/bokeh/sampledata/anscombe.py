@@ -38,7 +38,7 @@ from io import StringIO
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from pandas import DataFrame
+    import pandas as pd
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -75,12 +75,11 @@ CSV = """
 # Private API
 #-----------------------------------------------------------------------------
 
-def _read_data() -> DataFrame:
+def _read_data() -> pd.DataFrame:
     '''
 
     '''
-    from ..util.dependencies import import_required
-    pd = import_required('pandas', 'anscombe sample data requires Pandas (http://pandas.pydata.org) to be installed')
+    import pandas as pd
     return pd.read_csv(StringIO(CSV), skiprows=1, skipinitialspace=True, engine='python')
 
 #-----------------------------------------------------------------------------

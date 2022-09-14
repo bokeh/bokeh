@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
+import pandas as pd
 from mock import MagicMock, patch
 
 # Bokeh imports
@@ -67,7 +68,7 @@ class Test_CategoricalColorMapper:
         assert not mock_error.called
         assert not mock_warn.called
 
-    def test_with_pandas_index(self, pd) -> None:
+    def test_with_pandas_index(self) -> None:
         fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
         years = ['2015', '2016', '2017']
         data = {'2015'   : [2, 1, 4, 3, 2, 4],
