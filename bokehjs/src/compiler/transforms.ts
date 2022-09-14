@@ -1,4 +1,4 @@
-import * as ts from "typescript"
+import ts from "typescript"
 
 export function apply<T extends ts.Node>(node: T, ...transforms: ts.TransformerFactory<T>[]): T {
   const result = ts.transform(node, transforms)
@@ -13,11 +13,12 @@ function is_require(node: ts.Node): node is ts.CallExpression {
 }
 
 export function relativize_modules(relativize: (file: string, module_path: string) => string | null) {
-  function relativize_specifier(source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
+  function relativize_specifier(context: ts.TransformationContext, source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
+    const {factory} = context
     if (expr != null && ts.isStringLiteralLike(expr) && expr.text.length > 0) {
       const relative = relativize(source.fileName, expr.text)
       if (relative != null)
-        return ts.createLiteral(relative)
+        return factory.createStringLiteral(relative)
     }
 
     return null
@@ -30,21 +31,21 @@ export function relativize_modules(relativize: (file: string, module_path: strin
 
         function visit(node: ts.Node): ts.Node {
           if (ts.isImportDeclaration(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            const moduleSpecifier = relativize_specifier(context, root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, importClause, assertClause} = node
-              return factory.updateImportDeclaration(node, decorators, modifiers, importClause, moduleSpecifier, assertClause)
+              const {modifiers, importClause, assertClause} = node
+              return factory.updateImportDeclaration(node, modifiers, importClause, moduleSpecifier, assertClause)
             }
           }
           if (ts.isExportDeclaration(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.moduleSpecifier)
+            const moduleSpecifier = relativize_specifier(context, root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
-              const {decorators, modifiers, isTypeOnly, exportClause, assertClause} = node
-              return factory.updateExportDeclaration(node, decorators, modifiers, isTypeOnly, exportClause, moduleSpecifier, assertClause)
+              const {modifiers, isTypeOnly, exportClause, assertClause} = node
+              return factory.updateExportDeclaration(node, modifiers, isTypeOnly, exportClause, moduleSpecifier, assertClause)
             }
           }
           if (is_require(node)) {
-            const moduleSpecifier = relativize_specifier(root, node.arguments[0])
+            const moduleSpecifier = relativize_specifier(context, root, node.arguments[0])
             if (moduleSpecifier != null) {
               const {expression, typeArguments} = node
               return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])
@@ -80,7 +81,6 @@ export function insert_class_name() {
 
       if (ts.isClassDeclaration(node) && node.name != null && !has__name__(node)) {
         const property = factory.createPropertyDeclaration(
-          undefined,
           factory.createModifiersFromModifierFlags(ts.ModifierFlags.Static),
           "__name__",
           undefined,
@@ -89,7 +89,6 @@ export function insert_class_name() {
 
         node = factory.updateClassDeclaration(
           node,
-          node.decorators,
           node.modifiers,
           node.name,
           node.typeParameters,
@@ -105,7 +104,9 @@ export function insert_class_name() {
 }
 
 export function remove_use_strict() {
-  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     const statements = root.statements.filter((node) => {
       if (ts.isExpressionStatement(node)) {
         const expr = node.expression
@@ -115,7 +116,7 @@ export function remove_use_strict() {
       return true
     })
 
-    return ts.updateSourceFileNode(root, statements)
+    return factory.updateSourceFile(root, statements)
   }
 }
 
@@ -307,12 +308,14 @@ export function fix_esmodule() {
       return node
     })
 
-    return ts.updateSourceFileNode(root, statements)
+    return factory.updateSourceFile(root, statements)
   }
 }
 
 export function remove_void0() {
-  return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    const {factory} = context
+
     let found = false
     const statements = root.statements.filter((node) => {
       if (!found && ts.isExpressionStatement(node)) {
@@ -331,7 +334,7 @@ export function remove_void0() {
       return true
     })
 
-    return ts.updateSourceFileNode(root, statements)
+    return factory.updateSourceFile(root, statements)
   }
 }
 
@@ -373,19 +376,19 @@ export function fix_esexports() {
       return node
     })
 
-    return ts.updateSourceFileNode(root, statements)
+    return factory.updateSourceFile(root, statements)
   }
 }
 
 export function wrap_in_function(module_name: string) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context
-    const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, undefined, name)
+    const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, name)
     const params = [p("require"), p("module"), p("exports"), p("__esModule"), p("__esExport")]
     const block = factory.createBlock(root.statements, true)
-    const func = factory.createFunctionDeclaration(undefined, undefined, undefined, "_", undefined, params, undefined, block)
+    const func = factory.createFunctionDeclaration(undefined, undefined, "_", undefined, params, undefined, block)
     ts.addSyntheticLeadingComment(func, ts.SyntaxKind.MultiLineCommentTrivia, ` ${module_name} `, false)
-    return ts.updateSourceFileNode(root, [func])
+    return factory.updateSourceFile(root, [func])
   }
 }
 
