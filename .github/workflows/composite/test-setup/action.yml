@@ -26,18 +26,16 @@ runs:
         activate-environment: bk-test
         environment-file: conda/environment-test-${{ inputs.test-env }}.yml
 
-    - name: Download conda package
+    - name: Download wheel package
+      id: download
       uses: actions/download-artifact@v1
       with:
-        name: conda-bld-noarch
+        name: wheel-package
+        path: dist/
 
-    - name: Extract conda package
+    - name: Install wheel package
       shell: bash -l {0}
-      run: tar xzf conda-bld-noarch/conda-bld-noarch.tgz -C /tmp
-
-    - name: Install conda package
-      shell: bash -l {0}
-      run: conda install --yes --quiet --offline /tmp/conda-bld/noarch/bokeh-*.bz2
+      run: pip install dist/bokeh-*-py3-none-any.whl
 
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}

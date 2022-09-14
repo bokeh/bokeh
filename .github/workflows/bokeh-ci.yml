@@ -57,11 +57,11 @@ jobs:
       - name: Verify conda install
         run: bash scripts/ci/verify_conda_install.sh
 
-      - name: Upload conda package
+      - name: Upload wheel package
         uses: actions/upload-artifact@v3
         with:
-          name: conda-bld-noarch
-          path: /tmp/conda-bld-noarch.tgz
+          name: wheel-package
+          path: dist/bokeh-*-py3-none-any.whl
 
   codebase:
     needs: build
