@@ -8,7 +8,7 @@ export type Options<T extends View> = {parent: T["parent"] | null, owner?: ViewM
 
 async function _build_view<T extends HasProps>(view_cls: T["default_view"], model: T, options: Options<ViewOf<T>>): Promise<ViewOf<T>> {
   assert(view_cls != null, "model doesn't implement a view")
-  const view = new view_cls!({...options, model})
+  const view = new view_cls({...options, model})
   view.initialize()
   await view.lazy_initialize()
   return view

@@ -16,7 +16,7 @@ task("defaults:generate", () => {
   proc.stderr.on("data", (data) => {
     log(`${data}`)
   })
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     proc.on("error", reject)
     proc.on("exit", (code) => {
       if (code === 0)
