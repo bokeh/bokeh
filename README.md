@@ -77,15 +77,15 @@
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI?label=Bokeh-CI&logo=github&style=for-the-badge"
-         alt="Current github actions build status" />
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI?label=Bokeh-CI&logo=github&style=for-the-badge"
+         alt="Current Bokeh-CI github actions build status" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
     <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI?label=BokehJS-CI&logo=github&style=for-the-badge"
-         alt="Current github actions build status" />
+         alt="Current BokehJS-CI github actions build status" />
     </a>
   </td>
 
@@ -112,7 +112,7 @@
   <td>
     <a href="https://stackoverflow.com/questions/tagged/bokeh">
     <img src="https://img.shields.io/stackexchange/stackoverflow/t/bokeh?label=StackOverflow%20&color=blue&logo=stackoverflow&style=for-the-badge"
-         alt="Bokeh-tagged questions on Stck Overflow" />
+         alt="Bokeh-tagged questions on Stack Overflow" />
      </a>
   </td>
 
@@ -272,13 +272,13 @@
 
 ## Installation
 
-The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
+ To install Bokeh and its required dependencies using the `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
 ```
 
-To install using pip, enter the following command at a Bash or Windows command prompt:
+To install using `pip`, enter the following command at a Bash or Windows command prompt:
 ```
 pip install bokeh
 ```
@@ -289,13 +289,13 @@ Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/
 
 Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/main?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/main/docs/CODE_OF_CONDUCT.md).*
+*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
 
 ## Follow us
 
@@ -305,7 +305,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as for monetary support from the organizations and companies listed below:
+The Bokeh project is grateful for [individual contributions](https://opencollective.com/bokeh), as well as for monetary support from the organizations and companies listed below:
 
 <table align="center">
 <tr>
