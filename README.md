@@ -11,26 +11,26 @@
 <tr>
 
   <td>Package</td>
-  
+
   <td>
-    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=lightgray&style=for-the-badge" 
+    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=lightgray&style=for-the-badge"
          alt="Latest package version" />
   </td>
-  
+
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
     <img src="https://img.shields.io/pypi/pyversions/bokeh?color=lightgray&style=for-the-badge"
          alt="Supported Python versions" />
     </a>
   </td>
-  
+
   <td>
     <a href="https://github.com/bokeh/bokeh/blob/main/LICENSE.txt">
     <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=lightgray&style=for-the-badge"
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
-  
+
 </tr>
 
 <tr>
@@ -43,7 +43,7 @@
          alt="PyPI downloads per month" />
     </a>
   </td>
-  
+
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
     <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg?style=for-the-badge"
@@ -64,7 +64,7 @@
          alt="Current github actions build status" />
     </a>
   </td>
-  
+
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
     <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI?label=BokehJS-CI&logo=github&style=for-the-badge"
@@ -74,7 +74,7 @@
 
   <td>
     <a href="https://codecov.io/gh/bokeh/bokeh" >
-    <img src="https://img.shields.io/codecov/c/github/bokeh/bokeh?logo=codecov&style=for-the-badge&token=bhEzGkDUaw" 
+    <img src="https://img.shields.io/codecov/c/github/bokeh/bokeh?logo=codecov&style=for-the-badge&token=bhEzGkDUaw"
          alt="Codecov coverage percentage" />
     </a>
   </td>
@@ -84,7 +84,7 @@
 <tr>
 
   <td>Community</td>
-  
+
   <td>
     <a href="https://discourse.bokeh.org">
     <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg?color=blue&logo=discourse&style=for-the-badge"
@@ -98,17 +98,17 @@
          alt="Bokeh-tagged questions on Stck Overflow" />
      </a>
   </td>
-  
+
   <td>
     <a href="https://twitter.com/bokeh">
     <img src="https://img.shields.io/twitter/follow/bokeh?color=blue&logo=twitter&style=for-the-badge"
          alt="Follow Bokeh on Twitter" />
     </a>
   </td>
-  
+
 </tr>
 
- 
+
 </table>
 
 *Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
