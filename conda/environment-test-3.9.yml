@@ -56,6 +56,7 @@ dependencies:
   - icalendar
   - networkx
   - notebook
+  - pandas-datareader
   - pyshp
   - scikit-learn
   - sympy

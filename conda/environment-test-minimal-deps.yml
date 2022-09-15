@@ -50,6 +50,7 @@ dependencies:
   - django
   - h5py
   - icalendar
+  - pandas-datareader
   - pyshp
 
   # pip dependencies
