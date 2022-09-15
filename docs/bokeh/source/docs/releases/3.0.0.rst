@@ -12,6 +12,7 @@ Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
 * Initial import times reduced
 * Support added for new selection policy NodesAndAdjacentNodes
 * Plot.remove_tools() function added
+* django support was removed; use `bokeh_django` instead
 
 .. _release-3-0-0-migration:
 
