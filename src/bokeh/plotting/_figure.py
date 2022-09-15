@@ -794,11 +794,13 @@ class BaseFigureOptions(Options):
 
 class FigureOptions(BaseFigureOptions):
 
-    x_range = Either(Instance(Range), Tuple(Float, Float), Seq(String), Instance("pandas.Series"), default=InstanceDefault(DataRange1d), help="""
+    x_range = Either(Instance(Range), Tuple(Float, Float), Seq(String),
+        Object("pandas.Series"), Object("pandas.core.groupby.GroupBy"), default=InstanceDefault(DataRange1d), help="""
     Customize the x-range of the plot.
     """)
 
-    y_range = Either(Instance(Range), Tuple(Float, Float), Seq(String), Instance("pandas.Series"), default=InstanceDefault(DataRange1d), help="""
+    y_range = Either(Instance(Range), Tuple(Float, Float), Seq(String),
+        Object("pandas.Series"), Object("pandas.core.groupby.GroupBy"), default=InstanceDefault(DataRange1d), help="""
     Customize the y-range of the plot.
     """)
 

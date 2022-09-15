@@ -32,6 +32,7 @@ from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
     import pandas as pd
+    from pandas.core.groupby import GroupBy
 
 # Bokeh imports
 from ..core.properties import Datetime
@@ -77,12 +78,13 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | None) -> Range:
+def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | GroupBy | None) -> Range:
     import pandas as pd
+    from pandas.core.groupby import GroupBy
 
     if range_input is None:
         return DataRange1d()
-    if isinstance(range_input, pd.core.groupby.GroupBy):
+    if isinstance(range_input, GroupBy):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
