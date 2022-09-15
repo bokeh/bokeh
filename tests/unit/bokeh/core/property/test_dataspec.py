@@ -23,6 +23,7 @@ from copy import copy
 
 # External imports
 import numpy as np
+import pandas as pd
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps, Local
@@ -440,7 +441,7 @@ class Test_NumberSpec:
             f.ndt = np.timedelta64(3000, "ms")
             assert f.ndt == np.timedelta64(3000, "ms")
 
-    def tests_accepts_timedelta_with_pandas(self, pd):
+    def tests_accepts_timedelta_with_pandas(self):
         class Foo(HasProps):
             dt = bcpd.NumberSpec("dt", accept_datetime=True)
             ndt = bcpd.NumberSpec("ndt", accept_datetime=False)

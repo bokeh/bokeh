@@ -1,5 +1,6 @@
 Pane bbox=[0, 0, 300, 300]
   Plot bbox=[0, 0, 285, 600]
+    CartesianFrame bbox=[29, 5, 226, 573]
     LinearAxis bbox=[29, 578, 226, 22]
     LinearAxis bbox=[0, 5, 29, 573]
     ToolbarPanel bbox=[255, 5, 30, 573]

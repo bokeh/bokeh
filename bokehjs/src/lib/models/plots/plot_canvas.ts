@@ -985,7 +985,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const renderers = this.get_renderer_views()
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
-    return {...state, children: [...children ?? [], ...renderers]}
+    // TODO: remove this when frame is generalized
+    const frame = {type: "CartesianFrame", bbox: this.frame.bbox.box}
+    return {...state, children: [...children ?? [], frame, ...renderers]}
   }
 
   protected _hold_render_changed(): void {

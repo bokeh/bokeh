@@ -2,13 +2,13 @@
 import os
 import sys
 import warnings
-from typing import Any
 from os.path import dirname, join
+from typing import Any
 
 # Bokeh imports
+from bokeh.core.json_encoder import serialize_json
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, ObjectRep, Serializer, SymbolRep
-from bokeh.core.json_encoder import serialize_json
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 

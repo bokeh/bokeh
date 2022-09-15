@@ -23,6 +23,7 @@ import warnings
 
 # External imports
 import numpy as np
+import pandas as pd
 
 # Bokeh imports
 from bokeh.models import Selection
@@ -74,7 +75,7 @@ class TestColumnDataSource:
         assert ds.data == data
         assert set(ds.column_names) == set(data.keys())
 
-    def test_init_dataframe_arg(self, pd) -> None:
+    def test_init_dataframe_arg(self) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(df)
@@ -86,7 +87,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
 
-    def test_data_accepts_dataframe_arg(self, pd) -> None:
+    def test_data_accepts_dataframe_arg(self) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource()
@@ -100,7 +101,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
 
-    def test_init_dataframe_data_kwarg(self, pd) -> None:
+    def test_init_dataframe_data_kwarg(self) -> None:
         data = dict(a=[1, 2], b=[2, 3])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(data=df)
@@ -112,7 +113,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
 
-    def test_init_dataframe_index_named_column(self, pd) -> None:
+    def test_init_dataframe_index_named_column(self) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource(data=df)
@@ -124,7 +125,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
-    def test_data_accepts_dataframe_index_named_column(self, pd) -> None:
+    def test_data_accepts_dataframe_index_named_column(self) -> None:
         data = dict(a=[1, 2], b=[2, 3], index=[4, 5])
         df = pd.DataFrame(data)
         ds = bms.ColumnDataSource()
@@ -138,7 +139,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['level_0'])
         assert set(ds.column_names) - set(df.columns) == {"level_0"}
 
-    def test_init_dataframe_column_categoricalindex(self, pd) -> None:
+    def test_init_dataframe_column_categoricalindex(self) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]
         df = pd.DataFrame(columns=columns, data=data)
@@ -151,7 +152,7 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
 
-    def test_data_accepts_dataframe_column_categoricalindex(self, pd) -> None:
+    def test_data_accepts_dataframe_column_categoricalindex(self) -> None:
         columns = pd.CategoricalIndex(['a', 'b'])
         data = [[0,2], [1,3]]
         df = pd.DataFrame(columns=columns, data=data)
@@ -166,19 +167,19 @@ class TestColumnDataSource:
         assert [0, 1] == list(ds.data['index'])
         assert set(ds.column_names) - set(df.columns) == {"index"}
 
-    def test_init_dataframe_nonstring_named_column(self, pd) -> None:
+    def test_init_dataframe_nonstring_named_column(self) -> None:
         data = {1: [1, 2], 2: [2, 3]}
         df = pd.DataFrame(data)
         with pytest.raises(ValueError, match=r'expected an element of.*'):
             bms.ColumnDataSource(data=df)
 
-    def test_init_dataframe_nonstring_named_multicolumn(self, pd) -> None:
+    def test_init_dataframe_nonstring_named_multicolumn(self) -> None:
         data = {(1, 2): [1, 2], (2, 3): [2, 3]}
         df = pd.DataFrame(data)
         with pytest.raises(TypeError, match=r'Could not flatten.*'):
             bms.ColumnDataSource(data=df)
 
-    def test_init_groupby_arg(self, pd) -> None:
+    def test_init_groupby_arg(self) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(group)
@@ -190,7 +191,7 @@ class TestColumnDataSource:
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_data_accepts_groupby_arg(self, pd) -> None:
+    def test_data_accepts_groupby_arg(self) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource()
@@ -204,7 +205,7 @@ class TestColumnDataSource:
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_init_groupby_data_kwarg(self, pd) -> None:
+    def test_init_groupby_data_kwarg(self) -> None:
         from bokeh.sampledata.autompg import autompg as df
         group = df.groupby(by=['origin', 'cyl'])
         ds = bms.ColumnDataSource(data=group)
@@ -216,7 +217,7 @@ class TestColumnDataSource:
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_init_groupby_with_None_subindex_name(self, pd) -> None:
+    def test_init_groupby_with_None_subindex_name(self) -> None:
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = bms.ColumnDataSource(data=group)
@@ -228,7 +229,7 @@ class TestColumnDataSource:
             assert isinstance(ds.data[k2], np.ndarray)
             assert list(s[key]) == list(ds.data[k2])
 
-    def test_data_accepts_groupby_with_None_subindex_name(self, pd) -> None:
+    def test_data_accepts_groupby_with_None_subindex_name(self) -> None:
         df = pd.DataFrame({"A": [1, 2, 3, 4] * 2, "B": [10, 20, 30, 40] * 2, "C": range(8)})
         group = df.groupby(['A', [10, 20, 30, 40] * 2])
         ds = bms.ColumnDataSource()
@@ -304,15 +305,15 @@ class TestColumnDataSource:
         with pytest.raises(ValueError, match=r"stream\(...\) only supports 1d sequences, got ndarray with size \(.*"):
             ds.stream(dict(a=[10], b=np.ones((1,1))))
 
-    def test__df_index_name_with_named_index(self, pd) -> None:
+    def test__df_index_name_with_named_index(self) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         assert bms.ColumnDataSource._df_index_name(df) == "c"
 
-    def test__df_index_name_with_unnamed_index(self, pd) -> None:
+    def test__df_index_name_with_unnamed_index(self) -> None:
         df = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         assert bms.ColumnDataSource._df_index_name(df) == "index"
 
-    def test__df_index_name_with_named_multi_index(self, pd) -> None:
+    def test__df_index_name_with_named_multi_index(self) -> None:
         data = io.StringIO("""\
 Fruit,Color,Count,Price
 Apple,Red,3,$1.29
@@ -325,7 +326,7 @@ Lime,Green,99,$0.39
         assert df.index.names == ['Fruit', 'Color']
         assert bms.ColumnDataSource._df_index_name(df) == "Fruit_Color"
 
-    def test__df_index_name_with_unnamed_multi_index(self, pd) -> None:
+    def test__df_index_name_with_unnamed_multi_index(self) -> None:
         arrays = [np.array(['bar', 'bar', 'baz', 'baz', 'foo', 'foo', 'qux', 'qux']),
                   np.array(['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two'])]
         df = pd.DataFrame(np.random.randn(8, 4), index=arrays)
@@ -397,7 +398,7 @@ Lime,Green,99,$0.39
         transformed_date = convert_datetime_array(new_date)
         assert np.array_equal(stuff['args'][2]['index'], transformed_date)
 
-    def test__stream_good_df_with_date_index_data(self, pd) -> None:
+    def test__stream_good_df_with_date_index_data(self) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -421,7 +422,7 @@ Lime,Green,99,$0.39
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    def test__stream_good_dict_of_index_and_series_data(self, pd) -> None:
+    def test__stream_good_dict_of_index_and_series_data(self) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -445,7 +446,7 @@ Lime,Green,99,$0.39
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
         assert np.array_equal(stuff['args'][2]['A'], new_df.A.values)
 
-    def test__stream_good_dict_of_index_and_series_data_transformed(self, pd) -> None:
+    def test__stream_good_dict_of_index_and_series_data_transformed(self) -> None:
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
@@ -476,7 +477,7 @@ Lime,Green,99,$0.39
             assert type(v) == np.ndarray
             assert np.array_equal(v, d2[k])
 
-    def test_stream_dict_to_ds_created_from_df(self, pd) -> None:
+    def test_stream_dict_to_ds_created_from_df(self) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -527,7 +528,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    def test_stream_series_to_ds_created_from_df(self, pd) -> None:
+    def test_stream_series_to_ds_created_from_df(self) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -580,7 +581,7 @@ Lime,Green,99,$0.39
                                                 c=np.array([30, 31]),
                                                 index=np.array([0, 0])))
 
-    def test_stream_df_to_ds_created_from_df_named_index(self, pd) -> None:
+    def test_stream_df_to_ds_created_from_df_named_index(self) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30])).set_index('c')
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"
@@ -633,7 +634,7 @@ Lime,Green,99,$0.39
                                                 b=np.array([20, 21, 22]),
                                                 c=np.array([30, 31, 32])))
 
-    def test_stream_df_to_ds_created_from_df_default_index(self, pd) -> None:
+    def test_stream_df_to_ds_created_from_df_default_index(self) -> None:
         data = pd.DataFrame(dict(a=[10], b=[20], c=[30]))
         ds = bms.ColumnDataSource(data)
         ds._document = "doc"

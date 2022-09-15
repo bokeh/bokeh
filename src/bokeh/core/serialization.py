@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import base64
 import datetime as dt
-import importlib.util
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
@@ -46,9 +45,6 @@ from typing import (
 import numpy as np
 from typing_extensions import TypeAlias
 
-if TYPE_CHECKING:
-    import numpy.typing as npt
-
 # Bokeh imports
 from ..util.dataclasses import (
     Unspecified,
@@ -56,7 +52,6 @@ from ..util.dataclasses import (
     entries,
     is_dataclass,
 )
-from ..util.dependencies import import_optional
 from ..util.serialization import (
     array_encoding_disabled,
     convert_datetime_type,
@@ -70,6 +65,8 @@ from ..util.serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+
     from ..core.has_props import Setter
     from ..model import Model
 
@@ -87,7 +84,6 @@ __all__ = (
 )
 
 _MAX_SAFE_INT = 2**53 - 1
-_HAS_PANDAS = importlib.util.find_spec("pandas") is not None
 
 #-----------------------------------------------------------------------------
 # General API
@@ -441,12 +437,12 @@ class Serializer:
         if np.issubdtype(type(obj), np.bool_):
             return self._encode_bool(bool(obj))
 
-        if _HAS_PANDAS:
-            module = type(obj).__module__
-            if module is not None and module.startswith("pandas"):
-                pd = import_optional("pandas")
-                if pd and isinstance(obj, (pd.Series, pd.Index)):
-                    return self._encode_ndarray(transform_series(obj))
+        # avoid importing pandashere unless it is actually in use
+        module = type(obj).__module__
+        if module is not None and module.startswith("pandas"):
+            import pandas as pd
+            if isinstance(obj, (pd.Series, pd.Index)):
+                return self._encode_ndarray(transform_series(obj))
 
         self.error(f"can't serialize {type(obj)}")
 

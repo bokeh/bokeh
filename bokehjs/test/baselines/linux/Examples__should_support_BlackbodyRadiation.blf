@@ -1,5 +1,6 @@
 Column bbox=[0, 0, 700, 567]
   Plot bbox=[0, 0, 700, 500]
+    CartesianFrame bbox=[65, 30, 630, 410]
     LinearAxis bbox=[65, 440, 630, 60]
     LinearAxis bbox=[0, 30, 65, 410]
     Title bbox=[65, 0, 630, 30]

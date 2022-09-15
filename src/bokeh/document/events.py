@@ -70,12 +70,8 @@ from typing import (
 # External imports
 from typing_extensions import TypeAlias
 
-if TYPE_CHECKING:
-    import pandas as pd
-
 # Bokeh imports
 from ..core.serialization import Serializable, Serializer
-from ..util.dependencies import import_optional
 from .json import (
     ColumnDataChanged,
     ColumnsPatched,
@@ -89,6 +85,8 @@ from .json import (
 )
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from ..core.has_props import Setter
     from ..model import Model
     from ..models.sources import DataDict
@@ -520,8 +518,9 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         self.model = model
         self.attr = attr
 
-        pd = import_optional('pandas')
-        if pd and isinstance(data, pd.DataFrame):
+
+        import pandas as pd
+        if isinstance(data, pd.DataFrame):
             data = {c: data[c] for c in data.columns}
 
         self.data = data

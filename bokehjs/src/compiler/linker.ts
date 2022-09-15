@@ -2,7 +2,7 @@ import {resolve, relative, join, dirname, basename, extname, normalize, sep} fro
 import module from "module"
 import crypto from "crypto"
 
-import * as ts from "typescript"
+import ts from "typescript"
 import * as terser from "terser"
 import chalk from "chalk"
 

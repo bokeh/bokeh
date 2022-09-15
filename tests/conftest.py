@@ -10,7 +10,6 @@ pytest_plugins = (
     "tests.support.plugins.ipython",
     "tests.support.plugins.managed_server_loop",
     "tests.support.plugins.networkx",
-    "tests.support.plugins.pandas",
 )
 
 # Standard library imports

@@ -24,6 +24,7 @@ from typing import Any, Sequence
 
 # External imports
 import numpy as np
+import pandas as pd
 
 # Bokeh imports
 from bokeh.colors import RGB
@@ -704,7 +705,7 @@ class TestSerializer:
         assert rep == "rgba(16, 32, 64, 0.1)"
         assert encoder.buffers == []
 
-    def test_pd_series(self, pd) -> None:
+    def test_pd_series(self) -> None:
         encoder = Serializer()
         val = pd.Series([0, 1, 2, 3, 4, 5], dtype="int32")
         rep = encoder.encode(val)
@@ -755,7 +756,7 @@ class TestSerializer:
         assert rep == 45135000.0
         assert isinstance(rep, float)
 
-    def test_pd_timestamp(self, pd) -> None:
+    def test_pd_timestamp(self) -> None:
         encoder = Serializer()
         val = pd.Timestamp('April 28, 1948')
         rep = encoder.encode(val)
@@ -828,7 +829,7 @@ class TestSerializeJson:
         a = np.arange(5)
         assert self.serialize(a) == '[0,1,2,3,4]'
 
-    def test_with_pd_series(self, pd) -> None:
+    def test_with_pd_series(self) -> None:
         s = pd.Series([0, 1, 2, 3, 4])
         assert self.serialize(s) == '[0,1,2,3,4]'
 
@@ -841,7 +842,7 @@ class TestSerializeJson:
         assert deserialized[2] == '-Infinity'
         assert deserialized[3] == 0
 
-    def test_nans_and_infs_pandas(self, pd) -> None:
+    def test_nans_and_infs_pandas(self) -> None:
         arr = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
         serialized = self.serialize(arr)
         deserialized = self.deserialize(serialized)
@@ -850,7 +851,7 @@ class TestSerializeJson:
         assert deserialized[2] == '-Infinity'
         assert deserialized[3] == 0
 
-    def test_pandas_datetime_types(self, pd) -> None:
+    def test_pandas_datetime_types(self) -> None:
         ''' should convert to millis '''
         idx = pd.date_range('2001-1-1', '2001-1-5')
         df = pd.DataFrame({'vals' :idx}, index=idx)
@@ -914,7 +915,7 @@ class TestSerializeJson:
         deserialized = self.deserialize(serialized)
         assert deserialized == 3000000
 
-    def test_pandas_timedelta_types(self, pd) -> None:
+    def test_pandas_timedelta_types(self) -> None:
         delta = pd.Timedelta("3000ms")
         serialized = self.serialize(delta)
         deserialized = self.deserialize(serialized)
@@ -1013,7 +1014,7 @@ def test_transform_column_source_data_with_buffers(pd, cols, dt1, dt2) -> None:
                 assert isinstance(out[x], list)
                 assert out[x] == list(d[x])
 
-def test_transform_series_force_list_default_with_buffers(pd) -> None:
+def test_transform_series_force_list_default_with_buffers() -> None:
     # default int seems to be int64, can't be converted to buffer!
     df = pd.Series([1, 3, 5, 6, 8])
     out = bus.transform_series(df)

@@ -1,4 +1,5 @@
 Plot bbox=[0, 0, 200, 200]
+  CartesianFrame bbox=[29, 30, 166, 148]
   LinearAxis bbox=[29, 178, 166, 22]
   LinearAxis bbox=[0, 30, 29, 148]
   ToolbarPanel bbox=[29, 0, 166, 30]

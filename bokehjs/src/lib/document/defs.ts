@@ -21,7 +21,7 @@ export type KindRef =
   PrimitiveKindRef |
   ["Regex", string, string?] |
   ["Nullable", KindRef] |
-  ["Or", ...KindRef[]] |
+  ["Or", KindRef, ...KindRef[]] |
   ["Tuple", KindRef, ...KindRef[]] |
   ["Array", KindRef] |
   ["Struct", ...([string, KindRef][])] |
@@ -67,8 +67,8 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
           return kinds.Nullable(kind_of(subref))
         }
         case "Or": {
-          const [, ...subrefs] = ref
-          return kinds.Or(...subrefs.map(kind_of))
+          const [, subref, ...subrefs] = ref
+          return kinds.Or(kind_of(subref), ...subrefs.map(kind_of))
         }
         case "Tuple": {
           const [, subref, ...subrefs] = ref

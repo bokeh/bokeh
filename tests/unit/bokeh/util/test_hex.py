@@ -84,7 +84,7 @@ class Test_cartesian_to_axial:
 class Test_hexbin:
     # hexbin requires pandas
 
-    def test_gaussian_pointytop(self, pd) -> None:
+    def test_gaussian_pointytop(self) -> None:
         bins = buh.hexbin(x, y, 2)
         assert list(bins.q) == [0,0,1,1,1,2,2]
         assert list(bins.r) == [-1,0,-2,-1,0,-2,-1]
@@ -92,7 +92,7 @@ class Test_hexbin:
 
         assert bins.equals(buh.hexbin(x, y, 2, "pointytop"))
 
-    def test_gaussian_flattop(self, pd) -> None:
+    def test_gaussian_flattop(self) -> None:
         bins = buh.hexbin(x, y, 2, "flattop")
         assert list(bins.q) == [0, 0, 1, 1, 1, 2]
         assert list(bins.r) == [-1, 0, -2, -1, 0, -2]
