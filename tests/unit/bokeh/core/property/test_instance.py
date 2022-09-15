@@ -16,6 +16,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+from pandas import DataFrame, Series
+from pandas.core.groupby import GroupBy
+
 # Bokeh imports
 from bokeh.core.has_props import HasProps
 from tests.support.util.api import verify_all
@@ -32,6 +36,7 @@ import bokeh.core.property.instance as bcpi # isort:skip
 ALL = (
     'Instance',
     'InstanceDefault',
+    'Object',
 )
 
 #-----------------------------------------------------------------------------
@@ -59,6 +64,64 @@ class Test_InstanceDefault:
     def test___repr__(self) -> None:
         m = bcpi.InstanceDefault(_TestModel, x=10, z=[10])
         assert repr(m) == "<Instance: _util_property._TestModel(x=10, z=[10])>"
+
+class Test_Object:
+
+    def test_valid(self) -> None:
+        prop0 = bcpi.Object(Series)
+        assert prop0.is_valid(Series([1, 2, 3]))
+        prop1 = bcpi.Object("pandas.Series")
+        assert prop1.is_valid(Series([1, 2, 3]))
+
+        prop2 = bcpi.Object(DataFrame)
+        assert prop2.is_valid(DataFrame())
+        prop3 = bcpi.Object("pandas.DataFrame")
+        assert prop3.is_valid(DataFrame())
+
+        prop4 = bcpi.Object(GroupBy)
+        assert prop4.is_valid(GroupBy(DataFrame()))
+        prop5 = bcpi.Object("pandas.core.groupby.GroupBy")
+        assert prop5.is_valid(GroupBy(DataFrame()))
+
+    def test_invalid(self) -> None:
+        prop0 = bcpi.Object(Series)
+        assert not prop0.is_valid(DataFrame())
+        assert not prop0.is_valid(GroupBy(DataFrame()))
+        assert not prop0.is_valid({})
+        assert not prop0.is_valid(object())
+        assert not prop0.is_valid(_TestModel())
+        prop1 = bcpi.Object("pandas.Series")
+        assert not prop1.is_valid(DataFrame())
+        assert not prop1.is_valid(GroupBy(DataFrame()))
+        assert not prop1.is_valid({})
+        assert not prop1.is_valid(object())
+        assert not prop1.is_valid(_TestModel())
+
+        prop2 = bcpi.Object(DataFrame)
+        assert not prop2.is_valid(Series([1, 2, 3]))
+        assert not prop2.is_valid(GroupBy(DataFrame()))
+        assert not prop2.is_valid({})
+        assert not prop2.is_valid(object())
+        assert not prop2.is_valid(_TestModel())
+        prop3 = bcpi.Object("pandas.DataFrame")
+        assert not prop3.is_valid(Series([1, 2, 3]))
+        assert not prop3.is_valid(GroupBy(DataFrame()))
+        assert not prop3.is_valid({})
+        assert not prop3.is_valid(object())
+        assert not prop3.is_valid(_TestModel())
+
+        prop4 = bcpi.Object(GroupBy)
+        assert not prop4.is_valid(Series([1, 2, 3]))
+        assert not prop4.is_valid(DataFrame())
+        assert not prop4.is_valid({})
+        assert not prop4.is_valid(object())
+        assert not prop4.is_valid(_TestModel())
+        prop5 = bcpi.Object("pandas.core.groupby.GroupBy")
+        assert not prop5.is_valid(Series([1, 2, 3]))
+        assert not prop5.is_valid(DataFrame())
+        assert not prop5.is_valid({})
+        assert not prop5.is_valid(object())
+        assert not prop5.is_valid(_TestModel())
 
 class Test_Instance:
     def test_init(self) -> None:
@@ -93,6 +156,7 @@ class Test_Instance:
         assert not prop.is_valid({})
         assert not prop.is_valid(_TestModel2())
         assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(object())
 
     def test_has_ref(self) -> None:
         prop = bcpi.Instance(_TestModel)

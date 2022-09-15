@@ -33,6 +33,7 @@ from ..core.properties import (
     Int,
     List,
     Nullable,
+    Object,
     Seq,
     String,
     TextLike,

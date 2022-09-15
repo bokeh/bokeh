@@ -151,6 +151,7 @@ Special Properties
 .. autoclass:: Nullable
 .. autoclass:: NonNullable
 .. autoclass:: NotSerialized
+.. autoclass:: Object
 .. autoclass:: Override
 .. autoclass:: Required
 
@@ -246,6 +247,7 @@ __all__ = (
     'NullStringSpec',
     'Nullable',
     'NumberSpec',
+    'Object',
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
@@ -336,10 +338,11 @@ from .property.enum import Enum; Enum
 from .property.factors import Factor; Factor
 from .property.factors import FactorSeq; FactorSeq
 
-from .property.include import Include ; Include
+from .property.include import Include; Include
 
 from .property.instance import Instance; Instance
 from .property.instance import InstanceDefault; InstanceDefault
+from .property.instance import Object; Object
 
 from .property.json import JSON; JSON
 
