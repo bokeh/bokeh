@@ -1,3 +1,13 @@
+''' This example plots Radiation Warning Symbol (Trefoil). It demonstrates
+rendering annular wegdes, different arrow heads and adding arc and segment
+glyphs.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.circle, bokeh.plotting.Figure.arc, bokeh.plotting.Figure.segment, bokeh.plotting.Figure.text, bokeh.io.showing.show, bokeh.models.Title.text, bokeh.models.Title.align, bokeh.core.properties.value, bokeh.models.TeeHead, bokeh.models.VeeHead
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_arrows`, :ref:`userguide_annotations` > :ref:`userguide_annotations_titles`,:ref:`userguide_styling` > :ref:`userguide_styling_line_properties`, :ref:`userguide_styling` > :ref:`userguide_styling_text_properties`, :ref:`userguide_styling` > :ref:`userguide_styling_adding_mathematical_notations`, :ref:`userguide_styling` > :ref:`userguide_styling_fill_properties`
+    :keywords: trefoil, symbol, teehead, veehead, arrow, arrow head, segment, arc, circle, annular wedge
+
+'''
 from math import cos, radians, sin
 
 from bokeh.core.properties import value
@@ -9,7 +19,7 @@ deg = lambda value: dict(value=value, units="deg")
 cdot = "\u22c5"
 degree = "\u00b0"
 
-# https://www.orau.org/ptp/articlesstories/radwarnsymbstory.htm
+# https://www.orau.org/health-physics-museum/articles/radiation-warning-symbol.html
 def trefoil(R=1):
     p = figure(
         x_range=(-6*R, 6*R), y_range=(-6*R, 6*R),
