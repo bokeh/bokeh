@@ -284,3 +284,57 @@ jobs:
 
       - name: Run tests
         run: bash scripts/ci/run_downstream_tests.sh
+
+  docker_from_wheel:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: bokeh/bokeh-dev:latest  # Eventually this will be a named release/branch not "latest"
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Download wheel package
+        id: download
+        uses: actions/download-artifact@v1
+        with:
+          name: wheel-package
+          path: dist/
+
+      - name: Start Docker container, install wheel and run tests.
+        env:
+          BOKEH_DOCKER_INTERACTIVE: 0
+        run: |
+          scripts/docker/docker_run.sh $IMAGE_TAG && \
+          echo "Running in docker container" && \
+          conda env list && \
+          conda activate bkdev && \
+          pwd && \
+          which python && \
+          pip install dist/bokeh-*-py3-none-any.whl && \
+          python -m bokeh info && \
+          conda list && \
+          pip list && \
+          bokeh sampledata && \
+          pytest tests/unit -k "not firefox" && \
+          pytest tests/integration
+
+#      - name: Run within Docker container
+#        uses: addnab/docker-run-action@v3
+#        with:
+#          image: bokeh/bokeh-dev:latest  # Eventually this will be a named release/branch not "latest"
+#          options: -v ${{ github.workspace }}:/bokeh
+#          shell: bash
+#          run: |
+#            echo "Running in docker container"
+#            bash scripts/docker/entrypoint.sh
+#            pwd
+#            which python
+#            pip install dist/bokeh-*-py3-none-any.whl
+#            conda list
+#            bash scripts/ci/install_node_modules.sh
+#            python -m bokeh info
+#            cd bokejhs && node make build
+#            bokeh sampledata
+#            pytest tests/unit -k "not firefox"
+#            pytest tests/integration

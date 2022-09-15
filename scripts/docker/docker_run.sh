@@ -7,7 +7,7 @@
 set -eu
 
 if [ $# -ne 1 ]; then
-    echo "Usage: docker_run.sh <docker image and tag>, e.g. docker_run.sh bokeh-dev:latest"
+    echo "Usage: docker_run.sh <docker image and tag>, e.g. docker_run.sh bokeh/bokeh-dev:latest"
     exit 1
 fi
 
