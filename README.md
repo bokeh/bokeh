@@ -13,21 +13,39 @@
   <td>Package</td>
 
   <td>
-    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=tan&style=for-the-badge"
+    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=ECD078&style=for-the-badge"
          alt="Latest package version" />
   </td>
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/pypi/pyversions/bokeh?color=tan&style=for-the-badge"
+    <img src="https://img.shields.io/pypi/pyversions/bokeh?color=ECD078&style=for-the-badge"
          alt="Supported Python versions" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/blob/main/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=tan&style=for-the-badge"
+    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=ECD078&style=for-the-badge"
          alt="Bokeh license (BSD 3-clause)" />
+    </a>
+  </td>
+
+</tr>
+
+<tr>
+
+  <td>Project</td>
+
+  <td>
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh?color=ECD078&style=for-the-badge"
+         alt="Github contributors" />
+  </td>
+
+  <td>
+    <a href="https://numfocus.org">
+    <img src="https://img.shields.io/badge/sponsor-numfocus-ECD078?style=for-the-badge"
+         alt="Link to NumFOCUS" />
     </a>
   </td>
 
@@ -39,33 +57,15 @@
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh?color=goldenrod&label=pypi&logo=python&logoColor=yellow&style=for-the-badge"
+    <img src="https://img.shields.io/pypi/dm/bokeh?color=D98B43&label=pypi&logo=python&logoColor=yellow&style=for-the-badge"
          alt="PyPI downloads per month" />
     </a>
   </td>
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/badge/conda-954.3k%2Fmonth-goldenrod?logo=anaconda&style=for-the-badge"
+    <img src="https://img.shields.io/badge/conda-954.3k%2Fmonth-D98B43?logo=anaconda&style=for-the-badge"
          alt="Conda downloads per month" />
-    </a>
-  </td>
-
-</tr>
-
-<tr>
-
-  <td>Project</td>
-
-  <td>
-    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh?color=coral&style=for-the-badge"
-         alt="Github contributors" />
-  </td>
-
-  <td>
-    <a href="https://numfocus.org">
-    <img src="https://img.shields.io/badge/sponsor-numfocus-coral?style=for-the-badge"
-         alt="Link to NumFOCUS" />
     </a>
   </td>
 
