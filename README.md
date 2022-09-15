@@ -13,20 +13,20 @@
   <td>Package</td>
 
   <td>
-    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=lightgray&style=for-the-badge"
+    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=tan&style=for-the-badge"
          alt="Latest package version" />
   </td>
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/pypi/pyversions/bokeh?color=lightgray&style=for-the-badge"
+    <img src="https://img.shields.io/pypi/pyversions/bokeh?color=tan&style=for-the-badge"
          alt="Supported Python versions" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/blob/main/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=lightgray&style=for-the-badge"
+    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=tan&style=for-the-badge"
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
@@ -51,6 +51,23 @@
     </a>
   </td>
 
+</tr>
+
+<tr>
+
+  <td>Project</td>
+
+  <td>
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh?color=coral&style=for-the-badge"
+         alt="Github contributors" />
+  </td>
+
+  <td>
+    <a href="https://numfocus.org">
+    <img src="https://img.shields.io/badge/sponsor-numfocus-coral?style=for-the-badge"
+         alt="Link to NumFOCUS" />
+    </a>
+  </td>
 
 </tr>
 
