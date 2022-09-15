@@ -204,17 +204,15 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   private get_image_dimensions(): Size {
     const fmetrics = font_metrics(this.font)
 
-    const heightEx = parseFloat(this.svg_element.getAttribute("height")?.replace(/([A-z])/g, "") ?? "0")
-    const widthEx = parseFloat(this.svg_element.getAttribute("width")?.replace(/([A-z])/g, "") ?? "0")
-
+    // XXX: perhaps use getComputedStyle()?
     const svg_styles = this.svg_element.getAttribute("style")?.split(";")
     if (svg_styles) {
-      const rulesMap = new Map()
+      const rules_map = new Map()
       svg_styles.forEach(property => {
         const [rule, value] = property.split(":")
-        if (rule) rulesMap.set(rule.trim(), value.trim())
+        if (rule) rules_map.set(rule.trim(), value.trim())
       })
-      const v_align = parse_css_length(rulesMap.get("vertical-align"))
+      const v_align = parse_css_length(rules_map.get("vertical-align"))
 
       if (v_align?.unit == "ex") {
         this.valign = v_align.value * fmetrics.x_height
@@ -223,9 +221,19 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       }
     }
 
+    const ex = (() => {
+      const width = this.svg_element.getAttribute("width")
+      const height = this.svg_element.getAttribute("height")
+
+      return {
+        width: width != null && width.endsWith("ex") ? parseFloat(width) : 1,
+        height: height != null && height.endsWith("ex") ? parseFloat(height) : 1,
+      }
+    })()
+
     return {
-      width: fmetrics.x_height * widthEx,
-      height: fmetrics.x_height * heightEx,
+      width: fmetrics.x_height*ex.width,
+      height: fmetrics.x_height*ex.height,
     }
   }
 
