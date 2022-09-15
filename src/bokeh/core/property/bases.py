@@ -126,6 +126,29 @@ class Property(PropertyDescriptorFactory[T]):
     def __str__(self) -> str:
         return self.__class__.__name__
 
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> Property[T]:
+        """ Clone this property and allow to override ``default`` and ``help``. """
+        default = self._default if default is Intrinsic else default
+        help = self._help if help is None else help
+        prop = self.__class__(default=default, help=help)
+        prop.alternatives = list(self.alternatives)
+        prop.assertions = list(self.assertions)
+        return prop
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return (
+                self._default == other._default and
+                self._help == other._help and
+                self.alternatives == other.alternatives and
+                self.assertions == other.assertions
+            )
+        else:
+            return False
+
     def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install
         on a class, in order to delegate attribute access to this property.
@@ -409,12 +432,25 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return self
 
-TItem = TypeVar("TItem", bound=Property[Any])
-
-class ParameterizedProperty(Property[TItem]):
+class ParameterizedProperty(Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
+
+    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> ParameterizedProperty[T]:
+        """ Clone this property and allow to override ``default`` and ``help``. """
+        default = self._default if default is Intrinsic else default
+        help = self._help if help is None else help
+        prop = self.__class__(*self.type_params, default=default, help=help)
+        prop.alternatives = list(self.alternatives)
+        prop.assertions = list(self.assertions)
+        return prop
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return super().__eq__(other) and self.type_params == other.type_params
+        else:
+            return False
 
     @staticmethod
     def _validate_type_param(type_param: TypeOrInst[Property[Any]], *, help_allowed: bool = False) -> Property[Any]:

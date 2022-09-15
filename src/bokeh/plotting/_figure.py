@@ -25,6 +25,7 @@ from numpy.typing import ArrayLike
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
 from ..core.properties import (
     Auto,
+    Datetime,
     Either,
     Enum,
     Float,
@@ -37,6 +38,7 @@ from ..core.properties import (
     Seq,
     String,
     TextLike,
+    TimeDelta,
     Tuple,
 )
 from ..models import (
@@ -792,23 +794,35 @@ class BaseFigureOptions(Options):
     and added.
     """)
 
+RangeLike = Either(
+    Instance(Range),
+    Either(
+        Tuple(Float, Float),
+        Tuple(Datetime, Datetime),
+        Tuple(TimeDelta, TimeDelta),
+    ),
+    Seq(String),
+    Object("pandas.Series"),
+    Object("pandas.core.groupby.GroupBy"),
+)
+
+AxisType = Nullable(Either(Auto, Enum("linear", "log", "datetime", "mercator")))
+
 class FigureOptions(BaseFigureOptions):
 
-    x_range = Either(Instance(Range), Tuple(Float, Float), Seq(String),
-        Object("pandas.Series"), Object("pandas.core.groupby.GroupBy"), default=InstanceDefault(DataRange1d), help="""
+    x_range = RangeLike(default=InstanceDefault(DataRange1d), help="""
     Customize the x-range of the plot.
     """)
 
-    y_range = Either(Instance(Range), Tuple(Float, Float), Seq(String),
-        Object("pandas.Series"), Object("pandas.core.groupby.GroupBy"), default=InstanceDefault(DataRange1d), help="""
+    y_range = RangeLike(default=InstanceDefault(DataRange1d), help="""
     Customize the y-range of the plot.
     """)
 
-    x_axis_type = Nullable(Either(Auto, Enum("linear", "log", "datetime", "mercator")), default="auto", help="""
+    x_axis_type = AxisType(default="auto", help="""
     The type of the x-axis.
     """)
 
-    y_axis_type = Nullable(Either(Auto, Enum("linear", "log", "datetime", "mercator")), default="auto", help="""
+    y_axis_type = AxisType(default="auto", help="""
     The type of the y-axis.
     """)
 
