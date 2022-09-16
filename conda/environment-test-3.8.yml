@@ -62,10 +62,10 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=0.971
+    - mypy >==0.971
     # docs
     - autoclasstoc
-    - pydata_sphinx_theme >=0.9
+    - pydata_sphinx_theme ==0.9
     - requests-unixsocket >= 0.3.0
     - sphinx >5.1
     - sphinx-copybutton
