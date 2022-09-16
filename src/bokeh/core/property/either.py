@@ -24,12 +24,17 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Type
+from typing import Any, Type, TypeVar
 
 # Bokeh imports
 from ...util.strings import nice_join
 from ._sphinx import property_link, register_type_link, type_link
-from .bases import ParameterizedProperty, Property
+from .bases import (
+    Init,
+    ParameterizedProperty,
+    Property,
+    TypeOrInst,
+)
 from .singletons import Intrinsic
 
 #-----------------------------------------------------------------------------
@@ -40,11 +45,13 @@ __all__ = (
     'Either',
 )
 
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Either(ParameterizedProperty):
+class Either(ParameterizedProperty[Any]):
     """ Accept values according to a sequence of other property types.
 
         Example:
@@ -69,22 +76,11 @@ class Either(ParameterizedProperty):
 
     """
 
-    def __init__(self, tp1, tp2, *type_params, default=Intrinsic, help: str | None = None) -> None:
-        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        default = default if default is not Intrinsic else type_params[0]._raw_default()
-        super().__init__(default=default, help=help)
-        self._type_params = type_params
-        for tp in self._type_params:
+    def __init__(self, type_param0: TypeOrInst[Property[Any]], *type_params: TypeOrInst[Property[Any]],
+            default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        super().__init__(type_param0, *type_params, default=default, help=help)
+        for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
-
-    def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        item_types = ", ".join(str(x) for x in self.type_params)
-        return f"{class_name}({item_types})"
-
-    @property
-    def type_params(self):
-        return self._type_params
 
     def transform(self, value: Any) -> Any:
         for param in self.type_params:
@@ -101,7 +97,7 @@ class Either(ParameterizedProperty):
         if any(param.is_valid(value) for param in self.type_params):
             return
 
-        msg = "" if not detail else f"expected an element of either {nice_join(self.type_params)}, got {value!r}"
+        msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValueError(msg)
 
     def wrap(self, value):
@@ -133,6 +129,6 @@ class Either(ParameterizedProperty):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Either)
-def _sphinx_type_link(obj):
+def _sphinx_type_link(obj: Either[Any]):
     subtypes = ", ".join(type_link(x) for x in obj.type_params)
     return f"{property_link(obj)}({subtypes})"

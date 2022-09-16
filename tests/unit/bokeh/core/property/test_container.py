@@ -296,19 +296,33 @@ class Test_Seq:
 
 
 class Test_Tuple:
-    def test_Tuple(self) -> None:
-        with pytest.raises(TypeError):
-            bcpc.Tuple()
-
-        with pytest.raises(TypeError):
-            bcpc.Tuple(Int)
 
     def test_valid(self) -> None:
+        prop0 = bcpc.Tuple()
+        assert prop0.is_valid(())
+
+        prop1 = bcpc.Tuple(Int)
+        assert prop1.is_valid((0,))
+
+        prop2 = bcpc.Tuple(Int, Int)
+        assert prop2.is_valid((0, 0))
+
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
         assert prop.is_valid((1, "", [1, 2, 3]))
 
     def test_invalid(self) -> None:
+        prop0 = bcpc.Tuple()
+        assert not prop0.is_valid((0,))
+
+        prop1 = bcpc.Tuple(Int)
+        assert not prop1.is_valid(())
+        assert not prop1.is_valid((0, 0))
+
+        prop2 = bcpc.Tuple(Int, Int)
+        assert not prop2.is_valid(())
+        assert not prop2.is_valid((0,))
+
         prop = bcpc.Tuple(Int, String, bcpc.List(Int))
 
         assert not prop.is_valid(None)
