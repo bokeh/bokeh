@@ -147,7 +147,8 @@ class Bundle:
             self.css_raw.append(artifact.content)
 
 def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
-        resources: BaseResources | tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
+        resources: BaseResources | tuple[BaseResources | None, BaseResources | None] | None,
+        root_url: str | None = None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
@@ -156,6 +157,8 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 
         resources (BaseResources or tuple[BaseResources])
 
+        root_url (str): argument to pass to `Resources` if resources "server" mode is used
+
     Returns:
         Bundle
 
@@ -163,7 +166,8 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
     # Any env vars will overide a local default passed in
     resources = settings.resources(default=resources)
     if isinstance(resources, str):
-        resources = Resources(mode=resources)
+        root_url = root_url if resources == 'server' else None
+        resources = Resources(mode=resources, root_url=root_url)
 
     if resources is None or isinstance(resources, BaseResources):
         js_resources = css_resources = resources
