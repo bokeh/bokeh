@@ -272,7 +272,7 @@
 
 ## Installation
 
- To install Bokeh and its required dependencies using the `conda`, enter the following command at a Bash or Windows command prompt:
+To install Bokeh and its required dependencies using `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
