@@ -7,124 +7,128 @@
 [Bokeh](https://bokeh.org) is an interactive visualization library for modern web browsers. It provides elegant, concise construction of versatile graphics and affords high-performance interactivity across large or streaming datasets. Bokeh can help anyone who wants to create interactive plots, dashboards, and data applications quickly and easily.
 
 <table>
+
 <tr>
-  <td>Latest Release</td>
+
+  <td>Package</td>
+
   <td>
-    <div>
-    <img src="https://badge.fury.io/py/bokeh.svg" alt="pypi version" />
-    </div>
-    <div>
-    <img src="https://badge.fury.io/js/%40bokeh%2Fbokehjs.svg" alt="npm version">
-    </div>
+    <img src="https://img.shields.io/pypi/v/bokeh?label=Version&color=ECD078&style=for-the-badge"
+         alt="Latest package version" />
+  </td>
+
+  <td>
+    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
+    <img src="https://img.shields.io/pypi/pyversions/bokeh?color=ECD078&style=for-the-badge"
+         alt="Supported Python versions" />
     </a>
   </td>
 
-  <td>Downloads</td>
   <td>
-    <div>
-    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://pyviz.org/_static/cache/bokeh_conda_downloads_badge.svg"
-         alt="Conda downloads per month" />
-    </a>
-    </div>
-    <div>
-    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/pypi/dm/bokeh?label=PyPI&style=flat"
-         alt="PyPI downloads per month" />
-    </a>
-    </div>
-  </td>
-</tr>
-
-<tr>
-  <td>License</td>
-  <td>
-    <a href="https://github.com/bokeh/bokeh/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg"
+    <a href="https://github.com/bokeh/bokeh/blob/main/LICENSE.txt">
+    <img src="https://img.shields.io/github/license/bokeh/bokeh.svg?color=ECD078&style=for-the-badge"
          alt="Bokeh license (BSD 3-clause)" />
     </a>
   </td>
 
-  <td>People</td>
-  <td>
-    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh"
-         alt="GitHub contributors" />
-  </td>
 </tr>
 
 <tr>
-  <td>Sponsorship</td>
+
+  <td>Project</td>
+
   <td>
-    <a href="http://numfocus.org">
-    <img src="https://img.shields.io/badge/powered%20by-NumFOCUS-black.svg?style=flat&colorA=5B5B5B&colorB=007D8A"
-         alt="Powered by NumFOCUS" />
+    <img src="https://img.shields.io/github/contributors-anon/bokeh/bokeh?color=ECD078&style=for-the-badge"
+         alt="Github contributors" />
+  </td>
+
+  <td>
+    <a href="https://numfocus.org">
+    <img src="https://img.shields.io/badge/sponsor-numfocus-ECD078?style=for-the-badge"
+         alt="Link to NumFOCUS" />
     </a>
   </td>
 
-  <td>Live Tutorial</td>
-  <td>
-    <a href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">
-    <img src="https://mybinder.org/badge_logo.svg"
-         alt="Live Bokeh tutorial notebooks on MyBinder" />
-    </a>
-  </td>
 </tr>
 
 <tr>
-  <td>Build Status</td>
+
+  <td>Downloads</td>
+
   <td>
-    <div>
+    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
+    <img src="https://img.shields.io/pypi/dm/bokeh?color=D98B43&label=pypi&logo=python&logoColor=yellow&style=for-the-badge"
+         alt="PyPI downloads per month" />
+    </a>
+  </td>
+
+  <td>
+    <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
+    <img src="https://raw.githubusercontent.com/bokeh/badges/main/cache/bokeh-conda-monthly.svg"
+         alt="Conda downloads per month" />
+    </a>
+  </td>
+
+</tr>
+
+<tr>
+
+  <td>Build</td>
+
+  <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://github.com/bokeh/bokeh/workflows/Bokeh-CI/badge.svg?branch=master"
-         alt="Current github actions build status" />
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI?label=Bokeh-CI&logo=github&style=for-the-badge"
+         alt="Current Bokeh-CI github actions build status" />
     </a>
-    </div>
-    <div>
-    <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://github.com/bokeh/bokeh/workflows/BokehJS-CI/badge.svg?branch=master"
-         alt="Current github actions build status" />
-    </a>
-    </div>
   </td>
-  <td>Static Analysis</td>
+
   <td>
-    <div>
-      <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:python">
-      <img alt="Language grade: Python" src="https://img.shields.io/lgtm/grade/python/g/bokeh/bokeh.svg?"/>
-      </a>
-    </div>
-    <div>
-      <a href="https://lgtm.com/projects/g/bokeh/bokeh/context:javascript">
-      <img alt="Language grade: JavaScript" src="https://img.shields.io/lgtm/grade/javascript/g/bokeh/bokeh.svg"/>
-      </a>
-    </div>
+    <a href="https://github.com/bokeh/bokeh/actions">
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI?label=BokehJS-CI&logo=github&style=for-the-badge"
+         alt="Current BokehJS-CI github actions build status" />
+    </a>
+  </td>
+
+  <td>
+    <a href="https://codecov.io/gh/bokeh/bokeh" >
+    <img src="https://img.shields.io/codecov/c/github/bokeh/bokeh?logo=codecov&style=for-the-badge&token=bhEzGkDUaw"
+         alt="Codecov coverage percentage" />
+    </a>
   </td>
 
 </tr>
 
 <tr>
-    <td>Support</td>
+
+  <td>Community</td>
+
   <td>
     <a href="https://discourse.bokeh.org">
-    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg"
-         alt="Community Support on discourse.bokeh.org" />
+    <img src="https://img.shields.io/discourse/https/discourse.bokeh.org/posts.svg?color=blue&logo=discourse&style=for-the-badge"
+         alt="Community support on discourse.bokeh.org" />
     </a>
   </td>
 
+  <td>
+    <a href="https://stackoverflow.com/questions/tagged/bokeh">
+    <img src="https://img.shields.io/stackexchange/stackoverflow/t/bokeh?label=StackOverflow%20&color=blue&logo=stackoverflow&style=for-the-badge"
+         alt="Bokeh-tagged questions on Stack Overflow" />
+     </a>
+  </td>
 
-  <td>Twitter</td>
   <td>
     <a href="https://twitter.com/bokeh">
-    <img src="https://img.shields.io/twitter/follow/bokeh.svg?style=social&label=Follow"
+    <img src="https://img.shields.io/twitter/follow/bokeh?color=blue&logo=twitter&style=for-the-badge"
          alt="Follow Bokeh on Twitter" />
     </a>
-
   </td>
+
 </tr>
+
 
 </table>
 
-*Consider [making a donation](https://numfocus.org/donate-to-bokeh) if you enjoy using Bokeh and want to support its development.*
+*Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
 
 <p>
 <table>
@@ -268,13 +272,13 @@
 
 ## Installation
 
-The easiest way to install Bokeh is using the [Anaconda Python distribution](https://www.anaconda.com/what-is-anaconda/) and its included *Conda* package management system. To install Bokeh and its required dependencies, enter the following command at a Bash or Windows command prompt:
+ To install Bokeh and its required dependencies using the `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
 ```
 
-To install using pip, enter the following command at a Bash or Windows command prompt:
+To install using `pip`, enter the following command at a Bash or Windows command prompt:
 ```
 pip install bokeh
 ```
@@ -285,13 +289,13 @@ Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/
 
 Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/dev/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/main?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 
 If you would like to contribute to Bokeh, please review the [Contributor Guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html) and [request an invitation to the Bokeh Dev Slack workspace](https://slack-invite.bokeh.org/).
 
-*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/main/docs/CODE_OF_CONDUCT.md).*
+*Note: Everyone who engages in the Bokeh project's discussion forums, codebases, and issue trackers is expected to follow the [Code of Conduct](https://github.com/bokeh/bokeh/blob/branch-3.0/docs/CODE_OF_CONDUCT.md).*
 
 ## Follow us
 
@@ -301,7 +305,7 @@ Follow us on Twitter [@bokeh](https://twitter.com/bokeh)
 
 ### Fiscal Support
 
-The Bokeh project is grateful for [individual contributions](https://numfocus.org/donate-to-bokeh), as well as for monetary support from the organizations and companies listed below:
+The Bokeh project is grateful for [individual contributions](https://opencollective.com/bokeh), as well as for monetary support from the organizations and companies listed below:
 
 <table align="center">
 <tr>
@@ -317,28 +321,20 @@ The Bokeh project is grateful for [individual contributions](https://numfocus.or
          alt="CZI Logo" width="200"/>
     </a>
   </td>
-  <td>
-    <a href="https://www.quansight.com">
-    <img src="https://static.bokeh.org/sponsor/quansight.png"
-         alt="Quansight Logo" width="200"/>
-    </a>
-  </td>
- </tr>
-<tr>
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
     <img src="https://static.bokeh.org/sponsor/blackstone.png"
          alt="Blackstone Logo" width="400"/>
     </a>
   </td>
+ </tr>
+ <tr>
   <td>
     <a href="https://tidelift.com/">
     <img src="https://static.bokeh.org/sponsor/tidelift.svg"
          alt="TideLift Logo" width="200"/>
     </a>
   </td>
- </tr>
- <tr>
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
