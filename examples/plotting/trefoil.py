@@ -1,4 +1,4 @@
-''' This example plots a Radiation Warning Symbol (Trefoil). It demonstrates
+''' This example shows a Radiation Warning Symbol (Trefoil). It demonstrates
 rendering annular wegdes, different arrow heads and adding arc and segment
 glyphs.
 
