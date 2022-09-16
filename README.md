@@ -64,7 +64,7 @@
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://img.shields.io/badge/conda-954.3k%2Fmonth-D98B43?logo=anaconda&style=for-the-badge"
+    <img src="https://raw.githubusercontent.com/bokeh/badges/main/cache/bokeh-conda-monthly.svg"
          alt="Conda downloads per month" />
     </a>
   </td>
