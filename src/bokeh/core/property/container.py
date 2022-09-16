@@ -75,17 +75,12 @@ class Seq(ContainerProperty[T]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined,
-            help: str | None = None) -> None:
-        self.item_type = self._validate_type_param(item_type)
-        super().__init__(default=default, help=help)
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}({self.item_type})"
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
+        super().__init__(item_type, default=default, help=help)
 
     @property
-    def type_params(self):
-        return [self.item_type]
+    def item_type(self):
+        return self.type_params[0]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, True)
@@ -123,7 +118,7 @@ class List(Seq[T]):
 
     """
 
-    def __init__(self, item_type, default=[], *, help: str | None = None) -> None:
+    def __init__(self, item_type: TypeOrInst[Property[T]], default: Init[T] = [], *, help: str | None = None) -> None:
         # todo: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
@@ -160,7 +155,7 @@ class Array(Seq[T]):
         return np.array(value)
 
 
-class Dict(ContainerProperty):
+class Dict(ContainerProperty[Any]):
     """ Accept Python dict values.
 
     If a default value is passed in, then a shallow copy of it will be
@@ -168,17 +163,17 @@ class Dict(ContainerProperty):
 
     """
 
-    def __init__(self, keys_type, values_type, default={}, *, help: str | None = None) -> None:
-        self.keys_type = self._validate_type_param(keys_type)
-        self.values_type = self._validate_type_param(values_type)
-        super().__init__(default=default, help=help)
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}({self.keys_type}, {self.values_type})"
+    def __init__(self, keys_type: TypeOrInst[Property[Any]], values_type: TypeOrInst[Property[Any]], *,
+            default: Init[T] = {}, help: str | None = None) -> None:
+        super().__init__(keys_type, values_type, default=default, help=help)
 
     @property
-    def type_params(self):
-        return [self.keys_type, self.values_type]
+    def keys_type(self):
+        return self.type_params[0]
+
+    @property
+    def values_type(self):
+        return self.type_params[1]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -252,17 +247,9 @@ class Tuple(ContainerProperty):
     """ Accept Python tuple values.
 
     """
-    def __init__(self, tp1, tp2, *type_params, **kwargs) -> None:
-        self._type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
-        super().__init__(default=kwargs.get("default", Undefined), help=kwargs.get("help"))
 
-    def __str__(self) -> str:
-        item_types = ", ".join(str(x) for x in self.type_params)
-        return f"{self.__class__.__name__}({item_types})"
-
-    @property
-    def type_params(self):
-        return self._type_params
+    def __init__(self, *type_params: TypeOrInst[Property[Any]], default: Init[T] = Undefined, help: str | None = None) -> None:
+        super().__init__(*type_params, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
@@ -340,14 +327,14 @@ class NonEmpty(SingleParameterizedProperty[TSeq]):
 #-----------------------------------------------------------------------------
 
 @register_type_link(Dict)
-def _sphinx_type_dict(obj):
+def _sphinx_type_dict(obj: Dict):
     return f"{property_link(obj)}({type_link(obj.keys_type)}, {type_link(obj.values_type)})"
 
 @register_type_link(Seq)
-def _sphinx_type_seq(obj):
+def _sphinx_type_seq(obj: Seq[Any]):
     return f"{property_link(obj)}({type_link(obj.item_type)})"
 
 @register_type_link(Tuple)
-def _sphinx_type_tuple(obj):
+def _sphinx_type_tuple(obj: Tuple):
     item_types = ", ".join(type_link(x) for x in obj.type_params)
     return f"{property_link(obj)}({item_types})"

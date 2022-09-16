@@ -46,12 +46,13 @@ class Optional(Generic[T]):
     def __init__(self, type_param: Property[T]):
         self.type_param = type_param
 
-class Struct(ParameterizedProperty):
+class Struct(ParameterizedProperty[T]):
     """ Accept values that are structures.
 
 
     """
 
+    _fields: dict[str, Property[Any]]
     _optional: set[str]
 
     def __init__(self, **fields) -> None:
@@ -69,6 +70,12 @@ class Struct(ParameterizedProperty):
             self._fields[name] = self._validate_type_param(type, help_allowed=True) # XXX
 
         super().__init__(default=default, help=help)
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return super().__eq__(other) and self._fields == other._fields and self._optional == other._optional
+        else:
+            return False
 
     @property
     def type_params(self):

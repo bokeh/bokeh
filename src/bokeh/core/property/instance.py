@@ -47,17 +47,25 @@ from .singletons import Undefined
 
 __all__ = (
     'Instance',
-    'InstanceDefault'
+    'InstanceDefault',
+    'Object',
 )
 
-T = TypeVar("T", bound=Serializable)
+T = TypeVar("T", bound=object)
+S = TypeVar("S", bound=Serializable)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Instance(Property[T]):
-    """ Accept values that are instances of serializable types (e.g. |HasProps|). """
+class Object(Property[T]):
+    """ Accept values that are instances of any class.
+
+        .. note::
+            This is primarily useful for validation purpose. Non-serializable
+            objects will fail regardless during the serialization process.
+
+    """
 
     _instance_type: Type[T] | Callable[[], Type[T]] | str
 
@@ -66,16 +74,15 @@ class Instance(Property[T]):
             raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
         if isinstance(instance_type, type):
-            self._assert_serializable(instance_type)
+            self._assert_type(instance_type)
 
         self._instance_type = instance_type
 
         super().__init__(default=default, help=help)
 
     @staticmethod
-    def _assert_serializable(instance_type: Type[Any]) -> None:
-        if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
-            raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
+    def _assert_type(instance_type: Type[Any]) -> None:
+        pass
 
     def __str__(self) -> str:
         class_name = self.__class__.__name__
@@ -94,11 +101,11 @@ class Instance(Property[T]):
         elif isinstance(self._instance_type, str):
             module, name = self._instance_type.rsplit(".", 1)
             instance_type = getattr(import_module(module, "bokeh"), name)
-            self._assert_serializable(instance_type)
+            self._assert_type(instance_type)
             self._instance_type = instance_type
         else:
             instance_type = self._instance_type()
-            self._assert_serializable(instance_type)
+            self._assert_type(instance_type)
             self._instance_type = instance_type
 
         return instance_type
@@ -117,6 +124,14 @@ class Instance(Property[T]):
     def _may_have_unstable_default(self):
         # because the instance value is mutable
         return self._default is not Undefined
+
+class Instance(Object[S]):
+    """ Accept values that are instances of serializable types (e.g. |HasProps|). """
+
+    @staticmethod
+    def _assert_type(instance_type: Type[Any]) -> None:
+        if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
+            raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
 
 I = TypeVar("I", bound=HasProps)
 

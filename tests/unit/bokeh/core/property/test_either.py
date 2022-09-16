@@ -49,7 +49,7 @@ ALL = (
 class Test_Either:
     def test_init(self) -> None:
         with pytest.raises(TypeError):
-            bcpe.Either()
+            bcpe.Either() # type: ignore
 
     def test_valid(self) -> None:
         prop = bcpe.Either(Interval(Int, 0, 100), Regex("^x*$"), List(Int))

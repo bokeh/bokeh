@@ -47,8 +47,7 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     Nullable,
-    PandasDataFrame,
-    PandasGroupBy,
+    Object,
     Readonly,
     Required,
     Seq,
@@ -205,9 +204,9 @@ class ColumnDataSource(ColumnarDataSource):
     objects. In these cases, the behaviour is identical to passing the objects
     to the ``ColumnDataSource`` initializer.
     """).accepts(
-        PandasDataFrame, lambda x: ColumnDataSource._data_from_df(x)
+        Object("pandas.DataFrame"), lambda x: ColumnDataSource._data_from_df(x)
     ).accepts(
-        PandasGroupBy, lambda x: ColumnDataSource._data_from_groupby(x)
+        Object("pandas.core.groupby.GroupBy"), lambda x: ColumnDataSource._data_from_groupby(x)
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warnings.warn(
                     "ColumnDataSource's columns must be of the same length. " +
@@ -544,7 +543,7 @@ class ColumnDataSource(ColumnarDataSource):
 
         if needs_length_check:
             lengths: set[int] = set()
-            arr_types = (np.ndarray, pd.Series) if pd else np.ndarray
+            arr_types = (np.ndarray, pd.Series)
             for _, x in new_data.items():
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:

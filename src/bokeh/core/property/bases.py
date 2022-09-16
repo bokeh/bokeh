@@ -105,7 +105,7 @@ class Property(PropertyDescriptorFactory[T]):
 
     _self_serialized: bool
 
-    alternatives: list[tuple[Property[Any], Callable[[Property[Any]], T]]]
+    alternatives: list[tuple[Property[Any], Callable[[Any], T]]]
     assertions: list[tuple[Callable[[HasProps, T], bool], str | Callable[[HasProps, str, T], None]]]
 
     def __init__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
@@ -123,8 +123,39 @@ class Property(PropertyDescriptorFactory[T]):
         self.alternatives = []
         self.assertions = []
 
+    @property
+    def default(self) -> Init[T]:
+        return self._default
+
+    @property
+    def help(self) -> str | None:
+        return self._help
+
     def __str__(self) -> str:
         return self.__class__.__name__
+
+    def __repr__(self) -> str:
+        return str(self)
+
+    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> Property[T]:
+        """ Clone this property and allow to override ``default`` and ``help``. """
+        default = self._default if default is Intrinsic else default
+        help = self._help if help is None else help
+        prop = self.__class__(default=default, help=help)
+        prop.alternatives = list(self.alternatives)
+        prop.assertions = list(self.assertions)
+        return prop
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return (
+                self._default == other._default and
+                self._help == other._help and
+                self.alternatives == other.alternatives and
+                self.assertions == other.assertions
+            )
+        else:
+            return False
 
     def make_descriptors(self, name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``PropertyDescriptor`` instances to install
@@ -357,7 +388,7 @@ class Property(PropertyDescriptorFactory[T]):
     def has_ref(self) -> bool:
         return False
 
-    def accepts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Property[Any]], T]) -> Property[T]:
+    def accepts(self, tp: TypeOrInst[Property[Any]], converter: Callable[[Any], T]) -> Property[T]:
         """ Declare that other types may be converted to this property type.
 
         Args:
@@ -409,12 +440,38 @@ class Property(PropertyDescriptorFactory[T]):
         else:
             return self
 
-TItem = TypeVar("TItem", bound=Property[Any])
-
-class ParameterizedProperty(Property[TItem]):
+class ParameterizedProperty(Property[T]):
     """ A base class for Properties that have type parameters, e.g. ``List(String)``.
 
     """
+
+    _type_params: list[Property[Any]]
+
+    def __init__(self, *type_params: TypeOrInst[Property[T]], default: Init[T] = Intrinsic, help: str | None = None) -> None:
+        _type_params = [ self._validate_type_param(param) for param in type_params ]
+        default = default if default is not Intrinsic else _type_params[0]._raw_default()
+        self._type_params = _type_params
+        super().__init__(default=default, help=help)
+
+    def __str__(self) -> str:
+        class_name = self.__class__.__name__
+        item_types = ", ".join(str(x) for x in self.type_params)
+        return f"{class_name}({item_types})"
+
+    def __call__(self, *, default: Init[T] = Intrinsic, help: str | None = None) -> ParameterizedProperty[T]:
+        """ Clone this property and allow to override ``default`` and ``help``. """
+        default = self._default if default is Intrinsic else default
+        help = self._help if help is None else help
+        prop = self.__class__(*self.type_params, default=default, help=help)
+        prop.alternatives = list(self.alternatives)
+        prop.assertions = list(self.assertions)
+        return prop
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, self.__class__):
+            return super().__eq__(other) and self.type_params == other.type_params
+        else:
+            return False
 
     @staticmethod
     def _validate_type_param(type_param: TypeOrInst[Property[Any]], *, help_allowed: bool = False) -> Property[Any]:
@@ -433,7 +490,7 @@ class ParameterizedProperty(Property[TItem]):
 
     @property
     def type_params(self) -> list[Property[Any]]:
-        raise NotImplementedError("abstract method")
+        return self._type_params
 
     @property
     def has_ref(self) -> bool:
@@ -449,17 +506,12 @@ class ParameterizedProperty(Property[TItem]):
 class SingleParameterizedProperty(ParameterizedProperty[T]):
     """ A parameterized property with a single type parameter. """
 
-    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = Intrinsic, help: str | None = None):
-        self.type_param = self._validate_type_param(type_param)
-        default = default if default is not Intrinsic else self.type_param._raw_default()
-        super().__init__(default=default, help=help)
-
     @property
-    def type_params(self) -> list[Property[Any]]:
-        return [self.type_param]
+    def type_param(self) -> Property[T]:
+        return self._type_params[0]
 
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}({self.type_param})"
+    def __init__(self, type_param: TypeOrInst[Property[Any]], *, default: Init[T] = Intrinsic, help: str | None = None):
+        super().__init__(type_param, default=default, help=help)
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail=detail)

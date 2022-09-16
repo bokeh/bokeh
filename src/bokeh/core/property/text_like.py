@@ -25,10 +25,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 # Bokeh imports
-from .bases import Init, Property
+from .bases import Init
 from .either import Either
 from .instance import Instance
 from .singletons import Intrinsic
@@ -55,8 +55,7 @@ class TextLike(Either):
     """
 
     def __init__(self, default: Init[str | BaseText] = Intrinsic, help: str | None = None) -> None:
-        types: list[Property[Any]] = [MathString(), Instance("bokeh.models.text.BaseText")]
-        super().__init__(*types, default=default, help=help)
+        super().__init__(MathString(), Instance("bokeh.models.text.BaseText"), default=default, help=help)
 
 #-----------------------------------------------------------------------------
 # Dev API

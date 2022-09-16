@@ -19,14 +19,26 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Literal,
+    Type,
+)
 
 # External imports
 import numpy as np
+from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    import pandas as pd
+    from pandas.core.groupby import GroupBy
 
 # Bokeh imports
 from ..core.properties import Datetime
 from ..core.property.singletons import Intrinsic
 from ..models import (
+    Axis,
     CategoricalAxis,
     CategoricalScale,
     ContinuousTicker,
@@ -41,7 +53,12 @@ from ..models import (
     MercatorAxis,
     Range,
     Range1d,
+    Scale,
 )
+
+if TYPE_CHECKING:
+    from ..models.plots import Plot
+    from ..models.text import BaseText
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -61,16 +78,17 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_range(range_input):
+def get_range(range_input: Range | tuple[float, float] | Sequence[str] | pd.Series[Any] | GroupBy | None) -> Range:
     import pandas as pd
+    from pandas.core.groupby import GroupBy
 
     if range_input is None:
         return DataRange1d()
-    if isinstance(range_input, pd.core.groupby.GroupBy):
+    if isinstance(range_input, GroupBy):
         return FactorRange(factors=sorted(list(range_input.groups.keys())))
     if isinstance(range_input, Range):
         return range_input
-    if pd and isinstance(range_input, pd.Series):
+    if isinstance(range_input, pd.Series):
         range_input = range_input.values
     if isinstance(range_input, (Sequence, np.ndarray)):
         if all(isinstance(x, str) for x in range_input):
@@ -85,9 +103,13 @@ def get_range(range_input):
                 return Range1d(start=start, end=end)
             except ValueError:  # @mattpap suggests ValidationError instead
                 pass
-    raise ValueError("Unrecognized range input: '%s'" % str(range_input))
+    raise ValueError(f"Unrecognized range input: '{range_input}'")
 
-def get_scale(range_input, axis_type):
+AxisType: TypeAlias = Literal["linear", "log", "datetime", "mercator", "auto"]
+AxisLocation: TypeAlias = Literal["above", "below", "left", "right"]
+Dim: TypeAlias = Literal[0, 1]
+
+def get_scale(range_input: Range, axis_type: AxisType | None) -> Scale:
     if isinstance(range_input, (DataRange1d, Range1d)) and axis_type in ["linear", "datetime", "mercator", "auto", None]:
         return LinearScale()
     elif isinstance(range_input, (DataRange1d, Range1d)) and axis_type == "log":
@@ -95,9 +117,10 @@ def get_scale(range_input, axis_type):
     elif isinstance(range_input, FactorRange):
         return CategoricalScale()
     else:
-        raise ValueError("Unable to determine proper scale for: '%s'" % str(range_input))
+        raise ValueError(f"Unable to determine proper scale for: '{range_input}'")
 
-def process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_label, rng, dim):
+def process_axis_and_grid(plot: Plot, axis_type: AxisType | None, axis_location: AxisLocation | None,
+        minor_ticks: int | Literal["auto"] | None, axis_label: str | BaseText | None, rng: Range, dim: Dim) -> None:
     axiscls, axiskw = _get_axis_class(axis_type, rng, dim)
 
     if axiscls:
@@ -119,7 +142,7 @@ def process_axis_and_grid(plot, axis_type, axis_location, minor_ticks, axis_labe
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_axis_class(axis_type, range_input, dim):
+def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) -> tuple[Type[Axis] | None, Any]:
     if axis_type is None:
         return None, {}
     elif axis_type == "linear":
@@ -129,7 +152,7 @@ def _get_axis_class(axis_type, range_input, dim):
     elif axis_type == "datetime":
         return DatetimeAxis, {}
     elif axis_type == "mercator":
-        return MercatorAxis, {'dimension': 'lon' if dim == 0 else 'lat'}
+        return MercatorAxis, dict(dimension='lon' if dim == 0 else 'lat')
     elif axis_type == "auto":
         if isinstance(range_input, FactorRange):
             return CategoricalAxis, {}
@@ -146,9 +169,9 @@ def _get_axis_class(axis_type, range_input, dim):
                 pass
         return LinearAxis, {}
     else:
-        raise ValueError("Unrecognized axis_type: '%r'" % axis_type)
+        raise ValueError(f"Unrecognized axis_type: '{axis_type!r}'")
 
-def _get_num_minor_ticks(axis_class, num_minor_ticks):
+def _get_num_minor_ticks(axis_class: Type[Axis], num_minor_ticks: int | Literal["auto"] | None) -> int:
     if isinstance(num_minor_ticks, int):
         if num_minor_ticks <= 1:
             raise ValueError("num_minor_ticks must be > 1")

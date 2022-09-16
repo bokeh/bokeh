@@ -67,7 +67,7 @@ class Alias(Property[T]): # lgtm [py/missing-call-to-init]
     """
 
     name: str
-    help: str | None
+    _help: str | None
 
     # Alias is somewhat a quasi-property
     readonly: ClassVar[bool] = False
@@ -76,7 +76,7 @@ class Alias(Property[T]): # lgtm [py/missing-call-to-init]
 
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
         self.aliased_name = aliased_name
-        self.help = help
+        self._help = help
 
     def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
         """ Return a list of ``AliasPropertyDescriptor`` instances to
