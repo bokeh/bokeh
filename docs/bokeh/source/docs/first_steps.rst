@@ -75,7 +75,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: A line chart
         +++
-        .. button-link:: first_steps/first_steps_1
+        .. button-link:: first_steps/first_steps_1.html
 
             Go to section 1
 
@@ -87,7 +87,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: Several glyphs in one chart
         +++
-        .. button-link:: first_steps/first_steps_2
+        .. button-link:: first_steps/first_steps_2.html
 
             Go to section 2
 
@@ -99,7 +99,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: A chart with a legend
         +++
-        .. button-link:: first_steps/first_steps_3
+        .. button-link:: first_steps/first_steps_3.html
 
             Go to section 3
 
@@ -111,7 +111,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: A chart with a tootip
         +++
-        .. button-link:: first_steps/first_steps_4
+        .. button-link:: first_steps/first_steps_4.html
 
             Go to section 4
 
@@ -123,7 +123,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: A chart with different colors
         +++
-        .. button-link:: first_steps/first_steps_5
+        .. button-link:: first_steps/first_steps_5.html
 
             Go to section 5
 
@@ -135,7 +135,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: Three charts combined into one element
         +++
-        .. button-link:: first_steps/first_steps_6
+        .. button-link:: first_steps/first_steps_6.html
 
             Go to section 6
 
@@ -147,7 +147,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: Screenshot of a Bokeh plot in a Jupyter notebook
         +++
-        .. button-link:: first_steps/first_steps_7
+        .. button-link:: first_steps/first_steps_7.html
 
             Go to section 7
 
@@ -159,7 +159,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: Two charts with different subsets of data
         +++
-        .. button-link:: first_steps/first_steps_8
+        .. button-link:: first_steps/first_steps_8.html
 
             Go to section 8
 
@@ -171,7 +171,7 @@ more about any of the topics covered in the first steps guides.
             :align: center
             :alt: Screenshot of a Bokeh server app
         +++
-        .. button-link:: first_steps/first_steps_9
+        .. button-link:: first_steps/first_steps_9.html
 
             Go to section 9
 
