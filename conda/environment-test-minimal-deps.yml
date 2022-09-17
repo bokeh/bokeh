@@ -54,7 +54,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >==0.971
+    - mypy >=0.971
     # docs
     - autoclasstoc
     - pydata_sphinx_theme ==0.9
