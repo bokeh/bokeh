@@ -64,4 +64,4 @@ runs:
     - name: Delete repository source tree
       if: ${{ inputs.source-tree == 'delete' }}
       shell: bash -l {0}
-      run: rm -rf bokeh
+      run: rm -rf src/bokeh

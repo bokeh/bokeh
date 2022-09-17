@@ -24,7 +24,7 @@ __all__ = (
     "build_conda_packages",
     "build_docs",
     "build_pip_packages",
-    "dev_install",
+    "dev_install_bokehjs",
     "install_bokehjs",
     "npm_install",
     "pack_deployment_tarball",
@@ -69,7 +69,7 @@ def build_conda_packages(config: Config, system: System) -> ActionReturn:
 def build_docs(config: Config, system: System) -> ActionReturn:
     try:
         system.cd("docs/bokeh")
-        system.run("make clean all", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
+        system.run("make clean all SPHINXOPTS=-v", BOKEH_DOCS_CDN=config.version, BOKEH_DOCS_VERSION=config.version)
         system.cd("../..")
         return PASSED("Docs build succeeded")
     except RuntimeError as e:
@@ -84,7 +84,7 @@ def build_pip_packages(config: Config, system: System) -> ActionReturn:
         return FAILED("pip packages build did NOT succeed", details=e.args)
 
 
-def dev_install(config: Config, system: System) -> ActionReturn:
+def dev_install_bokehjs(config: Config, system: System) -> ActionReturn:
     try:
         system.run("pip install -e .", BOKEHJS_ACTION="install")
         return PASSED("Bokeh dev install succeeded")
