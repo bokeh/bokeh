@@ -7,6 +7,7 @@ from typing import Any
 
 # Bokeh imports
 from bokeh.core.json_encoder import serialize_json
+from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import AnyRep, ObjectRep, Serializer, SymbolRep
 from bokeh.model import Model
@@ -41,8 +42,10 @@ for name, model in Model.model_class_reverse_map.items():
         warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
         obj = model()
 
-    q = lambda prop: prop.readonly or prop.serialized
-    properties = obj.query_properties_with_values(q, include_undefined=True)
+    def query(prop: PropertyDescriptor[Any]) -> bool:
+        return prop.readonly or prop.serialized
+
+    properties = obj.query_properties_with_values(query, include_undefined=True)
     attributes = {key: serializer.encode(val) for key, val in properties.items()}
     all_json[name] = attributes
 
