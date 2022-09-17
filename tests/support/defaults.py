@@ -91,7 +91,7 @@ def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
 
     output = serialize_json(defaults, indent=2, pretty=True)
     with open(dest, "w", encoding="utf-8") as f:
-        f.write(output)
+        f.write(output + "\n")
 
     print(f"Wrote {dest} with {len(defaults)} models")
 

@@ -196,6 +196,7 @@ module = [
     "bokeh.util.*",
     "tests.codebase.*",
     "tests.test_bokehjs",
+    "tests.test_defaults",
     "tests.test_examples",
     "tests.unit.bokeh.document.test_callbacks__document",
     "tests.unit.bokeh.embed.test_standalone",
