@@ -99,7 +99,7 @@ class _GoodEventCallback:
 class EmbedTestUtilModel(Model):
     a = Int(12)
     b = String("hello")
-    c = List(Int, [1, 2, 3])
+    c = List(Int, default=[1, 2, 3])
 
 #-----------------------------------------------------------------------------
 # General API
