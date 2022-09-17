@@ -199,7 +199,7 @@ class TestSerializer:
         encoder = Serializer()
         rep = encoder.encode(val)
 
-        assert rep == MapRep(type="map", entries=[])
+        assert rep == MapRep(type="map")
         assert encoder.buffers == []
 
     def test_dict(self) -> None:
@@ -231,7 +231,7 @@ class TestSerializer:
         encoder = Serializer()
 
         val0: set[int] = set()
-        assert encoder.encode(val0) == SetRep(type="set", entries=[])
+        assert encoder.encode(val0) == SetRep(type="set")
 
         val1 = {1, 2, 3}
         assert encoder.encode(val1) == SetRep(type="set", entries=[1, 2, 3])

@@ -43,7 +43,7 @@ from typing import (
 
 # External imports
 import numpy as np
-from typing_extensions import TypeAlias
+from typing_extensions import NotRequired, TypeAlias
 
 # Bokeh imports
 from ..util.dataclasses import (
@@ -108,17 +108,17 @@ class NumberRep(TypedDict):
 
 class ArrayRep(TypedDict):
     type: Literal["array"]
-    entries: list[AnyRep]
+    entries: NotRequired[list[AnyRep]]
 
 ArrayRepLike: TypeAlias = Union[ArrayRep, List[AnyRep]]
 
 class SetRep(TypedDict):
     type: Literal["set"]
-    entries: list[AnyRep]
+    entries: NotRequired[list[AnyRep]]
 
 class MapRep(TypedDict):
     type: Literal["map"]
-    entries: list[tuple[AnyRep, AnyRep]]
+    entries: NotRequired[list[tuple[AnyRep, AnyRep]]]
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
@@ -130,18 +130,16 @@ class SliceRep(TypedDict):
     stop: int | None
     step: int | None
 
-class _ObjectRep(TypedDict):
+class ObjectRep(TypedDict):
     type: Literal["object"]
     name: str
-class ObjectRep(_ObjectRep, total=False):
-    attributes: dict[str, AnyRep]
+    attributes: NotRequired[dict[str, AnyRep]]
 
-class _ObjectRefRep(TypedDict):
+class ObjectRefRep(TypedDict):
     type: Literal["object"]
     name: str
     id: ID
-class ObjectRefRep(_ObjectRefRep, total=False):
-    attributes: dict[str, AnyRep]
+    attributes: NotRequired[dict[str, AnyRep]]
 
 ModelRep = ObjectRefRep
 
@@ -320,16 +318,22 @@ class Serializer:
         return [self.encode(item) for item in obj]
 
     def _encode_set(self, obj: set[Any]) -> SetRep:
-        return SetRep(
-            type="set",
-            entries=[self.encode(entry) for entry in obj],
-        )
+        if len(obj) == 0:
+            return SetRep(type="set")
+        else:
+            return SetRep(
+                type="set",
+                entries=[self.encode(entry) for entry in obj],
+            )
 
     def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
-        return MapRep(
-            type="map",
-            entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
-        )
+        if len(obj) == 0:
+            return MapRep(type="map")
+        else:
+            return MapRep(
+                type="map",
+                entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
+            )
 
     def _encode_dataclass(self, obj: Any) -> ObjectRep:
         cls = type(obj)
@@ -563,15 +567,15 @@ class Deserializer:
         return float(value) if isinstance(value, str) else value
 
     def _decode_array(self, obj: ArrayRep) -> list[Any]:
-        entries = obj["entries"]
+        entries = obj.get("entries", [])
         return [ self._decode(entry) for entry in entries ]
 
     def _decode_set(self, obj: SetRep) -> set[Any]:
-        entries = obj["entries"]
-        return set([ self._decode(entry) for entry in entries ])
+        entries = obj.get("entries", [])
+        return { self._decode(entry) for entry in entries }
 
     def _decode_map(self, obj: MapRep) -> dict[Any, Any]:
-        entries = obj["entries"]
+        entries = obj.get("entries", [])
         return { self._decode(key): self._decode(val) for key, val in entries }
 
     def _decode_bytes(self, obj: BytesRep) -> bytes:

@@ -91,8 +91,8 @@ describe("core/serialization module", () => {
     it("that supports plain objects", () => {
       const val0 = {}
       expect(to_serializable(val0)).to.be.equal({
-        rep: {type: "map", entries: []},
-        json: '{"type":"map","entries":[]}'},
+        rep: {type: "map"},
+        json: '{"type":"map"}'},
       )
       /*
       expect(to_serializable(val0)).to.be.equal({rep: {}, json: "{}"})
@@ -113,8 +113,8 @@ describe("core/serialization module", () => {
     it("that supports basic objects", () => {
       const val0 = Object.create(null)
       expect(to_serializable(val0)).to.be.equal({
-        rep: {type: "map", entries: []},
-        json: '{"type":"map","entries":[]}'},
+        rep: {type: "map"},
+        json: '{"type":"map"}'},
       )
       const val1 = Object.create(null)
       val1.key0 = 0
@@ -122,6 +122,32 @@ describe("core/serialization module", () => {
       expect(to_serializable(val1)).to.be.equal({
         rep: {type: "map", entries: [["key0", 0], ["key1", {type: "number", value: "nan"}]]},
         json: '{"type":"map","entries":[["key0",0],["key1",{"type":"number","value":"nan"}]]}',
+      })
+    })
+
+    it("that supports Map<K, V> instances", () => {
+      const val0 = new Map<number, string>()
+      expect(to_serializable(val0)).to.be.equal({
+        rep: {type: "map"},
+        json: '{"type":"map"}'},
+      )
+      const val1 = new Map([[1.1, "a"], [2.2, "b"]])
+      expect(to_serializable(val1)).to.be.equal({
+        rep: {type: "map", entries: [[1.1, "a"], [2.2, "b"]]},
+        json: '{"type":"map","entries":[[1.1,"a"],[2.2,"b"]]}',
+      })
+    })
+
+    it("that supports Set<V> instances", () => {
+      const val0 = new Set<number>()
+      expect(to_serializable(val0)).to.be.equal({
+        rep: {type: "set"},
+        json: '{"type":"set"}'},
+      )
+      const val1 = new Set([1.1, 2.2, 3.3])
+      expect(to_serializable(val1)).to.be.equal({
+        rep: {type: "set", entries: [1.1, 2.2, 3.3]},
+        json: '{"type":"set","entries":[1.1,2.2,3.3]}',
       })
     })
 
