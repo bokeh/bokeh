@@ -275,6 +275,8 @@ class Serializer:
             return self._encode_tuple(obj)
         elif isinstance(obj, list):
             return self._encode_list(obj)
+        elif isinstance(obj, set):
+            return self._encode_set(obj)
         elif isinstance(obj, dict):
             return self._encode_dict(obj)
         elif isinstance(obj, bytes):
@@ -316,6 +318,12 @@ class Serializer:
 
     def _encode_list(self, obj: list[Any]) -> ArrayRepLike:
         return [self.encode(item) for item in obj]
+
+    def _encode_set(self, obj: set[Any]) -> SetRep:
+        return SetRep(
+            type="set",
+            entries=[self.encode(entry) for entry in obj],
+        )
 
     def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
         return MapRep(

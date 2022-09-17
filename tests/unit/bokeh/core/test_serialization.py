@@ -48,6 +48,7 @@ from bokeh.core.serialization import (
     Ref,
     SerializationError,
     Serializer,
+    SetRep,
     SliceRep,
     TypedArrayRep,
 )
@@ -225,6 +226,15 @@ class TestSerializer:
         encoder = Serializer()
         with pytest.raises(SerializationError):
             encoder.encode(val)
+
+    def test_set(self) -> None:
+        encoder = Serializer()
+
+        val0: set[int] = set()
+        assert encoder.encode(val0) == SetRep(type="set", entries=[])
+
+        val1 = {1, 2, 3}
+        assert encoder.encode(val1) == SetRep(type="set", entries=[1, 2, 3])
 
     def test_slice(self) -> None:
         encoder = Serializer()
