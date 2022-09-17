@@ -29,7 +29,7 @@ from bokeh.core.properties import (
     Seq,
     String,
 )
-from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
+from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList, PropertyValueSet
 from bokeh.models import ColumnDataSource
 from tests.support.util.api import verify_all
 
@@ -339,6 +339,12 @@ class Test_Set:
 
         prop = bcpc.Set(Instance(_TestModel))
         assert prop.has_ref
+
+    def test_wrap(self) -> None:
+        prop = bcpc.Set(Int)
+        wrapped = prop.wrap({10, 20, 30})
+        assert isinstance(wrapped, PropertyValueSet)
+        assert prop.wrap(wrapped) is wrapped
 
     def test_str(self) -> None:
         prop = bcpc.Set(Int)

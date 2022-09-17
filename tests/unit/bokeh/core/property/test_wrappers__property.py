@@ -57,11 +57,12 @@ import bokeh.core.property.wrappers as bcpw # isort:skip
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'notify_owner',
-    'PropertyValueContainer',
-    'PropertyValueList',
-    'PropertyValueDict',
     'PropertyValueColumnData',
+    'PropertyValueContainer',
+    'PropertyValueDict',
+    'PropertyValueList',
+    'PropertyValueSet',
+    'notify_owner',
 )
 
 #-----------------------------------------------------------------------------

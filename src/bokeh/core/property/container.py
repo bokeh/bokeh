@@ -43,7 +43,12 @@ from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
 from .singletons import Intrinsic, Undefined
-from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
+from .wrappers import (
+    PropertyValueColumnData,
+    PropertyValueDict,
+    PropertyValueList,
+    PropertyValueSet,
+)
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
@@ -121,7 +126,7 @@ class List(Seq[T]):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
-    def wrap(self, value):
+    def wrap(self, value: list[T]) -> PropertyValueList[T]:
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -148,8 +153,18 @@ class Set(Seq[T]):
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
+    def wrap(self, value: set[T]) -> PropertyValueSet[T]:
+        """ Some property types need to wrap their values in special containers, etc. """
+        if isinstance(value, set):
+            if isinstance(value, PropertyValueSet):
+                return value
+            else:
+                return PropertyValueSet(value)
+        else:
+            return value
+
     @classmethod
-    def _is_seq(cls, value: Any):
+    def _is_seq(cls, value: Any) -> bool:
         return isinstance(value, set)
 
 class Array(Seq[T]):
@@ -158,7 +173,7 @@ class Array(Seq[T]):
     """
 
     @classmethod
-    def _is_seq(cls, value):
+    def _is_seq(cls, value: Any) -> bool:
         import numpy as np
         return isinstance(value, np.ndarray)
 
