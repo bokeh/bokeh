@@ -170,8 +170,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     """)
 
-    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")),
-    help="""
+    js_event_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")), help="""
     A mapping of event names to lists of ``CustomJS`` callbacks.
 
     Typically, rather then modifying this property directly, callbacks should be
@@ -181,12 +180,6 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         callback = CustomJS(code="console.log('tap event occurred')")
         plot.js_on_event('tap', callback)
-    """)
-
-    subscribed_events = p.List(p.String, help="""
-    List of events that are subscribed to by Python callbacks. This is
-    the set of events that will be communicated from BokehJS back to
-    Python for this model.
     """)
 
     js_property_callbacks = p.Dict(p.String, p.List(p.Instance("bokeh.models.callbacks.Callback")), help="""
@@ -201,6 +194,12 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         callback = CustomJS(code="console.log('stuff')")
         plot.x_range.js_on_change('start', callback)
 
+    """)
+
+    subscribed_events = p.Set(p.String, help="""
+    Collection of events that are subscribed to by Python callbacks. This is
+    the set of events that will be communicated from BokehJS back to Python
+    for this model.
     """)
 
     syncable: bool = p.Bool(default=True, help="""

@@ -1129,7 +1129,7 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             "tags": [],
             'js_property_callbacks': dict(type="map", entries=[]),
             "js_event_callbacks": dict(type="map", entries=[]),
-            "subscribed_events": [],
+            "subscribed_events": dict(type="set", entries=[]),
             "syncable": True,
             "foo": 42,
             "bar": "world",
@@ -1143,7 +1143,7 @@ def test_transform_series_force_list_default_with_buffers() -> None:
             '"js_property_callbacks":{"entries":[],"type":"map"},' +
             '"name":null,' +
             '"null_child":null,' +
-            '"subscribed_events":[],' +
+            '"subscribed_events":{"entries":[],"type":"set"},' +
             '"syncable":true,' +
             '"tags":[]}'
         ) % (child_obj.id, obj.id) == json_string

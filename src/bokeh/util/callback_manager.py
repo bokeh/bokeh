@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from collections import defaultdict
 from inspect import signature
 from typing import (
     TYPE_CHECKING,
@@ -76,12 +77,12 @@ class EventCallbackManager:
 
     document: Document | None
     id: ID
-    subscribed_events: list[str]
+    subscribed_events: set[str]
     _event_callbacks: dict[str, list[EventCallback]]
 
     def __init__(self, *args: Any, **kw: Any) -> None:
         super().__init__(*args, **kw)
-        self._event_callbacks = {}
+        self._event_callbacks = defaultdict(list)
 
     def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
         ''' Run callbacks when the specified event occurs on this Model
@@ -96,14 +97,9 @@ class EventCallbackManager:
         for callback in callbacks:
             if _nargs(callback) != 0:
                 _check_callback(callback, ('event',), what='Event callback')
+            self._event_callbacks[event].append(callback)
 
-        if event not in self._event_callbacks:
-            self._event_callbacks[event] = [cb for cb in callbacks]
-        else:
-            self._event_callbacks[event].extend(callbacks)
-
-        if event not in self.subscribed_events:
-            self.subscribed_events.append(event)
+        self.subscribed_events.add(event)
 
     def _trigger_event(self, event: ModelEvent) -> None:
         def invoke() -> None:

@@ -23,7 +23,7 @@ export namespace Model {
     name: p.Property<string | null>
     js_property_callbacks: p.Property<{[key: string]: ChangeCallback[]}>
     js_event_callbacks: p.Property<{[key: string]: EventCallback[]}>
-    subscribed_events: p.Property<string[]>
+    subscribed_events: p.Property<Set<string>>
     syncable: p.Property<boolean>
   }
 }
@@ -48,12 +48,12 @@ export class Model extends HasProps {
   }
 
   static {
-    this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Dict, Nullable}) => ({
+    this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Set, Dict, Nullable}) => ({
       tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],
       js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
       js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],
-      subscribed_events:     [ Array(String), [] ],
+      subscribed_events:     [ Set(String), new globalThis.Set() ],
       syncable:              [ Boolean, true ],
     }))
   }
@@ -76,7 +76,7 @@ export class Model extends HasProps {
     for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? [])
       callback.execute(event)
 
-    if (this.document != null && this.subscribed_events.some((model) => model == event.event_name))
+    if (this.document != null && this.subscribed_events.has(event.event_name))
       this.document.event_manager.send_event(event)
   }
 
@@ -118,7 +118,7 @@ export class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
-    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.length != 0)
+    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0)
       this._update_event_callbacks()
   }
 
