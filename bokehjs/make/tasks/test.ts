@@ -334,7 +334,7 @@ task2("test:integration", [start, build_integration], async ([devtools_port, ser
   return success(undefined)
 })
 
-task("test:defaults:compile", ["defaults:generate"], async () => compile("defaults"))
+task("test:defaults:compile", async () => compile("defaults"))
 const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
 
 task2("test:defaults", [start, build_defaults], async ([devtools_port, server_port]) => {
