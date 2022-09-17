@@ -53,7 +53,7 @@ def output_defaults_module(filename: str, defaults: Any) -> None:
     dest = join(dest_dir, ".generated_defaults", filename)
     os.makedirs(dirname(dest), exist_ok=True)
 
-    output = serialize_json(defaults, indent=2)
+    output = serialize_json(defaults, indent=2, pretty=True)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(output)
 
