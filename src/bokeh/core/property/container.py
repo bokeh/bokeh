@@ -61,6 +61,7 @@ __all__ = (
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Tuple',
 )
 
@@ -101,8 +102,7 @@ class Seq(ContainerProperty[T]):
 
     @classmethod
     def _is_seq(cls, value: Any) -> bool:
-        return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and
-                not isinstance(value, str))
+        return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(value, str))
 
     @classmethod
     def _is_seq_like(cls, value: Any) -> bool:
@@ -115,8 +115,8 @@ class List(Seq[T]):
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], default: Init[T] = [], *, help: str | None = None) -> None:
-        # todo: refactor to not use mutable objects as default values.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = [], help: str | None = None) -> None:
+        # TODO: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
@@ -134,8 +134,23 @@ class List(Seq[T]):
             return value
 
     @classmethod
-    def _is_seq(cls, value):
+    def _is_seq(cls, value: Any):
         return isinstance(value, list)
+
+class Set(Seq[T]):
+    """ Accept Python ``set()`` values.
+
+    """
+
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = set(), help: str | None = None) -> None:
+        # TODO: refactor to not use mutable objects as default values.
+        # Left in place for now because we want to allow None to express
+        # optional values. Also in Dict.
+        super().__init__(item_type, default=default, help=help)
+
+    @classmethod
+    def _is_seq(cls, value: Any):
+        return isinstance(value, set)
 
 class Array(Seq[T]):
     """ Accept NumPy array values.

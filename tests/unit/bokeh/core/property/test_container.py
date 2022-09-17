@@ -51,6 +51,7 @@ ALL = (
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Tuple',
 )
 
@@ -294,6 +295,54 @@ class Test_Seq:
         prop = bcpc.Seq(Int)
         assert str(prop) == "Seq(Int)"
 
+class Test_Set:
+    def test_init(self) -> None:
+        with pytest.raises(TypeError):
+            bcpc.Set() # type: ignore
+
+    def test_valid(self) -> None:
+        prop = bcpc.Set(Int)
+
+        assert prop.is_valid(set())
+        assert prop.is_valid({1, 2, 3})
+
+    def test_invalid(self) -> None:
+        prop = bcpc.Set(Int)
+
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(0)
+        assert not prop.is_valid(1)
+        assert not prop.is_valid(0.0)
+        assert not prop.is_valid(1.0)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid("")
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(np.array([1, 2]))
+        assert not prop.is_valid((1, 2))
+        assert not prop.is_valid([1, 2])
+        assert not prop.is_valid({1: 2})
+        assert not prop.is_valid(np.array([1, 2]))
+
+        assert not prop.is_valid({"a", "b", "c"})
+        assert not prop.is_valid({1.1, 1.2, 1.3})
+
+    def test_has_ref(self) -> None:
+        prop = bcpc.Set(Int)
+        assert not prop.has_ref
+
+        prop = bcpc.Set(Instance(_TestModel))
+        assert prop.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpc.Set(Int)
+        assert str(prop) == "Set(Int)"
 
 class Test_Tuple:
 
