@@ -621,7 +621,7 @@ describe("Document", () => {
     try {
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
-      const py_version = js_version.replace(/-(dev|rc)\./, "$1")
+      const py_version = js_version.replace(/-(dev|rc)\./, ".$1")
       parsed.version = `${py_version}`
       const out0 = trap(() => Document.from_json_string(JSON.stringify(parsed)))
       expect(out0.warn).to.be.equal("")
