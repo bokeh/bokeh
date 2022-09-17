@@ -203,13 +203,13 @@ class ConnectionEvent(DocumentEvent):
 
     '''
 
-class Reconnected(DocumentEvent):
+class Reconnected(ConnectionEvent):
     ''' Announce when a connection to the server/client was regained.
 
     '''
     event_name = 'reconnected'
 
-class Disconnected(DocumentEvent):
+class Disconnected(ConnectionEvent):
     ''' Announce when a connection to the server/client was lost.
 
     '''

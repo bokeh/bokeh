@@ -6,8 +6,16 @@ import {serialize, Serializable, Serializer} from "./serialization"
 import {equals, Equatable, Comparator} from "./util/eq"
 
 export type BokehEventType =
-  "document_ready" |
+  DocumentEventType |
   ModelEventType
+
+export type DocumentEventType =
+  "document_ready" |
+  ConnectionEventType
+
+export type ConnectionEventType =
+  "reconnected" |
+  "disconnected"
 
 export type ModelEventType =
   "button_click" |
@@ -44,6 +52,8 @@ export type PointEventType =
 
 export type BokehEventMap = {
   document_ready: DocumentReady
+  reconnected: Reconnected
+  disconnected: Disconnected
   button_click: ButtonClick
   menu_item_click: MenuItemClick
   value_submit: ValueSubmit

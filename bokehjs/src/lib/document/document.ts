@@ -1,7 +1,7 @@
 import {default_resolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {BokehEvent, DocumentReady, ModelEvent, LODStart, LODEnd} from "core/bokeh_events"
+import {Class} from "core/class"
 import {HasProps} from "core/has_props"
 import {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
@@ -11,6 +11,7 @@ import {pyify_version} from "core/util/version"
 import {Ref} from "core/util/refs"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
+import {isString, isFunction} from "core/util/types"
 import {equals, Equatable, Comparator} from "core/util/eq"
 import {copy, includes} from "core/util/array"
 import {entries} from "core/util/object"
@@ -18,6 +19,10 @@ import * as sets from "core/util/set"
 import {CallbackLike} from "models/callbacks/callback"
 import {Model} from "model"
 import {ModelDef, decode_def} from "./defs"
+import {
+  BokehEvent, BokehEventType, BokehEventMap, ModelEvent,
+  DocumentReady, LODStart, LODEnd,
+} from "core/bokeh_events"
 import {
   DocumentEvent, DocumentEventBatch, DocumentChangedEvent,
   RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
@@ -28,7 +33,8 @@ Deserializer.register("model", decode_def)
 
 export type Out<T> = T
 
-export type JSEventCallback = CallbackLike<Document, [BokehEvent]>
+export type DocumentEventCallback<T extends BokehEvent = BokehEvent> = CallbackLike<Document, [T]>
+export type DocumentEventCallbackLike<T extends BokehEvent = BokehEvent> = DocumentEventCallback<T> | DocumentEventCallback<T>["execute"]
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -81,7 +87,7 @@ export class Document implements Equatable {
   protected _new_models: Set<HasProps>
   protected _all_models_freeze_count: number
   protected _callbacks: Map<((event: DocumentEvent) => void) | ((event: DocumentChangedEvent) => void), boolean>
-  protected _js_callbacks: Map<string, JSEventCallback[]>
+  protected _document_callbacks: Map<string, DocumentEventCallback[]>
   protected _message_callbacks: Map<string, Set<(data: unknown) => void>>
   private _idle_roots: WeakSet<HasProps>
   protected _interactive_timestamp: number | null
@@ -98,7 +104,7 @@ export class Document implements Equatable {
     this._new_models = new Set()
     this._all_models_freeze_count = 0
     this._callbacks = new Map()
-    this._js_callbacks = new Map()
+    this._document_callbacks = new Map()
     this._message_callbacks = new Map()
     this.event_manager = new EventManager(this)
     this.idle = new Signal0(this, "idle")
@@ -364,7 +370,7 @@ export class Document implements Equatable {
   }
 
   _trigger_on_event(event: BokehEvent): void {
-    const callbacks = this._js_callbacks.get(event.event_name)
+    const callbacks = this._document_callbacks.get(event.event_name)
     if (callbacks != null) {
       for (const callback of callbacks) {
         callback.execute(this, event)
@@ -372,10 +378,16 @@ export class Document implements Equatable {
     }
   }
 
-  // TODO: API (needs PR #11915)
-  on_event(event: string, ...callbacks: JSEventCallback[]): void {
-    const existing = this._js_callbacks.get(event) ?? []
-    this._js_callbacks.set(event, [...existing, ...callbacks])
+  on_event<T extends BokehEventType>(event: T, ...callback: DocumentEventCallbackLike<BokehEventMap[T]>[]): void
+  on_event<T extends BokehEvent>(event: Class<T>, ...callback: DocumentEventCallbackLike<T>[]): void
+
+  on_event(event: string | Class<BokehEvent>, ...callbacks: DocumentEventCallbackLike[]): void {
+    const name = isString(event) ? event : event.prototype.event_name
+
+    const existing = this._document_callbacks.get(name) ?? []
+    const added = callbacks.map((callback) => isFunction(callback) ? {execute: callback} : callback)
+
+    this._document_callbacks.set(name, [...existing, ...added])
   }
 
   to_json_string(include_defaults: boolean = true): string {
@@ -433,7 +445,7 @@ export class Document implements Equatable {
 
     const callbacks = (() => {
       if (doc_json.callbacks != null)
-        return deserializer.decode(doc_json.callbacks) as {[key: string]: JSEventCallback[]}
+        return deserializer.decode(doc_json.callbacks) as {[key: string]: DocumentEventCallback[]}
       else
         return {}
     })()
@@ -441,7 +453,7 @@ export class Document implements Equatable {
     doc.remove_on_change(listener)
 
     for (const [event, event_callbacks] of entries(callbacks)) {
-      doc.on_event(event, ...event_callbacks)
+      doc.on_event(event as BokehEventType, ...event_callbacks)
     }
 
     for (const root of roots) {
