@@ -5,11 +5,7 @@ on:
     branches:
       - main
       - branch-*
-    paths:
-      - 'bokehjs/**'
   pull_request:
-    paths:
-      - 'bokehjs/**'
 
 jobs:
 
