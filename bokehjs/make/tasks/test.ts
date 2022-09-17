@@ -334,8 +334,18 @@ task2("test:integration", [start, build_integration], async ([devtools_port, ser
   return success(undefined)
 })
 
+async function copy_defaults() {
+  const bokehjs_dir = process.cwd()
+  const src = join(bokehjs_dir, "..", "tests/baselines/defaults.json")
+  const dst = join(bokehjs_dir, "build/test/defaults/defaults.json")
+  await fs.promises.copyFile(src, dst)
+}
+
 task("test:defaults:compile", async () => compile("defaults"))
-const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => await bundle("defaults"))
+const build_defaults = task("test:build:defaults", [passthrough("test:defaults:compile")], async () => {
+  await copy_defaults()
+  await bundle("defaults")
+})
 
 task2("test:defaults", [start, build_defaults], async ([devtools_port, server_port]) => {
   await devtools(devtools_port, server_port, "defaults")

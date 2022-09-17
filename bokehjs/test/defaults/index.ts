@@ -3,7 +3,7 @@ export * from "../framework"
 
 import {ExpectationError} from "../unit/assertions"
 
-import all_defaults from "../.generated_defaults/defaults.json"
+import all_defaults from "./defaults.json"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
