@@ -68,8 +68,7 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
-          # can't run test:defaults, because we don't have access to Python
-          node make test:unit test:integration
+          node make test
 
       - name: Lint codebase
         if: success() || failure()
