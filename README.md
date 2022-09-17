@@ -130,12 +130,7 @@
 
 *Consider [making a donation](https://opencollective.com/bokeh) if you enjoy using Bokeh and want to support its development.*
 
-<p>
-
-![Optimized-bokeh-hero (1)](https://user-images.githubusercontent.com/1078448/190840954-dc243c99-9295-44de-88e9-fafd0f4f7f8a.jpg)
-
-
-</p>
+![4x9 image grid of Bokeh plots](https://user-images.githubusercontent.com/1078448/190840954-dc243c99-9295-44de-88e9-fafd0f4f7f8a.jpg)
 
 ## Installation
 
@@ -176,50 +171,59 @@ The Bokeh project is grateful for [individual contributions](https://opencollect
 
 <table align="center">
 <tr>
+
   <td>
     <a href="https://www.numfocus.org/">
     <img src="https://static.bokeh.org/sponsor/numfocus.svg"
          alt="NumFocus Logo" width="200"/>
     </a>
   </td>
+  
   <td>
     <a href="https://chanzuckerberg.com/">
     <img src="https://static.bokeh.org/sponsor/czi.svg"
          alt="CZI Logo" width="200"/>
     </a>
   </td>
+  
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
     <img src="https://static.bokeh.org/sponsor/blackstone.png"
          alt="Blackstone Logo" width="400"/>
     </a>
   </td>
+  
  </tr>
  <tr>
+ 
   <td>
     <a href="https://tidelift.com/">
     <img src="https://static.bokeh.org/sponsor/tidelift.svg"
          alt="TideLift Logo" width="200"/>
     </a>
   </td>
+  
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
          alt="Anaconda Logo" width="200"/>
     </a>
   </td>
+  
   <td>
     <a href="https://www.nvidia.com">
     <img src="https://static.bokeh.org/sponsor/nvidia.png"
          alt="NVidia Logo" width="200"/>
     </a>
   </td>
+  
   <td>
     <a href="https://developer.nvidia.com/rapids">
     <img src="https://static.bokeh.org/sponsor/rapids.png"
          alt="Rapids Logo" width="200"/>
     </a>
   </td>
+  
 </tr>
 </table>
 
