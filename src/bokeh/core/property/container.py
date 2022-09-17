@@ -110,9 +110,6 @@ class Seq(ContainerProperty[T]):
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-    def _new_instance(self, value):
-        return value
-
 class List(Seq[T]):
     """ Accept Python list values.
 
@@ -149,11 +146,6 @@ class Array(Seq[T]):
     def _is_seq(cls, value):
         import numpy as np
         return isinstance(value, np.ndarray)
-
-    def _new_instance(self, value):
-        import numpy as np
-        return np.array(value)
-
 
 class Dict(ContainerProperty[Any]):
     """ Accept Python dict values.
