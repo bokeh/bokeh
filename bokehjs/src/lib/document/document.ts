@@ -7,6 +7,7 @@ import {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
 import {Serializer, ModelRep} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
+import {pyify_version} from "core/util/version"
 import {Ref} from "core/util/refs"
 import {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
@@ -374,15 +375,11 @@ export class Document implements Equatable {
   }
 
   private static _handle_version(json: DocJson): void {
-    function pyify(version: string) {
-      return version.replace(/-(dev|rc)\./, "$1")
-    }
-
     if (json.version != null) {
       const py_version = json.version
       const is_dev = py_version.indexOf("+") !== -1 || py_version.indexOf("-") !== -1
       const versions_string = `Library versions: JS (${js_version}) / Python (${py_version})`
-      if (!is_dev && pyify(js_version) != py_version) {
+      if (!is_dev && pyify_version(js_version) != py_version) {
         logger.warn("JS/Python version mismatch")
         logger.warn(versions_string)
       } else
