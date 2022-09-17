@@ -496,6 +496,10 @@ class ParameterizedProperty(Property[T]):
     def has_ref(self) -> bool:
         return any(type_param.has_ref for type_param in self.type_params)
 
+    def _may_have_unstable_default(self) -> bool:
+        return super()._may_have_unstable_default() or \
+            any(type_param._may_have_unstable_default() for type_param in self.type_params)
+
     def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
             return new
@@ -522,9 +526,6 @@ class SingleParameterizedProperty(ParameterizedProperty[T]):
 
     def wrap(self, value: T) -> T:
         return self.type_param.wrap(value)
-
-    def _may_have_unstable_default(self) -> bool:
-        return super()._may_have_unstable_default() or self.type_param._may_have_unstable_default()
 
 class PrimitiveProperty(Property[T]):
     """ A base class for simple property types.
