@@ -1,8 +1,27 @@
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2022, Anaconda, Inc., and Bokeh Contributors.
+# All rights reserved.
+#
+# The full license is in the file LICENSE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+""" Collect default values of all models' properties. """
+
+#-----------------------------------------------------------------------------
+# Boilerplate
+#-----------------------------------------------------------------------------
+from __future__ import annotations
+
+import logging # isort:skip
+log = logging.getLogger(__name__)
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 # Standard library imports
 import os
-import sys
 import warnings
-from os.path import dirname, join
+from pathlib import Path
 from typing import Any
 
 # Bokeh imports
@@ -14,6 +33,23 @@ from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
 import bokeh.models; bokeh.models # isort:skip
+
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
+
+__all__ = (
+    "collect_defaults",
+    "output_defaults",
+)
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 class DefaultsSerializer(Serializer):
 
@@ -32,31 +68,37 @@ class DefaultsSerializer(Serializer):
         else:
             return super()._encode(obj)
 
-dest_dir = sys.argv[1]
+def collect_defaults() -> dict[str, Any]:
+    serializer = DefaultsSerializer()
+    defaults: dict[str, Any] = {}
 
-serializer = DefaultsSerializer()
-all_json = {}
+    for name, model in Model.model_class_reverse_map.items():
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
+            obj = model()
 
-for name, model in Model.model_class_reverse_map.items():
-    with warnings.catch_warnings():
-        warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
-        obj = model()
+        def query(prop: PropertyDescriptor[Any]) -> bool:
+            return prop.readonly or prop.serialized
 
-    def query(prop: PropertyDescriptor[Any]) -> bool:
-        return prop.readonly or prop.serialized
+        properties = obj.query_properties_with_values(query, include_undefined=True)
+        attributes = {key: serializer.encode(val) for key, val in properties.items()}
+        defaults[name] = attributes
 
-    properties = obj.query_properties_with_values(query, include_undefined=True)
-    attributes = {key: serializer.encode(val) for key, val in properties.items()}
-    all_json[name] = attributes
+    return defaults
 
-def output_defaults_module(filename: str, defaults: Any) -> None:
-    dest = join(dest_dir, ".generated_defaults", filename)
-    os.makedirs(dirname(dest), exist_ok=True)
+def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
+    os.makedirs(dest.parent, exist_ok=True)
 
     output = serialize_json(defaults, indent=2, pretty=True)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(output)
 
-    print(f"Wrote {filename} with {len(defaults)} models")
+    print(f"Wrote {dest} with {len(defaults)} models")
 
-output_defaults_module("defaults.json", all_json)
+#-----------------------------------------------------------------------------
+# Private API
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Code
+#-----------------------------------------------------------------------------
