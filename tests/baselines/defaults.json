@@ -2338,13 +2338,25 @@
       "type": "value",
       "value": 0.0
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2354,18 +2366,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2374,9 +2374,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2386,17 +2390,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "AnnularWedge": {
@@ -2438,13 +2438,25 @@
       "field": "end_angle"
     },
     "direction": "anticlock",
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2454,18 +2466,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2474,9 +2474,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2486,17 +2490,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Annulus": {
@@ -2529,13 +2529,25 @@
       "type": "field",
       "field": "outer_radius"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2545,18 +2557,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2565,9 +2565,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2577,17 +2581,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Arc": {
@@ -2625,13 +2625,25 @@
       "field": "end_angle"
     },
     "direction": "anticlock",
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2640,18 +2652,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "Bezier": {
@@ -2700,13 +2700,25 @@
       "type": "field",
       "field": "cy1"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2715,18 +2727,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "Block": {
@@ -2759,13 +2759,25 @@
       "type": "value",
       "value": 1
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2775,18 +2787,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2795,9 +2795,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2807,17 +2811,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Circle": {
@@ -2851,13 +2851,25 @@
       "type": "value",
       "value": 0.0
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2867,18 +2879,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2887,9 +2887,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2899,17 +2903,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     },
     "radius": {
       "type": "value",
@@ -2951,13 +2951,25 @@
       "type": "value",
       "value": 0.0
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -2967,18 +2979,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -2987,9 +2987,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -2999,17 +3003,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "HArea": {
@@ -3040,9 +3040,13 @@
     },
     "fill_color": "gray",
     "fill_alpha": 1.0,
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3052,17 +3056,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "HBar": {
@@ -3095,13 +3095,25 @@
       "type": "field",
       "field": "right"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3111,18 +3123,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -3131,9 +3131,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3143,17 +3147,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "HexTile": {
@@ -3185,13 +3185,25 @@
       "value": 1.0
     },
     "orientation": "pointytop",
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": null
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3201,18 +3213,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": null
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -3221,9 +3221,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3233,17 +3237,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "ImageBase": {
@@ -3472,13 +3472,13 @@
       "type": "field",
       "field": "y"
     },
-    "line_cap": "butt",
-    "line_width": 1,
-    "line_dash": [],
-    "line_dash_offset": 0,
+    "line_color": "black",
     "line_alpha": 1.0,
+    "line_width": 1,
     "line_join": "bevel",
-    "line_color": "black"
+    "line_cap": "butt",
+    "line_dash": [],
+    "line_dash_offset": 0
   },
   "MultiLine": {
     "name": null,
@@ -3502,13 +3502,25 @@
       "type": "field",
       "field": "ys"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3517,18 +3529,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "MultiPolygons": {
@@ -3553,13 +3553,25 @@
       "type": "field",
       "field": "ys"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3569,18 +3581,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -3589,9 +3589,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3601,17 +3605,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Patch": {
@@ -3636,24 +3636,24 @@
       "type": "field",
       "field": "y"
     },
-    "line_cap": "butt",
+    "line_color": "black",
+    "line_alpha": 1.0,
     "line_width": 1,
+    "line_join": "bevel",
+    "line_cap": "butt",
     "line_dash": [],
     "line_dash_offset": 0,
-    "line_alpha": 1.0,
-    "line_join": "bevel",
-    "line_color": "black",
     "fill_color": "gray",
     "fill_alpha": 1.0,
+    "hatch_color": "black",
+    "hatch_alpha": 1.0,
+    "hatch_scale": 12.0,
+    "hatch_pattern": null,
+    "hatch_weight": 1.0,
     "hatch_extra": {
       "type": "map",
       "entries": []
-    },
-    "hatch_scale": 12.0,
-    "hatch_pattern": null,
-    "hatch_color": "black",
-    "hatch_weight": 1.0,
-    "hatch_alpha": 1.0
+    }
   },
   "Patches": {
     "name": null,
@@ -3677,13 +3677,25 @@
       "type": "field",
       "field": "ys"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3693,18 +3705,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -3713,9 +3713,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3725,17 +3729,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Quad": {
@@ -3768,13 +3768,25 @@
       "type": "field",
       "field": "top"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3784,18 +3796,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -3804,9 +3804,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -3816,17 +3820,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Quadratic": {
@@ -3867,13 +3867,25 @@
       "type": "field",
       "field": "cy"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3882,18 +3894,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "Ray": {
@@ -3926,13 +3926,25 @@
       "type": "value",
       "value": 0
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -3941,18 +3953,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "Rect": {
@@ -3990,13 +3990,25 @@
       "value": 0.0
     },
     "dilate": false,
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -4006,18 +4018,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -4026,9 +4026,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -4038,17 +4042,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Scatter": {
@@ -4082,13 +4082,25 @@
       "type": "value",
       "value": 0.0
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -4098,18 +4110,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -4118,9 +4118,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -4130,17 +4134,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     },
     "marker": {
       "type": "value",
@@ -4177,13 +4177,25 @@
       "type": "field",
       "field": "y1"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -4192,18 +4204,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "Step": {
@@ -4228,13 +4228,13 @@
       "type": "field",
       "field": "y"
     },
-    "line_cap": "butt",
+    "line_color": "black",
+    "line_alpha": 1.0,
     "line_width": 1,
+    "line_join": "bevel",
+    "line_cap": "butt",
     "line_dash": [],
     "line_dash_offset": 0,
-    "line_alpha": 1.0,
-    "line_join": "bevel",
-    "line_color": "black",
     "mode": "before"
   },
   "Text": {
@@ -4279,37 +4279,37 @@
       "type": "value",
       "value": "#444444"
     },
-    "text_font_style": {
+    "text_outline_color": {
       "type": "value",
-      "value": "normal"
+      "value": null
     },
-    "text_line_height": {
+    "text_alpha": {
       "type": "value",
-      "value": 1.2
-    },
-    "text_font_size": {
-      "type": "value",
-      "value": "16px"
+      "value": 1.0
     },
     "text_font": {
       "type": "value",
       "value": "helvetica"
     },
-    "text_outline_color": {
+    "text_font_size": {
       "type": "value",
-      "value": null
+      "value": "16px"
     },
-    "text_baseline": {
+    "text_font_style": {
       "type": "value",
-      "value": "bottom"
+      "value": "normal"
     },
     "text_align": {
       "type": "value",
       "value": "left"
     },
-    "text_alpha": {
+    "text_baseline": {
       "type": "value",
-      "value": 1.0
+      "value": "bottom"
+    },
+    "text_line_height": {
+      "type": "value",
+      "value": 1.2
     }
   },
   "VArea": {
@@ -4340,9 +4340,13 @@
     },
     "fill_color": "gray",
     "fill_alpha": 1.0,
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -4352,17 +4356,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "VBar": {
@@ -4395,13 +4395,25 @@
       "type": "field",
       "field": "top"
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -4411,18 +4423,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -4431,9 +4431,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -4443,17 +4447,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "Wedge": {
@@ -4491,13 +4491,25 @@
       "field": "end_angle"
     },
     "direction": "anticlock",
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -4507,18 +4519,6 @@
       "type": "value",
       "value": 0
     },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
-    },
     "fill_color": {
       "type": "value",
       "value": "gray"
@@ -4527,9 +4527,13 @@
       "type": "value",
       "value": 1.0
     },
-    "hatch_extra": {
-      "type": "map",
-      "entries": []
+    "hatch_color": {
+      "type": "value",
+      "value": "black"
+    },
+    "hatch_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "hatch_scale": {
       "type": "value",
@@ -4539,17 +4543,13 @@
       "type": "value",
       "value": null
     },
-    "hatch_color": {
-      "type": "value",
-      "value": "black"
-    },
     "hatch_weight": {
       "type": "value",
       "value": 1.0
     },
-    "hatch_alpha": {
-      "type": "value",
-      "value": 1.0
+    "hatch_extra": {
+      "type": "map",
+      "entries": []
     }
   },
   "LabelingPolicy": {
@@ -5847,13 +5847,25 @@
               "type": "value",
               "value": 0.0
             },
-            "line_cap": {
+            "line_color": {
               "type": "value",
-              "value": "butt"
+              "value": "black"
+            },
+            "line_alpha": {
+              "type": "value",
+              "value": 1.0
             },
             "line_width": {
               "type": "value",
               "value": 1
+            },
+            "line_join": {
+              "type": "value",
+              "value": "bevel"
+            },
+            "line_cap": {
+              "type": "value",
+              "value": "butt"
             },
             "line_dash": {
               "type": "value",
@@ -5863,18 +5875,6 @@
               "type": "value",
               "value": 0
             },
-            "line_alpha": {
-              "type": "value",
-              "value": 1.0
-            },
-            "line_join": {
-              "type": "value",
-              "value": "bevel"
-            },
-            "line_color": {
-              "type": "value",
-              "value": "black"
-            },
             "fill_color": {
               "type": "value",
               "value": "gray"
@@ -5883,9 +5883,13 @@
               "type": "value",
               "value": 1.0
             },
-            "hatch_extra": {
-              "type": "map",
-              "entries": []
+            "hatch_color": {
+              "type": "value",
+              "value": "black"
+            },
+            "hatch_alpha": {
+              "type": "value",
+              "value": 1.0
             },
             "hatch_scale": {
               "type": "value",
@@ -5895,17 +5899,13 @@
               "type": "value",
               "value": null
             },
-            "hatch_color": {
-              "type": "value",
-              "value": "black"
-            },
             "hatch_weight": {
               "type": "value",
               "value": 1.0
             },
-            "hatch_alpha": {
-              "type": "value",
-              "value": 1.0
+            "hatch_extra": {
+              "type": "map",
+              "entries": []
             },
             "radius": {
               "type": "value",
@@ -6078,13 +6078,25 @@
               "type": "field",
               "field": "ys"
             },
-            "line_cap": {
+            "line_color": {
               "type": "value",
-              "value": "butt"
+              "value": "black"
+            },
+            "line_alpha": {
+              "type": "value",
+              "value": 1.0
             },
             "line_width": {
               "type": "value",
               "value": 1
+            },
+            "line_join": {
+              "type": "value",
+              "value": "bevel"
+            },
+            "line_cap": {
+              "type": "value",
+              "value": "butt"
             },
             "line_dash": {
               "type": "value",
@@ -6093,18 +6105,6 @@
             "line_dash_offset": {
               "type": "value",
               "value": 0
-            },
-            "line_alpha": {
-              "type": "value",
-              "value": 1.0
-            },
-            "line_join": {
-              "type": "value",
-              "value": "bevel"
-            },
-            "line_color": {
-              "type": "value",
-              "value": "black"
             }
           }
         },
@@ -6203,14 +6203,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -6236,37 +6236,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -6302,14 +6302,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -6335,37 +6335,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -6443,14 +6443,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -6476,37 +6476,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -6581,14 +6581,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -6614,37 +6614,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -6708,14 +6708,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -6741,66 +6741,66 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null,
-    "separator_line_cap": "butt",
+    "separator_line_color": "lightgrey",
+    "separator_line_alpha": 1.0,
     "separator_line_width": 2,
+    "separator_line_join": "bevel",
+    "separator_line_cap": "butt",
     "separator_line_dash": [],
     "separator_line_dash_offset": 0,
-    "separator_line_alpha": 1.0,
-    "separator_line_join": "bevel",
-    "separator_line_color": "lightgrey",
     "group_text_color": "grey",
-    "group_text_font_style": "bold",
-    "group_text_line_height": 1.2,
-    "group_text_font_size": "11px",
-    "group_text_font": "helvetica",
     "group_text_outline_color": null,
-    "group_text_baseline": "bottom",
-    "group_text_align": "left",
     "group_text_alpha": 1.0,
+    "group_text_font": "helvetica",
+    "group_text_font_size": "11px",
+    "group_text_font_style": "bold",
+    "group_text_align": "left",
+    "group_text_baseline": "bottom",
+    "group_text_line_height": 1.2,
     "group_label_orientation": "parallel",
     "subgroup_text_color": "#444444",
-    "subgroup_text_font_style": "bold",
-    "subgroup_text_line_height": 1.2,
-    "subgroup_text_font_size": "11px",
-    "subgroup_text_font": "helvetica",
     "subgroup_text_outline_color": null,
-    "subgroup_text_baseline": "bottom",
-    "subgroup_text_align": "left",
     "subgroup_text_alpha": 1.0,
+    "subgroup_text_font": "helvetica",
+    "subgroup_text_font_size": "11px",
+    "subgroup_text_font_style": "bold",
+    "subgroup_text_align": "left",
+    "subgroup_text_baseline": "bottom",
+    "subgroup_text_line_height": 1.2,
     "subgroup_label_orientation": "parallel"
   },
   "DatetimeAxis": {
@@ -7237,14 +7237,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -7270,37 +7270,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -7380,14 +7380,14 @@
     "axis_label": null,
     "axis_label_standoff": 5,
     "axis_label_text_color": "#444444",
-    "axis_label_text_font_style": "italic",
-    "axis_label_text_line_height": 1.2,
-    "axis_label_text_font_size": "13px",
-    "axis_label_text_font": "helvetica",
     "axis_label_text_outline_color": null,
-    "axis_label_text_baseline": "bottom",
-    "axis_label_text_align": "left",
     "axis_label_text_alpha": 1.0,
+    "axis_label_text_font": "helvetica",
+    "axis_label_text_font_size": "13px",
+    "axis_label_text_font_style": "italic",
+    "axis_label_text_align": "left",
+    "axis_label_text_baseline": "bottom",
+    "axis_label_text_line_height": 1.2,
     "major_label_standoff": 5,
     "major_label_orientation": "horizontal",
     "major_label_overrides": {
@@ -7413,37 +7413,37 @@
       }
     },
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "alphabetic",
-    "major_label_text_align": "center",
     "major_label_text_alpha": 1.0,
-    "axis_line_cap": "butt",
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "center",
+    "major_label_text_baseline": "alphabetic",
+    "major_label_text_line_height": 1.2,
+    "axis_line_color": "black",
+    "axis_line_alpha": 1.0,
     "axis_line_width": 1,
+    "axis_line_join": "bevel",
+    "axis_line_cap": "butt",
     "axis_line_dash": [],
     "axis_line_dash_offset": 0,
-    "axis_line_alpha": 1.0,
-    "axis_line_join": "bevel",
-    "axis_line_color": "black",
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "black",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "black",
     "major_tick_in": 2,
     "major_tick_out": 6,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": "black",
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": "black",
     "minor_tick_in": 0,
     "minor_tick_out": 4,
     "fixed_location": null
@@ -8630,13 +8630,25 @@
       "type": "value",
       "value": 25
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -8645,18 +8657,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "NormalHead": {
@@ -8676,13 +8676,25 @@
       "type": "value",
       "value": 25
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -8691,18 +8703,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     },
     "fill_color": {
       "type": "value",
@@ -8730,13 +8730,25 @@
       "type": "value",
       "value": 25
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -8745,18 +8757,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "VeeHead": {
@@ -8776,13 +8776,25 @@
       "type": "value",
       "value": 25
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -8791,18 +8803,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     },
     "fill_color": {
       "type": "value",
@@ -8936,13 +8936,25 @@
           "type": "value",
           "value": 25
         },
-        "line_cap": {
+        "line_color": {
           "type": "value",
-          "value": "butt"
+          "value": "black"
+        },
+        "line_alpha": {
+          "type": "value",
+          "value": 1.0
         },
         "line_width": {
           "type": "value",
           "value": 1
+        },
+        "line_join": {
+          "type": "value",
+          "value": "bevel"
+        },
+        "line_cap": {
+          "type": "value",
+          "value": "butt"
         },
         "line_dash": {
           "type": "value",
@@ -8951,28 +8963,28 @@
         "line_dash_offset": {
           "type": "value",
           "value": 0
-        },
-        "line_alpha": {
-          "type": "value",
-          "value": 1.0
-        },
-        "line_join": {
-          "type": "value",
-          "value": "bevel"
-        },
-        "line_color": {
-          "type": "value",
-          "value": "black"
         }
       }
     },
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -8981,18 +8993,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "BoxAnnotation": {
@@ -9022,24 +9022,24 @@
     "bottom_units": "data",
     "top": null,
     "top_units": "data",
-    "line_cap": "butt",
+    "line_color": "#cccccc",
+    "line_alpha": 0.3,
     "line_width": 1,
+    "line_join": "bevel",
+    "line_cap": "butt",
     "line_dash": [],
     "line_dash_offset": 0,
-    "line_alpha": 0.3,
-    "line_join": "bevel",
-    "line_color": "#cccccc",
     "fill_color": "#fff9ba",
     "fill_alpha": 0.4,
+    "hatch_color": "black",
+    "hatch_alpha": 1.0,
+    "hatch_scale": 12.0,
+    "hatch_pattern": null,
+    "hatch_weight": 1.0,
     "hatch_extra": {
       "type": "map",
       "entries": []
-    },
-    "hatch_scale": 12.0,
-    "hatch_pattern": null,
-    "hatch_color": "black",
-    "hatch_weight": 1.0,
-    "hatch_alpha": 1.0
+    }
   },
   "Band": {
     "name": null,
@@ -9138,13 +9138,13 @@
       "field": "base"
     },
     "dimension": "height",
-    "line_cap": "butt",
+    "line_color": "#cccccc",
+    "line_alpha": 0.3,
     "line_width": 1,
+    "line_join": "bevel",
+    "line_cap": "butt",
     "line_dash": [],
     "line_dash_offset": 0,
-    "line_alpha": 0.3,
-    "line_join": "bevel",
-    "line_color": "#cccccc",
     "fill_color": "#fff9ba",
     "fill_alpha": 0.4
   },
@@ -9171,24 +9171,24 @@
     "xs_units": "data",
     "ys": [],
     "ys_units": "data",
-    "line_cap": "butt",
+    "line_color": "#cccccc",
+    "line_alpha": 0.3,
     "line_width": 1,
+    "line_join": "bevel",
+    "line_cap": "butt",
     "line_dash": [],
     "line_dash_offset": 0,
-    "line_alpha": 0.3,
-    "line_join": "bevel",
-    "line_color": "#cccccc",
     "fill_color": "#fff9ba",
     "fill_alpha": 0.4,
+    "hatch_color": "black",
+    "hatch_alpha": 1.0,
+    "hatch_scale": 12.0,
+    "hatch_pattern": null,
+    "hatch_weight": 1.0,
     "hatch_extra": {
       "type": "map",
       "entries": []
-    },
-    "hatch_scale": 12.0,
-    "hatch_pattern": null,
-    "hatch_color": "black",
-    "hatch_weight": 1.0,
-    "hatch_alpha": 1.0
+    }
   },
   "Slope": {
     "name": null,
@@ -9211,13 +9211,13 @@
     "group": null,
     "gradient": null,
     "y_intercept": null,
-    "line_cap": "butt",
-    "line_width": 1,
-    "line_dash": [],
-    "line_dash_offset": 0,
+    "line_color": "black",
     "line_alpha": 1.0,
+    "line_width": 1,
     "line_join": "bevel",
-    "line_color": "black"
+    "line_cap": "butt",
+    "line_dash": [],
+    "line_dash_offset": 0
   },
   "Span": {
     "name": null,
@@ -9241,13 +9241,13 @@
     "location": null,
     "location_units": "data",
     "dimension": "width",
-    "line_cap": "butt",
-    "line_width": 1,
-    "line_dash": [],
-    "line_dash_offset": 0,
+    "line_color": "black",
     "line_alpha": 1.0,
+    "line_width": 1,
     "line_join": "bevel",
-    "line_color": "black"
+    "line_cap": "butt",
+    "line_dash": [],
+    "line_dash_offset": 0
   },
   "Whisker": {
     "name": null,
@@ -9357,13 +9357,25 @@
           "type": "value",
           "value": 10
         },
-        "line_cap": {
+        "line_color": {
           "type": "value",
-          "value": "butt"
+          "value": "black"
+        },
+        "line_alpha": {
+          "type": "value",
+          "value": 1.0
         },
         "line_width": {
           "type": "value",
           "value": 1
+        },
+        "line_join": {
+          "type": "value",
+          "value": "bevel"
+        },
+        "line_cap": {
+          "type": "value",
+          "value": "butt"
         },
         "line_dash": {
           "type": "value",
@@ -9372,18 +9384,6 @@
         "line_dash_offset": {
           "type": "value",
           "value": 0
-        },
-        "line_alpha": {
-          "type": "value",
-          "value": 1.0
-        },
-        "line_join": {
-          "type": "value",
-          "value": "bevel"
-        },
-        "line_color": {
-          "type": "value",
-          "value": "black"
         }
       }
     },
@@ -9411,13 +9411,25 @@
           "type": "value",
           "value": 10
         },
-        "line_cap": {
+        "line_color": {
           "type": "value",
-          "value": "butt"
+          "value": "black"
+        },
+        "line_alpha": {
+          "type": "value",
+          "value": 1.0
         },
         "line_width": {
           "type": "value",
           "value": 1
+        },
+        "line_join": {
+          "type": "value",
+          "value": "bevel"
+        },
+        "line_cap": {
+          "type": "value",
+          "value": "butt"
         },
         "line_dash": {
           "type": "value",
@@ -9426,18 +9438,6 @@
         "line_dash_offset": {
           "type": "value",
           "value": 0
-        },
-        "line_alpha": {
-          "type": "value",
-          "value": 1.0
-        },
-        "line_join": {
-          "type": "value",
-          "value": "bevel"
-        },
-        "line_color": {
-          "type": "value",
-          "value": "black"
         }
       }
     },
@@ -9446,13 +9446,25 @@
       "field": "base"
     },
     "dimension": "height",
-    "line_cap": {
+    "line_color": {
       "type": "value",
-      "value": "butt"
+      "value": "black"
+    },
+    "line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "line_width": {
       "type": "value",
       "value": 1
+    },
+    "line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "line_dash": {
       "type": "value",
@@ -9461,18 +9473,6 @@
     "line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "line_color": {
-      "type": "value",
-      "value": "black"
     }
   },
   "HTMLAnnotation": {
@@ -9530,23 +9530,23 @@
     "x_offset": 0,
     "y_offset": 0,
     "text_color": "#444444",
-    "text_font_style": "normal",
-    "text_line_height": 1.2,
-    "text_font_size": "16px",
-    "text_font": "helvetica",
     "text_outline_color": null,
-    "text_baseline": "bottom",
-    "text_align": "left",
     "text_alpha": 1.0,
+    "text_font": "helvetica",
+    "text_font_size": "16px",
+    "text_font_style": "normal",
+    "text_align": "left",
+    "text_baseline": "bottom",
+    "text_line_height": 1.2,
     "background_fill_color": null,
     "background_fill_alpha": 1.0,
-    "border_line_cap": "butt",
-    "border_line_width": 1,
-    "border_line_dash": [],
-    "border_line_dash_offset": 0,
+    "border_line_color": null,
     "border_line_alpha": 1.0,
+    "border_line_width": 1,
     "border_line_join": "bevel",
-    "border_line_color": null
+    "border_line_cap": "butt",
+    "border_line_dash": [],
+    "border_line_dash_offset": 0
   },
   "HTMLLabelSet": {
     "name": null,
@@ -9662,37 +9662,37 @@
       "type": "value",
       "value": "#444444"
     },
-    "text_font_style": {
+    "text_outline_color": {
       "type": "value",
-      "value": "normal"
+      "value": null
     },
-    "text_line_height": {
+    "text_alpha": {
       "type": "value",
-      "value": 1.2
-    },
-    "text_font_size": {
-      "type": "value",
-      "value": "16px"
+      "value": 1.0
     },
     "text_font": {
       "type": "value",
       "value": "helvetica"
     },
-    "text_outline_color": {
+    "text_font_size": {
       "type": "value",
-      "value": null
+      "value": "16px"
     },
-    "text_baseline": {
+    "text_font_style": {
       "type": "value",
-      "value": "bottom"
+      "value": "normal"
     },
     "text_align": {
       "type": "value",
       "value": "left"
     },
-    "text_alpha": {
+    "text_baseline": {
       "type": "value",
-      "value": 1.0
+      "value": "bottom"
+    },
+    "text_line_height": {
+      "type": "value",
+      "value": 1.2
     },
     "background_fill_color": {
       "type": "value",
@@ -9702,13 +9702,25 @@
       "type": "value",
       "value": 1.0
     },
-    "border_line_cap": {
+    "border_line_color": {
       "type": "value",
-      "value": "butt"
+      "value": null
+    },
+    "border_line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "border_line_width": {
       "type": "value",
       "value": 1
+    },
+    "border_line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "border_line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "border_line_dash": {
       "type": "value",
@@ -9717,18 +9729,6 @@
     "border_line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "border_line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "border_line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "border_line_color": {
-      "type": "value",
-      "value": null
     }
   },
   "HTMLTitle": {
@@ -9764,13 +9764,13 @@
     "text_alpha": 1.0,
     "background_fill_color": null,
     "background_fill_alpha": 1.0,
-    "border_line_cap": "butt",
-    "border_line_width": 1,
-    "border_line_dash": [],
-    "border_line_dash_offset": 0,
+    "border_line_color": null,
     "border_line_alpha": 1.0,
+    "border_line_width": 1,
     "border_line_join": "bevel",
-    "border_line_color": null
+    "border_line_cap": "butt",
+    "border_line_dash": [],
+    "border_line_dash_offset": 0
   },
   "ToolbarPanel": {
     "name": null,
@@ -9817,23 +9817,23 @@
     "group": null,
     "text": "",
     "text_color": "#444444",
-    "text_font_style": "normal",
-    "text_line_height": 1.2,
-    "text_font_size": "16px",
-    "text_font": "helvetica",
     "text_outline_color": null,
-    "text_baseline": "bottom",
-    "text_align": "left",
     "text_alpha": 1.0,
+    "text_font": "helvetica",
+    "text_font_size": "16px",
+    "text_font_style": "normal",
+    "text_align": "left",
+    "text_baseline": "bottom",
+    "text_line_height": 1.2,
     "background_fill_color": null,
     "background_fill_alpha": 1.0,
-    "border_line_cap": "butt",
-    "border_line_width": 1,
-    "border_line_dash": [],
-    "border_line_dash_offset": 0,
+    "border_line_color": null,
     "border_line_alpha": 1.0,
+    "border_line_width": 1,
     "border_line_join": "bevel",
-    "border_line_color": null
+    "border_line_cap": "butt",
+    "border_line_dash": [],
+    "border_line_dash_offset": 0
   },
   "Label": {
     "name": null,
@@ -9856,23 +9856,23 @@
     "group": null,
     "text": "",
     "text_color": "#444444",
-    "text_font_style": "normal",
-    "text_line_height": 1.2,
-    "text_font_size": "16px",
-    "text_font": "helvetica",
     "text_outline_color": null,
-    "text_baseline": "bottom",
-    "text_align": "left",
     "text_alpha": 1.0,
+    "text_font": "helvetica",
+    "text_font_size": "16px",
+    "text_font_style": "normal",
+    "text_align": "left",
+    "text_baseline": "bottom",
+    "text_line_height": 1.2,
     "background_fill_color": null,
     "background_fill_alpha": 1.0,
-    "border_line_cap": "butt",
+    "border_line_color": null,
+    "border_line_alpha": 1.0,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 1.0,
-    "border_line_join": "bevel",
-    "border_line_color": null,
     "x": {
       "type": "symbol",
       "name": "unset"
@@ -10002,37 +10002,37 @@
       "type": "value",
       "value": "#444444"
     },
-    "text_font_style": {
+    "text_outline_color": {
       "type": "value",
-      "value": "normal"
+      "value": null
     },
-    "text_line_height": {
+    "text_alpha": {
       "type": "value",
-      "value": 1.2
-    },
-    "text_font_size": {
-      "type": "value",
-      "value": "16px"
+      "value": 1.0
     },
     "text_font": {
       "type": "value",
       "value": "helvetica"
     },
-    "text_outline_color": {
+    "text_font_size": {
       "type": "value",
-      "value": null
+      "value": "16px"
     },
-    "text_baseline": {
+    "text_font_style": {
       "type": "value",
-      "value": "bottom"
+      "value": "normal"
     },
     "text_align": {
       "type": "value",
       "value": "left"
     },
-    "text_alpha": {
+    "text_baseline": {
       "type": "value",
-      "value": 1.0
+      "value": "bottom"
+    },
+    "text_line_height": {
+      "type": "value",
+      "value": 1.2
     },
     "background_fill_color": {
       "type": "value",
@@ -10042,13 +10042,25 @@
       "type": "value",
       "value": 1.0
     },
-    "border_line_cap": {
+    "border_line_color": {
       "type": "value",
-      "value": "butt"
+      "value": null
+    },
+    "border_line_alpha": {
+      "type": "value",
+      "value": 1.0
     },
     "border_line_width": {
       "type": "value",
       "value": 1
+    },
+    "border_line_join": {
+      "type": "value",
+      "value": "bevel"
+    },
+    "border_line_cap": {
+      "type": "value",
+      "value": "butt"
     },
     "border_line_dash": {
       "type": "value",
@@ -10057,18 +10069,6 @@
     "border_line_dash_offset": {
       "type": "value",
       "value": 0
-    },
-    "border_line_alpha": {
-      "type": "value",
-      "value": 1.0
-    },
-    "border_line_join": {
-      "type": "value",
-      "value": "bevel"
-    },
-    "border_line_color": {
-      "type": "value",
-      "value": null
     }
   },
   "Title": {
@@ -10092,23 +10092,23 @@
     "group": null,
     "text": "",
     "text_color": "#444444",
-    "text_font_style": "bold",
-    "text_line_height": 1.0,
-    "text_font_size": "13px",
-    "text_font": "helvetica",
     "text_outline_color": null,
-    "text_baseline": "bottom",
-    "text_align": "left",
     "text_alpha": 1.0,
+    "text_font": "helvetica",
+    "text_font_size": "13px",
+    "text_font_style": "bold",
+    "text_align": "left",
+    "text_baseline": "bottom",
+    "text_line_height": 1.0,
     "background_fill_color": null,
     "background_fill_alpha": 1.0,
-    "border_line_cap": "butt",
+    "border_line_color": null,
+    "border_line_alpha": 1.0,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 1.0,
-    "border_line_join": "bevel",
-    "border_line_color": null,
     "vertical_align": "bottom",
     "align": "left",
     "offset": 0,
@@ -10140,14 +10140,14 @@
     "scale_alpha": 1.0,
     "title": null,
     "title_text_color": "#444444",
-    "title_text_font_style": "italic",
-    "title_text_line_height": 1.2,
-    "title_text_font_size": "13px",
-    "title_text_font": "helvetica",
     "title_text_outline_color": null,
-    "title_text_baseline": "bottom",
-    "title_text_align": "left",
     "title_text_alpha": 1.0,
+    "title_text_font": "helvetica",
+    "title_text_font_size": "13px",
+    "title_text_font_style": "italic",
+    "title_text_align": "left",
+    "title_text_baseline": "bottom",
+    "title_text_line_height": 1.2,
     "title_standoff": 2,
     "ticker": "auto",
     "formatter": "auto",
@@ -10177,47 +10177,47 @@
     "margin": 30,
     "padding": 10,
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "bottom",
-    "major_label_text_align": "left",
     "major_label_text_alpha": 1.0,
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "left",
+    "major_label_text_baseline": "bottom",
+    "major_label_text_line_height": 1.2,
     "label_standoff": 5,
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "#ffffff",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "#ffffff",
     "major_tick_in": 5,
     "major_tick_out": 0,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": null,
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": null,
     "minor_tick_in": 0,
     "minor_tick_out": 0,
-    "bar_line_cap": "butt",
+    "bar_line_color": null,
+    "bar_line_alpha": 1.0,
     "bar_line_width": 1,
+    "bar_line_join": "bevel",
+    "bar_line_cap": "butt",
     "bar_line_dash": [],
     "bar_line_dash_offset": 0,
-    "bar_line_alpha": 1.0,
-    "bar_line_join": "bevel",
-    "bar_line_color": null,
-    "border_line_cap": "butt",
+    "border_line_color": null,
+    "border_line_alpha": 1.0,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 1.0,
-    "border_line_join": "bevel",
-    "border_line_color": null,
     "background_fill_color": "#ffffff",
     "background_fill_alpha": 0.95
   },
@@ -10247,14 +10247,14 @@
     "scale_alpha": 1.0,
     "title": null,
     "title_text_color": "#444444",
-    "title_text_font_style": "italic",
-    "title_text_line_height": 1.2,
-    "title_text_font_size": "13px",
-    "title_text_font": "helvetica",
     "title_text_outline_color": null,
-    "title_text_baseline": "bottom",
-    "title_text_align": "left",
     "title_text_alpha": 1.0,
+    "title_text_font": "helvetica",
+    "title_text_font_size": "13px",
+    "title_text_font_style": "italic",
+    "title_text_align": "left",
+    "title_text_baseline": "bottom",
+    "title_text_line_height": 1.2,
     "title_standoff": 2,
     "ticker": "auto",
     "formatter": "auto",
@@ -10284,47 +10284,47 @@
     "margin": 30,
     "padding": 10,
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "bottom",
-    "major_label_text_align": "left",
     "major_label_text_alpha": 1.0,
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "left",
+    "major_label_text_baseline": "bottom",
+    "major_label_text_line_height": 1.2,
     "label_standoff": 5,
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "#ffffff",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "#ffffff",
     "major_tick_in": 5,
     "major_tick_out": 0,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": null,
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": null,
     "minor_tick_in": 0,
     "minor_tick_out": 0,
-    "bar_line_cap": "butt",
+    "bar_line_color": null,
+    "bar_line_alpha": 1.0,
     "bar_line_width": 1,
+    "bar_line_join": "bevel",
+    "bar_line_cap": "butt",
     "bar_line_dash": [],
     "bar_line_dash_offset": 0,
-    "bar_line_alpha": 1.0,
-    "bar_line_join": "bevel",
-    "bar_line_color": null,
-    "border_line_cap": "butt",
+    "border_line_color": null,
+    "border_line_alpha": 1.0,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 1.0,
-    "border_line_join": "bevel",
-    "border_line_color": null,
     "background_fill_color": "#ffffff",
     "background_fill_alpha": 0.95,
     "color_mapper": {
@@ -10360,14 +10360,14 @@
     "scale_alpha": 1.0,
     "title": null,
     "title_text_color": "#444444",
-    "title_text_font_style": "italic",
-    "title_text_line_height": 1.2,
-    "title_text_font_size": "13px",
-    "title_text_font": "helvetica",
     "title_text_outline_color": null,
-    "title_text_baseline": "bottom",
-    "title_text_align": "left",
     "title_text_alpha": 1.0,
+    "title_text_font": "helvetica",
+    "title_text_font_size": "13px",
+    "title_text_font_style": "italic",
+    "title_text_align": "left",
+    "title_text_baseline": "bottom",
+    "title_text_line_height": 1.2,
     "title_standoff": 2,
     "ticker": "auto",
     "formatter": "auto",
@@ -10397,47 +10397,47 @@
     "margin": 30,
     "padding": 10,
     "major_label_text_color": "#444444",
-    "major_label_text_font_style": "normal",
-    "major_label_text_line_height": 1.2,
-    "major_label_text_font_size": "11px",
-    "major_label_text_font": "helvetica",
     "major_label_text_outline_color": null,
-    "major_label_text_baseline": "bottom",
-    "major_label_text_align": "left",
     "major_label_text_alpha": 1.0,
+    "major_label_text_font": "helvetica",
+    "major_label_text_font_size": "11px",
+    "major_label_text_font_style": "normal",
+    "major_label_text_align": "left",
+    "major_label_text_baseline": "bottom",
+    "major_label_text_line_height": 1.2,
     "label_standoff": 5,
-    "major_tick_line_cap": "butt",
+    "major_tick_line_color": "#ffffff",
+    "major_tick_line_alpha": 1.0,
     "major_tick_line_width": 1,
+    "major_tick_line_join": "bevel",
+    "major_tick_line_cap": "butt",
     "major_tick_line_dash": [],
     "major_tick_line_dash_offset": 0,
-    "major_tick_line_alpha": 1.0,
-    "major_tick_line_join": "bevel",
-    "major_tick_line_color": "#ffffff",
     "major_tick_in": 5,
     "major_tick_out": 0,
-    "minor_tick_line_cap": "butt",
+    "minor_tick_line_color": null,
+    "minor_tick_line_alpha": 1.0,
     "minor_tick_line_width": 1,
+    "minor_tick_line_join": "bevel",
+    "minor_tick_line_cap": "butt",
     "minor_tick_line_dash": [],
     "minor_tick_line_dash_offset": 0,
-    "minor_tick_line_alpha": 1.0,
-    "minor_tick_line_join": "bevel",
-    "minor_tick_line_color": null,
     "minor_tick_in": 0,
     "minor_tick_out": 0,
-    "bar_line_cap": "butt",
+    "bar_line_color": null,
+    "bar_line_alpha": 1.0,
     "bar_line_width": 1,
+    "bar_line_join": "bevel",
+    "bar_line_cap": "butt",
     "bar_line_dash": [],
     "bar_line_dash_offset": 0,
-    "bar_line_alpha": 1.0,
-    "bar_line_join": "bevel",
-    "bar_line_color": null,
-    "border_line_cap": "butt",
+    "border_line_color": null,
+    "border_line_alpha": 1.0,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 1.0,
-    "border_line_join": "bevel",
-    "border_line_color": null,
     "background_fill_color": "#ffffff",
     "background_fill_alpha": 0.95,
     "fill_renderer": {
@@ -10494,36 +10494,36 @@
     "orientation": "vertical",
     "title": null,
     "title_text_color": "#444444",
-    "title_text_font_style": "italic",
-    "title_text_line_height": 1.2,
-    "title_text_font_size": "13px",
-    "title_text_font": "helvetica",
     "title_text_outline_color": null,
-    "title_text_baseline": "bottom",
-    "title_text_align": "left",
     "title_text_alpha": 1.0,
+    "title_text_font": "helvetica",
+    "title_text_font_size": "13px",
+    "title_text_font_style": "italic",
+    "title_text_align": "left",
+    "title_text_baseline": "bottom",
+    "title_text_line_height": 1.2,
     "title_standoff": 5,
-    "border_line_cap": "butt",
+    "border_line_color": "#e5e5e5",
+    "border_line_alpha": 0.5,
     "border_line_width": 1,
+    "border_line_join": "bevel",
+    "border_line_cap": "butt",
     "border_line_dash": [],
     "border_line_dash_offset": 0,
-    "border_line_alpha": 0.5,
-    "border_line_join": "bevel",
-    "border_line_color": "#e5e5e5",
     "background_fill_color": "#ffffff",
     "background_fill_alpha": 0.95,
     "inactive_fill_color": "white",
     "inactive_fill_alpha": 0.7,
     "click_policy": "none",
     "label_text_color": "#444444",
-    "label_text_font_style": "normal",
-    "label_text_line_height": 1.2,
-    "label_text_font_size": "13px",
-    "label_text_font": "helvetica",
     "label_text_outline_color": null,
-    "label_text_baseline": "middle",
-    "label_text_align": "left",
     "label_text_alpha": 1.0,
+    "label_text_font": "helvetica",
+    "label_text_font_size": "13px",
+    "label_text_font_style": "normal",
+    "label_text_align": "left",
+    "label_text_baseline": "middle",
+    "label_text_line_height": 1.2,
     "label_standoff": 5,
     "label_height": 20,
     "label_width": 20,
@@ -10587,31 +10587,31 @@
     "cross_bounds": "auto",
     "axis": null,
     "ticker": null,
-    "grid_line_cap": "butt",
+    "grid_line_color": "#e5e5e5",
+    "grid_line_alpha": 1.0,
     "grid_line_width": 1,
+    "grid_line_join": "bevel",
+    "grid_line_cap": "butt",
     "grid_line_dash": [],
     "grid_line_dash_offset": 0,
-    "grid_line_alpha": 1.0,
-    "grid_line_join": "bevel",
-    "grid_line_color": "#e5e5e5",
-    "minor_grid_line_cap": "butt",
+    "minor_grid_line_color": null,
+    "minor_grid_line_alpha": 1.0,
     "minor_grid_line_width": 1,
+    "minor_grid_line_join": "bevel",
+    "minor_grid_line_cap": "butt",
     "minor_grid_line_dash": [],
     "minor_grid_line_dash_offset": 0,
-    "minor_grid_line_alpha": 1.0,
-    "minor_grid_line_join": "bevel",
-    "minor_grid_line_color": null,
     "band_fill_color": null,
     "band_fill_alpha": 0,
+    "band_hatch_color": "black",
+    "band_hatch_alpha": 1.0,
+    "band_hatch_scale": 12.0,
+    "band_hatch_pattern": null,
+    "band_hatch_weight": 1.0,
     "band_hatch_extra": {
       "type": "map",
       "entries": []
-    },
-    "band_hatch_scale": 12.0,
-    "band_hatch_pattern": null,
-    "band_hatch_color": "black",
-    "band_hatch_weight": 1.0,
-    "band_hatch_alpha": 1.0
+    }
   },
   "LayoutDOM": {
     "name": null,
@@ -11342,27 +11342,27 @@
         "bottom_units": "data",
         "top": null,
         "top_units": "data",
-        "line_cap": "butt",
+        "line_color": "black",
+        "line_alpha": 1.0,
         "line_width": 0.5,
+        "line_join": "bevel",
+        "line_cap": "butt",
         "line_dash": [
           2,
           2
         ],
         "line_dash_offset": 0,
-        "line_alpha": 1.0,
-        "line_join": "bevel",
-        "line_color": "black",
         "fill_color": "lightgrey",
         "fill_alpha": 0.5,
+        "hatch_color": "black",
+        "hatch_alpha": 1.0,
+        "hatch_scale": 12.0,
+        "hatch_pattern": null,
+        "hatch_weight": 1.0,
         "hatch_extra": {
           "type": "map",
           "entries": []
-        },
-        "hatch_scale": 12.0,
-        "hatch_pattern": null,
-        "hatch_color": "black",
-        "hatch_weight": 1.0,
-        "hatch_alpha": 1.0
+        }
       }
     }
   },
@@ -11557,27 +11557,27 @@
         "bottom_units": "canvas",
         "top": null,
         "top_units": "canvas",
-        "line_cap": "butt",
+        "line_color": "black",
+        "line_alpha": 1.0,
         "line_width": 2,
+        "line_join": "bevel",
+        "line_cap": "butt",
         "line_dash": [
           4,
           4
         ],
         "line_dash_offset": 0,
-        "line_alpha": 1.0,
-        "line_join": "bevel",
-        "line_color": "black",
         "fill_color": "lightgrey",
         "fill_alpha": 0.5,
+        "hatch_color": "black",
+        "hatch_alpha": 1.0,
+        "hatch_scale": 12.0,
+        "hatch_pattern": null,
+        "hatch_weight": 1.0,
         "hatch_extra": {
           "type": "map",
           "entries": []
-        },
-        "hatch_scale": 12.0,
-        "hatch_pattern": null,
-        "hatch_color": "black",
-        "hatch_weight": 1.0,
-        "hatch_alpha": 1.0
+        }
       }
     },
     "match_aspect": false,
@@ -11669,27 +11669,27 @@
         "bottom_units": "canvas",
         "top": null,
         "top_units": "canvas",
-        "line_cap": "butt",
+        "line_color": "black",
+        "line_alpha": 1.0,
         "line_width": 2,
+        "line_join": "bevel",
+        "line_cap": "butt",
         "line_dash": [
           4,
           4
         ],
         "line_dash_offset": 0,
-        "line_alpha": 1.0,
-        "line_join": "bevel",
-        "line_color": "black",
         "fill_color": "lightgrey",
         "fill_alpha": 0.5,
+        "hatch_color": "black",
+        "hatch_alpha": 1.0,
+        "hatch_scale": 12.0,
+        "hatch_pattern": null,
+        "hatch_weight": 1.0,
         "hatch_extra": {
           "type": "map",
           "entries": []
-        },
-        "hatch_scale": 12.0,
-        "hatch_pattern": null,
-        "hatch_color": "black",
-        "hatch_weight": 1.0,
-        "hatch_alpha": 1.0
+        }
       }
     },
     "origin": "corner"
@@ -11738,27 +11738,27 @@
         "xs_units": "canvas",
         "ys": [],
         "ys_units": "canvas",
-        "line_cap": "butt",
+        "line_color": "black",
+        "line_alpha": 1.0,
         "line_width": 2,
+        "line_join": "bevel",
+        "line_cap": "butt",
         "line_dash": [
           4,
           4
         ],
         "line_dash_offset": 0,
-        "line_alpha": 1.0,
-        "line_join": "bevel",
-        "line_color": "black",
         "fill_color": "lightgrey",
         "fill_alpha": 0.5,
+        "hatch_color": "black",
+        "hatch_alpha": 1.0,
+        "hatch_scale": 12.0,
+        "hatch_pattern": null,
+        "hatch_weight": 1.0,
         "hatch_extra": {
           "type": "map",
           "entries": []
-        },
-        "hatch_scale": 12.0,
-        "hatch_pattern": null,
-        "hatch_color": "black",
-        "hatch_weight": 1.0,
-        "hatch_alpha": 1.0
+        }
       }
     }
   },
@@ -11805,27 +11805,27 @@
         "xs_units": "canvas",
         "ys": [],
         "ys_units": "canvas",
-        "line_cap": "butt",
+        "line_color": "black",
+        "line_alpha": 1.0,
         "line_width": 2,
+        "line_join": "bevel",
+        "line_cap": "butt",
         "line_dash": [
           4,
           4
         ],
         "line_dash_offset": 0,
-        "line_alpha": 1.0,
-        "line_join": "bevel",
-        "line_color": "black",
         "fill_color": "lightgrey",
         "fill_alpha": 0.5,
+        "hatch_color": "black",
+        "hatch_alpha": 1.0,
+        "hatch_scale": 12.0,
+        "hatch_pattern": null,
+        "hatch_weight": 1.0,
         "hatch_extra": {
           "type": "map",
           "entries": []
-        },
-        "hatch_scale": 12.0,
-        "hatch_pattern": null,
-        "hatch_color": "black",
-        "hatch_weight": 1.0,
-        "hatch_alpha": 1.0
+        }
       }
     }
   },
@@ -12345,23 +12345,23 @@
         "group": null,
         "text": "",
         "text_color": "#444444",
-        "text_font_style": "bold",
-        "text_line_height": 1.0,
-        "text_font_size": "13px",
-        "text_font": "helvetica",
         "text_outline_color": null,
-        "text_baseline": "bottom",
-        "text_align": "left",
         "text_alpha": 1.0,
+        "text_font": "helvetica",
+        "text_font_size": "13px",
+        "text_font_style": "bold",
+        "text_align": "left",
+        "text_baseline": "bottom",
+        "text_line_height": 1.0,
         "background_fill_color": null,
         "background_fill_alpha": 1.0,
-        "border_line_cap": "butt",
+        "border_line_color": null,
+        "border_line_alpha": 1.0,
         "border_line_width": 1,
+        "border_line_join": "bevel",
+        "border_line_cap": "butt",
         "border_line_dash": [],
         "border_line_dash_offset": 0,
-        "border_line_alpha": 1.0,
-        "border_line_join": "bevel",
-        "border_line_color": null,
         "vertical_align": "bottom",
         "align": "left",
         "offset": 0,
@@ -12369,13 +12369,13 @@
       }
     },
     "title_location": "above",
-    "outline_line_cap": "butt",
+    "outline_line_color": "#e5e5e5",
+    "outline_line_alpha": 1.0,
     "outline_line_width": 1,
+    "outline_line_join": "bevel",
+    "outline_line_cap": "butt",
     "outline_line_dash": [],
     "outline_line_dash_offset": 0,
-    "outline_line_alpha": 1.0,
-    "outline_line_join": "bevel",
-    "outline_line_color": "#e5e5e5",
     "renderers": [],
     "toolbar": {
       "type": "object",
@@ -12731,23 +12731,23 @@
         "group": null,
         "text": "",
         "text_color": "#444444",
-        "text_font_style": "bold",
-        "text_line_height": 1.0,
-        "text_font_size": "13px",
-        "text_font": "helvetica",
         "text_outline_color": null,
-        "text_baseline": "bottom",
-        "text_align": "left",
         "text_alpha": 1.0,
+        "text_font": "helvetica",
+        "text_font_size": "13px",
+        "text_font_style": "bold",
+        "text_align": "left",
+        "text_baseline": "bottom",
+        "text_line_height": 1.0,
         "background_fill_color": null,
         "background_fill_alpha": 1.0,
-        "border_line_cap": "butt",
+        "border_line_color": null,
+        "border_line_alpha": 1.0,
         "border_line_width": 1,
+        "border_line_join": "bevel",
+        "border_line_cap": "butt",
         "border_line_dash": [],
         "border_line_dash_offset": 0,
-        "border_line_alpha": 1.0,
-        "border_line_join": "bevel",
-        "border_line_color": null,
         "vertical_align": "bottom",
         "align": "left",
         "offset": 0,
@@ -12755,13 +12755,13 @@
       }
     },
     "title_location": "above",
-    "outline_line_cap": "butt",
+    "outline_line_color": "#e5e5e5",
+    "outline_line_alpha": 1.0,
     "outline_line_width": 1,
+    "outline_line_join": "bevel",
+    "outline_line_cap": "butt",
     "outline_line_dash": [],
     "outline_line_dash_offset": 0,
-    "outline_line_alpha": 1.0,
-    "outline_line_join": "bevel",
-    "outline_line_color": "#e5e5e5",
     "renderers": [],
     "toolbar": {
       "type": "object",
@@ -13021,23 +13021,23 @@
         "group": null,
         "text": "",
         "text_color": "#444444",
-        "text_font_style": "bold",
-        "text_line_height": 1.0,
-        "text_font_size": "13px",
-        "text_font": "helvetica",
         "text_outline_color": null,
-        "text_baseline": "bottom",
-        "text_align": "left",
         "text_alpha": 1.0,
+        "text_font": "helvetica",
+        "text_font_size": "13px",
+        "text_font_style": "bold",
+        "text_align": "left",
+        "text_baseline": "bottom",
+        "text_line_height": 1.0,
         "background_fill_color": null,
         "background_fill_alpha": 1.0,
-        "border_line_cap": "butt",
+        "border_line_color": null,
+        "border_line_alpha": 1.0,
         "border_line_width": 1,
+        "border_line_join": "bevel",
+        "border_line_cap": "butt",
         "border_line_dash": [],
         "border_line_dash_offset": 0,
-        "border_line_alpha": 1.0,
-        "border_line_join": "bevel",
-        "border_line_color": null,
         "vertical_align": "bottom",
         "align": "left",
         "offset": 0,
@@ -13045,13 +13045,13 @@
       }
     },
     "title_location": "above",
-    "outline_line_cap": "butt",
+    "outline_line_color": "#e5e5e5",
+    "outline_line_alpha": 1.0,
     "outline_line_width": 1,
+    "outline_line_join": "bevel",
+    "outline_line_cap": "butt",
     "outline_line_dash": [],
     "outline_line_dash_offset": 0,
-    "outline_line_alpha": 1.0,
-    "outline_line_join": "bevel",
-    "outline_line_color": "#e5e5e5",
     "renderers": [],
     "toolbar": {
       "type": "object",
