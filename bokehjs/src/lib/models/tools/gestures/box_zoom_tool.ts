@@ -1,3 +1,4 @@
+import {EventRole} from "../tool"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {CartesianFrame} from "../../canvas/cartesian_frame"
@@ -244,7 +245,10 @@ export class BoxZoomTool extends GestureTool {
   }
 
   override tool_name = "Box Zoom"
-  override event_type = ["pan" as "pan", "tap" as "tap"]
+  override event_type = ["pan" as "pan", "doubletap" as "doubletap"]
+  override get event_role(): EventRole {
+    return "pan" as "pan"
+  }
   override default_order = 20
 
   override get computed_icon(): string {

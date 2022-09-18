@@ -3,7 +3,7 @@ import {EventType} from "core/ui_events"
 import {Signal0} from "core/signaling"
 import {Class} from "core/class"
 import {Model} from "../../model"
-import {Tool} from "./tool"
+import {Tool, EventRole} from "./tool"
 import {ToolButtonView} from "./tool_button"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {Renderer} from "../renderers/renderer"
@@ -51,8 +51,16 @@ export class ToolProxy<T extends Tool> extends Model {
     return this.tools[0].button_view
   }
 
-  get event_type(): EventType | EventType[] {
-    return this.tools[0].event_type!
+  get event_type(): EventType | EventType[] | undefined {
+    return this.tools[0].event_type
+  }
+
+  get event_role(): EventRole {
+    return this.tools[0].event_role
+  }
+
+  get event_types(): EventType[] {
+    return this.tools[0].event_types
   }
 
   get default_order(): number {
