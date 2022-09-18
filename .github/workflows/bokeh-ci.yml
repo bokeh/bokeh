@@ -196,11 +196,16 @@ jobs:
       - name: Ensure Python version
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
+      - name: Test defaults
+        run: pytest tests/test_defaults.py
+
       - name: Run tests
+        if: success() || failure()
         run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
+        if: success() || failure()
         with:
           env_vars: OS,PYTHON
           flags: unit
