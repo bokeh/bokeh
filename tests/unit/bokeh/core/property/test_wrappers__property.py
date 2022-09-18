@@ -428,6 +428,38 @@ def test_PropertyValueList_mutators(mock_notify: MagicMock) -> None:
     except:
         pass
 
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
+def test_PropertyValueSet_mutators(mock_notify: MagicMock) -> None:
+    pvs: set[int] = bcpw.PropertyValueSet([10, 20, 30, 40, 50])
+
+    mock_notify.reset_mock()
+    pvs.add(60)
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.difference_update([20, 30])
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.discard(20)
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.intersection_update([20, 30])
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.remove(10)
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.symmetric_difference_update([10, 40])
+    assert mock_notify.called
+
+    mock_notify.reset_mock()
+    pvs.update([50, 60])
+    assert mock_notify.called
+
 def test_PropertyValueColumnData___copy__() -> None:
     source = ColumnDataSource(data=dict(foo=[10]))
     pvcd = source.data.__copy__()
