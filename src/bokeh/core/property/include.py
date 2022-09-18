@@ -61,11 +61,10 @@ class Include(PropertyDescriptorFactory[T]):
     def make_descriptors(self, _base_name: str) -> list[PropertyDescriptor[T]]:
         descriptors = []
 
-        for prop_name in self.delegate.properties():
-            prop_descriptor = self.delegate.lookup(prop_name)
-            prop = copy(prop_descriptor.property)
-            prop.__doc__ = self.help.format(prop=prop_name.replace('_', ' '))
-            descriptors += prop.make_descriptors(self.prefix + prop_name)
+        for descriptor in self.delegate.descriptors():
+            prop = copy(descriptor.property)
+            prop.__doc__ = self.help.format(prop=descriptor.name.replace("_", " "))
+            descriptors += prop.make_descriptors(self.prefix + descriptor.name)
 
         return descriptors
 
