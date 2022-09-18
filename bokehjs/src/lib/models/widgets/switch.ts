@@ -1,5 +1,5 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
-import {div, StyleSheetLike, Keys} from "core/dom"
+import {div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import switch_css from "styles/widgets/switch.css"
 
@@ -17,9 +17,9 @@ export class SwitchView extends ToggleInputView {
     super.connect_signals()
 
     this.el.addEventListener("keydown", (event) => {
-      switch (event.keyCode) {
-        case Keys.Enter:
-        case Keys.Space: {
+      switch (event.key) {
+        case "Enter":
+        case " ": {
           event.preventDefault()
           this._toggle_active()
           break

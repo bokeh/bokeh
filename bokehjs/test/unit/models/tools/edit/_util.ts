@@ -14,5 +14,5 @@ export function make_move_event(sx: number, sy: number): MoveEvent {
 }
 
 export function make_key_event(key: Keys): KeyEvent {
-  return {type: "keyup", keyCode: key}
+  return {type: "keyup", key}
 }

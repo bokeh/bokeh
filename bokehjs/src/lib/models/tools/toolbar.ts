@@ -1,5 +1,5 @@
 import {logger} from "core/logging"
-import {div, a, Keys, StyleSheetLike} from "core/dom"
+import {div, a, StyleSheetLike} from "core/dom"
 import {build_views, remove_views} from "core/build_views"
 import * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
@@ -158,7 +158,7 @@ export class ToolbarView extends UIElementView {
       toggle_menu()
     })
     this._overflow_el.addEventListener("keydown", (event) => {
-      if (event.keyCode == Keys.Enter) {
+      if (event.key == "Enter") {
         toggle_menu()
       }
     })

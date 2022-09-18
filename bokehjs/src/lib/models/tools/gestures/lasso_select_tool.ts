@@ -4,7 +4,6 @@ import {DEFAULT_POLY_OVERLAY} from "./poly_select_tool"
 import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {PanEvent, KeyEvent} from "core/ui_events"
-import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {tool_icon_lasso_select} from "styles/icons.css"
 
@@ -25,7 +24,7 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (ev.keyCode == Keys.Enter)
+    if (ev.key == "Enter")
       this._clear_overlay()
   }
 

@@ -1,7 +1,7 @@
 import Hammer, {Manager} from "hammerjs"
 
 import {DOMElementView, DOMComponentView} from "core/dom_view"
-import {div, empty, Keys, StyleSheetLike} from "core/dom"
+import {div, empty, StyleSheetLike} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
@@ -57,7 +57,7 @@ export abstract class ToolButtonView extends DOMElementView {
       })
       this._hammer.on("press", () => this._pressed())
       this.el.addEventListener("keydown", (event) => {
-        if (event.keyCode == Keys.Enter) {
+        if (event.key == "Enter") {
           this._clicked()
         }
       })

@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {UIEvent, PanEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
@@ -148,9 +147,9 @@ export class PolyDrawToolView extends PolyToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.key == "Backspace") {
         this._delete_selected(renderer)
-      } else if (ev.keyCode == Keys.Esc) {
+      } else if (ev.key == "Escape") {
         if (this._drawing) {
           this._remove()
           this._drawing = false

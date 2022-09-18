@@ -1,4 +1,4 @@
-import {div, empty, remove, Keys, StyleSheet, StyleSheetLike, ClassList} from "../dom"
+import {div, empty, remove, StyleSheet, StyleSheetLike, ClassList} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isString} from "./types"
@@ -86,7 +86,7 @@ export class ContextMenu { //extends DOMComponentView {
   }
 
   protected _on_keydown = (event: KeyboardEvent) => {
-    if (event.keyCode == Keys.Esc)
+    if (event.key == "Escape")
       this.hide()
   }
 
@@ -187,7 +187,7 @@ export class ContextMenu { //extends DOMComponentView {
           this._item_click(item)
         })
         el.addEventListener("keydown", (event) => {
-          if (event.keyCode == Keys.Enter) {
+          if (event.key == "Enter") {
             this._item_click(item)
           }
         })

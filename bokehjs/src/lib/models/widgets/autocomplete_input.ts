@@ -1,6 +1,6 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, display, undisplay, div, Keys, StyleSheetLike} from "core/dom"
+import {empty, display, undisplay, div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {clamp} from "core/util/math"
 
@@ -140,20 +140,20 @@ export class AutocompleteInputView extends TextInputView {
   _keydown(_event: KeyboardEvent): void {}
 
   _keyup(event: KeyboardEvent): void {
-    switch (event.keyCode) {
-      case Keys.Enter: {
+    switch (event.key) {
+      case "Enter": {
         this.change_input()
         break
       }
-      case Keys.Esc: {
+      case "Escape": {
         this._hide_menu()
         break
       }
-      case Keys.Up: {
+      case "ArrowUp": {
         this._bump_hover(this._hover_index - 1)
         break
       }
-      case Keys.Down: {
+      case "ArrowDown": {
         this._bump_hover(this._hover_index + 1)
         break
       }

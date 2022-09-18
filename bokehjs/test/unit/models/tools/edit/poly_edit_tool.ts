@@ -3,7 +3,6 @@ import * as sinon from "sinon"
 import {expect} from "assertions"
 import {display} from "../../../_util"
 
-import {Keys} from "@bokehjs/core/dom"
 import {build_view} from "@bokehjs/core/build_views"
 
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
@@ -143,7 +142,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       const moveenter_event = make_move_event(300, 300)
-      const keyup_event = make_key_event(Keys.Backspace)
+      const keyup_event = make_key_event("Backspace")
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
@@ -164,7 +163,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       const moveenter_event = make_move_event(300, 300)
-      const keyup_event = make_key_event(Keys.Esc)
+      const keyup_event = make_key_event("Escape")
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
@@ -214,7 +213,7 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       const moveenter_event = make_move_event(300, 300)
-      const keyup_event = make_key_event(Keys.Backspace)
+      const keyup_event = make_key_event("Backspace")
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
@@ -288,7 +287,7 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(new Selection({indices: [2]}))
       const tap_event2 = make_tap_event(290, 290)
       const moveenter_event = make_move_event(290, 290)
-      const key_event = make_key_event(Keys.Esc)
+      const key_event = make_key_event("Escape")
       testcase.draw_tool_view._tap(tap_event2) // Add new vertex
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(key_event) // Stop editing

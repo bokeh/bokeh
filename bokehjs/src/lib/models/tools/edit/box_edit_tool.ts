@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {PanEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
@@ -27,9 +26,9 @@ export class BoxEditToolView extends EditToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.key == "Backspace") {
         this._delete_selected(renderer)
-      } else if (ev.keyCode == Keys.Esc) {
+      } else if (ev.key == "Escape") {
         // Type properly once selection_manager is typed
         const cds = renderer.data_source
         cds.selection_manager.clear()

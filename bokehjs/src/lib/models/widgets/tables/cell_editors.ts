@@ -1,5 +1,5 @@
 import * as p from "core/properties"
-import {input, textarea, select, option, Keys} from "core/dom"
+import {input, textarea, select, option} from "core/dom"
 import {isInteger, isString} from "core/util/types"
 
 import {DOMComponentView} from "core/dom_view"
@@ -57,14 +57,16 @@ export abstract class CellEditorView extends DOMComponentView {
   disableNavigation(): void {
     // XXX: without cast `event` is of non-specific type `Event`
     (this.inputEl as HTMLElement).addEventListener("keydown", (event) => {
-      switch (event.keyCode) {
-        case Keys.Left:
-        case Keys.Right:
-        case Keys.Up:
-        case Keys.Down:
-        case Keys.PageUp:
-        case Keys.PageDown:
+      switch (event.key) {
+        case "ArrowLeft":
+        case "ArrowRight":
+        case "ArrowUp":
+        case "ArrowDown":
+        case "PageUp":
+        case "PageDown": {
           event.stopImmediatePropagation()
+          break
+        }
       }
     })
   }

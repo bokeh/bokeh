@@ -7,7 +7,6 @@ import {ColumnarDataSource, MultiLine, Scale} from "models"
 import {MoveEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import {intersection, union, transpose} from "core/util/array"
 import {SelectionMode} from "core/enums"
-import {Keys} from "core/dom"
 
 export interface HasRectCDS {
   glyph: Rect
@@ -276,7 +275,7 @@ export class ParallelSelectionView extends BoxSelectToolView {
   }
 
   _keyup(ev: KeyEvent) {
-    if (ev.keyCode == Keys.Esc) {
+    if (ev.key == "Escape") {
       const nelems = this.cds_select.get_length()
       if (nelems != null) {
         this.cds_select.columns().forEach(key => {

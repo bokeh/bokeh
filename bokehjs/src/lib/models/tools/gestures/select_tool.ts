@@ -7,7 +7,6 @@ import {compute_renderers} from "../../util"
 import * as p from "core/properties"
 import {KeyEvent, UIEvent} from "core/ui_events"
 import {SelectionMode} from "core/enums"
-import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
 import {Signal0} from "core/signaling"
@@ -63,7 +62,7 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (ev.keyCode == Keys.Esc) {
+    if (ev.key == "Escape") {
       this._clear()
     }
   }

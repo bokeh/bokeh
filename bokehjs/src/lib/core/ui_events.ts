@@ -87,7 +87,7 @@ export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 
 export type KeyEvent = {
   type: "keyup" | "keydown"
-  keyCode: Keys
+  key: Keys
 }
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
@@ -623,7 +623,7 @@ export class UIEventBus implements EventListenerObject {
   /*private*/ _key_event(e: KeyboardEvent): KeyEvent {
     return {
       type: e.type as KeyEvent["type"],
-      keyCode: e.keyCode,
+      key: e.key as Keys,
     }
   }
 

@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {isArray} from "core/util/types"
@@ -69,9 +68,9 @@ export class FreehandDrawToolView extends EditToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Esc) {
+      if (ev.key == "Escape") {
         renderer.data_source.selection_manager.clear()
-      } else if (ev.keyCode === Keys.Backspace) {
+      } else if (ev.key == "Backspace") {
         this._delete_selected(renderer)
       }
     }
