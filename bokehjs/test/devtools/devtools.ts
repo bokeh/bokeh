@@ -257,7 +257,8 @@ async function run_tests(): Promise<boolean> {
       const result = await evaluate<Suite>("Tests.top_level")
       if (!(result instanceof Value)) {
         // TODO: Failure.text
-        fail("internal error: failed to collect tests")
+        const reason = result instanceof Failure ? result.text : "timeout"
+        fail(`internal error: failed to collect tests: ${reason}`)
       }
 
       const top_level = result.value

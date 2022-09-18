@@ -336,8 +336,8 @@ task2("test:integration", [start, build_integration], async ([devtools_port, ser
 
 async function copy_defaults() {
   const bokehjs_dir = process.cwd()
-  const src = join(bokehjs_dir, "..", "tests/baselines/defaults.json")
-  const dst = join(bokehjs_dir, "build/test/defaults/defaults.json")
+  const src = join(bokehjs_dir, "..", "tests/baselines/defaults.yaml")
+  const dst = join(bokehjs_dir, "build/test/defaults/defaults.yaml")
   await fs.promises.copyFile(src, dst)
 }
 

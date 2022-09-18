@@ -1,4 +1,4 @@
-declare module "*/defaults.json" {
-  const value: {[key: string]: any}
-  export = value
+declare module "*/defaults.yaml" {
+  const yaml: string
+  export default yaml
 }

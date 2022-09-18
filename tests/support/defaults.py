@@ -24,8 +24,10 @@ import warnings
 from pathlib import Path
 from typing import Any
 
+# External imports
+import yaml
+
 # Bokeh imports
-from bokeh.core.json_encoder import serialize_json
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import (
@@ -94,9 +96,14 @@ def collect_defaults() -> dict[str, Any]:
 def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
     os.makedirs(dest.parent, exist_ok=True)
 
-    output = serialize_json(defaults, indent=2, pretty=True)
+    #yaml.add_representer(
+    #    tuple,
+    #    lambda dumper, data: dumper.represent_list(data),
+    #)
+
+    output = yaml.dump(defaults, sort_keys=False, indent=2)
     with open(dest, "w", encoding="utf-8") as f:
-        f.write(output + "\n")
+        f.write(output)
 
     print(f"Wrote {dest} with {len(defaults)} models")
 
