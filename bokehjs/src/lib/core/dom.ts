@@ -203,8 +203,8 @@ export function hide(element: HTMLElement): void {
 export function offset_bbox(element: Element): BBox {
   const {top, left, width, height} = element.getBoundingClientRect()
   return new BBox({
-    left: left + window.pageXOffset - document.documentElement.clientLeft,
-    top:  top  + window.pageYOffset - document.documentElement.clientTop,
+    left: left + scrollX - document.documentElement.clientLeft,
+    top:  top  + scrollY - document.documentElement.clientTop,
     width,
     height,
   })

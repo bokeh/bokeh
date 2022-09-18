@@ -231,7 +231,6 @@ export function Alias(attr: string) {
 
 export class PrimitiveProperty<T> extends Property<T> {}
 
-/** @deprecated */
 export class Font extends PrimitiveProperty<string> {
   override _default_override(): string | Unset {
     return settings.dev ? "Bokeh" : unset
