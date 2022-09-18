@@ -111,7 +111,7 @@
 
   <td>
     <a href="https://stackoverflow.com/questions/tagged/bokeh">
-    <img src="https://img.shields.io/stackexchange/stackoverflow/t/bokeh?label=StackOverflow%20&color=blue&logo=stackoverflow&style=for-the-badge"
+    <img src="https://raw.githubusercontent.com/bokeh/badges/main/cache/bokeh-stackoverflow-total.svg"
          alt="Bokeh-tagged questions on Stack Overflow" />
      </a>
   </td>
