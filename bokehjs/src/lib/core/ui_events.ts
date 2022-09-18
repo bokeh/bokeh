@@ -237,8 +237,8 @@ export class UIEventBus implements EventListenerObject {
       }
       case "tap": {
         if (v._tap != null)          v.connect(this.tap,          conditionally(v._tap.bind(v)))
+        // XXX: ultimately this shouldn't fall-throught, but breaking here would fail elsewhere
       }
-      case "tap":
       case "doubletap": {
         if (v._doubletap != null)    v.connect(this.doubletap,    conditionally(v._doubletap.bind(v)))
         break
