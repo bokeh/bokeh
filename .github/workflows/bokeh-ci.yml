@@ -146,38 +146,6 @@ jobs:
           name: examples-report
           path: examples-report
 
-  js-test:
-    needs: build
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Prepare Environment
-        uses: ./.github/workflows/composite/test-setup
-        with:
-          test-env: '3.8'
-          source-tree: 'keep'
-          sampledata: 'cache'
-
-      - name: Install chromium
-        if: runner.os == 'Linux'
-        run: |
-          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
-            echo "Using pre-installed version of chromium"
-          else
-            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
-            wget --no-verbose $URL/$CHROME_REV.assert
-            wget --no-verbose $URL/$CHROME_REV.snap
-
-            sudo snap ack $CHROME_REV.assert
-            sudo snap install $CHROME_REV.snap
-          fi
-
-      - name: Run tests
-        working-directory: bokehjs
-        run: node make test --screenshot=skip
-
   integration-tests:
     needs: build
     runs-on: ubuntu-latest
@@ -228,11 +196,16 @@ jobs:
       - name: Ensure Python version
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
 
+      - name: Test defaults
+        run: pytest tests/test_defaults.py
+
       - name: Run tests
+        if: success() || failure()
         run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
+        if: success() || failure()
         with:
           env_vars: OS,PYTHON
           flags: unit

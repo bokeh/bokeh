@@ -505,6 +505,12 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
     @classmethod
     @lru_cache(None)
+    def descriptors(cls) -> list[PropertyDescriptor[Any]]:
+        """ List of property descriptors in the order of definition. """
+        return [ cls.lookup(name) for name, _ in cls.properties(_with_props=True).items() ]
+
+    @classmethod
+    @lru_cache(None)
     def properties_with_refs(cls) -> dict[str, Property[Any]]:
         ''' Collect the names of all properties on this class that also have
         references.

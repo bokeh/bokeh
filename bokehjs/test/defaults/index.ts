@@ -3,12 +3,10 @@ export * from "../framework"
 
 import {ExpectationError} from "../unit/assertions"
 
-import all_defaults from "../.generated_defaults/defaults.json"
-
 import {HasProps} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {keys, entries} from "@bokehjs/core/util/object"
+import {entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
@@ -19,13 +17,25 @@ import {settings} from "@bokehjs/core/settings"
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
 
-type KV = {[key: string]: unknown}
+import yaml from "js-yaml"
+
+const tuple = new yaml.Type("tag:yaml.org,2002:python/tuple", {
+  kind: "sequence",
+  resolve: (_data) => true,
+  construct: (data) => [...data],
+})
+const schema = yaml.DEFAULT_SCHEMA.extend(tuple)
+
+import defaults_yaml from "./defaults.yaml"
+const all_defaults = dict(yaml.load(defaults_yaml, {schema}) as KV<KV<unknown>>)
+
+type KV<T = unknown> = {[key: string]: T}
 
 class DefaultsSerializer extends Serializer {
 
   override encode(obj: unknown): unknown {
     if (obj instanceof HasProps) {
-      const attributes: KV = {}
+      const attributes: KV<unknown> = {}
       for (const prop of obj) {
         if (prop.syncable) {
           const value = prop.is_unset ? unset : prop.get_value()
@@ -41,8 +51,8 @@ class DefaultsSerializer extends Serializer {
   }
 }
 
-function get_defaults(name: string) {
-  const defaults = all_defaults[name]
+function get_defaults(name: string): KV {
+  const defaults = all_defaults.get(name)
   if (defaults != null)
     return defaults
   else
@@ -178,7 +188,7 @@ describe("Defaults", () => {
 
   it("have bokehjs and bokeh implement the same set of models", () => {
     const js_models = new Set(default_resolver.names)
-    const py_models = new Set(keys(all_defaults))
+    const py_models = new Set(all_defaults.keys())
 
     for (const model of internal_models) {
       js_models.delete(model)

@@ -17,42 +17,31 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Type
+import subprocess
+from pathlib import Path
 
 # Bokeh imports
-from bokeh.core.property.descriptors import PropertyDescriptor
-from bokeh.core.property.singletons import Undefined
-from bokeh.model import Model
+from tests.support.defaults import collect_defaults, output_defaults
 
-# Module under test
-from bokeh import models # isort:skip
+#-----------------------------------------------------------------------------
+# Setup
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def all_descriptors():
-    for name in dir(models):
-        model = getattr(models, name)
+class TestDefaults:
+    def test_defaults(self) -> None:
+        baseline = Path(__file__).parent / "baselines" / "defaults.yaml"
 
-        try:
-            if not issubclass(model, Model):
-                continue
-        except TypeError:
-            continue
+        defaults = collect_defaults()
+        output_defaults(baseline, defaults)
 
-        for prop in model.properties():
-            descriptor = model.lookup(prop)
-            yield (model, name, descriptor)
-
-@pytest.mark.parametrize("model, name, descriptor", list(all_descriptors()))
-def test_default_values(model: Type[Model], name: str, descriptor: PropertyDescriptor[Any]) -> None:
-    p = descriptor.property
-    # In a few instances there is a default that needs to be prepared, e.g. by
-    # an accepts clause. Use class_default rather than _raw_default.
-    value = descriptor.class_default(model)
-    if value is not Undefined:
-        assert p.is_valid(value) is True, f"{name}.{descriptor.name} has an invalid default value {value!r}"
+        status, out, _ = diff_baseline(baseline)
+        if status != 0:
+            print(out)
+            assert False, "baseline differs"
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -61,6 +50,16 @@ def test_default_values(model: Type[Model], name: str, descriptor: PropertyDescr
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def git(*args: str) -> tuple[int, str, str]:
+    proc = subprocess.Popen(["git", *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    stdout, stderr = proc.communicate()
+    out = stdout.decode("utf-8", errors="ignore")
+    err = stderr.decode("utf-8", errors="ignore")
+    return (proc.returncode, out, err)
+
+def diff_baseline(baseline_path: Path, ref: str = "HEAD") -> tuple[int, str, str]:
+    return git("diff", "--color", "--exit-code", ref, "--", str(baseline_path))
 
 #-----------------------------------------------------------------------------
 # Code

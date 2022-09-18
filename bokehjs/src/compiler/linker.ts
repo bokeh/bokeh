@@ -27,7 +27,7 @@ export type Parent = {
 
 export type ResoType = "ESM" | "CJS"
 
-export type ModuleType = "js" | "json" | "css"
+export type ModuleType = "js" | "json" | "yaml" | "css"
 
 export type ModuleInfo = {
   file: Path
@@ -677,6 +677,7 @@ export class Linker {
     const type = (() => {
       switch (extname(file)) {
         case ".json": return "json"
+        case ".yaml": return "yaml"
         case ".css": return "css"
         case ".mjs": return "js"
         case ".cjs": return "js"
@@ -698,6 +699,14 @@ export ${export_type} json;
         source = `\
 const css = \`${source}\`;
 export ${export_type} css;
+`
+        break
+      case "yaml":
+        source = `\
+const yaml = \`
+${source}
+\`;
+export ${export_type} yaml;
 `
         break
     }
