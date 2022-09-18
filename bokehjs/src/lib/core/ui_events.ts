@@ -32,8 +32,8 @@ export type PanEvent = {
   type: "pan" | "panstart" | "panend"
   sx: number
   sy: number
-  deltaX: number
-  deltaY: number
+  dx: number
+  dy: number
   shift_key: boolean
   ctrl_key: boolean
 }
@@ -526,7 +526,7 @@ export class UIEventBus implements EventListenerObject {
         case "pressup":
           return new events.PressUp(sx, sy, x, y)
         case "pan":
-          return new events.Pan(sx, sy, x, y, e.deltaX, e.deltaY)
+          return new events.Pan(sx, sy, x, y, e.dx, e.dy)
         case "panstart":
           return new events.PanStart(sx, sy, x, y)
         case "panend":
@@ -565,8 +565,8 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as PanEvent["type"],
       ...this._get_sxy(e.srcEvent),
-      deltaX: e.deltaX,
-      deltaY: e.deltaY,
+      dx: e.deltaX,
+      dy: e.deltaY,
       shift_key: e.srcEvent.shiftKey,
       ctrl_key: e.srcEvent.ctrlKey,
     }

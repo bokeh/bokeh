@@ -249,7 +249,7 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, deltaX: 0, deltaY: 0, ctrl_key: false, shift_key: false}
+        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false}
       })
 
       it("should not trigger event if no active tool", () => {
