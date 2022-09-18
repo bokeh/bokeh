@@ -178,52 +178,52 @@ The Bokeh project is grateful for [individual contributions](https://opencollect
          alt="NumFocus Logo" width="200"/>
     </a>
   </td>
-  
+
   <td>
     <a href="https://chanzuckerberg.com/">
     <img src="https://static.bokeh.org/sponsor/czi.svg"
          alt="CZI Logo" width="200"/>
     </a>
   </td>
-  
+
   <td colspan="2">
     <a href="https://www.blackstone.com/the-firm/">
     <img src="https://static.bokeh.org/sponsor/blackstone.png"
          alt="Blackstone Logo" width="400"/>
     </a>
   </td>
-  
+
  </tr>
  <tr>
- 
+
   <td>
     <a href="https://tidelift.com/">
     <img src="https://static.bokeh.org/sponsor/tidelift.svg"
          alt="TideLift Logo" width="200"/>
     </a>
   </td>
-  
+
   <td>
     <a href="https://www.anaconda.com/">
     <img src="https://static.bokeh.org/sponsor/anaconda.png"
          alt="Anaconda Logo" width="200"/>
     </a>
   </td>
-  
+
   <td>
     <a href="https://www.nvidia.com">
     <img src="https://static.bokeh.org/sponsor/nvidia.png"
          alt="NVidia Logo" width="200"/>
     </a>
   </td>
-  
+
   <td>
     <a href="https://developer.nvidia.com/rapids">
     <img src="https://static.bokeh.org/sponsor/rapids.png"
          alt="Rapids Logo" width="200"/>
     </a>
   </td>
-  
+
 </tr>
 </table>
 
