@@ -11,7 +11,7 @@ export class WheelZoomToolView extends GestureToolView {
 
   override _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
-    const {sx, sy, scale, ctrlKey, shiftKey} = ev
+    const {sx, sy, scale, ctrl_key, shift_key} = ev
 
     let delta: number
     if (scale >= 1)
@@ -19,7 +19,7 @@ export class WheelZoomToolView extends GestureToolView {
     else
       delta = -20.0/scale
 
-    this._scroll({type: "wheel", sx, sy, delta, ctrlKey, shiftKey})
+    this._scroll({type: "wheel", sx, sy, delta, ctrl_key, shift_key})
   }
 
   override _scroll(ev: ScrollEvent): void {

@@ -47,15 +47,15 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   protected _select_mode(ev: UIEvent): SelectionMode {
-    const {shiftKey, ctrlKey} = ev
+    const {shift_key, ctrl_key} = ev
 
-    if (!shiftKey && !ctrlKey)
+    if (!shift_key && !ctrl_key)
       return this.model.mode
-    else if (shiftKey && !ctrlKey)
+    else if (shift_key && !ctrl_key)
       return "append"
-    else if (!shiftKey && ctrlKey)
+    else if (!shift_key && ctrl_key)
       return "intersect"
-    else if (shiftKey && ctrlKey)
+    else if (shift_key && ctrl_key)
       return "subtract"
     else
       unreachable()
