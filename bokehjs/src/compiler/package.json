@@ -22,6 +22,7 @@
     "combine-source-map": "^0.8.0",
     "convert-source-map": "^1.8.0",
     "eslint": "^8.23.0",
+    "eslint-plugin-deprecation": "^1.3.2",
     "less": "^4.1.3",
     "terser": "^5.15.0",
     "typescript": "~4.8.3",
