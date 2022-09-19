@@ -90,10 +90,12 @@ class BokehGalleryDirective(BokehDirective):
             alt = detail.get("alt", None)
             path = PurePath(name).parts
             name = path[-1].replace('.py', '')
+            thumbnail = "-".join(path).replace(".py", ".png")
             opts.append({
                 "name": name,
                 "ref": f"examples/{path[1]}/{name}.html",
                 "alt": alt,
+                "thumbnail": thumbnail,
             })
 
         rst_text = GALLERY_PAGE.render(opts=opts)

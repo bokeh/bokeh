@@ -186,11 +186,6 @@
       "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
     },
     {
-      "path": "examples/plotting/jitter.py",
-      "name": "jitter",
-      "alt": "Thumbnail link to the examples/plotting/jitter.py example shows a column of two categorical scatter plots of random data. The top has no jitter applied, may scatter points overlap. The bottom has jitter applied to distinguish points better."
-    },
-    {
       "path": "examples/plotting/lorenz.py",
       "name": "lorenz",
       "alt": "Thumbnail link to the examples/plotting/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
@@ -204,16 +199,6 @@
       "path": "examples/plotting/color_sliders.py",
       "name": "color_sliders",
       "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
-    },
-    {
-      "path": "examples/models/iris_splom.py",
-      "name": "iris_splom",
-      "alt": "Thumbnail link to the examples/plotting/iris_splom.py example shows a SPLOM gridplot of the Iris data set for all dimensions."
-    },
-    {
-      "path": "examples/models/anscombe.py",
-      "name": "anscombe",
-      "alt": "Thumbnail link to the examples/plotting/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
     },
     {
       "path": "examples/plotting/texas.py",
@@ -269,11 +254,11 @@
       "path": "examples/plotting/bessel.py",
       "name": "bessel",
       "alt": "Thumbnail link to the examples/plotting/bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
-     },
-     {
+    },
+    {
       "path": "examples/plotting/contour.py",
       "name": "contour",
       "alt": "Thumbnail link to the examples/plotting/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
-     }
+    }
   ]
 }
