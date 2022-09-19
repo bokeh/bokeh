@@ -5,7 +5,6 @@ import * as p from "core/properties"
 import {PanEvent, KeyEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
 import {Interval} from "core/types"
-import {Keys} from "core/dom"
 import {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
 
@@ -148,7 +147,7 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   override _keydown(ev: KeyEvent): void {
-    if (ev.keyCode == Keys.Esc) {
+    if (ev.key == "Escape") {
       this._stop()
     }
   }

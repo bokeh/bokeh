@@ -1,7 +1,7 @@
 import {UIElement, UIElementView} from "./ui_element"
 import * as p from "core/properties"
 import {HasProps} from "core/has_props"
-import {div, span, input, empty, Keys, StyleSheetLike} from "core/dom"
+import {div, span, input, empty, StyleSheetLike} from "core/dom"
 import {to_string} from "core/util/pretty"
 import {Model} from "model"
 import {Document} from "document"
@@ -295,7 +295,7 @@ export class InspectorView extends UIElementView {
         const root = roots.has(model) ? span({class: "tag"}, "root") : null
         const ref_el = span({class: "model-ref", tabIndex: 0}, to_html(model), root)
         ref_el.addEventListener("keydown", (event) => {
-          if (event.keyCode == Keys.Enter) {
+          if (event.key == "Enter") {
             render_props(model)
           }
         })

@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {PanEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
 import {MultiLine} from "../../glyphs/multi_line"
@@ -227,12 +226,12 @@ export class PolyEditToolView extends PolyToolView {
       renderers = this.model.renderers
     }
     for (const renderer of renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.key == "Backspace") {
         this._delete_selected(renderer)
         if (this._selected_renderer) {
           this._emit_cds_changes(this._selected_renderer.data_source)
         }
-      } else if (ev.keyCode == Keys.Esc) {
+      } else if (ev.key == "Escape") {
         if (this._drawing) {
           this._remove_vertex()
           this._drawing = false

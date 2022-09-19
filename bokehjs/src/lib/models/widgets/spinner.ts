@@ -1,7 +1,7 @@
 import {NumericInputView, NumericInput} from "./numeric_input"
 
 import * as p from "core/properties"
-import {button, div, toggle_attribute, Keys} from "core/dom"
+import {button, div, toggle_attribute} from "core/dom"
 
 const {min, max, floor, abs} = Math
 
@@ -169,19 +169,23 @@ export class SpinnerView extends NumericInputView {
   }
 
   _input_key_down(evt: KeyboardEvent) {
-    switch (evt.keyCode) {
-      case Keys.Up:
+    switch (evt.key) {
+      case "ArrowUp": {
         evt.preventDefault()
         return this.increment(this.model.step)
-      case Keys.Down:
+      }
+      case "ArrowDown": {
         evt.preventDefault()
         return this.increment(-this.model.step)
-      case Keys.PageUp:
+      }
+      case "PageUp": {
         evt.preventDefault()
         return this.increment(this.model.page_step_multiplier * this.model.step)
-      case Keys.PageDown:
+      }
+      case "PageDown": {
         evt.preventDefault()
         return this.increment(-this.model.page_step_multiplier * this.model.step)
+      }
     }
   }
 

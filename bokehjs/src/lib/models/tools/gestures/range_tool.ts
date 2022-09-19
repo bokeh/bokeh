@@ -164,8 +164,8 @@ export class RangeToolView extends GestureToolView {
   override _pan(ev: PanEvent): void {
     const frame = this.plot_view.frame
 
-    const new_dx = ev.deltaX - this.last_dx
-    const new_dy = ev.deltaY - this.last_dy
+    const new_dx = ev.dx - this.last_dx
+    const new_dy = ev.dy - this.last_dy
 
     const xr = this.model.x_range
     const yr = this.model.y_range
@@ -197,8 +197,8 @@ export class RangeToolView extends GestureToolView {
       }
     }
 
-    this.last_dx = ev.deltaX
-    this.last_dy = ev.deltaY
+    this.last_dx = ev.dx
+    this.last_dy = ev.dy
   }
 
   override _pan_end(_ev: PanEvent): void {

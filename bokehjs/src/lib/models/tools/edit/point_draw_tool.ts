@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -38,9 +37,9 @@ export class PointDrawToolView extends EditToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.key == "Backspace") {
         this._delete_selected(renderer)
-      } else if (ev.keyCode == Keys.Esc) {
+      } else if (ev.key == "Escape") {
         renderer.data_source.selection_manager.clear()
       }
     }

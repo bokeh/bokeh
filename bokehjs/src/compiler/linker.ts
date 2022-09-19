@@ -145,7 +145,7 @@ export class Bundle {
       line += newlines(start)
 
       const source_with_sourcemap = minified ? artifact.code.min_source : artifact.code.source
-      const source = combine.removeComments(source_with_sourcemap).trimRight()
+      const source = combine.removeComments(source_with_sourcemap).trimEnd()
       sources += source
       const map_path = join("@@", relative(root_path, module.file))
       sourcemap.addFile({source: source_with_sourcemap, sourceFile: map_path}, {line})

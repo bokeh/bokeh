@@ -1,7 +1,7 @@
 import {MenuItem, MenuItemView} from "./menu_item"
 import {Menu} from "./menu"
 import {Icon} from "../ui/icons/icon"
-import {Keys, span} from "core/dom"
+import {span} from "core/dom"
 import * as p from "core/properties"
 
 // import * as menus from "styles/menus.css"
@@ -27,7 +27,7 @@ export class ActionView extends MenuItemView {
       this._click()
     })
     this.el.addEventListener("keydown", (event) => {
-      if (event.keyCode == Keys.Enter) {
+      if (event.key == "Enter") {
         this._click()
       }
     })

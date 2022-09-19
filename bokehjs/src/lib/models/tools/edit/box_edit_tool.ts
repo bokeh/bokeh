@@ -1,4 +1,3 @@
-import {Keys} from "core/dom"
 import {PanEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import * as p from "core/properties"
@@ -27,9 +26,9 @@ export class BoxEditToolView extends EditToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     for (const renderer of this.model.renderers) {
-      if (ev.keyCode === Keys.Backspace) {
+      if (ev.key == "Backspace") {
         this._delete_selected(renderer)
-      } else if (ev.keyCode == Keys.Esc) {
+      } else if (ev.key == "Escape") {
         // Type properly once selection_manager is typed
         const cds = renderer.data_source
         cds.selection_manager.clear()
@@ -97,7 +96,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    if (ev.shiftKey) {
+    if (ev.shift_key) {
       if (this._draw_basepoint != null)
         return
       this._draw_basepoint = [ev.sx, ev.sy]
@@ -111,7 +110,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
-    if (ev.shiftKey) {
+    if (ev.shift_key) {
       if (this._draw_basepoint == null)
         return
       this._update_box(ev, append, emit)
@@ -124,7 +123,7 @@ export class BoxEditToolView extends EditToolView {
 
   override _pan_end(ev: PanEvent): void {
     this._pan(ev, false, true)
-    if (ev.shiftKey) {
+    if (ev.shift_key) {
       this._draw_basepoint = null
     } else {
       this._basepoint = null

@@ -7,7 +7,6 @@ import {compute_renderers} from "../../util"
 import * as p from "core/properties"
 import {KeyEvent, UIEvent} from "core/ui_events"
 import {SelectionMode} from "core/enums"
-import {Keys} from "core/dom"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
 import {Signal0} from "core/signaling"
@@ -48,22 +47,22 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   protected _select_mode(ev: UIEvent): SelectionMode {
-    const {shiftKey, ctrlKey} = ev
+    const {shift_key, ctrl_key} = ev
 
-    if (!shiftKey && !ctrlKey)
+    if (!shift_key && !ctrl_key)
       return this.model.mode
-    else if (shiftKey && !ctrlKey)
+    else if (shift_key && !ctrl_key)
       return "append"
-    else if (!shiftKey && ctrlKey)
+    else if (!shift_key && ctrl_key)
       return "intersect"
-    else if (shiftKey && ctrlKey)
+    else if (shift_key && ctrl_key)
       return "subtract"
     else
       unreachable()
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (ev.keyCode == Keys.Esc) {
+    if (ev.key == "Escape") {
       this._clear()
     }
   }

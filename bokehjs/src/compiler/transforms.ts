@@ -65,7 +65,7 @@ export function relativize_modules(relativize: (file: string, module_path: strin
 }
 
 function is_static(node: ts.Node): boolean {
-  return node.modifiers != null && node.modifiers.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
+  return ts.canHaveModifiers(node) && ts.getModifiers(node)?.find((modifier) => modifier.kind == ts.SyntaxKind.StaticKeyword) != null
 }
 
 export function insert_class_name() {

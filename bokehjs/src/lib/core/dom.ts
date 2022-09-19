@@ -203,8 +203,8 @@ export function hide(element: HTMLElement): void {
 export function offset_bbox(element: Element): BBox {
   const {top, left, width, height} = element.getBoundingClientRect()
   return new BBox({
-    left: left + window.pageXOffset - document.documentElement.clientLeft,
-    top:  top  + window.pageYOffset - document.documentElement.clientTop,
+    left: left + scrollX - document.documentElement.clientLeft,
+    top:  top  + scrollY - document.documentElement.clientTop,
     width,
     height,
   })
@@ -378,20 +378,12 @@ export function toggle_attribute(el: HTMLElement, attr: string, state?: boolean)
     el.removeAttribute(attr)
 }
 
-export enum Keys {
-  Backspace = 8,
-  Tab       = 9,
-  Enter     = 13,
-  Esc       = 27,
-  Space     = 32,
-  PageUp    = 33,
-  PageDown  = 34,
-  Left      = 37,
-  Up        = 38,
-  Right     = 39,
-  Down      = 40,
-  Delete    = 46,
-}
+type WhitespaceKeys = "Tab" | "Enter" | " "
+type UIKeys = "Escape"
+type NavigationKeys = "Home" | "End" | "PageUp" | "PageDown" | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown"
+type EditingKeys = "Backspace" | "Delete"
+
+export type Keys = WhitespaceKeys | UIKeys | NavigationKeys | EditingKeys
 
 import {CSSOurStyles} from "./css"
 

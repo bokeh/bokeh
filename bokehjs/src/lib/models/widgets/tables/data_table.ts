@@ -5,7 +5,7 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {div, StyleSheetLike} from "core/dom"
-import {uniqueId} from "core/util/string"
+import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
 import {keys} from "core/util/object"
@@ -244,7 +244,7 @@ export class DataTableView extends WidgetView {
 
   newIndexColumn(): ColumnType {
     return {
-      id: uniqueId(),
+      id: unique_id(),
       name: this.model.index_header,
       field: DTINDEX_NAME,
       width: this.model.index_width,

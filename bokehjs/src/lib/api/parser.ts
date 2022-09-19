@@ -268,7 +268,7 @@ export class Parser {
    */
   gobbleBinaryOp(): string | false {
     this.gobbleSpaces()
-    let to_check = this.expr.substr(this.index, max_binop_len)
+    let to_check = this.expr.substring(this.index, this.index + max_binop_len)
     let tc_len = to_check.length
 
     while (tc_len > 0) {
@@ -282,7 +282,7 @@ export class Parser {
         this.index += tc_len
         return to_check
       }
-      to_check = to_check.substr(0, --tc_len)
+      to_check = to_check.substring(0, --tc_len)
     }
     return false
   }
@@ -390,7 +390,7 @@ export class Parser {
     } else if (ch == OBRACK_CODE) {
       node = this.gobbleArray()
     } else {
-      let to_check = this.expr.substr(this.index, max_unop_len)
+      let to_check = this.expr.substring(this.index, this.index + max_unop_len)
       let tc_len = to_check.length
 
       while (tc_len > 0) {
@@ -414,7 +414,7 @@ export class Parser {
           }
         }
 
-        to_check = to_check.substr(0, --tc_len)
+        to_check = to_check.substring(0, --tc_len)
       }
 
       if (is_identifier_start(ch)) {

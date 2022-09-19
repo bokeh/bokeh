@@ -16,7 +16,7 @@
     "tsconfigRootDir": ".",
     "sourceType": "module"
   },
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "deprecation"],
   "extends": [],
   "rules": {
     "@typescript-eslint/ban-types": ["error", {
@@ -115,6 +115,7 @@
       "anonymous": {"before": false, "after": true},
       "method": {"before": true, "after": false}
     }],
-    "yield-star-spacing": ["error", {"before": false, "after": true}]
+    "yield-star-spacing": ["error", {"before": false, "after": true}],
+    "deprecation/deprecation": ["error"]
   }
 }

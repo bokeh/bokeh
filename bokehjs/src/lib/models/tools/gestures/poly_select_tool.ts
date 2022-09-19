@@ -3,7 +3,6 @@ import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
-import {Keys} from "core/dom"
 import * as p from "core/properties"
 import {copy} from "core/util/array"
 import {tool_icon_polygon_select} from "styles/icons.css"
@@ -29,7 +28,7 @@ export class PolySelectToolView extends SelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (ev.keyCode == Keys.Enter)
+    if (ev.key == "Enter")
       this._clear_data()
   }
 

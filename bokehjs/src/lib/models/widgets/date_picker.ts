@@ -118,13 +118,13 @@ export class DatePickerView extends InputWidgetView {
         inputBounds.top > calendarHeight)
 
     // const top =
-    //   window.pageYOffset +
+    //   window.scrollY +
     //   inputBounds.top +
     //   (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
     const top = self.config.appendTo
       ? inputBounds.top +
         (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
-      : window.pageYOffset +
+      : window.scrollY +
         inputBounds.top +
         (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
 
@@ -133,7 +133,7 @@ export class DatePickerView extends InputWidgetView {
 
     if (self.config.inline) return
 
-    let left = window.pageXOffset + inputBounds.left
+    let left = window.scrollX + inputBounds.left
     let isCenter = false
     let isRight = false
 
@@ -151,7 +151,7 @@ export class DatePickerView extends InputWidgetView {
 
     const right =
       window.document.body.offsetWidth -
-      (window.pageXOffset + inputBounds.right)
+      (window.scrollX + inputBounds.right)
     const rightMost = left + calendarWidth > window.document.body.offsetWidth
     const centerMost = right + calendarWidth > window.document.body.offsetWidth
 
