@@ -6,7 +6,7 @@ import type {DataRenderer} from "../renderers/data_renderer"
 
 export type StateInfo = {
   range?: RangeInfo
-  selection: Map<DataRenderer, Selection>
+  selection?: Map<DataRenderer, Selection>
 }
 
 type StateEntry = {type: string, state: StateInfo}
@@ -22,10 +22,13 @@ export class StateManager {
   protected _do_state_change(index: number): StateInfo {
     const state = index in this.history ? this.history[index].state : this.initial_state
 
-    if (state.range != null)
+    if (state.range != null) {
       this.parent.update_range(state.range)
+    }
 
-    this.parent.update_selection(state.selection)
+    if (state.selection != null) {
+      this.parent.update_selection(state.selection)
+    }
 
     return state
   }
