@@ -9,7 +9,12 @@ export type StateInfo = {
   selection?: Map<DataRenderer, Selection>
 }
 
-type StateEntry = {type: string, state: StateInfo}
+type SelectionChange = "box_select" | "poly_select" | "lasso_select" | "tap"
+type RangeChange = "pan" | "wheel_pan" | "box_zoom" | "zoom_in" | "zoom_out" | "wheel_zoom"
+
+export type StateType = SelectionChange | RangeChange
+
+type StateEntry = {type: StateType, state: StateInfo}
 
 export class StateManager {
   constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {}
@@ -37,7 +42,7 @@ export class StateManager {
     return this.can_undo ? this.history[this.index] : null
   }
 
-  push(type: string, new_state: Partial<StateInfo>): void {
+  push(type: StateType, new_state: StateInfo): void {
     const {history, index} = this
 
     const prev_state = index in history ? history[index].state : {}
