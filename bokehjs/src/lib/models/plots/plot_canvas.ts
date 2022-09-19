@@ -222,7 +222,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this._initial_state = {
       selection: new Map(),               // XXX: initial selection?
-      dimensions: {width: 0, height: 0},  // XXX: initial dimensions
     }
 
     this.renderer_views = new Map()

@@ -7,10 +7,6 @@ import type {DataRenderer} from "../renderers/data_renderer"
 export type StateInfo = {
   range?: RangeInfo
   selection: Map<DataRenderer, Selection>
-  dimensions: {
-    width: number
-    height: number
-  }
 }
 
 type StateEntry = {type: string, state: StateInfo}
