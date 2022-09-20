@@ -16,7 +16,7 @@ UID_GID="`id -u`:`id -g`"
 
 # Environment variables that are passed in to Docker container.
 ENV_VARS=""
-for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_TEST BOKEH_DOCKER_CHROME_VERSION; do
+for name in BOKEH_DOCKER_CONDA BOKEH_DOCKER_PY BOKEH_DOCKER_BUILD BOKEH_DOCKER_TEST BOKEH_DOCKER_CHROME_VERSION BOKEH_DOCKER_FROM_WHEEL; do
     if [ -n "${!name+set}" ]; then
         ENV_VARS="$ENV_VARS -e $name=${!name}"
     fi
