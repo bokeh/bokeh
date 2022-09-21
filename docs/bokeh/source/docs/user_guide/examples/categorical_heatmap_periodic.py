@@ -33,7 +33,7 @@ source = ColumnDataSource(df)
 p = figure(width=900, height=500, title="Periodic table (omitting LA and AC series)",
            x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="hover")
 
-p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend_field="metal",
+a = p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend_field="metal",
        color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
 text_props = {"source": source, "text_align": "left", "text_baseline": "middle"}
@@ -70,5 +70,6 @@ p.axis.major_tick_line_color = None
 p.axis.major_label_standoff = 0
 p.legend.orientation = "horizontal"
 p.legend.location ="top_center"
+p.hover.renderers = [a] # hover only element boxes
 
 show(p)
