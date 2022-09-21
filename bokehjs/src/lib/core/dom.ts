@@ -385,6 +385,16 @@ type EditingKeys = "Backspace" | "Delete"
 
 export type Keys = WhitespaceKeys | UIKeys | NavigationKeys | EditingKeys
 
+export enum MouseButton {
+  None = 0b0,
+  Primary = 0b1,
+  Secondary = 0b10,
+  Auxiliary = 0b100,
+  Left = Primary,
+  Right = Secondary,
+  Middle = Auxiliary,
+}
+
 import {CSSOurStyles} from "./css"
 
 export class StyleSheet {

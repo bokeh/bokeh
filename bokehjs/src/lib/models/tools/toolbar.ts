@@ -8,8 +8,8 @@ import {EventType} from "core/ui_events"
 import {every, sort_by, includes, intersection, clear} from "core/util/array"
 import {join} from "core/util/iterator"
 import {values, entries} from "core/util/object"
-import {isString, isArray} from "core/util/types"
-import {Tool} from "./tool"
+import {isArray} from "core/util/types"
+import {Tool, EventRole} from "./tool"
 import {ToolProxy, ToolLike} from "./tool_proxy"
 import {ToolButtonView} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
@@ -351,24 +351,10 @@ export class Toolbar extends UIElement {
     const new_actions = this.tools.filter(t => isa(t, ActionTool)) as ToolLike<ActionTool>[]
     this.actions = new_actions
 
-    const check_event_type = (et: EventType, tool: ToolLike<Tool>) => {
-      if (!(et in this.gestures)) {
-        logger.warn(`Toolbar: unknown event type '${et}' for tool: ${tool}`)
-      }
-    }
-
     const new_gestures = create_gesture_map()
     for (const tool of this.tools) {
       if (isa(tool, GestureTool)) {
-        if (isString(tool.event_type)) {
-          new_gestures[tool.event_type].tools.push(tool)
-          check_event_type(tool.event_type, tool)
-        } else {
-          new_gestures.multi.tools.push(tool)
-          for (const et of tool.event_type) {
-            check_event_type(et, tool)
-          }
-        }
+        new_gestures[tool.event_role].tools.push(tool)
       }
     }
     for (const et of Object.keys(new_gestures) as GestureType[]) {
@@ -441,8 +427,8 @@ export class Toolbar extends UIElement {
       return et == "tap" || et == "pan"
     }
 
-    for (const [event_type, gesture] of entries(this.gestures)) {
-      const et = event_type as EventType | "multi"
+    for (const [event_role, gesture] of entries(this.gestures)) {
+      const et = event_role as EventRole
       const active_attr = _get_active_attr(et)
       if (active_attr) {
         const active_tool = this[active_attr]
@@ -468,8 +454,7 @@ export class Toolbar extends UIElement {
   }
 
   _active_change(tool: ToolLike<GestureTool>): void {
-    const {event_type} = tool
-    const event_types = isString(event_type) ? [event_type] : event_type
+    const {event_types} = tool
 
     for (const et of event_types) {
       if (tool.active) {

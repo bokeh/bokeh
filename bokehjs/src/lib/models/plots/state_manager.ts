@@ -6,33 +6,43 @@ import type {DataRenderer} from "../renderers/data_renderer"
 
 export type StateInfo = {
   range?: RangeInfo
-  selection: Map<DataRenderer, Selection>
-  dimensions: {
-    width: number
-    height: number
-  }
+  selection?: Map<DataRenderer, Selection>
 }
+
+type SelectionChange = "box_select" | "poly_select" | "lasso_select" | "tap"
+type RangeChange = "pan" | "wheel_pan" | "box_zoom" | "zoom_in" | "zoom_out" | "wheel_zoom"
+
+export type StateType = SelectionChange | RangeChange
+
+type StateEntry = {type: StateType, state: StateInfo}
 
 export class StateManager {
   constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {}
 
   readonly changed: Signal0<this["parent"]> = new Signal0(this.parent, "state_changed")
 
-  protected history: {type: string, state: StateInfo}[] = []
+  protected history: StateEntry[] = []
   protected index: number = -1
 
   protected _do_state_change(index: number): StateInfo {
     const state = index in this.history ? this.history[index].state : this.initial_state
 
-    if (state.range != null)
+    if (state.range != null) {
       this.parent.update_range(state.range)
+    }
 
-    this.parent.update_selection(state.selection)
+    if (state.selection != null) {
+      this.parent.update_selection(state.selection)
+    }
 
     return state
   }
 
-  push(type: string, new_state: Partial<StateInfo>): void {
+  peek(): StateEntry | null {
+    return this.can_undo ? this.history[this.index] : null
+  }
+
+  push(type: StateType, new_state: StateInfo): void {
     const {history, index} = this
 
     const prev_state = index in history ? history[index].state : {}

@@ -6,7 +6,6 @@ import {offset_bbox, Keys} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
-import {isString} from "./util/types"
 import {is_mobile} from "./util/platform"
 import {PlotView} from "../models/plots/plot"
 import {ToolView} from "../models/tools/tool"
@@ -90,7 +89,7 @@ export type KeyEvent = {
   key: Keys
 }
 
-export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "press" | "pressup" | "scroll"
+export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
 
 export type UISignal<E> = Signal<{id: string | null, e: E}, UIEventBus>
 
@@ -124,7 +123,7 @@ export class UIEventBus implements EventListenerObject {
   private readonly hammer = new Hammer(this.hit_area, {
     cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
     touchAction: "auto",
-    inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
+    inputClass: !is_mobile ? Hammer.PointerEventInput : Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
   })
 
   get hit_area(): HTMLElement {
@@ -192,15 +191,10 @@ export class UIEventBus implements EventListenerObject {
   }
 
   register_tool(tool_view: ToolView): void {
-    const et = tool_view.model.event_type
-
-    if (et != null) {
-      if (isString(et))
-        this._register_tool(tool_view, et)
-      else {
-        // Multi-tools should only registered shared events once
-        et.forEach((e, index) => this._register_tool(tool_view, e, index < 1))
-      }
+    let first = true
+    for (const et of tool_view.model.event_types) {
+      this._register_tool(tool_view, et, first)
+      first = false
     }
   }
 
@@ -243,11 +237,17 @@ export class UIEventBus implements EventListenerObject {
       }
       case "tap": {
         if (v._tap != null)          v.connect(this.tap,          conditionally(v._tap.bind(v)))
+        // XXX: ultimately this shouldn't fall-throught, but breaking here would fail elsewhere
+      }
+      case "doubletap": {
         if (v._doubletap != null)    v.connect(this.doubletap,    conditionally(v._doubletap.bind(v)))
         break
       }
       case "press": {
         if (v._press != null)        v.connect(this.press,        conditionally(v._press.bind(v)))
+        break
+      }
+      case "pressup": {
         if (v._pressup != null)      v.connect(this.pressup,      conditionally(v._pressup.bind(v)))
         break
       }
@@ -255,8 +255,6 @@ export class UIEventBus implements EventListenerObject {
         if (v._scroll != null)       v.connect(this.scroll,       conditionally(v._scroll.bind(v)))
         break
       }
-      default:
-        throw new Error(`unsupported event_type: ${et}`)
     }
 
     // Skip shared events if registering multi-tool

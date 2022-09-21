@@ -4,6 +4,7 @@ import {Class} from "core/class"
 import {Dimensions, ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
 import {MenuItem} from "core/util/menus"
+import {isString} from "core/util/types"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
@@ -63,6 +64,8 @@ export type ToolAliases = {
   reset:        ResetTool
   help:         HelpTool
 }
+
+export type EventRole = EventType | "multi"
 
 export abstract class ToolView extends View {
   override model: Tool
@@ -150,7 +153,19 @@ export abstract class Tool extends Model {
   readonly tool_name: string
   readonly tool_icon?: string
 
-  /*abstract*/ readonly event_type?: EventType | EventType[]
+  // GestureTool {{{
+  readonly event_type?: EventType | EventType[]
+
+  get event_role(): EventRole {
+    const {event_type} = this
+    return isString(event_type) ? event_type : "multi"
+  }
+
+  get event_types(): EventType[] {
+    const {event_type} = this
+    return event_type == null ? [] : (isString(event_type) ? [event_type] : event_type)
+  }
+  // }}}
 
   get computed_overlays(): Renderer[] {
     return []
