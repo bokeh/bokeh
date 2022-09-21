@@ -1,8 +1,9 @@
 import {display, fig} from "./_util"
 import {PlotActions, xy} from "./_interactive"
 
-import {PanTool, SaveTool} from "@bokehjs/models"
+import {PanTool, SaveTool, CrosshairTool, Span, GridBox} from "@bokehjs/models"
 import {paint} from "@bokehjs/core/util/defer"
+import {assert} from "@bokehjs/core/util/assert"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -82,6 +83,40 @@ describe("Feature", () => {
       await actions.pan(xy(1, 1), xy(4, 4))
       await actions.pan(xy(2, 2), xy(3, 3))
       await actions.double_tap(xy(2.5, 2.5))
+    })
+  })
+
+  describe("in issue #3799", () => {
+    it("should allow to linked crosshairs", async () => {
+      const width = new Span({dimension: "width", line_dash: "dashed"})
+      const height = new Span({dimension: "height", line_dash: "dotted"})
+
+      const tool0 = new CrosshairTool({spans: {width, height}})
+      const tool1 = new CrosshairTool({spans: {width, height}})
+
+      const p0 = fig([200, 400], {tools: [tool0], toolbar_location: "above"})
+      p0.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
+
+      const p1 = fig([400, 200], {tools: [tool1], toolbar_location: "right"})
+      p1.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
+
+      const grid = new GridBox({
+        children: [
+          [p0, 0, 0],
+          [p1, 1, 1],
+        ],
+        cols: "min",
+        rows: "min",
+      })
+
+      const {view} = await display(grid)
+      await paint()
+
+      const pv0 = view.owner.find_one(p0)
+      assert(pv0 != null, "view not found")
+
+      const actions = new PlotActions(pv0)
+      await actions.hover(xy(1, 1), xy(4, 4))
     })
   })
 })
