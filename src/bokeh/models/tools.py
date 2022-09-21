@@ -712,7 +712,12 @@ class CrosshairTool(InspectTool):
     spans = Struct(width=Instance(Span), height=Instance(Span), default=dict(
         width=Span(dimension="width", location_units="canvas"),
         height=Span(dimension="height", location_units="canvas"),
-    ))
+    ), help="""
+    An annotation drawn to indicate the crosshair.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
 
     line_color = Color(default="black", help="""
     A color to use to stroke paths with.
