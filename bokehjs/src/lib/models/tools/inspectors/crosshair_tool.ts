@@ -57,10 +57,10 @@ export namespace CrosshairTool {
 
   export type Props = InspectTool.Props & {
     dimensions: p.Property<Dimensions>
-    spans: p.Property<{width: Span, height: Span}>
     line_color: p.Property<Color>
     line_width: p.Property<number>
     line_alpha: p.Property<number>
+    spans: p.Property<{width: Span, height: Span}>
   }
 }
 
@@ -79,6 +79,9 @@ export class CrosshairTool extends InspectTool {
 
     this.define<CrosshairTool.Props>(({Alpha, Number, Color, Struct, Ref}) => ({
       dimensions: [ Dimensions, "both" ],
+      line_color: [ Color, "black" ],
+      line_width: [ Number, 1 ],
+      line_alpha: [ Alpha, 1 ],
       spans: [
         Struct({width: Ref(Span), height: Ref(Span)}),
         (self) => ({
@@ -86,9 +89,6 @@ export class CrosshairTool extends InspectTool {
           height: span(self as CrosshairTool, "height"),
         }),
       ],
-      line_color: [ Color, "black" ],
-      line_width: [ Number, 1 ],
-      line_alpha: [ Alpha, 1 ],
     }))
 
     function span(self: CrosshairTool, dimension: Dimension) {
