@@ -33,24 +33,20 @@ source = ColumnDataSource(df)
 p = figure(width=900, height=500, title="Periodic table (omitting LA and AC series)",
            x_range=groups, y_range=list(reversed(periods)), toolbar_location=None, tools="hover")
 
-p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend_field="metal",
+r = p.rect("group", "period", 0.95, 0.95, source=source, fill_alpha=0.6, legend_field="metal",
        color=factor_cmap('metal', palette=list(cmap.values()), factors=list(cmap.keys())))
 
 text_props = {"source": source, "text_align": "left", "text_baseline": "middle"}
 
 x = dodge("group", -0.4, range=p.x_range)
 
-r = p.text(x=x, y="period", text="symbol", **text_props)
-r.glyph.text_font_style="bold"
+p.text(x=x, y="period", text="symbol", text_font_style="bold", **text_props)
 
-r = p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number", **text_props)
-r.glyph.text_font_size="11px"
+p.text(x=x, y=dodge("period", 0.3, range=p.y_range), text="atomic number", text_font_size="11px", **text_props)
 
-r = p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name", **text_props)
-r.glyph.text_font_size="7px"
+p.text(x=x, y=dodge("period", -0.35, range=p.y_range), text="name", text_font_size="7px", **text_props)
 
-r = p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", **text_props)
-r.glyph.text_font_size="7px"
+p.text(x=x, y=dodge("period", -0.2, range=p.y_range), text="atomic mass", text_font_size="7px", **text_props)
 
 p.text(x=["3", "3"], y=["VI", "VII"], text=["LA", "AC"], text_align="center", text_baseline="middle")
 
@@ -70,5 +66,6 @@ p.axis.major_tick_line_color = None
 p.axis.major_label_standoff = 0
 p.legend.orientation = "horizontal"
 p.legend.location ="top_center"
+p.hover.renderers = [r] # hover only element boxes
 
 show(p)
