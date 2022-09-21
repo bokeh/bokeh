@@ -9418,6 +9418,71 @@ CrosshairTool:
   description: null
   toggleable: true
   dimensions: both
+  spans:
+    type: map
+    entries:
+    - !!python/tuple
+      - width
+      - type: object
+        name: Span
+        attributes:
+          name: null
+          tags: []
+          js_event_callbacks:
+            type: map
+            entries: []
+          subscribed_events: []
+          js_property_callbacks:
+            type: map
+            entries: []
+          syncable: true
+          level: annotation
+          visible: true
+          coordinates: null
+          x_range_name: default
+          y_range_name: default
+          group: null
+          location: null
+          location_units: canvas
+          dimension: width
+          line_color: black
+          line_alpha: 1.0
+          line_width: 1
+          line_join: bevel
+          line_cap: butt
+          line_dash: []
+          line_dash_offset: 0
+    - !!python/tuple
+      - height
+      - type: object
+        name: Span
+        attributes:
+          name: null
+          tags: []
+          js_event_callbacks:
+            type: map
+            entries: []
+          subscribed_events: []
+          js_property_callbacks:
+            type: map
+            entries: []
+          syncable: true
+          level: annotation
+          visible: true
+          coordinates: null
+          x_range_name: default
+          y_range_name: default
+          group: null
+          location: null
+          location_units: canvas
+          dimension: height
+          line_color: black
+          line_alpha: 1.0
+          line_width: 1
+          line_join: bevel
+          line_cap: butt
+          line_dash: []
+          line_dash_offset: 0
   line_color: black
   line_alpha: 1.0
   line_width: 1
