@@ -6,9 +6,8 @@ import {Model} from "../../model"
 import {Tool, EventRole} from "./tool"
 import {ToolButtonView} from "./tool_button"
 import {InspectTool} from "./inspectors/inspect_tool"
-import {Renderer} from "../renderers/renderer"
 import {MenuItem} from "core/util/menus"
-import {enumerate, flat_map, some} from "core/util/iterator"
+import {enumerate, some} from "core/util/iterator"
 
 export type ToolLike<T extends Tool> = T | ToolProxy<T>
 
@@ -82,10 +81,6 @@ export class ToolProxy<T extends Tool> extends Model {
   get toggleable(): boolean {
     const tool = this.tools[0]
     return tool instanceof InspectTool && tool.toggleable
-  }
-
-  get computed_overlays(): Renderer[] {
-    return [...flat_map(this.tools, (tool) => tool.computed_overlays)]
   }
 
   override initialize(): void {

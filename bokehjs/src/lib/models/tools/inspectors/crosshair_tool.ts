@@ -11,6 +11,10 @@ import {tool_icon_crosshair} from "styles/icons.css"
 export class CrosshairToolView extends InspectToolView {
   override model: CrosshairTool
 
+  override get overlays(): Renderer[] {
+    return [...super.overlays, ...values(this.model.spans)]
+  }
+
   override _move(ev: MoveEvent): void {
     if (!this.model.active)
       return
@@ -110,9 +114,5 @@ export class CrosshairTool extends InspectTool {
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
-  }
-
-  override get computed_overlays(): Renderer[] {
-    return values(this.spans)
   }
 }

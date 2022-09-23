@@ -10,6 +10,10 @@ import {tool_icon_lasso_select} from "styles/icons.css"
 export class LassoSelectToolView extends SelectToolView {
   override model: LassoSelectTool
 
+  override get overlays() {
+    return [...super.overlays, this.model.overlay]
+  }
+
   protected sxs: number[] = []
   protected sys: number[] = []
 
@@ -85,8 +89,6 @@ export class LassoSelectTool extends SelectTool {
   override properties: LassoSelectTool.Props
   override __view_type__: LassoSelectToolView
 
-  override overlay: PolyAnnotation
-
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
   }
@@ -106,8 +108,4 @@ export class LassoSelectTool extends SelectTool {
   override tool_icon = tool_icon_lasso_select
   override event_type = "pan" as "pan"
   override default_order = 12
-
-  override get computed_overlays() {
-    return [...super.computed_overlays, this.overlay]
-  }
 }

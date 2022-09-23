@@ -622,8 +622,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (this._toolbar != null)
       yield this._toolbar
 
-    for (const tool of this.model.toolbar.tools) {
-      yield* tool.computed_overlays
+    for (const [, view] of this.tool_views) {
+      yield* view.overlays
     }
   }
 

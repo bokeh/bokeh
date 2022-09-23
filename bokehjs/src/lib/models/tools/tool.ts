@@ -8,7 +8,6 @@ import {isString} from "core/util/types"
 import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Annotation} from "../annotations/annotation"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 
 import type {PanTool} from "./gestures/pan_tool"
@@ -80,6 +79,10 @@ export abstract class ToolView extends View {
     })
   }
 
+  get overlays(): Renderer[] {
+    return []
+  }
+
   // activate is triggered by toolbar ui actions
   activate(): void {}
 
@@ -124,9 +127,7 @@ export namespace Tool {
   }
 }
 
-export interface Tool extends Tool.Attrs {
-  overlay?: Annotation
-}
+export interface Tool extends Tool.Attrs {}
 
 export abstract class Tool extends Model {
   override properties: Tool.Props
@@ -166,10 +167,6 @@ export abstract class Tool extends Model {
     return event_type == null ? [] : (isString(event_type) ? [event_type] : event_type)
   }
   // }}}
-
-  get computed_overlays(): Renderer[] {
-    return []
-  }
 
   button_view: Class<ToolButtonView>
 

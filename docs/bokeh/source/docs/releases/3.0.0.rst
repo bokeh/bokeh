@@ -327,3 +327,9 @@ of ``None`` / ``null``.
 ..............................................
 
 See bokeh's API changes for details.
+
+``Tool.computed_overlays``
+..........................
+
+``Tool.computed_overlays`` was moved to ``ToolView.overlays``, to allow tool views
+to provide additional overlays.
