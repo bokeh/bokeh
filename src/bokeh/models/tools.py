@@ -80,7 +80,6 @@ from ..core.properties import (
     Required,
     Seq,
     String,
-    Struct,
     Tuple,
 )
 from ..core.validation import error
@@ -702,21 +701,33 @@ class CrosshairTool(InspectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    overlay = Either(
+        Auto,
+        Instance(Span),
+        Tuple(Instance(Span), Instance(Span)), default="auto", help="""
+    An annotation drawn to indicate the crosshair.
+
+    If ``"auto"``, this will create spans depending on the ``dimensions``
+    property, which based on its value, will result in either one span
+    (horizontal or vertical) or two spans (horizontal and vertical).
+
+    Alternatively the user can provide one ``Span`` instance, where the
+    dimension is indicated by the ``dimension`` property of the ``Span``.
+    Also two ``Span`` instances can be provided. Providing explicit
+    ``Span`` instances allows for constructing linked crosshair, when
+    those instances are shared between crosshair tools of different plots.
+
+    .. note::
+        This property is experimental and may change at any point. In
+        particular in future this will allow using other annotations
+        than ``Span`` and annotation groups.
+    """)
+
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the crosshair tool is to track. By default, both vertical
     and horizontal lines will be drawn. If only "width" is supplied, only a
     horizontal line will be drawn. If only "height" is supplied, only a
     vertical line will be drawn.
-    """)
-
-    spans = Struct(width=Instance(Span), height=Instance(Span), default=dict(
-        width=Span(dimension="width", location_units="canvas"),
-        height=Span(dimension="height", location_units="canvas"),
-    ), help="""
-    An annotation drawn to indicate the crosshair.
-
-    .. note::
-        This property is experimental and may change at any point.
     """)
 
     line_color = Color(default="black", help="""

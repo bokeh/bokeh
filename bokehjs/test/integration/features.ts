@@ -91,8 +91,8 @@ describe("Feature", () => {
       const width = new Span({dimension: "width", line_dash: "dashed"})
       const height = new Span({dimension: "height", line_dash: "dotted"})
 
-      const tool0 = new CrosshairTool({spans: {width, height}})
-      const tool1 = new CrosshairTool({spans: {width, height}})
+      const tool0 = new CrosshairTool({overlay: [width, height]})
+      const tool1 = new CrosshairTool({overlay: [width, height]})
 
       const p0 = fig([200, 400], {tools: [tool0], toolbar_location: "above"})
       p0.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
