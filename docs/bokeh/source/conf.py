@@ -31,6 +31,7 @@ bokeh_example_subdirs = [
     "models",
     "plotting",
     "styling",
+    "tools",
     "webgl",
 ]
 bokeh_sampledata_xref_skiplist = [
