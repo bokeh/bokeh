@@ -1,16 +1,8 @@
 import {Tool, ToolView} from "../tool"
-import {ToolButtonView} from "../tool_button"
+import {ClickButton} from "../click_button"
 import {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
 import * as p from "core/properties"
-
-export class ActionToolButtonView extends ToolButtonView {
-  override model: ActionTool
-
-  protected _clicked(): void {
-    this.model.do.emit(undefined)
-  }
-}
 
 export abstract class ActionToolView extends ToolView {
   override model: ActionTool
@@ -26,7 +18,6 @@ export abstract class ActionToolView extends ToolView {
 
 export namespace ActionTool {
   export type Attrs = p.AttrsOf<Props>
-
   export type Props = Tool.Props
 }
 
@@ -40,7 +31,9 @@ export abstract class ActionTool extends Tool {
     super(attrs)
   }
 
-  override button_view = ActionToolButtonView
-
   do = new Signal<string | undefined, this>(this, "do")
+
+  override tool_button(): ClickButton {
+    return new ClickButton({tool: this})
+  }
 }

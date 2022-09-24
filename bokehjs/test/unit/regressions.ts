@@ -426,7 +426,7 @@ describe("Bug", () => {
       const grid = gridplot(plots, {merge_tools: true})
       const {view} = await display(grid)
 
-      const el = view.toolbar_view.shadow_el.querySelector(".bk-tool-button")
+      const el = view.toolbar_view.shadow_el.querySelector(".bk-ClickButton") // TODO: don't depend on CSS selectors
       assert(el != null)
 
       const spy = sinon.spy(CopyToolView.prototype, "copy")

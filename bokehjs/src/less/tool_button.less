@@ -10,7 +10,7 @@
   --active-tool-border: var(--button-border) solid transparent;
 }
 
-.bk-tool-button {
+:host {
   position: relative;
 
   width: var(--button-width);
@@ -41,6 +41,13 @@
   background-repeat: no-repeat;
 }
 
+:host(.bk-disabled) {
+  .bk-tool-icon {
+    background-color: var(--bokeh-icon-color-disabled);
+    cursor: not-allowed;
+  }
+}
+
 .bk-tool-chevron {
   position: absolute;
   visibility: hidden;
@@ -56,105 +63,79 @@
   -webkit-mask-repeat: no-repeat;
 }
 
-.bk-tool-button:hover .bk-tool-chevron {
+:host(:hover) .bk-tool-chevron {
   visibility: visible;
 }
 
 :host(.bk-above) .bk-tool-chevron {
   right: 0;
   bottom: 0;
+  .tool-icon-mask(var(--bokeh-icon-chevron-down));
 }
 
 :host(.bk-below) .bk-tool-chevron {
   right: 0;
   top: 0;
+  .tool-icon-mask(var(--bokeh-icon-chevron-up));
 }
 
 :host(.bk-left) .bk-tool-chevron {
   right: 0;
   bottom: 0;
+  .tool-icon-mask(var(--bokeh-icon-chevron-right));
 }
 
 :host(.bk-right) .bk-tool-chevron {
   left: 0;
   bottom: 0;
+  .tool-icon-mask(var(--bokeh-icon-chevron-left));
 }
 
-.bk-tool-button, .bk-tool-overflow {
-  &:hover {
-    background-color: rgba(192, 192, 192, 0.15);
-  }
+:host(:hover) {
+  background-color: rgba(192, 192, 192, 0.15);
+}
 
-  &:focus, &:focus-visible {
-    outline: 1px dotted var(--active-tool-highlight);
-    outline-offset: -1px;
-  }
+:host(:focus), :host(:focus-visible) {
+  outline: 1px dotted var(--active-tool-highlight);
+  outline-offset: -1px;
+}
 
-  &::-moz-focus-inner {
-    border: 0;
-  }
+:host::-moz-focus-inner {
+  border: 0;
 }
 
 .tool-button-border(@side) {
   border-@{side}: var(--active-tool-border);
-  &.bk-active {
-    border-@{side}-color: var(--active-tool-highlight);
-  }
 }
 
-:host(.bk-above) .bk-tool-button {
+.tool-button-border-active(@side) {
+  border-@{side}-color: var(--active-tool-highlight);
+}
+
+:host(.bk-above) {
   .tool-button-border(bottom);
 }
+:host(.bk-above.bk-active) {
+  .tool-button-border-active(bottom);
+}
 
-:host(.bk-below) .bk-tool-button {
+:host(.bk-below) {
   .tool-button-border(top);
 }
+:host(.bk-below.bk-active) {
+  .tool-button-border-active(top);
+}
 
-:host(.bk-right) .bk-tool-button {
+:host(.bk-right) {
   .tool-button-border(left);
 }
+:host(.bk-right.bk-active) {
+  .tool-button-border-active(left);
+}
 
-:host(.bk-left) .bk-tool-button {
+:host(.bk-left) {
   .tool-button-border(right);
 }
-
-.bk-divider {
-  content: " ";
-  display: inline-block;
-  background-color: var(--button-color);
-}
-
-:host(.bk-above), :host(.bk-below) {
-  .bk-divider {
-    height: 10px;
-    width: 1px;
-  }
-}
-
-:host(.bk-left), :host(.bk-right) {
-  .bk-divider {
-    height: 1px;
-    width: 10px;
-  }
-}
-
-.bk-tool-overflow {
-  color: gray;
-  display: flex;
-  align-items: center;
-}
-
-:host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
-  .bk-tool-overflow {
-    width: calc(var(--button-width)/2);
-    height: var(--button-height);
-    flex-direction: row;
-  }
-}
-:host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
-  .bk-tool-overflow {
-    width: var(--button-width);
-    height: calc(var(--button-height)/2);
-    flex-direction: column;
-  }
+:host(.bk-left.bk-active) {
+  .tool-button-border-active(right);
 }

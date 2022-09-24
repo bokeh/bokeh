@@ -16,7 +16,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  PanTool, LassoSelectTool, HoverTool, ZoomInTool,
+  Toolbar, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -52,7 +52,6 @@ import {div, offset_bbox} from "@bokehjs/core/dom"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
-import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -1881,25 +1880,25 @@ describe("Bug", () => {
 
   describe("in issue #11946", () => {
     it("doesn't allow to persist menus after a re-render", async () => {
-      const p = fig([200, 100], {toolbar_location: "right", tools: [new PanTool()]})
-      p.circle([1, 2, 3], [1, 2, 3])
-      const {view} = await display(p)
+      const pan = new PanTool()
+      const pan_button = pan.tool_button()
+      const toolbar = new Toolbar({buttons: [pan_button], tools: [pan]})
 
+      const p = fig([200, 100], {toolbar_location: "right", toolbar})
+      p.circle([1, 2, 3], [1, 2, 3])
+
+      const {view} = await display(p)
       view.invalidate_render()
 
-      const tbpv = [...view.renderer_views.values()].find((view): view is ToolbarPanelView => view instanceof ToolbarPanelView)
-      assert(tbpv != null)
-
-      const [pan_button_view] = tbpv.toolbar_view.tool_button_views.values()
-      const pan_el = pan_button_view.el
+      const pan_button_view = view.owner.get_one(pan_button)
 
       const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
       const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
 
       // tool button press
-      pan_el.dispatchEvent(ev0)
+      pan_button_view.el.dispatchEvent(ev0)
       await delay(300)
-      pan_el.dispatchEvent(ev1)
+      pan_button_view.el.dispatchEvent(ev1)
     })
   })
 
@@ -2143,9 +2142,7 @@ describe("Bug", () => {
       })
 
       const {view} = await display(layout, [300, 100])
-
-      const button_view = view.owner.find_one(button)
-      assert(button_view != null)
+      const button_view = view.owner.get_one(button)
 
       const ev = new MouseEvent("click", {bubbles: true})
       button_view.button_el.dispatchEvent(ev)
@@ -2187,9 +2184,7 @@ describe("Bug", () => {
       })
 
       const {view} = await display(tabs, [350, 650])
-
-      const button_view = view.owner.find_one(button)
-      assert(button_view != null)
+      const button_view = view.owner.get_one(button)
 
       for (const _ of range(0, 5)) {
         const ev = new MouseEvent("click", {bubbles: true})
@@ -2314,10 +2309,9 @@ describe("Bug", () => {
 
     it("doesn't correctly display layout when visiblity changes", async () => {
       const {layout, button} = make()
-      const {view} = await display(layout, [550, 350])
 
-      const button_view = view.owner.find_one(button)
-      assert(button_view != null)
+      const {view} = await display(layout, [550, 350])
+      const button_view = view.owner.get_one(button)
 
       const ev = new MouseEvent("click", {bubbles: true})
       button_view.button_el.dispatchEvent(ev)

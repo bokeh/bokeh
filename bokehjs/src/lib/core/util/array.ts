@@ -224,6 +224,24 @@ export function clear(array: unknown[]): void {
   array.splice(0, array.length)
 }
 
+export function split<T, S, R extends Exclude<T, S>>(array: (T | S)[], separator: S): R[][] {
+  const chunks: R[][] = []
+  const n = array.length
+  let i = 0
+  let j = 0
+
+  while (j < n) {
+    if (array[j] === separator) {
+      chunks.push(array.slice(i, j) as R[])
+      i = ++j
+    } else
+      ++j
+  }
+
+  chunks.push(array.slice(i) as R[])
+  return chunks
+}
+
 // Shuffle a collection, using the modern version of the
 // [Fisher-Yates shuffle](http://en.wikipedia.org/wiki/Fisher–Yates_shuffle).
 export function shuffle<T>(array: T[]): T[] {
