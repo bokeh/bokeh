@@ -57,8 +57,10 @@ log = logging.getLogger(__name__)
 import importlib
 import json
 import warnings
+from os import getenv
 
 # External imports
+from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
@@ -101,12 +103,16 @@ class BokehModelDirective(BokehDirective):
     }
 
     def run(self):
+
         sig = " ".join(self.arguments)
 
         m = py_sig_re.match(sig)
         if m is None:
             raise SphinxError(f"Unable to parse signature for bokeh-model: {sig!r}")
         name_prefix, model_name, arglist, retann = m.groups()
+
+        if getenv("BOKEH_SPHINX_QUICK") == "1":
+            return self.parse(f"{model_name}\n{'-'*len(model_name)}\n", "<bokeh-model>")
 
         module_name = self.options["module"]
 
@@ -131,9 +137,12 @@ class BokehModelDirective(BokehDirective):
 
         model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(",", ": "))
 
+        # we only want to document things as coming from top-level `bokeh.models`
+        adjusted_module_name = module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name
+
         rst_text = MODEL_DETAIL.render(
             name=model_name,
-            module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name,
+            module_name=adjusted_module_name,
             model_json=model_json,
         )
 

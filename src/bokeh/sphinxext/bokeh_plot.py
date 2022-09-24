@@ -158,6 +158,9 @@ class BokehPlotDirective(BokehDirective):
     }
 
     def run(self):
+        if getenv("BOKEH_SPHINX_QUICK") == "1":
+            return []
+
         source, path = self.process_args_or_content()
 
         dashed_docname = self.env.docname.replace("/", "-")
