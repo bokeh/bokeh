@@ -151,9 +151,9 @@
       "alt": "Thumbnail link to the examples/plotting/stocks.py example shows a scatter plot of stock close prices with a line showing average prices. Shaded grid bands are underneath."
     },
     {
-      "path": "examples/plotting/hatch_grid_band.py",
+      "path": "examples/styling/hatch_grid_band.py",
       "name": "hatch_grid_band",
-      "alt": "Thumbnail link to the examples/plotting/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+      "alt": "Thumbnail link to the examples/styling/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
     },
     {
       "path": "examples/plotting/image_rgba.py",
