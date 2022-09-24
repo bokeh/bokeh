@@ -7,14 +7,12 @@ Example Index
 =============
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
     :hidden:
     :glob:
 
-    examples/plotting
-    examples/models
+    examples/**
 
 Below you can find all standalone examples which are stored in the GitHub repository.
-To see a sublist see :ref:`example_index_models` or :ref:`example_index_plotting`.
 
 .. bokeh-example-index:: all

@@ -1,9 +1,9 @@
 {
   "details": [
     {
-      "path": "examples/plotting/marker_map.py",
-      "name": "marker_map",
-      "alt": "Thumbnail link to the examples/plotting/marker_map.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
+      "path": "examples/data/transforming_markers.py",
+      "name": "transforming_markers",
+      "alt": "Thumbnail link to the examples/data/transforming_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
     {
       "path": "examples/plotting/latex_blackbody_radiation.py",
@@ -41,14 +41,14 @@
       "alt": "Thumbnail link to the examples/plotting/hex_tile.py example shows a hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
     },
     {
-      "path": "examples/plotting/bar_colormapped.py",
+      "path": "examples/bars/colormapped.py",
       "name": "bar_colormapped",
-      "alt": "Thumbnail link to the examples/plotting/bar_colormapped.py example shows a simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette."
+      "alt": "Thumbnail link to the examples/bars/colormapped.py example shows a simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette."
     },
     {
-      "path": "examples/plotting/bar_intervals.py",
+      "path": "examples/bars/intervals.py",
       "name": "bar_intervals",
-      "alt": "Thumbnail link to the examples/plotting/bar_intervals.py example shows an interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for earch year on the y-axis."
+      "alt": "Thumbnail link to the examples/bars/intervals.py example shows an interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for earch year on the y-axis."
     },
     {
       "path": "examples/plotting/range_tool.py",
@@ -61,14 +61,14 @@
       "alt": "Thumbnail link to the examples/plotting/pie.py example shows a pie chart of random data with a legend."
     },
     {
-      "path": "examples/plotting/bar_mixed.py",
+      "path": "examples/bars/mixed.py",
       "name": "bar_mixed",
-      "alt": "Thumbnail link to the examples/plotting/bar_mixed.py example shows a bar chart of synthetic monthly sales data, grouped by quarter. A line showing each quarterly average is overlaid."
+      "alt": "Thumbnail link to the examples/bars/mixed.py example shows a bar chart of synthetic monthly sales data, grouped by quarter. A line showing each quarterly average is overlaid."
     },
     {
-      "path": "examples/plotting/bar_nested_colormapped.py",
+      "path": "examples/bars/nested_colormapped.py",
       "name": "bar_nested_colormapped",
-      "alt": "Thumbnail link to the examples/plotting/bar_nested_colormapped.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has a silver, blue, and red bar corresponding to random values for years 2015, 2016 and 2017."
+      "alt": "Thumbnail link to the examples/bars/nested_colormapped.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has a silver, blue, and red bar corresponding to random values for years 2015, 2016 and 2017."
     },
     {
       "path": "examples/plotting/categorical_heatmap.py",
@@ -81,24 +81,24 @@
       "alt": "Thumbnail link to the examples/plotting/schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."
     },
     {
-      "path": "examples/plotting/bar_pandas_groupby_colormapped.py",
+      "path": "examples/bars/pandas_groupby_colormapped.py",
       "name": "bar_pandas_groupby_colormapped",
-      "alt": "Thumbnail link to the examples/plotting/bar_pandas_groupby_colormapped.py example shows a bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
+      "alt": "Thumbnail link to the examples/bars/pandas_groupby_colormapped.py example shows a bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
     },
     {
-      "path": "examples/plotting/bar_pandas_groupby_nested.py",
+      "path": "examples/bars/pandas_groupby_nested.py",
       "name": "bar_pandas_groupby_nested",
-      "alt": "Thumbnail link to the examples/plotting/bar_pandas_groupby_nested.py example shows a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
+      "alt": "Thumbnail link to the examples/bars/pandas_groupby_nested.py example shows a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
     },
     {
-      "path": "examples/plotting/bar_stacked.py",
+      "path": "examples/bars/stacked.py",
       "name": "bar_stacked",
-      "alt": "Thumbnail link to the examples/plotting/bar_stacked.py example shows a stacked bar chart for random data for six categories of fruit. Each row in the stack corresponds to a different year."
+      "alt": "Thumbnail link to the examples/bars/stacked.py example shows a stacked bar chart for random data for six categories of fruit. Each row in the stack corresponds to a different year."
     },
     {
-      "path": "examples/plotting/bar_stacked_split.py",
+      "path": "examples/bars/stacked_split.py",
       "name": "bar_stacked_split",
-      "alt": "Thumbnail link to the examples/plotting/bar_stacked_split.py example."
+      "alt": "Thumbnail link to the examples/bars/stacked_split.py example."
     },
     {
       "path": "examples/plotting/categorical_scatter_jitter.py",
@@ -106,9 +106,9 @@
       "alt": "Thumbnail link to the examples/plotting/categorical_scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
     },
     {
-      "path": "examples/plotting/bar_nested.py",
+      "path": "examples/bars/nested.py",
       "name": "bar_nested",
-      "alt": "Thumbnail link to the examples/plotting/bar_nested.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has three blue bars corresponding to random values for years 2015, 2016 and 2017."
+      "alt": "Thumbnail link to the examples/bars/nested.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has three blue bars corresponding to random values for years 2015, 2016 and 2017."
     },
     {
       "path": "examples/plotting/candlestick.py",
@@ -121,9 +121,9 @@
       "alt": "Thumbnail link to the examples/plotting/legend.py example shows a row of two plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
     },
     {
-      "path": "examples/plotting/bar_colors.py",
+      "path": "examples/bars/colors.py",
       "name": "bar_colors",
-      "alt": "Thumbnail link to the examples/plotting/bar_colors.py example shows a simple bar chart of six bars shaded according to the Bright6 palette."
+      "alt": "Thumbnail link to the examples/bars/colors.py example shows a simple bar chart of six bars shaded according to the Bright6 palette."
     },
     {
       "path": "examples/plotting/box_annotation.py",
@@ -136,9 +136,9 @@
       "alt": "Thumbnail link to the examples/plotting/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
     },
     {
-      "path": "examples/plotting/bar_dodged.py",
+      "path": "examples/bars/dodged.py",
       "name": "bar_dodged",
-      "alt": "Thumbnail link to the examples/plotting/bar_dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
+      "alt": "Thumbnail link to the examples/bars/dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
     },
     {
       "path": "examples/plotting/unemployment.py",
@@ -231,9 +231,9 @@
       "alt": "Thumbnail link to the examples/plotting/burtin.py example shows a reproduction of Burtin's hitorical antibiotics plot."
     },
     {
-      "path": "examples/plotting/bar_basic.py",
+      "path": "examples/bars/basic.py",
       "name": "bar_basic",
-      "alt": "Thumbnail link to the examples/plotting/bar_basic.py example shows a simple bar chart for counts for categories of fruits."
+      "alt": "Thumbnail link to the examples/bars/basic.py example shows a simple bar chart for counts for categories of fruits."
     },
     {
       "path": "examples/plotting/stacked_area.py",
@@ -261,19 +261,14 @@
       "alt": "Thumbnail link to the examples/plotting/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
     },
     {
-      "path": "examples/plotting/iris.py",
-      "name": "iris",
-      "alt": "Thumbnail link to the examples/plotting/iris.py example shows a scatter plot of the Iris data set (petal width vs petal length) colormapped by species."
-    },
-    {
       "path": "examples/plotting/bessel.py",
       "name": "bessel",
       "alt": "Thumbnail link to the examples/plotting/bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
-     },
-     {
+    },
+    {
       "path": "examples/plotting/contour.py",
       "name": "contour",
       "alt": "Thumbnail link to the examples/plotting/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
-     }
+    }
   ]
 }

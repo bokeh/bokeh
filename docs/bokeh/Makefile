@@ -16,8 +16,7 @@ all: html
 clean:
 	-rm -rf $(BUILDDIR)/*
 	-rm -rf source/docs/gallery/*
-	-rm -rf source/docs/examples/models/*
-	-rm -rf source/docs/examples/plotting/*
+	-rm -rf source/docs/examples/*
 
 html:
 	@start=$$(date +%s) \

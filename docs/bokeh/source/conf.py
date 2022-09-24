@@ -24,9 +24,12 @@ project = 'Bokeh'
 
 version = settings.docs_version() or __version__
 
-bokeh_example_dirs = [
-    'examples/plotting',
-    'examples/models',
+bokeh_example_subdirs = [
+    'bars',
+    'data',
+    'models',
+    'plotting',
+    'webgl',
 ]
 bokeh_sampledata_xref_skiplist = [
     'examples/plotting/custom_layout.py',
