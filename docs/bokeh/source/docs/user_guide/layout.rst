@@ -22,7 +22,7 @@ Column layout
 
 To display plots or widgets vertically, use the |column| function.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_vertical.py
+.. bokeh-plot:: __REPO__/examples/layout/vertical.py
     :source-position: above
 
 Row layout
@@ -30,7 +30,7 @@ Row layout
 
 To display plots or widgets horizontally, use the |row| function.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_horizontal.py
+.. bokeh-plot:: __REPO__/examples/layout/horizontal.py
     :source-position: above
 
 .. _userguide_layout_gridplot:
@@ -45,7 +45,7 @@ in the grid then has the same active tool.
 You can leave grid cells blank by passing ``None`` to them instead of
 a plot object.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_grid.py
+.. bokeh-plot:: __REPO__/examples/layout/grid.py
     :source-position: above
 
 For convenience, you can also just pass a list of plots and specify the
@@ -62,7 +62,7 @@ By default, |gridplot| merges all child plot tools into a single
 parent grid toolbar. To disable this behavior, set ``merge_tools``
 to ``False``.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_grid_convenient.py
+.. bokeh-plot:: __REPO__/examples/layout/grid_convenient.py
     :source-position: above
 
 General grid layout
@@ -144,7 +144,7 @@ Single object
 The example below lets you select a sizing mode from a dropdown and see how
 a single plot responds to different modes.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_sizing_mode.py
+.. bokeh-plot:: __REPO__/examples/layout/sizing_mode.py
     :source-position: none
 
 .. note::
@@ -157,7 +157,7 @@ Multiple objects
 
 Below is a more sophisticated but fairly typical example of a nested layout.
 
-.. bokeh-plot:: docs/user_guide/examples/layout_sizing_mode_multiple.py
+.. bokeh-plot:: __REPO__/examples/layout/sizing_mode_multiple.py
     :source-position: none
 
 Here the layout includes sub-components with different sizing modes as follows:
