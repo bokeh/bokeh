@@ -292,10 +292,10 @@ often have to study the source code of the base classes in
 
 .. toctree::
 
-    extensions_gallery/ticking
-    extensions_gallery/tool
-    extensions_gallery/wrapping
-    extensions_gallery/widget
+    extensions/ticking
+    extensions/tool
+    extensions/wrapping
+    extensions/widget
 
 :ref:`userguide_extensions_examples_ticking`
     Subclass a built-in Bokeh model for axis ticking to customize axis tick
