@@ -31,6 +31,7 @@ bokeh_example_subdirs = [
     "layout",
     "models",
     "plotting",
+    "specialized",
     "styling",
     "tools",
     "webgl",

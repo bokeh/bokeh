@@ -1,9 +1,9 @@
 {
   "details": [
     {
-      "path": "examples/data/transforming_markers.py",
-      "name": "transforming_markers",
-      "alt": "Thumbnail link to the examples/data/transforming_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
+      "path": "examples/data/transform_markers.py",
+      "name": "transform_markers",
+      "alt": "Thumbnail link to the examples/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
     {
       "path": "examples/plotting/latex_blackbody_radiation.py",
@@ -31,7 +31,7 @@
       "alt": "Thumbnail link to the examples/plotting/sprint.py example shows a scatter plot comparing historical Olympic sprint times to the 2012 record set by Usain Bolt. The x-axis marks time behind the record and the y-axis marks olympic years."
     },
     {
-      "path": "examples/plotting/ridgeplot.py",
+      "path": "examples/specialized/categorical_ridgeplot.py",
       "name": "ridgeplot",
       "alt": "Thumbnail link to the examples/plotting/ridgeplot.py example shows a ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis."
     },
@@ -51,9 +51,9 @@
       "alt": "Thumbnail link to the examples/bars/intervals.py example shows an interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for earch year on the y-axis."
     },
     {
-      "path": "examples/plotting/range_tool.py",
+      "path": "examples/tools/range_tool.py",
       "name": "range_tool",
-      "alt": "Thumbnail link to the examples/plotting/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
+      "alt": "Thumbnail link to the examples/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
     },
     {
       "path": "examples/plotting/pie.py",
@@ -96,9 +96,9 @@
       "alt": "Thumbnail link to the examples/bars/stacked_split.py example."
     },
     {
-      "path": "examples/plotting/categorical_scatter_jitter.py",
+      "path": "examples/specialized/categorical_scatter_jitter.py",
       "name": "categorical_scatter_jitter",
-      "alt": "Thumbnail link to the examples/plotting/categorical_scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
+      "alt": "Thumbnail link to the examples/specialized/categorical_scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
     },
     {
       "path": "examples/bars/nested.py",
@@ -126,9 +126,9 @@
       "alt": "Thumbnail link to the examples/plotting/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
     },
     {
-      "path": "examples/plotting/les_mis.py",
+      "path": "examples/specialized/categorical_les_mis.py",
       "name": "les_mis",
-      "alt": "Thumbnail link to the examples/plotting/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
+      "alt": "Thumbnail link to the examples/specialized/categorical_les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
     },
     {
       "path": "examples/bars/dodged.py",
@@ -136,9 +136,9 @@
       "alt": "Thumbnail link to the examples/bars/dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
     },
     {
-      "path": "examples/plotting/unemployment.py",
+      "path": "examples/specialized/categorical_heatmap_unemployment.py",
       "name": "unemployment",
-      "alt": "Thumbnail link to the examples/plotting/unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
+      "alt": "Thumbnail link to the examples/specialized/categorical_heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
     },
     {
       "path": "examples/plotting/stocks.py",
@@ -161,7 +161,7 @@
       "alt": "Thumbnail link to the examples/plotting/dotplot.py example shows a dot plot of synthetic data for eight categories."
     },
     {
-      "path": "examples/plotting/periodic.py",
+      "path": "examples/specialized/categorical_periodic.py",
       "name": "periodic",
       "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
     },
@@ -181,9 +181,9 @@
       "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
     },
     {
-      "path": "examples/plotting/jitter.py",
+      "path": "examples/data/transform_jitter.py",
       "name": "jitter",
-      "alt": "Thumbnail link to the examples/plotting/jitter.py example shows a column of two categorical scatter plots of random data. The top has no jitter applied, may scatter points overlap. The bottom has jitter applied to distinguish points better."
+      "alt": "Thumbnail link to the examples/data/transform_jitter.py example shows a column of two categorical scatter plots of random data. The top has no jitter applied, may scatter points overlap. The bottom has jitter applied to distinguish points better."
     },
     {
       "path": "examples/plotting/lorenz.py",
