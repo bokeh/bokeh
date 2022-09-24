@@ -17,7 +17,7 @@ the edges of a plot.
 If you use the |plotting interface|, the quickest way to add a basic title is to
 pass the text as the ``title`` parameter to |figure|:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_title_basic.py
+.. bokeh-plot:: __REPO__/examples/annotations/title_basic.py
     :source-position: above
 
 The default title is generally located above a plot, aligned to the left.
@@ -33,7 +33,7 @@ To define the placement of the title in relation to the plot, use the
 ``title_location`` parameter. A title can be located above, below, left, or
 right of a plot. For example:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_title_location.py
+.. bokeh-plot:: __REPO__/examples/annotations/title_location.py
     :source-position: above
 
 Use your plot's ``.title`` property to customize the default |Title|. Use the
@@ -43,7 +43,7 @@ background.
 This example uses the ``.title`` property to set the font and background
 properties as well as the title text and title alignment:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_title_visuals.py
+.. bokeh-plot:: __REPO__/examples/annotations/title_visuals.py
     :source-position: above
 
 Note that the ``align`` property is relative to the direction of the text. For
@@ -55,13 +55,13 @@ To add more titles to your document, you need to create additional |Title|
 objects. Use the |add layout| method of your plot to include those additional
 |Title| objects in your document:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_title_additional.py
+.. bokeh-plot:: __REPO__/examples/annotations/title_additional.py
     :source-position: above
 
 If a title and a :ref:`toolbar <userguide_tools>` are placed on the same side
 of a plot, they will occupy the same space:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_title_toolbar.py
+.. bokeh-plot:: __REPO__/examples/annotations/title_toolbar.py
     :source-position: above
 
 If the plot size is large enough, this can result in a more compact plot.
@@ -98,7 +98,7 @@ keyword argument:
 If you assign the same label name to multiple glyphs, all the glyphs will be
 combined into a single legend item with that label.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legend_label.py
+.. bokeh-plot:: __REPO__/examples/annotations/legend_label.py
     :source-position: above
 
 .. _userguide_annotations_legends_legend_group:
@@ -122,7 +122,7 @@ always provide a ``source`` argument to the glyph method as well. Additionally,
 the column containing the label names has to be present in the data source at
 that point:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legend_group.py
+.. bokeh-plot:: __REPO__/examples/annotations/legend_group.py
     :source-position: above
 
 Using ``legend_group`` means that Bokeh groups the legend entries immediately.
@@ -148,7 +148,7 @@ In this case, the Python code does *not* see multiple items in ``Legend.items``.
 Instead, there is only a single item that represents the grouping, and the
 grouping happens in the browser.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legend_field.py
+.. bokeh-plot:: __REPO__/examples/annotations/legend_field.py
     :source-position: above
 
 .. _userguide_annotations_legends_item_visibility:
@@ -160,7 +160,7 @@ To manually control the visibility of individual legend items, set the
 ``visible`` property of a :class:`~bokeh.models.annotations.LegendItem` to
 either ``True`` or ``False``.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legends_item_visibility.py
+.. bokeh-plot:: __REPO__/examples/annotations/legends_item_visibility.py
     :source-position: above
 
 .. note::
@@ -192,7 +192,7 @@ that are rendered in several parts, such as
 (:func:`~bokeh.plotting.figure.multi_line`) or
 :class:`~bokeh.models.glyphs.Patches` :func:`~bokeh.plotting.figure.patches`:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_legends_multi_index.py
+.. bokeh-plot:: __REPO__/examples/annotations/legends_multi_index.py
     :source-position: above
 
 Interactive legends
@@ -222,7 +222,7 @@ Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to
 the plot using the |add layout| method.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_color_bars.py
+.. bokeh-plot:: __REPO__/examples/annotations/color_bars.py
     :source-position: above
 
 .. _userguide_annotations_arrows:
@@ -242,7 +242,7 @@ one-sided arrow: The ``end`` property is set to an ``OpenHead``-type arrowhead
 
 The available arrowheads are:
 
-.. bokeh-plot:: docs/user_guide/examples/annotations_arrowheads.py
+.. bokeh-plot:: __REPO__/examples/annotations/arrowheads.py
     :source-position: none
 
 Control the appearance of an arrowhead with these properties:
@@ -265,7 +265,7 @@ Optionally, you can set the ``x_range`` and ``y_range`` properties to make an
 arrow annotation refer to additional non-default x- or y-ranges. This works the
 same as :ref:`userguide_plotting_twin_axes`.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_arrow.py
+.. bokeh-plot:: __REPO__/examples/annotations/arrow.py
     :source-position: above
 
 .. _userguide_annotations_bands:
@@ -279,7 +279,7 @@ related to a series of measurements.
 
 To define a band, use either |screen units| or |data units|.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_band.py
+.. bokeh-plot:: __REPO__/examples/annotations/band.py
     :source-position: above
 
 .. _userguide_annotations_box_annotations:
@@ -296,7 +296,7 @@ To define the bounds of these boxes, use the ``left``/``right`` or ``top``/
 value but no ``right`` value), the box will extend to the edge of the available
 plot area for the dimension you did not specify.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_box_annotation.py
+.. bokeh-plot:: __REPO__/examples/annotations/box_annotation.py
     :source-position: above
 
 .. _userguide_annotations_polygon_annotations:
@@ -311,7 +311,7 @@ To define the polygon's vertices, supply a series of coordinates to the
 ``xs`` and ``ys`` properties. Bokeh automatically connects the last vertex
 to the first to create a closed shape.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_polygon_annotation.py
+.. bokeh-plot:: __REPO__/examples/annotations/polygon_annotation.py
     :source-position: above
 
 .. _userguide_annotations_labels:
@@ -359,7 +359,7 @@ column name, this value is used for all labels of the label set.
 
 The following example illustrates the use of |Label| and |LabelSet|:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_label.py
+.. bokeh-plot:: __REPO__/examples/annotations/label.py
     :source-position: above
 
 The ``text`` values for ``LabelSet`` may value contain newline characters which
@@ -379,7 +379,7 @@ These are the most commonly used properties for this annotation:
 * ``y_intercept``: The y intercept of the line, in |data units|.
 * The standard |line properties|.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_slope.py
+.. bokeh-plot:: __REPO__/examples/annotations/slope.py
     :source-position: above
 
 .. _userguide_annotations_spans:
@@ -403,7 +403,7 @@ These are the most commonly used properties for this annotation:
   is to use |data units|.
 * The standard |line properties|.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_span.py
+.. bokeh-plot:: __REPO__/examples/annotations/span.py
     :source-position: above
 
 .. _userguide_annotations_whiskers:
@@ -429,7 +429,7 @@ These are the most commonly used properties for this annotation:
   ``dimension``.
 * The standard |line properties|.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_whisker.py
+.. bokeh-plot:: __REPO__/examples/annotations/whisker.py
     :source-position: above
 
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`

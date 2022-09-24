@@ -1,3 +1,13 @@
+''' A timeseries plot of glucose data readings. This example demonstrates
+adding box annotations as well as a multi-line title.
+
+.. bokeh-example-metadata::
+    :sampledata: glucose
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.annotations.BoxAnnotation
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_box_annotations`
+    :keywords: box annotation, time series
+
+'''
 from bokeh.models import BoxAnnotation
 from bokeh.plotting import figure, output_file, show
 from bokeh.sampledata.glucose import data

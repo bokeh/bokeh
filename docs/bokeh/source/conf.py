@@ -25,6 +25,7 @@ project = "Bokeh"
 version = settings.docs_version() or __version__
 
 bokeh_example_subdirs = [
+    "annotations",
     "bars",
     "data",
     "models",
