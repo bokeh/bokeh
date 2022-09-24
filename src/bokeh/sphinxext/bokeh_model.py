@@ -60,7 +60,6 @@ import warnings
 from os import getenv
 
 # External imports
-from docutils import nodes
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 

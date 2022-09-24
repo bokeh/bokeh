@@ -111,7 +111,7 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
-from .util import get_sphinx_resources, _REPO_TOP
+from .util import _REPO_TOP, get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants

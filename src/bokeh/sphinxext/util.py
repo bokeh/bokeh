@@ -15,7 +15,6 @@
 from __future__ import annotations
 
 # Standard library imports
-import os
 from pathlib import PurePath
 
 import logging  # isort:skip
