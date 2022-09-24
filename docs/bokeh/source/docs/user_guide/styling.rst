@@ -141,7 +141,7 @@ object's ``color`` attribute to your color mapper. Bokeh includes several types
 of mappers to encode colors:
 
 * |factor_cmap|: Maps colors to specific categorical elements.
-  See :ref:`userguide_categorical` for more detail.
+  See :ref:`userguide_bars` for more detail.
 * :func:`~bokeh.transform.linear_cmap`: Maps a range of numeric values across the
   available colors from high to low. For example, a range of `[0,99]` given the
   colors `['red', 'green', 'blue']` would be mapped as follows::

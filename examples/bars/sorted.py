@@ -4,7 +4,7 @@ rearranges the bars accordingly.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar
-    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_sorted`
+    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_sorted`
     :keywords: bars, categorical, sort
 
 '''

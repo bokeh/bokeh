@@ -6,7 +6,7 @@ to the prompt *What probability would you assign to the phrase "Highly likely"*.
 .. bokeh-example-metadata::
     :sampledata: perceptions
     :apis: bokeh.plotting.figure.patch, bokeh.models.sources.ColumnDataSource
-    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_offsets`
+    :refs: :ref:`userguide_specialized_categorical` > :ref:`userguide_specialized_categorical_offsets`
     :keywords: patch, alpha, categorical, palette, patch, ridgeline
 
 .. _ridgeline plot: https://www.data-to-viz.com/graph/ridgeline.html

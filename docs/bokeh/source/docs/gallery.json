@@ -71,11 +71,6 @@
       "alt": "Thumbnail link to the examples/bars/nested_colormapped.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has a silver, blue, and red bar corresponding to random values for years 2015, 2016 and 2017."
     },
     {
-      "path": "examples/plotting/categorical_heatmap.py",
-      "name": "categorical_heatmap",
-      "alt": "Thumbnail link to the examples/plotting/categorical_heatmap.py example shows a 3x3 categorical heatmap of random data."
-    },
-    {
       "path": "examples/plotting/schrodinger.py",
       "name": "schrodinger",
       "alt": "Thumbnail link to the examples/plotting/schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."

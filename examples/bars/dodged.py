@@ -3,7 +3,7 @@ a using a ``dodge`` transform to "group" the bars.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.dodge, bokeh.models.ColumnDataSource
-    :refs: :ref:`userguide_categorical` > :ref:`userguide_categorical_bars` > :ref:`userguide_categorical_bars_grouped` > :ref:`userguide_categorical_bars_grouped_dodged` # noqa: E501
+    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_grouped` > :ref:`userguide_bars_grouped_dodged` # noqa: E501
     :keywords: bars, categorical, dodged, grouped
 
 '''

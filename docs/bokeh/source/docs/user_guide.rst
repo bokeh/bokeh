@@ -11,7 +11,7 @@ User guide
     user_guide/plotting
     user_guide/data
     user_guide/layout
-    user_guide/categorical
+    user_guide/bars
     user_guide/graph
     user_guide/geo
     user_guide/tools
@@ -55,7 +55,7 @@ This user guide is arranged by topic:
 :ref:`userguide_layout`
     Combine multiple plots and widgets into specified layouts.
 
-:ref:`userguide_categorical`
+:ref:`userguide_bars`
     Handle categorical data with a variety of different techniques such
     as bar charts, categorical heatmaps, visual dodging, and jitter.
 

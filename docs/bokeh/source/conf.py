@@ -36,7 +36,7 @@ bokeh_example_subdirs = [
     "webgl",
 ]
 bokeh_sampledata_xref_skiplist = [
-    "examples/plotting/custom_layout.py",
+    "examples/layout/custom_layout.py",
     "examples/plotting/css_classes.py",
     "examples/models/donut.py",
     "examples/models/widgets.py",

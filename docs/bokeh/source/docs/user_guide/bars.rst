@@ -1,7 +1,7 @@
-.. _userguide_categorical:
+.. _userguide_bars:
 
-Handling categorical data
-=========================
+Bar charts
+==========
 
 In addition to plotting numerical data on continuous ranges, you can also use
 Bokeh to plot categorical data on categorical ranges.
@@ -30,9 +30,6 @@ Depending on the structure of your data, you can use different kinds of charts:
 bar charts, categorical heatmaps, jitter plots, and others. This chapter will
 present several kinds of common plot types for categorical data.
 
-
-.. _userguide_categorical_bars:
-
 Bars
 ----
 
@@ -48,7 +45,7 @@ Bar charts may also be stacked or grouped together according to hierarchical
 sub-categories. This section will demonstrate how to draw a variety of
 different categorical bar charts.
 
-.. _userguide_categorical_bars_basic:
+.. _userguide_bars_basic:
 
 Basic
 ~~~~~
@@ -99,7 +96,7 @@ and supply it as the ``source`` parameter to |vbar|
 instead of passing the data directly as parameters.
 You will see this in later examples.
 
-.. _userguide_categorical_bars_sorted:
+.. _userguide_bars_sorted:
 
 Sorting
 ~~~~~~~
@@ -113,12 +110,12 @@ based on counts and rearranges the bars accordingly.
 .. bokeh-plot:: __REPO__/examples/bars/sorted.py
     :source-position: above
 
-.. _userguide_categorical_bars_filled:
+.. _userguide_bars_filled:
 
 Filling
 ~~~~~~~
 
-.. _userguide_categorical_bars_filled_colors:
+.. _userguide_bars_filled_colors:
 
 Colors
 ''''''
@@ -152,7 +149,7 @@ You can color the bars in several ways:
   See :ref:`userguide_styling_using_mappers` for more information on using
   Bokeh’s color mappers.
 
-.. _userguide_categorical_bars_stacked:
+.. _userguide_bars_stacked:
 
 Stacking
 ~~~~~~~~
@@ -205,7 +202,7 @@ customize the tooltips for each layer.
         ], renderers=[r])
         p.add_tools(hover)
 
-.. _userguide_categorical_bars_grouped:
+.. _userguide_bars_grouped:
 
 Grouping
 ~~~~~~~~
@@ -213,10 +210,10 @@ Grouping
 Instead of stacking, you also have the option to group the bars. Depending on
 your use case, you can achieve this in two ways:
 
-* :ref:`With nested categories <userguide_categorical_bars_grouped_nested>`
-* :ref:`With visual offsets <userguide_categorical_bars_grouped_dodged>`
+* :ref:`With nested categories <userguide_bars_grouped_nested>`
+* :ref:`With visual offsets <userguide_bars_grouped_dodged>`
 
-.. _userguide_categorical_bars_grouped_nested:
+.. _userguide_bars_grouped_nested:
 
 Nested categories
 '''''''''''''''''
@@ -248,7 +245,7 @@ year in the ``(fruit, year)`` pair for color mapping.
 .. bokeh-plot:: __REPO__/examples/bars/nested_colormapped.py
     :source-position: none
 
-.. _userguide_categorical_bars_grouped_dodged:
+.. _userguide_bars_grouped_dodged:
 
 Visual offset
 '''''''''''''
@@ -263,7 +260,7 @@ to provide an offset for each call to |vbar|.
 .. bokeh-plot:: __REPO__/examples/bars/dodged.py
     :source-position: above
 
-.. _userguide_categorical_bars_stacked_and_grouped:
+.. _userguide_bars_stacked_and_grouped:
 
 Stacking and grouping
 ~~~~~~~~~~~~~~~~~~~~~
@@ -275,7 +272,7 @@ them by region:
 .. bokeh-plot:: __REPO__/examples/bars/stacked_grouped.py
     :source-position: above
 
-.. _userguide_categorical_bars_mixed:
+.. _userguide_bars_mixed:
 
 Mixed factors
 ~~~~~~~~~~~~~
@@ -289,7 +286,7 @@ to ``Q4``.
 .. bokeh-plot:: __REPO__/examples/bars/mixed.py
     :source-position: above
 
-.. _userguide_categorical_bars_pandas:
+.. _userguide_bars_pandas:
 
 Using pandas
 ~~~~~~~~~~~~
@@ -318,7 +315,7 @@ joining the names of the grouped columns.
 .. bokeh-plot:: __REPO__/examples/bars/pandas_groupby_nested.py
     :source-position: above
 
-.. _userguide_categorical_bars_intervals:
+.. _userguide_bars_intervals:
 
 Intervals
 ---------
@@ -334,115 +331,6 @@ medalists in Olympic sprinting over many years.
 .. bokeh-plot:: __REPO__/examples/bars/intervals.py
     :source-position: above
 
-.. _userguide_categorical_scatters:
-
-Scatters
---------
-
-Sometimes there are many values associated with each category. For example, a
-series of measurements on different days of the week. In this case, you can
-visualize your data using a categorical scatter plot.
-
-.. .. bokeh-plot:: docs/user_guide/examples/categorical_scatter.py
-..     :source-position: above
-
-.. _userguide_categorical_scatters_jitter:
-
-Adding jitter
-~~~~~~~~~~~~~
-
-To avoid overlap between numerous scatter points for a single category, use
-the :func:`~bokeh.transform.jitter` function to give each point a random
-offset.
-
-The example below shows a scatter plot of every commit time for a GitHub user
-between 2012 and 2016. It groups commits by day of the week. By default, this
-plot would show thousands of points overlapping in a narrow line for each day.
-The ``jitter`` function lets you differentiate the points to produce a useful
-plot:
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_scatter_jitter.py
-    :source-position: above
-
-Series
-------
-
-There may also be ordered series of data associated with each category. In such
-cases, the series can be represented as a line or area plotted for each
-category.
-To accomplish this, Bokeh has a concept of categorical offsets that can afford
-explicit control over positioning "within" a category.
-
-.. _userguide_categorical_offsets:
-
-Categorical offsets
-~~~~~~~~~~~~~~~~~~~
-
-Outside of the ``dodge`` and ``jitter`` functions, you can also supply an
-offset to a categorical location explicitly. To do so, add a numeric value
-to the end of a category. For example, ``["Jan", 0.2]`` gives the category
-"Jan" an offset of 0.2.
-
-For multi-level categories, add the value at the end of the existing list:
-``["West", "Sales", -0,2]``. Bokeh interprets any numeric value at the end
-of a list of categories as an offset.
-
-Take the fruit example above and modify it as follows:
-
-.. code-block:: python
-
-    fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
-
-    offsets = [-0.5, -0.2, 0.0, 0.3, 0.1, 0.3]
-
-    # This results in [ ['Apples', -0.5], ['Pears', -0.2], ... ]
-    x = list(zip(fruits, offsets))
-
-    p.vbar(x=x, top=[5, 3, 4, 2, 4, 6], width=0.8)
-
-This will shift each bar horizontally by the corresponding offset.
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_offset.py
-    :source-position: none
-
-Below is a more sophisticated example of a ridge plot. It uses
-categorical offsets to specify patch coordinates for each
-category.
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_ridgeplot.py
-    :source-position: below
-
-.. _userguide_categorical_heatmaps:
-
-Heatmaps
---------
-
-It is possible to have values associated with *pairs* of categories. In this
-situation, applying different color shades to rectangles that represent a pair
-of categories will produce a *categorical heatmap*. Such a plot has two
-categorical axes.
-
-The following plot lists years from 1948 to 2016 on its x-axis and months of
-the year on the y-axis. Each rectangle of the plot corresponds to a
-``(year, month)`` pair. The color of the rectangle indicates the rate of
-unemployment in a given month of a given year.
-
-This example uses the ``LinearColorMapper`` to map the colors of the plot
-because the unemployment rate is a continuous variable. This mapper is also
-passed to the color bar to provide a visual legend on the right:
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_unemployment.py
-    :source-position: below
-
-The following periodic table is a good example of the techniques
-in this chapter:
-
-* Color mappers
-* Visual offsets
-* pandas DataFrames
-* Tooltips
-
-.. bokeh-plot:: docs/user_guide/examples/categorical_heatmap_periodic.py
-    :source-position: below
+.. _userguide_bars_scatters:
 
 .. _pandas: http://pandas.pydata.org
