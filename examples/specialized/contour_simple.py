@@ -15,7 +15,7 @@ from bokeh.plotting import figure, show
 x, y = np.meshgrid(np.linspace(0, 3, 40), np.linspace(0, 2, 30))
 z = 1.3*np.exp(-2.5*((x-1.3)**2 + (y-0.8)**2)) - 1.2*np.exp(-2*((x-1.8)**2 + (y-1.3)**2))
 
-p = figure(width=550, height=300)
+p = figure(width=550, height=300, x_range=(0, 3), y_range=(0, 2))
 
 levels = np.linspace(-1, 1, 9)
 contour_renderer = p.contour(x, y, z, levels, fill_color=Sunset8, line_color="black")
