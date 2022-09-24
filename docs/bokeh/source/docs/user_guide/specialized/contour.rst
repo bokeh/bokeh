@@ -15,7 +15,7 @@ Simple example
 Here is a simple example rendering both contour lines and filled polygon
 regions.
 
-.. bokeh-plot:: docs/user_guide/examples/contour_simple.py
+.. bokeh-plot:: __REPO__/examples/specialized/contour_simple.py
     :source-position: above
 
 By convention, ``z`` is the 2D array to contour and is defined on an ``x``,
@@ -48,7 +48,7 @@ Polar grid example
 Here is a more complicated example showing other features available for
 contour plots.
 
-.. bokeh-plot:: docs/user_guide/examples/contour_polar.py
+.. bokeh-plot:: __REPO__/examples/specialized/contour_polar.py
     :source-position: above
 
 The grid is polar, wrapping around on itself, and there are many more visual
@@ -83,7 +83,7 @@ Bokeh can generate animated contour plots using ``bokeh serve`` as the contour
 calculations occur in Python. Here is an example taken from
 ``examples/app/contour_animated.py``:
 
-.. bokeh-plot:: ../../../examples/app/contour_animated.py
+.. bokeh-plot:: __REPO__/examples/app/contour_animated.py
     :source-position: above
 
 To run this on a Bokeh server use

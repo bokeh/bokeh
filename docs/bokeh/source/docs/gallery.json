@@ -266,9 +266,9 @@
       "alt": "Thumbnail link to the examples/plotting/bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
     },
     {
-      "path": "examples/plotting/contour.py",
+      "path": "examples/specialized/contour.py",
       "name": "contour",
-      "alt": "Thumbnail link to the examples/plotting/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
+      "alt": "Thumbnail link to the examples/specialized/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
     }
   ]
 }
