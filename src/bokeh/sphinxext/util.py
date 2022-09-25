@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 # Standard library imports
+import os
 from pathlib import PurePath
 
 import logging  # isort:skip
@@ -43,7 +44,8 @@ __all__ = ("get_sphinx_resources",)
 # Dev API
 # -----------------------------------------------------------------------------
 
-_REPO_TOP = PurePath(__file__).parents[3]
+# TODO (bv) this needs to be a configuration
+_REPO_TOP = PurePath(os.getcwd()).parents[1]
 
 def get_sphinx_resources(include_bokehjs_api=False):
     docs_cdn = settings.docs_cdn()
