@@ -189,7 +189,7 @@ the custom extension exactly you would any built-in Bokeh model.
 
 This produces the following output:
 
-.. bokeh-plot:: docs/user_guide/examples/extensions_putting_together_ts.py
+.. bokeh-plot:: __REPO__/examples/extensions/putting_together.py
     :source-position: none
 
 The rendered document automatically includes the JavaScript code for the
