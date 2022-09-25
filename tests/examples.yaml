@@ -13,7 +13,7 @@
 
 - path: "examples/extensions"
   slow: ["latex_extension_full"]
-  skip: ["gears", "latex_extension_base", "latex_extension_full"]
+  skip: ["gears", "widget.py"]
 
 - path: "examples/geo"
   slow: ["choropleth.py"]

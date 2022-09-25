@@ -30,7 +30,7 @@ Mercator coordinates.
 Alternatively, you can use any :class:`xyzservices.TileProvider`, either pre-defined in
 ``xyzservices`` or a custom one.
 
-.. bokeh-plot:: __REPO__/examples/geo/xyzservices.py
+.. bokeh-plot:: __REPO__/examples/geo/tile_xyzservices.py
     :source-position: below
 
 The available built-in tile providers are listed in the `xyzservices`_ documentation or
