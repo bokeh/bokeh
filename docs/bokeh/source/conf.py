@@ -30,6 +30,7 @@ bokeh_example_subdirs = [
     "data",
     "geo",
     "graph",
+    "interaction",
     "layout",
     "models",
     "plotting",
