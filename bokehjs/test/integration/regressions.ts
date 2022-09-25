@@ -2301,4 +2301,21 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #12412", () => {
+    it("displays canvas step glyph with incorrect alpha", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.step({mode: "before", x: [0, 1], y: [0.1, 1.1], line_width: 10, alpha: 0.5})
+        p.step({mode: "center", x: [0.1, 1.1], y: [0, 1], line_width: 10, alpha: 0.5})
+        p.step({mode: "after", x: [0.2, 1.2], y: [-0.1, 0.9], line_width: 10, alpha: 0.5})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
+  })
 })

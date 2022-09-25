@@ -78,8 +78,8 @@ export class StepView extends XYGlyphView {
     }
     if (drawing) {
       const i = indices[npoints-1]
-      this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i])
-      ctx.stroke()
+      if (this._render_xy(ctx, drawing, is_finite ? sx[i] : NaN, sy[i]))
+        ctx.stroke()
     }
   }
 
