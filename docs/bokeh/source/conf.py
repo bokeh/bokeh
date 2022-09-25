@@ -28,6 +28,7 @@ bokeh_example_subdirs = [
     "annotations",
     "bars",
     "data",
+    "geo",
     "layout",
     "models",
     "plotting",
