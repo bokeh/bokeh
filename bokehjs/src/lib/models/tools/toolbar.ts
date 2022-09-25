@@ -1,6 +1,6 @@
 import {logger} from "core/logging"
 import {div, a, StyleSheetLike} from "core/dom"
-import {build_views, remove_views, ViewStorage} from "core/build_views"
+import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
 import * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location} from "core/enums"
@@ -38,6 +38,11 @@ export class ToolbarView extends UIElementView {
   private _visible: boolean | null = null
   get visible(): boolean {
     return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._tool_button_views.values()
   }
 
   override has_finished(): boolean {

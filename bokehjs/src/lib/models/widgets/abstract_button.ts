@@ -1,7 +1,7 @@
 import * as p from "core/properties"
 import {ButtonType} from "core/enums"
 import {prepend, nbsp, text, button, div, StyleSheetLike} from "core/dom"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 
 import {Control, ControlView} from "./control"
 import {Icon, IconView} from "../ui/icons/icon"
@@ -16,8 +16,14 @@ export abstract class AbstractButtonView extends ControlView {
   button_el: HTMLButtonElement
   protected group_el: HTMLElement
 
-  *controls() {
+  public *controls() {
     yield this.button_el
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    if (this.icon_view != null)
+      yield this.icon_view
   }
 
   override async lazy_initialize(): Promise<void> {

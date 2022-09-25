@@ -5,7 +5,7 @@ import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
 import {CanvasLayer} from "core/util/canvas"
-import {build_views, remove_views, ViewStorage} from "core/build_views"
+import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
 import {Location} from "core/enums"
 import * as p from "core/properties"
 
@@ -72,11 +72,16 @@ export class GridPlotView extends LayoutDOMView {
     super.remove()
   }
 
-  private _tool_views: ViewStorage<ActionTool> = new Map()
+  private readonly _tool_views: ViewStorage<ActionTool> = new Map()
 
   async build_tool_views(): Promise<void> {
     const tools = this.model.toolbar.tools.filter((tool): tool is ActionTool => tool instanceof ActionTool)
     await build_views(this._tool_views, tools, {parent: this})
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._tool_views.values()
   }
 
   get child_models(): UIElement[] {

@@ -3,7 +3,7 @@ import {MultiLineView} from "../glyphs/multi_line"
 import {MultiPolygonsView} from "../glyphs/multi_polygons"
 import {Range, Range1d} from "../ranges"
 import {GlyphRenderer, GlyphRendererView} from "../renderers/glyph_renderer"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
@@ -14,6 +14,12 @@ export class ContourColorBarView extends BaseColorBarView {
 
   protected _fill_view: GlyphRendererView
   protected _line_view: GlyphRendererView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._fill_view
+    yield this._line_view
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

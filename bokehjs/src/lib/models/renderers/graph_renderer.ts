@@ -5,7 +5,7 @@ import {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
 import * as p from "core/properties"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
@@ -19,6 +19,12 @@ export class GraphRendererView extends DataRendererView {
 
   get glyph_view(): GlyphView {
     return this.node_view.glyph
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.edge_view
+    yield this.node_view
   }
 
   override async lazy_initialize(): Promise<void> {

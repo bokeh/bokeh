@@ -2,7 +2,7 @@ import {CartesianFrame} from "../canvas/cartesian_frame"
 import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
 import {Renderer, RendererView} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
-import {Tool, ToolView} from "../tools/tool"
+import {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import {Selection} from "../selections/selection"
 import {LayoutDOM, LayoutDOMView, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
@@ -14,7 +14,7 @@ import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
-import {build_view, build_views, remove_views} from "core/build_views"
+import {ViewStorage, IterViews, build_view, build_views, remove_views} from "core/build_views"
 import {Visuals, Renderable} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
@@ -119,8 +119,15 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return null
   }
 
-  /*protected*/ renderer_views: Map<Renderer, RendererView>
-  /*protected*/ tool_views: Map<Tool, ToolView>
+  /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
+  /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.renderer_views.values()
+    yield* this.tool_views.values()
+    yield this.canvas
+  }
 
   get is_paused(): boolean {
     return this._is_paused != null && this._is_paused !== 0
@@ -223,9 +230,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._initial_state = {
       selection: new Map(),               // XXX: initial selection?
     }
-
-    this.renderer_views = new Map()
-    this.tool_views = new Map()
 
     this.frame = new CartesianFrame(
       this.model.x_scale,

@@ -3,7 +3,7 @@ import {Tooltip, TooltipView} from "../ui/tooltip"
 
 import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {div, label, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
@@ -22,8 +22,14 @@ export abstract class InputWidgetView extends ControlView {
   protected desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
-  *controls() {
+  public *controls() {
     yield this.input_el
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    if (this.description != null)
+      yield this.description
   }
 
   override async lazy_initialize(): Promise<void> {

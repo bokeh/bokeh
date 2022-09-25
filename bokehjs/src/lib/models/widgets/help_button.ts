@@ -1,13 +1,18 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {Tooltip, TooltipView} from "../ui/tooltip"
 import {BuiltinIcon} from "../ui/icons/builtin_icon"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import * as p from "core/properties"
 
 export class HelpButtonView extends AbstractButtonView {
   override model: HelpButton
 
   protected tooltip: TooltipView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.tooltip
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

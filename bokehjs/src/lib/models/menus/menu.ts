@@ -1,8 +1,8 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
-import {MenuItem, MenuItemView} from "./menu_item"
+import {MenuItem} from "./menu_item"
 import {StyleSheetLike} from "core/dom"
 import {Orientation} from "core/enums"
-import {build_views, remove_views} from "core/build_views"
+import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
 import {reverse, map} from "core/util/iterator"
 import * as p from "core/properties"
 
@@ -15,9 +15,15 @@ export class MenuView extends UIElementView {
     return [...super.styles(), menus_css]
   }
 
-  protected items: Map<MenuItem, MenuItemView> = new Map()
+  protected readonly items: ViewStorage<MenuItem> = new Map()
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.items.values()
+  }
 
   override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
     await build_views(this.items, this.model.items)
   }
 

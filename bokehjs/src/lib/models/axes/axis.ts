@@ -19,7 +19,7 @@ import {GraphicsBoxes, TextBox} from "core/graphics"
 import {Factor, FactorRange} from "models/ranges/factor_range"
 import {BaseTextView} from "../text/base_text"
 import {BaseText} from "../text/base_text"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {unreachable} from "core/util/assert"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
@@ -50,9 +50,15 @@ export class AxisView extends GuideRendererView {
   /*private*/ _axis_label_view: BaseTextView | null = null
   /*private*/ _major_label_views: Map<string | number, BaseTextView> = new Map()
 
+  override *children(): IterViews {
+    yield* super.children()
+    if (this._axis_label_view != null)
+      yield this._axis_label_view
+    yield* this._major_label_views.values()
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-
     await this._init_axis_label()
     await this._init_major_labels()
   }

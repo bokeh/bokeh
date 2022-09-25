@@ -37,7 +37,7 @@ export class View implements ISignalable {
     return this._ready
   }
 
-  *children(): IterViews {}
+  public *children(): IterViews {}
 
   protected _has_finished: boolean
 

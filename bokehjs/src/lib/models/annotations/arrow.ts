@@ -6,7 +6,7 @@ import {LineVector} from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import {FloatArray, ScreenArray} from "core/types"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {Indices} from "core/types"
 import * as p from "core/properties"
 import {atan2} from "core/util/math"
@@ -29,6 +29,16 @@ export class ArrowView extends DataAnnotationView {
   protected _sy_end: ScreenArray
 
   protected _angles: ScreenArray
+
+  override *children(): IterViews {
+    yield* super.children()
+
+    const {start, end} = this
+    if (start != null)
+      yield start
+    if (end != null)
+      yield end
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

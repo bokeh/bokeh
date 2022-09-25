@@ -19,7 +19,7 @@ import {Grid, Layoutable, SizingPolicy, Percent} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Panel} from "core/layout/side_panel"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString, isPlainObject} from "core/util/types"
 import {Dict} from "core/util/object"
@@ -55,6 +55,12 @@ export abstract class BaseColorBarView extends AnnotationView {
   private _orientation: Orientation
   get orientation(): Orientation {
     return this._orientation
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._axis_view
+    yield this._title_view
   }
 
   override initialize(): void {

@@ -1,4 +1,4 @@
-import {build_view, build_views, remove_views} from "core/build_views"
+import {build_view, build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
 import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment} from "core/enums"
 import {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
@@ -15,7 +15,7 @@ import {Formatters, FormatterType, replace_placeholders} from "core/util/templat
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
-import {Tooltip, TooltipView} from "../../ui/tooltip"
+import {Tooltip} from "../../ui/tooltip"
 import {CallbackLike1} from "../../callbacks/callback"
 import {Template, TemplateView} from "../../dom/template"
 import {GlyphView} from "../../glyphs/glyph"
@@ -93,13 +93,15 @@ export class HoverToolView extends InspectToolView {
 
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
-  protected _ttviews: Map<Tooltip, TooltipView>
+  protected readonly _ttviews: ViewStorage<Tooltip> = new Map()
   protected _template_el?: HTMLElement
   protected _template_view?: TemplateView
 
-  override initialize(): void {
-    super.initialize()
-    this._ttviews = new Map()
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._ttviews.values()
+    if (this._template_view != null)
+      yield this._template_view
   }
 
   override async lazy_initialize(): Promise<void> {

@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 import {BaseText, BaseTextView} from "models/text/base_text"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {isString} from "core/util/types"
 import {parse_delimited_string} from "models/text/utils"
 import {Position} from "core/graphics"
@@ -15,6 +15,11 @@ export abstract class TextAnnotationView extends AnnotationView {
   override visuals: TextAnnotation.Visuals
 
   protected _text_view: BaseTextView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._text_view
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
