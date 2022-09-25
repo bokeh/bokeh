@@ -15,7 +15,7 @@ It's often desired to link pan or zooming actions across many plots. All that is
 needed to enable this feature is to share range objects between |figure|
 calls.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_panning.py
+.. bokeh-plot:: __REPO__/examples/interaction/linked_panning.py
     :source-position: above
 
 Now you have learned how to link panning between multiple plots with the
@@ -35,7 +35,7 @@ source, see :ref:`userguide_data_linked_selection_with_filtering`.
 The following code shows an example of linked brushing between circle glyphs on
 two different |figure| calls.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
+.. bokeh-plot:: __REPO__/examples/interaction/linked_brushing.py
     :source-position: above
 
 .. _userguide_interaction_linked_properties:
@@ -47,7 +47,7 @@ It is also possible to link values of Bokeh model properties together so that
 they remain synchronized, using the :func:`~bokeh.model.Model.js_link` method.
 The example below links a circle glyph radius to the value of a Slider widget:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_properties.py
+.. bokeh-plot:: __REPO__/examples/interaction/linked_properties.py
     :source-position: above
 
 The linking is accomplished in JavaScript, so this method works in standalone

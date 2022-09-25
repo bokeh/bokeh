@@ -559,7 +559,7 @@ Linked selection
 You can share selections between two plots if both of the plots use the same
 |ColumnDataSource|:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_linked_brushing.py
+.. bokeh-plot:: __REPO__/examples/interaction/linked_brushing.py
     :source-position: above
 
 .. _userguide_data_linked_selection_with_filtering:
