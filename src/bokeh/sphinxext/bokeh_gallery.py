@@ -44,7 +44,7 @@ from sphinx.util import ensuredir, status_iterator
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .templates import GALLERY_DETAIL, GALLERY_PAGE
-from .util import TOP_PATH
+from .util import _REPO_TOP
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -86,13 +86,12 @@ class BokehGalleryDirective(BokehDirective):
 
         opts = []
         for detail in spec["details"]:
-            name = detail["path"]
             alt = detail.get("alt", None)
-            path = PurePath(name).parts
-            name = path[-1].replace('.py', '')
+            path = PurePath(detail["path"]).parts
+            filename = path[-1].replace('.py', '')
             opts.append({
-                "name": name,
-                "ref": f"examples/{path[1]}/{name}.html",
+                "name": detail["name"],
+                "ref": f"examples/{path[1]}/{filename}.html",
                 "alt": alt,
             })
 
@@ -114,8 +113,8 @@ def config_inited_handler(app, config):
 
     ensuredir(gallery_dir)
     ensuredir(examples_dir)
-    ensuredir(join(examples_dir, 'models'))
-    ensuredir(join(examples_dir, 'plotting'))
+    for subdir in config.bokeh_example_subdirs:
+        ensuredir(join(examples_dir, subdir))
 
     # we will remove each file we process from this set and see if anything is
     # left at the end (and remove it in that case)
@@ -144,10 +143,9 @@ def config_inited_handler(app, config):
 
 def get_details(app):
     details = []
-    for f_path in app.config.bokeh_example_dirs:
-        for name in os.listdir(join(TOP_PATH, f_path)):
-            subdir = f_path.split('/')[1]
-            path = join(f_path, name)
+    for subdir in app.config.bokeh_example_subdirs:
+        for name in os.listdir(join(_REPO_TOP, "examples", subdir)):
+            path = join("examples", subdir, name)
             if not name.startswith('_') and name.endswith('.py') and not path in app.config.bokeh_sampledata_xref_skiplist:
                 name = name.replace('.py', '')
                 rst_file_path = join(subdir, f'{name}.rst')
@@ -160,7 +158,7 @@ def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_config_value("bokeh_gallery_dir", join("docs", "gallery"), "html")
     app.add_config_value("bokeh_examples_dir", join("docs", "examples"), "html")
-    app.add_config_value("bokeh_example_dirs", [], "html")
+    app.add_config_value("bokeh_example_subdirs", [], "html")
     app.add_config_value("bokeh_sampledata_xref_skiplist", [], "html")
     app.connect("config-inited", config_inited_handler)
     app.add_directive("bokeh-gallery", BokehGalleryDirective)

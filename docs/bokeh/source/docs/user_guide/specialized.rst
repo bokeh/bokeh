@@ -4,4 +4,6 @@ Specialized plots
 =================
 
 .. toctree::
+
    specialized/contour
+   specialized/categorical

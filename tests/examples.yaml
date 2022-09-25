@@ -1,28 +1,49 @@
-- path: "examples/models"
-  slow: ["choropleth.py"]
-  no_js: ["maps_cities.py", "maps.py", "trail.py"]
+- path: "examples/annotations"
 
-- path: "examples/custom"
-  slow: ["latex_extension_full"]
-  skip: ["gears", "latex_extension_base", "latex_extension_full"]
+- path: "examples/app"
+  type: server
+  skip: ["faces", "simple_hdf5", "spectrogram"]
 
-- path: "examples/webgl"
+- path: "examples/bars"
 
-- path: "examples/plotting"
-  slow: ["choropleth.py"]
-  no_js: ["gmap.py"]
-  skip: ["dynamic_map.py"]
-
-- path: "examples/howto/layouts"
+- path: "examples/data"
 
 - path: "examples/embed"
   skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session", "simple"]
 
-- path: "examples/app"
-  type: server
-  skip: ["faces", "simple_hdf5", "spectrogram", "stocks"]
+- path: "examples/extensions"
+  slow: ["latex_extension_full"]
+  skip: ["gears", "widget.py"]
 
-- path: "examples/integration/*"
+- path: "examples/geo"
+  slow: ["choropleth.py"]
+  no_js: ["gmap.py"]
 
+- path: "examples/graph"
+
+- path: "examples/howto/layouts"
+
+- path: "examples/integration"
+
+- path: "examples/interaction"
+
+- path: "examples/layout"
+
+- path: "examples/models"
+  slow: ["choropleth.py"]
+  no_js: ["maps_cities.py", "maps.py", "trail.py"]
+
+- path: "examples/plotting"
+
+- path: "examples/reference"
+
+- path: "examples/specialized"
+
+- path: "examples/styling"
+
+- path: "examples/tools"
+
+- path: "examples/webgl"
+
+# to be removed
 - path: "docs/bokeh/source/docs/user_guide/examples"
-  no_js: ["geo_gmap.py"]

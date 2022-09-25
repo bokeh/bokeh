@@ -54,8 +54,6 @@ widgets with ``.on_event``, the handler is passed the new attribute value.
     radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
     radio_group.on_event('button_click', my_radio_handler)
 
-https://github.com/bokeh/bokeh/tree/master/examples/app/weather
-
 .. raw:: html
 
     <div>

@@ -4,7 +4,7 @@ glyphs.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.arc, bokeh.plotting.Figure.segment, bokeh.models.TeeHead, bokeh.models.VeeHead
-    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_arrows`, :ref:`userguide_styling` > :ref:`userguide_styling_adding_mathematical_notations`
+    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_arrows`, :ref:`userguide_styling` > :ref:`userguide_styling_math`
     :keywords: trefoil, teehead, veehead, arrow, arrow head, segment, arc, circle, annular wedge
 
 '''

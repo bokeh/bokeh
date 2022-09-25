@@ -94,7 +94,7 @@ class Paragraph(Markup):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_paragraph.py"
+    __example__ = "examples/interaction/widget_paragraph.py"
 
 class Div(Markup):
     ''' A block (div) of text.
@@ -106,7 +106,7 @@ class Div(Markup):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_div.py"
+    __example__ = "examples/interaction/widget_div.py"
 
     render_as_text = Bool(False, help="""
     Whether the contents should be rendered as raw text or as interpreted HTML.
@@ -124,7 +124,7 @@ class PreText(Paragraph):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    __example__ = "docs/bokeh/source/docs/user_guide/examples/interaction_pretext.py"
+    __example__ = "examples/interaction/widget_pretext.py"
 
 #-----------------------------------------------------------------------------
 # Private API

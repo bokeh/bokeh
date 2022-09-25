@@ -63,7 +63,7 @@ from docutils.parsers.rst.roles import set_classes
 
 # Bokeh imports
 from . import PARALLEL_SAFE
-from .util import TOP_PATH
+from .util import _REPO_TOP
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -132,7 +132,7 @@ def bokeh_minpy(name, rawtext, text, lineno, inliner, options=None, content=None
     empty.
 
     """
-    pyproject = toml.load(join(TOP_PATH, "pyproject.toml"))
+    pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
     node = nodes.Text(pyproject["project"]["requires-python"].lstrip(">="))
     return [node], []
 
@@ -166,7 +166,7 @@ def bokeh_requires(name, rawtext, text, lineno, inliner, options=None, content=N
     empty.
 
     """
-    pyproject = toml.load(join(TOP_PATH, "pyproject.toml"))
+    pyproject = toml.load(join(_REPO_TOP, "pyproject.toml"))
     node = nodes.bullet_list()
     for dep in pyproject["project"]["dependencies"]:
         node += nodes.list_item("", nodes.Text(dep))

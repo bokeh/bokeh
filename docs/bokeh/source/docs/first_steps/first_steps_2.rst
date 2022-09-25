@@ -63,7 +63,7 @@ visualization:
 
 .. seealso::
     To learn more about bar graphs and other ways Bokeh handles categorical
-    data, see :ref:`userguide_categorical` in the user guide.
+    data, see :ref:`userguide_bars` in the user guide.
 
 Customizing glyphs
 ------------------

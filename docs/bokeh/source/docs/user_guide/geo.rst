@@ -15,7 +15,7 @@ Bokeh uses the `xyzservices`_ library to take care of the tile sources and their
 To add these to a plot, use the method :func:`~bokeh.models.plots.Plot.add_tile`. You can pass
 any name xyzservices may recognize. The ``retina`` keyword can control the resolution of tiles.
 
-.. bokeh-plot:: docs/user_guide/examples/geo_tile_source.py
+.. bokeh-plot:: __REPO__/examples/geo/tile_source.py
     :source-position: below
 
 If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
@@ -30,7 +30,7 @@ Mercator coordinates.
 Alternatively, you can use any :class:`xyzservices.TileProvider`, either pre-defined in
 ``xyzservices`` or a custom one.
 
-.. bokeh-plot:: docs/user_guide/examples/geo_xyzservices.py
+.. bokeh-plot:: __REPO__/examples/geo/tile_xyzservices.py
     :source-position: below
 
 The available built-in tile providers are listed in the `xyzservices`_ documentation or
@@ -111,7 +111,7 @@ To plot glyphs over a Google Map, use the function :func:`~bokeh.plotting.gmap`.
 For the function to work, you must pass it a `Google API Key`_ and configure the Google Map underlay :class:`~bokeh.models.map_plots.GMapOptions`.
 The Google API Key will be stored in the Bokeh Document JSON.
 
-.. bokeh-plot:: docs/user_guide/examples/geo_gmap.py
+.. bokeh-plot:: __REPO__/examples/geo/gmap.py
     :source-position: below
 
 .. note::
@@ -136,7 +136,7 @@ collection of features. Each feature can also have a set of properties.
 Bokeh's ``GeoJSONDataSource`` can be used almost seamlessly in place of Bokeh's
 ``ColumnDataSource``. For example:
 
-.. bokeh-plot:: docs/user_guide/examples/geo_geojson_source.py
+.. bokeh-plot:: __REPO__/examples/geo/geojson_source.py
     :source-position: above
 
 .. warning::

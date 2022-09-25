@@ -27,7 +27,7 @@ important features and fixes several bugs. Some of the highlights include:
     objects
   - Categorical Bar, Heatmap and Scatter plots easier to create with stable
     ``bokeh.plotting`` APIs
-  - New User's Guide chapter :ref:`userguide_categorical`
+  - New User's Guide chapter "Handling Categorical Data"
 
  Many other small bugfixes and docs additions. For full details see the
  :bokeh-tree:`CHANGELOG`.
@@ -43,7 +43,7 @@ Breakage Related to Categoricals Overhaul
 Bokeh support for Categorical data has needed attention for some time.
 The release brings improvements that *dramatically* improve the user
 experience when using categorical data with Bokeh. For details and
-examples, see the new User's Guide chapter :ref:`userguide_categorical`.
+examples, see the new User's Guide chapter "Handling Categorical Data".
 
 At this point we endeavor to minimize breakage, and to provide managed
 deprecation cycles when things must change. However, in this instance,

@@ -71,7 +71,7 @@ AutocompleteInput
 The AutocompleteInput widget is a general-purpose text input widget that uses
 a list of possible inputs to provide autocomplete while typing.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_autocompleteinput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_autocompleteinput.py
     :source-position: below
 
 More information about buttons can be found in the reference guide entry for
@@ -84,7 +84,7 @@ Button
 
 Bokeh provides a simple Button:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_button.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_button.py
     :source-position: below
 
 Use the button's ``button_type`` property to change the style of the button. See
@@ -93,7 +93,7 @@ Use the button's ``button_type`` property to change the style of the button. See
 Optionally, you can add an icon to a button by passing one of Bokeh's icon
 objects to the button's ``icon`` parameter:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_button_icon.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_button_icon.py
     :source-position: below
 
 Bokeh supports the following kinds of icons on buttons:
@@ -110,7 +110,7 @@ CheckboxButtonGroup
 Bokeh also provides a checkbox button group, that can have multiple options
 selected simultaneously:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_button_group.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_checkbox_button_group.py
     :source-position: below
 
 More information can be found in the reference guide entry for |CheckboxButtonGroup|.
@@ -122,7 +122,7 @@ CheckboxGroup
 
 A standard checkbox:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_checkbox_group.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_checkbox_group.py
     :source-position: below
 
 More information can be found in the reference guide entry for |CheckboxGroup|.
@@ -134,7 +134,7 @@ ColorPicker
 
 A widget to allow the user to specify an RGB color value.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_colorpicker.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_colorpicker.py
     :source-position: below
 
 More information can be found in the reference guide entry for |ColorPicker|.
@@ -149,7 +149,7 @@ that since the table is configured with a data source object, any plots that
 share this data source will automatically have selections linked between the
 plot and the table (even in static HTML documents).
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_data_table.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_data_table.py
     :source-position: below
 
 More information can be found in the reference guide entry for |DataTable|.
@@ -161,7 +161,7 @@ DatePicker
 
 A widget to allow the user to specify a date value.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_datepicker.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_datepicker.py
     :source-position: below
 
 More information can be found in the reference guide entry for |DatePicker|.
@@ -172,7 +172,7 @@ DateRangeSlider
 The Bokeh date range-slider can be configured with ``start`` and ``end`` date
 values, a ``step`` size in units of days, an initial ``value``, and a ``title``:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_daterangeslider.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_daterangeslider.py
     :source-position: below
 
 More information can be found in the reference guide entry for |DateRangeSlider|.
@@ -183,7 +183,7 @@ DatetimeRangeSlider
 The Bokeh datetime range slider is the same as the date range slider except
 that it uses datetimes that include hours, minutes and seconds:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_datetimerangeslider.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_datetimerangeslider.py
     :source-position: below
 
 More information can be found in the reference guide entry for |DatetimeRangeSlider|.
@@ -195,7 +195,7 @@ Div
 
 A widget for displaying text that can support HTML in a <div> tag:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_div.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_div.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Div|.
@@ -208,7 +208,7 @@ Dropdown
 A *button* that displays a drop-down list of mutually exclusive items when
 clicked.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_dropdown.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_dropdown.py
     :source-position: below
 
 Similar to the :ref:`userguide_interaction_widgets_examples_button` widget, the
@@ -225,7 +225,7 @@ FileInput
 
 A widget allowing users to choose a file and store its contents.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_fileinput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_fileinput.py
     :source-position: below
 
 More information can be found in the reference guide entry for |FileInput|.
@@ -245,7 +245,7 @@ The default behavior of the help button's tooltip is as follows:
 * If the help button is clicked, the tooltip will be persistent. The user needs
   to click the "x" symbol in the top right corner of the tooltip to close it.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_helpbutton.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_helpbutton.py
     :source-position: below
 
 More information can be found in the reference guide entry for |HelpButton|.
@@ -258,7 +258,7 @@ MultiChoice
 A multi-select widget to present multiple available options in a compact
 horizontal layout:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_multichoice.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_multichoice.py
     :source-position: below
 
 More information can be found in the reference guide entry for |MultiChoice|.
@@ -270,7 +270,7 @@ MultiSelect
 
 A multi-select widget to present multiple available options in vertical list:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_multiselect.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_multiselect.py
     :source-position: below
 
 More information can be found in the reference guide entry for |MultiSelect|.
@@ -282,7 +282,7 @@ NumericInput
 
 A widget to allow the user to enter a numeric value.
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_numericinput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_numericinput.py
     :source-position: below
 
 More information can be found in the reference guide entry for |NumericInput|.
@@ -294,7 +294,7 @@ Paragraph
 
 A widget for displaying a block of text in an HTML <p> tag:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_paragraph.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_paragraph.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Paragraph|.
@@ -306,7 +306,7 @@ PasswordInput
 
 A text input that obscures the entered text:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_passwordinput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_passwordinput.py
     :source-position: below
 
 More information can be found in the reference guide entry for |PasswordInput|.
@@ -316,7 +316,7 @@ PreText
 
 A widget for displaying a block of pre-formatted text in an HTML <pre> tag:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_pretext.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_pretext.py
     :source-position: below
 
 More information can be found in the reference guide entry for |PreText|.
@@ -326,7 +326,7 @@ RadioButtonGroup
 
 A radio button group can have at most one selected button at a time:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_radio_button_group.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_radio_button_group.py
     :source-position: below
 
 More information can be found in the reference guide entry for |RadioButtonGroup|.
@@ -336,7 +336,7 @@ RadioGroup
 
 A radio group uses standard radio button appearance:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_radio_group.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_radio_group.py
     :source-position: below
 
 More information can be found in the reference guide entry for |RadioGroup|.
@@ -349,7 +349,7 @@ RangeSlider
 The Bokeh range-slider can be configured with ``start`` and ``end`` values, a ``step`` size,
 an initial ``value``, and a ``title``:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_range_slider.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_range_slider.py
     :source-position: below
 
 More information can be found in the reference guide entry for |RangeSlider|.
@@ -361,7 +361,7 @@ Select
 
 A single selection widget:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_select.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_select.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Select|.
@@ -374,7 +374,7 @@ Slider
 The Bokeh slider can be configured with ``start`` and ``end`` values, a ``step`` size,
 an initial ``value``, and a ``title``:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_slider.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_slider.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Slider|.
@@ -386,7 +386,7 @@ Spinner
 
 A numeric spinner widget:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_spinner.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_spinner.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Spinner|.
@@ -398,7 +398,7 @@ Switch
 
 An on/off toggle switch:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_switch.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_switch.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Switch|.
@@ -408,7 +408,7 @@ Tabs
 
 Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_tab_panes.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_tab_panes.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Tabs|.
@@ -420,7 +420,7 @@ TextAreaInput
 
 A widget for collecting multiple lines of text from a user:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_textareainput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_textareainput.py
     :source-position: below
 
 More information can be found in the reference guide entry for |TextAreaInput|.
@@ -432,7 +432,7 @@ TextInput
 
 A widget for collecting a line of text from a user:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_textinput.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_textinput.py
     :source-position: below
 
 More information can be found in the reference guide entry for |TextInput|.
@@ -442,7 +442,7 @@ Toggle
 
 The toggle button holds an on/off state:
 
-.. bokeh-plot:: docs/user_guide/examples/interaction_toggle_button.py
+.. bokeh-plot:: __REPO__/examples/interaction/widget_toggle_button.py
     :source-position: below
 
 Like with a standard :ref:`userguide_interaction_widgets_examples_button`

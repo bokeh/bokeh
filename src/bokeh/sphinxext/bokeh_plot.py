@@ -111,7 +111,7 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
 from .example_handler import ExampleHandler
-from .util import get_sphinx_resources
+from .util import _REPO_TOP, get_sphinx_resources
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -158,6 +158,9 @@ class BokehPlotDirective(BokehDirective):
     }
 
     def run(self):
+        if getenv("BOKEH_SPHINX_QUICK") == "1":
+            return []
+
         source, path = self.process_args_or_content()
 
         dashed_docname = self.env.docname.replace("/", "-")
@@ -215,7 +218,9 @@ class BokehPlotDirective(BokehDirective):
 
         path = self.arguments[0]
         log.debug(f"[bokeh-plot] handling external content in {self.env.docname!r}: {path}")
-        if not path.startswith("/"):
+        if path.startswith("__REPO__/"):
+            path = join(_REPO_TOP, path.replace("__REPO__/", ""))
+        elif not path.startswith("/"):
             path = join(self.env.app.srcdir, path)
         try:
             with open(path) as f:

@@ -181,7 +181,7 @@ methods.
 .. bokeh-plot:: docs/user_guide/examples/plotting_hbar_stack.py
     :source-position: above
 
-For more examples of stacked bars, see :ref:`userguide_categorical`.
+For more examples of stacked bars, see :ref:`userguide_bars`.
 
 Rectangles
 ''''''''''
@@ -567,8 +567,6 @@ list of factors to be converted to one. Here's an example:
     :source-position: above
 
 .. _userguide_plotting_datetime_axes:
-
-For complete details, see :ref:`userguide_categorical`.
 
 Datetime axes
 ~~~~~~~~~~~~~
