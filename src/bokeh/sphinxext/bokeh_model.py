@@ -137,7 +137,7 @@ class BokehModelDirective(BokehDirective):
         model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(",", ": "))
 
         # we only want to document things as coming from top-level `bokeh.models`
-        adjusted_module_name = module_name="bokeh.models" if module_name.startswith("bokeh.models") else module_name
+        adjusted_module_name = "bokeh.models" if module_name.startswith("bokeh.models") else module_name
 
         rst_text = MODEL_DETAIL.render(
             name=model_name,
