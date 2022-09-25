@@ -1,9 +1,8 @@
 import math
 
-from bokeh.io import output_file, show
 from bokeh.models import Ellipse, GraphRenderer, StaticLayoutProvider
 from bokeh.palettes import Spectral8
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 N = 8
 node_indices = list(range(N))
@@ -44,5 +43,4 @@ graph.edge_renderer.data_source.data['ys'] = ys
 
 plot.renderers.append(graph)
 
-output_file("graph.html")
 show(plot)

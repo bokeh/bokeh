@@ -16,9 +16,9 @@
       "alt": "Thumbnail link to the examples/plotting/latex_normal_distribution.py example shows a plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels."
     },
     {
-      "path": "examples/plotting/network_graph.py",
-      "name": "network_graph",
-      "alt": "Thumbnail link to the examples/plotting/network_graph.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
+      "path": "examples/graph/node_and_edge_attributes.py.py",
+      "name": "node_and_edge_attributes",
+      "alt": "Thumbnail link to the examples/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
     },
     {
       "path": "examples/plotting/hexbin.py",
@@ -121,9 +121,9 @@
       "alt": "Thumbnail link to the examples/bars/colors.py example shows a simple bar chart of six bars shaded according to the Bright6 palette."
     },
     {
-      "path": "examples/plotting/box_annotation.py",
+      "path": "examples/annotations/box_annotation.py",
       "name": "box_annotation",
-      "alt": "Thumbnail link to the examples/plotting/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
+      "alt": "Thumbnail link to the examples/annotation/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
     },
     {
       "path": "examples/specialized/categorical_les_mis.py",
@@ -211,9 +211,9 @@
       "alt": "Thumbnail link to the examples/plotting/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
     },
     {
-      "path": "examples/plotting/texas.py",
+      "path": "examples/geo/texas_hover_map.py",
       "name": "texas",
-      "alt": "Thumbnail link to the examples/plotting/texas.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
+      "alt": "Thumbnail link to the examples/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
     },
     {
       "path": "examples/plotting/markers.py",
@@ -251,9 +251,9 @@
       "alt": "Thumbnail link to the examples/plotting/logplot.py example shows a plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each."
     },
     {
-      "path": "examples/plotting/eclipse.py",
+      "path": "examples/geo/eclipse.py",
       "name": "eclipse",
-      "alt": "Thumbnail link to the examples/plotting/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
+      "alt": "Thumbnail link to the examples/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
     },
     {
       "path": "examples/plotting/bessel.py",

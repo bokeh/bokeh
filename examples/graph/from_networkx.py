@@ -1,7 +1,6 @@
 import networkx as nx
 
-from bokeh.io import output_file, show
-from bokeh.plotting import figure, from_networkx
+from bokeh.plotting import figure, from_networkx, show
 
 G = nx.karate_club_graph()
 
@@ -11,5 +10,4 @@ plot = figure(title="Networkx Integration Demonstration", x_range=(-1.1,1.1), y_
 graph = from_networkx(G, nx.spring_layout, scale=2, center=(0,0))
 plot.renderers.append(graph)
 
-output_file("networkx_graph.html")
 show(plot)

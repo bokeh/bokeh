@@ -1,4 +1,4 @@
-from bokeh.models import GMapOptions
+from bokeh.models import ColumnDataSource, GMapOptions
 from bokeh.plotting import gmap, show
 
 map_options = GMapOptions(lat=30.2861, lng=-97.7394, map_type="roadmap", zoom=11)
