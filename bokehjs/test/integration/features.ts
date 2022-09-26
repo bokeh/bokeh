@@ -1,7 +1,7 @@
 import {display, fig} from "./_util"
 import {PlotActions, xy} from "./_interactive"
 
-import {PanTool, SaveTool, CrosshairTool, Span, GridBox} from "@bokehjs/models"
+import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane} from "@bokehjs/models"
 import {paint} from "@bokehjs/core/util/defer"
 import {assert} from "@bokehjs/core/util/assert"
 
@@ -117,6 +117,24 @@ describe("Feature", () => {
 
       const actions = new PlotActions(pv0)
       await actions.hover(xy(1, 1), xy(4, 4))
+    })
+  })
+
+  describe("in issue #9498", () => {
+    it("should allow to inherit sizing_mode from parent", async () => {
+      const p0 = fig([200, 200], {sizing_mode: "inherit"})
+      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+
+      const p1 = fig([200, 200], {sizing_mode: "inherit"})
+      p1.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+
+      const row = new Row({children: [p0, p1], sizing_mode: "stretch_width"})
+      const pane = new Pane({children: [row], styles: {width: "500px", height: "250px"}})
+      const {view} = await display(pane, [650, 300])
+      await paint()
+
+      pane.styles = {width: "600px", height: "250px"}
+      await view.ready
     })
   })
 })
