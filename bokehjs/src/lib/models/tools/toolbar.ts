@@ -379,11 +379,11 @@ export class Toolbar extends UIElement {
       }
     }
     for (const et of fields(new_gestures)) {
-      const gm = this.gestures[et]
-      gm.tools = new_gestures[et].tools
+      const gesture = this.gestures[et]
+      gesture.tools = sort_by(new_gestures[et].tools, (tool) => tool.default_order)
 
-      if (gm.active && every(gm.tools, (tool) => tool.id != gm.active?.id)) {
-        gm.active = null
+      if (gesture.active && every(gesture.tools, (tool) => tool.id != gesture.active?.id)) {
+        gesture.active = null
       }
     }
   }
@@ -426,7 +426,6 @@ export class Toolbar extends UIElement {
 
     // Connecting signals has to be done before changing the active state of the tools.
     for (const gesture of values(this.gestures)) {
-      gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
         // XXX: connect once
         this.connect(tool.properties.active.change, () => this._active_change(tool))
