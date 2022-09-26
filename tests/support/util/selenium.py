@@ -160,27 +160,6 @@ def get_events_el(driver: WebDriver, model: Plot) -> WebElement:
     else:
         raise RuntimeError(f"can't resolve a view for {model}")
 
-def get_toolbar_el(driver: WebDriver, model: Plot) -> WebElement:
-    script = FIND_VIEW_SCRIPT + """
-    const id = arguments[0]
-    const {ToolbarPanelView} = Bokeh.require("models/annotations/toolbar_panel")
-    function* fn(view) {
-        for (const rv of view.renderer_views.values()) {
-            if (rv instanceof ToolbarPanelView) {
-                yield rv._toolbar_view.el
-                break
-            }
-        }
-    }
-    return head(find(views(), id, fn)) ?? null
-    """
-    el = driver.execute_script(script, model.id)
-    if el is not None:
-        return el
-    else:
-        raise RuntimeError(f"can't resolve a view for {model}")
-
-
 FIND_SCRIPT = """
     const id = arguments[0]
     const selector = arguments[1]
