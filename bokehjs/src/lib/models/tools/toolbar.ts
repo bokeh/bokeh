@@ -7,7 +7,7 @@ import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
 import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
 import {join} from "core/util/iterator"
-import {values, entries} from "core/util/object"
+import {fields, values, entries} from "core/util/object"
 import {isArray} from "core/util/types"
 import {Tool, EventRole} from "./tool"
 import {ToolProxy, ToolLike} from "./tool_proxy"
@@ -378,11 +378,11 @@ export class Toolbar extends UIElement {
         new_gestures[tool.event_role].tools.push(tool)
       }
     }
-    for (const et of Object.keys(new_gestures) as GestureType[]) {
+    for (const et of fields(new_gestures)) {
       const gm = this.gestures[et]
       gm.tools = new_gestures[et].tools
 
-      if (gm.active && every(gm.tools, t => t.id != gm.active?.id)) {
+      if (gm.active && every(gm.tools, (tool) => tool.id != gm.active?.id)) {
         gm.active = null
       }
     }
