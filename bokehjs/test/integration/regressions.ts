@@ -2321,9 +2321,15 @@ describe("Bug", () => {
   describe("in issue #12418", () => {
     function plot(color: Color) {
       const lasso = new LassoSelectTool({persistent: true})
+      lasso.overlay.line_dash = "solid"
       const p = fig([200, 200], {tools: [lasso]})
       p.circle([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
       return p
+    }
+
+    const path = {
+      type: "poly" as const,
+      xys: [xy(0, -1), xy(2, -1), xy(2, 1), xy(1, 2), xy(-1, 0), xy(0, -1)],
     }
 
     it("doesn't allow to correctly display lasso select overlay in single plots", async () => {
@@ -2331,7 +2337,7 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       const actions = new PlotActions(view)
-      await actions.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
+      await actions.pan_along(path)
     })
 
     it("doesn't allow to correctly display lasso select overlay in layouts", async () => {
@@ -2343,10 +2349,12 @@ describe("Bug", () => {
       const pv1 = view.owner.get_one(p1)
 
       const actions0 = new PlotActions(pv0)
-      await actions0.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
+      await actions0.pan_along(path)
 
       const actions1 = new PlotActions(pv1)
-      await actions1.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
+      await actions1.pan_along(path)
+
+      await paint()
     })
   })
 })

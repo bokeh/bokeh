@@ -1,6 +1,6 @@
 import {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
-import {linspace, zip} from "@bokehjs/core/util/array"
+import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
 
 export type Point = {x: number, y: number}
@@ -24,9 +24,10 @@ const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
 type Line = {type: "line", xy0: Point, xy1: Point, n?: number}
+type Poly = {type: "poly", xys: Point[], n?: number}
 type Circle = {type: "circle", xy: Point, r: number, n?: number}
 
-type Path = Line | Circle
+type Path = Line | Poly | Circle
 
 export class PlotActions {
   constructor(readonly target: PlotView, readonly pause: number = 5) {}
@@ -81,6 +82,10 @@ export class PlotActions {
         const {xy0, xy1} = path
         return [xy0, xy1]
       }
+      case "poly": {
+        const {xys} = path
+        return [xys[0], last(xys)]
+      }
       case "circle": {
         const {xy: {x, y}, r} = path
         return [{x: x + r, y}, {x: x + r, y}]
@@ -96,6 +101,18 @@ export class PlotActions {
         const xs = linspace(xy0.x, xy1.x, n)
         const ys = linspace(xy0.y, xy1.y, n)
         yield* zip(xs, ys)
+        break
+      }
+      case "poly": {
+        const {xys} = path
+        let last = xys[0]
+        const [, ..._xys] = xys
+        for (const xy of _xys) {
+          const xy0 = last
+          const xy1 = xy
+          yield* this._compute({type: "line", xy0, xy1, n})
+          last = xy
+        }
         break
       }
       case "circle": {
