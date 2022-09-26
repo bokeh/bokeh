@@ -188,6 +188,14 @@ export class ViewManager {
     }
   }
 
+  get_one<T extends HasProps>(model: T): ViewOf<T> {
+    const view = this.find_one(model)
+    if (view != null)
+      return view
+    else
+      throw new Error(`cannot find a view for ${model}`)
+  }
+
   find_one<T extends HasProps>(model: T): ViewOf<T> | null {
     for (const view of this.find(model)) {
       return view

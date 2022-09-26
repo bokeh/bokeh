@@ -2,6 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
+import {PlotActions, xy} from "./_interactive"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -15,9 +16,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  PanTool,
-  HoverTool,
-  ZoomInTool,
+  PanTool, LassoSelectTool, HoverTool, ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -2316,6 +2315,38 @@ describe("Bug", () => {
       const p1 = make_plot("webgl")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #12418", () => {
+    function plot(color: Color) {
+      const lasso = new LassoSelectTool({persistent: true})
+      const p = fig([200, 200], {tools: [lasso]})
+      p.circle([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
+      return p
+    }
+
+    it("doesn't allow to correctly display lasso select overlay in single plots", async () => {
+      const p = plot("red")
+      const {view} = await display(p)
+
+      const actions = new PlotActions(view)
+      await actions.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
+    })
+
+    it("doesn't allow to correctly display lasso select overlay in layouts", async () => {
+      const p0 = plot("red")
+      const p1 = plot("green")
+      const {view} = await display(new Row({children: [p0, p1]}))
+
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
+
+      const actions1 = new PlotActions(pv1)
+      await actions1.pan_along({type: "circle", xy: xy(0, 0), r: 1.75, n: 50})
     })
   })
 })
