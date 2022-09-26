@@ -4,7 +4,6 @@ import {SelectionMode} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {TapEvent, KeyEvent} from "core/ui_events"
 import * as p from "core/properties"
-import {copy} from "core/util/array"
 import {tool_icon_polygon_select} from "styles/icons.css"
 
 export class PolySelectToolView extends SelectToolView {
@@ -14,12 +13,8 @@ export class PolySelectToolView extends SelectToolView {
     return [...super.overlays, this.model.overlay]
   }
 
-  protected data: {sx: number[], sy: number[]}
-
-  override initialize(): void {
-    super.initialize()
-    this.data = {sx: [], sy: []}
-  }
+  protected sxs: number[] = []
+  protected sys: number[] = []
 
   override connect_signals(): void {
     super.connect_signals()
@@ -37,13 +32,14 @@ export class PolySelectToolView extends SelectToolView {
   }
 
   override _doubletap(ev: TapEvent): void {
-    this._do_select(this.data.sx, this.data.sy, true, this._select_mode(ev))
+    this._do_select(this.sxs, this.sys, true, this._select_mode(ev))
     this.plot_view.state.push("poly_select", {selection: this.plot_view.get_selection()})
     this._clear_data()
   }
 
   _clear_data(): void {
-    this.data = {sx: [], sy: []}
+    this.sxs = []
+    this.sys = []
     this.model.overlay.clear()
   }
 
@@ -54,10 +50,10 @@ export class PolySelectToolView extends SelectToolView {
     if (!frame.bbox.contains(sx, sy))
       return
 
-    this.data.sx.push(sx)
-    this.data.sy.push(sy)
+    this.sxs.push(sx)
+    this.sys.push(sy)
 
-    this.model.overlay.update({xs: copy(this.data.sx), ys: copy(this.data.sy)})
+    this.model.overlay.update({xs: this.sxs, ys: this.sys})
   }
 
   _do_select(sx: number[], sy: number[], final: boolean, mode: SelectionMode): void {

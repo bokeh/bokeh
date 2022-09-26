@@ -5,6 +5,7 @@ import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import {Arrayable} from "core/types"
 import {CoordinateMapper} from "core/util/bbox"
+import {copy} from "core/util/array"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
@@ -63,8 +64,8 @@ export namespace PolyAnnotation {
 
   export type Props = Annotation.Props & {
     xs: p.Property<number[]>
-    xs_units: p.Property<CoordinateUnits>
     ys: p.Property<number[]>
+    xs_units: p.Property<CoordinateUnits>
     ys_units: p.Property<CoordinateUnits>
   } & Mixins
 
@@ -89,10 +90,10 @@ export class PolyAnnotation extends Annotation {
     this.mixins<PolyAnnotation.Mixins>([mixins.Line, mixins.Fill, mixins.Hatch])
 
     this.define<PolyAnnotation.Props>(({Number, Array}) => ({
-      xs:           [ Array(Number), [] ],
-      xs_units:     [ CoordinateUnits, "data" ],
-      ys:           [ Array(Number), [] ],
-      ys_units:     [ CoordinateUnits, "data" ],
+      xs:       [ Array(Number), [] ],
+      ys:       [ Array(Number), [] ],
+      xs_units: [ CoordinateUnits, "data" ],
+      ys_units: [ CoordinateUnits, "data" ],
     }))
 
     this.override<PolyAnnotation.Props>({
@@ -104,7 +105,7 @@ export class PolyAnnotation extends Annotation {
   }
 
   update({xs, ys}: {xs: number[], ys: number[]}): void {
-    this.setv({xs, ys, visible: true})
+    this.setv({xs: copy(xs), ys: copy(ys), visible: true})
   }
 
   clear(): void {
