@@ -104,7 +104,7 @@ class Receiver:
 
     '''
 
-    _current_consumer: Callable[[Receiver, Fragment], None]
+    _current_consumer: Callable[[Fragment], None]
     _fragments: list[Fragment]
     _message: Message[Any] | None
     _buf_header: BufferHeader | None
@@ -119,7 +119,7 @@ class Receiver:
                 fragments.
         '''
         self._protocol = protocol
-        self._current_consumer = self._HEADER  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+        self._current_consumer = self._HEADER
         self._message = None
         self._partial = None
         self._buf_header = None
@@ -141,12 +141,12 @@ class Receiver:
         self._message = None
         self._partial = None
         self._fragments = [self._assume_text(fragment)]
-        self._current_consumer = self._METADATA  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+        self._current_consumer = self._METADATA
 
     def _METADATA(self, fragment: Fragment) -> None:
         metadata = self._assume_text(fragment)
         self._fragments.append(metadata)
-        self._current_consumer = self._CONTENT  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+        self._current_consumer = self._CONTENT
 
     def _CONTENT(self, fragment: Fragment) -> None:
         content = self._assume_text(fragment)
@@ -163,7 +163,7 @@ class Receiver:
         if set(header) != { "id" }:
             raise ValidationError(f"Malformed buffer header {header!r}")
         self._buf_header = header
-        self._current_consumer = self._BUFFER_PAYLOAD  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+        self._current_consumer = self._BUFFER_PAYLOAD
 
     def _BUFFER_PAYLOAD(self, fragment: Fragment) -> None:
         payload = self._assume_binary(fragment)
@@ -177,9 +177,9 @@ class Receiver:
     def _check_complete(self) -> None:
         if self._partial and self._partial.complete:
             self._message = self._partial
-            self._current_consumer = self._HEADER  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+            self._current_consumer = self._HEADER
         else:
-            self._current_consumer = self._BUFFER_HEADER  # type: ignore[assignment] # https://github.com/python/mypy/issues/2427
+            self._current_consumer = self._BUFFER_HEADER
 
     def _assume_text(self, fragment: Fragment) -> str:
         if not isinstance(fragment, str):
