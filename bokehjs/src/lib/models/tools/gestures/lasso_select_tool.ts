@@ -28,7 +28,7 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
-    if (ev.key == "Enter")
+    if (ev.key == "Enter" || (ev.key == "Escape" && this.model.persistent))
       this._clear_overlay()
   }
 
@@ -50,7 +50,8 @@ export class LassoSelectToolView extends SelectToolView {
 
   override _pan_end(ev: PanEvent): void {
     const {sxs, sys} = this
-    this._clear_overlay()
+    if (!this.model.persistent)
+      this._clear_overlay()
     this._do_select(sxs, sys, true, this._select_mode(ev))
     this.plot_view.state.push("lasso_select", {selection: this.plot_view.get_selection()})
   }
@@ -79,6 +80,8 @@ export namespace LassoSelectTool {
   export type Props = SelectTool.Props & {
     select_every_mousemove: p.Property<boolean>
     overlay: p.Property<PolyAnnotation>
+    /** internal */
+    persistent: p.Property<boolean>
   }
 }
 
@@ -98,6 +101,10 @@ export class LassoSelectTool extends SelectTool {
     this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
       select_every_mousemove: [ Boolean, true ],
       overlay:                [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+    }))
+
+    this.internal<LassoSelectTool.Props>(({Boolean}) => ({
+      persistent: [ Boolean, false ],
     }))
 
     this.register_alias("lasso_select", () => new LassoSelectTool())
