@@ -37,12 +37,12 @@ to the ``theme`` property of your document:
 
 You can also create your own themes to use across multiple plots. Bokeh's themes
 can be either in a YAML or JSON format. To learn more about creating and using
-customized themes, see :ref:`userguide_styling_using_themes_custom` in the user
+customized themes, see :ref:`ug_basic_visuals_using_themes_custom` in the user
 guide.
 
 .. seealso::
     For more information on using themes with Bokeh, see
-    :ref:`userguide_styling_using_themes` in the user guide and
+    :ref:`ug_basic_visuals_using_themes` in the user guide and
     :class:`bokeh.themes` in the reference guide.
 
 .. _first_steps_4_resizing:
@@ -92,11 +92,11 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 
 .. seealso::
     To learn more about how to control the size of plots, see
-    :ref:`userguide_styling_plots` in the user guide and the entry for
+    :ref:`ug_basic_visuals_plots` in the user guide and the entry for
     |Plot| in the reference guide.
 
     For more information on responsive sizing, see
-    :ref:`userguide_layout_sizing_mode` in the user guide and
+    :ref:`ug_basic_layouts_sizing_mode` in the user guide and
     :class:`~bokeh.models.plots.Plot.sizing_mode` in the reference guide.
 
 .. _first_steps_4_axes:
@@ -183,7 +183,7 @@ This is what the completed code looks like:
 
 .. seealso::
     For more information about formatting ticks, see
-    :ref:`userguide_styling_axes_tick_label_formats` in the user guide. For a
+    :ref:`ug_basic_visuals_axes_tick_label_formats` in the user guide. For a
     list of all available tick formatters, see :class:`~bokeh.models.formatters`
     in the reference guide.
 
@@ -218,7 +218,7 @@ To format the ticks of a ``DatetimeAxis``, use the
     :source-position: none
 
 .. seealso::
-    See :ref:`userguide_styling_axes` in the user guide for more information on
+    See :ref:`ug_basic_visuals_axes` in the user guide for more information on
     customizing axes. The entry for :class:`~bokeh.models.Axis` in the
     reference guide contains a list of all available attributes you can use to
     customize the axes of your plot.
@@ -248,7 +248,7 @@ the various ``grid_line`` properties:
 
 .. seealso::
     For more information on lines and minor lines, see
-    :ref:`userguide_styling_grid_lines` in the user guide.
+    :ref:`ug_basic_visuals_grid_lines` in the user guide.
 
 Using bands and bounds
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -267,13 +267,13 @@ Bands and bounds are more examples of the annotations you learned about in
 
 .. seealso::
     For more information on styling bands and bounds, see
-    :ref:`userguide_styling_grid_bands` and :ref:`userguide_styling_grid_bounds`
+    :ref:`ug_basic_visuals_grid_bands` and :ref:`ug_basic_visuals_grid_bounds`
     in the user guide.
 
 Setting background colors
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You have several options to :ref:`define colors <userguide_styling_colors>` in
+You have several options to :ref:`define colors <ug_basic_visuals_colors>` in
 Bokeh. For example:
 
 * Use one of the |named CSS colors| (for example, ``"firebrick"``)
@@ -359,7 +359,7 @@ Customizing available tools
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can customize which tools Bokeh displays in the toolbar. For a detailed
-list of all available tools, see :ref:`userguide_tools` in the
+list of all available tools, see :ref:`ug_interaction_tools` in the
 user guide.
 
 To customize which tools to use, you first need to import the relevant tools.
@@ -406,7 +406,7 @@ tools being available:
     :source-position: none
 
 .. seealso::
-    To learn more about tools and toolbars, see :ref:`userguide_tools`. For
+    To learn more about tools and toolbars, see :ref:`ug_interaction_tools`. For
     detailed information about all tools and their respective properties, see
     :class:`~bokeh.models.tools` and :class:`~bokeh.models.tools.Toolbar` in the
     reference guide.
@@ -450,6 +450,6 @@ This is what the code looks like:
 
 .. seealso::
     The user guide contains much more information on using the hover tool to
-    create tooltips. See :ref:`userguide_tools_basic_tooltips` for more details.
+    create tooltips. See :ref:`ug_interaction_tools_basic_tooltips` for more details.
     More information is also available at the entry for
     :class:`~bokeh.models.tools.HoverTool` in the reference guide.

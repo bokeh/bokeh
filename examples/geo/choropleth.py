@@ -4,7 +4,7 @@ It demonstrates drawing shapes using polygonal data, as well as using color scal
 .. bokeh-example-metadata::
     :sampledata: us_counties, us_states, unemployment
     :apis: bokeh.plotting.figure.patches, bokeh.palettes.Viridis6, bokeh.plotting.show
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_patch_polygon_glyphs`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_areas` > :ref:`ug_basic_areas_patches`
     :keywords: colormap, shapes, vector, polygon
 '''
 

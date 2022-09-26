@@ -4,7 +4,7 @@ factors.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.figure.line, bokeh.plotting.figure.vbar
-    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_mixed`
+    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars` > :ref:`ug_basic_bars_mixed`
     :keywords: bar, line, vbar
 
 '''

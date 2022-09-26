@@ -4,7 +4,7 @@ API.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Circle, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_scatters_markers`
     :keywords: circle, figure, scatter
 
 '''

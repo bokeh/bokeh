@@ -167,6 +167,7 @@ html_theme_options = {
     "navbar_align": "left",
     "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
+    "show_nav_level": 2,
     "show_toc_level": 2,
     "twitter_url": "https://twitter.com/bokeh",
     "favicons": [

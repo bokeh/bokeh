@@ -35,8 +35,8 @@ Use the properties of the |Legend| object to customize the legend. For example:
     :source-position: none
 
 .. seealso::
-    To learn more about legends, see :ref:`userguide_annotations_legends` in the
-    annotations section and :ref:`userguide_styling_legends` in the styling
+    To learn more about legends, see :ref:`ug_basic_annotations_legends` in the
+    annotations section and :ref:`ug_basic_visuals_legends` in the styling
     section of the user guide. The entry |Legend| in the reference guide
     contains a list of all available attributes for legends.
 
@@ -66,7 +66,7 @@ There are various ways to style the text for your headline. For example:
 
 .. seealso::
     For more information on working with ``title``, see
-    :ref:`userguide_annotations_titles` in the user guide. In the reference guide,
+    :ref:`ug_basic_annotations_titles` in the user guide. In the reference guide,
     the entry for :class:`~bokeh.models.annotations.Title` contains a list of
     all available properties.
 
@@ -77,7 +77,7 @@ Using annotations
 
 Annotations are visual elements that you add to your plot to make it easier
 to read. For more information on the various kinds of annotations, see
-:ref:`userguide_annotations` in the user guide.
+:ref:`ug_basic_annotations` in the user guide.
 
 One example are box annotations. You can use box annotations to highlight
 certain areas of your plot:
@@ -119,4 +119,4 @@ This is what the finished code looks like:
 
 .. seealso::
     To find out more about the different kinds of annotations in Bokeh, see
-    :ref:`userguide_annotations` in the user guide.
+    :ref:`ug_basic_annotations` in the user guide.

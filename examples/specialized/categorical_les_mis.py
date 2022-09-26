@@ -4,7 +4,7 @@ This example demonstrates a basic hover tooltip.
 .. bokeh-example-metadata::
     :sampledata: les_mis
     :apis: bokeh.plotting.figure.rect
-    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :refs: :ref:`ug_interaction_tools` > :ref:`ug_interaction_tools_hover_tool`
     :keywords: hover, rect, tooltip
 
 .. _Les Misérables Co-occurrence: https://bost.ocks.org/mike/miserables/

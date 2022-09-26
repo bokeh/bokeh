@@ -4,7 +4,7 @@ adding box annotations as well as a multi-line title.
 .. bokeh-example-metadata::
     :sampledata: glucose
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.models.annotations.BoxAnnotation
-    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_box_annotations`
+    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_box_annotations`
     :keywords: box annotation, time series
 
 '''

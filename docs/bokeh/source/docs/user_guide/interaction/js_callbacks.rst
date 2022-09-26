@@ -1,4 +1,4 @@
-.. _userguide_interaction_jscallbacks:
+.. _ug_interaction_js_callbacks:
 
 JavaScript callbacks
 --------------------
@@ -15,29 +15,29 @@ behaviors in response to property changes and other events in the browser.
     As the name implies, JavaScript callbacks are snippets of JavaScript code
     that are executed in the browser. If you are looking for interactive
     callbacks that are based solely on Python and can be run with Bokeh Server,
-    see :ref:`userguide_interaction_callbacks_python`.
+    see :ref:`ug_interaction_python_callbacks`.
 
 There are mainly three **options for generating a JavaScript callback**:
 
 * Use the ``js_link`` Python convenience method. This method helps you link
   properties of different models together. Whith this method, Bokeh creates
   the necessary JavaScript code for you automatically. See
-  :ref:`userguide_interaction_linked` for details.
+  :ref:`ug_interaction_linked` for details.
 * Use the ``SetValue`` Python object to dynamically set the property of one
   object depending on a specific event of another object. See
-  :ref:`userguide_interaction_jscallbacks_setvalue` for more information.
+  :ref:`ug_interaction_js_callbacks_setvalue` for more information.
 * Write custom JavaScript code with the ``CustomJS`` object. See
-  :ref:`userguide_interaction_jscallbacks_customjs` for more information.
+  :ref:`ug_interaction_js_callbacks_customjs` for more information.
 
 A JavaScript callback is triggered when certain events occur in the browser.
 There are two main **types of JavaScript callback triggers**:
 
 * Most Bokeh objects have a ``.js_on_change`` property (all
-  :ref:`widgets <userguide_interaction_widgets>`, for example). The callback
+  :ref:`widgets <ug_interaction_widgets>`, for example). The callback
   assigned to this property will be called whenever the state of the object
-  changes. See :ref:`userguide_interaction_jscallbacks_js_on_change` for more
+  changes. See :ref:`ug_interaction_js_callbacks_js_on_change` for more
   information.
-* Some :ref:`widgets <userguide_interaction_widgets>` also have a
+* Some :ref:`widgets <ug_interaction_widgets>` also have a
   ``.js_on_event`` property. The callback assigned to this property will be
   called whenever a specific event occurs in the browser.
 
@@ -48,9 +48,9 @@ There are two main **types of JavaScript callback triggers**:
     user input** prior to passing it to Bokeh.
 
 Additionally, you can add entire new custom extension models by writing your
-own :ref:`Bokeh extension <userguide_extensions>`.
+own :ref:`Bokeh extension <ug_advanced_extensions>`.
 
-.. _userguide_interaction_jscallbacks_setvalue:
+.. _ug_interaction_js_callbacks_setvalue:
 
 SetValue callbacks
 ~~~~~~~~~~~~~~~~~~
@@ -71,7 +71,7 @@ automatically:
 .. bokeh-plot:: __REPO__/examples/interaction/callbacks_js_setvalue.py
     :source-position: below
 
-.. _userguide_interaction_jscallbacks_customjs:
+.. _ug_interaction_js_callbacks_customjs:
 
 CustomJS callbacks
 ~~~~~~~~~~~~~~~~~~
@@ -106,7 +106,7 @@ automatically be available to the JavaScript code by the corresponding name.
 Additionally, the model that triggers the callback (that is the model that
 the callback is attached to) will be available as ``cb_obj``.
 
-.. _userguide_interaction_jscallbacks_js_on_change:
+.. _ug_interaction_js_callbacks_js_on_change:
 
 ``js_on_change`` callback triggers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -133,7 +133,7 @@ custom formula:
 .. bokeh-plot:: __REPO__/examples/interaction/callbacks_js_on_change.py
     :source-position: above
 
-.. _userguide_interaction_jscallbacks_customjs_js_on_event:
+.. _ug_interaction_js_callbacks_customjs_js_on_event:
 
 ``js_on_event`` callback triggers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -270,4 +270,4 @@ to open an URL whenever the user clicks on a circle.
 Please note that ``OpenURL`` callbacks specifically and only work with
 ``TapTool``, and are only invoked when a glyph is hit. That is, they do not
 execute on every tap. If you would like to execute a callback on every
-mouse tap, please see :ref:`userguide_interaction_jscallbacks_customjs_js_on_event`.
+mouse tap, please see :ref:`ug_interaction_js_callbacks_customjs_js_on_event`.

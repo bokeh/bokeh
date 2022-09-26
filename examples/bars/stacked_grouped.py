@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.ColumnDataSource, bokeh.models.FactorRange, bokeh.plotting.figure.vbar_stack
-    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_stacked_and_grouped`
+    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars` > :ref:`ug_basic_bars_stacked_and_grouped`
     :keywords: bars, categorical, stacked, grouped
 
 '''

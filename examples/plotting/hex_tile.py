@@ -5,7 +5,7 @@ according to their bin counts.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.hex_tile, bokeh.transform.linear_cmap, bokeh.util.hex.hexbin
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_hex`
+    :refs: :ref:`ug_specialized` > :ref:`ug_specialized_hex`
     :keywords: hex, hex_tile, colormap
 
 '''

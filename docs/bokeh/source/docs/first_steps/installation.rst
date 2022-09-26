@@ -115,11 +115,11 @@ necessary for certain optional features:
 Jupyter
     Bokeh can display content in classic Jupyter notebooks as well as in
     JupyterLab. Depending on your setup, there may be additional packages or
-    Jupyter extensions to install. See :ref:`userguide_jupyter` for full
+    Jupyter extensions to install. See :ref:`ug_output_jupyter` for full
     details.
 
 NodeJS
-    Necessary for :ref:`userguide_extensions` or for defining
+    Necessary for :ref:`ug_advanced_extensions` or for defining
     ``CustomJS`` implementations in TypeScript.
 
 NetworkX
@@ -130,7 +130,7 @@ psutil
     Necessary to enable detailed memory logging in the Bokeh server.
 
 Selenium, GeckoDriver, Firefox
-    Necessary for :ref:`userguide_export` to PNG and SVG images.
+    Necessary for :ref:`ug_output_export` to PNG and SVG images.
 
 Sphinx
     Necessary to make use of the ``bokeh.sphinxext`` Sphinx extension for

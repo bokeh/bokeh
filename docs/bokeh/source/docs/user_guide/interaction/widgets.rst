@@ -1,23 +1,23 @@
-.. _userguide_interaction_widgets:
+.. _ug_interaction_widgets:
 
-Adding widgets
-==============
+Widgets
+=======
 
 Widgets are interactive control and display elements that can be added to Bokeh
 documents to provide a front end user interface to a visualization. Widgets can
 be added directly to the document root or be nested inside a layout.
 
 Bokeh's widgets offer a range of
-:ref:`interactive features <userguide_interaction_widgets_callbacks>` that you
+:ref:`interactive features <ug_interaction_widgets_callbacks>` that you
 can use to drive new computations, update plots, and connect to other
 programmatic functionality.
 
 Bokeh provides a simple :ref:`default set of widgets
-<userguide_interaction_widgets_examples>`. You can create your own
+<ug_interaction_widgets_examples>`. You can create your own
 custom widgets, or wrap different third party widget libraries by creating
-custom extensions as described in :ref:`userguide_extensions`.
+custom extensions as described in :ref:`ug_advanced_extensions`.
 
-.. _userguide_interaction_widgets_callbacks:
+.. _ug_interaction_widgets_callbacks:
 
 Widget interactivity
 --------------------
@@ -28,33 +28,33 @@ interactively manipulate data and properties of objects in your visualization.
 Bokeh uses callbacks to handle these interactions. There are two types of
 callbacks:
 
-* :ref:`userguide_interaction_jscallbacks`
-* :ref:`userguide_interaction_callbacks_python`
+* :ref:`ug_interaction_js_callbacks`
+* :ref:`ug_interaction_python_callbacks`
 
 Which one to use depends on whether you are using
-:ref:`Bokeh server <userguide_server>` or are generating standalone HTML output:
+:ref:`Bokeh server <ug_server>` or are generating standalone HTML output:
 
 * If you want to use widgets to interact with Bokeh objects in a **standalone**
   HTML document, the browser needs to handle all interactivity. Therefore,
-  you can only use :ref:`userguide_interaction_jscallbacks`.
+  you can only use :ref:`ug_interaction_js_callbacks`.
   You can write your own Javascript code, or use Bokeh's pre-defined Python
-  conveniences such as the :ref:`js_link <userguide_interaction_linked_properties>` function or a SetValue object
+  conveniences such as the :ref:`js_link <ug_interaction_linked_properties>` function or a SetValue object
   which generate the necessary JavaScript code for you.
 * If you want to use widgets in connection with a **Bokeh server**, the server
   can handle some interactivity. This allows you to use :ref:`callbacks
-  written in Python <userguide_interaction_callbacks_python>`.
+  written in Python <ug_interaction_python_callbacks>`.
   Additionally, since the visualization itself is displayed in a browser, you
-  still can use :ref:`userguide_interaction_jscallbacks` as
+  still can use :ref:`ug_interaction_js_callbacks` as
   well!
 
-.. _userguide_interaction_widgets_tootltips:
+.. _ug_interaction_widgets_tootltips:
 
 Widget tooltips
 ---------------
 
 [TBD] Link to tooltip / Special UI elements chapter
 
-.. _userguide_interaction_widgets_examples:
+.. _ug_interaction_widgets_examples:
 
 Bokeh's built-in widgets
 ------------------------
@@ -63,7 +63,7 @@ The sections below are examples for all widgets available in Bokeh. Many of the
 examples print output that can be observed by looking at your browser's
 JavaScript console log.
 
-.. _userguide_interaction_widgets_examples_autocompleteinput:
+.. _ug_interaction_widgets_examples_autocompleteinput:
 
 AutocompleteInput
 ~~~~~~~~~~~~~~~~~
@@ -77,7 +77,7 @@ a list of possible inputs to provide autocomplete while typing.
 More information about buttons can be found in the reference guide entry for
 |AutocompleteInput|.
 
-.. _userguide_interaction_widgets_examples_button:
+.. _ug_interaction_widgets_examples_button:
 
 Button
 ~~~~~~
@@ -115,7 +115,7 @@ selected simultaneously:
 
 More information can be found in the reference guide entry for |CheckboxButtonGroup|.
 
-.. _userguide_interaction_widgets_examples_checkboxgroup:
+.. _ug_interaction_widgets_examples_checkboxgroup:
 
 CheckboxGroup
 ~~~~~~~~~~~~~
@@ -127,7 +127,7 @@ A standard checkbox:
 
 More information can be found in the reference guide entry for |CheckboxGroup|.
 
-.. _userguide_interaction_widgets_examples_colorpicker:
+.. _ug_interaction_widgets_examples_colorpicker:
 
 ColorPicker
 ~~~~~~~~~~~
@@ -139,7 +139,7 @@ A widget to allow the user to specify an RGB color value.
 
 More information can be found in the reference guide entry for |ColorPicker|.
 
-.. _userguide_interaction_widgets_examples_datatable:
+.. _ug_interaction_widgets_examples_datatable:
 
 DataTable
 ~~~~~~~~~
@@ -154,7 +154,7 @@ plot and the table (even in static HTML documents).
 
 More information can be found in the reference guide entry for |DataTable|.
 
-.. _userguide_interaction_widgets_examples_datepicker:
+.. _ug_interaction_widgets_examples_datepicker:
 
 DatePicker
 ~~~~~~~~~~~
@@ -188,7 +188,7 @@ that it uses datetimes that include hours, minutes and seconds:
 
 More information can be found in the reference guide entry for |DatetimeRangeSlider|.
 
-.. _userguide_interaction_widgets_div:
+.. _ug_interaction_widgets_div:
 
 Div
 ~~~
@@ -200,7 +200,7 @@ A widget for displaying text that can support HTML in a <div> tag:
 
 More information can be found in the reference guide entry for |Div|.
 
-.. _userguide_interaction_widgets_examples_dropdown:
+.. _ug_interaction_widgets_examples_dropdown:
 
 Dropdown
 ~~~~~~~~
@@ -211,14 +211,14 @@ clicked.
 .. bokeh-plot:: __REPO__/examples/interaction/widget_dropdown.py
     :source-position: below
 
-Similar to the :ref:`userguide_interaction_widgets_examples_button` widget, the
+Similar to the :ref:`ug_interaction_widgets_examples_button` widget, the
 dropdown button can also use an :class:`~bokeh.models.Icon` (such as
 :class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
 :class:`~bokeh.models.TablerIcon`).`
 
 More information can be found in the reference guide entry for |Dropdown|.
 
-.. _userguide_interaction_widgets_examples_fileinput:
+.. _ug_interaction_widgets_examples_fileinput:
 
 FileInput
 ~~~~~~~~~
@@ -230,7 +230,7 @@ A widget allowing users to choose a file and store its contents.
 
 More information can be found in the reference guide entry for |FileInput|.
 
-.. _userguide_interaction_widgets_examples_helpbutton:
+.. _ug_interaction_widgets_examples_helpbutton:
 
 HelpButton
 ~~~~~~~~~~
@@ -250,7 +250,7 @@ The default behavior of the help button's tooltip is as follows:
 
 More information can be found in the reference guide entry for |HelpButton|.
 
-.. _userguide_interaction_widgets_examples_multichoice:
+.. _ug_interaction_widgets_examples_multichoice:
 
 MultiChoice
 ~~~~~~~~~~~
@@ -263,7 +263,7 @@ horizontal layout:
 
 More information can be found in the reference guide entry for |MultiChoice|.
 
-.. _userguide_interaction_widgets_examples_multiselect:
+.. _ug_interaction_widgets_examples_multiselect:
 
 MultiSelect
 ~~~~~~~~~~~
@@ -275,7 +275,7 @@ A multi-select widget to present multiple available options in vertical list:
 
 More information can be found in the reference guide entry for |MultiSelect|.
 
-.. _userguide_interaction_widgets_examples_numericinput:
+.. _ug_interaction_widgets_examples_numericinput:
 
 NumericInput
 ~~~~~~~~~~~~
@@ -287,7 +287,7 @@ A widget to allow the user to enter a numeric value.
 
 More information can be found in the reference guide entry for |NumericInput|.
 
-.. _userguide_interaction_widgets_paragraph:
+.. _ug_interaction_widgets_paragraph:
 
 Paragraph
 ~~~~~~~~~
@@ -299,7 +299,7 @@ A widget for displaying a block of text in an HTML <p> tag:
 
 More information can be found in the reference guide entry for |Paragraph|.
 
-.. _userguide_interaction_widgets_examples_passwordinput:
+.. _ug_interaction_widgets_examples_passwordinput:
 
 PasswordInput
 ~~~~~~~~~~~~~
@@ -341,7 +341,7 @@ A radio group uses standard radio button appearance:
 
 More information can be found in the reference guide entry for |RadioGroup|.
 
-.. _userguide_interaction_widgets_range_slider:
+.. _ug_interaction_widgets_range_slider:
 
 RangeSlider
 ~~~~~~~~~~~
@@ -354,7 +354,7 @@ an initial ``value``, and a ``title``:
 
 More information can be found in the reference guide entry for |RangeSlider|.
 
-.. _userguide_interaction_widgets_examples_select:
+.. _ug_interaction_widgets_examples_select:
 
 Select
 ~~~~~~
@@ -366,7 +366,7 @@ A single selection widget:
 
 More information can be found in the reference guide entry for |Select|.
 
-.. _userguide_interaction_widgets_slider:
+.. _ug_interaction_widgets_slider:
 
 Slider
 ~~~~~~
@@ -379,7 +379,7 @@ an initial ``value``, and a ``title``:
 
 More information can be found in the reference guide entry for |Slider|.
 
-.. _userguide_interaction_widgets_examples_spinner:
+.. _ug_interaction_widgets_examples_spinner:
 
 Spinner
 ~~~~~~~
@@ -391,7 +391,7 @@ A numeric spinner widget:
 
 More information can be found in the reference guide entry for |Spinner|.
 
-.. _userguide_interaction_widgets_examples_switch:
+.. _ug_interaction_widgets_examples_switch:
 
 Switch
 ~~~~~~
@@ -413,7 +413,7 @@ Tab panes allow multiple plots or layouts to be shown in selectable tabs:
 
 More information can be found in the reference guide entry for |Tabs|.
 
-.. _userguide_interaction_widgets_examples_textareainput:
+.. _ug_interaction_widgets_examples_textareainput:
 
 TextAreaInput
 ~~~~~~~~~~~~~
@@ -425,7 +425,7 @@ A widget for collecting multiple lines of text from a user:
 
 More information can be found in the reference guide entry for |TextAreaInput|.
 
-.. _userguide_interaction_widgets_examples_textinput:
+.. _ug_interaction_widgets_examples_textinput:
 
 TextInput
 ~~~~~~~~~
@@ -445,7 +445,7 @@ The toggle button holds an on/off state:
 .. bokeh-plot:: __REPO__/examples/interaction/widget_toggle_button.py
     :source-position: below
 
-Like with a standard :ref:`userguide_interaction_widgets_examples_button`
+Like with a standard :ref:`ug_interaction_widgets_examples_button`
 widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
 :class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
 :class:`~bokeh.models.TablerIcon`).`

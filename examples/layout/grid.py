@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.gridplot
-    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
+    :refs: :ref:`ug_basic_layouts` > :ref:`ug_basic_layouts_gridplot`
     :keywords: grid, gridplot
 
 '''

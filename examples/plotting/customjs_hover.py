@@ -5,7 +5,7 @@ formatting of values in tooltip fields.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.CustomJSHover, bokeh.models.HoverTool
-    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_formatting_tooltip_fields`
+    :refs: :ref:`ug_interaction_tools` > :ref:`ug_interaction_tools_formatting_tooltip_fields`
     :keywords: hover tool, CustomJSHover
 
 '''

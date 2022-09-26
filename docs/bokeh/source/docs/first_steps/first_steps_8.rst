@@ -54,13 +54,13 @@ Follow these steps to create a ``ColumnDataSource`` directly:
    :class:`~bokeh.models.sources.ColumnDataSource` in the reference guide.
 
    For information about adding data to a ColumnDataSource, see
-   :ref:`userguide_data_cds_streaming`. Information about replacing data of a
-   ColumnDataSource is available at :ref:`userguide_data_cds_patching` in the
+   :ref:`ug_basic_data_cds_streaming`. Information about replacing data of a
+   ColumnDataSource is available at :ref:`ug_basic_data_cds_patching` in the
    user guide.
 
    For more information on using Python lists, see
-   :ref:`userguide_data_python_lists`. For more information on using NumPy
-   data with Bokeh, see :ref:`userguide_data_numpy`.
+   :ref:`ug_basic_data_python_lists`. For more information on using NumPy
+   data with Bokeh, see :ref:`ug_basic_data_numpy`.
 
 Converting pandas data
 ^^^^^^^^^^^^^^^^^^^^^^
@@ -74,7 +74,7 @@ To use data from a pandas ``DataFrame``, pass your pandas data to a
 
 .. seealso::
    For more information on using pandas data in Bokeh, see
-   :ref:`userguide_data_cds_pandas_data_frame` in the user guide. This
+   :ref:`ug_basic_data_cds_pandas_data_frame` in the user guide. This
    includes information on using pandas ``DataFrame``, ``MultiIndex``, and
    ``GroupBy`` data.
 
@@ -111,6 +111,6 @@ first, the third, and the fifth value of your original list:
 
 .. seealso::
    For more information on the various filters in Bokeh, see
-   :ref:`userguide_data_filtering` in the user guide. More information is also
+   :ref:`ug_basic_data_filtering` in the user guide. More information is also
    available in the entries for :class:`~bokeh.models.sources.CDSView` and
    :class:`~bokeh.models.filters.Filter` in the reference guide.

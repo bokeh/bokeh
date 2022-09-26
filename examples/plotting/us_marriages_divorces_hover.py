@@ -4,7 +4,7 @@ as a basic line plot. Furthermore a custom tooltip is defined using the Arial fo
 .. bokeh-example-metadata::
     :sampledata: us_marriages_divorces
     :apis: bokeh.plotting.figure.line
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_lines_with_markers`
     :keywords: line, NumeralTickFormatter, SingleIntervalTicker
 
 '''

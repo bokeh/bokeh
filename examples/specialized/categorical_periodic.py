@@ -5,7 +5,7 @@ for each element.
 .. bokeh-example-metadata::
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.transform.dodge, bokeh.transform.factor_cmap
-    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_hover_tool`
+    :refs: :ref:`ug_interaction_tools` > :ref:`ug_interaction_tools_hover_tool`
     :keywords: hover, tooltip
 
 .. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table

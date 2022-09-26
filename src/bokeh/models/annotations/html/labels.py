@@ -87,7 +87,7 @@ class HTMLLabel(HTMLAnnotation):
     appearance of the text, its background, as well as the rectangular bounding
     box border.
 
-    See :ref:`userguide_annotations_labels` for information on plotting labels.
+    See :ref:`ug_basic_annotations_labels` for information on plotting labels.
 
     '''
 
@@ -249,7 +249,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
 class HTMLTitle(HTMLAnnotation):
     ''' Render a single title box as an annotation.
 
-    See :ref:`userguide_annotations_titles` for information on plotting titles.
+    See :ref:`ug_basic_annotations_titles` for information on plotting titles.
 
     '''
 

@@ -8,7 +8,7 @@ efficacies.
 .. bokeh-example-metadata::
     :sampledata: antibiotics
     :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.circle, bokeh.plotting.figure.text
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_wedges_arcs`, :ref:`userguide_styling` > :ref:`userguide_styling_visual_properties`
+    :refs: :ref:`ug_specialized_pie_glyphs`, :ref:`ug_basic_visuals_visual_properties`
     :keywords: text, wedges
 
 .. _Will Burtin's historical visualization: https://mbostock.github.io/protovis/ex/antibiotics-burtin.html

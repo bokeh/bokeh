@@ -98,9 +98,9 @@ Keep your code as simple as possible
 
 Use the |bokeh.models| API whenever possible
     Try to use Bokeh's
-    :ref:`low-level bokeh.models interface <userguide_interfaces_models>`
+    :ref:`low-level bokeh.models interface <ug_interfaces_models>`
     instead of the more high-level
-    :ref:`bokeh.plotting interface <userguide_interfaces_plotting>`.
+    :ref:`bokeh.plotting interface <ug_interfaces_plotting>`.
 
 .. _contributor_guide_writing_tests_bokehjs:
 

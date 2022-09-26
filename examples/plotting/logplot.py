@@ -4,7 +4,7 @@ combinations are automatically added to a legend.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_lines_with_markers`
     :keywords: lines, legend, log scale, scatter
 
 '''

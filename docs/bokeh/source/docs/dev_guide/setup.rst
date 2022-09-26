@@ -262,7 +262,7 @@ first steps guides for more details.
 8. Set environment variables
 ----------------------------
 
-Bokeh uses :ref:`environment variables <userguide_settings>` to control several
+Bokeh uses :ref:`environment variables <ug_settings>` to control several
 aspects of how the different parts of the library operate and interact.
 
 To learn about all environment variables available in Bokeh, see
@@ -452,7 +452,7 @@ called.
 .. note::
     Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=absolute-dev``, which
     causes rendering problems when used with :term:`Bokeh server <Server>` or in
-    :ref:`Jupyter notebooks <userguide_jupyter>`. To avoid those problems,
+    :ref:`Jupyter notebooks <ug_output_jupyter>`. To avoid those problems,
     use the following settings instead:
 
     * Set ``BOKEH_RESOURCES`` to ``server`` for server

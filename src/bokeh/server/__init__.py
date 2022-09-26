@@ -9,7 +9,7 @@
 The architecture of Bokeh is such that high-level "model objects"
 (representing things like plots, ranges, axes, glyphs, etc.) are created
 in Python, and then converted to a JSON format that is consumed by the
-client library, BokehJS. (See :ref:`userguide_concepts` for a more detailed
+client library, BokehJS. (See :ref:`ug_intro` for a more detailed
 discussion.) By itself, this flexible and decoupled design offers advantages,
 for instance it is easy to have other languages (R, Scala, Lua, ...) drive
 the exact same Bokeh plots and visualizations in the browser.

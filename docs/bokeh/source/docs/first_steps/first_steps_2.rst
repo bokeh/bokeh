@@ -12,13 +12,13 @@ other kinds of graphs. You will also customize what your glyphs look like.
 Rendering different glyphs
 --------------------------
 
-Bokeh's :ref:`plotting <userguide_plotting>` interface supports many different
+Bokeh's :ref:`plotting <ug_basic>` interface supports many different
 glyphs, such as lines, bars, hex tiles, or other polygons.
 
 .. seealso::
    A full list of all supported glyph methods is available in Bokeh's reference
    guide for the |figure| function. For detailed
-   information on Bokeh's glyphs, see :ref:`userguide_plotting` in Bokeh's user
+   information on Bokeh's glyphs, see :ref:`ug_basic` in Bokeh's user
    guide.
 
 Rendering circles
@@ -63,7 +63,7 @@ visualization:
 
 .. seealso::
     To learn more about bar graphs and other ways Bokeh handles categorical
-    data, see :ref:`userguide_bars` in the user guide.
+    data, see :ref:`ug_basic_bars` in the user guide.
 
 Customizing glyphs
 ------------------
@@ -90,7 +90,7 @@ color properties of an object to the same color. For example, passing
 ``"yellow"`` to a circle's ``color`` property is the same as setting
 ``fill_color`` and ``line_color`` to yellow individually.
 
-In Bokeh, you can :ref:`specify colors <userguide_styling_colors>` in several
+In Bokeh, you can :ref:`specify colors <ug_basic_visuals_colors>` in several
 ways. For example:
 
 * Use one of the |named CSS colors| (for example, ``"firebrick"``)
@@ -155,7 +155,7 @@ outputting the plot:
 
 .. seealso::
     For more information about the various visual properties, see
-    :ref:`userguide_styling_glyphs` and :ref:`userguide_styling_visual_properties`
+    :ref:`ug_basic_visuals_glyphs` and :ref:`ug_basic_visuals_visual_properties`
     in the user guide.
 
     Each type of glyph has different properties. Refer to

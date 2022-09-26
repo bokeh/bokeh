@@ -54,7 +54,7 @@ It is also possible to set the color and alpha parameters of extra glyphs for
 selection, nonselection, hover, or muted. To do so, add the relevant prefix to
 any visual parameter. For example, pass ``nonselection_alpha`` to set the line
 and fill alpha for nonselect, or ``hover_fill_alpha`` to set the fill alpha for
-hover. See the :ref:`userguide_styling_glyphs` section of the user guide for
+hover. See the :ref:`ug_basic_visuals_glyphs` section of the user guide for
 full details.
 
 Returns:
@@ -120,7 +120,7 @@ Other Parameters:
     color (color, optional) :
         An alias to set all color keyword arguments at once. (default: None)
 
-        See :ref:`userguide_styling_colors` in the user guide for different
+        See :ref:`ug_basic_visuals_colors` in the user guide for different
         options to define colors.
 
         Any explicitly set values for ``line_color``, etc. will override this
@@ -128,7 +128,7 @@ Other Parameters:
 
     legend_field (str, optional) :
         Specify that the glyph should produce multiple legend entries by
-        :ref:`grouping them in the browser <userguide_annotations_legends_legend_field>`.
+        :ref:`grouping them in the browser <ug_basic_annotations_legends_legend_field>`.
         The value of this parameter is the name of a column in the data source
         that should be used or the grouping.
 
@@ -142,7 +142,7 @@ Other Parameters:
 
     legend_group (str, optional) :
         Specify that the glyph should produce multiple legend entries by
-        :ref:`grouping them in Python <userguide_annotations_legends_legend_group>`.
+        :ref:`grouping them in Python <ug_basic_annotations_legends_legend_group>`.
         The value of this parameter is the name of a column in the data source
         that should be used or the grouping.
 
@@ -156,7 +156,7 @@ Other Parameters:
 
     legend_label (str, optional) :
         Specify that the glyph should produce a single
-        :ref:`basic legend label <userguide_annotations_legends_legend_label>` in
+        :ref:`basic legend label <ug_basic_annotations_legends_legend_label>` in
         the legend. The legend entry is labeled with the exact text supplied
         here.
 

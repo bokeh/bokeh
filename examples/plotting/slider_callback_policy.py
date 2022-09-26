@@ -5,7 +5,7 @@ interaction events.
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.column, bokeh.models.callbacks.CustomJS
-    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs_js_on_event`
+    :refs: :ref:`ug_interaction_js_callbacks` > :ref:`ug_interaction_js_callbacks_customjs_js_on_event`
     :keywords: javascript callback
 
 '''

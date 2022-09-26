@@ -6,7 +6,7 @@ information for each bar.
 .. bokeh-example-metadata::
     :sampledata: autompg
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
-    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_pandas`
+    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars` > :ref:`ug_basic_bars_pandas`
     :keywords: bars, categorical, colormap, groupby, pandas
 
 .. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg

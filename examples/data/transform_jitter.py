@@ -4,7 +4,7 @@
 .. bokeh-example-metadata::
     :sampledata: autompg
     :apis: bokeh.plotting.figure.scatter, bokeh.layouts.column, bokeh.transform.jitter
-    :refs: :ref:`userguide_data` > :ref:`userguide_data_transforming`
+    :refs: :ref:`ug_basic_data` > :ref:`ug_basic_data_transforming`
     :keywords: column, jitter, scatter
 
 '''

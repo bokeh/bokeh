@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.segment
-    :refs: :ref:`userguide_bars`
+    :refs: :ref:`ug_basic_bars`
     :keywords: circle, dotplot, segments
 
 '''

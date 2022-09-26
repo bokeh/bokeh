@@ -3,7 +3,7 @@ for the lable values.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.add_layout, bokeh.plotting.figure.cirlce, bokeh.models.LinearAxis
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_twin_axes`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_axes_twin`
     :keywords: add_layout, axis, axis_label, axis_label_text_color, cirlce, extra_y_ranges, LinearAxis
 
 '''

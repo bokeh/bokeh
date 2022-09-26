@@ -32,7 +32,7 @@ circle.
 
 .. seealso::
     For more information on how to map data points to colors and color palettes,
-    see :ref:`userguide_styling_using_mappers` in the user guide.
+    see :ref:`ug_basic_visuals_using_mappers` in the user guide.
 
 .. _first_steps_5_colors_and_radii:
 
@@ -79,7 +79,7 @@ Then assign your color mapper to the ``color`` parameter of your renderer:
 
 .. seealso::
    For more information about color mapping and other similar operations, see
-   :ref:`userguide_styling_using_mappers` and :ref:`userguide_data_transforming`
+   :ref:`ug_basic_visuals_using_mappers` and :ref:`ug_basic_data_transforming`
    in the user guide. In addition to ``linear_cmap``, this includes ``log_cmap``
    and ``factor_cmap``, for example.
 

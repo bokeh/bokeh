@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.from_networkx
-    :refs: :ref:`userguide_graph`
+    :refs: :ref:`ug_specialized_graph`
     :keywords: graph, hover, networkx, tooltip
 
 '''

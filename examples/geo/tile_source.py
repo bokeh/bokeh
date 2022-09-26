@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.add_tile
-    :refs:  :ref:`userguide_geo` > :ref:`userguide_tools`
+    :refs:  :ref:`ug_specialized_geo` > :ref:`ug_interaction_tools`
     :keywords: map, geo, tiles
 
 """

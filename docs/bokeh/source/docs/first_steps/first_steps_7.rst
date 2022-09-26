@@ -46,7 +46,7 @@ just like you did for |show|.
 
 .. seealso::
     For more information on embedding Bokeh visualizations online, see
-    :ref:`userguide_embed` in the user guide.
+    :ref:`ug_output_embed` in the user guide.
 
 .. note::
     By default, Bokeh-generated HTML files include a standard version of BokehJS
@@ -71,7 +71,7 @@ your notebook:
 
 .. seealso::
     For more information on using Jupyter notebooks, see
-    :ref:`userguide_jupyter` in the user guide.
+    :ref:`ug_output_jupyter` in the user guide.
 
     Interact directly with `live tutorial notebooks <https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb>`_
     hosted online by MyBinder.
@@ -97,7 +97,7 @@ environment:
 
     conda install selenium geckodriver firefox -c conda-forge
 
-See :ref:`userguide_export_dependencies` for more options to install the
+See :ref:`ug_output_export_dependencies` for more options to install the
 required packages.
 
 Once the requirements are installed, you can use the
@@ -109,4 +109,4 @@ Once the requirements are installed, you can use the
 
 .. seealso::
     For information on how to export PNG and SVG files, see
-    :ref:`userguide_export` in the user guide.
+    :ref:`ug_output_export` in the user guide.

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_bars_rects`
+    :refs: :ref:`ug_basic_areas_rects`
     :keywords: histogram
 
 '''

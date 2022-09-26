@@ -56,8 +56,8 @@ folders containing Python code:
   :bokeh-tree:`src/bokeh` folder.
 
   Everything that comprises a Bokeh visualization (such as
-  :ref:`tools <userguide_tools>`, :term:`glyphs <Glyph>`,
-  :term:`widgets <Widget>`, or :ref:`ColumnDataSources <userguide_data_cds>`) is
+  :ref:`tools <ug_interaction_tools>`, :term:`glyphs <Glyph>`,
+  :term:`widgets <Widget>`, or :ref:`ColumnDataSources <ug_basic_data_cds>`) is
   based on a Bokeh model. The Python code for all models is located in
   :bokeh-tree:`src/bokeh/models`. See :ref:`contributor_guide_python_models` below
   for more information on models.
@@ -65,14 +65,14 @@ folders containing Python code:
   Other subdirectories in this folder include:
 
   * :bokeh-tree:`src/bokeh/plotting` contains Bokeh's :ref:`plotting interface
-    <userguide_interfaces_plotting>`
+    <ug_interfaces_plotting>`
   * :bokeh-tree:`src/bokeh/colors` contains code for handling
-    :ref:`colors <userguide_styling_colors>`
+    :ref:`colors <ug_basic_visuals_colors>`
   * :bokeh-tree:`src/bokeh/embed` contains code for :ref:`embedding Bokeh content
-    in web pages <userguide_embed>`.
+    in web pages <ug_output_embed>`.
   * :bokeh-tree:`src/bokeh/io` contains code for Bokeh's IO functions, such as
-    :ref:`file export <userguide_export>` and :ref:`notebook output
-    <userguide_jupyter>`
+    :ref:`file export <ug_output_export>` and :ref:`notebook output
+    <ug_output_jupyter>`
   * :bokeh-tree:`src/bokeh/palettes` contains code for Bokeh's :ref:`palettes
     <bokeh.palettes>`
   * :bokeh-tree:`src/bokeh/sphinxext` contains code for custom Sphinx extension
@@ -102,7 +102,7 @@ Models and properties
 
 The central building blocks of all Bokeh visualizations are objects based on
 Bokeh's :term:`models <Model>`. These models are representations of
-:term:`plot <Plot>` elements, such as :ref:`axes <userguide_styling_axes>`,
+:term:`plot <Plot>` elements, such as :ref:`axes <ug_basic_visuals_axes>`,
 :term:`glyphs <Glyph>`, or :term:`widgets <Widget>`.
 
 On the Python side, Bokeh serializes the attributes of each plot element object

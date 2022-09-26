@@ -4,7 +4,7 @@
 .. bokeh-example-metadata::
     :sampledata: autompg
     :apis: bokeh.plotting.Figure.circle
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
+    :refs: :ref:`ug_basic` > :ref:`ug_basic_scatters_markers`
     :keywords: scatter, linked brushing
 
 '''
