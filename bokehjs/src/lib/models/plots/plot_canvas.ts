@@ -270,8 +270,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.canvas_view = await build_view(canvas, {parent: this})
     this.canvas_view.plot_views = [this]
 
-    await this.build_renderer_views()
     await this.build_tool_views()
+    await this.build_renderer_views()
 
     this._range_manager.update_dataranges()
   }
@@ -622,8 +622,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (this._toolbar != null)
       yield this._toolbar
 
-    for (const tool of this.model.toolbar.tools) {
-      yield* tool.computed_overlays
+    for (const [, view] of this.tool_views) {
+      yield* view.overlays
     }
   }
 
@@ -665,8 +665,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     })
 
     this.connect(this.model.toolbar.properties.tools.change, async () => {
-      await this.build_renderer_views()
       await this.build_tool_views()
+      await this.build_renderer_views()
     })
 
     const {x_ranges, y_ranges} = this.frame

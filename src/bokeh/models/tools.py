@@ -95,7 +95,7 @@ from ..core.validation.errors import (
 )
 from ..model import Model
 from ..util.strings import nice_join
-from .annotations import BoxAnnotation, PolyAnnotation
+from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
 from .dom import Template
 from .glyphs import (
@@ -700,6 +700,28 @@ class CrosshairTool(InspectTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    overlay = Either(
+        Auto,
+        Instance(Span),
+        Tuple(Instance(Span), Instance(Span)), default="auto", help="""
+    An annotation drawn to indicate the crosshair.
+
+    If ``"auto"``, this will create spans depending on the ``dimensions``
+    property, which based on its value, will result in either one span
+    (horizontal or vertical) or two spans (horizontal and vertical).
+
+    Alternatively the user can provide one ``Span`` instance, where the
+    dimension is indicated by the ``dimension`` property of the ``Span``.
+    Also two ``Span`` instances can be provided. Providing explicit
+    ``Span`` instances allows for constructing linked crosshair, when
+    those instances are shared between crosshair tools of different plots.
+
+    .. note::
+        This property is experimental and may change at any point. In
+        particular in future this will allow using other annotations
+        than ``Span`` and annotation groups.
+    """)
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the crosshair tool is to track. By default, both vertical

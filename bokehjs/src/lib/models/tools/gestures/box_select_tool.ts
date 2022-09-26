@@ -9,6 +9,10 @@ import * as icons from "styles/icons.css"
 export class BoxSelectToolView extends SelectToolView {
   override model: BoxSelectTool
 
+  override get overlays() {
+    return [...super.overlays, this.model.overlay]
+  }
+
   protected _base_point: [number, number] | null
 
   protected _compute_limits(curpoint: [number, number]): [[number, number], [number, number]] {
@@ -97,8 +101,6 @@ export class BoxSelectTool extends SelectTool {
   override properties: BoxSelectTool.Props
   override __view_type__: BoxSelectToolView
 
-  override overlay: BoxAnnotation
-
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
   }
@@ -137,9 +139,5 @@ export class BoxSelectTool extends SelectTool {
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
-  }
-
-  override get computed_overlays() {
-    return [...super.computed_overlays, this.overlay]
   }
 }

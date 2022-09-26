@@ -1,9 +1,9 @@
 import {display, fig} from "./_util"
+import {PlotActions, xy} from "./_interactive"
 
-import {PanTool, SaveTool} from "@bokehjs/models"
-import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
-import {paint, delay} from "@bokehjs/core/util/defer"
-import {linspace, zip} from "@bokehjs/core/util/array"
+import {PanTool, SaveTool, CrosshairTool, Span, GridBox} from "@bokehjs/models"
+import {paint} from "@bokehjs/core/util/defer"
+import {assert} from "@bokehjs/core/util/assert"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -79,77 +79,44 @@ describe("Feature", () => {
       const {view} = await display(p)
       await paint()
 
-      async function trigger() {
-        const el = view.canvas.events_el
+      const actions = new PlotActions(view)
+      await actions.pan(xy(1, 1), xy(4, 4))
+      await actions.pan(xy(2, 2), xy(3, 3))
+      await actions.double_tap(xy(2.5, 2.5))
+    })
+  })
 
-        type Point = {x: number, y: number}
-        function screen({x, y}: Point): {clientX: number, clientY: number} {
-          const {x_scale, y_scale} = view.frame
-          const {left, top} = offset_bbox(el)
-          return {
-            clientX: left + x_scale.compute(x),
-            clientY: top + y_scale.compute(y),
-          }
-        }
+  describe("in issue #3799", () => {
+    it("should allow to linked crosshairs", async () => {
+      const width = new Span({dimension: "width", line_dash: "dashed"})
+      const height = new Span({dimension: "height", line_dash: "dotted"})
 
-        const common: Partial<PointerEventInit> = {
-          bubbles: true,
-          composed: true,
-          isPrimary: true,
-          pointerType: "mouse",
-          pointerId: 1,
-          ctrlKey: false,
-          shiftKey: false,
-          view: window,
-        }
+      const tool0 = new CrosshairTool({overlay: [width, height]})
+      const tool1 = new CrosshairTool({overlay: [width, height]})
 
-        const MOVE_PRESSURE = 0.0
-        const DRAG_PRESSURE = 0.5
+      const p0 = fig([200, 400], {tools: [tool0], toolbar_location: "above"})
+      p0.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
 
-        function* move(start: Point, end: Point, n: number = 5, pressure: number = MOVE_PRESSURE): Iterable<PointerEvent> {
-          const xs = linspace(start.x, end.x, n)
-          const ys = linspace(start.y, end.y, n)
-          for (const [x, y] of zip(xs, ys)) {
-            yield new PointerEvent("pointermove",  {...common, ...screen({x, y}), pressure, buttons: MouseButton.Left})
-          }
-        }
+      const p1 = fig([400, 200], {tools: [tool1], toolbar_location: "right"})
+      p1.circle({x: [1, 2, 3, 4], y: [1, 2, 3, 4], radius: [0.25, 0.50, 0.75, 1.00], fill_alpha: 0.8})
 
-        function* pan(start: Point, end: Point, n: number = 5): Iterable<PointerEvent> {
-          yield new PointerEvent("pointerdown", {...common, ...screen(start), pressure: DRAG_PRESSURE, buttons: MouseButton.Left})
-          yield* move(start, end, n, DRAG_PRESSURE)
-          yield new PointerEvent("pointerup",   {...common, ...screen(end), pressure: MOVE_PRESSURE})
-        }
+      const grid = new GridBox({
+        children: [
+          [p0, 0, 0],
+          [p1, 1, 1],
+        ],
+        cols: "min",
+        rows: "min",
+      })
 
-        function* tap(xy: Point): Iterable<PointerEvent> {
-          const sxy = screen(xy)
-          yield new PointerEvent("pointerdown", {...common, ...sxy, pressure: DRAG_PRESSURE, buttons: MouseButton.Left})
-          yield new PointerEvent("pointerup",   {...common, ...sxy, pressure: MOVE_PRESSURE})
-        }
+      const {view} = await display(grid)
+      await paint()
 
-        function* dbltap(xy: Point): Iterable<PointerEvent> {
-          yield* tap(xy)
-          yield* tap(xy)
-        }
+      const pv0 = view.owner.find_one(p0)
+      assert(pv0 != null, "view not found")
 
-        function xy(x: number, y: number): Point {
-          return {x, y}
-        }
-
-        const events = [
-          pan(xy(1, 1), xy(4, 4)),
-          pan(xy(2, 2), xy(3, 3)),
-          dbltap(xy(2.5, 2.5)),
-        ]
-
-        for (const seq of events) {
-          for (const ev of seq) {
-            el.dispatchEvent(ev)
-            await delay(5)
-          }
-        }
-      }
-
-      await trigger()
+      const actions = new PlotActions(pv0)
+      await actions.hover(xy(1, 1), xy(4, 4))
     })
   })
 })

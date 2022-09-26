@@ -9417,6 +9417,7 @@ CrosshairTool:
   icon: null
   description: null
   toggleable: true
+  overlay: auto
   dimensions: both
   line_color: black
   line_alpha: 1.0

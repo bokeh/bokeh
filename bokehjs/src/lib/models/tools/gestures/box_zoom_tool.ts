@@ -14,6 +14,10 @@ type Point = [number, number]
 export class BoxZoomToolView extends GestureToolView {
   override model: BoxZoomTool
 
+  override get overlays() {
+    return [...super.overlays, this.model.overlay]
+  }
+
   protected _base_point: Point | null = null
 
   _match_aspect([bx, by]: Point, [cx, cy]: Point, frame: CartesianFrame): [Point, Point] {
@@ -222,8 +226,6 @@ export class BoxZoomTool extends GestureTool {
   override properties: BoxZoomTool.Props
   override __view_type__: BoxZoomToolView
 
-  override overlay: BoxAnnotation
-
   constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)
   }
@@ -267,10 +269,6 @@ export class BoxZoomTool extends GestureTool {
 
   override get tooltip(): string {
     return this._get_dim_tooltip(this.dimensions)
-  }
-
-  override get computed_overlays() {
-    return [...super.computed_overlays, this.overlay]
   }
 
   override get menu(): MenuItem[] | null {

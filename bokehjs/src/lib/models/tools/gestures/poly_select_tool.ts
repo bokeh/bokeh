@@ -10,6 +10,10 @@ import {tool_icon_polygon_select} from "styles/icons.css"
 export class PolySelectToolView extends SelectToolView {
   override model: PolySelectTool
 
+  override get overlays() {
+    return [...super.overlays, this.model.overlay]
+  }
+
   protected data: {sx: number[], sy: number[]}
 
   override initialize(): void {
@@ -91,8 +95,6 @@ export class PolySelectTool extends SelectTool {
   override properties: PolySelectTool.Props
   override __view_type__: PolySelectToolView
 
-  override overlay: PolyAnnotation
-
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
   }
@@ -111,8 +113,4 @@ export class PolySelectTool extends SelectTool {
   override tool_icon = tool_icon_polygon_select
   override event_type = "tap" as "tap"
   override default_order = 11
-
-  override get computed_overlays() {
-    return [...super.computed_overlays, this.overlay]
-  }
 }
