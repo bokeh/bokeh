@@ -1,6 +1,6 @@
 import {Transform} from "./base"
 import {BaseLineGL, LineGLVisuals} from "./base_line"
-import {Float32Buffer} from "./buffer"
+import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {LineView} from "../line"
 
@@ -9,9 +9,35 @@ export class LineGL extends BaseLineGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(_indices: number[], main_glyph: LineView, transform: Transform): void {
-    // _indices are ignored.
-    this._draw_impl(transform, main_glyph.glglyph!)
+  override draw(indices: number[], main_glyph: LineView, transform: Transform): void {
+    this._draw_impl(indices, transform, main_glyph.glglyph!)
+  }
+
+  protected override _get_show_buffer(indices: number[], main_gl_glyph: LineGL): Uint8Buffer {
+    // If displaying all indices use main glyph's _show.
+    // Otherwise use this._show which is updated from the indices.
+    const main_show: Uint8Buffer = main_gl_glyph._show!
+    let show = main_show
+
+    if (indices.length != main_show.length-1) {
+      const n = main_show.length
+      const main_show_array = main_show.get_sized_array(n)
+
+      if (this._show == null)
+        this._show = new Uint8Buffer(this.regl_wrapper)
+      const show_array = this._show.get_sized_array(n)   // equal to npoints+1
+      show_array.fill(0)
+
+      for (let k = 0; k < indices.length; k++) {
+        if (indices[k+1] == indices[k]+1 && main_show_array[indices[k]+1])
+          show_array[indices[k]+1] = 1
+      }
+
+      this._show.update()
+      show = this._show
+    }
+
+    return show
   }
 
   protected override _get_visuals(): LineGLVisuals {

@@ -1,6 +1,6 @@
 import {Transform} from "./base"
 import {BaseLineGL, LineGLVisuals} from "./base_line"
-import {Float32Buffer} from "./buffer"
+import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {StepView} from "../step"
 import {assert, unreachable} from "core/util/assert"
@@ -10,9 +10,13 @@ export class StepGL extends BaseLineGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(_indices: number[], main_glyph: StepView, transform: Transform): void {
-    // _indices are ignored.
-    this._draw_impl(transform, main_glyph.glglyph!)
+  override draw(indices: number[], main_glyph: StepView, transform: Transform): void {
+    this._draw_impl(indices, transform, main_glyph.glglyph!)
+  }
+
+  protected override _get_show_buffer(_indices: number[], main_gl_glyph: StepGL): Uint8Buffer {
+    // Ignoring indices temporarily.
+    return main_gl_glyph._show!
   }
 
   protected override _get_visuals(): LineGLVisuals {
