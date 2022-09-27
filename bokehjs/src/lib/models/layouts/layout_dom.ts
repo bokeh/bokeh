@@ -476,7 +476,15 @@ export abstract class LayoutDOMView extends UIElementView {
 
     const {sizing_mode} = this.model
     if (sizing_mode != null) {
-      if (sizing_mode == "fixed")
+      if (sizing_mode == "inherit") {
+        if (this.parent instanceof LayoutDOMView) {
+          const sizing = this.parent.box_sizing()
+          width_policy = sizing.width_policy
+          height_policy = sizing.height_policy
+          if (aspect_ratio == null)
+            aspect_ratio = sizing.aspect_ratio
+        }
+      } else if (sizing_mode == "fixed")
         width_policy = height_policy = "fixed"
       else if (sizing_mode == "stretch_both")
         width_policy = height_policy = "max"

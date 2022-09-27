@@ -445,7 +445,7 @@ ScrollbarPolicy = enumeration("auto", "visible", "hidden")
 SelectionMode = enumeration("replace", "append", "intersect", "subtract")
 
 #: Sizing mode policies
-SizingModeType = Literal["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"]
+SizingModeType = Literal["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit"]
 SizingMode = enumeration(SizingModeType)
 
 #: Individual sizing mode policies

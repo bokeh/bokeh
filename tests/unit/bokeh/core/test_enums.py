@@ -280,7 +280,7 @@ class Test_bce:
         assert tuple(bce.SelectionMode) == ("replace", "append", "intersect", "subtract")
 
     def test_SizingMode(self) -> None:
-        assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+        assert tuple(bce.SizingMode) == ("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
 
     def test_SortDirection(self) -> None:
         assert tuple(bce.SortDirection) == ("ascending", "descending")

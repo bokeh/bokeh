@@ -225,6 +225,11 @@ class LayoutDOM(UIElement):
 
     Possible scenarios:
 
+    ``"inherit"``
+        The sizing mode is inherited from the parent layout. If there is no parent
+        layout (or parent is not a layout), then this value is treated as if no
+        value for ``sizing_mode`` was provided.
+
     ``"fixed"``
         Component is not responsive. It will retain its original width and height
         regardless of any subsequent browser window resize events.

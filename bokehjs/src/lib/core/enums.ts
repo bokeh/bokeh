@@ -160,8 +160,8 @@ export const SelectionMode = Enum("replace", "append", "intersect", "subtract")
 export type Side = "above" | "below" | "left" | "right"
 export const Side = Enum("above", "below", "left", "right")
 
-export type SizingMode = "stretch_width" | "stretch_height" | "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed"
-export const SizingMode = Enum("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed")
+export type SizingMode = "stretch_width" | "stretch_height" | "stretch_both" | "scale_width" | "scale_height" | "scale_both" | "fixed" | "inherit"
+export const SizingMode = Enum("stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit")
 
 export type Sort = "ascending" | "descending"
 export const Sort = Enum("ascending", "descending")

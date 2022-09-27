@@ -190,7 +190,7 @@ describe("enums module", () => {
   })
 
   it("should have SizingMode", () => {
-    expect([...enums.SizingMode]).to.be.equal(["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed"])
+    expect([...enums.SizingMode]).to.be.equal(["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit"])
   })
 
   it("should have Sort", () => {
