@@ -37,7 +37,7 @@ include:
 * Focusing on what is best for the community
 * Showing empathy towards other community members
 
-All of these serve to help the make the project better, but also serve to make
+All of these serve to help make the project better, but also serve to make
 the experience of participating in the project better as well.
 
 Examples of unacceptable behavior by participants include:
