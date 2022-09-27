@@ -56,7 +56,7 @@ First steps guides
 Follow these guides to quickly learn about the most important features and
 capabilities of Bokeh.
 
-The first steps are for anybody who is new to Bokeh. The only
+The first steps guides are for anybody who is new to Bokeh. The only
 prerequisites for using these guides are a basic understanding of Python and a
 working :ref:`installation<first_steps_installing>` of Bokeh.
 
