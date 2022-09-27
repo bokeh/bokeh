@@ -41,7 +41,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   abstract override draw(_indices: number[], main_glyph: GlyphView, transform: Transform): void
 
-  protected _draw_impl(transform: Transform, main_gl_glyph: BaseLineGL): void {
+  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: BaseLineGL): void {
     if (this.visuals_changed) {
       this._set_visuals()
       this.visuals_changed = false
@@ -56,6 +56,8 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     const line_cap = cap_lookup[line_visuals.line_cap.value]
     const line_join = join_lookup[line_visuals.line_join.value]
     const points = main_gl_glyph._points!
+    const nsegments = points.length/2 - 3  // Points array includes extra points at each end
+    const show = this._get_show_buffer(indices, main_gl_glyph)
 
     const solid_props: LineGlyphProps = {
       scissor: this.regl_wrapper.scissor,
@@ -67,8 +69,8 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       antialias: this._antialias,
       miter_limit: this._miter_limit,
       points,
-      show: main_gl_glyph._show!,
-      nsegments: points.length/2 - 3,  // Points array includes extra points at each end
+      show,
+      nsegments,
       line_join,
       line_cap,
     }
@@ -87,10 +89,12 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     }
   }
 
+  protected abstract _get_show_buffer(indices: number[], main_gl_glyph: BaseLineGL): Uint8Buffer
+
   protected abstract _get_visuals(): LineGLVisuals
 
   protected _is_dashed(): boolean {
-    return this._line_dash.length > 0
+    return this._line_dash != null && this._line_dash.length > 0
   }
 
   protected _set_data(): void {

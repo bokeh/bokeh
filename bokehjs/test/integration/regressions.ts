@@ -1988,6 +1988,27 @@ describe("Bug", () => {
 
       await display(row([p0, p1]))
     })
+
+    it("prevents selection of webgl line segments using indices", async () => {
+      const angles = np.linspace(0, 2*np.pi, 13)
+      const x = np.cos(angles)
+      const y = np.sin(angles)
+      y[10] = NaN
+      const selected = new Selection({indices: [0, 1, 2, 4, 6, 7, 9, 10]})
+      const source = new ColumnDataSource({data: {x, y}, selected})
+
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 4})
+        p.circle({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
   })
 
   describe("in issue #12361", () => {
