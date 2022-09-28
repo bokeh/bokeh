@@ -62,7 +62,12 @@ class DefaultsSerializer(Serializer):
 
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Model):
-            properties = obj.properties_with_values(include_defaults=True)
+            # filter only own properties and overrides
+            def query(prop: PropertyDescriptor[Any]) -> bool:
+                return (prop.readonly or prop.serialized) and \
+                    (prop.name in obj.__class__.__properties__ or prop.name in obj.__class__.__overridden_defaults__)
+
+            properties = obj.query_properties_with_values(query, include_defaults=True, include_undefined=True)
             attributes = {key: self.encode(val) for key, val in properties.items()}
             rep = ObjectRep(
                 type="object",
@@ -84,10 +89,12 @@ def collect_defaults() -> dict[str, Any]:
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
             obj = model()
 
+        # filter only own properties and overrides
         def query(prop: PropertyDescriptor[Any]) -> bool:
-            return prop.readonly or prop.serialized
+            return (prop.readonly or prop.serialized) and \
+                (prop.name in obj.__class__.__properties__ or prop.name in obj.__class__.__overridden_defaults__)
 
-        properties = obj.query_properties_with_values(query, include_undefined=True)
+        properties = obj.query_properties_with_values(query, include_defaults=True, include_undefined=True)
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
         defaults[name] = attributes
 
