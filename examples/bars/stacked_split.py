@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.hbar_stack
-    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars` > :ref:`ug_basic_bars_stacked`
+    :refs: :ref:`ug_basic_bars_stacked`
     :keywords: bars, categorical, stacked
 
 '''

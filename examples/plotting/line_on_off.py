@@ -4,13 +4,10 @@
 
 import numpy as np
 
-from bokeh.io import output_file, show
 from bokeh.layouts import row
 from bokeh.models import CheckboxGroup, CustomJS
 from bokeh.palettes import Viridis3
-from bokeh.plotting import figure
-
-output_file("line_on_off.html", title="line_on_off.py example")
+from bokeh.plotting import figure, show
 
 p = figure()
 props = dict(line_width=4, line_alpha=0.7)

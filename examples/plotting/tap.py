@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.models import TapTool
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
@@ -25,7 +25,5 @@ tr = p.text(x, y, text=inds, alpha=0.5, text_font_size="7px",
 
 # in the browser console, you will see messages when circles are clicked
 tool = p.select_one(TapTool).renderers = [cr]
-
-output_file("tap.html", title="tap.py example")
 
 show(p)  # open a browser

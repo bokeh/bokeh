@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.gridplot, bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.plotting.figure.square
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_legends`
+    :refs: :ref:`ug_basic_annotations_legends`
     :keywords: gridplot
 
 '''

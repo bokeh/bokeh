@@ -5,7 +5,7 @@
 import numpy as np
 
 from bokeh.models import ColumnDataSource, CustomJS, TapTool
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # The data is setup to have very different scales in x and y, to verify
 # that picking happens in pixels. Different widths are used to test that
@@ -39,7 +39,5 @@ l3 = p.line(t, 100*np.sin(t*50+2), color='royalblue', line_width=10)
 p.text(0, -100, text_color='text_color', source=source)
 
 p.add_tools(TapTool(callback=CustomJS(code=code, args=dict(source=source))))
-
-output_file("line_select.html", title="line_select.py example")
 
 show(p)

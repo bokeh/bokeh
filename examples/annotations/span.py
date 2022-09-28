@@ -2,12 +2,12 @@ import time
 from datetime import datetime as dt
 
 from bokeh.models import Span
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.daylight import daylight_warsaw_2013
 
-output_file("span.html", title="span.py example")
-
 p = figure(x_axis_type="datetime", y_axis_type="datetime")
+p.title.text = "2013 Sunrise and Sunset times in Warsaw"
+p.yaxis.axis_label = 'Time of Day'
 
 p.line(daylight_warsaw_2013.Date, daylight_warsaw_2013.Sunset,
        line_color='#0072B2', line_dash='solid', line_width=2,
@@ -27,8 +27,5 @@ daylight_savings_end = Span(location=end_date,
                             dimension='height', line_color='#F0E442',
                             line_dash='dashed', line_width=3)
 p.add_layout(daylight_savings_end)
-
-p.title.text = "2013 Sunrise and Sunset times in Warsaw"
-p.yaxis.axis_label = 'Time of Day'
 
 show(p)

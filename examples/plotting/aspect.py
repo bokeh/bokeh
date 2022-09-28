@@ -1,5 +1,5 @@
 from bokeh.layouts import layout
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 p1 = figure(match_aspect=True, title="Circle touches all 4 sides of square")
 p1.rect(0, 0, 300, 300, line_color='black')
@@ -25,5 +25,4 @@ p3s = [draw_test_figure(width=a, height=b) for (a, b) in sizes]
 
 layout = layout(children=[[p1], p2s, p3s])
 
-output_file("aspect.html")
 show(layout)

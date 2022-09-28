@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.text
-    :refs: :ref:`ug_basic` > :ref:`ug_basic_scatters_markers`
+    :refs: :ref:`ug_basic_scatters_markers`
     :keywords: scatter, markers
 
 '''

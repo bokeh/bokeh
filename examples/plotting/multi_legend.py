@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.models import Legend, LegendItem
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL, MSFT
 
 
@@ -20,7 +20,5 @@ legend = Legend(items=[
     LegendItem(label="MSFT", renderers=[r], index=1),
 ], location="top_left")
 p.add_layout(legend)
-
-output_file("multi_legend.html")
 
 show(p)

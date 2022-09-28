@@ -1,9 +1,7 @@
 import numpy as np
 
 from bokeh.models import BoxSelectTool, BoxZoomTool, LassoSelectTool
-from bokeh.plotting import figure, output_file, show
-
-output_file("styling_tool_overlays.html")
+from bokeh.plotting import figure, show
 
 x = np.random.random(size=200)
 y = np.random.random(size=200)

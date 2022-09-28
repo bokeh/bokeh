@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.io import curdoc, output_file, show
+from bokeh.io import curdoc, show
 from bokeh.models import (BasicTicker, BasicTickFormatter, ColumnDataSource, Ellipse,
                           HBar, Line, LinearAxis, Plot, Scatter, Text, Title)
 from bokeh.themes import Theme
@@ -55,5 +55,4 @@ plot.add_glyph(source2, Line(x="x", y="y"))
 plot.add_glyph(source3, Ellipse(x="x", y="y", width=0.2, height=0.3, angle=-0.7))
 plot.add_glyph(source4, glyph=HBar(y="y", right="x", height=1.5))
 
-output_file("theme_glyphs.html", title="themed_glyphs.py example")
 show(plot)

@@ -6,7 +6,7 @@ import numpy as np
 from flask import Flask, Response, make_response, request
 
 from bokeh.models import CustomJS, ServerSentDataSource
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # Bokeh related code
 
@@ -65,6 +65,6 @@ def stream():
 
 # show and run
 
-output_file("plot.html", title='Bokeh Plot', mode='inline')
 show(p)
+
 app.run(port=5050)

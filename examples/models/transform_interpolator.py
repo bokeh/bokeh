@@ -1,8 +1,6 @@
 from bokeh.models import (Column, ColumnDataSource, CustomJS,
                           LinearInterpolator, Select, StepInterpolator)
-from bokeh.plotting import figure, output_file, show
-
-output_file("transform_interpolator.html", title="Example Transforms")
+from bokeh.plotting import figure, show
 
 N = 600
 

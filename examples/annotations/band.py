@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Band, bokeh.models.ColumnDataSource
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_bands`
+    :refs: :ref:`ug_basic_annotations_bands`
     :keywords: band
 
 '''

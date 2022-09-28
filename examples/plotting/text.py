@@ -1,6 +1,6 @@
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Slider
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 aligns    = ["left", "center", "right"]
 baselines = ["bottom", "middle", "top" ]
@@ -18,21 +18,10 @@ p.xgrid.grid_line_color = None
 p.ygrid.grid_line_color = None
 
 texts = [
-
-'''one''',
-
-'''two
-lines''',
-
-'''lines
-here:
-3''',
-
-'''here
-are
-4
-lines'''
-
+    "one",
+    "two\nlines",
+    "lines\nhere:\n3",
+    "here\nare\n4\nlines"
 ]
 
 def xs(cat):
@@ -59,5 +48,4 @@ slider.js_on_change('value', CustomJS(args=renderers, code="""
     }
 """))
 
-output_file("text.html")
 show(column(p, slider))

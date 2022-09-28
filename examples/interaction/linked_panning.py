@@ -1,8 +1,5 @@
-from bokeh.io import output_file, show
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure
-
-output_file("panning.html")
+from bokeh.plotting import figure, show
 
 x = list(range(11))
 y0 = x

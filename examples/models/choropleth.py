@@ -4,7 +4,7 @@ It demonstrates the use of models such as a color bar, linear color mapper, and 
 .. bokeh-example-metadata::
     :sampledata: us_counties, us_states, unemployment
     :apis: bokeh.models.ColorBar, bokeh.models.ColumnDataSource, bokeh.models.LinearColorMapper, bokeh.models.Patches, bokeh.models.Plot, bokeh.palettes.Viridis11, bokeh.embed.file_html, bokeh.document.document, bokeh.resources.INLINE, bokeh.transform.transform, bokeh.util.browser.view # noqa: E501
-    :refs: :ref:`ug_basic` > :ref:`ug_basic_areas` > :ref:`ug_basic_areas_patches`
+    :refs: :ref:`ug_basic_areas_patches`
     :keywords: colormap, shapes, vector, polygon, colorbar, patches
 '''
 from bokeh.document import Document

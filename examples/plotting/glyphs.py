@@ -1,8 +1,7 @@
 import numpy as np
 
-from bokeh.io import curdoc, output_file, show
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure
+from bokeh.plotting import curdoc, figure, show
 from bokeh.themes import Theme
 
 N = 9
@@ -174,7 +173,5 @@ curdoc().theme = Theme(json={
             }
         }
     })
-
-output_file("glyphs.html", title="glyphs.py example")
 
 show(gridplot(children, ncols=4, width=200, height=200))  # open a browser

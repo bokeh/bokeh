@@ -1,10 +1,9 @@
 import numpy as np
 
 from bokeh.core.properties import Float
-from bokeh.io import save
 from bokeh.model import DataModel
 from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 
 class Params(DataModel):
@@ -45,4 +44,4 @@ params.js_on_change("freq", callback)
 params.js_on_change("phase", callback)
 params.js_on_change("offset", callback)
 
-save(plot)
+show(plot)

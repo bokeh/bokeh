@@ -5,7 +5,7 @@ eclipse across the United States. This example demonstrates using a
 .. bokeh-example-metadata::
     :sampledata: us_states
     :apis: bokeh.plotting.figure.patches, bokeh.models.sources.ColumnDataSource, bokeh.models.mappers.LinearColorMapper, bokeh.models.annotations.ColorBar
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_color_bars`
+    :refs: :ref:`ug_basic_annotations_color_bars`
     :keywords: colorbar, label, map, patches
 
 .. _Google search interest data: https://www.reddit.com/r/dataisbeautiful/comments/6qnkg0/google_search_interest_follows_the_path_of_the/

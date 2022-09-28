@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.add_layout
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_arrows`
+    :refs: :ref:`ug_basic_annotations_arrows`
     :keywords: arrows
 
 '''

@@ -1,8 +1,6 @@
 from bokeh.models import HoverTool
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data
-
-output_file("styling_hover.html")
 
 subset = data.loc['2010-10-06']
 

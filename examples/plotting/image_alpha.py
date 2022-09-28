@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.layouts import Column
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # 1. Adding alpha for the image method
 
@@ -55,5 +55,4 @@ p3.image_url(url=[url], x=0, y=0, w=10, h=10, anchor='bottom_left', alpha=0.3)
 
 # Display images
 
-output_file("image_alpha.html", title="image_alpha.py example")
 show(Column(p1, p2, p3))

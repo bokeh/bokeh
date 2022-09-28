@@ -12,7 +12,7 @@ test another aspect of WebGL (e.g. blending of transparent glyphs).
 * marker_compare.py - to compare regular and webgl markers
 * line10k.py - uses the webgl line glyph to plot a relatively large dataset
 * scatter10k.py - uses the webgl circle glyph and selections
-* iris_blend.py - to test color names and blending of semi-transparent glyphs
+* scatter_blend.py - to test color names and blending of semi-transparent glyphs
 
 
 ### Other WebGL examples in this directory

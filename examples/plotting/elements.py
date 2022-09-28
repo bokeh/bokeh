@@ -5,7 +5,7 @@ points.
 .. bokeh-example-metadata::
     :sampledata: periodic_table
     :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.annotations.LabelSet
-    :refs: :ref:`ug_interaction_tools` > :ref:`ug_interaction_tools_hover_tool`
+    :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: hover, labels, scatter
 
 .. _Periodic Table: https://en.wikipedia.org/wiki/Periodic_table

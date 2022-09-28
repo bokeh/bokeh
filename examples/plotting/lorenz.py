@@ -3,7 +3,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.multi_line
-    :refs: :ref:`ug_basic` > :ref:`ug_basic_lines_multi`
+    :refs: :ref:`ug_basic_lines_multi`
     :keywords: fractal, lorenz, scipy
 
 .. _Lorenz attractor: https://en.wikipedia.org/wiki/Lorenz_system

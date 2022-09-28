@@ -9,10 +9,9 @@ log mapping and linear mapping with different color palette.
 '''
 import numpy as np
 
-from bokeh.io import show
 from bokeh.layouts import column, gridplot
 from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, LogColorMapper
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.transform import transform
 
 x = np.random.random(size=2000) * 1000

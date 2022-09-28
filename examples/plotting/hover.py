@@ -2,7 +2,7 @@ import itertools
 
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,hover,save"
 
@@ -42,7 +42,5 @@ p.hover.renderers = [r] # hover only for circles
 
 p.text(x, y, text=inds, alpha=0.5, text_font_size="7px",
        text_baseline="middle", text_align="center")
-
-output_file("hover.html", title="hover.py example")
 
 show(p)  # open a browser

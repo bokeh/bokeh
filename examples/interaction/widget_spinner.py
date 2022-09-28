@@ -1,9 +1,8 @@
 import numpy as np
 
-from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import Spinner
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 x = np.random.rand(10)
 y = np.random.rand(10)

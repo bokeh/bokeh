@@ -4,14 +4,13 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 .. bokeh-example-metadata::
     :sampledata: unemployment, us_counties
     :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
-    :refs: :ref:`ug_interaction_tools` > :ref:`ug_interaction_tools_hover_tool`
+    :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: colormap, map, patches
 
 '''
-from bokeh.io import show
 from bokeh.models import LogColorMapper
 from bokeh.palettes import Viridis6 as palette
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.unemployment import data as unemployment
 from bokeh.sampledata.us_counties import data as counties
 

@@ -1,5 +1,5 @@
 from bokeh.models import RELATIVE_DATETIME_CONTEXT, HoverTool
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data
 
 x = data.loc['2010-10-06'].index.to_series()
@@ -20,7 +20,5 @@ cr = p.circle(x, y, size=20,
               hover_line_color="white")
 
 p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
-
-output_file("hover_glyph.html", title="hover_glyph.py example")
 
 show(p)

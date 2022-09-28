@@ -5,10 +5,9 @@ of the color_scatter example from the bokeh gallery
 import numpy as np
 
 from bokeh import events
-from bokeh.io import output_file, show
 from bokeh.layouts import column, row
 from bokeh.models import Button, CustomJS, Div
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 
 def display_event(div, attributes=[]):
@@ -57,7 +56,7 @@ button = Button(label="Button", button_type="success", width=300)
 layout = column(button, row(p, div))
 
 
-## Register event callbacks
+# Register event callbacks
 
 # Button event
 button.js_on_event(events.ButtonClick, display_event(div))
@@ -99,5 +98,4 @@ p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0'
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
 
-output_file("js_events.html", title="JS Events Example")
 show(layout)

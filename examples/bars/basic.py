@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar
-    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars`
+    :refs: :ref:`ug_basic_bars`
     :keywords: bars, categorical
 
 '''

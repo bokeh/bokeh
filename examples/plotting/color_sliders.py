@@ -3,7 +3,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.rect, bokeh.plotting.figure.text, bokeh.layouts.column, bokeh.layouts.row, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS, bokeh.models.widgets.sliders.Slider, bokeh.themes.Theme # noqa: E501
-    :refs: :ref:`ug_interaction_js_callbacks` > :ref:`ug_interaction_js_callbacks_customjs`
+    :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: hover, javascript callback, theme, tooltip
 
 '''

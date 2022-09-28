@@ -1,5 +1,5 @@
+from bokeh.io import show
 from bokeh.models import Circle, ColumnDataSource, LinearAxis, Plot, Range1d, Title
-from bokeh.plotting import output_file, show
 
 p = Plot(
     title=None, toolbar_location=None,
@@ -48,5 +48,4 @@ add_title("Title R2", "right", "green")
 add_title("Title R3", "right", "lightblue")
 add_title("Title R4", "right", "pink")
 
-output_file("panels.html")
 show(p)

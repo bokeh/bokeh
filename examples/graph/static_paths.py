@@ -20,14 +20,14 @@ graph.edge_renderer.data_source.data = dict(
     start=[0]*N,
     end=node_indices)
 
-### start of layout code
+# create a static layout
 circ = [i*2*math.pi/8 for i in node_indices]
 x = [math.cos(i) for i in circ]
 y = [math.sin(i) for i in circ]
 graph_layout = dict(zip(node_indices, zip(x, y)))
 graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
 
-### Draw quadratic bezier paths
+# draw quadratic bezier paths
 def bezier(start, end, control, steps):
     return [(1-s)**2*start + 2*(1-s)*s*control + s**2*end for s in steps]
 

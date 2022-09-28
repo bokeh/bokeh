@@ -3,7 +3,7 @@ automatic colormapping of nested categorical factors.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar, bokeh.transform.factor_cmap
-    :refs: :ref:`ug_basic_bars` > :ref:`ug_basic_bars` > :ref:`ug_basic_bars_filled` > :ref:`ug_basic_bars_filled_colors` # noqa: E501
+    :refs: :ref:`ug_basic_bars_filled_colors`
     :keywords: bar, colormap, vbar
 
 '''

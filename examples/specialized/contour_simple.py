@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer.contruct_color_bar
-    :refs: :ref:`ug_specialized_contour` > :ref:`ug_specialized_contour_simple`
+    :refs: :ref:`ug_specialized_contour_simple`
     :keywords: contour
 
 '''

@@ -1,8 +1,6 @@
 from bokeh.events import SelectionGeometry
 from bokeh.models import ColumnDataSource, CustomJS, Rect
-from bokeh.plotting import figure, output_file, show
-
-output_file("box_select_tool_callback.html")
+from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(x=[], y=[], width=[], height=[]))
 

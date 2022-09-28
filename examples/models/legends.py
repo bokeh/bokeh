@@ -1,7 +1,7 @@
 from numpy import cos, linspace, pi, sin
 
 from bokeh.core.enums import LegendLocation
-from bokeh.io import output_file, show
+from bokeh.io import show
 from bokeh.models import (Circle, ColumnDataSource, DataRange1d, Legend, Line,
                           LinearAxis, PanTool, Plot, SaveTool, WheelZoomTool)
 
@@ -62,5 +62,4 @@ add_legend("center", "horizontal", "below")
 add_legend("center", "vertical", "left")
 add_legend("bottom_center", "vertical", "right")
 
-output_file("legends.html")
 show(plot)

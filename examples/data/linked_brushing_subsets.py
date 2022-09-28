@@ -1,8 +1,6 @@
 from bokeh.layouts import gridplot
 from bokeh.models import BooleanFilter, CDSView, ColumnDataSource
-from bokeh.plotting import figure, output_file, show
-
-output_file("linked_selection_subsets.html")
+from bokeh.plotting import figure, show
 
 x = list(range(-20, 21))
 y0 = [abs(xx) for xx in x]

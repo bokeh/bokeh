@@ -8,9 +8,7 @@ from sklearn import cluster, datasets
 from sklearn.preprocessing import StandardScaler
 
 from bokeh.layouts import column, row
-from bokeh.plotting import figure, output_file, show
-
-print("\n\n*** This example may take several seconds to run before displaying. ***\n\n")
+from bokeh.plotting import figure, show
 
 N = 50000
 PLOT_SIZE = 400
@@ -57,7 +55,5 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
 
 # generate layout for the plots
 layout = column(row(plots[:2]), row(plots[2:]))
-
-output_file("clustering.html", title="clustering with sklearn")
 
 show(layout)

@@ -4,7 +4,7 @@ mathtext on ``Label`` and ``Title`` annotations.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.varea, bokeh.models.annotations.Label, bokeh.models.annotations.Title
-    :refs: :ref:`ug_basic_visuals` > :ref:`ug_basic_visuals_math`
+    :refs: :ref:`ug_basic_visuals_math`
     :keywords: mathtext, latex
 
 .. _Harmonic oscillator wavefunctions: https://scipython.com/blog/the-harmonic-oscillator-wavefunctions

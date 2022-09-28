@@ -4,7 +4,7 @@ demonstrates using a ``jitter`` transform.
 .. bokeh-example-metadata::
     :sampledata: commits
     :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_specialized_categorical` > :ref:`ug_specialized_categorical_scatters_jitter`
+    :refs: :ref:`ug_specialized_categorical_scatters_jitter`
     :keywords: jitter, scatter
 
 '''

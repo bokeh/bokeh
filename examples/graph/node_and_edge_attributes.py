@@ -14,8 +14,8 @@ from bokeh.plotting import figure, from_networkx, show
 G = nx.karate_club_graph()
 
 SAME_CLUB_COLOR, DIFFERENT_CLUB_COLOR = "darkgrey", "red"
-edge_attrs = {}
 
+edge_attrs = {}
 for start_node, end_node, _ in G.edges(data=True):
     edge_color = SAME_CLUB_COLOR if G.nodes[start_node]["club"] == G.nodes[end_node]["club"] else DIFFERENT_CLUB_COLOR
     edge_attrs[(start_node, end_node)] = edge_color

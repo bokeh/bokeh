@@ -1,6 +1,5 @@
-from bokeh.io import save
 from bokeh.models.dom import Div, Styles
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 p0 = figure(width=200, height=200)
 p1 = figure(width=200, height=200)
@@ -26,4 +25,4 @@ grid = Div(style=style)
 box = lambda p: Div(style=Styles(border="black 1px dashed"), children=[p])
 grid.children = [box(p0), box(p1), box(p2), box(p3)]
 
-save(grid)
+show(grid)

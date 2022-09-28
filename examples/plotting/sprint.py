@@ -5,7 +5,7 @@ new browser tab for the Wikipedia entry of the sprinter.
 .. bokeh-example-metadata::
     :sampledata: sprint
     :apis: bokeh.plotting.figure.scatter, bokeh.models.Arrow, bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.SingleIntervalTicker, bokeh.models.TapTool # noqa: E501
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_labels`
+    :refs: :ref:`ug_basic_annotations_labels`
     :keywords: label, scatter, taptool
 
 .. _New York Times interactive: http://www.nytimes.com/interactive/2012/08/05/sports/olympics/the-100-meter-dash-one-race-every-medalist-ever.html

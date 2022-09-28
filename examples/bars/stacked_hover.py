@@ -1,8 +1,5 @@
-from bokeh.io import output_file, show
 from bokeh.palettes import HighContrast3
-from bokeh.plotting import figure
-
-output_file("stacked.html")
+from bokeh.plotting import figure, show
 
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ["2015", "2016", "2017"]

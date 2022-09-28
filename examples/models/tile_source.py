@@ -2,11 +2,8 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,
                           WheelZoomTool, WMTSTileSource)
-from bokeh.plotting import output_file
 from bokeh.resources import INLINE
 from bokeh.util.browser import view
-
-output_file("tile_source_example.html", title="Tile Source Example")
 
 # set to roughly full extent of web mercator projection
 x_range = Range1d(start=-200000, end=2000000)

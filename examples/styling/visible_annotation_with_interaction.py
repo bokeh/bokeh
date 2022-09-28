@@ -1,9 +1,6 @@
-from bokeh.io import output_file, show
 from bokeh.layouts import layout
 from bokeh.models import BoxAnnotation, Toggle
-from bokeh.plotting import figure
-
-output_file("styling_visible_annotation_with_interaction.html")
+from bokeh.plotting import figure, show
 
 p = figure(width=600, height=200, tools='')
 p.line([1, 2, 3], [1, 2, 1], line_color="#0072B2")

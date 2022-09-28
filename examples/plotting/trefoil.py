@@ -4,16 +4,15 @@ glyphs.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.annular_wedge, bokeh.plotting.Figure.arc, bokeh.plotting.Figure.segment, bokeh.models.TeeHead, bokeh.models.VeeHead
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_arrows`, :ref:`ug_basic_visuals` > :ref:`ug_basic_visuals_math`
+    :refs: :ref:`ug_basic_annotations_arrows`, :ref:`ug_basic_visuals_math`
     :keywords: trefoil, teehead, veehead, arrow, arrow head, segment, arc, circle, annular wedge
 
 '''
 from math import cos, radians, sin
 
 from bokeh.core.properties import value
-from bokeh.io import show
 from bokeh.models import TeeHead, Title, VeeHead
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 deg = lambda value: dict(value=value, units="deg")
 cdot = "\u22c5"

@@ -5,7 +5,7 @@ import numpy as np
 
 from bokeh.layouts import column, row
 from bokeh.models import CustomJS, Dropdown, Slider
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 p1 = figure(title="Canvas", width=400, height= 400, output_backend="canvas")
 
@@ -76,7 +76,5 @@ sliders = [
 ]
 
 sliders = column(*sliders)
-
-output_file("line_compare.html", title="line_compare.py example")
 
 show(row(column(sliders), column(p1, p2, p3)))
