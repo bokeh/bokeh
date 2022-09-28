@@ -9,10 +9,11 @@ pip install dist/bokeh*.whl
 bash scripts/ci/install_node_modules.sh
 
 python -m bokeh info
+bokeh sampledata
 
 # Bokeh Python tests.
-bokeh sampledata && \
-pytest tests/unit -k "not firefox" && \
+pytest tests/test_defaults.py
+pytest tests/unit -k "not firefox"
 pytest tests/integration
 
 echo "End of $0"

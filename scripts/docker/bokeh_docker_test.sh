@@ -6,6 +6,7 @@ set -u
 echo "Start of $0"
 
 python -m bokeh info
+bokeh sampledata
 
 # Run some of the tests.
 pytest tests/codebase
