@@ -4,7 +4,6 @@ combining multiple glyphs.
 .. bokeh-example-metadata::
     :sampledata: stocks
     :apis: bokeh.plotting.figure.segment, bokeh.plotting.figure.vbar
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_multiple_glyphs`
     :keywords: candlestick
 
 .. _Candlestick chart: https://en.wikipedia.org/wiki/Candlestick_chart

@@ -4,11 +4,9 @@ Putting a plaintext password ``CustomJS`` code as done here would expose the
 password and is not advised in practice!
 """
 
+from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models import Button, CustomJS, PasswordInput, PreText, TextInput
-from bokeh.plotting import output_file, show
-
-output_file("using_password_input.html", title="Password Field")
 
 USER = "Jane"
 PASSWD = "Bok3h"

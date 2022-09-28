@@ -1,8 +1,5 @@
-from bokeh.io import output_file, show
 from bokeh.models import ImageURLTexture
-from bokeh.plotting import figure
-
-output_file("hatch_custom_image.html")
+from bokeh.plotting import figure, show
 
 clips = [
     'https://static.bokeh.org/clipart/clipart-colorful-circles-64x64.png',

@@ -1,6 +1,5 @@
-from bokeh.plotting import ColumnDataSource, figure, output_file, show
-
-output_file("toolbar.html")
+from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(
     x=[1, 2, 3, 4, 5],

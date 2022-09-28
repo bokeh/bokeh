@@ -3,7 +3,7 @@ creating a ``FactorRange`` with nested categories.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource, bokeh.models.ranges.FactorRange
-    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_grouped` > :ref:`userguide_bars_grouped_nested` # noqa E501
+    :refs: :ref:`ug_basic_bars_grouped_nested`
     :keywords: bars, categorical, grouped
 
 '''

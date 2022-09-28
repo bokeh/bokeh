@@ -1,4 +1,4 @@
-.. _userguide_specialized_categorical:
+.. _ug_specialized_categorical:
 
 Categorical Plots
 =================
@@ -10,7 +10,7 @@ Sometimes there are many values associated with each category. For example, a
 series of measurements on different days of the week. In this case, you can
 visualize your data using a categorical scatter plot.
 
-.. _userguide_specialized_categorical_scatters_jitter:
+.. _ug_specialized_categorical_scatters_jitter:
 
 Adding jitter
 ~~~~~~~~~~~~~
@@ -37,7 +37,7 @@ category.
 To accomplish this, Bokeh has a concept of categorical offsets that can afford
 explicit control over positioning "within" a category.
 
-.. _userguide_specialized_categorical_offsets:
+.. _ug_specialized_categorical_offsets:
 
 Categorical offsets
 ~~~~~~~~~~~~~~~~~~~
@@ -75,8 +75,6 @@ category.
 
 .. bokeh-plot:: __REPO__/examples/specialized/categorical_ridgeplot.py
     :source-position: below
-
-.. _userguide_specialized_categorical_heatmaps:
 
 Heatmaps
 --------

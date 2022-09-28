@@ -1,8 +1,8 @@
 import numpy as np
 
 from bokeh.layouts import column, row
-from bokeh.models import CustomJS, Div, Slider
-from bokeh.plotting import ColumnDataSource, figure, output_file, show
+from bokeh.models import ColumnDataSource, CustomJS, Div, Slider
+from bokeh.plotting import figure, show
 
 x = np.linspace(0, 10, 500)
 y = np.sin(x)
@@ -44,7 +44,5 @@ heading = Div(sizing_mode="stretch_width", height=80, text="In this wave example
  "can be used to change the amplitude, frequency, phase, and offset of the wave.")
 
 layout = column(heading, row(widgets, plot), sizing_mode="stretch_both")
-
-output_file("slider.html", title="slider.py example")
 
 show(layout)

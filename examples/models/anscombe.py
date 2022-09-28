@@ -4,7 +4,7 @@ API that also includes HTML content in a ``Div``.
 .. bokeh-example-metadata::
     :sampledata: anscombe
     :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis
-    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
+    :refs: :ref:`ug_basic_layouts_gridplot`
     :keywords: gridplot
 
 .. _Anscombe's Quartet: https://en.wikipedia.org/wiki/Anscombe%27s_quartet

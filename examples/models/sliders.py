@@ -3,7 +3,7 @@ and a color picker.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Column, bokeh.models.CustomJS, bokeh.models.DateRangeSlider, bokeh.models.DateSlider, bokeh.models.Div, bokeh.models.RangeSlider, bokeh.models.Row, bokeh.models.Slider, bokeh.document.document, bokeh.embed.file_html, bokeh.util.browser.view # noqa: E501
-    :refs: :ref:`userguide_interaction` > :ref:`userguide_interaction_widgets`
+    :refs: :ref:`ug_interaction_widgets`
     :keywords: slider
 '''
 from datetime import date

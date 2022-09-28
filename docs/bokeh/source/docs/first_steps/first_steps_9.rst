@@ -26,7 +26,7 @@ This Bokeh document combines a plot with three widgets:
 * A :class:`~bokeh.models.widgets.sliders.RangeSlider` widget to adjust a
   range
 
-See :ref:`userguide_interaction_widgets_examples` in the user guide for a
+See :ref:`ug_interaction_widgets_examples` in the user guide for a
 complete list of Bokeh's widgets.
 
 Follow these steps to recreate the example from above:
@@ -132,17 +132,17 @@ This is what the completed example looks like:
 
 .. seealso::
     To learn more about Bokeh's widgets and building interactive dashboards, see
-    :ref:`userguide_interaction_widgets` in the user guide.
+    :ref:`ug_interaction_widgets` in the user guide.
 
     To learn about creating interactive legends, see |interactive legends| in
     the user guide.
 
-    See :ref:`userguide_interaction_jscallbacks` in the user guide to learn more
+    See :ref:`ug_interaction_js_callbacks` in the user guide to learn more
     about adding custom JavaScript code that you can use in combination
     with widgets, among other things.
 
     To learn more about combining widgets and plots into layouts, see
-    :ref:`userguide_layout` in the user guide.
+    :ref:`ug_basic_layouts` in the user guide.
 
 Using widgets with a Bokeh server
 ---------------------------------
@@ -198,7 +198,7 @@ For more examples of Bokeh server applications, see the
 
 .. seealso::
     For information on using the server and writing Bokeh server plots
-    and apps, see :ref:`userguide_server` in the user guide.
+    and apps, see :ref:`ug_server` in the user guide.
 
     For more examples of Bokeh server applications, see the
     :ref:`gallery_server_examples` section of the :ref:`gallery`.

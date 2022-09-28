@@ -220,7 +220,7 @@ class BaseColorBar(Annotation):
 class ColorBar(BaseColorBar):
     ''' Render a color bar based on a color mapper.
 
-    See :ref:`userguide_annotations_color_bars` for information on plotting color bars.
+    See :ref:`ug_basic_annotations_color_bars` for information on plotting color bars.
 
     '''
     # explicit __init__ to support Init signatures
@@ -310,7 +310,7 @@ class LegendItem(Model):
 
     visible = Bool(default=True, help="""
     Whether the legend item should be displayed. See
-    :ref:`userguide_annotations_legends_item_visibility` in the user guide.
+    :ref:`ug_basic_annotations_legends_item_visibility` in the user guide.
     """)
 
     @error(NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS)
@@ -331,7 +331,7 @@ class LegendItem(Model):
 class Legend(Annotation):
     ''' Render informational legends for a plot.
 
-    See :ref:`userguide_annotations_legends` for information on plotting legends.
+    See :ref:`ug_basic_annotations_legends` for information on plotting legends.
 
     '''
 

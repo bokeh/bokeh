@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Plot, bokeh.models.Arrow, bokeh.models.Label
-    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_arrows`
+    :refs: :ref:`ug_basic_annotations_arrows`
     :keywords: arrows
 
 '''

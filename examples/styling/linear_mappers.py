@@ -1,9 +1,7 @@
 from bokeh.models import ColorBar, ColumnDataSource
 from bokeh.palettes import Spectral6
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.transform import linear_cmap
-
-output_file("styling_linear_mappers.html", title="styling_linear_mappers.py example")
 
 x = [1,2,3,4,5,7,8,9,10]
 y = [1,2,3,4,5,7,8,9,10]

@@ -35,7 +35,7 @@ A more flexible way to arrange elements in Bokeh is to use the
 
 .. seealso::
     For more information on ``row()``, ``column()``, and ``gridplot()``, see
-    :ref:`userguide_layout` in the user guide.
+    :ref:`ug_basic_layouts` in the user guide.
 
 Defining sizing behavior
 ------------------------
@@ -57,4 +57,4 @@ of the browser window, assign ``scale_width`` to ``sizing_mode``:
 
 .. seealso::
     For more information on sizing modes, see
-    :ref:`userguide_layout_sizing_mode` in the user guide.
+    :ref:`ug_basic_layouts_sizing_mode` in the user guide.

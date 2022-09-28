@@ -134,7 +134,7 @@ class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
     This class is a `metaclass`_ for |HasProps| that is responsible for
-    creating and adding the |PropertyDescriptor| instances that delegate
+    creating and adding the ``PropertyDescriptor`` instances that delegate
     validation and serialization to |Property| attributes.
 
     .. _metaclass: https://docs.python.org/3/reference/datamodel.html#metaclasses

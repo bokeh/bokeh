@@ -1,6 +1,4 @@
-from bokeh.plotting import figure, output_file, show
-
-output_file("styling_toolbar_autohide.html")
+from bokeh.plotting import figure, show
 
 # Basic plot setup
 plot = figure(width=400, height=400, title='Toolbar Autohide')

@@ -1,6 +1,6 @@
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Div, FileInput
-from bokeh.plotting import output_file, show
+from bokeh.plotting import show
 
 # Set up widgets
 file_input = FileInput(title="Select files:", accept=".csv,.json")
@@ -13,7 +13,5 @@ callback = CustomJS(args=dict(para=para, file_input=file_input), code="""
 
 # Attach callback to FileInput widget
 file_input.js_on_change('filename', callback)
-
-output_file("file_input.html")
 
 show(column(file_input, para))

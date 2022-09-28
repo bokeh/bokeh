@@ -64,7 +64,7 @@ sampledata on your system, you have the option to
 Several tests also require `Selenium`_ and a corresponding `web driver`_ to be
 available on your system. While it is possible to use other web drivers for some
 tests, the recommended setup is to use Selenium with `ChromeDriver`_ and
-`Chrome`_. See :ref:`userguide_export_dependencies` for
+`Chrome`_. See :ref:`ug_output_export_dependencies` for
 installation instructions and more information. In case Selenium is not
 available on your system, you have the option to
 :ref:`disable those specific tests <contributor_guide_testing_local_python_select>`.

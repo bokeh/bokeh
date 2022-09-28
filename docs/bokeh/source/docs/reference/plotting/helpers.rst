@@ -37,3 +37,5 @@ DEFAULT_TOOLS
 .. autodata:: bokeh.plotting.DEFAULT_TOOLS
 
     A default set of tools configured if no configuration is provided.
+
+.. |gmap|               replace:: :py:func:`~bokeh.plotting.gmap`

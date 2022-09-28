@@ -9,6 +9,7 @@
 The Python `descriptor protocol`_ allows fine-grained control over all
 attribute access on instances ("You control the dot"). Bokeh uses the
 descriptor protocol to provide easy-to-use, declarative, type-based
+
 class properties that can automatically validate and serialize their
 values, as well as help provide sophisticated documentation.
 
@@ -63,7 +64,7 @@ There are many other examples like this throughout Bokeh. In this way users
 may operate simply and naturally, and not be concerned with the low-level
 details around validation, serialization, and documentation.
 
-This module provides the class |PropertyDescriptor| and various subclasses
+This module provides the class ``PropertyDescriptor`` and various subclasses
 that can be used to attach Bokeh properties to Bokeh models.
 
 .. note::
@@ -477,7 +478,7 @@ class PropertyDescriptor(Generic[T]):
         """ Internal implementation of instance attribute access for default
         values.
 
-        Handles bookeeping around |PropertyContainer| value, etc.
+        Handles bookeeping around ``PropertyContainer`` value, etc.
 
         """
         if self.name in obj._property_values:
@@ -579,7 +580,7 @@ class PropertyDescriptor(Generic[T]):
     # we detect it with our collection wrappers.
     def _notify_mutated(self, obj: HasProps, old: Any, hint: DocumentPatchedEvent | None = None) -> None:
         """ A method to call when a container is mutated "behind our back"
-        and we detect it with our |PropertyContainer| wrappers.
+        and we detect it with our ``PropertyContainer`` wrappers.
 
         Args:
             obj (HasProps) :
@@ -778,7 +779,7 @@ class DataSpecPropertyDescriptor(PropertyDescriptor):
         super().set_from_json(obj, value, setter=setter)
 
 class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
-    """ A ``PropertyDescriptor`` for Bokeh |UnitsSpec| properties that
+    """ A ``PropertyDescriptor`` for Bokeh ``UnitsSpec`` properties that
     contribute associated ``_units`` properties automatically as a side effect.
 
     """
@@ -877,7 +878,7 @@ class UnitsSpecPropertyDescriptor(DataSpecPropertyDescriptor):
 
     def _extract_units(self, obj, value):
         """ Internal helper for dealing with units associated units properties
-        when setting values on |UnitsSpec| properties.
+        when setting values on ``UnitsSpec`` properties.
 
         When ``value`` is a dict, this function may mutate the value of the
         associated units property.

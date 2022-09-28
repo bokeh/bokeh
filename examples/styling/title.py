@@ -1,6 +1,4 @@
-from bokeh.plotting import figure, output_file, show
-
-output_file("title.html")
+from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400, title="Some Title")
 p.title.text_color = "olive"

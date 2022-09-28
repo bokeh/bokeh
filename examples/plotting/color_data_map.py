@@ -3,16 +3,15 @@ log mapping and linear mapping with different color palette.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.circle, bokeh.models.ColumnDataSource, bokeh.models.annotations.ColorBar, bokeh.models.mappers.LinearColorMapper, bokeh.models.mappers.LogColorMapper # noqa: E501
-    :refs: :ref:`userguide_plotting_images_colormapped`
+    :refs: :ref:`ug_specialized_images_colormapped`
     :keywords: color, tools, scatter, data_map
 
 '''
 import numpy as np
 
-from bokeh.io import show
 from bokeh.layouts import column, gridplot
 from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, LogColorMapper
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.transform import transform
 
 x = np.random.random(size=2000) * 1000

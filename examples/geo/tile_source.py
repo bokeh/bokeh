@@ -2,18 +2,16 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.add_tile
-    :refs:  :ref:`userguide_geo` > :ref:`userguide_tools`
+    :refs:  :ref:`ug_specialized_geo`
     :keywords: map, geo, tiles
 
 """
+from bokeh.plotting import figure, show
 
-from bokeh.plotting import figure, output_file, show
-
-output_file("tile_source.html")
-
-# create plot and add tools
+# range bounds supplied in web mercator coordinates
 p = figure(x_range=(-2000000, 2000000), y_range=(1000000, 7000000),
            x_axis_type="mercator", y_axis_type="mercator")
+
 p.add_tile("CartoDB Positron", retina=True)
 
 show(p)

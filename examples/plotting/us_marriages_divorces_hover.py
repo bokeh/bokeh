@@ -4,17 +4,14 @@ as a basic line plot. Furthermore a custom tooltip is defined using the Arial fo
 .. bokeh-example-metadata::
     :sampledata: us_marriages_divorces
     :apis: bokeh.plotting.figure.line
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`
+    :refs: :ref:`ug_basic_lines_with_markers`
     :keywords: line, NumeralTickFormatter, SingleIntervalTicker
 
 '''
 
 from bokeh.models import ColumnDataSource, NumeralTickFormatter, SingleIntervalTicker
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.us_marriages_divorces import data
-
-output_file('us_marriages_divorces_hover.html',
-            title='144 years of marriage and divorce in the U.S.A.')
 
 # Fill in missing data with a simple linear interpolation
 data = data.interpolate(method='linear', axis=0).ffill().bfill()

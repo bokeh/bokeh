@@ -177,9 +177,9 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"></script>
 
     The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
-    if your document includes :ref:`Bokeh widgets <userguide_interaction_widgets>`,
-    :ref:`data tables <userguide_interaction_widgets_examples_datatable>`, or
-    :ref:`math text <userguide_styling_math>`, respectively.
+    if your document includes :ref:`Bokeh widgets <ug_interaction_widgets>`,
+    :ref:`data tables <ug_interaction_widgets_examples_datatable>`, or
+    :ref:`math text <ug_basic_visuals_math>`, respectively.
 
     Args:
         models (Model|list|dict|tuple) :

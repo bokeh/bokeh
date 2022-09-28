@@ -5,7 +5,7 @@ a customized tile source configured for OpenStreetMap.
 .. bokeh-example-metadata::
     :sampledata: airports
     :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.circle
-    :refs: :ref:`userguide_geo` > :ref:`userguide_geo_geojson_data`, :ref:`userguide_geo` > :ref:`userguide_geo_tile_provider_maps`
+    :refs: :ref:`ug_specialized_geo_geojson_data`, :ref:`ug_specialized_geo_tile_provider_maps`
     :keywords: tile, map, field, elevation, geo
 
 '''

@@ -1,10 +1,9 @@
 import numpy as np
 
 from bokeh.core.properties import Float, expr
-from bokeh.io import save
 from bokeh.model import DataModel
 from bokeh.models import CustomJSExpr
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 
 class Params(DataModel):
@@ -33,4 +32,4 @@ y = CustomJSExpr(args=dict(params=params), code="""
 plot = figure(tags=[params], y_range=(-5, 5), title="Data models with custom JS expressions")
 plot.line(x, y=expr(y), line_width=3, line_alpha=0.6)
 
-save(plot)
+show(plot)

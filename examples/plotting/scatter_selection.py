@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.square, bokeh.model.select_one, bokeh.model.BoxSelectTool
-    :refs: :ref:`userguide_tools` > :ref:`userguide_tools_pandrag`
+    :refs: :ref:`ug_interaction_tools_pandrag`
     :keywords: selection, tool, BoxSelectTool
 
 '''
@@ -11,7 +11,7 @@ import numpy as np
 
 from bokeh.layouts import column, gridplot
 from bokeh.models import BoxSelectTool, Div
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 x = np.linspace(0, 4*np.pi, 100)
 y = np.sin(x)
@@ -42,8 +42,6 @@ p3.circle(x, y, color="firebrick", alpha=0.5, size=6)
 p4 = figure(title="custom highlight", **opts)
 p4.square(x, y, color="navy", size=6, alpha=0.6,
           nonselection_color="orange", nonselection_alpha=0.6)
-
-output_file("scatter_selection.html", title="scatter_selection.py example")
 
 layout = column(div,
                 gridplot([[p1, p2], [p3, p4]], toolbar_location="right"),

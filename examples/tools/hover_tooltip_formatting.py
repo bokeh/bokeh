@@ -1,11 +1,9 @@
 import numpy as np
 
-from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL
 
-output_file("tools_hover_tooltip_formatting.html")
 
 def datetime(x):
     return np.array(x, dtype=np.datetime64)

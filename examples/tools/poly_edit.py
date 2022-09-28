@@ -1,7 +1,5 @@
 from bokeh.models import PolyDrawTool, PolyEditTool
-from bokeh.plotting import figure, output_file, show
-
-output_file("tools_poly_edit.html")
+from bokeh.plotting import figure, show
 
 p = figure(x_range=(0, 10), y_range=(0, 10), width=400, height=400,
            title='Poly Edit Tool')

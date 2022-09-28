@@ -146,7 +146,7 @@ Finally, add more calls to the |figure.line| function:
     p.line(x, y3, legend_label="Objects", color="green", line_width=2)
 
 In this example, you also assign a different color to each of the lines by
-passing a different :ref:`named color <userguide_styling_colors>` to each line's
+passing a different :ref:`named color <ug_basic_visuals_colors>` to each line's
 ``color`` argument.
 
 This is what the completed code for your multi-line plot should look like:

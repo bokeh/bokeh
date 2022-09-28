@@ -1,7 +1,7 @@
-.. _userguide_interaction_tooltips:
+.. _ug_interaction_tooltips:
 
-Adding tooltips
-===============
+Tooltips
+========
 
 Bokeh supports tooltips on a wide range of UI elements, such as plots or
 widgets. You can use tooltips to attach additional information to almost any
@@ -9,12 +9,12 @@ part of your visualization.
 
 .. note::
     A special case of a tooltip are the tooltips displayed by the
-    :ref:`userguide_tools_hover_tool`. Use the hover tool in case you want to
+    :ref:`ug_interaction_tools_hover_tool`. Use the hover tool in case you want to
     display tooltips on hover over certain areas of a plot. This tool uses
     Bokeh's generic tooltip object behind the scenes, but contains many
     additional, specialized features. For more information about configuring a
     tooltip on a plot with the HoverTool, see the
-    :ref:`userguide_tools_basic_tooltips` section for more information.
+    :ref:`ug_interaction_tools_basic_tooltips` section for more information.
 
 The Tooltip object
 ------------------
@@ -42,7 +42,7 @@ tooltips in action.
     ``position`` properties to be set. The tooltip will not be rendered if
     either of those two properties does not have a value assigned to it.
 
-.. _userguide_interaction_tooltips_supported:
+.. _ug_interaction_tooltips_supported:
 
 UI elements supporting tooltips
 -------------------------------
@@ -69,18 +69,18 @@ taps the "?" symbol next to the input widget's title:
 
 Currently, the following input widgets support tooltips directly:
 
-* :ref:`userguide_interaction_widgets_examples_autocompleteinput`
-* :ref:`userguide_interaction_widgets_examples_colorpicker`
-* :ref:`userguide_interaction_widgets_examples_datepicker`
-* :ref:`userguide_interaction_widgets_examples_fileinput`
-* :ref:`userguide_interaction_widgets_examples_multichoice`
-* :ref:`userguide_interaction_widgets_examples_multiselect`
-* :ref:`userguide_interaction_widgets_examples_numericinput`
-* :ref:`userguide_interaction_widgets_examples_passwordinput`
-* :ref:`userguide_interaction_widgets_examples_select`
-* :ref:`userguide_interaction_widgets_examples_spinner`
-* :ref:`userguide_interaction_widgets_examples_textareainput`
-* :ref:`userguide_interaction_widgets_examples_textinput`
+* :ref:`ug_interaction_widgets_examples_autocompleteinput`
+* :ref:`ug_interaction_widgets_examples_colorpicker`
+* :ref:`ug_interaction_widgets_examples_datepicker`
+* :ref:`ug_interaction_widgets_examples_fileinput`
+* :ref:`ug_interaction_widgets_examples_multichoice`
+* :ref:`ug_interaction_widgets_examples_multiselect`
+* :ref:`ug_interaction_widgets_examples_numericinput`
+* :ref:`ug_interaction_widgets_examples_passwordinput`
+* :ref:`ug_interaction_widgets_examples_select`
+* :ref:`ug_interaction_widgets_examples_spinner`
+* :ref:`ug_interaction_widgets_examples_textareainput`
+* :ref:`ug_interaction_widgets_examples_textinput`
 
 .. tip::
     A single instance of ``Tooltip`` should only be used once. If two widgets
@@ -109,21 +109,21 @@ HelpButton
 
 If you want to add a tooltip with additional information to an UI element that
 doesn't have built-in support for tooltips, you can use the
-:ref:`userguide_interaction_widgets_examples_helpbutton`. This widget adds a
+:ref:`ug_interaction_widgets_examples_helpbutton`. This widget adds a
 button with a "?" symbol. When the button is clicked or hovered over, the
 ``Tooltip`` object passed to the HelpButton's ``tooltip`` property is displayed.
 
 .. bokeh-plot:: __REPO__/examples/interaction/tooltip_helpbutton.py
     :source-position: above
 
-See :ref:`userguide_interaction_widgets_examples_helpbutton` for more
+See :ref:`ug_interaction_widgets_examples_helpbutton` for more
 information.
 
 Adding tooltips to arbitrary UI elements
 ----------------------------------------
 
 In addition to adding tooltips to :ref:`elements that explicitly support it
-<userguide_interaction_tooltips_supported>`, you can also add tooltips to
+<ug_interaction_tooltips_supported>`, you can also add tooltips to
 arbitrary UI element.
 
 Use the ``target`` property of a ``Tooltip`` object to link this tooltip to an

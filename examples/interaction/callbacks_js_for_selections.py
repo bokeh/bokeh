@@ -2,9 +2,7 @@ from random import random
 
 from bokeh.layouts import row
 from bokeh.models import ColumnDataSource, CustomJS
-from bokeh.plotting import figure, output_file, show
-
-output_file("callback.html")
+from bokeh.plotting import figure, show
 
 x = [random() for x in range(500)]
 y = [random() for y in range(500)]

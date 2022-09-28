@@ -3,7 +3,7 @@ for the lable values.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.add_layout, bokeh.plotting.figure.cirlce, bokeh.models.LinearAxis
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_twin_axes`
+    :refs: :ref:`ug_basic_axes_twin`
     :keywords: add_layout, axis, axis_label, axis_label_text_color, cirlce, extra_y_ranges, LinearAxis
 
 '''
@@ -11,7 +11,7 @@ for the lable values.
 from numpy import arange, linspace, pi, sin
 
 from bokeh.models import LinearAxis, Range1d
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 x = arange(-2*pi, 2*pi, 0.2)
 y = sin(x)
@@ -29,7 +29,5 @@ p.circle(x, y2, color="navy", size=8, y_range_name="foo")
 ax2 = LinearAxis(y_range_name="foo", axis_label="blue circles")
 ax2.axis_label_text_color ="navy"
 p.add_layout(ax2, 'left')
-
-output_file("twin_axis.html", title="twin_axis.py example")
 
 show(p)

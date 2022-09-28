@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.varea_stack
-    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_directed_areas`
+    :refs: :ref:`ug_basic_areas_directed`
     :keywords: area, pandas, stacked
 
 '''

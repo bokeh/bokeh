@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.ColorBar, bokeh.models.LogColorMapper
-    :refs: :ref:`userguide_annotations` > :ref:`userguide_annotations_color_bars`
+    :refs: :ref:`ug_basic_annotations_color_bars`
     :keywords: colorbar
 
 '''

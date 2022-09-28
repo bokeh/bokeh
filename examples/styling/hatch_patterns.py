@@ -1,8 +1,5 @@
 from bokeh.core.enums import HatchPattern
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
-
-output_file("hatch_patterns.html")
+from bokeh.plotting import figure, show
 
 pats = list(HatchPattern)
 lefts  = [3,  4, 6,  5, 3, 7, 4,  5, 3,  4,  7,  5, 6,  4, 5, 6, 8]

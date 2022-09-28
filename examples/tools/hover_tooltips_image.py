@@ -1,8 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
-
-output_file("tools_hover_tooltip_image.html")
+from bokeh.plotting import figure, show
 
 ramp = np.array([np.linspace(0, 10, 200)]*20)
 steps = np.array([np.linspace(0, 10, 10)]*20)
@@ -27,6 +25,8 @@ TOOLTIPS = [
 ]
 
 p = figure(x_range=(0, 35), y_range=(0, 35), tools='hover,wheel_zoom', tooltips=TOOLTIPS)
-p.image(source=data, image='image', x='x', y='y', dw='dw', dh='dh', palette="Inferno256", name="Image Glyph")
+
+p.image(source=data, image='image', x='x', y='y', dw='dw', dh='dh',
+        palette="Inferno256", name="Image Glyph")
 
 show(p)

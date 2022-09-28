@@ -3,7 +3,7 @@ mathtext on titles, ``Label`` annotations and axis labels.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.models.annotations.Label, bokeh.models.annotations.Title
-    :refs: :ref:`userguide_styling` > :ref:`userguide_styling_math`
+    :refs: :ref:`ug_basic_visuals_math`
     :keywords: mathtext, latex
 
 .. _Bessel functions: https://en.wikipedia.org/wiki/Bessel_function
@@ -12,10 +12,9 @@ mathtext on titles, ``Label`` annotations and axis labels.
 import numpy as np
 from scipy.special import jv
 
-from bokeh.io import curdoc, show
 from bokeh.models import Label
 from bokeh.palettes import YlOrRd4
-from bokeh.plotting import figure
+from bokeh.plotting import curdoc, figure, show
 
 p = figure(
     width=700, height=500,

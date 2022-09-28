@@ -2,15 +2,12 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.gridplot
-    :refs: :ref:`userguide_layout` > :ref:`userguide_layout_gridplot`
+    :refs: :ref:`ug_basic_layouts_gridplot`
     :keywords: grid, gridplot
 
 '''
-from bokeh.io import output_file, show
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure
-
-output_file("layout_grid.html")
+from bokeh.plotting import figure, show
 
 x = list(range(11))
 y0 = x

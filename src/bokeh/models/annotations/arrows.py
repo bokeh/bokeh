@@ -138,7 +138,7 @@ class VeeHead(ArrowHead):
 class Arrow(DataAnnotation):
     ''' Render arrows as an annotation.
 
-    See :ref:`userguide_annotations_arrows` for information on plotting arrows.
+    See :ref:`ug_basic_annotations_arrows` for information on plotting arrows.
 
     '''
 

@@ -20,7 +20,6 @@ graph.edge_renderer.data_source.data = dict(
     start=[0]*N,
     end=node_indices)
 
-### start of layout code
 circ = [i*2*math.pi/8 for i in node_indices]
 x = [math.cos(i) for i in circ]
 y = [math.sin(i) for i in circ]

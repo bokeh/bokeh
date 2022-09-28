@@ -1,13 +1,13 @@
-""" Demonstration of how to register event callbacks using an adaptation of the color_scatter example from the Bokeh gallery
+""" Demonstration of how to register event callbacks using an adaptation of
+the color_scatter example from the Bokeh gallery
 
 """
 import numpy as np
 
 from bokeh import events
-from bokeh.io import output_file, show
 from bokeh.layouts import column, row
 from bokeh.models import Button, CustomJS, Div
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 
 def display_event(div, attributes=[], style = 'float:left;clear:left;font_size=13px'):
@@ -39,12 +39,12 @@ div = Div(width=400, height=p.height, height_policy="fixed")
 button = Button(label="Button", button_type="success")
 layout = column(button, row(p, div))
 
-## Events with no attributes
+# events with no attributes
 button.js_on_event(events.ButtonClick, display_event(div)) # Button click
 p.js_on_event(events.LODStart, display_event(div))         # Start of LOD display
 p.js_on_event(events.LODEnd, display_event(div))           # End of LOD display
 
-## Events with attributes
+# events with attributes
 point_attributes = ['x', 'y', 'sx', 'sy']                  # Point events
 wheel_attributes = point_attributes + ['delta']            # Mouse wheel event
 pan_attributes = point_attributes + ['delta_x', 'delta_y'] # Pan event
@@ -63,5 +63,4 @@ p.js_on_event(events.MouseWheel, display_event(div, attributes=wheel_attributes)
 p.js_on_event(events.Pan,        display_event(div, attributes=pan_attributes))
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 
-output_file("js_events.html", title="JS Events Example")
 show(layout)

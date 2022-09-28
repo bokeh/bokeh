@@ -68,7 +68,7 @@ __all__ = (
 class BoxAnnotation(Annotation):
     ''' Render a shaded rectangular region as an annotation.
 
-    See :ref:`userguide_annotations_box_annotations` for information on plotting box annotations.
+    See :ref:`ug_basic_annotations_box_annotations` for information on plotting box annotations.
 
     '''
 
@@ -147,7 +147,7 @@ class BoxAnnotation(Annotation):
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
 
-    See :ref:`userguide_annotations_bands` for information on plotting bands.
+    See :ref:`ug_basic_annotations_bands` for information on plotting bands.
 
     '''
 
@@ -192,7 +192,7 @@ class Band(DataAnnotation):
 class PolyAnnotation(Annotation):
     ''' Render a shaded polygonal region as an annotation.
 
-    See :ref:`userguide_annotations_polygon_annotations` for information on
+    See :ref:`ug_basic_annotations_polygon_annotations` for information on
     plotting polygon annotations.
 
     '''
@@ -242,7 +242,7 @@ class PolyAnnotation(Annotation):
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
 
-    See :ref:`userguide_annotations_slope` for information on plotting slopes.
+    See :ref:`ug_basic_annotations_slope` for information on plotting slopes.
 
     """
 
@@ -265,7 +265,7 @@ class Slope(Annotation):
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
 
-    See :ref:`userguide_annotations_spans` for information on plotting spans.
+    See :ref:`ug_basic_annotations_spans` for information on plotting spans.
 
     """
 
@@ -297,7 +297,7 @@ class Span(Annotation):
 class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.
 
-    See :ref:`userguide_annotations_whiskers` for information on plotting whiskers.
+    See :ref:`ug_basic_annotations_whiskers` for information on plotting whiskers.
 
     '''
 

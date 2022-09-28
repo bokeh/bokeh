@@ -3,7 +3,7 @@ setting bar colors from a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.vbar, bokeh.models.sources.ColumnDataSource
-    :refs: :ref:`userguide_bars` > :ref:`userguide_bars` > :ref:`userguide_bars_filled_colors`
+    :refs: :ref:`ug_basic_bars_filled_colors`
     :keywords: bars, categorical
 
 '''

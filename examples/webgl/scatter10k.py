@@ -1,8 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
-
-output_file("scatter10k.html", title="scatter 10k points")
+from bokeh.plotting import figure, show
 
 N = 10000
 

@@ -5,7 +5,7 @@
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
 """ Various kinds of icons to be used with Button widgets.
-See :ref:`userguide_interaction_widgets_examples_button` in the |user guide|
+See :ref:`ug_interaction_widgets_examples_button` in the |user guide|
 for more information.
 """
 

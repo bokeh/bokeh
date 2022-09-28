@@ -5,7 +5,7 @@ by setting the legend ``click_policy`` property to ``"hide"``.
 .. bokeh-example-metadata::
     :sampledata: stocks
     :apis: bokeh.palettes.Spectral4
-    :refs: :ref:`userguide_interaction` > :ref:`userguide_interaction_legends`
+    :refs: :ref:`ug_interaction_legends`
     :keywords: line, interactions, legend, hide, glyphs
 
 '''
@@ -13,7 +13,7 @@ by setting the legend ``click_policy`` property to ``"hide"``.
 import pandas as pd
 
 from bokeh.palettes import Spectral4
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL, GOOG, IBM, MSFT
 
 p = figure(width=800, height=250, x_axis_type='datetime')
@@ -27,7 +27,5 @@ for data, name, color in zip([AAPL, IBM, MSFT, GOOG], ["AAPL", "IBM", "MSFT", "G
 p.legend.location = 'top_left'
 p.legend.click_policy = 'hide'
 p.y_range.only_visible = True
-
-output_file('interactive_legend.html', title='interactive_legend.py example')
 
 show(p)

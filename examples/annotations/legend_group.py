@@ -1,10 +1,10 @@
-from bokeh.io import show
 from bokeh.models import ColumnDataSource
 from bokeh.palettes import RdBu3
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 c1 = RdBu3[2] # red
 c2 = RdBu3[0] # blue
+
 source = ColumnDataSource(dict(
     x=[1, 2, 3, 4, 5, 6],
     y=[2, 1, 2, 1, 2, 1],

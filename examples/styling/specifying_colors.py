@@ -1,8 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
-
-output_file("specifying_colors.html")
+from bokeh.plotting import figure, show
 
 x = [1, 2, 3]
 y1 = [1, 4, 2]

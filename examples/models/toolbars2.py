@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.layouts import column, gridplot, row
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 N = 1000
 x = np.random.random(size=N) * 100
@@ -25,7 +25,5 @@ l_bl = mkgrid([[mkplot(), mkplot()], [mkplot(), mkplot()]], "left")
 l_br = mkgrid([[mkplot(), mkplot()], [mkplot(), mkplot()]], "right")
 
 layout = column(row(l_al, l_ar), row(l_bl, l_br))
-
-output_file("toolbars2.html", title="toolbars2.py example")
 
 show(layout)

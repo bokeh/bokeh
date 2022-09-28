@@ -1,10 +1,7 @@
 from itertools import product
 from math import pi
 
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
-
-output_file('properties_alpha.html')
+from bokeh.plotting import figure, show
 
 cats = ['None', 'Alpha', 'RGB', 'RGBA', 'Alpha+RGB', 'Alpha+RGBA']
 

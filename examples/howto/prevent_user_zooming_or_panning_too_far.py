@@ -2,16 +2,12 @@ from datetime import datetime, timedelta
 
 import numpy as np
 
-from bokeh.io import output_file, show
 from bokeh.layouts import column, row
 from bokeh.models import LinearAxis, Range1d
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL, GOOG
 
-output_file('prevent_user_zooming_or_panning_too_far.html',
-            title="prevent_user_zooming_or_panning_too_far.py example")
-
-## Plot where bounds are set by auto
+# Plot where bounds are set by auto
 N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
@@ -21,30 +17,22 @@ plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset',
                       title="Cannot pan outside data (bounds='auto')",
                       lod_threshold=None)
 plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
-###### -- ranges set here -- ########
 plot_default.x_range.bounds = 'auto'
 plot_default.y_range.bounds = 'auto'
-###### -- end -- ########
 
 
-## Plot where ranges are manually set
-
-###### -- ranges set here -- ########
+# Plot where ranges are manually set
 x_range = Range1d(0, 3, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(0, 3, bounds=(-0.5, 4), min_interval=1.5)
-###### -- end -- ########
 plot_range = figure(tools='pan, box_zoom, wheel_zoom, reset',
                     x_range=x_range, y_range=y_range,
                     title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_interval:1.5")
 plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 
 
-## Manually set y_max only
-
-###### -- ranges set here -- ########
+# Manually set y_max only
 x_range = Range1d(0, 3, max_interval=4)
 y_range = Range1d(0, 3, bounds=(None, 3), max_interval=4)
-###### -- end -- ########
 plot_range_un = figure(tools='pan, wheel_zoom, reset',
                        x_range=x_range, y_range=y_range,
                        title="Unbounded (except for y_max=3 and max_interval=4)")
@@ -52,12 +40,9 @@ plot_range_un.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#043A8D')
 
 
 
-## Bounded on reversed ranges (except for y_max)
-
-###### -- ranges set here -- ########
+# Bounded on reversed ranges (except for y_max)
 x_range = Range1d(3, 0, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(3, 0, bounds=(-0.5, 4), min_interval=1.5)
-###### -- end -- ########
 plot_range_rev = figure(tools='pan,wheel_zoom,reset',
                         x_range=x_range, y_range=y_range,
                         title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_range:1.5 (reverse ranges)")
@@ -65,7 +50,7 @@ plot_range_rev.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#8CBEDB')
 
 
 
-## Chart where limits are set on a categorical range
+# Chart where limits are set on a categorical range
 fruits = {
     'fruit': [
         'apples', 'apples', 'apples', 'apples', 'apples',
@@ -83,13 +68,12 @@ fruits = {
         '2009', '2010', '2011', '2012', '2013']
 }
 
-## Plot with multiple ranges that are bounded
+# Plot with multiple ranges that are bounded
 x = np.array(AAPL['date'], dtype=np.datetime64)
 x = x[0:1000]
 apple_y = AAPL['adj_close'][0:1000]
 google_y = GOOG['adj_close'][0:1000]
 
-###### -- ranges set here -- ########
 x_range = Range1d(
     start=datetime(2000, 1, 1), end=datetime(2004, 12, 31),
     bounds=(datetime(2000, 1, 1), datetime(2006, 12, 31)),
@@ -97,7 +81,6 @@ x_range = Range1d(
 )
 y_range = Range1d(start=0, end=40, bounds=(0, 60))
 y_range_extra = Range1d(start=300, end=700, bounds=(200, 1000))
-###### -- end -- ########
 
 plot_extra = figure(x_axis_type="datetime",
                     x_range=x_range, y_range=y_range,

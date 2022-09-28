@@ -8,7 +8,7 @@ example demonstrates sharing ranged between plots to achieve linked panning.
 .. bokeh-example-metadata::
     :sampledata: iris
     :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d # noqa: E501
-    :refs: :ref:`userguide_interaction_linked` > :ref:`userguide_interaction_linked_panning`
+    :refs: :ref:`ug_interaction_linked_panning`
     :keywords: models, scatter, splom
 
 .. _Fisher's Iris dataset: https://en.wikipedia.org/wiki/Iris_flower_data_set

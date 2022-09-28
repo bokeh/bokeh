@@ -1,7 +1,7 @@
 from bokeh.core.enums import SizingMode
 from bokeh.layouts import column
 from bokeh.models import Select
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 from bokeh.sampledata.iris import flowers as df
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
@@ -17,5 +17,4 @@ select.js_link('value', plot, 'sizing_mode')
 layout = column(select, plot)
 layout.sizing_mode = "stretch_both" # set separately to avoid also setting children
 
-output_file("sizing_mode.html", title="sizing_mode.py example")
 show(layout)

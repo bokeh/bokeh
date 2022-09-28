@@ -10,7 +10,7 @@ leaves a canvas.
 import numpy as np
 
 from bokeh.layouts import row
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 N = 1000
 x = np.random.random(size=N) * 100
@@ -23,7 +23,5 @@ def make_plot(autohide=None):
     p.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
     p.toolbar.autohide = autohide
     return p
-
-output_file("toolbar_autohide.html", title="toolbar_autohide example")
 
 show(row(make_plot(True), make_plot(False)))

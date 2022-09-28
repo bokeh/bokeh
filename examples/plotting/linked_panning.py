@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, gridplot, output_file, show
+from bokeh.plotting import figure, gridplot, show
 
 N = 100
 x = np.linspace(0, 4*np.pi, N)
@@ -24,7 +24,5 @@ s3 = figure(width=350, height=350, x_range=s1.x_range)
 s3.circle(x, y3, color="olive", size=8, alpha=0.5)
 
 p = gridplot([[s1,s2, s3]])
-
-output_file("linked_panning.html", title="linked_panning.py example")
 
 show(p)

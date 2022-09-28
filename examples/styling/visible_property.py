@@ -1,5 +1,4 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 # We set-up a standard figure with two lines
 p = figure(width=500, height=200, tools='')
@@ -10,7 +9,5 @@ invisible_line = p.line([1, 2, 3], [2, 1, 2], line_color="pink")
 invisible_line.visible = False
 p.xaxis.visible = False
 p.xgrid.visible = False
-
-output_file("styling_visible_property.html")
 
 show(p)

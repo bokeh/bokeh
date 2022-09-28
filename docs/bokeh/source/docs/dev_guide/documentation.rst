@@ -92,7 +92,7 @@ throughout the narrative documentation:
    "Python", "Always capitalize Python (the language)"
 
 For definitions and concepts used throughout Bokeh's documentation, see the
-:ref:`userguide_glossary` in :ref:`userguide_concepts`.
+:ref:`ug_glossary` in :ref:`ug_intro`.
 
 In general, see the `word list of the Google developer documentation style
 guide`_ for reference.
@@ -145,7 +145,7 @@ download the sample data.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In order to build the documentation, you must set the
-:ref:`environment variable <userguide_settings>` ``GOOGLE_API_KEY``. The
+:ref:`environment variable <ug_settings>` ``GOOGLE_API_KEY``. The
 documentation includes some plots with maps, and a valid Google API key is
 required to build those plots correctly. You have two options:
 

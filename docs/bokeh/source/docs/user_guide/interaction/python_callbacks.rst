@@ -1,12 +1,12 @@
-.. _userguide_interaction_callbacks_python:
+.. _ug_interaction_python_callbacks:
 
 Python callbacks
 ================
 
 Python callbacks (sometimes also called *event handlers*) are Python functions
 that you can attach to widgets. You can only use these callbacks in
-:ref:`Bokeh server <userguide_server>` apps. For interactive callbacks that
-don't require a Bokeh server, see :ref:`userguide_interaction_jscallbacks`.
+:ref:`Bokeh server <ug_server>` apps. For interactive callbacks that
+don't require a Bokeh server, see :ref:`ug_interaction_js_callbacks`.
 
 Bokeh's Python callbacks are called when certain attributes on a Bokeh
 :class:`~bokeh.model.Model` are changed. The function signature of event
@@ -16,7 +16,7 @@ handlers is determined by how they are attached to widgets (whether by
 ``on_change`` callback triggers
 -------------------------------
 
-All :ref:`widgets <userguide_interaction_widgets>`, for example, have an
+All :ref:`widgets <ug_interaction_widgets>`, for example, have an
 ``.on_change`` method that takes an attribute name and one or more event
 handlers as parameters. These handlers are expected to have the function
 signature, ``(attr, old, new)``, where ``attr`` refers to the changed
@@ -39,9 +39,9 @@ respective Model's under |bokeh.models| in the |reference guide|.
 ------------------------------
 
 Additionally, some widgets, including the
-:ref:`userguide_interaction_widgets_examples_button`,
-:ref:`userguide_interaction_widgets_examples_dropdown`, and
-:ref:`userguide_interaction_widgets_examples_checkboxgroup`, have
+:ref:`ug_interaction_widgets_examples_button`,
+:ref:`ug_interaction_widgets_examples_dropdown`, and
+:ref:`ug_interaction_widgets_examples_checkboxgroup`, have
 an ``.on_event`` method that takes an event handler as its only parameter. For
 a plain ``Button``, this handler is called without parameters. For the other
 widgets with ``.on_event``, the handler is passed the new attribute value.

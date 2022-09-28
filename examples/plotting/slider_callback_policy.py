@@ -5,11 +5,11 @@ interaction events.
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.column, bokeh.models.callbacks.CustomJS
-    :refs: :ref:`userguide_interaction_jscallbacks` > :ref:`userguide_interaction_jscallbacks_customjs_js_on_event`
+    :refs: :ref:`ug_interaction_js_callbacks_customjs_js_on_event`
     :keywords: javascript callback
 
 '''
-from bokeh.io import output_file, show
+from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Div, Slider
 
@@ -24,7 +24,5 @@ callback = CustomJS(args=dict(para=para, s1=s1, s2=s2), code="""
 
 s1.js_on_change('value', callback)
 s2.js_on_change('value_throttled', callback)
-
-output_file('slider_callback_policy.html')
 
 show(column(s1, s2, para))

@@ -1,11 +1,8 @@
-from bokeh.io import output_file, show
 from bokeh.layouts import layout
 from bokeh.models import ColumnDataSource, Div, HoverTool, Paragraph
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data
 from bokeh.sampledata.iris import flowers
-
-output_file("words_and_plots.html")
 
 
 def text():

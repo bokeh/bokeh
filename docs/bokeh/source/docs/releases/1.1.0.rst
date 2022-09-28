@@ -33,7 +33,7 @@ properties together:
 
     slider.js_link('value', r.glyph, 'radius')
 
-See :ref:`userguide_interaction_linked_properties` for more information.
+See :ref:`ug_interaction_linked_properties` for more information.
 
 The ``Slider.value_as_date`` method was added to conveniently retrieve Slider
 values as date objects when appropriate.

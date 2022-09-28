@@ -2,11 +2,7 @@ import numpy as np
 
 from bokeh.layouts import column, grid
 from bokeh.models import ColumnDataSource, CustomJS, Slider
-from bokeh.plotting import figure, output_file, show
-
-output_file('dashboard.html')
-
-tools = 'pan'
+from bokeh.plotting import figure, show
 
 
 def bollinger():
@@ -19,7 +15,7 @@ def bollinger():
     band_x = np.append(x_data, x_data[::-1])
     band_y = np.append(lowerband, upperband[::-1])
 
-    p = figure(x_axis_type='datetime', tools=tools)
+    p = figure(x_axis_type='datetime', tools='pan')
     p.patch(band_x, band_y, color='#7570B3', fill_alpha=0.2)
 
     p.title.text = 'Bollinger Bands'
@@ -78,9 +74,9 @@ def linked_panning():
     y2 = np.cos(x)
     y3 = np.sin(x) + np.cos(x)
 
-    s1 = figure(tools=tools)
+    s1 = figure(tools='pan')
     s1.circle(x, y1, color="navy", size=8, alpha=0.5)
-    s2 = figure(tools=tools, x_range=s1.x_range, y_range=s1.y_range)
+    s2 = figure(tools='pan', x_range=s1.x_range, y_range=s1.y_range)
     s2.circle(x, y2, color="firebrick", size=8, alpha=0.5)
     s3 = figure(tools='pan, box_select', x_range=s1.x_range)
     s3.circle(x, y3, color="olive", size=8, alpha=0.5)

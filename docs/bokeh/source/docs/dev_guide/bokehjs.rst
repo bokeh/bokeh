@@ -34,7 +34,7 @@ an interactive JavaScript visualization.
 
 In addition to using BokehJS to create visualizations based on JSON data, you
 can also use BokehJS as a standalone JavaScript library. See
-:ref:`userguide_bokehjs` for more information on creating visualizations
+:ref:`ug_advanced_bokehjs` for more information on creating visualizations
 directly with BokehJS.
 
 .. _contributor_guide_bokehjs_source_location:
@@ -214,7 +214,7 @@ example: ``AxisView`` extends ``GuideRendererView``, ``CircleView``
 extends ``XYGlyphView``.
 
 Suppose you want to define a new type of :ref:`action button tool for the Bokeh
-tool bar <userguide_tools_actions>`, called ``NewActionTool``. The model for
+tool bar <ug_interaction_tools_actions>`, called ``NewActionTool``. The model for
 your new button would inherit from ``ActionTool``, and its corresponding view
 would inherit from ``ActionToolView``:
 

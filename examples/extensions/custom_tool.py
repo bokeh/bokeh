@@ -1,10 +1,7 @@
 from bokeh.core.properties import Instance
-from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, Tool
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
-
-output_file('custom_tool.html')
 
 JS_CODE = """
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"

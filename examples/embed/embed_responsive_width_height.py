@@ -10,16 +10,15 @@ a plot in a Phosphor widget.
 """
 import random
 
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 PLOT_OPTIONS = dict(width=600, height=400)
 SCATTER_OPTIONS = dict(size=12, alpha=0.5)
 
 data = lambda: [random.choice([i for i in range(100)]) for r in range(10)]
 
-red = figure(sizing_mode='scale_both', tools='pan', **PLOT_OPTIONS)
-red.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
+p = figure(sizing_mode='scale_both', tools='pan', **PLOT_OPTIONS)
 
-output_file('embed_responsive_width_height.html')
-show(red)
+p.scatter(data(), data(), color="red", **SCATTER_OPTIONS)
+
+show(p)

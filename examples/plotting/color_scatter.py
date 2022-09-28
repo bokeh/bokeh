@@ -3,7 +3,7 @@ many different plot tools.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`userguide_tools`, :ref:`userguide_plotting` > :ref:`userguide_plotting_scatter_markers`
+    :refs: :ref:`ug_interaction_tools`, :ref:`ug_basic_scatters_markers`
     :keywords: scatter, tools
 
 '''

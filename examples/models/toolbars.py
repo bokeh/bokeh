@@ -1,7 +1,7 @@
 import numpy as np
 
 from bokeh.layouts import column, row
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 N = 1000
 x = np.random.random(size=N) * 100
@@ -42,7 +42,5 @@ layout = column(
     row(p_abl, p_aal, p_abr, p_aar),
     row(p_bbl, p_bal, p_bbr, p_bar),
 )
-
-output_file("toolbars.html", title="toolbars.py example")
 
 show(layout)

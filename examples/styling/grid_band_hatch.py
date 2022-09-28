@@ -1,7 +1,4 @@
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
-
-output_file("grid_band_hatch.html")
+from bokeh.plotting import figure, show
 
 p = figure(height=250, width=600, x_range=(0, 10), tools="", toolbar_location=None)
 p.line(x=[0,1,2,3,4,5,6,7,8,9,10],
