@@ -120,3 +120,5 @@ This is what the finished code looks like:
 .. seealso::
     To find out more about the different kinds of annotations in Bokeh, see
     :ref:`ug_basic_annotations` in the user guide.
+
+.. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`

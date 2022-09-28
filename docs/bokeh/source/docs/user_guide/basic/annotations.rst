@@ -287,7 +287,7 @@ To define a band, use either |screen units| or |data units|.
 Box annotations
 ---------------
 
-A |BoxAnnotation| is a rectangular box that you can use to highlight specific
+A ``BoxAnnotation`` is a rectangular box that you can use to highlight specific
 plot regions. Use either |screen units| or |data units| to position a box
 annotation.
 
