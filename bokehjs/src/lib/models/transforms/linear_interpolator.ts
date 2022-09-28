@@ -36,10 +36,10 @@ export class LinearInterpolator extends Interpolator {
     const ind = find_last_index(this._x_sorted, num => num < x)
 
     const x1 = this._x_sorted[ind]
-    const x2 = this._x_sorted[ind+1]
+    const x2 = this._x_sorted[ind + 1]
     const y1 = this._y_sorted[ind]
-    const y2 = this._y_sorted[ind+1]
+    const y2 = this._y_sorted[ind + 1]
 
-    return y1 + (((x-x1) / (x2-x1)) * (y2-y1))
+    return y1 + (((x - x1) / (x2 - x1)) * (y2 - y1))
   }
 }

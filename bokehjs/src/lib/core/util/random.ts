@@ -1,20 +1,10 @@
-const MAX_INT32 = 2147483647
-const {PI, log, sin, cos, sqrt} = Math
+const {PI, log, sin, cos, sqrt, floor} = Math
 
-// Park-Miller LCG
-export class Random {
-  private seed: number
+export const MAX_INT32 = 2147483647
 
-  constructor(seed: number) {
-    this.seed = seed % MAX_INT32
-    if (this.seed <= 0)
-      this.seed += MAX_INT32 - 1
-  }
+export abstract class AbstractRandom {
 
-  integer(): number {
-    this.seed = (48271*this.seed) % MAX_INT32
-    return this.seed
-  }
+  abstract integer(): number
 
   float(): number {
     return (this.integer() - 1) / (MAX_INT32 - 1)
@@ -38,7 +28,19 @@ export class Random {
     return result
   }
 
-  normal(loc: number, scale: number, size: number): Float64Array {
+  uniform(loc: number, scale: number): number {
+    return loc + (this.float() - 0.5)*scale
+  }
+
+  uniforms(loc: number, scale: number, size: number): Float64Array {
+    return Float64Array.from({length: size}, () => this.uniform(loc, scale))
+  }
+
+  normal(loc: number, scale: number): number {
+    return this.normals(loc, scale, 1)[0]
+  }
+
+  normals(loc: number, scale: number, size: number): Float64Array {
     const [mu, sigma] = [loc, scale]
 
     const array = new Float64Array(size)
@@ -55,5 +57,30 @@ export class Random {
     return array
   }
 }
+
+export class SystemRandom extends AbstractRandom {
+  integer(): number {
+    return floor(Math.random()*MAX_INT32)
+  }
+}
+
+// Park-Miller LCG
+export class LCGRandom extends AbstractRandom {
+  private _seed: number
+
+  constructor(seed: number) {
+    super()
+    this._seed = seed % MAX_INT32
+    if (this._seed <= 0)
+      this._seed += MAX_INT32 - 1
+  }
+
+  integer(): number {
+    this._seed = (48271*this._seed) % MAX_INT32
+    return this._seed
+  }
+}
+
+export class Random extends LCGRandom {} // for compatibility
 
 export const random = new Random(Date.now())

@@ -32,10 +32,6 @@ export function angle_between(mid: number, lhs: number, rhs: number, anticlock: 
   return !anticlock ? cond : !cond
 }
 
-export function random(): number {
-  return Math.random()
-}
-
 export function randomIn(min: number, max?: number): number {
   if (max == null) {
     max = min
@@ -73,26 +69,6 @@ export function to_radians_coeff(units: AngleUnits): number {
     case "grad": return PI/200
     case "turn": return 2*PI
   }
-}
-
-// http://www2.econ.osaka-u.ac.jp/~tanizaki/class/2013/econome3/13.pdf (Page 432)
-export function rnorm(mu: number, sigma: number): number {
-  // Generate a random normal with a mean of 0 and a sigma of 1
-  let r1: number
-  let r2: number
-  while (true) {
-    r1 = random()
-    r2 = random()
-    r2 = (2*r2-1)*Math.sqrt(2*(1/Math.E))
-    if (-4*r1*r1*Math.log(r1) >= r2*r2)
-      break
-  }
-  let rn = r2/r1
-
-  // Transform the standard normal to meet the characteristics that we want (mu, sigma)
-  rn = mu + sigma*rn
-
-  return rn
 }
 
 export function clamp(val: number, min: number, max: number): number {

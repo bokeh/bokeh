@@ -1,44 +1,46 @@
 import {expect} from "assertions"
-import * as sinon from "sinon"
 
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Jitter} from "@bokehjs/models/transforms/jitter"
-import * as bokeh_math from "@bokehjs/core/util/math"
 import {repeat} from "@bokehjs/core/util/array"
 import {sum} from "@bokehjs/core/util/arrayable"
 import {infer_type} from "@bokehjs/core/types"
+import {AbstractRandom, MAX_INT32} from "@bokehjs/core/util/random"
+import {RandomGenerator} from "@bokehjs/models/random/random_generator"
+
+// This is based on the orignal sinon-based tests.
+class FakeGenerator extends RandomGenerator {
+  generator() {
+    return new class extends AbstractRandom {
+      integer(): number {
+        return (MAX_INT32 - 1)/2 + 1 // float() returns 0.5
+      }
+
+      override normals(_loc: number, _scale: number, size: number): Float64Array {
+        return Float64Array.from({length: size}, () => 0)
+      }
+    }
+  }
+}
 
 describe("Jitter transform module", () => {
+  const N = 100
 
-  function generate_jitter() {
+  function generate_jitter(attrs?: Partial<Jitter.Attrs>) {
     return new Jitter({
       width: 1,
       mean: 0,
       distribution: "uniform",
+      random_generator: new FakeGenerator(),
+      ...attrs,
     })
   }
 
-  let random_stub: sinon.SinonStub
-  let rnorm_stub: sinon.SinonStub
-
-  before_each(() => {
-    random_stub = sinon.stub(bokeh_math, "random").callsFake(() => 0.5)
-    // This menas that rnorm isn't getting tested, which we probably
-    // do want to do, but could be a separate test.
-    rnorm_stub = sinon.stub(bokeh_math, "rnorm").callsFake(() => 0)
-  })
-
-  after_each(() => {
-    random_stub.restore()
-    rnorm_stub.restore()
-  })
-
   describe("Jitter with uniform", () => {
-    const transform = generate_jitter()
-    transform.distribution = "uniform"
 
     it("should average the fixed values", () => {
-      const N = 100
+      const transform = generate_jitter({distribution: "uniform"})
+
       const vals = repeat(5, N)
       const rets = transform.v_compute(vals)
 
@@ -49,7 +51,8 @@ describe("Jitter transform module", () => {
     })
 
     it("should cache offsets for identical input lengths", () => {
-      const N = 100
+      const transform = generate_jitter({distribution: "uniform"})
+
       const val1 = repeat(5, N)
       const val2 = repeat(6, N)
 
@@ -69,11 +72,10 @@ describe("Jitter transform module", () => {
   })
 
   describe("Jitter with normal", () => {
-    const transform = generate_jitter()
-    transform.distribution = "normal"
 
     it("should average the fixed values", () => {
-      const N = 100
+      const transform = generate_jitter({distribution: "normal"})
+
       const vals = repeat(5, N)
 
       const rets = transform.v_compute(vals)
@@ -85,7 +87,8 @@ describe("Jitter transform module", () => {
     })
 
     it("should cache offsets for identical input lengths", () => {
-      const N = 100
+      const transform = generate_jitter({distribution: "normal"})
+
       const val1 = repeat(5, N)
       const val2 = repeat(6, N)
 
@@ -105,14 +108,14 @@ describe("Jitter transform module", () => {
   })
 
   describe("Jitter with FactorRange", () => {
-    const transform = generate_jitter()
-    transform.distribution = "uniform"
-    transform.range = new FactorRange({factors: ["a", "b"]})
 
     it("should work with a supplied range", () => {
+      const transform = generate_jitter({
+        distribution: "uniform",
+        range: new FactorRange({factors: ["a", "b"]}),
+      })
 
-      const N = 100
-      const vals =  repeat("b", N)
+      const vals = repeat("b", N)
       const rets = transform.v_compute(vals)
 
       const thesum = sum(rets)
@@ -122,9 +125,13 @@ describe("Jitter transform module", () => {
     })
 
     it("should cache offsets for identical input lengths", () => {
-      const N = 100
-      const val1 =  repeat("a", N)
-      const val2 =  repeat("b", N)
+      const transform = generate_jitter({
+        distribution: "uniform",
+        range: new FactorRange({factors: ["a", "b"]}),
+      })
+
+      const val1 = repeat("a", N)
+      const val2 = repeat("b", N)
 
       const ret1 = transform.v_compute(val1)
       const ret1mean = sum(ret1)/N

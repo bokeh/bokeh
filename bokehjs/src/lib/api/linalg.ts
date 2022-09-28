@@ -356,7 +356,7 @@ export namespace np {
       }
 
       normal(loc: number, scale: number, size: number): NDArray {
-        const array = this._random.normal(loc, scale, size)
+        const array = this._random.normals(loc, scale, size)
         return ndarray(array.buffer, {shape: [size], dtype: "float64"})
       }
     }

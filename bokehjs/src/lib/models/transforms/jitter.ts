@@ -1,12 +1,11 @@
 import {RangeTransform} from "./range_transform"
 import {Factor, FactorRange} from "../ranges/factor_range"
+import {RandomGenerator} from "../random/random_generator"
 import {Distribution} from "core/enums"
 import {Arrayable} from "core/types"
-import {isNumber, isArrayableOf} from "core/util/types"
 import {map} from "core/util/arrayable"
 import * as p from "core/properties"
-import * as bokeh_math from "core/util/math"
-import {unreachable} from "core/util/assert"
+import {AbstractRandom, SystemRandom} from "core/util/random"
 
 export namespace Jitter {
   export type Attrs = p.AttrsOf<Props>
@@ -15,6 +14,8 @@ export namespace Jitter {
     mean: p.Property<number>
     width: p.Property<number>
     distribution: p.Property<Distribution>
+    /** internal */
+    random_generator: p.Property<RandomGenerator | null>
   }
 }
 
@@ -23,7 +24,7 @@ export interface Jitter extends Jitter.Attrs {}
 export class Jitter extends RangeTransform {
   override properties: Jitter.Props
 
-  previous_offsets: Arrayable<number> | undefined
+  protected _previous_offsets: Float64Array | null = null
 
   constructor(attrs?: Partial<Jitter.Attrs>) {
     super(attrs)
@@ -35,34 +36,51 @@ export class Jitter extends RangeTransform {
       width:        [ Number, 1 ],
       distribution: [ Distribution, "uniform" ],
     }))
+
+    this.internal<Jitter.Props>(({Nullable, Ref}) => ({
+      random_generator: [ Nullable(Ref(RandomGenerator)), null ],
+    }))
+  }
+
+  protected _generator: AbstractRandom
+
+  override initialize(): void {
+    super.initialize()
+    this._generator = this.random_generator?.generator() ?? new SystemRandom()
   }
 
   override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
-    let xs: Arrayable<number>
-    if (this.range instanceof FactorRange)
-      xs = this.range.v_synthetic(xs0)
-    else if (isArrayableOf(xs0, isNumber))
-      xs = xs0
-    else
-      unreachable()
+    const xs: Arrayable<number> = (() => {
+      if (this.range instanceof FactorRange)
+        return this.range.v_synthetic(xs0)
+      else
+        return xs0 as Arrayable<number>
+    })()
 
-    const xs_length = xs.length
+    const offsets = (() => {
+      const xs_length = xs.length
+      if (this._previous_offsets?.length != xs_length) {
+        this._previous_offsets = this._v_compute(xs_length)
+      }
+      return this._previous_offsets
+    })()
 
-    if (this.previous_offsets?.length != xs_length) {
-      this.previous_offsets = new Array<number>(xs_length)
-      this.previous_offsets = map(this.previous_offsets, () => this._compute())
-    }
-
-    const offsets = this.previous_offsets
-    return map(xs, (xs, i) => offsets[i] + xs)
+    return map(offsets, (offset, i) => offset + xs[i])
   }
 
   protected _compute(): number {
+    const {mean, width} = this
     switch (this.distribution) {
-      case "uniform":
-        return this.mean + (bokeh_math.random() - 0.5)*this.width
-      case "normal":
-        return bokeh_math.rnorm(this.mean, this.width)
+      case "uniform": return this._generator.uniform(mean, width)
+      case "normal":  return this._generator.normal(mean, width)
+    }
+  }
+
+  protected _v_compute(n: number): Float64Array {
+    const {mean, width} = this
+    switch (this.distribution) {
+      case "uniform": return this._generator.uniforms(mean, width, n)
+      case "normal":  return this._generator.normals(mean, width, n)
     }
   }
 }

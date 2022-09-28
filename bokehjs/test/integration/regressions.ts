@@ -23,6 +23,9 @@ import {
   Row, Column,
   Pane,
   Tabs, TabPanel,
+  FixedTicker,
+  Jitter,
+  ParkMillerLCG,
 } from "@bokehjs/models"
 
 import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
@@ -2376,6 +2379,36 @@ describe("Bug", () => {
       await actions1.pan_along(path)
 
       await paint()
+    })
+  })
+
+  describe("in issue #12404", () => {
+    it("doesn't allow to correctly apply jitter transform with Int32Array inputs", async () => {
+      const mpg81 = [27, 26, 25, 23, 30, 39, 39, 35, 32, 37, 37, 34, 34, 34, 29, 33, 33, 32, 32, 31, 28, 30, 25, 24, 22, 26, 20, 17]
+      const mpg82 = [28, 27, 34, 31, 29, 27, 24, 36, 37, 31, 38, 36, 36, 36, 34, 38, 32, 38, 25, 38, 26, 22, 32, 36, 27, 27, 44, 32]
+
+      const yr81 = Int32Array.from({length: mpg81.length}, () => 81)
+      const yr82 = Int32Array.from({length: mpg82.length}, () => 82)
+
+      const source = new ColumnDataSource({
+        data: {
+          yr: new Int32Array([...yr81, ...yr82]),
+          mpg: new Float64Array([...mpg81, ...mpg82]),
+        },
+      })
+
+      function plot(title: string, transform?: Jitter) {
+        const p = fig([200, 300], {title})
+        p.xgrid.grid_line_color = null
+        p.xaxis.ticker = new FixedTicker({ticks: [81, 82]})
+        p.scatter({x: {field: "yr", transform}, y: {field: "mpg"}, size: 9, alpha: 0.4, source})
+        return p
+      }
+
+      const p0 = plot("no jitter")
+      const p1 = plot("jitter", new Jitter({width: 0.4, random_generator: new ParkMillerLCG({seed: 54235})}))
+
+      await display(new Row({children: [p0, p1]}))
     })
   })
 })
