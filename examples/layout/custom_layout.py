@@ -1,4 +1,6 @@
-from bokeh.plotting import figure, show
+from bokeh.io import save
+from bokeh.plotting import figure
+from bokeh.util.browser import view
 
 template = """
 {% block preamble %}
@@ -56,4 +58,5 @@ p1.scatter(x, y, size=20, fill_color="green")
 p2 = figure(name="p2", sizing_mode="scale_width")
 p2.scatter(x, y, size=20, fill_color="blue")
 
-show([p0, p1, p2], template=template)
+save([p0, p1, p2], template=template)
+view("custom_layout.html")
