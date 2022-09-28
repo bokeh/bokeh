@@ -1,10 +1,11 @@
 import {RangeTransform} from "./range_transform"
 import {Factor, FactorRange} from "../ranges/factor_range"
+import {RandomGenerator} from "../random/random_generator"
 import {Distribution} from "core/enums"
 import {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
 import * as p from "core/properties"
-import {random, rnorm} from "core/util/math"
+import {AbstractRandom, SystemRandom} from "core/util/random"
 
 export namespace Jitter {
   export type Attrs = p.AttrsOf<Props>
@@ -13,6 +14,8 @@ export namespace Jitter {
     mean: p.Property<number>
     width: p.Property<number>
     distribution: p.Property<Distribution>
+    /** internal */
+    random_generator: p.Property<RandomGenerator | null>
   }
 }
 
@@ -33,6 +36,17 @@ export class Jitter extends RangeTransform {
       width:        [ Number, 1 ],
       distribution: [ Distribution, "uniform" ],
     }))
+
+    this.internal<Jitter.Props>(({Nullable, Ref}) => ({
+      random_generator: [ Nullable(Ref(RandomGenerator)), null ],
+    }))
+  }
+
+  protected _generator: AbstractRandom
+
+  override initialize(): void {
+    super.initialize()
+    this._generator = this.random_generator?.generator() ?? new SystemRandom()
   }
 
   override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
@@ -55,15 +69,18 @@ export class Jitter extends RangeTransform {
   }
 
   protected _compute(): number {
+    const {mean, width} = this
     switch (this.distribution) {
-      case "uniform":
-        return this.mean + (random() - 0.5)*this.width
-      case "normal":
-        return rnorm(this.mean, this.width)
+      case "uniform": return this._generator.uniform(mean, width)
+      case "normal":  return this._generator.normal(mean, width)
     }
   }
 
   protected _v_compute(n: number): Float64Array {
-    return Float64Array.from({length: n}, () => this._compute())
+    const {mean, width} = this
+    switch (this.distribution) {
+      case "uniform": return this._generator.uniforms(mean, width, n)
+      case "normal":  return this._generator.normals(mean, width, n)
+    }
   }
 }

@@ -183,7 +183,7 @@ function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
 describe("Defaults", () => {
   const internal_models = new Set([
     "Figure", "GMap", "Canvas", "LinearInterpolationScale", "ScanningColorMapper",
-    "ToolProxy", "CenterRotatable", "Spline",
+    "ToolProxy", "CenterRotatable", "Spline", "ParkMillerLCG",
   ])
 
   it("have bokehjs and bokeh implement the same set of models", () => {

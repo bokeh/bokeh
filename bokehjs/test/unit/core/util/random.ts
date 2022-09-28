@@ -33,7 +33,7 @@ describe("core/util/random module", () => {
 
     it("which should implement normal(mu, sigma, n) method", () => {
       const r = new Random(1)
-      expect(r.normal(0.5, 0.7, 5)).to.be.equal(new Float64Array([
+      expect(r.normals(0.5, 0.7, 5)).to.be.equal(new Float64Array([
         3.2873170562402954,
         2.149181843948364,
         1.048491869094823,

@@ -25,6 +25,7 @@ import {
   Tabs, TabPanel,
   FixedTicker,
   Jitter,
+  ParkMillerLCG,
 } from "@bokehjs/models"
 
 import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
@@ -2405,7 +2406,7 @@ describe("Bug", () => {
       }
 
       const p0 = plot("no jitter")
-      const p1 = plot("jitter", new Jitter({width: 0.4}))
+      const p1 = plot("jitter", new Jitter({width: 0.4, random_generator: new ParkMillerLCG({seed: 54235})}))
 
       await display(new Row({children: [p0, p1]}))
     })
