@@ -36,7 +36,6 @@ from . import (
     axes,
     callbacks,
     canvas,
-    contour_renderer,
     coordinates,
     css,
     expressions,
@@ -69,7 +68,6 @@ from .annotations import *
 from .axes import *
 from .callbacks import *
 from .canvas import *
-from .contour_renderer import *
 from .coordinates import *
 from .css import *
 from .expressions import *
@@ -108,7 +106,6 @@ __all__ = (
     *axes.__all__,
     *callbacks.__all__,
     *canvas.__all__,
-    *contour_renderer.__all__,
     *coordinates.__all__,
     *css.__all__,
     *expressions.__all__,
