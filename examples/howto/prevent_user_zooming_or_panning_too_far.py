@@ -90,7 +90,7 @@ plot_extra.extra_y_ranges = {'goog': y_range_extra}
 plot_extra.line(x, google_y, color='pink', y_range_name='goog')
 plot_extra.add_layout(LinearAxis(y_range_name="goog", major_label_text_color='pink'), 'left')
 
- Tweak the formats to make it all readable
+# Tweak the formats to make it all readable
 plots = [plot_default, plot_range, plot_range_un, plot_range_rev, plot_extra]
 
 show(column(plot_default,
