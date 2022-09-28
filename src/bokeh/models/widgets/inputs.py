@@ -394,6 +394,8 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
+    max_completions = Nullable(Int, help="""Optional maximum number of completions displayed.""")
+
     min_characters = NonNegative(Int, default=2, help="""
     The number of characters a user must type before completions are presented.
     """)

@@ -48,9 +48,11 @@ export class AutocompleteInputView extends TextInputView {
   protected _update_completions(completions: string[]): void {
     empty(this.menu)
 
-    for (const text of completions) {
+    for (const [index, text] of completions.entries()) {
       const item = div(text)
       this.menu.appendChild(item)
+      if (this.model.max_completions === index + 1)
+        break
     }
 
     if (completions.length > 0)
@@ -169,6 +171,7 @@ export namespace AutocompleteInput {
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
+    max_completions: p.Property<number| null>
     case_sensitive: p.Property<boolean>
     restrict: p.Property<boolean>
   }
@@ -187,9 +190,10 @@ export class AutocompleteInput extends TextInput {
   static {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative}) => ({
+    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative, Nullable}) => ({
       completions:    [ Array(String), [] ],
       min_characters: [ NonNegative(Int), 2 ],
+      max_completions: [ Nullable(Int),  null ],
       case_sensitive: [ Boolean, true ],
       restrict: [ Boolean, true ],
     }))
