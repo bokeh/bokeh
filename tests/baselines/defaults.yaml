@@ -215,8 +215,8 @@ DataSource:
     type: object
     name: Selection
     attributes:
-      line_indices: []
       indices: []
+      line_indices: []
 ColumnarDataSource:
   __extends__: DataSource
   selection_policy:
@@ -395,15 +395,17 @@ DatetimeTicker:
   - type: object
     name: AdaptiveTicker
     attributes:
+      num_minor_ticks: 0
       mantissas:
       - 1
       - 2
       - 5
-      num_minor_ticks: 0
       max_interval: 500.0
   - type: object
     name: AdaptiveTicker
     attributes:
+      num_minor_ticks: 0
+      base: 60
       mantissas:
       - 1
       - 2
@@ -412,13 +414,13 @@ DatetimeTicker:
       - 15
       - 20
       - 30
-      num_minor_ticks: 0
-      base: 60
       min_interval: 1000.0
       max_interval: 1800000.0
   - type: object
     name: AdaptiveTicker
     attributes:
+      num_minor_ticks: 0
+      base: 24
       mantissas:
       - 1
       - 2
@@ -426,8 +428,6 @@ DatetimeTicker:
       - 6
       - 8
       - 12
-      num_minor_ticks: 0
-      base: 24
       min_interval: 3600000.0
       max_interval: 43200000.0
   - type: object
@@ -2186,6 +2186,26 @@ GraphRenderer:
     type: object
     name: GlyphRenderer
     attributes:
+      data_source:
+        type: object
+        name: ColumnDataSource
+        attributes:
+          selected:
+            type: object
+            name: Selection
+            attributes:
+              indices: []
+              line_indices: []
+          selection_policy:
+            type: object
+            name: UnionRenderers
+            attributes: {}
+          data:
+            type: map
+            entries:
+            - !!python/tuple
+              - index
+              - []
       view:
         type: object
         name: CDSView
@@ -2198,30 +2218,33 @@ GraphRenderer:
         type: object
         name: Circle
         attributes: {}
-      data_source:
-        type: object
-        name: ColumnDataSource
-        attributes:
-          data:
-            type: map
-            entries:
-            - !!python/tuple
-              - index
-              - []
-          selection_policy:
-            type: object
-            name: UnionRenderers
-            attributes: {}
-          selected:
-            type: object
-            name: Selection
-            attributes:
-              line_indices: []
-              indices: []
   edge_renderer:
     type: object
     name: GlyphRenderer
     attributes:
+      data_source:
+        type: object
+        name: ColumnDataSource
+        attributes:
+          selected:
+            type: object
+            name: Selection
+            attributes:
+              indices: []
+              line_indices: []
+          selection_policy:
+            type: object
+            name: UnionRenderers
+            attributes: {}
+          data:
+            type: map
+            entries:
+            - !!python/tuple
+              - start
+              - []
+            - !!python/tuple
+              - end
+              - []
       view:
         type: object
         name: CDSView
@@ -2234,29 +2257,6 @@ GraphRenderer:
         type: object
         name: MultiLine
         attributes: {}
-      data_source:
-        type: object
-        name: ColumnDataSource
-        attributes:
-          data:
-            type: map
-            entries:
-            - !!python/tuple
-              - start
-              - []
-            - !!python/tuple
-              - end
-              - []
-          selection_policy:
-            type: object
-            name: UnionRenderers
-            attributes: {}
-          selected:
-            type: object
-            name: Selection
-            attributes:
-              line_indices: []
-              indices: []
   selection_policy:
     type: object
     name: NodesOnly
@@ -2408,15 +2408,17 @@ DatetimeAxis:
       - type: object
         name: AdaptiveTicker
         attributes:
+          num_minor_ticks: 0
           mantissas:
           - 1
           - 2
           - 5
-          num_minor_ticks: 0
           max_interval: 500.0
       - type: object
         name: AdaptiveTicker
         attributes:
+          num_minor_ticks: 0
+          base: 60
           mantissas:
           - 1
           - 2
@@ -2425,13 +2427,13 @@ DatetimeAxis:
           - 15
           - 20
           - 30
-          num_minor_ticks: 0
-          base: 60
           min_interval: 1000.0
           max_interval: 1800000.0
       - type: object
         name: AdaptiveTicker
         attributes:
+          num_minor_ticks: 0
+          base: 24
           mantissas:
           - 1
           - 2
@@ -2439,8 +2441,6 @@ DatetimeAxis:
           - 6
           - 8
           - 12
-          num_minor_ticks: 0
-          base: 24
           min_interval: 3600000.0
           max_interval: 43200000.0
       - type: object
@@ -2558,11 +2558,11 @@ MercatorAxis:
     type: object
     name: MercatorTicker
     attributes:
-      dimension: lat
       mantissas:
       - 1
       - 2
       - 5
+      dimension: lat
   formatter:
     type: object
     name: MercatorTickFormatter
@@ -3048,19 +3048,19 @@ DataAnnotation:
     type: object
     name: ColumnDataSource
     attributes:
-      data:
-        type: map
-        entries: []
-      selection_policy:
-        type: object
-        name: UnionRenderers
-        attributes: {}
       selected:
         type: object
         name: Selection
         attributes:
-          line_indices: []
           indices: []
+          line_indices: []
+      selection_policy:
+        type: object
+        name: UnionRenderers
+        attributes: {}
+      data:
+        type: map
+        entries: []
 ArrowHead:
   __extends__: Marking
   size:
@@ -3921,16 +3921,16 @@ RangeTool:
     type: object
     name: BoxAnnotation
     attributes:
+      syncable: false
       level: overlay
       line_color: black
+      line_alpha: 1.0
+      line_width: 0.5
       line_dash:
       - 2
       - 2
-      fill_alpha: 0.5
       fill_color: lightgrey
-      line_width: 0.5
-      line_alpha: 1.0
-      syncable: false
+      fill_alpha: 0.5
 WheelPanTool:
   __extends__: Scroll
   dimension: width
@@ -3972,21 +3972,21 @@ BoxZoomTool:
     type: object
     name: BoxAnnotation
     attributes:
-      visible: false
+      syncable: false
       level: overlay
+      visible: false
+      left_units: canvas
+      right_units: canvas
+      bottom_units: canvas
       top_units: canvas
       line_color: black
+      line_alpha: 1.0
+      line_width: 2
       line_dash:
       - 4
       - 4
-      fill_alpha: 0.5
-      left_units: canvas
       fill_color: lightgrey
-      bottom_units: canvas
-      right_units: canvas
-      line_width: 2
-      line_alpha: 1.0
-      syncable: false
+      fill_alpha: 0.5
   match_aspect: false
   origin: corner
 ZoomInTool:
@@ -4008,21 +4008,21 @@ BoxSelectTool:
     type: object
     name: BoxAnnotation
     attributes:
-      visible: false
+      syncable: false
       level: overlay
+      visible: false
+      left_units: canvas
+      right_units: canvas
+      bottom_units: canvas
       top_units: canvas
       line_color: black
+      line_alpha: 1.0
+      line_width: 2
       line_dash:
       - 4
       - 4
-      fill_alpha: 0.5
-      left_units: canvas
       fill_color: lightgrey
-      bottom_units: canvas
-      right_units: canvas
-      line_width: 2
-      line_alpha: 1.0
-      syncable: false
+      fill_alpha: 0.5
   origin: corner
 LassoSelectTool:
   __extends__:
@@ -4033,21 +4033,21 @@ LassoSelectTool:
     type: object
     name: PolyAnnotation
     attributes:
-      visible: false
+      syncable: false
       level: overlay
-      line_color: black
+      visible: false
       xs: []
+      xs_units: canvas
+      ys: []
+      ys_units: canvas
+      line_color: black
+      line_alpha: 1.0
+      line_width: 2
       line_dash:
       - 4
       - 4
-      fill_alpha: 0.5
       fill_color: lightgrey
-      ys: []
-      xs_units: canvas
-      ys_units: canvas
-      line_width: 2
-      line_alpha: 1.0
-      syncable: false
+      fill_alpha: 0.5
 PolySelectTool:
   __extends__:
   - Tap
@@ -4056,21 +4056,21 @@ PolySelectTool:
     type: object
     name: PolyAnnotation
     attributes:
-      visible: false
+      syncable: false
       level: overlay
-      line_color: black
+      visible: false
       xs: []
+      xs_units: canvas
+      ys: []
+      ys_units: canvas
+      line_color: black
+      line_alpha: 1.0
+      line_width: 2
       line_dash:
       - 4
       - 4
-      fill_alpha: 0.5
       fill_color: lightgrey
-      ys: []
-      xs_units: canvas
-      ys_units: canvas
-      line_width: 2
-      line_alpha: 1.0
-      syncable: false
+      fill_alpha: 0.5
 CustomJSHover:
   __extends__: Model
   args:
@@ -4660,19 +4660,19 @@ TableWidget:
     type: object
     name: ColumnDataSource
     attributes:
-      data:
-        type: map
-        entries: []
-      selection_policy:
-        type: object
-        name: UnionRenderers
-        attributes: {}
       selected:
         type: object
         name: Selection
         attributes:
-          line_indices: []
           indices: []
+          line_indices: []
+      selection_policy:
+        type: object
+        name: UnionRenderers
+        attributes: {}
+      data:
+        type: map
+        entries: []
   view:
     type: object
     name: CDSView
