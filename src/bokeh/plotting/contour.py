@@ -27,9 +27,8 @@ from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
-from ..models.contour_renderer import ContourRenderer
 from ..models.glyphs import MultiLine, MultiPolygons
-from ..models.renderers import GlyphRenderer
+from ..models.renderers import ContourRenderer, GlyphRenderer
 from ..models.sources import ColumnDataSource
 from ..palettes import linear_palette
 from ..plotting._renderer import _process_sequence_literals

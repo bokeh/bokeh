@@ -23,13 +23,13 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 # Bokeh imports
-from ..core.properties import Float, Instance, Seq
-from .annotations import ContourColorBar
-from .renderers import DataRenderer, GlyphRenderer
-from .tickers import FixedTicker
+from ...core.properties import Float, Instance, Seq
+from .glyph_renderer import GlyphRenderer
+from .renderer import DataRenderer
 
 if TYPE_CHECKING:
-    from ..plotting.contour import ContourData
+    from ...plotting.contour import ContourData
+    from ..annotations import ContourColorBar
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -41,10 +41,6 @@ __all__ = (
 
 #-----------------------------------------------------------------------------
 # General API
-#-----------------------------------------------------------------------------
-
-#-----------------------------------------------------------------------------
-# Dev API
 #-----------------------------------------------------------------------------
 
 class ContourRenderer(DataRenderer):
@@ -108,6 +104,8 @@ class ContourRenderer(DataRenderer):
         as the ContourRenderer. Extra keyword arguments may be passed in to
         control ``BaseColorBar`` properties such as `title`.
         '''
+        from ..annotations import ContourColorBar
+        from ..tickers import FixedTicker
         return ContourColorBar(
             fill_renderer=self.fill_renderer,
             line_renderer=self.line_renderer,
@@ -115,6 +113,10 @@ class ContourRenderer(DataRenderer):
             ticker=FixedTicker(ticks=self.levels),
             **kwargs,
         )
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API

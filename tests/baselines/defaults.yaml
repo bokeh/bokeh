@@ -2016,6 +2016,53 @@ CoordinateMapping:
   y_target:
     type: symbol
     name: unset
+RendererGroup:
+  __extends__: Model
+  visible: true
+Renderer:
+  __extends__: Model
+  level: image
+  visible: true
+  coordinates: null
+  x_range_name: default
+  y_range_name: default
+  group: null
+DataRenderer:
+  __extends__: Renderer
+  level: glyph
+GuideRenderer:
+  __extends__: Renderer
+  level: guide
+GlyphRenderer:
+  __extends__: DataRenderer
+  data_source:
+    type: symbol
+    name: unset
+  view:
+    type: object
+    name: CDSView
+    attributes:
+      filter:
+        type: object
+        name: AllIndices
+        attributes: {}
+  glyph:
+    type: symbol
+    name: unset
+  selection_glyph: auto
+  nonselection_glyph: auto
+  hover_glyph: null
+  muted_glyph: auto
+  muted: false
+ContourRenderer:
+  __extends__: DataRenderer
+  line_renderer:
+    type: symbol
+    name: unset
+  fill_renderer:
+    type: symbol
+    name: unset
+  levels: []
 Expression:
   __extends__: Model
 CustomJSExpr:
@@ -2099,84 +2146,6 @@ EdgesAndLinkedNodes:
   __extends__: GraphHitTestPolicy
 NodesAndAdjacentNodes:
   __extends__: GraphHitTestPolicy
-TileSource:
-  __extends__: Model
-  url: ''
-  tile_size: 256
-  min_zoom: 0
-  max_zoom: 30
-  extra_url_vars:
-    type: map
-    entries: []
-  attribution: ''
-  x_origin_offset:
-    type: symbol
-    name: unset
-  y_origin_offset:
-    type: symbol
-    name: unset
-  initial_resolution: null
-MercatorTileSource:
-  __extends__: TileSource
-  x_origin_offset: 20037508.34
-  y_origin_offset: 20037508.34
-  initial_resolution: 156543.03392804097
-  snap_to_zoom: false
-  wrap_around: true
-TMSTileSource:
-  __extends__: MercatorTileSource
-WMTSTileSource:
-  __extends__: MercatorTileSource
-QUADKEYTileSource:
-  __extends__: MercatorTileSource
-BBoxTileSource:
-  __extends__: MercatorTileSource
-  use_latlon: false
-RendererGroup:
-  __extends__: Model
-  visible: true
-Renderer:
-  __extends__: Model
-  level: image
-  visible: true
-  coordinates: null
-  x_range_name: default
-  y_range_name: default
-  group: null
-TileRenderer:
-  __extends__: Renderer
-  level: image
-  tile_source:
-    type: object
-    name: WMTSTileSource
-    attributes: {}
-  alpha: 1.0
-  smoothing: true
-  render_parents: true
-DataRenderer:
-  __extends__: Renderer
-  level: glyph
-GlyphRenderer:
-  __extends__: DataRenderer
-  data_source:
-    type: symbol
-    name: unset
-  view:
-    type: object
-    name: CDSView
-    attributes:
-      filter:
-        type: object
-        name: AllIndices
-        attributes: {}
-  glyph:
-    type: symbol
-    name: unset
-  selection_glyph: auto
-  nonselection_glyph: auto
-  hover_glyph: null
-  muted_glyph: auto
-  muted: false
 GraphRenderer:
   __extends__: DataRenderer
   layout_provider:
@@ -2265,9 +2234,49 @@ GraphRenderer:
     type: object
     name: NodesOnly
     attributes: {}
-GuideRenderer:
+TileSource:
+  __extends__: Model
+  url: ''
+  tile_size: 256
+  min_zoom: 0
+  max_zoom: 30
+  extra_url_vars:
+    type: map
+    entries: []
+  attribution: ''
+  x_origin_offset:
+    type: symbol
+    name: unset
+  y_origin_offset:
+    type: symbol
+    name: unset
+  initial_resolution: null
+MercatorTileSource:
+  __extends__: TileSource
+  x_origin_offset: 20037508.34
+  y_origin_offset: 20037508.34
+  initial_resolution: 156543.03392804097
+  snap_to_zoom: false
+  wrap_around: true
+TMSTileSource:
+  __extends__: MercatorTileSource
+WMTSTileSource:
+  __extends__: MercatorTileSource
+QUADKEYTileSource:
+  __extends__: MercatorTileSource
+BBoxTileSource:
+  __extends__: MercatorTileSource
+  use_latlon: false
+TileRenderer:
   __extends__: Renderer
-  level: guide
+  level: image
+  tile_source:
+    type: object
+    name: WMTSTileSource
+    attributes: {}
+  alpha: 1.0
+  smoothing: true
+  render_parents: true
 Axis:
   __extends__: GuideRenderer
   bounds: auto
@@ -3039,6 +3048,110 @@ Canvas:
   __extends__: UIElement
   hidpi: true
   output_backend: canvas
+Grid:
+  __extends__: GuideRenderer
+  level: underlay
+  dimension: 0
+  bounds: auto
+  cross_bounds: auto
+  axis: null
+  ticker: null
+  grid_line_color: '#e5e5e5'
+  grid_line_alpha: 1.0
+  grid_line_width: 1
+  grid_line_join: bevel
+  grid_line_cap: butt
+  grid_line_dash: []
+  grid_line_dash_offset: 0
+  minor_grid_line_color: null
+  minor_grid_line_alpha: 1.0
+  minor_grid_line_width: 1
+  minor_grid_line_join: bevel
+  minor_grid_line_cap: butt
+  minor_grid_line_dash: []
+  minor_grid_line_dash_offset: 0
+  band_fill_color: null
+  band_fill_alpha: 0
+  band_hatch_color: black
+  band_hatch_alpha: 1.0
+  band_hatch_scale: 12.0
+  band_hatch_pattern: null
+  band_hatch_weight: 1.0
+  band_hatch_extra:
+    type: map
+    entries: []
+LayoutDOM:
+  __extends__: UIElement
+  disabled: false
+  width: null
+  height: null
+  min_width: null
+  min_height: null
+  max_width: null
+  max_height: null
+  margin: null
+  width_policy: auto
+  height_policy: auto
+  aspect_ratio: null
+  flow_mode: block
+  sizing_mode: null
+  align: auto
+  css_classes: []
+  context_menu: null
+  resizable: false
+Spacer:
+  __extends__: LayoutDOM
+GridBox:
+  __extends__: LayoutDOM
+  children: []
+  rows: null
+  cols: null
+  spacing: 0
+HBox:
+  __extends__: LayoutDOM
+  children: []
+  cols: null
+  spacing: 0
+VBox:
+  __extends__: LayoutDOM
+  children: []
+  rows: null
+  spacing: 0
+FlexBox:
+  __extends__: LayoutDOM
+  children: []
+  spacing: 0
+Row:
+  __extends__: FlexBox
+Column:
+  __extends__: FlexBox
+TabPanel:
+  __extends__: Model
+  title: ''
+  child:
+    type: symbol
+    name: unset
+  closable: false
+  disabled: false
+Tabs:
+  __extends__: LayoutDOM
+  tabs: []
+  tabs_location: above
+  active: 0
+GroupBox:
+  __extends__: LayoutDOM
+  title: null
+  child:
+    type: symbol
+    name: unset
+  checkable: false
+ScrollBox:
+  __extends__: LayoutDOM
+  child:
+    type: symbol
+    name: unset
+  horizontal_scrollbar: auto
+  vertical_scrollbar: auto
 Annotation:
   __extends__: Renderer
   level: annotation
@@ -3757,119 +3870,6 @@ Legend:
   padding: 10
   spacing: 3
   items: []
-ContourRenderer:
-  __extends__: DataRenderer
-  line_renderer:
-    type: symbol
-    name: unset
-  fill_renderer:
-    type: symbol
-    name: unset
-  levels: []
-Grid:
-  __extends__: GuideRenderer
-  level: underlay
-  dimension: 0
-  bounds: auto
-  cross_bounds: auto
-  axis: null
-  ticker: null
-  grid_line_color: '#e5e5e5'
-  grid_line_alpha: 1.0
-  grid_line_width: 1
-  grid_line_join: bevel
-  grid_line_cap: butt
-  grid_line_dash: []
-  grid_line_dash_offset: 0
-  minor_grid_line_color: null
-  minor_grid_line_alpha: 1.0
-  minor_grid_line_width: 1
-  minor_grid_line_join: bevel
-  minor_grid_line_cap: butt
-  minor_grid_line_dash: []
-  minor_grid_line_dash_offset: 0
-  band_fill_color: null
-  band_fill_alpha: 0
-  band_hatch_color: black
-  band_hatch_alpha: 1.0
-  band_hatch_scale: 12.0
-  band_hatch_pattern: null
-  band_hatch_weight: 1.0
-  band_hatch_extra:
-    type: map
-    entries: []
-LayoutDOM:
-  __extends__: UIElement
-  disabled: false
-  width: null
-  height: null
-  min_width: null
-  min_height: null
-  max_width: null
-  max_height: null
-  margin: null
-  width_policy: auto
-  height_policy: auto
-  aspect_ratio: null
-  flow_mode: block
-  sizing_mode: null
-  align: auto
-  css_classes: []
-  context_menu: null
-  resizable: false
-Spacer:
-  __extends__: LayoutDOM
-GridBox:
-  __extends__: LayoutDOM
-  children: []
-  rows: null
-  cols: null
-  spacing: 0
-HBox:
-  __extends__: LayoutDOM
-  children: []
-  cols: null
-  spacing: 0
-VBox:
-  __extends__: LayoutDOM
-  children: []
-  rows: null
-  spacing: 0
-FlexBox:
-  __extends__: LayoutDOM
-  children: []
-  spacing: 0
-Row:
-  __extends__: FlexBox
-Column:
-  __extends__: FlexBox
-TabPanel:
-  __extends__: Model
-  title: ''
-  child:
-    type: symbol
-    name: unset
-  closable: false
-  disabled: false
-Tabs:
-  __extends__: LayoutDOM
-  tabs: []
-  tabs_location: above
-  active: 0
-GroupBox:
-  __extends__: LayoutDOM
-  title: null
-  child:
-    type: symbol
-    name: unset
-  checkable: false
-ScrollBox:
-  __extends__: LayoutDOM
-  child:
-    type: symbol
-    name: unset
-  horizontal_scrollbar: auto
-  vertical_scrollbar: auto
 Tool:
   __extends__: Model
   icon: null
