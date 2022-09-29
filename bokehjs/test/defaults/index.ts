@@ -124,7 +124,8 @@ function check_matching_defaults(context: string[], name: string, python_default
       }
 
       if (is_object(js_v) && is_object(py_v) && js_v.name == py_v.name) {
-        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_v.attributes, js_v.attributes)
+        const py_attrs = {...get_defaults(py_v.name), ...py_v.attributes}
+        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_attrs, js_v.attributes)
         continue
       }
 
@@ -154,7 +155,8 @@ function check_matching_defaults(context: string[], name: string, python_default
               const py_vi = py_v[i]
 
               if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
-                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_vi.attributes, js_vi.attributes)) {
+                const py_attrs = {...get_defaults(py_vi.name), ...py_vi.attributes}
+                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_attrs, js_vi.attributes)) {
                   equal = false
                   break
                 }
