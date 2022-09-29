@@ -597,20 +597,24 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         themed_keys: set[str] = set()
         result: dict[str, Any] = {}
 
+        keys = self.properties(_with_props=True)
         if include_defaults:
-            keys = self.properties(_with_props=True)
+            selected_keys = set(keys)
         else:
             # TODO (bev) For now, include unstable default values. Things rely on Instances
             # always getting serialized, even defaults, and adding unstable defaults here
             # accomplishes that. Unmodified defaults for property value containers will be
             # weeded out below.
-            keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
+            selected_keys = set(self._property_values.keys()) | set(self._unstable_default_values.keys())
             themed_values = self.themed_values()
             if themed_values is not None:
                 themed_keys = set(themed_values.keys())
-                keys |= themed_keys
+                selected_keys |= themed_keys
 
         for key in keys:
+            if key not in selected_keys:
+                continue
+
             descriptor = self.lookup(key)
             if not query(descriptor):
                 continue

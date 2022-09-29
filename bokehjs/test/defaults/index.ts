@@ -5,7 +5,7 @@ import {ExpectationError} from "../unit/assertions"
 
 import {HasProps} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
-import {isArray, isPlainObject} from "@bokehjs/core/util/types"
+import {isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
@@ -19,6 +19,8 @@ import "@bokehjs/models/widgets/tables/main"
 
 import yaml from "js-yaml"
 
+type KV<T = unknown> = {[key: string]: T}
+
 const tuple = new yaml.Type("tag:yaml.org,2002:python/tuple", {
   kind: "sequence",
   resolve: (_data) => true,
@@ -29,7 +31,34 @@ const schema = yaml.DEFAULT_SCHEMA.extend(tuple)
 import defaults_yaml from "./defaults.yaml"
 const all_defaults = dict(yaml.load(defaults_yaml, {schema}) as KV<KV<unknown>>)
 
-type KV<T = unknown> = {[key: string]: T}
+function _resolve_defaults(_name: string, defaults: KV) {
+  const {__extends__} = defaults
+  delete defaults.__extends__
+
+  const bases = (() => {
+    if (isArray(__extends__))
+      return __extends__ as string[]
+    else if (isString(__extends__))
+      return [__extends__]
+    else if (__extends__ == null)
+      return []
+    else
+      throw new Error(`invalid __extends__: ${__extends__}`)
+  })()
+
+  let new_defaults: KV = {}
+  for (const base of bases) {
+    const base_defaults = all_defaults.get(base)!
+    new_defaults = {...new_defaults, ...base_defaults}
+  }
+
+  return {...new_defaults, ...defaults}
+}
+
+for (const [name, defaults] of all_defaults) {
+  const new_defaults = _resolve_defaults(name, defaults)
+  all_defaults.set(name, new_defaults)
+}
 
 class DefaultsSerializer extends Serializer {
 
@@ -95,7 +124,8 @@ function check_matching_defaults(context: string[], name: string, python_default
       }
 
       if (is_object(js_v) && is_object(py_v) && js_v.name == py_v.name) {
-        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_v.attributes, js_v.attributes)
+        const py_attrs = {...get_defaults(py_v.name), ...py_v.attributes}
+        check_matching_defaults([...context, `${name}.${k}`], js_v.name, py_attrs, js_v.attributes)
         continue
       }
 
@@ -125,7 +155,8 @@ function check_matching_defaults(context: string[], name: string, python_default
               const py_vi = py_v[i]
 
               if (is_object(js_vi) && is_object(py_vi) && js_vi.name == py_vi.name) {
-                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_vi.attributes, js_vi.attributes)) {
+                const py_attrs = {...get_defaults(py_vi.name), ...py_vi.attributes}
+                if (!check_matching_defaults([...context, `${name}.${k}[${i}]`], js_vi.name, py_attrs, js_vi.attributes)) {
                   equal = false
                   break
                 }

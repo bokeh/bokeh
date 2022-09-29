@@ -28,6 +28,7 @@ from typing import Any
 import yaml
 
 # Bokeh imports
+from bokeh.core.has_props import HasProps
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import (
@@ -62,7 +63,10 @@ class DefaultsSerializer(Serializer):
 
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Model):
-            properties = obj.properties_with_values(include_defaults=True)
+            def query(prop: PropertyDescriptor[Any]) -> bool:
+                return prop.readonly or prop.serialized
+
+            properties = obj.query_properties_with_values(query, include_defaults=False, include_undefined=True)
             attributes = {key: self.encode(val) for key, val in properties.items()}
             rep = ObjectRep(
                 type="object",
@@ -84,22 +88,26 @@ def collect_defaults() -> dict[str, Any]:
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
             obj = model()
 
+        # filter only own properties and overrides
         def query(prop: PropertyDescriptor[Any]) -> bool:
-            return prop.readonly or prop.serialized
+            return (prop.readonly or prop.serialized) and \
+                (prop.name in obj.__class__.__properties__ or prop.name in obj.__class__.__overridden_defaults__)
 
-        properties = obj.query_properties_with_values(query, include_undefined=True)
+        properties = obj.query_properties_with_values(query, include_defaults=True, include_undefined=True)
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
         defaults[name] = attributes
+
+        bases = [base.__qualified_model__ for base in model.__bases__ if issubclass(base, HasProps) and base != HasProps]
+        if bases != []:
+            defaults[name] = dict(
+                __extends__=bases[0] if len(bases) == 1 else bases,
+                **defaults[name],
+            )
 
     return defaults
 
 def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
     os.makedirs(dest.parent, exist_ok=True)
-
-    #yaml.add_representer(
-    #    tuple,
-    #    lambda dumper, data: dumper.represent_list(data),
-    #)
 
     output = yaml.dump(defaults, sort_keys=False, indent=2)
     with open(dest, "w", encoding="utf-8") as f:
