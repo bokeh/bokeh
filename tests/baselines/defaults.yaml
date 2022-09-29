@@ -11918,6 +11918,7 @@ AutocompleteInput:
   prefix: null
   suffix: null
   completions: []
+  max_completions: null
   min_characters: 2
   case_sensitive: true
   restrict: true
