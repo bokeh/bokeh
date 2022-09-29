@@ -94,13 +94,13 @@ The following example is a plot with 10,000 scatter circles with WebGL enabled.
 Notice that the plot can be panned and zoomed smoothly, even without
 downsampling the data.
 
-.. bokeh-plot:: __REPO__/examples/webgl/scatter10k.py
+.. bokeh-plot:: __REPO__/examples/output/webgl/scatter10k.py
     :source-position: above
 
 Similarly, the plot below demonstrates plotting a single line with 10,000
 points.
 
-.. bokeh-plot:: __REPO__/examples/webgl/line10k.py
+.. bokeh-plot:: __REPO__/examples/output/webgl/line10k.py
     :source-position: above
 
 .. _WebGL: https://developer.mozilla.org/en-US/docs/Web/API/WebGL_API

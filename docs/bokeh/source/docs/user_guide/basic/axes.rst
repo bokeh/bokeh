@@ -22,7 +22,7 @@ For convenience, the |figure| function can also accept *(start, end)* tuples as
 values for the ``x_range`` or ``y_range`` parameters. Here's how you can use
 both methods to set a range:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_figure_range.py
+.. bokeh-plot:: __REPO__/examples/basic/axes/figure_range.py
     :source-position: above
 
 Ranges also have a ``bounds`` property that lets you specify the limits of the
@@ -49,7 +49,7 @@ To create a categorical axis, specify a
 :class:`~bokeh.models.ranges.FactorRange` for one of the plot's ranges or a
 list of factors to be converted to one. Here's an example:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_categorical_axis.py
+.. bokeh-plot:: __REPO__/examples/basic/axes/categorical_axis.py
     :source-position: above
 
 Datetime axes
@@ -66,7 +66,7 @@ The |figure| function accepts ``x_axis_type`` and ``y_axis_type`` as arguments.
 To specify a datetime axis, pass ``"datetime"`` for the value of either of
 these parameters.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_datetime_axis.py
+.. bokeh-plot:: __REPO__/examples/basic/axes/datetime_axis.py
     :source-position: above
 
 .. note::
@@ -87,7 +87,7 @@ By default, Bokeh calculates log axis ranges to fit around positive value data.
 For information on how to set your own ranges, see
 :ref:`ug_basic_axes_setting_ranges`.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_log_scale_axis.py
+.. bokeh-plot:: __REPO__/examples/basic/axes/log_scale_axis.py
     :source-position: above
 
 Mercator axes
@@ -106,5 +106,5 @@ this, configure the plot with "extra" named ranges in the ``extra_x_range`` and
 adding new glyph methods as well as when adding new axis objects with the
 ``add_layout`` method of the |plot|. Here's an example:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_twin_axes.py
+.. bokeh-plot:: __REPO__/examples/basic/axes/twin_axes.py
     :source-position: above

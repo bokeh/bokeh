@@ -101,7 +101,7 @@ plot based on the setup above.
 
 Put together, the above code snippets produce the following result:
 
-.. bokeh-plot:: __REPO__/examples/graph/customize.py
+.. bokeh-plot:: __REPO__/examples/specialized/graph/graph_customize.py
     :source-position: none
 
 Explicit paths
@@ -121,7 +121,7 @@ with node positions.
 The following extends the example above and draws quadratic bezier
 curves between the nodes:
 
-.. bokeh-plot:: __REPO__/examples/graph/static_paths.py
+.. bokeh-plot:: __REPO__/examples/specialized/graph/static_paths.py
     :source-position: above
 
 NetworkX integration
@@ -136,7 +136,7 @@ model.
 Here is how the ``networkx.spring_layout`` method lays out the
 "Zachary's karate club graph" data set built into NetworkX:
 
-.. bokeh-plot:: __REPO__/examples/graph/from_networkx.py
+.. bokeh-plot:: __REPO__/examples/specialized/graph/from_networkx.py
     :source-position: above
 
 Interaction policies
@@ -164,17 +164,17 @@ Below are examples of graphs with added node and edge interactions:
 
     .. tab-item:: NodesAndLinkedEdges
 
-        .. bokeh-plot:: __REPO__/examples/graph/interaction_nodeslinkededges.py
+        .. bokeh-plot:: __REPO__/examples/specialized/graph/interaction_nodeslinkededges.py
             :source-position: above
 
     .. tab-item:: EdgesAndLinkedNodes
 
-        .. bokeh-plot:: __REPO__/examples/graph/interaction_edgeslinkednodes.py
+        .. bokeh-plot:: __REPO__/examples/specialized/graph/interaction_edgeslinkednodes.py
             :source-position: above
 
     .. tab-item:: NodesAndAdjacentNodes
 
-        .. bokeh-plot:: __REPO__/examples/graph/interaction_nodesadjacentnodes.py
+        .. bokeh-plot:: __REPO__/examples/specialized/graph/interaction_nodesadjacentnodes.py
             :source-position: above
 
 Node and edge attributes
@@ -192,5 +192,5 @@ also use node and edge attributes for color information.
 Here is an example of a graph that hovers node attributes and changes
 colors with edge attributes:
 
-.. bokeh-plot:: __REPO__/examples/graph/node_and_edge_attributes.py
+.. bokeh-plot:: __REPO__/examples/specialized/graph/node_and_edge_attributes.py
     :source-position: above

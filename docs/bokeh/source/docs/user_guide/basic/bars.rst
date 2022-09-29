@@ -88,7 +88,7 @@ optional properties.
 
 Combining the above produces the following output:
 
-.. bokeh-plot:: __REPO__/examples/bars/basic.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/basic.py
     :source-position: above
 
 You can also assign the data to a |ColumnDataSource|
@@ -107,7 +107,7 @@ value.
 The example below sorts the fruit categories in ascending order
 based on counts and rearranges the bars accordingly.
 
-.. bokeh-plot:: __REPO__/examples/bars/sorted.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/sorted.py
     :source-position: above
 
 .. _ug_basic_bars_filled:
@@ -126,7 +126,7 @@ You can color the bars in several ways:
   a |ColumnDataSource| and assign the name of the color column
   to the ``color`` argument of |vbar|.
 
-  .. bokeh-plot:: __REPO__/examples/bars/colors.py
+  .. bokeh-plot:: __REPO__/examples/basic/bars/colors.py
     :source-position: above
 
   You can also use the color column with the ``line_color`` and
@@ -143,7 +143,7 @@ You can color the bars in several ways:
   You can then pass the result of this function to the ``color`` argument of
   |vbar| to achieve the same result:
 
-  .. bokeh-plot:: __REPO__/examples/bars/colormapped.py
+  .. bokeh-plot:: __REPO__/examples/basic/bars/colormapped.py
     :source-position: above
 
   See :ref:`ug_basic_visuals_using_mappers` for more information on using
@@ -159,12 +159,12 @@ function. The example below uses three sets of fruit data. Each set
 corresponds to a year. This example produces a bar chart for each set and
 stacks each fruit's bar elements on top of each other.
 
-.. bokeh-plot:: __REPO__/examples/bars/stacked.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/stacked.py
     :source-position: above
 
 You can also stack bars that represent positive and negative values:
 
-.. bokeh-plot:: __REPO__/examples/bars/stacked_split.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/stacked_split.py
     :source-position: above
 
 Tooltips
@@ -178,7 +178,7 @@ the data set.
 
 The example below demonstrates both behaviors:
 
-.. bokeh-plot:: __REPO__/examples/bars/stacked_hover.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/stacked_hover.py
     :source-position: above
 
 You can override the value of ``name`` by passing it manually to
@@ -225,7 +225,7 @@ represents, and adds a separator between the categories.
 The example below creates a sequence of fruit-year pairs (tuples) and
 groups the bars by fruit name with a single call to |vbar|.
 
-.. bokeh-plot:: __REPO__/examples/bars/nested.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/nested.py
     :source-position: above
 
 To apply different colors to the bars, use |factor_cmap| for
@@ -242,7 +242,7 @@ To apply different colors to the bars, use |factor_cmap| for
 The ``start=1`` and ``end=2`` in the call to |factor_cmap| use the
 year in the ``(fruit, year)`` pair for color mapping.
 
-.. bokeh-plot:: __REPO__/examples/bars/nested_colormapped.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/nested_colormapped.py
     :source-position: none
 
 .. _ug_basic_bars_grouped_dodged:
@@ -257,7 +257,7 @@ belongs to the same ``fruit`` category, the bars will overlap. To
 avoid this behavior, use the :func:`~bokeh.transform.dodge` function
 to provide an offset for each call to |vbar|.
 
-.. bokeh-plot:: __REPO__/examples/bars/dodged.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/dodged.py
     :source-position: above
 
 .. _ug_basic_bars_stacked_and_grouped:
@@ -269,7 +269,7 @@ You can also combine the above techniques to create plots of stacked and
 grouped bars. Here is an example that groups bars by quarter and stacks
 them by region:
 
-.. bokeh-plot:: __REPO__/examples/bars/stacked_grouped.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/stacked_grouped.py
     :source-position: above
 
 .. _ug_basic_bars_mixed:
@@ -283,7 +283,7 @@ The example below groups bars for each month into financial quarters and
 adds a quarterly average line at the group center coordinates from ``Q1``
 to ``Q4``.
 
-.. bokeh-plot:: __REPO__/examples/bars/mixed.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/mixed.py
     :source-position: above
 
 .. _ug_basic_bars_pandas:
@@ -299,7 +299,7 @@ initialize a ``ColumnDataSource`` and automatically create columns for many
 statistical parameters, such as group mean and count. You can also pass these
 ``GroupBy`` objects as a ``range`` argument to ``figure``.
 
-.. bokeh-plot:: __REPO__/examples/bars/pandas_groupby_colormapped.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/pandas_groupby_colormapped.py
     :source-position: above
 
 The example above groups data by the column ``'cyl'``, which is why the
@@ -312,7 +312,7 @@ data by ``('cyl', 'mfr')`` and displays it in nested categories distributed
 along the x-axis. Here, the index column name ``'cyl_mfr'`` is made by
 joining the names of the grouped columns.
 
-.. bokeh-plot:: __REPO__/examples/bars/pandas_groupby_nested.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/pandas_groupby_nested.py
     :source-position: above
 
 .. _ug_basic_bars_intervals:
@@ -328,7 +328,7 @@ The example below supplies the |hbar| function with both ``left`` and
 ``right`` properties to show the spread in times between gold and bronze
 medalists in Olympic sprinting over many years.
 
-.. bokeh-plot:: __REPO__/examples/bars/intervals.py
+.. bokeh-plot:: __REPO__/examples/basic/bars/intervals.py
     :source-position: above
 
 .. |hbar|               replace:: :py:func:`~bokeh.plotting.Figure.hbar`

@@ -15,7 +15,7 @@ Raw RGBA data
 The following example shows how to display images using raw RGBA data with the
 |image_rgba| method.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_image_rgba.py
+.. bokeh-plot:: __REPO__/examples/specialized/images/image_rgba.py
     :source-position: above
 
 .. _ug_specialized_images_colormapped:
@@ -27,7 +27,7 @@ The following example shows how to supply an array of *scalar values* and have
 Bokeh automatically color map the data in the browser with the |image| glyph
 method.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_image.py
+.. bokeh-plot:: __REPO__/examples/specialized/images/image.py
     :source-position: above
 
 Note that this example sets the render level to ``"image"``. Normally, Bokeh

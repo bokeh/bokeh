@@ -25,7 +25,7 @@ plot would show thousands of points overlapping in a narrow line for each day.
 The ``jitter`` function lets you differentiate the points to produce a useful
 plot:
 
-.. bokeh-plot:: __REPO__/examples/specialized/categorical_scatter_jitter.py
+.. bokeh-plot:: __REPO__/examples/specialized/categorical/scatter_jitter.py
     :source-position: above
 
 Series
@@ -66,14 +66,14 @@ Take the fruit example above and modify it as follows:
 
 This will shift each bar horizontally by the corresponding offset.
 
-.. bokeh-plot:: __REPO__/examples/specialized/categorical_offset.py
+.. bokeh-plot:: __REPO__/examples/specialized/categorical/categorical_offset.py
     :source-position: none
 
 Below is a more sophisticated example of a ridge plot. It uses
 categorical offsets to specify patch coordinates for each
 category.
 
-.. bokeh-plot:: __REPO__/examples/specialized/categorical_ridgeplot.py
+.. bokeh-plot:: __REPO__/examples/specialized/categorical/ridgeplot.py
     :source-position: below
 
 Heatmaps
@@ -93,7 +93,7 @@ This example uses the ``LinearColorMapper`` to map the colors of the plot
 because the unemployment rate is a continuous variable. This mapper is also
 passed to the color bar to provide a visual legend on the right:
 
-.. bokeh-plot:: __REPO__/examples/specialized/categorical_heatmap_unemployment.py
+.. bokeh-plot:: __REPO__/examples/specialized/categorical/heatmap_unemployment.py
     :source-position: below
 
 The following periodic table is a good example of the techniques
@@ -104,5 +104,5 @@ in this chapter:
 * pandas DataFrames
 * Tooltips
 
-.. bokeh-plot:: __REPO__/examples/specialized/categorical_periodic.py
+.. bokeh-plot:: __REPO__/examples/specialized/categorical/periodic.py
     :source-position: below

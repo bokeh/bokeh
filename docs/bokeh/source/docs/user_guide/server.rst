@@ -124,7 +124,7 @@ with other web application frameworks.
 .. toctree::
     :hidden:
 
-    server/application
+    server/app
     server/cli
     server/library
     server/deploy
