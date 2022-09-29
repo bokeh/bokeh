@@ -1,10 +1,10 @@
 .. _ug_specialized_images:
 
-Images
-======
+Images and raster data
+======================
 
-You can display images on Bokeh plots using the |image|, |image_rgba|, and
-|image_url| glyph methods. You can use hovering tooltips with image glyphs
+You can display 2d image arrays on Bokeh plots using the |image| and
+|image_rgba| glyph methods. You can use hovering tooltips with image glyphs
 to let the user see the values of each pixel. For more information on how to
 enable hovering tooltips for images, see
 :ref:`Image hover <ug_interaction_tools_image_hover>`.
@@ -60,4 +60,3 @@ The example below lets you explore all the different combinations of
 
 .. |image|             replace:: :func:`~bokeh.plotting.figure.image`
 .. |image_rgba|        replace:: :func:`~bokeh.plotting.figure.image_rgba`
-.. |image_url|         replace:: :func:`~bokeh.plotting.figure.image_url`

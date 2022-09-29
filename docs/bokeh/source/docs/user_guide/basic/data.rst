@@ -1,6 +1,6 @@
 .. _ug_basic_data:
 
-Data Sources
+Data sources
 ============
 
 The basis for any data visualization is the underlying data. This section

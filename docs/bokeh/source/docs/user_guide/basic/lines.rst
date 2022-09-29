@@ -1,7 +1,7 @@
 .. _ug_basic_lines:
 
-Line plots
-==========
+Lines and curves
+================
 
 .. _ug_basic_lines_single:
 
@@ -87,8 +87,8 @@ many glyphs to a Bokeh plot as you want.
 
 .. _ug_basic_lines_segments:
 
-Specialized lines
------------------
+Specialized glyphs
+------------------
 
 Segments
 ~~~~~~~~

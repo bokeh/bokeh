@@ -1,6 +1,6 @@
 .. _ug_specialized_categorical:
 
-Categorical Plots
+Categorical plots
 =================
 
 Scatters

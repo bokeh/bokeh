@@ -1,7 +1,7 @@
 .. _ug_server_library:
 
-Embedding Bokeh server as a library
-===================================
+Bokeh server APIs
+=================
 
 It can be useful to embed the Bokeh Server in a larger Tornado application, or a
 Jupyter notebook, and use the already existing Tornado ``IOloop``. Here is the

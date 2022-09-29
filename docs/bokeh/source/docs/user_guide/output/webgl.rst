@@ -1,6 +1,6 @@
 .. _ug_output_webgl:
 
-WebGL Acceleration
+WebGL acceleration
 ==================
 
 Bokeh provides limited support for WebGL to render plots in a web browser. Using

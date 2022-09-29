@@ -6,7 +6,7 @@ Scatter plots
 .. _ug_basic_scatters_markers:
 
 Scatter markers
-~~~~~~~~~~~~~~~
+---------------
 
 Bokeh includes a large variety of markers for creating scatter plots. For
 example, to render circle scatter markers on a plot, use the |circle|
@@ -68,4 +68,10 @@ All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 an exception: this method accepts an additional ``radius`` property that you can
 use with |data units|.
 
+Image URLs
+----------
+
+.. TODO (bv) content
+
 .. |circle| replace:: :func:`~bokeh.plotting.figure.circle`
+.. |image_url|         replace:: :func:`~bokeh.plotting.figure.image_url`

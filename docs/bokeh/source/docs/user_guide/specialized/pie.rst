@@ -1,6 +1,6 @@
 .. _ug_specialized_pie:
 
-Pie and Donut charts
+Pie and donut charts
 ====================
 
 .. _ug_specialized_pie_glyphs:

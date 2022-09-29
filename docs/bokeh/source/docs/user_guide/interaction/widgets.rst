@@ -1,7 +1,7 @@
 .. _ug_interaction_widgets:
 
-Widgets
-=======
+Widgets and DOM elements
+========================
 
 Widgets are interactive control and display elements that can be added to Bokeh
 documents to provide a front end user interface to a visualization. Widgets can

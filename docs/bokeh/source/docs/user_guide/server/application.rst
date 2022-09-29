@@ -1,7 +1,7 @@
 .. _ug_server_apps:
 
-Building Bokeh applications
----------------------------
+Building applications
+---------------------
 
 By far the most flexible way to create interactive data visualizations with
 the Bokeh server is to create Bokeh applications and serve them with the

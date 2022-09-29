@@ -1,10 +1,10 @@
 .. _ug_specialized_hex:
 
-Hex Plots
+Hex tiles
 =========
 
-Hex tiles
----------
+Hex tile glyphs
+---------------
 
 Bokeh can plot hexagonal tiles, which you can use to show binned aggregations
 and more. The :func:`~bokeh.plotting.figure.hex_tile` method takes a ``size``
