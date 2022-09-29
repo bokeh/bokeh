@@ -63,12 +63,10 @@ class DefaultsSerializer(Serializer):
 
     def _encode(self, obj: Any) -> AnyRep:
         if isinstance(obj, Model):
-            # filter only own properties and overrides
             def query(prop: PropertyDescriptor[Any]) -> bool:
-                return (prop.readonly or prop.serialized) and \
-                    (prop.name in obj.__class__.__properties__ or prop.name in obj.__class__.__overridden_defaults__)
+                return prop.readonly or prop.serialized
 
-            properties = obj.query_properties_with_values(query, include_defaults=True, include_undefined=True)
+            properties = obj.query_properties_with_values(query, include_defaults=False, include_undefined=True)
             attributes = {key: self.encode(val) for key, val in properties.items()}
             rep = ObjectRep(
                 type="object",
