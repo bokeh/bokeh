@@ -215,12 +215,8 @@ DataSource:
     type: object
     name: Selection
     attributes:
-      indices: []
       line_indices: []
-      multiline_indices:
-        type: map
-        entries: []
-      image_indices: []
+      indices: []
 ColumnarDataSource:
   __extends__: DataSource
   selection_policy:
@@ -399,17 +395,15 @@ DatetimeTicker:
   - type: object
     name: AdaptiveTicker
     attributes:
-      base: 10.0
       mantissas:
       - 1
       - 2
       - 5
-      min_interval: 0.0
+      num_minor_ticks: 0
       max_interval: 500.0
   - type: object
     name: AdaptiveTicker
     attributes:
-      base: 60
       mantissas:
       - 1
       - 2
@@ -418,12 +412,13 @@ DatetimeTicker:
       - 15
       - 20
       - 30
+      num_minor_ticks: 0
+      base: 60
       min_interval: 1000.0
       max_interval: 1800000.0
   - type: object
     name: AdaptiveTicker
     attributes:
-      base: 24
       mantissas:
       - 1
       - 2
@@ -431,12 +426,13 @@ DatetimeTicker:
       - 6
       - 8
       - 12
+      num_minor_ticks: 0
+      base: 24
       min_interval: 3600000.0
       max_interval: 43200000.0
   - type: object
     name: DaysTicker
     attributes:
-      num_minor_ticks: 0
       days:
       - 1
       - 2
@@ -472,7 +468,6 @@ DatetimeTicker:
   - type: object
     name: DaysTicker
     attributes:
-      num_minor_ticks: 0
       days:
       - 1
       - 4
@@ -487,7 +482,6 @@ DatetimeTicker:
   - type: object
     name: DaysTicker
     attributes:
-      num_minor_ticks: 0
       days:
       - 1
       - 8
@@ -496,7 +490,6 @@ DatetimeTicker:
   - type: object
     name: DaysTicker
     attributes:
-      num_minor_ticks: 0
       days:
       - 1
       - 15
@@ -1225,7 +1218,17 @@ Image:
   color_mapper:
     type: object
     name: LinearColorMapper
-    attributes: {}
+    attributes:
+      palette:
+      - '#000000'
+      - '#252525'
+      - '#525252'
+      - '#737373'
+      - '#969696'
+      - '#bdbdbd'
+      - '#d9d9d9'
+      - '#f0f0f0'
+      - '#ffffff'
 ImageRGBA:
   __extends__: ImageBase
   image:
@@ -1994,43 +1997,11 @@ CoordinateMapping:
   x_source:
     type: object
     name: DataRange1d
-    attributes:
-      range_padding: 0.1
-      range_padding_units: percent
-      start:
-        type: number
-        value: nan
-      end:
-        type: number
-        value: nan
-      bounds: null
-      min_interval: null
-      max_interval: null
-      flipped: false
-      follow: null
-      follow_interval: null
-      default_span: 2.0
-      only_visible: false
+    attributes: {}
   y_source:
     type: object
     name: DataRange1d
-    attributes:
-      range_padding: 0.1
-      range_padding_units: percent
-      start:
-        type: number
-        value: nan
-      end:
-        type: number
-        value: nan
-      bounds: null
-      min_interval: null
-      max_interval: null
-      flipped: false
-      follow: null
-      follow_interval: null
-      default_span: 2.0
-      only_visible: false
+    attributes: {}
   x_scale:
     type: object
     name: LinearScale
@@ -2215,16 +2186,6 @@ GraphRenderer:
     type: object
     name: GlyphRenderer
     attributes:
-      data_source:
-        type: object
-        name: ColumnDataSource
-        attributes:
-          data:
-            type: map
-            entries:
-            - !!python/tuple
-              - index
-              - []
       view:
         type: object
         name: CDSView
@@ -2236,20 +2197,43 @@ GraphRenderer:
       glyph:
         type: object
         name: Circle
+        attributes: {}
+      data_source:
+        type: object
+        name: ColumnDataSource
         attributes:
-          radius:
-            type: value
-            value: null
-          radius_dimension: x
-      selection_glyph: auto
-      nonselection_glyph: auto
-      hover_glyph: null
-      muted_glyph: auto
-      muted: false
+          data:
+            type: map
+            entries:
+            - !!python/tuple
+              - index
+              - []
+          selection_policy:
+            type: object
+            name: UnionRenderers
+            attributes: {}
+          selected:
+            type: object
+            name: Selection
+            attributes:
+              line_indices: []
+              indices: []
   edge_renderer:
     type: object
     name: GlyphRenderer
     attributes:
+      view:
+        type: object
+        name: CDSView
+        attributes:
+          filter:
+            type: object
+            name: AllIndices
+            attributes: {}
+      glyph:
+        type: object
+        name: MultiLine
+        attributes: {}
       data_source:
         type: object
         name: ColumnDataSource
@@ -2263,50 +2247,16 @@ GraphRenderer:
             - !!python/tuple
               - end
               - []
-      view:
-        type: object
-        name: CDSView
-        attributes:
-          filter:
+          selection_policy:
             type: object
-            name: AllIndices
+            name: UnionRenderers
             attributes: {}
-      glyph:
-        type: object
-        name: MultiLine
-        attributes:
-          xs:
-            type: field
-            field: xs
-          ys:
-            type: field
-            field: ys
-          line_color:
-            type: value
-            value: black
-          line_alpha:
-            type: value
-            value: 1.0
-          line_width:
-            type: value
-            value: 1
-          line_join:
-            type: value
-            value: bevel
-          line_cap:
-            type: value
-            value: butt
-          line_dash:
-            type: value
-            value: []
-          line_dash_offset:
-            type: value
-            value: 0
-      selection_glyph: auto
-      nonselection_glyph: auto
-      hover_glyph: null
-      muted_glyph: auto
-      muted: false
+          selected:
+            type: object
+            name: Selection
+            attributes:
+              line_indices: []
+              indices: []
   selection_policy:
     type: object
     name: NodesOnly
@@ -2389,15 +2339,15 @@ LinearAxis:
   ticker:
     type: object
     name: BasicTicker
-    attributes: {}
+    attributes:
+      mantissas:
+      - 1
+      - 2
+      - 5
   formatter:
     type: object
     name: BasicTickFormatter
-    attributes:
-      precision: auto
-      use_scientific: true
-      power_limit_high: 5
-      power_limit_low: -3
+    attributes: {}
 LogAxis:
   __extends__: ContinuousAxis
   ticker:
@@ -2410,9 +2360,7 @@ LogAxis:
   formatter:
     type: object
     name: LogTickFormatter
-    attributes:
-      ticker: null
-      min_exponent: 0
+    attributes: {}
 CategoricalAxis:
   __extends__: Axis
   ticker:
@@ -2456,22 +2404,19 @@ DatetimeAxis:
     type: object
     name: DatetimeTicker
     attributes:
-      num_minor_ticks: 0
       tickers:
       - type: object
         name: AdaptiveTicker
         attributes:
-          base: 10.0
           mantissas:
           - 1
           - 2
           - 5
-          min_interval: 0.0
+          num_minor_ticks: 0
           max_interval: 500.0
       - type: object
         name: AdaptiveTicker
         attributes:
-          base: 60
           mantissas:
           - 1
           - 2
@@ -2480,12 +2425,13 @@ DatetimeAxis:
           - 15
           - 20
           - 30
+          num_minor_ticks: 0
+          base: 60
           min_interval: 1000.0
           max_interval: 1800000.0
       - type: object
         name: AdaptiveTicker
         attributes:
-          base: 24
           mantissas:
           - 1
           - 2
@@ -2493,12 +2439,13 @@ DatetimeAxis:
           - 6
           - 8
           - 12
+          num_minor_ticks: 0
+          base: 24
           min_interval: 3600000.0
           max_interval: 43200000.0
       - type: object
         name: DaysTicker
         attributes:
-          num_minor_ticks: 0
           days:
           - 1
           - 2
@@ -2534,7 +2481,6 @@ DatetimeAxis:
       - type: object
         name: DaysTicker
         attributes:
-          num_minor_ticks: 0
           days:
           - 1
           - 4
@@ -2549,7 +2495,6 @@ DatetimeAxis:
       - type: object
         name: DaysTicker
         attributes:
-          num_minor_ticks: 0
           days:
           - 1
           - 8
@@ -2558,7 +2503,6 @@ DatetimeAxis:
       - type: object
         name: DaysTicker
         attributes:
-          num_minor_ticks: 0
           days:
           - 1
           - 15
@@ -2607,21 +2551,7 @@ DatetimeAxis:
   formatter:
     type: object
     name: DatetimeTickFormatter
-    attributes:
-      microseconds: '%fus'
-      milliseconds: '%3Nms'
-      seconds: '%Ss'
-      minsec: :%M:%S
-      minutes: :%M
-      hourmin: '%H:%M'
-      hours: '%Hh'
-      days: '%m/%d'
-      months: '%m/%Y'
-      years: '%Y'
-      strip_leading_zeros: true
-      context: null
-      context_which: start
-      context_location: below
+    attributes: {}
 MercatorAxis:
   __extends__: LinearAxis
   ticker:
@@ -2629,6 +2559,10 @@ MercatorAxis:
     name: MercatorTicker
     attributes:
       dimension: lat
+      mantissas:
+      - 1
+      - 2
+      - 5
   formatter:
     type: object
     name: MercatorTickFormatter
@@ -3117,6 +3051,16 @@ DataAnnotation:
       data:
         type: map
         entries: []
+      selection_policy:
+        type: object
+        name: UnionRenderers
+        attributes: {}
+      selected:
+        type: object
+        name: Selection
+        attributes:
+          line_indices: []
+          indices: []
 ArrowHead:
   __extends__: Marking
   size:
@@ -3246,28 +3190,7 @@ Arrow:
   end:
     type: object
     name: OpenHead
-    attributes:
-      line_color:
-        type: value
-        value: black
-      line_alpha:
-        type: value
-        value: 1.0
-      line_width:
-        type: value
-        value: 1
-      line_join:
-        type: value
-        value: bevel
-      line_cap:
-        type: value
-        value: butt
-      line_dash:
-        type: value
-        value: []
-      line_dash_offset:
-        type: value
-        value: 0
+    attributes: {}
   line_color:
     type: value
     value: black
@@ -3393,27 +3316,9 @@ Whisker:
     type: object
     name: TeeHead
     attributes:
-      line_color:
+      size:
         type: value
-        value: black
-      line_alpha:
-        type: value
-        value: 1.0
-      line_width:
-        type: value
-        value: 1
-      line_join:
-        type: value
-        value: bevel
-      line_cap:
-        type: value
-        value: butt
-      line_dash:
-        type: value
-        value: []
-      line_dash_offset:
-        type: value
-        value: 0
+        value: 10
   upper:
     type: field
     field: upper
@@ -3421,27 +3326,9 @@ Whisker:
     type: object
     name: TeeHead
     attributes:
-      line_color:
+      size:
         type: value
-        value: black
-      line_alpha:
-        type: value
-        value: 1.0
-      line_width:
-        type: value
-        value: 1
-      line_join:
-        type: value
-        value: bevel
-      line_cap:
-        type: value
-        value: butt
-      line_dash:
-        type: value
-        value: []
-      line_dash_offset:
-        type: value
-        value: 0
+        value: 10
   base:
     type: field
     field: base
@@ -3754,8 +3641,7 @@ BaseColorBar:
   major_label_policy:
     type: object
     name: NoOverlap
-    attributes:
-      min_distance: 5
+    attributes: {}
   margin: 30
   padding: 10
   major_label_text_color: '#444444'
@@ -4035,33 +3921,16 @@ RangeTool:
     type: object
     name: BoxAnnotation
     attributes:
-      left: null
-      left_units: data
-      right: null
-      right_units: data
-      bottom: null
-      bottom_units: data
-      top: null
-      top_units: data
+      level: overlay
       line_color: black
-      line_alpha: 1.0
-      line_width: 0.5
-      line_join: bevel
-      line_cap: butt
       line_dash:
       - 2
       - 2
-      line_dash_offset: 0
-      fill_color: lightgrey
       fill_alpha: 0.5
-      hatch_color: black
-      hatch_alpha: 1.0
-      hatch_scale: 12.0
-      hatch_pattern: null
-      hatch_weight: 1.0
-      hatch_extra:
-        type: map
-        entries: []
+      fill_color: lightgrey
+      line_width: 0.5
+      line_alpha: 1.0
+      syncable: false
 WheelPanTool:
   __extends__: Scroll
   dimension: width
@@ -4103,33 +3972,21 @@ BoxZoomTool:
     type: object
     name: BoxAnnotation
     attributes:
-      left: null
-      left_units: canvas
-      right: null
-      right_units: canvas
-      bottom: null
-      bottom_units: canvas
-      top: null
+      visible: false
+      level: overlay
       top_units: canvas
       line_color: black
-      line_alpha: 1.0
-      line_width: 2
-      line_join: bevel
-      line_cap: butt
       line_dash:
       - 4
       - 4
-      line_dash_offset: 0
-      fill_color: lightgrey
       fill_alpha: 0.5
-      hatch_color: black
-      hatch_alpha: 1.0
-      hatch_scale: 12.0
-      hatch_pattern: null
-      hatch_weight: 1.0
-      hatch_extra:
-        type: map
-        entries: []
+      left_units: canvas
+      fill_color: lightgrey
+      bottom_units: canvas
+      right_units: canvas
+      line_width: 2
+      line_alpha: 1.0
+      syncable: false
   match_aspect: false
   origin: corner
 ZoomInTool:
@@ -4151,33 +4008,21 @@ BoxSelectTool:
     type: object
     name: BoxAnnotation
     attributes:
-      left: null
-      left_units: canvas
-      right: null
-      right_units: canvas
-      bottom: null
-      bottom_units: canvas
-      top: null
+      visible: false
+      level: overlay
       top_units: canvas
       line_color: black
-      line_alpha: 1.0
-      line_width: 2
-      line_join: bevel
-      line_cap: butt
       line_dash:
       - 4
       - 4
-      line_dash_offset: 0
-      fill_color: lightgrey
       fill_alpha: 0.5
-      hatch_color: black
-      hatch_alpha: 1.0
-      hatch_scale: 12.0
-      hatch_pattern: null
-      hatch_weight: 1.0
-      hatch_extra:
-        type: map
-        entries: []
+      left_units: canvas
+      fill_color: lightgrey
+      bottom_units: canvas
+      right_units: canvas
+      line_width: 2
+      line_alpha: 1.0
+      syncable: false
   origin: corner
 LassoSelectTool:
   __extends__:
@@ -4188,29 +4033,21 @@ LassoSelectTool:
     type: object
     name: PolyAnnotation
     attributes:
-      xs: []
-      xs_units: canvas
-      ys: []
-      ys_units: canvas
+      visible: false
+      level: overlay
       line_color: black
-      line_alpha: 1.0
-      line_width: 2
-      line_join: bevel
-      line_cap: butt
+      xs: []
       line_dash:
       - 4
       - 4
-      line_dash_offset: 0
-      fill_color: lightgrey
       fill_alpha: 0.5
-      hatch_color: black
-      hatch_alpha: 1.0
-      hatch_scale: 12.0
-      hatch_pattern: null
-      hatch_weight: 1.0
-      hatch_extra:
-        type: map
-        entries: []
+      fill_color: lightgrey
+      ys: []
+      xs_units: canvas
+      ys_units: canvas
+      line_width: 2
+      line_alpha: 1.0
+      syncable: false
 PolySelectTool:
   __extends__:
   - Tap
@@ -4219,29 +4056,21 @@ PolySelectTool:
     type: object
     name: PolyAnnotation
     attributes:
-      xs: []
-      xs_units: canvas
-      ys: []
-      ys_units: canvas
+      visible: false
+      level: overlay
       line_color: black
-      line_alpha: 1.0
-      line_width: 2
-      line_join: bevel
-      line_cap: butt
+      xs: []
       line_dash:
       - 4
       - 4
-      line_dash_offset: 0
-      fill_color: lightgrey
       fill_alpha: 0.5
-      hatch_color: black
-      hatch_alpha: 1.0
-      hatch_scale: 12.0
-      hatch_pattern: null
-      hatch_weight: 1.0
-      hatch_extra:
-        type: map
-        entries: []
+      fill_color: lightgrey
+      ys: []
+      xs_units: canvas
+      ys_units: canvas
+      line_width: 2
+      line_alpha: 1.0
+      syncable: false
 CustomJSHover:
   __extends__: Model
   args:
@@ -4339,43 +4168,11 @@ Plot:
   x_range:
     type: object
     name: DataRange1d
-    attributes:
-      range_padding: 0.1
-      range_padding_units: percent
-      start:
-        type: number
-        value: nan
-      end:
-        type: number
-        value: nan
-      bounds: null
-      min_interval: null
-      max_interval: null
-      flipped: false
-      follow: null
-      follow_interval: null
-      default_span: 2.0
-      only_visible: false
+    attributes: {}
   y_range:
     type: object
     name: DataRange1d
-    attributes:
-      range_padding: 0.1
-      range_padding_units: percent
-      start:
-        type: number
-        value: nan
-      end:
-        type: number
-        value: nan
-      bounds: null
-      min_interval: null
-      max_interval: null
-      flipped: false
-      follow: null
-      follow_interval: null
-      default_span: 2.0
-      only_visible: false
+    attributes: {}
   x_scale:
     type: object
     name: LinearScale
@@ -4400,14 +4197,7 @@ Plot:
   title:
     type: object
     name: Title
-    attributes:
-      text_font_size: 13px
-      text_font_style: bold
-      text_line_height: 1.0
-      vertical_align: bottom
-      align: left
-      offset: 0
-      standoff: 10
+    attributes: {}
   title_location: above
   outline_line_color: '#e5e5e5'
   outline_line_alpha: 1.0
@@ -4420,15 +4210,7 @@ Plot:
   toolbar:
     type: object
     name: Toolbar
-    attributes:
-      logo: normal
-      autohide: false
-      tools: []
-      active_drag: auto
-      active_inspect: auto
-      active_scroll: auto
-      active_tap: auto
-      active_multi: auto
+    attributes: {}
   toolbar_location: right
   toolbar_sticky: true
   toolbar_inner: false
@@ -4467,15 +4249,7 @@ GridPlot:
   toolbar:
     type: object
     name: Toolbar
-    attributes:
-      logo: normal
-      autohide: false
-      tools: []
-      active_drag: auto
-      active_inspect: auto
-      active_scroll: auto
-      active_tap: auto
-      active_multi: auto
+    attributes: {}
   toolbar_location: above
   children: []
   rows: null
@@ -4503,25 +4277,11 @@ GMapPlot:
   x_range:
     type: object
     name: Range1d
-    attributes:
-      start: 0
-      end: 1
-      reset_start: null
-      reset_end: null
-      bounds: null
-      min_interval: null
-      max_interval: null
+    attributes: {}
   y_range:
     type: object
     name: Range1d
-    attributes:
-      start: 0
-      end: 1
-      reset_start: null
-      reset_end: null
-      bounds: null
-      min_interval: null
-      max_interval: null
+    attributes: {}
   background_fill_alpha: 0.0
   border_fill_color: '#ffffff'
   map_options:
@@ -4593,8 +4353,8 @@ HelpButton:
     type: object
     name: BuiltinIcon
     attributes:
+      size: 18
       icon_name: help
-      color: gray
   tooltip:
     type: symbol
     name: unset
@@ -4886,16 +4646,11 @@ TableColumn:
   formatter:
     type: object
     name: StringFormatter
-    attributes:
-      font_style: normal
-      text_align: left
-      text_color: null
-      nan_format: '-'
+    attributes: {}
   editor:
     type: object
     name: StringEditor
-    attributes:
-      completions: []
+    attributes: {}
   sortable: true
   default_sort: ascending
   visible: true
@@ -4908,6 +4663,16 @@ TableWidget:
       data:
         type: map
         entries: []
+      selection_policy:
+        type: object
+        name: UnionRenderers
+        attributes: {}
+      selected:
+        type: object
+        name: Selection
+        attributes:
+          line_indices: []
+          indices: []
   view:
     type: object
     name: CDSView
