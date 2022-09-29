@@ -28,6 +28,7 @@ from typing import Any
 import yaml
 
 # Bokeh imports
+from bokeh.core.has_props import HasProps
 from bokeh.core.property.descriptors import PropertyDescriptor
 from bokeh.core.property.singletons import Undefined
 from bokeh.core.serialization import (
@@ -98,15 +99,17 @@ def collect_defaults() -> dict[str, Any]:
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
         defaults[name] = attributes
 
+        bases = [base.__qualified_model__ for base in model.__bases__ if issubclass(base, HasProps) and base != HasProps]
+        if bases != []:
+            defaults[name] = dict(
+                __extends__=bases[0] if len(bases) == 1 else bases,
+                **defaults[name],
+            )
+
     return defaults
 
 def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
     os.makedirs(dest.parent, exist_ok=True)
-
-    #yaml.add_representer(
-    #    tuple,
-    #    lambda dumper, data: dumper.represent_list(data),
-    #)
 
     output = yaml.dump(defaults, sort_keys=False, indent=2)
     with open(dest, "w", encoding="utf-8") as f:
