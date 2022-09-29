@@ -2,6 +2,7 @@ import {TextInput, TextInputView} from "./text_input"
 
 import {empty, display, undisplay, div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
+import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
@@ -48,15 +49,15 @@ export class AutocompleteInputView extends TextInputView {
   protected _update_completions(completions: string[]): void {
     empty(this.menu)
 
-    for (const [index, text] of completions.entries()) {
+    const {max_completions} = this.model
+    const selected_completions = max_completions != null ? take(completions, max_completions) : completions
+
+    for (const text of selected_completions) {
       const item = div(text)
-      this.menu.appendChild(item)
-      if (this.model.max_completions === index + 1)
-        break
+      this.menu.append(item)
     }
 
-    if (completions.length > 0)
-      this.menu.children[0].classList.add(dropdown.active)
+    this.menu.firstElementChild?.classList.add(dropdown.active)
   }
 
   protected _toggle_menu(): void {
@@ -171,7 +172,7 @@ export namespace AutocompleteInput {
   export type Props = TextInput.Props & {
     completions: p.Property<string[]>
     min_characters: p.Property<number>
-    max_completions: p.Property<number| null>
+    max_completions: p.Property<number | null>
     case_sensitive: p.Property<boolean>
     restrict: p.Property<boolean>
   }
@@ -190,10 +191,10 @@ export class AutocompleteInput extends TextInput {
   static {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative, Nullable}) => ({
+    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative, Positive, Nullable}) => ({
       completions:    [ Array(String), [] ],
       min_characters: [ NonNegative(Int), 2 ],
-      max_completions: [ Nullable(Int),  null ],
+      max_completions: [ Nullable(Positive(Int)), null ],
       case_sensitive: [ Boolean, true ],
       restrict: [ Boolean, true ],
     }))
