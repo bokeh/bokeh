@@ -39,6 +39,7 @@ from ...core.properties import (
     Null,
     Nullable,
     Override,
+    Positive,
     Readonly,
     String,
     Tuple,
@@ -394,11 +395,17 @@ class AutocompleteInput(TextInput):
     user upon typing the beginning of a desired value.
     """)
 
+    max_completions = Nullable(Positive(Int), help="""
+    Optional maximum number of completions displayed.
+    """)
+
     min_characters = NonNegative(Int, default=2, help="""
     The number of characters a user must type before completions are presented.
     """)
 
-    case_sensitive = Bool(default=True, help="""Enable or disable case sensitivity""")
+    case_sensitive = Bool(default=True, help="""
+    Enable or disable case sensitivity.
+    """)
 
     restrict = Bool(default=True, help="""
     Set to False in order to allow users to enter text that is not present in the list of completion strings.

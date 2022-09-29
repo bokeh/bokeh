@@ -233,4 +233,48 @@ describe("core/kinds module", () => {
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
   })
+
+  it("should support NonNegative(T) kind", () => {
+    const tp0 = k.NonNegative(k.Int)
+    expect(`${tp0}`).to.be.equal("NonNegative(Int)")
+    expect(tp0.valid(-1)).to.be.false
+    expect(tp0.valid(0)).to.be.true
+    expect(tp0.valid(1)).to.be.true
+
+    expect(tp0.valid(-1.1)).to.be.false
+    expect(tp0.valid(0.0)).to.be.true
+    expect(tp0.valid(1.1)).to.be.false
+
+    const tp1 = k.NonNegative(k.Number)
+    expect(`${tp1}`).to.be.equal("NonNegative(Number)")
+    expect(tp1.valid(-1)).to.be.false
+    expect(tp1.valid(0)).to.be.true
+    expect(tp1.valid(1)).to.be.true
+
+    expect(tp1.valid(-1.1)).to.be.false
+    expect(tp1.valid(0.0)).to.be.true
+    expect(tp1.valid(1.1)).to.be.true
+  })
+
+  it("should support Positive(T) kind", () => {
+    const tp0 = k.Positive(k.Int)
+    expect(`${tp0}`).to.be.equal("Positive(Int)")
+    expect(tp0.valid(-1)).to.be.false
+    expect(tp0.valid(0)).to.be.false
+    expect(tp0.valid(1)).to.be.true
+
+    expect(tp0.valid(-1.1)).to.be.false
+    expect(tp0.valid(0.0)).to.be.false
+    expect(tp0.valid(1.1)).to.be.false
+
+    const tp1 = k.Positive(k.Number)
+    expect(`${tp1}`).to.be.equal("Positive(Number)")
+    expect(tp1.valid(-1)).to.be.false
+    expect(tp1.valid(0)).to.be.false
+    expect(tp1.valid(1)).to.be.true
+
+    expect(tp1.valid(-1.1)).to.be.false
+    expect(tp1.valid(0.0)).to.be.false
+    expect(tp1.valid(1.1)).to.be.true
+  })
 })

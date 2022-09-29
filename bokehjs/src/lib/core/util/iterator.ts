@@ -34,6 +34,17 @@ export function* enumerate<T>(seq: Iterable<T>): Iterable<[T, number]> {
   }
 }
 
+export function* take<T>(seq: Iterable<T>, n: number): Iterable<T> {
+  assert(n >= 0)
+  let i = 0
+  for (const item of seq) {
+    if (i++ < n)
+      yield item
+    else
+      break
+  }
+}
+
 export function* skip<T>(seq: Iterable<T>, n: number): Iterable<T> {
   assert(n >= 0)
 

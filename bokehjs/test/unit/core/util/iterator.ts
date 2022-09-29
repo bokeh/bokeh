@@ -1,9 +1,11 @@
 import {expect} from "assertions"
 
 import {
-  range, reverse, enumerate, skip, tail, join, interleave,
+  range, reverse, enumerate, take, skip, tail, join, interleave,
   map, flat_map, every, some, combinations, subsets,
 } from "@bokehjs/core/util/iterator"
+
+import {AssertionError} from "@bokehjs/core/util/assert"
 
 describe("core/util/iterator module", () => {
   it("implements range() function", () => {
@@ -25,6 +27,26 @@ describe("core/util/iterator module", () => {
     expect([...enumerate(["a"])]).to.be.equal([["a", 0]])
     expect([...enumerate(["a", "b"])]).to.be.equal([["a", 0], ["b", 1]])
     expect([...enumerate(["a", "b", "c"])]).to.be.equal([["a", 0], ["b", 1], ["c", 2]])
+  })
+
+  it("implements take() function", () => {
+    expect([...take(range(0, 0), 0)]).to.be.equal([])
+    expect([...take(range(0, 0), 1)]).to.be.equal([])
+    expect([...take(range(0, 0), 9)]).to.be.equal([])
+
+    expect([...take(range(0, 1000), 0)]).to.be.equal([])
+    expect([...take(range(0, 1000), 1)]).to.be.equal([0])
+    expect([...take(range(0, 1000), 9)]).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7, 8])
+
+    expect([...take([], 0)]).to.be.equal([])
+    expect([...take([], 1)]).to.be.equal([])
+    expect([...take([], 9)]).to.be.equal([])
+
+    expect([...take([...range(0, 1000)], 0)]).to.be.equal([])
+    expect([...take([...range(0, 1000)], 1)]).to.be.equal([0])
+    expect([...take([...range(0, 1000)], 9)]).to.be.equal([0, 1, 2, 3, 4, 5, 6, 7, 8])
+
+    expect(() => [...take(range(0, 10), -1)]).to.throw(AssertionError)
   })
 
   it("implements skip() function", () => {

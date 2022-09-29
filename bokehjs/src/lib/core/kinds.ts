@@ -426,6 +426,20 @@ export namespace Kinds {
     }
   }
 
+  export class Positive<BaseType extends number> extends Kind<BaseType> {
+    constructor(readonly base_type: Kind<BaseType>) {
+      super()
+    }
+
+    valid(value: unknown): value is BaseType {
+      return this.base_type.valid(value) && value > 0
+    }
+
+    override toString(): string {
+      return `Positive(${this.base_type.toString()})`
+    }
+  }
+
   export class DOMNode extends Kind<Node> {
     valid(value: unknown): value is Node {
       return value instanceof Node
@@ -463,6 +477,7 @@ export const Function = <Args extends unknown[], Ret>() => new Kinds.Function<Ar
 export const DOMNode = new Kinds.DOMNode()
 
 export const NonNegative = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.NonNegative(base_type)
+export const Positive = <BaseType extends number>(base_type: Kind<BaseType>) => new Kinds.Positive(base_type)
 
 export const Percent = new Kinds.Percent()
 export const Alpha = Percent
