@@ -9,7 +9,8 @@ Model:
     type: map
     entries: []
   syncable: true
-DataModel: {}
+DataModel:
+  __extends__: Model
 FillProps:
   fill_color:
     type: value
@@ -122,16 +123,20 @@ ScalarTextProps:
   text_align: left
   text_baseline: bottom
   text_line_height: 1.2
-Callback: {}
+Callback:
+  __extends__: Model
 OpenURL:
+  __extends__: Callback
   url: http://
   same_tab: false
 CustomJS:
+  __extends__: Callback
   args:
     type: map
     entries: []
   code: ''
 SetValue:
+  __extends__: Callback
   obj:
     type: symbol
     name: unset
@@ -141,33 +146,43 @@ SetValue:
   value:
     type: symbol
     name: unset
-Filter: {}
-AllIndices: {}
+Filter:
+  __extends__: Model
+AllIndices:
+  __extends__: Filter
 InversionFilter:
+  __extends__: Filter
   operand:
     type: symbol
     name: unset
 IntersectionFilter:
+  __extends__: Filter
   operands:
     type: symbol
     name: unset
 UnionFilter:
+  __extends__: Filter
   operands:
     type: symbol
     name: unset
 DifferenceFilter:
+  __extends__: Filter
   operands:
     type: symbol
     name: unset
 SymmetricDifferenceFilter:
+  __extends__: Filter
   operands:
     type: symbol
     name: unset
 IndexFilter:
+  __extends__: Filter
   indices: null
 BooleanFilter:
+  __extends__: Filter
   booleans: null
 GroupFilter:
+  __extends__: Filter
   column_name:
     type: symbol
     name: unset
@@ -175,21 +190,27 @@ GroupFilter:
     type: symbol
     name: unset
 CustomJSFilter:
+  __extends__: Filter
   args:
     type: map
     entries: []
   code: ''
 Selection:
+  __extends__: Model
   indices: []
   line_indices: []
   multiline_indices:
     type: map
     entries: []
   image_indices: []
-SelectionPolicy: {}
-IntersectRenderers: {}
-UnionRenderers: {}
+SelectionPolicy:
+  __extends__: Model
+IntersectRenderers:
+  __extends__: SelectionPolicy
+UnionRenderers:
+  __extends__: SelectionPolicy
 DataSource:
+  __extends__: Model
   selected:
     type: object
     name: Selection
@@ -201,32 +222,39 @@ DataSource:
         entries: []
       image_indices: []
 ColumnarDataSource:
+  __extends__: DataSource
   selection_policy:
     type: object
     name: UnionRenderers
     attributes: {}
 ColumnDataSource:
+  __extends__: ColumnarDataSource
   data:
     type: map
     entries: []
 CDSView:
+  __extends__: Model
   filter:
     type: object
     name: AllIndices
     attributes: {}
 GeoJSONDataSource:
+  __extends__: ColumnarDataSource
   geojson:
     type: symbol
     name: unset
 WebDataSource:
+  __extends__: ColumnDataSource
   adapter: null
   max_size: null
   mode: replace
   data_url:
     type: symbol
     name: unset
-ServerSentDataSource: {}
+ServerSentDataSource:
+  __extends__: WebDataSource
 AjaxDataSource:
+  __extends__: WebDataSource
   polling_interval: null
   method: POST
   if_modified: false
@@ -234,22 +262,27 @@ AjaxDataSource:
   http_headers:
     type: map
     entries: []
-Transform: {}
+Transform:
+  __extends__: Model
 CustomJSTransform:
+  __extends__: Transform
   args:
     type: map
     entries: []
   func: ''
   v_func: ''
 Dodge:
+  __extends__: Transform
   value: 0
   range: null
 Jitter:
+  __extends__: Transform
   mean: 0
   width: 1
   distribution: uniform
   range: null
 Interpolator:
+  __extends__: Transform
   x:
     type: symbol
     name: unset
@@ -258,52 +291,71 @@ Interpolator:
     name: unset
   data: null
   clip: true
-LinearInterpolator: {}
+LinearInterpolator:
+  __extends__: Interpolator
 StepInterpolator:
+  __extends__: Interpolator
   mode: after
-Mapper: {}
+Mapper:
+  __extends__: Transform
 ColorMapper:
+  __extends__: Mapper
   palette:
     type: symbol
     name: unset
   nan_color: gray
 CategoricalMapper:
+  __extends__: Mapper
   factors:
     type: symbol
     name: unset
   start: 0
   end: null
-CategoricalColorMapper: {}
+CategoricalColorMapper:
+  __extends__:
+  - CategoricalMapper
+  - ColorMapper
 CategoricalMarkerMapper:
+  __extends__: CategoricalMapper
   markers:
     type: symbol
     name: unset
   default_value: circle
 CategoricalPatternMapper:
+  __extends__: CategoricalMapper
   patterns:
     type: symbol
     name: unset
   default_value: ' '
 ContinuousColorMapper:
+  __extends__: ColorMapper
   domain: []
   low: null
   high: null
   low_color: null
   high_color: null
-LinearColorMapper: {}
-LogColorMapper: {}
-ScanningColorMapper: {}
+LinearColorMapper:
+  __extends__: ContinuousColorMapper
+LogColorMapper:
+  __extends__: ContinuousColorMapper
+ScanningColorMapper:
+  __extends__: ContinuousColorMapper
 EqHistColorMapper:
+  __extends__: ScanningColorMapper
   bins: 65536
   rescale_discrete_levels: false
-Ticker: {}
+Ticker:
+  __extends__: Model
 ContinuousTicker:
+  __extends__: Ticker
   num_minor_ticks: 5
   desired_num_ticks: 6
 FixedTicker:
+  __extends__: ContinuousTicker
   ticks: []
   minor_ticks: []
 AdaptiveTicker:
+  __extends__: ContinuousTicker
   base: 10.0
   mantissas:
   - 1
@@ -312,26 +364,36 @@ AdaptiveTicker:
   min_interval: 0.0
   max_interval: null
 CompositeTicker:
+  __extends__: ContinuousTicker
   tickers: []
 SingleIntervalTicker:
+  __extends__: ContinuousTicker
   interval:
     type: symbol
     name: unset
 DaysTicker:
+  __extends__: SingleIntervalTicker
   num_minor_ticks: 0
   days: []
 MonthsTicker:
+  __extends__: SingleIntervalTicker
   months: []
-YearsTicker: {}
-BasicTicker: {}
+YearsTicker:
+  __extends__: SingleIntervalTicker
+BasicTicker:
+  __extends__: AdaptiveTicker
 LogTicker:
+  __extends__: AdaptiveTicker
   mantissas:
   - 1
   - 5
 MercatorTicker:
+  __extends__: BasicTicker
   dimension: null
-CategoricalTicker: {}
+CategoricalTicker:
+  __extends__: Ticker
 DatetimeTicker:
+  __extends__: CompositeTicker
   num_minor_ticks: 0
   tickers:
   - type: object
@@ -481,34 +543,44 @@ DatetimeTicker:
     name: YearsTicker
     attributes: {}
 BinnedTicker:
+  __extends__: Ticker
   mapper:
     type: symbol
     name: unset
   num_major_ticks: 8
-TickFormatter: {}
+TickFormatter:
+  __extends__: Model
 BasicTickFormatter:
+  __extends__: TickFormatter
   precision: auto
   use_scientific: true
   power_limit_high: 5
   power_limit_low: -3
 MercatorTickFormatter:
+  __extends__: BasicTickFormatter
   dimension: null
 NumeralTickFormatter:
+  __extends__: TickFormatter
   format: 0,0
   language: en
   rounding: round
 PrintfTickFormatter:
+  __extends__: TickFormatter
   format: '%s'
 LogTickFormatter:
+  __extends__: TickFormatter
   ticker: null
   min_exponent: 0
-CategoricalTickFormatter: {}
+CategoricalTickFormatter:
+  __extends__: TickFormatter
 CustomJSTickFormatter:
+  __extends__: TickFormatter
   args:
     type: map
     entries: []
   code: ''
 DatetimeTickFormatter:
+  __extends__: TickFormatter
   microseconds: '%fus'
   milliseconds: '%3Nms'
   seconds: '%Ss'
@@ -523,8 +595,10 @@ DatetimeTickFormatter:
   context: null
   context_which: start
   context_location: below
-Marking: {}
+Marking:
+  __extends__: Model
 Decoration:
+  __extends__: Model
   marking:
     type: symbol
     name: unset
@@ -532,14 +606,26 @@ Decoration:
     type: symbol
     name: unset
 Glyph:
+  __extends__: Model
   decorations: []
-XYGlyph: {}
-ConnectedXYGlyph: {}
-LineGlyph: {}
-FillGlyph: {}
-TextGlyph: {}
-HatchGlyph: {}
+XYGlyph:
+  __extends__: Glyph
+ConnectedXYGlyph:
+  __extends__: XYGlyph
+LineGlyph:
+  __extends__: Glyph
+FillGlyph:
+  __extends__: Glyph
+TextGlyph:
+  __extends__: Glyph
+HatchGlyph:
+  __extends__: Glyph
 Marker:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -599,6 +685,11 @@ Marker:
     type: map
     entries: []
 AnnularWedge:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -664,6 +755,11 @@ AnnularWedge:
     type: map
     entries: []
 Annulus:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -722,6 +818,9 @@ Annulus:
     type: map
     entries: []
 Arc:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
   x:
     type: field
     field: x
@@ -760,6 +859,7 @@ Arc:
     type: value
     value: 0
 Bezier:
+  __extends__: LineGlyph
   x0:
     type: field
     field: x0
@@ -806,6 +906,10 @@ Bezier:
     type: value
     value: 0
 Block:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -864,11 +968,17 @@ Block:
     type: map
     entries: []
 Circle:
+  __extends__: Marker
   radius:
     type: value
     value: null
   radius_dimension: x
 Ellipse:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -930,6 +1040,10 @@ Ellipse:
     type: map
     entries: []
 HArea:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x1:
     type: field
     field: x1
@@ -960,6 +1074,10 @@ HArea:
     type: map
     entries: []
 HBar:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   y:
     type: field
     field: y
@@ -1018,6 +1136,10 @@ HBar:
     type: map
     entries: []
 HexTile:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   size: 1.0
   aspect_scale: 1.0
   r:
@@ -1076,6 +1198,7 @@ HexTile:
     type: map
     entries: []
 ImageBase:
+  __extends__: XYGlyph
   x:
     type: field
     field: x
@@ -1095,6 +1218,7 @@ ImageBase:
   origin: bottom_left
   anchor: bottom_left
 Image:
+  __extends__: ImageBase
   image:
     type: field
     field: image
@@ -1103,10 +1227,12 @@ Image:
     name: LinearColorMapper
     attributes: {}
 ImageRGBA:
+  __extends__: ImageBase
   image:
     type: field
     field: image
 ImageURL:
+  __extends__: XYGlyph
   url:
     type: field
     field: url
@@ -1133,6 +1259,9 @@ ImageURL:
   retry_attempts: 0
   retry_timeout: 0
 Line:
+  __extends__:
+  - ConnectedXYGlyph
+  - LineGlyph
   x:
     type: field
     field: x
@@ -1147,6 +1276,7 @@ Line:
   line_dash: []
   line_dash_offset: 0
 MultiLine:
+  __extends__: LineGlyph
   xs:
     type: field
     field: xs
@@ -1175,6 +1305,10 @@ MultiLine:
     type: value
     value: 0
 MultiPolygons:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   xs:
     type: field
     field: xs
@@ -1227,6 +1361,11 @@ MultiPolygons:
     type: map
     entries: []
 Patch:
+  __extends__:
+  - ConnectedXYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -1251,6 +1390,10 @@ Patch:
     type: map
     entries: []
 Patches:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   xs:
     type: field
     field: xs
@@ -1303,6 +1446,10 @@ Patches:
     type: map
     entries: []
 Quad:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   left:
     type: field
     field: left
@@ -1361,6 +1508,7 @@ Quad:
     type: map
     entries: []
 Quadratic:
+  __extends__: LineGlyph
   x0:
     type: field
     field: x0
@@ -1401,6 +1549,9 @@ Quadratic:
     type: value
     value: 0
 Ray:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
   x:
     type: field
     field: x
@@ -1435,6 +1586,11 @@ Ray:
     type: value
     value: 0
 Rect:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -1497,10 +1653,12 @@ Rect:
     type: map
     entries: []
 Scatter:
+  __extends__: Marker
   marker:
     type: value
     value: circle
 Segment:
+  __extends__: LineGlyph
   x0:
     type: field
     field: x0
@@ -1535,6 +1693,9 @@ Segment:
     type: value
     value: 0
 Step:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
   x:
     type: field
     field: x
@@ -1550,6 +1711,9 @@ Step:
   line_dash_offset: 0
   mode: before
 Text:
+  __extends__:
+  - XYGlyph
+  - TextGlyph
   x:
     type: field
     field: x
@@ -1596,6 +1760,9 @@ Text:
     type: value
     value: 1.2
 VArea:
+  __extends__:
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -1626,6 +1793,10 @@ VArea:
     type: map
     entries: []
 VBar:
+  __extends__:
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -1684,6 +1855,11 @@ VBar:
     type: map
     entries: []
 Wedge:
+  __extends__:
+  - XYGlyph
+  - LineGlyph
+  - FillGlyph
+  - HatchGlyph
   x:
     type: field
     field: x
@@ -1745,17 +1921,23 @@ Wedge:
   hatch_extra:
     type: map
     entries: []
-LabelingPolicy: {}
-AllLabels: {}
+LabelingPolicy:
+  __extends__: Model
+AllLabels:
+  __extends__: LabelingPolicy
 NoOverlap:
+  __extends__: LabelingPolicy
   min_distance: 5
 CustomLabelingPolicy:
+  __extends__: LabelingPolicy
   args:
     type: map
     entries: []
   code: ''
-Range: {}
+Range:
+  __extends__: Model
 Range1d:
+  __extends__: Range
   start: 0
   end: 1
   reset_start: null
@@ -1764,8 +1946,10 @@ Range1d:
   min_interval: null
   max_interval: null
 DataRange:
+  __extends__: Range
   renderers: []
 DataRange1d:
+  __extends__: DataRange
   range_padding: 0.1
   range_padding_units: percent
   start:
@@ -1783,6 +1967,7 @@ DataRange1d:
   default_span: 2.0
   only_visible: false
 FactorRange:
+  __extends__: Range
   factors: []
   factor_padding: 0.0
   subgroup_padding: 0.8
@@ -1794,12 +1979,18 @@ FactorRange:
   bounds: null
   min_interval: null
   max_interval: null
-Scale: {}
-ContinuousScale: {}
-LinearScale: {}
-LogScale: {}
-CategoricalScale: {}
+Scale:
+  __extends__: Transform
+ContinuousScale:
+  __extends__: Scale
+LinearScale:
+  __extends__: ContinuousScale
+LogScale:
+  __extends__: ContinuousScale
+CategoricalScale:
+  __extends__: Scale
 CoordinateMapping:
+  __extends__: Model
   x_source:
     type: object
     name: DataRange1d
@@ -1854,21 +2045,27 @@ CoordinateMapping:
   y_target:
     type: symbol
     name: unset
-Expression: {}
+Expression:
+  __extends__: Model
 CustomJSExpr:
+  __extends__: Expression
   args:
     type: map
     entries: []
   code: ''
 CumSum:
+  __extends__: Expression
   field:
     type: symbol
     name: unset
   include_zero: false
 Stack:
+  __extends__: Expression
   fields: []
-ScalarExpression: {}
+ScalarExpression:
+  __extends__: Model
 Minimum:
+  __extends__: ScalarExpression
   field:
     type: symbol
     name: unset
@@ -1876,14 +2073,17 @@ Minimum:
     type: number
     value: +inf
 Maximum:
+  __extends__: ScalarExpression
   field:
     type: symbol
     name: unset
   initial:
     type: number
     value: -inf
-CoordinateTransform: {}
+CoordinateTransform:
+  __extends__: Expression
 PolarTransform:
+  __extends__: CoordinateTransform
   radius:
     type: field
     field: radius
@@ -1892,29 +2092,44 @@ PolarTransform:
     field: angle
   direction: anticlock
 XYComponent:
+  __extends__: Expression
   transform:
     type: symbol
     name: unset
-XComponent: {}
-YComponent: {}
-LayoutProvider: {}
+XComponent:
+  __extends__: XYComponent
+YComponent:
+  __extends__: XYComponent
+LayoutProvider:
+  __extends__: Model
 StaticLayoutProvider:
+  __extends__: LayoutProvider
   graph_layout:
     type: map
     entries: []
 GraphCoordinates:
+  __extends__: CoordinateTransform
   layout:
     type: symbol
     name: unset
-NodeCoordinates: {}
-EdgeCoordinates: {}
-GraphHitTestPolicy: {}
-EdgesOnly: {}
-NodesOnly: {}
-NodesAndLinkedEdges: {}
-EdgesAndLinkedNodes: {}
-NodesAndAdjacentNodes: {}
+NodeCoordinates:
+  __extends__: GraphCoordinates
+EdgeCoordinates:
+  __extends__: GraphCoordinates
+GraphHitTestPolicy:
+  __extends__: Model
+EdgesOnly:
+  __extends__: GraphHitTestPolicy
+NodesOnly:
+  __extends__: GraphHitTestPolicy
+NodesAndLinkedEdges:
+  __extends__: GraphHitTestPolicy
+EdgesAndLinkedNodes:
+  __extends__: GraphHitTestPolicy
+NodesAndAdjacentNodes:
+  __extends__: GraphHitTestPolicy
 TileSource:
+  __extends__: Model
   url: ''
   tile_size: 256
   min_zoom: 0
@@ -1931,19 +2146,26 @@ TileSource:
     name: unset
   initial_resolution: null
 MercatorTileSource:
+  __extends__: TileSource
   x_origin_offset: 20037508.34
   y_origin_offset: 20037508.34
   initial_resolution: 156543.03392804097
   snap_to_zoom: false
   wrap_around: true
-TMSTileSource: {}
-WMTSTileSource: {}
-QUADKEYTileSource: {}
+TMSTileSource:
+  __extends__: MercatorTileSource
+WMTSTileSource:
+  __extends__: MercatorTileSource
+QUADKEYTileSource:
+  __extends__: MercatorTileSource
 BBoxTileSource:
+  __extends__: MercatorTileSource
   use_latlon: false
 RendererGroup:
+  __extends__: Model
   visible: true
 Renderer:
+  __extends__: Model
   level: image
   visible: true
   coordinates: null
@@ -1951,6 +2173,7 @@ Renderer:
   y_range_name: default
   group: null
 TileRenderer:
+  __extends__: Renderer
   level: image
   tile_source:
     type: object
@@ -1960,8 +2183,10 @@ TileRenderer:
   smoothing: true
   render_parents: true
 DataRenderer:
+  __extends__: Renderer
   level: glyph
 GlyphRenderer:
+  __extends__: DataRenderer
   data_source:
     type: symbol
     name: unset
@@ -1982,6 +2207,7 @@ GlyphRenderer:
   muted_glyph: auto
   muted: false
 GraphRenderer:
+  __extends__: DataRenderer
   layout_provider:
     type: symbol
     name: unset
@@ -2090,8 +2316,10 @@ GraphRenderer:
     name: NodesOnly
     attributes: {}
 GuideRenderer:
+  __extends__: Renderer
   level: guide
 Axis:
+  __extends__: GuideRenderer
   bounds: auto
   ticker:
     type: symbol
@@ -2154,8 +2382,10 @@ Axis:
   minor_tick_in: 0
   minor_tick_out: 4
   fixed_location: null
-ContinuousAxis: {}
+ContinuousAxis:
+  __extends__: Axis
 LinearAxis:
+  __extends__: ContinuousAxis
   ticker:
     type: object
     name: BasicTicker
@@ -2169,6 +2399,7 @@ LinearAxis:
       power_limit_high: 5
       power_limit_low: -3
 LogAxis:
+  __extends__: ContinuousAxis
   ticker:
     type: object
     name: LogTicker
@@ -2183,6 +2414,7 @@ LogAxis:
       ticker: null
       min_exponent: 0
 CategoricalAxis:
+  __extends__: Axis
   ticker:
     type: object
     name: CategoricalTicker
@@ -2219,6 +2451,7 @@ CategoricalAxis:
   subgroup_text_line_height: 1.2
   subgroup_label_orientation: parallel
 DatetimeAxis:
+  __extends__: LinearAxis
   ticker:
     type: object
     name: DatetimeTicker
@@ -2390,6 +2623,7 @@ DatetimeAxis:
       context_which: start
       context_location: below
 MercatorAxis:
+  __extends__: LinearAxis
   ticker:
     type: object
     name: MercatorTicker
@@ -2401,6 +2635,7 @@ MercatorAxis:
     attributes:
       dimension: lat
 Styles:
+  __extends__: Model
   align_content: null
   align_items: null
   align_self: null
@@ -2715,49 +2950,67 @@ Styles:
   writing_mode: null
   z_index: null
 UIElement:
+  __extends__: Model
   visible: true
   classes: []
   styles:
     type: map
     entries: []
   stylesheets: []
-bokeh.models.dom.DOMNode: {}
+bokeh.models.dom.DOMNode:
+  __extends__: Model
 bokeh.models.dom.Text:
+  __extends__: bokeh.models.dom.DOMNode
   content: ''
 bokeh.models.dom.DOMElement:
+  __extends__: bokeh.models.dom.DOMNode
   style: null
   children: []
-bokeh.models.dom.Span: {}
-bokeh.models.dom.Div: {}
-bokeh.models.dom.Table: {}
-bokeh.models.dom.TableRow: {}
-bokeh.models.dom.Action: {}
+bokeh.models.dom.Span:
+  __extends__: bokeh.models.dom.DOMElement
+bokeh.models.dom.Div:
+  __extends__: bokeh.models.dom.DOMElement
+bokeh.models.dom.Table:
+  __extends__: bokeh.models.dom.DOMElement
+bokeh.models.dom.TableRow:
+  __extends__: bokeh.models.dom.DOMElement
+bokeh.models.dom.Action:
+  __extends__: Model
 bokeh.models.dom.Template:
+  __extends__: bokeh.models.dom.DOMElement
   actions: []
 bokeh.models.dom.ToggleGroup:
+  __extends__: bokeh.models.dom.Action
   groups: []
-bokeh.models.dom.Placeholder: {}
+bokeh.models.dom.Placeholder:
+  __extends__: bokeh.models.dom.DOMNode
 bokeh.models.dom.ValueOf:
+  __extends__: bokeh.models.dom.Placeholder
   obj:
     type: symbol
     name: unset
   attr:
     type: symbol
     name: unset
-bokeh.models.dom.Index: {}
+bokeh.models.dom.Index:
+  __extends__: bokeh.models.dom.Placeholder
 bokeh.models.dom.ValueRef:
+  __extends__: bokeh.models.dom.Placeholder
   field:
     type: symbol
     name: unset
 bokeh.models.dom.ColorRef:
+  __extends__: bokeh.models.dom.ValueRef
   hex: true
   swatch: true
 bokeh.models.dom.HTML:
+  __extends__: Model
   html:
     type: symbol
     name: unset
   refs: []
 Dialog:
+  __extends__: UIElement
   title: null
   content:
     type: symbol
@@ -2767,24 +3020,31 @@ Dialog:
   closable: true
   draggable: true
 Icon:
+  __extends__: Model
   size: 1em
 BuiltinIcon:
+  __extends__: Icon
   icon_name:
     type: symbol
     name: unset
   color: gray
 SVGIcon:
+  __extends__: Icon
   svg:
     type: symbol
     name: unset
 TablerIcon:
+  __extends__: Icon
   icon_name:
     type: symbol
     name: unset
 Inspector:
+  __extends__: UIElement
   target: null
-MenuItem: {}
+MenuItem:
+  __extends__: UIElement
 Action:
+  __extends__: MenuItem
   icon: null
   label:
     type: symbol
@@ -2792,34 +3052,45 @@ Action:
   description: null
   menu: null
 CheckAction:
+  __extends__: Action
   checked: false
 Section:
+  __extends__: MenuItem
   items: []
-Divider: {}
+Divider:
+  __extends__: MenuItem
 Menu:
+  __extends__: UIElement
   items: []
   reversed: false
   orientation: vertical
 Pane:
+  __extends__: UIElement
   children: []
-Selector: {}
+Selector:
+  __extends__: Model
 ByID:
+  __extends__: Selector
   query:
     type: symbol
     name: unset
 ByClass:
+  __extends__: Selector
   query:
     type: symbol
     name: unset
 ByCSS:
+  __extends__: Selector
   query:
     type: symbol
     name: unset
 ByXPath:
+  __extends__: Selector
   query:
     type: symbol
     name: unset
 Tooltip:
+  __extends__: UIElement
   visible: false
   position: null
   target: auto
@@ -2831,11 +3102,14 @@ Tooltip:
   closable: false
   interactive: true
 Canvas:
+  __extends__: UIElement
   hidpi: true
   output_backend: canvas
 Annotation:
+  __extends__: Renderer
   level: annotation
 DataAnnotation:
+  __extends__: Annotation
   source:
     type: object
     name: ColumnDataSource
@@ -2844,10 +3118,12 @@ DataAnnotation:
         type: map
         entries: []
 ArrowHead:
+  __extends__: Marking
   size:
     type: value
     value: 25
 OpenHead:
+  __extends__: ArrowHead
   line_color:
     type: value
     value: black
@@ -2870,6 +3146,7 @@ OpenHead:
     type: value
     value: 0
 NormalHead:
+  __extends__: ArrowHead
   line_color:
     type: value
     value: black
@@ -2898,6 +3175,7 @@ NormalHead:
     type: value
     value: 1.0
 TeeHead:
+  __extends__: ArrowHead
   line_color:
     type: value
     value: black
@@ -2920,6 +3198,7 @@ TeeHead:
     type: value
     value: 0
 VeeHead:
+  __extends__: ArrowHead
   line_color:
     type: value
     value: black
@@ -2948,6 +3227,7 @@ VeeHead:
     type: value
     value: 1.0
 Arrow:
+  __extends__: DataAnnotation
   x_start:
     type: field
     field: x_start
@@ -3010,6 +3290,7 @@ Arrow:
     type: value
     value: 0
 BoxAnnotation:
+  __extends__: Annotation
   left: null
   left_units: data
   right: null
@@ -3036,6 +3317,7 @@ BoxAnnotation:
     type: map
     entries: []
 Band:
+  __extends__: DataAnnotation
   lower:
     type: field
     field: lower
@@ -3056,6 +3338,7 @@ Band:
   fill_color: '#fff9ba'
   fill_alpha: 0.4
 PolyAnnotation:
+  __extends__: Annotation
   xs: []
   xs_units: data
   ys: []
@@ -3078,6 +3361,7 @@ PolyAnnotation:
     type: map
     entries: []
 Slope:
+  __extends__: Annotation
   gradient: null
   y_intercept: null
   line_color: black
@@ -3088,6 +3372,7 @@ Slope:
   line_dash: []
   line_dash_offset: 0
 Span:
+  __extends__: Annotation
   location: null
   location_units: data
   dimension: width
@@ -3099,6 +3384,7 @@ Span:
   line_dash: []
   line_dash_offset: 0
 Whisker:
+  __extends__: DataAnnotation
   level: underlay
   lower:
     type: field
@@ -3181,8 +3467,10 @@ Whisker:
   line_dash_offset:
     type: value
     value: 0
-HTMLAnnotation: {}
+HTMLAnnotation:
+  __extends__: Annotation
 HTMLLabel:
+  __extends__: HTMLAnnotation
   x:
     type: symbol
     name: unset
@@ -3215,6 +3503,9 @@ HTMLLabel:
   border_line_dash: []
   border_line_dash_offset: 0
 HTMLLabelSet:
+  __extends__:
+  - HTMLAnnotation
+  - DataAnnotation
   x:
     type: field
     field: x
@@ -3290,6 +3581,7 @@ HTMLLabelSet:
     type: value
     value: 0
 HTMLTitle:
+  __extends__: HTMLAnnotation
   text: ''
   vertical_align: bottom
   align: left
@@ -3312,10 +3604,12 @@ HTMLTitle:
   border_line_dash: []
   border_line_dash_offset: 0
 ToolbarPanel:
+  __extends__: HTMLAnnotation
   toolbar:
     type: symbol
     name: unset
 TextAnnotation:
+  __extends__: Annotation
   text: ''
   text_color: '#444444'
   text_outline_color: null
@@ -3336,6 +3630,7 @@ TextAnnotation:
   border_line_dash: []
   border_line_dash_offset: 0
 Label:
+  __extends__: TextAnnotation
   x:
     type: symbol
     name: unset
@@ -3349,6 +3644,7 @@ Label:
   x_offset: 0
   y_offset: 0
 LabelSet:
+  __extends__: DataAnnotation
   x:
     type: field
     field: x
@@ -3424,6 +3720,7 @@ LabelSet:
     type: value
     value: 0
 Title:
+  __extends__: TextAnnotation
   text_font_size: 13px
   text_font_style: bold
   text_line_height: 1.0
@@ -3432,6 +3729,7 @@ Title:
   offset: 0
   standoff: 10
 BaseColorBar:
+  __extends__: Annotation
   location: top_right
   orientation: auto
   height: auto
@@ -3505,12 +3803,14 @@ BaseColorBar:
   background_fill_color: '#ffffff'
   background_fill_alpha: 0.95
 ColorBar:
+  __extends__: BaseColorBar
   color_mapper:
     type: symbol
     name: unset
   display_low: null
   display_high: null
 ContourColorBar:
+  __extends__: BaseColorBar
   fill_renderer:
     type: symbol
     name: unset
@@ -3519,6 +3819,7 @@ ContourColorBar:
     name: unset
   levels: []
 LegendItem:
+  __extends__: Model
   label:
     type: value
     value: null
@@ -3526,6 +3827,7 @@ LegendItem:
   index: null
   visible: true
 Legend:
+  __extends__: Annotation
   location: top_right
   orientation: vertical
   title: null
@@ -3570,6 +3872,7 @@ Legend:
   spacing: 3
   items: []
 ContourRenderer:
+  __extends__: DataRenderer
   line_renderer:
     type: symbol
     name: unset
@@ -3578,6 +3881,7 @@ ContourRenderer:
     name: unset
   levels: []
 Grid:
+  __extends__: GuideRenderer
   level: underlay
   dimension: 0
   bounds: auto
@@ -3609,6 +3913,7 @@ Grid:
     type: map
     entries: []
 LayoutDOM:
+  __extends__: UIElement
   disabled: false
   width: null
   height: null
@@ -3626,26 +3931,34 @@ LayoutDOM:
   css_classes: []
   context_menu: null
   resizable: false
-Spacer: {}
+Spacer:
+  __extends__: LayoutDOM
 GridBox:
+  __extends__: LayoutDOM
   children: []
   rows: null
   cols: null
   spacing: 0
 HBox:
+  __extends__: LayoutDOM
   children: []
   cols: null
   spacing: 0
 VBox:
+  __extends__: LayoutDOM
   children: []
   rows: null
   spacing: 0
 FlexBox:
+  __extends__: LayoutDOM
   children: []
   spacing: 0
-Row: {}
-Column: {}
+Row:
+  __extends__: FlexBox
+Column:
+  __extends__: FlexBox
 TabPanel:
+  __extends__: Model
   title: ''
   child:
     type: symbol
@@ -3653,40 +3966,54 @@ TabPanel:
   closable: false
   disabled: false
 Tabs:
+  __extends__: LayoutDOM
   tabs: []
   tabs_location: above
   active: 0
 GroupBox:
+  __extends__: LayoutDOM
   title: null
   child:
     type: symbol
     name: unset
   checkable: false
 ScrollBox:
+  __extends__: LayoutDOM
   child:
     type: symbol
     name: unset
   horizontal_scrollbar: auto
   vertical_scrollbar: auto
 Tool:
+  __extends__: Model
   icon: null
   description: null
 ToolProxy:
+  __extends__: Model
   tools: []
   active: false
   disabled: false
-ActionTool: {}
-PlotActionTool: {}
-GestureTool: {}
-Drag: {}
-Scroll: {}
-Tap: {}
+ActionTool:
+  __extends__: Tool
+PlotActionTool:
+  __extends__: ActionTool
+GestureTool:
+  __extends__: Tool
+Drag:
+  __extends__: GestureTool
+Scroll:
+  __extends__: GestureTool
+Tap:
+  __extends__: GestureTool
 SelectTool:
+  __extends__: GestureTool
   renderers: auto
   mode: replace
 InspectTool:
+  __extends__: GestureTool
   toggleable: true
 Toolbar:
+  __extends__: UIElement
   logo: normal
   autohide: false
   tools: []
@@ -3696,8 +4023,10 @@ Toolbar:
   active_tap: auto
   active_multi: auto
 PanTool:
+  __extends__: Drag
   dimensions: both
 RangeTool:
+  __extends__: Drag
   x_range: null
   x_interaction: true
   y_range: null
@@ -3734,30 +4063,41 @@ RangeTool:
         type: map
         entries: []
 WheelPanTool:
+  __extends__: Scroll
   dimension: width
 WheelZoomTool:
+  __extends__: Scroll
   dimensions: both
   maintain_focus: true
   zoom_on_axis: true
   speed: 0.0016666666666666668
 CustomAction:
+  __extends__: ActionTool
   description: Perform a Custom Action
   callback: null
 SaveTool:
+  __extends__: ActionTool
   filename: null
-CopyTool: {}
-ResetTool: {}
+CopyTool:
+  __extends__: ActionTool
+ResetTool:
+  __extends__: PlotActionTool
 TapTool:
+  __extends__:
+  - Tap
+  - SelectTool
   behavior: select
   gesture: tap
   callback: null
 CrosshairTool:
+  __extends__: InspectTool
   overlay: auto
   dimensions: both
   line_color: black
   line_alpha: 1.0
   line_width: 1
 BoxZoomTool:
+  __extends__: Drag
   dimensions: both
   overlay:
     type: object
@@ -3793,13 +4133,18 @@ BoxZoomTool:
   match_aspect: false
   origin: corner
 ZoomInTool:
+  __extends__: PlotActionTool
   dimensions: both
   factor: 0.1
 ZoomOutTool:
+  __extends__: PlotActionTool
   dimensions: both
   factor: 0.1
   maintain_focus: true
 BoxSelectTool:
+  __extends__:
+  - Drag
+  - SelectTool
   select_every_mousemove: false
   dimensions: both
   overlay:
@@ -3835,6 +4180,9 @@ BoxSelectTool:
         entries: []
   origin: corner
 LassoSelectTool:
+  __extends__:
+  - Drag
+  - SelectTool
   select_every_mousemove: true
   overlay:
     type: object
@@ -3864,6 +4212,9 @@ LassoSelectTool:
         type: map
         entries: []
 PolySelectTool:
+  __extends__:
+  - Tap
+  - SelectTool
   overlay:
     type: object
     name: PolyAnnotation
@@ -3892,11 +4243,13 @@ PolySelectTool:
         type: map
         entries: []
 CustomJSHover:
+  __extends__: Model
   args:
     type: map
     entries: []
   code: ''
 HoverTool:
+  __extends__: InspectTool
   renderers: auto
   callback: null
   tooltips:
@@ -3917,38 +4270,70 @@ HoverTool:
   attachment: horizontal
   show_arrow: true
 HelpTool:
+  __extends__: ActionTool
   description: Click the question mark to learn more about Bokeh plot tools.
   redirect: https://docs.bokeh.org/en/latest/docs/user_guide/tools.html
-SettingsTool: {}
-FullscreenTool: {}
-UndoTool: {}
-RedoTool: {}
+SettingsTool:
+  __extends__: ActionTool
+FullscreenTool:
+  __extends__: ActionTool
+UndoTool:
+  __extends__: PlotActionTool
+RedoTool:
+  __extends__: PlotActionTool
 EditTool:
+  __extends__: GestureTool
   empty_value:
     type: symbol
     name: unset
   renderers: []
 PolyTool:
+  __extends__: EditTool
   vertex_renderer: null
 BoxEditTool:
+  __extends__:
+  - EditTool
+  - Drag
+  - Tap
   dimensions: both
   num_objects: 0
 PointDrawTool:
+  __extends__:
+  - EditTool
+  - Drag
+  - Tap
   add: true
   drag: true
   num_objects: 0
 PolyDrawTool:
+  __extends__:
+  - PolyTool
+  - Drag
+  - Tap
   drag: true
   num_objects: 0
 FreehandDrawTool:
+  __extends__:
+  - EditTool
+  - Drag
+  - Tap
   num_objects: 0
-PolyEditTool: {}
+PolyEditTool:
+  __extends__:
+  - PolyTool
+  - Drag
+  - Tap
 LineEditTool:
+  __extends__:
+  - EditTool
+  - Drag
+  - Tap
   intersection_renderer:
     type: symbol
     name: unset
   dimensions: both
 Plot:
+  __extends__: LayoutDOM
   width: 600
   height: 600
   x_range:
@@ -4078,6 +4463,7 @@ Plot:
   reset_policy: standard
   hold_render: false
 GridPlot:
+  __extends__: LayoutDOM
   toolbar:
     type: object
     name: Toolbar
@@ -4096,6 +4482,7 @@ GridPlot:
   cols: null
   spacing: 0
 MapOptions:
+  __extends__: Model
   lat:
     type: symbol
     name: unset
@@ -4103,13 +4490,16 @@ MapOptions:
     type: symbol
     name: unset
   zoom: 12
-MapPlot: {}
+MapPlot:
+  __extends__: Plot
 GMapOptions:
+  __extends__: MapOptions
   map_type: roadmap
   scale_control: false
   styles: null
   tilt: 45
 GMapPlot:
+  __extends__: MapPlot
   x_range:
     type: object
     name: Range1d
@@ -4142,44 +4532,61 @@ GMapPlot:
     name: unset
   api_version: weekly
 BaseText:
+  __extends__: Model
   text:
     type: symbol
     name: unset
-MathText: {}
-Ascii: {}
-MathML: {}
+MathText:
+  __extends__: BaseText
+Ascii:
+  __extends__: MathText
+MathML:
+  __extends__: MathText
 TeX:
+  __extends__: MathText
   macros:
     type: map
     entries: []
   inline: false
-PlainText: {}
+PlainText:
+  __extends__: BaseText
 Texture:
+  __extends__: Model
   repetition: repeat
 CanvasTexture:
+  __extends__: Texture
   code:
     type: symbol
     name: unset
 ImageURLTexture:
+  __extends__: Texture
   url:
     type: symbol
     name: unset
-Widget: {}
+Widget:
+  __extends__: LayoutDOM
 ButtonLike:
   button_type: default
 AbstractButton:
+  __extends__:
+  - Widget
+  - ButtonLike
   label: Button
   icon: null
 Button:
+  __extends__: AbstractButton
   label: Button
 Toggle:
+  __extends__: AbstractButton
   label: Toggle
   active: false
 Dropdown:
+  __extends__: AbstractButton
   label: Dropdown
   split: false
   menu: []
 HelpButton:
+  __extends__: AbstractButton
   button_type: default
   label: ''
   icon:
@@ -4192,29 +4599,41 @@ HelpButton:
     type: symbol
     name: unset
 AbstractGroup:
+  __extends__: Widget
   labels: []
 ToggleButtonGroup:
+  __extends__:
+  - AbstractGroup
+  - ButtonLike
   orientation: horizontal
 ToggleInputGroup:
+  __extends__: AbstractGroup
   inline: false
 CheckboxGroup:
+  __extends__: ToggleInputGroup
   active: []
 RadioGroup:
+  __extends__: ToggleInputGroup
   active: null
 CheckboxButtonGroup:
+  __extends__: ToggleButtonGroup
   active: []
 RadioButtonGroup:
+  __extends__: ToggleButtonGroup
   active: null
 InputWidget:
+  __extends__: Widget
   title: ''
   description: null
 FileInput:
+  __extends__: InputWidget
   value: ''
   mime_type: ''
   filename: ''
   accept: ''
   multiple: false
 NumericInput:
+  __extends__: InputWidget
   value: null
   low: null
   high: null
@@ -4222,44 +4641,56 @@ NumericInput:
   mode: int
   format: null
 Spinner:
+  __extends__: NumericInput
   mode: float
   value_throttled: null
   step: 1
   page_step_multiplier: 10
   wheel_wait: 100
 ToggleInput:
+  __extends__: Widget
   active: false
 Checkbox:
+  __extends__: ToggleInput
   label: ''
 Switch:
+  __extends__: ToggleInput
   width: 32
 TextLikeInput:
+  __extends__: InputWidget
   value: ''
   value_input: ''
   placeholder: ''
   max_length: null
 TextInput:
+  __extends__: TextLikeInput
   prefix: null
   suffix: null
 TextAreaInput:
+  __extends__: TextLikeInput
   max_length: 500
   cols: 20
   rows: 2
-PasswordInput: {}
+PasswordInput:
+  __extends__: TextInput
 AutocompleteInput:
+  __extends__: TextInput
   completions: []
   max_completions: null
   min_characters: 2
   case_sensitive: true
   restrict: true
 Select:
+  __extends__: InputWidget
   options: []
   value: ''
 MultiSelect:
+  __extends__: InputWidget
   options: []
   value: []
   size: 4
 MultiChoice:
+  __extends__: InputWidget
   options: []
   value: []
   delete_button: true
@@ -4269,6 +4700,7 @@ MultiChoice:
   placeholder: null
   solid: true
 DatePicker:
+  __extends__: InputWidget
   value:
     type: symbol
     name: unset
@@ -4279,15 +4711,21 @@ DatePicker:
   position: auto
   inline: false
 ColorPicker:
+  __extends__: InputWidget
   color: '#000000'
 Markup:
+  __extends__: Widget
   text: ''
   disable_math: false
-Paragraph: {}
+Paragraph:
+  __extends__: Markup
 Div:
+  __extends__: Markup
   render_as_text: false
-PreText: {}
+PreText:
+  __extends__: Paragraph
 AbstractSlider:
+  __extends__: Widget
   width: 300
   orientation: horizontal
   title: ''
@@ -4297,6 +4735,7 @@ AbstractSlider:
   tooltips: true
   bar_color: '#e6e6e6'
 Slider:
+  __extends__: AbstractSlider
   format: 0[.]00
   start:
     type: symbol
@@ -4312,6 +4751,7 @@ Slider:
     name: unset
   step: 1
 RangeSlider:
+  __extends__: AbstractSlider
   format: 0[.]00
   value:
     type: symbol
@@ -4327,6 +4767,7 @@ RangeSlider:
     name: unset
   step: 1
 DateSlider:
+  __extends__: AbstractSlider
   format: '%d %b %Y'
   value:
     type: symbol
@@ -4342,6 +4783,7 @@ DateSlider:
     name: unset
   step: 1
 DateRangeSlider:
+  __extends__: AbstractSlider
   format: '%d %b %Y'
   value:
     type: symbol
@@ -4357,6 +4799,7 @@ DateRangeSlider:
     name: unset
   step: 1
 DatetimeRangeSlider:
+  __extends__: AbstractSlider
   format: '%d %b %Y %H:%M:%S'
   value:
     type: symbol
@@ -4371,47 +4814,70 @@ DatetimeRangeSlider:
     type: symbol
     name: unset
   step: 3600000
-CellFormatter: {}
-CellEditor: {}
+CellFormatter:
+  __extends__: Model
+CellEditor:
+  __extends__: Model
 RowAggregator:
+  __extends__: Model
   field_: ''
 StringFormatter:
+  __extends__: CellFormatter
   font_style: normal
   text_align: left
   text_color: null
   nan_format: '-'
 ScientificFormatter:
+  __extends__: StringFormatter
   precision: 10
   power_limit_high: 5
   power_limit_low: -3
 NumberFormatter:
+  __extends__: StringFormatter
   format: 0,0
   language: en
   rounding: round
 BooleanFormatter:
+  __extends__: CellFormatter
   icon: check
 DateFormatter:
+  __extends__: StringFormatter
   format: ISO-8601
 HTMLTemplateFormatter:
+  __extends__: CellFormatter
   template: <%= value %>
 StringEditor:
+  __extends__: CellEditor
   completions: []
-TextEditor: {}
+TextEditor:
+  __extends__: CellEditor
 SelectEditor:
+  __extends__: CellEditor
   options: []
-PercentEditor: {}
-CheckboxEditor: {}
+PercentEditor:
+  __extends__: CellEditor
+CheckboxEditor:
+  __extends__: CellEditor
 IntEditor:
+  __extends__: CellEditor
   step: 1
 NumberEditor:
+  __extends__: CellEditor
   step: 0.01
-TimeEditor: {}
-DateEditor: {}
-AvgAggregator: {}
-MinAggregator: {}
-MaxAggregator: {}
-SumAggregator: {}
+TimeEditor:
+  __extends__: CellEditor
+DateEditor:
+  __extends__: CellEditor
+AvgAggregator:
+  __extends__: RowAggregator
+MinAggregator:
+  __extends__: RowAggregator
+MaxAggregator:
+  __extends__: RowAggregator
+SumAggregator:
+  __extends__: RowAggregator
 TableColumn:
+  __extends__: Model
   field:
     type: symbol
     name: unset
@@ -4434,6 +4900,7 @@ TableColumn:
   default_sort: ascending
   visible: true
 TableWidget:
+  __extends__: Widget
   source:
     type: object
     name: ColumnDataSource
@@ -4450,6 +4917,7 @@ TableWidget:
         name: AllIndices
         attributes: {}
 DataTable:
+  __extends__: TableWidget
   width: 600
   height: 400
   autosize_mode: force_fit
@@ -4469,10 +4937,12 @@ DataTable:
   header_row: true
   row_height: 25
 GroupingInfo:
+  __extends__: Model
   getter: ''
   aggregators: []
   collapsed: false
 DataCube:
+  __extends__: DataTable
   grouping: []
   target:
     type: symbol
