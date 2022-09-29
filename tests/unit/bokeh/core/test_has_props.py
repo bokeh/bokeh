@@ -565,7 +565,26 @@ class Some2HasProps(hp.HasProps, hp.Local):
     f3 = String(default="xyz")
     f4 = List(Int, default=[1, 2, 3])
 
-def test_HasProps_properties_with_values_unstable():
+class Some3HasProps(hp.HasProps, hp.Local):
+    f4 = Int(default=4)
+    f3 = Int(default=3)
+    f2 = Int(default=2)
+    f1 = Int(default=1)
+
+def test_HasProps_properties_with_values_maintains_order() -> None:
+    v0 = Some3HasProps()
+    assert list(v0.properties_with_values(include_defaults=False).items()) == []
+    assert list(v0.properties_with_values(include_defaults=True).items()) == [("f4", 4), ("f3", 3), ("f2", 2), ("f1", 1)]
+
+    v1 = Some3HasProps(f1=10, f4=40)
+    assert list(v1.properties_with_values(include_defaults=False).items()) == [("f4", 40), ("f1", 10)]
+    assert list(v1.properties_with_values(include_defaults=True).items()) == [("f4", 40), ("f3", 3), ("f2", 2), ("f1", 10)]
+
+    v2 = Some3HasProps(f4=40, f1=10)
+    assert list(v2.properties_with_values(include_defaults=False).items()) == [("f4", 40), ("f1", 10)]
+    assert list(v2.properties_with_values(include_defaults=True) .items()) == [("f4", 40), ("f3", 3), ("f2", 2), ("f1", 10)]
+
+def test_HasProps_properties_with_values_unstable() -> None:
     v0 = Some0HasProps()
     assert v0.properties_with_values(include_defaults=False) == {}
 
