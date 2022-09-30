@@ -277,7 +277,7 @@ class TestEventCallbackManager:
 
     def test_on_change_good_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good = _GoodEventCallback()
         m.on_event('foo', good.method)
         assert len(m._event_callbacks) == 1
@@ -286,7 +286,7 @@ class TestEventCallbackManager:
     def test_on_change_good_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_good_event, 'foo')
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [p]
@@ -294,13 +294,13 @@ class TestEventCallbackManager:
     def test_on_change_bad_partial_function(self) -> None:
         m = cbm.EventCallbackManager()
         p = partial(_partially_bad_event, 'foo')
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event('foo', p)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_good_partial_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good = _GoodEventCallback()
         p = partial(good.partially_good, 'foo')
         m.on_event('foo', p)
@@ -308,7 +308,7 @@ class TestEventCallbackManager:
 
     def test_on_change_good_functor(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good = _GoodEventCallback()
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
@@ -316,21 +316,21 @@ class TestEventCallbackManager:
 
     def test_on_change_good_function(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event('foo', _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
     def test_on_change_unicode_event_name(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event("foo", _good_event)
         assert len(m._event_callbacks) == 1
         assert m._event_callbacks['foo'] == [_good_event]
 
     def test_on_change_good_lambda(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good = lambda event: event
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
@@ -340,35 +340,35 @@ class TestEventCallbackManager:
         def good(event):
             pass
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event('foo', good)
         assert len(m._event_callbacks) == 1
         assert len(m._event_callbacks['foo']) == 1
 
     def test_on_change_bad_method(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         bad = _BadEventCallback()
         m.on_event('foo', bad.method)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_functor(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         bad = _BadEventCallback()
         m.on_event('foo', bad)
         assert len(m._event_callbacks) == 1
 
     def test_on_change_bad_function(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', _bad_event)
         assert len(m._event_callbacks) == 0
 
     def test_on_change_bad_lambda(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', lambda x, y: x)
         assert len(m._event_callbacks) == 0
@@ -377,14 +377,14 @@ class TestEventCallbackManager:
         def bad(event, y):
             pass
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         with pytest.raises(ValueError):
             m.on_event('foo', bad)
         assert len(m._event_callbacks) == 0
 
     def test_on_change_with_two_callbacks(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good1 = _GoodEventCallback()
         good2 = _GoodEventCallback()
         m.on_event('foo', good1.method)
@@ -392,7 +392,7 @@ class TestEventCallbackManager:
 
     def test_on_change_with_two_callbacks_one_bad(self) -> None:
         m = cbm.EventCallbackManager()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         good = _GoodEventCallback()
         bad = _BadEventCallback()
         m.on_event('foo', good.method, bad.method)
@@ -412,7 +412,7 @@ class TestEventCallbackManager:
             out['curdoc'] = curdoc()
         class Modelish(HasDocumentRef, cbm.EventCallbackManager): pass
         m = Modelish()
-        m.subscribed_events = []
+        m.subscribed_events = set()
         m.on_event('foo', cb)
         m.id = 10
         m._document = d2

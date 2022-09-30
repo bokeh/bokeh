@@ -171,7 +171,7 @@ export class Deserializer {
 
   protected _decode_array(obj: ArrayRep): unknown[] {
     const decoded = []
-    for (const entry of obj.entries) {
+    for (const entry of obj.entries ?? []) {
       decoded.push(this._decode(entry))
     }
     return decoded
@@ -179,14 +179,14 @@ export class Deserializer {
 
   protected _decode_set(obj: SetRep): Set<unknown> {
     const decoded = new Set()
-    for (const entry of obj.entries) {
+    for (const entry of obj.entries ?? []) {
       decoded.add(this._decode(entry))
     }
     return decoded
   }
 
   protected _decode_map(obj: MapRep): Map<unknown, unknown> | {[key: string]: unknown} {
-    const decoded = map(obj.entries, ([key, val]) => [this._decode(key), this._decode(val)] as const)
+    const decoded = map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)] as const)
     const is_str = every(decoded, ([key]) => isString(key))
     if (is_str) {
       const obj: {[key: string]: unknown} = {} // Object.create(null)

@@ -65,7 +65,14 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import copy
-from typing import TYPE_CHECKING, Any
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Iterable,
+    List,
+    Set,
+    TypeVar,
+)
 
 # External imports
 import numpy as np
@@ -82,12 +89,15 @@ if TYPE_CHECKING:
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'notify_owner',
-    'PropertyValueContainer',
-    'PropertyValueList',
-    'PropertyValueDict',
     'PropertyValueColumnData',
+    'PropertyValueContainer',
+    'PropertyValueDict',
+    'PropertyValueList',
+    'PropertyValueSet',
+    'notify_owner',
 )
+
+T = TypeVar("T")
 
 #----------------------------------------------------------------------------
 # General API
@@ -156,10 +166,10 @@ class PropertyValueContainer:
         for (owner, descriptor) in self._owners:
             descriptor._notify_mutated(owner, old, hint=hint)
 
-    def _saved_copy(self):
+    def _saved_copy(self) -> Any:
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
-class PropertyValueList(PropertyValueContainer, list):
+class PropertyValueList(PropertyValueContainer, List[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -204,7 +214,7 @@ class PropertyValueList(PropertyValueContainer, list):
     def __init__(self, *args, **kwargs) -> None:
         return super().__init__(*args, **kwargs)
 
-    def _saved_copy(self):
+    def _saved_copy(self) -> list[T]:
         return list(self)
 
     # delete x[y]
@@ -254,6 +264,46 @@ class PropertyValueList(PropertyValueContainer, list):
     @notify_owner
     def sort(self, **kwargs):
         return super().sort(**kwargs)
+
+class PropertyValueSet(PropertyValueContainer, Set[T]):
+    """ A list property value container that supports change notifications on
+    mutating operations.
+
+    """
+
+    def __init__(self, *args, **kwargs) -> None:
+        return super().__init__(*args, **kwargs)
+
+    def _saved_copy(self) -> set[T]:
+        return set(self)
+
+    @notify_owner
+    def add(self, element: T) -> None:
+        super().add(element)
+
+    @notify_owner
+    def difference_update(self, *s: Iterable[Any]) -> None:
+        super().difference_update(*s)
+
+    @notify_owner
+    def discard(self, element: T) -> None:
+        super().discard(element)
+
+    @notify_owner
+    def intersection_update(self, *s: Iterable[Any]) -> None:
+        super().intersection_update(*s)
+
+    @notify_owner
+    def remove(self, element: T) -> None:
+        super().discard(element)
+
+    @notify_owner
+    def symmetric_difference_update(self, s: Iterable[T]) -> None:
+        super().symmetric_difference_update(s)
+
+    @notify_owner
+    def update(self, *s: Iterable[T]) -> None:
+        super().update(*s)
 
 class PropertyValueDict(PropertyValueContainer, dict):
     """ A dict property value container that supports change notifications on

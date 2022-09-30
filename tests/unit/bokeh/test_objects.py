@@ -188,7 +188,7 @@ class TestModel:
             tags=[],
             js_property_callbacks={},
             js_event_callbacks={},
-            subscribed_events=[],
+            subscribed_events=set(),
             syncable=True,
             some=0,
         )

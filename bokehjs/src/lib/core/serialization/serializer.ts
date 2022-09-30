@@ -125,7 +125,11 @@ export class Serializer {
       const data = this.binary ? new Buffer(obj) : new Base64Buffer(obj)
       return {type: "bytes", data}
     } else if (isPlainObject(obj)) {
-      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
+      const items = entries(obj)
+      if (items.length == 0)
+        return {type: "map"}
+      else
+        return {type: "map", entries: [...map(items, ([key, val]) => [this.encode(key), this.encode(val)])]}
     /*
     } else if (isBasicObject(obj)) {
       return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
@@ -146,9 +150,15 @@ export class Serializer {
       else
         return obj
     } else if (obj instanceof Set) {
-      return {type: "set", entries: [...map(obj.values(), (val) => this.encode(val))]}
+      if (obj.size == 0)
+        return {type: "set"}
+      else
+        return {type: "set", entries: [...map(obj.values(), (val) => this.encode(val))]}
     } else if (obj instanceof Map) {
-      return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.encode(key), this.encode(val)])]}
+      if (obj.size == 0)
+        return {type: "map"}
+      else
+        return {type: "map", entries: [...map(obj.entries(), ([key, val]) => [this.encode(key), this.encode(val)])]}
     } else if (isSymbol(obj) && obj.description != null) {
       return {type: "symbol", name: obj.description}
     } else

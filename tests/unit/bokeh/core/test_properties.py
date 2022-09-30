@@ -115,6 +115,7 @@ ALL = (
     'Required',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Size',
     'SizeSpec',
     'String',
@@ -143,7 +144,7 @@ class TestBasic:
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = List(Int, [1, 2, 3])
+            z = List(Int, default=[1, 2, 3])
             zz = Dict(String, Int)
             s = Nullable(String(None))
 
@@ -487,12 +488,12 @@ def test_HasProps_equals() -> None:
     class Foo(HasProps):
         x = Int(12)
         y = String("hello")
-        z = List(Int, [1,2,3])
+        z = List(Int, default=[1,2,3])
 
     class FooUnrelated(HasProps):
         x = Int(12)
         y = String("hello")
-        z = List(Int, [1,2,3])
+        z = List(Int, default=[1,2,3])
 
     v = Foo().equals(Foo())
     assert v is True

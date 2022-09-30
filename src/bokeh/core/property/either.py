@@ -105,10 +105,6 @@ class Either(ParameterizedProperty[Any]):
             value = tp.wrap(value)
         return value
 
-    def _may_have_unstable_default(self):
-        return super()._may_have_unstable_default() or \
-            any(tp._may_have_unstable_default() for tp in self.type_params)
-
     def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
             return new

@@ -43,7 +43,12 @@ from .descriptors import ColumnDataPropertyDescriptor
 from .enum import Enum
 from .numeric import Int
 from .singletons import Intrinsic, Undefined
-from .wrappers import PropertyValueColumnData, PropertyValueDict, PropertyValueList
+from .wrappers import (
+    PropertyValueColumnData,
+    PropertyValueDict,
+    PropertyValueList,
+    PropertyValueSet,
+)
 
 if TYPE_CHECKING:
     from ...document.events import DocumentPatchedEvent
@@ -61,6 +66,7 @@ __all__ = (
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Tuple',
 )
 
@@ -101,8 +107,7 @@ class Seq(ContainerProperty[T]):
 
     @classmethod
     def _is_seq(cls, value: Any) -> bool:
-        return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and
-                not isinstance(value, str))
+        return ((isinstance(value, Sequence) or cls._is_seq_like(value)) and not isinstance(value, str))
 
     @classmethod
     def _is_seq_like(cls, value: Any) -> bool:
@@ -110,21 +115,18 @@ class Seq(ContainerProperty[T]):
                 and hasattr(value, "__getitem__") # NOTE: this is what makes it disallow set type
                 and not isinstance(value, Mapping))
 
-    def _new_instance(self, value):
-        return value
-
 class List(Seq[T]):
     """ Accept Python list values.
 
     """
 
-    def __init__(self, item_type: TypeOrInst[Property[T]], default: Init[T] = [], *, help: str | None = None) -> None:
-        # todo: refactor to not use mutable objects as default values.
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = [], help: str | None = None) -> None:
+        # TODO: refactor to not use mutable objects as default values.
         # Left in place for now because we want to allow None to express
         # optional values. Also in Dict.
         super().__init__(item_type, default=default, help=help)
 
-    def wrap(self, value):
+    def wrap(self, value: list[T]) -> PropertyValueList[T]:
         """ Some property types need to wrap their values in special containers, etc.
 
         """
@@ -137,8 +139,33 @@ class List(Seq[T]):
             return value
 
     @classmethod
-    def _is_seq(cls, value):
+    def _is_seq(cls, value: Any):
         return isinstance(value, list)
+
+class Set(Seq[T]):
+    """ Accept Python ``set()`` values.
+
+    """
+
+    def __init__(self, item_type: TypeOrInst[Property[T]], *, default: Init[T] = set(), help: str | None = None) -> None:
+        # TODO: refactor to not use mutable objects as default values.
+        # Left in place for now because we want to allow None to express
+        # optional values. Also in Dict.
+        super().__init__(item_type, default=default, help=help)
+
+    def wrap(self, value: set[T]) -> PropertyValueSet[T]:
+        """ Some property types need to wrap their values in special containers, etc. """
+        if isinstance(value, set):
+            if isinstance(value, PropertyValueSet):
+                return value
+            else:
+                return PropertyValueSet(value)
+        else:
+            return value
+
+    @classmethod
+    def _is_seq(cls, value: Any) -> bool:
+        return isinstance(value, set)
 
 class Array(Seq[T]):
     """ Accept NumPy array values.
@@ -146,14 +173,9 @@ class Array(Seq[T]):
     """
 
     @classmethod
-    def _is_seq(cls, value):
+    def _is_seq(cls, value: Any) -> bool:
         import numpy as np
         return isinstance(value, np.ndarray)
-
-    def _new_instance(self, value):
-        import numpy as np
-        return np.array(value)
-
 
 class Dict(ContainerProperty[Any]):
     """ Accept Python dict values.

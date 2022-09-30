@@ -41,21 +41,21 @@ from bokeh.core.properties import Dict, Int, List, Nullable, String # isort:skip
 class _TestHasProps(HasProps):
     x = Int(12)
     y = String("hello")
-    z = List(Int, [1, 2, 3])
+    z = List(Int, default=[1, 2, 3])
     zz = Dict(String, Int)
     s = String(None)
 
 class _TestModel(HasProps):
     x = Int(12)
     y = String("hello")
-    z = List(Int, [1, 2, 3])
+    z = List(Int, default=[1, 2, 3])
     zz = Dict(String, Int)
     s = Nullable(String ,default=None)
 
 class _TestModel2(HasProps):
     x = Int(12)
     y = String("hello")
-    z = List(Int, [1, 2, 3])
+    z = List(Int, default=[1, 2, 3])
     zz = Dict(String, Int)
     s = Nullable(String, default=None)
 

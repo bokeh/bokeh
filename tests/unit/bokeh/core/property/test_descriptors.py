@@ -117,7 +117,7 @@ class Test_PropertyDescriptor:
         model_unstable_default_values = dict(
             js_event_callbacks={},
             js_property_callbacks={},
-            subscribed_events=[],
+            subscribed_events=set(),
             tags=[],
         )
 

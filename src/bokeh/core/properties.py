@@ -117,6 +117,7 @@ Container Properties
 .. autoclass:: List
 .. autoclass:: RelativeDelta
 .. autoclass:: Seq
+.. autoclass:: Set
 .. autoclass:: Tuple
 .. autoclass:: RestrictedDict
 
@@ -261,6 +262,7 @@ __all__ = (
     'Required',
     'RestrictedDict',
     'Seq',
+    'Set',
     'Size',
     'SizeSpec',
     'String',
@@ -274,7 +276,7 @@ __all__ = (
     'field',
     'validate',
     'value',
-    'without_property_validation'
+    'without_property_validation',
 )
 
 #-----------------------------------------------------------------------------
@@ -299,6 +301,7 @@ from .property.container import Dict; Dict
 from .property.container import List; List
 from .property.container import NonEmpty; NonEmpty
 from .property.container import Seq; Seq
+from .property.container import Set; Set
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
 from .property.container import RestrictedDict; RestrictedDict

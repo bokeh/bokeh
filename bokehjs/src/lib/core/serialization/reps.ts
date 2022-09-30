@@ -17,17 +17,17 @@ export type NumberRep = {
 
 export type ArrayRep = {
   type: "array"
-  entries: AnyVal[]
+  entries?: AnyVal[]
 }
 
 export type SetRep = {
   type: "set"
-  entries: AnyVal[]
+  entries?: AnyVal[]
 }
 
 export type MapRep = {
   type: "map"
-  entries: [AnyVal, AnyVal][]
+  entries?: [AnyVal, AnyVal][]
 }
 
 export type BytesRep = {
