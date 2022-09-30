@@ -11,7 +11,7 @@ class IonRangeSlider(InputWidget):
     # of JavaScript or TypeScript code that implements the web browser
     # side of the custom extension model or a string name of a file with the implementation.
 
-    __implementation__ = 'extensions_ion_range_slider.ts'
+    __implementation__ = 'ion_range_slider.ts'
     __javascript__ = [
         "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/js/ion.rangeSlider.js",
