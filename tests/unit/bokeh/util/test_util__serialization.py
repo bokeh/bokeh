@@ -42,16 +42,16 @@ import bokeh.util.serialization as bus # isort:skip
 class Test_make_id:
     def test_default(self) -> None:
         bus._simple_id = 999
-        assert bus.make_id() == "1000"
-        assert bus.make_id() == "1001"
-        assert bus.make_id() == "1002"
+        assert bus.make_id() == "p1000"
+        assert bus.make_id() == "p1001"
+        assert bus.make_id() == "p1002"
 
     def test_simple_ids_yes(self) -> None:
         bus._simple_id = 999
         with envset(BOKEH_SIMPLE_IDS="yes"):
-            assert bus.make_id() == "1000"
-            assert bus.make_id() == "1001"
-            assert bus.make_id() == "1002"
+            assert bus.make_id() == "p1000"
+            assert bus.make_id() == "p1001"
+            assert bus.make_id() == "p1002"
 
     def test_simple_ids_no(self) -> None:
         with envset(BOKEH_SIMPLE_IDS="no"):

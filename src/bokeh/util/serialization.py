@@ -261,7 +261,7 @@ def make_id() -> ID:
     if settings.simple_ids():
         with _simple_id_lock:
             _simple_id += 1
-            return ID(str(_simple_id))
+            return ID(f"p{_simple_id}")
     else:
         return make_globally_unique_id()
 
