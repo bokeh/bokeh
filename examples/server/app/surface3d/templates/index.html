@@ -1,0 +1,62 @@
+{% extends base %}
+
+{% block preamble %}
+  {# This line loads the vis.js library for custom model extension to use #}
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.16.1/vis.min.js"></script>
+
+  <style>
+  h1 {
+    margin: 2em 0 0 0;
+    color: #2e484c;
+    font-family: 'Julius Sans One', sans-serif;
+    font-size: 1.8em;
+    text-transform: uppercase;
+  }
+  a:link {
+    font-weight: bold;
+    text-decoration: none;
+    color: #0d8ba1;
+  }
+  a:visited {
+    font-weight: bold;
+    text-decoration: none;
+    color: #1a5952;
+  }
+  a:hover, a:focus, a:active {
+    text-decoration: underline;
+    color: #9685BA;
+  }
+  p {
+    font: "Libre Baskerville", sans-serif;
+    text-align: justify;
+    text-justify: inter-word;
+  }
+  code {
+    color: #336699;
+  }
+  </style>
+{% endblock %}
+
+{% block contents %}
+  <div style="width: 600px">
+    <h1>A custom extension for simple 3d graphs</h1>
+
+    <p>
+    This example shows how Bokeh custom extension models can be used with
+    Bokeh server applications. While there are many great features built
+    into Bokeh, with custom extensions, and the Bokeh server, it becomes
+    simple to connect powerful Python tools for data analytics to almost
+    any web tool, widget, or framework, even if it is not built into
+    Bokeh natively.
+    </p>
+
+    <p>
+    This example demonstrates connecting a Bokeh <code>ColumnDataSource</code>
+    to the <a href="https://visjs.github.io/vis-graph3d/examples/">VisJS Graph3d</a>
+    library. The 3d plot below is being continuously updated by periodic
+    callbacks in a Bokeh server application. You can pan to rotate the figure,
+    scroll or pinch to zoom.
+    </p>
+  </div>
+  {{ super() }}
+{% endblock %}
