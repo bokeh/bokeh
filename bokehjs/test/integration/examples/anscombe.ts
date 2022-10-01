@@ -2,7 +2,7 @@ import {display} from "../_util"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"
-import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Circle} from "@bokehjs/models"
+import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Circle, Pane, Column} from "@bokehjs/models"
 
 describe("Examples", () => {
   it("should support Anscombe", async () => {
@@ -71,6 +71,16 @@ describe("Examples", () => {
     const IV  = make_plot("IV",  "xiv",  "yiv")
 
     const grid = gridplot([[I, II], [III, IV]], {toolbar_location: null})
-    await display(grid)
+
+    const header = new Pane({
+      children: ["Anscombe's Quartet"],
+      styles: {
+        font_size: "150%",
+        font_weight: "bold",
+      },
+    })
+
+    const column = new Column({children: [header, grid]})
+    await display(column, [900, 900])
   })
 })
