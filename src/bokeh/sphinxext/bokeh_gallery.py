@@ -87,11 +87,10 @@ class BokehGalleryDirective(BokehDirective):
         opts = []
         for detail in spec["details"]:
             alt = detail.get("alt", None)
-            path = PurePath(detail["path"]).parts
-            filename = path[-1].replace('.py', '')
+            path = PurePath(detail["path"])
             opts.append({
                 "name": detail["name"],
-                "ref": f"examples/{path[1]}/{filename}.html",
+                "ref": str(path.with_suffix(".html")),
                 "alt": alt,
             })
 
