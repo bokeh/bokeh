@@ -1,6 +1,6 @@
 .. _ug_basic:
 
-Basic Plotting
+Basic plotting
 ==============
 
 Creating figures

@@ -1,7 +1,7 @@
 .. _ug_basic_lines:
 
-Line plots
-==========
+Lines and curves
+================
 
 .. _ug_basic_lines_single:
 
@@ -12,7 +12,7 @@ The example below shows how to generate a single line glyph from
 one-dimensional sequences of ``x`` and ``y`` points using the |line| glyph
 method:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_line_single.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/line_single.py
     :source-position: above
 
 Step lines
@@ -22,7 +22,7 @@ For some kinds of data, discrete steps between data points may work better than
 linear segments. To produce this type of data representation, use the |step|
 glyph method.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_line_steps.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/line_steps.py
     :source-position: above
 
 Adjust the ``mode`` parameter to draw step levels with the x-coordinates
@@ -36,7 +36,7 @@ Multiple lines
 If you want to draw multiple lines in one go, use the |multi_line| glyph
 method as follows:
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_line_multiple.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/line_multiple.py
     :source-position: above
 
 .. note::
@@ -53,7 +53,7 @@ Missing points
 You can pass ``NaN`` values to |line| and |multi_line| glyphs. This produces
 disjointed lines with gaps for ``NaN`` values.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_line_missing_points.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/line_missing_points.py
     :source-position: above
 
 Stacked lines
@@ -63,7 +63,7 @@ You may wish to stack lines with a common index when working with time series
 of percentages and other similar data. To do so, you can use the |vline_stack|
 and |hline_stack| convenience methods.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_vline_stack.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/vline_stack.py
     :source-position: above
 
 .. note::
@@ -79,7 +79,7 @@ Combining with markers
 You can combine multiple glyphs on a single plot by calling their methods on a
 single |figure|.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_multiple_glyphs.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/multiple_glyphs.py
     :source-position: above
 
 This principle applies to all |bokeh.plotting| glyph methods. You can add as
@@ -87,8 +87,8 @@ many glyphs to a Bokeh plot as you want.
 
 .. _ug_basic_lines_segments:
 
-Specialized lines
------------------
+Specialized glyphs
+------------------
 
 Segments
 ~~~~~~~~
@@ -99,7 +99,7 @@ methods.
 The |segment| method accepts the starting points ``x0`` and ``y0`` and end
 points ``x1`` and ``y1``. It renders segments between those points.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_segments.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/segment.py
     :source-position: above
 
 Rays
@@ -111,7 +111,7 @@ The |ray| method accepts the starting points ``x`` and ``y`` with a ``length``
 degrees instead of radians. To have an "infinite" ray that always extends to the
 edge of the plot, set ``length`` to ``0``.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_ray.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/ray.py
     :source-position: above
 
 Arcs
@@ -123,7 +123,7 @@ Additionally, the ``direction`` property determines whether to render
 clockwise (``"clock"``) or anti-clockwise (``"anticlock"``) between the start
 and end angles.
 
-.. bokeh-plot:: docs/user_guide/examples/plotting_arcs.py
+.. bokeh-plot:: __REPO__/examples/basic/lines/arcs.py
     :source-position: above
 
 Parameterized

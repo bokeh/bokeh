@@ -57,14 +57,14 @@ If you would like to hide the toolbar entirely, pass ``None``.
 The code below positions the toolbar below the plot. Try
 running the code and changing the ``toolbar_location`` value.
 
-.. bokeh-plot:: __REPO__/examples/tools/position_toolbar_clash.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/position_toolbar_clash.py
     :source-position: above
 
 Note that the toolbar position clashes with the default axes. In this case,
 setting the ``toolbar_sticky`` option to ``False`` will move the toolbar
 outside of the area where the axis is drawn.
 
-.. bokeh-plot:: __REPO__/examples/tools/position_toolbar.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/position_toolbar.py
     :source-position: above
 
 .. _ug_interaction_tools_specifying_tools:
@@ -575,7 +575,7 @@ that value as the column name. For instance, if you hover with the name
 Here is a complete example of how to configure and use the hover tool by setting
 the ``tooltips`` argument to ``figure``:
 
-.. bokeh-plot:: __REPO__/examples/tools/hover_tooltips.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/hover_tooltips.py
     :source-position: above
 
 Hit-Testing behavior
@@ -677,7 +677,7 @@ for different fields:
 You can see the output generated from this configuration by hovering the mouse
 over the plot below:
 
-.. bokeh-plot:: __REPO__/examples/tools/hover_tooltip_formatting.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/hover_tooltip_formatting.py
     :source-position: none
 
 The |CustomJSHover| model allows you to use JavaScript to specify a custom
@@ -691,7 +691,7 @@ Image hover
 You can use the hover tool to inspect image glyphs which may contain
 layers of data in the corresponding ``ColumnDataSource``:
 
-.. bokeh-plot:: __REPO__/examples/tools/hover_tooltips_image.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/hover_tooltips_image.py
     :source-position: above
 
 In this example, three image patterns are defined, ``ramp``,
@@ -711,7 +711,7 @@ still applies. Note that you can also use the ``{safe}`` format after the
 column name to disable the escaping of HTML in the data source. See the example
 below:
 
-.. bokeh-plot:: __REPO__/examples/tools/hover_custom_tooltip.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/hover_custom_tooltip.py
     :source-position: above
 
 .. seealso::
@@ -806,7 +806,7 @@ Delete selection
   Select box(es) with SHIFT+tap (or another selection tool) then press
   BACKSPACE while the mouse is within the plot area.
 
-.. bokeh-plot:: __REPO__/examples/tools/box_edit.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/box_edit.py
     :source-position: none
 
 
@@ -924,7 +924,7 @@ Delete selection
   Select point(s) with SHIFT+tap (or another selection tool), then
   press BACKSPACE while the mouse is within the plot area.
 
-.. bokeh-plot:: __REPO__/examples/tools/point_draw.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/point_draw.py
     :source-position: none
 
 
@@ -980,7 +980,7 @@ Delete patch/multi-line
   Tap a patch/multi-line to select it, then press the BACKSPACE key while
   the mouse is within the plot area.
 
-.. bokeh-plot:: __REPO__/examples/tools/poly_draw.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/poly_draw.py
     :source-position: none
 
 
@@ -1027,7 +1027,7 @@ Delete vertex
   After selecting one or more vertices, press BACKSPACE while the mouse
   cursor is within the plot area.
 
-.. bokeh-plot:: __REPO__/examples/tools/poly_edit.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/poly_edit.py
     :source-position: none
 
 

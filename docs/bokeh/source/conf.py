@@ -25,26 +25,40 @@ project = "Bokeh"
 version = settings.docs_version() or __version__
 
 bokeh_example_subdirs = [
-    "annotations",
-    "bars",
-    "data",
-    "geo",
-    "graph",
-    "interaction",
-    "layout",
+    "basic/annotations",
+    "basic/areas",
+    "basic/axes",
+    "basic/bars",
+    "basic/data",
+    "basic/layouts",
+    "basic/lines",
+    "basic/scatters",
+    "basic/styling",
+    "interaction/js_callbacks",
+    "interaction/legends",
+    "interaction/linking",
+    "interaction/tools",
+    "interaction/tooltips",
+    "interaction/widgets",
     "models",
     "plotting",
-    "specialized",
-    "styling",
-    "tools",
-    "webgl",
+    "output/webgl",
+    "specialized/categorical",
+    "specialized/contour",
+    "specialized/geo",
+    "specialized/graph",
+    "specialized/hex",
+    "specialized/images",
+    "specialized/pie",
 ]
+
 bokeh_sampledata_xref_skiplist = [
-    "examples/layout/custom_layout.py",
+    "examples/basic/layouts/custom_layout.py",
     "examples/plotting/css_classes.py",
     "examples/models/donut.py",
     "examples/models/widgets.py",
 ]
+
 # -- Sphinx configuration -----------------------------------------------------
 
 add_module_names = False

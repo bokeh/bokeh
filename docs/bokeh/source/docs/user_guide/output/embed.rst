@@ -1,7 +1,7 @@
 .. _ug_output_embed:
 
-Embedding APIs
-==============
+Web pages
+=========
 
 This chapter explores a variety of ways to embed standalone Bokeh documents and
 Bokeh applications into web pages. First, here's how standalone documents

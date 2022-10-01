@@ -1234,7 +1234,7 @@ class Scatter(Marker):
     Bokeh's built-in markers consist of a set of base markers, most of which can
     be combined with different kinds of additional visual features:
 
-    .. bokeh-plot:: docs/user_guide/examples/plotting_markertypes.py
+    .. bokeh-plot:: ../../../examples/basic/scatters/markertypes.py
         :source-position: none
 
     You can select marker types in two ways:

@@ -1,6 +1,6 @@
 .. _ug_basic_data:
 
-Data Sources
+Data sources
 ============
 
 The basis for any data visualization is the underlying data. This section
@@ -324,7 +324,7 @@ Pass the result as a ``color`` property of a glyph:
 
 For example:
 
-.. bokeh-plot:: __REPO__/examples/data/transform_colors.py
+.. bokeh-plot:: __REPO__/examples/basic/data/transform_colors.py
     :source-position: above
 
 In addition to :func:`~bokeh.transform.linear_cmap`, there are two similar
@@ -341,7 +341,7 @@ When you use categorical data, you can use different markers for each of the
 categories in your data. Use the :func:`~bokeh.transform.factor_mark`
 function to assign different markers to different categories automatically:
 
-.. bokeh-plot:: __REPO__/examples/data/transform_markers.py
+.. bokeh-plot:: __REPO__/examples/basic/data/transform_markers.py
     :source-position: above
 
 This example also uses |factor_cmap| to color map those
@@ -383,7 +383,7 @@ transformed values:
 The code in this example converts raw price data into a sequence of normalized
 returns that are relative to the first data point:
 
-.. bokeh-plot:: __REPO__/examples/data/transform_customjs.py
+.. bokeh-plot:: __REPO__/examples/basic/data/transform_customjs.py
     :source-position: none
 
 .. _ug_basic_data_filtering:
@@ -429,7 +429,7 @@ The |IndexFilter| is the simplest filter type. It has an ``indices`` property,
 which is a list of integers that are the indices of the data you want to include
 in your plot.
 
-.. bokeh-plot:: __REPO__/examples/data/filter_index.py
+.. bokeh-plot:: __REPO__/examples/basic/data/filter_index.py
     :source-position: above
 
 
@@ -439,7 +439,7 @@ BooleanFilter
 A |BooleanFilter| selects rows from a data source using a list of ``True`` or
 ``False`` values in its ``booleans`` property.
 
-.. bokeh-plot:: __REPO__/examples/data/filter_boolean.py
+.. bokeh-plot:: __REPO__/examples/basic/data/filter_boolean.py
     :source-position: above
 
 GroupFilter
@@ -460,7 +460,7 @@ called ``species``. All data belongs to one of the three species categories
 uses a |GroupFilter| to only display data points that are a member of the
 category ``setosa``:
 
-.. bokeh-plot:: __REPO__/examples/data/filter_group.py
+.. bokeh-plot:: __REPO__/examples/basic/data/filter_group.py
     :source-position: above
 
 CustomJSFilter
@@ -559,7 +559,7 @@ Linked selection
 You can share selections between two plots if both of the plots use the same
 |ColumnDataSource|:
 
-.. bokeh-plot:: __REPO__/examples/interaction/linked_brushing.py
+.. bokeh-plot:: __REPO__/examples/interaction/linking/linked_brushing.py
     :source-position: above
 
 .. _ug_basic_data_linked_selection_with_filtering:
@@ -582,7 +582,7 @@ The following example demonstrates this behavior:
 * If you hover on a point in one plot, the corresponding point in the other plot
   is automatically highlighted as well, if it exists.
 
-.. bokeh-plot:: __REPO__/examples/data/linked_brushing_subsets.py
+.. bokeh-plot:: __REPO__/examples/basic/data/linked_brushing_subsets.py
     :source-position: above
 
 Other data types

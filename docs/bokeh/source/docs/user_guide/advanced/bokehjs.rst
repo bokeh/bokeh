@@ -67,7 +67,7 @@ this level:
 
 .. bokehjs-content::
     :title: Bokeh simple line
-    :js_file: docs/user_guide/examples/simple_line.js
+    :js_file: ../../../examples/advanced/bokehjs/simple_line.js
 
 .. _ug_advanced_bokehjs_interfaces:
 

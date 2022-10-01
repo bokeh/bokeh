@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from base64 import b64decode
+from glob import iglob
 from os.path import (
     basename,
     dirname,
@@ -34,6 +35,7 @@ from os.path import (
     relpath,
     splitext,
 )
+from pathlib import Path
 from typing import Literal, Union
 
 # External imports
@@ -150,21 +152,14 @@ All = Literal["all"]
 def add_examples(list_of_examples: list[Example], path: str, examples_dir: str, example_type: int | None = None,
         slow: list[str] | All | None = None, skip: list[str] | All | None = None,
         xfail: list[str] | All | None = None, no_js: list[str] | All | None = None) -> None:
-    if path.endswith("*"):
-        star_path = join(examples_dir, path[:-1])
 
-        for name in sorted(os.listdir(star_path)):
-            if isdir(join(star_path, name)):
-                add_examples(list_of_examples, join(path[:-1], name), examples_dir, example_type, slow, skip, xfail, no_js)
+    example_pattern = normpath(join(examples_dir, path))
+    example_path = normpath(example_pattern.strip("*"))
 
-        return
-
-    example_path = normpath(join(examples_dir, path))
-
-    for name in sorted(os.listdir(example_path)):
+    for path in sorted(iglob(example_pattern, recursive=True)):
         flags = 0
         extensions: list[str] = []
-        orig_name = name
+        orig_name = name = str(Path(path).relative_to(example_path))
 
         if name.startswith(('_', '.')):
             continue
@@ -196,13 +191,13 @@ def add_examples(list_of_examples: list[Example], path: str, examples_dir: str, 
         if slow is not None and orig_name in slow:
             flags |= Flags.slow
 
-        if skip is not None and (skip == 'all' or orig_name in skip):
+        if skip is not None and (skip == 'all' or basename(orig_name) in skip):
             flags |= Flags.skip
 
-        if xfail is not None and (xfail == 'all' or orig_name in xfail):
+        if xfail is not None and (xfail == 'all' or basename(orig_name) in xfail):
             flags |= Flags.xfail
 
-        if no_js is not None and (no_js == 'all' or orig_name in no_js):
+        if no_js is not None and (no_js == 'all' or basename(orig_name) in no_js):
             flags |= Flags.no_js
 
         list_of_examples.append(Example(join(example_path, name), flags, examples_dir, extensions))
