@@ -313,6 +313,9 @@ export class UIEventBus implements EventListenerObject {
   protected _curr_rotate: {plot_view: PlotView} | null = null
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
+    if (!this.hit_area.isConnected)
+      return
+
     const {sx, sy} = e
     const plot_view = this._hit_test_plot(sx, sy)
     const curr_view = plot_view
