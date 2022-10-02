@@ -364,22 +364,25 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   compute_layout(): void {
-    if (this.parent instanceof LayoutDOMView) {
-    //if (this.is_managed) {
+    if (this.parent instanceof LayoutDOMView) { // TODO: this.is_managed
       this.parent.compute_layout()
     } else {
       this.measure_layout()
       this.update_bbox()
+      this._compute_layout()
+      this.after_layout()
+    }
+  }
 
-      if (this.layout != null)
-        this.layout.compute(this.bbox.size)
-      else {
-        for (const child_view of this.child_views) {
-          if (child_view instanceof LayoutDOMView && child_view.layout != null)
-            child_view.layout.compute(child_view.bbox.size)
+  protected _compute_layout(): void {
+    if (this.layout != null)
+      this.layout.compute(this.bbox.size)
+    else {
+      for (const child_view of this.child_views) {
+        if (child_view instanceof LayoutDOMView) {
+          child_view._compute_layout()
         }
       }
-      this.after_layout()
     }
   }
 

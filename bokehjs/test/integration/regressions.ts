@@ -26,6 +26,7 @@ import {
   FixedTicker,
   Jitter,
   ParkMillerLCG,
+  GridPlot,
 } from "@bokehjs/models"
 
 import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
@@ -2409,6 +2410,21 @@ describe("Bug", () => {
       const p1 = plot("jitter", new Jitter({width: 0.4, random_generator: new ParkMillerLCG({seed: 54235})}))
 
       await display(new Row({children: [p0, p1]}))
+    })
+  })
+
+  describe("in issue #12405", () => {
+    it("doesn't allow to propagate computed layouts in nested CSS layouts", async () => {
+      const p0 = fig([200, 200])
+      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      const p1 = fig([200, 200])
+      p1.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+
+      const g = new GridPlot({children: [[p0, 0, 0], [p1, 0, 1]]})
+      const r = new Row({children: [g]})
+      const c = new Column({children: [r]})
+
+      await display(c)
     })
   })
 })
