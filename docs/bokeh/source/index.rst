@@ -73,82 +73,6 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 `LinkedIn`_.
 
 
-.. grid:: 3 4 6 12
-    :class-container: bokeh-examples
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/image_t.png
-          :target: docs/gallery/image.html
-          :alt: Thumbnail for image example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/anscombe_t.png
-          :target: docs/gallery/anscombe.html
-          :alt: Thumbnail for Anscombe's quartet example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/stocks_t.png
-          :target: docs/gallery/stocks.html
-          :alt: Thumbnail for stocks example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/lorenz_t.png
-          :target: docs/gallery/lorenz.html
-          :alt: Thumbnail for Lorenz attractor example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/candlestick_t.png
-          :target: docs/gallery/candlestick.html
-          :alt: Thumbnail for candlestick example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/scatter_t.png
-          :target: docs/gallery/color_scatter.html
-          :alt: Thumbnail for color scatter example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/les_mis_t.png
-          :target: docs/gallery/les_mis.html
-          :alt: Thumbnail for Les Mis occurrences example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/histogram_t.png
-          :target: docs/gallery/histogram.html
-          :alt: Thumbnail for histogram example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/iris_t.png
-          :target: docs/gallery/iris.html
-          :alt: Thumbnail for iris morphology example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/choropleth_t.png
-          :target: docs/gallery/texas.html
-          :alt: Thumbnail for choropleth example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/splom_t.png
-          :target: docs/gallery/iris_splom.html
-          :alt: Thumbnail for iris example
-
-    .. grid-item::
-
-        .. image:: /_images/thumbs/burtin_t.png
-          :target: docs/gallery/burtin.html
-          :alt: Thumbnail for Burtin example
-
-
 .. toctree::
     :maxdepth: 3
     :hidden:
@@ -159,6 +83,12 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     docs/reference
     docs/dev_guide
     docs/releases
+
+
+.. image:: _images/bokeh-hero.png
+    :width: 100%
+    :alt: A collage of 36 thumbnails of Bokeh plots
+
 
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 .. _Bokeh community: https://bokeh.org/community/
