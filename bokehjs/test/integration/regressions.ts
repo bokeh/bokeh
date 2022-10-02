@@ -2428,6 +2428,19 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #12447", () => {
+    it("make tooltips interfere with toolbars", async () => {
+      const p = fig([200, 200], {toolbar_location: "above"})
+      p.add_tools(new HoverTool())
+      p.circle([1, 2, 3], [1, 2, 3], {size: 20})
+
+      const {view} = await display(p)
+
+      const actions = new PlotActions(view)
+      actions.hover(xy(3, 3), xy(3, 3))
+    })
+  })
+
   describe("in issue #12448", () => {
     it("doesn't allow for good rows and cols sizing defaults in GridPlot", async () => {
       function p(x: boolean, y: boolean) {
