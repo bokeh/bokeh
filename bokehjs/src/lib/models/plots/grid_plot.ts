@@ -162,8 +162,8 @@ export class GridPlot extends LayoutDOM {
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows: [ Nullable(TracksSizing), null ],
-      cols: [ Nullable(TracksSizing), null ],
+      rows: [ Nullable(TracksSizing), "max-content" ],
+      cols: [ Nullable(TracksSizing), "max-content" ],
       spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
     }))
   }

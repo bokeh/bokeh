@@ -884,11 +884,11 @@ class GridPlot(LayoutDOM):
     index and optional row and column spans (the defaul span is 1).
     """)
 
-    rows = Nullable(TracksSizing, default=None, help="""
+    rows = Nullable(TracksSizing, default="max-content", help="""
     Describes how the grid should maintain its rows' heights.
     """)
 
-    cols = Nullable(TracksSizing, default=None, help="""
+    cols = Nullable(TracksSizing, default="max-content", help="""
     Describes how the grid should maintain its columns' widths.
     """)
 
