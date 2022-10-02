@@ -45,6 +45,7 @@ function _with_default<T>(value: T | undefined, default_value: T): T {
 }
 
 export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | null
+export type AxisLocation = Location | null
 
 export namespace Figure {
   export type Attrs = Omit<Plot.Attrs, "x_range" | "y_range"> & {
@@ -52,8 +53,8 @@ export namespace Figure {
     y_range: Range | [number, number] | ArrayLike<string>
     x_axis_type: AxisType
     y_axis_type: AxisType
-    x_axis_location: Location
-    y_axis_location: Location
+    x_axis_location: AxisLocation
+    y_axis_location: AxisLocation
     x_axis_label: Axis["axis_label"]
     y_axis_label: Axis["axis_label"]
     x_minor_ticks: number | "auto"
@@ -212,8 +213,8 @@ export class Figure extends BaseFigure {
     delete attrs.x_minor_ticks
     delete attrs.y_minor_ticks
 
-    const x_axis_location = attrs.x_axis_location ?? "below"
-    const y_axis_location = attrs.y_axis_location ?? "left"
+    const x_axis_location = _with_default(attrs.x_axis_location, "below")
+    const y_axis_location = _with_default(attrs.y_axis_location, "left")
     delete attrs.x_axis_location
     delete attrs.y_axis_location
 
@@ -522,7 +523,7 @@ export class Figure extends BaseFigure {
     throw new Error(`unable to determine proper scale for: '${range_input}'`)
   }
 
-  _process_axis_and_grid(axis_type: AxisType, axis_location: Location, minor_ticks: number | "auto" | undefined,
+  _process_axis_and_grid(axis_type: AxisType, axis_location: AxisLocation, minor_ticks: number | "auto" | undefined,
       axis_label: Axis["axis_label"], rng: Range, dim: 0 | 1): void {
     const axis = this._get_axis(axis_type, rng, dim)
     if (axis != null) {
@@ -539,7 +540,9 @@ export class Figure extends BaseFigure {
       }
 
       axis.axis_label = axis_label
-      this.add_layout(axis, axis_location)
+      if (axis_location != null) {
+        this.add_layout(axis, axis_location)
+      }
 
       const grid = new Grid({dimension: dim, ticker: axis.ticker})
       this.add_layout(grid)

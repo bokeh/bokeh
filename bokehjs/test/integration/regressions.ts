@@ -2427,4 +2427,28 @@ describe("Bug", () => {
       await display(c)
     })
   })
+
+  describe("in issue #12448", () => {
+    it("doesn't allow for good rows and cols sizing defaults in GridPlot", async () => {
+      function p(x: boolean, y: boolean) {
+        const p = fig([200 + (x ? 20 : 0), 200 + (y ? 20 : 0)], {
+          x_axis_location: x ? "left" : null,
+          y_axis_location: y ? "below" : null,
+        })
+
+        p.circle([1, 2, 3], [1, 2, 3], {size: 10})
+        return p
+      }
+
+      const g = new GridPlot({
+        children: [
+          [p(true, false), 0, 0], [p(false, false), 0, 1], [p(false, false), 0, 2],
+          [p(true, false), 1, 0], [p(false, false), 1, 1], [p(false, false), 1, 2],
+          [p(true, true),  2, 0], [p(false, true),  2, 1], [p(false, true),  2, 2],
+        ],
+      })
+
+      await display(g)
+    })
+  })
 })
