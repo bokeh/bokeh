@@ -19,6 +19,7 @@ dependencies:
 
   # docs
   - colorcet
+  - pandas-datareader
   - firefox =>96
   - geckodriver
   - icalendar
@@ -27,7 +28,9 @@ dependencies:
   - pydot
   - pygments
   - pyshp
+  - scikit-learn
   - scipy
+  - sympy
   - toml
 
   # pip dependencies
