@@ -245,12 +245,12 @@ export namespace Toolbar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    buttons: p.Property<(ToolButton | null)[] | "auto">
     tools: p.Property<(Tool | ToolProxy<Tool>)[]>
     logo: p.Property<Logo | null>
     autohide: p.Property<boolean>
 
     // internal
+    buttons: p.Property<(ToolButton | null)[] | "auto">
     location: p.Property<Location>
     inner: p.Property<boolean>
 
@@ -292,8 +292,7 @@ export class Toolbar extends UIElement {
   static {
     this.prototype.default_view = ToolbarView
 
-    this.define<Toolbar.Props>(({Boolean, Array, Or, Ref, Nullable, Auto, Null}) => ({
-      buttons:        [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
+    this.define<Toolbar.Props>(({Boolean, Array, Or, Ref, Nullable, Auto}) => ({
       tools:          [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
       autohide:       [ Boolean, false ],
@@ -304,7 +303,7 @@ export class Toolbar extends UIElement {
       active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Struct, Nullable}) => {
+    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Struct, Nullable, Null, Auto}) => {
       const GestureEntry = Struct({
         tools: Array(Ref(GestureTool)),
         active: Nullable(Ref(GestureTool)),
@@ -322,6 +321,7 @@ export class Toolbar extends UIElement {
         multi:     GestureEntry,
       })
       return {
+        buttons:    [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
         inner:      [ Boolean, false ],
         gestures:   [ GestureMap, create_gesture_map ],
