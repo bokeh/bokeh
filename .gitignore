@@ -66,3 +66,6 @@ examples.log
 
 # used by docker container
 .conda_docker
+
+# OS junk
+.DS_Store

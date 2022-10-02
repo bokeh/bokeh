@@ -21,7 +21,8 @@ clean:
 html:
 	@start=$$(date +%s) \
 	; sphinx-build -b html -d $(BUILDDIR)/doctrees $(SPHINXOPTS) source -W $(BUILDDIR)/html \
-	&& cp -r ../../src/bokeh/server/static $(BUILDDIR)/html/ \
+	&& cp -r source/_images/examples $(BUILDDIR)/html/_images/ \
+	&& (cp -r ../../src/bokeh/server/static $(BUILDDIR)/html/ || true) \
 	&& echo \
 	&& echo "Build finished in $$(($$(date +%s)-start)) seconds. The HTML pages are in $(BUILDDIR)/html."
 
