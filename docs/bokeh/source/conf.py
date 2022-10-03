@@ -50,6 +50,7 @@ bokeh_example_subdirs = [
     "specialized/hex",
     "specialized/images",
     "specialized/pie",
+    "specialized/stats",
 ]
 
 bokeh_sampledata_xref_skiplist = [

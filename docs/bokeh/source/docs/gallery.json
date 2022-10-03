@@ -5,6 +5,10 @@
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
     {
+      "path": "examples/specialized/contour/contour.py",
+      "alt": "Thumbnail link to the examples/specialized/contour/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
+    },
+    {
       "path": "examples/plotting/latex_blackbody_radiation.py",
       "alt": "Thumbnail link to the examples/plotting/latex_blackbody_radiation.py example shows plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels."
     },
@@ -45,8 +49,12 @@
       "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
     },
     {
-      "path": "examples/plotting/pie.py",
-      "alt": "Thumbnail link to the examples/plotting/pie.py example shows a pie chart of random data with a legend."
+      "path": "examples/specialized/pie/pie.py",
+      "alt": "Thumbnail link to the examples/specialized/pie/pie.py example shows a pie chart of random data with a legend."
+    },
+    {
+      "path": "examples/specialized/pie/donut.py",
+      "alt": "Thumbnail link to the examples/specialized/pie/donut.py example shows a donut chart of browser share percentages with a legend."
     },
     {
       "path": "examples/basic/bars/mixed.py",
@@ -161,6 +169,14 @@
       "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
     },
     {
+      "path": "examples/specialized/stats/splom.py",
+      "alt": "Thumbnail link to the examples/specialized/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
+    },
+    {
+      "path": "examples/basic/layouts/anscombe.py",
+      "alt": "Thumbnail link to the examples/basic/layouts/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
+    },
+    {
       "path": "examples/specialized/geo/texas_hover_map.py",
       "alt": "Thumbnail link to the examples/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
     },
@@ -185,8 +201,8 @@
       "alt": "Thumbnail link to the examples/plotting/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
     },
     {
-      "path": "examples/plotting/boxplot.py",
-      "alt": "Thumbnail link to the examples/plotting/boxplot.py example shows a box plot of synthetic data for six categories."
+      "path": "examples/specialized/stats/boxplot.py",
+      "alt": "Thumbnail link to the examples/specialized/stats/boxplot.py example shows a box plot of synthetic data for six categories."
     },
     {
       "path": "examples/plotting/logplot.py",
@@ -199,10 +215,6 @@
     {
       "path": "examples/plotting/bessel.py",
       "alt": "Thumbnail link to the examples/plotting/bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
-    },
-    {
-      "path": "examples/specialized/contour/contour.py",
-      "alt": "Thumbnail link to the examples/specialized/contour/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
     }
   ]
 }
