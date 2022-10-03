@@ -161,6 +161,14 @@
       "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
     },
     {
+      "path": "examples/specialized/stats/splom.py",
+      "alt": "Thumbnail link to the examples/specialized/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
+    },
+    {
+      "path": "examples/basic/layouts/anscombe.py",
+      "alt": "Thumbnail link to the examples/basic/layouts/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
+    },
+    {
       "path": "examples/specialized/geo/texas_hover_map.py",
       "alt": "Thumbnail link to the examples/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
     },
