@@ -55,6 +55,6 @@ partition a ring region:
 .. bokeh-plot:: __REPO__/examples/specialized/pie/donut.py
     :source-position: above
 
-.. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.annular_wedge`
-.. |annulus|           replace:: :func:`~bokeh.plotting.figure.annulus`
-.. |wedge|             replace:: :func:`~bokeh.plotting.figure.wedge`
+.. |annular_wedge| replace:: :func:`~bokeh.plotting.figure.annular_wedge`
+.. |annulus|       replace:: :func:`~bokeh.plotting.figure.annulus`
+.. |wedge|         replace:: :func:`~bokeh.plotting.figure.wedge`

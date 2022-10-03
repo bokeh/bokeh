@@ -201,8 +201,8 @@
       "alt": "Thumbnail link to the examples/plotting/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
     },
     {
-      "path": "examples/plotting/boxplot.py",
-      "alt": "Thumbnail link to the examples/plotting/boxplot.py example shows a box plot of synthetic data for six categories."
+      "path": "examples/specialized/stats/boxplot.py",
+      "alt": "Thumbnail link to the examples/specialized/stats/boxplot.py example shows a box plot of synthetic data for six categories."
     },
     {
       "path": "examples/plotting/logplot.py",

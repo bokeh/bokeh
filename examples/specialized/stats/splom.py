@@ -5,7 +5,7 @@ panning.
 .. bokeh-example-metadata::
     :sampledata: penguins
     :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d # noqa: E501
-    :refs: :ref:`ug_interaction_linked_panning`
+    :refs: :ref:`ug_specialized_stats_splom`
     :keywords: models, scatter, splom
 
 .. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
@@ -73,4 +73,3 @@ for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
     plots.append(p)
 
 show(gridplot(plots, ncols=N))
-
