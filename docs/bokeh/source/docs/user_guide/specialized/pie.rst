@@ -3,6 +3,9 @@
 Pie and donut charts
 ====================
 
+Bokeh does not have built-in APIs for pie and donut charts, but these kinds
+of charts may be assembed by using Bokeh's various wedge glyphs.
+
 .. _ug_specialized_pie_glyphs:
 
 Glyphs
@@ -38,12 +41,18 @@ Finally, the |annulus| glyph method also accepts ``inner_radius`` and
 Pie chart
 ---------
 
+A pie chart may be assembled using the wedge glyph for each pie slice:
+
+.. bokeh-plot:: __REPO__/examples/specialized/pie/pie.py
+    :source-position: above
 
 Donut chart
 -----------
 
+Donut charts are similar to pie charts, but employ annular wedges to
+partition a ring region:
 
-.. bokeh-plot:: __REPO__/examples/specialized/pie/annulus.py
+.. bokeh-plot:: __REPO__/examples/specialized/pie/donut.py
     :source-position: above
 
 .. |annular_wedge|     replace:: :func:`~bokeh.plotting.figure.annular_wedge`
