@@ -541,10 +541,6 @@ Lifecycle hooks
 ~~~~~~~~~~~~~~~
 
 You may want to execute code at specific points of server or session runtime.
-For instance, if you are using a Bokeh server with a Django server, you need to
-call ``django.setup()`` for each Bokeh server to properly initialize Django for
-use by Bokeh application code.
-
 Bokeh enables this through a set of *lifecycle hooks*. To use these hooks,
 create your application in
 :ref:`directory format<ug_server_apps_directory>` and include a
