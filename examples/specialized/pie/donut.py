@@ -1,5 +1,5 @@
-''' A donut chart populated browser share percentags. This example demonstrates
-the low-level |bokeh.models| API.
+''' A donut chart populated with browser market share percentages. This example
+demonstrates the low-level |bokeh.models| API.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.AnnularWedge, bokeh.models.Legend

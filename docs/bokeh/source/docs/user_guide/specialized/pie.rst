@@ -3,8 +3,8 @@
 Pie and donut charts
 ====================
 
-Bokeh does not have built-in APIs for pie and donut charts, but these kinds
-of charts may be assembed by using Bokeh's various wedge glyphs.
+Bokeh does not have built-in APIs for pie and donut charts. However, you can
+use Bokeh's various wedge glyphs to create these kinds of charts.
 
 .. _ug_specialized_pie_glyphs:
 
@@ -14,7 +14,7 @@ Glyphs
 Wedge
 ~~~~~
 
-The |wedge| glyph method renders a filled wedge.  It accepts ``radius``,
+The |wedge| glyph method renders a filled wedge. It accepts ``radius``,
 ``start_angle``, and ``end_angle`` to determine position. Additionally, the
 ``direction`` property determines whether to render clockwise (``"clock"``)
 or anti-clockwise (``"anticlock"``) between the start and end angles.
@@ -41,7 +41,7 @@ Finally, the |annulus| glyph method also accepts ``inner_radius`` and
 Pie chart
 ---------
 
-A pie chart may be assembled using the wedge glyph for each pie slice:
+Use the wedge glyph for each of the pie slices to create a pie chart:
 
 .. bokeh-plot:: __REPO__/examples/specialized/pie/pie.py
     :source-position: above
