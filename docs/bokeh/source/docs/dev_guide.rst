@@ -202,10 +202,13 @@ than Python:
 
 * `rbokeh <bokeh_r_>`_ adds support for Bokeh to the R language. It
   was started by `@hafen <hafen_>`_.
-* `bokeh.jl <bokeh_jl_>`_ brings Bokeh to Julia users. It was originally created
-  by `@samuelcolvin <samuelcolvin_>`_.
 * `bokeh-scala <bokeh_scala_>`_ exposes Bokeh in the Scala language. The
   project was created by the Bokeh core dev team member `@mattpap <mattpap_>`_.
+* `Bokeh.jl <Bokeh_jl_>`_ brings Bokeh to Julia users. It was created by community
+  member `@cjdoris <cjdoris_>`_.
+* `BokehServer.jl <BokehServer_jl_>`_ also implements Julia bindings to BokehJS,
+  including a server for synchronizing plots from Julia. It was authored by community
+  member `@poldavezac <poldavezac_>`_.
 
 The low-level object interface in Python mirrors the JSON schema exactly.
 Therefore, the best, most authoritative source of information for anyone
@@ -266,8 +269,10 @@ accounts when you talk about anything that you made with Bokeh!
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/bokeh
 .. _bokeh_r: http://hafen.github.io/rbokeh/
 .. _hafen: https://github.com/hafen
-.. _bokeh_jl: https://github.com/bokeh/Bokeh.jl
-.. _samuelcolvin: https://github.com/samuelcolvin
+.. _Bokeh_jl: https://github.com/cjdoris/Bokeh.jl
+.. _cjdoris: https://github.com/cjdoris
+.. _BokehServer_jl: https://github.com/poldavezac/BokehServer.jl
+.. _poldavezac: https://github.com/poldavezac
 .. _bokeh_scala: https://github.com/bokeh/bokeh-scala
 .. _mattpap: https://github.com/mattpap
 .. _Tidelift security contact: https://tidelift.com/security
