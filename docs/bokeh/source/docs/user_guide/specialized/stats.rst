@@ -8,7 +8,7 @@ Statistical plots
 Histogram
 ---------
 
-A histogram may be plotted from ``np.histogram`` output using |quad| glyphs:
+Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 
 .. bokeh-plot:: __REPO__/examples/specialized/stats/histogram.py
     :source-position: above
@@ -30,9 +30,9 @@ SPLOM
 -------
 
 A SPLOM is "scatter plot matrix" that arranges multiple scatter plots in a
-grid fashion in order to highlight correlations between dimenstions. A key
-component of a SPLOM is :ref:`ug_interaction_linked_panning` and
-:ref:`ug_interaction_linked_brushing` both demonstrated in the example below.
+grid fashion in order to highlight correlations between dimensions. Key
+components of a SPLOM are :ref:`ug_interaction_linked_panning` and
+:ref:`ug_interaction_linked_brushing` as demonstrated in this example:
 
 .. bokeh-plot:: __REPO__/examples/specialized/stats/splom.py
     :source-position: above
