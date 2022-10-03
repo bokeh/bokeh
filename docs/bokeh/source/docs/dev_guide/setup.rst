@@ -118,7 +118,7 @@ environments`_ in the `Conda documentation`_.
 
 .. _contributor_guide_setup_installing_node_packages:
 
-1. Install Node packages
+4. Install Node packages
 ------------------------
 
 Building BokehJS also requires installing JavaScript dependencies using
