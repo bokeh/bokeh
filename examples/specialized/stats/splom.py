@@ -15,34 +15,33 @@ from itertools import product
 
 from bokeh.io import show
 from bokeh.layouts import gridplot
-from bokeh.models import (BasicTicker, Circle, ColumnDataSource, DataRange1d,
-                          Grid, LinearAxis, PanTool, Plot, WheelZoomTool)
+from bokeh.models import (BasicTicker, Circle, ColumnDataSource,
+                          DataRange1d, Grid, LassoSelectTool, LinearAxis,
+                          PanTool, Plot, ResetTool, WheelZoomTool)
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap
 
-# get the data all on roughly the same scale
-data["body_mass_kg"] = data["body_mass_g"] / 1000
-data["bill_length_cm"] = data["bill_length_mm"] / 10
-data["bill_depth_cm"] = data["bill_depth_mm"] / 10
-del data["body_mass_g"], data["bill_length_mm"], data["bill_depth_mm"]
+df = data.copy()
+df["body_mass_kg"] = df["body_mass_g"] / 1000
 
-SPECIES = sorted(data.species.unique())
-ATTRS = ("bill_length_cm", "bill_depth_cm", "body_mass_kg")
+SPECIES = sorted(df.species.unique())
+ATTRS = ("bill_length_mm", "bill_depth_mm", "body_mass_kg")
 N = len(ATTRS)
 
-source = ColumnDataSource(data=data)
+source = ColumnDataSource(data=df)
 
-xdr = DataRange1d(bounds=None)
-ydr = DataRange1d(bounds=None)
+xdrs = [DataRange1d(bounds=None) for _ in range(N)]
+ydrs = [DataRange1d(bounds=None) for _ in range(N)]
 
 plots = []
 
 for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
-    p = Plot(x_range=xdr, y_range=ydr, background_fill_color="#fafafa",
-             border_fill_color="white", width=200, height=200, min_border=2)
+    p = Plot(x_range=xdrs[i%N], y_range=ydrs[i//N],
+             background_fill_color="#fafafa",
+             border_fill_color="white", width=200, height=200, min_border=5)
 
     if i % N == 0:  # first column
-        p.min_border_left = p.min_border + 40
+        p.min_border_left = p.min_border + 4
         p.width += 40
         yaxis = LinearAxis(axis_label=y)
         yaxis.major_label_orientation = "vertical"
@@ -62,13 +61,18 @@ for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
         xticker = BasicTicker()
     p.add_layout(Grid(dimension=0, ticker=xticker))
 
-    circle = Circle(x=x, y=y, fill_alpha=0.4, size=5, line_color=None,
+    circle = Circle(x=x, y=y, fill_alpha=0.6, size=5, line_color=None,
                     fill_color=factor_cmap('species', 'Category10_3', SPECIES))
     r = p.add_glyph(source, circle)
-    xdr.renderers.append(r)
-    ydr.renderers.append(r)
+    p.x_range.renderers.append(r)
+    p.y_range.renderers.append(r)
 
-    p.add_tools(PanTool(), WheelZoomTool())
+    # suppress the diagonal
+    if (i%N) + (i//N) == N-1:
+        r.visible = False
+        p.grid.grid_line_color = None
+
+    p.add_tools(PanTool(), WheelZoomTool(), ResetTool(), LassoSelectTool())
 
     plots.append(p)
 

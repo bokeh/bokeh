@@ -31,7 +31,8 @@ SPLOM
 
 A SPLOM is "scatter plot matrix" that arranges multiple scatter plots in a
 grid fashion in order to highlight correlations between dimenstions. A key
-component of a SPLOM is linked behaviors, demonstrated in the example below.
+component of a SPLOM is :ref:`ug_interaction_linked_panning` and
+:ref:`ug_interaction_linked_brushing` both demonstrated in the example below.
 
 .. bokeh-plot:: __REPO__/examples/specialized/stats/splom.py
     :source-position: above
