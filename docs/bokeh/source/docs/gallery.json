@@ -5,8 +5,8 @@
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
     {
-      "path": "examples/specialized/contour/contour.py",
-      "alt": "Thumbnail link to the examples/specialized/contour/contour.py example shows an iso-contour plot with ten levels between -2 and 2."
+      "path": "examples/specialized/contour/contour_simple.py",
+      "alt": "Thumbnail link to the examples/specialized/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
     },
     {
       "path": "examples/plotting/latex_blackbody_radiation.py",
