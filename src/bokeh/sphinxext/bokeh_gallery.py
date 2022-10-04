@@ -91,6 +91,7 @@ class BokehGalleryDirective(BokehDirective):
             opts.append({
                 "ref": str(path.with_suffix(".html")),
                 "img": str(path.with_suffix("")),
+                "title": path.stem,
                 "alt": alt,
             })
 

@@ -141,8 +141,6 @@ and brushing, and hover inspectors.
 Click on an image below to see its code and interact with the live
 plot.
 
-.. cssclass:: gallery clearfix
-
 .. bokeh-gallery:: gallery.json
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
