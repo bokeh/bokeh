@@ -191,6 +191,10 @@ div.bk-thumbnail {
     gap: 10px;
 }
 
+div.bk-thumbnail:hover {
+    box-shadow: 0 0 5px #444;
+}
+
 div.bk-thumbnail-title {
     font-weight: bold;
     font-size: 12px;
