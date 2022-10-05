@@ -1,3 +1,5 @@
+:notoc:
+
 .. _gallery:
 
 Gallery
@@ -140,8 +142,6 @@ and brushing, and hover inspectors.
 
 Click on an image below to see its code and interact with the live
 plot.
-
-.. cssclass:: gallery clearfix
 
 .. bokeh-gallery:: gallery.json
 

@@ -1,8 +1,8 @@
 .. raw:: html
 
-    <ul class="gallery clearfix simple">
+    <div class="bk-gallery">
     {% for opt in opts %}
-    <li>
+    <div class="bk-thumbnail">
     <a href="{{ opt['ref'] }}">
     <img class="gallery" width="300" height="300"
          src="../_images/{{ opt['img'] }}.png"
@@ -12,6 +12,7 @@
          {%- endif %}
     >
     </a>
-    </li>
+    <div class="bk-thumbnail-title">{{ opt['title'] }}</div>
+    </div>
     {% endfor %}
-    </ul>
+    </div>

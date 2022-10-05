@@ -166,10 +166,38 @@ div.highlight pre {
   color: #ddd;
 }
 
-/* Floating gallery thumbnails */
-ul.gallery li {
-  list-style-type: none;
-  float:left
+div.bk-gallery {
+    width: 100%;
+    margin: 0px 0px 20px 0px;
+    padding-left: 50px;
+    padding-right: 50px;
+    justify-content: space-between;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+div.bk-thumbnail {
+    background: transparent;
+    border-radius: 7px;
+    box-shadow: 0 0 3px #444;
+    position: relative;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+div.bk-thumbnail:hover {
+    box-shadow: 0 0 5px #444;
+}
+
+div.bk-thumbnail-title {
+    font-weight: bold;
+    font-size: 12px;
 }
 
 img.gallery {
