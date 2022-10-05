@@ -1,18 +1,8 @@
 import {display, fig} from "./_util"
+import {press} from "./_interactive"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
-import {delay} from "@bokehjs/core/util/defer"
-
-async function press(el: HTMLElement): Promise<void> {
-  const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
-  el.dispatchEvent(ev0)
-
-  await delay(300)
-
-  const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
-  el.dispatchEvent(ev1)
-}
 
 describe("Tools", () => {
   const tools = [

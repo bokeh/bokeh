@@ -20,3 +20,18 @@ export function column(children: LayoutDOM[], opts?: Partial<Column.Attrs>): Col
 export function fig([width, height]: [number, number], attrs?: Partial<Figure.Attrs>): Figure {
   return figure({width, height, title: null, toolbar_location: null, ...attrs})
 }
+
+// TODO: this was copied from `integration/_interactive.ts`. Allow sharing this kind
+// of utility code between test suites in the future.
+import {MouseButton} from "@bokehjs/core/dom"
+import {delay} from "@bokehjs/core/util/defer"
+
+export async function click(el: HTMLElement): Promise<void> {
+  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  el.dispatchEvent(ev0)
+
+  await delay(10)
+
+  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  el.dispatchEvent(ev1)
+}

@@ -23,6 +23,26 @@ const common: Partial<PointerEventInit> = {
 const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
+export async function click(el: HTMLElement): Promise<void> {
+  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  el.dispatchEvent(ev0)
+
+  await delay(10)
+
+  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  el.dispatchEvent(ev1)
+}
+
+export async function press(el: HTMLElement): Promise<void> {
+  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  el.dispatchEvent(ev0)
+
+  await delay(250)
+
+  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  el.dispatchEvent(ev1)
+}
+
 type Line = {type: "line", xy0: Point, xy1: Point, n?: number}
 type Poly = {type: "poly", xys: Point[], n?: number}
 type Circle = {type: "circle", xy: Point, r: number, n?: number}

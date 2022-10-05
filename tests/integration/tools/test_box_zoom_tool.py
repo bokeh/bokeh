@@ -23,7 +23,6 @@ from bokeh.models import (
     BoxZoomTool,
     ColumnDataSource,
     CustomJS,
-    PanTool,
     Plot,
     Range1d,
     Rect,
@@ -55,48 +54,6 @@ def _make_plot(tool):
 
 @pytest.mark.selenium
 class Test_BoxZoomTool:
-    def test_deselected_by_default_with_pan_tool(self, single_plot_page: SinglePlotPage) -> None:
-        plot = _make_plot(BoxZoomTool())
-        plot.add_tools(PanTool())
-
-        page = single_plot_page(plot)
-
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' not in button.get_attribute('class')
-
-        assert page.has_no_console_errors()
-
-    def test_selected_by_default_without_pan_tool(self, single_plot_page: SinglePlotPage) -> None:
-        plot = _make_plot(BoxZoomTool())
-
-        page = single_plot_page(plot)
-
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' in button.get_attribute('class')
-
-        assert page.has_no_console_errors()
-
-    def test_can_be_selected_and_deselected(self, single_plot_page: SinglePlotPage) -> None:
-        plot = _make_plot(BoxZoomTool())
-        plot.add_tools(PanTool())
-
-        page = single_plot_page(plot)
-
-        # Check is not active
-        button = page.get_toolbar_button('box-zoom')
-        assert 'active' not in button.get_attribute('class')
-
-        # Click and check is active
-        button = page.get_toolbar_button('box-zoom')
-        button.click()
-        assert 'active' in button.get_attribute('class')
-
-        # Click again and check is not active
-        button = page.get_toolbar_button('box-zoom')
-        button.click()
-        assert 'active' not in button.get_attribute('class')
-
-        assert page.has_no_console_errors()
 
     @pytest.mark.parametrize('dim', ['both', 'width', 'height'])
     def test_box_zoom_has_no_effect_when_deslected(self, dim: DimensionsType, single_plot_page: SinglePlotPage) -> None:
