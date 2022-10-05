@@ -89,7 +89,7 @@ class EnumDocumenter(ModuleLevelDocumenter):
     def can_document_member(cls, member, membername, isattr, parent):
         return isinstance(member, Enumeration)
 
-    # Override the Sphinx default `Documenter.get_object_members()``
+    # Override the Sphinx default `Documenter.get_object_members()`
     # which is deprecated, and will soon be removed.
     # Ref: https://github.com/bokeh/bokeh/issues/12462
     def get_object_members(self, want_all):
