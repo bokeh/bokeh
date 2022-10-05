@@ -1,8 +1,6 @@
-import Hammer, {Manager} from "hammerjs"
-
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Tool} from "./tool"
-import {div, StyleSheetLike} from "core/dom"
+import {div, StyleSheetLike, MouseButton} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
@@ -17,51 +15,52 @@ export abstract class ToolButtonView extends UIElementView {
   override model: ToolButton
   override readonly parent: ToolbarView
 
-  private _hammer?: InstanceType<typeof Manager>
-  private _menu?: ContextMenu
+  private _menu: ContextMenu
 
   override initialize(): void {
     super.initialize()
 
-    const items = this.model.tool.menu
-    if (items == null) {
-      this.el.addEventListener("click", (e) => {
-        if (e.composedPath().includes(this.el)) {
-          this._clicked()
-        }
-      })
-    } else {
-      const {location} = this.parent.model
-      const reverse = location == "left" || location == "above"
-      const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
-      this._menu = new ContextMenu(!reverse ? items : reversed(items), {
-        target: this.root.el,
-        orientation,
-        prevent_hide: (event) => event.composedPath().includes(this.el),
-      })
+    const {location} = this.parent.model
+    const reverse = location == "left" || location == "above"
+    const orientation = this.parent.model.horizontal ? "vertical" : "horizontal"
+    const items = this.model.tool.menu ?? []
+    this._menu = new ContextMenu(!reverse ? items : reversed(items), {
+      target: this.root.el,
+      orientation,
+      prevent_hide: (event) => event.composedPath().includes(this.el),
+    })
 
-      this._hammer = new Hammer(this.el, {
-        cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
-        touchAction: "auto",
-        inputClass: Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
-      })
-      this._hammer.on("tap", (e) => {
-        const {_menu} = this
-        if (_menu != null && _menu.is_open) {
-          _menu.hide()
-          return
+    let start: number | null = null
+
+    this.el.addEventListener("pointerdown", (e) => {
+      if (e.buttons == MouseButton.Left) {
+        start = e.timeStamp
+      }
+    })
+
+    this.el.addEventListener("pointerup", (e) => {
+      if (start != null) {
+        const end = e.timeStamp
+        if (end - start >= 250 /*ms*/) {
+          this._pressed()
+        } else {
+          if (this._menu.is_open) {
+            this._menu.hide()
+            return
+          }
+          if (e.composedPath().includes(this.el)) {
+            this._clicked()
+          }
         }
-        if (e.srcEvent.composedPath().includes(this.el)) {
-          this._clicked()
-        }
-      })
-      this._hammer.on("press", () => this._pressed())
-      this.el.addEventListener("keydown", (event) => {
-        if (event.key == "Enter") {
-          this._clicked()
-        }
-      })
-    }
+        start = null
+      }
+    })
+
+    this.el.addEventListener("keydown", (event) => {
+      if (event.key == "Enter") {
+        this._clicked()
+      }
+    })
   }
 
   override connect_signals(): void {
@@ -71,8 +70,7 @@ export abstract class ToolButtonView extends UIElementView {
   }
 
   override remove(): void {
-    this._hammer?.destroy()
-    this._menu?.remove()
+    this._menu.remove()
     super.remove()
   }
 
@@ -128,7 +126,7 @@ export abstract class ToolButtonView extends UIElementView {
         case "below": return {above: this.el}
       }
     })()
-    this._menu?.toggle(at)
+    this._menu.toggle(at)
   }
 }
 
