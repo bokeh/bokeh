@@ -9,6 +9,8 @@
 import os
 from datetime import date
 
+from sphinx.util import logging
+
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
@@ -146,6 +148,9 @@ ogp_custom_meta_tags = [
 
 pygments_style = "sphinx"
 
+# suppress some useless and annoying messages from sphinx.ext.viewcode
+logging.getLogger("sphinx.ext.viewcode").logger.addFilter(lambda rec: not rec.msg.startswith("Didn't find"))
+
 # -- Options for HTML output ---------------------------------------------------
 
 html_context = {
@@ -182,7 +187,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
     "show_nav_level": 2,
-    "show_toc_level": 2,
+    "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
     "favicons": [
         {

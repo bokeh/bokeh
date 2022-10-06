@@ -12,7 +12,7 @@ with data columns from ``ColumnDataSources``.
 The full list of glyphs is below:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :glob:
 
    glyphs/*

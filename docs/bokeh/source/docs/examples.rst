@@ -7,7 +7,6 @@ Example Index
 =============
 
 .. toctree::
-    :maxdepth: 2
     :hidden:
     :glob:
 

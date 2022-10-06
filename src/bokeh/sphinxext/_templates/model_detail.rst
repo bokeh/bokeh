@@ -1,6 +1,3 @@
-{{ name }}
-{{ "~" * name|length }}
-
 .. autoclass:: {{ module_name }}.{{ name }}
     :members:
     :show-inheritance:
