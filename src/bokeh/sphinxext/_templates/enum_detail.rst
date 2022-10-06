@@ -9,11 +9,13 @@
 
     {% if fullrepr %}
 
-    .. collapsible-code-block:: python
-        :heading: See all values
+    .. dropdown:: See all values
+        :animate: fade-in
 
-        {% for line in fullrepr %}
-        {{ line|indent(8) }}
-        {% endfor %}
+        .. code-block:: python
+
+            {% for line in fullrepr %}
+            {{ line|indent(12) }}
+            {% endfor %}
 
     {% endif %}

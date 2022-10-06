@@ -113,10 +113,3 @@ bokeh_sitemap
 -------------
 
 .. automodule:: bokeh.sphinxext.bokeh_sitemap
-
-.. _bokeh.sphinxext.collapsible_code_block:
-
-collapsible_code_block
-----------------------
-
-.. automodule:: bokeh.sphinxext.collapsible_code_block

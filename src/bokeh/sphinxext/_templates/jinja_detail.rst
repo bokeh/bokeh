@@ -5,7 +5,9 @@
 
     {% if doc %}{{ doc|indent(4) }}{% endif %}
 
-    .. collapsible-code-block:: jinja
-        :heading: Template: {{ filename }}
+    .. dropdown:: Template: {{ filename }}
+        :animate: fade-in
 
-        {{ template_text|indent(8) }}
+        .. code-block:: jinja
+
+            {{ template_text|indent(12) }}

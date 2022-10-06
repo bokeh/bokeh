@@ -42,7 +42,6 @@ from os import listdir
 from os.path import join
 
 # External imports
-from docutils import nodes
 from packaging.version import Version as V
 
 # Bokeh imports
@@ -52,7 +51,7 @@ from bokeh.resources import get_sri_hashes_for_version
 # Bokeh imports
 from . import PARALLEL_SAFE
 from .bokeh_directive import BokehDirective
-from .templates import SRI_TABLE
+from .templates import RELEASE_DETAIL
 
 # -----------------------------------------------------------------------------
 # Globals and constants
@@ -68,45 +67,28 @@ __all__ = ("BokehReleases", "setup")
 # Dev API
 # -----------------------------------------------------------------------------
 
-class sri_table(nodes.General, nodes.Element):
-
-    @staticmethod
-    def visit_html(visitor, node):
-        version = node["version"]
-        table = node["table"]
-        visitor.body.append(f'<button type="button" class="bk-collapsible">Table of SRI Hashes for version {version}</button>')
-        visitor.body.append('<div class="bk-collapsible-content">')
-        visitor.body.append(SRI_TABLE.render(table=table))
-        visitor.body.append("</div>")
-        raise nodes.SkipNode
-
-    html = visit_html.__func__, None
-
-
 class BokehReleases(BokehDirective):
     def run(self):
-        rst = []
-
         srcdir = self.env.app.srcdir
         versions = [x.rstrip(".rst") for x in listdir(join(srcdir, "docs", "releases")) if x.endswith(".rst")]
         versions.sort(key=V, reverse=True)
 
+        rst = []
+
         for v in versions:
-            rst += self.parse(f".. include:: releases/{v}.rst", "<bokeh-releases>")
             try:
                 hashes = get_sri_hashes_for_version(v)
-                rst += [sri_table(version=v, table=sorted(hashes.items()))]
+                rst.append(RELEASE_DETAIL.render(version=v, table=sorted(hashes.items())))
             except KeyError:
                 if v == __version__:
                     raise RuntimeError(f"Missing SRI Hash for full release version {v!r}")
 
-        return rst
+        return self.parse("\n".join(rst), "<bokeh-releases>")
 
 
 def setup(app):
     """ Required Sphinx extension setup function. """
     app.add_directive("bokeh-releases", BokehReleases)
-    app.add_node(sri_table, html=sri_table.html)
 
     return PARALLEL_SAFE
 

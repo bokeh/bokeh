@@ -96,7 +96,6 @@ extensions = [
     "bokeh.sphinxext.bokeh_settings",
     "bokeh.sphinxext.bokeh_sitemap",
     "bokeh.sphinxext.bokehjs_content",
-    "bokeh.sphinxext.collapsible_code_block",
 ]
 
 needs_sphinx = "4.3.2"
