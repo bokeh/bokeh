@@ -1,4 +1,10 @@
 {
+  "basic/scatters": [
+    {
+      "name": "markers.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/markers.py example shows all the different scatter marker types available in Bokeh on a single plot."
+    }
+  ],
   "basic/data": [
     {
       "name": "transform_markers.py",
@@ -7,6 +13,12 @@
     {
       "name": "transform_jitter.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_jitter.py example shows a column of two categorical scatter plots of random data. The top has no jitter applied, may scatter points overlap. The bottom has jitter applied to distinguish points better."
+    }
+  ],
+  "basic/axes": [
+    {
+      "name": "logplot.py",
+      "alt": "Thumbnail link to the examples/basic/axes/logplot.py example shows a plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each."
     }
   ],
   "basic/bars": [
@@ -146,6 +158,10 @@
     }
   ],
   "specialized/stats": [
+    {
+      "name": "histogram.py",
+      "alt": "Thumbnail link to the examples/specialized/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
+    },
     {
       "name": "splom.py",
       "alt": "Thumbnail link to the examples/specialized/stats/splom.py example shows a SPLOM gridplot of the penguins data set."

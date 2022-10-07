@@ -149,10 +149,10 @@ plot.
 
     .. tab-item:: Basic
 
-        .. .. bokeh-gallery:: basic/scatters
+        .. bokeh-gallery:: basic/scatters
         .. .. bokeh-gallery:: basic/lines
         .. bokeh-gallery:: basic/data
-        .. .. bokeh-gallery:: basic/axes
+        .. bokeh-gallery:: basic/axes
         .. bokeh-gallery:: basic/bars
         .. .. bokeh-gallery:: basic/areas
         .. bokeh-gallery:: basic/layouts
