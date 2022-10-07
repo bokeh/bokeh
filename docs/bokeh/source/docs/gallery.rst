@@ -134,7 +134,8 @@ The best place to immediately experiment with Bokeh in notebooks is in the
 Standalone Examples
 ===================
 
-All of the examples below are located in the :bokeh-tree:`examples`
+All of
+the examples below are located in the :bokeh-tree:`examples`
 subdirectory of your Bokeh checkout. By "standalone" we mean that
 these examples make no use of the Bokeh server. These plots still
 have many interactive tools and features, including linked panning
@@ -143,7 +144,61 @@ and brushing, and hover inspectors.
 Click on an image below to see its code and interact with the live
 plot.
 
-.. bokeh-gallery:: gallery.json
+.. tab-set::
+    :class: bk-gallery-tabs
+
+    .. tab-item:: Basic
+
+        .. .. bokeh-gallery:: basic/scatters
+        .. .. bokeh-gallery:: basic/lines
+        .. bokeh-gallery:: basic/data
+        .. .. bokeh-gallery:: basic/axes
+        .. bokeh-gallery:: basic/bars
+        .. .. bokeh-gallery:: basic/areas
+        .. bokeh-gallery:: basic/layouts
+        .. bokeh-gallery:: basic/annotations
+        .. .. bokeh-gallery:: basic/visuals
+
+    .. tab-item:: Specialized
+
+        .. bokeh-gallery:: specialized/images
+        .. bokeh-gallery:: specialized/contour
+        .. bokeh-gallery:: specialized/hex
+        .. bokeh-gallery:: specialized/categorical
+        .. bokeh-gallery:: specialized/geo
+        .. bokeh-gallery:: specialized/graph
+        .. .. bokeh-gallery:: specialized/timeseries
+        .. bokeh-gallery:: specialized/pie
+        .. bokeh-gallery:: specialized/stats
+
+    .. tab-item:: Interaction
+
+        .. bokeh-gallery:: interaction/tools
+        .. .. bokeh-gallery:: interaction/linking
+        .. .. bokeh-gallery:: interaction/legends
+        .. .. bokeh-gallery:: interaction/widgets
+        .. .. bokeh-gallery:: interaction/js_callbacks
+        .. .. bokeh-gallery:: interaction/python_callbacks
+        .. .. bokeh-gallery:: interaction/tooltips
+
+    .. tab-item:: Output
+
+        TODO
+        .. .. bokeh-gallery:: output/jupyter
+        .. .. bokeh-gallery:: output/embed
+        .. .. bokeh-gallery:: output/export
+        .. .. bokeh-gallery:: output/webgl
+
+    .. tab-item:: Server
+
+        TODO
+        .. .. bokeh-gallery:: server/app
+
+    .. tab-item:: Advanced
+
+        TODO
+        .. .. bokeh-gallery:: advanced/bokehjs
+        .. .. bokeh-gallery:: advanced/extensions
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 

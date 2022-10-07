@@ -76,18 +76,24 @@ class BokehGalleryDirective(BokehDirective):
     def run(self):
         docdir = dirname(self.env.doc2path(self.env.docname))
 
-        gallery_file = join(docdir, self.arguments[0])
+        # TODO: temp
+        gallery_file = join(docdir, "gallery.json")
 
         gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
         if not exists(gallery_dir) and isdir(gallery_dir):
             raise SphinxError(f"gallery dir {gallery_dir!r} missing for gallery file {gallery_file!r}")
 
-        spec = json.load(open(gallery_file))
+        gallery_json = json.load(open(gallery_file))
+
+        location = self.arguments[0]
+
+        details = gallery_json[location]
+
 
         opts = []
-        for detail in spec["details"]:
+        for detail in details:
             alt = detail.get("alt", None)
-            path = PurePath(detail["path"])
+            path = PurePath("examples") / location / detail["name"]
             opts.append({
                 "ref": str(path.with_suffix(".html")),
                 "img": str(path.with_suffix("")),

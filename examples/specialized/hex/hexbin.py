@@ -1,22 +1,33 @@
+''' A automatic hexbin plot using randomly selected points. This chart shows
+500 points points from a normal distribution binned into hexagonal tiles. A
+hover tooltip displays information for each tile.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.hexbin
+    :refs: :ref:`ug_specialized_hex`
+    :keywords: hex, hexbin, hover, tooltip
+
+'''
 import numpy as np
 
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
-from bokeh.transform import linear_cmap
-from bokeh.util.hex import hexbin
+from bokeh.models import HoverTool
+from bokeh.plotting import figure, show
 
-n = 50000
-x = np.random.standard_normal(n)
-y = np.random.standard_normal(n)
+n = 500
+x = 2 + 2*np.random.standard_normal(n)
+y = 2 + 2*np.random.standard_normal(n)
 
-bins = hexbin(x, y, 0.1)
-
-p = figure(tools="wheel_zoom,reset", match_aspect=True, background_fill_color='#440154')
+p = figure(title="Hexbin for 500 points", match_aspect=True,
+           tools="wheel_zoom,reset", background_fill_color='#440154')
 p.grid.visible = False
 
-p.hex_tile(q="q", r="r", size=0.1, line_color=None, source=bins,
-           fill_color=linear_cmap('counts', 'Viridis256', 0, max(bins.counts)))
+r, bins = p.hexbin(x, y, size=0.5, hover_color="pink", hover_alpha=0.8)
 
-output_file("hex_tile.html")
+p.circle(x, y, color="white", size=1)
+
+p.add_tools(HoverTool(
+    tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],
+    mode="mouse", point_policy="follow_mouse", renderers=[r]
+))
 
 show(p)

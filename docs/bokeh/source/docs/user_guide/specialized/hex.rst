@@ -11,7 +11,7 @@ and more. The :func:`~bokeh.plotting.figure.hex_tile` method takes a ``size``
 parameter to define the size of the hex grid and `axial coordinates`_ to
 specify the tiles.
 
-.. bokeh-plot:: __REPO__/examples/specialized/hex/hex_tile.py
+.. bokeh-plot:: __REPO__/examples/specialized/hex/hex_coords.py
     :source-position: above
 
 Hex binning

@@ -200,6 +200,10 @@ div.bk-thumbnail-title {
     font-size: 12px;
 }
 
+div.bk-gallery-tabs > label {
+    font-size: 18px;
+}
+
 img.gallery {
   width: 200px;
   height:200px
