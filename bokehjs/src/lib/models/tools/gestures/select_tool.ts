@@ -62,6 +62,9 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
+    if (!this.model.active)
+      return
+
     if (ev.key == "Escape") {
       this._clear()
     }

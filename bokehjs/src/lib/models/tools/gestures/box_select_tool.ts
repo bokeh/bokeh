@@ -85,12 +85,32 @@ export class BoxSelectToolView extends SelectToolView {
     this.plot_view.state.push("box_select", {selection: this.plot_view.get_selection()})
   }
 
-  override _keyup(ev: KeyEvent): void {
-    super._keyup(ev)
+  protected get _is_selecting(): boolean {
+    return this._base_point != null
+  }
 
-    if (this.model.overlay.editable && ev.key == "Escape") {
-      this._clear_overlay()
+  protected _stop(): void {
+    this._clear_overlay()
+    this._base_point = null
+  }
+
+  override _keyup(ev: KeyEvent): void {
+    if (!this.model.active)
+      return
+
+    if (ev.key == "Escape") {
+      if (this._is_selecting) {
+        this._stop()
+        return
+      }
+
+      if (this.model.overlay.visible) {
+        this._clear_overlay()
+        return
+      }
     }
+
+    super._keyup(ev)
   }
 
   _clear_overlay(): void {
