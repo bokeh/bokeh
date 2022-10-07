@@ -618,7 +618,7 @@ class TapTool(Tap, SelectTool):
     The tap selection tool allows the user to select at single points by
     left-clicking a mouse, or tapping with a finger.
 
-    See :ref:`ug_basic_visuals_selected_unselected_glyphs` for information
+    See :ref:`ug_basic_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
     .. |tap_icon| image:: /_images/icons/Tap.png
@@ -877,7 +877,7 @@ class BoxSelectTool(Drag, SelectTool):
     a rectangular region by dragging the mouse or a finger over the plot area.
     The end of the drag event indicates the selection region is ready.
 
-    See :ref:`ug_basic_visuals_selected_unselected_glyphs` for information
+    See :ref:`ug_basic_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
 
@@ -936,7 +936,7 @@ class LassoSelectTool(Drag, SelectTool):
     over the plot region. The end of the drag event indicates the selection
     region is ready.
 
-    See :ref:`ug_basic_visuals_selected_unselected_glyphs` for information
+    See :ref:`ug_basic_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
     .. note::
@@ -973,7 +973,7 @@ class PolySelectTool(Tap, SelectTool):
     polygon, and a double click (or tap) indicates the selection
     region is ready.
 
-    See :ref:`ug_basic_visuals_selected_unselected_glyphs` for information
+    See :ref:`ug_basic_styling_selected_unselected_glyphs` for information
     on styling selected and unselected glyphs.
 
     .. note::

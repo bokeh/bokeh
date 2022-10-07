@@ -54,7 +54,7 @@ It is also possible to set the color and alpha parameters of extra glyphs for
 selection, nonselection, hover, or muted. To do so, add the relevant prefix to
 any visual parameter. For example, pass ``nonselection_alpha`` to set the line
 and fill alpha for nonselect, or ``hover_fill_alpha`` to set the fill alpha for
-hover. See the :ref:`ug_basic_visuals_glyphs` section of the user guide for
+hover. See the :ref:`ug_basic_styling_glyphs` section of the user guide for
 full details.
 
 Returns:
@@ -120,7 +120,7 @@ Other Parameters:
     color (color, optional) :
         An alias to set all color keyword arguments at once. (default: None)
 
-        See :ref:`ug_basic_visuals_colors` in the user guide for different
+        See :ref:`ug_basic_styling_colors` in the user guide for different
         options to define colors.
 
         Any explicitly set values for ``line_color``, etc. will override this

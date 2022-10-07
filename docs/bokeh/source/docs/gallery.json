@@ -71,6 +71,12 @@
       "alt": "Thumbnail link to the examples/basic/bars/dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
     }
   ],
+  "basic/areas": [
+    {
+      "name": "stacked_area.py",
+      "alt": "Thumbnail link to the examples/basic/areas/stacked_area.py example shows a stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top."
+    }
+  ],
   "basic/layouts": [
     {
       "name": "anscombe.py",
@@ -79,8 +85,18 @@
   ],
   "basic/annotations": [
     {
+      "name": "legend.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/legend.py example shows a row of two plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
+    },
+    {
       "name": "box_annotation.py",
       "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
+    }
+  ],
+  "basic/styling": [
+    {
+      "name": "hatch_grid_band.py",
+      "alt": "Thumbnail link to the examples/basic/styling/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
     }
   ],
   "topics/images": [

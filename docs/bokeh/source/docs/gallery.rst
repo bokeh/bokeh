@@ -154,10 +154,10 @@ plot.
         .. bokeh-gallery:: basic/data
         .. bokeh-gallery:: basic/axes
         .. bokeh-gallery:: basic/bars
-        .. .. bokeh-gallery:: basic/areas
+        .. bokeh-gallery:: basic/areas
         .. bokeh-gallery:: basic/layouts
         .. bokeh-gallery:: basic/annotations
-        .. .. bokeh-gallery:: basic/visuals
+        .. bokeh-gallery:: basic/styling
 
     .. tab-item:: Special topics
 
