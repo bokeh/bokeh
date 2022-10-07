@@ -1,9 +1,7 @@
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 x = [1, 2, 3, 4, 5]
 y = [6, 7, 8, 7, 3]
-
-output_file("multiple.html")
 
 p = figure(width=400, height=400)
 

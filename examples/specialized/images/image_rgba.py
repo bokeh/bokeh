@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
+from bokeh.plotting import figure, show
 
 # create an array of RGBA data
 N = 20
@@ -12,8 +12,6 @@ for i in range(N):
         view[i, j, 1] = 158
         view[i, j, 2] = int(255 * j / N)
         view[i, j, 3] = 255
-
-output_file("image_rgba.html")
 
 p = figure(width=400, height=400, x_range=(0, 10), y_range=(0, 10))
 

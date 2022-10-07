@@ -1,10 +1,7 @@
 import numpy as np
 
-from bokeh.io import output_file, show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.util.hex import axial_to_cartesian
-
-output_file("hex_coords.html")
 
 q = np.array([0,  0, 0, -1, -1,  1, 1])
 r = np.array([0, -1, 1,  0,  1, -1, 0])

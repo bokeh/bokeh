@@ -1,8 +1,6 @@
 import numpy as np
 
-from bokeh.plotting import figure, output_file, show
-
-output_file("image.html", title="image.py example")
+from bokeh.plotting import figure, show
 
 x = np.linspace(0, 10, 250)
 y = np.linspace(0, 10, 250)

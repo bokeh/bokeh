@@ -1,6 +1,4 @@
-from bokeh.plotting import figure, output_file, show
-
-output_file('hbar.html')
+from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)
 p.hbar(y=[1, 2, 3], height=0.5, left=0,
