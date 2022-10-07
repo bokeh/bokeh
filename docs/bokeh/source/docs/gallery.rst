@@ -149,38 +149,46 @@ plot.
 
     .. tab-item:: Basic plotting
 
-        .. bokeh-gallery:: basic/scatters
-        .. bokeh-gallery:: basic/lines
-        .. bokeh-gallery:: basic/data
-        .. bokeh-gallery:: basic/axes
-        .. bokeh-gallery:: basic/bars
-        .. bokeh-gallery:: basic/areas
-        .. bokeh-gallery:: basic/layouts
-        .. bokeh-gallery:: basic/annotations
-        .. bokeh-gallery:: basic/styling
+        .. bokeh-gallery::
+
+            basic/scatters
+            basic/lines
+            basic/data
+            basic/axes
+            basic/bars
+            basic/areas
+            basic/layouts
+            basic/annotations
+            basic/styling
 
     .. tab-item:: Special topics
 
-        .. bokeh-gallery:: topics/images
-        .. bokeh-gallery:: topics/mathtext
-        .. bokeh-gallery:: topics/contour
-        .. bokeh-gallery:: topics/hex
-        .. bokeh-gallery:: topics/categorical
-        .. bokeh-gallery:: topics/geo
-        .. bokeh-gallery:: topics/graph
-        .. .. bokeh-gallery:: topics/timeseries
-        .. bokeh-gallery:: topics/pie
-        .. bokeh-gallery:: topics/stats
+        .. bokeh-gallery::
+
+            topics/images
+            topics/mathtext
+            topics/contour
+            topics/hex
+            topics/categorical
+            topics/geo
+            topics/graph
+            topics/pie
+            topics/stats
+
+        ..  topics/timeseries
 
     .. tab-item:: Interaction
 
-        .. bokeh-gallery:: interaction/tools
-        .. .. bokeh-gallery:: interaction/linking
-        .. .. bokeh-gallery:: interaction/legends
-        .. .. bokeh-gallery:: interaction/widgets
-        .. bokeh-gallery:: interaction/js_callbacks
-        .. .. bokeh-gallery:: interaction/python_callbacks
-        .. .. bokeh-gallery:: interaction/tooltips
+        .. bokeh-gallery::
+
+            interaction/tools
+            interaction/js_callbacks
+
+        .. interaction/linking
+        .. interaction/legends
+        .. interaction/widgets
+        .. interaction/python_callbacks
+        .. interaction/tooltips
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 
