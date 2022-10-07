@@ -162,6 +162,7 @@ plot.
     .. tab-item:: Special topics
 
         .. bokeh-gallery:: topics/images
+        .. bokeh-gallery:: topics/mathtext
         .. bokeh-gallery:: topics/contour
         .. bokeh-gallery:: topics/hex
         .. bokeh-gallery:: topics/categorical

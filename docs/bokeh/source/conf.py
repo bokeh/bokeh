@@ -51,6 +51,7 @@ bokeh_example_subdirs = [
     "topics/graph",
     "topics/hex",
     "topics/images",
+    "topics/mathtext",
     "topics/pie",
     "topics/stats",
 ]
