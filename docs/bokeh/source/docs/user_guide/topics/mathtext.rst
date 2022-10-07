@@ -1,4 +1,3 @@
-
 .. _ug_topics_mathtext:
 
 Mathematical notation
