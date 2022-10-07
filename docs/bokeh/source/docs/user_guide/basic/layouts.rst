@@ -1,7 +1,7 @@
 .. _ug_basic_layouts:
 
-Layouts
-=======
+Grids and layouts
+=================
 
 Bokeh includes several layout options for plots and widgets. These let you
 arrange multiple components to create interactive dashboards and data

@@ -83,92 +83,92 @@
       "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
     }
   ],
-  "specialized/images": [
+  "topics/images": [
     {
       "name": "image_rgba.py",
-      "alt": "Thumbnail link to the examples/specialized/images/image_rgba.py example shows an image plot of synthetic RGBA data."
+      "alt": "Thumbnail link to the examples/topics/images/image_rgba.py example shows an image plot of synthetic RGBA data."
     },
     {
       "name": "image.py",
-      "alt": "Thumbnail link to the examples/specialized/images/image.py example shows a plot with a colormapped two-dimensonal sine surface."
+      "alt": "Thumbnail link to the examples/topics/images/image.py example shows a plot with a colormapped two-dimensonal sine surface."
     }
   ],
-  "specialized/contour": [
+  "topics/contour": [
     {
       "name": "contour_simple.py",
-      "alt": "Thumbnail link to the examples/specialized/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
+      "alt": "Thumbnail link to the examples/topics/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
     }
   ],
-  "specialized/hex": [
+  "topics/hex": [
     {
       "name": "hex_tile.py",
-      "alt": "Thumbnail link to the examples/specialized/hex/hex_tile.py example shows a hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
+      "alt": "Thumbnail link to the examples/topics/hex/hex_tile.py example shows a hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
     },
     {
       "name": "hexbin.py",
-      "alt": "Thumbnail link to the examples/specialized/hex/hexbin.py example shows a hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
+      "alt": "Thumbnail link to the examples/topics/hex/hexbin.py example shows a hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
     }
   ],
-  "specialized/categorical": [
+  "topics/categorical": [
     {
       "name": "ridgeplot.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/ridgeplot.py example shows a ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis."
+      "alt": "Thumbnail link to the examples/topics/categorical/ridgeplot.py example shows a ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis."
     },
     {
       "name": "scatter_jitter.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
+      "alt": "Thumbnail link to the examples/topics/categorical/scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
     },
     {
       "name": "les_mis.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
+      "alt": "Thumbnail link to the examples/topics/categorical/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
     },
     {
       "name": "heatmap_unemployment.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
+      "alt": "Thumbnail link to the examples/topics/categorical/heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
     },
     {
       "name": "periodic.py",
       "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
     }
   ],
-  "specialized/geo": [
+  "topics/geo": [
     {
       "name": "texas_hover_map.py",
-      "alt": "Thumbnail link to the examples/specialized/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
+      "alt": "Thumbnail link to the examples/topics/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
     },
     {
       "name": "eclipse.py",
-      "alt": "Thumbnail link to the examples/specialized/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
+      "alt": "Thumbnail link to the examples/topics/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
     }
   ],
-  "specialized/graph": [
+  "topics/graph": [
     {
       "name": "node_and_edge_attributes.py",
-      "alt": "Thumbnail link to the examples/specialized/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
+      "alt": "Thumbnail link to the examples/topics/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
     }
   ],
-  "specialized/pie": [
+  "topics/pie": [
     {
       "name": "pie.py",
-      "alt": "Thumbnail link to the examples/specialized/pie/pie.py example shows a pie chart of random data with a legend."
+      "alt": "Thumbnail link to the examples/topics/pie/pie.py example shows a pie chart of random data with a legend."
     },
     {
       "name": "donut.py",
-      "alt": "Thumbnail link to the examples/specialized/pie/donut.py example shows a donut chart of browser share percentages with a legend."
+      "alt": "Thumbnail link to the examples/topics/pie/donut.py example shows a donut chart of browser share percentages with a legend."
     }
   ],
-  "specialized/stats": [
+  "topics/stats": [
     {
       "name": "histogram.py",
-      "alt": "Thumbnail link to the examples/specialized/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
+      "alt": "Thumbnail link to the examples/topics/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
     },
     {
       "name": "splom.py",
-      "alt": "Thumbnail link to the examples/specialized/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
+      "alt": "Thumbnail link to the examples/topics/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
     },
     {
       "name": "boxplot.py",
-      "alt": "Thumbnail link to the examples/specialized/stats/boxplot.py example shows a box plot of synthetic data for six categories."
+      "alt": "Thumbnail link to the examples/topics/stats/boxplot.py example shows a box plot of synthetic data for six categories."
     }
   ],
   "interaction/tools": [

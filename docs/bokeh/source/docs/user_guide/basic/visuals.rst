@@ -1153,7 +1153,7 @@ the render level ``"image"`` to the ``level`` argument when calling your
     p.image(..., level="image")
 
 You can see a complete example with output in the section
-:ref:`ug_specialized_images_colormapped`.
+:ref:`ug_topics_images_colormapped`.
 
 .. _ug_basic_visuals_math:
 

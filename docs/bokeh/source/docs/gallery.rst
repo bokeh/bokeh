@@ -147,7 +147,7 @@ plot.
 .. tab-set::
     :class: bk-gallery-tabs
 
-    .. tab-item:: Basic
+    .. tab-item:: Basic plotting
 
         .. bokeh-gallery:: basic/scatters
         .. .. bokeh-gallery:: basic/lines
@@ -159,17 +159,17 @@ plot.
         .. bokeh-gallery:: basic/annotations
         .. .. bokeh-gallery:: basic/visuals
 
-    .. tab-item:: Specialized
+    .. tab-item:: Special topics
 
-        .. bokeh-gallery:: specialized/images
-        .. bokeh-gallery:: specialized/contour
-        .. bokeh-gallery:: specialized/hex
-        .. bokeh-gallery:: specialized/categorical
-        .. bokeh-gallery:: specialized/geo
-        .. bokeh-gallery:: specialized/graph
-        .. .. bokeh-gallery:: specialized/timeseries
-        .. bokeh-gallery:: specialized/pie
-        .. bokeh-gallery:: specialized/stats
+        .. bokeh-gallery:: topics/images
+        .. bokeh-gallery:: topics/contour
+        .. bokeh-gallery:: topics/hex
+        .. bokeh-gallery:: topics/categorical
+        .. bokeh-gallery:: topics/geo
+        .. bokeh-gallery:: topics/graph
+        .. .. bokeh-gallery:: topics/timeseries
+        .. bokeh-gallery:: topics/pie
+        .. bokeh-gallery:: topics/stats
 
     .. tab-item:: Interaction
 
@@ -180,25 +180,6 @@ plot.
         .. .. bokeh-gallery:: interaction/js_callbacks
         .. .. bokeh-gallery:: interaction/python_callbacks
         .. .. bokeh-gallery:: interaction/tooltips
-
-    .. tab-item:: Output
-
-        TODO
-        .. .. bokeh-gallery:: output/jupyter
-        .. .. bokeh-gallery:: output/embed
-        .. .. bokeh-gallery:: output/export
-        .. .. bokeh-gallery:: output/webgl
-
-    .. tab-item:: Server
-
-        TODO
-        .. .. bokeh-gallery:: server/app
-
-    .. tab-item:: Advanced
-
-        TODO
-        .. .. bokeh-gallery:: advanced/bokehjs
-        .. .. bokeh-gallery:: advanced/extensions
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 

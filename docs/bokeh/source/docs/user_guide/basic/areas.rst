@@ -1,7 +1,7 @@
 .. _ug_basic_areas:
 
-Areas
-=====
+Area glyphs
+===========
 
 .. TODO: some comments
 

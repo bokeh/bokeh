@@ -16,7 +16,7 @@ REST endpoints) using Tornado's web framework.
 
 If an application developer uses ``bokeh serve``, they typically should not need
 to import from ``bokeh.server`` at all. An application developer would only use
-the ``Server`` class if it is doing something specialized, such as a custom
+the ``Server`` class if it is doing something topics, such as a custom
 or embedded server process.
 
 Applications, sessions, and connections

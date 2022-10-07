@@ -45,14 +45,14 @@ bokeh_example_subdirs = [
     "models",
     "plotting",
     "output/webgl",
-    "specialized/categorical",
-    "specialized/contour",
-    "specialized/geo",
-    "specialized/graph",
-    "specialized/hex",
-    "specialized/images",
-    "specialized/pie",
-    "specialized/stats",
+    "topics/categorical",
+    "topics/contour",
+    "topics/geo",
+    "topics/graph",
+    "topics/hex",
+    "topics/images",
+    "topics/pie",
+    "topics/stats",
 ]
 
 bokeh_sampledata_xref_skiplist = [

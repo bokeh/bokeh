@@ -12,7 +12,7 @@ in your browser.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.contour, bokeh.models.ContourRenderer, bokeh.models.contour.contour_data
-    :refs: :ref:`ug_specialized_contour_animated`
+    :refs: :ref:`ug_topics_contour_animated`
     :keywords: contour
 
 '''
