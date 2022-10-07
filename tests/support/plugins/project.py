@@ -223,8 +223,14 @@ class _CanvasMixin(_ElementMixin):
     def eval_custom_action(self) -> None:
         return self._driver.execute_script('Bokeh.documents[0].get_model_by_name("custom-action").execute()')
 
-    def get_toolbar_button(self, name: str) -> WebElement:
-        return find_matching_element(self._driver, f".bk-tool-icon-{name}", parent=True)
+    def get_toolbar_buttons(self, plot: Plot) -> list[WebElement]:
+        script = """
+            const toolbar_id = arguments[0]
+            const toolbar_view = [...Object.values(Bokeh.index)[0].owner.query((view) => view.model.id == toolbar_id)][0]
+            return toolbar_view.model.tools.map((tool) => [...toolbar_view.owner.query((btn) => btn.model.tool == tool)][0].el)
+        """
+        buttons = self._driver.execute_script(script, plot.toolbar.id)
+        return buttons
 
 class _BokehPageMixin(_ElementMixin):
 

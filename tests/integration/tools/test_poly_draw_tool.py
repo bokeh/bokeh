@@ -90,7 +90,7 @@ class Test_PolyDrawTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('poly-draw')
+        [button] = page.get_toolbar_buttons(plot)
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -101,16 +101,16 @@ class Test_PolyDrawTool:
         page = single_plot_page(plot)
 
         # Check is active
-        button = page.get_toolbar_button('poly-draw')
+        [button] = page.get_toolbar_buttons(plot)
         assert 'active' in button.get_attribute('class')
 
         # Click and check is not active
-        button = page.get_toolbar_button('poly-draw')
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
         assert 'active' not in button.get_attribute('class')
 
         # Click again and check is active
-        button = page.get_toolbar_button('poly-draw')
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
         assert 'active' in button.get_attribute('class')
 

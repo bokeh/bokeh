@@ -61,14 +61,7 @@ class Test_BoxZoomTool:
 
         page = single_plot_page(plot)
 
-        if dim == 'both':
-            icon = 'box-zoom'
-        elif dim == 'width':
-            icon = 'x-box-zoom'
-        elif dim == 'height':
-            icon = 'y-box-zoom'
-
-        button = page.get_toolbar_button(icon)
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
 
         page.drag_canvas_at_position(plot, 100, 100, 20, 20)

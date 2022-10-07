@@ -61,8 +61,8 @@ class Test_ResetTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('reset')
-        assert 'active' not in button.get_attribute('class')
+        [reset, _zoom_in] = page.get_toolbar_buttons(plot)
+        assert 'active' not in reset.get_attribute('class')
 
         assert page.has_no_console_errors()
 
@@ -72,8 +72,8 @@ class Test_ResetTool:
         page = single_plot_page(plot)
 
         # Change the ranges using a zoom in tool
-        button = page.get_toolbar_button('zoom-in')
-        button.click()
+        [reset, zoom_in] = page.get_toolbar_buttons(plot)
+        zoom_in.click()
 
         page.eval_custom_action()
 
@@ -84,8 +84,7 @@ class Test_ResetTool:
         assert results['yrend'] != 1
 
         # Click the reset tool and check the ranges are restored
-        button = page.get_toolbar_button('reset')
-        button.click()
+        reset.click()
 
         page.eval_custom_action()
 
@@ -126,8 +125,8 @@ class Test_ResetTool:
         assert results['multiline_indices'] == {"0": [0]} # XXX (bev) string key
 
         # Click the reset tool and check the selections are restored
-        button = page.get_toolbar_button('reset')
-        button.click()
+        [reset] = page.get_toolbar_buttons(plot)
+        reset.click()
 
         page.eval_custom_action()
 
@@ -154,11 +153,9 @@ class Test_ResetTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('zoom-in')
-        button.click()
-
-        button = page.get_toolbar_button('reset')
-        button.click()
+        [reset, zoom_in] = page.get_toolbar_buttons(plot)
+        zoom_in.click()
+        reset.click()
 
         page.eval_custom_action()
 

@@ -59,7 +59,7 @@ class Test_ZoomOutTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('zoom-out')
+        [button] = page.get_toolbar_buttons(plot)
         assert 'active' not in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -69,7 +69,7 @@ class Test_ZoomOutTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('zoom-out')
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
 
         page.eval_custom_action()
@@ -80,7 +80,7 @@ class Test_ZoomOutTool:
         assert first['yrstart'] < 0
         assert first['yrend'] > 1
 
-        button = page.get_toolbar_button('zoom-out')
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
 
         page.eval_custom_action()
@@ -109,7 +109,7 @@ class Test_ZoomOutTool:
 
         page = single_plot_page(plot)
 
-        button = page.get_toolbar_button('zoom-out')
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
 
         page.eval_custom_action()

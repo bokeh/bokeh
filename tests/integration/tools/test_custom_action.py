@@ -41,7 +41,8 @@ class Test_CustomAction:
 
         page = single_plot_page(plot)
 
-        page.get_toolbar_button("custom-action").click()
+        [button] = page.get_toolbar_buttons(plot)
+        button.click()
         assert page.results["activated"] is True
 
         assert page.has_no_console_errors()
