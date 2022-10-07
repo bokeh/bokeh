@@ -3,7 +3,7 @@ from the `brewer` dictionary.
 
 .. bokeh-example-metadata::
     :apis: bokeh.palettes.brewer
-    :refs: :ref:`ug_basic_visuals_using_palettes`
+    :refs: :ref:`ug_basic_styling_using_palettes`
     :keywords: brewer, palettes, patches
 
 '''

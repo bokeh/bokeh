@@ -6,7 +6,7 @@ bokeh.core
 .. automodule:: bokeh.core
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
     :glob:
 
     core/*

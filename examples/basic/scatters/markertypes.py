@@ -1,6 +1,5 @@
 from bokeh.core.enums import MarkerType
-from bokeh.io import show
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 
 bases = [
     "asterisk",

@@ -1,7 +1,7 @@
 .. _ug_advanced:
 
-Advanced topics
-===============
+Advanced usage
+==============
 
 Some text here
 

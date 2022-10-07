@@ -134,7 +134,8 @@ The best place to immediately experiment with Bokeh in notebooks is in the
 Standalone Examples
 ===================
 
-All of the examples below are located in the :bokeh-tree:`examples`
+All of
+the examples below are located in the :bokeh-tree:`examples`
 subdirectory of your Bokeh checkout. By "standalone" we mean that
 these examples make no use of the Bokeh server. These plots still
 have many interactive tools and features, including linked panning
@@ -143,7 +144,51 @@ and brushing, and hover inspectors.
 Click on an image below to see its code and interact with the live
 plot.
 
-.. bokeh-gallery:: gallery.json
+.. tab-set::
+    :class: bk-gallery-tabs
+
+    .. tab-item:: Basic plotting
+
+        .. bokeh-gallery::
+
+            basic/scatters
+            basic/lines
+            basic/data
+            basic/axes
+            basic/bars
+            basic/areas
+            basic/layouts
+            basic/annotations
+            basic/styling
+
+    .. tab-item:: Special topics
+
+        .. bokeh-gallery::
+
+            topics/images
+            topics/mathtext
+            topics/contour
+            topics/hex
+            topics/categorical
+            topics/geo
+            topics/graph
+            topics/pie
+            topics/stats
+
+        ..  topics/timeseries
+
+    .. tab-item:: Interaction
+
+        .. bokeh-gallery::
+
+            interaction/tools
+            interaction/js_callbacks
+
+        .. interaction/linking
+        .. interaction/legends
+        .. interaction/widgets
+        .. interaction/python_callbacks
+        .. interaction/tooltips
 
 .. _live tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
 

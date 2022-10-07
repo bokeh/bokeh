@@ -3,7 +3,7 @@ log mapping and linear mapping with different color palette.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.Figure.circle, bokeh.models.ColumnDataSource, bokeh.models.annotations.ColorBar, bokeh.models.mappers.LinearColorMapper, bokeh.models.mappers.LogColorMapper # noqa: E501
-    :refs: :ref:`ug_specialized_images_colormapped`
+    :refs: :ref:`ug_topics_images_colormapped`
     :keywords: color, tools, scatter, data_map
 
 '''

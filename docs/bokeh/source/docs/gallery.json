@@ -1,220 +1,242 @@
 {
-  "details": [
+  "basic/scatters": [
     {
-      "path": "examples/basic/data/transform_markers.py",
+      "name": "markers.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/markers.py example shows all the different scatter marker types available in Bokeh on a single plot."
+    },
+    {
+      "name": "color_scatter.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/color_scatter.py example shows a multicolored scatter plot of random data with hover tool."
+    },
+    {
+      "name": "elements.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
+    }
+  ],
+  "basic/lines": [
+    {
+      "name": "lorenz.py",
+      "alt": "Thumbnail link to the examples/basic/lines/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
+    }
+  ],
+  "basic/data": [
+    {
+      "name": "transform_markers.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
     {
-      "path": "examples/specialized/contour/contour_simple.py",
-      "alt": "Thumbnail link to the examples/specialized/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
-    },
-    {
-      "path": "examples/plotting/latex_blackbody_radiation.py",
-      "alt": "Thumbnail link to the examples/plotting/latex_blackbody_radiation.py example shows plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels."
-    },
-    {
-      "path": "examples/plotting/latex_normal_distribution.py",
-      "alt": "Thumbnail link to the examples/plotting/latex_normal_distribution.py example shows a plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels."
-    },
-    {
-      "path": "examples/specialized/graph/node_and_edge_attributes.py",
-      "alt": "Thumbnail link to the examples/specialized/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
-    },
-    {
-      "path": "examples/plotting/hexbin.py",
-      "alt": "Thumbnail link to the examples/plotting/hexbin.py example shows a hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
-    },
-    {
-      "path": "examples/plotting/sprint.py",
-      "alt": "Thumbnail link to the examples/plotting/sprint.py example shows a scatter plot comparing historical Olympic sprint times to the 2012 record set by Usain Bolt. The x-axis marks time behind the record and the y-axis marks olympic years."
-    },
-    {
-      "path": "examples/specialized/categorical/ridgeplot.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/ridgeplot.py example shows a ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis."
-    },
-    {
-      "path": "examples/plotting/hex_tile.py",
-      "alt": "Thumbnail link to the examples/plotting/hex_tile.py example shows a hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
-    },
-    {
-      "path": "examples/basic/bars/colormapped.py",
-      "alt": "Thumbnail link to the examples/basic/bars/colormapped.py example shows a simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette."
-    },
-    {
-      "path": "examples/basic/bars/intervals.py",
-      "alt": "Thumbnail link to the examples/basic/bars/intervals.py example shows an interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for earch year on the y-axis."
-    },
-    {
-      "path": "examples/interaction/tools/range_tool.py",
-      "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
-    },
-    {
-      "path": "examples/specialized/pie/pie.py",
-      "alt": "Thumbnail link to the examples/specialized/pie/pie.py example shows a pie chart of random data with a legend."
-    },
-    {
-      "path": "examples/specialized/pie/donut.py",
-      "alt": "Thumbnail link to the examples/specialized/pie/donut.py example shows a donut chart of browser share percentages with a legend."
-    },
-    {
-      "path": "examples/basic/bars/mixed.py",
-      "alt": "Thumbnail link to the examples/basic/bars/mixed.py example shows a bar chart of synthetic monthly sales data, grouped by quarter. A line showing each quarterly average is overlaid."
-    },
-    {
-      "path": "examples/basic/bars/nested_colormapped.py",
-      "alt": "Thumbnail link to the examples/basic/bars/nested_colormapped.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has a silver, blue, and red bar corresponding to random values for years 2015, 2016 and 2017."
-    },
-    {
-      "path": "examples/plotting/schrodinger.py",
-      "alt": "Thumbnail link to the examples/plotting/schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."
-    },
-    {
-      "path": "examples/basic/bars/pandas_groupby_colormapped.py",
-      "alt": "Thumbnail link to the examples/basic/bars/pandas_groupby_colormapped.py example shows a bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
-    },
-    {
-      "path": "examples/basic/bars/pandas_groupby_nested.py",
-      "alt": "Thumbnail link to the examples/basic/bars/pandas_groupby_nested.py example shows a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
-    },
-    {
-      "path": "examples/basic/bars/stacked.py",
-      "alt": "Thumbnail link to the examples/basic/bars/stacked.py example shows a stacked bar chart for random data for six categories of fruit. Each row in the stack corresponds to a different year."
-    },
-    {
-      "path": "examples/basic/bars/stacked_split.py",
-      "alt": "Thumbnail link to the examples/basic/bars/stacked_split.py example."
-    },
-    {
-      "path": "examples/specialized/categorical/scatter_jitter.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
-    },
-    {
-      "path": "examples/basic/bars/nested.py",
-      "alt": "Thumbnail link to the examples/basic/bars/nested.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has three blue bars corresponding to random values for years 2015, 2016 and 2017."
-    },
-    {
-      "path": "examples/plotting/candlestick.py",
-      "alt": "Thumbnail link to the examples/plotting/candlestick.py example shows a candlestick plot of historical Microsoft stock prices."
-    },
-    {
-      "path": "examples/plotting/legend.py",
-      "alt": "Thumbnail link to the examples/plotting/legend.py example shows a row of two plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
-    },
-    {
-      "path": "examples/basic/bars/colors.py",
-      "alt": "Thumbnail link to the examples/basic/bars/colors.py example shows a simple bar chart of six bars shaded according to the Bright6 palette."
-    },
-    {
-      "path": "examples/basic/annotations/box_annotation.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
-    },
-    {
-      "path": "examples/specialized/categorical/les_mis.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
-    },
-    {
-      "path": "examples/basic/bars/dodged.py",
-      "alt": "Thumbnail link to the examples/basic/bars/dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
-    },
-    {
-      "path": "examples/specialized/categorical/heatmap_unemployment.py",
-      "alt": "Thumbnail link to the examples/specialized/categorical/heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
-    },
-    {
-      "path": "examples/plotting/stocks.py",
-      "alt": "Thumbnail link to the examples/plotting/stocks.py example shows a scatter plot of stock close prices with a line showing average prices. Shaded grid bands are underneath."
-    },
-    {
-      "path": "examples/basic/styling/hatch_grid_band.py",
-      "alt": "Thumbnail link to the examples/styling/basic/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
-    },
-    {
-      "path": "examples/plotting/image_rgba.py",
-      "alt": "Thumbnail link to the examples/plotting/image_rgba.py example shows an image plot of synthetic RGBA data."
-    },
-    {
-      "path": "examples/plotting/dotplot.py",
-      "alt": "Thumbnail link to the examples/plotting/dotplot.py example shows a dot plot of synthetic data for eight categories."
-    },
-    {
-      "path": "examples/specialized/categorical/periodic.py",
-      "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
-    },
-    {
-      "path": "examples/plotting/histogram.py",
-      "alt": "Thumbnail link to the examples/plotting/histogram.py example shows a gridplot of four plots. Each plot has a histogram of sampled data from a statistical distribution overlaid with a line showing the ideal distribution curve."
-    },
-    {
-      "path": "examples/plotting/image.py",
-      "alt": "Thumbnail link to the examples/plotting/image.py example shows a plot with a colormapped two-dimensonal sine surface."
-    },
-    {
-      "path": "examples/plotting/slider.py",
-      "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
-    },
-    {
-      "path": "examples/basic/data/transform_jitter.py",
+      "name": "transform_jitter.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_jitter.py example shows a column of two categorical scatter plots of random data. The top has no jitter applied, may scatter points overlap. The bottom has jitter applied to distinguish points better."
-    },
+    }
+  ],
+  "basic/axes": [
     {
-      "path": "examples/plotting/lorenz.py",
-      "alt": "Thumbnail link to the examples/plotting/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
-    },
+      "name": "logplot.py",
+      "alt": "Thumbnail link to the examples/basic/axes/logplot.py example shows a plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each."
+    }
+  ],
+  "basic/bars": [
     {
-      "path": "examples/plotting/color_scatter.py",
-      "alt": "Thumbnail link to the examples/plotting/color_scatter.py example shows a multicolored scatter plot of random data with hover tool."
-    },
-    {
-      "path": "examples/plotting/color_sliders.py",
-      "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
-    },
-    {
-      "path": "examples/specialized/stats/splom.py",
-      "alt": "Thumbnail link to the examples/specialized/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
-    },
-    {
-      "path": "examples/basic/layouts/anscombe.py",
-      "alt": "Thumbnail link to the examples/basic/layouts/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
-    },
-    {
-      "path": "examples/specialized/geo/texas_hover_map.py",
-      "alt": "Thumbnail link to the examples/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
-    },
-    {
-      "path": "examples/plotting/markers.py",
-      "alt": "Thumbnail link to the examples/plotting/markers.py example shows all the different scatter marker types available in Bokeh on a single plot."
-    },
-    {
-      "path": "examples/plotting/burtin.py",
-      "alt": "Thumbnail link to the examples/plotting/burtin.py example shows a reproduction of Burtin's hitorical antibiotics plot."
-    },
-    {
-      "path": "examples/basic/bars/basic.py",
+      "name": "basic.py",
       "alt": "Thumbnail link to the examples/basic/bars/basic.py example shows a simple bar chart for counts for categories of fruits."
     },
     {
-      "path": "examples/plotting/stacked_area.py",
-      "alt": "Thumbnail link to the examples/plotting/stacked_area.py example shows a stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top."
+      "name": "colormapped.py",
+      "alt": "Thumbnail link to the examples/basic/bars/colormapped.py example shows a simple bar plot with bars for six categories of fruit on the x-axis, and bars shaded with the Bright6 palette."
     },
     {
-      "path": "examples/plotting/elements.py",
-      "alt": "Thumbnail link to the examples/plotting/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
+      "name": "intervals.py",
+      "alt": "Thumbnail link to the examples/basic/bars/intervals.py example shows an interval chart showing Olympic sprint time data as intervals using blue horizontal bars for times, with a bar for earch year on the y-axis."
     },
     {
-      "path": "examples/specialized/stats/boxplot.py",
-      "alt": "Thumbnail link to the examples/specialized/stats/boxplot.py example shows a box plot of synthetic data for six categories."
+      "name": "mixed.py",
+      "alt": "Thumbnail link to the examples/basic/bars/mixed.py example shows a bar chart of synthetic monthly sales data, grouped by quarter. A line showing each quarterly average is overlaid."
     },
     {
-      "path": "examples/plotting/logplot.py",
-      "alt": "Thumbnail link to the examples/plotting/logplot.py example shows a plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each."
+      "name": "nested_colormapped.py",
+      "alt": "Thumbnail link to the examples/basic/bars/nested_colormapped.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has a silver, blue, and red bar corresponding to random values for years 2015, 2016 and 2017."
     },
     {
-      "path": "examples/specialized/geo/eclipse.py",
-      "alt": "Thumbnail link to the examples/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
+      "name": "pandas_groupby_colormapped.py",
+      "alt": "Thumbnail link to the examples/basic/bars/pandas_groupby_colormapped.py example shows a bar chart of MPG vs cylinders using the Auto MPG dataset, colormapped by the number of cylinders."
     },
     {
-      "path": "examples/plotting/bessel.py",
-      "alt": "Thumbnail link to the examples/plotting/bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
+      "name": "pandas_groupby_nested.py",
+      "alt": "Thumbnail link to the examples/basic/bars/pandas_groupby_nested.py example shows a grouped bar chart of MPG vs cylinders and manufacturer, using the Auto MPG dataset. The bars are grouped and colormapped by the number of cylinders."
+    },
+    {
+      "name": "stacked.py",
+      "alt": "Thumbnail link to the examples/basic/bars/stacked.py example shows a stacked bar chart for random data for six categories of fruit. Each row in the stack corresponds to a different year."
+    },
+    {
+      "name": "stacked_split.py",
+      "alt": "Thumbnail link to the examples/basic/bars/stacked_split.py example."
+    },
+    {
+      "name": "nested.py",
+      "alt": "Thumbnail link to the examples/basic/bars/nested.py example shows a grouped bar chart on a hierachical categorical axis of years for different categories of fruit. Each group has three blue bars corresponding to random values for years 2015, 2016 and 2017."
+    },
+    {
+      "name": "colors.py",
+      "alt": "Thumbnail link to the examples/basic/bars/colors.py example shows a simple bar chart of six bars shaded according to the Bright6 palette."
+    },
+    {
+      "name": "dodged.py",
+      "alt": "Thumbnail link to the examples/basic/bars/dodged.py example shows a grouped bar chart using a visual dodge on the bars, rather than a hierarchical axis. Each group has a silver, blue, and red bar illustrated in the accompanying legend."
+    }
+  ],
+  "basic/areas": [
+    {
+      "name": "stacked_area.py",
+      "alt": "Thumbnail link to the examples/basic/areas/stacked_area.py example shows a stacked area plot of synthetic data for ten series, colormapped using the Sunset palette, with a legend at the top."
+    }
+  ],
+  "basic/layouts": [
+    {
+      "name": "anscombe.py",
+      "alt": "Thumbnail link to the examples/basic/layouts/anscombe.py example shows a gridplot of four scatter and regression line plots illustrating Anscombe's Quartet."
+    }
+  ],
+  "basic/annotations": [
+    {
+      "name": "legend.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/legend.py example shows a row of two plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
+    },
+    {
+      "name": "box_annotation.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
+    }
+  ],
+  "basic/styling": [
+    {
+      "name": "hatch_grid_band.py",
+      "alt": "Thumbnail link to the examples/basic/styling/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+    }
+  ],
+  "topics/images": [
+    {
+      "name": "image_rgba.py",
+      "alt": "Thumbnail link to the examples/topics/images/image_rgba.py example shows an image plot of synthetic RGBA data."
+    },
+    {
+      "name": "image.py",
+      "alt": "Thumbnail link to the examples/topics/images/image.py example shows a plot with a colormapped two-dimensonal sine surface."
+    }
+  ],
+  "topics/mathtext": [
+    {
+      "name": "latex_blackbody_radiation.py",
+      "alt": "Thumbnail link to the examples/topics/mathtext/latex_blackbody_radiation.py example shows plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels."
+    },
+    {
+      "name": "latex_normal_distribution.py",
+      "alt": "Thumbnail link to the examples/topics/mathtext/latex_normal_distribution.py example shows a plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels."
+    },
+    {
+      "name": "latex_schrodinger.py",
+      "alt": "Thumbnail link to the examples/topics/mathtext/latex_schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."
+    },
+    {
+      "name": "latex_bessel.py",
+      "alt": "Thumbnail link to the examples/topics/mathtext/latex_bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
+    }
+  ],
+  "topics/contour": [
+    {
+      "name": "contour_simple.py",
+      "alt": "Thumbnail link to the examples/topics/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
+    }
+  ],
+  "topics/hex": [
+    {
+      "name": "hex_tile.py",
+      "alt": "Thumbnail link to the examples/topics/hex/hex_tile.py example shows a hex tile plot of binned 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
+    },
+    {
+      "name": "hexbin.py",
+      "alt": "Thumbnail link to the examples/topics/hex/hexbin.py example shows a hexbin plot of 2d random (Gaussian) data points, colormapped by density with the Viridis palette."
+    }
+  ],
+  "topics/categorical": [
+    {
+      "name": "ridgeplot.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/ridgeplot.py example shows a ridgeline plot using the Perceptions of Probability dataset with a smoothed distribution displayed for each probability category on the y-axis."
+    },
+    {
+      "name": "scatter_jitter.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/scatter_jitter.py example shows a categorical scatter plot of several years of GitHub commits. The y-axis is day of the week and the x-axis is time of day, with scater points jittered to avoid overlap"
+    },
+    {
+      "name": "les_mis.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
+    },
+    {
+      "name": "heatmap_unemployment.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
+    },
+    {
+      "name": "periodic.py",
+      "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
+    }
+  ],
+  "topics/geo": [
+    {
+      "name": "texas_hover_map.py",
+      "alt": "Thumbnail link to the examples/topics/geo/texas_hover_map.py example shows a color-mapped map plot based on Texas unemployment rate per county, colormapped using the Viridis palette."
+    },
+    {
+      "name": "eclipse.py",
+      "alt": "Thumbnail link to the examples/topics/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
+    }
+  ],
+  "topics/graph": [
+    {
+      "name": "node_and_edge_attributes.py",
+      "alt": "Thumbnail link to the examples/topics/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
+    }
+  ],
+  "topics/pie": [
+    {
+      "name": "pie.py",
+      "alt": "Thumbnail link to the examples/topics/pie/pie.py example shows a pie chart of random data with a legend."
+    },
+    {
+      "name": "donut.py",
+      "alt": "Thumbnail link to the examples/topics/pie/donut.py example shows a donut chart of browser share percentages with a legend."
+    },
+    {
+      "name": "burtin.py",
+      "alt": "Thumbnail link to the examples/topics/pie/burtin.py example shows a reproduction of Burtin's hitorical antibiotics plot."
+    }
+  ],
+  "topics/stats": [
+    {
+      "name": "histogram.py",
+      "alt": "Thumbnail link to the examples/topics/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
+    },
+    {
+      "name": "splom.py",
+      "alt": "Thumbnail link to the examples/topics/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
+    },
+    {
+      "name": "boxplot.py",
+      "alt": "Thumbnail link to the examples/topics/stats/boxplot.py example shows a box plot of synthetic data for six categories."
+    }
+  ],
+  "interaction/tools": [
+    {
+      "name": "range_tool.py",
+      "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
+    }
+  ],
+  "interaction/js_callbacks": [
+    {
+      "name": "slider.py",
+      "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
+    },
+    {
+      "name": "color_sliders.py",
+      "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
     }
   ]
 }

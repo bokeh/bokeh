@@ -396,7 +396,7 @@ repository to check whether each of the examples builds without generating
 errors. Running these tests also generates a report with screenshots of those
 plots.
 
-The examples tests use a specialized testing framework, including a custom
+The examples tests use a topics testing framework, including a custom
 configuration of Chrome. Therefore, it is **recommended not to run those
 tests locally**. Instead, :ref:`Bokeh's CI <contributor_guide_testing_ci>` runs
 all examples tests once you :ref:`create a Pull Request

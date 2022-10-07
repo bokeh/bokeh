@@ -70,30 +70,33 @@ class GalleryDetail(TypedDict):
 
 class BokehGalleryDirective(BokehDirective):
 
-    has_content = False
-    required_arguments = 1
+    has_content = True
+    required_arguments = 0
 
     def run(self):
         docdir = dirname(self.env.doc2path(self.env.docname))
 
-        gallery_file = join(docdir, self.arguments[0])
+        gallery_file = join(docdir, "gallery.json")
 
         gallery_dir = join(dirname(dirname(gallery_file)), "gallery")
         if not exists(gallery_dir) and isdir(gallery_dir):
             raise SphinxError(f"gallery dir {gallery_dir!r} missing for gallery file {gallery_file!r}")
 
-        spec = json.load(open(gallery_file))
+        gallery_json = json.load(open(gallery_file))
 
         opts = []
-        for detail in spec["details"]:
-            alt = detail.get("alt", None)
-            path = PurePath(detail["path"])
-            opts.append({
-                "ref": str(path.with_suffix(".html")),
-                "img": str(path.with_suffix("")),
-                "title": path.stem,
-                "alt": alt,
-            })
+
+        for location in self.content:
+
+            for detail in gallery_json[location]:
+                alt = detail.get("alt", None)
+                path = PurePath("examples") / location / detail["name"]
+                opts.append({
+                    "ref": str(path.with_suffix(".html")),
+                    "img": str(path.with_suffix("")),
+                    "title": path.stem,
+                    "alt": alt,
+                })
 
         rst_text = GALLERY_PAGE.render(opts=opts)
 

@@ -2,17 +2,17 @@
 .. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
 .. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <ug_basic_data_cds>`
 .. |contributor guide| replace:: :ref:`contributor guide <contributor_guide>`
-.. |data units|         replace:: :ref:`data units <ug_basic_visuals_units>`
-.. |fill properties|    replace:: :ref:`fill properties <ug_basic_visuals_fill_properties>`
-.. |hatch properties|   replace:: :ref:`hatch properties <ug_basic_visuals_hatch_properties>`
+.. |data units|         replace:: :ref:`data units <ug_basic_styling_units>`
+.. |fill properties|    replace:: :ref:`fill properties <ug_basic_styling_fill_properties>`
+.. |hatch properties|   replace:: :ref:`hatch properties <ug_basic_styling_hatch_properties>`
 .. |interactive legends| replace:: :ref:`interactive legends <ug_interaction_legends>`
-.. |line properties|    replace:: :ref:`line properties <ug_basic_visuals_line_properties>`
+.. |line properties|    replace:: :ref:`line properties <ug_basic_styling_line_properties>`
 .. |models interface|   replace:: :ref:`bokeh.models interface <ug_interfaces_models>`
 .. |plotting interface| replace:: :ref:`bokeh.plotting interface <ug_interfaces_plotting>`
 .. |reference guide|    replace:: :ref:`reference guide <refguide>`
-.. |screen units|       replace:: :ref:`screen units <ug_basic_visuals_units>`
-.. |text properties|    replace:: :ref:`text properties <ug_basic_visuals_text_properties>`
-.. |unit|               replace:: :ref:`unit <ug_basic_visuals_units>`
+.. |screen units|       replace:: :ref:`screen units <ug_basic_styling_units>`
+.. |text properties|    replace:: :ref:`text properties <ug_basic_styling_text_properties>`
+.. |unit|               replace:: :ref:`unit <ug_basic_styling_units>`
 .. |user guide|         replace:: :ref:`user guide <userguide>`
 
 .. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`

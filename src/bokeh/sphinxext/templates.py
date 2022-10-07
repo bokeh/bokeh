@@ -45,8 +45,8 @@ __all__ = (
     "PALETTE_DETAIL",
     "PALETTE_GROUP_DETAIL",
     "PROP_DETAIL",
+    "RELEASE_DETAIL",
     "SETTINGS_DETAIL",
-    "SRI_TABLE",
 )
 
 # -----------------------------------------------------------------------------
@@ -92,9 +92,9 @@ PALETTE_GROUP_DETAIL = _env.get_template("palette_group_detail.html")
 
 PROP_DETAIL = _env.get_template("prop_detail.rst")
 
-SETTINGS_DETAIL = _env.get_template("settings_detail.rst")
+RELEASE_DETAIL = _env.get_template("release_detail.rst")
 
-SRI_TABLE = _env.get_template("sri_table.html")
+SETTINGS_DETAIL = _env.get_template("settings_detail.rst")
 
 # -----------------------------------------------------------------------------
 # Code

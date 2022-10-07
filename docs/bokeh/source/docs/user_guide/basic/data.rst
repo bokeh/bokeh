@@ -590,7 +590,7 @@ Other data types
 
 You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
-:ref:`ug_specialized_graph` and :ref:`ug_specialized_geo`.
+:ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
 .. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`

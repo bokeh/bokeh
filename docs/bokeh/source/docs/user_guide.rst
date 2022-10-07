@@ -9,7 +9,7 @@ User guide
 
     user_guide/intro
     user_guide/basic
-    user_guide/specialized
+    user_guide/topics
     user_guide/interaction
     user_guide/output
     user_guide/server
@@ -34,8 +34,8 @@ This user guide is arranged by topic:
     Make different kinds of plots using the simple but flexible glyph
     methods from the |bokeh.plotting| interface.
 
-:ref:`ug_specialized`
-    specialized
+:ref:`ug_topics`
+    topics
 
 :ref:`ug_interaction`
     Create more sophisticated interactions including widgets or linked

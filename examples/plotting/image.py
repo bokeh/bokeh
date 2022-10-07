@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.image
-    :refs: :ref:`ug_specialized_images`
+    :refs: :ref:`ug_topics_images`
     :keywords: image
 
 '''

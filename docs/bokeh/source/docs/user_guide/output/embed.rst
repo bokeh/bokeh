@@ -217,7 +217,7 @@ the ``x.y.z``:
 The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
 if your document includes :ref:`Bokeh widgets <ug_interaction_widgets>`,
 :ref:`data tables <ug_interaction_widgets_examples_datatable>`, or
-:ref:`math text <ug_basic_visuals_math>`, respectively.
+:ref:`math text <ug_topics_mathtext>`, respectively.
 
 For example, to use version ``2.4.0`` with support for widgets, tables, and
 math text, include the following in your HTML:

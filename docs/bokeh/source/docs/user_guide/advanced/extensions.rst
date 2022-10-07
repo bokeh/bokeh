@@ -6,13 +6,13 @@ Custom extensions
 Bokeh comes with a rich variety of built-in features that let you produce
 sophisticated interactive visualizations and data applications in the browser.
 However, some useful capabilities and features may not make it into the core
-library, either because they are too specialized or for lack of resources.
+library, either because they are too topics or for lack of resources.
 Fortunately, you can expand the functionality of Bokeh with custom extensions
 that let you:
 
 * Modify the behavior of existing Bokeh models
 * Add new models to connect third-party JavaScript libraries to Python
-* Create highly specialized models for domain-specific use cases
+* Create highly topics models for domain-specific use cases
 
 You can make and use custom extensions with standard releases and don't need to
 set up a development environment or build anything from source. This is the

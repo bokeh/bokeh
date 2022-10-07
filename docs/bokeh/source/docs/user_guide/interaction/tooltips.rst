@@ -12,7 +12,7 @@ part of your visualization.
     :ref:`ug_interaction_tools_hover_tool`. Use the hover tool in case you want to
     display tooltips on hover over certain areas of a plot. This tool uses
     Bokeh's generic tooltip object behind the scenes, but contains many
-    additional, specialized features. For more information about configuring a
+    additional, topics features. For more information about configuring a
     tooltip on a plot with the HoverTool, see the
     :ref:`ug_interaction_tools_basic_tooltips` section for more information.
 

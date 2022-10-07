@@ -25,7 +25,7 @@ run whenever properties such as widget values are changes.
 
 The reference links in the sidebar document the details of the Bokeh Server.
 Most users will probably not need to be concerned with these details, unless
-they have specialized requirements, and should refer to the User's Guide
+they have topics requirements, and should refer to the User's Guide
 chapter :ref:`ug_server` for information about using the Bokeh Server.
 
 .. toctree::

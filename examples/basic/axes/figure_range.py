@@ -1,7 +1,5 @@
 from bokeh.models import Range1d
-from bokeh.plotting import figure, output_file, show
-
-output_file("title.html")
+from bokeh.plotting import figure, show
 
 # create a new plot with a range set with a tuple
 p = figure(width=400, height=400, x_range=(0, 20))

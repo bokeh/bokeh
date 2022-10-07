@@ -1,7 +1,5 @@
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure, output_file, show
-
-output_file("vline_stack.html")
+from bokeh.plotting import figure, show
 
 source = ColumnDataSource(data=dict(
     x=[1, 2, 3, 4, 5],

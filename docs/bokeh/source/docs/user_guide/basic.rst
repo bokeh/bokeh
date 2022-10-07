@@ -8,7 +8,7 @@ Creating figures
 
 Bokeh plots you create with the |bokeh.plotting| interface come with a default
 set of tools and visual styles. For information on how to customize the visual
-style of plots, see :ref:`ug_basic_visuals`. For information about changing or
+style of plots, see :ref:`ug_basic_styling`. For information about changing or
 specifying tools, see :ref:`ug_interaction_tools`.
 
 :ref:`ug_basic_scatters`
@@ -27,7 +27,7 @@ specifying tools, see :ref:`ug_interaction_tools`.
 
 :ref:`ug_basic_annotations`
 
-:ref:`ug_basic_visuals`
+:ref:`ug_basic_styling`
 
 .. toctree::
     :hidden:
@@ -40,4 +40,4 @@ specifying tools, see :ref:`ug_interaction_tools`.
     basic/areas
     basic/layouts
     basic/annotations
-    basic/visuals
+    basic/styling

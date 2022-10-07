@@ -7,22 +7,6 @@ window.addEventListener('DOMContentLoaded', function () {
   }
 })
 
-// Install listeners to handle collapsible blocks
-$(document).ready(function () {
-  const coll = document.getElementsByClassName("bk-collapsible");
-  for (let i = 0; i < coll.length; i++) {
-    coll[i].addEventListener("click", function() {
-      this.classList.toggle("active");
-      const content = this.nextElementSibling;
-      if (content.style.display === "block") {
-        content.style.display = "none";
-      } else {
-        content.style.display = "block";
-      }
-    });
-  }
-})
-
 // Display a version warning banner if necessary
 $(document).ready(function () {
   const randid = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);

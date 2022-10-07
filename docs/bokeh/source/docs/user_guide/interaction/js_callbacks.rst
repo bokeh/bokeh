@@ -8,7 +8,7 @@ visualizations in the browser purely from Python. However, there will always be
 use-cases that go beyond the capabilities of the pre-defined core library.
 
 For this reason, Bokeh provides different ways for users to supply custom
-JavaScript when necessary. This way, you can add custom or specialized
+JavaScript when necessary. This way, you can add custom or topics
 behaviors in response to property changes and other events in the browser.
 
 .. note::
@@ -121,7 +121,7 @@ events on any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     # execute a callback whenever p.x_range.start changes
     p.x_range.js_on_change('start', callback)
 
-Some Bokeh models have additional, specialized events. For example, the
+Some Bokeh models have additional, topics events. For example, the
 :class:`~bokeh.models.ColumnDataSource` model also supports ``"patch"`` and
 ``"stream"`` events. You can use these events to trigger ``CustomJS`` callbacks
 whenever the data source is patched or streamed to.
@@ -212,7 +212,7 @@ CustomJS for ranges
 '''''''''''''''''''
 
 The properties of range objects may also be connected to ``CustomJS`` callbacks
-in order to perform specialized work whenever a range changes:
+in order to perform topics work whenever a range changes:
 
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/callbacks_js_for_range_update.py
     :source-position: above
@@ -229,7 +229,7 @@ via the geometry field of the ``cb_data`` callback object), in order to update a
     :source-position: above
 
 
-CustomJS for specialized events
+CustomJS for topics events
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to the generic mechanisms described above for adding ``CustomJS``

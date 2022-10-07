@@ -9,6 +9,8 @@
 import os
 from datetime import date
 
+from sphinx.util import logging
+
 # Bokeh imports
 from bokeh import __version__
 from bokeh.settings import settings
@@ -43,14 +45,15 @@ bokeh_example_subdirs = [
     "models",
     "plotting",
     "output/webgl",
-    "specialized/categorical",
-    "specialized/contour",
-    "specialized/geo",
-    "specialized/graph",
-    "specialized/hex",
-    "specialized/images",
-    "specialized/pie",
-    "specialized/stats",
+    "topics/categorical",
+    "topics/contour",
+    "topics/geo",
+    "topics/graph",
+    "topics/hex",
+    "topics/images",
+    "topics/mathtext",
+    "topics/pie",
+    "topics/stats",
 ]
 
 bokeh_sampledata_xref_skiplist = [
@@ -96,7 +99,6 @@ extensions = [
     "bokeh.sphinxext.bokeh_settings",
     "bokeh.sphinxext.bokeh_sitemap",
     "bokeh.sphinxext.bokehjs_content",
-    "bokeh.sphinxext.collapsible_code_block",
 ]
 
 needs_sphinx = "4.3.2"
@@ -147,6 +149,9 @@ ogp_custom_meta_tags = [
 
 pygments_style = "sphinx"
 
+# suppress some useless and annoying messages from sphinx.ext.viewcode
+logging.getLogger("sphinx.ext.viewcode").logger.addFilter(lambda rec: not rec.msg.startswith("Didn't find"))
+
 # -- Options for HTML output ---------------------------------------------------
 
 html_context = {
@@ -183,7 +188,7 @@ html_theme_options = {
     "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
     "show_nav_level": 2,
-    "show_toc_level": 2,
+    "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
     "favicons": [
         {
