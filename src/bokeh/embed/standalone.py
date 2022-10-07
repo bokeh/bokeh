@@ -179,7 +179,7 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
     The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
     if your document includes :ref:`Bokeh widgets <ug_interaction_widgets>`,
     :ref:`data tables <ug_interaction_widgets_examples_datatable>`, or
-    :ref:`math text <ug_basic_visuals_math>`, respectively.
+    :ref:`math text <ug_topics_mathtext>`, respectively.
 
     Args:
         models (Model|list|dict|tuple) :

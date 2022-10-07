@@ -7,6 +7,8 @@ Some text here
 
 :ref:`ug_topics_images`
 
+:ref:`ug_topics_mathtext`
+
 :ref:`ug_topics_contour`
 
 :ref:`ug_topics_hex`
@@ -24,6 +26,7 @@ Some text here
 .. toctree::
 
     topics/images
+    topics/mathtext
     topics/contour
     topics/hex
     topics/categorical

@@ -3,7 +3,7 @@ inside and outside the figure.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.annotation.Label
-    :refs: :ref:`ug_basic_visuals_math`
+    :refs: :ref:`ug_topics_mathtext`
     :keywords: mathtext, latex
 
 '''
