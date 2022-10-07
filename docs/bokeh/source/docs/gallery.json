@@ -3,6 +3,20 @@
     {
       "name": "markers.py",
       "alt": "Thumbnail link to the examples/basic/scatters/markers.py example shows all the different scatter marker types available in Bokeh on a single plot."
+    },
+    {
+      "name": "color_scatter.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/color_scatter.py example shows a multicolored scatter plot of random data with hover tool."
+    },
+    {
+      "name": "elements.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
+    }
+  ],
+  "basic/lines": [
+    {
+      "name": "lorenz.py",
+      "alt": "Thumbnail link to the examples/basic/lines/lorenz.py example shows a plot of the Lorenz attractor using the MultiLine glyph."
     }
   ],
   "basic/data": [

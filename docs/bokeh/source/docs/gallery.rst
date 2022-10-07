@@ -150,7 +150,7 @@ plot.
     .. tab-item:: Basic plotting
 
         .. bokeh-gallery:: basic/scatters
-        .. .. bokeh-gallery:: basic/lines
+        .. bokeh-gallery:: basic/lines
         .. bokeh-gallery:: basic/data
         .. bokeh-gallery:: basic/axes
         .. bokeh-gallery:: basic/bars
