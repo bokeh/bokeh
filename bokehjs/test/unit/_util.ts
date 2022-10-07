@@ -26,7 +26,7 @@ export function fig([width, height]: [number, number], attrs?: Partial<Figure.At
 import {MouseButton} from "@bokehjs/core/dom"
 import {delay} from "@bokehjs/core/util/defer"
 
-export async function click(el: HTMLElement): Promise<void> {
+export async function click(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
   el.dispatchEvent(ev0)
 

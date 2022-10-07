@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy} from "./_interactive"
+import {PlotActions, xy, press} from "./_interactive"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -43,7 +43,7 @@ import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {delay, paint} from "@bokehjs/core/util/defer"
+import {paint} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
@@ -1891,14 +1891,7 @@ describe("Bug", () => {
       view.invalidate_render()
 
       const pan_button_view = view.owner.get_one(pan_button)
-
-      const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
-      const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
-
-      // tool button press
-      pan_button_view.el.dispatchEvent(ev0)
-      await delay(300)
-      pan_button_view.el.dispatchEvent(ev1)
+      await press(pan_button_view.el)
     })
   })
 
