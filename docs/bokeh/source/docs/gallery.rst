@@ -178,7 +178,7 @@ plot.
         .. .. bokeh-gallery:: interaction/linking
         .. .. bokeh-gallery:: interaction/legends
         .. .. bokeh-gallery:: interaction/widgets
-        .. .. bokeh-gallery:: interaction/js_callbacks
+        .. bokeh-gallery:: interaction/js_callbacks
         .. .. bokeh-gallery:: interaction/python_callbacks
         .. .. bokeh-gallery:: interaction/tooltips
 

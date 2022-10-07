@@ -203,6 +203,10 @@
     {
       "name": "donut.py",
       "alt": "Thumbnail link to the examples/topics/pie/donut.py example shows a donut chart of browser share percentages with a legend."
+    },
+    {
+      "name": "burtin.py",
+      "alt": "Thumbnail link to the examples/topics/pie/burtin.py example shows a reproduction of Burtin's hitorical antibiotics plot."
     }
   ],
   "topics/stats": [
@@ -223,6 +227,16 @@
     {
       "name": "range_tool.py",
       "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
+    }
+  ],
+  "interaction/js_callbacks": [
+    {
+      "name": "slider.py",
+      "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
+    },
+    {
+      "name": "color_sliders.py",
+      "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
     }
   ]
 }
