@@ -1,3 +1,3 @@
 :orphan:
 
-Deprecated. See :ref:`ug_topics_mathtext` for more information.
+Deprecated. See :ref:`ug_styling_mathtext` for more information.

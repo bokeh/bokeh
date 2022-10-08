@@ -155,7 +155,7 @@ outputting the plot:
 
 .. seealso::
     For more information about the various visual properties, see
-    :ref:`ug_styling_glyphs` and :ref:`ug_styling_visual_properties`
+    :ref:`ug_styling_plot_elements_glyphs` and :ref:`ug_styling_visual_properties`
     in the user guide.
 
     Each type of glyph has different properties. Refer to

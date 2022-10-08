@@ -8,8 +8,6 @@ kinds of data.
 
 :ref:`ug_topics_images`
 
-:ref:`ug_topics_mathtext`
-
 :ref:`ug_topics_contour`
 
 :ref:`ug_topics_hex`
@@ -27,7 +25,6 @@ kinds of data.
 .. toctree::
 
     topics/images
-    topics/mathtext
     topics/contour
     topics/hex
     topics/categorical

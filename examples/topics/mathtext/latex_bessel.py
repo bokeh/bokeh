@@ -3,7 +3,7 @@ mathtext on titles, ``Label`` annotations and axis labels.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.models.annotations.Label, bokeh.models.annotations.Title
-    :refs: :ref:`ug_topics_mathtext`
+    :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
 .. _Bessel functions: https://en.wikipedia.org/wiki/Bessel_function

@@ -203,6 +203,40 @@ the string names:
     # configures the lasso tool to be active
     plot = figure(tools="pan,lasso_select,box_select", active_drag="lasso_select")
 
+.. _ug_interaction_tools_autohide:
+
+Toggling ToolBar autohide
+-------------------------
+
+To make your toolbar hide automatically, set the toolbar's
+:class:`~bokeh.models.tools.Toolbar.autohide` property to True. When you set
+``autohide`` to True, the toolbar is visible only when the mouse is inside the
+plot area and is otherwise hidden.
+
+.. bokeh-plot:: __REPO__/examples/basic/styling/toolbar_autohide.py
+    :source-position: above
+
+.. _ug_interaction_tools_overlays:
+
+Styling tool overlays
+---------------------
+
+Some Bokeh tools also have configurable visual attributes.
+
+For instance, the various region selection tools and the box zoom tool all have
+an ``overlay``. To style their line and fill properties, pass values to the
+respective attributes:
+
+.. bokeh-plot:: __REPO__/examples/basic/styling/tool_overlays.py
+    :source-position: above
+
+For more information, see the reference guide's entries for
+:class:`BoxSelectTool.overlay <bokeh.models.tools.BoxSelectTool.overlay>`,
+:class:`BoxZoomTool.overlay <bokeh.models.tools.BoxZoomTool.overlay>`,
+:class:`LassoSelectTool.overlay <bokeh.models.tools.LassoSelectTool.overlay>`,
+:class:`PolySelectTool.overlay <bokeh.models.tools.PolySelectTool.overlay>`, and
+:class:`RangeTool.overlay <bokeh.models.tools.RangeTool.overlay>`.
+
 .. _ug_interaction_tools_pandrag:
 
 Pan/Drag tools

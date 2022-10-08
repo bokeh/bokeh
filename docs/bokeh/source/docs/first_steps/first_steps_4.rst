@@ -92,7 +92,7 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 
 .. seealso::
     To learn more about how to control the size of plots, see
-    :ref:`ug_styling_plots` in the user guide and the entry for
+    :ref:`ug_styling_plot_elements_plots` in the user guide and the entry for
     |Plot| in the reference guide.
 
     For more information on responsive sizing, see
@@ -183,7 +183,7 @@ This is what the completed code looks like:
 
 .. seealso::
     For more information about formatting ticks, see
-    :ref:`ug_styling_axes_tick_label_formats` in the user guide. For a
+    :ref:`ug_styling_plot_elements_axes_tick_label_formats` in the user guide. For a
     list of all available tick formatters, see :class:`~bokeh.models.formatters`
     in the reference guide.
 
@@ -218,7 +218,7 @@ To format the ticks of a ``DatetimeAxis``, use the
     :source-position: none
 
 .. seealso::
-    See :ref:`ug_styling_axes` in the user guide for more information on
+    See :ref:`ug_styling_plot_elements_axes` in the user guide for more information on
     customizing axes. The entry for :class:`~bokeh.models.Axis` in the
     reference guide contains a list of all available attributes you can use to
     customize the axes of your plot.
@@ -248,7 +248,7 @@ the various ``grid_line`` properties:
 
 .. seealso::
     For more information on lines and minor lines, see
-    :ref:`ug_styling_grid_lines` in the user guide.
+    :ref:`ug_styling_plot_elements_grid_lines` in the user guide.
 
 Using bands and bounds
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -267,7 +267,7 @@ Bands and bounds are more examples of the annotations you learned about in
 
 .. seealso::
     For more information on styling bands and bounds, see
-    :ref:`ug_styling_grid_bands` and :ref:`ug_styling_grid_bounds`
+    :ref:`ug_styling_plot_elements_grid_bands` and :ref:`ug_styling_plot_elements_grid_bounds`
     in the user guide.
 
 Setting background colors

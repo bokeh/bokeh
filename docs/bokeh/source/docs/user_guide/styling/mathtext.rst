@@ -1,4 +1,4 @@
-.. _ug_topics_mathtext:
+.. _ug_styling_mathtext:
 
 Mathematical notation
 =====================
@@ -7,7 +7,7 @@ Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
 languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with the following elements:
 
-* :ref:`Axis labels <ug_styling_axes_labels>`
+* :ref:`Axis labels <ug_styling_plot_elements_axes_labels>`
 * Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
@@ -32,7 +32,7 @@ This string needs to begin and end with one of the
 and ``\(...\)``. For example: ``r"$$\sin(x)$$"``.
 
 LaTeX on axis labels, titles, and labels
-    To use LaTeX notation as an :ref:`axis label <ug_styling_axes_labels>`,
+    To use LaTeX notation as an :ref:`axis label <ug_styling_plot_elements_axes_labels>`,
     :ref:`title <ug_basic_annotations_titles>`, or :ref:`label
     <ug_basic_annotations_labels>`, pass a raw string literal beginning and
     ending with `MathJax default delimiters`_ and containing LaTeX notation. For
