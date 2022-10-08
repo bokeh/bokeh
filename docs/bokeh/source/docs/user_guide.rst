@@ -39,14 +39,14 @@ This user guide is arranged by topic:
     Learn how to customize the appearance of your plots.
 
 :ref:`ug_topics`
-    Learn about Bokeh's more specialized functionalities
+    Learn about Bokeh's more specialized functionalities.
 
 :ref:`ug_interaction`
     Learn how to make your plots more interactive and with features such as
     plot tools, widgets, and callbacks.
 
 :ref:`ug_output`
-    Learn how to save and display Bokeh plots in different contexts.
+    Learn how to export, embed, and display Bokeh plots in different contexts.
 
 :ref:`ug_server`
     Learn how to use the Bokeh Server to build and publish complex data
