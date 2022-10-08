@@ -196,9 +196,9 @@ this:
 You can insert or template this script and its companion ``<div>`` in an HTML
 document and, when the script executes, your plot replaces the ``<div>``.
 
-For this to work you first need to load BokehJS, either locally or from a
+For this to work, you first need to load BokehJS, either locally or from a
 content delivery network (CDN). To load BokehJS from a CDN, add the following
-lines to your HTML text or template with the appropriate version replacing
+lines to your HTML document or template with the appropriate version replacing
 the ``x.y.z``:
 
 .. code-block:: html
@@ -214,25 +214,33 @@ the ``x.y.z``:
     <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"
             crossorigin="anonymous"></script>
 
-The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
-if your document includes :ref:`Bokeh widgets <ug_interaction_widgets>`,
-:ref:`data tables <ug_interaction_widgets_examples_datatable>`, or
-:ref:`math text <ug_styling_mathtext>`, respectively.
+Only the Bokeh core library ``bokeh-x.y.z.min.js`` is always required. The
+other scripts are optional and only need to be included if you want to use
+corresponding features:
 
-For example, to use version ``2.4.0`` with support for widgets, tables, and
+* The ``"bokeh-widgets"`` files are only necessary if you are using any of the
+  :ref:`Bokeh widgets <ug_interaction_widgets>`.
+* The ``"bokeh-tables"`` files are only necessary if you are using Bokeh's
+  :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
+* The ``"bokeh-gl"`` files are required to enable
+  :ref:`WebGL support <ug_output_webgl>`.
+* the ``"bokeh-mathjax"`` files are required to enable
+  :ref:`MathJax support <ug_styling_mathtext>`.
+
+For example, to use version ``3.0.0`` with support for widgets, tables, and
 math text, include the following in your HTML:
 
 .. code-block:: html
 
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-3.0.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.0.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.0.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.0.0.min.js"
             crossorigin="anonymous"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.0.min.js"
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-3.0.0.min.js"
             crossorigin="anonymous"></script>
 
 .. note::

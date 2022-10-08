@@ -165,8 +165,9 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
     An example can be found in examples/embed/embed_multiple.py
 
     The returned components assume that BokehJS resources are **already loaded**.
-    The html template in which they will be embedded needs to include the following
-    scripts tags:
+    The HTML document or template in which they will be embedded needs to
+    include scripts tags, either from a local URL or Bokeh's CDN (replacing
+    ``x.y.z`` with the version of Bokeh you are using):
 
     .. code-block:: html
 
@@ -176,10 +177,21 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js"></script>
         <script src="https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js"></script>
 
-    The ``"-widgets"``, ``"-tables"``, and ``"-mathjax"`` files are only necessary
-    if your document includes :ref:`Bokeh widgets <ug_interaction_widgets>`,
-    :ref:`data tables <ug_interaction_widgets_examples_datatable>`, or
-    :ref:`math text <ug_styling_mathtext>`, respectively.
+    Only the Bokeh core library ``bokeh-x.y.z.min.js`` is always required. The
+    other scripts are optional and only need to be included if you want to use
+    corresponding features:
+
+    * The ``"bokeh-widgets"`` files are only necessary if you are using any of the
+    :ref:`Bokeh widgets <ug_interaction_widgets>`.
+    * The ``"bokeh-tables"`` files are only necessary if you are using Bokeh's
+    :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
+    * The ``"bokeh-api"`` files are required to use the
+      :ref:`BokehJS API <ug_advanced_bokehjs>` and must be loaded *after* the
+      core BokehJS library.
+    * The ``"bokeh-gl"`` files are required to enable
+    :ref:`WebGL support <ug_output_webgl>`.
+    * the ``"bokeh-mathjax"`` files are required to enable
+    :ref:`MathJax support <ug_styling_mathtext>`.
 
     Args:
         models (Model|list|dict|tuple) :
