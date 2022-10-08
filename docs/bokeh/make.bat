@@ -29,6 +29,7 @@ if "%1" == "help" (
 if "%1" == "clean" (
 	rmdir %BUILDDIR% /s /q
 	del /q /s source\docs\gallery\*
+	del /q /s source\docs\examples\*
 	goto end
 )
 
