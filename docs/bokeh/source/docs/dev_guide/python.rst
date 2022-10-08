@@ -67,7 +67,7 @@ folders containing Python code:
   * :bokeh-tree:`src/bokeh/plotting` contains Bokeh's :ref:`plotting interface
     <ug_interfaces_plotting>`
   * :bokeh-tree:`src/bokeh/colors` contains code for handling
-    :ref:`colors <ug_basic_styling_colors>`
+    :ref:`colors <ug_styling_colors>`
   * :bokeh-tree:`src/bokeh/embed` contains code for :ref:`embedding Bokeh content
     in web pages <ug_output_embed>`.
   * :bokeh-tree:`src/bokeh/io` contains code for Bokeh's IO functions, such as
@@ -102,7 +102,7 @@ Models and properties
 
 The central building blocks of all Bokeh visualizations are objects based on
 Bokeh's :term:`models <Model>`. These models are representations of
-:term:`plot <Plot>` elements, such as :ref:`axes <ug_basic_styling_axes>`,
+:term:`plot <Plot>` elements, such as :ref:`axes <ug_styling_axes>`,
 :term:`glyphs <Glyph>`, or :term:`widgets <Widget>`.
 
 On the Python side, Bokeh serializes the attributes of each plot element object

@@ -55,10 +55,10 @@ Bokeh's WebGL support covers the following fixed-shape glyphs:
 
 WebGL support for these fixed-shape glyphs covers the following properties:
 
-* all :ref:`fill properties <ug_basic_styling_fill_properties>`
-* all :ref:`line properties <ug_basic_styling_line_properties>` except for
+* all :ref:`fill properties <ug_styling_fill_properties>`
+* all :ref:`line properties <ug_styling_line_properties>` except for
   dashed lines (which will be ignored)
-* all :ref:`hatch properties <ug_basic_styling_hatch_properties>` except for
+* all :ref:`hatch properties <ug_styling_hatch_properties>` except for
   hatch images using the ``hatch_extra`` property (which will be ignored).
 
 There is also full WebGL support for :func:`~bokeh.plotting.figure.line`

@@ -9,6 +9,7 @@ User guide
 
     user_guide/intro
     user_guide/basic
+    user_guide/styling
     user_guide/topics
     user_guide/interaction
     user_guide/output

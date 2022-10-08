@@ -90,7 +90,7 @@ color properties of an object to the same color. For example, passing
 ``"yellow"`` to a circle's ``color`` property is the same as setting
 ``fill_color`` and ``line_color`` to yellow individually.
 
-In Bokeh, you can :ref:`specify colors <ug_basic_styling_colors>` in several
+In Bokeh, you can :ref:`specify colors <ug_styling_colors>` in several
 ways. For example:
 
 * Use one of the |named CSS colors| (for example, ``"firebrick"``)
@@ -155,7 +155,7 @@ outputting the plot:
 
 .. seealso::
     For more information about the various visual properties, see
-    :ref:`ug_basic_styling_glyphs` and :ref:`ug_basic_styling_visual_properties`
+    :ref:`ug_styling_glyphs` and :ref:`ug_styling_visual_properties`
     in the user guide.
 
     Each type of glyph has different properties. Refer to

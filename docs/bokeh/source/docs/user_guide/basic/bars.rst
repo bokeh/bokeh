@@ -146,7 +146,7 @@ You can color the bars in several ways:
   .. bokeh-plot:: __REPO__/examples/basic/bars/colormapped.py
     :source-position: above
 
-  See :ref:`ug_basic_styling_using_mappers` for more information on using
+  See :ref:`ug_styling_using_mappers` for more information on using
   Bokeh’s color mappers.
 
 .. _ug_basic_bars_stacked:

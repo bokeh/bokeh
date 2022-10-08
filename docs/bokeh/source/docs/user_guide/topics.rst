@@ -3,7 +3,8 @@
 Special topics
 ==============
 
-Some text here
+Bokeh can be used to create a wide variety of visualizations, using different
+kinds of data.
 
 :ref:`ug_topics_images`
 
