@@ -31,14 +31,16 @@ export class BoxSelectToolView extends SelectToolView {
 
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
-    this._base_point = [sx, sy]
+    if (this.plot_view.frame.bbox.contains(sx, sy))
+      this._base_point = [sx, sy]
   }
 
   override _pan(ev: PanEvent): void {
-    const {sx, sy} = ev
-    const curpoint: [number, number] = [sx, sy]
+    if (this._base_point == null)
+      return
 
-    const [sxlim, sylim] = this._compute_limits(curpoint)
+    const {sx, sy} = ev
+    const [sxlim, sylim] = this._compute_limits([sx, sy])
 
     const [[left, right], [top, bottom]] = [sxlim, sylim]
     this.model.overlay.update({left, right, top, bottom})
@@ -49,10 +51,12 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   override _pan_end(ev: PanEvent): void {
-    const {sx, sy} = ev
-    const curpoint: [number, number] = [sx, sy]
+    if (this._base_point == null)
+      return
 
-    const [sxlim, sylim] = this._compute_limits(curpoint)
+    const {sx, sy} = ev
+
+    const [sxlim, sylim] = this._compute_limits([sx, sy])
     this._do_select(sxlim, sylim, true, this._select_mode(ev))
 
     this.model.overlay.clear()
