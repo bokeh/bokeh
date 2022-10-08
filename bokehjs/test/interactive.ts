@@ -49,12 +49,20 @@ type Circle = {type: "circle", xy: Point, r: number, n?: number}
 
 type Path = Line | Poly | Circle
 
+export type Options = {
+  pause: number
+  units: "data" | "screen"
+}
+
 export class PlotActions {
-  constructor(readonly target: PlotView, readonly pause: number = 5) {}
+  readonly options: Options
+
+  constructor(readonly target: PlotView, options: Partial<Options> = {}) {
+    this.options = {pause: 5, units: "data", ...options}
+  }
 
   protected get el(): Element {
     return this.target.canvas.events_el
-
   }
 
   async hover(xy0: Point, xy1: Point, n?: number): Promise<void> {
@@ -84,16 +92,17 @@ export class PlotActions {
   protected async emit(events: Iterable<UIEvent>): Promise<void> {
     for (const ev of events) {
       this.el.dispatchEvent(ev)
-      await delay(this.pause)
+      await delay(this.options.pause)
     }
   }
 
   protected screen({x, y}: Point): {clientX: number, clientY: number} {
     const {x_scale, y_scale} = this.target.frame
     const {left, top} = offset_bbox(this.el)
+    const {units} = this.options
     return {
-      clientX: left + x_scale.compute(x),
-      clientY: top + y_scale.compute(y),
+      clientX: left + (units == "data" ? x_scale.compute(x) : x),
+      clientY: top + (units == "data" ? y_scale.compute(y) : y),
     }
   }
 
