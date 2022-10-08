@@ -23,6 +23,7 @@ kinds of data.
 :ref:`ug_topics_stats`
 
 .. toctree::
+    :hidden:
 
     topics/images
     topics/contour
