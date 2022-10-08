@@ -1,5 +1,6 @@
 import {expect} from "assertions"
-import {display, click} from "../../../_util"
+import {display} from "../../../_util"
+import {click} from "../../../../interactive"
 
 import {Tool} from "@bokehjs/models/tools/tool"
 import {BoxZoomToolView} from "@bokehjs/models/tools/gestures/box_zoom_tool"

@@ -1,7 +1,8 @@
 import sinon from "sinon"
 
 import {expect} from "assertions"
-import {display, fig, click} from "./_util"
+import {display, fig} from "./_util"
+import {click} from "../interactive"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,

@@ -464,3 +464,9 @@ function _infer_layoutdom_viewport(obj: LayoutDOM): Size {
 
   return {width, height}
 }
+
+import {Figure, figure} from "@bokehjs/api/plotting"
+
+export function fig([width, height]: [number, number], attrs?: Partial<Figure.Attrs>): Figure {
+  return figure({width, height, title: null, toolbar_location: null, ...attrs})
+}

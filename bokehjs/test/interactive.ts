@@ -23,7 +23,7 @@ const common: Partial<PointerEventInit> = {
 const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
-export async function click(el: HTMLElement): Promise<void> {
+export async function click(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
   el.dispatchEvent(ev0)
 
@@ -33,7 +33,7 @@ export async function click(el: HTMLElement): Promise<void> {
   el.dispatchEvent(ev1)
 }
 
-export async function press(el: HTMLElement): Promise<void> {
+export async function press(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
   el.dispatchEvent(ev0)
 

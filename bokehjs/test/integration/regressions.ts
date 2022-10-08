@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, press} from "./_interactive"
+import {PlotActions, xy, press} from "../interactive"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,

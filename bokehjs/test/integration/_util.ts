@@ -1,9 +1,8 @@
 import sinon from "sinon"
 
-export {describe, it, display} from "../framework"
+export {describe, it, display, fig} from "../framework"
 
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {Figure, figure} from "@bokehjs/api/plotting"
 import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {delay} from "@bokehjs/core/util/defer"
@@ -22,10 +21,6 @@ export function row(children: LayoutDOM[], opts?: Partial<Row.Attrs>): Row {
 
 export function column(children: LayoutDOM[], opts?: Partial<Column.Attrs>): Column {
   return new Column({...opts, children})
-}
-
-export function fig([width, height]: [number, number], attrs?: Partial<Figure.Attrs>): Figure {
-  return figure({width, height, title: null, toolbar_location: null, ...attrs})
 }
 
 export class DelayedInternalProvider extends MathJaxProvider {
