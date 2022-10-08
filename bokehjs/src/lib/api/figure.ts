@@ -40,10 +40,6 @@ const _default_color = "#1f77b4"
 
 const _default_alpha = 1.0
 
-function _with_default<T>(value: T | undefined, default_value: T): T {
-  return value === undefined ? default_value : value
-}
-
 export type AxisType = "auto" | "linear" | "datetime" | "log" | "mercator" | null
 export type AxisLocation = Location | null
 
@@ -200,11 +196,25 @@ export class Figure extends BaseFigure {
   constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
-    const tools = _with_default(attrs.tools, _default_tools)
-    delete attrs.tools
+    const tools = (() => {
+      const {tools, toolbar} = attrs
+      if (tools != null) {
+        if (toolbar != null)
+          throw new Error("'tools' and 'toolbar' can't be used together")
+        else {
+          delete attrs.tools
 
-    const x_axis_type = _with_default(attrs.x_axis_type, "auto")
-    const y_axis_type = _with_default(attrs.y_axis_type, "auto")
+          if (isString(tools)) {
+            return tools.split(",").map((s) => s.trim()).filter((s) => s.length > 0) as (keyof ToolAliases)[]
+          } else
+            return tools
+        }
+      } else
+        return toolbar != null ? null : _default_tools
+    })()
+
+    const x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
+    const y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
     delete attrs.x_axis_type
     delete attrs.y_axis_type
 
@@ -213,8 +223,8 @@ export class Figure extends BaseFigure {
     delete attrs.x_minor_ticks
     delete attrs.y_minor_ticks
 
-    const x_axis_location = _with_default(attrs.x_axis_location, "below")
-    const y_axis_location = _with_default(attrs.y_axis_location, "left")
+    const x_axis_location = attrs.x_axis_location === undefined ? "below" : attrs.x_axis_location
+    const y_axis_location = attrs.y_axis_location === undefined ? "left"  : attrs.y_axis_location
     delete attrs.x_axis_location
     delete attrs.y_axis_location
 
@@ -238,7 +248,9 @@ export class Figure extends BaseFigure {
     this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
 
-    this.add_tools(...this._process_tools(tools))
+    if (tools != null) {
+      this.add_tools(...tools)
+    }
   }
 
   get coordinates(): CoordinateMapping | null {
@@ -586,12 +598,6 @@ export class Figure extends BaseFigure {
       return 0
     else
       return axis instanceof LogAxis ? 10 : 5
-  }
-
-  _process_tools(tools: (Tool | string)[] | string): Tool[] {
-    if (isString(tools))
-      tools = tools.split(/\s*,\s*/).filter((tool) => tool.length > 0)
-    return tools.map((tool) => isString(tool) ? Tool.from_string(tool) : tool)
   }
 
   _update_legend(legend_item_label: Vector<string>, glyph_renderer: GlyphRenderer): void {

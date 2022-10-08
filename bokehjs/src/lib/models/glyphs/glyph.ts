@@ -7,7 +7,7 @@ import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
 import {Model} from "../../model"
 import {Anchor} from "core/enums"
-import {build_views} from "core/build_views"
+import {build_views, ViewStorage, IterViews} from "core/build_views"
 import {logger} from "core/logging"
 import {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import {isString} from "core/util/types"
@@ -20,7 +20,7 @@ import {FactorRange, Factor} from "../ranges/factor_range"
 import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Decoration, DecorationView} from "../graphics/decoration"
+import {Decoration} from "../graphics/decoration"
 
 const {abs, ceil} = Math
 
@@ -72,7 +72,12 @@ export abstract class GlyphView extends View {
     this.visuals = new visuals.Visuals(this)
   }
 
-  decorations: Map<Decoration, DecorationView> = new Map()
+  readonly decorations: ViewStorage<Decoration> = new Map()
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.decorations.values()
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

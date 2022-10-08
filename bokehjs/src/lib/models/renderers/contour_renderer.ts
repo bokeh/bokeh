@@ -3,7 +3,7 @@ import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
 import {Renderer} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
 import * as p from "core/properties"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 
 export class ContourRendererView extends DataRendererView {
@@ -11,6 +11,12 @@ export class ContourRendererView extends DataRendererView {
 
   fill_view: GlyphRendererView
   line_view: GlyphRendererView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.fill_view
+    yield this.line_view
+  }
 
   get glyph_view(): GlyphView {
     if (this.fill_view.glyph.data_size > 0)

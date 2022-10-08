@@ -3,7 +3,7 @@ import {DOMNode, DOMNodeView} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import {StyleSheetLike, div} from "core/dom"
 import {isString} from "core/util/types"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import * as p from "core/properties"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
@@ -16,6 +16,11 @@ export class DialogView extends UIElementView {
   override model: Dialog
 
   protected _content: DOMNodeView | UIElementView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._content
+  }
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), dialogs_css, icons_css]

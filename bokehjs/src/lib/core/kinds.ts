@@ -1,7 +1,7 @@
 import * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys} from "./util/object"
+import {keys, entries} from "./util/object"
 
 type ESMap<K, V> = globalThis.Map<K, V>
 const ESMap = globalThis.Map
@@ -111,6 +111,7 @@ export namespace Kinds {
 
   // See https://github.com/microsoft/TypeScript/issues/49556.
   export type TupleKind<T extends unknown[]> = {[K in keyof T]: Kind<T[K]>}
+  export type ObjectKind<T extends {[key: string]: unknown}> = {[K in keyof T]: Kind<T[K]>}
 
   export class Or<T extends [unknown, ...unknown[]]> extends Kind<T[number]> {
     constructor(readonly types: TupleKind<T>) {
@@ -152,9 +153,9 @@ export namespace Kinds {
     }
   }
 
-  export class Struct<T extends object> extends Kind<T> {
+  export class Struct<T extends {[key: string]: unknown}> extends Kind<T> {
 
-    constructor(readonly struct_type: {[key in keyof T]: Kind<T[key]>}) {
+    constructor(readonly struct_type: ObjectKind<T>) {
       super()
     }
 
@@ -183,7 +184,8 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      return "Struct"
+      const items = entries(this.struct_type).map(([key, kind]) => `${key}: ${kind}`).join(", ")
+      return `Struct({${items}})`
     }
   }
 
@@ -464,7 +466,7 @@ export const Nullable = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Nulla
 export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_type)
 export const Or = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
-export const Struct = <T extends object>(struct_type: {[key in keyof T]: Kind<T[key]>}) => new Kinds.Struct(struct_type)
+export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.Struct(struct_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)

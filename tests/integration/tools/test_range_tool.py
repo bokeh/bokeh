@@ -61,8 +61,7 @@ class Test_RangeTool:
 
         page = single_plot_page(plot)
 
-        target = 'range'
-        button = page.get_toolbar_button(target)
+        [button] = page.get_toolbar_buttons(plot)
         assert 'active' in button.get_attribute('class')
 
         assert page.has_no_console_errors()
@@ -72,19 +71,17 @@ class Test_RangeTool:
 
         page = single_plot_page(plot)
 
-        target = 'range'
-
         # Check is active
-        button = page.get_toolbar_button(target)
+        [button] = page.get_toolbar_buttons(plot)
         assert 'active' in button.get_attribute('class')
 
         # Click and check is not active
-        button = page.get_toolbar_button(target)
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
         assert 'active' not in button.get_attribute('class')
 
         # Click again and check is active
-        button = page.get_toolbar_button(target)
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
         assert 'active' in button.get_attribute('class')
 
@@ -95,8 +92,7 @@ class Test_RangeTool:
 
         page = single_plot_page(plot)
 
-        target = 'range'
-        button = page.get_toolbar_button(target)
+        [button] = page.get_toolbar_buttons(plot)
         button.click()
 
         page.drag_canvas_at_position(plot, 500, 200, 100, 0)

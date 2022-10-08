@@ -9,6 +9,7 @@ import {Model} from "../../model"
 import {Renderer} from "../renderers/renderer"
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
+import type {ToolButton} from "./tool_button"
 
 import type {PanTool} from "./gestures/pan_tool"
 import type {WheelPanTool} from "./gestures/wheel_pan_tool"
@@ -169,6 +170,8 @@ export abstract class Tool extends Model {
   // }}}
 
   button_view: Class<ToolButtonView>
+
+  abstract tool_button(): ToolButton
 
   get tooltip(): string {
     return this.description ?? this.tool_name

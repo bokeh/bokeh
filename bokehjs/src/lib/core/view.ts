@@ -37,7 +37,7 @@ export class View implements ISignalable {
     return this._ready
   }
 
-  *children(): IterViews {}
+  public *children(): IterViews {}
 
   protected _has_finished: boolean
 
@@ -172,9 +172,9 @@ export class ViewManager {
     yield* this.roots
   }
 
-  *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
+  *query(fn: (view: View) => boolean): IterViews {
     function* descend(view: View): IterViews {
-      if (view.model == model) {
+      if (fn(view)) {
         yield view
       } else {
         for (const child of view.children()) {
@@ -186,6 +186,10 @@ export class ViewManager {
     for (const root of this.roots) {
       yield* descend(root)
     }
+  }
+
+  *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
+    yield* this.query((view) => view.model == model)
   }
 
   get_one<T extends HasProps>(model: T): ViewOf<T> {

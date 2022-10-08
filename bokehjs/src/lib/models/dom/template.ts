@@ -3,14 +3,19 @@ import {Action} from "./action"
 import {PlaceholderView} from "./placeholder"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Index as DataIndex} from "core/util/templating"
-import {ViewStorage, build_views, remove_views} from "core/build_views"
+import {ViewStorage, build_views, remove_views, IterViews} from "core/build_views"
 import * as p from "core/properties"
 
 export class TemplateView extends DOMElementView {
   override model: Template
   static override tag_name = "div" as const
 
-  action_views: ViewStorage<Action> = new Map()
+  readonly action_views: ViewStorage<Action> = new Map()
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this.action_views.values()
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

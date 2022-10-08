@@ -1,29 +1,8 @@
 import {display, fig} from "./_util"
+import {press} from "./_interactive"
 
 import * as all from "@bokehjs/models/tools"
-
-import {PlotView} from "@bokehjs/models/plots/plot"
-import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
-
-import {assert} from "@bokehjs/core/util/assert"
-import {delay} from "@bokehjs/core/util/defer"
-
-function get_button_el(view: PlotView): HTMLElement {
-  const tbpv = [...view.renderer_views.values()].find((view): view is ToolbarPanelView => view instanceof ToolbarPanelView)
-  assert(tbpv != null)
-  const [button_view] = tbpv.toolbar_view.tool_button_views.values()
-  return button_view.el
-}
-
-async function press(el: HTMLElement): Promise<void> {
-  const ev0 = new MouseEvent("mousedown", {clientX: 5, clientY: 5, bubbles: true})
-  el.dispatchEvent(ev0)
-
-  await delay(300)
-
-  const ev1 = new MouseEvent("mouseup", {clientX: 5, clientY: 5, bubbles: true})
-  el.dispatchEvent(ev1)
-}
+import {Toolbar} from "@bokehjs/models"
 
 describe("Tools", () => {
   const tools = [
@@ -60,11 +39,13 @@ describe("Tools", () => {
       continue
 
     it(`should support ${tool.type}'s setup menu`, async () => {
-      const p = fig([200, 100], {toolbar_location: "right", tools: [tool]})
+      const tool_button = tool.tool_button()
+      const toolbar = new Toolbar({buttons: [tool_button], tools: [tool]})
+      const p = fig([200, 100], {toolbar_location: "right", toolbar})
       p.circle([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
-      const el = get_button_el(view)
-      await press(el)
+      const tool_button_view = view.owner.get_one(tool_button)
+      await press(tool_button_view.el)
     })
   }
 })

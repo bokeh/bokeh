@@ -99,4 +99,14 @@ describe("core/util/array module", () => {
     expect(array.difference(a, b, [2])).to.be.equal([0])
     expect(array.difference(a, b, [0])).to.be.equal([])
   })
+
+  it("split() should allow to split an array into chunks", () => {
+    expect(array.split([], null)).to.be.equal([[]])
+    expect(array.split([1], null)).to.be.equal([[1]])
+    expect(array.split([null], null)).to.be.equal([[], []])
+    expect(array.split([1, null], null)).to.be.equal([[1], []])
+    expect(array.split([null, 2], null)).to.be.equal([[], [2]])
+    expect(array.split([1, null, 2], null)).to.be.equal([[1], [2]])
+    expect(array.split([0, 1, null, 2, null, 3, 4, 5], null)).to.be.equal([[0, 1], [2], [3, 4, 5]])
+  })
 })

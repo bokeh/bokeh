@@ -1,5 +1,5 @@
 import {UIElement, UIElementView} from "./ui_element"
-import {ViewStorage, build_views, remove_views} from "core/build_views"
+import {ViewStorage, build_views, remove_views, IterViews} from "core/build_views"
 import {SerializableState} from "core/view"
 import {isString} from "core/util/types"
 import * as p from "core/properties"
@@ -11,9 +11,14 @@ export class PaneView extends UIElementView {
     return this.model.children.filter((child): child is UIElement => child instanceof UIElement)
   }
 
-  protected _child_views: ViewStorage<UIElement> = new Map()
+  protected readonly _child_views: ViewStorage<UIElement> = new Map()
   get child_views(): UIElementView[] {
     return this._ui_elements.map((child) => this._child_views.get(child)!)
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._child_views.values()
   }
 
   override async lazy_initialize(): Promise<void> {

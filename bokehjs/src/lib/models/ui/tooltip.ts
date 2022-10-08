@@ -7,7 +7,7 @@ import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 import {logger} from "core/logging"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
@@ -55,6 +55,12 @@ export class TooltipView extends UIElementView {
   }
 
   protected _html: HTMLView | null = null
+
+  override *children(): IterViews {
+    yield* super.children()
+    if (this._html != null)
+      yield this._html
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

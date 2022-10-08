@@ -25,7 +25,7 @@ import {ColumnDataSource} from "../sources/column_data_source"
 import {Renderer} from "../renderers/renderer"
 import {DataRenderer} from "../renderers/data_renderer"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {Tool} from "../tools/tool"
+import {Tool, ToolAliases} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 
 import {PlotView} from "./plot_canvas"
@@ -224,7 +224,7 @@ export class Plot extends LayoutDOM {
   }
 
   add_renderers(...renderers: Renderer[]): void {
-    this.renderers = this.renderers.concat(renderers)
+    this.renderers = [...this.renderers, ...renderers]
   }
 
   add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
@@ -234,8 +234,9 @@ export class Plot extends LayoutDOM {
     return renderer
   }
 
-  add_tools(...tools: Tool[]): void {
-    this.toolbar.tools = this.toolbar.tools.concat(tools)
+  add_tools(...tools: (Tool | keyof ToolAliases)[]): void {
+    const computed_tools = tools.map((tool) => tool instanceof Tool ? tool : Tool.from_string(tool))
+    this.toolbar.tools = [...this.toolbar.tools, ...computed_tools]
   }
 
   remove_tools(...tools: Tool[]): void {

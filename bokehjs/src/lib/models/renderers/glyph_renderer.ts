@@ -13,7 +13,7 @@ import {extend, clone, entries} from "core/util/object"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
 import {SelectionManager} from "core/selection_manager"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 import {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import {FactorRange} from "../ranges/factor_range"
@@ -60,6 +60,18 @@ export class GlyphRendererView extends DataRendererView {
 
   get glyph_view(): GlyphView {
     return this.glyph
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.cds_view
+    yield this.glyph
+    yield this.selection_glyph
+    yield this.nonselection_glyph
+    if (this.hover_glyph != null)
+      yield this.hover_glyph
+    yield this.muted_glyph
+    yield this.decimated_glyph
   }
 
   protected all_indices: Indices

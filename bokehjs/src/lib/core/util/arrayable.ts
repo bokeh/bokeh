@@ -280,17 +280,17 @@ export function cumsum(array: Arrayable<number>): Arrayable<number> {
   return result
 }
 
-export function every<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
-  for (let i = 0, length = array.length; i < length; i++) {
-    if (!predicate(array[i]))
+export function every<T>(iter: Iterable<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of iter) {
+    if (!predicate(item))
       return false
   }
   return true
 }
 
-export function some<T>(array: Arrayable<T>, predicate: (item: T) => boolean): boolean {
-  for (let i = 0, length = array.length; i < length; i++) {
-    if (predicate(array[i]))
+export function some<T>(iter: Iterable<T>, predicate: (item: T) => boolean): boolean {
+  for (const item of iter) {
+    if (predicate(item))
       return true
   }
   return false

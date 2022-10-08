@@ -125,7 +125,7 @@ describe("core/kinds module", () => {
   it("should support Struct kind", () => {
     const tp = k.Struct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.Int))})
 
-    expect(`${tp}`).to.be.equal("Struct") // TODO: ({a: Int, b: String, c?: Array(Int)})
+    expect(`${tp}`).to.be.equal("Struct({a: Int, b: String, c: Opt(Array(Int))})")
 
     expect(tp.valid({})).to.be.false
     expect(tp.valid({a: 0})).to.be.false

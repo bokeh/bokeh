@@ -1,17 +1,17 @@
 import {logger} from "core/logging"
 import {div, a, StyleSheetLike} from "core/dom"
-import {build_views, remove_views} from "core/build_views"
+import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
 import * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location} from "core/enums"
 import {EventType} from "core/ui_events"
-import {every, sort_by, includes, intersection, clear} from "core/util/array"
+import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
 import {join} from "core/util/iterator"
-import {values, entries} from "core/util/object"
+import {fields, values, entries} from "core/util/object"
 import {isArray} from "core/util/types"
 import {Tool, EventRole} from "./tool"
 import {ToolProxy, ToolLike} from "./tool_proxy"
-import {ToolButtonView} from "./tool_button"
+import {ToolButton} from "./tool_button"
 import {GestureTool} from "./gestures/gesture_tool"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {ActionTool} from "./actions/action_tool"
@@ -19,14 +19,15 @@ import {HelpTool} from "./actions/help_tool"
 import {ContextMenu} from "core/util/menus"
 
 import toolbars_css, * as toolbars from "styles/toolbar.css"
-import tools_css, * as tools from "styles/tool_button.css"
 import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
 export class ToolbarView extends UIElementView {
   override model: Toolbar
 
-  readonly tool_button_views: Map<ToolLike<Tool>, ToolButtonView> = new Map()
+  protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
+  protected _tool_buttons: ToolButton[][]
+
   protected _overflow_menu: ContextMenu
   protected _overflow_el: HTMLElement
 
@@ -37,6 +38,23 @@ export class ToolbarView extends UIElementView {
   private _visible: boolean | null = null
   get visible(): boolean {
     return !this.model.visible ? false : (!this.model.autohide || (this._visible ?? false))
+  }
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._tool_button_views.values()
+  }
+
+  override has_finished(): boolean {
+    if (!super.has_finished())
+      return false
+
+    for (const child_view of this._tool_button_views.values()) {
+      if (!child_view.has_finished())
+        return false
+    }
+
+    return true
   }
 
   override initialize(): void {
@@ -52,7 +70,6 @@ export class ToolbarView extends UIElementView {
       prevent_hide: (event) => {
         return event.composedPath().includes(this._overflow_el)
       },
-      extra_styles: [tools_css],
     })
   }
 
@@ -64,7 +81,8 @@ export class ToolbarView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
 
-    this.connect(this.model.properties.tools.change, async () => {
+    const {buttons, tools} = this.model.properties
+    this.on_change([buttons, tools], async () => {
       await this._build_tool_button_views()
       this.render()
     })
@@ -75,16 +93,30 @@ export class ToolbarView extends UIElementView {
   }
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), toolbars_css, tools_css, logos_css, icons_css]
+    return [...super.styles(), toolbars_css, logos_css, icons_css]
   }
 
   override remove(): void {
-    remove_views(this.tool_button_views)
+    remove_views(this._tool_button_views)
     super.remove()
   }
 
   protected async _build_tool_button_views(): Promise<void> {
-    await build_views(this.tool_button_views as any, this.model.tools, {parent: this as any}, (tool) => tool.button_view) // XXX: no ButtonToolButton model
+    this._tool_buttons = (() => {
+      const {buttons} = this.model
+      if (buttons == "auto") {
+        const groups = [
+          ...values(this.model.gestures).map((gesture) => gesture.tools),
+          this.model.actions,
+          this.model.inspectors.filter((tool) => tool.toggleable),
+        ]
+        return groups.map((group) => group.map((tool) => tool.tool_button()))
+      } else {
+        return split(buttons, null)
+      }
+    })()
+
+    await build_views(this._tool_button_views, this._tool_buttons.flat(), {parent: this})
   }
 
   set_visibility(visible: boolean): void {
@@ -111,38 +143,8 @@ export class ToolbarView extends UIElementView {
     this._on_visible_change()
 
     const {horizontal} = this.model
-    let size = 0
 
-    if (this.model.logo != null) {
-      const gray = this.model.logo === "grey" ? logos.grey : null
-      const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
-      this.shadow_el.appendChild(logo_el)
-      const {width, height} = logo_el.getBoundingClientRect()
-      size += horizontal ? width : height
-    }
-
-    for (const [, button_view] of this.tool_button_views) {
-      button_view.render()
-    }
-
-    const bars: HTMLElement[][] = []
-
-    const el = (tool: ToolLike<Tool>) => {
-      return this.tool_button_views.get(tool)!.el
-    }
-
-    const {gestures} = this.model
-    for (const gesture of values(gestures)) {
-      bars.push(gesture.tools.map(el))
-    }
-
-    bars.push(this.model.actions.map(el))
-    bars.push(this.model.inspectors.filter((tool) => tool.toggleable).map(el))
-
-    const non_empty = bars.filter((bar) => bar.length != 0)
-    const divider = () => div({class: tools.divider})
-
-    this._overflow_el = div({class: tools.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
+    this._overflow_el = div({class: toolbars.tool_overflow, tabIndex: 0}, horizontal ? "⋮" : "⋯")
     const toggle_menu = () => {
       const at = (() => {
         switch (this.model.location) {
@@ -162,6 +164,25 @@ export class ToolbarView extends UIElementView {
         toggle_menu()
       }
     })
+
+    let size = 0
+    if (this.model.logo != null) {
+      const gray = this.model.logo === "grey" ? logos.grey : null
+      const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
+      this.shadow_el.appendChild(logo_el)
+      const {width, height} = logo_el.getBoundingClientRect()
+      size += horizontal ? width : height
+    }
+
+    for (const [, button_view] of this._tool_button_views) {
+      button_view.render()
+      button_view.after_render()
+    }
+
+    const bars = this._tool_buttons.map((group) => group.map((button) => this._tool_button_views.get(button)!.el))
+    const non_empty = bars.filter((bar) => bar.length != 0)
+
+    const divider = () => div({class: toolbars.divider})
 
     const overflow_size = 15
     const {bbox} = this
@@ -229,6 +250,7 @@ export namespace Toolbar {
     autohide: p.Property<boolean>
 
     // internal
+    buttons: p.Property<(ToolButton | null)[] | "auto">
     location: p.Property<Location>
     inner: p.Property<boolean>
 
@@ -270,22 +292,21 @@ export class Toolbar extends UIElement {
   static {
     this.prototype.default_view = ToolbarView
 
-    this.define<Toolbar.Props>(({Any, Boolean, Array, Or, Ref, Nullable/*, Null, Auto*/}) => ({
+    this.define<Toolbar.Props>(({Boolean, Array, Or, Ref, Nullable, Auto}) => ({
       tools:          [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
       logo:           [ Nullable(Logo), "normal" ],
       autohide:       [ Boolean, false ],
-      active_drag:    [ Any /*Or(Ref(Drag), Auto, Null)*/, "auto" ],
-      active_inspect: [ Any /*Or(Ref(Inspection), Array(Ref(Inspection)), Auto, Null)*/, "auto" ],
-      active_scroll:  [ Any /*Or(Ref(Scroll), Auto, Null)*/, "auto" ],
-      active_tap:     [ Any /*Or(Ref(Tap), Auto, Null)*/, "auto" ],
-      active_multi:   [ Any /*Or(Ref(GestureTool), Auto, Null)*/, "auto" ],
+      active_drag:    [ Nullable(Or(Ref(Drag), Auto)), "auto" ],
+      active_inspect: [ Nullable(Or(Ref(Inspection), Array(Ref(Inspection)), Auto)), "auto" ],
+      active_scroll:  [ Nullable(Or(Ref(Scroll), Auto)), "auto" ],
+      active_tap:     [ Nullable(Or(Ref(Tap), Auto)), "auto" ],
+      active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Any, Array, Boolean, Ref, Or/*, Struct, Nullable*/}) => {
-      /*
+    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Struct, Nullable, Null, Auto}) => {
       const GestureEntry = Struct({
         tools: Array(Ref(GestureTool)),
-        active: Nullable(Ref(Tool)),
+        active: Nullable(Ref(GestureTool)),
       })
       const GestureMap = Struct({
         pan:       GestureEntry,
@@ -299,14 +320,14 @@ export class Toolbar extends UIElement {
         move:      GestureEntry,
         multi:     GestureEntry,
       })
-      */
       return {
-        location:         [ Location, "right" ],
-        inner:            [ Boolean, false ],
-        gestures:         [ Any, /*GestureMap,*/ create_gesture_map ],
-        actions:          [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
-        inspectors:       [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
-        help:             [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
+        buttons:    [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
+        location:   [ Location, "right" ],
+        inner:      [ Boolean, false ],
+        gestures:   [ GestureMap, create_gesture_map ],
+        actions:    [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
+        inspectors: [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
+        help:       [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
       }
     })
   }
@@ -357,12 +378,12 @@ export class Toolbar extends UIElement {
         new_gestures[tool.event_role].tools.push(tool)
       }
     }
-    for (const et of Object.keys(new_gestures) as GestureType[]) {
-      const gm = this.gestures[et]
-      gm.tools = new_gestures[et].tools
+    for (const et of fields(new_gestures)) {
+      const gesture = this.gestures[et]
+      gesture.tools = sort_by(new_gestures[et].tools, (tool) => tool.default_order)
 
-      if (gm.active && every(gm.tools, t => t.id != gm.active?.id)) {
-        gm.active = null
+      if (gesture.active && every(gesture.tools, (tool) => tool.id != gesture.active?.id)) {
+        gesture.active = null
       }
     }
   }
@@ -405,7 +426,6 @@ export class Toolbar extends UIElement {
 
     // Connecting signals has to be done before changing the active state of the tools.
     for (const gesture of values(this.gestures)) {
-      gesture.tools = sort_by(gesture.tools, (tool) => tool.default_order)
       for (const tool of gesture.tools) {
         // XXX: connect once
         this.connect(tool.properties.active.change, () => this._active_change(tool))

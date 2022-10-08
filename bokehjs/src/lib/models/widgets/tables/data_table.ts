@@ -18,7 +18,7 @@ import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView, CDSViewView} from "../../sources/cds_view"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 
 import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
@@ -132,6 +132,11 @@ export class DataTableView extends WidgetView {
   }
 
   protected wrapper_el: HTMLElement
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this.cds_view
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

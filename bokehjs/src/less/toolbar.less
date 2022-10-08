@@ -1,6 +1,13 @@
 @import "./_mixins.less";
 
 :host {
+  // TODO: shared with tool_button.less
+  --button-width: 30px;
+  --button-height: 30px;
+  --button-color: lightgray;
+}
+
+:host {
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
@@ -41,5 +48,63 @@
     order: 0;
     margin-bottom: 5px;
     margin-top: 0px;
+  }
+}
+
+/// Dividier
+
+.bk-divider {
+  content: " ";
+  display: inline-block;
+  background-color: var(--button-color);
+}
+
+:host(.bk-above), :host(.bk-below) {
+  .bk-divider {
+    height: 10px;
+    width: 1px;
+  }
+}
+
+:host(.bk-left), :host(.bk-right) {
+  .bk-divider {
+    height: 1px;
+    width: 10px;
+  }
+}
+
+/// Overflow button
+
+.bk-tool-overflow {
+  color: gray;
+  display: flex;
+  align-items: center;
+}
+
+.bk-tool-overflow:hover {
+  background-color: rgba(192, 192, 192, 0.15);
+}
+
+.bk-tool-overflow:focus, .bk-tool-overflow:focus-visible {
+  outline: 1px dotted var(--active-tool-highlight);
+  outline-offset: -1px;
+}
+
+.bk-tool-overflow::-moz-focus-inner {
+  border: 0;
+}
+
+:host(.bk-above), :host(.bk-below), :host(.bk-horizontal) {
+  .bk-tool-overflow {
+    width: calc(var(--button-width)/2);
+    height: var(--button-height);
+    flex-direction: row;
+  }
+}
+:host(.bk-left), :host(.bk-right), :host(.bk-vertical) {
+  .bk-tool-overflow {
+    width: var(--button-width);
+    height: calc(var(--button-height)/2);
+    flex-direction: column;
   }
 }

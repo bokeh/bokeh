@@ -1,6 +1,5 @@
 import {UIElement, UIElementView, DOMBoxSizing} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
-import {IterViews} from "core/view"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {remove, px, CSSOurStyles} from "core/dom"
@@ -8,7 +7,7 @@ import {Display} from "core/css"
 import {isNumber, isArray} from "core/util/types"
 import * as p from "core/properties"
 
-import {build_views} from "core/build_views"
+import {build_views, ViewStorage, IterViews} from "core/build_views"
 import {DOMElementView} from "core/dom_view"
 import {Layoutable, SizingPolicy, Percent} from "core/layout"
 import {defer} from "core/util/defer"
@@ -29,7 +28,7 @@ export abstract class LayoutDOMView extends UIElementView {
   override model: LayoutDOM
   override parent: DOMElementView | null
 
-  protected _child_views: Map<UIElement, UIElementView>
+  protected readonly _child_views: ViewStorage<UIElement> = new Map()
 
   layout?: Layoutable
 
@@ -40,11 +39,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   get is_layout_root(): boolean {
     return this.is_root || !(this.parent instanceof LayoutDOMView)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this._child_views = new Map()
   }
 
   private _resized = false

@@ -1,7 +1,7 @@
 import sinon from "sinon"
 
 import {expect} from "assertions"
-import {display, fig} from "./_util"
+import {display, fig, click} from "./_util"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
@@ -426,14 +426,13 @@ describe("Bug", () => {
       const grid = gridplot(plots, {merge_tools: true})
       const {view} = await display(grid)
 
-      const el = view.toolbar_view.shadow_el.querySelector(".bk-tool-button")
+      const el = view.toolbar_view.shadow_el.querySelector(".bk-ClickButton") // TODO: don't depend on CSS selectors
       assert(el != null)
 
       const spy = sinon.spy(CopyToolView.prototype, "copy")
       try {
         // XXX: this code may raise `DOMException: Document is not focused` during interactive testing
-        const ev = new MouseEvent("click", {clientX: 5, clientY: 5, bubbles: true})
-        el.dispatchEvent(ev)
+        await click(el)
         await defer()
         expect(spy.callCount).to.be.equal(1)
       } finally {

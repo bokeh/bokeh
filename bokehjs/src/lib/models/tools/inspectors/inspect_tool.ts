@@ -1,5 +1,5 @@
 import {Tool, ToolView} from "../tool"
-import {OnOffButtonView} from "../on_off_button"
+import {OnOffButton} from "../on_off_button"
 import {PlotView} from "../../plots/plot"
 
 import * as p from "core/properties"
@@ -32,8 +32,6 @@ export abstract class InspectTool extends Tool {
   }
 
   static {
-    this.prototype.button_view = OnOffButtonView
-
     this.define<InspectTool.Props>(({Boolean}) => ({
       toggleable: [ Boolean, true ],
     }))
@@ -44,4 +42,8 @@ export abstract class InspectTool extends Tool {
   }
 
   override event_type = "move" as "move"
+
+  override tool_button(): OnOffButton {
+    return new OnOffButton({tool: this})
+  }
 }

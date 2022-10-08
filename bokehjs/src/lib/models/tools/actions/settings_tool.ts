@@ -3,12 +3,17 @@ import * as p from "core/properties"
 import * as icons from "styles/icons.css"
 import {Dialog, DialogView} from "../../ui/dialog"
 import {Inspector} from "../../ui/inspector"
-import {build_view} from "core/build_views"
+import {build_view, IterViews} from "core/build_views"
 
 export class SettingsToolView extends ActionToolView {
   override model: SettingsTool
 
   protected _dialog: DialogView
+
+  override *children(): IterViews {
+    yield* super.children()
+    yield this._dialog
+  }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

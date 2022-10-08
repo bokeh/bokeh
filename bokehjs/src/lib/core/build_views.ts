@@ -3,6 +3,8 @@ import {View, ViewOf, ViewManager} from "./view"
 import {difference} from "./util/array"
 import {assert} from "./util/assert"
 
+export {type IterViews} from "./view"
+
 export type ViewStorage<T extends HasProps> = Map<T, ViewOf<T>>
 export type Options<T extends View> = {parent: T["parent"] | null, owner?: ViewManager}
 

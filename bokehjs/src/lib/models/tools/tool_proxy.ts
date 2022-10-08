@@ -1,10 +1,9 @@
 import * as p from "core/properties"
 import {EventType} from "core/ui_events"
 import {Signal0} from "core/signaling"
-import {Class} from "core/class"
 import {Model} from "../../model"
-import {Tool, EventRole} from "./tool"
-import {ToolButtonView} from "./tool_button"
+import {Tool, ToolView, EventRole} from "./tool"
+import {ToolButton} from "./tool_button"
 import {InspectTool} from "./inspectors/inspect_tool"
 import {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
@@ -25,6 +24,7 @@ export interface ToolProxy<T extends Tool> extends ToolProxy.Attrs<T> {}
 
 export class ToolProxy<T extends Tool> extends Model {
   override properties: ToolProxy.Props<T>
+  override __view_type__: ToolView
 
   constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)
@@ -46,8 +46,8 @@ export class ToolProxy<T extends Tool> extends Model {
     return this.tools[0]
   }
 
-  get button_view(): Class<ToolButtonView> {
-    return this.tools[0].button_view
+  tool_button(): ToolButton {
+    return this.tools[0].tool_button()
   }
 
   get event_type(): EventType | EventType[] | undefined {
