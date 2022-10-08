@@ -182,16 +182,16 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
     corresponding features:
 
     * The ``"bokeh-widgets"`` files are only necessary if you are using any of the
-    :ref:`Bokeh widgets <ug_interaction_widgets>`.
+      :ref:`Bokeh widgets <ug_interaction_widgets>`.
     * The ``"bokeh-tables"`` files are only necessary if you are using Bokeh's
-    :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
+      :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
     * The ``"bokeh-api"`` files are required to use the
       :ref:`BokehJS API <ug_advanced_bokehjs>` and must be loaded *after* the
       core BokehJS library.
     * The ``"bokeh-gl"`` files are required to enable
-    :ref:`WebGL support <ug_output_webgl>`.
+      :ref:`WebGL support <ug_output_webgl>`.
     * the ``"bokeh-mathjax"`` files are required to enable
-    :ref:`MathJax support <ug_styling_mathtext>`.
+      :ref:`MathJax support <ug_styling_mathtext>`.
 
     Args:
         models (Model|list|dict|tuple) :
