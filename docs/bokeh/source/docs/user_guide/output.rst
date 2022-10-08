@@ -3,7 +3,8 @@
 Output options
 ==============
 
-Some text here
+You have a wide range of options to display and export Bokeh visualizations,
+including embedding in Jupyter notebooks, web pages, or as static files.
 
 :ref:`ug_output_jupyter`
 
