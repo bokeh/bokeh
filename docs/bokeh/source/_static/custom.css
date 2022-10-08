@@ -195,9 +195,17 @@ div.bk-thumbnail:hover {
     box-shadow: 0 0 5px #444;
 }
 
-div.bk-thumbnail-title {
-    font-weight: bold;
+div.bk-thumbnail-description {
+    font-weight: lighter;
     font-size: 12px;
+    text-align: justify;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+div.bk-thumbnail-description p {
+    font-size: 10px;
+    text-align: left;
 }
 
 div.bk-gallery-tabs > label {
