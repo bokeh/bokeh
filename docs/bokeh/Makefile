@@ -15,7 +15,6 @@ all: html
 
 clean:
 	-rm -rf $(BUILDDIR)/*
-	-rm -rf source/docs/gallery/*
 	-rm -rf source/docs/examples/*
 
 html:
