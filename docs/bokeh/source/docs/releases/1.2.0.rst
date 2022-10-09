@@ -24,7 +24,7 @@ New in 1.2
 ~~~~~~~~~~
 
 Discourse Site
-''''''''''''''
+..............
 
 *The Google Groups mailing list has been retired*. In it's place, there is now
 a `Discourse site for community discussions`_.
@@ -32,7 +32,7 @@ All of the old content from the mailing list has been imported into the Discours
 and is searchable.
 
 Callback Policy
-'''''''''''''''
+...............
 
 Sliders add a ``value_throttled`` property that is updated (and triggers JS
 and Python callbacks) only according to the ``callback_policy``:
@@ -56,7 +56,7 @@ removed in Bokeh 2.0 in the near future. The general `js_on_change` and `on_chan
 mothods should be used going forward.
 
 Stacked Areas and Lines
-'''''''''''''''''''''''
+.......................
 
 New ``varea`` and ``harea`` methods add support for single directed areas
 (filled regions between two series that share a common index). Also added:
@@ -83,7 +83,7 @@ For example:
     p.vline_stack(colnames, x='index', color="black", source=df)
 
 Legend Titles
-'''''''''''''
+.............
 
 Legends now support displaying a title:
 
