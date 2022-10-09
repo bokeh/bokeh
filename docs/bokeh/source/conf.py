@@ -164,7 +164,7 @@ html_context = {
 
 html_css_files = [f"custom.css?v={version}"]
 
-html_static_path = ["_static"]
+html_static_path = ["static"]
 
 html_theme ="pydata_sphinx_theme"
 
