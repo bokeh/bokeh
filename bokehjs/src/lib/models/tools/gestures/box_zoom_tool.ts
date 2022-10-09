@@ -124,15 +124,16 @@ export class BoxZoomToolView extends GestureToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    this._base_point = [ev.sx, ev.sy]
+    const {sx, sy} = ev
+    if (this.plot_view.frame.bbox.contains(sx, sy))
+      this._base_point = [sx, sy]
   }
 
   override _pan(ev: PanEvent): void {
     if (this._base_point == null)
       return
 
-    const curr_point: Point = [ev.sx, ev.sy]
-    const [[left, right], [top, bottom]] = this._compute_limits(this._base_point, curr_point)
+    const [[left, right], [top, bottom]] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
     this.model.overlay.update({left, right, top, bottom})
   }
 
@@ -140,13 +141,12 @@ export class BoxZoomToolView extends GestureToolView {
     if (this._base_point == null)
       return
 
-    const curr_point: Point = [ev.sx, ev.sy]
-    const [sx, sy] = this._compute_limits(this._base_point, curr_point)
+    const [sx, sy] = this._compute_limits(this._base_point, [ev.sx, ev.sy])
     this._update(sx, sy)
     this._stop()
   }
 
-  _stop(): void {
+  protected _stop(): void {
     this.model.overlay.clear()
     this._base_point = null
   }

@@ -37,6 +37,7 @@
   },
   "include": [
     "../framework.ts",
+    "../interactive.ts",
     "../*.d.ts",
     "./**/*.ts",
     "./**/*.tsx"
