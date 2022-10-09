@@ -202,29 +202,29 @@ describe("range_tool module", () => {
 
       it("should set overlay in_cursor", () => {
         const rt = new RangeTool()
-        expect(rt.overlay.in_cursor).to.be.equal("move")
+        expect(rt.overlay.in_cursor).to.be.equal("default")
       })
 
       it("should set overlay ns_cursor", () => {
         const rt0 = new RangeTool()
-        expect(rt0.overlay.ns_cursor).to.be.null
+        expect(rt0.overlay.ns_cursor).to.be.equal("default")
 
         const rt1 = new RangeTool({y_range})
         expect(rt1.overlay.ns_cursor).to.be.equal("ns-resize")
 
         const rt2 = new RangeTool({y_range, y_interaction: false})
-        expect(rt2.overlay.ns_cursor).to.be.null
+        expect(rt2.overlay.ns_cursor).to.be.equal("default")
       })
 
       it("should set overlay ew_cursor", () => {
         const rt0 = new RangeTool()
-        expect(rt0.overlay.ew_cursor).to.be.null
+        expect(rt0.overlay.ew_cursor).to.be.equal("default")
 
         const rt1 = new RangeTool({x_range})
         expect(rt1.overlay.ew_cursor).to.be.equal("ew-resize")
 
         const rt2 = new RangeTool({x_range, x_interaction: false})
-        expect(rt2.overlay.ew_cursor).to.be.null
+        expect(rt2.overlay.ew_cursor).to.be.equal("default")
       })
     })
 
