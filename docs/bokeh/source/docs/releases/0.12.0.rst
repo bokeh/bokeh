@@ -101,7 +101,7 @@ time being, but there are two small hard compatibility breaks that could
 not be avoided:
 
 ``Plot.title``
-''''''''''''''
+..............
 
 This attribute is now a ``Title`` object. It is no longer possible to set, e.g.
 ``p.title = "some text"`` as a string value. Instead, you must do:
@@ -114,7 +114,7 @@ related properties on ``Plot``, e.g ``title_text_color`` continue to work
 for now, while issuing deprecation warnings.
 
 ``session.show``
-''''''''''''''''
+................
 
 The ``ClientSession.show`` method must now be explicitly passed the thing to
 be shown. It is no longer possible to call, e.g. ``session.show()`` without

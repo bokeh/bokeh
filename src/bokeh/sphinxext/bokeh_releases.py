@@ -82,6 +82,7 @@ class BokehReleases(BokehDirective):
             except KeyError:
                 if v == __version__:
                     raise RuntimeError(f"Missing SRI Hash for full release version {v!r}")
+                rst.append(RELEASE_DETAIL.render(version=v, table=[]))
 
         return self.parse("\n".join(rst), "<bokeh-releases>")
 
