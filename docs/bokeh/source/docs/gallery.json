@@ -145,6 +145,14 @@
     {
       "name": "contour_simple.py",
       "alt": "Thumbnail link to the examples/topics/contour/contour_simple.py example shows an iso-contour plot with ten levels between -2 and 2."
+    },
+    {
+      "name": "contour.py",
+      "alt": "Thumbnail link to the examples/topics/contour/contour.py example shows an iso-contour of a 2d trigonometric function"
+    },
+    {
+      "name": "contour_polar.py",
+      "alt": "Thumbnail link to the examples/topics/contour/contour_polar.py example shows an iso-contour of a polar function using hatching"
     }
   ],
   "topics/hex": [
