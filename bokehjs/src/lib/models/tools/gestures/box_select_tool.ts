@@ -1,9 +1,11 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
+import {Scale} from "../../scales/scale"
 import * as p from "core/properties"
-import {Dimensions, BoxOrigin, SelectionMode} from "core/enums"
+import {Dimensions, BoxOrigin, SelectionMode, CoordinateUnits} from "core/enums"
 import {PanEvent, KeyEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
+import {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
@@ -20,8 +22,10 @@ export class BoxSelectToolView extends SelectToolView {
     this.connect(pan, (phase) => {
       if ((phase == "pan" && this.model.select_every_mousemove) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
-        if (left != null && top != null && right != null && bottom != null)
-          this._do_select([left, right], [top, bottom], false, this.model.mode)
+        if (left != null && top != null && right != null && bottom != null) {
+          const screen = this._compute_lrtb({left, right, top, bottom})
+          this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this.model.mode)
+        }
       }
     })
 
@@ -48,6 +52,54 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
+  _compute_lrtb({left, right, top, bottom}: LRTB): LRTB {
+    function compute(dim: number, dim_units: CoordinateUnits,
+        scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) {
+      switch (dim_units) {
+        case "canvas": return canvas.compute(dim)
+        case "screen": return view.compute(dim)
+        case "data":   return scale.compute(dim)
+      }
+    }
+
+    const {overlay} = this.model
+    const {frame, canvas} = this.plot_view
+    const {x_scale, y_scale} = frame
+    const {x_view, y_view} = frame.bbox
+    const {x_screen, y_screen} = canvas.bbox
+
+    return {
+      left: compute(left, overlay.left_units, x_scale, x_view, x_screen),
+      right: compute(right, overlay.right_units, x_scale, x_view, x_screen),
+      top: compute(top, overlay.top_units, y_scale, y_view, y_screen),
+      bottom: compute(bottom, overlay.bottom_units, y_scale, y_view, y_screen),
+    }
+  }
+
+  _invert_lrtb({left, right, top, bottom}: LRTB): LRTB {
+    function invert(dim: number, dim_units: CoordinateUnits,
+        scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) {
+      switch (dim_units) {
+        case "canvas": return canvas.invert(dim)
+        case "screen": return view.invert(dim)
+        case "data":   return scale.invert(dim)
+      }
+    }
+
+    const {overlay} = this.model
+    const {frame, canvas} = this.plot_view
+    const {x_scale, y_scale} = frame
+    const {x_view, y_view} = frame.bbox
+    const {x_screen, y_screen} = canvas.bbox
+
+    return {
+      left: invert(left, overlay.left_units, x_scale, x_view, x_screen),
+      right: invert(right, overlay.right_units, x_scale, x_view, x_screen),
+      top: invert(top, overlay.top_units, y_scale, y_view, y_screen),
+      bottom: invert(bottom, overlay.bottom_units, y_scale, y_view, y_screen),
+    }
+  }
+
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
     if (this.plot_view.frame.bbox.contains(sx, sy))
@@ -62,7 +114,7 @@ export class BoxSelectToolView extends SelectToolView {
     const [sxlim, sylim] = this._compute_limits([sx, sy])
 
     const [[left, right], [top, bottom]] = [sxlim, sylim]
-    this.model.overlay.update({left, right, top, bottom})
+    this.model.overlay.update(this._invert_lrtb({left, right, top, bottom}))
 
     if (this.model.continuous) {
       this._do_select(sxlim, sylim, false, this._select_mode(ev))
