@@ -89,13 +89,20 @@ class BokehGalleryDirective(BokehDirective):
         for location in self.content:
 
             for detail in gallery_json[location]:
-                alt = detail.get("alt", None)
                 path = PurePath("examples") / location / detail["name"]
+                if "url" in detail:
+                    url = detail.get("url")
+                    target = "_blank"
+                else:
+                    url = str(path.with_suffix(".html"))
+                    target = None
                 opts.append({
-                    "ref": str(path.with_suffix(".html")),
+                    "url": url,
+                    "target": target,
                     "img": str(path.with_suffix("")),
+                    "alt": detail.get("alt"),
                     "title": path.stem,
-                    "alt": alt,
+                    "desc": detail.get("desc", None)
                 })
 
         rst_text = GALLERY_PAGE.render(opts=opts)

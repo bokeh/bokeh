@@ -194,14 +194,14 @@ widgets on the left to change the sine wave on the right:
 Find the source code for this Bokeh server app in the
 `Bokeh repository on GitHub <https://github.com/bokeh/bokeh/blob/master/examples/app/sliders.py>`_.
 For more examples of Bokeh server applications, see the
-:ref:`gallery_server_examples` section of the :ref:`gallery`.
+:ref:`gallery`.
 
 .. seealso::
     For information on using the server and writing Bokeh server plots
     and apps, see :ref:`ug_server` in the user guide.
 
     For more examples of Bokeh server applications, see the
-    :ref:`gallery_server_examples` section of the :ref:`gallery`.
+    :ref:`gallery`.
 
     An easy way to create more complex dashboards is to use
     `Panel (https://panel.holoviz.org) <https://panel.holoviz.org/index.html>`_.
