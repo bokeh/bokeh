@@ -5228,6 +5228,7 @@
       },
     },
     origin: "corner",
+    persistent: false,
   },
   LassoSelectTool: {
     __extends__: [
