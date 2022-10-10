@@ -33,8 +33,8 @@ plot beyond which the user cannot pan or zoom.
     # set a range using a Range1d
     p.y_range = Range1d(0, 15, bounds=(0, None))
 
-Specifying axis types
----------------------
+Axis types
+----------
 
 All the examples above use the default linear axis. This axis is suitable for
 plots that need to show numerical data on a linear scale. However, you may have
@@ -98,7 +98,7 @@ Mercator axes
 .. _ug_basic_axes_twin:
 
 Twin axes
-~~~~~~~~~
+---------
 
 You can add multiple axes representing different ranges to a single plot. To do
 this, configure the plot with "extra" named ranges in the ``extra_x_range`` and
@@ -107,4 +107,16 @@ adding new glyph methods as well as when adding new axis objects with the
 ``add_layout`` method of the |plot|. Here's an example:
 
 .. bokeh-plot:: __REPO__/examples/basic/axes/twin_axes.py
+    :source-position: above
+
+.. _ug_basic_axes_fixed:
+
+Fixed location axis
+-------------------
+
+By defatult Bokeh places axes on the sides of plots, but it is possible to
+locate axes anywhere along a range by setting their ``fixed_location``
+property:
+
+.. bokeh-plot:: __REPO__/examples/basic/axes/fixed_axis.py
     :source-position: above
