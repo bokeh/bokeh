@@ -36,7 +36,7 @@ Use the properties of the |Legend| object to customize the legend. For example:
 
 .. seealso::
     To learn more about legends, see :ref:`ug_basic_annotations_legends` in the
-    annotations section and :ref:`ug_basic_styling_legends` in the styling
+    annotations section and :ref:`ug_styling_plot_elements_legends` in the styling
     section of the user guide. The entry |Legend| in the reference guide
     contains a list of all available attributes for legends.
 

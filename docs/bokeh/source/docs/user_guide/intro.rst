@@ -62,7 +62,7 @@ throughout Bokeh's documentation:
         level of interface to assemble plots directly. However, ultimately all
         Bokeh plots consist of collections of models. It is helpful to
         understand them enough to configure their attributes and properties.
-        See :ref:`ug_basic_styling` in the |user guide| for more
+        See :ref:`ug_styling` in the |user guide| for more
         information.
 
     Plot

@@ -88,7 +88,7 @@ class MathML(MathText):
     """ Render mathematical content using `MathML <https://www.w3.org/Math/>`_
     notation.
 
-    See :ref:`ug_topics_mathtext` in the |user guide| for more information.
+    See :ref:`ug_styling_mathtext` in the |user guide| for more information.
 
     """
 
@@ -100,7 +100,7 @@ class TeX(MathText):
     """ Render mathematical content using `LaTeX <https://www.latex-project.org/>`_
     notation.
 
-    See :ref:`ug_topics_mathtext` in the |user guide| for more information.
+    See :ref:`ug_styling_mathtext` in the |user guide| for more information.
 
     .. note::
         Bokeh uses `MathJax <https://www.mathjax.org>`_ to render text

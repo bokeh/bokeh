@@ -3,7 +3,8 @@
 Advanced usage
 ==============
 
-Some text here
+The following chapters contain information about advanced use cases and
+features.
 
 :ref:`ug_advanced_compat`
 

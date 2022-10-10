@@ -1,317 +1,9 @@
-.. _ug_basic_styling:
+.. _ug_styling_plot_elements:
 
-Visual styles
-=============
+Styling plot elements
+=====================
 
-.. _ug_basic_styling_using_themes:
-
-Using themes
-------------
-
-Bokeh's themes are a set of pre-defined design parameters that you can apply to
-your plots. Themes can include settings for parameters such as colors, fonts,
-or line styles.
-
-.. _ug_basic_styling_using_themes_built_in:
-
-Applying Bokeh's built-in themes
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Bokeh comes with five :ref:`built-in themes <bokeh.themes>` to quickly change
-the appearance of one or more plots: ``caliber``, ``dark_minimal``,
-``light_minimal``, ``night_sky``, and ``contrast``.
-
-.. container:: theme-examples
-
-    .. image:: /_images/themes_caliber.png
-        :scale: 50%
-        :alt: Screenshot of the caliber theme for Bokeh
-
-    .. image:: /_images/themes_dark_minimal.png
-        :scale: 50%
-        :alt: Screenshot of the dark_minimal theme for Bokeh
-
-    .. image:: /_images/themes_light_minimal.png
-        :scale: 50%
-        :alt: Screenshot of the light_minimal theme for Bokeh
-
-    .. image:: /_images/themes_night_sky.png
-        :scale: 50%
-        :alt: Screenshot of the night_sky theme for Bokeh
-
-    .. image:: /_images/themes_contrast.png
-        :scale: 50%
-        :alt: Screenshot of the contrast theme for Bokeh
-
-
-To use one of the built-in themes, assign the name of the theme you want to use
-to the ``theme`` property of your document.
-
-For example:
-
-.. bokeh-plot::
-    :source-position: above
-
-    from bokeh.io import curdoc
-    from bokeh.plotting import figure, output_file, show
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("dark_minimal.html")
-
-    curdoc().theme = 'dark_minimal'
-
-    p = figure(title='dark_minimal', width=300, height=300)
-    p.line(x, y)
-
-    show(p)
-
-For more examples and detailed information, see :class:`bokeh.themes`.
-
-.. _ug_basic_styling_using_themes_custom:
-
-Creating custom themes
-~~~~~~~~~~~~~~~~~~~~~~
-
-Themes in Bokeh are defined in YAML or JSON files. To create your own theme
-files, follow the format defined in :class:`bokeh.themes.Theme`.
-
-Using YAML, for example:
-
-.. code-block:: yaml
-
-    attrs:
-        figure:
-            background_fill_color: '#2F2F2F'
-            border_fill_color: '#2F2F2F'
-            outline_line_color: '#444444'
-        Axis:
-            axis_line_color: !!null
-        Grid:
-            grid_line_dash: [6, 4]
-            grid_line_alpha: .3
-        Title:
-            text_color: "white"
-
-To use your custom theme in a Bokeh plot, load your YAML or JSON file into a
-:class:`bokeh.themes.Theme` object:
-
-.. code-block:: python
-
-    from bokeh.themes import Theme
-    curdoc().theme = Theme(filename="./theme.yml")
-
-.. _ug_basic_styling_using_palettes:
-
-Using palettes
---------------
-
-Palettes are sequences of RGB(A) hex strings that define a colormap. The
-sequences you use for defining colormaps can be either lists or tuples. Once you
-have created a colormap, you can use it with the ``color`` attribute of many
-plot objects from |bokeh.plotting|.
-
-Bokeh includes several pre-defined palettes, such as the standard Brewer
-palettes. To use one of those pre-defined palettes, import it from the
-``bokeh.palettes`` module. When you import "Spectral6", for example, Bokeh gives
-you access to a six element list of RGB(A) hex strings from the Brewer
-"Spectral" colormap:
-
-.. code-block:: python
-
-    >>> from bokeh.palettes import Spectral6
-    >>> Spectral6
-    ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
-
-For a list of all the standard palettes included in Bokeh, see
-:ref:`bokeh.palettes`.
-
-You can also create custom palettes by defining a sequence of RGB(A) hex
-strings yourself.
-
-.. _ug_basic_styling_using_mappers:
-
-Using mappers
--------------
-
-Use Bokeh's color mappers to encode a sequence of data into a palette of colors
-that are based on the values in that sequence. You can then set a marker
-object's ``color`` attribute to your color mapper. Bokeh includes several types
-of mappers to encode colors:
-
-* |factor_cmap|: Maps colors to specific categorical elements.
-  See :ref:`ug_basic_bars` for more detail.
-* :func:`~bokeh.transform.linear_cmap`: Maps a range of numeric values across the
-  available colors from high to low. For example, a range of `[0,99]` given the
-  colors `['red', 'green', 'blue']` would be mapped as follows::
-
-        x < 0  : 'red'     # values < low are clamped
-    0 >= x < 33 : 'red'
-    33 >= x < 66 : 'green'
-    66 >= x < 99 : 'blue'
-    99 >= x      : 'blue'    # values > high are clamped
-
-* :func:`~bokeh.transform.log_cmap`: Similar to ``linear_cmap`` but uses a natural
-  log scale to map the colors.
-
-These mapper functions return a ``DataSpec`` property. Pass this property to
-the color attribute of the glyph you want to use it with.
-
-The dataspec that the mapper function returns includes a ``bokeh.transform``.
-You can access this data to use the result of the mapper function in a different
-context. To create a ``ColorBar``, for example:
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/linear_mappers.py
-    :source-position: above
-
-.. _ug_basic_styling_visual_properties:
-
-Customizing visual properties
------------------------------
-
-To style the visual attributes of Bokeh plots, you need to know what the
-available properties are. The full |reference guide| contains all properties of
-every object individually. However, there are three groups of properties that
-many objects have in common. They are:
-
-* **line properties**: line color, width, etc.
-* **fill properties**: fill color, alpha, etc.
-* **text properties**: font styles, colors, etc.
-
-This section contains more details about some of the most common properties.
-
-.. _ug_basic_styling_line_properties:
-
-Line properties
-~~~~~~~~~~~~~~~
-
-.. include:: ../../includes/line_props.txt
-
-.. _ug_basic_styling_fill_properties:
-
-Fill properties
-~~~~~~~~~~~~~~~
-
-.. include:: ../../includes/fill_props.txt
-
-.. _ug_basic_styling_hatch_properties:
-
-Hatch properties
-~~~~~~~~~~~~~~~~
-
-.. include:: ../../includes/hatch_props.txt
-
-.. _ug_basic_styling_text_properties:
-
-Text properties
-~~~~~~~~~~~~~~~
-
-.. include:: ../../includes/text_props.txt
-
-.. _ug_basic_styling_visible_property:
-
-Visible property
-~~~~~~~~~~~~~~~~
-
-Glyph renderers, axes, grids, and annotations all have a ``visible`` property.
-Use this property to turn them on and off.
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/visible_property.py
-    :source-position: above
-
-This can be particularly useful in interactive examples with a Bokeh server or
-CustomJS.
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/visible_annotation_with_interaction.py
-    :source-position: above
-
-.. _ug_basic_styling_colors:
-
-Color properties
-~~~~~~~~~~~~~~~~
-
-Bokeh objects have several properties related to colors. Use those color
-properties to control the appearance of lines, fills, or text, for example.
-
-Use one of these options to define colors in Bokeh:
-
-- Any of the |named CSS colors|, such as ``'green'`` or ``'indigo'``. You can
-  also use the additional name ``'transparent'`` (equal to ``'#00000000'``).
-- An RGB(A) hex value, such as ``'#FF0000'`` (without alpha information) or
-  ``'#44444444'`` (with alpha information).
-- A CSS4 ``rgb()``, ``rgba()``, or ``hsl()``
-  `color string <https://www.w3.org/TR/css-color-4/>`_, such as
-  ``'rgb(0 127 0 / 1.0)'``, ``'rgba(255, 0, 127, 0.6)'``, or
-  ``'hsl(60deg 100% 50% / 1.0)'``.
-- A 3-tuple of integers ``(r, g, b)`` (where *r*, *g*, and *b* are integers
-  between 0 and 255).
-- A 4-tuple of ``(r, g, b, a)`` (where *r*, *g*, and *b* are integers between 0
-  and 255 and *a* is a floating-point value between 0 and 1).
-- A 32-bit unsigned integer representing RGBA values in a 0xRRGGBBAA
-  byte order pattern, such as ``0xffff00ff`` or ``0xff0000ff``.
-
-To define a series of colors, use an array of color data such as a list or the
-column of a |ColumnDataSource|. This also includes
-`NumPy arrays <https://numpy.org/doc/stable/reference/generated/numpy.array.html>`_.
-
-For example:
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/specifying_colors.py
-    :source-position: above
-
-In addition to specifying the alpha value of a color when defining the color
-itself, you can also set an alpha value separately by using the
-``line_alpha`` or ``fill_alpha`` properties of a glyph.
-
-If you specify a color with an alpha value and also explicitly provide an
-alpha value through a ``line_alpha`` or ``fill_alpha`` property at the same
-time, then the alpha values are combined by multiplying them together. For
-example, if your color is ``'#00FF0044'`` or ``'rgba(255, 0, 127, 0.6)'``
-and your separate alpha value is ``0.5`` then the alpha value used for the
-glyph will be ``0.6*0.5 = 0.3``.
-
-The following figure demonstrates each possible combination of using RGB and
-RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/specifying_colors_properties.py
-    :source-position: none
-
-.. note::
-    If you use
-    :ref:`Bokeh's plotting interface <ug_interfaces_plotting>`, you also
-    have the option to specify ``color`` and/or ``alpha`` as keywords when
-    calling a renderer method. Bokeh automatically applies these values to the
-    corresponding ``fill`` and ``line`` properties of your glyphs.
-
-    You then still have the option to provide additional ``fill_color``,
-    ``fill_alpha``, ``line_color``, and ``line_alpha`` arguments as well. In
-    this case, the former will take precedence.
-
-.. _ug_basic_styling_units:
-
-Screen units and data-space units
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When setting visual properties of Bokeh objects, you use either screen units or
-data-space units:
-
-* Screen units use raw numbers of pixels to specify height or width
-* Data-space units are relative to the data and the axes of the plot
-
-Take a 400 pixel by 400 pixel graph with x and y axes ranging from 0
-through 10, for example. A glyph that is one fifth as wide and tall as the graph
-would have a size of 80 screen units or 2 data-space units.
-
-Objects in Bokeh that support both screen units and data-space units usually
-have a dedicated property to choose which unit to use. This unit-setting
-property is the name of the property with an added ``_units``. For
-example: A :class:`~bokeh.models.annotations.Whisker`
-:ref:`annotation <ug_basic_annotations_whiskers>` has the property ``upper``. To
-define which unit to use, set the ``upper_units`` property to either
-``'screen'`` or ``'data'``.
-
-.. _ug_basic_styling_selecting:
+.. _ug_styling_plot_elements_selecting:
 
 Selecting plot objects
 ----------------------
@@ -347,7 +39,7 @@ You can also use the |select| method to query on other attributes as well:
 This query method can be especially useful when you want to style visual
 attributes of `Styling glyphs`_.
 
-.. _ug_basic_styling_plots:
+.. _ug_styling_plot_elements_plots:
 
 Styling plots
 -------------
@@ -360,7 +52,7 @@ how to change these attributes of a Bokeh plot.
 The example code primarily uses the |bokeh.plotting| interface to create plots.
 However, the instructions apply regardless of how a Bokeh plot was created.
 
-.. _ug_basic_styling_plot_dimensions:
+.. _ug_styling_plot_elements_dimensions:
 
 Dimensions
 ~~~~~~~~~~
@@ -376,7 +68,7 @@ If you are using the |bokeh.plotting| interface, you can pass these values to
 .. bokeh-plot:: __REPO__/examples/basic/styling/dimensions.py
     :source-position: above
 
-.. _ug_basic_styling_plot_responsive_dimensions:
+.. _ug_styling_plot_elements_responsive_dimensions:
 
 Responsive sizes
 ~~~~~~~~~~~~~~~~
@@ -399,7 +91,7 @@ problems in displaying your plot.
 
 .. _Bokeh GitHub repository: https://github.com/bokeh/bokeh
 
-.. _ug_basic_styling_plot_title:
+.. _ug_styling_plot_elements_title:
 
 Title
 ~~~~~
@@ -418,7 +110,7 @@ As an example, to set the color and font style of the title text, use
 .. bokeh-plot:: __REPO__/examples/basic/styling/title.py
     :source-position: above
 
-.. _ug_basic_styling_plot_background:
+.. _ug_styling_plot_elements_background:
 
 Background
 ~~~~~~~~~~
@@ -429,7 +121,7 @@ To change the background fill style, adjust the ``background_fill_color`` and
 .. bokeh-plot:: __REPO__/examples/basic/styling/background_fill.py
     :source-position: above
 
-.. _ug_basic_styling_plot_border:
+.. _ug_styling_plot_elements_border:
 
 Border
 ~~~~~~
@@ -449,7 +141,7 @@ to all sides as a convenience. The ``min_border`` default value is 40px.
 .. bokeh-plot:: __REPO__/examples/basic/styling/min_border.py
     :source-position: above
 
-.. _ug_basic_styling_plot_outline:
+.. _ug_styling_plot_elements_outline:
 
 Outline
 ~~~~~~~
@@ -462,7 +154,7 @@ For example, to set the color of the outline, use ``outline_line_color``:
 .. bokeh-plot:: __REPO__/examples/basic/styling/plot_outline_line_color.py
     :source-position: above
 
-.. _ug_basic_styling_glyphs:
+.. _ug_styling_plot_elements_glyphs:
 
 Styling glyphs
 --------------
@@ -490,7 +182,7 @@ This is the object to set fill, line, or text property values for:
 .. bokeh-plot:: __REPO__/examples/basic/styling/glyph_properties.py
     :source-position: above
 
-.. _ug_basic_styling_selected_unselected_glyphs:
+.. _ug_styling_plot_elements_selected_unselected_glyphs:
 
 Selected and unselected glyphs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -541,7 +233,7 @@ If you use the |bokeh.models| interface, use the
     ``selection_glyph`` and ``nonselection_glyph``. Changing
     positions, sizes, etc., will have no effect.
 
-.. _ug_basic_styling_hover_inspections:
+.. _ug_styling_plot_elements_hover_inspections:
 
 Hover inspections
 ~~~~~~~~~~~~~~~~~
@@ -551,7 +243,7 @@ parameters prefixed with ``"hover_"`` to your renderer function.
 
 Alternatively, set the |selection_glyph| and |nonselection_glyph| attributes of
 the |GlyphRenderer|, just like in
-:ref:`ug_basic_styling_selected_unselected_glyphs` above.
+:ref:`ug_styling_plot_elements_selected_unselected_glyphs` above.
 
 This example uses the first method of passing a color parameter with the
 ``"hover_"`` prefix:
@@ -563,42 +255,7 @@ This example uses the first method of passing a color parameter with the
     When rendering, Bokeh considers only the *visual* properties of
     ``hover_glyph``. Changing positions, sizes, etc. will have no effect.
 
-.. _ug_basic_styling_tool_overlays:
-
-Styling tool overlays
----------------------
-
-Some Bokeh tools also have configurable visual attributes.
-
-For instance, the various region selection tools and the box zoom tool all have
-an ``overlay``. To style their line and fill properties, pass values to the
-respective attributes:
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/tool_overlays.py
-    :source-position: above
-
-For more information, see the reference guide's entries for
-:class:`BoxSelectTool.overlay <bokeh.models.tools.BoxSelectTool.overlay>`,
-:class:`BoxZoomTool.overlay <bokeh.models.tools.BoxZoomTool.overlay>`,
-:class:`LassoSelectTool.overlay <bokeh.models.tools.LassoSelectTool.overlay>`,
-:class:`PolySelectTool.overlay <bokeh.models.tools.PolySelectTool.overlay>`, and
-:class:`RangeTool.overlay <bokeh.models.tools.RangeTool.overlay>`.
-
-.. _ug_basic_styling_toolbar_autohide:
-
-Toggling ToolBar autohide
--------------------------
-
-To make your toolbar hide automatically, set the toolbar's
-:class:`~bokeh.models.tools.Toolbar.autohide` property to True. When you set
-``autohide`` to True, the toolbar is visible only when the mouse is inside the
-plot area and is otherwise hidden.
-
-.. bokeh-plot:: __REPO__/examples/basic/styling/toolbar_autohide.py
-    :source-position: above
-
-
-.. _ug_basic_styling_axes:
+.. _ug_styling_plot_elements_axes:
 
 Styling axes
 ------------
@@ -631,7 +288,7 @@ The example below demonstrates the use of the |xaxis|, |yaxis|, and
 .. bokeh-plot:: __REPO__/examples/basic/styling/axis_properties.py
     :source-position: above
 
-.. _ug_basic_styling_axes_labels:
+.. _ug_styling_plot_elements_axes_labels:
 
 Labels
 ~~~~~~
@@ -652,7 +309,7 @@ For example:
 .. bokeh-plot:: __REPO__/examples/basic/styling/labels.py
     :source-position: above
 
-.. _ug_basic_styling_axes_bounds:
+.. _ug_styling_plot_elements_axes_bounds:
 
 Bounds
 ~~~~~~
@@ -663,7 +320,7 @@ object to a 2-tuple of *(start, end)*:
 .. bokeh-plot:: __REPO__/examples/basic/styling/bounds.py
     :source-position: above
 
-.. _ug_basic_styling_axes_tick_lines:
+.. _ug_styling_plot_elements_axes_tick_lines:
 
 Tick locations
 ~~~~~~~~~~~~~~
@@ -715,7 +372,7 @@ Therefore, you can use negative values.
 .. bokeh-plot:: __REPO__/examples/basic/styling/tick_lines.py
     :source-position: above
 
-.. _ug_basic_styling_axes_tick_label_formats:
+.. _ug_styling_plot_elements_axes_tick_label_formats:
 
 Tick label formats
 ~~~~~~~~~~~~~~~~~~
@@ -779,7 +436,7 @@ the snippet or function namespace at render time:
 .. bokeh-plot:: __REPO__/examples/basic/styling/custom_js_tick_formatter.py
     :source-position: above
 
-.. _ug_basic_styling_axes_datetime_tick_context:
+.. _ug_styling_plot_elements_axes_datetime_tick_context:
 
 Datetime tick context
 ~~~~~~~~~~~~~~~~~~~~~
@@ -828,7 +485,7 @@ for as many levels of context as desired. For example:
     p.xaxis.formatter.context = DatetimeTickFormatter(...)
     p.xaxis.formatter.context.context = DatetimeTickFormatter(...)
 
-.. _ug_basic_styling_axes_tick_label_orientation:
+.. _ug_styling_plot_elements_axes_tick_label_orientation:
 
 Tick label orientation
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -847,7 +504,7 @@ that gives the angle (in radians) to rotate from the horizontal:
     types of Bokeh axes, see the :ref:`bokeh.models.axes` section of the
     |reference guide|.
 
-.. _ug_basic_styling_grids:
+.. _ug_styling_plot_elements_grids:
 
 Styling grids
 -------------
@@ -878,7 +535,7 @@ for every element of the list:
     provides the grid objects that intersect the y-axis (meaning horizontally
     oriented objects).
 
-.. _ug_basic_styling_grid_lines:
+.. _ug_styling_plot_elements_grid_lines:
 
 Lines
 ~~~~~
@@ -905,7 +562,7 @@ to ``None``):
 .. bokeh-plot:: __REPO__/examples/basic/styling/minor_grid_lines.py
     :source-position: above
 
-.. _ug_basic_styling_grid_bands:
+.. _ug_styling_plot_elements_grid_bands:
 
 Bands
 ~~~~~
@@ -927,14 +584,14 @@ This example uses bands filled with a hatch pattern:
 .. bokeh-plot:: __REPO__/examples/basic/styling/grid_band_hatch.py
     :source-position: above
 
-.. _ug_basic_styling_grid_bounds:
+.. _ug_styling_plot_elements_grid_bounds:
 
 Bounds
 ~~~~~~
 
 To set explicit bounds that limit where grids are drawn, use a 2-tuple of
 *(start, end)*. This is identical to setting
-:ref:`bounds for axes <ug_basic_styling_axes_bounds>`:
+:ref:`bounds for axes <ug_styling_plot_elements_axes_bounds>`:
 
 .. bokeh-plot:: __REPO__/examples/basic/styling/grid_bounds.py
     :source-position: above
@@ -946,7 +603,7 @@ To set explicit bounds that limit where grids are drawn, use a 2-tuple of
     plot grids, consult the :ref:`bokeh.models.grids` section of the
     |reference guide|.
 
-.. _ug_basic_styling_legends:
+.. _ug_styling_plot_elements_legends:
 
 Styling legends
 ---------------
@@ -1120,7 +777,7 @@ spacing, etc. of the legend components:
 .. bokeh-plot:: __REPO__/examples/basic/styling/legend_dimensions.py
     :source-position: above
 
-.. _ug_basic_styling_render_level:
+.. _ug_styling_plot_elements_render_levels:
 
 Setting render levels
 ---------------------
@@ -1155,14 +812,9 @@ the render level ``"image"`` to the ``level`` argument when calling your
 You can see a complete example with output in the section
 :ref:`ug_topics_images_colormapped`.
 
-.. _color extension: http://docs.mathjax.org/en/latest/input/tex/extensions/color.html
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.annotations.Title`
-
-.. |Range1d| replace:: :class:`~bokeh.models.ranges.Range1d`
-
-.. |bokeh.models.formatters| replace:: :ref:`bokeh.models.formatters <bokeh.models.formatters>`
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
@@ -1170,7 +822,6 @@ You can see a complete example with output in the section
 .. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
 .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
 .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
-
 .. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`

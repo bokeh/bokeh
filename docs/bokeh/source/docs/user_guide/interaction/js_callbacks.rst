@@ -56,8 +56,7 @@ SetValue callbacks
 ~~~~~~~~~~~~~~~~~~
 
 Use the :class:`~bokeh.models.SetValue` model to dynamically set specific
-properties of an object when an event occurs in the browser. With this model,
-you can
+properties of an object when an event occurs in the browser.
 
 The ``SetValue`` model has the following properties:
 

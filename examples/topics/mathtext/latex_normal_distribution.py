@@ -3,7 +3,7 @@ use of mathtext on axes and in ``Div`` objects.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.quad, bokeh.models.Div, bokeh.models.TeX
-    :refs: :ref:`ug_topics_mathtext`
+    :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
 '''

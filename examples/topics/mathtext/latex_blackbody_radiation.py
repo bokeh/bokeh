@@ -4,7 +4,7 @@ and in ``Div`` objects.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.models.Div
-    :refs: :ref:`ug_topics_mathtext`
+    :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
 '''

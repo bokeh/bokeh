@@ -7,7 +7,7 @@ axis labels, and also streaming data via a ``ColumnDataSource``.
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.models.sources.ColumnDataSource.stream,
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
-    :refs: :ref:`ug_topics_mathtext`
+    :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
 '''

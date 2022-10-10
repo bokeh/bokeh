@@ -1,4 +1,4 @@
-.. _ug_topics_mathtext:
+.. _ug_styling_mathtext:
 
 Mathematical notation
 =====================
@@ -7,7 +7,7 @@ Bokeh supports mathematical notations expressed in the LaTeX_ and MathML_ markup
 languages with a growing number of elements. Currently, you can use LaTeX
 and MathML notations with the following elements:
 
-* :ref:`Axis labels <ug_basic_styling_axes_labels>`
+* :ref:`Axis labels <ug_styling_plot_elements_axes_labels>`
 * Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
@@ -32,7 +32,7 @@ This string needs to begin and end with one of the
 and ``\(...\)``. For example: ``r"$$\sin(x)$$"``.
 
 LaTeX on axis labels, titles, and labels
-    To use LaTeX notation as an :ref:`axis label <ug_basic_styling_axes_labels>`,
+    To use LaTeX notation as an :ref:`axis label <ug_styling_plot_elements_axes_labels>`,
     :ref:`title <ug_basic_annotations_titles>`, or :ref:`label
     <ug_basic_annotations_labels>`, pass a raw string literal beginning and
     ending with `MathJax default delimiters`_ and containing LaTeX notation. For
@@ -86,7 +86,7 @@ of rendered math text. Use ``text_font_size`` to change the font size, use
     p.xaxis.axis_label_text_font_size = "50px"
 
 Text color and sizes defined in a :ref:`Bokeh theme
-<ug_basic_styling_using_themes>` also work.
+<ug_styling_using_themes>` also work.
 
 Additionally, you have the option to use the `LaTeX extensions included in MathJax`_.
 For example, use ``\text{}`` to combine literal text with a math expression. Or

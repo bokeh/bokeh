@@ -3,11 +3,10 @@
 Special topics
 ==============
 
-Some text here
+Bokeh can be used to create a wide variety of visualizations, using different
+kinds of data.
 
 :ref:`ug_topics_images`
-
-:ref:`ug_topics_mathtext`
 
 :ref:`ug_topics_contour`
 
@@ -24,9 +23,9 @@ Some text here
 :ref:`ug_topics_stats`
 
 .. toctree::
+    :hidden:
 
     topics/images
-    topics/mathtext
     topics/contour
     topics/hex
     topics/categorical

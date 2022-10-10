@@ -186,24 +186,31 @@ scheme::
     https://cdn.bokeh.org/bokeh/release/bokeh-gl-x.y.z.min.js
     https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-x.y.z.min.js
 
-There are additional components to BokehJS that are necessary only for specific
-use cases:
+Only the Bokeh core library ``bokeh-x.y.z.min.js`` is always required. The
+other scripts are optional and only need to be included if you want to use
+corresponding features:
 
-* The ``"-widgets"`` files are only necessary if you are using any of the
-  widgets built into Bokeh in ``bokeh.models.widgets``.
-* The ``"-tables"`` files are only necessary if you are using Bokeh data
-  tables.
-* The ``"bokeh-api"`` files are required to use the BokehJS API and must be
-  loaded *after* the core BokehJS library.
+* The ``"bokeh-widgets"`` files are only necessary if you are using any of the
+  :ref:`Bokeh widgets <ug_interaction_widgets>`.
+* The ``"bokeh-tables"`` files are only necessary if you are using Bokeh's
+  :ref:`data tables <ug_interaction_widgets_examples_datatable>`.
+* The ``"bokeh-api"`` files are required to use the
+  :ref:`BokehJS API <ug_advanced_bokehjs>` and must be loaded *after* the
+  core BokehJS library.
+* The ``"bokeh-gl"`` files are required to enable
+  :ref:`WebGL support <ug_output_webgl>`.
+* the ``"bokeh-mathjax"`` files are required to enable
+  :ref:`MathJax support <ug_styling_mathtext>`.
 
-For example, the links for version ``2.4.3`` are:
+Replace ``x.y.z`` with the Bokeh version you want to use. For example, the links
+for version ``3.0.0`` are:
 
-* https://cdn.bokeh.org/bokeh/release/bokeh-2.4.3.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.3.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.3.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.3.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-gl-2.4.3.min.js
-* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-2.4.3.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-3.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-api-3.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.0.0.min.js
+* https://cdn.bokeh.org/bokeh/release/bokeh-mathjax-3.0.0.min.js
 
 .. note::
     You should always set ``crossorigin="anonymous"`` on script tags that load

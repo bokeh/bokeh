@@ -9,6 +9,7 @@ User guide
 
     user_guide/intro
     user_guide/basic
+    user_guide/styling
     user_guide/topics
     user_guide/interaction
     user_guide/output
@@ -31,25 +32,29 @@ This user guide is arranged by topic:
     Learn important foundational concepts about how Bokeh is organized.
 
 :ref:`ug_basic`
-    Make different kinds of plots using the simple but flexible glyph
-    methods from the |bokeh.plotting| interface.
+    Learn how to create different kinds of plots using the simple but flexible
+    |bokeh.plotting| interface.
+
+:ref:`ug_styling`
+    Learn how to customize the appearance of your plots.
 
 :ref:`ug_topics`
-    topics
+    Learn about Bokeh's more specialized functionalities.
 
 :ref:`ug_interaction`
-    Create more sophisticated interactions including widgets or linked
-    panning and selection.
+    Learn how to make your plots more interactive and with features such as
+    plot tools, widgets, and callbacks.
 
 :ref:`ug_output`
-    Ouptut
+    Learn how to export, embed, and display Bokeh plots in different contexts.
 
 :ref:`ug_server`
-    Deploy the Bokeh Server to build and publish sophisticated data
+    Learn how to use the Bokeh Server to build and publish complex data
     applications.
 
 :ref:`ug_advanced`
-    Create plots in JavaScript by using BokehJS directly.
+    Learn how to use Bokeh with other tools, extend Bokeh, or create plots in
+    JavaScript by using BokehJS directly.
 
 The user guide contains a lot of examples. They are as minimal as possible and
 usually focus on highlighting one functionality or concept each. You can copy

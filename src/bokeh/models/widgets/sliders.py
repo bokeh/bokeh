@@ -83,7 +83,7 @@ class AbstractSlider(Widget):
     """)
 
     title = Nullable(String, default="", help="""
-    The slider's label (supports :ref:`math text <ug_topics_mathtext>`).
+    The slider's label (supports :ref:`math text <ug_styling_mathtext>`).
     """)
 
     show_value = Bool(default=True, help="""
