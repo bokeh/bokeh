@@ -3,15 +3,14 @@
 Visuals and styling
 ===================
 
-Bokeh offers many ways to customize the appearance of your plots.
+Bokeh offers many ways to customize the appearance of plots and other elements
+in a visualization.
 
 :ref:`ug_styling_palettes_mappers`
 
 :ref:`ug_styling_visual_properties`
 
 :ref:`ug_styling_plot_elements`
-
-:ref:`ug_styling_render_levels`
 
 :ref:`ug_styling_mathtext`
 
@@ -23,6 +22,5 @@ Bokeh offers many ways to customize the appearance of your plots.
     styling/palettes_mappers
     styling/visual_properties
     styling/plot_elements
-    styling/render_levels
     styling/mathtext
     styling/themes
