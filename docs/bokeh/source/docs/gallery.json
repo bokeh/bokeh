@@ -276,11 +276,19 @@
   "interaction/js_callbacks": [
     {
       "name": "slider.py",
-      "alt": "Thumbnail link to the examples/plotting/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
+      "alt": "Thumbnail link to the examples/interaction/js_callbacks/slider.py example shows a layout with a sine plot on the left and sliders on the right to control the sine wave properties such as frequency and phase."
     },
     {
       "name": "color_sliders.py",
-      "alt": "Thumbnail link to the examples/plotting/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
+      "alt": "Thumbnail link to the examples/interaction/js_callbacks/color_sliders.py example shows a layout with RGB sliders on the left to control a plot on the right. A colorbar with hover tool is underneath."
+    },
+    {
+      "name": "customjs_lasso_mean.py",
+      "alt": "Thumbnail link to the examples/interaction/js_callbacks/customjs_lasso_mean.py example shows a scatter plot with a lasso selection tool that responds to selections by drawing an indicator line at the average y-position of the selected points."
+    },
+    {
+      "name": "js_on_event.py",
+      "alt": "Thumbnail link to the examples/interaction/js_callbacks/customjs_for_selection_lasso_mean.py example shows a scatter plot with several tools that prints information about js events as they occur, in text box to the right."
     }
   ],
   "server/app": [
