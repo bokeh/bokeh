@@ -222,7 +222,7 @@ Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to
 the plot using the |add layout| method.
 
-.. bokeh-plot:: __REPO__/examples/basic/annotations/color_bars.py
+.. bokeh-plot:: __REPO__/examples/basic/annotations/colorbar_log.py
     :source-position: above
 
 .. _ug_basic_annotations_arrows:

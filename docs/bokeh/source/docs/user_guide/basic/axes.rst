@@ -108,3 +108,15 @@ adding new glyph methods as well as when adding new axis objects with the
 
 .. bokeh-plot:: __REPO__/examples/basic/axes/twin_axes.py
     :source-position: above
+
+.. _ug_basic_axes_twin:
+
+Fixed location axis
+~~~~~~~~~~~~~~~~~~~
+
+By defatult Bokeh places axes on the sides of plots, but it is possible to
+locate axes anywhere along a range by setting their ``fixed_location``
+property:
+
+.. bokeh-plot:: __REPO__/examples/basic/axes/fixed_axis.py
+    :source-position: above

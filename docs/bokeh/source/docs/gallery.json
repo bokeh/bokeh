@@ -33,6 +33,14 @@
     {
       "name": "logplot.py",
       "alt": "Thumbnail link to the examples/basic/axes/logplot.py example shows a plot of six basic mathematical functions such as y=x and y=x**2 on a log-scale using different lines styles for each."
+    },
+    {
+      "name": "twin_axes.py",
+      "alt": "Thumbnail link to the examples/basic/axes/twin_axes.py example shows a plot with two x-axes on different scales on the left hand side of the plot."
+    },
+    {
+      "name": "fixed_axis.py",
+      "alt": "Thumbnail link to the examples/basic/axes/fixed_axis.py example shows a plot with an axis positioned in the center of the plot instead of around the sides."
     }
   ],
   "basic/bars": [
@@ -100,7 +108,15 @@
   "basic/annotations": [
     {
       "name": "legend.py",
-      "alt": "Thumbnail link to the examples/basic/annotations/legend.py example shows a row of two plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
+      "alt": "Thumbnail link to the examples/basic/annotations/legend.py example shows a row of fo plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
+    },
+    {
+      "name": "band.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/band.py example that shows a band annotation around a trend line in a scatter plot."
+    },
+    {
+      "name": "colorbar_log.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/colorbar_log.py example that shows a log-scale color bar next to a colormapped image plot."
     },
     {
       "name": "box_annotation.py",
@@ -121,6 +137,10 @@
     {
       "name": "image.py",
       "alt": "Thumbnail link to the examples/topics/images/image.py example shows a plot with a colormapped two-dimensonal sine surface."
+    },
+    {
+      "name": "image_origin_anchor.py",
+      "alt": "Thumbnail link to the examples/topics/images/image_origin_anchor.py example shows a test image with dropdown widgets for seeing the effect of changes to an image glyph's origin and anchor properties."
     }
   ],
   "topics/mathtext": [
@@ -195,6 +215,22 @@
     {
       "name": "eclipse.py",
       "alt": "Thumbnail link to the examples/topics/geo/eclipse.py example shows a plot of US states overlaid with a trajectory marking the path of the August 2017 solar eclipse."
+    },
+    {
+      "name": "tile_source.py",
+      "alt": "Thumbnail link to the examples/topics/geo/tile_source.py example shows basic map plot using a tile source provider."
+    },
+    {
+      "name": "tile_xyzservices.py",
+      "alt": "Thumbnail link to the examples/topics/geo/tile_xyzservices.py example shows a map plot using Bokeh's integration with xyzservices for tile providers."
+    },
+    {
+      "name": "tile_demo.py",
+      "alt": "Thumbnail link to the examples/topics/geo/tile_demo_map.py example shows a grid of map plots at identical locations using various different tile providers."
+    },
+    {
+      "name": "gmap.py",
+      "alt": "Thumbnail link to the examples/topics/geo/gmap.py example shows a grid of map plot centered at Austin, TX using Bokeh's Google maps integration."
     }
   ],
   "topics/graph": [
