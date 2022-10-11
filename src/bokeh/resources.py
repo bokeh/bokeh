@@ -671,7 +671,7 @@ class SessionCoordinates:
 # Private API
 # -----------------------------------------------------------------------------
 
-_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(\.dev|\.rc)")
+_DEV_PAT = re.compile(r"^(\d)+\.(\d)+\.(\d)+(\.dev|rc)")
 
 
 def _cdn_base_url() -> str:
