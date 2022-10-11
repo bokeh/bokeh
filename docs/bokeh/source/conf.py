@@ -26,6 +26,43 @@ project = "Bokeh"
 
 version = settings.docs_version() or __version__
 
+bokeh_example_subdirs = [
+    "basic/annotations",
+    "basic/areas",
+    "basic/axes",
+    "basic/bars",
+    "basic/data",
+    "basic/layouts",
+    "basic/lines",
+    "basic/scatters",
+    "basic/styling",
+    "interaction/js_callbacks",
+    "interaction/legends",
+    "interaction/linking",
+    "interaction/tools",
+    "interaction/tooltips",
+    "interaction/widgets",
+    "models",
+    "plotting",
+    "output/webgl",
+    "topics/categorical",
+    "topics/contour",
+    "topics/geo",
+    "topics/graph",
+    "topics/hex",
+    "topics/images",
+    "topics/mathtext",
+    "topics/pie",
+    "topics/stats",
+]
+
+bokeh_sampledata_xref_skiplist = [
+    "examples/basic/layouts/custom_layout.py",
+    "examples/plotting/css_classes.py",
+    "examples/models/donut.py",
+    "examples/models/widgets.py",
+]
+
 # -- Sphinx configuration -----------------------------------------------------
 
 add_module_names = False
@@ -81,42 +118,7 @@ autodoc_type_aliases = {
     "ArrayLike": "ArrayLike",  # This avoids complicated Unions in generated docs
 }
 
-bokeh_example_subdirs = [
-    "basic/annotations",
-    "basic/areas",
-    "basic/axes",
-    "basic/bars",
-    "basic/data",
-    "basic/layouts",
-    "basic/lines",
-    "basic/scatters",
-    "basic/styling",
-    "interaction/js_callbacks",
-    "interaction/legends",
-    "interaction/linking",
-    "interaction/tools",
-    "interaction/tooltips",
-    "interaction/widgets",
-    "models",
-    "plotting",
-    "output/webgl",
-    "topics/categorical",
-    "topics/contour",
-    "topics/geo",
-    "topics/graph",
-    "topics/hex",
-    "topics/images",
-    "topics/mathtext",
-    "topics/pie",
-    "topics/stats",
-]
-
-bokeh_sampledata_xref_skiplist = [
-    "examples/basic/layouts/custom_layout.py",
-    "examples/plotting/css_classes.py",
-    "examples/models/donut.py",
-    "examples/models/widgets.py",
-]
+copybutton_prompt_text = ">>> "
 
 bokeh_missing_google_api_key_ok = False
 
@@ -126,8 +128,6 @@ if not bokeh_missing_google_api_key_ok:
                            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)")
 
 bokeh_plot_pyfile_include_dirs = ["docs"]
-
-copybutton_prompt_text = ">>> "
 
 intersphinx_mapping = {
     "numpy"       : ("https://numpy.org/doc/stable/", None),
@@ -164,7 +164,7 @@ html_context = {
 
 html_css_files = [f"custom.css?v={version}"]
 
-html_static_path = ["static"]
+html_static_path = ["_static"]
 
 html_theme ="pydata_sphinx_theme"
 
@@ -215,7 +215,7 @@ html_sidebars = {
   "index": [],
 }
 
-templates_path = ["templates"]
+templates_path = ["_templates"]
 
 def setup(app):
     app.add_object_type("confval", "confval", objname="configuration value", indextemplate="pair: %s; configuration value")

@@ -189,7 +189,7 @@ class TestResources:
         assert "dev" not in url
         assert "rc" not in url
 
-    @pytest.mark.parametrize('v', ("2.3.4.dev2", "3.0.1.rc2"))
+    @pytest.mark.parametrize('v', ("2.3.4.dev2", "3.0.1rc2"))
     def test__get_cdn_urls_dev(self, v) -> None:
         result = _get_cdn_urls(version=v)
         url = result.urls(["bokeh"], "js")[0]
