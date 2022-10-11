@@ -19,7 +19,7 @@ from .logger import LOG, Scrubber
 __all__ = ("Config",)
 
 # This excludes "local" build versions, e.g. 0.12.4+19.gf85560a
-ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))(\.(dev|rc)(\d+))?$")
+ANY_VERSION = re.compile(r"^((\d+)\.(\d+)\.(\d+))((\.dev|rc)(\d+))?$")
 
 FULL_VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 
@@ -36,7 +36,8 @@ class Config:
         self.base_version: str = groups[0]
         self.base_version_tuple: tuple[str, ...] = tuple(groups[1:4])
         self.ext: str | None = groups[4]
-        self.ext_type: str = groups[5]
+        # want just "dev" not ".dev"
+        self.ext_type: str = groups[5].lstrip(".")
         self.ext_number: str = groups[6]
 
         self._secrets: dict[str, str] = {}
