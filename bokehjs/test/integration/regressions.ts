@@ -1986,7 +1986,7 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
 
-    it("prevents selection of webgl line segments using indices", async () => {
+    it("and #12429 prevents selection of line segments using indices", async () => {
       const angles = np.linspace(0, 2*np.pi, 13)
       const x = np.cos(angles)
       const y = np.sin(angles)
