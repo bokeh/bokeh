@@ -19,7 +19,6 @@ p.scatter(x, y, radius=radii,
 
 box_select = p.select_one(BoxSelectTool)
 box_select.persistent = True
-box_select.overlay.editable = True
 box_select.overlay.left_units = "data"
 box_select.overlay.right_units = "data"
 box_select.overlay.top_units = "data"
