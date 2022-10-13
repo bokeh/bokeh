@@ -61,7 +61,7 @@ def download(progress: bool = True) -> None:
 
     '''
     data_dir = external_data_dir(create=True)
-    print("Using data directory: %s" % data_dir)
+    print(f"Using data directory: {data_dir}")
 
     # HTTP requests are cheaper for us, and there is nothing private to protect
     s3 = 'http://sampledata.bokeh.org'
@@ -77,7 +77,7 @@ def download(progress: bool = True) -> None:
         real_path = join(data_dir, real_name)
 
         if exists(real_path):
-            local_md5 = hashlib.md5(open(real_path,'rb').read()).hexdigest()
+            local_md5 = hashlib.md5(open(real_path, 'rb').read()).hexdigest()
             if local_md5 == md5:
                 print(f"Skipping {filename!r} (checksum match)")
                 continue
@@ -118,14 +118,14 @@ def external_data_dir(create: bool = False) -> str:
     if not exists(data_dir):
         if not create:
             raise RuntimeError('bokeh sample data directory does not exist, please execute bokeh.sampledata.download()')
-        print("Creating %s directory" % data_dir)
+        print(f"Creating {data_dir} directory")
         try:
             mkdir(data_dir)
         except OSError:
-            raise RuntimeError("could not create bokeh data directory at %s" % data_dir)
+            raise RuntimeError(f"could not create bokeh data directory at {data_dir}")
     else:
         if not isdir(data_dir):
-            raise RuntimeError("%s exists but is not a directory" % data_dir)
+            raise RuntimeError(f"{data_dir} exists but is not a directory")
 
     return data_dir
 
@@ -133,7 +133,7 @@ def external_path(filename: str) -> str:
     data_dir = external_data_dir()
     fn = join(data_dir, filename)
     if not exists(fn) and isfile(fn):
-        raise RuntimeError('Could not locate external data file %s. Please execute bokeh.sampledata.download()' % fn)
+        raise RuntimeError(f"Could not locate external data file {fn}. Please execute bokeh.sampledata.download()")
     return fn
 
 def package_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
@@ -173,14 +173,14 @@ def _bokeh_dir(create: bool = False) -> str:
     bokeh_dir = join(expanduser("~"), ".bokeh")
     if not exists(bokeh_dir):
         if not create: return bokeh_dir
-        print("Creating %s directory" % bokeh_dir)
+        print(f"Creating {bokeh_dir} directory")
         try:
             mkdir(bokeh_dir)
         except OSError:
-            raise RuntimeError("could not create bokeh config directory at %s" % bokeh_dir)
+            raise RuntimeError(f"could not create bokeh config directory at {bokeh_dir}")
     else:
         if not isdir(bokeh_dir):
-            raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
+            raise RuntimeError(f"{bokeh_dir} exists but is not a directory")
     return bokeh_dir
 
 def _download_file(base_url: str, filename: str, data_dir: str, progress: bool = True) -> None:
@@ -199,7 +199,7 @@ def _download_file(base_url: str, filename: str, data_dir: str, progress: bool =
 
     with open(file_path, 'wb') as file:
         file_size = int(url.headers["Content-Length"])
-        print("Downloading: %s (%d bytes)" % (filename, file_size))
+        print(f"Downloading: {filename} ({file_size} bytes)")
 
         fetch_size = 0
         block_size = 16384
@@ -213,7 +213,7 @@ def _download_file(base_url: str, filename: str, data_dir: str, progress: bool =
             file.write(data)
 
             if progress:
-                status = "\r%10d [%6.2f%%]" % (fetch_size, fetch_size*100.0/file_size)
+                status = f"\r{fetch_size:< 10d} [{fetch_size*100.0/file_size:6.2f}%%]"
                 stdout.write(status)
                 stdout.flush()
 
@@ -226,7 +226,7 @@ def _download_file(base_url: str, filename: str, data_dir: str, progress: bool =
         if not splitext(real_name)[1]:
             real_name += ".csv"
 
-        print("Unpacking: %s" % real_name)
+        print(f"Unpacking: {real_name}")
 
         with ZipFile(file_path, 'r') as zip_file:
             zip_file.extract(real_name, data_dir)
