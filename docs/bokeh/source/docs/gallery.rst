@@ -47,9 +47,9 @@ its code and interact with a live plot.
         .. bokeh-gallery::
 
             interaction/tools
+            interaction/linking
             interaction/js_callbacks
 
-        .. interaction/linking
         .. interaction/legends
         .. interaction/widgets
         .. interaction/python_callbacks

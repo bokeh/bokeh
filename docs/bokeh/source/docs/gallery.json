@@ -273,6 +273,12 @@
       "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
     }
   ],
+  "interaction/linking": [
+    {
+      "name": "data_table_plot.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/data_table_plot.py example shows a column of a scatter plot and data table that share a data source and have linked selections."
+    }
+  ],
   "interaction/js_callbacks": [
     {
       "name": "slider.py",
