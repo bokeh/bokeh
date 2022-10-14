@@ -40,7 +40,7 @@ def test_external_path_bad() -> None:
 def test_package_dir() -> None:
     path = bus.package_dir()
     assert path.exists()
-    assert str(path).endswith("sampledata/_data")
+    assert path.parts[-2:] == ("sampledata", "_data")
 
 @pytest.mark.sampledata
 def test_package_csv() -> None:
