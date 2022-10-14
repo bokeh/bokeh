@@ -1,7 +1,7 @@
 .. _ug_styling:
 
-Visuals and styling
-===================
+Appearance
+==========
 
 Bokeh offers many ways to customize the appearance of plots and other elements
 in a visualization.

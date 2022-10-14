@@ -1,7 +1,7 @@
 .. _ug_topics:
 
-Special topics
-==============
+Topic guides
+============
 
 Bokeh can be used to create a wide variety of visualizations, using different
 kinds of data.
