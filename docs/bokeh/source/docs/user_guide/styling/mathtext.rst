@@ -38,7 +38,7 @@ LaTeX on axis labels, titles, and labels
     ending with `MathJax default delimiters`_ and containing LaTeX notation. For
     example:
 
-    .. bokeh-plot:: __REPO__/examples/topics/mathtext/latex_axis_labels_titles_labels.py
+    .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_axis_labels_titles_labels.py
         :source-position: above
 
 LaTeX and tick labels
@@ -51,7 +51,7 @@ LaTeX and tick labels
 
     Use this function to replace any plain text tick labels with LaTeX notation:
 
-    .. bokeh-plot:: __REPO__/examples/topics/mathtext/latex_tick_labels.py
+    .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_tick_labels.py
         :source-position: above
 
 LaTeX on RangeSlider and Slider widget titles
@@ -60,7 +60,7 @@ LaTeX on RangeSlider and Slider widget titles
     literal beginning and ending with `MathJax default delimiters`_ and containing
     LaTeX notation as the ``title`` parameter. For example:
 
-    .. bokeh-plot:: __REPO__/examples/topics/mathtext/latex_slider_widget_title.py
+    .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_slider_widget_title.py
         :source-position: above
 
 LaTeX with div and paragraph widgets
@@ -69,7 +69,7 @@ LaTeX with div and paragraph widgets
     <bokeh.models.Paragraph>`, use the standard `MathJax default delimiters`_
     anywhere within your string:
 
-    .. bokeh-plot:: __REPO__/examples/topics/mathtext/latex_div_widget.py
+    .. bokeh-plot:: __REPO__/examples/styling/mathtext/latex_div_widget.py
         :source-position: above
 
     To disable LaTeX rendering for a div or paragraph widget, set the widget's
@@ -105,7 +105,7 @@ To add mathematical notations written in MathML, use Bokeh's
 :class:`~bokeh.models.text.MathML` model directly. This model has a ``text``
 property that accepts a string containing MathML. For example:
 
-.. bokeh-plot:: __REPO__/examples/topics/mathtext/mathml_axis_labels.py
+.. bokeh-plot:: __REPO__/examples/styling/mathtext/mathml_axis_labels.py
     :source-position: above
 
 Similar to LaTeX, you can also use Bokeh's standard |text properties|

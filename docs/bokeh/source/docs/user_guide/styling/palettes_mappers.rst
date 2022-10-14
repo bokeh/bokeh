@@ -63,5 +63,5 @@ The dataspec that the mapper function returns includes a ``bokeh.transform``.
 You can access this data to use the result of the mapper function in a different
 context. To create a ``ColorBar``, for example:
 
-.. bokeh-plot:: __REPO__/examples/basic/styling/linear_mappers.py
+.. bokeh-plot:: __REPO__/examples/styling/palettes_mappers/linear_mappers.py
     :source-position: above
