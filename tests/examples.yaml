@@ -9,8 +9,6 @@
 
 - path: "examples/integration/**"
 
-- path: "examples/interaction/**"
-
 - path: "examples/models/*"
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
 
