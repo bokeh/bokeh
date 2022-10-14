@@ -2,7 +2,7 @@
   skip: ["gears", "widget.py"]
 
 - path: "examples/basic/**"
-  skip: ["data/ajax_source.py", "data/server_sent_events_source.py"]
+  skip: ["ajax_source.py", "server_sent_events_source.py"]
 
 - path: "examples/embed/*"
   skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session"]
