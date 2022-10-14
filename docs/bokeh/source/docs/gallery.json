@@ -123,10 +123,28 @@
       "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
     }
   ],
-  "basic/styling": [
+  "styling/plot_elements": [
     {
       "name": "hatch_grid_band.py",
-      "alt": "Thumbnail link to the examples/basic/styling/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+      "alt": "Thumbnail link to the examples/styling/plot_elements/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+    }
+  ],
+  "styling/mathtext": [
+    {
+      "name": "latex_blackbody_radiation.py",
+      "alt": "Thumbnail link to the examples/styling/mathtext/latex_blackbody_radiation.py example shows plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels."
+    },
+    {
+      "name": "latex_normal_distribution.py",
+      "alt": "Thumbnail link to the examples/styling/mathtext/latex_normal_distribution.py example shows a plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels."
+    },
+    {
+      "name": "latex_schrodinger.py",
+      "alt": "Thumbnail link to the examples/styling/mathtext/latex_schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."
+    },
+    {
+      "name": "latex_bessel.py",
+      "alt": "Thumbnail link to the examples/styling/mathtext/latex_bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
     }
   ],
   "topics/images": [
@@ -141,24 +159,6 @@
     {
       "name": "image_origin_anchor.py",
       "alt": "Thumbnail link to the examples/topics/images/image_origin_anchor.py example shows a test image with dropdown widgets for seeing the effect of changes to an image glyph's origin and anchor properties."
-    }
-  ],
-  "topics/mathtext": [
-    {
-      "name": "latex_blackbody_radiation.py",
-      "alt": "Thumbnail link to the examples/topics/mathtext/latex_blackbody_radiation.py example shows plot of spectral radiance curves for an ideal radiating blackbody at various temperatures with mathtext axis labels."
-    },
-    {
-      "name": "latex_normal_distribution.py",
-      "alt": "Thumbnail link to the examples/topics/mathtext/latex_normal_distribution.py example shows a plot of the sampled and ideal Gaussian distribution with mathtext axis tick labels."
-    },
-    {
-      "name": "latex_schrodinger.py",
-      "alt": "Thumbnail link to the examples/topics/mathtext/latex_schrodinger.py example shows solutions of Schrödinger’s equation for the motion of a particle in one dimension in a parabolic potential well for eight energy levels, with mathtext labels for each solution."
-    },
-    {
-      "name": "latex_bessel.py",
-      "alt": "Thumbnail link to the examples/topics/mathtext/latex_bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
     }
   ],
   "topics/contour": [
@@ -205,6 +205,12 @@
     {
       "name": "periodic.py",
       "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
+    }
+  ],
+  "topics/hierarchical": [
+    {
+      "name": "treemap.py",
+      "alt": "Thumbnail link to the examples/topics/hierarchical/treemap.py example treemap plot breaking down sales per city by region from the sample superstore data set."
     }
   ],
   "topics/geo": [
@@ -271,6 +277,12 @@
     {
       "name": "range_tool.py",
       "alt": "Thumbnail link to the examples/interaction/tools/range_tool.py example shows a column of two plots of timeseries plots of stock price data. The bottom plot shows all the data and has a range tool for controlling the viewport of the top plot."
+    }
+  ],
+  "interaction/linking": [
+    {
+      "name": "data_table_plot.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/data_table_plot.py example shows a column of a scatter plot and data table that share a data source and have linked selections."
     }
   ],
   "interaction/js_callbacks": [

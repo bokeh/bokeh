@@ -39,7 +39,7 @@ This user guide is arranged by topic:
     Learn how to customize the appearance of your plots.
 
 :ref:`ug_topics`
-    Learn about Bokeh's more specialized functionalities.
+    Learn how to apply Bokeh's capabilities to specialized data and use-cases.
 
 :ref:`ug_interaction`
     Learn how to make your plots more interactive and with features such as

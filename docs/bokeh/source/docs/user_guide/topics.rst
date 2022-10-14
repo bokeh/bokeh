@@ -1,7 +1,7 @@
 .. _ug_topics:
 
-Special topics
-==============
+Topic guides
+============
 
 Bokeh can be used to create a wide variety of visualizations, using different
 kinds of data.
@@ -11,6 +11,10 @@ kinds of data.
 :ref:`ug_topics_contour`
 
 :ref:`ug_topics_hex`
+
+:ref:`ug_topics_categorical`
+
+:ref:`ug_topics_hierarchical`
 
 :ref:`ug_topics_geo`
 
@@ -29,6 +33,7 @@ kinds of data.
     topics/contour
     topics/hex
     topics/categorical
+    topics/hierarchical
     topics/geo
     topics/graph
     topics/timeseries

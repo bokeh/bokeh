@@ -2,6 +2,7 @@
   skip: ["gears", "widget.py"]
 
 - path: "examples/basic/**"
+  skip: ["ajax_source.py", "server_sent_events_source.py"]
 
 - path: "examples/embed/*"
   skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session"]
@@ -19,6 +20,8 @@
   type: server
   skip: ["faces", "simple_hdf5", "spectrogram"]
 
-- path: "examples/specialized/**"
+- path: "examples/styling/*"
+
+- path: "examples/topics/**"
   slow: ["geo/choropleth.py"]
   no_js: ["geo/gmap.py"]

@@ -16,33 +16,33 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from pathlib import Path
+# External imports
+import pandas as pd
 
 # Bokeh imports
 from tests.support.util.api import verify_all
 
 # Module under test
-#import bokeh.sampledata.movies_data as bsm # isort:skip
+#import bokeh.sampledata.sample_superstore as bss # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
 ALL = (
-    'movie_path',
+    'data',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.movies_data", ALL))
+Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.sample_superstore", ALL))
 
 @pytest.mark.sampledata
-def test_movie_path() -> None:
-    import bokeh.sampledata.movies_data as bsm
-    assert isinstance(bsm.movie_path, Path)
+def test_data() -> None:
+    import bokeh.sampledata.sample_superstore as bss
+    assert isinstance(bss.data, pd.DataFrame)
 
     # don't check detail for external data
 

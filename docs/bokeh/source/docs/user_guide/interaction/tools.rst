@@ -213,7 +213,7 @@ To make your toolbar hide automatically, set the toolbar's
 ``autohide`` to True, the toolbar is visible only when the mouse is inside the
 plot area and is otherwise hidden.
 
-.. bokeh-plot:: __REPO__/examples/basic/styling/toolbar_autohide.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/toolbar_autohide.py
     :source-position: above
 
 .. _ug_interaction_tools_overlays:
@@ -227,7 +227,7 @@ For instance, the various region selection tools and the box zoom tool all have
 an ``overlay``. To style their line and fill properties, pass values to the
 respective attributes:
 
-.. bokeh-plot:: __REPO__/examples/basic/styling/tool_overlays.py
+.. bokeh-plot:: __REPO__/examples/interaction/tools/tool_overlays.py
     :source-position: above
 
 For more information, see the reference guide's entries for

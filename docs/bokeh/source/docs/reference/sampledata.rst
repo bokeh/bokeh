@@ -169,6 +169,13 @@ sample_geojson
 
 .. automodule:: bokeh.sampledata.sample_geojson
 
+.. _sampledata_sample_superstore:
+
+sample_superstore
+-----------------
+
+.. automodule:: bokeh.sampledata.sample_superstore
+
 .. _sampledata_sea_surface_temperature:
 
 sea_surface_temperature

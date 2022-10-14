@@ -24,17 +24,26 @@ its code and interact with a live plot.
             basic/areas
             basic/layouts
             basic/annotations
-            basic/styling
+
+    .. tab-item:: Appearance
+
+        .. bokeh-gallery::
+
+            styling/plot_elements
+            styling/mathtext
+
+        ..  styling/visual_properties
+        ..  styling/palettes_mappers
 
     .. tab-item:: Special topics
 
         .. bokeh-gallery::
 
             topics/images
-            topics/mathtext
             topics/contour
             topics/hex
             topics/categorical
+            topics/hierarchical
             topics/geo
             topics/graph
             topics/pie
@@ -47,9 +56,9 @@ its code and interact with a live plot.
         .. bokeh-gallery::
 
             interaction/tools
+            interaction/linking
             interaction/js_callbacks
 
-        .. interaction/linking
         .. interaction/legends
         .. interaction/widgets
         .. interaction/python_callbacks

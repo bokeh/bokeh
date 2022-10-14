@@ -4,47 +4,47 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+''' Provide the Sample Superstore data set.
+
+License: `CC0`_
+
+Sourced from: https://www.kaggle.com/datasets/arshid/iris-flower-dataset
+
+This module contains one pandas Dataframe: ``data``.
+
+.. rubric:: ``data``
+
+:bokeh-dataframe:`bokeh.sampledata.sample_superstore.data`
+
+.. bokeh-sampledata-xref:: sample_superstore
+'''
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from pathlib import Path
-
 # Bokeh imports
-from tests.support.util.api import verify_all
-
-# Module under test
-#import bokeh.sampledata.movies_data as bsm # isort:skip
+from ..util.sampledata import external_csv
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
 
-ALL = (
-    'movie_path',
+__all__ = (
+    'data',
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-Test___all__ = pytest.mark.sampledata(verify_all("bokeh.sampledata.movies_data", ALL))
-
-@pytest.mark.sampledata
-def test_movie_path() -> None:
-    import bokeh.sampledata.movies_data as bsm
-    assert isinstance(bsm.movie_path, Path)
-
-    # don't check detail for external data
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -57,3 +57,5 @@ def test_movie_path() -> None:
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
+
+data = external_csv('sample_superstore', 'SampleSuperstore.csv')

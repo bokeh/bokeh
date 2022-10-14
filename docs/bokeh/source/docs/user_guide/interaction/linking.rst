@@ -21,6 +21,10 @@ calls.
 Now you have learned how to link panning between multiple plots with the
 |bokeh.plotting| interface.
 
+A more sophisicated example of a linked scatterplot matric can be found in
+the :ref:`ug_topics_stats_splom` section of the :ref:`ug_topics_stats`
+chapter.
+
 .. _ug_interaction_linked_brushing:
 
 Linked brushing
@@ -33,9 +37,15 @@ selection extends to glyph renderers that plot only a subset of data from a data
 source, see :ref:`ug_basic_data_linked_selection_with_filtering`.
 
 The following code shows an example of linked brushing between circle glyphs on
-two different |figure| calls.
+two different |figure| calls:
 
 .. bokeh-plot:: __REPO__/examples/interaction/linking/linked_brushing.py
+    :source-position: above
+
+A more sophisticated example below demonstrates linked selection between a
+``DataTable`` widget and a scatter plot:
+
+.. bokeh-plot:: __REPO__/examples/interaction/linking/data_table_plot.py
     :source-position: above
 
 .. _ug_interaction_linked_properties:

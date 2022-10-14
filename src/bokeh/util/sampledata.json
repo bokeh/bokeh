@@ -18,5 +18,6 @@
     ["movies.db.zip",                               "8a7d9c1e82a4c4758dd4b0f826b991a7"],
     ["airports.csv",                                "adb72c88d638dd6f6e39f32e37378bd6"],
     ["routes.csv",                                  "e69f7519769c29498f058cd34b16495d"],
-    ["haarcascade_frontalface_default.xml",         "a03f92a797e309e76e6a034ab9e02616"]
+    ["haarcascade_frontalface_default.xml",         "a03f92a797e309e76e6a034ab9e02616"],
+    ["SampleSuperstore.csv.zip",                    "4c92bac7f4e66e7fa1ac0b9aae648f30"]
 ]
