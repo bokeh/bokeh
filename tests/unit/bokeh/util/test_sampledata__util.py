@@ -31,7 +31,7 @@ import bokeh.util.sampledata as bus # isort:skip
 #-----------------------------------------------------------------------------
 
 def test_external_path_bad() -> None:
-    pat = f"Could not locate external data file (.*)junkjunk. Please execute bokeh.sampledata.download()"
+    pat = "Could not locate external data file (.*)junkjunk. Please execute bokeh.sampledata.download()"
     with pytest.raises(RuntimeError, match=pat):
         bus.external_path("junkjunk")
 
@@ -51,6 +51,6 @@ def test_package_path() -> None:
     assert bus.package_path("foo") == bus.package_dir() /"foo"
 
 def test_open_csv() -> None:
-   with patch('builtins.open') as mock_open:
-    bus.open_csv("foo")
-    assert mock_open.has_calls(call("foo", "r", newline="", encoding="utf8"))
+    with patch('builtins.open') as mock_open:
+        bus.open_csv("foo")
+        assert mock_open.has_calls(call("foo", "r", newline="", encoding="utf8"))
