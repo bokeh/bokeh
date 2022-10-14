@@ -207,6 +207,12 @@
       "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
     }
   ],
+  "topics/hierarchical": [
+    {
+      "name": "treemap.py",
+      "alt": "Thumbnail link to the examples/topics/hierarchical/treemap.py example treemap plot breaking down sales per city by region from the sample superstore data set."
+    }
+  ],
   "topics/geo": [
     {
       "name": "texas_hover_map.py",

@@ -169,7 +169,7 @@ sample_geojson
 
 .. automodule:: bokeh.sampledata.sample_geojson
 
-.. _sampledata_superstore:
+.. _sampledata_sample_superstore:
 
 sample_superstore
 -----------------

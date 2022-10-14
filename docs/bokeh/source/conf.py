@@ -104,6 +104,7 @@ bokeh_example_subdirs = [
     "plotting",
     "output/webgl",
     "topics/categorical",
+    "topics/hierarchical",
     "topics/contour",
     "topics/geo",
     "topics/graph",

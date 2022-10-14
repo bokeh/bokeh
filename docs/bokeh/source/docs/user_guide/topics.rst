@@ -12,6 +12,10 @@ kinds of data.
 
 :ref:`ug_topics_hex`
 
+:ref:`ug_topics_categorical`
+
+:ref:`ug_topics_hierarchical`
+
 :ref:`ug_topics_geo`
 
 :ref:`ug_topics_graph`
@@ -29,6 +33,7 @@ kinds of data.
     topics/contour
     topics/hex
     topics/categorical
+    topics/hierarchical
     topics/geo
     topics/graph
     topics/timeseries

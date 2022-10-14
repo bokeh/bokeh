@@ -30,6 +30,7 @@ dependencies:
   - pyshp
   - scikit-learn
   - scipy
+  - squarify
   - sympy
   - toml
 

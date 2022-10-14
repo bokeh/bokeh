@@ -43,6 +43,7 @@ its code and interact with a live plot.
             topics/contour
             topics/hex
             topics/categorical
+            topics/hierarchical
             topics/geo
             topics/graph
             topics/pie

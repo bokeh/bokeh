@@ -57,6 +57,7 @@ dependencies:
   - pandas-datareader
   - pyshp
   - scikit-learn
+  - squarify
   - sympy
 
   # pip dependencies
