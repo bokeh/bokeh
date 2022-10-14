@@ -43,9 +43,7 @@ def test_package_dir() -> None:
 def test_package_csv() -> None:
     with patch('pandas.read_csv') as mock_read_csv:
         bus.package_csv("module", "foo", bar=10)
-        assert mock_read_csv.call_count == 1
-        assert mock_read_csv.call_args[0] == (bus.package_path("foo"),)
-        assert mock_read_csv.call_args[1] == dict(bar=10)
+    assert mock_read_csv.has_call(call(bus.package_path("foo"), bar=10))
 
 def test_package_path() -> None:
     assert bus.package_path("foo") == bus.package_dir() /"foo"
@@ -53,4 +51,4 @@ def test_package_path() -> None:
 def test_open_csv() -> None:
     with patch('builtins.open') as mock_open:
         bus.open_csv("foo")
-        assert mock_open.has_calls(call("foo", "r", newline="", encoding="utf8"))
+    assert mock_open.has_call(call("foo", "r", newline="", encoding="utf8"))
