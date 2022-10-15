@@ -48,6 +48,19 @@ A more sophisticated example below demonstrates linked selection between a
 .. bokeh-plot:: __REPO__/examples/interaction/linking/data_table_plot.py
     :source-position: above
 
+.. _ug_interaction_linked_crosshair:
+
+Linked crosshair
+~~~~~~~~~~~~~~~~
+
+Linking crosshair tools between plots is another technique that can help make
+comparisons across different plots easier. In Bokeh, crosshair tools may be
+configured with shared ``Span`` instances for their overlays, which will cause
+those crosshairs to be linked together. This is demonstrated below:
+
+.. bokeh-plot:: __REPO__/examples/interaction/linking/linked_crosshair.py
+    :source-position: above
+
 .. _ug_interaction_linked_properties:
 
 Linked properties

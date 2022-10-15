@@ -281,6 +281,10 @@
   ],
   "interaction/linking": [
     {
+      "name": "linked_crosshair.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/linked_crosshair.py example shows a two plots with vertical and horizontal crosshair tools linked."
+    },
+    {
       "name": "data_table_plot.py",
       "alt": "Thumbnail link to the examples/interaction/linking/data_table_plot.py example shows a column of a scatter plot and data table that share a data source and have linked selections."
     }
