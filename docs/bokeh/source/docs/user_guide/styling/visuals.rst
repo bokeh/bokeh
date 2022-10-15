@@ -121,6 +121,32 @@ RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:
     ``fill_alpha``, ``line_color``, and ``line_alpha`` arguments as well. In
     this case, the former will take precedence.
 
+.. _ug_styling_visual_palettes:
+
+Color palettes
+--------------
+
+Bokeh provides a number of pre-defined color palettes that you can reference to
+define colors, including for :ref:`color mapping <ug_basic_data_color_mapping>`.
+
+Bokeh's pre-defined palettes are sequences of RGB(A) hex strings. These
+sequences can be either lists or tuples.
+
+To use one of those pre-defined palettes, import it from the ``bokeh.palettes``
+module.
+
+When you import "Spectral6", for example, Bokeh gives you access to a list that
+contains six RGB(A) hex strings from the Brewer "Spectral" color map:
+
+.. code-block:: python
+
+    >>> from bokeh.palettes import Spectral6
+    >>> Spectral6
+    ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
+
+For a list of all the standard palettes included in Bokeh, see
+:ref:`bokeh.palettes`.
+
 .. _ug_styling_units:
 
 Screen units and data-space units

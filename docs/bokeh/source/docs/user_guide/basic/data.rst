@@ -304,6 +304,8 @@ directly in the browser, you will also need to send less data.
 This section provides an overview of the different transform objects that are
 available.
 
+.. _ug_basic_data_color_mapping:
+
 Client-side color mapping
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 

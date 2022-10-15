@@ -3,35 +3,6 @@
 Palettes and mappers
 ====================
 
-.. _ug_styling_palettes_mappers_palettes:
-
-Using palettes
---------------
-
-Palettes are sequences of RGB(A) hex strings that define a colormap. The
-sequences you use for defining colormaps can be either lists or tuples. Once you
-have created a colormap, you can use it with the ``color`` attribute of many
-plot objects from |bokeh.plotting|.
-
-Bokeh includes several pre-defined palettes, such as the standard Brewer
-palettes. To use one of those pre-defined palettes, import it from the
-``bokeh.palettes`` module. When you import "Spectral6", for example, Bokeh gives
-you access to a six element list of RGB(A) hex strings from the Brewer
-"Spectral" colormap:
-
-.. code-block:: python
-
-    >>> from bokeh.palettes import Spectral6
-    >>> Spectral6
-    ['#3288bd', '#99d594', '#e6f598', '#fee08b', '#fc8d59', '#d53e4f']
-
-For a list of all the standard palettes included in Bokeh, see
-:ref:`bokeh.palettes`.
-
-You can also create custom palettes by defining a sequence of RGB(A) hex
-strings yourself.
-
-.. _ug_styling_palettes_mappers_mappers:
 
 Using mappers
 -------------

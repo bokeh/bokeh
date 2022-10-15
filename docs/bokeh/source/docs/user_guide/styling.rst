@@ -19,8 +19,8 @@ in a visualization.
 .. toctree::
     :hidden:
 
-    styling/visual_properties
+    styling/visuals
     styling/palettes_mappers
-    styling/plot_elements
+    styling/plots
     styling/mathtext
     styling/themes
