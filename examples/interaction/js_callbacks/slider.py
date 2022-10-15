@@ -29,14 +29,14 @@ offset = Slider(start=-9, end=9, value=0, step=.1, title="Offset")
 
 callback = CustomJS(args=dict(source=source, amp=amp, freq=freq, phase=phase, offset=offset),
                     code="""
-    const A = amp.value;
-    const k = freq.value;
-    const phi = phase.value;
-    const B = offset.value;
+    const A = amp.value
+    const k = freq.value
+    const phi = phase.value
+    const B = offset.value
 
     const x = source.data.x
     const y = Array.from(x, (x) => B + A*Math.sin(k*x+phi))
-    source.data = { x: x, y: y }
+    source.data = { x, y }
 """)
 
 amp.js_on_change('value', callback)

@@ -16,7 +16,7 @@ s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
 p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)
 
 s.selected.js_on_change('indices', CustomJS(args=dict(s=s, s2=s2), code="""
-    const inds = s.selected.indices;
+    const inds = s.selected.indices
     if (inds.length > 0) {
         const ym = inds.reduce((a, b) => a + s.data.y[b], 0) / inds.length
         s2.data = { x: s2.data.x, ym: [ym, ym] }

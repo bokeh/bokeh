@@ -22,14 +22,14 @@ widgets = column(amp, freq, phase, offset, sizing_mode="fixed", height=250, widt
 
 callback = CustomJS(args=dict(source=source, amp=amp, freq=freq, phase=phase, offset=offset),
                     code="""
-    const A = amp.value;
-    const k = freq.value;
-    const phi = phase.value;
-    const B = offset.value;
+    const A = amp.value
+    const k = freq.value
+    const phi = phase.value
+    const B = offset.value
 
     const x = source.data.x
     const y = Array.from(x, (x) => B + A*Math.sin(k*x+phi))
-    source.data = { x: x, y: y }
+    source.data = { x, y }
 """)
 
 amp.js_on_change('value', callback)

@@ -21,7 +21,7 @@ p.text(0, -100, text_color='text_color', source=source)
 # cb_data = {geometries: ..., source: ...}
 p.add_tools(TapTool(callback=CustomJS(args=dict(source=source), code= """
     // get_view is experimental and may change in the future
-    const view = cb_data.source.selected.get_view();
+    const view = cb_data.source.selected.get_view()
     if (view) {
         const color = view.model.line_color.value
         source.data = {

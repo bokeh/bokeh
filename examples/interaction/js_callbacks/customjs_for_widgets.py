@@ -15,7 +15,7 @@ callback = CustomJS(args=dict(source=source), code="""
     const f = cb_obj.value
     const x = source.data.x
     const y = Array.from(x, (x) => Math.pow(x, f))
-    source.data = { x: x, y: y }
+    source.data = { x, y }
 """)
 
 slider = Slider(start=0.1, end=4, value=1, step=.1, title="power")

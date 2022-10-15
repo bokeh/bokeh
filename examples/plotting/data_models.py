@@ -35,7 +35,7 @@ callback = CustomJS(args=dict(source=source, params=params), code="""
 
     const x = source.data.x
     const y = Array.from(x, (x) => B + A*Math.sin(k*x+phi))
-    source.data = { x: x, y: y }
+    source.data = { x, y }
 """)
 
 params.js_on_change("amp", callback)
