@@ -281,6 +281,10 @@
   ],
   "interaction/linking": [
     {
+      "name": "linked_brushing.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/linked_brushing.py example shows a two different scatter plots of the Palmer penuguin dataset with linked selections."
+    },
+    {
       "name": "linked_crosshair.py",
       "alt": "Thumbnail link to the examples/interaction/linking/linked_crosshair.py example shows a two plots with vertical and horizontal crosshair tools linked."
     },

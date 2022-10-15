@@ -1,24 +1,23 @@
 from bokeh.layouts import gridplot
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
+from bokeh.sampledata.penguins import data
+from bokeh.transform import factor_cmap
 
-x = list(range(-20, 21))
-y0 = [abs(xx) for xx in x]
-y1 = [xx**2 for xx in x]
-
-# create a column data source for the plots to share
-source = ColumnDataSource(data=dict(x=x, y0=y0, y1=y1))
+SPECIES = sorted(data.species.unique())
 
 TOOLS = "box_select,lasso_select,help"
 
-# create a new plot and add a renderer
-left = figure(tools=TOOLS, width=300, height=300, title=None)
-left.circle('x', 'y0', source=source)
+source = ColumnDataSource(data)
 
-# create another new plot and add a renderer
-right = figure(tools=TOOLS, width=300, height=300, title=None)
-right.circle('x', 'y1', source=source)
+left = figure(width=300, height=400, title=None, tools=TOOLS,
+              background_fill_color="#fafafa")
+left.circle("bill_length_mm", "body_mass_g", source=source,
+            color=factor_cmap('species', 'Category10_3', SPECIES))
 
-p = gridplot([[left, right]])
+right = figure(width=300, height=400, title=None, tools=TOOLS,
+               background_fill_color="#fafafa", y_axis_location="right")
+right.circle("bill_depth_mm", "body_mass_g", source=source,
+             color=factor_cmap('species', 'Category10_3', SPECIES))
 
-show(p)
+show(gridplot([[left, right]]))
