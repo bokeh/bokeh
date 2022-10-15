@@ -144,10 +144,10 @@ More information can be found in the reference guide entry for |ColorPicker|.
 DataTable
 ~~~~~~~~~
 
-Bokeh provides a sophisticated data table widget based on SlickGrid. Note
-that since the table is configured with a data source object, any plots that
-share this data source will automatically have selections linked between the
-plot and the table (even in static HTML documents).
+Bokeh provides a sophisticated data table widget. Note that since the table
+is configured with a data source object, any plots that share this data source
+will automatically have selections linked between the plot and the table (even
+in static HTML documents).
 
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/data_table.py
     :source-position: below
@@ -361,7 +361,7 @@ Select
 
 A single selection widget:
 
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/select.py
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/select_widget.py
     :source-position: below
 
 More information can be found in the reference guide entry for |Select|.
