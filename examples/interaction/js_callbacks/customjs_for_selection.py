@@ -19,14 +19,9 @@ p2.circle('x', 'y', source=s2, alpha=0.6)
 s1.selected.js_on_change('indices', CustomJS(args=dict(s1=s1, s2=s2), code="""
         const inds = cb_obj.indices;
         const d1 = s1.data;
-        const d2 = s2.data;
-        d2['x'] = []
-        d2['y'] = []
-        for (let i = 0; i < inds.length; i++) {
-            d2['x'].push(d1['x'][inds[i]])
-            d2['y'].push(d1['y'][inds[i]])
-        }
-        s2.change.emit();
+        const x = Array.from(inds, (i) => d1.x[i])
+        const y = Array.from(inds, (i) => d1.y[i])
+        s2.data = { x: x, y: y }
     """)
 )
 
