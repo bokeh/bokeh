@@ -139,6 +139,21 @@ A widget to allow the user to specify an RGB color value.
 
 More information can be found in the reference guide entry for |ColorPicker|.
 
+.. _ug_interaction_widgets_examples_datacube:
+
+DataCube
+~~~~~~~~
+
+Bokeh provides a data cube widget based capable of aggregating hierarchical
+data. Note that since the data cube is configured with a data source object,
+any plots that share this data source will automatically have selections linked
+between the plot and the table (even in static HTML documents).
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/data_cube.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |DataTable|.
+
 .. _ug_interaction_widgets_examples_datatable:
 
 DataTable
@@ -457,6 +472,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |CheckboxButtonGroup|    replace:: :class:`~bokeh.models.widgets.groups.CheckboxButtonGroup`
 .. |CheckboxGroup|          replace:: :class:`~bokeh.models.widgets.groups.CheckboxGroup`
 .. |ColorPicker|            replace:: :class:`~bokeh.models.widgets.inputs.ColorPicker`
+.. |DataCube|               replace:: :class:`~bokeh.models.widgets.tables.DataCube`
 .. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 .. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
 .. |DateRangeSlider|        replace:: :class:`~bokeh.models.widgets.sliders.DateRangeSlider`
