@@ -4,15 +4,17 @@
 - path: "examples/basic/**"
   skip: ["ajax_source.py", "server_sent_events_source.py"]
 
-- path: "examples/embed/*"
-  skip: ["arguments", "autoload_static.py", "custom_server", "json_item.py", "json_item_themed.py", "server_session"]
-
 - path: "examples/integration/**"
+
+- path: "examples/interaction/**"
 
 - path: "examples/models/*"
   no_js: ["maps_cities.py", "maps.py", "trail.py"]
 
 - path: "examples/output/webgl/*"
+
+- path: "examples/output/apis/*"
+  skip: ["autoload_static.py", "autoload_static_flask.py", "components.py", "components_themed.py", "json_item.py", "json_item_themed.py", "server_document", "server_session"]
 
 - path: "examples/plotting/*"
 
@@ -20,7 +22,7 @@
   type: server
   skip: ["faces", "simple_hdf5", "spectrogram"]
 
-- path: "examples/styling/*"
+- path: "examples/styling/**"
 
 - path: "examples/topics/**"
   slow: ["geo/choropleth.py"]
