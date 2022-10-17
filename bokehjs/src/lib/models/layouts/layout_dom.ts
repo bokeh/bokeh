@@ -369,9 +369,15 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   protected _compute_layout(): void {
-    if (this.layout != null)
+    if (this.layout != null) {
       this.layout.compute(this.bbox.size)
-    else {
+
+      for (const child_view of this.child_views) {
+        if (child_view instanceof LayoutDOMView && child_view.layout == null) {
+          child_view._compute_layout()
+        }
+      }
+    } else {
       for (const child_view of this.child_views) {
         if (child_view instanceof LayoutDOMView) {
           child_view._compute_layout()
