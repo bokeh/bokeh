@@ -51,7 +51,7 @@ def test_process_example() -> None:
     Example
     -------
 
-    .. bokeh-plot:: ../../../foo
+    .. bokeh-plot:: __REPO__/foo
         :source-position: below
 
 """

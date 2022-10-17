@@ -3,16 +3,17 @@ from bokeh.models import TickFormatter
 from bokeh.plotting import figure
 from bokeh.util.compiler import TypeScript
 
-TS_CODE = """
+CODE = """
 import {TickFormatter} from "models/formatters/tick_formatter"
 
 export class MyFormatter extends TickFormatter {
-  // TickFormatters should implement this method, which accepts a list
-  // of numbers (ticks) and returns a list of strings
+  // accepts a list of numbers (ticks) and returns a list of strings
   doFormat(ticks: string[] | number[]) {
     // format the first tick as-is
     const formatted = [`${ticks[0]}`]
-    for (let i = 1, len = ticks.length; i < len; i++) {
+
+    // format the rest as offsets from the first
+    for (let i = 1; i < ticks.length; i++) {
       formatted.push(`+${(Number(ticks[i]) - Number(ticks[0])).toPrecision(2)}`)
     }
     return formatted
@@ -22,8 +23,7 @@ export class MyFormatter extends TickFormatter {
 
 
 class MyFormatter(TickFormatter):
-
-    __implementation__ = TypeScript(TS_CODE)
+    __implementation__ = TypeScript(CODE)
 
 
 p = figure()
