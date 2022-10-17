@@ -27,6 +27,7 @@ import {
   Jitter,
   ParkMillerLCG,
   GridPlot,
+  BasicTickFormatter,
 } from "@bokehjs/models"
 
 import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
@@ -2449,6 +2450,47 @@ describe("Bug", () => {
       })
 
       await display(g)
+    })
+  })
+
+  describe("in issue #12479", () => {
+    function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs>) {
+      const p = fig([200, 200], plot_args)
+      p.add_layout(new LinearAxis(), "above")
+      p.add_layout(new LinearAxis(), "right")
+      p.xaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      p.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
+      p.xaxis.major_label_orientation = "vertical"
+      p.yaxis.major_label_orientation = "horizontal"
+      const xs = [1, 2, 3].map((c) => c*a)
+      const ys = [1, 2, 3].map((c) => c*b)
+      p.circle(xs, ys, {size: 10, color})
+      return p
+    }
+
+    it("doesn't allow computing grid plot layout in nested layouts", async () => {
+      const row = new Row({
+        children: [
+          plot(10**1, 10**1, "red"),
+          plot(10**2, 10**2, "green"),
+          plot(10**3, 10**3, "blue"),
+        ],
+      })
+
+      const grid = new GridPlot({
+        children: [
+          [plot(10**1, 10**1, "red"), 0, 0],
+          [plot(10**2, 10**2, "green"), 0, 1],
+          [plot(10**3, 10**3, "blue"), 1, 0],
+          [plot(10**4, 10**4, "yellow"), 1, 1],
+        ],
+      })
+
+      const col = new Column({
+        children: [row, grid],
+      })
+
+      await display(col)
     })
   })
 })
