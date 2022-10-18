@@ -3,7 +3,7 @@ from bokeh.models import ColumnDataSource, Tool
 from bokeh.plotting import figure, show
 from bokeh.util.compiler import TypeScript
 
-TS_CODE = """
+CODE = """
 import {GestureTool, GestureToolView} from "models/tools/gestures/gesture_tool"
 import {ColumnDataSource} from "models/sources/column_data_source"
 import {PanEvent} from "core/ui_events"
@@ -12,16 +12,16 @@ import * as p from "core/properties"
 export class DrawToolView extends GestureToolView {
   model: DrawTool
 
-  //this is executed when the pan/drag event starts
-  _pan_start(_ev: PanEvent): void {
+  // this is executed when the pan/drag event starts
+  _pan_start(_e: PanEvent): void {
     this.model.source.data = {x: [], y: []}
   }
 
-  //this is executed on subsequent mouse/touch moves
-  _pan(ev: PanEvent): void {
+  // this is executed on subsequent mouse/touch moves
+  _pan(e: PanEvent): void {
     const {frame} = this.plot_view
+    const {sx, sy} = e
 
-    const {sx, sy} = ev
     if (!frame.bbox.contains(sx, sy))
       return
 
@@ -35,7 +35,7 @@ export class DrawToolView extends GestureToolView {
   }
 
   // this is executed then the pan/drag ends
-  _pan_end(_ev: PanEvent): void {}
+  _pan_end(_e: PanEvent): void {}
 }
 
 export namespace DrawTool {
@@ -56,7 +56,7 @@ export class DrawTool extends GestureTool {
     super(attrs)
   }
 
-  tool_name = "Drag Span"
+  tool_name = "Draw Tool"
   tool_icon = "bk-tool-icon-lasso-select"
   event_type = "pan" as "pan"
   default_order = 12
@@ -71,16 +71,17 @@ export class DrawTool extends GestureTool {
 }
 """
 
-
 class DrawTool(Tool):
-    __implementation__ = TypeScript(TS_CODE)
+    __implementation__ = TypeScript(CODE)
     source = Instance(ColumnDataSource)
-
 
 source = ColumnDataSource(data=dict(x=[], y=[]))
 
-plot = figure(x_range=(0, 10), y_range=(0, 10), tools=[DrawTool(source=source)])
-plot.title.text = "Drag to draw on the plot"
-plot.line('x', 'y', source=source)
+plot = figure(x_range=(0,10), y_range=(0,10), title="Click and drag to draw",
+              background_fill_color="#efefef", tools="")
+
+plot.add_tools(DrawTool(source=source))
+
+plot.line('x', 'y', line_width=3, source=source)
 
 show(plot)

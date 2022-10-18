@@ -4,21 +4,19 @@ from bokeh.models import Slope
 from bokeh.plotting import figure, show
 
 # linear equation parameters
-gradient = 2
-y_intercept = 10
+slope, intercept = 2, 10
 
-# create random data
-xpts = np.arange(0, 20)
-ypts = gradient * xpts + y_intercept + np.random.normal(0, 4, 20)
+xpts = np.arange(0, 20, 0.2)
+ypts = slope * xpts + intercept + np.random.normal(0, 4, 100)
 
-p = figure(width=450, height=450, y_range=(0, 1.1 * max(ypts)))
-p.yaxis.axis_label = 'y'
-p.xaxis.axis_label = 'x'
+p = figure(width=450, height=450, x_axis_label='x', y_axis_label='y',
+           background_fill_color="#fafafa")
+p.y_range.start = 0
 
-p.circle(xpts, ypts, size=5, color="skyblue")
+p.circle(xpts, ypts, size=6, alpha=0.6, fill_color=None)
 
-slope = Slope(gradient=gradient, y_intercept=y_intercept,
-              line_color='orange', line_dash='dashed', line_width=3.5)
+slope = Slope(gradient=slope, y_intercept=intercept,
+              line_color='orange', line_dash='dashed', line_width=4)
 
 p.add_layout(slope)
 

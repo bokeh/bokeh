@@ -12,93 +12,27 @@ Built-in themes
 CALIBER
 ~~~~~~~
 
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("caliber.html")
-    curdoc().theme = 'caliber'
-    p = figure(title='caliber', width=300, height=300)
-    p.line(x, y)
-    show(p)
+.. bokeh-plot:: __REPO__/examples/styling/themes/caliber.py
 
 DARK_MINIMAL
 ~~~~~~~~~~~~
 
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("dark_minimal.html")
-    curdoc().theme = 'dark_minimal'
-    p = figure(title='dark_minimal', width=300, height=300)
-    p.line(x, y)
-    show(p)
-
+.. bokeh-plot:: __REPO__/examples/styling/themes/dark_minimal.py
 
 LIGHT_MINIMAL
 ~~~~~~~~~~~~~
 
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("light_minimal.html")
-    curdoc().theme = 'light_minimal'
-    p = figure(title='light_minimal', width=300, height=300)
-    p.line(x, y)
-    show(p)
+.. bokeh-plot:: __REPO__/examples/styling/themes/light_minimal.py
 
 NIGHT_SKY
 ~~~~~~~~~
 
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("night_sky.html")
-    curdoc().theme = 'night_sky'
-    p = figure(title='night_sky', width=300, height=300)
-    p.line(x, y)
-    show(p)
+.. bokeh-plot:: __REPO__/examples/styling/themes/night_sky.py
 
 CONTRAST
 ~~~~~~~~
 
-.. bokeh-plot::
-
-    from bokeh.plotting import figure, output_file, show
-    from bokeh.themes import built_in_themes
-    from bokeh.io import curdoc
-
-    x = [1, 2, 3, 4, 5]
-    y = [6, 7, 6, 4, 5]
-
-    output_file("contrast.html")
-    curdoc().theme = 'contrast'
-    p = figure(title='contrast', width=300, height=300)
-    p.line(x, y)
-    show(p)
+.. bokeh-plot:: __REPO__/examples/styling/themes/contrast.py
 
 Theme
 -----

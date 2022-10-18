@@ -31,6 +31,7 @@ its code and interact with a live plot.
 
             styling/plot_elements
             styling/mathtext
+            styling/themes
 
         ..  styling/visual_properties
         ..  styling/palettes_mappers

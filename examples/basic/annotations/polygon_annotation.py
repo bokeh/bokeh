@@ -6,26 +6,26 @@ from bokeh.models import PolyAnnotation
 from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import GOOG
 
-p = figure(width=800, height=250, x_axis_type="datetime",
-           title="Google stock")
+p = figure(height=200, x_axis_type="datetime",
+           background_fill_color="#efefef", title="Google stock")
 
 df = pd.DataFrame(GOOG)
 df["date"] = pd.to_datetime(df["date"])
 
-p.line(df["date"], df["close"], line_width=2, color="red")
+p.line(df["date"], df["close"], line_width=1.5, color="grey")
 
 start_date = dt(2008, 11, 24)
-start_float = start_date.timestamp() * 1000
-start_data = df.loc[df["date"] == start_date]["close"].values[0]
+start_x = start_date.timestamp() * 1000
+start_y = df.loc[df["date"] == start_date]["close"].values[0]
 
 end_date = dt(2010, 1, 4)
-end_float = end_date.timestamp() * 1000
-end_data = df.loc[df["date"] == end_date]["close"].values[0]
+end_x = end_date.timestamp() * 1000
+end_y = df.loc[df["date"] == end_date]["close"].values[0]
 
 polygon = PolyAnnotation(
-    fill_color="blue", fill_alpha=0.3,
-    xs=[start_float, start_float, end_float, end_float],
-    ys=[start_data - 100, start_data + 100, end_data + 100, end_data - 100],
+    fill_color="blue", fill_alpha=0.2,
+    xs=[start_x, start_x, end_x, end_x],
+    ys=[start_y - 100, start_y + 100, end_y + 100, end_y - 100],
 )
 p.add_layout(polygon)
 
