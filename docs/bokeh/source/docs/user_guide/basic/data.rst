@@ -342,19 +342,19 @@ For example:
 
 .. code-block:: python
 
-     fill_color=linear_cmap('counts', 'Viridis256', min=0, max=10)
+    fill_color=linear_cmap('counts', 'Viridis256', min=0, max=10)
 
 Use the color map with a plot object's :ref:`color property <ug_styling_colors>`,
 such as ``fill_color``, for example.
 
-.. bokeh-plot:: __REPO__/examples/basic/data/transform_colors.py
+.. bokeh-plot:: __REPO__/examples/basic/data/linear_cmap.py
     :source-position: above
 
 The dataspec that the mapper function returns includes a :class:`bokeh.transform`.
 You can access this data to use the result of the mapper function in a different
 context. To create a ``ColorBar``, for example:
 
-.. bokeh-plot:: __REPO__/examples/basic/data/linear_mappers.py
+.. bokeh-plot:: __REPO__/examples/basic/data/linear_cmap_colorbar.py
     :source-position: above
 
 Mapping marker types

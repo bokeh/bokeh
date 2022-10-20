@@ -113,6 +113,7 @@ bokeh_example_subdirs = [
     "topics/images",
     "topics/pie",
     "topics/stats",
+    "topics/timeseries",
 ]
 
 bokeh_missing_google_api_key_ok = False

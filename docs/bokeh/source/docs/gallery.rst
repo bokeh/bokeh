@@ -46,10 +46,9 @@ its code and interact with a live plot.
             topics/hierarchical
             topics/geo
             topics/graph
+            topics/timeseries
             topics/pie
             topics/stats
-
-        ..  topics/timeseries
 
     .. tab-item:: Interaction
 

@@ -21,6 +21,14 @@
   ],
   "basic/data": [
     {
+      "name": "linear_cmap.py",
+      "alt": "Thumbnail link to the examples/basic/data/linear_cmap.py example shows a hexplot of a Gaussian distribution with the hex elements colormapped by a linear colormapper."
+    },
+    {
+      "name": "linear_cmap_colorbar.py",
+      "alt": "Thumbnail link to the examples/basic/data/linear_cmap_colorbar.py example shows a linear colormapper used to drive a colorbar in addition to a glyph's color."
+    },
+    {
       "name": "transform_markers.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
@@ -141,8 +149,36 @@
   ],
   "styling/plots": [
     {
+      "name": "grid_bounds.py",
+      "alt": "Thumbnail link to the examples/styling/plots/grid_bounds.py example shows how to set bounds limits on plot grids."
+    },
+    {
+      "name": "minor_grid_lines.py",
+      "alt": "Thumbnail link to the examples/styling/plots/minor_grid_lines.py example shows how to add grid lines at minor tick locations."
+    },
+    {
+      "name": "grid_band_fill.py",
+      "alt": "Thumbnail link to the examples/styling/plots/grid_band_fill.py example shows how to configure solid filled grid bands."
+    },
+    {
       "name": "hatch_grid_band.py",
       "alt": "Thumbnail link to the examples/styling/plots/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+    },
+    {
+      "name": "glyph_selection.py",
+      "alt": "Thumbnail link to the examples/styling/plots/glyph_selection.py example shows how to configure the appearance of selected and non-selected glyphs."
+    },
+    {
+      "name": "glyph_hover.py",
+      "alt": "Thumbnail link to the examples/styling/plots/glyph_hover.py example shows how to configure the appearance of hovered glyphs."
+    },
+    {
+      "name": "legend_location_outside.py",
+      "alt": "Thumbnail link to the examples/styling/plots/legend_location_outside.py example shows how to add a legend outside the central plot frame."
+    },
+    {
+      "name": "legend_title.py",
+      "alt": "Thumbnail link to the examples/styling/plots/legend_title.py example shows how to configure a title for a legend."
     }
   ],
   "styling/mathtext": [
@@ -281,6 +317,16 @@
     {
       "name": "node_and_edge_attributes.py",
       "alt": "Thumbnail link to the examples/topics/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
+    }
+  ],
+  "topics/timeseries": [
+    {
+      "name": "candlestick.py",
+      "alt": "Thumbnail link to the examples/topics/timeseries/candlestick.py example shows a candlestick chart for stock data."
+    },
+    {
+      "name": "missing_dates.py",
+      "alt": "Thumbnail link to the examples/topics/timeseries/missing_dates.py example shows a candlestick chart for stock data with gaps for missing dates removed."
     }
   ],
   "topics/pie": [
