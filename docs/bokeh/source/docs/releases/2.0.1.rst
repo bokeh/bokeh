@@ -11,6 +11,3 @@ improves some small features. Highlights include:
 * Adding multi-file support for FileInput widgets :bokeh-issue:`9727`
 * Bokeh server can now serve custom extension code :bokeh-issue:`9799`
 * A handful of documentation clarifications, corrections, and expansions
-
-And several other bug fixes and docs additions. For full details see the
-:bokeh-tree:`CHANGELOG`.

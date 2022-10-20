@@ -13,29 +13,3 @@ arounduser interface and experience:
 * Color mappers on the python side
 * Improved toolbar
 * Many new tools: lasso, poly, and point selection, crosshair inspector
-
-.. _release-0-7-0-migration:
-
-`Migration Guide <releases.html#release-0-7-0-migration>`__
------------------------------------------------------------
-
-Additionally, note that the "implicit" plotting interface of plotting.py
-has been deprecated, and will be removed in Bokeh 0.8. In a nutshell,
-code such as:
-
-.. code-block:: python
-
-    figure()
-    hold()
-    line()
-    circle()
-    show()
-
-Should be replaced with the more explicit code:
-
-.. code-block:: python
-
-    p = figure()
-    p.line()
-    p.circle()
-    show(p)

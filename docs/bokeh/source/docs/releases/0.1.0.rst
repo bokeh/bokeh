@@ -13,4 +13,4 @@ Bokeh ``0.1.0`` (Apr 2013) is the initial public release of the Bokeh project:
 * IPython notebook embedding capability
 * Table widget
 * Pan, Zoom, Select, Resize tools
-* initial Python implementation of Abstract Rendering
+* Initial Python implementation of Abstract Rendering

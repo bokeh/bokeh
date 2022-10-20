@@ -16,7 +16,3 @@ Bokeh Version ``2.4.1`` (Oct 2021) is a patch-release that fixes a number of min
 * Support "pip install" from sdist (:bokeh-issue:`11658`)
 * Issue with line rendering when selecting indices (:bokeh-issue:`11661`)
 * Fix WebGL marker count change (:bokeh-issue:`11686`)
-
-As well as other very minor docs, build, and bugfix updates.
-
-For full details see the :bokeh-tree:`CHANGELOG`.

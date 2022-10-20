@@ -34,7 +34,3 @@ Other work in this cycle includes:
 * Add sphinx_copybutton (:bokeh-issue:`11993`)
 * Add DatetimeRangeSlider (:bokeh-issue:`12034`)
 * Add search_option_limit to MultiChoice widget (:bokeh-issue:`11605`)
-
-As well as other very minor docs, build, and bugfix updates.
-
-For full details see the :bokeh-tree:`CHANGELOG`.

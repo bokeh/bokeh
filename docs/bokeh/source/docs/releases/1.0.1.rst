@@ -11,5 +11,3 @@ Some of the highlights include:
 * Better cleanup for ``DocumentLifeCycleHandler`` (:bokeh-issue:`8367`)
 * Fix issue with oval, ellipse legends (:bokeh-issue:`8375`)
 * Recognized CSS rgb(a) strings for colors (:bokeh-issue:`4096`)
-
-For full details see the :bokeh-tree:`CHANGELOG`.

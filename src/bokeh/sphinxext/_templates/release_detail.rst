@@ -1,5 +1,13 @@
 .. include:: releases/{{ version }}.rst
 
+For full details and help with with updating, consult the `CHANGELOG`_ and
+`Migration Guides`_.
+
+{% if version.split('.')[0]|int >= 1 %}
+Documentation for this specific version is located at
+`docs.bokeh.org/en/{{ version }}/ <https://docs.bokeh.org/en/{{ version }}/index.html>`_
+{% endif %}
+
 .. dropdown:: Table of SRI Hashes for version {{ version }}
     :animate: fade-in
 

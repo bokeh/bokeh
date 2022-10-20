@@ -17,4 +17,4 @@ new pieces of work:
 * Expanded testing, including TravisCI integrations and static image output using PhantomJS
 * RGBA and color mapped image plots now available from Python
 * Python 3 support!
-* Vastly improved documentation for glyphs, with inline examples and JSFiddle integration
+* Improved documentation for glyphs, with inline examples and JSFiddle integration
