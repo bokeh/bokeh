@@ -2,8 +2,9 @@
 This example demonstrates the use of Bootstrap templates to compile several types
 of charts in one file.
 
-note:
+.. note::
     This example needs the Pandas package to run.
+    
     _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''
