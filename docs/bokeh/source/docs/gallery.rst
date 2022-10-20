@@ -29,12 +29,11 @@ its code and interact with a live plot.
 
         .. bokeh-gallery::
 
-            styling/plot_elements
+            styling/plots
             styling/mathtext
             styling/themes
 
-        ..  styling/visual_properties
-        ..  styling/palettes_mappers
+        ..  styling/visuals
 
     .. tab-item:: Special topics
 

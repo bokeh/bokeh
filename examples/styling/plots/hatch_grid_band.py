@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.models.Grid
-    :refs: :ref:`ug_styling_plot_elements_grid_bands`
+    :refs: :ref:`ug_styling_plots_grid_bands`
     :keywords: hatching, grid band
 
 '''

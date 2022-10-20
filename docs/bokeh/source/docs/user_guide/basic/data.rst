@@ -304,35 +304,58 @@ directly in the browser, you will also need to send less data.
 This section provides an overview of the different transform objects that are
 available.
 
+.. _ug_basic_data_color_mapping:
+
 Client-side color mapping
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Use the :func:`~bokeh.transform.linear_cmap` function to perform linear
-color mapping directly in the browser. This function accepts the following
-arguments:
+With color mapping, you can encode values from a sequence of data into
+specific colors.
+
+Bokeh provides two functions to perform color mapping directly in the
+browser:
+
+* The :func:`~bokeh.transform.linear_cmap` function for linear color mapping
+* The :func:`~bokeh.transform.log_cmap` function for logarithmic color mapping
+
+Both functions operate similarly and accept the following arguments:
 
 * The name of a ``ColumnDataSource`` column containing the data to map colors to
-* A palette (which can be a :ref:`built-in palette name<bokeh.palettes>` or a
-  list of colors)
+* A (which can be one of :ref:`Bokeh's pre-defined palettes
+  <ug_styling_visual_palettes>` or a custom list of colors)
 * ``min`` and ``max`` values for the color mapping range.
 
-Pass the result as a ``color`` property of a glyph:
+The color mapping functions map the numeric values from the data source across
+the palette's colors from the  ``min`` to the ``max`` values.
+
+For example, using the ``linear_cmap()`` function with a range of ``[0,99]``
+and the colors ``['red', 'green', 'blue']`` would result in the following
+value to color mapping::
+
+          x < 0  : 'red'     # values < low are clamped
+     0 >= x < 33 : 'red'
+    33 >= x < 66 : 'green'
+    66 >= x < 99 : 'blue'
+    99 >= x      : 'blue'    # values > high are clamped
+
+For example:
 
 .. code-block:: python
 
      fill_color=linear_cmap('counts', 'Viridis256', min=0, max=10)
 
-For example:
+Use the color map with a plot object's :ref:`color property <ug_styling_colors>`,
+such as ``fill_color``, for example.
 
 .. bokeh-plot:: __REPO__/examples/basic/data/transform_colors.py
     :source-position: above
 
-In addition to :func:`~bokeh.transform.linear_cmap`, there are two similar
-functions:
+The dataspec that the mapper function returns includes a :class:`bokeh.transform`.
+You can access this data to use the result of the mapper function in a different
+context. To create a ``ColorBar``, for example:
 
-* :func:`~bokeh.transform.log_cmap` for color mapping on a log scale
-* |factor_cmap| for color mapping categorical data (see
-  the example below).
+.. bokeh-plot:: __REPO__/examples/basic/data/linear_mappers.py
+    :source-position: above
 
 Mapping marker types
 ~~~~~~~~~~~~~~~~~~~~
@@ -344,8 +367,7 @@ function to assign different markers to different categories automatically:
 .. bokeh-plot:: __REPO__/examples/basic/data/transform_markers.py
     :source-position: above
 
-This example also uses |factor_cmap| to color map those
-same categories.
+This example also uses |factor_cmap| to color map those same categories.
 
 .. note::
     The :func:`~bokeh.transform.factor_mark` transform is usually only useful
