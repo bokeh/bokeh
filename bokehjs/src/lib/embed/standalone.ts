@@ -4,12 +4,13 @@ import {HasProps} from "../core/has_props"
 import {View, ViewManager} from "../core/view"
 import {DOMView} from "../core/dom_view"
 import {build_view} from "../core/build_views"
+import {EmbedTarget} from "./dom"
 
 // A map from the root model IDs to their views.
 export const index: {[key: string]: View} = {}
 
-export async function add_document_standalone(document: Document, element: HTMLElement,
-    roots: (HTMLElement | null)[] = [], use_for_title: boolean = false): Promise<ViewManager> {
+export async function add_document_standalone(document: Document, element: EmbedTarget,
+    roots: (EmbedTarget | null)[] = [], use_for_title: boolean = false): Promise<ViewManager> {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
   const views = new ViewManager()

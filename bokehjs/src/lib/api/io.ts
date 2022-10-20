@@ -1,21 +1,23 @@
 import {Document} from "../document"
-import * as embed from "../embed"
+import {add_document_standalone} from "../embed/standalone"
+import {EmbedTarget} from "../embed/dom"
 
 import {ViewOf} from "core/view"
 import {HasProps} from "core/has_props"
-import {dom_ready} from "core/dom"
+import {dom_ready, contains} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
 import {UIElement} from "models/ui/ui_element"
 
-declare const $: any
+declare type Jq = any
+declare const $: Jq
 
-export async function show<T extends UIElement>(obj: T, target?: HTMLElement | string): Promise<ViewOf<T>>
-export async function show<T extends UIElement>(obj: T[], target?: HTMLElement | string): Promise<ViewOf<T>[]>
-export async function show(obj: Document, target?: HTMLElement | string): Promise<ViewOf<HasProps>[]>
-export async function show(obj: UIElement | Document, target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
+export async function show<T extends UIElement>(obj: T, target?: EmbedTarget | string): Promise<ViewOf<T>>
+export async function show<T extends UIElement>(obj: T[], target?: EmbedTarget | string): Promise<ViewOf<T>[]>
+export async function show(obj: Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps>[]>
+export async function show(obj: UIElement | Document, target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]>
 
-export async function show(obj: Document | UIElement | UIElement[], target?: HTMLElement | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
+export async function show(obj: Document | UIElement | UIElement[], target?: EmbedTarget | string): Promise<ViewOf<HasProps> | ViewOf<HasProps>[]> {
   const doc = (() => {
     if (obj instanceof Document) {
       return obj
@@ -29,26 +31,37 @@ export async function show(obj: Document | UIElement | UIElement[], target?: HTM
     }
   })()
 
+  const script = document.currentScript // This needs to be evaluated before any `await` to avoid `null` value.
   await dom_ready()
 
-  let element: HTMLElement
-  if (target == null) {
-    element = document.body
-  } else if (isString(target)) {
-    const found = document.querySelector(target)
-    if (found != null && found instanceof HTMLElement)
-      element = found
-    else
-      throw new Error(`'${target}' selector didn't match any elements`)
-  } else if (target instanceof HTMLElement) {
-    element = target
-  } else if (typeof $ !== "undefined" && (target as any) instanceof $) {
-    element = (target as any)[0]
-  } else {
-    throw new Error("target should be HTMLElement, string selector, $ or null")
-  }
+  const element = ((): EmbedTarget => {
+    if (target == null) {
+      if (script != null && contains(document.body, script)) {
+        const parent = script.parentNode
+        if (parent instanceof HTMLElement || parent instanceof DocumentFragment)
+          return parent
+      }
 
-  const view_manager = await embed.add_document_standalone(doc, element)
+      return document.body
+    } else if (isString(target)) {
+      const found = document.querySelector(target)
+      if (found instanceof HTMLElement) {
+        if (found.shadowRoot != null)
+          return found.shadowRoot
+        else
+          return found
+      } else
+        throw new Error(`'${target}' selector didn't match any elements`)
+    } else if (target instanceof HTMLElement) {
+      return target
+    } else if (typeof $ !== "undefined" && target instanceof $) {
+      return (target as Jq)[0]
+    } else {
+      throw new Error("target should be a HTMLElement, string selector, $ or null")
+    }
+  })()
+
+  const view_manager = await add_document_standalone(doc, element)
 
   return new Promise((resolve, _reject) => {
     const views = [...view_manager]

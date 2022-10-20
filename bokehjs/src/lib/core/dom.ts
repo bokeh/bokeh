@@ -184,6 +184,26 @@ export function empty(node: Node, attrs: boolean = false): void {
   }
 }
 
+export function contains(element: Element, child: Node) {
+  /**
+   * Like Node.contains(), but traverses Shadow DOM boundaries.
+   */
+  let current = child
+
+  while (current.parentNode != null) {
+    const parent = current.parentNode
+    if (parent == element) {
+      return true
+    } else if (parent instanceof ShadowRoot) {
+      current = parent.host
+    } else {
+      current = parent
+    }
+  }
+
+  return false
+}
+
 export function display(element: HTMLElement, display: boolean = true): void {
   element.style.display = display ? "" : "none"
 }
