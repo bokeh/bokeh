@@ -111,8 +111,24 @@
       "alt": "Thumbnail link to the examples/basic/annotations/legend.py example shows a row of fo plots that have sine waves in different scatter and line styles, illustrated in accompanying legends."
     },
     {
+      "name": "arrow.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/arrow.py example that shows three different arrow annotation configurations."
+    },
+    {
       "name": "band.py",
       "alt": "Thumbnail link to the examples/basic/annotations/band.py example that shows a band annotation around a trend line in a scatter plot."
+    },
+    {
+      "name": "slope.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/slope.py example that shows an orange y=mx+b trend line in a scatter plot."
+    },
+    {
+      "name": "span.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/span.py example that shows green vertical spans marking the start and end dates of Daylight Savings time in Warsaw in 2013."
+    },
+    {
+      "name": "whisker.py",
+      "alt": "Thumbnail link to the examples/basic/annotations/whisker.py example that shows whisker annotations marking quantile ranges over categorical scatter plots."
     },
     {
       "name": "colorbar_log.py",
@@ -145,6 +161,28 @@
     {
       "name": "latex_bessel.py",
       "alt": "Thumbnail link to the examples/styling/mathtext/latex_bessel.py example shows a plot with the first four Bessel function J_0 to J_3 with mathtext labels and a mathtext title."
+    }
+  ],
+  "styling/themes": [
+    {
+      "name": "caliber.py",
+      "alt": "Thumbnail link to the examples/styling/themes/caliber.py example shows basic line plot with the caliber theme."
+    },
+    {
+      "name": "dark_minimal.py",
+      "alt": "Thumbnail link to the examples/styling/themes/dark_minimal.py example shows basic line plot with the dark_minimal theme."
+    },
+    {
+      "name": "light_minimal.py",
+      "alt": "Thumbnail link to the examples/styling/themes/light_minimal.py example shows basic line plot with the light_minimal theme."
+    },
+    {
+      "name": "night_sky.py",
+      "alt": "Thumbnail link to the examples/styling/themes/night_sky.py example shows basic line plot with the night_sky theme."
+    },
+    {
+      "name": "contrast.py",
+      "alt": "Thumbnail link to the examples/styling/themes/contrast.py example shows basic line plot with the contrast theme."
     }
   ],
   "topics/images": [
@@ -280,6 +318,14 @@
     }
   ],
   "interaction/linking": [
+    {
+      "name": "linked_brushing.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/linked_brushing.py example shows a two different scatter plots of the Palmer penuguin dataset with linked selections."
+    },
+    {
+      "name": "linked_crosshair.py",
+      "alt": "Thumbnail link to the examples/interaction/linking/linked_crosshair.py example shows a two plots with vertical and horizontal crosshair tools linked."
+    },
     {
       "name": "data_table_plot.py",
       "alt": "Thumbnail link to the examples/interaction/linking/data_table_plot.py example shows a column of a scatter plot and data table that share a data source and have linked selections."

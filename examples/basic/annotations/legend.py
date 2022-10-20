@@ -22,16 +22,19 @@ p1.circle(x,   y, legend_label="sin(x)")
 p1.circle(x, 2*y, legend_label="2*sin(x)", color="orange")
 p1.circle(x, 3*y, legend_label="3*sin(x)", color="green")
 
-p1.legend.title = 'Example Title'
+p1.legend.title = 'Markers'
 
 p2 = figure(title="Another Legend Example", tools=TOOLS)
 
 p2.circle(x, y, legend_label="sin(x)")
 p2.line(x, y, legend_label="sin(x)")
 
-p2.line(x, 2*y, legend_label="2*sin(x)", line_dash=(4, 4), line_color="orange", line_width=2)
+p2.line(x, 2*y, legend_label="2*sin(x)",
+        line_dash=(4, 4), line_color="orange", line_width=2)
 
 p2.square(x, 3*y, legend_label="3*sin(x)", fill_color=None, line_color="green")
 p2.line(x, 3*y, legend_label="3*sin(x)", line_color="green")
 
-show(gridplot([p1, p2], ncols=2, width=400, height=400))  # open a browser
+p2.legend.title = 'Lines'
+
+show(gridplot([p1, p2], ncols=2, width=400, height=400))

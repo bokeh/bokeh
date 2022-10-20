@@ -31,6 +31,7 @@ its code and interact with a live plot.
 
             styling/plots
             styling/mathtext
+            styling/themes
 
         ..  styling/visuals
 

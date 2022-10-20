@@ -11,15 +11,10 @@ class IonRangeSlider(InputWidget):
     # of JavaScript or TypeScript code that implements the web browser
     # side of the custom extension model or a string name of a file with the implementation.
 
-    __implementation__ = 'ion_range_slider.ts'
+    __implementation__ = "ion_range_slider.ts"
     __javascript__ = [
         "https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js",
         "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/js/ion.rangeSlider.js",
-    ]
-    __css__ = [
-        "https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/css/ion.rangeSlider.css",
-        "https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/css/ion.rangeSlider.skinFlat.min.css",
     ]
 
     # Below are all the "properties" for this model. Bokeh properties are
@@ -63,32 +58,21 @@ plot = figure(width=400, height=400)
 plot.line('x', 'y', source=source, line_width=3, line_alpha=0.6, color='#ed5565')
 
 callback_single = CustomJS(args=dict(source=source), code="""
-        const data = source.data;
-        const f = cb_obj.value
-        const x = data['x']
-        const y = data['y']
-        for (let i = 0; i < x.length; i++) {
-            y[i] = Math.pow(x[i], f)
-        }
-        source.change.emit();
-    """)
-
+    const f = cb_obj.value
+    const x = source.data.x
+    const y = Array.from(x, (x) => Math.pow(x, f))
+    source.data = {x, y}
+""")
 
 callback_ion = CustomJS(args=dict(source=source), code="""
-        const data = source.data;
-        const f = cb_obj.range
-        const x = data['x']
-        const y = data['y']
-        const pow = (Math.log(y[100])/Math.log(x[100]))
-        console.log(pow)
-        const delta = (f[1] - f[0])/x.length
-        for (let i = 0; i < x.length; i++) {
-            x[i] = delta*i + f[0]
-            y[i] = Math.pow(x[i], pow)
-        }
-        source.change.emit();
-    """)
-
+    const {data} = source
+    const f = cb_obj.range
+    const pow = (Math.log(data.y[100]) / Math.log(data.x[100]))
+    const delta = (f[1] - f[0]) / data.x.length
+    const x = Array.from(data.x, (x, i) => delta*i + f[0])
+    const y = Array.from(x, (x) => Math.pow(x, pow))
+    source.data = {x, y}
+""")
 
 slider = Slider(start=0, end=5, step=0.1, value=1, title="Bokeh Slider - Power")
 slider.js_on_change('value', callback_single)
@@ -97,5 +81,4 @@ ion_range_slider = IonRangeSlider(start=0.01, end=0.99, step=0.01, range=(min(x)
     title='Ion Range Slider - Range')
 ion_range_slider.js_on_change('range', callback_ion)
 
-layout = column(plot, slider, ion_range_slider)
-show(layout)
+show(column(plot, slider, ion_range_slider))

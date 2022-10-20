@@ -28,8 +28,8 @@ source = ColumnDataSource(df.reset_index())
 
 p = figure(tools="", toolbar_location=None, x_range=(40, 160))
 p.title.text = "Rolling Standard Deviation"
-p.xgrid[0].grid_line_color=None
-p.ygrid[0].grid_line_alpha=0.5
+p.xgrid.grid_line_color=None
+p.ygrid.grid_line_alpha=0.5
 
 p.scatter(x="x", y="y", marker="dot", size=10, alpha=0.4, source=source)
 

@@ -114,13 +114,12 @@ _HTML_REPR = """
 </script>
 """
 
-# The "../../" is needed for bokeh-plot to construct the correct path to examples
 _EXAMPLE_TEMPLATE = '''
 
     Example
     -------
 
-    .. bokeh-plot:: ../../../{path}
+    .. bokeh-plot:: __REPO__/{path}
         :source-position: below
 
 '''

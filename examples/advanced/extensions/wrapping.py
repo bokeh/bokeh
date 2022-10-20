@@ -5,7 +5,7 @@ from bokeh.io import show
 from bokeh.models import ColumnDataSource, LayoutDOM
 from bokeh.util.compiler import TypeScript
 
-TS_CODE = """
+CODE = """
 // This custom model wraps one part of the third-party vis.js library:
 //
 //     http://visjs.org/index.html
@@ -162,7 +162,7 @@ class Surface3d(LayoutDOM):
 
     # The special class attribute ``__implementation__`` should contain a string
     # of JavaScript code that implements the browser side of the extension model.
-    __implementation__ = TypeScript(TS_CODE)
+    __implementation__ = TypeScript(CODE)
 
     # Below are all the "properties" for this model. Bokeh properties are
     # class attributes that define the fields (and their types) that can be

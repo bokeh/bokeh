@@ -1,30 +1,27 @@
 from bokeh.models import ColumnDataSource, Whisker
 from bokeh.plotting import figure, show
-from bokeh.sampledata.autompg import autompg as df
+from bokeh.sampledata.autompg2 import autompg2 as df
+from bokeh.transform import factor_cmap, jitter
 
-colors = ["red", "olive", "darkred", "goldenrod", "skyblue", "orange", "salmon"]
+classes = list(sorted(df["class"].unique()))
 
-p = figure(width=600, height=300, title="Years vs mpg with Quartile Ranges")
+p = figure(height=400, x_range=classes, background_fill_color="#efefef",
+           title="Car class vs HWY mpg with quintile ranges")
+p.xgrid.grid_line_color = None
 
-base, lower, upper = [], [], []
+g = df.groupby("class")
+upper = g.hwy.quantile(0.80)
+lower = g.hwy.quantile(0.20)
+source = ColumnDataSource(data=dict(base=classes, upper=upper, lower=lower))
 
-for i, year in enumerate(list(df.yr.unique())):
-    year_mpgs = df[df['yr'] == year]['mpg']
-    mpgs_mean = year_mpgs.mean()
-    mpgs_std = year_mpgs.std()
-    lower.append(mpgs_mean - mpgs_std)
-    upper.append(mpgs_mean + mpgs_std)
-    base.append(year)
+error = Whisker(base="base", upper="upper", lower="lower", source=source,
+                level="annotation", line_width=2)
+error.upper_head.size=20
+error.lower_head.size=20
+p.add_layout(error)
 
-source_error = ColumnDataSource(data=dict(base=base, lower=lower, upper=upper))
-
-p.add_layout(
-    Whisker(source=source_error, base="base", upper="upper", lower="lower")
-)
-
-for i, year in enumerate(list(df.yr.unique())):
-    y = df[df['yr'] == year]['mpg']
-    color = colors[i % len(colors)]
-    p.circle(x=year, y=y, color=color)
+p.circle(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
+         alpha=0.5, size=13, line_color="white",
+         color=factor_cmap("class", "Light6", classes))
 
 show(p)

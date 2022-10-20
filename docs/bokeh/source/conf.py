@@ -82,6 +82,7 @@ autodoc_type_aliases = {
 }
 
 bokeh_example_subdirs = [
+    "advanced/extensions",
     "basic/annotations",
     "basic/areas",
     "basic/axes",
@@ -93,6 +94,7 @@ bokeh_example_subdirs = [
     "styling/visuals",
     "styling/plots",
     "styling/mathtext",
+    "styling/themes",
     "interaction/js_callbacks",
     "interaction/legends",
     "interaction/linking",

@@ -30,7 +30,7 @@ colors = {
     "Other": "lightgray"
 }
 
-aggregated = df.groupby("Browser").agg(sum)
+aggregated = df.groupby("Browser").sum(numeric_only=True)
 selected = aggregated[aggregated.Share >= 1].copy()
 selected.loc["Other"] = aggregated[aggregated.Share < 1].sum()
 browsers = selected.index.tolist()
