@@ -14,7 +14,3 @@ layout and extension related bugs:
 * Plot's height can not go below 600px (:bokeh-issue:`11344`)
 * Dropdown menu is hidden in multi choice (:bokeh-issue:`11365`)
 * Extensions should fetch exact version from CDN (:bokeh-issue:`11380`)
-
-As well as other very minor docs, build, and bugfix updates.
-
-For full details see the :bokeh-tree:`CHANGELOG`.

@@ -11,7 +11,6 @@ interesting new features:
 * ``TextInput`` widget now has a new per-keystroke capability. :bokeh-issue:`8676`
 * Can now set ``source.data`` directly from DataFrames :bokeh-issue:`9052`
 
-And several other bug fixes and docs additions. For more details see the
-:bokeh-tree:`CHANGELOG` or the `blog announcement`_.
+These changes are discussed in more detail in the `blog announcement`_.
 
 .. _blog announcement: https://medium.com/bokeh/bokeh-1-3-0-released-cca6b7af20ef

@@ -25,16 +25,3 @@ features, and documentation improvements. Highlights include:
 Additionally some internal work has started to refactor and clean up BokehJS
 to bring the class and file structure into closer alignment with the Bokeh
 python library.
-
-.. _release-0-11-1-migration:
-
-`Migration Guide <releases.html#release-0-11-1-migration>`__
-------------------------------------------------------------
-
-* Range update callbacks now return the range object as cb_obj (not the plot)
-* Layouts (HBox, VBox, VBoxForm) have been moved from bokeh.models.widgets to
-  bokeh.models.layouts, but continue to be importable from bokeh.models
-* BlazeDataSource has been removed; it will be maintained by the Blaze team
-  in the future.
-* The broken BokehJS API has been removed. We are actively seeking a
-  champion/maintainer for a new BokehJS API.

@@ -13,6 +13,3 @@ improves some small features. Highlights include:
 * Precompiled extensions broken on Windows :bokeh-issue:`9900`
 * BoxAnnotation ignores `fill_color=None` :bokeh-issue:`9877`
 * A handful of documentation clarifications, corrections, and expansions
-
-And several other bug fixes and docs additions. For full details see the
-:bokeh-tree:`CHANGELOG`.

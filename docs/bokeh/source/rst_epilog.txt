@@ -35,6 +35,9 @@
 .. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 
+.. _CHANGELOG: https://raw.githubusercontent.com/bokeh/bokeh/HEAD/docs/CHANGELOG
+.. _Migration Guides: https://github.com/bokeh/bokeh/wiki/Migration-Guides
+
 .. |named CSS colors| replace:: `named CSS colors`_
 .. _`named CSS colors`: https://www.w3.org/TR/css-color-4/#named-colors
 
