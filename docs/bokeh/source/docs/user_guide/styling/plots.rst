@@ -201,14 +201,14 @@ Click or tap any of the circles on the plot to see the effect on the selected
 and non-selected glyphs. To clear the selection and restore the original state,
 click anywhere in the plot *outside* of a circle.
 
-.. bokeh-plot:: __REPO__/examples/styling/plots/glyph_selections_plotting_glyph.py
+.. bokeh-plot:: __REPO__/examples/styling/plots/glyph_selection_models.py
     :source-position: above
 
 If you just need to set the color or alpha parameters of the selected or
 non-selected glyphs, provide color and alpha arguments to the glyph function,
 prefixed by ``"selection_"`` or ``"nonselection_"``:
 
-.. bokeh-plot:: __REPO__/examples/styling/plots/glyph_selections_plotting_params.py
+.. bokeh-plot:: __REPO__/examples/styling/plots/glyph_selection.py
     :source-position: above
 
 If you use the |bokeh.models| interface, use the

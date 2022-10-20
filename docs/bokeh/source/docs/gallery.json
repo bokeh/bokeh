@@ -143,6 +143,14 @@
     {
       "name": "hatch_grid_band.py",
       "alt": "Thumbnail link to the examples/styling/plots/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+    },
+    {
+      "name": "glyph_selection.py",
+      "alt": "Thumbnail link to the examples/styling/plots/glyph_selection.py example shows how to configure the appearance of selected and non-selected glyphs."
+    },
+    {
+      "name": "glyph_hover.py",
+      "alt": "Thumbnail link to the examples/styling/plots/glyph_hover.py example shows how to configure the appearance of hovered glyphs."
     }
   ],
   "styling/mathtext": [
