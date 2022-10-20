@@ -21,6 +21,14 @@
   ],
   "basic/data": [
     {
+      "name": "linear_cmap.py",
+      "alt": "Thumbnail link to the examples/basic/data/linear_cmap.py example shows a hexplot of a Gaussian distribution with the hex elements colormapped by a linear colormapper."
+    },
+    {
+      "name": "linear_cmap_colorbar.py",
+      "alt": "Thumbnail link to the examples/basic/data/linear_cmap_colorbar.py example shows a linear colormapper used to drive a colorbar in addition to a glyph's color."
+    },
+    {
       "name": "transform_markers.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
