@@ -141,6 +141,18 @@
   ],
   "styling/plots": [
     {
+      "name": "grid_bounds.py",
+      "alt": "Thumbnail link to the examples/styling/plots/grid_bounds.py example shows how to set bounds limits on plot grids."
+    },
+    {
+      "name": "minor_grid_lines.py",
+      "alt": "Thumbnail link to the examples/styling/plots/minor_grid_lines.py example shows how to add grid lines at minor tick locations."
+    },
+    {
+      "name": "grid_band_fill.py",
+      "alt": "Thumbnail link to the examples/styling/plots/grid_band_fill.py example shows how to configure solid filled grid bands."
+    },
+    {
       "name": "hatch_grid_band.py",
       "alt": "Thumbnail link to the examples/styling/plots/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
     },
@@ -151,6 +163,14 @@
     {
       "name": "glyph_hover.py",
       "alt": "Thumbnail link to the examples/styling/plots/glyph_hover.py example shows how to configure the appearance of hovered glyphs."
+    },
+    {
+      "name": "legend_location_outside.py",
+      "alt": "Thumbnail link to the examples/styling/plots/legend_location_outside.py example shows how to add a legend outside the central plot frame."
+    },
+    {
+      "name": "legend_title.py",
+      "alt": "Thumbnail link to the examples/styling/plots/legend_title.py example shows how to configure a title for a legend."
     }
   ],
   "styling/mathtext": [
