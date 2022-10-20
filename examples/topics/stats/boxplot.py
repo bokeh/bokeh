@@ -1,74 +1,59 @@
-''' A `Box Plot`_ of synthetic data. This example demonstrates combining
+''' A `Box Plot`_ of autompg data. This example demonstrates combining
 multiple basic glyphs to create a more complicated chart.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.vbar, bokeh.plotting.figure.rect, bokeh.plotting.figure.segment
-    :refs: :ref:`ug_topics_stats_histogram`, :ref:`ug_basic_lines_segments`, :ref:`ug_basic_areas_rects`
+    :sampledata: autompg2
+    :apis: bokeh.plotting.figure.vbar
+    :refs: :ref:`ug_topics_stats_boxplot`
     :keywords: bars, boxplot, categorical, pandas
 
 .. _Box Plot: https://en.wikipedia.org/wiki/Box_plot
 
 '''
-import numpy as np
 import pandas as pd
 
 from bokeh.plotting import figure, show
+from bokeh.models import ColumnDataSource, Whisker
+from bokeh.sampledata.autompg2 import autompg2
+from bokeh.transform import factor_cmap
 
-# generate some synthetic time series for six different categories
-cats = list("abcdef")
-yy = np.random.randn(2000)
-g = np.random.choice(cats, 2000)
-for i, l in enumerate(cats):
-    yy[g == l] += i // 2
-df = pd.DataFrame(dict(score=yy, group=g))
+df = autompg2[["class", "hwy"]].rename(columns={"class": "kind"})
 
-# find the quartiles and IQR for each category
-groups = df.groupby('group')
-q1 = groups.quantile(q=0.25)
-q2 = groups.quantile(q=0.5)
-q3 = groups.quantile(q=0.75)
-iqr = q3 - q1
-upper = q3 + 1.5*iqr
-lower = q1 - 1.5*iqr
+kinds = df.kind.unique()
 
-# find the outliers for each category
-def outliers(group):
-    cat = group.name
-    return group[(group.score > upper.loc[cat]['score']) | (group.score < lower.loc[cat]['score'])]['score']
-out = groups.apply(outliers).dropna()
+# compute quantiles
+qs = df.groupby("kind").hwy.quantile([0.25, 0.5, 0.75])
+qs = qs.unstack().reset_index()
+qs.columns = ["kind", "q1", "q2", "q3"]
+df = pd.merge(df, qs, on="kind", how="left")
 
-# prepare outlier data for plotting, we need coordinates for every outlier.
-if not out.empty:
-    outx = list(out.index.get_level_values(0))
-    outy = list(out.values)
+# compute IQR outlier bounds
+iqr = df.q3 - df.q1
+df["upper"] = df.q3 + 1.5*iqr
+df["lower"] = df.q1 - 1.5*iqr
 
-p = figure(tools="", background_fill_color="#efefef", x_range=cats, toolbar_location=None)
+source = ColumnDataSource(df)
 
-# if no outliers, shrink lengths of stems to be no longer than the minimums or maximums
-qmin = groups.quantile(q=0.00)
-qmax = groups.quantile(q=1.00)
-upper.score = [min([x,y]) for (x,y) in zip(list(qmax.loc[:,'score']),upper.score)]
-lower.score = [max([x,y]) for (x,y) in zip(list(qmin.loc[:,'score']),lower.score)]
+p = figure(x_range=kinds, tools="", toolbar_location=None,
+           title="Highway MPG distribution by vehicle class",
+           background_fill_color="#eaefef", y_axis_label="MPG")
 
-# stems
-p.segment(cats, upper.score, cats, q3.score, line_color="black")
-p.segment(cats, lower.score, cats, q1.score, line_color="black")
+# outlier range
+whisker = Whisker(base="kind", upper="upper", lower="lower", source=source)
+whisker.upper_head.size = whisker.lower_head.size = 20
+p.add_layout(whisker)
 
-# boxes
-p.vbar(cats, 0.7, q2.score, q3.score, fill_color="#E08E79", line_color="black")
-p.vbar(cats, 0.7, q1.score, q2.score, fill_color="#3B8686", line_color="black")
-
-# whiskers (almost-0 height rects simpler than segments)
-p.rect(cats, lower.score, 0.2, 0.01, line_color="black")
-p.rect(cats, upper.score, 0.2, 0.01, line_color="black")
+# quantile boxes
+cmap = factor_cmap("kind", "TolRainbow7", kinds)
+p.vbar("kind", 0.7, "q2", "q3", source=source, color=cmap, line_color="black")
+p.vbar("kind", 0.7, "q1", "q2", source=source, color=cmap, line_color="black")
 
 # outliers
-if not out.empty:
-    p.circle(outx, outy, size=6, color="#F38630", fill_alpha=0.6)
+outliers = df[~df.hwy.between(df.lower, df.upper)]
+p.scatter("kind", "hwy", source=outliers, size=6, color="black", alpha=0.3)
 
 p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = "white"
-p.grid.grid_line_width = 2
-p.xaxis.major_label_text_font_size="16px"
+p.axis.major_label_text_font_size="14px"
+p.axis.axis_label_text_font_size="12px"
 
 show(p)

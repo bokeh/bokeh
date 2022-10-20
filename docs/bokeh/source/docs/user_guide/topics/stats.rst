@@ -18,8 +18,8 @@ Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 Boxplot
 -------
 
-Box plots require more work. Here is an example that utilizes |segment| and
-|vbar| glyphs to accomplish the task:
+Box plots can be assembled using |Whisker| annotations, |vbar| and |scatter|
+glyphs:
 
 .. bokeh-plot:: __REPO__/examples/topics/stats/boxplot.py
     :source-position: above
@@ -38,5 +38,6 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
     :source-position: above
 
 .. |quad|    replace:: :func:`~bokeh.plotting.figure.quad`
-.. |segment| replace:: :func:`~bokeh.plotting.figure.segment`
+.. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
+.. |Whisker| replace:: :class:`~bokeh.models.annotations.Whisker`
