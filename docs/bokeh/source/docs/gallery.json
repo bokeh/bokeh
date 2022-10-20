@@ -123,10 +123,10 @@
       "alt": "Thumbnail link to the examples/basic/annotations/box_annotation.py example shows a timeseries plot of glucose data readings with red box annotations marking regions where the readings are too high or too low."
     }
   ],
-  "styling/plot_elements": [
+  "styling/plots": [
     {
       "name": "hatch_grid_band.py",
-      "alt": "Thumbnail link to the examples/styling/plot_elements/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
+      "alt": "Thumbnail link to the examples/styling/plots/hatch_grid_band.py example shows a sine wave with hatched grid bands underneath."
     }
   ],
   "styling/mathtext": [

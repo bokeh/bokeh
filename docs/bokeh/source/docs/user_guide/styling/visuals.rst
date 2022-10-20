@@ -1,4 +1,4 @@
-.. _ug_styling_visual_properties:
+.. _ug_styling_visuals:
 
 General visual properties
 =========================
@@ -50,13 +50,13 @@ Visible property
 Glyph renderers, axes, grids, and annotations all have a ``visible`` property.
 Use this property to turn them on and off.
 
-.. bokeh-plot:: __REPO__/examples/styling/visual_properties/visible_property.py
+.. bokeh-plot:: __REPO__/examples/styling/visuals/visible_property.py
     :source-position: above
 
 This can be particularly useful in interactive examples with a Bokeh server or
 CustomJS.
 
-.. bokeh-plot:: __REPO__/examples/styling/visual_properties/visible_annotation_with_interaction.py
+.. bokeh-plot:: __REPO__/examples/styling/visuals/visible_annotation_with_interaction.py
     :source-position: above
 
 .. _ug_styling_colors:
@@ -90,7 +90,7 @@ column of a |ColumnDataSource|. This also includes
 
 For example:
 
-.. bokeh-plot:: __REPO__/examples/styling/visual_properties/specifying_colors.py
+.. bokeh-plot:: __REPO__/examples/styling/visuals/specifying_colors.py
     :source-position: above
 
 In addition to specifying the alpha value of a color when defining the color
@@ -107,7 +107,7 @@ glyph will be ``0.6*0.5 = 0.3``.
 The following figure demonstrates each possible combination of using RGB and
 RGBA colors together with the ``line_alpha`` or ``fill_alpha`` properties:
 
-.. bokeh-plot:: __REPO__/examples/styling/visual_properties/specifying_colors_properties.py
+.. bokeh-plot:: __REPO__/examples/styling/visuals/specifying_colors_properties.py
     :source-position: none
 
 .. note::

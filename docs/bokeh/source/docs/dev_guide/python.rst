@@ -102,7 +102,7 @@ Models and properties
 
 The central building blocks of all Bokeh visualizations are objects based on
 Bokeh's :term:`models <Model>`. These models are representations of
-:term:`plot <Plot>` elements, such as :ref:`axes <ug_styling_plot_elements_axes>`,
+:term:`plot <Plot>` elements, such as :ref:`axes <ug_styling_plots_axes>`,
 :term:`glyphs <Glyph>`, or :term:`widgets <Widget>`.
 
 On the Python side, Bokeh serializes the attributes of each plot element object

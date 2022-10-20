@@ -6,9 +6,9 @@ Appearance
 Bokeh offers many ways to customize the appearance of plots and other elements
 in a visualization.
 
-:ref:`ug_styling_visual_properties`
+:ref:`ug_styling_visuals`
 
-:ref:`ug_styling_plot_elements`
+:ref:`ug_styling_plots`
 
 :ref:`ug_styling_mathtext`
 

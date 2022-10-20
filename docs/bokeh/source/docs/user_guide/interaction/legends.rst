@@ -30,8 +30,8 @@ Other times it is preferable for legend interaction to mute a glyph, instead
 of hiding it entirely. In this case, set ``click_policy`` property to
 ``"mute"``. Additionally, the visual properties of a "muted glyph" also
 need to be specified. In general, this is done in exactly the same way as for
-:ref:`ug_styling_plot_elements_selected_unselected_glyphs` or
-:ref:`ug_styling_plot_elements_hover_inspections`. In the example below,
+:ref:`ug_styling_plots_selected_unselected_glyphs` or
+:ref:`ug_styling_plots_hover_inspections`. In the example below,
 ``muted_alpha=0.2`` and ``muted_color=color`` are passed to ``circle`` to
 specify that muted lines should be drawn with a low alpha muted glyph.
 
