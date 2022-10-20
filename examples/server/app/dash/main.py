@@ -4,8 +4,8 @@ of charts in one file.
 
 .. note::
     This example needs the Pandas package to run.
-    
-    _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
+
+.. _Auto MPG: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''
 from collections import Counter
