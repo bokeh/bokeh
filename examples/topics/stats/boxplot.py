@@ -12,8 +12,8 @@ multiple basic glyphs to create a more complicated chart.
 '''
 import pandas as pd
 
-from bokeh.plotting import figure, show
 from bokeh.models import ColumnDataSource, Whisker
+from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2
 from bokeh.transform import factor_cmap
 
