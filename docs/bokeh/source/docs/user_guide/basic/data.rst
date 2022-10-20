@@ -321,7 +321,7 @@ browser:
 Both functions operate similarly and accept the following arguments:
 
 * The name of a ``ColumnDataSource`` column containing the data to map colors to
-* A (which can be one of :ref:`Bokeh's pre-defined palettes
+* A palette (which can be one of :ref:`Bokeh's pre-defined palettes
   <ug_styling_visual_palettes>` or a custom list of colors)
 * ``min`` and ``max`` values for the color mapping range.
 
@@ -564,7 +564,7 @@ Otherwise, using an ``AjaxDataSource`` is identical to using a standard
     # use the AjaxDataSource just like a ColumnDataSource
     p.circle('x', 'y', source=source)
 
-This a preview of what a stream of live data in Bokeh can look like using
+This is a preview of what a stream of live data in Bokeh can look like using
 ``AjaxDataSource``:
 
 .. image:: /_images/ajax_streaming.gif
