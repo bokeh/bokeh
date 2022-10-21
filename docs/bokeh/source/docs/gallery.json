@@ -29,6 +29,10 @@
       "alt": "Thumbnail link to the examples/basic/data/linear_cmap_colorbar.py example shows a linear colormapper used to drive a colorbar in addition to a glyph's color."
     },
     {
+      "name": "color_mappers.py",
+      "alt": "Thumbnail link to the examples/basic/data/color_mappers.py example shows comparison of linear and log colormaps with different palette sizes."
+    },
+    {
       "name": "transform_markers.py",
       "alt": "Thumbnail link to the examples/basic/data/transform_markers.py example shows a scatter plot of the Palmer penuguins dataset, color- and marker-mapped by species. The x-axis is flipper length (mm) and the y-axis is body mass (g)."
     },
