@@ -31,15 +31,15 @@ cd distributed
 pytest distributed/dashboard
 cd ..
 
-pushd "$(python -c 'import site; print(site.getsitepackages()[0])')" || exit
+# pushd "$(python -c 'import site; print(site.getsitepackages()[0])')" || exit
 
-banner "Panel" 2> /dev/null
-pytest panel/tests
+# banner "Panel" 2> /dev/null
+# pytest panel/tests
 
-banner "Holoviews" 2> /dev/null
-nosetests holoviews/tests/plotting/bokeh
+# banner "Holoviews" 2> /dev/null
+# nosetests holoviews/tests/plotting/bokeh
 
-popd || exit
+# popd || exit
 
 banner "PandasBokeh" 2> /dev/null
 pytest Pandas-Bokeh/Tests/test_PandasBokeh.py
