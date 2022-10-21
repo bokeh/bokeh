@@ -1,22 +1,24 @@
-from bokeh.models import HoverTool
+from bokeh.models import RELATIVE_DATETIME_CONTEXT, HoverTool
 from bokeh.plotting import figure, show
 from bokeh.sampledata.glucose import data
 
-subset = data.loc['2010-10-06']
-
-x, y = subset.index.to_series(), subset['glucose']
+x = data.loc['2010-10-06'].index.to_series()
+y = data.loc['2010-10-06']['glucose']
 
 # Basic plot setup
-plot = figure(width=600, height=300, x_axis_type="datetime", tools="",
-              toolbar_location=None, title='Hover over points')
+p = figure(width=800, height=400, x_axis_type="datetime",
+           tools="pan,wheel_zoom", title='Hover over points')
+p.xaxis.formatter.context = RELATIVE_DATETIME_CONTEXT()
+p.ygrid.grid_line_color = None
+p.background_fill_color = "#fafafa"
 
-plot.line(x, y, line_dash="4 4", line_width=1, color='gray')
+p.line(x, y, line_dash="4 4", line_width=1, color='gray')
 
-cr = plot.circle(x, y, size=20,
-                fill_color="grey", hover_fill_color="firebrick",
-                fill_alpha=0.05, hover_alpha=0.3,
-                line_color=None, hover_line_color="white")
+cr = p.circle(x, y, size=20,
+              fill_color="steelblue", alpha=0.1, line_color=None,
+              hover_fill_color="midnightblue", hover_alpha=0.5,
+              hover_line_color="white")
 
-plot.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
+p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
 
-show(plot)
+show(p)
