@@ -27,6 +27,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList
+from bokeh.core.types import ID
 from bokeh.model import Model
 
 # Module under test
@@ -168,13 +169,14 @@ class TestModel:
         self.maxDiff = None
 
     def test_init(self) -> None:
-        testObject = SomeModel(id='test_id')
-        assert testObject.id == 'test_id'
+        obj = SomeModel.__new__(SomeModel, id=ID("test_id"))
+        Model.__init__(obj)
+        assert obj.id == "test_id"
 
         testObject2 = SomeModel()
         assert testObject2.id is not None
 
-        assert set(testObject.properties()) == {
+        assert set(obj.properties()) == {
             "name",
             "tags",
             "js_property_callbacks",
@@ -183,7 +185,7 @@ class TestModel:
             "syncable",
             "some",
         }
-        assert testObject.properties_with_values(include_defaults=True) == dict(
+        assert obj.properties_with_values(include_defaults=True) == dict(
             name=None,
             tags=[],
             js_property_callbacks={},
@@ -192,7 +194,7 @@ class TestModel:
             syncable=True,
             some=0,
         )
-        assert testObject.properties_with_values(include_defaults=False) == {}
+        assert obj.properties_with_values(include_defaults=False) == {}
 
     def test_references_by_ref_by_value(self) -> None:
         from bokeh.core.has_props import HasProps

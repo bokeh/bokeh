@@ -92,19 +92,25 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
-    def __new__(cls, *args, **kwargs) -> Model:
-        obj =  super().__new__(cls)
-        obj._id = kwargs.pop("id", make_id())
+    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Model:
+        obj = super().__new__(cls)
+
+        # Setting 'id' implies deferred initialization, which means properties
+        # will be initialized in a separate step by a deserializer, etc.
+        if id is not None:
+            if args or kwargs:
+                raise ValueError("'id' cannot be used together with property initializers")
+            obj._id = id
+        else:
+            obj._id = make_id()
+
         return obj
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         if args:
             raise ValueError("positional arguments are not allowed")
-
-        # "id" is popped from **kw in __new__, so in an ideal world I don't
-        # think it should be here too. But Python has subtle behavior here, so
-        # it is necessary
-        kwargs.pop("id", None)
+        if "id" in kwargs:
+            raise ValueError("initializing 'id' is not allowed")
 
         super().__init__(**kwargs)
         default_theme.apply_to_model(self)
