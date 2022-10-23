@@ -42,6 +42,6 @@ p.grid.grid_line_alpha = 0.05
 
 palette = Blues9[::-1]
 levels = np.linspace(np.min(z), np.max(z), 10)
-p.contour(x, y, z, levels[1:], fill_color=palette, line_color=Blues9[::-1])
+p.contour(x, y, z, levels[1:], fill_color=palette, line_color=palette)
 
 show(p)
