@@ -6,8 +6,8 @@ Gallery
 #######
 
 All of the examples below are located in the :bokeh-tree:`examples`
-subdirectory of the Bokeh repository.  Click on an image below to see
-its code and interact with a live plot.
+subdirectory of the Bokeh repository. Click on an image below to see its
+code and interact with a live plot.
 
 .. tab-set::
     :class: bk-gallery-tabs
@@ -52,20 +52,25 @@ its code and interact with a live plot.
 
     .. tab-item:: Interaction
 
+        Bokeh has many interative tools and widgets. Only a subset have
+        thumbnails here. For more information see the :ref:`ug_interaction`
+        chapter of the users guide.
+
         .. bokeh-gallery::
 
             interaction/tools
             interaction/linking
             interaction/js_callbacks
+            interaction/widgets
 
         .. interaction/legends
-        .. interaction/widgets
         .. interaction/python_callbacks
         .. interaction/tooltips
 
     .. tab-item:: Bokeh server
 
-        The thumbnails in this section link to live demos hosted at `demo.bokeh.org`_.
+        The thumbnails in this section link to live demos hosted at
+        `demo.bokeh.org`_.
 
         .. bokeh-gallery::
 

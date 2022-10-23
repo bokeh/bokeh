@@ -11,6 +11,10 @@
     {
       "name": "elements.py",
       "alt": "Thumbnail link to the examples/basic/scatters/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
+    },
+    {
+      "name": "image_url.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/image_url.py example shows a scatter using an arbitrary image (in this case, the Bokeh logo) for the scatter marker."
     }
   ],
   "basic/lines": [
@@ -27,6 +31,10 @@
     {
       "name": "linear_cmap_colorbar.py",
       "alt": "Thumbnail link to the examples/basic/data/linear_cmap_colorbar.py example shows a linear colormapper used to drive a colorbar in addition to a glyph's color."
+    },
+    {
+      "name": "color_mappers.py",
+      "alt": "Thumbnail link to the examples/basic/data/color_mappers.py example shows comparison of linear and log colormaps with different palette sizes."
     },
     {
       "name": "transform_markers.py",
@@ -285,6 +293,10 @@
     {
       "name": "treemap.py",
       "alt": "Thumbnail link to the examples/topics/hierarchical/treemap.py example treemap plot breaking down sales per city by region from the sample superstore data set."
+    },
+    {
+      "name": "crosstab.py",
+      "alt": "Thumbnail link to the examples/topics/hierarchical/crosstab.py example showing an adjacent bar chart for a crosstab of the sample superstore data set."
     }
   ],
   "topics/geo": [
@@ -349,6 +361,10 @@
       "alt": "Thumbnail link to the examples/topics/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
     },
     {
+      "name": "kde2d.py",
+      "alt": "Thumbnail link to the examples/topics/stats/kde2d.py example shows a bivariate kernel density estimation plot of the autompg data."
+    },
+    {
       "name": "splom.py",
       "alt": "Thumbnail link to the examples/topics/stats/splom.py example shows a SPLOM gridplot of the penguins data set."
     },
@@ -393,6 +409,32 @@
     {
       "name": "js_on_event.py",
       "alt": "Thumbnail link to the examples/interaction/js_callbacks/customjs_for_selection_lasso_mean.py example shows a scatter plot with several tools that prints information about js events as they occur, in text box to the right."
+    }
+  ],
+  "interaction/widgets": [
+    {
+      "name": "multiselect.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/multiselect.py example shows a simple example of a multi-select widget."
+    },
+    {
+      "name": "multichoice.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/multichoice.py example shows a simple example of a multi-choice widget."
+    },
+    {
+      "name": "datepicker.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/datepicker.py example shows a simple example of a widget for seleting dates and date ranges."
+    },
+    {
+      "name": "dropdown.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/dropdown.py example shows a simple example of a dropdown button widget."
+    },
+    {
+      "name": "data_table.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/data_table.py example shows a simple example of a data table widget with multiple columns."
+    },
+    {
+      "name": "data_cube.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/data_cube.py example shows a simple example of a data cube widget for hierarchical data."
     }
   ],
   "server/app": [

@@ -24,6 +24,15 @@ glyphs:
 .. bokeh-plot:: __REPO__/examples/topics/stats/boxplot.py
     :source-position: above
 
+.. _ug_topics_stats_kde:
+
+Kernel density estimation
+-------------------------
+
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/kde2d.py
+    :source-position: above
+
 .. _ug_topics_stats_splom:
 
 SPLOM

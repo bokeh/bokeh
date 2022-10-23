@@ -3,6 +3,23 @@
 Timeseries plots
 ================
 
+.. _ug_topics_timeseries_units:
+
+Units
+-----
+
+Bokeh can automatically handle many kinds of datetime types, for instance
+Numpy datetime arrays and Pandas datetime series, as well as Python built-in
+datetime types. It can sometimes be helpful to understand how Bokeh represents
+these values.
+
+Internally, all datetime values are floating point values that represent
+*milliseconds-since-epoch* (specifically, "epoch" here refers to `unix time`_,
+i.e. *1 January 1970 00:00:00 UTC*). Bokeh will convet datetime values to this
+floating point format before passing on to BokehJS. On occasion (e.g. in
+``CustomJS`` callbacks) it may be necessary to use these values directly.
+
+.. _unix time: https://en.wikipedia.org/wiki/Unix_time
 
 .. _ug_topics_timeseries_range_tool:
 
