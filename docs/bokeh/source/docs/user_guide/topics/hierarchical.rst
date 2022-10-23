@@ -1,5 +1,9 @@
 .. _ug_topics_hierarchical:
 
+Bokeh does not have any built-in APIs specifically for handling hierarchical
+data, but it is possible to use Bokeh's basic components together with other
+libraries handle many cases. Some examples are described below.
+
 Hierarchical data
 =================
 
@@ -33,3 +37,13 @@ involved due to more extensive styling and inline labeling.
     :source-position: above
 
 .. _Squarify: https://github.com/laserson/squarify
+
+Data cube
+---------
+
+Future chapters will cover interactions and widgets in more detail, but it is
+worth mentioning here that Bokeh does have one widget that is specifically
+intended for presenting a view of hierarchical data. A simple example of using
+the ``DataCube`` is shown below.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/data_cube.py

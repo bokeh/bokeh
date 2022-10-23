@@ -411,6 +411,32 @@
       "alt": "Thumbnail link to the examples/interaction/js_callbacks/customjs_for_selection_lasso_mean.py example shows a scatter plot with several tools that prints information about js events as they occur, in text box to the right."
     }
   ],
+  "interaction/widgets": [
+    {
+      "name": "multiselect.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/multiselect.py example shows a simple example of a multi-select widget."
+    },
+    {
+      "name": "multichoice.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/multichoice.py example shows a simple example of a multi-choice widget."
+    },
+    {
+      "name": "datepicker.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/datepicker.py example shows a simple example of a widget for seleting dates and date ranges."
+    },
+    {
+      "name": "dropdown.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/dropdown.py example shows a simple example of a dropdown button widget."
+    },
+    {
+      "name": "data_table.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/data_table.py example shows a simple example of a data table widget with multiple columns."
+    },
+    {
+      "name": "data_cube.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/data_cube.py example shows a simple example of a data cube widget for hierarchical data."
+    }
+  ],
   "server/app": [
     {
       "name": "movies",
