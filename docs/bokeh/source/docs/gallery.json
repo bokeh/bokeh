@@ -293,6 +293,10 @@
     {
       "name": "treemap.py",
       "alt": "Thumbnail link to the examples/topics/hierarchical/treemap.py example treemap plot breaking down sales per city by region from the sample superstore data set."
+    },
+    {
+      "name": "crosstab.py",
+      "alt": "Thumbnail link to the examples/topics/hierarchical/crosstab.py example showing an adjacent bar chart for a crosstab of the sample superstore data set."
     }
   ],
   "topics/geo": [
