@@ -71,7 +71,19 @@ use with |data units|.
 Image URLs
 ----------
 
-.. TODO (bv) content
+It is also possible to make scatter plots using arbitrary images for markers
+using the |image_url| glyph method. The example below demonstrates using a
+single image, but it is possible to pass a column of differnet URLs for every
+point.
+
+.. note::
+    The URLs must be accessible by HTTP or HTTPS. For security reasons,
+    browsers will not allow loading local (``file://``) images into to HTML
+    canvas elements. For similar reasons, if the page is HTTPS, then the
+    URLs for the images must also be HTTPS.
+
+.. bokeh-plot:: __REPO__/examples/basic/scatters/image_url.py
+    :source-position: none
 
 .. |circle|    replace:: :func:`~bokeh.plotting.figure.circle`
 .. |image_url| replace:: :func:`~bokeh.plotting.figure.image_url`

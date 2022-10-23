@@ -11,6 +11,10 @@
     {
       "name": "elements.py",
       "alt": "Thumbnail link to the examples/basic/scatters/elements.py example shows a scatter plot of density vs atomic weight of atomic elements, colormapped by their melting points."
+    },
+    {
+      "name": "image_url.py",
+      "alt": "Thumbnail link to the examples/basic/scatters/image_url.py example shows a scatter using an arbitrary image (in this case, the Bokeh logo) for the scatter marker."
     }
   ],
   "basic/lines": [
