@@ -208,6 +208,28 @@ class Test_from_contour:
         assert line.line_dash == "dotdash"
         assert line.line_dash_offset == 3
 
+    @pytest.mark.parametrize("kwarg_none", ["line_color", "fill_color"])
+    def test_ignore_kwarg_None(self, xyz_levels, kwarg_none):
+        x, y, z, levels = xyz_levels
+        kwargs = dict(line_color="red", fill_color="blue")
+        kwargs[kwarg_none] = None
+        cr = from_contour(x, y, z, levels, **kwargs)
+
+        # Identify empty CDS by checking length of levels for line contours and lower_levels or
+        # upper_levels for filled contours, as xs and ys can be empty for other reasons (if there
+        # are no contours at all).
+        fill_len = len(cr.fill_renderer.data_source.data["lower_levels"])
+        if kwarg_none == "fill_color":
+            assert fill_len == 0
+        else:
+            assert fill_len > 0
+
+        line_len = len(cr.line_renderer.data_source.data["levels"])
+        if kwarg_none == "line_color":
+            assert line_len == 0
+        else:
+            assert line_len > 0
+
 def test_contour_colorbar(xyz_levels):
     x, y, z, levels = xyz_levels
     cr = from_contour(x, y, z, levels, fill_color="red", line_color="black")
