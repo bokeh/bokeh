@@ -201,7 +201,7 @@ def from_contour(
 
     nlevels = len(levels)
 
-    want_line = "line_color" in visuals
+    want_line = visuals.get("line_color", None) is not None
     if want_line:
         # Handle possible callback or interpolation for line_color.
         visuals["line_color"] = _color(visuals["line_color"], nlevels)
@@ -215,14 +215,18 @@ def from_contour(
             prop = visuals.pop(name, None)
             if prop is not None:
                 line_visuals[name] = prop
+    else:
+        visuals.pop("line_color", None)
 
-    want_fill = "fill_color" in visuals
+    want_fill = visuals.get("fill_color", None) is not None
     if want_fill:
         # Handle possible callback or interpolation for fill_color.
         visuals["fill_color"] = _color(visuals["fill_color"], nlevels-1)
 
         fill_cds = ColumnDataSource()
         _process_sequence_literals(MultiPolygons, visuals, fill_cds, False)
+    else:
+        visuals.pop("fill_color", None)
 
     # Check for extra unknown kwargs.
     unknown = visuals.keys() - FillProps.properties() - HatchProps.properties()
