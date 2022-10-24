@@ -27,7 +27,7 @@ export type Parent = {
 
 export type ResoType = "ESM" | "CJS"
 
-export type ModuleType = "js" | "json" | "yaml" | "css"
+export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
 
 export type ModuleInfo = {
   file: Path
@@ -674,9 +674,10 @@ export class Linker {
     }
 
     const hash = crypto.createHash("sha256").update(source).digest("hex")
-    const type = (() => {
+    const type: ModuleType = (() => {
       switch (extname(file)) {
         case ".json": return "json"
+        case ".json5": return "json5"
         case ".yaml": return "yaml"
         case ".css": return "css"
         case ".mjs": return "js"
@@ -693,6 +694,14 @@ export class Linker {
         source = `\
 const json = ${source};
 export ${export_type} json;
+`
+        break
+      case "json5":
+        source = `\
+const json5 = \`
+${source}
+\`;
+export ${export_type} json5;
 `
         break
       case "css":

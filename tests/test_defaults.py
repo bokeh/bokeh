@@ -33,7 +33,7 @@ from tests.support.defaults import collect_defaults, output_defaults
 
 class TestDefaults:
     def test_defaults(self) -> None:
-        baseline = Path(__file__).parent / "baselines" / "defaults.yaml"
+        baseline = Path(__file__).parent / "baselines" / "defaults.json5"
 
         defaults = collect_defaults()
         output_defaults(baseline, defaults)

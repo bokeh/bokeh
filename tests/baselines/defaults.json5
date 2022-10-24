@@ -1,0 +1,5944 @@
+{
+  Model: {
+    name: null,
+    tags: [],
+    js_event_callbacks: {
+      type: "map",
+    },
+    js_property_callbacks: {
+      type: "map",
+    },
+    subscribed_events: {
+      type: "set",
+    },
+    syncable: true,
+  },
+  DataModel: {
+    __extends__: "Model",
+  },
+  FillProps: {
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+  },
+  ScalarFillProps: {
+    fill_color: "gray",
+    fill_alpha: 1.0,
+  },
+  HatchProps: {
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  ScalarHatchProps: {
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  ImageProps: {
+    global_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+  },
+  ScalarImageProps: {
+    global_alpha: 1.0,
+  },
+  LineProps: {
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  ScalarLineProps: {
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
+  TextProps: {
+    text_color: {
+      type: "value",
+      value: "#444444",
+    },
+    text_outline_color: {
+      type: "value",
+      value: null,
+    },
+    text_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    text_font: {
+      type: "value",
+      value: "helvetica",
+    },
+    text_font_size: {
+      type: "value",
+      value: "16px",
+    },
+    text_font_style: {
+      type: "value",
+      value: "normal",
+    },
+    text_align: {
+      type: "value",
+      value: "left",
+    },
+    text_baseline: {
+      type: "value",
+      value: "bottom",
+    },
+    text_line_height: {
+      type: "value",
+      value: 1.2,
+    },
+  },
+  ScalarTextProps: {
+    text_color: "#444444",
+    text_outline_color: null,
+    text_alpha: 1.0,
+    text_font: "helvetica",
+    text_font_size: "16px",
+    text_font_style: "normal",
+    text_align: "left",
+    text_baseline: "bottom",
+    text_line_height: 1.2,
+  },
+  Callback: {
+    __extends__: "Model",
+  },
+  OpenURL: {
+    __extends__: "Callback",
+    url: "http://",
+    same_tab: false,
+  },
+  CustomJS: {
+    __extends__: "Callback",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  SetValue: {
+    __extends__: "Callback",
+    obj: {
+      type: "symbol",
+      name: "unset",
+    },
+    attr: {
+      type: "symbol",
+      name: "unset",
+    },
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Filter: {
+    __extends__: "Model",
+  },
+  AllIndices: {
+    __extends__: "Filter",
+  },
+  InversionFilter: {
+    __extends__: "Filter",
+    operand: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  IntersectionFilter: {
+    __extends__: "Filter",
+    operands: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  UnionFilter: {
+    __extends__: "Filter",
+    operands: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  DifferenceFilter: {
+    __extends__: "Filter",
+    operands: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  SymmetricDifferenceFilter: {
+    __extends__: "Filter",
+    operands: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  IndexFilter: {
+    __extends__: "Filter",
+    indices: null,
+  },
+  BooleanFilter: {
+    __extends__: "Filter",
+    booleans: null,
+  },
+  GroupFilter: {
+    __extends__: "Filter",
+    column_name: {
+      type: "symbol",
+      name: "unset",
+    },
+    group: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  CustomJSFilter: {
+    __extends__: "Filter",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  Selection: {
+    __extends__: "Model",
+    indices: [],
+    line_indices: [],
+    multiline_indices: {
+      type: "map",
+    },
+    image_indices: [],
+  },
+  SelectionPolicy: {
+    __extends__: "Model",
+  },
+  IntersectRenderers: {
+    __extends__: "SelectionPolicy",
+  },
+  UnionRenderers: {
+    __extends__: "SelectionPolicy",
+  },
+  DataSource: {
+    __extends__: "Model",
+    selected: {
+      type: "object",
+      name: "Selection",
+      attributes: {
+        indices: [],
+        line_indices: [],
+      },
+    },
+  },
+  ColumnarDataSource: {
+    __extends__: "DataSource",
+    selection_policy: {
+      type: "object",
+      name: "UnionRenderers",
+      attributes: {},
+    },
+  },
+  ColumnDataSource: {
+    __extends__: "ColumnarDataSource",
+    data: {
+      type: "map",
+    },
+  },
+  CDSView: {
+    __extends__: "Model",
+    filter: {
+      type: "object",
+      name: "AllIndices",
+      attributes: {},
+    },
+  },
+  GeoJSONDataSource: {
+    __extends__: "ColumnarDataSource",
+    geojson: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  WebDataSource: {
+    __extends__: "ColumnDataSource",
+    adapter: null,
+    max_size: null,
+    mode: "replace",
+    data_url: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ServerSentDataSource: {
+    __extends__: "WebDataSource",
+  },
+  AjaxDataSource: {
+    __extends__: "WebDataSource",
+    polling_interval: null,
+    method: "POST",
+    if_modified: false,
+    content_type: "application/json",
+    http_headers: {
+      type: "map",
+    },
+  },
+  Transform: {
+    __extends__: "Model",
+  },
+  CustomJSTransform: {
+    __extends__: "Transform",
+    args: {
+      type: "map",
+    },
+    func: "",
+    v_func: "",
+  },
+  Dodge: {
+    __extends__: "Transform",
+    value: 0,
+    range: null,
+  },
+  Jitter: {
+    __extends__: "Transform",
+    mean: 0,
+    width: 1,
+    distribution: "uniform",
+    range: null,
+  },
+  Interpolator: {
+    __extends__: "Transform",
+    x: {
+      type: "symbol",
+      name: "unset",
+    },
+    y: {
+      type: "symbol",
+      name: "unset",
+    },
+    data: null,
+    clip: true,
+  },
+  LinearInterpolator: {
+    __extends__: "Interpolator",
+  },
+  StepInterpolator: {
+    __extends__: "Interpolator",
+    mode: "after",
+  },
+  Mapper: {
+    __extends__: "Transform",
+  },
+  ColorMapper: {
+    __extends__: "Mapper",
+    palette: {
+      type: "symbol",
+      name: "unset",
+    },
+    nan_color: "gray",
+  },
+  CategoricalMapper: {
+    __extends__: "Mapper",
+    factors: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: 0,
+    end: null,
+  },
+  CategoricalColorMapper: {
+    __extends__: [
+      "CategoricalMapper",
+      "ColorMapper",
+    ],
+  },
+  CategoricalMarkerMapper: {
+    __extends__: "CategoricalMapper",
+    markers: {
+      type: "symbol",
+      name: "unset",
+    },
+    default_value: "circle",
+  },
+  CategoricalPatternMapper: {
+    __extends__: "CategoricalMapper",
+    patterns: {
+      type: "symbol",
+      name: "unset",
+    },
+    default_value: " ",
+  },
+  ContinuousColorMapper: {
+    __extends__: "ColorMapper",
+    domain: [],
+    low: null,
+    high: null,
+    low_color: null,
+    high_color: null,
+  },
+  LinearColorMapper: {
+    __extends__: "ContinuousColorMapper",
+  },
+  LogColorMapper: {
+    __extends__: "ContinuousColorMapper",
+  },
+  ScanningColorMapper: {
+    __extends__: "ContinuousColorMapper",
+  },
+  EqHistColorMapper: {
+    __extends__: "ScanningColorMapper",
+    bins: 65536,
+    rescale_discrete_levels: false,
+  },
+  Ticker: {
+    __extends__: "Model",
+  },
+  ContinuousTicker: {
+    __extends__: "Ticker",
+    num_minor_ticks: 5,
+    desired_num_ticks: 6,
+  },
+  FixedTicker: {
+    __extends__: "ContinuousTicker",
+    ticks: [],
+    minor_ticks: [],
+  },
+  AdaptiveTicker: {
+    __extends__: "ContinuousTicker",
+    base: 10.0,
+    mantissas: [
+      1,
+      2,
+      5,
+    ],
+    min_interval: 0.0,
+    max_interval: null,
+  },
+  CompositeTicker: {
+    __extends__: "ContinuousTicker",
+    tickers: [],
+  },
+  SingleIntervalTicker: {
+    __extends__: "ContinuousTicker",
+    interval: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  DaysTicker: {
+    __extends__: "SingleIntervalTicker",
+    num_minor_ticks: 0,
+    days: [],
+  },
+  MonthsTicker: {
+    __extends__: "SingleIntervalTicker",
+    months: [],
+  },
+  YearsTicker: {
+    __extends__: "SingleIntervalTicker",
+  },
+  BasicTicker: {
+    __extends__: "AdaptiveTicker",
+  },
+  LogTicker: {
+    __extends__: "AdaptiveTicker",
+    mantissas: [
+      1,
+      5,
+    ],
+  },
+  MercatorTicker: {
+    __extends__: "BasicTicker",
+    dimension: null,
+  },
+  CategoricalTicker: {
+    __extends__: "Ticker",
+  },
+  DatetimeTicker: {
+    __extends__: "CompositeTicker",
+    num_minor_ticks: 0,
+    tickers: [
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          mantissas: [
+            1,
+            2,
+            5,
+          ],
+          max_interval: 500.0,
+        },
+      },
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          base: 60,
+          mantissas: [
+            1,
+            2,
+            5,
+            10,
+            15,
+            20,
+            30,
+          ],
+          min_interval: 1000.0,
+          max_interval: 1800000.0,
+        },
+      },
+      {
+        type: "object",
+        name: "AdaptiveTicker",
+        attributes: {
+          num_minor_ticks: 0,
+          base: 24,
+          mantissas: [
+            1,
+            2,
+            4,
+            6,
+            8,
+            12,
+          ],
+          min_interval: 3600000.0,
+          max_interval: 43200000.0,
+        },
+      },
+      {
+        type: "object",
+        name: "DaysTicker",
+        attributes: {
+          days: [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            30,
+            31,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "DaysTicker",
+        attributes: {
+          days: [
+            1,
+            4,
+            7,
+            10,
+            13,
+            16,
+            19,
+            22,
+            25,
+            28,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "DaysTicker",
+        attributes: {
+          days: [
+            1,
+            8,
+            15,
+            22,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "DaysTicker",
+        attributes: {
+          days: [
+            1,
+            15,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "MonthsTicker",
+        attributes: {
+          months: [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "MonthsTicker",
+        attributes: {
+          months: [
+            0,
+            2,
+            4,
+            6,
+            8,
+            10,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "MonthsTicker",
+        attributes: {
+          months: [
+            0,
+            4,
+            8,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "MonthsTicker",
+        attributes: {
+          months: [
+            0,
+            6,
+          ],
+        },
+      },
+      {
+        type: "object",
+        name: "YearsTicker",
+        attributes: {},
+      },
+    ],
+  },
+  BinnedTicker: {
+    __extends__: "Ticker",
+    mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    num_major_ticks: 8,
+  },
+  TickFormatter: {
+    __extends__: "Model",
+  },
+  BasicTickFormatter: {
+    __extends__: "TickFormatter",
+    precision: "auto",
+    use_scientific: true,
+    power_limit_high: 5,
+    power_limit_low: -3,
+  },
+  MercatorTickFormatter: {
+    __extends__: "BasicTickFormatter",
+    dimension: null,
+  },
+  NumeralTickFormatter: {
+    __extends__: "TickFormatter",
+    format: "0,0",
+    language: "en",
+    rounding: "round",
+  },
+  PrintfTickFormatter: {
+    __extends__: "TickFormatter",
+    format: "%s",
+  },
+  LogTickFormatter: {
+    __extends__: "TickFormatter",
+    ticker: null,
+    min_exponent: 0,
+  },
+  CategoricalTickFormatter: {
+    __extends__: "TickFormatter",
+  },
+  CustomJSTickFormatter: {
+    __extends__: "TickFormatter",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  DatetimeTickFormatter: {
+    __extends__: "TickFormatter",
+    microseconds: "%fus",
+    milliseconds: "%3Nms",
+    seconds: "%Ss",
+    minsec: ":%M:%S",
+    minutes: ":%M",
+    hourmin: "%H:%M",
+    hours: "%Hh",
+    days: "%m/%d",
+    months: "%m/%Y",
+    years: "%Y",
+    strip_leading_zeros: true,
+    context: null,
+    context_which: "start",
+    context_location: "below",
+  },
+  Marking: {
+    __extends__: "Model",
+  },
+  Decoration: {
+    __extends__: "Model",
+    marking: {
+      type: "symbol",
+      name: "unset",
+    },
+    node: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Glyph: {
+    __extends__: "Model",
+    decorations: [],
+  },
+  XYGlyph: {
+    __extends__: "Glyph",
+  },
+  ConnectedXYGlyph: {
+    __extends__: "XYGlyph",
+  },
+  LineGlyph: {
+    __extends__: "Glyph",
+  },
+  FillGlyph: {
+    __extends__: "Glyph",
+  },
+  TextGlyph: {
+    __extends__: "Glyph",
+  },
+  HatchGlyph: {
+    __extends__: "Glyph",
+  },
+  Marker: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    hit_dilation: 1.0,
+    size: {
+      type: "value",
+      value: 4,
+    },
+    angle: {
+      type: "value",
+      value: 0.0,
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  AnnularWedge: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    inner_radius: {
+      type: "field",
+      field: "inner_radius",
+    },
+    outer_radius: {
+      type: "field",
+      field: "outer_radius",
+    },
+    start_angle: {
+      type: "field",
+      field: "start_angle",
+    },
+    end_angle: {
+      type: "field",
+      field: "end_angle",
+    },
+    direction: "anticlock",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Annulus: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    inner_radius: {
+      type: "field",
+      field: "inner_radius",
+    },
+    outer_radius: {
+      type: "field",
+      field: "outer_radius",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Arc: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    radius: {
+      type: "field",
+      field: "radius",
+    },
+    start_angle: {
+      type: "field",
+      field: "start_angle",
+    },
+    end_angle: {
+      type: "field",
+      field: "end_angle",
+    },
+    direction: "anticlock",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Bezier: {
+    __extends__: "LineGlyph",
+    x0: {
+      type: "field",
+      field: "x0",
+    },
+    y0: {
+      type: "field",
+      field: "y0",
+    },
+    x1: {
+      type: "field",
+      field: "x1",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    cx0: {
+      type: "field",
+      field: "cx0",
+    },
+    cy0: {
+      type: "field",
+      field: "cy0",
+    },
+    cx1: {
+      type: "field",
+      field: "cx1",
+    },
+    cy1: {
+      type: "field",
+      field: "cy1",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Block: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    width: {
+      type: "value",
+      value: 1,
+    },
+    height: {
+      type: "value",
+      value: 1,
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Circle: {
+    __extends__: "Marker",
+    radius: {
+      type: "value",
+      value: null,
+    },
+    radius_dimension: "x",
+  },
+  Ellipse: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    width: {
+      type: "field",
+      field: "width",
+    },
+    height: {
+      type: "field",
+      field: "height",
+    },
+    angle: {
+      type: "value",
+      value: 0.0,
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  HArea: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x1: {
+      type: "field",
+      field: "x1",
+    },
+    x2: {
+      type: "field",
+      field: "x2",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  HBar: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    y: {
+      type: "field",
+      field: "y",
+    },
+    height: {
+      type: "value",
+      value: 1,
+    },
+    left: {
+      type: "value",
+      value: 0,
+    },
+    right: {
+      type: "field",
+      field: "right",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  HexTile: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    size: 1.0,
+    aspect_scale: 1.0,
+    r: {
+      type: "field",
+      field: "r",
+    },
+    q: {
+      type: "field",
+      field: "q",
+    },
+    scale: {
+      type: "value",
+      value: 1.0,
+    },
+    orientation: "pointytop",
+    line_color: {
+      type: "value",
+      value: null,
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  ImageBase: {
+    __extends__: "XYGlyph",
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    dw: {
+      type: "field",
+      field: "dw",
+    },
+    dh: {
+      type: "field",
+      field: "dh",
+    },
+    global_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    dilate: false,
+    origin: "bottom_left",
+    anchor: "bottom_left",
+  },
+  Image: {
+    __extends__: "ImageBase",
+    image: {
+      type: "field",
+      field: "image",
+    },
+    color_mapper: {
+      type: "object",
+      name: "LinearColorMapper",
+      attributes: {
+        palette: [
+          "#000000",
+          "#252525",
+          "#525252",
+          "#737373",
+          "#969696",
+          "#bdbdbd",
+          "#d9d9d9",
+          "#f0f0f0",
+          "#ffffff",
+        ],
+      },
+    },
+  },
+  ImageRGBA: {
+    __extends__: "ImageBase",
+    image: {
+      type: "field",
+      field: "image",
+    },
+  },
+  ImageURL: {
+    __extends__: "XYGlyph",
+    url: {
+      type: "field",
+      field: "url",
+    },
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    w: {
+      type: "value",
+      value: null,
+    },
+    h: {
+      type: "value",
+      value: null,
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    global_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    dilate: false,
+    anchor: "top_left",
+    retry_attempts: 0,
+    retry_timeout: 0,
+  },
+  Line: {
+    __extends__: [
+      "ConnectedXYGlyph",
+      "LineGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
+  MultiLine: {
+    __extends__: "LineGlyph",
+    xs: {
+      type: "field",
+      field: "xs",
+    },
+    ys: {
+      type: "field",
+      field: "ys",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  MultiPolygons: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    xs: {
+      type: "field",
+      field: "xs",
+    },
+    ys: {
+      type: "field",
+      field: "ys",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Patch: {
+    __extends__: [
+      "ConnectedXYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Patches: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    xs: {
+      type: "field",
+      field: "xs",
+    },
+    ys: {
+      type: "field",
+      field: "ys",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Quad: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    left: {
+      type: "field",
+      field: "left",
+    },
+    right: {
+      type: "field",
+      field: "right",
+    },
+    bottom: {
+      type: "field",
+      field: "bottom",
+    },
+    top: {
+      type: "field",
+      field: "top",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Quadratic: {
+    __extends__: "LineGlyph",
+    x0: {
+      type: "field",
+      field: "x0",
+    },
+    y0: {
+      type: "field",
+      field: "y0",
+    },
+    x1: {
+      type: "field",
+      field: "x1",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    cx: {
+      type: "field",
+      field: "cx",
+    },
+    cy: {
+      type: "field",
+      field: "cy",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Ray: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    length: {
+      type: "value",
+      value: 0,
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Rect: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    width: {
+      type: "field",
+      field: "width",
+    },
+    height: {
+      type: "field",
+      field: "height",
+    },
+    angle: {
+      type: "value",
+      value: 0.0,
+    },
+    dilate: false,
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Scatter: {
+    __extends__: "Marker",
+    marker: {
+      type: "value",
+      value: "circle",
+    },
+  },
+  Segment: {
+    __extends__: "LineGlyph",
+    x0: {
+      type: "field",
+      field: "x0",
+    },
+    y0: {
+      type: "field",
+      field: "y0",
+    },
+    x1: {
+      type: "field",
+      field: "x1",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Step: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    mode: "before",
+  },
+  Text: {
+    __extends__: [
+      "XYGlyph",
+      "TextGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    text: {
+      type: "field",
+      field: "text",
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    x_offset: {
+      type: "value",
+      value: 0,
+    },
+    y_offset: {
+      type: "value",
+      value: 0,
+    },
+    text_color: {
+      type: "value",
+      value: "#444444",
+    },
+    text_outline_color: {
+      type: "value",
+      value: null,
+    },
+    text_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    text_font: {
+      type: "value",
+      value: "helvetica",
+    },
+    text_font_size: {
+      type: "value",
+      value: "16px",
+    },
+    text_font_style: {
+      type: "value",
+      value: "normal",
+    },
+    text_align: {
+      type: "value",
+      value: "left",
+    },
+    text_baseline: {
+      type: "value",
+      value: "bottom",
+    },
+    text_line_height: {
+      type: "value",
+      value: 1.2,
+    },
+  },
+  VArea: {
+    __extends__: [
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    y2: {
+      type: "field",
+      field: "y2",
+    },
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  VBar: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    width: {
+      type: "value",
+      value: 1,
+    },
+    bottom: {
+      type: "value",
+      value: 0,
+    },
+    top: {
+      type: "field",
+      field: "top",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Wedge: {
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
+    radius: {
+      type: "field",
+      field: "radius",
+    },
+    start_angle: {
+      type: "field",
+      field: "start_angle",
+    },
+    end_angle: {
+      type: "field",
+      field: "end_angle",
+    },
+    direction: "anticlock",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  LabelingPolicy: {
+    __extends__: "Model",
+  },
+  AllLabels: {
+    __extends__: "LabelingPolicy",
+  },
+  NoOverlap: {
+    __extends__: "LabelingPolicy",
+    min_distance: 5,
+  },
+  CustomLabelingPolicy: {
+    __extends__: "LabelingPolicy",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  Range: {
+    __extends__: "Model",
+  },
+  Range1d: {
+    __extends__: "Range",
+    start: 0,
+    end: 1,
+    reset_start: null,
+    reset_end: null,
+    bounds: null,
+    min_interval: null,
+    max_interval: null,
+  },
+  DataRange: {
+    __extends__: "Range",
+    renderers: [],
+  },
+  DataRange1d: {
+    __extends__: "DataRange",
+    range_padding: 0.1,
+    range_padding_units: "percent",
+    start: {
+      type: "number",
+      value: "nan",
+    },
+    end: {
+      type: "number",
+      value: "nan",
+    },
+    bounds: null,
+    min_interval: null,
+    max_interval: null,
+    flipped: false,
+    follow: null,
+    follow_interval: null,
+    default_span: 2.0,
+    only_visible: false,
+  },
+  FactorRange: {
+    __extends__: "Range",
+    factors: [],
+    factor_padding: 0.0,
+    subgroup_padding: 0.8,
+    group_padding: 1.4,
+    range_padding: 0,
+    range_padding_units: "percent",
+    start: 0.0,
+    end: 0.0,
+    bounds: null,
+    min_interval: null,
+    max_interval: null,
+  },
+  Scale: {
+    __extends__: "Transform",
+  },
+  ContinuousScale: {
+    __extends__: "Scale",
+  },
+  LinearScale: {
+    __extends__: "ContinuousScale",
+  },
+  LogScale: {
+    __extends__: "ContinuousScale",
+  },
+  CategoricalScale: {
+    __extends__: "Scale",
+  },
+  CoordinateMapping: {
+    __extends__: "Model",
+    x_source: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    y_source: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    x_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    y_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    x_target: {
+      type: "symbol",
+      name: "unset",
+    },
+    y_target: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  RendererGroup: {
+    __extends__: "Model",
+    visible: true,
+  },
+  Renderer: {
+    __extends__: "Model",
+    level: "image",
+    visible: true,
+    coordinates: null,
+    x_range_name: "default",
+    y_range_name: "default",
+    group: null,
+  },
+  DataRenderer: {
+    __extends__: "Renderer",
+    level: "glyph",
+  },
+  GuideRenderer: {
+    __extends__: "Renderer",
+    level: "guide",
+  },
+  GlyphRenderer: {
+    __extends__: "DataRenderer",
+    data_source: {
+      type: "symbol",
+      name: "unset",
+    },
+    view: {
+      type: "object",
+      name: "CDSView",
+      attributes: {
+        filter: {
+          type: "object",
+          name: "AllIndices",
+          attributes: {},
+        },
+      },
+    },
+    glyph: {
+      type: "symbol",
+      name: "unset",
+    },
+    selection_glyph: "auto",
+    nonselection_glyph: "auto",
+    hover_glyph: null,
+    muted_glyph: "auto",
+    muted: false,
+  },
+  ContourRenderer: {
+    __extends__: "DataRenderer",
+    line_renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+    fill_renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+    levels: [],
+  },
+  Expression: {
+    __extends__: "Model",
+  },
+  CustomJSExpr: {
+    __extends__: "Expression",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  CumSum: {
+    __extends__: "Expression",
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    include_zero: false,
+  },
+  Stack: {
+    __extends__: "Expression",
+    fields: [],
+  },
+  ScalarExpression: {
+    __extends__: "Model",
+  },
+  Minimum: {
+    __extends__: "ScalarExpression",
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    initial: {
+      type: "number",
+      value: "+inf",
+    },
+  },
+  Maximum: {
+    __extends__: "ScalarExpression",
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    initial: {
+      type: "number",
+      value: "-inf",
+    },
+  },
+  CoordinateTransform: {
+    __extends__: "Expression",
+  },
+  PolarTransform: {
+    __extends__: "CoordinateTransform",
+    radius: {
+      type: "field",
+      field: "radius",
+    },
+    angle: {
+      type: "field",
+      field: "angle",
+    },
+    direction: "anticlock",
+  },
+  XYComponent: {
+    __extends__: "Expression",
+    transform: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  XComponent: {
+    __extends__: "XYComponent",
+  },
+  YComponent: {
+    __extends__: "XYComponent",
+  },
+  LayoutProvider: {
+    __extends__: "Model",
+  },
+  StaticLayoutProvider: {
+    __extends__: "LayoutProvider",
+    graph_layout: {
+      type: "map",
+    },
+  },
+  GraphCoordinates: {
+    __extends__: "CoordinateTransform",
+    layout: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  NodeCoordinates: {
+    __extends__: "GraphCoordinates",
+  },
+  EdgeCoordinates: {
+    __extends__: "GraphCoordinates",
+  },
+  GraphHitTestPolicy: {
+    __extends__: "Model",
+  },
+  EdgesOnly: {
+    __extends__: "GraphHitTestPolicy",
+  },
+  NodesOnly: {
+    __extends__: "GraphHitTestPolicy",
+  },
+  NodesAndLinkedEdges: {
+    __extends__: "GraphHitTestPolicy",
+  },
+  EdgesAndLinkedNodes: {
+    __extends__: "GraphHitTestPolicy",
+  },
+  NodesAndAdjacentNodes: {
+    __extends__: "GraphHitTestPolicy",
+  },
+  GraphRenderer: {
+    __extends__: "DataRenderer",
+    layout_provider: {
+      type: "symbol",
+      name: "unset",
+    },
+    node_renderer: {
+      type: "object",
+      name: "GlyphRenderer",
+      attributes: {
+        data_source: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {
+                indices: [],
+                line_indices: [],
+              },
+            },
+            selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "index",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+        view: {
+          type: "object",
+          name: "CDSView",
+          attributes: {
+            filter: {
+              type: "object",
+              name: "AllIndices",
+              attributes: {},
+            },
+          },
+        },
+        glyph: {
+          type: "object",
+          name: "Circle",
+          attributes: {},
+        },
+      },
+    },
+    edge_renderer: {
+      type: "object",
+      name: "GlyphRenderer",
+      attributes: {
+        data_source: {
+          type: "object",
+          name: "ColumnDataSource",
+          attributes: {
+            selected: {
+              type: "object",
+              name: "Selection",
+              attributes: {
+                indices: [],
+                line_indices: [],
+              },
+            },
+            selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
+            data: {
+              type: "map",
+              entries: [
+                [
+                  "start",
+                  [],
+                ],
+                [
+                  "end",
+                  [],
+                ],
+              ],
+            },
+          },
+        },
+        view: {
+          type: "object",
+          name: "CDSView",
+          attributes: {
+            filter: {
+              type: "object",
+              name: "AllIndices",
+              attributes: {},
+            },
+          },
+        },
+        glyph: {
+          type: "object",
+          name: "MultiLine",
+          attributes: {},
+        },
+      },
+    },
+    selection_policy: {
+      type: "object",
+      name: "NodesOnly",
+      attributes: {},
+    },
+    inspection_policy: {
+      type: "object",
+      name: "NodesOnly",
+      attributes: {},
+    },
+  },
+  TileSource: {
+    __extends__: "Model",
+    url: "",
+    tile_size: 256,
+    min_zoom: 0,
+    max_zoom: 30,
+    extra_url_vars: {
+      type: "map",
+    },
+    attribution: "",
+    x_origin_offset: {
+      type: "symbol",
+      name: "unset",
+    },
+    y_origin_offset: {
+      type: "symbol",
+      name: "unset",
+    },
+    initial_resolution: null,
+  },
+  MercatorTileSource: {
+    __extends__: "TileSource",
+    x_origin_offset: 20037508.34,
+    y_origin_offset: 20037508.34,
+    initial_resolution: 156543.03392804097,
+    snap_to_zoom: false,
+    wrap_around: true,
+  },
+  TMSTileSource: {
+    __extends__: "MercatorTileSource",
+  },
+  WMTSTileSource: {
+    __extends__: "MercatorTileSource",
+  },
+  QUADKEYTileSource: {
+    __extends__: "MercatorTileSource",
+  },
+  BBoxTileSource: {
+    __extends__: "MercatorTileSource",
+    use_latlon: false,
+  },
+  TileRenderer: {
+    __extends__: "Renderer",
+    level: "image",
+    tile_source: {
+      type: "object",
+      name: "WMTSTileSource",
+      attributes: {},
+    },
+    alpha: 1.0,
+    smoothing: true,
+    render_parents: true,
+  },
+  Axis: {
+    __extends__: "GuideRenderer",
+    bounds: "auto",
+    ticker: {
+      type: "symbol",
+      name: "unset",
+    },
+    formatter: {
+      type: "symbol",
+      name: "unset",
+    },
+    axis_label: null,
+    axis_label_standoff: 5,
+    axis_label_text_color: "#444444",
+    axis_label_text_outline_color: null,
+    axis_label_text_alpha: 1.0,
+    axis_label_text_font: "helvetica",
+    axis_label_text_font_size: "13px",
+    axis_label_text_font_style: "italic",
+    axis_label_text_align: "left",
+    axis_label_text_baseline: "bottom",
+    axis_label_text_line_height: 1.2,
+    major_label_standoff: 5,
+    major_label_orientation: "horizontal",
+    major_label_overrides: {
+      type: "map",
+    },
+    major_label_policy: {
+      type: "object",
+      name: "AllLabels",
+      attributes: {},
+    },
+    major_label_text_color: "#444444",
+    major_label_text_outline_color: null,
+    major_label_text_alpha: 1.0,
+    major_label_text_font: "helvetica",
+    major_label_text_font_size: "11px",
+    major_label_text_font_style: "normal",
+    major_label_text_align: "center",
+    major_label_text_baseline: "alphabetic",
+    major_label_text_line_height: 1.2,
+    axis_line_color: "black",
+    axis_line_alpha: 1.0,
+    axis_line_width: 1,
+    axis_line_join: "bevel",
+    axis_line_cap: "butt",
+    axis_line_dash: [],
+    axis_line_dash_offset: 0,
+    major_tick_line_color: "black",
+    major_tick_line_alpha: 1.0,
+    major_tick_line_width: 1,
+    major_tick_line_join: "bevel",
+    major_tick_line_cap: "butt",
+    major_tick_line_dash: [],
+    major_tick_line_dash_offset: 0,
+    major_tick_in: 2,
+    major_tick_out: 6,
+    minor_tick_line_color: "black",
+    minor_tick_line_alpha: 1.0,
+    minor_tick_line_width: 1,
+    minor_tick_line_join: "bevel",
+    minor_tick_line_cap: "butt",
+    minor_tick_line_dash: [],
+    minor_tick_line_dash_offset: 0,
+    minor_tick_in: 0,
+    minor_tick_out: 4,
+    fixed_location: null,
+  },
+  ContinuousAxis: {
+    __extends__: "Axis",
+  },
+  LinearAxis: {
+    __extends__: "ContinuousAxis",
+    ticker: {
+      type: "object",
+      name: "BasicTicker",
+      attributes: {
+        mantissas: [
+          1,
+          2,
+          5,
+        ],
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "BasicTickFormatter",
+      attributes: {},
+    },
+  },
+  LogAxis: {
+    __extends__: "ContinuousAxis",
+    ticker: {
+      type: "object",
+      name: "LogTicker",
+      attributes: {
+        mantissas: [
+          1,
+          5,
+        ],
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "LogTickFormatter",
+      attributes: {},
+    },
+  },
+  CategoricalAxis: {
+    __extends__: "Axis",
+    ticker: {
+      type: "object",
+      name: "CategoricalTicker",
+      attributes: {},
+    },
+    formatter: {
+      type: "object",
+      name: "CategoricalTickFormatter",
+      attributes: {},
+    },
+    separator_line_color: "lightgrey",
+    separator_line_alpha: 1.0,
+    separator_line_width: 2,
+    separator_line_join: "bevel",
+    separator_line_cap: "butt",
+    separator_line_dash: [],
+    separator_line_dash_offset: 0,
+    group_text_color: "grey",
+    group_text_outline_color: null,
+    group_text_alpha: 1.0,
+    group_text_font: "helvetica",
+    group_text_font_size: "11px",
+    group_text_font_style: "bold",
+    group_text_align: "left",
+    group_text_baseline: "bottom",
+    group_text_line_height: 1.2,
+    group_label_orientation: "parallel",
+    subgroup_text_color: "#444444",
+    subgroup_text_outline_color: null,
+    subgroup_text_alpha: 1.0,
+    subgroup_text_font: "helvetica",
+    subgroup_text_font_size: "11px",
+    subgroup_text_font_style: "bold",
+    subgroup_text_align: "left",
+    subgroup_text_baseline: "bottom",
+    subgroup_text_line_height: 1.2,
+    subgroup_label_orientation: "parallel",
+  },
+  DatetimeAxis: {
+    __extends__: "LinearAxis",
+    ticker: {
+      type: "object",
+      name: "DatetimeTicker",
+      attributes: {
+        tickers: [
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              mantissas: [
+                1,
+                2,
+                5,
+              ],
+              max_interval: 500.0,
+            },
+          },
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              base: 60,
+              mantissas: [
+                1,
+                2,
+                5,
+                10,
+                15,
+                20,
+                30,
+              ],
+              min_interval: 1000.0,
+              max_interval: 1800000.0,
+            },
+          },
+          {
+            type: "object",
+            name: "AdaptiveTicker",
+            attributes: {
+              num_minor_ticks: 0,
+              base: 24,
+              mantissas: [
+                1,
+                2,
+                4,
+                6,
+                8,
+                12,
+              ],
+              min_interval: 3600000.0,
+              max_interval: 43200000.0,
+            },
+          },
+          {
+            type: "object",
+            name: "DaysTicker",
+            attributes: {
+              days: [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "DaysTicker",
+            attributes: {
+              days: [
+                1,
+                4,
+                7,
+                10,
+                13,
+                16,
+                19,
+                22,
+                25,
+                28,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "DaysTicker",
+            attributes: {
+              days: [
+                1,
+                8,
+                15,
+                22,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "DaysTicker",
+            attributes: {
+              days: [
+                1,
+                15,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "MonthsTicker",
+            attributes: {
+              months: [
+                0,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "MonthsTicker",
+            attributes: {
+              months: [
+                0,
+                2,
+                4,
+                6,
+                8,
+                10,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "MonthsTicker",
+            attributes: {
+              months: [
+                0,
+                4,
+                8,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "MonthsTicker",
+            attributes: {
+              months: [
+                0,
+                6,
+              ],
+            },
+          },
+          {
+            type: "object",
+            name: "YearsTicker",
+            attributes: {},
+          },
+        ],
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "DatetimeTickFormatter",
+      attributes: {},
+    },
+  },
+  MercatorAxis: {
+    __extends__: "LinearAxis",
+    ticker: {
+      type: "object",
+      name: "MercatorTicker",
+      attributes: {
+        mantissas: [
+          1,
+          2,
+          5,
+        ],
+        dimension: "lat",
+      },
+    },
+    formatter: {
+      type: "object",
+      name: "MercatorTickFormatter",
+      attributes: {
+        dimension: "lat",
+      },
+    },
+  },
+  Styles: {
+    __extends__: "Model",
+    align_content: null,
+    align_items: null,
+    align_self: null,
+    alignment_baseline: null,
+    all: null,
+    animation: null,
+    animation_delay: null,
+    animation_direction: null,
+    animation_duration: null,
+    animation_fill_mode: null,
+    animation_iteration_count: null,
+    animation_name: null,
+    animation_play_state: null,
+    animation_timing_function: null,
+    aspect_ratio: null,
+    backface_visibility: null,
+    background: null,
+    background_attachment: null,
+    background_clip: null,
+    background_color: null,
+    background_image: null,
+    background_origin: null,
+    background_position: null,
+    background_position_x: null,
+    background_position_y: null,
+    background_repeat: null,
+    background_size: null,
+    baseline_shift: null,
+    block_size: null,
+    border: null,
+    border_block_end: null,
+    border_block_end_color: null,
+    border_block_end_style: null,
+    border_block_end_width: null,
+    border_block_start: null,
+    border_block_start_color: null,
+    border_block_start_style: null,
+    border_block_start_width: null,
+    border_bottom: null,
+    border_bottom_color: null,
+    border_bottom_left_radius: null,
+    border_bottom_right_radius: null,
+    border_bottom_style: null,
+    border_bottom_width: null,
+    border_collapse: null,
+    border_color: null,
+    border_image: null,
+    border_image_outset: null,
+    border_image_repeat: null,
+    border_image_slice: null,
+    border_image_source: null,
+    border_image_width: null,
+    border_inline_end: null,
+    border_inline_end_color: null,
+    border_inline_end_style: null,
+    border_inline_end_width: null,
+    border_inline_start: null,
+    border_inline_start_color: null,
+    border_inline_start_style: null,
+    border_inline_start_width: null,
+    border_left: null,
+    border_left_color: null,
+    border_left_style: null,
+    border_left_width: null,
+    border_radius: null,
+    border_right: null,
+    border_right_color: null,
+    border_right_style: null,
+    border_right_width: null,
+    border_spacing: null,
+    border_style: null,
+    border_top: null,
+    border_top_color: null,
+    border_top_left_radius: null,
+    border_top_right_radius: null,
+    border_top_style: null,
+    border_top_width: null,
+    border_width: null,
+    bottom: null,
+    box_shadow: null,
+    box_sizing: null,
+    break_after: null,
+    break_before: null,
+    break_inside: null,
+    caption_side: null,
+    caret_color: null,
+    clear: null,
+    clip: null,
+    clip_path: null,
+    clip_rule: null,
+    color: null,
+    color_interpolation: null,
+    color_interpolation_filters: null,
+    column_count: null,
+    column_fill: null,
+    column_gap: null,
+    column_rule: null,
+    column_rule_color: null,
+    column_rule_style: null,
+    column_rule_width: null,
+    column_span: null,
+    column_width: null,
+    columns: null,
+    content: null,
+    counter_increment: null,
+    counter_reset: null,
+    cursor: null,
+    direction: null,
+    display: null,
+    dominant_baseline: null,
+    empty_cells: null,
+    fill: null,
+    fill_opacity: null,
+    fill_rule: null,
+    filter: null,
+    flex: null,
+    flex_basis: null,
+    flex_direction: null,
+    flex_flow: null,
+    flex_grow: null,
+    flex_shrink: null,
+    flex_wrap: null,
+    float: null,
+    flood_color: null,
+    flood_opacity: null,
+    font: null,
+    font_family: null,
+    font_feature_settings: null,
+    font_kerning: null,
+    font_size: null,
+    font_size_adjust: null,
+    font_stretch: null,
+    font_style: null,
+    font_synthesis: null,
+    font_variant: null,
+    font_variant_caps: null,
+    font_variant_east_asian: null,
+    font_variant_ligatures: null,
+    font_variant_numeric: null,
+    font_variant_position: null,
+    font_weight: null,
+    gap: null,
+    glyph_orientation_vertical: null,
+    grid: null,
+    grid_area: null,
+    grid_auto_columns: null,
+    grid_auto_flow: null,
+    grid_auto_rows: null,
+    grid_column: null,
+    grid_column_end: null,
+    grid_column_gap: null,
+    grid_column_start: null,
+    grid_gap: null,
+    grid_row: null,
+    grid_row_end: null,
+    grid_row_gap: null,
+    grid_row_start: null,
+    grid_template: null,
+    grid_template_areas: null,
+    grid_template_columns: null,
+    grid_template_rows: null,
+    height: null,
+    hyphens: null,
+    image_orientation: null,
+    image_rendering: null,
+    inline_size: null,
+    justify_content: null,
+    justify_items: null,
+    justify_self: null,
+    left: null,
+    letter_spacing: null,
+    lighting_color: null,
+    line_break: null,
+    line_height: null,
+    list_style: null,
+    list_style_image: null,
+    list_style_position: null,
+    list_style_type: null,
+    margin: null,
+    margin_block_end: null,
+    margin_block_start: null,
+    margin_bottom: null,
+    margin_inline_end: null,
+    margin_inline_start: null,
+    margin_left: null,
+    margin_right: null,
+    margin_top: null,
+    marker: null,
+    marker_end: null,
+    marker_mid: null,
+    marker_start: null,
+    mask: null,
+    mask_composite: null,
+    mask_image: null,
+    mask_position: null,
+    mask_repeat: null,
+    mask_size: null,
+    mask_type: null,
+    max_block_size: null,
+    max_height: null,
+    max_inline_size: null,
+    max_width: null,
+    min_block_size: null,
+    min_height: null,
+    min_inline_size: null,
+    min_width: null,
+    object_fit: null,
+    object_position: null,
+    opacity: null,
+    order: null,
+    orphans: null,
+    outline: null,
+    outline_color: null,
+    outline_offset: null,
+    outline_style: null,
+    outline_width: null,
+    overflow: null,
+    overflow_anchor: null,
+    overflow_wrap: null,
+    overflow_x: null,
+    overflow_y: null,
+    overscroll_behavior: null,
+    overscroll_behavior_block: null,
+    overscroll_behavior_inline: null,
+    overscroll_behavior_x: null,
+    overscroll_behavior_y: null,
+    padding: null,
+    padding_block_end: null,
+    padding_block_start: null,
+    padding_bottom: null,
+    padding_inline_end: null,
+    padding_inline_start: null,
+    padding_left: null,
+    padding_right: null,
+    padding_top: null,
+    page_break_after: null,
+    page_break_before: null,
+    page_break_inside: null,
+    paint_order: null,
+    perspective: null,
+    perspective_origin: null,
+    place_content: null,
+    place_items: null,
+    place_self: null,
+    pointer_events: null,
+    position: null,
+    quotes: null,
+    resize: null,
+    right: null,
+    rotate: null,
+    row_gap: null,
+    ruby_align: null,
+    ruby_position: null,
+    scale: null,
+    scroll_behavior: null,
+    shape_rendering: null,
+    stop_color: null,
+    stop_opacity: null,
+    stroke: null,
+    stroke_dasharray: null,
+    stroke_dashoffset: null,
+    stroke_linecap: null,
+    stroke_linejoin: null,
+    stroke_miterlimit: null,
+    stroke_opacity: null,
+    stroke_width: null,
+    tab_size: null,
+    table_layout: null,
+    text_align: null,
+    text_align_last: null,
+    text_anchor: null,
+    text_combine_upright: null,
+    text_decoration: null,
+    text_decoration_color: null,
+    text_decoration_line: null,
+    text_decoration_style: null,
+    text_emphasis: null,
+    text_emphasis_color: null,
+    text_emphasis_position: null,
+    text_emphasis_style: null,
+    text_indent: null,
+    text_justify: null,
+    text_orientation: null,
+    text_overflow: null,
+    text_rendering: null,
+    text_shadow: null,
+    text_transform: null,
+    text_underline_position: null,
+    top: null,
+    touch_action: null,
+    transform: null,
+    transform_box: null,
+    transform_origin: null,
+    transform_style: null,
+    transition: null,
+    transition_delay: null,
+    transition_duration: null,
+    transition_property: null,
+    transition_timing_function: null,
+    translate: null,
+    unicode_bidi: null,
+    user_select: null,
+    vertical_align: null,
+    visibility: null,
+    white_space: null,
+    widows: null,
+    width: null,
+    will_change: null,
+    word_break: null,
+    word_spacing: null,
+    word_wrap: null,
+    writing_mode: null,
+    z_index: null,
+  },
+  UIElement: {
+    __extends__: "Model",
+    visible: true,
+    classes: [],
+    styles: {
+      type: "map",
+    },
+    stylesheets: [],
+  },
+  "bokeh.models.dom.DOMNode": {
+    __extends__: "Model",
+  },
+  "bokeh.models.dom.Text": {
+    __extends__: "bokeh.models.dom.DOMNode",
+    content: "",
+  },
+  "bokeh.models.dom.DOMElement": {
+    __extends__: "bokeh.models.dom.DOMNode",
+    style: null,
+    children: [],
+  },
+  "bokeh.models.dom.Span": {
+    __extends__: "bokeh.models.dom.DOMElement",
+  },
+  "bokeh.models.dom.Div": {
+    __extends__: "bokeh.models.dom.DOMElement",
+  },
+  "bokeh.models.dom.Table": {
+    __extends__: "bokeh.models.dom.DOMElement",
+  },
+  "bokeh.models.dom.TableRow": {
+    __extends__: "bokeh.models.dom.DOMElement",
+  },
+  "bokeh.models.dom.Action": {
+    __extends__: "Model",
+  },
+  "bokeh.models.dom.Template": {
+    __extends__: "bokeh.models.dom.DOMElement",
+    actions: [],
+  },
+  "bokeh.models.dom.ToggleGroup": {
+    __extends__: "bokeh.models.dom.Action",
+    groups: [],
+  },
+  "bokeh.models.dom.Placeholder": {
+    __extends__: "bokeh.models.dom.DOMNode",
+  },
+  "bokeh.models.dom.ValueOf": {
+    __extends__: "bokeh.models.dom.Placeholder",
+    obj: {
+      type: "symbol",
+      name: "unset",
+    },
+    attr: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  "bokeh.models.dom.Index": {
+    __extends__: "bokeh.models.dom.Placeholder",
+  },
+  "bokeh.models.dom.ValueRef": {
+    __extends__: "bokeh.models.dom.Placeholder",
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  "bokeh.models.dom.ColorRef": {
+    __extends__: "bokeh.models.dom.ValueRef",
+    hex: true,
+    swatch: true,
+  },
+  "bokeh.models.dom.HTML": {
+    __extends__: "Model",
+    html: {
+      type: "symbol",
+      name: "unset",
+    },
+    refs: [],
+  },
+  Dialog: {
+    __extends__: "UIElement",
+    title: null,
+    content: {
+      type: "symbol",
+      name: "unset",
+    },
+    buttons: [],
+    modal: false,
+    closable: true,
+    draggable: true,
+  },
+  Icon: {
+    __extends__: "Model",
+    size: "1em",
+  },
+  BuiltinIcon: {
+    __extends__: "Icon",
+    icon_name: {
+      type: "symbol",
+      name: "unset",
+    },
+    color: "gray",
+  },
+  SVGIcon: {
+    __extends__: "Icon",
+    svg: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  TablerIcon: {
+    __extends__: "Icon",
+    icon_name: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Inspector: {
+    __extends__: "UIElement",
+    target: null,
+  },
+  MenuItem: {
+    __extends__: "UIElement",
+  },
+  Action: {
+    __extends__: "MenuItem",
+    icon: null,
+    label: {
+      type: "symbol",
+      name: "unset",
+    },
+    description: null,
+    menu: null,
+  },
+  CheckAction: {
+    __extends__: "Action",
+    checked: false,
+  },
+  Section: {
+    __extends__: "MenuItem",
+    items: [],
+  },
+  Divider: {
+    __extends__: "MenuItem",
+  },
+  Menu: {
+    __extends__: "UIElement",
+    items: [],
+    reversed: false,
+    orientation: "vertical",
+  },
+  Pane: {
+    __extends__: "UIElement",
+    children: [],
+  },
+  Selector: {
+    __extends__: "Model",
+  },
+  ByID: {
+    __extends__: "Selector",
+    query: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ByClass: {
+    __extends__: "Selector",
+    query: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ByCSS: {
+    __extends__: "Selector",
+    query: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ByXPath: {
+    __extends__: "Selector",
+    query: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Tooltip: {
+    __extends__: "UIElement",
+    visible: false,
+    position: null,
+    target: "auto",
+    content: {
+      type: "symbol",
+      name: "unset",
+    },
+    attachment: "auto",
+    show_arrow: true,
+    closable: false,
+    interactive: true,
+  },
+  Canvas: {
+    __extends__: "UIElement",
+    hidpi: true,
+    output_backend: "canvas",
+  },
+  Grid: {
+    __extends__: "GuideRenderer",
+    level: "underlay",
+    dimension: 0,
+    bounds: "auto",
+    cross_bounds: "auto",
+    axis: null,
+    ticker: null,
+    grid_line_color: "#e5e5e5",
+    grid_line_alpha: 1.0,
+    grid_line_width: 1,
+    grid_line_join: "bevel",
+    grid_line_cap: "butt",
+    grid_line_dash: [],
+    grid_line_dash_offset: 0,
+    minor_grid_line_color: null,
+    minor_grid_line_alpha: 1.0,
+    minor_grid_line_width: 1,
+    minor_grid_line_join: "bevel",
+    minor_grid_line_cap: "butt",
+    minor_grid_line_dash: [],
+    minor_grid_line_dash_offset: 0,
+    band_fill_color: null,
+    band_fill_alpha: 0,
+    band_hatch_color: "black",
+    band_hatch_alpha: 1.0,
+    band_hatch_scale: 12.0,
+    band_hatch_pattern: null,
+    band_hatch_weight: 1.0,
+    band_hatch_extra: {
+      type: "map",
+    },
+  },
+  LayoutDOM: {
+    __extends__: "UIElement",
+    disabled: false,
+    width: null,
+    height: null,
+    min_width: null,
+    min_height: null,
+    max_width: null,
+    max_height: null,
+    margin: null,
+    width_policy: "auto",
+    height_policy: "auto",
+    aspect_ratio: null,
+    flow_mode: "block",
+    sizing_mode: null,
+    align: "auto",
+    css_classes: [],
+    context_menu: null,
+    resizable: false,
+  },
+  Spacer: {
+    __extends__: "LayoutDOM",
+  },
+  GridBox: {
+    __extends__: "LayoutDOM",
+    children: [],
+    rows: null,
+    cols: null,
+    spacing: 0,
+  },
+  HBox: {
+    __extends__: "LayoutDOM",
+    children: [],
+    cols: null,
+    spacing: 0,
+  },
+  VBox: {
+    __extends__: "LayoutDOM",
+    children: [],
+    rows: null,
+    spacing: 0,
+  },
+  FlexBox: {
+    __extends__: "LayoutDOM",
+    children: [],
+    spacing: 0,
+  },
+  Row: {
+    __extends__: "FlexBox",
+  },
+  Column: {
+    __extends__: "FlexBox",
+  },
+  TabPanel: {
+    __extends__: "Model",
+    title: "",
+    child: {
+      type: "symbol",
+      name: "unset",
+    },
+    closable: false,
+    disabled: false,
+  },
+  Tabs: {
+    __extends__: "LayoutDOM",
+    tabs: [],
+    tabs_location: "above",
+    active: 0,
+  },
+  GroupBox: {
+    __extends__: "LayoutDOM",
+    title: null,
+    child: {
+      type: "symbol",
+      name: "unset",
+    },
+    checkable: false,
+  },
+  ScrollBox: {
+    __extends__: "LayoutDOM",
+    child: {
+      type: "symbol",
+      name: "unset",
+    },
+    horizontal_scrollbar: "auto",
+    vertical_scrollbar: "auto",
+  },
+  Annotation: {
+    __extends__: "Renderer",
+    level: "annotation",
+  },
+  DataAnnotation: {
+    __extends__: "Annotation",
+    source: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {
+            indices: [],
+            line_indices: [],
+          },
+        },
+        selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+        },
+      },
+    },
+  },
+  ArrowHead: {
+    __extends__: "Marking",
+    size: {
+      type: "value",
+      value: 25,
+    },
+  },
+  OpenHead: {
+    __extends__: "ArrowHead",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  NormalHead: {
+    __extends__: "ArrowHead",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "black",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+  },
+  TeeHead: {
+    __extends__: "ArrowHead",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  VeeHead: {
+    __extends__: "ArrowHead",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "black",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+  },
+  Arrow: {
+    __extends__: "DataAnnotation",
+    x_start: {
+      type: "field",
+      field: "x_start",
+    },
+    y_start: {
+      type: "field",
+      field: "y_start",
+    },
+    start_units: "data",
+    start: null,
+    x_end: {
+      type: "field",
+      field: "x_end",
+    },
+    y_end: {
+      type: "field",
+      field: "y_end",
+    },
+    end_units: "data",
+    end: {
+      type: "object",
+      name: "OpenHead",
+      attributes: {},
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  BoxAnnotation: {
+    __extends__: "Annotation",
+    left: null,
+    left_units: "data",
+    right: null,
+    right_units: "data",
+    bottom: null,
+    bottom_units: "data",
+    top: null,
+    top_units: "data",
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Band: {
+    __extends__: "DataAnnotation",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    dimension: "height",
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+  },
+  PolyAnnotation: {
+    __extends__: "Annotation",
+    xs: [],
+    xs_units: "data",
+    ys: [],
+    ys_units: "data",
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  Slope: {
+    __extends__: "Annotation",
+    gradient: null,
+    y_intercept: null,
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
+  Span: {
+    __extends__: "Annotation",
+    location: null,
+    location_units: "data",
+    dimension: "width",
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
+  Whisker: {
+    __extends__: "DataAnnotation",
+    level: "underlay",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    lower_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    upper_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    dimension: "height",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  HTMLAnnotation: {
+    __extends__: "Annotation",
+  },
+  HTMLLabel: {
+    __extends__: "HTMLAnnotation",
+    x: {
+      type: "symbol",
+      name: "unset",
+    },
+    x_units: "data",
+    y: {
+      type: "symbol",
+      name: "unset",
+    },
+    y_units: "data",
+    text: "",
+    angle: 0,
+    angle_units: "rad",
+    x_offset: 0,
+    y_offset: 0,
+    text_color: "#444444",
+    text_outline_color: null,
+    text_alpha: 1.0,
+    text_font: "helvetica",
+    text_font_size: "16px",
+    text_font_style: "normal",
+    text_align: "left",
+    text_baseline: "bottom",
+    text_line_height: 1.2,
+    background_fill_color: null,
+    background_fill_alpha: 1.0,
+    border_line_color: null,
+    border_line_alpha: 1.0,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+  },
+  HTMLLabelSet: {
+    __extends__: [
+      "HTMLAnnotation",
+      "DataAnnotation",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    x_units: "data",
+    y: {
+      type: "field",
+      field: "y",
+    },
+    y_units: "data",
+    text: {
+      type: "field",
+      field: "text",
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    x_offset: {
+      type: "value",
+      value: 0,
+    },
+    y_offset: {
+      type: "value",
+      value: 0,
+    },
+    text_color: {
+      type: "value",
+      value: "#444444",
+    },
+    text_outline_color: {
+      type: "value",
+      value: null,
+    },
+    text_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    text_font: {
+      type: "value",
+      value: "helvetica",
+    },
+    text_font_size: {
+      type: "value",
+      value: "16px",
+    },
+    text_font_style: {
+      type: "value",
+      value: "normal",
+    },
+    text_align: {
+      type: "value",
+      value: "left",
+    },
+    text_baseline: {
+      type: "value",
+      value: "bottom",
+    },
+    text_line_height: {
+      type: "value",
+      value: 1.2,
+    },
+    background_fill_color: {
+      type: "value",
+      value: null,
+    },
+    background_fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    border_line_color: {
+      type: "value",
+      value: null,
+    },
+    border_line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    border_line_width: {
+      type: "value",
+      value: 1,
+    },
+    border_line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    border_line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    border_line_dash: {
+      type: "value",
+      value: [],
+    },
+    border_line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  HTMLTitle: {
+    __extends__: "HTMLAnnotation",
+    text: "",
+    vertical_align: "bottom",
+    align: "left",
+    text_line_height: 1.0,
+    offset: 0,
+    standoff: 10,
+    text_font: "helvetica",
+    text_font_size: "13px",
+    text_font_style: "bold",
+    text_color: "#444444",
+    text_outline_color: null,
+    text_alpha: 1.0,
+    background_fill_color: null,
+    background_fill_alpha: 1.0,
+    border_line_color: null,
+    border_line_alpha: 1.0,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+  },
+  ToolbarPanel: {
+    __extends__: "HTMLAnnotation",
+    toolbar: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  TextAnnotation: {
+    __extends__: "Annotation",
+    text: "",
+    text_color: "#444444",
+    text_outline_color: null,
+    text_alpha: 1.0,
+    text_font: "helvetica",
+    text_font_size: "16px",
+    text_font_style: "normal",
+    text_align: "left",
+    text_baseline: "bottom",
+    text_line_height: 1.2,
+    background_fill_color: null,
+    background_fill_alpha: 1.0,
+    border_line_color: null,
+    border_line_alpha: 1.0,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+  },
+  Label: {
+    __extends__: "TextAnnotation",
+    x: {
+      type: "symbol",
+      name: "unset",
+    },
+    x_units: "data",
+    y: {
+      type: "symbol",
+      name: "unset",
+    },
+    y_units: "data",
+    angle: 0,
+    angle_units: "rad",
+    x_offset: 0,
+    y_offset: 0,
+  },
+  LabelSet: {
+    __extends__: "DataAnnotation",
+    x: {
+      type: "field",
+      field: "x",
+    },
+    x_units: "data",
+    y: {
+      type: "field",
+      field: "y",
+    },
+    y_units: "data",
+    text: {
+      type: "field",
+      field: "text",
+    },
+    angle: {
+      type: "value",
+      value: 0,
+    },
+    x_offset: {
+      type: "value",
+      value: 0,
+    },
+    y_offset: {
+      type: "value",
+      value: 0,
+    },
+    text_color: {
+      type: "value",
+      value: "#444444",
+    },
+    text_outline_color: {
+      type: "value",
+      value: null,
+    },
+    text_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    text_font: {
+      type: "value",
+      value: "helvetica",
+    },
+    text_font_size: {
+      type: "value",
+      value: "16px",
+    },
+    text_font_style: {
+      type: "value",
+      value: "normal",
+    },
+    text_align: {
+      type: "value",
+      value: "left",
+    },
+    text_baseline: {
+      type: "value",
+      value: "bottom",
+    },
+    text_line_height: {
+      type: "value",
+      value: 1.2,
+    },
+    background_fill_color: {
+      type: "value",
+      value: null,
+    },
+    background_fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    border_line_color: {
+      type: "value",
+      value: null,
+    },
+    border_line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    border_line_width: {
+      type: "value",
+      value: 1,
+    },
+    border_line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    border_line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    border_line_dash: {
+      type: "value",
+      value: [],
+    },
+    border_line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  Title: {
+    __extends__: "TextAnnotation",
+    text_font_size: "13px",
+    text_font_style: "bold",
+    text_line_height: 1.0,
+    vertical_align: "bottom",
+    align: "left",
+    offset: 0,
+    standoff: 10,
+  },
+  BaseColorBar: {
+    __extends__: "Annotation",
+    location: "top_right",
+    orientation: "auto",
+    height: "auto",
+    width: "auto",
+    scale_alpha: 1.0,
+    title: null,
+    title_text_color: "#444444",
+    title_text_outline_color: null,
+    title_text_alpha: 1.0,
+    title_text_font: "helvetica",
+    title_text_font_size: "13px",
+    title_text_font_style: "italic",
+    title_text_align: "left",
+    title_text_baseline: "bottom",
+    title_text_line_height: 1.2,
+    title_standoff: 2,
+    ticker: "auto",
+    formatter: "auto",
+    major_label_overrides: {
+      type: "map",
+    },
+    major_label_policy: {
+      type: "object",
+      name: "NoOverlap",
+      attributes: {},
+    },
+    margin: 30,
+    padding: 10,
+    major_label_text_color: "#444444",
+    major_label_text_outline_color: null,
+    major_label_text_alpha: 1.0,
+    major_label_text_font: "helvetica",
+    major_label_text_font_size: "11px",
+    major_label_text_font_style: "normal",
+    major_label_text_align: "left",
+    major_label_text_baseline: "bottom",
+    major_label_text_line_height: 1.2,
+    label_standoff: 5,
+    major_tick_line_color: "#ffffff",
+    major_tick_line_alpha: 1.0,
+    major_tick_line_width: 1,
+    major_tick_line_join: "bevel",
+    major_tick_line_cap: "butt",
+    major_tick_line_dash: [],
+    major_tick_line_dash_offset: 0,
+    major_tick_in: 5,
+    major_tick_out: 0,
+    minor_tick_line_color: null,
+    minor_tick_line_alpha: 1.0,
+    minor_tick_line_width: 1,
+    minor_tick_line_join: "bevel",
+    minor_tick_line_cap: "butt",
+    minor_tick_line_dash: [],
+    minor_tick_line_dash_offset: 0,
+    minor_tick_in: 0,
+    minor_tick_out: 0,
+    bar_line_color: null,
+    bar_line_alpha: 1.0,
+    bar_line_width: 1,
+    bar_line_join: "bevel",
+    bar_line_cap: "butt",
+    bar_line_dash: [],
+    bar_line_dash_offset: 0,
+    border_line_color: null,
+    border_line_alpha: 1.0,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+    background_fill_color: "#ffffff",
+    background_fill_alpha: 0.95,
+  },
+  ColorBar: {
+    __extends__: "BaseColorBar",
+    color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    display_low: null,
+    display_high: null,
+  },
+  ContourColorBar: {
+    __extends__: "BaseColorBar",
+    fill_renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+    line_renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+    levels: [],
+  },
+  LegendItem: {
+    __extends__: "Model",
+    label: {
+      type: "value",
+      value: null,
+    },
+    renderers: [],
+    index: null,
+    visible: true,
+  },
+  Legend: {
+    __extends__: "Annotation",
+    location: "top_right",
+    orientation: "vertical",
+    title: null,
+    title_text_color: "#444444",
+    title_text_outline_color: null,
+    title_text_alpha: 1.0,
+    title_text_font: "helvetica",
+    title_text_font_size: "13px",
+    title_text_font_style: "italic",
+    title_text_align: "left",
+    title_text_baseline: "bottom",
+    title_text_line_height: 1.2,
+    title_standoff: 5,
+    border_line_color: "#e5e5e5",
+    border_line_alpha: 0.5,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+    background_fill_color: "#ffffff",
+    background_fill_alpha: 0.95,
+    inactive_fill_color: "white",
+    inactive_fill_alpha: 0.7,
+    click_policy: "none",
+    label_text_color: "#444444",
+    label_text_outline_color: null,
+    label_text_alpha: 1.0,
+    label_text_font: "helvetica",
+    label_text_font_size: "13px",
+    label_text_font_style: "normal",
+    label_text_align: "left",
+    label_text_baseline: "middle",
+    label_text_line_height: 1.2,
+    label_standoff: 5,
+    label_height: 20,
+    label_width: 20,
+    glyph_height: 20,
+    glyph_width: 20,
+    margin: 10,
+    padding: 10,
+    spacing: 3,
+    items: [],
+  },
+  Tool: {
+    __extends__: "Model",
+    icon: null,
+    description: null,
+  },
+  ToolProxy: {
+    __extends__: "Model",
+    tools: [],
+    active: false,
+    disabled: false,
+  },
+  ActionTool: {
+    __extends__: "Tool",
+  },
+  PlotActionTool: {
+    __extends__: "ActionTool",
+  },
+  GestureTool: {
+    __extends__: "Tool",
+  },
+  Drag: {
+    __extends__: "GestureTool",
+  },
+  Scroll: {
+    __extends__: "GestureTool",
+  },
+  Tap: {
+    __extends__: "GestureTool",
+  },
+  SelectTool: {
+    __extends__: "GestureTool",
+    renderers: "auto",
+    mode: "replace",
+  },
+  InspectTool: {
+    __extends__: "GestureTool",
+    toggleable: true,
+  },
+  Toolbar: {
+    __extends__: "UIElement",
+    logo: "normal",
+    autohide: false,
+    tools: [],
+    active_drag: "auto",
+    active_inspect: "auto",
+    active_scroll: "auto",
+    active_tap: "auto",
+    active_multi: "auto",
+  },
+  PanTool: {
+    __extends__: "Drag",
+    dimensions: "both",
+  },
+  RangeTool: {
+    __extends__: "Drag",
+    x_range: null,
+    x_interaction: true,
+    y_range: null,
+    y_interaction: true,
+    overlay: {
+      type: "object",
+      name: "BoxAnnotation",
+      attributes: {
+        syncable: false,
+        level: "overlay",
+        line_color: "black",
+        line_alpha: 1.0,
+        line_width: 0.5,
+        line_dash: [
+          2,
+          2,
+        ],
+        fill_color: "lightgrey",
+        fill_alpha: 0.5,
+      },
+    },
+  },
+  WheelPanTool: {
+    __extends__: "Scroll",
+    dimension: "width",
+  },
+  WheelZoomTool: {
+    __extends__: "Scroll",
+    dimensions: "both",
+    maintain_focus: true,
+    zoom_on_axis: true,
+    speed: 0.0016666666666666668,
+  },
+  CustomAction: {
+    __extends__: "ActionTool",
+    description: "Perform a Custom Action",
+    callback: null,
+  },
+  SaveTool: {
+    __extends__: "ActionTool",
+    filename: null,
+  },
+  CopyTool: {
+    __extends__: "ActionTool",
+  },
+  ResetTool: {
+    __extends__: "PlotActionTool",
+  },
+  TapTool: {
+    __extends__: [
+      "Tap",
+      "SelectTool",
+    ],
+    behavior: "select",
+    gesture: "tap",
+    callback: null,
+  },
+  CrosshairTool: {
+    __extends__: "InspectTool",
+    overlay: "auto",
+    dimensions: "both",
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+  },
+  BoxZoomTool: {
+    __extends__: "Drag",
+    dimensions: "both",
+    overlay: {
+      type: "object",
+      name: "BoxAnnotation",
+      attributes: {
+        syncable: false,
+        level: "overlay",
+        visible: false,
+        left_units: "canvas",
+        right_units: "canvas",
+        bottom_units: "canvas",
+        top_units: "canvas",
+        line_color: "black",
+        line_alpha: 1.0,
+        line_width: 2,
+        line_dash: [
+          4,
+          4,
+        ],
+        fill_color: "lightgrey",
+        fill_alpha: 0.5,
+      },
+    },
+    match_aspect: false,
+    origin: "corner",
+  },
+  ZoomInTool: {
+    __extends__: "PlotActionTool",
+    dimensions: "both",
+    factor: 0.1,
+  },
+  ZoomOutTool: {
+    __extends__: "PlotActionTool",
+    dimensions: "both",
+    factor: 0.1,
+    maintain_focus: true,
+  },
+  BoxSelectTool: {
+    __extends__: [
+      "Drag",
+      "SelectTool",
+    ],
+    select_every_mousemove: false,
+    dimensions: "both",
+    overlay: {
+      type: "object",
+      name: "BoxAnnotation",
+      attributes: {
+        syncable: false,
+        level: "overlay",
+        visible: false,
+        left_units: "canvas",
+        right_units: "canvas",
+        bottom_units: "canvas",
+        top_units: "canvas",
+        line_color: "black",
+        line_alpha: 1.0,
+        line_width: 2,
+        line_dash: [
+          4,
+          4,
+        ],
+        fill_color: "lightgrey",
+        fill_alpha: 0.5,
+      },
+    },
+    origin: "corner",
+  },
+  LassoSelectTool: {
+    __extends__: [
+      "Drag",
+      "SelectTool",
+    ],
+    select_every_mousemove: true,
+    overlay: {
+      type: "object",
+      name: "PolyAnnotation",
+      attributes: {
+        syncable: false,
+        level: "overlay",
+        visible: false,
+        xs: [],
+        xs_units: "canvas",
+        ys: [],
+        ys_units: "canvas",
+        line_color: "black",
+        line_alpha: 1.0,
+        line_width: 2,
+        line_dash: [
+          4,
+          4,
+        ],
+        fill_color: "lightgrey",
+        fill_alpha: 0.5,
+      },
+    },
+  },
+  PolySelectTool: {
+    __extends__: [
+      "Tap",
+      "SelectTool",
+    ],
+    overlay: {
+      type: "object",
+      name: "PolyAnnotation",
+      attributes: {
+        syncable: false,
+        level: "overlay",
+        visible: false,
+        xs: [],
+        xs_units: "canvas",
+        ys: [],
+        ys_units: "canvas",
+        line_color: "black",
+        line_alpha: 1.0,
+        line_width: 2,
+        line_dash: [
+          4,
+          4,
+        ],
+        fill_color: "lightgrey",
+        fill_alpha: 0.5,
+      },
+    },
+  },
+  CustomJSHover: {
+    __extends__: "Model",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  HoverTool: {
+    __extends__: "InspectTool",
+    renderers: "auto",
+    callback: null,
+    tooltips: [
+      [
+        "index",
+        "$index",
+      ],
+      [
+        "data (x, y)",
+        "($x, $y)",
+      ],
+      [
+        "screen (x, y)",
+        "($sx, $sy)",
+      ],
+    ],
+    formatters: {
+      type: "map",
+    },
+    mode: "mouse",
+    muted_policy: "show",
+    point_policy: "snap_to_data",
+    line_policy: "nearest",
+    anchor: "center",
+    attachment: "horizontal",
+    show_arrow: true,
+  },
+  HelpTool: {
+    __extends__: "ActionTool",
+    description: "Click the question mark to learn more about Bokeh plot tools.",
+    redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html",
+  },
+  SettingsTool: {
+    __extends__: "ActionTool",
+  },
+  FullscreenTool: {
+    __extends__: "ActionTool",
+  },
+  UndoTool: {
+    __extends__: "PlotActionTool",
+  },
+  RedoTool: {
+    __extends__: "PlotActionTool",
+  },
+  EditTool: {
+    __extends__: "GestureTool",
+    empty_value: {
+      type: "symbol",
+      name: "unset",
+    },
+    renderers: [],
+  },
+  PolyTool: {
+    __extends__: "EditTool",
+    vertex_renderer: null,
+  },
+  BoxEditTool: {
+    __extends__: [
+      "EditTool",
+      "Drag",
+      "Tap",
+    ],
+    dimensions: "both",
+    num_objects: 0,
+  },
+  PointDrawTool: {
+    __extends__: [
+      "EditTool",
+      "Drag",
+      "Tap",
+    ],
+    add: true,
+    drag: true,
+    num_objects: 0,
+  },
+  PolyDrawTool: {
+    __extends__: [
+      "PolyTool",
+      "Drag",
+      "Tap",
+    ],
+    drag: true,
+    num_objects: 0,
+  },
+  FreehandDrawTool: {
+    __extends__: [
+      "EditTool",
+      "Drag",
+      "Tap",
+    ],
+    num_objects: 0,
+  },
+  PolyEditTool: {
+    __extends__: [
+      "PolyTool",
+      "Drag",
+      "Tap",
+    ],
+  },
+  LineEditTool: {
+    __extends__: [
+      "EditTool",
+      "Drag",
+      "Tap",
+    ],
+    intersection_renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+    dimensions: "both",
+  },
+  Plot: {
+    __extends__: "LayoutDOM",
+    width: 600,
+    height: 600,
+    x_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    y_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    x_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    y_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    extra_x_ranges: {
+      type: "map",
+    },
+    extra_y_ranges: {
+      type: "map",
+    },
+    extra_x_scales: {
+      type: "map",
+    },
+    extra_y_scales: {
+      type: "map",
+    },
+    hidpi: true,
+    title: {
+      type: "object",
+      name: "Title",
+      attributes: {},
+    },
+    title_location: "above",
+    outline_line_color: "#e5e5e5",
+    outline_line_alpha: 1.0,
+    outline_line_width: 1,
+    outline_line_join: "bevel",
+    outline_line_cap: "butt",
+    outline_line_dash: [],
+    outline_line_dash_offset: 0,
+    renderers: [],
+    toolbar: {
+      type: "object",
+      name: "Toolbar",
+      attributes: {},
+    },
+    toolbar_location: "right",
+    toolbar_sticky: true,
+    toolbar_inner: false,
+    left: [],
+    right: [],
+    above: [],
+    below: [],
+    center: [],
+    frame_width: null,
+    frame_height: null,
+    frame_align: true,
+    inner_width: 0,
+    inner_height: 0,
+    outer_width: 0,
+    outer_height: 0,
+    background_fill_color: "#ffffff",
+    background_fill_alpha: 1.0,
+    border_fill_color: "#ffffff",
+    border_fill_alpha: 1.0,
+    min_border_top: null,
+    min_border_bottom: null,
+    min_border_left: null,
+    min_border_right: null,
+    min_border: 5,
+    lod_factor: 10,
+    lod_threshold: 2000,
+    lod_interval: 300,
+    lod_timeout: 500,
+    output_backend: "canvas",
+    match_aspect: false,
+    aspect_scale: 1,
+    reset_policy: "standard",
+    hold_render: false,
+  },
+  GridPlot: {
+    __extends__: "LayoutDOM",
+    toolbar: {
+      type: "object",
+      name: "Toolbar",
+      attributes: {},
+    },
+    toolbar_location: "above",
+    children: [],
+    rows: "max-content",
+    cols: "max-content",
+    spacing: 0,
+  },
+  MapOptions: {
+    __extends__: "Model",
+    lat: {
+      type: "symbol",
+      name: "unset",
+    },
+    lng: {
+      type: "symbol",
+      name: "unset",
+    },
+    zoom: 12,
+  },
+  MapPlot: {
+    __extends__: "Plot",
+  },
+  GMapOptions: {
+    __extends__: "MapOptions",
+    map_type: "roadmap",
+    scale_control: false,
+    styles: null,
+    tilt: 45,
+  },
+  GMapPlot: {
+    __extends__: "MapPlot",
+    x_range: {
+      type: "object",
+      name: "Range1d",
+      attributes: {},
+    },
+    y_range: {
+      type: "object",
+      name: "Range1d",
+      attributes: {},
+    },
+    background_fill_alpha: 0.0,
+    border_fill_color: "#ffffff",
+    map_options: {
+      type: "symbol",
+      name: "unset",
+    },
+    api_key: {
+      type: "symbol",
+      name: "unset",
+    },
+    api_version: "weekly",
+  },
+  BaseText: {
+    __extends__: "Model",
+    text: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  MathText: {
+    __extends__: "BaseText",
+  },
+  Ascii: {
+    __extends__: "MathText",
+  },
+  MathML: {
+    __extends__: "MathText",
+  },
+  TeX: {
+    __extends__: "MathText",
+    macros: {
+      type: "map",
+    },
+    inline: false,
+  },
+  PlainText: {
+    __extends__: "BaseText",
+  },
+  Texture: {
+    __extends__: "Model",
+    repetition: "repeat",
+  },
+  CanvasTexture: {
+    __extends__: "Texture",
+    code: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ImageURLTexture: {
+    __extends__: "Texture",
+    url: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Widget: {
+    __extends__: "LayoutDOM",
+  },
+  ButtonLike: {
+    button_type: "default",
+  },
+  AbstractButton: {
+    __extends__: [
+      "Widget",
+      "ButtonLike",
+    ],
+    label: "Button",
+    icon: null,
+  },
+  Button: {
+    __extends__: "AbstractButton",
+    label: "Button",
+  },
+  Toggle: {
+    __extends__: "AbstractButton",
+    label: "Toggle",
+    active: false,
+  },
+  Dropdown: {
+    __extends__: "AbstractButton",
+    label: "Dropdown",
+    split: false,
+    menu: [],
+  },
+  HelpButton: {
+    __extends__: "AbstractButton",
+    button_type: "default",
+    label: "",
+    icon: {
+      type: "object",
+      name: "BuiltinIcon",
+      attributes: {
+        size: 18,
+        icon_name: "help",
+      },
+    },
+    tooltip: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  AbstractGroup: {
+    __extends__: "Widget",
+    labels: [],
+  },
+  ToggleButtonGroup: {
+    __extends__: [
+      "AbstractGroup",
+      "ButtonLike",
+    ],
+    orientation: "horizontal",
+  },
+  ToggleInputGroup: {
+    __extends__: "AbstractGroup",
+    inline: false,
+  },
+  CheckboxGroup: {
+    __extends__: "ToggleInputGroup",
+    active: [],
+  },
+  RadioGroup: {
+    __extends__: "ToggleInputGroup",
+    active: null,
+  },
+  CheckboxButtonGroup: {
+    __extends__: "ToggleButtonGroup",
+    active: [],
+  },
+  RadioButtonGroup: {
+    __extends__: "ToggleButtonGroup",
+    active: null,
+  },
+  InputWidget: {
+    __extends__: "Widget",
+    title: "",
+    description: null,
+  },
+  FileInput: {
+    __extends__: "InputWidget",
+    value: "",
+    mime_type: "",
+    filename: "",
+    accept: "",
+    multiple: false,
+  },
+  NumericInput: {
+    __extends__: "InputWidget",
+    value: null,
+    low: null,
+    high: null,
+    placeholder: "",
+    mode: "int",
+    format: null,
+  },
+  Spinner: {
+    __extends__: "NumericInput",
+    mode: "float",
+    value_throttled: null,
+    step: 1,
+    page_step_multiplier: 10,
+    wheel_wait: 100,
+  },
+  ToggleInput: {
+    __extends__: "Widget",
+    active: false,
+  },
+  Checkbox: {
+    __extends__: "ToggleInput",
+    label: "",
+  },
+  Switch: {
+    __extends__: "ToggleInput",
+    width: 32,
+  },
+  TextLikeInput: {
+    __extends__: "InputWidget",
+    value: "",
+    value_input: "",
+    placeholder: "",
+    max_length: null,
+  },
+  TextInput: {
+    __extends__: "TextLikeInput",
+    prefix: null,
+    suffix: null,
+  },
+  TextAreaInput: {
+    __extends__: "TextLikeInput",
+    max_length: 500,
+    cols: 20,
+    rows: 2,
+  },
+  PasswordInput: {
+    __extends__: "TextInput",
+  },
+  AutocompleteInput: {
+    __extends__: "TextInput",
+    completions: [],
+    max_completions: null,
+    min_characters: 2,
+    case_sensitive: true,
+    restrict: true,
+  },
+  Select: {
+    __extends__: "InputWidget",
+    options: [],
+    value: "",
+  },
+  MultiSelect: {
+    __extends__: "InputWidget",
+    options: [],
+    value: [],
+    size: 4,
+  },
+  MultiChoice: {
+    __extends__: "InputWidget",
+    options: [],
+    value: [],
+    delete_button: true,
+    max_items: null,
+    option_limit: null,
+    search_option_limit: null,
+    placeholder: null,
+    solid: true,
+  },
+  DatePicker: {
+    __extends__: "InputWidget",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    min_date: null,
+    max_date: null,
+    disabled_dates: null,
+    enabled_dates: null,
+    position: "auto",
+    inline: false,
+  },
+  ColorPicker: {
+    __extends__: "InputWidget",
+    color: "#000000",
+  },
+  Markup: {
+    __extends__: "Widget",
+    text: "",
+    disable_math: false,
+  },
+  Paragraph: {
+    __extends__: "Markup",
+  },
+  Div: {
+    __extends__: "Markup",
+    render_as_text: false,
+  },
+  PreText: {
+    __extends__: "Paragraph",
+  },
+  AbstractSlider: {
+    __extends__: "Widget",
+    width: 300,
+    orientation: "horizontal",
+    title: "",
+    show_value: true,
+    format: "",
+    direction: "ltr",
+    tooltips: true,
+    bar_color: "#e6e6e6",
+  },
+  Slider: {
+    __extends__: "AbstractSlider",
+    format: "0[.]00",
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 1,
+  },
+  RangeSlider: {
+    __extends__: "AbstractSlider",
+    format: "0[.]00",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 1,
+  },
+  DateSlider: {
+    __extends__: "AbstractSlider",
+    format: "%d %b %Y",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 1,
+  },
+  DateRangeSlider: {
+    __extends__: "AbstractSlider",
+    format: "%d %b %Y",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 1,
+  },
+  DatetimeRangeSlider: {
+    __extends__: "AbstractSlider",
+    format: "%d %b %Y %H:%M:%S",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+    step: 3600000,
+  },
+  CellFormatter: {
+    __extends__: "Model",
+  },
+  CellEditor: {
+    __extends__: "Model",
+  },
+  RowAggregator: {
+    __extends__: "Model",
+    field_: "",
+  },
+  StringFormatter: {
+    __extends__: "CellFormatter",
+    font_style: "normal",
+    text_align: "left",
+    text_color: null,
+    nan_format: "-",
+  },
+  ScientificFormatter: {
+    __extends__: "StringFormatter",
+    precision: 10,
+    power_limit_high: 5,
+    power_limit_low: -3,
+  },
+  NumberFormatter: {
+    __extends__: "StringFormatter",
+    format: "0,0",
+    language: "en",
+    rounding: "round",
+  },
+  BooleanFormatter: {
+    __extends__: "CellFormatter",
+    icon: "check",
+  },
+  DateFormatter: {
+    __extends__: "StringFormatter",
+    format: "ISO-8601",
+  },
+  HTMLTemplateFormatter: {
+    __extends__: "CellFormatter",
+    template: "<%= value %>",
+  },
+  StringEditor: {
+    __extends__: "CellEditor",
+    completions: [],
+  },
+  TextEditor: {
+    __extends__: "CellEditor",
+  },
+  SelectEditor: {
+    __extends__: "CellEditor",
+    options: [],
+  },
+  PercentEditor: {
+    __extends__: "CellEditor",
+  },
+  CheckboxEditor: {
+    __extends__: "CellEditor",
+  },
+  IntEditor: {
+    __extends__: "CellEditor",
+    step: 1,
+  },
+  NumberEditor: {
+    __extends__: "CellEditor",
+    step: 0.01,
+  },
+  TimeEditor: {
+    __extends__: "CellEditor",
+  },
+  DateEditor: {
+    __extends__: "CellEditor",
+  },
+  AvgAggregator: {
+    __extends__: "RowAggregator",
+  },
+  MinAggregator: {
+    __extends__: "RowAggregator",
+  },
+  MaxAggregator: {
+    __extends__: "RowAggregator",
+  },
+  SumAggregator: {
+    __extends__: "RowAggregator",
+  },
+  TableColumn: {
+    __extends__: "Model",
+    field: {
+      type: "symbol",
+      name: "unset",
+    },
+    title: null,
+    width: 300,
+    formatter: {
+      type: "object",
+      name: "StringFormatter",
+      attributes: {},
+    },
+    editor: {
+      type: "object",
+      name: "StringEditor",
+      attributes: {},
+    },
+    sortable: true,
+    default_sort: "ascending",
+    visible: true,
+  },
+  TableWidget: {
+    __extends__: "Widget",
+    source: {
+      type: "object",
+      name: "ColumnDataSource",
+      attributes: {
+        selected: {
+          type: "object",
+          name: "Selection",
+          attributes: {
+            indices: [],
+            line_indices: [],
+          },
+        },
+        selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        data: {
+          type: "map",
+        },
+      },
+    },
+    view: {
+      type: "object",
+      name: "CDSView",
+      attributes: {
+        filter: {
+          type: "object",
+          name: "AllIndices",
+          attributes: {},
+        },
+      },
+    },
+  },
+  DataTable: {
+    __extends__: "TableWidget",
+    width: 600,
+    height: 400,
+    autosize_mode: "force_fit",
+    auto_edit: false,
+    columns: [],
+    fit_columns: null,
+    frozen_columns: null,
+    frozen_rows: null,
+    sortable: true,
+    reorderable: true,
+    editable: false,
+    selectable: true,
+    index_position: 0,
+    index_header: "#",
+    index_width: 40,
+    scroll_to_selection: true,
+    header_row: true,
+    row_height: 25,
+  },
+  GroupingInfo: {
+    __extends__: "Model",
+    getter: "",
+    aggregators: [],
+    collapsed: false,
+  },
+  DataCube: {
+    __extends__: "DataTable",
+    grouping: [],
+    target: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+}
