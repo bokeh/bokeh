@@ -30,6 +30,7 @@ dependencies:
   - geckodriver
   - ipython
   - isort 5.8
+  - json5
   - mock
   - nbconvert >=5.4
   - nodejs 16.*

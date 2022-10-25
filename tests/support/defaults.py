@@ -25,7 +25,7 @@ from pathlib import Path
 from typing import Any
 
 # External imports
-import yaml
+import json5
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps
@@ -109,9 +109,10 @@ def collect_defaults() -> dict[str, Any]:
 def output_defaults(dest: Path, defaults: dict[str, Any]) -> None:
     os.makedirs(dest.parent, exist_ok=True)
 
-    output = yaml.dump(defaults, sort_keys=False, indent=2)
+    output = json5.dumps(defaults, sort_keys=False, indent=2)
     with open(dest, "w", encoding="utf-8") as f:
         f.write(output)
+        f.write("\n")
 
     print(f"Wrote {dest} with {len(defaults)} models")
 

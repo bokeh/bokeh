@@ -17,19 +17,12 @@ import {settings} from "@bokehjs/core/settings"
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
 
-import yaml from "js-yaml"
+import json5 from "json5"
 
 type KV<T = unknown> = {[key: string]: T}
 
-const tuple = new yaml.Type("tag:yaml.org,2002:python/tuple", {
-  kind: "sequence",
-  resolve: (_data) => true,
-  construct: (data) => [...data],
-})
-const schema = yaml.DEFAULT_SCHEMA.extend(tuple)
-
-import defaults_yaml from "./defaults.yaml"
-const all_defaults = dict(yaml.load(defaults_yaml, {schema}) as KV<KV<unknown>>)
+import defaults_json5 from "./defaults.json5"
+const all_defaults = dict<KV>(json5.parse(defaults_json5))
 
 function _resolve_defaults(_name: string, defaults: KV) {
   const {__extends__} = defaults
