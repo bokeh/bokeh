@@ -584,12 +584,10 @@ class Plot(LayoutDOM):
     outline_line_color = Override(default="#e5e5e5")
 
     renderers = List(Instance(Renderer), help="""
-    A list of all renderers for this plot, including guides and annotations
-    in addition to glyphs.
+    A list of all glyphs renderers for this plot.
 
-    This property can be manipulated by hand, but the ``add_glyph`` and
-    ``add_layout`` methods are recommended to help make sure all necessary
-    setup is performed.
+    This property can be manipulated by hand, but the ``add_glyph`` is
+    recommended to help make sure all necessary setup is performed.
     """)
 
     toolbar = Instance(Toolbar, default=InstanceDefault(Toolbar), help="""
