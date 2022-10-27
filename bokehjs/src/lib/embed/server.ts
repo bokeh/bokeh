@@ -4,6 +4,7 @@ import {logger} from "../core/logging"
 import {ViewManager} from "../core/view"
 
 import {add_document_standalone} from "./standalone"
+import {EmbedTarget} from "./dom"
 
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
@@ -45,8 +46,8 @@ function _get_session(websocket_url: string, token: string, args_string: string)
 }
 
 // Fill element with the roots from token
-export async function add_document_from_session(websocket_url: string, token: string, element: HTMLElement,
-    roots: HTMLElement[] = [], use_for_title: boolean = false): Promise<ViewManager> {
+export async function add_document_from_session(websocket_url: string, token: string, element: EmbedTarget,
+    roots: EmbedTarget[] = [], use_for_title: boolean = false): Promise<ViewManager> {
   const args_string = window.location.search.substring(1)
   let session: ClientSession
   try {

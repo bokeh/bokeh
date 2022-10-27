@@ -10,7 +10,7 @@ import {ViewManager} from "core/view"
 import {DocsJson, RenderItem, Roots} from "./json"
 import {add_document_standalone} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
-import {_resolve_element, _resolve_root_elements} from "./dom"
+import {_resolve_element, _resolve_root_elements, EmbedTarget} from "./dom"
 
 export {DocsJson, RenderItem, Roots} from "./json"
 export {add_document_standalone, index} from "./standalone"
@@ -19,7 +19,7 @@ export {embed_items_notebook, kernels} from "./notebook"
 
 export type JsonItem = {doc: DocJson, root_id: ID, target_id: ID}
 
-export async function embed_item(item: JsonItem, target?: ID | HTMLElement): Promise<ViewManager> {
+export async function embed_item(item: JsonItem, target?: ID | EmbedTarget): Promise<ViewManager> {
   const docs_json: DocsJson = {}
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc

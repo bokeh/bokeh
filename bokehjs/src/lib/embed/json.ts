@@ -1,9 +1,10 @@
 import {DocJson} from "../document"
 import {ID} from "core/types"
+import {type EmbedTarget} from "./dom"
 
 export type DocsJson = {[key: string]: DocJson}
 
-export type Roots = {[index: string]: ID | HTMLElement}
+export type Roots = {[index: string]: ID | EmbedTarget}
 
 export interface RenderItem {
   docid?: string

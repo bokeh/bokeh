@@ -183,7 +183,7 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
     # Pandas Period
     if isinstance(obj, pd.Period):
-        return obj.to_timestamp().value / 10**6.0  # type: ignore
+        return obj.to_timestamp().value / 10**6.0
 
     # Pandas Timestamp
     if isinstance(obj, pd.Timestamp):
