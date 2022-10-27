@@ -314,7 +314,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     // when loading a bunch of models, we want to do initialization as a second pass
     // because other objects that this one depends on might not be loaded yet
     if (deferred) {
-      assert(keys(attrs).length == 1)
+      assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
     } else {
       const vals = attrs instanceof Map ? attrs : new Dict(attrs)
       this.initialize_props(vals)

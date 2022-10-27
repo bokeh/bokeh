@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.properties import Int, List, String
+from bokeh.core.types import ID
 from bokeh.models import *  # NOQA
 from bokeh.models import CustomJS
 from bokeh.plotting import *  # NOQA
@@ -40,6 +41,11 @@ class SomeModel(Model):
     b = String("hello")
     c = List(Int, default=[1, 2, 3])
 
+class Test_Model___init__:
+
+    def test_id_not_permitted(self) -> None:
+        with pytest.raises(ValueError):
+            SomeModel(id=ID("foo"))
 
 class Test_js_on_change:
     def test_exception_for_no_callbacks(self) -> None:

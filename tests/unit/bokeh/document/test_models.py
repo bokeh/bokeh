@@ -23,6 +23,7 @@ import gc
 from mock import MagicMock, patch
 
 # Bokeh imports
+from bokeh.core.types import ID
 from bokeh.document import Document
 from bokeh.models import Div, Row
 
@@ -72,12 +73,12 @@ class TestDocumentModelManager:
         dm = bdm.DocumentModelManager(d)
         assert len(dm) == 0
 
-        m = Div(id="foo")
+        m = Div()
 
-        dm["foo"] = m
+        dm[m.id] = m
         assert len(dm) == 1
 
-        assert dm["foo"] is m
+        assert dm[m.id] is m
 
         with pytest.raises(KeyError):
             dm["junk"]
@@ -87,11 +88,11 @@ class TestDocumentModelManager:
         dm = bdm.DocumentModelManager(d)
         assert len(dm) == 0
 
-        m = Div(id="foo")
+        m = Div()
 
-        dm["foo"] = m
+        dm[m.id] = m
 
-        assert "foo" in dm
+        assert m.id in dm
         assert "junk" not in dm
 
     def test_iter(self) -> None:
@@ -179,15 +180,15 @@ class TestDocumentModelManager:
         dm = d.models
         assert len(dm) == 0
 
-        m1 = Div(id="m1")
-        m2 = Div(id="m2")
+        m1 = Div()
+        m2 = Div()
 
         d.add_root(m1)
         d.add_root(m2)
 
-        assert dm.get_by_id("m1") is m1
-        assert dm.get_by_id("m2") is m2
-        assert dm.get_by_id("junk") is None
+        assert dm.get_by_id(m1.id) is m1
+        assert dm.get_by_id(m2.id) is m2
+        assert dm.get_by_id(ID("junk")) is None
 
     def test_get_one_by_name(self) -> None:
         d = Document()
@@ -227,8 +228,8 @@ class TestDocumentModelManager:
         dm = d.models
         assert len(dm) == 0
 
-        r1 = Row(children=[Div(id="d1", name="dr1")])
-        r2 = Row(children=[Div(id="d2", name="dr2"), Div(id="d3", name="dr2")])
+        r1 = Row(children=[Div(name="dr1")])
+        r2 = Row(children=[Div(name="dr2"), Div(name="dr2")])
 
         d.add_root(r1)
         d.add_root(r2)
@@ -254,24 +255,24 @@ class TestDocumentModelManager:
         dm = d.models
         assert len(dm) == 0
 
-        m1 = Div(id="m1")
-        m2 = Div(id="m2")
+        m1 = Div()
+        m2 = Div()
 
         d.add_root(m1)
         d.add_root(m2)
 
-        assert not dm.seen("m1")
-        assert not dm.seen("m2")
+        assert not dm.seen(m1.id)
+        assert not dm.seen(m2.id)
 
         d.remove_root(m2)
 
-        assert not dm.seen("m1")
-        assert dm.seen("m2")
+        assert not dm.seen(m1.id)
+        assert dm.seen(m2.id)
 
         d.remove_root(m1)
 
-        assert dm.seen("m1")
-        assert dm.seen("m2")
+        assert dm.seen(m1.id)
+        assert dm.seen(m2.id)
 
     def test_update_name(self) -> None:
         d = Document()
