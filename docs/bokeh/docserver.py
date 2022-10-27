@@ -42,7 +42,9 @@ from tornado.wsgi import WSGIContainer
 from bokeh.util.tornado import fixup_windows_event_loop_policy
 
 IOLOOP = None
+HOST = "localhost"
 PORT = 5009
+VISIT_URL = f"http://{HOST}:{PORT}/en/latest/index.html"
 SPHINX_TOP = Path(__file__).resolve().parent
 
 app = flask.Flask(__name__, static_folder="/unused")
@@ -64,7 +66,7 @@ def docs(filename):
 
 
 def open_browser():
-    webbrowser.open(f"http://localhost:{PORT}/en/latest/index.html", new=2)
+    webbrowser.open(VISIT_URL, new=2)
 
 
 def serve_http():
@@ -79,7 +81,7 @@ if __name__ == "__main__":
     fixup_windows_event_loop_policy()
 
     print(f"\nStarting Bokeh plot server on port {PORT}...")
-    print(f"Visit http://localhost:{PORT}/en/latest/index.html to see plots\n")
+    print(f"Visit {VISIT_URL} to see plots\n")
 
     server = threading.Thread(target=serve_http)
     server.start()
