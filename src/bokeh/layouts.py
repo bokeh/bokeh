@@ -48,11 +48,11 @@ from .models import (
     FullscreenTool,
     GridBox,
     GridPlot,
+    InspectorTool,
     LayoutDOM,
     Plot,
     Row,
     SaveTool,
-    SettingsTool,
     Spacer,
     Tool,
     Toolbar,
@@ -293,7 +293,7 @@ def gridplot(
                 raise ValueError("Only UIElement and LayoutDOM items can be inserted into a grid")
 
     def merge(cls: Type[Tool], group: list[Tool]):
-        if issubclass(cls, (SaveTool, CopyTool, SettingsTool, FullscreenTool)):
+        if issubclass(cls, (SaveTool, CopyTool, InspectorTool, FullscreenTool)):
             return cls()
         else:
             return None

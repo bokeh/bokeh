@@ -5174,7 +5174,7 @@
     description: "Click the question mark to learn more about Bokeh plot tools.",
     redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html",
   },
-  SettingsTool: {
+  InspectorTool: {
     __extends__: "ActionTool",
   },
   FullscreenTool: {
