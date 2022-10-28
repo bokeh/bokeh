@@ -53,6 +53,7 @@
 }
 
 .inspector {
+  height: 100%;
   display: flex;
   border: 1px solid var(--panel-border-color);
 }
@@ -66,6 +67,8 @@
 .props-panel {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: auto;
 }
 
 .watches-panel {
@@ -79,6 +82,8 @@
   flex-direction: column;
   height: min-content;
   padding: var(--common-padding);
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .props-list {

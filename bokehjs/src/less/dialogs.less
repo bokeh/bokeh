@@ -17,12 +17,16 @@
   margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
+  /*
   min-width: 10vw;
   min-height: 10vh;
   width: max-content;
   height: max-content;
   max-width: 80vw;
   max-height: 60vh;
+  */
+  width: 80vw;
+  height: 60vh;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -41,7 +45,8 @@
 .bk-content {
   position: relative;
   flex: 1;
-  min-height: 0;
+  min-height: 100%;
+  display: flex;
 }
 
 .bk-buttons {
