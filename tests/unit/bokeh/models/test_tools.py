@@ -62,7 +62,7 @@ def test_Tool_from_string() -> None:
     assert isinstance(Tool.from_string("redo"), t.RedoTool)
     assert isinstance(Tool.from_string("reset"), t.ResetTool)
     assert isinstance(Tool.from_string("help"), t.HelpTool)
-    assert isinstance(Tool.from_string("settings"), t.SettingsTool)
+    assert isinstance(Tool.from_string("inspector"), t.InspectorTool)
     assert isinstance(Tool.from_string("box_edit"), t.BoxEditTool)
     assert isinstance(Tool.from_string("point_draw"), t.PointDrawTool)
     assert isinstance(Tool.from_string("poly_draw"), t.PolyDrawTool)

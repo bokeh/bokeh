@@ -143,7 +143,7 @@ __all__ = (
     'ResetTool',
     'SaveTool',
     'Scroll',
-    'SettingsTool',
+    'InspectorTool',
     'Tap',
     'TapTool',
     'Tool',
@@ -1338,7 +1338,7 @@ class HelpTool(ActionTool):
     Site to be redirected through upon click.
     """)
 
-class SettingsTool(ActionTool):
+class InspectorTool(ActionTool):
     ''' A tool that allows to inspect and configure a model. '''
 
     # explicit __init__ to support Init signatures
@@ -1823,7 +1823,7 @@ Tool.register_alias("undo", lambda: UndoTool())
 Tool.register_alias("redo", lambda: RedoTool())
 Tool.register_alias("reset", lambda: ResetTool())
 Tool.register_alias("help", lambda: HelpTool())
-Tool.register_alias("settings", lambda: SettingsTool())
+Tool.register_alias("inspector", lambda: InspectorTool())
 Tool.register_alias("fullscreen", lambda: FullscreenTool())
 Tool.register_alias("box_edit", lambda: BoxEditTool())
 Tool.register_alias("line_edit", lambda: LineEditTool())
