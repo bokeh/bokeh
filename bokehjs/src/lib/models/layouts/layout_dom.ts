@@ -151,16 +151,18 @@ export abstract class LayoutDOMView extends UIElementView {
   async update_children(): Promise<void> {
     const created_children = new Set(await this.build_child_views())
 
-    for (const child_view of this.child_views) {
-      remove(child_view.el)
-    }
+    if (created_children.size != 0) {
+      for (const child_view of this.child_views) {
+        remove(child_view.el)
+      }
 
-    for (const child_view of this.child_views) {
-      this.shadow_el.appendChild(child_view.el)
+      for (const child_view of this.child_views) {
+        this.shadow_el.append(child_view.el)
 
-      if (created_children.has(child_view)) {
-        child_view.render()
-        child_view.after_render()
+        if (created_children.has(child_view)) {
+          child_view.render()
+          child_view.after_render()
+        }
       }
     }
 

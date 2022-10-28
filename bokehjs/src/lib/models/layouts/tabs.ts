@@ -1,5 +1,4 @@
-import {div, show, hide, children, StyleSheetLike} from "core/dom"
-import {FlexDirection} from "core/css"
+import {div, show, hide, empty, StyleSheetLike} from "core/dom"
 import {remove_at} from "core/util/array"
 import {Container} from "core/layout/grid"
 import {Location} from "core/enums"
@@ -17,13 +16,18 @@ export class TabsView extends LayoutDOMView {
   override model: Tabs
 
   protected header_el: HTMLElement
-  protected stack_el: HTMLElement
+  protected header_els: HTMLElement[]
 
   override connect_signals(): void {
     super.connect_signals()
     const {tabs, active} = this.model.properties
-    this.on_change(tabs, () => this.update_children())
-    this.on_change(active, () => this.update_active())
+    this.on_change(tabs, () => {
+      this._update_headers()
+      this.update_children()
+    })
+    this.on_change(active, () => {
+      this.update_active()
+    })
   }
 
   override styles(): StyleSheetLike[] {
@@ -35,22 +39,15 @@ export class TabsView extends LayoutDOMView {
   }
 
   protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "flex"}
+    return {inner: this.model.flow_mode, outer: "grid"}
   }
 
   override _update_layout(): void {
     super._update_layout()
 
-    const flex_direction: FlexDirection = (() => {
-      switch (this.model.tabs_location) {
-        case "above":
-        case "below": return "column"
-        case "left":
-        case "right": return "row"
-      }
-    })()
-
-    this.style.append(":host", {flex_direction})
+    const loc = this.model.tabs_location
+    this.class_list.remove([...Location].map((loc) => tabs[loc]))
+    this.class_list.add(tabs[loc])
 
     const layoutable = new Container<LayoutDOMView>()
 
@@ -87,6 +84,12 @@ export class TabsView extends LayoutDOMView {
   override render(): void {
     super.render()
 
+    this.header_el = div({class: tabs.header})
+    this.shadow_el.append(this.header_el)
+    this._update_headers()
+  }
+
+  protected _update_headers(): void {
     const {active} = this.model
 
     const headers = this.model.tabs.map((tab, i) => {
@@ -116,16 +119,9 @@ export class TabsView extends LayoutDOMView {
       return el
     })
 
-    const loc = this.model.tabs_location
-    this.header_el = div({class: [tabs.header, tabs[loc]]}, headers)
-    this.shadow_el.appendChild(this.header_el)
-
-    this.stack_el = div({class: "bk-stack"})
-    this.shadow_el.appendChild(this.stack_el)
-
-    for (const child of this.child_views) {
-      this.stack_el.appendChild(child.el)
-    }
+    this.header_els = headers
+    empty(this.header_el)
+    this.header_el.append(...headers)
   }
 
   change_active(i: number): void {
@@ -137,17 +133,23 @@ export class TabsView extends LayoutDOMView {
   update_active(): void {
     const i = this.model.active
 
-    const headers = children(this.header_el)
-    for (const el of headers)
+    const {header_els} = this
+    for (const el of header_els) {
       el.classList.remove(tabs.active)
+    }
 
-    headers[i].classList.add(tabs.active)
+    if (i in header_els) {
+      header_els[i].classList.add(tabs.active)
+    }
 
     const {child_views} = this
-    for (const child_view of child_views)
+    for (const child_view of child_views) {
       hide(child_view.el)
+    }
 
-    show(child_views[i].el)
+    if (i in child_views) {
+      show(child_views[i].el)
+    }
   }
 }
 
