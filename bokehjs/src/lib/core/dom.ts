@@ -333,10 +333,6 @@ export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   }
 }
 
-export function children(el: HTMLElement): HTMLElement[] {
-  return Array.from(el.children) as HTMLElement[]
-}
-
 export class ClassList {
   constructor(private readonly class_list: DOMTokenList) {}
 
@@ -360,9 +356,14 @@ export class ClassList {
     return this
   }
 
-  remove(...classes: string[]): this {
-    for (const cls of classes)
-      this.class_list.remove(cls)
+  remove(...classes: string[] | string[][]): this {
+    for (const cls of classes) {
+      if (isArray(cls)) {
+        cls.forEach((cls) => this.class_list.remove(cls))
+      } else {
+        this.class_list.remove(cls)
+      }
+    }
     return this
   }
 
