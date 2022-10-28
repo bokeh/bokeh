@@ -2493,4 +2493,37 @@ describe("Bug", () => {
       await display(col)
     })
   })
+
+  describe("in issue #12465", () => {
+    it("doesn't allow to correctly display DataTable in Tabs", async () => {
+      function table(n: number) {
+        const source = new ColumnDataSource({
+          data: {
+            col1: [1*n, 2*n, 3*n],
+            col2: [55*n, 66*n, 77*n],
+          },
+        })
+        const columns = [
+          new TableColumn({field: "col1", title: "Column 1"}),
+          new TableColumn({field: "col2", title: "Column 2"}),
+        ]
+        const table = new DataTable({
+          width: 300,
+          height: 150,
+          source,
+          columns,
+        })
+        return table
+      }
+
+      const tabs = new Tabs({
+        tabs: [
+          new TabPanel({title: "Table 0", closable: true, child: table(1)}),
+          new TabPanel({title: "Table 1", closable: true, child: table(10)}),
+        ],
+      })
+
+      await display(tabs, [350, 200])
+    })
+  })
 })
