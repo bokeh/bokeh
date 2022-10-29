@@ -1,11 +1,11 @@
 .. _ug_topics_hierarchical:
 
+Hierarchical data
+=================
+
 Bokeh does not have any built-in APIs specifically for handling hierarchical
 data, but it is possible to use Bokeh's basic components together with other
 libraries handle many cases. Some examples are described below.
-
-Hierarchical data
-=================
 
 .. _ug_topics_hierarchical_treemap:
 
