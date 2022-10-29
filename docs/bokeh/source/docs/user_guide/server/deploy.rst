@@ -240,7 +240,7 @@ As before, run the Bokeh server with the following command:
 Restricting access to proxied server using Unix socket
 ------------------------------------------------------
 
-In some cases, you might want to restrict the access to the proxied Bokeh
+In some cases, you might want to restrict access to the proxied Bokeh
 server. You can bind the Bokeh server to a Unix socket and use Nginx or
 Apache to proxy to a Unix domain socket.
 
@@ -272,17 +272,17 @@ A Nginx config could look like this example:
     }
 
 Please be aware that network options such as websocket origins and
-SSL options are incompatible with Unix socket. It would be up to the proxy
+SSL options are incompatible with Unix sockets. It would be up to the proxy
 to enforce these restrictions.
 
 If there are multiple users who share the host, you can restrict the file
-permissions on the socket to restrict the access to the proxied server.
+permissions on the socket to restrict access to the proxied server.
 
 Reverse proxying with Nginx and SSL
 -----------------------------------
 
-To deploy a Bokeh server behind an SSL-terminated Nginx proxy, you'll need a
-few additional customizations. In particular, you'll have to configure the
+To deploy a Bokeh server behind an SSL-terminated Nginx proxy, you need a
+few additional customizations. In particular, you have to configure the
 Bokeh server with the ``--use-xheaders`` flag.
 
 .. code-block:: sh
@@ -293,7 +293,7 @@ The ``--use-xheaders`` flag causes Bokeh to override the remote IP and
 URI scheme/protocol for all requests with ``X-Real-Ip``, ``X-Forwarded-For``,
 ``X-Scheme``, and ``X-Forwarded-Proto`` headers when they are available.
 
-You'll also have to customize Nginx. In particular, you have to configure Nginx
+You also need to customize Nginx. In particular, you have to configure Nginx
 to send ``X-Forwarded-Proto`` headers and use SSL termination. Optionally, you
 may want to redirect all HTTP traffic to HTTPS.
 
