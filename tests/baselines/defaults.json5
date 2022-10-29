@@ -3778,6 +3778,10 @@
     closable: true,
     draggable: true,
   },
+  Examiner: {
+    __extends__: "UIElement",
+    target: null,
+  },
   Icon: {
     __extends__: "Model",
     size: "1em",
@@ -3803,10 +3807,6 @@
       type: "symbol",
       name: "unset",
     },
-  },
-  Examiner: {
-    __extends__: "UIElement",
-    target: null,
   },
   MenuItem: {
     __extends__: "UIElement",
