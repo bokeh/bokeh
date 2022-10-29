@@ -1,3 +1,15 @@
+'''
+
+Bokeh server authentication hooks are building blocks that can be used by
+experienced users to implement any authentication flow they require. This
+example is a "toy" example that is only intended to demonstrate how those
+building blocks fit together. It should not be used as-is for "production"
+use. Users looking for pre-built auth flows that work out of the box should
+consider a higher level tool, such as Panel:
+
+    https://panel.holoviz.org/user_guide/Authentication.html
+
+'''
 import tornado
 from tornado.web import RequestHandler
 
@@ -20,6 +32,11 @@ class LoginHandler(RequestHandler):
         self.render("login.html", errormessage=errormessage)
 
     def check_permission(self, username, password):
+        # !!!
+        # !!! This code below is a toy demonstration of the API, and not
+        # !!! intended for "real" use. A real app should use these APIs
+        # !!! to connect Oauth or some other established auth workflow.
+        # !!!
         if username == "bokeh" and password == "bokeh":
             return True
         return False

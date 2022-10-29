@@ -13,6 +13,16 @@ at your command prompt. Then navigate to the URL
 
 in your browser.
 
+.. note::
+    Bokeh server authentication hooks are building blocks that can be used by
+    experienced users to implement any authentication flow they require. This
+    example is a "toy" example that is only intended to demonstrate how those
+    building blocks fit together. It should not be used as-is for "production"
+    use. Users looking for pre-built auth flows that work out of the box
+    should consider a higher level tool, such as Panel:
+
+    https://panel.holoviz.org/user_guide/Authentication.html
+
 '''
 import numpy as np
 
