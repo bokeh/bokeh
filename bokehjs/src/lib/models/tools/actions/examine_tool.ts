@@ -5,8 +5,8 @@ import {Dialog, DialogView} from "../../ui/dialog"
 import {Inspector} from "../../ui/inspector"
 import {build_view, IterViews} from "core/build_views"
 
-export class InspectorToolView extends ActionToolView {
-  override model: InspectorTool
+export class ExamineToolView extends ActionToolView {
+  override model: ExamineTool
 
   protected _dialog: DialogView
 
@@ -31,27 +31,27 @@ export class InspectorToolView extends ActionToolView {
   }
 }
 
-export namespace InspectorTool {
+export namespace ExamineTool {
   export type Attrs = p.AttrsOf<Props>
   export type Props = ActionTool.Props
 }
 
-export interface InspectorTool extends InspectorTool.Attrs {}
+export interface ExamineTool extends ExamineTool.Attrs {}
 
-export class InspectorTool extends ActionTool {
-  override properties: InspectorTool.Props
-  override __view_type__: InspectorToolView
+export class ExamineTool extends ActionTool {
+  override properties: ExamineTool.Props
+  override __view_type__: ExamineToolView
 
-  constructor(attrs?: Partial<InspectorTool.Attrs>) {
+  constructor(attrs?: Partial<ExamineTool.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = InspectorToolView
+    this.prototype.default_view = ExamineToolView
 
-    this.register_alias("inspector", () => new InspectorTool())
+    this.register_alias("examine", () => new ExamineTool())
   }
 
-  override tool_name = "Inspector"
+  override tool_name = "Examine"
   override tool_icon = icons.tool_icon_settings // TODO: better icon
 }
