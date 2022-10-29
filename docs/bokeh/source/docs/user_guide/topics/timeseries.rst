@@ -27,8 +27,8 @@ Range tool
 ----------
 
 It is often desirable to be able to zoom in on one region of a timeseries
-while still seeing a view of the full series for contextx. The ``RangeTool``
-can be used to interactively define a region in one plat that resuts in a
+while still seeing a view of the full series for context. The ``RangeTool``
+can be used to interactively define a region in one plot that results in a
 zoomed view on another plot. This is demonstrated below:
 
 .. bokeh-plot:: __REPO__/examples/interaction/tools/range_tool.py
