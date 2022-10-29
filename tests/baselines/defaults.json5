@@ -3804,7 +3804,7 @@
       name: "unset",
     },
   },
-  Inspector: {
+  Examiner: {
     __extends__: "UIElement",
     target: null,
   },

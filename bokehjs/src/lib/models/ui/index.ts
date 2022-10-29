@@ -1,7 +1,7 @@
 export * from "./icons"
 
 export {Dialog} from "./dialog"
-export {Inspector} from "./inspector"
+export {Examiner} from "./examiner"
 export {Pane} from "./pane"
 export {Tooltip} from "./tooltip"
 export {UIElement} from "./ui_element"

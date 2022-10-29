@@ -3,6 +3,6 @@
 inspector
 ---------
 
-.. automodule:: bokeh.models.ui.inspector
+.. automodule:: bokeh.models.ui.examiner
    :members:
    :undoc-members:

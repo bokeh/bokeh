@@ -16,8 +16,8 @@ from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
                           ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
-                          DateSlider, Dialog, Div, Dropdown, GroupBox, HelpButton,
-                          Inspector, IntEditor, Menu, MultiChoice, MultiSelect,
+                          DateSlider, Dialog, Div, Dropdown, Examiner, GroupBox,
+                          HelpButton, IntEditor, Menu, MultiChoice, MultiSelect,
                           NumberEditor, NumberFormatter, Paragraph, PasswordInput,
                           PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
                           Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
@@ -30,9 +30,9 @@ from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
 
-dialog = Dialog(content=Inspector(), visible=False)
+dialog = Dialog(content=Examiner(), visible=False)
 
-click_button = Button(icon=TablerIcon("settings", size="1.2em"), label="Open inspector", button_type="success")
+click_button = Button(icon=TablerIcon("settings", size="1.2em"), label="Open Examiner", button_type="success")
 click_button.js_on_event("button_click", SetValue(dialog, "visible", True))
 
 disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)

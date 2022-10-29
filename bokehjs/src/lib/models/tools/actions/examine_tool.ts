@@ -2,7 +2,7 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
 import * as icons from "styles/icons.css"
 import {Dialog, DialogView} from "../../ui/dialog"
-import {Inspector} from "../../ui/inspector"
+import {Examiner} from "../../ui/examiner"
 import {build_view, IterViews} from "core/build_views"
 
 export class ExamineToolView extends ActionToolView {
@@ -19,7 +19,7 @@ export class ExamineToolView extends ActionToolView {
     await super.lazy_initialize()
 
     const dialog = new Dialog({
-      content: new Inspector({target: this.parent.model}),
+      content: new Examiner({target: this.parent.model}),
       closable: true,
       visible: false,
     })
