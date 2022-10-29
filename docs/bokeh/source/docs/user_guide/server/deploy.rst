@@ -237,20 +237,20 @@ As before, run the Bokeh server with the following command:
 
     bokeh serve myapp.py --port 5100
 
-Restricting access to proxied server using unix socket
+Restricting access to proxied server using Unix socket
 ------------------------------------------------------
 
-In some cases, you might want to restrict the access to the proxied bokeh
-server. You can bind the bokeh server to a unix socket and use nginx or
-apache to proxy to a unix domain socket.
+In some cases, you might want to restrict the access to the proxied Bokeh
+server. You can bind the Bokeh server to a Unix socket and use Nginx or
+Apache to proxy to a Unix domain socket.
 
-Note that binding to a unix socket is not supported on windows.
+Note that binding to a Unix socket is not supported on Windows.
 
 .. code-block:: sh
 
     bokeh serve --unix-socket /path/to/socket.sock
 
-A sample nginx config would look like:
+A Nginx config could look like this example:
 
 .. code-block:: nginx
 
@@ -271,8 +271,8 @@ A sample nginx config would look like:
 
     }
 
-It should be noted that the network options such as websocket origins and
-ssl options are incompatible with unix socket. It would be upto the proxy
+Please be aware that network options such as websocket origins and
+SSL options are incompatible with Unix socket. It would be up to the proxy
 to enforce these restrictions.
 
 If there are multiple users who share the host, you can restrict the file
