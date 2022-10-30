@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox, bokeh.models.widgets.groups, bokeh.models.widgets.inputs
-    :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
+    :refs: :ref:`userguide_models` > :ref:`userguide_models_widgets`
     :keywords: form, widgets, form, inputs
 
 '''
