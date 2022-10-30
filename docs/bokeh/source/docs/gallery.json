@@ -393,6 +393,16 @@
       "alt": "Thumbnail link to the examples/interaction/linking/data_table_plot.py example shows a column of a scatter plot and data table that share a data source and have linked selections."
     }
   ],
+  "interaction/legends": [
+    {
+      "name": "legend_hide.py",
+      "alt": "Thumbnail link to the examples/interaction/legends/legend_hide.py example shows an interactive legend that hides glyphs when legend entries are clicked."
+    },
+    {
+      "name": "legend_mute.py",
+      "alt": "Thumbnail link to the examples/interaction/legends/legend_mute.py example shows an interactive legend that mutes glyphs when legend entries are clicked."
+    }
+  ],
   "interaction/js_callbacks": [
     {
       "name": "slider.py",

@@ -60,10 +60,10 @@ code and interact with a live plot.
 
             interaction/tools
             interaction/linking
+            interaction/legends
             interaction/js_callbacks
             interaction/widgets
 
-        .. interaction/legends
         .. interaction/python_callbacks
         .. interaction/tooltips
 
