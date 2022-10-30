@@ -22,7 +22,8 @@ Gestures
 
 :ref:`ug_interaction_tools_actions`
     These are immediate or modal operations that are only activated when their
-    button in the toolbar is pressed, such as the ``ResetTool``.
+    button in the toolbar is pressed, such as the ``ResetTool`` or
+    ``ExamineTool``.
 
 :ref:`ug_interaction_tools_inspectors`
     These are passive tools that report information or annotate plots in some
@@ -411,6 +412,18 @@ Actions
 
 Actions are operations that are activated only when their button in the toolbar
 is tapped or clicked. They are typically modal or immediate-acting.
+
+ExamineTool
+~~~~~~~~~~~
+
+* name: ``'examine'``
+
+The examine tool displays a modal dialog that affords a view of all the current
+property values for every object that is part of the plot.
+
+.. note::
+    In the future, the ``ExamineTool`` will be activated via a context menu and
+    be available for all objects, not only plots.
 
 UndoTool
 ~~~~~~~~

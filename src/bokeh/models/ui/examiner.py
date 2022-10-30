@@ -30,7 +30,7 @@ from .ui_element import UIElement
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Inspector",
+    "Examiner",
 )
 
 #-----------------------------------------------------------------------------
@@ -41,8 +41,8 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class Inspector(UIElement):
-    """ A diagnostic and inspection tool for documents, models, properties, etc. """
+class Examiner(UIElement):
+    """ A diagnostic tool for examining documents, models, properties, etc. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:

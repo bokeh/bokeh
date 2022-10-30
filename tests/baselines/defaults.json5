@@ -3778,6 +3778,10 @@
     closable: true,
     draggable: true,
   },
+  Examiner: {
+    __extends__: "UIElement",
+    target: null,
+  },
   Icon: {
     __extends__: "Model",
     size: "1em",
@@ -3803,10 +3807,6 @@
       type: "symbol",
       name: "unset",
     },
-  },
-  Inspector: {
-    __extends__: "UIElement",
-    target: null,
   },
   MenuItem: {
     __extends__: "UIElement",
@@ -5174,7 +5174,7 @@
     description: "Click the question mark to learn more about Bokeh plot tools.",
     redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html",
   },
-  InspectorTool: {
+  ExamineTool: {
     __extends__: "ActionTool",
   },
   FullscreenTool: {

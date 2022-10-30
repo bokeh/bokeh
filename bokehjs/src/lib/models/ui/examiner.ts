@@ -13,7 +13,7 @@ import {interleave} from "core/util/iterator"
 import {receivers_for_sender} from "core/signaling"
 import {diagnostics} from "core/diagnostics"
 
-import inspector_css from "styles/inspector.css"
+import examiner_css from "styles/examiner.css"
 
 export class HTMLPrinter {
   protected readonly visited = new WeakSet()
@@ -138,11 +138,11 @@ export class HTMLPrinter {
   }
 }
 
-export class InspectorView extends UIElementView {
-  override model: Inspector
+export class ExaminerView extends UIElementView {
+  override model: Examiner
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), inspector_css]
+    return [...super.styles(), examiner_css]
   }
 
   private prev_listener: ((obj: unknown) => void) | null = null
@@ -274,7 +274,7 @@ export class InspectorView extends UIElementView {
     const watches_panel_el = div({class: "watches-panel"}, watches_tb_el, watches_list_el)
 
     const column_el = div({class: "col", style: {width: "100%"}}, watches_panel_el, props_panel_el)
-    const inspector_el = div({class: "inspector"}, models_panel_el, column_el)
+    const examiner_el = div({class: "examiner"}, models_panel_el, column_el)
 
     function click(obj: unknown) {
       if (obj instanceof Model)
@@ -404,7 +404,7 @@ export class InspectorView extends UIElementView {
       }
     }
 
-    this.shadow_el.appendChild(inspector_el)
+    this.shadow_el.appendChild(examiner_el)
 
     const {target} = this.model
     if (target != null) {
@@ -431,27 +431,27 @@ export class InspectorView extends UIElementView {
   }
 }
 
-export namespace Inspector {
+export namespace Examiner {
   export type Attrs = p.AttrsOf<Props>
   export type Props = UIElement.Props & {
     target: p.Property<HasProps | null>
   }
 }
 
-export interface Inspector extends Inspector.Attrs {}
+export interface Examiner extends Examiner.Attrs {}
 
-export class Inspector extends UIElement {
-  override properties: Inspector.Props
-  override __view_type__: InspectorView
+export class Examiner extends UIElement {
+  override properties: Examiner.Props
+  override __view_type__: ExaminerView
 
-  constructor(attrs?: Partial<Inspector.Attrs>) {
+  constructor(attrs?: Partial<Examiner.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = InspectorView
+    this.prototype.default_view = ExaminerView
 
-    this.define<Inspector.Props>(({Ref, Nullable}) => ({
+    this.define<Examiner.Props>(({Ref, Nullable}) => ({
       target: [ Nullable(Ref(HasProps)), null ],
     }))
   }
