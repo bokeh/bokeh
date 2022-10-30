@@ -62,7 +62,7 @@ TOOLTIPS=[
     ("$", "@revenue")
 ]
 
-p = figure(height=600, width=700, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="scale_both")
+p = figure(height=600, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="stretch_width")
 p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 
@@ -78,11 +78,11 @@ def select_movies():
         (movies.Oscars >= oscars.value)
     ]
     if (genre_val != "All"):
-        selected = selected[selected.Genre.str.contains(genre_val) is True]
+        selected = selected[selected.Genre.str.contains(genre_val)]
     if (director_val != ""):
-        selected = selected[selected.Director.str.contains(director_val) is True]
+        selected = selected[selected.Director.str.contains(director_val)]
     if (cast_val != ""):
-        selected = selected[selected.Cast.str.contains(cast_val) is True]
+        selected = selected[selected.Cast.str.contains(cast_val)]
     return selected
 
 
@@ -93,7 +93,7 @@ def update():
 
     p.xaxis.axis_label = x_axis.value
     p.yaxis.axis_label = y_axis.value
-    p.title.text = "%d movies selected" % len(df)
+    p.title.text = f"{len(df)} movies selected"
     source.data = dict(
         x=df[x_name],
         y=df[y_name],
@@ -108,11 +108,11 @@ controls = [reviews, boxoffice, genre, min_year, max_year, oscars, director, cas
 for control in controls:
     control.on_change('value', lambda attr, old, new: update())
 
-inputs = column(*controls, width=320)
+inputs = column(*controls, width=320, height=800)
 
-l = column(desc, row(inputs, p), sizing_mode="scale_both")
+layout = column(desc, row(inputs, p, sizing_mode="inherit"), sizing_mode="stretch_width", height=800)
 
 update()  # initial load of the data
 
-curdoc().add_root(l)
+curdoc().add_root(layout)
 curdoc().title = "Movies"

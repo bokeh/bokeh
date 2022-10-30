@@ -27,7 +27,7 @@ video_capture.set(cv2.CAP_PROP_FRAME_WIDTH, CAMERA_WIDTH)
 video_capture.set(cv2.CAP_PROP_FRAME_HEIGHT, CAMERA_HEIGHT)
 
 # train our cascade classifier
-face_cascade = cv2.CascadeClassifier(frontalface_default_path)
+face_cascade = cv2.CascadeClassifier(str(frontalface_default_path))
 
 img_plot = figure(width=CAMERA_WIDTH//2, height=CAMERA_HEIGHT//2,
                   x_range=(0, CAMERA_WIDTH), y_range=(0, CAMERA_HEIGHT),
