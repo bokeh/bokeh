@@ -31,7 +31,7 @@ from typing import (
 
 # Bokeh imports
 from ..core import properties as p
-from ..core.has_props import HasProps, abstract
+from ..core.has_props import HasProps, _default_resolver, abstract
 from ..core.property._sphinx import type_link
 from ..core.property.validation import without_property_validation
 from ..core.serialization import ObjectRefRep, Ref, Serializer
@@ -585,12 +585,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     @classmethod
     def _clear_extensions(cls) -> None:
-        cls.model_class_reverse_map = {
-            k: v for k, v in cls.model_class_reverse_map.items()
-            if getattr(v, "__implementation__", None) is None
-                and getattr(v, "__javascript__", None) is None
-                and getattr(v, "__css__", None) is None
-        }
+        _default_resolver.clear_extensions()
 
     def _detach_document(self) -> None:
         ''' Detach a model from a Bokeh |Document|.
