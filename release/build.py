@@ -176,7 +176,7 @@ def update_changelog(config: Config, system: System) -> ActionReturn:
         system.pushd("scripts")
         system.run(f"python milestone.py -a {config.milestone_version}")
         system.popd()
-        config.add_modified("CHANGELOG")
+        config.add_modified("docs/CHANGELOG")
         return PASSED("Updated CHANGELOG with new closed issues")
     except RuntimeError as e:
         return FAILED("CHANGELOG update failed", details=e.args)
