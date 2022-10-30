@@ -1,8 +1,7 @@
 '''This example shows a sample checkout form created using bokeh widgets.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox,
-    bokeh.models.widgets.groups, bokeh.models.widgets.inputs
+    :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox, bokeh.models.widgets.groups, bokeh.models.widgets.inputs
     :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: form, widgets, form, inputs
 
