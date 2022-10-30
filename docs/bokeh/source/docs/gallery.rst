@@ -35,7 +35,7 @@ code and interact with a live plot.
 
         ..  styling/visuals
 
-    .. tab-item:: Special topics
+    .. tab-item:: Topic guides
 
         .. bokeh-gallery::
 
@@ -60,10 +60,10 @@ code and interact with a live plot.
 
             interaction/tools
             interaction/linking
+            interaction/legends
             interaction/js_callbacks
             interaction/widgets
 
-        .. interaction/legends
         .. interaction/python_callbacks
         .. interaction/tooltips
 
