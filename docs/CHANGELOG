@@ -1,3 +1,415 @@
+2022-10-30      3.0:
+--------------------
+  * bugfixes:
+    - #5046 Webgl problem in stream app with multiple glyphs
+    - #6669 [component: bokehjs] BoxAnnotation does not appear to handle formal NumberSpec
+    - #8168 [component: bokehjs] Strange behavior with BoxSelectTool when click+dragging on toolbar
+    - #8332 [component: bokehjs] Autohide toolbar quirks
+    - #8346 [component: bokehjs] update datasource cause error with webgl backend 
+    - #8469 Modifying a child element in a tab causes the whole tab to rerender
+    - #8531 [component: bokehjs] Save tool in gridplot initiates multiple downloads
+    - #8684 Allow at least partial alignment of fixed sized frames
+    - #9113 [component: bokehjs] Empty group widgets don't size properly once populated
+    - #9133 [BUG] Tabs ignore explicitly set dimensions
+    - #9208 [component: bokehjs] [BUG] sizing_mode='stretch_width' makes plot too wide if scrollbar is showing
+    - #9320 [BUG] Bokeh rendering performance
+    - #9448 [component: bokehjs] [BUG] Google Fonts not loading on Glyph on standalone HTML until interacting with Glyph
+    - #9744 [component: bokehjs] [BUG] bokeh server layout overlap on toggle visibility
+    - #9763 [BUG] `gridplot` `merge_tools` removes distinct tools it thinks are repeated, e.g., `xpan` and `ypan`
+    - #9764 [component: bokehjs] [BUG] MultiChoice placeholder text not displayed
+    - #9992 [component: bokehjs] [BUG] Select widget hiding tabs, when selecting a plot
+    - #10125 [component: bokehjs] [BUG] widgets overlap each other
+    - #10183 [component: server] [BUG] Processing of HTTP request arguments (server_document) and num-procs > 1
+    - #10355 [component: bokehjs] [BUG] Toolbar cropped when using tabbed auto-width
+    - #10377 [component: docs] Documentation examples produce inconsistently named output files
+    - #10621 [component: bokehjs] [BUG] [MINOR]  2.3.0dev3, plot's inner_width property always sent on redraw even if unchanged
+    - #10804 [BUG] export does not respect current theme
+    - #11033 [component: bokehjs] [BUG] add_layout(LinearAxis) in click handler crashes client
+    - #11116 [component: bokehjs] [BUG]  ColorBars do not update when their properties are updated
+    - #11205 [component: bokehjs] [BUG] Hover tooltip breaks with full-circle wedge
+    - #11339 [BUG] Toggling layout's visibility results with overlapping widgets
+    - #11462 [component: bokehjs] [BUG] Existing ColorBar tick-digits don't react to theme changes
+    - #11475 [component: bokehjs] [BUG] SVG export breaks for Wedges 
+    - #11623 [BUG] Placement of toolbar location is broken for gridplots
+    - #11643 Refs are not resolved in data models' default values
+    - #11673 [component: bokehjs] [BUG] JavaScript error when setting LabelSet text to None
+    - #11694 Custom extension breaks with id as key in a dict param
+    - #11750 [component: bokehjs] [BUG] Hover tool takes long time to render (-> #11629)
+    - #11770 [component: bokehjs] [BUG] Linking an axis range can lead to other axis range autoscaling improperly
+    - #11776 [component: bokehjs] Dynamically changing the color palette of a color mapper
+    - #11803 [component: bokehjs] [BUG] Message containing ModelChangeEvents for all properties sent back to server on initialization
+    - #11822 [component: tests] Tests using headless chrome are completely broken
+    - #11838 [component: bokehjs] [BUG] incorrect scalling for the zoom-out tool
+    - #11839 [BUG] PanTool can't be deactivated in grid plot
+    - #11877 [component: bokehjs] ImageURL blinks when the datasource updated
+    - #11930 [BUG] major_label_overrides are not applied if the overrides are float but the original labels are int
+    - #11946 [component: bokehjs] Re-rendering a layout causes menus to be removed from DOM
+    - #11963 [BUG] Option groups of the Select widget are sorted
+    - #11981 [component: build] BokehJS build failing in release CI
+    - #11985 [component: docs] Docs Search results are messed up
+    - #11999 [component: bokehjs] Rendering happens on every mouse move with inspections enabled
+    - #12001 [component: bokehjs] [BUG] Failure of push_notebook() to update colormapper of a colorbar
+    - #12033 [component: bokehjs] [BUG] Incorrect handling of step by DateRangeSlider
+    - #12047 [BUG] Jumpy scroll on mobile
+    - #12080 [BUG] examples/plotting/file/image.py no longer works
+    - #12101 [component: docs] Misplaces BokehJS Sphinx embeds
+    - #12115 [component: bokehjs] [FEATURE] Expose itemSelectText option on the MultiChoice widget
+    - #12123 [BUG] Allow to extend vertically a TextAreaInput
+    - #12127 [component: bokehjs] [BUG] LabelSet doesn't check type for text
+    - #12133 [component: docs] Docs are missing GA code
+    - #12142 [component: bokehjs] [BUG] Mathjax 3.2.1 breaks Bokeh
+    - #12145 [component: examples] [BUG] Examples/Apps/Stocks has broken URL 
+    - #12150 [component: docs] Links for download badges in readme don't go anywhere
+    - #12155 [component: bokehjs] [BUG] Inlined RadioGroup widget doesn't extend enough horizontally
+    - #12162 [component: bokehjs] [BUG] step(mode="center", ...) renders incorrectly on canvas if coordinates contain NaN
+    - #12176 [component: examples] [BUG] examples/app/gaminder: year 2013 (the latest year in the data set) is not presented in the Gapminder visualization
+    - #12204 [component: bokehjs] [BUG] Setting datatable selectable to False leads to an error when trying to sort
+    - #12205 [component: bokehjs] [BUG] Div with stretch_width doesn't stretch
+    - #12207 [component: bokehjs] [BUG] image_rgba selection
+    - #12232 [BUG] Bokeh 3.0.0 cannot serialize Pandas Dataframe
+    - #12238 Many hidden type errors due to wrong mypy config
+    - #12250 [BUG] ContourColorBar does not support theme
+    - #12280 [component: bokehjs] [BUG] Combine alpha values by multiplying together
+    - #12313 [BUG] range no longer works with ColumnDataSource
+    - #12357 [component: bokehjs] [BUG] webgl breaks shared brushing
+    - #12361 [component: bokehjs] [BUG] Canvas backend doesn't always render marker vector line_width correctly
+    - #12378 [component: docs] [BUG] Links in "First steps" documentation all broken
+    - #12386 [component: docs] python/js reported version mismatch
+    - #12404 [component: examples] Jitter example is broken
+    - #12405 [component: bokehjs] gridplot examples layouts are broken
+    - #12412 [component: bokehjs] [BUG] Canvas step glyph sometimes renders with incorrect alpha
+    - #12416 [component: docs] Custom extension examples not rendering
+    - #12418 [component: bokehjs] Lasso overlay is broken
+    - #12447 [component: bokehjs] Toolbar interferes with tooltip
+    - #12448 [component: bokehjs] `GridPlot` needs better defaults for rows/cols sizing
+    - #12453 [component: bokehjs] Sizing mode example is broken 
+    - #12456 [component: bokehjs] DOM drag/selection issue
+    - #12462 [component: docs] [BUG] Sphinx warnings while building documentation
+    - #12465 [component: bokehjs] [BUG] DataTable cell content gets overprinted if DataTable is used within a TabPanel
+    - #12479 [component: bokehjs] [BUG] Figure p in column(gridplot([[p]])) not rendered when adding another figure like this: column(p, gridplot([[p]]))
+    - #12494 [component: examples] Ion slider extension example broken
+    - #12506 ContourRenderer disregards line_color=None
+    - #11717 [component: bokehjs] Fix bokehjs normally distributed random numbers
+    - #11821 Update branches in CI workflow configurations
+    - #11928 [component: bokehjs] Fix gmaps' support and remove special handling
+    - #11932 [component: build] Update versions of all packages in `package-lock.json`
+    - #11959 Discover unstable defaults in `HasProps.__init__()`
+    - #11986 [component: build] Fix `package-lock.json` and `update_bokehjs_versions()`
+    - #12057 [component: bokehjs] Robustify initialization of ndarrays
+    - #12067 [component: bokehjs] Don't excessively check if fonts were loaded
+    - #12174 [component: bokehjs] Fix canvas rendering of step glyph containing NaN
+    - #12196 [component: bokehjs] Remove id attribute of bk-root after plotting
+    - #12248 [component: bokehjs] Hide lower colors and labels when using EqHist rescale_discrete_levels
+    - #12265 [component: docs] Pin sphinx to version >=5,<5.1
+    - #12285 Split up too long lines after flake8 upgrade
+    - #12289 [component: docs] grammatically updated the tech docs
+    - #12330 [component: tests] Improve compatibility with Python 3.10.6 in tests
+    - #12344 [component: tests] Fix flake8 bokeh -> src/bokeh after PR #12338
+    - #12362 [component: bokehjs] Fix WebGL rendering of marker with size 0
+    - #12520 [component: docs] Restore strict docs build
+
+  * features:
+    - #1666 [component: bokehjs] Flip images when ranges are reversed
+    - #1763 [component: bokehjs] Support anchor property for Image and ImageRGBA
+    - #3799 Linked Crosshair
+    - #3819 Toolbar Improvements: Make tools independent of bar
+    - #4371 [component: bokehjs] Plot.y_range / Plot.x_range initial start/end values not set
+    - #4403 Better defaults for resize event
+    - #4568 [component: bokehjs] Allow active specification on gridplot toolbar
+    - #4698 [component: bokehjs] Feature: Add "dbl-click to reset zoom" on BoxZoomTool 
+    - #4817 layout vertical alignment with buttons
+    - #5135 [component: bokehjs] Pan and Zoom tools should be configurable (limit to x or y axis only) via UI
+    - #5241 x_axis_type not in fuzzy matching for figure args
+    - #6031 Latex axis and title labels
+    - #6372 [component: docs] Add signatures to model objects 
+    - #8360 Add a Figure.contour method
+    - #8364 Autohide toolbar should work with gridplot 
+    - #8727 [component: bokehjs] Tooltip on widgets
+    - #8847 [component: bokehjs] RadioButtonGroup orientation vertical
+    - #9086 [component: server] [FEATURE] add favicon support to Bokeh server
+    - #9498 [FEATURE] Bokeh Sizing mode that inherits from parent
+    - #9518 [component: bokehjs] Allow binary data, streaming and patching outside data sources 
+    - #9552 [component: bokehjs] [FEATURE] Placeholder text for FileInput
+    - #9920 [component: bokehjs] Set themes using bokehjs
+    - #9935 [component: bokehjs] Add context formatter option to DatetimeTickFormatter
+    - #10533 [component: bokehjs] [FEATURE] Add x-box-select & y-box-select specific icons.
+    - #10914 [component: bokehjs] [FEATURE] Add custom_tooltip and custom_icon to all tools (not implemented in SelectTools)
+    - #10990 Add style attribute to all widgets
+    - #11500 [FEATURE] Support xyzservices in basemap tiles
+    - #11596 Allow data models to inherit from non data models
+    - #11638 [component: bokehjs] [FEATURE]  MultiChoice widget sorts options by default
+    - #11704 [FEATURE] Include glyph sizing in plot range calculations
+    - #11806 [component: bokehjs] [FEATURE] Add function to get adjacent nodes by selecting node.
+    - #11881 [FEATURE] Expose a file name parameter in SaveTool
+    - #11908 [FEATURE] remove_tools() function for plots
+    - #12066 [component: docs] [FEATURE] Link documented sampledata to standalone example
+    - #12089 [component: server] [FEATURE] Make bokeh server listen to unix socket
+    - #12171 [component: bokehjs] [FEATURE] Batch rendering of many glyphs on the same plot
+    - #12179 [FEATURE] Add support for text outlines with annotations
+    - #12181 [component: bokehjs] [FEATURE] Allow `embed_item` to optionally take an element instead of an ID
+    - #12272 [FEATURE] Allow AutocompleteInput min_characters=0
+    - #12273 [component: bokehjs] [FEATURE] Box_Zoom_Tool that allows zooming in only width, height, or both dimensions in one tool
+    - #12438 [FEATURE] Add a parameter to limit the number of completion strings displayed by `AutocompleteInput`
+    - #11122 Add support for basic glyph decorations
+    - #11639 [component: bokehjs] Various bokehjs API improvements and new examples
+    - #11697 [component: bokehjs] Expose plotting subcoordinates API in bokehjs
+    - #11842 [component: bokehjs] Add block glyph
+    - #11871 [component: bokehjs] Implement a bokehjs development/diagnostics tool
+    - #11926 Allow to place toolbars inside the frame
+    - #11933 Add support for a checkbox-like Switch widget
+    - #12020 Add contouring
+    - #12030 Add support for `np.array(..., dtype="bool")`
+    - #12054 Generalize filtering on CDS views
+    - #12213 [component: bokehjs] Add ColorBar.display_low and display_high
+    - #12244 [component: bokehjs] Add support for cross bounds to grid lines
+    - #12263 varying_alpha_palette helper function
+    - #12268 [component: tests] Add support for async `expect().to.throw()`
+    - #12270 [component: bokehjs] Allow to stop throttled functions
+    - #12271 Add parameterized `NonNegative` and `Positive` properties
+    - #12276 Introduce `canvas` coordinate units to remove `for_hover`, etc.
+    - #12329 [component: server] Provide method to modify Server before start
+    - #12467 [component: docs] Tabbed gallery
+    - #12473 [component: docs] Add server examples to main gallery
+
+  * tasks:
+    - #4388 [component: tests] Missing layout tests
+    - #5653 [component: tests] Add tests to ensure server events do not boomerang client-side
+    - #6339 Use js Map instead of plain objects for properties like ColumnDataSource.data
+    - #6574 [component: examples] Add more examples to bokehjs
+    - #6591 [component: docs] Make it clear which annotations can and can not be preserved with save tool
+    - #8188 [component: examples] Example app "dashboard" unsuccessful on wide screen
+    - #8458 Simplify the JSON representation
+    - #9731 Drop support for legacy web browsers
+    - #9757 [component: bokehjs] Investigate using shadow DOM to gain proper isolation
+    - #9907 Improve Auth Request Handler hierarchy
+    - #10007 [BUG] Importing bokeh is VERY slow
+    - #10090 Deprecate ragged array case in ImageBase.image
+    - #10424 [component: bokehjs] [BUG] Toggle on_click is fired when "active" is changed from Python side
+    - #10463 [component: docs] [BUG] bokeh authentication example checks only whether `user` cookie is set
+    - #10746 Make figure a class? 
+    - #10840 [component: tests] Type errors in build should not stop tests from running
+    - #11347 [component: bokehjs] Simplify DatatimeTickFormatter format properties
+    - #11352 [component: docs] Docker container for dev environment
+    - #11355 [component: docs] Add LaTeX rendering to elements
+    - #11356 [component: docs] Examples demonstrating LaTeX capabilities
+    - #11357 [component: docs] Update docs for LaTeX capabilities
+    - #11358 [component: tests] Tests for LaTeX capabilities
+    - #11359 PNG export for LaTeX
+    - #11363 [component: docs] Export LaTeX to SVG
+    - #11507 [component: build] Migrate to repo to "src" layout
+    - #11637 [component: docs] Document requirement of PEP 604 (py 3.10) type annotation syntax
+    - #11640 [component: docs] Document Tool.icon in user guide
+    - #11642 Rename FuncTickFormatter
+    - #11723 [component: docs] Docs still reference FuncTickFormatter
+    - #11752 [component: tests] [BUG] Windows integration tests failing in BokehJS-CI
+    - #11789 [component: docs] Pin Sphinx < 4.3 
+    - #11792 [component: docs] Unpin Sphinx and update min version
+    - #11845 [BUG] color.darken() triggers BokehDeprecationWarning as it uses HSL related methods internally
+    - #11850 [component: docs] Documentation nitpick re: EditTools
+    - #11883 [component: tests] BokehJS-CI test failure in windows-latest
+    - #11968 [component: docs] Update docs for AjaxDataSource
+    - #11996 [FEATURE] Allow passing things other than models into args argument on CustomJSHover
+    - #12018 [component: server] support the proactor eventloop on windows with tornado >=6.1
+    - #12024 [component: docs] [BUG] Clarify docs about necessity of Firefox
+    - #12049 Typo in ValueError in L170 of serialization.py repo
+    - #12087 [BUG] Abspath does not expand users home directory
+    - #12152 [component: docs] Add Apache load balancer configuration to documentation
+    - #12153 [component: bokehjs] Upgrade to TypeScript 4.7
+    - #12168 [component: docs] Update docs for new Tooltip functionalities
+    - #12178 Add Python compat deprecation for `FuncTickFormatter`
+    - #12180 [component: docs] Demonstrate better practice in JS callback docs
+    - #12203 [component: docs] Misc 3.0 docs issues
+    - #12216 New PIL version broke tests
+    - #12237 [component: docs] [BUG] output_file() documentation is not consistent
+    - #12261 Add pandas as hard dependency
+    - #12264 [component: docs] [FEATURE] Adding existing bokeh language bindings to the documentation
+    - #12291 [BUG] DepricationWarning for latest Selenium 4.3.0 and webdriver.Firefox
+    - #12332 Proposed changes for envs / scripts
+    - #12340 [component: docs] Update docs for new src layout
+    - #12402 [component: docs] Double tooltip on hovering over user guide periodic table example
+    - #12415 [component: docs] [BUG] navigation section on gallery page is placed incorrect
+    - #12511 [component: docs] [FEATURE] Outdated renderers helpstring
+    - #11620 Execute 3.0 deprecations
+    - #11621 Drop `render_mode` and split off HTML annotations
+    - #11622 [component: tests] Don't report successful flaky tests
+    - #11624 [component: bokehjs] Drop `@deprecated` functionality of bokehjs
+    - #11636 [component: bokehjs] Correct MathText color, size and vertical alignment
+    - #11659 [component: bokehjs] Fix and improve output from Printer.string()
+    - #11660 [component: docs] Update docs for math text styling
+    - #11665 Drop support for subtype from the protocol
+    - #11669 Create SECURITY.md
+    - #11671 [component: tests] Reorganize bokehjs' test assets and add "sprint" example
+    - #11677 [component: bokehjs] Redesign text rendering in `Text` glyph
+    - #11691 build BokehJS by default
+    - #11692 [component: bokehjs] replace deprecated CLIEngine eslint class and add cache for faster linting
+    - #11699 [component: bokehjs] Split up `api/plotting.ts` into `figure.ts` and `io.ts`
+    - #11700 [component: tests] Add more bokehjs' examples under visual tests
+    - #11706 [component: tests] Add streaming circle test for issue #5046
+    - #11708 [component: tests] Implement MathText on TextAnnotations and organize MathText tests
+    - #11709 [component: docs] Update contributor docs (part 2)
+    - #11733 Add more modules to mypy
+    - #11748 [component: build] Removed a manual file handler pitfall
+    - #11763 [component: bokehjs] Remove invalid `null` and other conditionals
+    - #11771 Include version pattern in workflow input description
+    - #11773 Remove `CDSView.source` and infer the source from `CDSView`'s parent
+    - #11774 [component: examples] 11765 basic plot example metadata
+    - #11775 [component: docs] Add metadata to examples/models/file/daylight.py (#11765)
+    - #11777 [component: bokehjs] Add support for unset properties to bokehjs
+    - #11778 Docker dev image (#11352)
+    - #11780 [component: tests] Update root `View`'s `ready` promise along its descendants
+    - #11787 Bryanv/forward ports to 3.0
+    - #11799 [component: build] add Python 3.10 to CI
+    - #11809 [component: docs] metadata for examples/models/file/calendars.py added
+    - #11812 [component: build] Remove automatic addition of `init_ModelName()`
+    - #11813 [component: bokehjs] Clarify handling and internal types of partial messages
+    - #11815 Add support for math text to slider widgets
+    - #11816 [component: build] Reorganize bokehjs' dependencies using npm workspaces
+    - #11831 2.4.2 forward ports
+    - #11835 [component: build] Update baselines on MacOS
+    - #11837 [component: tests] Update baselines on Windows
+    - #11858 [component: examples] More LaTeX examples
+    - #11859 [component: docs] Update docs for Slider, RangeSlider
+    - #11861 update sliders baselines
+    - #11869 [component: examples] Add final 2 LaTeX examples: Bessel functions and LaTeX labels
+    - #11872 [component: examples] Added docstrings on app\examples
+    - #11874 [component: build] Update bokeh-release-build.yml
+    - #11876 [component: examples] Added metadata to some examples and fixed one #11765
+    - #11878 [component: examples] Port schrodinger example to bokehjs
+    - #11902 [component: examples] Added metadata for examples/plotting/file/color_data_map.py and examples/plotting/file/grid.py
+    - #11905 [component: examples] Add metadata to widgets.py
+    - #11907 Fix type issues after upgrading to mypy 0.920
+    - #11915 Redesign the layout using CSS and canvas layouts
+    - #11919 [component: build] Require nodejs 16.* LTS for dev and testing
+    - #11920 [component: build] Fail bokehjs' CI jobs if repository gets dirty
+    - #11921 [component: tests] Test bokehjs' palettes and reduce their size
+    - #11927 [component: bokehjs] Improve life cycle of `DataRange1d.plots`
+    - #11931 [component: build] Drop official support for Python 3.7
+    - #11939 Make `_may_have_unstable_defaults()` more robust
+    - #11941 Replace `typing_extensions` with `typing` wherever possible
+    - #11943 [component: tests] Don't rely on clicking a toolbar button for testing
+    - #11949 [component: bokehjs] Replace manual text handling in `Legend` with `TextBox`
+    - #11953 [component: tests] Update tests for Firefox 96
+    - #11970 Deprecate CDSView.source more gracefully
+    - #11982 [component: build] Upgrade bokehjs' npm packages
+    - #12009 [component: docs] Add metadata to tile_source.py and fix various typos
+    - #12011 [component: tests] Silence deprecation and other warnings in integration tests
+    - #12027 [component: build] Upgrade TypeScript to version 4.6
+    - #12028 [component: tests] Set up `asyncio_mode` to silence deprecation warnings
+    - #12039 [component: server] Remove `use_buffers` from `PatchDoc` message
+    - #12042 RenderRoot dataclass
+    - #12044 [component: docs] 11765 add metadata to examples
+    - #12056 [component: build] Upgrade bokehjs' dependencies
+    - #12060 [component: docs] Update docs for HexTile
+    - #12063 [component: docs] Clean up sample data attribution
+    - #12064 [component: bokehjs] WebGL support for Block glyph
+    - #12076 [component: bokehjs] Initialize properties in definition order
+    - #12100 Fix Comparing singleton primitives with equality checking
+    - #12102 Minor cleanup issues
+    - #12116 [component: docs] Update WebGL docs
+    - #12128 Adding metadata to examples/models/file/buttons.py #11765
+    - #12147 New vars and cleanup for hover tooltips
+    - #12161 [component: bokehjs] WebGL step glyph
+    - #12173 [component: bokehjs] Minor bokehjs' codebase cleanup
+    - #12188 [component: bokehjs] Toggle opacity not visibility of descriptions
+    - #12200 [component: docs] Update for latest Sphinx and pydata theme
+    - #12206 [component: docs] Minor 3.0 docs updates
+    - #12209 [component: docs] Replace panels and tabs extensions
+    - #12211 [component: docs] Alt-text Sprint PR
+    - #12224 [component: docs] Update docs CSS
+    - #12229 [component: docs] Fix intersphinx doc reference
+    - #12233 Revert field_name rename
+    - #12241 [component: docs] Update wording for output_file()
+    - #12242 [component: docs] Update docs for tooltip PR
+    - #12245 [component: docs] Added definition for LOD (Level-of-Detail)
+    - #12246 Rename `NonNullable` to `Required`
+    - #12247 Update bokehjs' dependencies
+    - #12249 [component: examples] add SRI hash for vis.js
+    - #12252 Normalize built-in types and remove `Unknown`
+    - #12257 [component: tests] Upgrade bokehjs in examples and tests
+    - #12260 [component: docs] Add random filename description
+    - #12269 [component: bokehjs] Move normal random generator from `np` to `Random`
+    - #12274 Drop `serialized=False/readonly=True` for `NotSerialized/Readonly`
+    - #12284 [component: docs] Contouring docs
+    - #12286 [component: docs] Save CI docs as artifact
+    - #12290 Update codeql-analysis.yml
+    - #12293 Add post install status to bokeh-release-build
+    - #12294 [component: tests] Cleanup / condense project configs
+    - #12298 [component: docs] Grammatical fixes and improvisations
+    - #12302 [component: bokehjs] BokehJS maths improvements
+    - #12304 [component: build] Add `py.typed` marker file for mypy
+    - #12305 [component: docs] Remove double colons from field lists
+    - #12306 [component: tests] Streamline / modernize build system
+    - #12307 Preserve original line endings in code quality tests
+    - #12311 Move test utils out of tree
+    - #12317 [component: build] More CI work (part 1)
+    - #12318 [component: docs] Update dev setup docs
+    - #12319 [component: build] More CI work (part 2)
+    - #12320 [component: build] More CI work (part 3)
+    - #12321 [component: build] More CI work (part 4)
+    - #12324 [component: build] More CI work (part 5)
+    - #12326 [component: docs] clean up MANIFEST.in
+    - #12336 [component: tests] Test out codecov action
+    - #12337 Add package validation helper
+    - #12339 [component: docs] consolidate docs directory
+    - #12341 Move typings under src
+    - #12342 [component: build] Use proper setuptools command extensions
+    - #12347 [component: build] Add package verify to release automation
+    - #12349 [component: build] Align CI/release build more closely
+    - #12352 Codecov config experiments
+    - #12353 Hide top level import
+    - #12358 Flatten examples dirs
+    - #12364 [component: docs] Remove extraneous paragraph
+    - #12368 Consolidate gitignores
+    - #12371 [component: build] Upgrade bokehjs' dependencies
+    - #12372 Consider undeprecating *on_click helpers
+    - #12373 [component: tests] make precommit config more fine-grained
+    - #12381 Use wheel for testing
+    - #12383 [component: bokehjs] Clean up naming, deprecations, legacy APIs, etc.
+    - #12387 Remove `bokeh.server.django`
+    - #12388 [component: tests] Include `CartesianFrame` in baseline files
+    - #12389 Update README.md
+    - #12394 [component: bokehjs] Use more robust CSS length parsing in MathText
+    - #12395 [component: docs] Add metadata to trefoil example
+    - #12403 [component: docs] Pin pydata sphinx theme version
+    - #12407 [component: tests] Robustify workflow around testing defaults
+    - #12419 [component: docs] Rearrange examples and users guide
+    - #12424 Upgrade to mypy 0.981
+    - #12431 [component: docs] Grammar changes to the docs
+    - #12433 [component: docs] Restructure User's Guide (Part 1)
+    - #12434 Split up `bokeh.models.renderers` and move `contour_renderer`
+    - #12435 [component: tests] Include only own and overriden defaults in defaults.yaml
+    - #12436 Change type of `Model.subscribed_events` to `Set(String)`
+    - #12437 [component: docs] Update 3.0.0 change log
+    - #12440 [component: docs] Restructure User Guide (Part 2)
+    - #12441 Add 'p' prefix to simple IDs in Python
+    - #12446 [component: docs] Update gallery thumbnails
+    - #12454 [component: docs] More gallery / user guide improvements
+    - #12458 [component: docs] Improve the gallery grid
+    - #12463 Update theme.yaml
+    - #12472 [component: docs] Make Styling a top-level section
+    - #12474 [component: docs] add missing ports and notes
+    - #12477 [component: docs] Fix up some sphinx paths
+    - #12478 [component: docs] Add a batch of new gallery items
+    - #12485 [component: docs] Misc docs/examples for 3.0
+    - #12488 fix win sampledata test
+    - #12491 [component: docs] Misc examples cleanup (part 1)
+    - #12492 [component: docs] Update styling docs
+    - #12495 [component: docs] Misc QoL improvements for examples
+    - #12497 [component: docs] Move migration guide to Wiki
+    - #12499 [component: docs] Add two missing words to data.rst
+    - #12500 [component: docs] Add more examples to gallery
+    - #12501 [component: docs] Fix some typos
+    - #12502 [component: docs] More examples updates
+    - #12505 Don't allow `Model(id="some", **properties)`
+    - #12508 [component: tests] Migrate defaults' baseline from yaml to json5
+    - #12513 [component: bokehjs] Resolve deprecations in bokehjs' CI workflow
+    - #12515 Rename `SettingsTool` to `InspectorTool`
+    - #12517 [component: bokehjs] Allow scroll in inspector's model/property panels
+    - #12518 [component: docs] Fix typos
+    - #12519 [component: docs] Move intro paragraph
+    - #12522 [component: bokehjs] Rename `InspectorTool` to `ExamineTool`
+    - #12524 [component: docs] Some final docs updates
+
 2022-05-18    2.4.3:
 --------------------
   * bugfixes:
