@@ -188,7 +188,7 @@ def update_hash_manifest(config: Config, system: System) -> ActionReturn:
         system.cd("scripts")
         system.run(f"python sri.py {config.version}")
         system.cd("..")
-        config.add_modified("bokeh/_sri.json")
+        config.add_modified("src/bokeh/_sri.json")
         return PASSED("Updated SRI hash manifest")
     except RuntimeError as e:
         return FAILED("SRI hash manifest update failed", details=e.args)
