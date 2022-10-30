@@ -37,7 +37,7 @@ class Config:
         self.base_version_tuple: tuple[str, ...] = tuple(groups[1:4])
         self.ext: str | None = groups[4]
         # want just "dev" not ".dev"
-        self.ext_type: str = groups[5].lstrip(".")
+        self.ext_type: str = groups[5].lstrip(".") if groups[5] else None
         self.ext_number: str = groups[6]
 
         self._secrets: dict[str, str] = {}
