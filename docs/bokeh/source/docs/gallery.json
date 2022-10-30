@@ -327,6 +327,10 @@
   ],
   "topics/graph": [
     {
+      "name": "from_networkx.py",
+      "alt": "Thumbnail link to the examples/topics/graph/from_networkx.py example shows a network graph plot of the NetworkX desargues_graph dataset with large circles for vertices."
+    },
+    {
       "name": "node_and_edge_attributes.py",
       "alt": "Thumbnail link to the examples/topics/graph/node_and_edge_attributes.py example shows a network graph plot of the NetworkX karate club dataset with large circles for vertices."
     }
