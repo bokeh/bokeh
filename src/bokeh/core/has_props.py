@@ -130,6 +130,39 @@ def _generators(class_dict: dict[str, Any]):
             generators[name] = generator
     return generators
 
+class _ModelResolver:
+    """ """
+
+    _known_models: dict[str, Type[HasProps]]
+
+    def __init__(self) -> None:
+        self._known_models = {}
+
+    def add(self, cls: Type[HasProps]) -> None:
+        if not (issubclass(cls, Local) or cls.__name__.startswith("_")):
+            # update the mapping of view model names to classes, checking for any duplicates
+            previous = self._known_models.get(cls.__qualified_model__, None)
+            if previous is not None and not hasattr(cls, "__implementation__"):
+                raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
+            self._known_models[cls.__qualified_model__] = cls
+
+    def remove(self, cls: Type[HasProps]) -> None:
+        del self._known_models[cls.__qualified_model__]
+
+    @property
+    def known_models(self) -> dict[str, Type[HasProps]]:
+        return dict(self._known_models)
+
+    def clear_extensions(self) -> None:
+        def is_extension(obj: Type[HasProps]) -> bool:
+            return getattr(obj, "__implementation__", None) is not None or \
+                   getattr(obj, "__javascript__", None) is not None or \
+                   getattr(obj, "__css__", None) is not None
+
+        self._known_models = {key: val for key, val in self._known_models.items() if not is_extension(val)}
+
+_default_resolver = _ModelResolver()
+
 class MetaHasProps(type):
     ''' Specialize the construction of |HasProps| classes.
 
@@ -190,6 +223,10 @@ class MetaHasProps(type):
         if unused_overrides:
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
 
+    @property
+    def model_class_reverse_map(cls) -> dict[str, Type[HasProps]]:
+        return _default_resolver.known_models
+
 class Local:
     """Don't register this class in model registry. """
 
@@ -216,8 +253,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
     __qualified_model__: ClassVar[str]
     __implementation__: ClassVar[Any] # TODO: specific type
     __data_model__: ClassVar[bool]
-
-    model_class_reverse_map: ClassVar[dict[str, Type[HasProps]]] = {}
 
     @classmethod
     def __init_subclass__(cls):
@@ -246,12 +281,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
             cls.__qualified_model__ = qualified()
 
-        if not (issubclass(cls, Local) or cls.__name__.startswith("_")):
-            # update the mapping of view model names to classes, checking for any duplicates
-            previous = cls.model_class_reverse_map.get(cls.__qualified_model__, None)
-            if previous is not None and not hasattr(cls, "__implementation__"):
-                raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
-            cls.model_class_reverse_map[cls.__qualified_model__] = cls
+        _default_resolver.add(cls)
 
     def __init__(self, **properties: Any) -> None:
         '''
