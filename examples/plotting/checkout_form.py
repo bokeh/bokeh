@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox, bokeh.models.widgets.groups, bokeh.models.widgets.inputs
-    :refs: :ref:`userguide_models` > :ref:`userguide_models_widgets`
+    :refs: :ref:`userguide_models_widgets`
     :keywords: form, widgets, form, inputs
 
 '''
