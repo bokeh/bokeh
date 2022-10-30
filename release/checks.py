@@ -132,13 +132,10 @@ def check_checkout_matches_remote(config: Config, system: System) -> ActionRetur
 def check_docs_version_config(config: Config, system: System) -> ActionReturn:
     try:
         with open(Path("docs/bokeh/switcher.json")) as fp:
-            versions = json.load(fp)
-            all_versions = versions["all"]
-            latest_version = versions["latest"]
+            switcher = json.load(fp)
+            all_versions = set(x["version"] for x in switcher if "version" in x)
             if config.version not in all_versions:
-                return FAILED(f"Version {config.version!r} is missing from 'all' versions")
-            if V(config.version) > V(latest_version):
-                return FAILED(f"Version {config.version!r} is not configured as 'latest' version")
+                return FAILED(f"Version {config.version!r} is missing from switcher.json")
             return PASSED("Docs versions config is correct")
     except RuntimeError as e:
         return FAILED("Could not check docs versions config", details=e.args)

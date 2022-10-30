@@ -4,6 +4,10 @@
     "url": "https://docs.bokeh.org/en/latest/"
   },
   {
+    "version": "3.0.0",
+    "url": "https://docs.bokeh.org/en/3.0.0/"
+  },
+  {
     "version": "2.4.3",
     "url": "https://docs.bokeh.org/en/2.4.3/"
   },
