@@ -20,10 +20,10 @@ import pytest ; pytest
 from os.path import dirname, join
 
 # Bokeh imports
+from bokeh.core.has_props import _default_resolver
 from bokeh.document import Document
 from bokeh.embed.bundle import extension_dirs
 from bokeh.ext import build
-from bokeh.model import Model
 from bokeh.models import Plot
 from bokeh.resources import INLINE
 from tests.support.util.env import envset
@@ -131,7 +131,8 @@ class Test_bundle_custom_extensions:
 
     @classmethod
     def teardown_class(cls):
-        del Model.model_class_reverse_map["latex_label.LatexLabel"]
+        from latex_label import LatexLabel
+        _default_resolver.remove(LatexLabel)
         extension_dirs.clear()
 
     def test_with_INLINE_resources(self) -> None:
@@ -178,7 +179,8 @@ class Test_bundle_ext_package_no_main:
 
     @classmethod
     def teardown_class(cls):
-        del Model.model_class_reverse_map["ext_package_no_main.AModel"]
+        from ext_package_no_main import AModel
+        _default_resolver.remove(AModel)
         extension_dirs.clear()
 
     def test_with_INLINE_resources(self) -> None:

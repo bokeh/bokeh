@@ -146,6 +146,9 @@ class _ModelResolver:
                 raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
             self._known_models[cls.__qualified_model__] = cls
 
+    def remove(self, cls: Type[HasProps]) -> None:
+        del self._known_models[cls.__qualified_model__]
+
     @property
     def known_models(self) -> dict[str, Type[HasProps]]:
         return dict(self._known_models)
