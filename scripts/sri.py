@@ -35,13 +35,13 @@ def compute_hashes_for_paths(paths, version):
 
 
 def get_current_package_json():
-    tmp = json.load(open(join(TOP, "bokeh", "_sri.json")))
+    tmp = json.load(open(join(TOP, "src", "bokeh", "_sri.json")))
     items = sorted(tmp.items(), key=lambda item: StrictVersion(item[0]), reverse=True)
     return {key: dict(val) for key, val in items}
 
 
 def write_package_json(data):
-    with open(join(TOP, "bokeh", "_sri.json"), "w") as f:
+    with open(join(TOP, "src", "bokeh", "_sri.json"), "w") as f:
         json.dump(data, f, indent=2)
         f.write("\n")
 
@@ -53,7 +53,7 @@ def update_package(version):
         version not in current
     ), f"Version {version} already exists in the hash data file"
 
-    paths = glob(join(TOP, "bokeh/server/static/js/bokeh*.js"))
+    paths = glob(join(TOP, "src/bokeh/server/static/js/bokeh*.js"))
     hashes = compute_hashes_for_paths(paths, version)
 
     new = {version: hashes}
