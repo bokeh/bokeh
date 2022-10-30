@@ -35,7 +35,7 @@ code and interact with a live plot.
 
         ..  styling/visuals
 
-    .. tab-item:: Special topics
+    .. tab-item:: Topic guides
 
         .. bokeh-gallery::
 
