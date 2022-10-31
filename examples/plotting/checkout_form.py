@@ -1,3 +1,11 @@
+'''This example shows a sample checkout form created using bokeh widgets.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.widgets.button, bokeh.models.widgets.checkbox, bokeh.models.widgets.groups, bokeh.models.widgets.inputs
+    :refs: :ref:`userguide_models_widgets`
+    :keywords: form, widgets, form, inputs
+
+'''
 from bokeh.io import show
 from bokeh.layouts import column, row
 from bokeh.models.widgets import Button, Checkbox, RadioGroup, Select, TextInput
