@@ -39,7 +39,10 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
+    from tornado.httputil import HTTPServerRequest
 
 # Bokeh imports
 from ..core.types import ID
@@ -47,8 +50,6 @@ from ..document import Document
 from ..settings import settings
 
 if TYPE_CHECKING:
-    from tornado.httputil import HTTPServerRequest
-
     from ..server.session import ServerSession
     from .handlers.handler import Handler
 

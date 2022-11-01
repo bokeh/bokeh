@@ -43,10 +43,11 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 import xml.etree.ElementTree as et
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv

@@ -31,6 +31,7 @@ from os.path import (
 )
 from types import FrameType
 from typing import (
+    TYPE_CHECKING,
     Iterator,
     Literal,
     NoReturn,
@@ -41,7 +42,9 @@ from typing import (
 import _pytest.config
 import _pytest.mark
 import _pytest.python
-from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from bokeh.client import push_session

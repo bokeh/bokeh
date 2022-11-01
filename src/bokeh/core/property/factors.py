@@ -22,7 +22,8 @@ log = logging.getLogger(__name__)
 import typing as tp
 
 # External imports
-from typing_extensions import TypeAlias
+if tp.TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .bases import Init, SingleParameterizedProperty

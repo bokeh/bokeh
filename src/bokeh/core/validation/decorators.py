@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Type,
@@ -30,7 +31,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType

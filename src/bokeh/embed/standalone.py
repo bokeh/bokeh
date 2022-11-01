@@ -35,8 +35,10 @@ from typing import (
 )
 
 # External imports
-from jinja2 import Template
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from jinja2 import Template
+
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .. import __version__

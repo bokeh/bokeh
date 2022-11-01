@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any
 
 # External imports
-from typing_extensions import TypeGuard
+if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
 
 # Bokeh imports
 from ..models.ui import UIElement

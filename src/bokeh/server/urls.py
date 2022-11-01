@@ -56,6 +56,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Dict,
     List,
@@ -66,7 +67,9 @@ from typing import (
 
 # External imports
 from tornado.web import RequestHandler
-from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..embed.bundle import extension_dirs

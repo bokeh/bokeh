@@ -25,6 +25,7 @@ log = logging.getLogger(__name__)
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from typing import (
+    TYPE_CHECKING,
     Any,
     ClassVar,
     Literal,
@@ -35,7 +36,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.dataclasses import (

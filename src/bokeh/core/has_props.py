@@ -52,7 +52,8 @@ else:
     from functools import lru_cache
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..util.strings import append_docstring, nice_join

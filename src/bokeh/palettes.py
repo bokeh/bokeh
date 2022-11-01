@@ -423,7 +423,9 @@ from typing import TYPE_CHECKING, Dict, Tuple
 
 # External imports
 import numpy as np
-from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .colors.util import NamedColor

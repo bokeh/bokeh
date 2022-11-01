@@ -28,9 +28,10 @@ from typing import (
 
 # External imports
 import numpy as np
-from typing_extensions import TypeAlias
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     import pandas as pd
     from pandas.core.groupby import GroupBy
 

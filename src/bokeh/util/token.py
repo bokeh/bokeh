@@ -34,10 +34,11 @@ import hmac
 import json
 import time
 import zlib
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID

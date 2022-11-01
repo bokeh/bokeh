@@ -36,11 +36,13 @@ from os.path import (
     splitext,
 )
 from pathlib import Path
-from typing import Literal, Union
+from typing import TYPE_CHECKING, Literal, Union
 
 # External imports
 import yaml
-from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

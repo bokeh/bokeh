@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING, Any, Union
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ...util.dataclasses import NotRequired, Unspecified, dataclass

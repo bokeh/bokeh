@@ -36,9 +36,10 @@ from typing import TYPE_CHECKING, Any, Type
 
 # External imports
 import numpy as np
-from typing_extensions import TypeGuard
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+
     import numpy.typing as npt
     import pandas as pd
 

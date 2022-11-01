@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Dict,
@@ -32,7 +33,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..model import Model

@@ -7,10 +7,11 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import Tuple
+from typing import TYPE_CHECKING, Tuple
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .build import (

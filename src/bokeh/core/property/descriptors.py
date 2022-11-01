@@ -102,7 +102,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeGuard
+if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
 
 # Bokeh imports
 from .singletons import Undefined

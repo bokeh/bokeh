@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os  # lgtm [py/unused-import]
 from typing import (
+    TYPE_CHECKING,
     Literal,
     NewType,
     Sequence,
@@ -31,7 +32,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

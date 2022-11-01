@@ -22,8 +22,10 @@ from typing import TYPE_CHECKING, Sequence, Union
 
 # External imports
 import numpy as np
-from numpy.typing import ArrayLike
-from typing_extensions import TypeAlias
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps

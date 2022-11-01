@@ -26,6 +26,7 @@ from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
 from typing import (
+    TYPE_CHECKING,
     Tuple,
     Type,
     TypeVar,
@@ -33,7 +34,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer

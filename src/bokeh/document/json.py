@@ -32,7 +32,8 @@ from typing import (
 )
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 ## Bokeh imports
 if TYPE_CHECKING:
