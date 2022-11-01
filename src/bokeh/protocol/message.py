@@ -69,10 +69,6 @@ from typing import (
     TypeVar,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 import bokeh.util.serialization as bkserial
 
@@ -83,6 +79,8 @@ from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from ..client.websocket import WebSocketClientConnectionWrapper
 
 #-----------------------------------------------------------------------------

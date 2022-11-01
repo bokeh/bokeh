@@ -43,9 +43,6 @@ import _pytest.config
 import _pytest.mark
 import _pytest.python
 
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from bokeh.client import push_session
 from bokeh.command.util import build_single_handler_application
@@ -60,6 +57,9 @@ from bokeh.util.terminal import (
 )
 from tests.support.util.examples import Example, Flags, collect_examples
 from tests.support.util.screenshot import JSResult, run_in_chrome
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Setup

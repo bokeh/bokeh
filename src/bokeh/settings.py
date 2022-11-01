@@ -135,13 +135,12 @@ from typing import (
 # External imports
 import yaml
 
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .util.paths import bokehjsdir, serverdir
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from .core.types import PathLike
     from .resources import ResourcesMode
 

@@ -44,12 +44,11 @@ import gzip
 import xml.etree.ElementTree as et
 from typing import TYPE_CHECKING, TypedDict
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..util.sampledata import package_path
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

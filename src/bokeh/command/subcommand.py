@@ -35,10 +35,6 @@ from typing import (
     Union,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..util.dataclasses import (
     NotRequired,
@@ -46,6 +42,9 @@ from ..util.dataclasses import (
     dataclass,
     entries,
 )
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

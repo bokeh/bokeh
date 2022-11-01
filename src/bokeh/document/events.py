@@ -67,12 +67,6 @@ from typing import (
     cast,
 )
 
-# External imports
-if TYPE_CHECKING:
-    import pandas as pd
-
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..core.serialization import Serializable, Serializer
 from .json import (
@@ -88,6 +82,9 @@ from .json import (
 )
 
 if TYPE_CHECKING:
+    import pandas as pd
+    from typing_extensions import TypeAlias
+
     from ..core.has_props import Setter
     from ..model import Model
     from ..models.sources import DataDict

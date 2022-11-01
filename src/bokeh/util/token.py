@@ -36,13 +36,12 @@ import time
 import zlib
 from typing import TYPE_CHECKING, Any, Dict
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

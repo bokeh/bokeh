@@ -34,10 +34,6 @@ from typing import (
     cast,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..models import (
     HoverTool,
@@ -52,6 +48,9 @@ from ..models.tools import (
     Scroll,
     Tap,
 )
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

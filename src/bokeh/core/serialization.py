@@ -44,11 +44,6 @@ from typing import (
 # External imports
 import numpy as np
 
-if TYPE_CHECKING:
-    from typing_extensions import NotRequired, TypeAlias
-
-    import numpy.typing as npt
-
 # Bokeh imports
 from ..util.dataclasses import (
     Unspecified,
@@ -69,6 +64,9 @@ from ..util.serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
+    from typing_extensions import NotRequired, TypeAlias
+
     from ..core.has_props import Setter
     from ..model import Model
 

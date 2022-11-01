@@ -51,10 +51,6 @@ if TYPE_CHECKING:
 else:
     from functools import lru_cache
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..util.strings import append_docstring, nice_join
 from .property.descriptor_factory import PropertyDescriptorFactory
@@ -71,6 +67,8 @@ from .serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property

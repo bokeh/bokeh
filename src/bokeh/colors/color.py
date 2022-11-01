@@ -33,13 +33,12 @@ from typing import (
     Union,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 from ..util.deprecation import deprecated
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

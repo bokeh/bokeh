@@ -31,15 +31,13 @@ from typing import (
     cast,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .exceptions import ValidationError
 from .message import BufferHeader, Message
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from . import Protocol
 
 #-----------------------------------------------------------------------------

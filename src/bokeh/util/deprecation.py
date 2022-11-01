@@ -21,12 +21,11 @@ log = logging.getLogger(__name__)
 import warnings  # lgtm [py/import-and-import-from]
 from typing import TYPE_CHECKING, Tuple, overload
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .warnings import BokehDeprecationWarning
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -33,11 +33,6 @@ from typing import (
 # External imports
 import numpy as np
 
-if TYPE_CHECKING:
-    import pandas as pd
-
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
@@ -66,6 +61,9 @@ from .filters import AllIndices, Filter, IntersectionFilter
 from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
+    import pandas as pd
+    from typing_extensions import TypeAlias
+
     from ..core.has_props import Setter
 
 #-----------------------------------------------------------------------------

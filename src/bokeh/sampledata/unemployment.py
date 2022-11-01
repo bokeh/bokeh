@@ -41,12 +41,11 @@ log = logging.getLogger(__name__)
 import csv
 from typing import TYPE_CHECKING
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

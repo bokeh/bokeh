@@ -50,10 +50,6 @@ from typing import (
     get_args,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from . import __version__
 from .core.templates import CSS_RESOURCES, JS_RESOURCES
@@ -64,6 +60,9 @@ from .util.dataclasses import dataclass, field
 from .util.paths import ROOT_DIR, bokehjsdir
 from .util.token import generate_session_id
 from .util.version import is_full_release
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # -----------------------------------------------------------------------------
 # Globals and constants

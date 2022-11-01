@@ -9,10 +9,6 @@ from __future__ import annotations
 # Standard library imports
 from typing import TYPE_CHECKING, Tuple
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .build import (
     build_bokehjs,
@@ -75,6 +71,9 @@ from .git import (
 )
 from .pipeline import StepType
 from .remote import download_deployment_tarball, publish_bokehjs_to_cdn, upload_deployment_tarball
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 __all__ = (
     "BUILD_CHECKS",

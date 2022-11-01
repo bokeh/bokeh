@@ -30,13 +30,12 @@ from typing import (
     cast,
 )
 
-# External imports
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .check import ValidationIssue, Validator, ValidatorType
 from .issue import Error, Issue, Warning
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

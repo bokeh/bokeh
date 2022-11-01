@@ -30,7 +30,6 @@ from typing import (
     Union,
 )
 
-# External imports
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 

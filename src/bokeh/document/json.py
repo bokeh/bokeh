@@ -31,12 +31,9 @@ from typing import (
     Union,
 )
 
-# External imports
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
-## Bokeh imports
-if TYPE_CHECKING:
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
     from ..models.sources import DataDict

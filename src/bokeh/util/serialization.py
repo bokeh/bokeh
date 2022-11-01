@@ -37,16 +37,15 @@ from typing import TYPE_CHECKING, Any, Type
 # External imports
 import numpy as np
 
-if TYPE_CHECKING:
-    from typing_extensions import TypeGuard
-
-    import numpy.typing as npt
-    import pandas as pd
-
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
 from .strings import format_docstring
+
+if TYPE_CHECKING:
+    import numpy.typing as npt
+    import pandas as pd
+    from typing_extensions import TypeGuard
 
 #-----------------------------------------------------------------------------
 # Globals and constants
