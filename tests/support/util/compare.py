@@ -31,9 +31,9 @@ from typing import (
 
 # External imports
 import numpy as np
+import numpy.typing as npt
 
 if TYPE_CHECKING:
-    import numpy.typing as npt
     from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
