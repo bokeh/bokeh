@@ -201,8 +201,11 @@ class PolyAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    xs = Seq(Float, default=[], help="""
+    xs = Seq(Float, Datetime, default=[], help="""
     The x-coordinates of the region to draw.
+    
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.
     """)
 
     xs_units = Enum(CoordinateUnits, default='data', help="""
@@ -210,8 +213,11 @@ class PolyAnnotation(Annotation):
     default.
     """)
 
-    ys = Seq(Float, default=[], help="""
+    ys = Seq(Float, Datetime, default=[], help="""
     The y-coordinates of the region to draw.
+
+    Datetime values are also accepted, but note that they are immediately
+    converted to milliseconds-since-epoch.  
     """)
 
     ys_units = Enum(CoordinateUnits, default='data', help="""
