@@ -76,7 +76,7 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Either(Null, Float, Factor, help="""
+    left = Either(Null, Float, Datetime, Factor, help="""
     The x-coordinates of the left edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -88,7 +88,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    right = Either(Null, Float, Factor, help="""
+    right = Either(Null, Float, Datetime, Factor, help="""
     The x-coordinates of the right edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
