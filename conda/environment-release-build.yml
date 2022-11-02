@@ -14,7 +14,6 @@ dependencies:
   - nodejs 16.*
   - ripgrep=0.10.0
   - setuptools
-  - typing_extensions >=3.10.0
   - yaml
 
   # docs

@@ -14,7 +14,6 @@ dependencies:
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado 5.1.*
-  - typing_extensions >=3.10.0
   - xyzservices>=2021.09.1
 
   # tests
