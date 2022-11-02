@@ -22,7 +22,7 @@ end_y = df.loc[df["date"] == end_date]["close"].values[0]
 
 polygon = PolyAnnotation(
     fill_color="blue", fill_alpha=0.2,
-    xs=[start_x, start_x, end_x, end_x],
+    xs=[start_date, start_date, end_date, end_date],
     ys=[start_y - 100, start_y + 100, end_y + 100, end_y - 100],
 )
 p.add_layout(polygon)
