@@ -100,7 +100,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    bottom = Either(Null, Float, Factor, help="""
+    bottom = Either(Null, Float, Datetime, Factor, help="""
     The y-coordinates of the bottom edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
@@ -112,7 +112,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    top = Either(Null, Float, Factor, help="""
+    top = Either(Null, Float, Datetime, Factor, help="""
     The y-coordinates of the top edge of the box annotation.
 
     Datetime values are also accepted, but note that they are immediately
