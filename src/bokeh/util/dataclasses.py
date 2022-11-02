@@ -23,14 +23,15 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from dataclasses import dataclass, field, fields
 from typing import (
+    TYPE_CHECKING,
     Any,
     Iterable,
     TypeVar,
     Union,
 )
 
-# External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

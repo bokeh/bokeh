@@ -29,9 +29,6 @@ from typing import (
     Union,
 )
 
-# External imports
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .core.property.vectorization import Expr, Field
 from .models.expressions import CumSum, Stack
@@ -45,6 +42,8 @@ from .models.mappers import (
 from .models.transforms import Dodge, Jitter
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from .colors import ColorLike
     from .core.enums import JitterRandomDistributionType
     from .models.ranges import Range

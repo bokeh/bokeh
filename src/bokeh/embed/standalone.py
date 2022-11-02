@@ -34,10 +34,6 @@ from typing import (
     overload,
 )
 
-# External imports
-from jinja2 import Template
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from .. import __version__
 from ..core.templates import (
@@ -63,6 +59,9 @@ from .util import (
 from .wrappers import wrap_in_onload
 
 if TYPE_CHECKING:
+    from jinja2 import Template
+    from typing_extensions import TypeAlias
+
     from ..core.types import ID
     from ..document.document import DocJson
 

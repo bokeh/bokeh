@@ -28,11 +28,6 @@ from typing import (
 
 # External imports
 import numpy as np
-from typing_extensions import TypeAlias
-
-if TYPE_CHECKING:
-    import pandas as pd
-    from pandas.core.groupby import GroupBy
 
 # Bokeh imports
 from ..core.properties import Datetime
@@ -57,6 +52,10 @@ from ..models import (
 )
 
 if TYPE_CHECKING:
+    import pandas as pd
+    from pandas.core.groupby import GroupBy
+    from typing_extensions import TypeAlias
+
     from ..models.plots import Plot
     from ..models.text import BaseText
 

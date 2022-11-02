@@ -23,6 +23,7 @@ import re
 import warnings
 from dataclasses import dataclass
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterator,
@@ -32,9 +33,6 @@ from typing import (
     Union,
     cast,
 )
-
-# External imports
-from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..models import (
@@ -50,6 +48,9 @@ from ..models.tools import (
     Scroll,
     Tap,
 )
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -23,9 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING, Any
 
-# External imports
-from typing_extensions import TypeGuard
-
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
@@ -34,6 +31,8 @@ from .saving import save
 from .state import curstate
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeGuard
+
     from ..application.application import Application
     from ..application.handlers.function import ModifyDoc
     from ..util.browser import BrowserLike, BrowserTarget

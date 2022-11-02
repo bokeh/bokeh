@@ -38,9 +38,6 @@ from typing import (
     Union,
 )
 
-# External imports
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ...util.strings import nice_join
 from ..has_props import HasProps
@@ -55,6 +52,8 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------

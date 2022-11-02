@@ -42,13 +42,13 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
-from typing import TypedDict
-
-# External imports
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, TypedDict
 
 # Bokeh imports
 from ..util.sampledata import package_path
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

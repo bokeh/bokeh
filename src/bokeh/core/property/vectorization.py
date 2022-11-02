@@ -23,9 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import TYPE_CHECKING, Any, Union
 
-# External imports
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ...util.dataclasses import NotRequired, Unspecified, dataclass
 from ..serialization import (
@@ -36,6 +33,8 @@ from ..serialization import (
 )
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from ...models.expressions import Expression
     from ...models.transforms import Transform
 

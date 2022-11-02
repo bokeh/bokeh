@@ -34,14 +34,13 @@ from typing import (
     cast,
 )
 
-# External imports
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
     from ..core.has_props import Setter
     from ..core.types import ID
     from ..document.document import Document

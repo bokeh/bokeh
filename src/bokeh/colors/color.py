@@ -26,18 +26,19 @@ from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
 from typing import (
+    TYPE_CHECKING,
     Tuple,
     Type,
     TypeVar,
     Union,
 )
 
-# External imports
-from typing_extensions import TypeAlias
-
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 from ..util.deprecation import deprecated
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

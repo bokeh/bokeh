@@ -34,14 +34,14 @@ import hmac
 import json
 import time
 import zlib
-from typing import Any, Dict
-
-# External imports
-from typing_extensions import TypeAlias
+from typing import TYPE_CHECKING, Any, Dict
 
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

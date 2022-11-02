@@ -22,8 +22,6 @@ from typing import TYPE_CHECKING, Sequence, Union
 
 # External imports
 import numpy as np
-from numpy.typing import ArrayLike
-from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.property_mixins import FillProps, HatchProps, LineProps
@@ -35,6 +33,9 @@ from ..plotting._renderer import _process_sequence_literals
 from ..util.dataclasses import dataclass, entries
 
 if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
+    from typing_extensions import TypeAlias
+
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 

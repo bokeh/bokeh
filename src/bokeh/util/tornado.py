@@ -26,6 +26,7 @@ import threading
 from collections import defaultdict
 from traceback import format_exception
 from typing import (
+    TYPE_CHECKING,
     Any,
     Awaitable,
     Callable,
@@ -38,11 +39,13 @@ from typing import (
 # External imports
 import tornado
 from tornado import gen
-from tornado.ioloop import IOLoop
-from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
+
+if TYPE_CHECKING:
+    from tornado.ioloop import IOLoop
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

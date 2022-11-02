@@ -39,6 +39,7 @@ import json
 import re
 from os.path import basename, join, relpath
 from typing import (
+    TYPE_CHECKING,
     Callable,
     ClassVar,
     Dict,
@@ -48,9 +49,6 @@ from typing import (
     cast,
     get_args,
 )
-
-# External imports
-from typing_extensions import TypeAlias
 
 # Bokeh imports
 from . import __version__
@@ -62,6 +60,9 @@ from .util.dataclasses import dataclass, field
 from .util.paths import ROOT_DIR, bokehjsdir
 from .util.token import generate_session_id
 from .util.version import is_full_release
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 # -----------------------------------------------------------------------------
 # Globals and constants

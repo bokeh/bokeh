@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 import math
 from collections import defaultdict
 from typing import (
+    TYPE_CHECKING,
     Any,
     Callable,
     Iterable,
@@ -35,9 +36,6 @@ from typing import (
     Union,
     overload,
 )
-
-# External imports
-from typing_extensions import TypeAlias
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
@@ -60,6 +58,9 @@ from .models import (
     UIElement,
 )
 from .util.dataclasses import dataclass
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
