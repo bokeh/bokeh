@@ -181,7 +181,7 @@ html_title = f"{project} {version} Documentation"
 
 html_theme_options = {
     "external_links": [
-        {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb"},
+        {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"}
     ],
     "switcher": {
