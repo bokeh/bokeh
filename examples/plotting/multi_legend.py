@@ -3,7 +3,7 @@ a comparision between two datasets. This graph uses stocks dataset.
 
 .. bokeh-example-metadata::
     :sampledata: stocks
-    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout 
+    :apis: bokeh.plotting.figure.multi_line, bokeh.plotting.figure.add_layout
     :refs: :ref:`userguide_plotting_figure`
     :keywords: multiple, legend, stocks, graph
 
