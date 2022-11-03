@@ -1,3 +1,15 @@
+2022-11-03    3.0.1:
+--------------------
+  * bugfixes:
+    - #12537 [BUG] ImportError: cannot import name 'NotRequired' from 'typing_extensions'
+
+  * tasks:
+    - #12528 [component: docs] Update tutorial link
+    - #12533 [component: examples] [BUG] Units in blackbody example should be upright
+    - #12525 [component: examples] Added metadata to bokeh\examples\plotting\checkout_form.py
+    - #12539 [component: build] Remove runtime dependency on typing_extensions
+    - #12546 [component: examples] Apply blackbody example label edits (#12534) to the ts example as well
+
 2022-10-30      3.0:
 --------------------
   * bugfixes:
