@@ -203,7 +203,7 @@ class PolyAnnotation(Annotation):
 
     xs = Either(Seq(Float), Seq(Datetime), default=[], help="""
     The x-coordinates of the region to draw.
-    
+
     Datetime values are also accepted, but note that they are immediately
     converted to milliseconds-since-epoch.
     """)
@@ -217,7 +217,7 @@ class PolyAnnotation(Annotation):
     The y-coordinates of the region to draw.
 
     Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.  
+    converted to milliseconds-since-epoch.
     """)
 
     ys_units = Enum(CoordinateUnits, default='data', help="""
