@@ -2526,4 +2526,74 @@ describe("Bug", () => {
       await display(tabs, [350, 200])
     })
   })
+
+  describe("in issue #4930", () => {
+    function plot(color: Color) {
+      const p = fig([150, 150])
+      const source = new ColumnDataSource({
+        data: {
+          foo: ["foo1", "foo2", "foo3"],
+          bar: ["bar1", "bar2", "bar3"],
+          baz: ["baz1", "baz2", "baz3"],
+        },
+      })
+      p.circle([1, 2, 3], [3, 1, 2], {size: 10, color, source})
+      const hover = new HoverTool({
+        tooltips: [
+          ["index",         "$index"],
+          ["data (x, y)",   "($x, $y)"],
+          ["screen (x, y)", "($sx, $sy)"],
+          ["foo",           "@foo"],
+          ["bar",           "@bar"],
+          ["baz",           "@baz"],
+        ],
+        attachment: "right",
+      })
+      p.add_tools(hover)
+      return p
+    }
+
+    it("allows to cut tooltips short in grid plots", async () => {
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("yellow")
+
+      const layout = new GridPlot({
+        toolbar_location: null,
+        children: [
+          [p00, 0, 0],
+          [p01, 0, 1],
+          [p10, 1, 0],
+          [p11, 1, 1],
+        ],
+      })
+
+      const {view} = await display(layout)
+
+      const pv = view.owner.get_one(p00)
+      const actions = new PlotActions(pv)
+      await actions.hover(xy(2, 1), xy(2, 1))
+    })
+
+    it("allows to cut tooltips short in layouts", async () => {
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("yellow")
+
+      const layout = new Column({
+        children: [
+          new Row({children: [p00, p01]}),
+          new Row({children: [p10, p11]}),
+        ],
+      })
+
+      const {view} = await display(layout)
+
+      const pv = view.owner.get_one(p00)
+      const actions = new PlotActions(pv)
+      await actions.hover(xy(2, 1), xy(2, 1))
+    })
+  })
 })
