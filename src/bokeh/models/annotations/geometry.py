@@ -201,7 +201,7 @@ class PolyAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    xs = Either(Seq(Float),Seq(Datetime), default=[], help="""
+    xs = Either(Seq(Float), Seq(Datetime), default=[], help="""
     The x-coordinates of the region to draw.
     
     Datetime values are also accepted, but note that they are immediately
@@ -213,7 +213,7 @@ class PolyAnnotation(Annotation):
     default.
     """)
 
-    ys = Either(Seq(Float),Seq(Datetime), default=[], help="""
+    ys = Either(Seq(Float), Seq(Datetime), default=[], help="""
     The y-coordinates of the region to draw.
 
     Datetime values are also accepted, but note that they are immediately
