@@ -17,7 +17,6 @@ dependencies = [
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=5.1",
-    "typing_extensions >=4.0.0",
     "xyzservices >=2021.09.1",
 ]
 authors = [
