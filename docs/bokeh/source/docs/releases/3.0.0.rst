@@ -3,7 +3,7 @@
 3.0.0
 =====
 
-Bokeh Version ``3.0.0`` () is a major milestone of Bokeh project.
+Bokeh Version ``3.0.0`` (Oct 2023) is a major milestone of Bokeh project.
 
 Major changes
 -------------
