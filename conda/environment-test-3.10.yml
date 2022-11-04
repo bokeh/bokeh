@@ -31,7 +31,6 @@ dependencies:
   - ipython
   - isort 5.8
   - json5
-  - mock
   - nbconvert >=5.4
   - networkx
   - nodejs 16.*
