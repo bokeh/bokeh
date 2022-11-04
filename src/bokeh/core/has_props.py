@@ -641,9 +641,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 selected_keys |= themed_keys
 
         for key in keys:
-            if key not in selected_keys:
-                continue
-
             descriptor = self.lookup(key)
             if not query(descriptor):
                 continue
@@ -654,11 +651,14 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 if include_undefined:
                     value = Undefined
                 else:
-                    continue
+                    raise
             else:
                 if not include_defaults and key not in themed_keys:
                     if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                         continue
+
+            if key not in selected_keys and value is not Undefined:
+                continue
 
             result[key] = value
 

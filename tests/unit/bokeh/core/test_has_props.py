@@ -30,10 +30,11 @@ from bokeh.core.properties import (
     Nullable,
     NumberSpec,
     Override,
+    Required,
     String,
 )
-from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor
-from bokeh.core.property.singletons import Intrinsic
+from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor, UnsetValueError
+from bokeh.core.property.singletons import Intrinsic, Undefined
 from bokeh.core.property.vectorization import field, value
 
 # Module under test
@@ -571,6 +572,11 @@ class Some3HasProps(hp.HasProps, hp.Local):
     f2 = Int(default=2)
     f1 = Int(default=1)
 
+class Some4HasProps(hp.HasProps, hp.Local):
+    f0 = Required(Int)
+    f1 = Int()
+    f2 = Int(default=1)
+
 def test_HasProps_properties_with_values_maintains_order() -> None:
     v0 = Some3HasProps()
     assert list(v0.properties_with_values(include_defaults=False).items()) == []
@@ -593,6 +599,23 @@ def test_HasProps_properties_with_values_unstable() -> None:
 
     v2 = Some2HasProps()
     assert v2.properties_with_values(include_defaults=False) == {"f0": v2.f0, "f1": v2.f1}
+
+def test_HasProps_properties_with_values_unset() -> None:
+    v0 = Some4HasProps()
+
+    with pytest.raises(UnsetValueError):
+        v0.properties_with_values(include_defaults=False, include_undefined=False)
+    with pytest.raises(UnsetValueError):
+        v0.properties_with_values(include_defaults=True, include_undefined=False)
+    assert v0.properties_with_values(include_defaults=False, include_undefined=True) == {"f0": Undefined}
+    assert v0.properties_with_values(include_defaults=True, include_undefined=True) == {"f0": Undefined, "f1": 0, "f2": 1}
+
+    v1 = Some4HasProps(f0=10)
+
+    assert v1.properties_with_values(include_defaults=False, include_undefined=False) == {"f0": 10}
+    assert v1.properties_with_values(include_defaults=True, include_undefined=False) == {"f0": 10, "f1": 0, "f2": 1}
+    assert v1.properties_with_values(include_defaults=False, include_undefined=True) == {"f0": 10}
+    assert v1.properties_with_values(include_defaults=True, include_undefined=True) == {"f0": 10, "f1": 0, "f2": 1}
 
 def test_HasProps_descriptors() -> None:
     v0 = Some0HasProps()
