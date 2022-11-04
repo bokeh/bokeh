@@ -24,7 +24,7 @@ import json
 import random
 
 # External imports
-from mock import MagicMock, Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports
 from bokeh.util.token import (

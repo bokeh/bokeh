@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Module under test
 import bokeh.client.session as bcs # isort:skip

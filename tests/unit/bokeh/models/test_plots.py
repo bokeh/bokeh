@@ -20,9 +20,9 @@ import pytest ; pytest
 from math import isnan
 
 # External imports
-import mock
+from unittest import mock
+from unittest.mock import MagicMock, patch
 import xyzservices.providers as xyz
-from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

@@ -26,7 +26,7 @@ import time
 from datetime import timedelta
 
 # External imports
-import mock
+from unittest import mock
 import tornado
 from _util_server import (
     http_get,

@@ -26,7 +26,7 @@ from typing import Any
 import bs4
 import numpy as np
 from jinja2 import Template
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 

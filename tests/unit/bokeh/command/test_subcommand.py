@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from mock import MagicMock
+from unittest.mock import MagicMock
 
 # Module under test
 import bokeh.command.subcommand as sc # isort:skip

@@ -21,7 +21,7 @@ import datetime as dt
 from math import isnan
 
 # External imports
-import mock
+from unittest import mock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

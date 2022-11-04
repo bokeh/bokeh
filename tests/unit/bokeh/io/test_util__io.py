@@ -20,7 +20,7 @@ import pytest ; pytest
 import os
 
 # External imports
-from mock import (
+from unittest.mock import (
     MagicMock,
     Mock,
     PropertyMock,

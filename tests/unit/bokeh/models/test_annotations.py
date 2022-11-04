@@ -20,7 +20,7 @@ import pytest ; pytest
 from datetime import datetime
 
 # External imports
-import mock
+from unittest import mock
 
 # Bokeh imports
 from bokeh.core.properties import field, value

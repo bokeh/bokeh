@@ -20,7 +20,7 @@ import pytest ; pytest
 import logging
 
 # External imports
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.application.handlers import CodeHandler, FunctionHandler, Handler

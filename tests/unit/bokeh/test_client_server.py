@@ -23,7 +23,7 @@ import sys
 
 # External imports
 from flaky import flaky
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 from tornado.httpclient import HTTPError
 
 # Bokeh imports

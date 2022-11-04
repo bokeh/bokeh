@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # External imports
 import pandas as pd
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

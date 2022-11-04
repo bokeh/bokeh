@@ -21,7 +21,7 @@ import json
 from typing import Any
 
 # External imports
-from mock import MagicMock, PropertyMock, patch
+from unittest.mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document

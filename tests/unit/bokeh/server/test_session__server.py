@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-import mock
+from unittest import mock
 
 # Bokeh imports
 from bokeh.document import Document
