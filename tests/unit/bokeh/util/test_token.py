@@ -22,8 +22,6 @@ import codecs
 import datetime as dt
 import json
 import random
-
-# External imports
 from unittest.mock import MagicMock, Mock, patch
 
 # Bokeh imports

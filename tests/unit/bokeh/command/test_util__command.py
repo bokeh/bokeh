@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import os
 import tempfile
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports

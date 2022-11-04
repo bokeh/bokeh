@@ -20,10 +20,10 @@ import pytest ; pytest
 import asyncio
 import logging
 import sys
+from unittest.mock import MagicMock, patch
 
 # External imports
 from flaky import flaky
-from unittest.mock import MagicMock, patch
 from tornado.httpclient import HTTPError
 
 # Bokeh imports

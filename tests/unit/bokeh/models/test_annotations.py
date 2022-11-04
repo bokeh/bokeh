@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 from datetime import datetime
-
-# External imports
 from unittest import mock
 
 # Bokeh imports

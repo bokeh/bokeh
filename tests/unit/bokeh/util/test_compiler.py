@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 import os
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Module under test

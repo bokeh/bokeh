@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import weakref
 from typing import Any
-
-# External imports
 from unittest.mock import patch
 
 # Bokeh imports

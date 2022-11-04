@@ -18,10 +18,10 @@ import pytest ; pytest
 
 # Standard library imports
 from math import isnan
-
-# External imports
 from unittest import mock
 from unittest.mock import MagicMock, patch
+
+# External imports
 import xyzservices.providers as xyz
 
 # Bokeh imports

@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 from pathlib import Path
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports

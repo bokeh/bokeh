@@ -20,8 +20,6 @@ import pytest ; pytest
 import os
 import sys
 import webbrowser
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports

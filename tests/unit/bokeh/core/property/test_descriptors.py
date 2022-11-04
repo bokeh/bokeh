@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 import typing as tp
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports

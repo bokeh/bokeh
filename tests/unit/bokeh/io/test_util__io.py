@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 import os
-
-# External imports
 from unittest.mock import (
     MagicMock,
     Mock,

@@ -18,8 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 import re
-
-# External imports
 from unittest import mock
 
 # Module under test

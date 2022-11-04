@@ -20,8 +20,6 @@ import pytest ; pytest
 import gc
 import logging
 from typing import Any
-
-# External imports
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports

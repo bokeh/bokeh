@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import json
 from typing import Any
-
-# External imports
 from unittest.mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports

@@ -19,8 +19,6 @@ import pytest ; pytest
 # Standard library imports
 import datetime as dt
 from math import isnan
-
-# External imports
 from unittest import mock
 
 # Bokeh imports
