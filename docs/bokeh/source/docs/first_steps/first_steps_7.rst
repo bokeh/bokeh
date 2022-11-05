@@ -73,7 +73,7 @@ your notebook:
     For more information on using Jupyter notebooks, see
     :ref:`ug_output_jupyter` in the user guide.
 
-    Interact directly with `live tutorial notebooks <https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb>`_
+    Interact directly with `live tutorial notebooks <https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb>`_
     hosted online by MyBinder.
 
 .. _first_steps_7_export_png_svg:
