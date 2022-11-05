@@ -75,6 +75,7 @@ ALL = (
     'Factor',
     'FactorSeq',
     'Float',
+    'FloatOrDatetime',
     'FontSize',
     'FontSizeSpec',
     'HatchPatternSpec',

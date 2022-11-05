@@ -87,6 +87,7 @@ Basic Properties
 .. autoclass:: Either
 .. autoclass:: Enum
 .. autoclass:: Float
+.. autoclass:: FloatOrDatetime
 .. autoclass:: FontSize
 .. autoclass:: Image
 .. autoclass:: Int
@@ -222,6 +223,7 @@ __all__ = (
     'Factor',
     'FactorSeq',
     'Float',
+    'FloatOrDatetime',
     'FontSize',
     'FontSizeSpec',
     'HatchPatternSpec',
@@ -330,6 +332,7 @@ from .property.dataspec import UnitsSpec; UnitsSpec
 
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
+from .property.datetime import FloatOrDatetime; FloatOrDatetime
 from .property.datetime import TimeDelta; TimeDelta
 
 from .property.descriptors import UnsetValueError; UnsetValueError

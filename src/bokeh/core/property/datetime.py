@@ -37,6 +37,7 @@ from .singletons import Undefined
 __all__ = (
     'Date',
     'Datetime',
+    'FloatOrDatetime',
     'TimeDelta',
 )
 
@@ -118,6 +119,11 @@ class Datetime(Property[Union[str, datetime.date, datetime.datetime]]):
     @staticmethod
     def is_timestamp(value: Any) -> bool:
         return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
+
+class FloatOrDatetime(Datetime):
+    '''This is an alias class of the Datetime type class to indicate by name, that numeric values
+    and ISO format Datetime values are both accepted.
+    '''
 
 class TimeDelta(Property[datetime.timedelta]):
     """ Accept TimeDelta values.
