@@ -475,24 +475,27 @@
     __extends__: "ContinuousTicker",
     tickers: [],
   },
-  SingleIntervalTicker: {
+  BaseSingleIntervalTicker: {
     __extends__: "ContinuousTicker",
+  },
+  SingleIntervalTicker: {
+    __extends__: "BaseSingleIntervalTicker",
     interval: {
       type: "symbol",
       name: "unset",
     },
   },
   DaysTicker: {
-    __extends__: "SingleIntervalTicker",
+    __extends__: "BaseSingleIntervalTicker",
     num_minor_ticks: 0,
     days: [],
   },
   MonthsTicker: {
-    __extends__: "SingleIntervalTicker",
+    __extends__: "BaseSingleIntervalTicker",
     months: [],
   },
   YearsTicker: {
-    __extends__: "SingleIntervalTicker",
+    __extends__: "BaseSingleIntervalTicker",
   },
   BasicTicker: {
     __extends__: "AdaptiveTicker",

@@ -1,5 +1,5 @@
 import {TickSpec} from "./ticker"
-import {SingleIntervalTicker} from "./single_interval_ticker"
+import {BaseSingleIntervalTicker} from "./single_interval_ticker"
 import {copy_date, last_month_no_later_than, ONE_DAY} from "./util"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
@@ -35,14 +35,14 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
 export namespace DaysTicker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SingleIntervalTicker.Props & {
+  export type Props = BaseSingleIntervalTicker.Props & {
     days: p.Property<number[]>
   }
 }
 
 export interface DaysTicker extends DaysTicker.Attrs {}
 
-export class DaysTicker extends SingleIntervalTicker {
+export class DaysTicker extends BaseSingleIntervalTicker {
   declare properties: DaysTicker.Props
 
   constructor(attrs?: Partial<DaysTicker.Attrs>) {
@@ -58,6 +58,8 @@ export class DaysTicker extends SingleIntervalTicker {
       num_minor_ticks: 0,
     })
   }
+
+  interval: number
 
   override initialize(): void {
     super.initialize()
@@ -93,8 +95,7 @@ export class DaysTicker extends SingleIntervalTicker {
       return dates
     }
 
-    const interval = this.interval
-    const day_dates = concat(month_dates.map((date) => days_of_month(date, interval)))
+    const day_dates = concat(month_dates.map((date) => days_of_month(date, this.interval)))
 
     const all_ticks = day_dates.map((day_date) => day_date.getTime())
     const ticks_in_range = all_ticks.filter((tick) => data_low <= tick && tick <= data_high)
