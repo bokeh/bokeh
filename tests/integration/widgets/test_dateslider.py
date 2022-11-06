@@ -21,9 +21,6 @@ import pytest ; pytest
 from datetime import date, datetime, timedelta
 from time import sleep
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -122,7 +119,6 @@ class Test_DateSlider:
 
         assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DateSlider(start=start, end=end, value=value, width=300, step=1)
 
@@ -167,7 +163,6 @@ class Test_DateSlider:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_callback_value_vs_value_throttled(self, bokeh_server_page: BokehServerPage) -> None:
         junk = dict(v=0, vt=0)
         slider = DateSlider(start=start, end=end, value=value, width=300)
@@ -202,7 +197,6 @@ class Test_DateSlider:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_bar_color_updates(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DateSlider(start=start, end=end, value=value, width=300, bar_color="red")
 
@@ -226,7 +220,6 @@ class Test_DateSlider:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_title_updates(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DateSlider(start=start, end=end, value=value, width=300)
 

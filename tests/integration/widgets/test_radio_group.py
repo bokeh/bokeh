@@ -18,7 +18,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from flaky import flaky
 from selenium.webdriver.common.by import By
 
 # Bokeh imports
@@ -61,7 +60,6 @@ class Test_RadioGroup:
             assert input.get_attribute('value') == str(i)
             assert input.get_attribute('type') == 'radio'
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         group = RadioGroup(labels=LABELS)
         def modify_doc(doc):

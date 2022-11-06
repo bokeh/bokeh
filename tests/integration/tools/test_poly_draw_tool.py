@@ -20,9 +20,6 @@ import pytest ; pytest
 # Standard library imports
 import time
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
@@ -206,7 +203,6 @@ class Test_PolyDrawTool:
 
         assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_poly_draw_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"xs": [[1, 2], [1.6216216216216217, 2.4324324324324325]],
                     "ys": [[1, 1], [1.5, 0.75]]}
@@ -224,7 +220,6 @@ class Test_PolyDrawTool:
 
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_poly_drag_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"xs": [[1, 2], [2.1891891891891895, 3]],
                     "ys": [[1, 1], [1.125, 0.375]]}
@@ -241,7 +236,6 @@ class Test_PolyDrawTool:
         page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
-    @flaky(max_runs=10)
     def test_poly_delete_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"xs": [[1, 2]],
                     "ys": [[1, 1]]}

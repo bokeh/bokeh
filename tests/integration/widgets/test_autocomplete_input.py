@@ -18,7 +18,6 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # External imports
-from flaky import flaky
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 
@@ -412,7 +411,6 @@ class Test_AutocompleteInput:
         assert(counter.count == 1)
         assert(counter.new == "ASDF")
 
-    @flaky(max_runs=10)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
         modify_doc, _ = mk_modify_doc(input_box)
@@ -429,10 +427,8 @@ class Test_AutocompleteInput:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip_full_entry(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
         modify_doc, plot = mk_modify_doc(input_box)
@@ -463,10 +459,8 @@ class Test_AutocompleteInput:
         results = page.results
         assert results['data']['val'] == ["12344556", "3194567289"]
 
-    #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip_partial_entry(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
         modify_doc, plot = mk_modify_doc(input_box)
@@ -500,7 +494,6 @@ class Test_AutocompleteInput:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
         modify_doc, _ = mk_modify_doc(input_box)

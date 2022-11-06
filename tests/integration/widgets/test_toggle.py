@@ -17,9 +17,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
@@ -62,7 +59,6 @@ class Test_Toggle:
         button = find_element_for(page.driver, button, ".bk-btn")
         assert typ in button.get_attribute('class')
 
-    @flaky(max_runs=10)
     def test_server_on_click_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         button = Toggle()
         def modify_doc(doc):

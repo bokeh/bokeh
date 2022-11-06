@@ -17,9 +17,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -70,7 +67,6 @@ def has_cds_data_patches(msgs):
 
 @pytest.mark.selenium
 class Test_DataTableSource:
-    @flaky(max_runs=10)
     def test_server_source_patch_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
         btn = Button(label="Click Me!")
 
@@ -125,7 +121,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_source_stream_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
         btn = Button(label="Click Me!")
 
@@ -180,7 +175,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_source_update_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
         btn = Button(label="Click Me!")
 
@@ -236,7 +230,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_edit_does_not_duplicate_data_update_event(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
         source = ColumnDataSource(data)
@@ -286,7 +279,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_basic_selection(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
@@ -336,7 +328,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_basic_mulitselection(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4,5,6], 'y': [60,50,40,30,20,10]}
         source = ColumnDataSource(data)
@@ -388,7 +379,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_sorted_after_data_update(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -446,7 +436,6 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_sorted_after_patch(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -504,7 +493,6 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_sorted_after_stream(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -562,7 +550,6 @@ class Test_DataTableSource:
         #assert page.has_no_console_errors()
 
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_sorted_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -614,7 +601,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_source_updated_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
@@ -656,7 +642,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_source_callback_triggered_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)

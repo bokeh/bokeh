@@ -21,9 +21,6 @@ import pytest ; pytest
 from datetime import datetime, timedelta
 from time import sleep
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -111,7 +108,6 @@ class Test_DatetimeRangeSlider:
 
         assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DatetimeRangeSlider(start=start, end=end, value=value, width=300)
 
@@ -143,7 +139,6 @@ class Test_DatetimeRangeSlider:
         new = results['data']['val']
         assert new[1] < '2022-03-25'
 
-    @flaky(max_runs=10)
     def test_server_bar_color_updates(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DatetimeRangeSlider(start=start, end=end, value=value, width=300, bar_color="red")
 

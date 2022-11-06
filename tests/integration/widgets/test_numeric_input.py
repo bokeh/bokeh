@@ -17,9 +17,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
@@ -91,7 +88,6 @@ class Test_NumericInput:
         assert el.get_attribute('placeholder') == "placeholder"
         assert el.get_attribute('type') == "text"
 
-    @flaky(max_runs=10)
     def test_server_on_change_no_round_trip_without_enter_or_click(self, bokeh_server_page: BokehServerPage) -> None:
         num_input = NumericInput(low=-1, high=100, value=4)
         modify_doc, _ = mk_modify_doc(num_input)
@@ -108,10 +104,8 @@ class Test_NumericInput:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    #@flaky(max_runs=10)
     # TODO (bev) Fix up after GH CI switch
     @pytest.mark.skip
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         num_input = NumericInput(low=-1, high=100, value=4)
         modify_doc, plot = mk_modify_doc(num_input)

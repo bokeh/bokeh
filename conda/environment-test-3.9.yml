@@ -25,7 +25,6 @@ dependencies:
   - coverage
   - firefox =>96
   - flake8
-  - flaky
   - geckodriver
   - ipython
   - isort 5.8
