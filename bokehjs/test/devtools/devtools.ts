@@ -700,7 +700,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 103
+const chromium_min_version = 107
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
