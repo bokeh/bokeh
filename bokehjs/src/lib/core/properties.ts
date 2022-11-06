@@ -63,7 +63,7 @@ export type AttrsOf<P> = {
 }
 
 export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
 }
 
 export type DefaultsOf<P> = {
@@ -72,6 +72,7 @@ export type DefaultsOf<P> = {
 
 export type PropertyOptions<T> = {
   internal?: boolean
+  readonly?: boolean
   convert?(value: T): T | undefined
   on_update?(value: T, obj: HasProps): void
 }
@@ -83,6 +84,8 @@ export interface PropertyConstructor<T> {
 
 export const unset = Symbol("unset")
 export type Unset = typeof unset
+
+export class UnsetValueError extends Error {}
 
 export abstract class Property<T = unknown> {
   __value__: T
@@ -143,7 +146,7 @@ export abstract class Property<T = unknown> {
     if (this._value !== unset)
       return this._value
     else
-      throw new Error(`${this.obj}.${this.attr} is unset`)
+      throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
   }
 
   set_value(val: T): void {
@@ -170,6 +173,7 @@ export abstract class Property<T = unknown> {
   readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
+  readonly: boolean
 
   convert?(value: T): T | undefined
   on_update?(value: T, obj: HasProps): void
@@ -181,6 +185,7 @@ export abstract class Property<T = unknown> {
               options: PropertyOptions<T> = {}) {
     this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
+    this.readonly = options.readonly ?? false
     this.convert = options.convert
     this.on_update = options.on_update
   }

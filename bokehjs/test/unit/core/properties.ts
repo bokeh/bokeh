@@ -347,8 +347,12 @@ describe("properties module", () => {
     const prop = obj.properties.any
 
     describe("valid", () => {
-      it("should return undefined on any input", () => {
-        for (const x of [true, null, undefined, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()])
+      it("should not accept 'undefined'", () => {
+        expect(prop.valid(undefined)).to.be.false
+      })
+
+      it("should accept any other value", () => {
+        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()])
           expect(prop.valid(x)).to.be.true
       })
     })

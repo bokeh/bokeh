@@ -35,6 +35,7 @@ from bokeh.core.properties import (
     Override,
     Readonly,
     String,
+    UnsetValueError,
 )
 from bokeh.models import Plot
 from tests.support.util.api import verify_all
@@ -355,13 +356,14 @@ class TestBasic:
 
     def test_readonly(self) -> None:
         class ReadonlyModel(HasProps):
-            x = Readonly(Int(12))         # with default
-            y = Readonly(Nullable(Int())) # without default
+            x = Readonly(Int, default=12) # with default
+            y = Readonly(Int)
             z = String("hello")
 
         o = ReadonlyModel()
         assert o.x == 12
-        assert o.y is None
+        with pytest.raises(UnsetValueError):
+            o.y
         assert o.z == 'hello'
 
         # readonly props are still in the list of props
@@ -370,7 +372,7 @@ class TestBasic:
         assert 'z' in o.properties()
 
         assert 'x' in o.properties_with_values(include_defaults=True)
-        assert 'y' in o.properties_with_values(include_defaults=True)
+        assert 'y' not in o.properties_with_values(include_defaults=True)
         assert 'z' in o.properties_with_values(include_defaults=True)
 
         assert 'x' not in o.properties_with_values(include_defaults=False)
@@ -384,7 +386,8 @@ class TestBasic:
         o.z = "xyz"
 
         assert o.x == 12
-        assert o.y is None
+        with pytest.raises(UnsetValueError):
+            o.y
         assert o.z == 'xyz'
 
     def test_include_defaults(self) -> None:

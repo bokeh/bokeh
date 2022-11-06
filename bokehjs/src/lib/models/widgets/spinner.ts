@@ -235,7 +235,7 @@ export class Spinner extends NumericInput {
     this.prototype.default_view = SpinnerView
 
     this.define<Spinner.Props>(({Number, Nullable}) => ({
-      value_throttled:      [ Nullable(Number), null ],
+      value_throttled:      [ Nullable(Number), p.unset, {readonly: true} ],
       step:                 [ Number, 1 ],
       page_step_multiplier: [ Number, 10 ],
       wheel_wait:           [ Number, 100 ],

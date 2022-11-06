@@ -118,7 +118,7 @@ class FileInput(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    value = Readonly(Either(String, List(String)), default="", help='''
+    value = Readonly(Either(String, List(String)), help='''
     The base64-enconded contents of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the contents
@@ -130,7 +130,7 @@ class FileInput(InputWidget):
     The sequence of files is given by the list of filenames (see below)
     ''')
 
-    mime_type = Readonly(Either(String, List(String)), default="", help='''
+    mime_type = Readonly(Either(String, List(String)), help='''
     The mime-type of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -142,7 +142,7 @@ class FileInput(InputWidget):
     The sequence of files is given by the list of filename (see below)
     ''')
 
-    filename = Readonly(Either(String, List(String)), default="", help='''
+    filename = Readonly(Either(String, List(String)), help='''
     The name(s) of the file or files that were loaded.
 
     If `mulitiple` is set to False (default), this value is a single string with the
@@ -238,30 +238,28 @@ class Spinner(NumericInput):
 
     '''
 
+    # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
-        if "value" in kwargs and "value_throttled" not in kwargs:
-            kwargs["value_throttled"] = kwargs["value"]
-
         super().__init__(*args, **kwargs)
 
     value_throttled = Readonly(Either(Null, Float, Int), help="""
-    value reported at the end of interactions
+    Value reported at the end of interactions.
     """)
 
     mode = Override(default="float")
 
     step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
-    The step added or subtracted to the current value
+    The step added or subtracted to the current value.
     """)
 
     page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
     Defines the multiplication factor applied to step when the page up and page
-    down keys are pressed
+    down keys are pressed.
     """)
 
     wheel_wait = Either(Int, Float, default=100, help="""
     Defines the debounce time in ms before updating `value_throttled` when the
-    mouse wheel is used to change the input
+    mouse wheel is used to change the input.
     """)
 
 @abstract

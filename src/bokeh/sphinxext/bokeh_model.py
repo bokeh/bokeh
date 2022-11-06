@@ -58,13 +58,15 @@ import importlib
 import json
 import warnings
 from os import getenv
+from typing import Any
 
 # External imports
 from docutils.parsers.rst.directives import unchanged
 from sphinx.errors import SphinxError
 
 # Bokeh imports
-from bokeh.core.serialization import AnyRep, Serializer
+from bokeh.core.property.singletons import Undefined
+from bokeh.core.serialization import AnyRep, Serializer, SymbolRep
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -135,7 +137,7 @@ class BokehModelDirective(BokehDirective):
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
             model_obj = model()
 
-        model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(",", ": "))
+        model_json = json.dumps(to_json_rep(model_obj), sort_keys=True, indent=2, separators=(", ", ": "))
 
         # we only want to document things as coming from top-level `bokeh.models`
         adjusted_module_name = "bokeh.models" if module_name.startswith("bokeh.models") else module_name
@@ -159,10 +161,18 @@ def setup(app):
 # Private API
 # -----------------------------------------------------------------------------
 
-def to_json_rep(obj: Model) -> dict[str, AnyRep]:
-    serializer = Serializer()
+class DocsSerializer(Serializer):
 
-    properties = obj.properties_with_values(include_defaults=True)
+    def _encode(self, obj: Any) -> AnyRep:
+        if obj is Undefined:
+            return SymbolRep(type="symbol", name="unset")
+        else:
+            return super()._encode(obj)
+
+def to_json_rep(obj: Model) -> dict[str, AnyRep]:
+    serializer = DocsSerializer()
+
+    properties = obj.properties_with_values(include_defaults=True, include_undefined=True)
     attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
     return dict(id=obj.id, **attributes)

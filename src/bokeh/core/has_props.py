@@ -653,12 +653,15 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 else:
                     raise
             else:
+                # TODO: this should happen before get_value(), however there's currently
+                # no reliable way of checking if a property is unset without actually
+                # getting the value.
+                if key not in selected_keys:
+                    continue
+
                 if not include_defaults and key not in themed_keys:
                     if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                         continue
-
-            if key not in selected_keys and value is not Undefined:
-                continue
 
             result[key] = value
 

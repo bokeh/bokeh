@@ -10,11 +10,13 @@ describe("core/kinds module", () => {
   it("should support Any kind", () => {
     const tp = k.Any
     expect(`${tp}`).to.be.equal("Any")
+    expect(tp.valid(undefined)).to.be.false
   })
 
   it("should support Unknown kind", () => {
     const tp = k.Unknown
     expect(`${tp}`).to.be.equal("Unknown")
+    expect(tp.valid(undefined)).to.be.false
   })
 
   it("should support Boolean kind", () => {

@@ -28,7 +28,7 @@ from .bases import (
     SingleParameterizedProperty,
     TypeOrInst,
 )
-from .singletons import Intrinsic
+from .singletons import Undefined
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -49,7 +49,7 @@ class Readonly(SingleParameterizedProperty[T]):
 
     _readonly = True
 
-    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T] = Undefined, help: str | None = None) -> None:
         super().__init__(type_param, default=default, help=help)
 
 #-----------------------------------------------------------------------------

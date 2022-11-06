@@ -39,6 +39,7 @@ from itertools import permutations
 from typing import TYPE_CHECKING
 
 # Bokeh imports
+from bokeh.core.properties import UnsetValueError
 from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,
@@ -169,15 +170,15 @@ class _BokehStructureGraph:
             answer3: bool = False
             try:
                 answer1 = s in getattr(H, y)
-            except TypeError:
+            except (TypeError, UnsetValueError):
                 pass
             try:
                 answer2 = s == getattr(H, y)
-            except TypeError:
+            except (TypeError, UnsetValueError):
                 pass
             try:
                 answer3 = s in getattr(H, y).values()
-            except (AttributeError, ValueError):
+            except (AttributeError, ValueError, UnsetValueError):
                 pass
             return answer1 | answer2 | answer3
 

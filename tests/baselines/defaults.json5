@@ -2654,8 +2654,8 @@
     group_padding: 1.4,
     range_padding: 0,
     range_padding_units: "percent",
-    start: 0.0,
-    end: 0.0,
+    start: 0,
+    end: 0,
     bounds: null,
     min_interval: null,
     max_interval: null,
@@ -5430,10 +5430,22 @@
     frame_width: null,
     frame_height: null,
     frame_align: true,
-    inner_width: 0,
-    inner_height: 0,
-    outer_width: 0,
-    outer_height: 0,
+    inner_width: {
+      type: "symbol",
+      name: "unset",
+    },
+    inner_height: {
+      type: "symbol",
+      name: "unset",
+    },
+    outer_width: {
+      type: "symbol",
+      name: "unset",
+    },
+    outer_height: {
+      type: "symbol",
+      name: "unset",
+    },
     background_fill_color: "#ffffff",
     background_fill_alpha: 1.0,
     border_fill_color: "#ffffff",
@@ -5640,9 +5652,18 @@
   },
   FileInput: {
     __extends__: "InputWidget",
-    value: "",
-    mime_type: "",
-    filename: "",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    mime_type: {
+      type: "symbol",
+      name: "unset",
+    },
+    filename: {
+      type: "symbol",
+      name: "unset",
+    },
     accept: "",
     multiple: false,
   },
@@ -5658,7 +5679,10 @@
   Spinner: {
     __extends__: "NumericInput",
     mode: "float",
-    value_throttled: null,
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
     step: 1,
     page_step_multiplier: 10,
     wheel_wait: 100,
