@@ -16,8 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from mock import MagicMock, patch
+# Standard library imports
+from unittest.mock import MagicMock, patch
 
 # Module under test
 import bokeh.util.deprecation as dep # isort:skip

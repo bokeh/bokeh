@@ -24,9 +24,9 @@ import ssl
 import sys
 import time
 from datetime import timedelta
+from unittest import mock
 
 # External imports
-import mock
 import tornado
 from _util_server import (
     http_get,
