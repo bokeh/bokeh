@@ -16,8 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from mock import call, patch
+# Standard library imports
+from unittest.mock import call, patch
 
 # Module under test
 import bokeh.util.sampledata as bus # isort:skip
