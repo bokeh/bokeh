@@ -55,7 +55,7 @@ __all__ = (
 def bokeh_server(request: pytest.FixtureRequest, log_file: IO[str]) -> str:
     bokeh_port: int = request.config.option.bokeh_port
 
-    cmd = ["python", "-m", "bokeh", "serve"]
+    cmd = [sys.executable, "-m", "bokeh", "serve"]
     argv = [f"--port={bokeh_port}"]
     bokeh_server_url = f"http://localhost:{bokeh_port}"
 
