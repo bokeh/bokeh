@@ -18,11 +18,11 @@ import pytest ; pytest
 
 # Standard library imports
 from math import isnan
+from unittest import mock
+from unittest.mock import MagicMock, patch
 
 # External imports
-import mock
 import xyzservices.providers as xyz
-from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

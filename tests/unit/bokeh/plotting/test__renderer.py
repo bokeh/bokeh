@@ -19,7 +19,7 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.models import Circle
 
-#from mock import mock
+#from unittest import mock
 
 #from bokeh.plotting import figure
 
