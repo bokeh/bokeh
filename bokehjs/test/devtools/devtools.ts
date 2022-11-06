@@ -227,9 +227,8 @@ async function run_tests(): Promise<boolean> {
 
       override_metrics()
 
-      await Browser.setPermission({
-        permission: {name: "clipboard-write"},
-        setting: "granted",
+      await Browser.grantPermissions({
+        permissions: ["clipboardReadWrite"],
       })
 
       const {errorText} = await Page.navigate({url})
@@ -701,7 +700,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 103
+const chromium_min_version = 107
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
