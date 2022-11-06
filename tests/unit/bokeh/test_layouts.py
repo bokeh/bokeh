@@ -16,8 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-import mock
+# Standard library imports
+from unittest import mock
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues

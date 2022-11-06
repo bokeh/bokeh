@@ -19,9 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import weakref
 from typing import Any
-
-# External imports
-from mock import patch
+from unittest.mock import patch
 
 # Bokeh imports
 from bokeh.core.enums import HoldPolicy

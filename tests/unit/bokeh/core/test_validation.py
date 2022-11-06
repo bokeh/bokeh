@@ -18,9 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from typing import Any, cast
-
-# External imports
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Int

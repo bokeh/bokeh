@@ -20,9 +20,7 @@ import pytest ; pytest
 import os
 import sys
 import webbrowser
-
-# External imports
-from mock import MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from tests.support.util.env import envset
