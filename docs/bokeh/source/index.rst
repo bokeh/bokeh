@@ -90,7 +90,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     :alt: A collage of 36 thumbnails of Bokeh plots
 
 
-.. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
+.. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
