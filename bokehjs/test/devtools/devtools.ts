@@ -227,9 +227,8 @@ async function run_tests(): Promise<boolean> {
 
       override_metrics()
 
-      await Browser.setPermission({
-        permission: {name: "clipboard-write"},
-        setting: "granted",
+      await Browser.grantPermissions({
+        permissions: ["clipboardReadWrite"],
       })
 
       const {errorText} = await Page.navigate({url})
