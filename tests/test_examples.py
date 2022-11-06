@@ -268,7 +268,7 @@ with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
 """
 
-    cmd = ["python", "-c", code]
+    cmd = [sys.executable, "-c", code]
     cwd = dirname(example.path)
 
     env = os.environ.copy()
