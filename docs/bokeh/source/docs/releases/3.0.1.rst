@@ -3,5 +3,5 @@
 3.0.1
 =====
 
-Bokeh Version ``3.0.1`` (Nov 2023) is point release that addresses an issue
+Bokeh Version ``3.0.1`` (Nov 2022) is a point release that addresses an issue
 with runtime dependencies.
