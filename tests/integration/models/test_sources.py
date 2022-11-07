@@ -92,8 +92,7 @@ class Test_ColumnDataSource:
             evts = msg.content.get('events', [])
             assert not any(is_cds_data_patched(evt) for evt in evts)
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_client_source_stream_sends_patch_event(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,3,4], 'y': [10,20,30,40]}
@@ -137,5 +136,4 @@ class Test_ColumnDataSource:
             evts = msg.content.get('events', [])
             assert not any(is_cds_data_streamed(evt) for evt in evts)
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()

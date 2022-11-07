@@ -99,8 +99,7 @@ class Test_PasswordInput:
         results = page.results
         assert results['data']['val'] == ["a", "b"]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         text_input = PasswordInput()
@@ -132,8 +131,7 @@ class Test_PasswordInput:
         results = page.results
         assert results['data']['val'] == ["val2", "val3"]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, single_plot_page: SinglePlotPage) -> None:
         source = ColumnDataSource(dict(x=[1, 2], y=[1, 1]))

@@ -100,8 +100,7 @@ class Test_Toggle:
         results = page.results
         assert results == {'data': {'x': [10, 20], 'y': [10, 10]}}
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     # XXX (bev) Toggle does not register to process ButtonClick events
 

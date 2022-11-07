@@ -424,8 +424,7 @@ class Test_AutocompleteInput:
         results = page.results
         assert results['data']['val'] == ["a", "b"]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip_full_entry(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
@@ -487,8 +486,7 @@ class Test_AutocompleteInput:
         results = page.results
         assert results['data']['val'] == ["12344556", "3194567289"]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_server_on_change_round_trip_menu_entry(self, bokeh_server_page: BokehServerPage) -> None:
         input_box = AutocompleteInput()
@@ -517,5 +515,4 @@ class Test_AutocompleteInput:
         results = page.results
         assert results['data']['val'] == ["400", "12344557"]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()

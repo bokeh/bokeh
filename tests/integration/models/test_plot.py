@@ -99,8 +99,7 @@ class Test_Plot:
         assert isinstance(data.ih[1], int)
         assert 0 < data.ih[1] < 400
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_lod_event_triggering(self, bokeh_server_page: BokehServerPage) -> None:
         good_events: list[str] = []

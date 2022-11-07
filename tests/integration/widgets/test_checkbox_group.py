@@ -91,8 +91,7 @@ class Test_CheckboxGroup:
         results = page.results
         assert results['data']['val'] == [0, 2]
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, bokeh_model_page: BokehModelPage) -> None:
         group = CheckboxGroup(labels=LABELS)
