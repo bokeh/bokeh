@@ -77,14 +77,14 @@
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI/branch-3.0?label=Bokeh-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI/branch-3.1?label=Bokeh-CI&logo=github&style=for-the-badge"
          alt="Current Bokeh-CI github actions build status" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI/branch-3.0?label=BokehJS-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI/branch-3.1?label=BokehJS-CI&logo=github&style=for-the-badge"
          alt="Current BokehJS-CI github actions build status" />
     </a>
   </td>
