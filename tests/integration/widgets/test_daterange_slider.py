@@ -109,8 +109,6 @@ class Test_DateRangeSlider:
 
         assert page.has_no_console_errors()
 
-    # TODO (bev) test works locally but not in CI
-    @pytest.mark.skip
     def test_js_on_change_executes(self, bokeh_model_page: BokehModelPage) -> None:
         slider = DateRangeSlider(start=start, end=end, value=value, width=300)
         slider.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
@@ -126,7 +124,6 @@ class Test_DateRangeSlider:
         assert datetime.fromtimestamp(results['value'][1]/1000) < datetime(*date.fromisoformat("2017-08-09").timetuple()[:3])
 
         assert page.has_no_console_errors()
-
 
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         slider = DateRangeSlider(start=start, end=end, value=value, width=300)

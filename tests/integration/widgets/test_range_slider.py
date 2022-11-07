@@ -115,7 +115,6 @@ class Test_RangeSlider:
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.skip
     def test_keypress_event(self, bokeh_model_page: BokehModelPage) -> None:
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", width=300)
         page = bokeh_model_page(slider)

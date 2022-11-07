@@ -435,7 +435,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @pytest.mark.skip
     def test_server_sorted_after_patch(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -492,7 +491,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @pytest.mark.skip
     def test_server_sorted_after_stream(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -549,7 +547,6 @@ class Test_DataTableSource:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         #assert page.has_no_console_errors()
 
-    @pytest.mark.skip
     def test_server_sorted_after_edit(self, bokeh_server_page: BokehServerPage) -> None:
         data = {'x': [1,2,5,6], 'y': [60,50,20,10]}
         source = ColumnDataSource(data)
