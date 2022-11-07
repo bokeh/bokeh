@@ -2596,4 +2596,38 @@ describe("Bug", () => {
       await actions.hover(xy(2, 1), xy(2, 1))
     })
   })
+
+  describe("in issue #4888", () => {
+    const N = 50
+    const M = 10
+
+    function plot(output_backend: OutputBackend) {
+      const random = new Random(1)
+
+      const p = fig([300, 300], {output_backend})
+
+      for (let i = 0; i < N; i++) {
+        const x = random.floats(M)
+        const y = random.floats(M)
+        p.line({x, y})
+      }
+
+      return p
+    }
+
+    it(`doesn't allow to render many (N=${N}) canvas glyphs efficiently`, async () => {
+      const p = plot("canvas")
+      await display(p)
+    })
+
+    it(`doesn't allow to render many (N=${N}) svg glyphs efficiently`, async () => {
+      const p = plot("svg")
+      await display(p)
+    })
+
+    it(`doesn't allow to render many (N=${N}) webgl glyphs efficiently`, async () => {
+      const p = plot("webgl")
+      await display(p)
+    })
+  })
 })
