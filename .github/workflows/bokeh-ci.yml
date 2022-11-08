@@ -146,6 +146,7 @@ jobs:
           path: examples-report
 
   integration-tests:
+    if: ${{ false }}  # disable for now
     needs: build
     runs-on: ubuntu-latest
 
