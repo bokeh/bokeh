@@ -301,7 +301,7 @@ class Plot(LayoutDOM):
 
         getattr(self, place).append(obj)
 
-    def add_tools(self, *tools: Tool) -> None:
+    def add_tools(self, *tools: Tool | str) -> None:
         ''' Adds tools to the plot.
 
         Args:
@@ -312,10 +312,14 @@ class Plot(LayoutDOM):
 
         '''
         for tool in tools:
-            if not isinstance(tool, Tool):
-                raise ValueError("All arguments to add_tool must be Tool subclasses.")
+            if isinstance(tool, str):
+                tool_obj = Tool.from_string(tool)
+            elif isinstance(tool, Tool):
+                tool_obj = tool
+            else:
+                raise ValueError(f"expected a string or Tool instance, got {tool!r}")
 
-            self.toolbar.tools.append(tool)
+            self.toolbar.tools.append(tool_obj)
 
     def remove_tools(self, *tools: Tool) -> None:
         ''' Removes tools from the plot.
