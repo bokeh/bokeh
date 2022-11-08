@@ -23,7 +23,6 @@ import sys
 from unittest.mock import MagicMock, patch
 
 # External imports
-from flaky import flaky
 from tornado.httpclient import HTTPError
 
 # Bokeh imports
@@ -359,7 +358,6 @@ class TestClientServer:
             assert not session.connected
 
     @pytest.mark.skipif(sys.platform == "win32", reason="uninmportant failure on win")
-    @flaky(max_runs=10)
     def test_ping(self, ManagedServerLoop: MSL) -> None:
         application = Application()
         with ManagedServerLoop(application, keep_alive_milliseconds=0) as server:

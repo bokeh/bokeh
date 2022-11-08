@@ -155,7 +155,7 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.8'
+          test-env: '3.11'
           source-tree: 'delete'
           sampledata: 'cache'
 
