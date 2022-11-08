@@ -24,8 +24,6 @@ import numpy as np
 import pandas as pd
 
 # Bokeh imports
-from bokeh.core.property.factors import Factor
-from bokeh.util.serialization import convert_date_to_datetime
 from tests.support.util.api import verify_all
 
 from _util_property import _TestHasProps, _TestModel
