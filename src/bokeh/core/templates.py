@@ -75,8 +75,7 @@ def get_env() -> Environment:
     '''
     if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
         # PyInstaller uses _MEIPASS and only works with jinja2.FileSystemLoader
-        meipass: str = sys._MEIPASS # type: ignore[attr-defined]
-        templates_path = join(meipass, 'bokeh', 'core', '_templates')
+        templates_path = join(sys._MEIPASS, 'bokeh', 'core', '_templates')
     else:
         # Non-frozen Python and cx_Freeze can use __file__ directly
         templates_path = join(dirname(__file__), '_templates')
