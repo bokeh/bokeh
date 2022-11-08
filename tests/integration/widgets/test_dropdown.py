@@ -17,9 +17,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.core.enums import ButtonType
 from bokeh.layouts import column
@@ -68,7 +65,6 @@ class Test_Dropdown:
         button_el = find_element_for(page.driver, button, "button")
         assert typ in button_el.get_attribute('class')
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         button = Dropdown(label="Dropdown button", menu=items)
         def modify_doc(doc):
@@ -122,8 +118,7 @@ class Test_Dropdown:
         results = page.results
         assert results == {'data': {'x': [100, 200], 'y': [100, 100]}}
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
     def test_js_on_change_executes(self, bokeh_model_page: BokehModelPage) -> None:
         button = Dropdown(label="Dropdown button", menu=items)

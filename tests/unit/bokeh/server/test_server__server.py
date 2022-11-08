@@ -34,7 +34,6 @@ from _util_server import (
     websocket_open,
     ws_url,
 )
-from flaky import flaky
 from tornado.httpclient import HTTPError
 from tornado.httpserver import HTTPServer
 from tornado.ioloop import IOLoop
@@ -366,7 +365,6 @@ async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
 
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="Lifecycle hooks order different on Windows (TODO open issue)")
-@flaky(max_runs=10)
 def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
     application = Application()
     handler = HookTestHandler()
@@ -649,7 +647,6 @@ async def test__autocreate_signed_session_doc(ManagedServerLoop: MSL) -> None:
 
         assert check_token_signature(token, signed=True, secret_key='foo')
 
-@flaky(max_runs=10)
 async def test__accept_session_websocket(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, session_token_expiration=10) as server:
