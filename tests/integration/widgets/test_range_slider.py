@@ -20,9 +20,6 @@ import pytest ; pytest
 # Standard library imports
 from time import sleep
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
@@ -118,7 +115,6 @@ class Test_RangeSlider:
 
         assert page.has_no_console_errors()
 
-    @pytest.mark.skip
     def test_keypress_event(self, bokeh_model_page: BokehModelPage) -> None:
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", width=300)
         page = bokeh_model_page(slider)
@@ -173,7 +169,6 @@ class Test_RangeSlider:
         assert page.has_no_console_errors()
 
 
-    @flaky(max_runs=10)
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         slider = RangeSlider(start=0, end=10, value=(1, 9), title="bar", width=300)
 
@@ -225,7 +220,6 @@ class Test_RangeSlider:
         # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
         # assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_server_bar_color_updates(self, bokeh_server_page: BokehServerPage) -> None:
         slider = RangeSlider(start=0, end=10, value=(1, 5), title="bar", width=300)
 

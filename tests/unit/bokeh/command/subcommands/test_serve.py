@@ -32,7 +32,6 @@ from threading import Thread
 # External imports
 import requests
 import requests_unixsocket
-from flaky import flaky
 
 # Bokeh imports
 from bokeh.command.subcommand import Argument
@@ -503,7 +502,6 @@ def test_unix_socket_with_invalid_args() -> None:
         expected = "['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile', 'port'] args are not supported with a unix socket"
         assert expected == out
 
-@flaky(max_runs=10)
 @pytest.mark.skipif(sys.platform == "win32", reason="Unix sockets not available on windows")
 def test_unix_socket() -> None:
     sock = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)

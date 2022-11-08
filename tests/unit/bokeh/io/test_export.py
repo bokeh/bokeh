@@ -20,9 +20,7 @@ import pytest ; pytest
 import re
 from typing import TYPE_CHECKING
 
-# External imports
-from flaky import flaky
-
+## External imports
 if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -66,7 +64,6 @@ def webdriver(request: pytest.FixtureRequest):
 # Dev API
 #-----------------------------------------------------------------------------
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
@@ -91,7 +88,6 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]
     assert data == b"\x00\xff\x00\xff"*width*height
 
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
@@ -125,7 +121,6 @@ def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tupl
     expected_count = w*h - 2*b*(w + h) + 4*b**2
     assert count == expected_count
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -135,7 +130,6 @@ def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> No
 
     assert len(png.tobytes()) > 0
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> None:
     p = figure(title="유니 코드 지원을위한 작은 테스트")
@@ -145,7 +139,6 @@ def test_get_screenshot_as_png_with_unicode_unminified(webdriver: WebDriver) -> 
 
     assert len(png.tobytes()) > 0
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     layout = Plot(
@@ -183,7 +176,6 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     else:
         assert svgs == output(firefox_data)
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     def plot(color: str):
@@ -214,7 +206,6 @@ def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:
     assert svgs0 == svgs2
     assert svgs1 == svgs2
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
     state = curstate()
@@ -243,7 +234,6 @@ def test_get_svg_with_implicit_document_and_theme(webdriver: WebDriver) -> None:
     finally:
         state.reset()
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_no_svg_present() -> None:
     layout = Plot(x_range=Range1d(), y_range=Range1d(), height=20, width=20, toolbar_location=None)
@@ -253,7 +243,6 @@ def test_get_svgs_no_svg_present() -> None:
 
     assert svgs == []
 
-@flaky(max_runs=10)
 @pytest.mark.selenium
 def test_get_svgs_with_svg_present(webdriver: WebDriver) -> None:
     def plot(color: str):

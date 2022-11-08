@@ -16,6 +16,5 @@ dependencies:
   - xyzservices>=2021.09.1
 
   # tests
-  - flaky
   - pytest >=7.0
   - scipy

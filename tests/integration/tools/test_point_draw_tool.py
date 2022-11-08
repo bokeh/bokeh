@@ -20,9 +20,6 @@ import pytest ; pytest
 # Standard library imports
 import time
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.application.handlers.function import ModifyDoc
 from bokeh.layouts import column
@@ -192,7 +189,6 @@ class Test_PointDrawTool:
 
         assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_point_draw_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"x": [1, 2, 1.6216216216216217],
                     "y": [1, 1, 1.5]}
@@ -206,7 +202,6 @@ class Test_PointDrawTool:
         page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
-    @flaky(max_runs=10)
     def test_point_drag_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"x": [1, 2, 2.1891891891891895],
                     "y": [1, 1, 1.1024999999999998]}
@@ -221,7 +216,6 @@ class Test_PointDrawTool:
         page.eval_custom_action()
         assert page.results == {"matches": "True"}
 
-    @flaky(max_runs=10)
     def test_point_delete_syncs_to_server(self, bokeh_server_page: BokehServerPage) -> None:
         expected = {"x": [1, 2],
                     "y": [1, 1]}

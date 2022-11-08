@@ -19,7 +19,6 @@ import pytest ; pytest
 # External imports
 import selenium.webdriver.chrome.webdriver
 import selenium.webdriver.firefox.webdriver
-from flaky import flaky
 
 # Module under test
 import bokeh.io.webdriver as biw # isort:skip
@@ -37,7 +36,6 @@ import bokeh.io.webdriver as biw # isort:skip
 #-----------------------------------------------------------------------------
 
 @pytest.mark.selenium
-@flaky(max_runs=10)
 def test_create_firefox_webdriver() -> None:
     d = biw.create_firefox_webdriver()
     try:
@@ -46,7 +44,6 @@ def test_create_firefox_webdriver() -> None:
         d.quit()
 
 @pytest.mark.selenium
-@flaky(max_runs=10)
 def test_create_chromium_webdriver() -> None:
     d = biw.create_chromium_webdriver()
     try:
@@ -59,7 +56,6 @@ _driver_map = {
     "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
-@flaky(max_runs=10)
 class Test_webdriver_control:
 
     def test_default(self) -> None:
