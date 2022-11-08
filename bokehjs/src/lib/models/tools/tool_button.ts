@@ -1,9 +1,11 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Tool} from "./tool"
+import {ToolProxy} from "./tool_proxy"
 import {div, StyleSheetLike, MouseButton} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
+import {Signal0} from "core/signaling"
 import * as p from "core/properties"
 
 import tool_button_css, * as tool_button from "styles/tool_button.css"
@@ -66,7 +68,7 @@ export abstract class ToolButtonView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
-    this.connect(this.model.tool.change, () => this.render())
+    this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
   }
 
   override remove(): void {
@@ -134,7 +136,7 @@ export namespace ToolButton {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    tool: p.Property<Tool>
+    tool: p.Property<Tool | ToolProxy<Tool>>
     icon: p.Property<ToolIcon | string | null>
     tooltip: p.Property<string | null>
   }
@@ -152,7 +154,7 @@ export abstract class ToolButton extends UIElement {
 
   static {
     this.define<ToolButton.Props>(({String, Regex, Ref, Nullable, Or}) => ({
-      tool: [ Ref(Tool) ],
+      tool: [ Or(Ref(Tool), Ref(ToolProxy)) ],
       icon: [ Nullable(Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))), null ],
       tooltip: [ Nullable(String), null ],
     }))
