@@ -23,11 +23,11 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
+    CoordinateLike,
     Either,
     Enum,
     Factor,
     Float,
-    FloatOrDatetime,
     Include,
     Instance,
     InstanceDefault,
@@ -75,11 +75,8 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Either(Null, FloatOrDatetime, Factor, help="""
+    left = Either(Null, CoordinateLike, help="""
     The x-coordinates of the left edge of the box annotation.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     left_units = Enum(CoordinateUnits, default='data', help="""
@@ -87,11 +84,8 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    right = Either(Null, FloatOrDatetime, Factor, help="""
+    right = Either(Null, CoordinateLike, Factor, help="""
     The x-coordinates of the right edge of the box annotation.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     right_units = Enum(CoordinateUnits, default='data', help="""
@@ -99,11 +93,8 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    bottom = Either(Null, FloatOrDatetime, Factor, help="""
+    bottom = Either(Null, CoordinateLike, help="""
     The y-coordinates of the bottom edge of the box annotation.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     bottom_units = Enum(CoordinateUnits, default='data', help="""
@@ -111,11 +102,8 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    top = Either(Null, FloatOrDatetime, Factor, help="""
+    top = Either(Null, CoordinateLike, help="""
     The y-coordinates of the top edge of the box annotation.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     top_units = Enum(CoordinateUnits, default='data', help="""
@@ -200,11 +188,8 @@ class PolyAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    xs = Seq(FloatOrDatetime, default=[], help="""
+    xs = Seq(CoordinateLike, default=[], help="""
     The x-coordinates of the region to draw.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     xs_units = Enum(CoordinateUnits, default='data', help="""
@@ -212,11 +197,8 @@ class PolyAnnotation(Annotation):
     default.
     """)
 
-    ys = Seq(FloatOrDatetime, default=[], help="""
+    ys = Seq(CoordinateLike, default=[], help="""
     The y-coordinates of the region to draw.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     ys_units = Enum(CoordinateUnits, default='data', help="""
@@ -278,11 +260,8 @@ class Span(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    location = Nullable(FloatOrDatetime, help="""
+    location = Nullable(CoordinateLike, help="""
     The location of the span, along ``dimension``.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     location_units = Enum(CoordinateUnits, default='data', help="""

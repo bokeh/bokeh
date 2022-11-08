@@ -81,13 +81,13 @@ Basic Properties
 .. autoclass:: Bytes
 .. autoclass:: Color
 .. autoclass:: Complex
+.. autoclass:: CoordinateLike
 .. autoclass:: DashPattern
 .. autoclass:: Date
 .. autoclass:: Datetime
 .. autoclass:: Either
 .. autoclass:: Enum
 .. autoclass:: Float
-.. autoclass:: FloatOrDatetime
 .. autoclass:: FontSize
 .. autoclass:: Image
 .. autoclass:: Int
@@ -212,6 +212,7 @@ __all__ = (
     'ColorSpec',
     'ColumnData',
     'Complex',
+    'CoordinateLike',
     'DashPattern',
     'DataSpec',
     'Date',
@@ -223,7 +224,6 @@ __all__ = (
     'Factor',
     'FactorSeq',
     'Float',
-    'FloatOrDatetime',
     'FontSize',
     'FontSizeSpec',
     'HatchPatternSpec',
@@ -308,6 +308,8 @@ from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
 from .property.container import RestrictedDict; RestrictedDict
 
+from .property.combined import CoordinateLike; CoordinateLike
+
 from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec
 from .property.dataspec import ColorSpec; ColorSpec
@@ -332,7 +334,6 @@ from .property.dataspec import UnitsSpec; UnitsSpec
 
 from .property.datetime import Date; Date
 from .property.datetime import Datetime; Datetime
-from .property.datetime import FloatOrDatetime; FloatOrDatetime
 from .property.datetime import TimeDelta; TimeDelta
 
 from .property.descriptors import UnsetValueError; UnsetValueError

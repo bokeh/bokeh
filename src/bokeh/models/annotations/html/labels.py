@@ -33,9 +33,9 @@ from ....core.properties import (
     Angle,
     AngleSpec,
     Color,
+    CoordinateLike,
     Enum,
     Float,
-    FloatOrDatetime,
     Include,
     Nullable,
     NullStringSpec,
@@ -94,11 +94,8 @@ class HTMLLabel(HTMLAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(FloatOrDatetime, help="""
+    x = Required(CoordinateLike, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     x_units = Enum(CoordinateUnits, default='data', help="""
@@ -106,11 +103,8 @@ class HTMLLabel(HTMLAnnotation):
     default.
     """)
 
-    y = Required(FloatOrDatetime, help="""
+    y = Required(CoordinateLike, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     y_units = Enum(CoordinateUnits, default='data', help="""

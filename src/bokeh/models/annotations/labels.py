@@ -31,9 +31,9 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Angle,
     AngleSpec,
+    CoordinateLike,
     Enum,
     Float,
-    FloatOrDatetime,
     Include,
     NullStringSpec,
     NumberSpec,
@@ -50,7 +50,6 @@ from ...core.property_mixins import (
     ScalarTextProps,
     TextProps,
 )
-# from ...util.serialization import convert_datetime_type
 from .annotation import Annotation, DataAnnotation
 
 #-----------------------------------------------------------------------------
@@ -122,11 +121,8 @@ class Label(TextAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(FloatOrDatetime, help="""
+    x = Required(CoordinateLike, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     x_units = Enum(CoordinateUnits, default='data', help="""
@@ -134,11 +130,8 @@ class Label(TextAnnotation):
     default.
     """)
 
-    y = Required(FloatOrDatetime, help="""
+    y = Required(CoordinateLike, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
-
-    Datetime values are also accepted, but note that they are immediately
-    converted to milliseconds-since-epoch.
     """)
 
     y_units = Enum(CoordinateUnits, default='data', help="""
