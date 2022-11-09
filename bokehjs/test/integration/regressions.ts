@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, press} from "../interactive"
+import {PlotActions, xy, click, press} from "../interactive"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -16,7 +16,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
+  Toolbar, ToolProxy, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -2628,6 +2628,52 @@ describe("Bug", () => {
     it(`doesn't allow to render many (N=${N}) webgl glyphs efficiently`, async () => {
       const p = plot("webgl")
       await display(p)
+    })
+  })
+
+  describe("in issue #12578", () => {
+    it("doesn't allow to use proxied action tools on all plots", async () => {
+      function plot(color: Color) {
+        const tool = new ZoomInTool()
+        const plot = fig([300, 300], {toolbar_location: null, tools: [tool]})
+        plot.circle([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
+        return {plot, tool}
+      }
+
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("purple")
+
+      const zoom_in = new ToolProxy({
+        tools: [
+          p00.tool,
+          p01.tool,
+          p10.tool,
+          p11.tool,
+        ],
+      })
+      const zoom_in_btn = zoom_in.tool_button()
+
+      const toolbar = new Toolbar({
+        tools: [zoom_in],
+        buttons: [zoom_in_btn],
+      })
+
+      const gp = new GridPlot({
+        children: [
+          [p00.plot, 0, 0],
+          [p01.plot, 0, 1],
+          [p10.plot, 1, 0],
+          [p11.plot, 1, 1],
+        ],
+        toolbar,
+      })
+
+      const {view} = await display(gp)
+
+      const btn = view.owner.get_one(zoom_in_btn)
+      await click(btn.el)
     })
   })
 })
