@@ -302,6 +302,13 @@ export class HoverToolView extends InspectToolView {
             const [snap_sxy, ii] = _nearest_line_hit(i, geometry, glyph.sx, glyph.sy)
             return [[x[ii], y[ii]], snap_sxy, ii]
           }
+          if (line_policy == "none") {
+            const xscale = renderer_view.coordinates.x_scale
+            const yscale = renderer_view.coordinates.y_scale
+            const x = xscale.invert(sx)
+            const y = yscale.invert(sy)
+            return [[x, y], [sx, sy], i]
+          }
           throw new Error("shouldn't have happened")
         })()
 

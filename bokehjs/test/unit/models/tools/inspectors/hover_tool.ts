@@ -2,12 +2,14 @@ import {expect} from "assertions"
 import {display, fig} from "../../../_util"
 
 import {assert} from "@bokehjs/core/util/assert"
+import {offset_bbox} from "@bokehjs/core/dom"
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {HoverTool, HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
+import {Tooltip} from "@bokehjs/models/ui/tooltip"
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: CircleView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}
@@ -71,6 +73,32 @@ describe("HoverTool", () => {
       const el2 = hover_view._render_tooltips(data_source, vars)
       assert(el2 != null)
       expect(el2.childElementCount).to.be.equal(2)
+    })
+  })
+
+  describe("line_policy", () => {
+    it("should support 'none' line_policy with mode=vline", async () => {
+      const tooltips: [string, string][] = [["x", "$x"], ["y", "$y"]]
+      const hover = new HoverTool({mode: "vline", line_policy: "none", tooltips})
+      const p = fig([200, 200], {toolbar_location: null, min_border: 0, x_range: [1, 3], y_range: [0, 2]})
+      const r = p.line([1, 2, 3], [1, 1, 1])
+      p.add_tools(hover)
+
+      const {view} = await display(p)
+
+      const crv = view.renderer_views.get(r)!
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([1.8], [1.5])
+      const ui = view.canvas_view.ui_event_bus
+      const {left, top} = offset_bbox(ui.hit_area)
+      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
+      ui.hit_area.dispatchEvent(ev)
+
+      await view.ready
+
+      const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
+      const tt = hover_view.ttmodels.values().next().value as Tooltip
+
+      expect(tt.position).to.be.equal([sx|0, sy|0])
     })
   })
 
