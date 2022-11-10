@@ -31,7 +31,7 @@ export class BoxSelectToolView extends SelectToolView {
 
     const {active} = this.model.properties
     this.on_change(active, () => {
-      if (!this.model.active)
+      if (!this.model.active && !this.model.persistent)
         this._clear_overlay()
     })
   }
@@ -163,6 +163,11 @@ export class BoxSelectToolView extends SelectToolView {
     }
 
     super._keyup(ev)
+  }
+
+  override _clear_selection(): void {
+    this._clear_overlay()
+    super._clear_selection()
   }
 
   _clear_overlay(): void {

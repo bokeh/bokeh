@@ -18,7 +18,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.model.clear.connect(() => this._clear())
+    this.model.clear.connect(() => this._clear_selection())
   }
 
   get computed_renderers(): DataRenderer[] {
@@ -44,6 +44,10 @@ export abstract class SelectToolView extends GestureToolView {
     }
 
     return renderers_by_source
+  }
+
+  protected _clear_selection(): void {
+    this._clear()
   }
 
   protected _select_mode(ev: KeyModifiers): SelectionMode {
