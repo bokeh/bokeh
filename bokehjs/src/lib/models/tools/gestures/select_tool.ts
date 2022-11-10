@@ -5,7 +5,7 @@ import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
 import * as p from "core/properties"
-import {KeyEvent, UIEvent} from "core/ui_events"
+import {KeyEvent, KeyModifiers} from "core/ui_events"
 import {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
 import {Geometry, GeometryData} from "core/geometry"
@@ -46,7 +46,7 @@ export abstract class SelectToolView extends GestureToolView {
     return renderers_by_source
   }
 
-  protected _select_mode(ev: UIEvent): SelectionMode {
+  protected _select_mode(ev: KeyModifiers): SelectionMode {
     const {shift_key, ctrl_key} = ev
 
     if (!shift_key && !ctrl_key)

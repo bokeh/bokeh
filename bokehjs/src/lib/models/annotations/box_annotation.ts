@@ -5,7 +5,7 @@ import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
-import {PanEvent, Pannable, MoveEvent, Moveable} from "core/ui_events"
+import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
 import {assert} from "core/util/assert"
 
@@ -142,7 +142,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
           bbox: this.bbox.clone(),
           target,
         }
-        this.model.pan.emit("pan:start")
+        this.model.pan.emit(["pan:start", ev])
         return true
       }
     }
@@ -199,12 +199,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     }
 
     this.model.update(ltrb)
-    this.model.pan.emit("pan")
+    this.model.pan.emit(["pan", ev])
   }
 
-  _pan_end(_ev: PanEvent): void {
+  _pan_end(ev: PanEvent): void {
     this._pan_state = null
-    this.model.pan.emit("pan:end")
+    this.model.pan.emit(["pan:end", ev])
   }
 
   private get _has_hover(): boolean {
@@ -346,7 +346,7 @@ export class BoxAnnotation extends Annotation {
     })
   }
 
-  readonly pan = new Signal<"pan:start" | "pan" | "pan:end", this>(this, "pan")
+  readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
   update({left, right, top, bottom}: LRTB): void {
     this.setv({left, right, top, bottom, visible: true})

@@ -96,33 +96,32 @@ type HammerEvent = {
 
 export type ScreenCoord = {sx: number, sy: number}
 
+export type KeyModifiers = {
+  shift_key: boolean
+  ctrl_key: boolean
+}
+
 export type PanEvent = {
   type: "pan" | "panstart" | "panend"
   sx: number
   sy: number
   dx: number
   dy: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type PinchEvent = {
   type: "pinch" | "pinchstart" | "pinchend"
   sx: number
   sy: number
   scale: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type RotateEvent = {
   type: "rotate" | "rotatestart" | "rotateend"
   sx: number
   sy: number
   rotation: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
@@ -130,26 +129,20 @@ export type TapEvent = {
   type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
   sx: number
   sy: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type MoveEvent = {
   type: "mousemove" | "mouseenter" | "mouseleave"
   sx: number
   sy: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type ScrollEvent = {
   type: "wheel"
   sx: number
   sy: number
   delta: number
-  shift_key: boolean
-  ctrl_key: boolean
-}
+} & KeyModifiers
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 

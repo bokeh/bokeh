@@ -19,12 +19,12 @@ export class BoxSelectToolView extends SelectToolView {
     super.connect_signals()
 
     const {pan} = this.model.overlay
-    this.connect(pan, (phase) => {
+    this.connect(pan, ([phase, ev]) => {
       if ((phase == "pan" && this.model.select_every_mousemove) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
         if (left != null && top != null && right != null && bottom != null) {
           const screen = this._compute_lrtb({left, right, top, bottom})
-          this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this.model.mode)
+          this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this._select_mode(ev))
         }
       }
     })
