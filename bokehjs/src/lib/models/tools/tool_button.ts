@@ -71,8 +71,15 @@ export abstract class ToolButtonView extends UIElementView {
     })
 
     this.el.addEventListener("keydown", (event) => {
-      if (event.key == "Enter") {
-        this._clicked()
+      switch (event.key) {
+        case "Enter": {
+          this._clicked()
+          break
+        }
+        case " ": {
+          this._pressed()
+          break
+        }
       }
     })
   }
