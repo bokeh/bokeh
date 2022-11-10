@@ -197,7 +197,7 @@ const DEFAULT_BOX_OVERLAY = () => {
     syncable: false,
     level: "overlay",
     visible: false,
-    editable: true,
+    editable: false,
     top_units: "canvas",
     left_units: "canvas",
     bottom_units: "canvas",

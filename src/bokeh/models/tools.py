@@ -759,15 +759,32 @@ class CrosshairTool(InspectTool):
     Stroke width in units of pixels.
     """)
 
-DEFAULT_BOX_OVERLAY = InstanceDefault(BoxAnnotation,
+DEFAULT_BOX_ZOOM_OVERLAY = InstanceDefault(BoxAnnotation,
     syncable=False,
     level="overlay",
     visible=False,
-    editable=True,
+    editable=False,
     top_units="canvas",
     left_units="canvas",
     bottom_units="canvas",
     right_units="canvas",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4],
+)
+
+DEFAULT_BOX_SELECT_OVERLAY = InstanceDefault(BoxAnnotation,
+    syncable=False,
+    level="overlay",
+    visible=False,
+    editable=True,
+    top_units="data",
+    left_units="data",
+    bottom_units="data",
+    right_units="data",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -807,7 +824,7 @@ class BoxZoomTool(Drag):
     of the plot, and the vertical dimension can be controlled.
     """)
 
-    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_ZOOM_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
@@ -918,7 +935,7 @@ class BoxSelectTool(Drag, RegionSelectTool):
     plot, and the vertical dimension can be controlled.
     """)
 
-    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_SELECT_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
