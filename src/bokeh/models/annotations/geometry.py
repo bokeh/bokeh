@@ -136,6 +136,13 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
+    symmetric = Bool(default=False, help="""
+    Indicates whether the box is resizable around its center or its corners.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
     """)

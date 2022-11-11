@@ -189,34 +189,43 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       const {bbox, target} = this._pan_state
       const {left, top, right, bottom} = bbox
 
-      switch (target) {
-        case "top_left":
-          return {left: left + dx, top: top + dy, right, bottom}
-        case "top_right":
-          return {left, top: top + dy, right: right + dx, bottom}
-        case "bottom_left":
-          return {left: left + dx, top, right, bottom: bottom + dy}
-        case "bottom_right":
-          return {left, top, right: right + dx, bottom: bottom + dy}
-        case "left":
-          return {left: left + dx, top, right, bottom}
-        case "right":
-          return {left, top, right: right + dx, bottom}
-        case "top":
-          return {left, top: top + dy, right, bottom}
-        case "bottom":
-          return {left, top, right, bottom: bottom + dy}
-        case "box": {
-          const [ddx, ddy] = (() => {
+      const {symmetric} = this.model
+      const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
+
+      const [dl, dr, dt, db] = (() => {
+        switch (target) {
+          case "top_left":
+            return [dx, Dx, dy, Dy]
+          case "top_right":
+            return [Dx, dx, dy, Dy]
+          case "bottom_left":
+            return [dx, Dx, Dy, dy]
+          case "bottom_right":
+            return [Dx, dx, Dy, dy]
+          case "left":
+            return [dx, Dx, 0, 0]
+          case "right":
+            return [Dx, dx, 0, 0]
+          case "top":
+            return [0, 0, dy, Dy]
+          case "bottom":
+            return [0, 0, Dy, dy]
+          case "box": {
             switch (this.model.movable) {
-              case "both": return [dx, dy]
-              case "x":    return [dx, 0]
-              case "y":    return [0, dy]
-              case "none": return [0, 0]
+              case "both": return [dx, dx, dy, dy]
+              case "x":    return [dx, dx, 0, 0]
+              case "y":    return [0, 0, dy, dy]
+              case "none": return [0, 0, 0, 0]
             }
-          })()
-          return {left: left + ddx, top: top + ddy, right: right + ddx, bottom: bottom + ddy}
+          }
         }
+      })()
+
+      return {
+        left: left + dl,
+        right: right + dr,
+        top: top + dt,
+        bottom: bottom + db,
       }
     })()
 
@@ -316,6 +325,7 @@ export namespace BoxAnnotation {
     editable: p.Property<boolean>
     resizable: p.Property<Resizable>
     movable: p.Property<Movable>
+    symmetric: p.Property<boolean>
 
     tl_cursor: p.Property<string>
     tr_cursor: p.Property<string>
@@ -376,6 +386,7 @@ export class BoxAnnotation extends Annotation {
       editable:     [ Boolean, false ],
       resizable:    [ Resizable, "all" ],
       movable:      [ Movable, "both" ],
+      symmetric:    [ Boolean, false ],
     }))
 
     this.internal<BoxAnnotation.Props>(({String}) => ({
