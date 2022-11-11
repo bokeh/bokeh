@@ -215,7 +215,7 @@ export abstract class SelectTool extends GestureTool {
       null,
       {
         icon: "bk-tool-icon-clear-selection",
-        tooltip: "Clear the current selection (Esc)",
+        tooltip: "Clear the current selection and/or selection overlay (Esc)",
         handler: () => {
           this.clear.emit()
         },

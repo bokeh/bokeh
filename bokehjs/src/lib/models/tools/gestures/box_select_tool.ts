@@ -166,8 +166,10 @@ export class BoxSelectToolView extends SelectToolView {
   }
 
   override _clear_selection(): void {
-    this._clear_overlay()
-    super._clear_selection()
+    if (this.model.overlay.visible)
+      this._clear_overlay()
+    else
+      super._clear_selection()
   }
 
   _clear_overlay(): void {
