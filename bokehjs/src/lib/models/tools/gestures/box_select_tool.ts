@@ -237,6 +237,20 @@ export class BoxSelectTool extends SelectTool {
     this.register_alias("ybox_select", () => new BoxSelectTool({dimensions: "height"}))
   }
 
+  override initialize(): void {
+    super.initialize()
+
+    const [resizable, movable] = (() => {
+      switch (this.dimensions) {
+        case "width":  return ["x", "x"] as const
+        case "height": return ["y", "y"] as const
+        case "both":   return ["all", "both"] as const
+      }
+    })()
+
+    this.overlay.setv({resizable, movable})
+  }
+
   override tool_name = "Box Select"
   override event_type = "pan" as "pan"
   override default_order = 30

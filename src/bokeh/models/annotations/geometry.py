@@ -119,6 +119,23 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
+    resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all", default="all", help="""
+    If `editable` is set, this property allows to configure which
+    combinations of edges are allowed to be moved, thus allows
+    restrictions on resizing of the box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    movable = Enum("none", "x", "y", "both", default="both", help="""
+    If `editable` is set, this property allows to configure in which
+    directions the box can be moved.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
     """)

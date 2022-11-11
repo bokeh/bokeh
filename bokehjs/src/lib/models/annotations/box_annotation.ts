@@ -6,6 +6,7 @@ import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
 import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
+import {Enum} from "core/kinds"
 import {Signal} from "core/signaling"
 import {assert} from "core/util/assert"
 
@@ -16,6 +17,12 @@ const {abs} = Math
 type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
 type Edge = "left" | "right" | "top" | "bottom"
 type HitTarget = Corner | Edge | "box"
+
+type Resizable = typeof Resizable["__type__"]
+const Resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all")
+
+type Movable = typeof Movable["__type__"]
+const Movable = Enum("none", "x", "y", "both")
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
   declare model: BoxAnnotation
@@ -131,13 +138,38 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     return null
   }
 
+  get resizable(): LRTB<boolean> {
+    const {resizable} = this.model
+    return {
+      left: resizable == "left" || resizable == "x" || resizable == "all",
+      right: resizable == "right" || resizable == "x" || resizable == "all",
+      top: resizable == "top" || resizable == "y" || resizable == "all",
+      bottom: resizable == "bottom" || resizable == "y" || resizable == "all",
+    }
+  }
+
+  private _can_hit(target: HitTarget): boolean {
+    const {left, right, top, bottom} = this.resizable
+    switch (target) {
+      case "top_left":     return top && left
+      case "top_right":    return top && right
+      case "bottom_left":  return bottom && left
+      case "bottom_right": return bottom && right
+      case "left":         return left
+      case "right":        return right
+      case "top":          return top
+      case "bottom":       return bottom
+      case "box":          return this.model.movable != "none"
+    }
+  }
+
   private _pan_state: {bbox: BBox, target: HitTarget} | null = null
 
   _pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
-      if (target != null) {
+      if (target != null && this._can_hit(target)) {
         this._pan_state = {
           bbox: this.bbox.clone(),
           target,
@@ -174,8 +206,17 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
           return {left, top: top + dy, right, bottom}
         case "bottom":
           return {left, top, right, bottom: bottom + dy}
-        case "box":
-          return {left: left + dx, top: top + dy, right: right + dx, bottom: bottom + dy}
+        case "box": {
+          const [ddx, ddy] = (() => {
+            switch (this.model.movable) {
+              case "both": return [dx, dy]
+              case "x":    return [dx, 0]
+              case "y":    return [0, dy]
+              case "none": return [0, 0]
+            }
+          })()
+          return {left: left + ddx, top: top + ddy, right: right + ddx, bottom: bottom + ddy}
+        }
       }
     })()
 
@@ -234,17 +275,26 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   override cursor(sx: number, sy: number): string | null {
     const target = this._pan_state?.target ?? this._hit_test(sx, sy)
+    if (target == null || !this._can_hit(target)) {
+      return null
+    }
     switch (target) {
       case "top_left":     return this.model.tl_cursor
       case "top_right":    return this.model.tr_cursor
       case "bottom_left":  return this.model.bl_cursor
       case "bottom_right": return this.model.br_cursor
-      case "left":         return this.model.ew_cursor
+      case "left":
       case "right":        return this.model.ew_cursor
-      case "top":          return this.model.ns_cursor
+      case "top":
       case "bottom":       return this.model.ns_cursor
-      case "box":          return this.model.in_cursor
-      default:             return null
+      case "box": {
+        switch (this.model.movable) {
+          case "both": return this.model.in_cursor
+          case "x":    return this.model.ew_cursor
+          case "y":    return this.model.ns_cursor
+          case "none": return null
+        }
+      }
     }
   }
 }
@@ -264,6 +314,8 @@ export namespace BoxAnnotation {
     right_units: p.Property<CoordinateUnits>
 
     editable: p.Property<boolean>
+    resizable: p.Property<Resizable>
+    movable: p.Property<Movable>
 
     tl_cursor: p.Property<string>
     tr_cursor: p.Property<string>
@@ -322,6 +374,8 @@ export class BoxAnnotation extends Annotation {
       right_units:  [ CoordinateUnits, "data" ],
 
       editable:     [ Boolean, false ],
+      resizable:    [ Resizable, "all" ],
+      movable:      [ Movable, "both" ],
     }))
 
     this.internal<BoxAnnotation.Props>(({String}) => ({

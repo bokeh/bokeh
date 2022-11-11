@@ -261,6 +261,8 @@ def test_BoxAnnotation() -> None:
         "top",
         "top_units",
         "editable",
+        "resizable",
+        "movable",
     ], LINE, FILL, HATCH, HOVER_LINE, HOVER_FILL, HOVER_HATCH)
 
 def test_BoxAnnotation_accepts_datetime() -> None:
