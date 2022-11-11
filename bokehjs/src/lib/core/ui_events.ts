@@ -99,6 +99,7 @@ export type ScreenCoord = {sx: number, sy: number}
 export type KeyModifiers = {
   shift_key: boolean
   ctrl_key: boolean
+  alt_key: boolean
 }
 
 export type PanEvent = {
@@ -149,7 +150,7 @@ export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 export type KeyEvent = {
   type: "keyup" | "keydown"
   key: Keys
-}
+} & KeyModifiers
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
 
@@ -448,12 +449,12 @@ export class UIEventBus implements EventListenerObject {
 
       if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(prev_view)
-        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shift_key: false, ctrl_key: false}, srcEvent)
+        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shift_key: false, ctrl_key: false, alt_key: false}, srcEvent)
       }
 
       if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(curr_view)
-        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shift_key: false, ctrl_key: false}, srcEvent)
+        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shift_key: false, ctrl_key: false, alt_key: false}, srcEvent)
       }
 
       if (curr_view != null && e.type == "mousemove") {
@@ -675,6 +676,7 @@ export class UIEventBus implements EventListenerObject {
       dy: e.deltaY,
       shift_key: e.srcEvent.shiftKey,
       ctrl_key: e.srcEvent.ctrlKey,
+      alt_key: e.srcEvent.altKey,
     }
   }
 
@@ -685,6 +687,7 @@ export class UIEventBus implements EventListenerObject {
       scale: e.scale,
       shift_key: e.srcEvent.shiftKey,
       ctrl_key: e.srcEvent.ctrlKey,
+      alt_key: e.srcEvent.altKey,
     }
   }
 
@@ -695,6 +698,7 @@ export class UIEventBus implements EventListenerObject {
       rotation: e.rotation,
       shift_key: e.srcEvent.shiftKey,
       ctrl_key: e.srcEvent.ctrlKey,
+      alt_key: e.srcEvent.altKey,
     }
   }
 
@@ -704,6 +708,7 @@ export class UIEventBus implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       shift_key: e.srcEvent.shiftKey,
       ctrl_key: e.srcEvent.ctrlKey,
+      alt_key: e.srcEvent.altKey,
     }
   }
 
@@ -713,6 +718,7 @@ export class UIEventBus implements EventListenerObject {
       ...this._get_sxy(e),
       shift_key: e.shiftKey,
       ctrl_key: e.ctrlKey,
+      alt_key: e.altKey,
     }
   }
 
@@ -723,6 +729,7 @@ export class UIEventBus implements EventListenerObject {
       delta: getDeltaY(e),
       shift_key: e.shiftKey,
       ctrl_key: e.ctrlKey,
+      alt_key: e.altKey,
     }
   }
 
@@ -730,6 +737,9 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as KeyEvent["type"],
       key: e.key as Keys,
+      shift_key: e.shiftKey,
+      ctrl_key: e.ctrlKey,
+      alt_key: e.altKey,
     }
   }
 

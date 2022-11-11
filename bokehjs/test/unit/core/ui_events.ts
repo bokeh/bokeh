@@ -62,7 +62,7 @@ describe("ui_event_bus module", () => {
       let spy_cursor: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "mousemove", sx: 0, sy: 0, ctrl_key: false, shift_key: false}
+        e = {type: "mousemove", sx: 0, sy: 0, ctrl_key: false, shift_key: false, alt_key: false}
         spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
@@ -165,7 +165,7 @@ describe("ui_event_bus module", () => {
     describe("base_type=tap", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "tap", sx: 10, sy: 15, ctrl_key: false, shift_key: false}
+        e = {type: "tap", sx: 10, sy: 15, ctrl_key: false, shift_key: false, alt_key: false}
       })
 
       it("should not trigger tap event if no active tap tool", () => {
@@ -209,7 +209,7 @@ describe("ui_event_bus module", () => {
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrl_key: false, shift_key: false}
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrl_key: false, shift_key: false, alt_key: false}
         srcEvent = new Event("scroll")
 
         preventDefault = sinon.spy(srcEvent, "preventDefault")
@@ -253,7 +253,7 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false}
+        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false, alt_key: false}
       })
 
       it("should not trigger event if no active tool", () => {

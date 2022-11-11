@@ -20,7 +20,7 @@ export class BoxSelectToolView extends SelectToolView {
 
     const {pan} = this.model.overlay
     this.connect(pan, ([phase, ev]) => {
-      if ((phase == "pan" && this.model.select_every_mousemove) || phase == "pan:end") {
+      if ((phase == "pan" && this.model.select_every_mousemove && !ev.alt_key) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
         if (left != null && top != null && right != null && bottom != null) {
           const screen = this._compute_lrtb({left, right, top, bottom})

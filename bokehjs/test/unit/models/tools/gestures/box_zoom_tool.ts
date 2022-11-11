@@ -91,10 +91,10 @@ describe("BoxZoomTool", () => {
       const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false}
+      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false, alt_key: false}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false}
+      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false, alt_key: false}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_range
@@ -111,10 +111,10 @@ describe("BoxZoomTool", () => {
       const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false}
+      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false, alt_key: false}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false}
+      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, dx: 0, dy: 0, scale: 1, ctrl_key: false, shift_key: false, alt_key: false}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_range
