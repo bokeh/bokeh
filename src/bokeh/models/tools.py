@@ -296,6 +296,21 @@ class SelectTool(GestureTool):
     """)
 
 @abstract
+class RegionSelectTool(SelectTool):
+    ''' Base class for region selection tools (e.g. box, polygon, lasso).
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    select_every_mousemove = Bool(False, help="""
+    Whether a selection computation should happen continuously during selection
+    gestures, or only once when the selection region is completed.
+    """)
+
+@abstract
 class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
 
@@ -870,7 +885,7 @@ class ZoomOutTool(PlotActionTool):
     that causes overall focus or aspect ratio to change.
     """)
 
-class BoxSelectTool(Drag, SelectTool):
+class BoxSelectTool(Drag, RegionSelectTool):
     ''' *toolbar icon*: |box_select_icon|
 
     The box selection tool allows users to make selections on a Plot by showing
@@ -890,11 +905,6 @@ class BoxSelectTool(Drag, SelectTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    select_every_mousemove = Bool(False, help="""
-    Whether a selection computation should happen on every mouse event, or only
-    once, when the selection region is completed. Default: False
-    """)
 
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box selection is to be free in. By default, users may
@@ -928,7 +938,7 @@ DEFAULT_POLY_OVERLAY = InstanceDefault(PolyAnnotation,
     line_dash=[4, 4]
 )
 
-class LassoSelectTool(Drag, SelectTool):
+class LassoSelectTool(Drag, RegionSelectTool):
     ''' *toolbar icon*: |lasso_select_icon|
 
     The lasso selection tool allows users to make selections on a Plot by
@@ -955,16 +965,13 @@ class LassoSelectTool(Drag, SelectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    select_every_mousemove = Bool(True, help="""
-    Whether a selection computation should happen on every mouse event, or only
-    once, when the selection region is completed.
-    """)
-
     overlay = Instance(PolyAnnotation, default=DEFAULT_POLY_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
-class PolySelectTool(Tap, SelectTool):
+    select_every_mousemove = Override(default=True)
+
+class PolySelectTool(Tap, RegionSelectTool):
     ''' *toolbar icon*: |poly_select_icon|
 
     The polygon selection tool allows users to make selections on a

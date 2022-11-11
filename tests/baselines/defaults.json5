@@ -5024,6 +5024,10 @@
     renderers: "auto",
     mode: "replace",
   },
+  RegionSelectTool: {
+    __extends__: "SelectTool",
+    select_every_mousemove: false,
+  },
   InspectTool: {
     __extends__: "GestureTool",
     toggleable: true,
@@ -5152,9 +5156,8 @@
   BoxSelectTool: {
     __extends__: [
       "Drag",
-      "SelectTool",
+      "RegionSelectTool",
     ],
-    select_every_mousemove: false,
     dimensions: "both",
     overlay: {
       type: "object",
@@ -5183,7 +5186,7 @@
   LassoSelectTool: {
     __extends__: [
       "Drag",
-      "SelectTool",
+      "RegionSelectTool",
     ],
     select_every_mousemove: true,
     overlay: {
@@ -5212,7 +5215,7 @@
   PolySelectTool: {
     __extends__: [
       "Tap",
-      "SelectTool",
+      "RegionSelectTool",
     ],
     overlay: {
       type: "object",
