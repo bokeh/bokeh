@@ -1,0 +1,15 @@
+.. _release-3-0-2:
+
+3.0.2
+=====
+
+Bokeh Version ``3.0.2`` (Nov 2022) is a point release that addresses issues
+that could result in runtime import errors under certain circumstances, as
+well as other small regressions and bugfixes.
+
+* [BUG] Line selection does not render the unselected end line segments (:bokeh-issue:`12429`)
+* [BUG] gridplot reset button does not reset all figures (:bokeh-issue:`12578`)
+* [BUG] Don't delete importlib.metadata in __init__.py (:bokeh-issue:`12587`)
+* [BUG] Guard numpy.typing.ArrayType with if TYPE_CHECKING (:bokeh-pull:`12593`)
+* [BUG] latex in titles - upright characters that should be italic (:bokeh-issue:`12531`)
+* [BUG] line_policy='none' for HoverTool does not generate any tooltip in 3.0.1 (:bokeh-issue:`12585`)
