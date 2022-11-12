@@ -284,25 +284,33 @@ export class HoverToolView extends InspectToolView {
       const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
         const [[snap_x, snap_y], [snap_sx, snap_sy], ii] = (() => {
-          if (line_policy == "interp") {
-            const [snap_x, snap_y] = glyph.get_interpolation_hit(i, geometry)
-            const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
-            return [[snap_x, snap_y], snap_sxy, i]
-          }
           const [x, y] = [glyph._x, glyph._y]
-          if (line_policy == "prev") {
-            const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i)
-            return [[x[i+1], y[i+1]], snap_sxy, ii]
+          switch (line_policy) {
+            case "interp": {
+              const [snap_x, snap_y] = glyph.get_interpolation_hit(i, geometry)
+              const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
+              return [[snap_x, snap_y], snap_sxy, i]
+            }
+            case "prev": {
+              const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i)
+              return [[x[i+1], y[i+1]], snap_sxy, ii]
+            }
+            case "next": {
+              const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i+1)
+              return [[x[i+1], y[i+1]], snap_sxy, ii]
+            }
+            case "nearest": {
+              const [snap_sxy, ii] = _nearest_line_hit(i, geometry, glyph.sx, glyph.sy)
+              return [[x[ii], y[ii]], snap_sxy, ii]
+            }
+            case "none": {
+              const xscale = renderer_view.coordinates.x_scale
+              const yscale = renderer_view.coordinates.y_scale
+              const x = xscale.invert(sx)
+              const y = yscale.invert(sy)
+              return [[x, y], [sx, sy], i]
+            }
           }
-          if (line_policy=="next") {
-            const [snap_sxy, ii] = _line_hit(glyph.sx, glyph.sy, i+1)
-            return [[x[i+1], y[i+1]], snap_sxy, ii]
-          }
-          if (line_policy == "nearest") {
-            const [snap_sxy, ii] = _nearest_line_hit(i, geometry, glyph.sx, glyph.sy)
-            return [[x[ii], y[ii]], snap_sxy, ii]
-          }
-          throw new Error("shouldn't have happened")
         })()
 
         const vars = {

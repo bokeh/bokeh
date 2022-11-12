@@ -40,6 +40,7 @@ import {Color, Arrayable} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
+import {isArray} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
@@ -2674,6 +2675,38 @@ describe("Bug", () => {
 
       const btn = view.owner.get_one(zoom_in_btn)
       await click(btn.el)
+    })
+  })
+
+  describe("in issue #12585", () => {
+    it("doesn't allow support for line_policy=none with mode=vline", async () => {
+      const hover = new HoverTool({
+        mode: "vline",
+        line_policy: "none",
+        tooltips: [["x", "$x"], ["y", "$y"]],
+      })
+      const p = fig([200, 200], {tools: [hover]})
+      const r = p.line([1, 2, 3], [1, 1, 1])
+
+      const {view} = await display(p)
+
+      const pt = xy(1.8, 1.5)
+
+      const actions = new PlotActions(view)
+      actions.hover(pt)
+
+      await view.ready
+
+      const hover_view = view.owner.get_one(hover)
+      const [tt] = hover_view.ttmodels.values()
+
+      const crv = view.owner.get_one(r)
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([pt.x], [pt.y])
+
+      // TODO: tt.position is not guarantted to be whole pixels (?)
+      assert(isArray(tt.position))
+      const [px, py] = tt.position
+      expect([px|0, py|0]).to.be.equal([sx|0, sy|0])
     })
   })
 })

@@ -1256,16 +1256,16 @@ class HoverTool(InspectTool):
     according to the "datetime" formatting scheme. The following schemes are
     available:
 
-    :``"numeral"``:
+    :"numeral":
         Provides a wide variety of formats for numbers, currency, bytes, times,
         and percentages. The full set of formats can be found in the
         |NumeralTickFormatter| reference documentation.
 
-    :``"datetime"``:
+    :"datetime":
         Provides formats for date and time values. The full set of formats is
         listed in the |DatetimeTickFormatter| reference documentation.
 
-    :``"printf"``:
+    :"printf":
         Provides formats similar to C-style "printf" type specifiers. See the
         |PrintfTickFormatter| reference documentation for complete details.
 
@@ -1296,10 +1296,19 @@ class HoverTool(InspectTool):
 
     line_policy = Enum("prev", "next", "nearest", "interp", "none",
                        default="nearest", help="""
-    When showing tooltips for lines, designates whether the tooltip position
-    should be the "previous" or "next" points on the line, the "nearest" point
-    to the current mouse position, or "interpolate" along the line to the
-    current mouse position.
+    Specifies where the tooltip will be positioned when hovering over line
+    glyphs:
+
+    :"prev": between the nearest two adjacent line points, positions the
+        tooltip at the point with the lower ("previous") index
+    :"next": between the nearest two adjacent line points, positions the
+        tooltip at the point with the higher ("next") index
+    :"nearest": between the nearest two adjacent line points, positions the
+        tooltip on the point that is nearest to the mouse cursor location
+    :"interp": positions the tooltip at an interpolated point on the segment
+        joining the two nearest adjacent line points.
+    :"none": positions the tooltip directly under the mouse cursor location
+
     """)
 
     anchor = Enum(Anchor, default="center", help="""
