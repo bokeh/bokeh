@@ -221,12 +221,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
         }
       })()
 
-      return {
+      return BBox.from_lrtb({
         left: left + dl,
         right: right + dr,
         top: top + dt,
         bottom: bottom + db,
-      }
+      })
     })()
 
     const invert = (sv: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
