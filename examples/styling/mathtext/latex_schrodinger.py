@@ -16,16 +16,20 @@ from scipy.special import factorial, hermite
 from bokeh.models import Label, Range1d, Title
 from bokeh.plotting import figure, show
 
-p = figure(
-    width=800, height=600, x_range=Range1d(-6, 6), y_range=Range1d(0, 8), toolbar_location=None,
-    title=r"$$\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }"
-          r" -\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi$$")
+p = figure(width=800, height=600, x_range=Range1d(-6, 6), y_range=Range1d(0, 8), toolbar_location=None)
 p.xaxis.axis_label = r"$$q$$"
 p.yaxis.visible = False
 p.xgrid.visible = False
 p.ygrid.visible = False
-p.add_layout(Title(text=r"$$\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v$$"), "above")
-p.add_layout(Title(text=r"$$\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}$$"), "above")
+
+title = [
+    r"$$\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }" +
+        r" -\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi$$",
+    r"$$\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v$$",
+    r"$$\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}$$",
+]
+for text in reversed(title):
+    p.add_layout(Title(text=text, text_font_style="normal"), "above")
 
 q = np.linspace(-6, 6, 100)
 yscale = 0.75
