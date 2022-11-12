@@ -409,6 +409,8 @@ class PanTool(Drag):
 DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
     syncable=False,
     level="overlay",
+    visible=True,
+    editable=True,
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -444,6 +446,11 @@ class RangeTool(Drag):
     will span the entire x-dimension.
     """)
 
+    y_range = Nullable(Instance(Range1d), help="""
+    A range synchronized to the y-dimension of the overlay. If None, the overlay
+    will span the entire y-dimension.
+    """)
+
     x_interaction = Bool(default=True, help="""
     Whether to respond to horizontal pan motions when an ``x_range`` is present.
 
@@ -452,11 +459,6 @@ class RangeTool(Drag):
     box, or along the top or bottom edge of the box. To disable this, and fix
     the  range box in place horizontally, set to False. (The box will still
     update if the ``x_range`` is updated programmatically.)
-    """)
-
-    y_range = Nullable(Instance(Range1d), help="""
-    A range synchronized to the y-dimension of the overlay. If None, the overlay
-    will span the entire y-dimension.
     """)
 
     y_interaction = Bool(default=True, help="""
