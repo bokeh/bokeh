@@ -1,6 +1,5 @@
 import {expect} from "assertions"
 import {display, fig} from "../../../_util"
-import {PlotActions, xy} from "../../../../interactive"
 
 import {assert} from "@bokehjs/core/util/assert"
 import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
@@ -72,31 +71,6 @@ describe("HoverTool", () => {
       const el2 = hover_view._render_tooltips(data_source, vars)
       assert(el2 != null)
       expect(el2.childElementCount).to.be.equal(2)
-    })
-  })
-
-  describe("line_policy", () => {
-    it("should support 'none' line_policy with mode=vline", async () => {
-      const tooltips: [string, string][] = [["x", "$x"], ["y", "$y"]]
-      const hover = new HoverTool({mode: "vline", line_policy: "none", tooltips})
-      const p = fig([200, 200])
-      const r = p.line([1, 2, 3], [1, 1, 1])
-      p.add_tools(hover)
-
-      const {view} = await display(p)
-
-      const crv = view.renderer_views.get(r)!
-      const [[sx], [sy]] = crv.coordinates.map_to_screen([1.8], [1.5])
-
-      const actions = new PlotActions(view)
-      actions.hover(xy(1.8, 1.5), xy(1.8, 1.5))
-
-      await view.ready
-
-      const hover_view = view.owner.get_one(hover)
-      const [tt] = hover_view.ttmodels.values()
-
-      expect(tt.position).to.be.equal([sx|0, sy|0])
     })
   })
 
