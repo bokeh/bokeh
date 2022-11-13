@@ -56,7 +56,7 @@ class Test_NamedColor:
         c = bcu.NamedColor.find("cornflowerblue")
         assert c.name == "cornflowerblue"
 
-        assert bcu.NamedColor.find("bluey") == None
+        assert bcu.NamedColor.find("bluey") is None
 
     def test_from_string(self) -> None:
         # Name

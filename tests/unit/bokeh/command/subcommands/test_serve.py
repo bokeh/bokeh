@@ -521,7 +521,7 @@ def test_unix_socket() -> None:
                     r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
                     assert r.status_code == 200
                     break
-                except:
+                except Exception:
                     if t == 10:
                         assert False
                     pass
