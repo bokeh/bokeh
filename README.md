@@ -134,7 +134,7 @@
 
 ## Installation
 
-To install Bokeh and its required dependencies using using `pip`, enter the following command at a Bash or Windows command prompt:
+To install Bokeh and its required dependencies using `pip`, enter the following command at a Bash or Windows command prompt:
 ```
 pip install bokeh
 ```
