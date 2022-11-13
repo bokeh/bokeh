@@ -6,9 +6,10 @@ import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
 import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
-import {Enum} from "core/kinds"
+import {Enum, Number, NonNegative, PartialStruct} from "core/kinds"
 import {Signal} from "core/signaling"
 import {assert} from "core/util/assert"
+import {isNumber} from "core/util/types"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -23,6 +24,14 @@ const Resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all"
 
 type Movable = typeof Movable["__type__"]
 const Movable = Enum("none", "x", "y", "both")
+
+type BorderRadius = typeof BorderRadius["__type__"]
+const BorderRadius = PartialStruct({
+  top_left: NonNegative(Number),
+  top_right: NonNegative(Number),
+  bottom_right: NonNegative(Number),
+  bottom_left: NonNegative(Number),
+})
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
   declare model: BoxAnnotation
@@ -69,13 +78,64 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     this._paint_box()
   }
 
+  get border_radius(): Required<BorderRadius> {
+    const {border_radius} = this.model
+    if (isNumber(border_radius)) {
+      return {
+        top_left: border_radius,
+        top_right: border_radius,
+        bottom_right: border_radius,
+        bottom_left: border_radius,
+      }
+    } else {
+      return {
+        top_left: border_radius.top_left ?? 0,
+        top_right: border_radius.top_right ?? 0,
+        bottom_right: border_radius.bottom_right ?? 0,
+        bottom_left: border_radius.bottom_left ?? 0,
+      }
+    }
+  }
+
   protected _paint_box(): void {
     const {ctx} = this.layer
     ctx.save()
 
-    const {left, top, width, height} = this.bbox
-    ctx.beginPath()
-    ctx.rect(left, top, width, height)
+    const br = this.border_radius
+    if (br.top_left != 0 || br.top_right != 0 || br.bottom_right != 0 || br.bottom_left != 0) {
+      const {left, right, top, bottom, width, height} = this.bbox
+
+      // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-roundrect
+      const scale = Math.min(
+        width / (br.top_left + br.top_right),
+        height / (br.top_right + br.bottom_right),
+        width / (br.bottom_right + br.bottom_left),
+        height / (br.top_left + br.bottom_left),
+      )
+
+      if (scale < 1.0) {
+        br.top_left *= scale
+        br.top_right *= scale
+        br.bottom_right *= scale
+        br.bottom_left *= scale
+      }
+
+      ctx.beginPath()
+      ctx.moveTo(left + br.top_left, top)
+      ctx.lineTo(right - br.top_right, top)
+      ctx.arcTo(right, top, right, top + br.top_right, br.top_right)
+      ctx.lineTo(right, bottom - br.bottom_right)
+      ctx.arcTo(right, bottom, right - br.bottom_right, bottom, br.bottom_right)
+      ctx.lineTo(left + br.bottom_left, bottom)
+      ctx.arcTo(left, bottom, left, bottom - br.bottom_left, br.bottom_left)
+      ctx.lineTo(left, top + br.top_left)
+      ctx.arcTo(left, top, left + br.top_left, top, br.top_left)
+      ctx.closePath()
+    } else {
+      const {left, top, width, height} = this.bbox
+      ctx.beginPath()
+      ctx.rect(left, top, width, height)
+    }
 
     const fill = this._is_hovered && this.visuals.hover_fill.doit ? this.visuals.hover_fill : this.visuals.fill
     const hatch = this._is_hovered && this.visuals.hover_hatch.doit ? this.visuals.hover_hatch : this.visuals.hatch
@@ -322,6 +382,8 @@ export namespace BoxAnnotation {
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
 
+    border_radius: p.Property<number | BorderRadius>
+
     editable: p.Property<boolean>
     resizable: p.Property<Resizable>
     movable: p.Property<Movable>
@@ -372,7 +434,7 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable, Or}) => ({
       top:          [ Nullable(Number), null ],
       bottom:       [ Nullable(Number), null ],
       left:         [ Nullable(Number), null ],
@@ -382,6 +444,8 @@ export class BoxAnnotation extends Annotation {
       bottom_units: [ CoordinateUnits, "data" ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
+
+      border_radius: [ Or(NonNegative(Number), BorderRadius), 0 ],
 
       editable:     [ Boolean, false ],
       resizable:    [ Resizable, "all" ],

@@ -4359,6 +4359,7 @@
     bottom_units: "data",
     top: null,
     top_units: "data",
+    border_radius: 0,
     editable: false,
     resizable: "all",
     movable: "both",

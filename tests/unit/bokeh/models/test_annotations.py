@@ -260,6 +260,7 @@ def test_BoxAnnotation() -> None:
         "bottom_units",
         "top",
         "top_units",
+        "border_radius",
         "editable",
         "resizable",
         "movable",
