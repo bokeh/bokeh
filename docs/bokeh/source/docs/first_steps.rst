@@ -24,6 +24,16 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
     .. grid-item-card::
 
+        Installing with ``pip``
+        ^^^
+        Use this command to install Bokeh:
+
+        .. code-block:: sh
+
+            pip install bokeh
+
+    .. grid-item-card::
+
         Installing with ``conda``
         ^^^
         Use this command to install Bokeh:
@@ -34,16 +44,6 @@ You can install Bokeh with either ``conda`` or ``pip``:
 
         Conda requires either `Anaconda`_ or `Miniconda`_ to be installed on your
         system.
-
-    .. grid-item-card::
-
-        Installing with ``pip``
-        ^^^
-        Use this command to install Bokeh:
-
-        .. code-block:: sh
-
-            pip install bokeh
 
 For more detailed information on installing and potential problems you might
 encounter, go to the :ref:`installation` section.
