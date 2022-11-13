@@ -14,7 +14,6 @@ dependencies:
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado 5.1.*
-  - typing_extensions >=3.10.0
   - xyzservices>=2021.09.1
 
   # tests
@@ -26,12 +25,10 @@ dependencies:
   - coverage
   - firefox =>96
   - flake8
-  - flaky
   - geckodriver
   - ipython
   - isort 5.8
   - json5
-  - mock
   - nbconvert >=5.4
   - nodejs 16.*
   - pre-commit
@@ -55,7 +52,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=0.981
+    - mypy >=0.990
     # docs
     - autoclasstoc
     - pydata_sphinx_theme ==0.9

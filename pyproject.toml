@@ -17,7 +17,6 @@ dependencies = [
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=5.1",
-    "typing_extensions >=4.0.0",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -45,6 +44,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -72,7 +72,6 @@ dev_template = "{tag}+{ccount}.g{sha}"
 dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.pytest.ini_options]
-addopts = "--no-success-flaky-report"
 asyncio_mode = "strict"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"

@@ -18,11 +18,11 @@ import pytest ; pytest
 
 # Standard library imports
 from typing import Any
+from unittest.mock import MagicMock, patch
 
 # External imports
 import numpy as np
 import pandas as pd
-from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.has_props import HasProps

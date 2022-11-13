@@ -16,8 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from mock import mock
+# Standard library imports
+from unittest import mock
 
 # Bokeh imports
 from bokeh.models import CDSView, Marker

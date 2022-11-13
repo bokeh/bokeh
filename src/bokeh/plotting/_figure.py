@@ -10,7 +10,11 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 import logging # isort:skip
+
 log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
@@ -19,7 +23,6 @@ log = logging.getLogger(__name__)
 
 # External imports
 import numpy as np
-from numpy.typing import ArrayLike
 
 # Bokeh imports
 from ..core.enums import HorizontalLocation, MarkerType, VerticalLocation
@@ -67,6 +70,9 @@ from ._stack import double_stack, single_stack
 from ._tools import process_active_tools, process_tools_arg
 from .contour import ContourRenderer, from_contour
 from .glyph_api import _MARKER_SHORTCUTS, GlyphAPI
+
+if TYPE_CHECKING:
+    from numpy.typing import ArrayLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants

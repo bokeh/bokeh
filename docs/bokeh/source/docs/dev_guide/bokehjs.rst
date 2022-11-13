@@ -126,7 +126,7 @@ Developing BokehJS requires the following minimum versions:
 
 * Node.js 16+
 * npm 8+
-* Chrome/Chromium browser 103+ or equivalent
+* Chrome/Chromium browser 107+ or equivalent
 
 Bokeh officially supports the following platforms for development and testing:
 

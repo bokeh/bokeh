@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, press} from "../interactive"
+import {PlotActions, xy, click, press} from "../interactive"
 
 import {
   Arrow, ArrowHead, NormalHead, OpenHead,
@@ -16,7 +16,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
+  Toolbar, ToolProxy, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -40,6 +40,7 @@ import {Color, Arrayable} from "@bokehjs/core/types"
 import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
+import {isArray} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
@@ -1986,7 +1987,7 @@ describe("Bug", () => {
       await display(row([p0, p1]))
     })
 
-    it("prevents selection of webgl line segments using indices", async () => {
+    it("and #12429 prevents selection of line segments using indices", async () => {
       const angles = np.linspace(0, 2*np.pi, 13)
       const x = np.cos(angles)
       const y = np.sin(angles)
@@ -2524,6 +2525,188 @@ describe("Bug", () => {
       })
 
       await display(tabs, [350, 200])
+    })
+  })
+
+  describe("in issue #4930", () => {
+    function plot(color: Color) {
+      const p = fig([150, 150])
+      const source = new ColumnDataSource({
+        data: {
+          foo: ["foo1", "foo2", "foo3"],
+          bar: ["bar1", "bar2", "bar3"],
+          baz: ["baz1", "baz2", "baz3"],
+        },
+      })
+      p.circle([1, 2, 3], [3, 1, 2], {size: 10, color, source})
+      const hover = new HoverTool({
+        tooltips: [
+          ["index",         "$index"],
+          ["data (x, y)",   "($x, $y)"],
+          ["screen (x, y)", "($sx, $sy)"],
+          ["foo",           "@foo"],
+          ["bar",           "@bar"],
+          ["baz",           "@baz"],
+        ],
+        attachment: "right",
+      })
+      p.add_tools(hover)
+      return p
+    }
+
+    it("allows to cut tooltips short in grid plots", async () => {
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("yellow")
+
+      const layout = new GridPlot({
+        toolbar_location: null,
+        children: [
+          [p00, 0, 0],
+          [p01, 0, 1],
+          [p10, 1, 0],
+          [p11, 1, 1],
+        ],
+      })
+
+      const {view} = await display(layout)
+
+      const pv = view.owner.get_one(p00)
+      const actions = new PlotActions(pv)
+      await actions.hover(xy(2, 1), xy(2, 1))
+    })
+
+    it("allows to cut tooltips short in layouts", async () => {
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("yellow")
+
+      const layout = new Column({
+        children: [
+          new Row({children: [p00, p01]}),
+          new Row({children: [p10, p11]}),
+        ],
+      })
+
+      const {view} = await display(layout)
+
+      const pv = view.owner.get_one(p00)
+      const actions = new PlotActions(pv)
+      await actions.hover(xy(2, 1), xy(2, 1))
+    })
+  })
+
+  describe("in issue #4888", () => {
+    const N = 50
+    const M = 10
+
+    function plot(output_backend: OutputBackend) {
+      const random = new Random(1)
+
+      const p = fig([300, 300], {output_backend})
+
+      for (let i = 0; i < N; i++) {
+        const x = random.floats(M)
+        const y = random.floats(M)
+        p.line({x, y})
+      }
+
+      return p
+    }
+
+    it(`doesn't allow to render many (N=${N}) canvas glyphs efficiently`, async () => {
+      const p = plot("canvas")
+      await display(p)
+    })
+
+    it(`doesn't allow to render many (N=${N}) svg glyphs efficiently`, async () => {
+      const p = plot("svg")
+      await display(p)
+    })
+
+    it(`doesn't allow to render many (N=${N}) webgl glyphs efficiently`, async () => {
+      const p = plot("webgl")
+      await display(p)
+    })
+  })
+
+  describe("in issue #12578", () => {
+    it("doesn't allow to use proxied action tools on all plots", async () => {
+      function plot(color: Color) {
+        const tool = new ZoomInTool()
+        const plot = fig([300, 300], {toolbar_location: null, tools: [tool]})
+        plot.circle([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
+        return {plot, tool}
+      }
+
+      const p00 = plot("red")
+      const p01 = plot("green")
+      const p10 = plot("blue")
+      const p11 = plot("purple")
+
+      const zoom_in = new ToolProxy({
+        tools: [
+          p00.tool,
+          p01.tool,
+          p10.tool,
+          p11.tool,
+        ],
+      })
+      const zoom_in_btn = zoom_in.tool_button()
+
+      const toolbar = new Toolbar({
+        tools: [zoom_in],
+        buttons: [zoom_in_btn],
+      })
+
+      const gp = new GridPlot({
+        children: [
+          [p00.plot, 0, 0],
+          [p01.plot, 0, 1],
+          [p10.plot, 1, 0],
+          [p11.plot, 1, 1],
+        ],
+        toolbar,
+      })
+
+      const {view} = await display(gp)
+
+      const btn = view.owner.get_one(zoom_in_btn)
+      await click(btn.el)
+    })
+  })
+
+  describe("in issue #12585", () => {
+    it("doesn't allow support for line_policy=none with mode=vline", async () => {
+      const hover = new HoverTool({
+        mode: "vline",
+        line_policy: "none",
+        tooltips: [["x", "$x"], ["y", "$y"]],
+      })
+      const p = fig([200, 200], {tools: [hover]})
+      const r = p.line([1, 2, 3], [1, 1, 1])
+
+      const {view} = await display(p)
+
+      const pt = xy(1.8, 1.5)
+
+      const actions = new PlotActions(view)
+      actions.hover(pt)
+
+      await view.ready
+
+      const hover_view = view.owner.get_one(hover)
+      const [tt] = hover_view.ttmodels.values()
+
+      const crv = view.owner.get_one(r)
+      const [[sx], [sy]] = crv.coordinates.map_to_screen([pt.x], [pt.y])
+
+      // TODO: tt.position is not guarantted to be whole pixels (?)
+      assert(isArray(tt.position))
+      const [px, py] = tt.position
+      expect([px|0, py|0]).to.be.equal([sx|0, sy|0])
     })
   })
 })

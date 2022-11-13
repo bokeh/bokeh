@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import importlib.metadata
+import importlib.metadata as importlib_metadata
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -53,7 +53,7 @@ __all__ = (
     'sampledata',
 )
 
-__version__ = importlib.metadata.version("bokeh")
+__version__ = importlib_metadata.version("bokeh")
 
 #-----------------------------------------------------------------------------
 # General API
@@ -82,7 +82,7 @@ def license():
 # Code
 #-----------------------------------------------------------------------------
 
-del importlib.metadata
+del importlib_metadata
 
 # expose sample data module
 from . import sampledata; sampledata
