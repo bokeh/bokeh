@@ -83,7 +83,7 @@ Run codebase tests
 ~~~~~~~~~~~~~~~~~~
 
 The most basic set of tests are Bokeh's codebase tests. This includes
-checking Python code with `flake8`_, checking JavaScript code with `ESLint`_,
+checking Python code with `Ruff`_, checking JavaScript code with `ESLint`_,
 and various other tests for issues such as unused imports and extra white
 spaces.
 
@@ -469,7 +469,7 @@ instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
 .. _ESLint: https://eslint.org/
-.. _flake8: https://gitlab.com/pycqa/flake8
+.. _Ruff: https://github.com/charliermarsh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
 .. _Selenium: https://www.selenium.dev/documentation/en/

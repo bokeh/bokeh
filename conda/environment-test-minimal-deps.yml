@@ -24,7 +24,6 @@ dependencies:
   - colorcet
   - coverage
   - firefox =>96
-  - flake8
   - geckodriver
   - ipython
   - isort 5.8
@@ -62,7 +61,7 @@ dependencies:
     - sphinx-design
     - sphinxext-opengraph
     # tests
-    - flake8-pyi
+    - ruff
     - types-boto
     - types-colorama
     - types-mock

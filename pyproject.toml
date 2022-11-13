@@ -110,14 +110,15 @@ exclude_lines = [
 
 [tool.ruff]
 exclude = [
+    ".git",
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
 select = ["E", "F", "M"]
 ignore = [
-    'E402',
-    'E731',
-    'E741',
+    'E402', # Module level import not at top of file
+    'E731', # Do not assign a lambda expression, use a def
+    'E741', # Ambiguous variable name: I
 ]
 line-length = 165
 target-version = "py38"

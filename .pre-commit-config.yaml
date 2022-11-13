@@ -5,6 +5,18 @@
 default_stages: [push]
 
 repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.114
+    hooks:
+      - id: ruff
+        stages: [commit]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.10.1
+    hooks:
+      - id: validate-pyproject
+        name: Validate pyproject.toml
+
   - repo: local
     hooks:
       - id: run-code-quality
@@ -25,9 +37,9 @@ repos:
         language: conda
         pass_filenames: false
 
-      - id: run-flake8
-        name: Run flake8 checks
-        entry: pytest tests/codebase/test_flake8.py
+      - id: run-ruff
+        name: Run ruff checks
+        entry: pytest tests/codebase/test_ruff.py
         language: conda
         pass_filenames: false
 
