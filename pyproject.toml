@@ -108,6 +108,21 @@ exclude_lines = [
     "if TYPE_CHECKING:",
 ]
 
+[tool.ruff]
+exclude = [
+    '__init__.py',
+    'node_modules',
+]
+# ignore = [
+#     'E',
+#     'W',
+# ]
+line-length = 165
+select = [
+    'E501',
+    'F',
+]
+
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
 module = [
