@@ -2,13 +2,7 @@
 Such as annular wedge, annulus, arc, bezier, circle, ellipse, Hbar, line etc.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.annulus,
-    bokeh.plotting.figure.arc, bokeh.plotting.figure.bezier, bokeh.plotting.figure.circle,
-    bokeh.plotting.figure.ellipse, bokeh.plotting.figure.hbar, bokeh.plotting.figure.line,
-    bokeh.plotting.figure.multi_line, bokeh.plotting.figure.multi_polygon,
-    bokeh.plotting.figure.patch, bokeh.plotting.figure.patches, bokeh.plotting.figure.quad,
-    bokeh.plotting.figure.quadratic, bokeh.plotting.figure.ray, bokeh.plotting.figure.rect,
-    bokeh.plotting.figure.scatter
+    :apis: bokeh.plotting.figure.annular_wedge, bokeh.plotting.figure.annulus, bokeh.plotting.figure.arc, bokeh.plotting.figure.bezier, bokeh.plotting.figure.circle, bokeh.plotting.figure.ellipse, bokeh.plotting.figure.scatter # noqa
     :refs: :ref:`userguide_plotting_figure`
     :keywords: glyphs, scatter, annular, wedge, line
 
