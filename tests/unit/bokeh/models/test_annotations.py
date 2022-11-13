@@ -243,11 +243,12 @@ def test_BoxAnnotation() -> None:
     ], LINE, FILL, HATCH)
 
 def test_BoxAnnotation_accepts_datetime() -> None:
-    obj = BoxAnnotation(left = datetime(2018,8,7,0,0),
-                        right = datetime(2018,8,7,0,0),
-                        top = datetime(2018,8,7,0,0),
-                        bottom = datetime(2018,8,7,0,0),
-                       )
+    obj = BoxAnnotation(
+        left = datetime(2018,8,7,0,0),
+        right = datetime(2018,8,7,0,0),
+        top = datetime(2018,8,7,0,0),
+        bottom = datetime(2018,8,7,0,0),
+    )
     assert isinstance(obj.left, datetime)
     assert isinstance(obj.right, datetime)
     assert isinstance(obj.top, datetime)
@@ -317,8 +318,10 @@ def test_Label() -> None:
     )
 
 def test_Label_accepts_datetime_xy() -> None:
-    obj = Label(x = datetime(2018,8,7,0,0),
-                y = datetime(2018,8,7,0,0))
+    obj = Label(
+        x = datetime(2018,8,7,0,0),
+        y = datetime(2018,8,7,0,0)
+    )
     assert isinstance(obj.x, datetime)
     assert isinstance(obj.y, datetime)
     assert convert_datetime_type(obj.x) == 1533600000000.0
@@ -381,8 +384,10 @@ def test_PolyAnnotation() -> None:
     ], LINE, FILL, HATCH)
 
 def test_PolyAnnotation_accepts_datetime_xs_ys() -> None:
-    obj = PolyAnnotation(xs = [datetime(2018,8,7,0,0),1],
-                         ys = [datetime(2018,8,7,0,0),1])
+    obj = PolyAnnotation(
+        xs = [datetime(2018,8,7,0,0),1],
+        ys = [datetime(2018,8,7,0,0),1]
+    )
     assert isinstance(obj.xs[0], datetime)
     assert isinstance(obj.xs[1], int)
     assert isinstance(obj.ys[0], datetime)
@@ -420,7 +425,9 @@ def test_Span() -> None:
     ], LINE)
 
 def test_Span_accepts_datetime_location() -> None:
-    obj = Span(location = datetime(2018,8,7,0,0))
+    obj = Span(
+        location = datetime(2018,8,7,0,0)
+    )
     assert isinstance(obj.location, datetime)
     assert convert_datetime_type(obj.location) == 1533600000000.0
 
