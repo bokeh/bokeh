@@ -26,8 +26,6 @@ import json
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     Type,
     overload,
@@ -50,7 +48,6 @@ if TYPE_CHECKING:
     from ..core.types import ID
     from ..document.document import Document
     from ..document.events import DocumentPatchedEvent
-    from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
 # Globals and constants

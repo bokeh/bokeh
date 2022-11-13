@@ -110,15 +110,17 @@ exclude_lines = [
 
 [tool.ruff]
 exclude = [
-    '__init__.py',
     'node_modules',
 ]
+per-file-ignores = {"__init__.py" = ["F403"]}
+select = ["E", "F", "M"]
 ignore = [
     'E402',
     'E731',
     'E741',
 ]
 line-length = 165
+target-version = "py38"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
