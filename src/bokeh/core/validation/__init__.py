@@ -49,8 +49,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import errors
-from . import warnings
+from . import errors, warnings
 from .check import (
     check_integrity,
     process_validation_issues,
