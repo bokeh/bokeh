@@ -262,7 +262,7 @@ class BokehPlotDirective(BokehDirective):
                 'docname': self.env.docname,
             })
 
-            regex = "(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
+            regex = r"(:|bokeh\.)sampledata(:|\.| import )\s*(\w+(\,\s*\w+)*)"
             matches = re.findall(regex, source)
             if matches:
                 keywords = set()
