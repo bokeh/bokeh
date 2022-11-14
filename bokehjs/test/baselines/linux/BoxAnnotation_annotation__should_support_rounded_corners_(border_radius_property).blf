@@ -1,4 +1,8 @@
 Plot bbox=[0, 0, 200, 200]
   CartesianFrame bbox=[33, 5, 162, 173]
+  BoxAnnotation bbox=[40, 99, 69, 71]
+  BoxAnnotation bbox=[40, 99, 69, 71]
+  BoxAnnotation bbox=[119, 99, 69, 71]
+  BoxAnnotation bbox=[40, 13, 69, 71]
   LinearAxis bbox=[33, 178, 162, 22]
   LinearAxis bbox=[0, 5, 33, 173]

@@ -3,6 +3,7 @@ import {Scale} from "../scales/scale"
 import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
+import {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper, empty} from "core/util/bbox"
@@ -40,6 +41,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   declare visuals: BoxAnnotation.Visuals
 
   override bbox: BBox = new BBox()
+
+  override serializable_state(): SerializableState {
+    return {...super.serializable_state(), bbox: this.bbox.round().box} // TODO: probably round ealier
+  }
 
   override connect_signals(): void {
     super.connect_signals()

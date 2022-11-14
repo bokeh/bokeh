@@ -416,7 +416,7 @@ DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
     line_color="black",
     line_alpha=1.0,
     line_width=0.5,
-    line_dash=[2,2],
+    line_dash=[2, 2],
 )
 
 class RangeTool(Drag):
