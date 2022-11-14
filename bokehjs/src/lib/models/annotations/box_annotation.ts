@@ -1,13 +1,15 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Scale} from "../scales/scale"
+import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
-import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
+import {BBox, LRTB, CoordinateMapper, empty} from "core/util/bbox"
 import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Enum, Number, NonNegative, PartialStruct} from "core/kinds"
 import {Signal} from "core/signaling"
+import {Rect} from "core/types"
 import {assert} from "core/util/assert"
 import {isNumber} from "core/util/types"
 
@@ -33,7 +35,7 @@ const BorderRadius = PartialStruct({
   bottom_left: NonNegative(Number),
 })
 
-export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable {
+export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable, AutoRanged {
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
@@ -42,6 +44,50 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.change, () => this.request_render())
+  }
+
+  readonly [auto_ranged] = true
+
+  bounds(): Rect {
+    const {
+      left, left_units,
+      right, right_units,
+      top, top_units,
+      bottom, bottom_units,
+    } = this.model
+
+    const left_ok = left_units == "data" && left != null
+    const right_ok = right_units == "data" && right != null
+    const top_ok = top_units == "data" && top != null
+    const bottom_ok = bottom_units == "data" && bottom != null
+
+    const [x0, x1] = (() => {
+      if (left_ok && right_ok)
+        return left <= right ? [left, right] : [right, left]
+      else if (left_ok)
+        return [left, left]
+      else if (right_ok)
+        return [right, right]
+      else
+        return [NaN, NaN]
+    })()
+
+    const [y0, y1] = (() => {
+      if (top_ok && bottom_ok)
+        return top <= bottom ? [top, bottom] : [bottom, top]
+      else if (top_ok)
+        return [top, top]
+      else if (bottom_ok)
+        return [bottom, bottom]
+      else
+        return [NaN, NaN]
+    })()
+
+    return {x0, x1, y0, y1}
+  }
+
+  log_bounds(): Rect {
+    return empty()
   }
 
   protected _render(): void {

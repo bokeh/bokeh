@@ -37,14 +37,16 @@ describe("BoxAnnotation annotation", () => {
   })
 
   it("should support rounded corners (border_radius property)", async () => {
+    const [l, t, w, h] = [20, 20, 150, 100]
+
     const box0 = new BoxAnnotation({
       line_color: "red",
       line_width: 2,
       fill_color: null,
-      left: 10,
-      top: 20,
-      right: 10 + 150,
-      bottom: 20 + 100,
+      left: 0,
+      top: 0,
+      right: w,
+      bottom: h,
       border_radius: 0,
     })
 
@@ -52,21 +54,22 @@ describe("BoxAnnotation annotation", () => {
       line_color: "blue",
       line_width: 2,
       fill_color: null,
-      left: box0.left,
-      top: box0.top,
-      right: box0.right,
-      bottom: box0.bottom,
+      left: 0,
+      top: 0,
+      right: w,
+      bottom: h,
       border_radius: 20,
     })
 
     const box2 = new BoxAnnotation({
       line_color: "green",
       line_width: 2,
-      fill_color: null,
-      left: box0.right! + 10,
-      top: box0.top,
-      right: box0.right! + 10 + 150,
-      bottom: box0.bottom,
+      fill_color: "green",
+      fill_alpha: 0.3,
+      left: w + l,
+      top: 0,
+      right: w + l + w,
+      bottom: h,
       border_radius: {top_left: 0, top_right: 60, bottom_right: 0, bottom_left: 20},
     })
 
@@ -75,20 +78,17 @@ describe("BoxAnnotation annotation", () => {
       line_width: 2,
       fill_color: null,
       hatch_color: "orange",
-      hatch_alpha: 0.5,
+      hatch_alpha: 0.3,
       hatch_pattern: "/",
-      left: box0.left,
-      top: box0.bottom! + 20,
-      right: box0.right,
-      bottom: box0.bottom! + 20 + 100,
+      left: 0,
+      top: h + t,
+      right: w,
+      bottom: h + t + h,
       border_radius: {top_left: 10, top_right: 40, bottom_right: 10, bottom_left: 10},
     })
 
-    const p = fig([200, 200], {x_range: [0, 350], y_range: [0, 250]})
-    p.add_layout(box0, "center")
-    p.add_layout(box1, "center")
-    p.add_layout(box2, "center")
-    p.add_layout(box3, "center")
+    const p = fig([200, 200])
+    p.renderers = [box0, box1, box2, box3]
 
     await display(p)
   })

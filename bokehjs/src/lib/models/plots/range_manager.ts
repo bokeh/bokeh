@@ -70,17 +70,13 @@ export class RangeManager {
         calculate_log_bounds = true
     }
 
-    for (const renderer of this.parent.model.data_renderers) {
-      const renderer_view = this.parent.renderer_view(renderer)
-      if (renderer_view == null)
-        continue
-
-      const bds = renderer_view.glyph_view.bounds()
-      bounds.set(renderer, bds)
+    for (const renderer of this.parent.auto_ranged_renderers) {
+      const bds = renderer.bounds()
+      bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {
-        const log_bds = renderer_view.glyph_view.log_bounds()
-        log_bounds.set(renderer, log_bds)
+        const log_bds = renderer.log_bounds()
+        log_bounds.set(renderer.model, log_bds)
       }
     }
 
@@ -98,7 +94,7 @@ export class RangeManager {
     for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
-        xr.update(bounds_to_use, 0, this.parent.model, r)
+        xr.update(bounds_to_use, 0, this.parent, r)
         if (xr.follow) {
           follow_enabled = true
         }
@@ -110,7 +106,7 @@ export class RangeManager {
     for (const [, yr] of frame.y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
-        yr.update(bounds_to_use, 1, this.parent.model, r)
+        yr.update(bounds_to_use, 1, this.parent, r)
         if (yr.follow) {
           follow_enabled = true
         }
@@ -133,8 +129,8 @@ export class RangeManager {
   update_dataranges(): void {
     this._update_dataranges(this.frame)
 
-    for (const renderer of this.parent.model.renderers) {
-      const {coordinates} = renderer
+    for (const renderer of this.parent.auto_ranged_renderers) {
+      const {coordinates} = renderer.model
       if (coordinates != null)
         this._update_dataranges(coordinates)
     }

@@ -1,10 +1,12 @@
 import {Renderer, RendererView} from "./renderer"
 import {GlyphView} from "../glyphs/glyph"
 import {Scale} from "../scales/scale"
+import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
 import {SelectionManager} from "core/selection_manager"
 import * as p from "core/properties"
+import {Rect} from "core/types"
 
-export abstract class DataRendererView extends RendererView {
+export abstract class DataRendererView extends RendererView implements AutoRanged {
   declare model: DataRenderer
   declare visuals: DataRenderer.Visuals
 
@@ -16,7 +18,17 @@ export abstract class DataRendererView extends RendererView {
     return this.coordinates.y_scale
   }
 
-  abstract get glyph_view(): GlyphView
+  protected abstract get glyph_view(): GlyphView
+
+  readonly [auto_ranged] = true
+
+  bounds(): Rect {
+    return this.glyph_view.bounds()
+  }
+
+  log_bounds(): Rect {
+    return this.glyph_view.log_bounds()
+  }
 }
 
 export namespace DataRenderer {

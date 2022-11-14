@@ -11,7 +11,7 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
-import {DataRange1d} from "../ranges/data_range1d"
+import {DataRange1d, AutoRanged, is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import {ViewStorage, IterViews, build_view, build_views, remove_views} from "core/build_views"
@@ -104,6 +104,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
     return view
+  }
+
+  get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
+    return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
   }
 
   get base_font_size(): number | null {
@@ -201,7 +205,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override remove(): void {
     for (const r of this.frame.ranges.values()) {
       if (r instanceof DataRange1d) {
-        r.plots.delete(this.model)
+        r.plots.delete(this)
       }
     }
 
@@ -244,7 +248,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     for (const r of this.frame.ranges.values()) {
       if (r instanceof DataRange1d) {
-        r.plots.add(this.model)
+        r.plots.add(this)
       }
     }
 

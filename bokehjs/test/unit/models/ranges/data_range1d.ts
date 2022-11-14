@@ -3,7 +3,10 @@ import {expect} from "assertions"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {Circle} from "@bokehjs/models/glyphs/circle"
 import {PaddingUnits} from "@bokehjs/core/enums"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("datarange1d module", () => {
 
@@ -136,43 +139,46 @@ describe("datarange1d module", () => {
 
   describe("computed_renderers", () => {
 
-    it("should add renderers from one plot", () => {
-      const g1 = new GlyphRenderer()
-      const p1 = new Plot({renderers: [g1]})
+    it("should add renderers from one plot", async () => {
       const r1 = new DataRange1d()
-      r1.plots.add(p1)
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p1 = new Plot({renderers: [g1], x_range: r1})
+      await build_view(p1)
       expect(r1.computed_renderers()).to.be.equal([g1])
 
-      const g2 = new GlyphRenderer()
-      const p2 = new Plot({renderers: [g1, g2]})
       const r2 = new DataRange1d()
-      r2.plots.add(p2)
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p2 = new Plot({renderers: [g1, g2], x_range: r2})
+      await build_view(p2)
       expect(r2.computed_renderers()).to.be.equal([g1, g2])
     })
 
-    it("should add renderers from multiple plot", () => {
-      const g1 = new GlyphRenderer()
-      const p1 = new Plot({renderers: [g1]})
-
-      const g2 = new GlyphRenderer()
-      const p2 = new Plot({renderers: [g2]})
-
+    it("should add renderers from multiple plot", async () => {
       const r = new DataRange1d()
-      r.plots.add(p1)
-      r.plots.add(p2)
+
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p1 = new Plot({renderers: [g1], x_range: r})
+      await build_view(p1)
+
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p2 = new Plot({renderers: [g2], x_range: r})
+      await build_view(p2)
+
       expect(r.computed_renderers()).to.be.equal([g1, g2])
     })
 
-    it("should respect user-set renderers", () => {
-      const g1 = new GlyphRenderer()
-      const p1 = new Plot({renderers: [g1]})
-
-      const g2 = new GlyphRenderer()
-      const p2 = new Plot({renderers: [g2]})
+    it("should respect user-set renderers", async () => {
+      const g1 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const g2 = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
 
       const r = new DataRange1d({renderers: [g2]})
-      r.plots.add(p1)
-      r.plots.add(p2)
+
+      const p1 = new Plot({renderers: [g1], x_range: r})
+      await build_view(p1)
+
+      const p2 = new Plot({renderers: [g2], x_range: r})
+      await build_view(p2)
+
       expect(r.computed_renderers()).to.be.equal([g2])
     })
   })
@@ -260,33 +266,40 @@ describe("datarange1d module", () => {
 
   describe("_compute_min_max", () => {
 
-    it("should compute max/min for dimension of a single plot_bounds", () => {
-      const p = new Plot({visible: true})
+    it("should compute max/min for dimension of a single plot_bounds", async () => {
       const r = new DataRange1d()
+      const p = new Plot({visible: true, x_range: r})
+      const pv = await build_view(p)
+
       const bounds = new Map([
-        [p, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [pv, {x0: 0, x1: 10, y0: 5, y1: 6}],
       ])
       expect(r._compute_min_max(bounds, 0)).to.be.equal([0, 10])
       expect(r._compute_min_max(bounds, 1)).to.be.equal([5, 6])
     })
 
-    it("should compute max/min for dimension of multiple plot_bounds", () => {
-      const p0 = new Plot({visible: true})
-      const p1 = new Plot({visible: true})
-      const p2 = new Plot({visible: true})
-
+    it("should compute max/min for dimension of multiple plot_bounds", async () => {
       const r = new DataRange1d()
+
+      const p0 = new Plot({visible: true, x_range: r})
+      const p1 = new Plot({visible: true, x_range: r})
+      const p2 = new Plot({visible: true, x_range: r})
+
+      const pv0 = await build_view(p0)
+      const pv1 = await build_view(p1)
+      const pv2 = await build_view(p2)
+
       const bounds0 = new Map([
-        [p0, {x0: 0, x1: 10, y0: 5, y1: 6}],
-        [p1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [pv0, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [pv1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
       ])
       expect(r._compute_min_max(bounds0, 0)).to.be.equal([0, 15])
       expect(r._compute_min_max(bounds0, 1)).to.be.equal([5, 6])
 
       const bounds1 = new Map([
-        [p0, {x0: 0, x1: 10, y0: 5, y1: 6}],
-        [p1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
-        [p2, {x0: -10, x1: 15, y0: 0, y1: 2}],
+        [pv0, {x0: 0, x1: 10, y0: 5, y1: 6}],
+        [pv1, {x0: 0, x1: 15, y0: 5.5, y1: 5.6}],
+        [pv2, {x0: -10, x1: 15, y0: 0, y1: 2}],
       ])
       expect(r._compute_min_max(bounds1, 0)).to.be.equal([-10, 15])
       expect(r._compute_min_max(bounds1, 1)).to.be.equal([0, 6])
@@ -349,31 +362,31 @@ describe("datarange1d module", () => {
 
   describe("update", () => {
 
-    it("should update its start and end values", () => {
-      const g = new GlyphRenderer()
-      const p = new Plot({renderers: [g]})
+    it("should update its start and end values", async () => {
       const r = new DataRange1d()
-      r.plots.add(p)
+      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p = new Plot({renderers: [g], x_range: r})
+      const pv = await build_view(p)
 
       const bounds = new Map([
         [g, {x0: -10, x1: -6, y0: 5, y1: 6}],
       ])
 
-      r.update(bounds, 0, p)
+      r.update(bounds, 0, pv)
       expect(r.start).to.be.equal(-10.2)
     })
 
-    it("should not update its start or end values to NaN when log", () => {
-      const g = new GlyphRenderer()
-      const p = new Plot({renderers: [g]})
+    it("should not update its start or end values to NaN when log", async () => {
       const r = new DataRange1d({scale_hint: "log"})
-      r.plots.add(p)
+      const g = new GlyphRenderer({data_source: new ColumnDataSource(), glyph: new Circle()})
+      const p = new Plot({renderers: [g], x_range: r})
+      const pv = await build_view(p)
 
       const bounds = new Map([
         [g, {x0: Infinity, x1: -Infinity, y0: 5, y1: 6}],
       ])
 
-      r.update(bounds, 0, p)
+      r.update(bounds, 0, pv)
       expect(r.start).to.not.be.NaN
       expect(r.end).to.not.be.NaN
     })
