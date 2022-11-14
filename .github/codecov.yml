@@ -15,3 +15,6 @@ coverage:
 comment:
   layout: "diff"
   behavior: once
+
+ignore:
+  - "**/build/tmp/tmp*.py"
