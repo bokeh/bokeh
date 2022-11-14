@@ -17,34 +17,10 @@ versions of Python, but no guarantees or support are provided.
 Installing with ``conda`` or ``pip``
 ------------------------------------
 
-The easiest way to install Bokeh is to use ``conda``. Conda is part of the
-`Anaconda Python Distribution`_, which is designed with scientific and data
-analysis applications like Bokeh in mind.
-
-If you use Anaconda on your system, installing with ``conda`` is the recommended
-method. Otherwise, use ``pip``.
+Bokeh can be installed using either the Python package installer ``pip``, or
+``conda``, the package manager for the  `Anaconda Python Distribution`_.
 
 .. grid:: 1 1 2 2
-
-    .. grid-item-card::
-
-        Installing with ``conda``
-        ^^^
-
-        Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
-        this command to install Bokeh:
-
-        .. code-block:: sh
-
-            conda install bokeh
-
-        Alternatively, if you want to make sure you always have the most recent
-        version of Bokeh after each new release, install from the
-        `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
-
-        .. code-block:: sh
-
-            conda install -c bokeh bokeh
 
     .. grid-item-card::
 
@@ -57,10 +33,25 @@ method. Otherwise, use ``pip``.
 
             pip install bokeh
 
-        .. note::
-            On some systems, pip displays an error message about the wheel package
-            when installing tornado. This is a `known issue`_, you can usually
-            ignore the error.
+    .. grid-item-card::
+
+        Installing with ``conda``
+        ^^^
+
+        Make sure you have either `Anaconda`_ or `Miniconda`_ installed. Use
+        this command to install Bokeh from the default channel:
+
+        .. code-block:: sh
+
+            conda install bokeh
+
+        Alternatively, if you want to make sure you always have the most recent
+        version of Bokeh after each new release, install from the
+        `Bokeh channel <https://anaconda.org/bokeh/bokeh>`_ directly:
+
+        .. code-block:: sh
+
+            conda install -c bokeh bokeh
 
 Checking your installation
 --------------------------
@@ -219,7 +210,6 @@ for version ``3.0.0`` are:
 .. _Anaconda Python Distribution: http://anaconda.com/anaconda
 .. _Anaconda: https://www.anaconda.com/products/individual#Downloads
 .. _Miniconda: https://docs.conda.io/en/latest/miniconda.html
-.. _known issue: https://github.com/tornadoweb/tornado/issues/1602#issuecomment-163472168
 .. _`"bokeh" tag on Stack Overflow`: https://stackoverflow.com/questions/tagged/bokeh
 .. _Bokeh Discourse: https://discourse.bokeh.org
 .. _`Bokeh's GitHub repository`: https://github.com/bokeh/bokeh
