@@ -420,15 +420,15 @@ def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
         const root_view = Object.values(Bokeh.index)[0]
         const {width, height} = root_view.el.getBoundingClientRect()
-        return [width, height, window.devicePixelRatio]
+        return [Math.round(width), Math.round(height), window.devicePixelRatio]
     """
     viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [
             // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
-            Math.max(0, window.outerWidth - window.innerWidth) + width*dpr,
-            Math.max(0, window.outerHeight - window.innerHeight) + height*dpr,
+            Math.round(Math.max(0, window.outerWidth - window.innerWidth) + width*dpr),
+            Math.round(Math.max(0, window.outerHeight - window.innerHeight) + height*dpr),
         ]
     """
     [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)
