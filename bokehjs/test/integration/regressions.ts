@@ -2709,4 +2709,53 @@ describe("Bug", () => {
       expect([px|0, py|0]).to.be.equal([sx|0, sy|0])
     })
   })
+
+  describe("in issue #12583", () => {
+    function plot(color: Color) {
+      const p = fig([100, 100])
+      p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+      return p
+    }
+
+    function gp() {
+      return new GridPlot({
+        toolbar_location: null,
+        children: [
+          [plot("red"), 0, 0],
+          [plot("green"), 0, 1],
+          [plot("blue"), 1, 0],
+          [plot("purple"), 1, 1],
+        ],
+      })
+    }
+
+    function row() {
+      return new Row({children: [plot("lime"), plot("orange")]})
+    }
+
+    it("doesn't allow layout propagation in Column(Column(GridPlot()))", async () => {
+      const layout = new Column({
+        children: [
+          new Column({children: [gp()]}),
+        ],
+      })
+      await display(layout)
+    })
+
+    it("doesn't allow layout propagation in Column(GridPlot, Row)", async () => {
+      const layout = new Column({
+        children: [gp(), row()],
+      })
+      await display(layout)
+    })
+
+    it("doesn't allow layout propagation in Column(Column(GridPlot(), Row()))", async () => {
+      const layout = new Column({
+        children: [
+          new Column({children: [gp(), row()]}),
+        ],
+      })
+      await display(layout)
+    })
+  })
 })
