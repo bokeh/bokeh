@@ -130,7 +130,7 @@ def process_sampledata_xrefs(app, doctree, fromdocname):
 
         refs = []
         for s in env.all_sampledata_xrefs:
-            if s["keyword"] == node.sampledata_key and not s in refs:
+            if s["keyword"] == node.sampledata_key and s not in refs:
                 refs.append(s)
         content = []
         if refs:
@@ -175,7 +175,7 @@ def process_gallery_overview(app, doctree, fromdocname):
             sp = s['docname'].split('/')
             if node.subfolder == 'all' or sp[-2] == node.subfolder:
                 letter = sp[-1][0].upper()
-                if letter in ref_dict and not s in ref_dict[letter]:
+                if letter in ref_dict and s not in ref_dict[letter]:
                     ref_dict[letter].append(s)
                 else:
                     ref_dict[letter] = [s]

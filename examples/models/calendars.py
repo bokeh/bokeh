@@ -7,11 +7,11 @@ A hover tooltip displays the US holidays on the significant dates.
 
 .. bokeh-example-metadata::
     :sampledata: us_holidays
-    :apis: bokeh.layouts.gridplot, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot, bokeh.models.glyphs.Rect, bokeh.models.glyphs.Text, bokeh.document.document.Document # noqa: E501
+    :apis: bokeh.layouts.gridplot, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot, bokeh.models.glyphs.Rect, bokeh.models.glyphs.Text, bokeh.document.document.Document
     :refs: :ref:`ug_basic_layouts_gridplot`, :ref:`ug_interaction_tools_hover_tool`
     :keywords: gridplot, hover, tooltip
 
-'''
+''' # noqa: E501
 from calendar import Calendar, day_abbr as day_abbrs, month_name as month_names
 
 from bokeh.document import Document

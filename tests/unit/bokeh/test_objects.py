@@ -348,8 +348,7 @@ class TestListMutation(TestContainerMutation):
         assert 'foo' in obj.properties_with_values(include_defaults=True)
         # simply reading the property creates a new wrapper, so be
         # sure that doesn't count as replacing the default
-        foo = obj.foo
-        assert foo == foo # this is to calm down flake's unused var warning
+        foo = obj.foo # noqa: F841
         assert 'foo' not in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
         # but changing the list should count as replacing the default
@@ -487,8 +486,7 @@ class TestDictMutation(TestContainerMutation):
         assert 'foo' in obj.properties_with_values(include_defaults=True)
         # simply reading the property creates a new wrapper, so be
         # sure that doesn't count as replacing the default
-        foo = obj.foo
-        assert foo == foo # this is to calm down flake's unused var warning
+        foo = obj.foo # noqa: F841
         assert 'foo' not in obj.properties_with_values(include_defaults=False)
         assert 'foo' in obj.properties_with_values(include_defaults=True)
         # but changing the dict should count as replacing the default

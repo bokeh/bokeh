@@ -143,8 +143,8 @@ def test_ColorBar() -> None:
     assert color_bar.major_tick_out == 0
     assert color_bar.minor_tick_in == 0
     assert color_bar.minor_tick_out == 0
-    assert color_bar.display_low == None
-    assert color_bar.display_high == None
+    assert color_bar.display_low is None
+    assert color_bar.display_high is None
     check_text_properties(color_bar, "title_", "13px", "bottom", "italic", scalar=True)
     check_text_properties(color_bar, "major_label_", "11px", "bottom", "normal", "left", scalar=True)
     check_line_properties(color_bar, "major_tick_", "#ffffff")

@@ -1,6 +1,5 @@
 # Standard library imports
 import json
-from datetime import date
 
 # Bokeh imports
 from bokeh.core.property.bases import UndefinedType

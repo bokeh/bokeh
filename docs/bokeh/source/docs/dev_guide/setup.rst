@@ -178,7 +178,7 @@ Codebase tests
     git-commit will run Bokeh's
     :ref:`codebase tests <contributor_guide_testing_local_codebase>` to check
     for codebase quality issues such as whitespaces and imports. This includes
-    testing with `Flake8`_, `ESLint`_, and `isort`_.
+    testing with `Ruff`_, `ESLint`_, and `isort`_.
 
 Protected branches
     git-commit will make sure you don't accidentally push a commit to `Bokeh's
@@ -616,7 +616,7 @@ Slack`_.
 .. _npm: https://www.npmjs.com/
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-.. _Flake8: https://flake8.pycqa.org/
+.. _Ruff: https://github.com/charliermarsh/ruff
 .. _ESLint: https://eslint.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy

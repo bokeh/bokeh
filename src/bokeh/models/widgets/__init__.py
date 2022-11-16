@@ -4,7 +4,6 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-# This file is excluded from flake8 checking in setup.cfg
 
 #-----------------------------------------------------------------------------
 # Boilerplate
