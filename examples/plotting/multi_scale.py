@@ -1,3 +1,12 @@
+'''This example shows a graph with multiple scales on y-axis.
+This can be used to depict values in two different units.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle, bokeh.plotting.figure.add_layout
+    :refs: :ref:`userguide_plotting_figure`
+    :keywords: scale
+
+'''
 from bokeh.io import show
 from bokeh.models import LinearAxis, LinearScale, Range1d
 from bokeh.plotting import figure
