@@ -93,7 +93,7 @@ default = Theme(json={})
 built_in_themes = {
     CALIBER       : Theme(json=_caliber.json),
     DARK_MINIMAL  : Theme(json=_dark_minimal.json),
-    LIGHT_MINIMAL : Theme(json=_caliber.json),
+    LIGHT_MINIMAL : Theme(json=_light_minimal.json),
     NIGHT_SKY : Theme(json=_night_sky.json),
     CONTRAST : Theme(json=_contrast.json),
 }
