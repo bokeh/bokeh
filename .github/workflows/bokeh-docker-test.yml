@@ -1,4 +1,4 @@
-name: Test in Docker
+name: Bokeh-Docker-Test
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test_in_docker:
+  docker-test:
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG: bokeh/bokeh-dev:branch-3.1

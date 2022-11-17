@@ -1,4 +1,4 @@
-name: Docker image - Build
+name: Bokeh-Docker-Build
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ on:
         default: "Push to Docker Hub"
 
 jobs:
-  docker_build:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
       - name: Set date environment variable
