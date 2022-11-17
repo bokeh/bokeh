@@ -375,7 +375,8 @@ class DocumentCallbackManager:
             invoke_with_curdoc(doc, event.callback_invoker)
 
         def invoke_callbacks() -> None:
-            for cb in self._change_callbacks.values():
+            callbacks = self._change_callbacks.copy()
+            for cb in callbacks.values():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
 
