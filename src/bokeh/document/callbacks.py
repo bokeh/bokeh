@@ -356,7 +356,8 @@ class DocumentCallbackManager:
                 if model:
                     model._trigger_event(event)
 
-        for cb in self._event_callbacks.get(event.event_name, []):
+        callbacks = self._event_callbacks.get(event.event_name, []).copy()
+        for cb in callbacks:
             cb(event)
 
     def trigger_on_change(self, event: DocumentChangedEvent) -> None:
