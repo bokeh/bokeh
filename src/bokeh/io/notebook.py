@@ -487,14 +487,13 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         LOAD_MIME_TYPE : jl_js,
     })
 
-def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None,
-        source: str | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
+def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
     '''
 
     '''
     # This import MUST be deferred or it will introduce a hard dependency on IPython
     from IPython.display import publish_display_data
-    publish_display_data(data, metadata, source, transient=transient, **kwargs)
+    publish_display_data(data, metadata, transient=transient, **kwargs)
 
 def show_app(app: Application, state: State, notebook_url: str | Callable[[int | None], str], port: int = 0, **kw: Any) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.

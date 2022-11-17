@@ -228,7 +228,7 @@ class _BokehStructureGraph:
         """
         import networkx as nx
 
-        nodes = nx.nx_pydot.graphviz_layout(self._graph, prog="dot")
+        nodes = nx.nx_agraph.graphviz_layout(self._graph, prog="dot")
         node_x, node_y = zip(*nodes.values())
         models = [self._graph.nodes[x]["model"] for x in nodes]
         node_id = list(nodes.keys())

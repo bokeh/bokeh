@@ -24,8 +24,8 @@ dependencies:
   - icalendar
   - ipython
   - networkx
-  - pydot
   - pygments
+  - pygraphviz
   - pyshp
   - scikit-learn
   - scipy
