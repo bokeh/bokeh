@@ -20,7 +20,7 @@ const {abs} = Math
 
 type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
 type Edge = "left" | "right" | "top" | "bottom"
-type HitTarget = Corner | Edge | "box"
+type HitTarget = Corner | Edge | "area"
 
 type Resizable = typeof Resizable["__type__"]
 const Resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all")
@@ -188,9 +188,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       ctx.rect(left, top, width, height)
     }
 
-    const fill = this._is_hovered && this.visuals.hover_fill.doit ? this.visuals.hover_fill : this.visuals.fill
-    const hatch = this._is_hovered && this.visuals.hover_hatch.doit ? this.visuals.hover_hatch : this.visuals.hatch
-    const line = this._is_hovered && this.visuals.hover_line.doit ? this.visuals.hover_line : this.visuals.line
+    const {_is_hovered, visuals} = this
+    const fill = _is_hovered && visuals.hover_fill.doit ? visuals.hover_fill : visuals.fill
+    const hatch = _is_hovered && visuals.hover_hatch.doit ? visuals.hover_hatch : visuals.hatch
+    const line = _is_hovered && visuals.hover_line.doit ? visuals.hover_line : visuals.line
 
     fill.apply(ctx)
     hatch.apply(ctx)
@@ -244,7 +245,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       return "bottom"
 
     if (this.bbox.contains(sx, sy))
-      return "box"
+      return "area"
 
     return null
   }
@@ -270,7 +271,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       case "right":        return right
       case "top":          return top
       case "bottom":       return bottom
-      case "box":          return this.model.movable != "none"
+      case "area":         return this.model.movable != "none"
     }
   }
 
@@ -294,9 +295,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   _pan(ev: PanEvent): void {
     assert(this._pan_state != null)
-    const {dx, dy} = ev
 
     const sltrb = (() => {
+      const {dx, dy} = ev
+
       const {bbox, target} = this._pan_state
       const {left, top, right, bottom} = bbox
 
@@ -321,7 +323,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
             return [0, 0, dy, Dy]
           case "bottom":
             return [0, 0, Dy, dy]
-          case "box": {
+          case "area": {
             switch (this.model.movable) {
               case "both": return [dx, dx, dy, dy]
               case "x":    return [dx, dx, 0, 0]
@@ -407,7 +409,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       case "right":        return this.model.ew_cursor
       case "top":
       case "bottom":       return this.model.ns_cursor
-      case "box": {
+      case "area": {
         switch (this.model.movable) {
           case "both": return this.model.in_cursor
           case "x":    return this.model.ew_cursor

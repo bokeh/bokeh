@@ -59,7 +59,7 @@ export type Arrayable<T = any> = {
   readonly length: number
   [n: number]: T
   [Symbol.iterator](): IterableIterator<T>
-  // TODO: constructor: ArrayableNew
+  slice(start?: number, end?: number): Arrayable<T>
 }
 
 export type ArrayableNew = {new <T>(n: number): Arrayable<T>}

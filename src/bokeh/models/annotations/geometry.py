@@ -184,17 +184,17 @@ class BoxAnnotation(Annotation):
     The {prop} values for the box when hovering over.
     """)
 
-    line_alpha = Override(default=0.3)
     line_color = Override(default="#cccccc")
+    line_alpha = Override(default=0.3)
 
-    fill_alpha = Override(default=0.4)
     fill_color = Override(default="#fff9ba")
+    fill_alpha = Override(default=0.4)
 
-    hover_line_alpha = Override(default=0.3)
     hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
 
-    hover_fill_alpha = Override(default=0.4)
     hover_fill_color = Override(default=None)
+    hover_fill_alpha = Override(default=0.4)
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
@@ -271,6 +271,13 @@ class PolyAnnotation(Annotation):
     default.
     """)
 
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this polygon.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the polygon.
     """)
@@ -283,13 +290,29 @@ class PolyAnnotation(Annotation):
     The {prop} values for the polygon.
     """)
 
-    line_alpha = Override(default=0.3)
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
+
+    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
+
+    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
 
     line_color = Override(default="#cccccc")
-
-    fill_alpha = Override(default=0.4)
+    line_alpha = Override(default=0.3)
 
     fill_color = Override(default="#fff9ba")
+    fill_alpha = Override(default=0.4)
+
+    hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
+
+    hover_fill_color = Override(default=None)
+    hover_fill_alpha = Override(default=0.4)
 
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
