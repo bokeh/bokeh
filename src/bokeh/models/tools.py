@@ -312,6 +312,12 @@ class RegionSelectTool(SelectTool):
 
     select_every_mousemove = DeprecatedAlias("continuous", since=(3, 1, 0))
 
+    persistent = Bool(default=False, help="""
+    Whether the selection overlay should persist after selection gesture
+    is completed. This can be paired with setting ``editable = True`` on
+    the annotation, to allow to modify the selection.
+    """)
+
 @abstract
 class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
@@ -946,16 +952,11 @@ class BoxSelectTool(Drag, RegionSelectTool):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-    persistent = Bool(default=False, help="""
-    Whether the selection overlay should persist after selection gesture
-    is completed. This can be paired with setting ``editable = True`` on
-    the annotation, to allow to modify the selection.
-    """)
-
 DEFAULT_POLY_OVERLAY = InstanceDefault(PolyAnnotation,
     syncable=False,
     level="overlay",
     visible=False,
+    editable=True,
     xs_units="canvas",
     ys_units="canvas",
     fill_color="lightgrey",

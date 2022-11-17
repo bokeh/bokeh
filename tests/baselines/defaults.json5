@@ -5095,6 +5095,7 @@
   RegionSelectTool: {
     __extends__: "SelectTool",
     continuous: false,
+    persistent: false,
   },
   InspectTool: {
     __extends__: "GestureTool",
@@ -5248,7 +5249,6 @@
       },
     },
     origin: "corner",
-    persistent: false,
   },
   LassoSelectTool: {
     __extends__: [
@@ -5267,6 +5267,7 @@
         xs_units: "canvas",
         ys: [],
         ys_units: "canvas",
+        editable: true,
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,
@@ -5295,6 +5296,7 @@
         xs_units: "canvas",
         ys: [],
         ys_units: "canvas",
+        editable: true,
         line_color: "black",
         line_alpha: 1.0,
         line_width: 2,

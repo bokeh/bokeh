@@ -71,6 +71,7 @@ export const DEFAULT_POLY_OVERLAY = () => {
     syncable: false,
     level: "overlay",
     visible: false,
+    editable: true,
     xs_units: "canvas",
     ys_units: "canvas",
     fill_color: "lightgrey",
@@ -88,6 +89,7 @@ export namespace PolySelectTool {
   export type Props = SelectTool.Props & {
     continuous: p.Property<boolean>
     overlay: p.Property<PolyAnnotation>
+    persistent: p.Property<boolean>
   }
 }
 
@@ -107,6 +109,7 @@ export class PolySelectTool extends SelectTool {
     this.define<PolySelectTool.Props>(({Boolean, Ref}) => ({
       continuous: [ Boolean, false ],
       overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
+      persistent: [ Boolean, false ],
     }))
 
     this.register_alias("poly_select", () => new PolySelectTool())

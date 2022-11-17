@@ -1,6 +1,6 @@
 import numpy as np
 
-from bokeh.models import BoxSelectTool
+from bokeh.models import BoxSelectTool, LassoSelectTool, PolySelectTool
 from bokeh.plotting import figure, show
 
 N = 2000
@@ -19,5 +19,11 @@ p.scatter(x, y, radius=radii,
 
 box_select = p.select_one(BoxSelectTool)
 box_select.persistent = True
+
+poly_select = p.select_one(PolySelectTool)
+poly_select.persistent = True
+
+lasso_select = p.select_one(LassoSelectTool)
+lasso_select.persistent = True
 
 show(p)

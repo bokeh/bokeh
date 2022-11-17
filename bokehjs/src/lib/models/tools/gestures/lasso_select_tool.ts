@@ -79,9 +79,8 @@ export namespace LassoSelectTool {
 
   export type Props = SelectTool.Props & {
     continuous: p.Property<boolean>
-    overlay: p.Property<PolyAnnotation>
-    /** internal */
     persistent: p.Property<boolean>
+    overlay: p.Property<PolyAnnotation>
   }
 }
 
@@ -100,11 +99,8 @@ export class LassoSelectTool extends SelectTool {
 
     this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
       continuous: [ Boolean, true ],
-      overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
-    }))
-
-    this.internal<LassoSelectTool.Props>(({Boolean}) => ({
       persistent: [ Boolean, false ],
+      overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
     }))
 
     this.register_alias("lasso_select", () => new LassoSelectTool())
