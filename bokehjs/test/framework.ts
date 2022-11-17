@@ -8,9 +8,11 @@ import {Document} from "@bokehjs/document"
 import {HasProps} from "@bokehjs/core/has_props"
 import {div, empty, offset_bbox} from "@bokehjs/core/dom"
 import {ViewOf} from "@bokehjs/core/view"
-import {isNumber, isString, isArray} from "@bokehjs/core/util/types"
+import {isNumber, isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
+import {entries} from "@bokehjs/core/util/object"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
 import {defer} from "@bokehjs/core/util/defer"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 let ready: () => Promise<void> = defer
 export function set_ready(fn: () => Promise<void>): void {
@@ -236,6 +238,22 @@ function _clear_test(test: Test): void {
   empty(container)
 }
 
+function _resolve_bbox(val: unknown): unknown {
+  if (isArray(val)) {
+    return val.map((v) => _resolve_bbox(v))
+  } else if (isPlainObject(val)) {
+    const result: {[key: string]: unknown} = {}
+    for (const [k, v] of entries(val)) {
+      result[k] = _resolve_bbox(v)
+    }
+    return result
+  } else if (val instanceof BBox) {
+    return val.box
+  } else {
+    return val
+  }
+}
+
 async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   const {fn} = test
   const start = Date.now()
@@ -282,7 +300,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
             error = new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
         }
         const bbox = offset_bbox(test.el!).box
-        const state = view.serializable_state()
+        const state = _resolve_bbox(view.serializable_state()) as State
         return {error, time, state, bbox}
       } catch (err) {
         error = err instanceof Error ? err : new Error(`${err}`)

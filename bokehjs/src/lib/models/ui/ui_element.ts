@@ -253,10 +253,7 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   override serializable_state(): SerializableState {
-    return {
-      ...super.serializable_state(),
-      bbox: this.bbox.box,
-    }
+    return {...super.serializable_state(), bbox: this.bbox}
   }
 }
 

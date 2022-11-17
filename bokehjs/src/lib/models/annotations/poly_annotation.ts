@@ -83,7 +83,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
   protected poly: Polygon = new Polygon()
 
   override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.poly.bbox.round().box}
+    return {...super.serializable_state(), bbox: this.poly.bbox.round()}
   }
 
   override connect_signals(): void {

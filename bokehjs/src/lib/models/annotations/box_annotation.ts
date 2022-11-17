@@ -43,7 +43,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   override bbox: BBox = new BBox()
 
   override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.bbox.round().box} // TODO: probably round ealier
+    return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round ealier
   }
 
   override connect_signals(): void {
