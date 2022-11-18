@@ -114,11 +114,12 @@ export abstract class ImageBaseView extends XYGlyphView {
         continue
 
       const img = this.image.get(i)
-      assert(img.dimension == 2, "expected a 2D array")
+      assert(img.dimension == 2 || img.dimension == 3, "expected a 2D or 3D array")
       this._height[i] = img.shape[0]
       this._width[i] = img.shape[1]
 
-      const buf8 = this._flat_img_to_buf8(img, 1)
+      const length_divisor = img.dimension == 3 ? img.shape[2] : 1
+      const buf8 = this._flat_img_to_buf8(img, length_divisor)
       this._set_image_data_from_buffer(i, buf8)
     }
   }

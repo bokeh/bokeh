@@ -781,24 +781,6 @@ class ImageRGBA(ImageBase):
     The arrays of RGBA data for the images.
     """)
 
-class ImageStack(ImageBase):
-    ''' Stack of images.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
-
-    image = NumberSpec(default=field("image"), help="""
-    The 3D arrays of data for the images.
-    """)
-
-    color_mapper = Instance(StackColorMapper, help="""
-    """)
-
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
 
