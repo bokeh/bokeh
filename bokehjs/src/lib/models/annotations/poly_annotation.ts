@@ -6,7 +6,7 @@ import * as visuals from "core/visuals"
 import {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import {Arrayable, Rect} from "core/types"
-import {point_in_poly} from "core/hittest"
+import {point_in_poly, dist_to_segment} from "core/hittest"
 import {Signal} from "core/signaling"
 import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {BBox, CoordinateMapper, empty} from "core/util/bbox"
@@ -30,6 +30,8 @@ export type Area = {
 
 export type HitTarget = Node | Edge | Area
 
+type Point = {x: number, y: number}
+
 class Polygon {
   constructor(readonly xs: Arrayable<number> = [], readonly ys: Arrayable<number> = []) {
     assert(xs.length == ys.length)
@@ -39,10 +41,28 @@ class Polygon {
     return new Polygon(this.xs.slice(), this.ys.slice())
   }
 
-  public *[Symbol.iterator](): Iterator<[number, number, number]> {
+  public [Symbol.iterator](): Iterator<[number, number, number]> {
+    return this.nodes()
+  }
+
+  public *nodes(): IterableIterator<[number, number, number]> {
     const {xs, ys, n} = this
     for (let i = 0; i < n; i++) {
       yield [xs[i], ys[i], i]
+    }
+  }
+
+  public *edges(): IterableIterator<[Point, Point, number]> {
+    const {xs, ys, n} = this
+    for (let i = 1; i < n; i++) {
+      const p0 = {x: xs[i-1], y: ys[i-1]}
+      const p1 = {x: xs[i], y: ys[i]}
+      yield [p0, p1, i - 1]
+    }
+    if (n >= 3) {
+      const p0 = {x: xs[n-1], y: ys[n-1]}
+      const p1 = {x: xs[0], y: ys[0]}
+      yield [p0, p1, n - 1]
     }
   }
 
@@ -60,12 +80,15 @@ class Polygon {
     return this.xs.length
   }
 
-  translate(dx: number, dy: number, i?: number): Polygon {
+  translate(dx: number, dy: number, ...i: number[]): Polygon {
     const poly = this.clone()
     const {xs, ys, n} = poly
-    if (i != null) {
-      xs[i] += dx
-      ys[i] += dy
+    if (i.length != 0) {
+      for (const j of i) {
+        const k = j % n
+        xs[k] += dx
+        ys[k] += dy
+      }
     } else {
       for (let i = 0; i < n; i++) {
         xs[i] += dx
@@ -110,8 +133,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
   protected _render(): void {
     const {xs, ys} = this.model
-    if (xs.length != ys.length)
-      return
+    assert(xs.length == ys.length)
 
     const {frame} = this.plot_view
     const {ctx} = this.layer
@@ -167,6 +189,21 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
         return {type: "node", i}
     }
 
+    const spt = {x: sx, y: sy}
+    let j: number | null = null
+    let dist = Infinity
+    for (const [p0, p1, i] of this.poly.edges()) {
+      const d = dist_to_segment(spt, p0, p1)
+      if (d < tolerance && d < dist) {
+        dist = d
+        j = i
+      }
+    }
+
+    if (j != null) {
+      return {type: "edge", i: j}
+    }
+
     if (this.poly.contains(sx, sy)) {
       return {type: "area"}
     }
@@ -205,10 +242,12 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
       switch (target.type) {
         case "node": {
-          return poly.translate(dx, dy, target.i)
+          const {i} = target
+          return poly.translate(dx, dy, i)
         }
         case "edge": {
-          throw new Error("not implemented")
+          const {i} = target
+          return poly.translate(dx, dy, i, i+1)
         }
         case "area": {
           return poly.translate(dx, dy)
