@@ -319,8 +319,8 @@ export namespace PolyAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    xs: p.Property<number[]>
-    ys: p.Property<number[]>
+    xs: p.Property<Arrayable<number>>
+    ys: p.Property<Arrayable<number>>
     xs_units: p.Property<CoordinateUnits>
     ys_units: p.Property<CoordinateUnits>
     editable: p.Property<boolean>
@@ -362,9 +362,9 @@ export class PolyAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<PolyAnnotation.Props>(({Boolean, Number, Array}) => ({
-      xs:       [ Array(Number), [] ],
-      ys:       [ Array(Number), [] ],
+    this.define<PolyAnnotation.Props>(({Boolean, Number, Arrayable}) => ({
+      xs:       [ Arrayable(Number), [] ],
+      ys:       [ Arrayable(Number), [] ],
       xs_units: [ CoordinateUnits, "data" ],
       ys_units: [ CoordinateUnits, "data" ],
       editable: [ Boolean, false ],
