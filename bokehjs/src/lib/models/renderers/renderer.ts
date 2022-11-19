@@ -174,6 +174,7 @@ export namespace Renderer {
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
     coordinates: p.Property<CoordinateMapping | null>
+    propagate_hover: p.Property<boolean>
   }
 
   export type Visuals = visuals.Visuals
@@ -197,6 +198,7 @@ export abstract class Renderer extends Model {
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],
       coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
+      propagate_hover: [ Boolean, false ],
     }))
   }
 }

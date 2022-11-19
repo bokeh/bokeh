@@ -2740,6 +2740,7 @@
     x_range_name: "default",
     y_range_name: "default",
     group: null,
+    propagate_hover: false,
   },
   DataRenderer: {
     __extends__: "Renderer",

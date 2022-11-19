@@ -76,6 +76,7 @@ ANNOTATION = [
     "x_range_name",
     "y_range_name",
     "group",
+    "propagate_hover",
 ]
 
 #-----------------------------------------------------------------------------

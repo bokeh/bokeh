@@ -533,7 +533,7 @@ export class UIEventBus implements EventListenerObject {
         if (view != null) {
           cursor = view.cursor(e.sx, e.sy) ?? cursor
 
-          if (!is_empty(active_inspectors)) {
+          if (!view.model.propagate_hover && !is_empty(active_inspectors)) {
             // override event_type to cause inspectors to clear overlays
             signal = this.move_exit as any // XXX
           }
