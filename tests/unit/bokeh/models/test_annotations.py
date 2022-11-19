@@ -447,12 +447,14 @@ def test_Span() -> None:
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
+    assert line.editable is False
     check_line_properties(line, "", 'black', 1.0)
     check_properties_existence(line, ANNOTATION + [
         "location",
         "location_units",
         "dimension",
-    ], LINE)
+        "editable",
+    ], LINE, HOVER_LINE)
 
 def test_Span_accepts_datetime_location() -> None:
     obj = Span(

@@ -384,9 +384,23 @@ class Span(Annotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this span.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the span.
     """)
+
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the span when hovering over.
+    """)
+
+    hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
 
 class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.

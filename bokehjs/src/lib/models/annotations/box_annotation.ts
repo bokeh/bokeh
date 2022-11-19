@@ -98,18 +98,15 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
   protected _render(): void {
     const {left, right, top, bottom} = this.model
 
-    const _calc_dim = (dim: number | null, dim_units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number => {
-      if (dim == null)
+    function compute(value: number | null, units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number {
+      if (value == null)
         return frame_extrema
       else {
-        switch (dim_units) {
-          case "canvas":
-            return canvas.compute(dim)
-          case "screen":
-            return view.compute(dim)
-          case "data":
-            return scale.compute(dim)
+        switch (units) {
+          case "canvas": return canvas.compute(value)
+          case "screen": return view.compute(value)
+          case "data":   return scale.compute(value)
         }
       }
     }
@@ -120,10 +117,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     const {x_screen, y_screen} = canvas.bbox
 
     this.bbox = BBox.from_lrtb({
-      left:   _calc_dim(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
-      right:  _calc_dim(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
-      top:    _calc_dim(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
-      bottom: _calc_dim(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
+      left:   compute(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
+      right:  compute(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
+      top:    compute(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
+      bottom: compute(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
     })
 
     this._paint_box()
@@ -342,7 +339,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       })
     })()
 
-    const invert = (sv: number, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper): number => {
+    function invert(sv: number, units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper): number {
       switch (units) {
         case "canvas": return canvas.invert(sv)
         case "screen": return view.invert(sv)

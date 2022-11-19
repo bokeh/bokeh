@@ -135,25 +135,22 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     const {xs, ys} = this.model
     assert(xs.length == ys.length)
 
-    const {frame} = this.plot_view
-    const {ctx} = this.layer
-
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
-
-    function v_compute(values: Arrayable<number>, units: CoordinateUnits, scale: Scale, view: CoordinateMapper): Arrayable<number> {
+    function v_compute(values: Arrayable<number>, units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper): Arrayable<number> {
       switch (units) {
-        case "canvas": return values
+        case "canvas": return canvas.v_compute(values)
         case "screen": return view.v_compute(values)
         case "data":   return scale.v_compute(values)
       }
     }
 
+    const {frame, canvas} = this.plot_view
     this.poly = new Polygon(
-      v_compute(xs, this.model.xs_units, xscale, frame.bbox.xview),
-      v_compute(ys, this.model.ys_units, yscale, frame.bbox.yview),
+      v_compute(xs, this.model.xs_units, this.coordinates.x_scale, frame.bbox.xview, canvas.bbox.x_screen),
+      v_compute(ys, this.model.ys_units, this.coordinates.y_scale, frame.bbox.yview, canvas.bbox.y_screen),
     )
 
+    const {ctx} = this.layer
     ctx.beginPath()
     for (const [sx, sy] of this.poly) {
       ctx.lineTo(sx, sy)
