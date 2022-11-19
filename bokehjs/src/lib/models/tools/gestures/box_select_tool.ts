@@ -3,7 +3,7 @@ import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Scale} from "../../scales/scale"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode, CoordinateUnits} from "core/enums"
-import {PanEvent, KeyEvent} from "core/ui_events"
+import {PanEvent, KeyEvent, KeyModifiers} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
@@ -15,12 +15,16 @@ export class BoxSelectToolView extends SelectToolView {
     return [...super.overlays, this.model.overlay]
   }
 
+  protected _is_continuous(ev: KeyModifiers): boolean {
+    return this.model.select_every_mousemove != ev.alt_key
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
     const {pan} = this.model.overlay
     this.connect(pan, ([phase, ev]) => {
-      if ((phase == "pan" && this.model.select_every_mousemove && !ev.alt_key) || phase == "pan:end") {
+      if ((phase == "pan" && this._is_continuous(ev)) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
         if (left != null && top != null && right != null && bottom != null) {
           const screen = this._compute_lrtb({left, right, top, bottom})
@@ -116,7 +120,7 @@ export class BoxSelectToolView extends SelectToolView {
     const [[left, right], [top, bottom]] = [sxlim, sylim]
     this.model.overlay.update(this._invert_lrtb({left, right, top, bottom}))
 
-    if (this.model.continuous) {
+    if (this._is_continuous(ev)) {
       this._do_select(sxlim, sylim, false, this._select_mode(ev))
     }
   }
