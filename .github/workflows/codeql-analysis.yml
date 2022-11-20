@@ -9,6 +9,7 @@ on:
     paths:
       - bokeh
       - bokehjs
+      - examples
 
 jobs:
   analyze:
