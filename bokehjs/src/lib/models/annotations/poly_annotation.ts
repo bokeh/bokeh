@@ -131,24 +131,36 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     return empty()
   }
 
+  protected _mappers(): {x: CoordinateMapper, y: CoordinateMapper} {
+    const mapper = (units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper): CoordinateMapper => {
+      switch (units) {
+        case "canvas": return canvas
+        case "screen": return view
+        case "data":   return scale
+      }
+    }
+
+    const overlay = this.model
+    const {frame, canvas} = this.plot_view
+    const {x_scale, y_scale} = frame
+    const {x_view, y_view} = frame.bbox
+    const {x_screen, y_screen} = canvas.bbox
+
+    return {
+      x: mapper(overlay.xs_units, x_scale, x_view, x_screen),
+      y: mapper(overlay.ys_units, y_scale, y_view, y_screen),
+    }
+  }
+
   protected _render(): void {
     const {xs, ys} = this.model
     assert(xs.length == ys.length)
 
-    function v_compute(values: Arrayable<number>, units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper): Arrayable<number> {
-      switch (units) {
-        case "canvas": return canvas.v_compute(values)
-        case "screen": return view.v_compute(values)
-        case "data":   return scale.v_compute(values)
-      }
-    }
-
-    const {frame, canvas} = this.plot_view
-    this.poly = new Polygon(
-      v_compute(xs, this.model.xs_units, this.coordinates.x_scale, frame.bbox.xview, canvas.bbox.x_screen),
-      v_compute(ys, this.model.ys_units, this.coordinates.y_scale, frame.bbox.yview, canvas.bbox.y_screen),
-    )
+    this.poly = (() => {
+      const {x, y} = this._mappers()
+      return new Polygon(x.v_compute(xs), y.v_compute(ys))
+    })()
 
     const {ctx} = this.layer
     ctx.beginPath()
@@ -252,20 +264,9 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
       }
     })()
 
-    const v_invert = (vs: Arrayable<number>, units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) => {
-      switch (units) {
-        case "canvas": return canvas.v_invert(vs)
-        case "screen": return view.v_invert(vs)
-        case "data":   return scale.v_invert(vs)
-      }
-    }
-
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
-
-    const xs = v_invert(spoly.xs, this.model.xs_units, x_scale, x_view, x_screen)
-    const ys = v_invert(spoly.ys, this.model.ys_units, y_scale, y_view, y_screen)
+    const {x, y} = this._mappers()
+    const xs = x.v_invert(spoly.xs)
+    const ys = y.v_invert(spoly.ys)
 
     this.model.update({xs, ys})
     this.model.pan.emit(["pan", ev])
