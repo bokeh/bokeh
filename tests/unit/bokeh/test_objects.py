@@ -297,7 +297,8 @@ class TestModel:
             value = Int(default=next_value)
         obj1 = HasFuncDefaultInt()
         obj2 = HasFuncDefaultInt()
-        assert obj1.value + 1 == obj2.value
+        assert counter == 2
+        assert obj2.value == obj1.value + 1
 
         # 'value' is a default, but it gets included as a
         # non-default because it's unstable.
