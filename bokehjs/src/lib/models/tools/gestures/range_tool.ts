@@ -41,6 +41,7 @@ const DEFAULT_RANGE_OVERLAY = () => {
     level: "overlay",
     visible: true,
     editable: true,
+    propagate_hover: true,
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",
