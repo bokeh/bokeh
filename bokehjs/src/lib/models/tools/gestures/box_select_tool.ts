@@ -56,13 +56,13 @@ export class BoxSelectToolView extends SelectToolView {
     return this.model._get_dim_limits(base_point, curpoint, frame, dims)
   }
 
-  _compute_lrtb({left, right, top, bottom}: LRTB): LRTB {
-    function compute(dim: number, dim_units: CoordinateUnits,
-        scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) {
-      switch (dim_units) {
-        case "canvas": return canvas.compute(dim)
-        case "screen": return view.compute(dim)
-        case "data":   return scale.compute(dim)
+  protected _mappers(): LRTB<CoordinateMapper> {
+    const mapper = (units: CoordinateUnits, scale: Scale,
+        view: CoordinateMapper, canvas: CoordinateMapper) => {
+      switch (units) {
+        case "canvas": return canvas
+        case "screen": return view
+        case "data":   return scale
       }
     }
 
@@ -73,34 +73,30 @@ export class BoxSelectToolView extends SelectToolView {
     const {x_screen, y_screen} = canvas.bbox
 
     return {
-      left: compute(left, overlay.left_units, x_scale, x_view, x_screen),
-      right: compute(right, overlay.right_units, x_scale, x_view, x_screen),
-      top: compute(top, overlay.top_units, y_scale, y_view, y_screen),
-      bottom: compute(bottom, overlay.bottom_units, y_scale, y_view, y_screen),
+      left: mapper(overlay.left_units, x_scale, x_view, x_screen),
+      right: mapper(overlay.right_units, x_scale, x_view, x_screen),
+      top: mapper(overlay.top_units, y_scale, y_view, y_screen),
+      bottom: mapper(overlay.bottom_units, y_scale, y_view, y_screen),
     }
   }
 
-  _invert_lrtb({left, right, top, bottom}: LRTB): LRTB {
-    function invert(dim: number, dim_units: CoordinateUnits,
-        scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) {
-      switch (dim_units) {
-        case "canvas": return canvas.invert(dim)
-        case "screen": return view.invert(dim)
-        case "data":   return scale.invert(dim)
-      }
-    }
-
-    const {overlay} = this.model
-    const {frame, canvas} = this.plot_view
-    const {x_scale, y_scale} = frame
-    const {x_view, y_view} = frame.bbox
-    const {x_screen, y_screen} = canvas.bbox
-
+  protected _compute_lrtb({left, right, top, bottom}: LRTB): LRTB {
+    const lrtb = this._mappers()
     return {
-      left: invert(left, overlay.left_units, x_scale, x_view, x_screen),
-      right: invert(right, overlay.right_units, x_scale, x_view, x_screen),
-      top: invert(top, overlay.top_units, y_scale, y_view, y_screen),
-      bottom: invert(bottom, overlay.bottom_units, y_scale, y_view, y_screen),
+      left: lrtb.left.compute(left),
+      right: lrtb.right.compute(right),
+      top: lrtb.top.compute(top),
+      bottom: lrtb.bottom.compute(bottom),
+    }
+  }
+
+  protected _invert_lrtb({left, right, top, bottom}: LRTB): LRTB {
+    const lrtb = this._mappers()
+    return {
+      left: lrtb.left.invert(left),
+      right: lrtb.right.invert(right),
+      top: lrtb.top.invert(top),
+      bottom: lrtb.bottom.invert(bottom),
     }
   }
 
