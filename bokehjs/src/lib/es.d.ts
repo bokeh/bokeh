@@ -36,43 +36,10 @@ interface Float64Array {
   constructor: Float64ArrayConstructor
 }
 
-declare interface ShadowRoot {
-  adoptedStyleSheets: readonly StyleSheet[]
-}
-
-declare interface CSSStyleSheet {
-  replaceSync(text: string): void
-}
-
-declare interface OffscreenCanvas extends EventTarget {
-  height: number
-  width: number
-
-  convertToBlob(options?: ImageEncodeOptions): Promise<Blob>
-
+declare interface OffscreenCanvas {
   getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): OffscreenCanvasRenderingContext2D | null
   getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null
   getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null
   getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null
   getContext(contextId: OffscreenRenderingContextId, options?: any): OffscreenRenderingContext | null
-  transferToImageBitmap(): ImageBitmap
-}
-
-declare let OffscreenCanvas: {
-  prototype: OffscreenCanvas
-  new(width: number, height: number): OffscreenCanvas
-}
-
-declare interface OffscreenCanvasRenderingContext2D extends CanvasCompositing, CanvasDrawImage,
-  CanvasDrawPath, CanvasFillStrokeStyles, CanvasFilters, CanvasImageData, CanvasImageSmoothing,
-  CanvasPath, CanvasPathDrawingStyles, CanvasRect, CanvasShadowStyles, CanvasState, CanvasText,
-  CanvasTextDrawingStyles, CanvasTransform {
-
-  readonly canvas: OffscreenCanvas
-  commit(): void
-}
-
-declare let OffscreenCanvasRenderingContext2D: {
-  prototype: OffscreenCanvasRenderingContext2D
-  new(): OffscreenCanvasRenderingContext2D
 }

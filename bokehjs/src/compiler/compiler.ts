@@ -23,7 +23,7 @@ export type Failed = {
 }
 
 export function is_failed<T>(obj: T | Partial<Failed>): obj is Failed {
-  return "diagnostics" in obj && obj.diagnostics != null
+  return typeof obj == "object" && !!obj && "diagnostics" in obj && obj.diagnostics != null
 }
 
 export type TSConfig = {
