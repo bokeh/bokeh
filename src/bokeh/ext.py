@@ -40,8 +40,7 @@ __all__ = ("init", "build")
 
 def init(base_dir: PathLike, *, interactive: bool = False,
          bokehjs_version: str | None = None, debug: bool = False) -> bool:
-    """
-    Initialize a directory as a new bokeh extension.
+    """ Initialize a directory as a new bokeh extension.
 
     Arguments:
         base_dir (str) : The location of the extension.
@@ -66,8 +65,7 @@ def init(base_dir: PathLike, *, interactive: bool = False,
 
 
 def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> bool:
-    """
-    Build a bokeh extension in the given directory.
+    """ Build a bokeh extension in the given directory.
 
     Arguments:
         base_dir (str) : The location of the extension.
