@@ -84,6 +84,9 @@ def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriv
         for op in extra_options:
             options.add_argument(op)
 
+    if os.getenv("BOKEH_IN_DOCKER") == "1":
+        options.add_argument("--no-sandbox")
+
     from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
     return Chrome(options=options)
 
