@@ -30,7 +30,7 @@
     "baseUrl": ".",
     "outDir": "../../build/server",
     "paths": {
-      "core/*": ["../../build/js/lib/core/*", "../../build/js/types/core/*"]
+      "core/*": ["../../build/js/lib/core/*"]
     }
   },
   "include": ["./**/*.ts"]

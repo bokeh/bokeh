@@ -21,7 +21,6 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     paths: {
       "*": [
         path.join(bokehjs_dir, "js/lib/*"),
-        path.join(bokehjs_dir, "js/types/*"),
       ],
     },
     outDir: undefined,

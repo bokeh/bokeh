@@ -273,7 +273,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       paths: {
         "@bokehjs/*": [
           join(bokehjs_dir, "js/lib/*"),
-          join(bokehjs_dir, "js/types/*"),
         ],
       },
     }

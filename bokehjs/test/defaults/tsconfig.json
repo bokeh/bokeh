@@ -30,7 +30,7 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "@bokehjs/*": ["../../build/js/lib/*", "../../build/js/types/*"]
+      "@bokehjs/*": ["../../build/js/lib/*"]
     },
     "outDir": "../../build/test"
   },
