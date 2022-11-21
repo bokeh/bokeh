@@ -63,4 +63,8 @@ if [ "${BOKEH_DOCKER_TEST:-0}" == 1 ]; then
     bash scripts/docker/bokeh_docker_test.sh
 fi
 
+if [ "${BOKEH_DOCKER_FROM_WHEEL:-0}" == 1 ]; then
+    bash scripts/docker/bokeh_docker_from_wheel.sh
+fi
+
 /bin/bash "$@"

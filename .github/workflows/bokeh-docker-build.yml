@@ -1,20 +1,25 @@
-name: Docker image - Build
+name: Bokeh-Docker-Build
 
 on:
   workflow_dispatch:
     inputs:
-      run_tests:
-        description: 'Run tests (0 or 1)'
+      push_or_save_image:
+        type: choice
+        description: What to do with image?
+        options:
+        - "Push to Docker Hub"
+        - "Save as artifact"
         required: true
-        default: '0'
+        default: "Push to Docker Hub"
 
 jobs:
-  docker_build:
+  docker-build:
     runs-on: ubuntu-latest
     steps:
       - name: Set date environment variable
         run: |
           echo "iso_date=$(date -u --iso-8601)" >> $GITHUB_ENV
+          echo "branch_name=$(echo ${{ github.ref_name }} | tr / -)" >> $GITHUB_ENV
 
       - name: Checkout source
         uses: actions/checkout@v2
@@ -22,63 +27,46 @@ jobs:
           fetch-depth: 0
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: bokehservice
+          password: ${{ secrets.DOCKER_TOKEN }}
 
       - name: Build image
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v3
         with:
           context: scripts/docker
           load: true
           tags: |
-            bokeh-dev:latest
-            bokeh-dev:${{ env.iso_date }}
+            bokeh/bokeh-dev:latest
+            bokeh/bokeh-dev:${{ env.iso_date }}
+            bokeh/bokeh-dev:${{ env.branch_name }}
 
-      - name: Determine chrome version in image
-        env:
-          BOKEH_DOCKER_CHROME_VERSION: 1
-        run: |
-          echo "chrome_version=$(scripts/docker/docker_run.sh bokeh-dev | tail -1 | awk -F'.' '{print $1}')" >> $GITHUB_ENV
-
-      - name: Tag image with chrome version
-        run: |
-          docker images bokeh-dev
-          docker image tag bokeh-dev bokeh-dev:chrome_${{ env.chrome_version }}
-          docker images bokeh-dev
+      - name: Push image to Docker Hub
+        if: ${{ inputs.push_or_save_image }} == "Push to Docker Hub"
+        uses: docker/build-push-action@v3
+        with:
+          context: scripts/docker
+          push: true
+          tags: |
+            bokeh/bokeh-dev:latest
+            bokeh/bokeh-dev:${{ env.iso_date }}
+            bokeh/bokeh-dev:${{ env.branch_name }}
 
       - name: Save image to tar file
+        if: ${{ inputs.push_to_docker_hub }} == "Save as artifact"
         run: |
-          docker save -o bokeh-dev.tar bokeh-dev
+          docker save -o bokeh-dev.tar bokeh/bokeh-dev
 
       - name: Upload artifact
+        if: ${{ inputs.push_to_docker_hub }} == "Save as artifact"
         uses: actions/upload-artifact@v2
         with:
           name: artifact
           path: bokeh-dev.tar
-
-      - name: Run tests
-        if: ${{ github.event.inputs.run_tests }}
-        run: |
-          docker run -v $GITHUB_WORKSPACE:/bokeh -u $(id --user):$(id --group) --rm -e BOKEH_DOCKER_BUILD=1 -e BOKEH_DOCKER_TEST=1 bokeh-dev:latest
-
-      - name: Collect results
-        if: ${{ github.event.inputs.run_tests }}
-        run: |
-          OS=$(echo ${{ runner.os }} | tr '[:upper:]' '[:lower:]')
-          SRC="bokehjs/test/baselines/${OS}"
-          DST="bokehjs-report/${SRC}"
-          mkdir -p ${DST}
-          if [[ -e ${SRC}/report.json ]];
-          then
-            CHANGED=$(git status --short ${SRC}/\*.blf ${SRC}/\*.png | cut -c4-)
-            cp ${SRC}/report.{json,out} ${CHANGED} ${DST}
-          fi
-
-      - name: Upload test report
-        if: ${{ github.event.inputs.run_tests }}
-        uses: actions/upload-artifact@v1
-        with:
-          name: artifact
-          path: bokehjs-report
