@@ -181,9 +181,9 @@ export abstract class UIElementView extends DOMComponentView {
     const {styles} = this.model
 
     const apply = (name: string, value: unknown) => {
-      const known = this.el.style.hasOwnProperty(name)
+      const known = name in this.el.style   // XXX: hasOwnProperty() doesn't work for unknown reasons
       if (known && isString(value)) {
-        this.el.style[name as any] = value
+        this.el.style[name as any] = value  // XXX: setProperty() doesn't support camel-case
       }
       return known
     }
