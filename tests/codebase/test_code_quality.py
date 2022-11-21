@@ -35,7 +35,7 @@ from typing import IO
 
 def test_code_quality() -> None:
     ''' Applies a collection of general codebase style and quality rules to
-    every file inm the repository. Unless specifically excepted:
+    every file in the repository. Unless specifically excepted:
 
     * Files should not contain tabs
     * Files should not start with newlines

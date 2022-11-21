@@ -81,7 +81,6 @@ Basic Properties
 .. autoclass:: Bytes
 .. autoclass:: Color
 .. autoclass:: Complex
-.. autoclass:: CoordinateLike
 .. autoclass:: DashPattern
 .. autoclass:: Date
 .. autoclass:: Datetime
@@ -212,7 +211,6 @@ __all__ = (
     'ColorSpec',
     'ColumnData',
     'Complex',
-    'CoordinateLike',
     'DashPattern',
     'DataSpec',
     'Date',
@@ -307,8 +305,6 @@ from .property.container import Set; Set
 from .property.container import Tuple; Tuple
 from .property.container import RelativeDelta; RelativeDelta
 from .property.container import RestrictedDict; RestrictedDict
-
-from .property.combined import CoordinateLike; CoordinateLike
 
 from .property.dataspec import AlphaSpec; AlphaSpec
 from .property.dataspec import AngleSpec; AngleSpec

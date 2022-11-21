@@ -29,7 +29,7 @@ from tests.support.util.api import verify_all
 from _util_property import _TestHasProps, _TestModel
 
 # Module under test
-import bokeh.core.property.combined as bcpc # isort:skip
+import bokeh.core.property.aliases as bcpc # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup

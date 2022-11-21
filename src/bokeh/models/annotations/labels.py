@@ -31,7 +31,6 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Angle,
     AngleSpec,
-    CoordinateLike,
     Enum,
     Float,
     Include,
@@ -42,6 +41,7 @@ from ...core.properties import (
     TextLike,
     field,
 )
+from ...core.property.aliases import CoordinateLike
 from ...core.property_mixins import (
     FillProps,
     LineProps,
