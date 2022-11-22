@@ -14,6 +14,6 @@ bokeh sampledata
 # Bokeh Python tests.
 pytest tests/test_defaults.py
 pytest tests/unit -k "not firefox"
-pytest tests/integration
+#pytest tests/integration
 
 echo "End of $0"
