@@ -86,7 +86,7 @@ jobs:
           sampledata: 'cache'
 
       - name: Run codebase checks
-        run: pytest --color=yes tests/codebase
+        run: pytest --color=yes tests/codebase -n 2 -v
 
       - name: MyPy
         if: success() || failure()
@@ -201,7 +201,7 @@ jobs:
 
       - name: Run tests
         if: success() || failure()
-        run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
+        run: pytest --cov=bokeh --cov-report=xml --color=yes -v tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
@@ -233,7 +233,7 @@ jobs:
           sampledata: 'none' # no sampledata for minimal tests
 
       - name: Run tests
-        run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
+        run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes -v tests/unit
 
       - name: Upload code coverage
         uses: codecov/codecov-action@v3
