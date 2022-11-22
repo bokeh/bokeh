@@ -13,6 +13,9 @@
 
 ``text_color``
     color to use to render text with
+    
+``text_outline_color``
+    color to use to provide a stroked outline to text
 
 ``text_alpha``
     floating point between 0 (transparent) and 1 (opaque)
@@ -30,5 +33,5 @@
     - ``'hanging'``
 
 .. note::
-    There is currently only support for filling text. An interface to stroke
-    the outlines of text has not yet been exposed.
+    There is currently only support for providing an outline color for text. An interface for more advanced control of stroked
+    outlines of text has not yet been exposed.
