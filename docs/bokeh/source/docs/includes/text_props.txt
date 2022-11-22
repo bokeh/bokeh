@@ -13,7 +13,7 @@
 
 ``text_color``
     color to use to render text with
-    
+
 ``text_outline_color``
     color to use to provide a stroked outline to text
 
