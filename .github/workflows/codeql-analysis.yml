@@ -7,9 +7,10 @@ on:
     # The branches below must be a subset of the branches above
     branches: [ branch-* ]
     paths:
-      - bokeh
       - bokehjs
       - examples
+      - release
+      - src/bokeh
 
 jobs:
   analyze:
@@ -42,4 +43,5 @@ jobs:
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
       with:
+        config-file: ./.github/codeql/codeql-config.yml
         category: "/language:${{ matrix.language }}"
