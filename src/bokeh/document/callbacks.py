@@ -42,11 +42,14 @@ from ..events import (
 )
 from ..model import Model
 from ..util.callback_manager import _check_callback
-from .events import (  # RootAddedEvent,; RootRemovedEvent,; TitleChangedEvent,
+from .events import (
     DocumentPatchedEvent,
     ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
     SessionCallbackAdded,
     SessionCallbackRemoved,
+    TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
 
@@ -63,7 +66,14 @@ if TYPE_CHECKING:
 
 __all__ = (
     'DocumentCallbackManager',
+    'DocumentPatchedEvent',
     'invoke_with_curdoc',
+    'ModelChangedEvent',
+    'RootAddedEvent',
+    'RootRemovedEvent',
+    'SessionCallbackAdded',
+    'SessionCallbackRemoved',
+    'TitleChangedEvent',
 )
 
 
