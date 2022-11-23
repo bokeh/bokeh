@@ -85,7 +85,7 @@ def license():
 del importlib_metadata
 
 # expose sample data module
-from . import sampledata; sampledata
+from . import sampledata # isort:skip
 
 # configure Bokeh logger
 from .util import logconfig # isort:skip
