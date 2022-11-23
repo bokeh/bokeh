@@ -209,7 +209,7 @@ def collect_examples(config_path: str) -> list[Example]:
     examples_dir = join(dirname(config_path), pardir)
     list_of_examples: list[Example] = []
 
-    with open(config_path, "r") as f:
+    with open(config_path) as f:
         examples = yaml.safe_load(f.read())
 
     for example in examples:

@@ -264,7 +264,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
     previously rendered Jupyter output cell.
 
     Several example notebooks can be found in the GitHub repository in
-    the :bokeh-tree:`examples/howto/notebook_comms` directory.
+    the :bokeh-tree:`examples/output/jupyter/push_notebook` directory.
 
     Args:
 
