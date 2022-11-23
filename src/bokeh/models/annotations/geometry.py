@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
+    CoordinateLike,
     Either,
     Enum,
     Factor,
@@ -37,7 +38,6 @@ from ...core.properties import (
     UnitsSpec,
     field,
 )
-from ...core.property.aliases import CoordinateLike
 from ...core.property_mixins import (
     LineProps,
     ScalarFillProps,
