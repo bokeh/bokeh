@@ -17,12 +17,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# isort: skip_file
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
     'column',
+    'Column',
     'ColumnDataSource',
     'curdoc',
     'DEFAULT_TOOLS',
@@ -37,6 +40,7 @@ __all__ = (
     'output_notebook',
     'reset_output',
     'row',
+    'Row',
     'save',
     'show',
 )
@@ -49,28 +53,28 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from ._figure import figure; figure
-from ._figure import markers; markers
-from ._figure import DEFAULT_TOOLS; DEFAULT_TOOLS
+from ._figure import figure
+from ._figure import markers
+from ._figure import DEFAULT_TOOLS
 
-from .gmap import GMap; GMap
-from .gmap import gmap; gmap
+from .gmap import GMap
+from .gmap import gmap
 
-from .graph import from_networkx; from_networkx
+from .graph import from_networkx
 
 # extra imports -- just things to add to 'from bokeh.plotting import'
-from ..document import Document; Document
+from ..document import Document
 
-from ..models import ColumnDataSource; ColumnDataSource
-from ..models.layouts import Row, Column; Row, Column
+from ..models import ColumnDataSource
+from ..models.layouts import Row, Column
 
-from ..io import curdoc; curdoc
-from ..io import output_file; output_file
-from ..io import output_notebook; output_notebook
-from ..io import reset_output; reset_output
-from ..io import save; save
-from ..io import show; show
-from ..layouts import column, gridplot, row; column, gridplot, row
+from ..io import curdoc
+from ..io import output_file
+from ..io import output_notebook
+from ..io import reset_output
+from ..io import save
+from ..io import show
+from ..layouts import column, gridplot, row
 
 #-----------------------------------------------------------------------------
 # Dev API

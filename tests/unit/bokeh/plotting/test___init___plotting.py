@@ -28,6 +28,7 @@ import bokeh.plotting as bp # isort:skip
 
 ALL = (
     'column',
+    'Column',
     'ColumnDataSource',
     'curdoc',
     'DEFAULT_TOOLS',
@@ -42,6 +43,7 @@ ALL = (
     'output_notebook',
     'reset_output',
     'row',
+    'Row',
     'save',
     'show',
 )
