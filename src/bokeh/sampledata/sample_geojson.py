@@ -54,5 +54,5 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-with open(package_path('sample_geojson.geojson'), 'r') as f:
+with open(package_path('sample_geojson.geojson')) as f:
     geojson = f.read()

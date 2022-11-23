@@ -66,7 +66,7 @@ def _read_data() -> pd.DataFrame:
 
     '''
     import pandas as pd
-    with open(external_path('airports.json'), 'r') as f:
+    with open(external_path('airports.json')) as f:
         content = f.read()
         airports = json.loads(content)
         schema: Any = [['attributes', 'nam'], ['attributes', 'zv3'], ['geometry', 'x'], ['geometry', 'y']]
