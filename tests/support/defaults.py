@@ -40,8 +40,6 @@ from bokeh.core.serialization import (
 from bokeh.model import Model
 from bokeh.util.warnings import BokehDeprecationWarning
 
-import bokeh.models; bokeh.models # isort:skip
-
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -82,6 +80,12 @@ class DefaultsSerializer(Serializer):
 def collect_defaults() -> dict[str, Any]:
     serializer = DefaultsSerializer()
     defaults: dict[str, Any] = {}
+
+    # in order to look up from the model catalog that Model maintains, it
+    # has to be created first. These imports ensure that all built-in Bokeh
+    # models are represented in the catalog.
+    import bokeh.models  # noqa: F401
+    from bokeh.plotting import GMap, figure  # noqa: F401
 
     for name, model in Model.model_class_reverse_map.items():
         with warnings.catch_warnings():
