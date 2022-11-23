@@ -46,7 +46,7 @@ def test_palettes_dir() -> None:
     assert 'magma' in dir(pal)
     assert 'inferno' in dir(pal)
     assert 'turbo' in dir(pal)
-    assert not '__new__' in dir(pal)
+    assert '__new__' not in dir(pal)
 
 def test_varying_alpha_palette() -> None:
     assert pal.varying_alpha_palette("blue", 3) == ("#0000FF00", "#0000FF80", "#0000FF")

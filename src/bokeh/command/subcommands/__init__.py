@@ -21,10 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import List, Type
+from typing import Type
 
 # Bokeh imports
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants

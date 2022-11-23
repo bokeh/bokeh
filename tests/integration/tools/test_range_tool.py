@@ -272,9 +272,6 @@ class Test_RangeTool:
         assert results['start'] == -0.1
         assert results['end'] == 0.3
 
-
-    # TODO (bev) This test is broken due to some dumb reason with tooling
-    @pytest.mark.skip
     def test_center_pan_stops_at_plot_range_limit(self, single_plot_page: SinglePlotPage) -> None:
         plot = _make_plot()
 

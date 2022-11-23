@@ -7,14 +7,13 @@ dependencies:
   # runtime
   - contourpy >=1
   - jinja2 >=2.7
-  - numpy >=1.11.3
+  - numpy >=1.20.0
   - packaging >=16.8
   - pandas >=1.2
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
   - tornado >=5
-  - typing_extensions >=3.10.0
   - xyzservices>=2021.09.1
 
   # tests
@@ -25,20 +24,17 @@ dependencies:
   - colorcet
   - coverage
   - firefox =>96
-  - flake8
-  - flaky
   - geckodriver
   - ipython
   - isort 5.8
   - json5
-  - mock
   - nbconvert >=5.4
   - networkx
   - nodejs 16.*
   - pre-commit
   - psutil
-  - pydot
   - pygments
+  - pygraphviz
   - pytest >=7.0
   - pytest-asyncio
   - pytest-cov >=1.8.1
@@ -48,6 +44,7 @@ dependencies:
   - scipy
   - selenium 4.2
   - toml
+  - typing_extensions >=4.0.0
 
   # examples
   - flask >=1.0
@@ -64,7 +61,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=0.981
+    - mypy >=0.990
     # docs
     - autoclasstoc
     - pydata_sphinx_theme ==0.9
@@ -74,8 +71,8 @@ dependencies:
     - sphinx-design
     - sphinxext-opengraph
     # tests
-    - flake8-pyi
     - pandas-stubs
+    - ruff
     - types-boto
     - types-colorama
     - types-mock

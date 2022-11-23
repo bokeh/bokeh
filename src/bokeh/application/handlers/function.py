@@ -21,8 +21,7 @@ useful if users wish to embed the Bokeh server programmatically:
     server = Server({'/bkapp': app}, io_loop=IOLoop.current())
     server.start()
 
-For complete examples of this technique, see
-:bokeh-tree:`examples/howto/server_embed`
+For complete examples of this technique, see :bokeh-tree:`examples/server/api`
 
 '''
 

@@ -284,7 +284,7 @@ def _reseed_if_needed(using_sysrandom: bool, secret_key: bytes | None) -> None:
         # time a random string is required. This may change the
         # properties of the chosen random sequence slightly, but this
         # is better than absolute predictability.
-        data = f"{random.getstate()}{time.time()}{secret_key!s}".encode('utf-8')
+        data = f"{random.getstate()}{time.time()}{secret_key!s}".encode()
         random.seed(hashlib.sha256(data).digest())
 
 

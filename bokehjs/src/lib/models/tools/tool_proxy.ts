@@ -4,7 +4,7 @@ import {Signal0} from "core/signaling"
 import {Model} from "../../model"
 import {Tool, ToolView, EventRole} from "./tool"
 import {ToolButton} from "./tool_button"
-import {InspectTool} from "./inspectors/inspect_tool"
+import {type InspectTool} from "./inspectors/inspect_tool"
 import {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
 
@@ -47,7 +47,9 @@ export class ToolProxy<T extends Tool> extends Model {
   }
 
   tool_button(): ToolButton {
-    return this.tools[0].tool_button()
+    const button = this.tools[0].tool_button()
+    button.tool = this
+    return button
   }
 
   get event_type(): EventType | EventType[] | undefined {
@@ -79,8 +81,8 @@ export class ToolProxy<T extends Tool> extends Model {
   }
 
   get toggleable(): boolean {
-    const tool = this.tools[0]
-    return tool instanceof InspectTool && tool.toggleable
+    const tool = this.tools[0] as Tool
+    return "toggleable" in tool && (tool as InspectTool).toggleable
   }
 
   override initialize(): void {

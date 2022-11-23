@@ -77,14 +77,14 @@
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI/branch-3.0?label=Bokeh-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/Bokeh-CI/branch-3.1?label=Bokeh-CI&logo=github&style=for-the-badge"
          alt="Current Bokeh-CI github actions build status" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI/branch-3.0?label=BokehJS-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/workflow/status/bokeh/bokeh/BokehJS-CI/branch-3.1?label=BokehJS-CI&logo=github&style=for-the-badge"
          alt="Current BokehJS-CI github actions build status" />
     </a>
   </td>
@@ -134,15 +134,15 @@
 
 ## Installation
 
-To install Bokeh and its required dependencies using `conda`, enter the following command at a Bash or Windows command prompt:
+To install Bokeh and its required dependencies using `pip`, enter the following command at a Bash or Windows command prompt:
+```
+pip install bokeh
+```
+
+To install `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
-```
-
-To install using `pip`, enter the following command at a Bash or Windows command prompt:
-```
-pip install bokeh
 ```
 
 Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for more details.
@@ -151,7 +151,7 @@ Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/
 
 Once Bokeh is installed, check out the [first steps guides](https://docs.bokeh.org/en/latest/docs/first_steps.html#first-steps-guides).
 
-Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/main?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb) to learn about Bokeh in live Jupyter Notebooks.
+Visit the [full documentation site](https://docs.bokeh.org) to view the [User's Guide](https://docs.bokeh.org/en/latest/docs/user_guide.html) or [launch the Bokeh tutorial](https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb) to learn about Bokeh in live Jupyter Notebooks.
 
 Community support is available on the [Project Discourse](https://discourse.bokeh.org).
 

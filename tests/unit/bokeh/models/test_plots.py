@@ -18,11 +18,11 @@ import pytest ; pytest
 
 # Standard library imports
 from math import isnan
+from unittest import mock
+from unittest.mock import MagicMock, patch
 
 # External imports
-import mock
 import xyzservices.providers as xyz
-from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.validation import check_integrity, process_validation_issues
@@ -42,6 +42,8 @@ from bokeh.models import (
     ResetTool,
     Title,
     WMTSTileSource,
+    ZoomInTool,
+    ZoomOutTool,
 )
 from bokeh.plotting import figure
 
@@ -57,13 +59,6 @@ You are attempting to set `plot.legend.location` on a plot that has zero legends
 
 Before legend properties can be set, you must add a Legend explicitly, or call a glyph method with a legend parameter set.
 """
-
-def create_plot_and_tools(prefilled: bool = False) -> tuple[Plot, PanTool, ResetTool]:
-    if prefilled:
-        pan = PanTool()
-        reset = ResetTool()
-        return (Plot(tools=[pan, reset]), pan, reset)
-    return (Plot(), PanTool(), ResetTool())
 
 #-----------------------------------------------------------------------------
 # General API
@@ -380,47 +375,55 @@ def test_add_tile_tilesource():
     assert tile_source.url == mapnik.build_url()
     assert tile_source.attribution == mapnik.html_attribution
 
-def test_add_tools_single():
-    plot, first_tool, _ = create_plot_and_tools()
+def test_Plot_add_tools() -> None:
+    plot = Plot()
     assert len(plot.tools) == 0
 
-    plot.add_tools(first_tool)
-    assert plot.tools[0] == first_tool
+    pan = PanTool()
+    plot.add_tools(pan)
+    assert plot.tools == [pan]
 
-def test_add_tools_multiple():
-    plot, first_tool, second_tool = create_plot_and_tools()
+    zoom_in = ZoomInTool()
+    zoom_out = ZoomOutTool()
 
-    plot.add_tools(first_tool, second_tool)
-    assert plot.tools[0] == first_tool
-    assert plot.tools[1] == second_tool
+    plot.add_tools("reset", zoom_in, zoom_out)
+    assert plot.tools[0] == pan
+    assert isinstance(plot.tools[1], ResetTool)
+    assert plot.tools[2:] == [zoom_in, zoom_out]
 
-def test_add_tools_invalid():
-    plot = Plot()
+    with pytest.raises(ValueError):
+        plot.add_tools("foobar")
 
-    with pytest.raises(ValueError) as e:
-        plot.add_tools("not a tool")
-        assert str(e.value) == "ValueError: All arguments to add_tool must be Tool subclasses."
+    with pytest.raises(ValueError):
+        plot.add_tools(0)
 
 def test_remove_tools_single():
-    plot, first_tool, second_tool = create_plot_and_tools(prefilled=True)
+    pan = PanTool()
+    reset = ResetTool()
+    plot = Plot(tools=[pan, reset])
 
-    plot.remove_tools(first_tool)
+    plot.remove_tools(pan)
     assert len(plot.tools) == 1
-    assert plot.tools[0] == second_tool
+    assert plot.tools[0] == reset
 
 def test_remove_tools_multiple():
-    plot, first_tool, second_tool = create_plot_and_tools(prefilled=True)
+    pan = PanTool()
+    reset = ResetTool()
+    plot = Plot(tools=[pan, reset])
 
-    plot.remove_tools(first_tool, second_tool)
+    plot.remove_tools(pan, reset)
     assert len(plot.tools) == 0
 
 def test_remove_tools_invalid():
-    (plot, *_) = create_plot_and_tools(prefilled=True)
-    third_tool = PanTool()
+    pan = PanTool()
+    reset = ResetTool()
+    plot = Plot(tools=[pan, reset])
+    zoom_in = ZoomInTool()
 
     with pytest.raises(ValueError) as e:
-        plot.remove_tools(third_tool)
-        assert str(e.value).startswith("ValueError: Invalid tool PanTool")
+        plot.remove_tools(zoom_in)
+        assert str(e.value).startswith("ValueError: Invalid tool ZoomInTool")
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

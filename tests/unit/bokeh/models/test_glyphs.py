@@ -78,7 +78,7 @@ from bokeh.models.glyphs import ( # isort:skip
 #-----------------------------------------------------------------------------
 
 
-# fool flake8
+# fool linters
 (LineJoin, LineDash, LineCap, FontStyle, TextAlign, TextBaseline, Direction,
  AngleUnits, Dimension, Anchor, Location, LegendLocation,
  DashPattern, ButtonType, MapType, Color)

@@ -16,9 +16,11 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from unittest.mock import MagicMock, patch
+
 # External imports
 import pandas as pd
-from mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import Any, ColumnData, Instance

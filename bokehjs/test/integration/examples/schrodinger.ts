@@ -3,7 +3,7 @@ import {display} from "../_util"
 import {figure} from "@bokehjs/api/plotting"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
-import {range} from "@bokehjs/core/util/array"
+import {range, reversed} from "@bokehjs/core/util/array"
 
 import {TeX, Title, Label} from "@bokehjs/models"
 
@@ -19,17 +19,22 @@ describe("Examples", () => {
       width: 800, height: 600,
       x_range: [-6, 6], y_range: [0, 8],
       toolbar_location: null,
-      title: new Title({
-        text: tex`\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }
-          -\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi`,
-      }),
+      title: null,
     })
     p.xaxis.axis_label = tex`q`
     p.yaxis.visible = false
     p.xgrid.visible = false
     p.ygrid.visible = false
-    p.add_layout(new Title({text: tex`\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v`}), "above")
-    p.add_layout(new Title({text: tex`\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}`}), "above")
+
+    const title = [
+      tex`\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }
+        -\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi`,
+      tex`\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}`,
+      tex`\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v`,
+    ]
+    for (const text of reversed(title)) {
+      p.add_layout(new Title({text, text_font_style: "normal"}), "above")
+    }
 
     const q = np.linspace(-6, 6, 100)
     const yscale = 0.75

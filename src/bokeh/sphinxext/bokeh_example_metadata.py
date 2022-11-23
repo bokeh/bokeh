@@ -106,7 +106,7 @@ def _sampledata(mods: str | None) -> str | None:
     if mods is None:
         return
 
-    # options lines might need a flake8 noqa comment for line length, etc
+    # options lines might need a ruff noqa comment for line length, etc
     mods = mods.split("#")[0].strip()
 
     mods = (mod.strip() for mod in mods.split(","))
@@ -117,7 +117,7 @@ def _apis(apis: str | None) -> str | None:
     if apis is None:
         return
 
-    # options lines might need a flake8 noqa comment for line length, etc
+    # options lines might need a ruff noqa comment for line length, etc
     apis = apis.split("#")[0].strip()
 
     results = []

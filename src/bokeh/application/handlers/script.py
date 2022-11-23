@@ -86,7 +86,7 @@ class ScriptHandler(CodeHandler):
             filename (str) : a path to a Python source (".py") file
 
         '''
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, encoding='utf-8') as f:
             source = f.read()
 
         super().__init__(source=source, filename=filename, argv=argv, package=package)

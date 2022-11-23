@@ -220,7 +220,7 @@ class Document:
         if isinstance(theme, str):
             try:
                 theme = built_in_themes[theme]
-            except:
+            except KeyError:
                 raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
 
         if not isinstance(theme, Theme):

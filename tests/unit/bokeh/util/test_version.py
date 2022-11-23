@@ -18,9 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import re
-
-# External imports
-import mock
+from unittest import mock
 
 # Module under test
 import bokeh.util.version as buv # isort:skip

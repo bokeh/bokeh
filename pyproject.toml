@@ -11,13 +11,12 @@ requires-python = ">=3.8"
 dependencies = [
     "Jinja2 >=2.9",
     "contourpy >=1",
-    "numpy >=1.11.3",
+    "numpy >=1.16",
     "packaging >=16.8",
     "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
     "tornado >=5.1",
-    "typing_extensions >=4.0.0",
     "xyzservices >=2021.09.1",
 ]
 authors = [
@@ -45,6 +44,7 @@ classifiers = [
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -72,7 +72,6 @@ dev_template = "{tag}+{ccount}.g{sha}"
 dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.pytest.ini_options]
-addopts = "--no-success-flaky-report"
 asyncio_mode = "strict"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
@@ -82,8 +81,8 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["bokeh"]
-omit = ["*sphinxext/*"]
+source = ["src/bokeh"]
+omit = ["*sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -108,6 +107,21 @@ exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+exclude = [
+    ".git",
+    'node_modules',
+]
+per-file-ignores = {"__init__.py" = ["F403"]}
+select = ["E", "F", "M", "U", "W"]
+ignore = [
+    'E402', # Module level import not at top of file
+    'E731', # Do not assign a lambda expression, use a def
+    'E741', # Ambiguous variable name: I
+]
+line-length = 165
+target-version = "py38"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

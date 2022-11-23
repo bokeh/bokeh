@@ -32,9 +32,10 @@ export class LineView extends XYGlyphView {
 
   protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
     const {sx, sy} = data ?? this
+    const nonselection = this.parent.nonselection_glyph == this
 
-    let last_i: number | null = null
-    const gap = (i: number) => last_i != null && i - last_i != 1
+    let iprev: number | null = null
+    const gap = (i: number) => iprev != null && i - iprev != 1
 
     let move = true
     ctx.beginPath()
@@ -43,17 +44,30 @@ export class LineView extends XYGlyphView {
       const sx_i = sx[i]
       const sy_i = sy[i]
 
+      if (nonselection && !move && iprev != null && i-iprev > 1 && isFinite(sx[iprev+1] + sy[iprev+1]))
+        ctx.lineTo(sx[iprev+1], sy[iprev+1])  // End of previous line
+
       if (!isFinite(sx_i + sy_i))
         move = true
       else {
         if (move || gap(i)) {
-          ctx.moveTo(sx_i, sy_i)
+          if (nonselection && i > 0 && isFinite(sx[i-1] + sy[i-1])) {
+            ctx.moveTo(sx[i-1], sy[i-1])  // Start of new line
+            ctx.lineTo(sx_i, sy_i)
+          } else
+            ctx.moveTo(sx_i, sy_i)
           move = false
         } else
           ctx.lineTo(sx_i, sy_i)
-      }
 
-      last_i = i
+        iprev = i
+      }
+    }
+
+    if (nonselection && !move && iprev != null) {
+      const n = sx.length
+      if (iprev < n-1 && isFinite(sx[iprev+1] + sy[iprev+1]))
+        ctx.lineTo(sx[iprev+1], sy[iprev+1])  // End of final line
     }
 
     this.visuals.line.set_value(ctx)

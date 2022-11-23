@@ -49,8 +49,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import errors  # NOQA
-from . import warnings  # NOQA
+from . import errors, warnings
 from .check import (
     check_integrity,
     process_validation_issues,
@@ -62,6 +61,17 @@ from .decorators import error, warning
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = (
+    "check_integrity",
+    "error",
+    "errors",
+    "process_validation_issues",
+    "silence",
+    "silenced",
+    "warning",
+    "warnings",
+)
 
 #-----------------------------------------------------------------------------
 # General API

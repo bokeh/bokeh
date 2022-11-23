@@ -261,7 +261,7 @@ grow unbounded.
 
     source.stream(new_data)
 
-For an example that uses streaming, see :bokeh-tree:`examples/app/ohlc`.
+For an example that uses streaming, see :bokeh-tree:`examples/server/app/ohlc`.
 
 .. _ug_basic_data_cds_patching:
 
@@ -287,7 +287,7 @@ Examples of tuples that you can use with
 
     (slice, new_values) # replace several column values
 
-For a full example, see :bokeh-tree:`examples/howto/patch_app.py`.
+For a full example, see :bokeh-tree:`examples/server/app/patch_app.py`.
 
 .. _ug_basic_data_transforming:
 
@@ -570,7 +570,7 @@ This is a preview of what a stream of live data in Bokeh can look like using
 .. image:: /_images/ajax_streaming.gif
     :alt: Animated image showing a timeseries scatter plot updating periodically via the ajax streaming data source.
 
-For the full example, see :bokeh-tree:`examples/basic_data/ajax_source.py` in Bokeh's
+For the full example, see :bokeh-tree:`examples/basic/data/ajax_source.py` in Bokeh's
 GitHub repository.
 
 .. _ug_basic_data_linked_selection:

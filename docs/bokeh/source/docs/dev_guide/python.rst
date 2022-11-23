@@ -22,7 +22,7 @@ exceptions include:
 
 Bokeh uses a combination of code quality tests for each :ref:`Pull Request
 <contributor_guide_pull_requests>`. Relevant tests for Python code include
-`Flake8`_ and `isort`_. Use the following command to run those codebase tests
+`Ruff`_ and `isort`_. Use the following command to run those codebase tests
 locally:
 
 .. code-block:: sh
@@ -92,7 +92,7 @@ folders containing Python code:
   for more information on testing.
 
 ``typings/``
-  The :bokeh-tree:`typings` folder contains `stub files`_ for Bokeh's type
+  The :bokeh-tree:`src/typings` folder contains `stub files`_ for Bokeh's type
   hints.
 
 .. _contributor_guide_python_models:
@@ -206,7 +206,7 @@ To type check your code locally, run ``mypy bokeh``.
 
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-.. _Flake8: https://flake8.pycqa.org/
+.. _Ruff: https://github.com/charliermarsh/ruff
 .. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
 .. _stub files: https://www.python.org/dev/peps/pep-0484/#stub-files

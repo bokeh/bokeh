@@ -16,8 +16,8 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# External imports
-from mock import MagicMock, patch
+# Standard library imports
+from unittest.mock import MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -420,12 +420,12 @@ def test_PropertyValueList_mutators(mock_notify: MagicMock) -> None:
     # code as covered.
     try:
         pvl.__setslice__(1,2,3)
-    except:
+    except Exception:
         pass
 
     try:
         pvl.__delslice__(1,2)
-    except:
+    except Exception:
         pass
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')

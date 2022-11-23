@@ -107,7 +107,7 @@ See :ref:`ug_server` for general information about Bokeh server
 applications. For a complete example of a Bokeh application embedded in
 a Jupyter notebook, refer to the following notebook:
 
-* :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
+* :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
 JupyterHub
 ''''''''''
@@ -259,10 +259,10 @@ The following screenshots illustrate basic usage of notebook handles:
 
 See the following notebooks for more detailed examples of notebook handle use:
 
-* :bokeh-tree:`examples/howto/notebook_comms/Basic Usage.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Continuous Updating.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Basic Usage.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Continuous Updating.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
 .. _ug_output_jupyter_notebook_jupyter_interactors:
 
@@ -273,7 +273,7 @@ You can use notebook widgets, known as `interactors`_, to update
 Bokeh plots. The key to doing this is the |push_notebook| function.
 The update callback for the interactors calls this function
 to update the plot from widget values. See a screenshot of the
-:bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb` example
+:bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb` example
 notebook below:
 
 .. image:: /_images/notebook_interactors.png
@@ -303,40 +303,16 @@ You can find many more examples of notebook use in the `bokeh-notebook`_ reposit
 
 Alternatively, `Binder`_ hosts live notebooks that you can run online.
 
-The main `Bokeh`_ repository also includes some notebooks under `examples`_:
+The main `Bokeh`_ repository also includes some notebook comms examples:
 
-- `categorical data`_
-- `hover callback`_
-- `linked panning`_
-- `range update callback`_
-- `embed server in notebook`_
-- `US marriages and divorces interactive`_
-- `color scatterplot`_
-- `glyphs`_
-
-Notebook comms examples:
-
-- `basic usage`_
-- `continuous updating`_
-- `Jupyter interactors`_
-- `Numba image example`_
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Basic Usage.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Continuous Updating.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
 .. _bokeh-notebook: https://github.com/bokeh/bokeh-notebooks
-.. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb
-.. _examples: https://github.com/bokeh/bokeh/tree/master/examples
+.. _Binder: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.iynb
 .. _Bokeh: https://github.com/bokeh/bokeh
-.. _categorical data: https://github.com/bokeh/bokeh/blob/master/examples/howto/Categorical%20Data.ipynb
-.. _hover callback: https://github.com/bokeh/bokeh/blob/master/examples/howto/Hover%20callback.ipynb
-.. _linked panning: https://github.com/bokeh/bokeh/blob/master/examples/howto/Linked%20panning.ipynb
-.. _range update callback: https://github.com/bokeh/bokeh/blob/master/examples/howto/Range%20update%20callback.ipynb
-.. _embed server in notebook: https://github.com/bokeh/bokeh/blob/master/examples/howto/server_embed/notebook_embed.ipynb
-.. _US marriages and divorces interactive: https://github.com/bokeh/bokeh/blob/master/examples/howto/us_marriages_divorces/us_marriages_divorces_interactive.ipynb
-.. _color scatterplot: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/color_scatterplot.ipynb
-.. _glyphs: https://github.com/bokeh/bokeh/blob/master/examples/plotting/notebook/glyphs.ipynb
-.. _basic usage: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Basic%20Usage.ipynb
-.. _continuous updating: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Continuous%20Updating.ipynb
-.. _Jupyter interactors: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Jupyter%20Interactors.ipynb
-.. _Numba image example: https://github.com/bokeh/bokeh/blob/master/examples/howto/notebook_comms/Numba%20Image%20Example.ipynb
 
 .. _ug_output_jupyter_ipywidgets:
 

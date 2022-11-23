@@ -22,9 +22,6 @@ import time
 from dataclasses import dataclass
 from typing import Any
 
-# External imports
-from flaky import flaky
-
 # Bokeh imports
 from bokeh.document import Document
 from bokeh.events import LODEnd, LODStart, RangesUpdate
@@ -58,7 +55,6 @@ class Fig(Plot, GlyphAPI):
 
 @pytest.mark.selenium
 class Test_Plot:
-    @flaky(max_runs=10)
     def test_inner_dims_trigger_on_dynamic_add(self, bokeh_server_page: BokehServerPage) -> None:
         button = Button()
 
@@ -103,10 +99,8 @@ class Test_Plot:
         assert isinstance(data.ih[1], int)
         assert 0 < data.ih[1] < 400
 
-        # XXX (bev) disabled until https://github.com/bokeh/bokeh/issues/7970 is resolved
-        #assert page.has_no_console_errors()
+        assert page.has_no_console_errors()
 
-    @flaky(max_runs=10)
     def test_lod_event_triggering(self, bokeh_server_page: BokehServerPage) -> None:
         good_events: list[str] = []
         bad_events: list[str] = []
@@ -143,7 +137,6 @@ class Test_Plot:
         assert good_events == ["LODStart", "LODEnd"]
         assert bad_events == []
 
-    @flaky(max_runs=10)
     def test_ranges_update_event_trigger_on_pan(self, bokeh_server_page: BokehServerPage) -> None:
         events = []
 

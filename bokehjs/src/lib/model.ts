@@ -134,7 +134,7 @@ export class Model extends HasProps {
     else if (selector.prototype instanceof HasProps)
       return [...this.references()].filter((ref): ref is T => ref instanceof selector)
     else
-      throw new Error("invalid selector")
+      throw new Error(`invalid selector ${selector}`)
   }
 
   select_one<T extends HasProps>(selector: ModelSelector<T>): T | null {
@@ -145,7 +145,7 @@ export class Model extends HasProps {
       case 1:
         return result[0]
       default:
-        throw new Error("found more than one object matching given selector")
+        throw new Error(`found more than one object matching given selector ${selector}`)
     }
   }
 

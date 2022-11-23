@@ -15,7 +15,6 @@ BokehJS uses to render the plot. The low-level objects that comprise
 a Bokeh scene graph are called :ref:`Models <bokeh.model>`.
 
 '''
-# This file is excluded from flake8 checking in setup.cfg
 
 #-----------------------------------------------------------------------------
 # Boilerplate

@@ -16,10 +16,13 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import os
+
 # External imports
 import selenium.webdriver.chrome.webdriver
 import selenium.webdriver.firefox.webdriver
-from flaky import flaky
+from selenium.common.exceptions import WebDriverException
 
 # Module under test
 import bokeh.io.webdriver as biw # isort:skip
@@ -37,7 +40,6 @@ import bokeh.io.webdriver as biw # isort:skip
 #-----------------------------------------------------------------------------
 
 @pytest.mark.selenium
-@flaky(max_runs=10)
 def test_create_firefox_webdriver() -> None:
     d = biw.create_firefox_webdriver()
     try:
@@ -46,7 +48,6 @@ def test_create_firefox_webdriver() -> None:
         d.quit()
 
 @pytest.mark.selenium
-@flaky(max_runs=10)
 def test_create_chromium_webdriver() -> None:
     d = biw.create_chromium_webdriver()
     try:
@@ -59,7 +60,6 @@ _driver_map = {
     "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
-@flaky(max_runs=10)
 class Test_webdriver_control:
 
     def test_default(self) -> None:
@@ -106,6 +106,16 @@ class Test_webdriver_control:
         d = biw.webdriver_control.create()
         assert isinstance(d, _driver_map[kind])
         biw.webdriver_control.reset()
+
+    @pytest.mark.selenium
+    @pytest.mark.skipif(os.getenv("BOKEH_IN_DOCKER") != "1", reason="Not running in Docker")
+    def test_create_chromium_without_docker_envvar(self) -> None:
+        os.environ["BOKEH_IN_DOCKER"] = "0"
+        biw.webdriver_control.kind = 'chromium'
+        with pytest.raises(WebDriverException):
+            biw.webdriver_control.create()
+        # Reset envvar before continuing.
+        os.environ["BOKEH_IN_DOCKER"] = "1"
 
 #-----------------------------------------------------------------------------
 # Private API

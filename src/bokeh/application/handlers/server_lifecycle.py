@@ -66,7 +66,7 @@ class ServerLifecycleHandler(LifecycleHandler):
         '''
         super().__init__()
 
-        with open(filename, 'r', encoding='utf-8') as f:
+        with open(filename, encoding='utf-8') as f:
             source = f.read()
 
         self._runner = CodeRunner(source, filename, argv, package=package)

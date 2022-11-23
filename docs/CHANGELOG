@@ -1,3 +1,41 @@
+2022-11-14    3.0.2:
+--------------------
+  * bugfixes:
+    - #4930 interaction between tooltips and gridplots
+    - #12429 [component: bokehjs] [BUG] Line selection does not render the unselected end line segments
+    - #12531 [component: bokehjs] [BUG] latex in titles - upright characters that should be italic
+    - #12551 [component: tests] bokehjs' unit tests fail on chromium 107
+    - #12554 [component: docs] Custom.js needs update for switcher
+    - #12578 [component: bokehjs] [BUG] gridplot reset button does not reset all figures 
+    - #12585 [component: bokehjs] [BUG] line_policy='none' for HoverTool does not generate any tooltip
+    - #12587 [component: server] [BUG] Don't delete importlib.metadata in __init__.py
+    - #12593 [BUG] Guard numpy.typing.ArrayType with `if TYPE_CHECKING`
+
+  * tasks:
+    - #12557 [component: docs] Need automation for updating switcher.json
+    - #12560 [FEATURE] remove mock
+    - #12562 [BUG]  Tests: "python" is not a guaranteed executable
+    - #12566 [component: docs] Fix dates and typo in release docs for 3.0.0/3.0.1
+    - #12569 [component: build] Add Python 3.11 to CI
+    - #12571 [component: tests] Remove flaky from integration tests
+    - #12573 [component: tests] Add a regression test for issue #4888
+    - #12579 Upgrade to mypy 0.990
+    - #12581 Disable Selenium integration tests for now
+    - #12597 Backports for 3.0.2
+    - #12600 Updates for 3.0.2
+
+2022-11-03    3.0.1:
+--------------------
+  * bugfixes:
+    - #12537 [BUG] ImportError: cannot import name 'NotRequired' from 'typing_extensions'
+
+  * tasks:
+    - #12528 [component: docs] Update tutorial link
+    - #12533 [component: examples] [BUG] Units in blackbody example should be upright
+    - #12525 [component: examples] Added metadata to bokeh\examples\plotting\checkout_form.py
+    - #12539 [component: build] Remove runtime dependency on typing_extensions
+    - #12546 [component: examples] Apply blackbody example label edits (#12534) to the ts example as well
+
 2022-10-30      3.0:
 --------------------
   * bugfixes:

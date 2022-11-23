@@ -121,7 +121,7 @@ from .issue import Error
 BAD_COLUMN_NAME = Error(
     1001,
     "BAD_COLUMN_NAME",
-    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ") # NOQA
+    "Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ")
 MISSING_GLYPH = Error(
     1002,
     "MISSING_GLYPH",

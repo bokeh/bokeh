@@ -70,7 +70,7 @@ def tab_in_leading(s: str) -> bool:
         including the whitespace of docstring code samples.
     """
     n = len(s) - len(s.lstrip())
-    if not s[n:n + 3] in ['...', '>>>']:
+    if s[n:n + 3] not in ['...', '>>>']:
         check = s[:n]
     else:
         smore = s[n + 3:]
@@ -130,7 +130,7 @@ def collect_errors() -> list[str]:
         if path.startswith(exclude_dirs):
             continue
 
-        with open(path, "r", encoding="utf-8", newline="") as file:
+        with open(path, encoding="utf-8", newline="") as file:
             test_this_file(path, file)
 
     return [ msg.format(path=fname, line_no=line_no) for (msg, fname, line_no) in errors ]

@@ -57,7 +57,9 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
         else:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags} {REGION}")
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {REGION}")
-            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" {REGION}')
+            switcher = f"deployment-{version}/docs/bokeh/switcher.json"
+            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {REGION}")
+            system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" "/switcher.json" {REGION}')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
         return FAILED("Could NOT publish to documentation site", details=e.args)
