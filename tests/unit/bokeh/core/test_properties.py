@@ -64,6 +64,7 @@ ALL = (
     'ColorSpec',
     'ColumnData',
     'Complex',
+    'CoordinateLike',
     'DashPattern',
     'DashPatternSpec',
     'DataSpec',

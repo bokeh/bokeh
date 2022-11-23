@@ -81,6 +81,7 @@ Basic Properties
 .. autoclass:: Bytes
 .. autoclass:: Color
 .. autoclass:: Complex
+.. autoclass:: CoordinateLike
 .. autoclass:: DashPattern
 .. autoclass:: Date
 .. autoclass:: Datetime
@@ -213,6 +214,7 @@ __all__ = (
     'ColorSpec',
     'ColumnData',
     'Complex',
+    'CoordinateLike',
     'DashPattern',
     'DashPatternSpec',
     'DataSpec',
@@ -295,6 +297,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 from .property.alias import Alias
+
+from .property.aliases import CoordinateLike
 
 from .property.any import Any
 from .property.any import AnyRef
