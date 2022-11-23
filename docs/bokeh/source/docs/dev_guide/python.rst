@@ -92,7 +92,7 @@ folders containing Python code:
   for more information on testing.
 
 ``typings/``
-  The :bokeh-tree:`typings` folder contains `stub files`_ for Bokeh's type
+  The :bokeh-tree:`src/typings` folder contains `stub files`_ for Bokeh's type
   hints.
 
 .. _contributor_guide_python_models:

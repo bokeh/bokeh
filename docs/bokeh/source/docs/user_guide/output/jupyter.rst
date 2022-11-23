@@ -107,7 +107,7 @@ See :ref:`ug_server` for general information about Bokeh server
 applications. For a complete example of a Bokeh application embedded in
 a Jupyter notebook, refer to the following notebook:
 
-* :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
+* :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
 JupyterHub
 ''''''''''
@@ -259,10 +259,10 @@ The following screenshots illustrate basic usage of notebook handles:
 
 See the following notebooks for more detailed examples of notebook handle use:
 
-* :bokeh-tree:`examples/howto/notebook_comms/Basic Usage.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Continuous Updating.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb`
-* :bokeh-tree:`examples/howto/notebook_comms/Numba Image Example.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Basic Usage.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Continuous Updating.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb`
+* :bokeh-tree:`examples/output/jupyter/push_notebook/Numba Image Example.ipynb`
 
 .. _ug_output_jupyter_notebook_jupyter_interactors:
 
@@ -273,7 +273,7 @@ You can use notebook widgets, known as `interactors`_, to update
 Bokeh plots. The key to doing this is the |push_notebook| function.
 The update callback for the interactors calls this function
 to update the plot from widget values. See a screenshot of the
-:bokeh-tree:`examples/howto/notebook_comms/Jupyter Interactors.ipynb` example
+:bokeh-tree:`examples/output/jupyter/push_notebook/Jupyter Interactors.ipynb` example
 notebook below:
 
 .. image:: /_images/notebook_interactors.png

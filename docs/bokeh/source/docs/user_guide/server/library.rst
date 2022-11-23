@@ -26,10 +26,10 @@ a Bokeh application in a framework like Flask or Django without having to run a
 separate Bokeh server process. You can find some examples of this technique in
 the examples directory:
 
-* :bokeh-tree:`examples/howto/server_embed/flask_embed.py`
-* :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
-* :bokeh-tree:`examples/howto/server_embed/standalone_embed.py`
-* :bokeh-tree:`examples/howto/server_embed/tornado_embed.py`
+* :bokeh-tree:`examples/server/api/flask_embed.py`
+* :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
+* :bokeh-tree:`examples/server/api/standalone_embed.py`
+* :bokeh-tree:`examples/server/api/tornado_embed.py`
 
 Also note that every command line argument for ``bokeh serve`` has a
 corresponding keyword argument for ``Server``. For instance, using the

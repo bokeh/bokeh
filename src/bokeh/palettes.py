@@ -393,7 +393,7 @@ Licenses
 --------
 
 The respective licenses for all the palettes included in Bokeh are
-viewable as a comment at the top of the :bokeh-tree:`bokeh/palettes.py`
+viewable as a comment at the top of the :bokeh-tree:`src/bokeh/palettes.py`
 source file.
 
 .. _ColorBrewer: http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3
