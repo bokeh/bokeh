@@ -190,6 +190,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# isort: skip_file
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -214,6 +216,7 @@ __all__ = (
     'Complex',
     'CoordinateLike',
     'DashPattern',
+    'DashPatternSpec',
     'DataSpec',
     'Date',
     'Datetime',
@@ -226,6 +229,7 @@ __all__ = (
     'Float',
     'FontSize',
     'FontSizeSpec',
+    'FontStyleSpec',
     'HatchPatternSpec',
     'HatchPatternType',
     'Image',
@@ -233,8 +237,11 @@ __all__ = (
     'Instance',
     'InstanceDefault',
     'Int',
+    'IntSpec',
     'Interval',
     'JSON',
+    'LineCapSpec',
+    'LineJoinSpec',
     'List',
     'MarkerSpec',
     'MarkerType',
@@ -247,6 +254,7 @@ __all__ = (
     'NotSerialized',
     'Nothing',
     'Null',
+    'NullDistanceSpec',
     'NullStringSpec',
     'Nullable',
     'NumberSpec',
@@ -271,9 +279,12 @@ __all__ = (
     'StringSpec',
     'Struct',
     'TimeDelta',
+    'TextAlignSpec',
+    'TextBaselineSpec',
     'TextLike',
     'Tuple',
     'UnitsSpec',
+    'UnsetValueError',
     'expr',
     'field',
     'validate',
@@ -285,128 +296,128 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .property.alias import Alias; Alias
+from .property.alias import Alias
 
-from .property.aliases import CoordinateLike; CoordinateLike
+from .property.aliases import CoordinateLike
 
-from .property.any import Any; Any
-from .property.any import AnyRef; AnyRef
+from .property.any import Any
+from .property.any import AnyRef
 
-from .property.auto import Auto; Auto
+from .property.auto import Auto
 
-from .property.color import Alpha; Alpha
-from .property.color import Color; Color
-from .property.color import RGB; RGB
-from .property.color import ColorHex; ColorHex
+from .property.color import Alpha
+from .property.color import Color
+from .property.color import RGB
+from .property.color import ColorHex
 
-from .property.container import Array; Array
-from .property.container import ColumnData; ColumnData
-from .property.container import Dict; Dict
-from .property.container import List; List
-from .property.container import NonEmpty; NonEmpty
-from .property.container import Seq; Seq
-from .property.container import Set; Set
-from .property.container import Tuple; Tuple
-from .property.container import RelativeDelta; RelativeDelta
-from .property.container import RestrictedDict; RestrictedDict
+from .property.container import Array
+from .property.container import ColumnData
+from .property.container import Dict
+from .property.container import List
+from .property.container import NonEmpty
+from .property.container import Seq
+from .property.container import Set
+from .property.container import Tuple
+from .property.container import RelativeDelta
+from .property.container import RestrictedDict
 
-from .property.dataspec import AlphaSpec; AlphaSpec
-from .property.dataspec import AngleSpec; AngleSpec
-from .property.dataspec import ColorSpec; ColorSpec
-from .property.dataspec import DashPatternSpec; DashPatternSpec
-from .property.dataspec import DataSpec; DataSpec
-from .property.dataspec import DistanceSpec; DistanceSpec
-from .property.dataspec import FontSizeSpec; FontSizeSpec
-from .property.dataspec import FontStyleSpec; FontStyleSpec
-from .property.dataspec import HatchPatternSpec; HatchPatternSpec
-from .property.dataspec import IntSpec; IntSpec
-from .property.dataspec import LineCapSpec; LineCapSpec
-from .property.dataspec import LineJoinSpec; LineJoinSpec
-from .property.dataspec import MarkerSpec; MarkerSpec
-from .property.dataspec import NullDistanceSpec; NullDistanceSpec
-from .property.dataspec import NullStringSpec; NullStringSpec
-from .property.dataspec import NumberSpec; NumberSpec
-from .property.dataspec import SizeSpec; SizeSpec
-from .property.dataspec import StringSpec; StringSpec
-from .property.dataspec import TextAlignSpec; TextAlignSpec
-from .property.dataspec import TextBaselineSpec; TextBaselineSpec
-from .property.dataspec import UnitsSpec; UnitsSpec
+from .property.dataspec import AlphaSpec
+from .property.dataspec import AngleSpec
+from .property.dataspec import ColorSpec
+from .property.dataspec import DashPatternSpec
+from .property.dataspec import DataSpec
+from .property.dataspec import DistanceSpec
+from .property.dataspec import FontSizeSpec
+from .property.dataspec import FontStyleSpec
+from .property.dataspec import HatchPatternSpec
+from .property.dataspec import IntSpec
+from .property.dataspec import LineCapSpec
+from .property.dataspec import LineJoinSpec
+from .property.dataspec import MarkerSpec
+from .property.dataspec import NullDistanceSpec
+from .property.dataspec import NullStringSpec
+from .property.dataspec import NumberSpec
+from .property.dataspec import SizeSpec
+from .property.dataspec import StringSpec
+from .property.dataspec import TextAlignSpec
+from .property.dataspec import TextBaselineSpec
+from .property.dataspec import UnitsSpec
 
-from .property.datetime import Date; Date
-from .property.datetime import Datetime; Datetime
-from .property.datetime import TimeDelta; TimeDelta
+from .property.datetime import Date
+from .property.datetime import Datetime
+from .property.datetime import TimeDelta
 
-from .property.descriptors import UnsetValueError; UnsetValueError
+from .property.descriptors import UnsetValueError
 
-from .property.either import Either; Either
+from .property.either import Either
 
-from .property.enum import Enum; Enum
+from .property.enum import Enum
 
-from .property.factors import Factor; Factor
-from .property.factors import FactorSeq; FactorSeq
+from .property.factors import Factor
+from .property.factors import FactorSeq
 
-from .property.include import Include; Include
+from .property.include import Include
 
-from .property.instance import Instance; Instance
-from .property.instance import InstanceDefault; InstanceDefault
-from .property.instance import Object; Object
+from .property.instance import Instance
+from .property.instance import InstanceDefault
+from .property.instance import Object
 
-from .property.json import JSON; JSON
+from .property.json import JSON
 
-from .property.nothing import Nothing; Nothing
+from .property.nothing import Nothing
 
-from .property.nullable import NonNullable; NonNullable
-from .property.nullable import Nullable; Nullable
+from .property.nullable import NonNullable
+from .property.nullable import Nullable
 
-from .property.numeric import Angle; Angle
-from .property.numeric import Byte; Byte
-from .property.numeric import Interval; Interval
-from .property.numeric import NonNegative; NonNegative
-from .property.numeric import NonNegativeInt; NonNegativeInt
-from .property.numeric import Percent; Percent
-from .property.numeric import Positive; Positive
-from .property.numeric import PositiveInt; PositiveInt
-from .property.numeric import Size; Size
+from .property.numeric import Angle
+from .property.numeric import Byte
+from .property.numeric import Interval
+from .property.numeric import NonNegative
+from .property.numeric import NonNegativeInt
+from .property.numeric import Percent
+from .property.numeric import Positive
+from .property.numeric import PositiveInt
+from .property.numeric import Size
 
-from .property.override import Override ; Override
+from .property.override import Override
 
-from .property.pd import PandasDataFrame ; PandasDataFrame
-from .property.pd import PandasGroupBy ; PandasGroupBy
+from .property.pd import PandasDataFrame
+from .property.pd import PandasGroupBy
 
-from .property.primitive import Bool; Bool
-from .property.primitive import Bytes; Bytes
-from .property.primitive import Complex; Complex
-from .property.primitive import Int; Int
-from .property.primitive import Float; Float
-from .property.primitive import Null; Null
-from .property.primitive import String; String
+from .property.primitive import Bool
+from .property.primitive import Bytes
+from .property.primitive import Complex
+from .property.primitive import Int
+from .property.primitive import Float
+from .property.primitive import Null
+from .property.primitive import String
 
-from .property.readonly import Readonly; Readonly
+from .property.readonly import Readonly
 
-from .property.required import Required; Required
+from .property.required import Required
 
-from .property.serialized import NotSerialized; NotSerialized
+from .property.serialized import NotSerialized
 
-from .property.string import MathString; MathString
-from .property.string import Regex; Regex
+from .property.string import MathString
+from .property.string import Regex
 
-from .property.struct import Struct; Struct
+from .property.struct import Struct
 
-from .property.text_like import TextLike; TextLike
+from .property.text_like import TextLike
 
-from .property.vectorization import expr; expr
-from .property.vectorization import field; field
-from .property.vectorization import value; value
+from .property.vectorization import expr
+from .property.vectorization import field
+from .property.vectorization import value
 
-from .property.visual import DashPattern; DashPattern
-from .property.visual import FontSize; FontSize
-from .property.visual import HatchPatternType; HatchPatternType
-from .property.visual import Image; Image
-from .property.visual import MinMaxBounds; MinMaxBounds
-from .property.visual import MarkerType; MarkerType
+from .property.visual import DashPattern
+from .property.visual import FontSize
+from .property.visual import HatchPatternType
+from .property.visual import Image
+from .property.visual import MinMaxBounds
+from .property.visual import MarkerType
 
-from .property.validation import validate; validate
-from .property.validation import without_property_validation; without_property_validation
+from .property.validation import validate
+from .property.validation import without_property_validation
 
 #-----------------------------------------------------------------------------
 # Dev API

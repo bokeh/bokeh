@@ -420,7 +420,7 @@ _themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
 def _set_temp_theme(doc: Document, apply_theme: Theme | Type[FromCurdoc] | None) -> None:
     _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
+        from ..io import curdoc
         doc.theme = curdoc().theme
     elif isinstance(apply_theme, Theme):
         doc.theme = apply_theme
