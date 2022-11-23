@@ -3,7 +3,6 @@ This can be used to depict values in two different units.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle, bokeh.plotting.figure.add_layout
-    :refs: :ref:`userguide_plotting_figure`
     :keywords: scale
 
 '''
