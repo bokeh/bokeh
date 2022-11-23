@@ -663,7 +663,7 @@ class ColumnDataSource(ColumnarDataSource):
 
             dict(foo=[11, 12, 30], bar=[101, 200, 301])
 
-        For a more comprehensive complete example, see :bokeh-tree:`examples/howto/patch_app.py`.
+        For a more comprehensive example, see :bokeh-tree:`examples/server/app/patch_app.py`.
 
         '''
         extra = set(patches.keys()) - set(self.data.keys())
@@ -865,7 +865,7 @@ class AjaxDataSource(WebDataSource):
     This is necessary when used in conjunction with a ``FactorRange``, even
     if the columns in `data`` are empty.
 
-    A full example can be seen at :bokeh-tree:`examples/howto/ajax_source.py`
+    A full example can be seen at :bokeh-tree:`examples/basic/data/ajax_source.py`
 
     '''
 

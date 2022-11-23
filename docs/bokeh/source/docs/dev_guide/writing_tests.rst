@@ -384,7 +384,7 @@ Working with examples tests
 ---------------------------
 
 Bokeh's example tests are based on examples found in the :bokeh-tree:`examples`
-and :bokeh-tree:`docs/bokeh/source/docs/user_guide/examples` folders.
+folder.
 
 When you add a new example to one of these folders, they are usually
 included in the examples tests automatically. Edit

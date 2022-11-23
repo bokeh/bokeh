@@ -135,7 +135,7 @@ Or, with modern syntax, like this:
     Bokeh.embed.embed_item(item)
     </script>
 
-For a complete example, see :bokeh-tree:`examples/embed/json_item.py`.
+For a complete example, see :bokeh-tree:`examples/output/apis/json_item.py`.
 
 .. _ug_output_embed_standalone_components:
 

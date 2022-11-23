@@ -394,7 +394,7 @@ plots. For more information, see
     :func:`~bokeh.io.push_notebook`. For two-way communication, embed a Bokeh
     server in the notebook. For example, this lets range and selection updates
     trigger Python callbacks. For further details, see
-    :bokeh-tree:`examples/howto/server_embed/notebook_embed.ipynb`
+    :bokeh-tree:`examples/server/api/notebook_embed.ipynb`
 
 Updating from threads
 '''''''''''''''''''''
