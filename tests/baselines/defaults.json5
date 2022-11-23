@@ -5941,4 +5941,10 @@
       name: "unset",
     },
   },
+  Figure: {
+    __extends__: "Plot",
+  },
+  GMap: {
+    __extends__: "GMapPlot",
+  },
 }
