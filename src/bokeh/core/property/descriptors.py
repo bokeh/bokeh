@@ -169,6 +169,9 @@ class AliasPropertyDescriptor(Generic[T]):
     def has_unstable_default(self, obj: HasProps) -> bool:
         return obj.lookup(self.aliased_name).has_unstable_default(obj)
 
+    def class_default(self, cls: Type[HasProps], *, no_eval: bool = False):
+        return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
+
 class PropertyDescriptor(Generic[T]):
     """ A base class for Bokeh properties with simple get/set and serialization
     behavior.
