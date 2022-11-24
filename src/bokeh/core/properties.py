@@ -220,6 +220,7 @@ __all__ = (
     'DataSpec',
     'Date',
     'Datetime',
+    'DeprecatedAlias',
     'Dict',
     'DistanceSpec',
     'Either',
@@ -296,7 +297,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .property.alias import Alias
+from .property.alias import Alias, DeprecatedAlias
 
 from .property.aliases import CoordinateLike
 

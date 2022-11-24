@@ -56,7 +56,6 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
-    Alias,
     Alpha,
     AnyRef,
     Auto,
@@ -64,6 +63,7 @@ from ..core.properties import (
     Color,
     Date,
     Datetime,
+    DeprecatedAlias,
     Dict,
     Either,
     Enum,
@@ -311,7 +311,7 @@ class RegionSelectTool(SelectTool):
     gestures, or only once when the selection region is completed.
     """)
 
-    select_every_mousemove = Alias("continuous")
+    select_every_mousemove = DeprecatedAlias("continuous", since=(3, 1, 0))
 
 @abstract
 class InspectTool(GestureTool):

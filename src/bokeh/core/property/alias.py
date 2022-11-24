@@ -28,8 +28,9 @@ log = logging.getLogger(__name__)
 from typing import ClassVar, TypeVar
 
 # Bokeh imports
+from ...util.deprecation import Version
 from .bases import Property
-from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
+from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor, PropertyDescriptor
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -37,6 +38,7 @@ from .descriptors import AliasPropertyDescriptor, PropertyDescriptor
 
 __all__ = (
     "Alias",
+    "DeprecatedAlias",
 )
 
 T = TypeVar("T")
@@ -77,22 +79,25 @@ class Alias(Property[T]): # lgtm [py/missing-call-to-init]
     def __init__(self, aliased_name: str, *, help: str | None = None) -> None:
         self.aliased_name = aliased_name
         self._help = help
+        self.alternatives = []
+        self.assertions = []
 
     def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
-        """ Return a list of ``AliasPropertyDescriptor`` instances to
-        install on a class, in order to delegate attribute access to this
-        property.
+        return [ AliasPropertyDescriptor(base_name, self) ]
 
-        Args:
-            aliased_name (str) : the name of the property this alias is for
+class DeprecatedAlias(Alias[T]):
+    """
+    Alias of another property of a model showing a deprecation message when used.
+    """
 
-        Returns:
-            list[AliasPropertyDescriptor]
+    def __init__(self, aliased_name: str, *, since: Version,
+            extra: str | None = None, help: str | None = None) -> None:
+        super().__init__(aliased_name, help=help)
+        self.since = since
+        self.extra = extra
 
-        The descriptors returned are collected by the ``MetaHasProps``
-        metaclass and added to ``HasProps`` subclasses during class creation.
-        """
-        return [ AliasPropertyDescriptor(base_name, self.aliased_name, self) ]
+    def make_descriptors(self, base_name: str) -> list[PropertyDescriptor[T]]:
+        return [ DeprecatedAliasPropertyDescriptor(base_name, self) ]
 
 #-----------------------------------------------------------------------------
 # Dev API
