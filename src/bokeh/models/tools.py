@@ -56,6 +56,7 @@ from ..core.enums import (
 )
 from ..core.has_props import abstract
 from ..core.properties import (
+    Alias,
     Alpha,
     AnyRef,
     Auto,
@@ -305,10 +306,12 @@ class RegionSelectTool(SelectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    select_every_mousemove = Bool(False, help="""
+    continuous = Bool(False, help="""
     Whether a selection computation should happen continuously during selection
     gestures, or only once when the selection region is completed.
     """)
+
+    select_every_mousemove = Alias("continuous")
 
 @abstract
 class InspectTool(GestureTool):
@@ -969,7 +972,7 @@ class LassoSelectTool(Drag, RegionSelectTool):
     A shaded annotation drawn to indicate the selection region.
     """)
 
-    select_every_mousemove = Override(default=True)
+    continuous = Override(default=True)
 
 class PolySelectTool(Tap, RegionSelectTool):
     ''' *toolbar icon*: |poly_select_icon|

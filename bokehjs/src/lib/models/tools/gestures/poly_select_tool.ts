@@ -55,7 +55,7 @@ export class PolySelectToolView extends SelectToolView {
 
     this.model.overlay.update({xs: this.sxs, ys: this.sys})
 
-    if (this.model.select_every_mousemove) {
+    if (this.model.continuous) {
       this._do_select(this.sxs, this.sys, true, this._select_mode(ev))
     }
   }
@@ -86,7 +86,7 @@ export namespace PolySelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
-    select_every_mousemove: p.Property<boolean>
+    continuous: p.Property<boolean>
     overlay: p.Property<PolyAnnotation>
   }
 }
@@ -105,7 +105,7 @@ export class PolySelectTool extends SelectTool {
     this.prototype.default_view = PolySelectToolView
 
     this.define<PolySelectTool.Props>(({Boolean, Ref}) => ({
-      select_every_mousemove: [ Boolean, false ],
+      continuous: [ Boolean, false ],
       overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
     }))
 
