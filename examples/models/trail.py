@@ -1,6 +1,7 @@
-''' A plot showing a mountain biking trail called Obiszów MTB XCM, 
-including its elevation profile. Utilizes data from Google Maps,
-to recreate you will need to enter a custom API key.
+''' This example includes two plots of data for a mountain 
+bike race in Eastern Europe. The first is a color coded 
+line chart showing the altitude profile. The second is an
+outline of the trail overlayed on a map of the area.
 
 .. bokeh-example-metadata::
     :sampledata: mtb
