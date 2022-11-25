@@ -26,13 +26,13 @@ export interface Pannable {
 }
 
 export interface Pinchable {
-  _pinch_start(ev: PinchEvent): void
+  _pinch_start(ev: PinchEvent): boolean
   _pinch(ev: PinchEvent): void
   _pinch_end(ev: PinchEvent): void
 }
 
 export interface Rotatable {
-  _rotate_start(ev: RotateEvent): void
+  _rotate_start(ev: RotateEvent): boolean
   _rotate(ev: RotateEvent): void
   _rotate_end(ev: RotateEvent): void
 }
@@ -472,6 +472,8 @@ export class UIEventBus implements EventListenerObject {
   }
 
   private _current_pan_view: (RendererView & Pannable) | null = null
+  private _current_pinch_view: (RendererView & Pinchable) | null = null
+  private _current_rotate_view: (RendererView & Rotatable) | null = null
   private _current_move_view: (RendererView & Moveable) | null = null
 
   __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
@@ -488,6 +490,7 @@ export class UIEventBus implements EventListenerObject {
           if (event_type == "pan:start" && is_Pannable(view)) {
             if (view._pan_start(e as PanEvent)) {
               this._current_pan_view = view
+              srcEvent.preventDefault()
               return
             }
           }
@@ -499,12 +502,51 @@ export class UIEventBus implements EventListenerObject {
           this._current_pan_view._pan_end(e as PanEvent)
           this._current_pan_view = null
         }
+        srcEvent.preventDefault()
         return
       }
     } else if (base_type == "pinch") {
-      // TODO: same logic as pan
+      if (this._current_pinch_view == null) {
+        if (view != null) {
+          if (event_type == "pinch:start" && is_Pinchable(view)) {
+            if (view._pinch_start(e as PinchEvent)) {
+              this._current_pinch_view = view
+              srcEvent.preventDefault()
+              return
+            }
+          }
+        }
+      } else {
+        if (event_type == "pinch")
+          this._current_pinch_view._pinch(e as PinchEvent)
+        else if (event_type == "pinch:end") {
+          this._current_pinch_view._pinch_end(e as PinchEvent)
+          this._current_pinch_view = null
+        }
+        srcEvent.preventDefault()
+        return
+      }
     } else if (base_type == "rotate") {
-      // TODO: same logic as pan
+      if (this._current_rotate_view == null) {
+        if (view != null) {
+          if (event_type == "rotate:start" && is_Rotatable(view)) {
+            if (view._rotate_start(e as RotateEvent)) {
+              this._current_rotate_view = view
+              srcEvent.preventDefault()
+              return
+            }
+          }
+        }
+      } else {
+        if (event_type == "rotate")
+          this._current_rotate_view._rotate(e as RotateEvent)
+        else if (event_type == "rotate:end") {
+          this._current_rotate_view._rotate_end(e as RotateEvent)
+          this._current_rotate_view = null
+        }
+        srcEvent.preventDefault()
+        return
+      }
     } else if (base_type == "move") {
       if (this._current_move_view == view) {
         this._current_move_view?._move(e as MoveEvent)
