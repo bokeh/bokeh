@@ -95,32 +95,44 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
     return empty()
   }
 
-  protected _render(): void {
-    const {left, right, top, bottom} = this.model
-
-    function compute(value: number | null, units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper, frame_extrema: number): number {
-      if (value == null)
-        return frame_extrema
-      else {
-        switch (units) {
-          case "canvas": return canvas.compute(value)
-          case "screen": return view.compute(value)
-          case "data":   return scale.compute(value)
-        }
+  get mappers(): LRTB<CoordinateMapper> {
+    function mapper(units: CoordinateUnits, scale: Scale, view: CoordinateMapper, canvas: CoordinateMapper) {
+      switch (units) {
+        case "canvas": return canvas
+        case "screen": return view
+        case "data":   return scale
       }
     }
 
-    const {frame, canvas} = this.plot_view
+    const overlay = this.model
     const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = frame.bbox
-    const {x_screen, y_screen} = canvas.bbox
+    const {x_view, y_view} = this.plot_view.frame.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
+
+    const lrtb = {
+      left:   mapper(overlay.left_units,   x_scale, x_view, x_screen),
+      right:  mapper(overlay.right_units,  x_scale, x_view, x_screen),
+      top:    mapper(overlay.top_units,    y_scale, y_view, y_screen),
+      bottom: mapper(overlay.bottom_units, y_scale, y_view, y_screen),
+    }
+
+    return lrtb
+  }
+
+  protected _render(): void {
+    function compute(value: number | null, mapper: CoordinateMapper, frame_extrema: number): number {
+      return value == null ? frame_extrema : mapper.compute(value)
+    }
+
+    const {left, right, top, bottom} = this.model
+    const {frame} = this.plot_view
+    const {mappers} = this
 
     this.bbox = BBox.from_lrtb({
-      left:   compute(left,   this.model.left_units,   x_scale, x_view, x_screen, frame.bbox.left),
-      right:  compute(right,  this.model.right_units,  x_scale, x_view, x_screen, frame.bbox.right),
-      top:    compute(top,    this.model.top_units,    y_scale, y_view, y_screen, frame.bbox.top),
-      bottom: compute(bottom, this.model.bottom_units, y_scale, y_view, y_screen, frame.bbox.bottom),
+      left:   compute(left,   mappers.left,   frame.bbox.left),
+      right:  compute(right,  mappers.right,  frame.bbox.right),
+      top:    compute(top,    mappers.top,    frame.bbox.top),
+      bottom: compute(bottom, mappers.bottom, frame.bbox.bottom),
     })
 
     this._paint_box()
@@ -339,24 +351,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
       })
     })()
 
-    function invert(sv: number, units: CoordinateUnits, scale: Scale,
-        view: CoordinateMapper, canvas: CoordinateMapper): number {
-      switch (units) {
-        case "canvas": return canvas.invert(sv)
-        case "screen": return view.invert(sv)
-        case "data":   return scale.invert(sv)
-      }
-    }
-
-    const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
-
+    const {mappers} = this
     const ltrb = {
-      left:   invert(sltrb.left,   this.model.left_units,   x_scale, x_view, x_screen),
-      right:  invert(sltrb.right,  this.model.right_units,  x_scale, x_view, x_screen),
-      top:    invert(sltrb.top,    this.model.top_units,    y_scale, y_view, y_screen),
-      bottom: invert(sltrb.bottom, this.model.bottom_units, y_scale, y_view, y_screen),
+      left:   mappers.left.invert(sltrb.left),
+      right:  mappers.right.invert(sltrb.right),
+      top:    mappers.top.invert(sltrb.top),
+      bottom: mappers.bottom.invert(sltrb.bottom),
     }
 
     this.model.update(ltrb)
