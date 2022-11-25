@@ -7,7 +7,7 @@ outline of the trail overlayed on a map of the area.
     :sampledata: mtb
     :apis: bokeh.document.Document, bokeh.embed.file_html, bokeh.models.Column, bokeh.models.ColumnDataSource, bokeh.models.GMapOptions, bokeh.models.GMapPlot, bokeh.models.Grid, bokeh.models.Label, bokeh.models.Line, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.Patches, bokeh.models.Plot, bokeh.models.Range1d, bokeh.models.ResetTool, bokeh.models.WheelZoomTool, bokeh.resources.INLINE, bokeh.util.browser.view
     :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_line_glyphs`, :ref:`userguide_plotting` > :ref:`userguide_plotting_patch_polygon_glyphs`
-    :keywords: map, shading, fill, geodata
+    :keywords: map, shading, fill, geodata, interactive
 '''
 from math import atan2, cos, radians, sin, sqrt
 
