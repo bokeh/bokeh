@@ -7,7 +7,7 @@ import {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import * as p from "core/properties"
 import {BBox, LRTB, CoordinateMapper, empty} from "core/util/bbox"
-import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
+import {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Enum, Number, NonNegative, PartialStruct} from "core/kinds"
 import {Signal} from "core/signaling"
 import {Rect} from "core/types"
@@ -36,7 +36,7 @@ const BorderRadius = PartialStruct({
   bottom_left: NonNegative(Number),
 })
 
-export class BoxAnnotationView extends AnnotationView implements Pannable, Moveable, AutoRanged {
+export class BoxAnnotationView extends AnnotationView implements Pannable, Pinchable, Moveable, AutoRanged {
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
@@ -365,6 +365,65 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Movea
 
   _pan_end(ev: PanEvent): void {
     this._pan_state = null
+    this.model.pan.emit(["pan:end", ev])
+  }
+
+  private _pinch_state: {bbox: BBox} | null = null
+
+  _pinch_start(ev: PinchEvent): boolean {
+    if (this.model.visible && this.model.editable && this.model.resizable != "none") {
+      const {sx, sy} = ev
+      if (this.bbox.contains(sx, sy)) {
+        this._pinch_state = {
+          bbox: this.bbox.clone(),
+        }
+        this.model.pan.emit(["pan:start", ev]) // TODO: pinch signal
+        return true
+      }
+    }
+    return false
+  }
+
+  _pinch(ev: PinchEvent): void {
+    assert(this._pinch_state != null)
+
+    const sltrb = (() => {
+      const {scale} = ev
+
+      const {bbox} = this._pinch_state
+      const {left, top, right, bottom, width, height} = bbox
+
+      const dw = width*(scale - 1)
+      const dh = height*(scale - 1)
+
+      const {resizable} = this
+      const dl = resizable.left ? -dw/2 : 0
+      const dr = resizable.right ? dw/2 : 0
+      const dt = resizable.top ? -dh/2 : 0
+      const db = resizable.bottom ? dh/2 : 0
+
+      return BBox.from_lrtb({
+        left: left + dl,
+        right: right + dr,
+        top: top + dt,
+        bottom: bottom + db,
+      })
+    })()
+
+    const {mappers} = this
+    const ltrb = {
+      left:   mappers.left.invert(sltrb.left),
+      right:  mappers.right.invert(sltrb.right),
+      top:    mappers.top.invert(sltrb.top),
+      bottom: mappers.bottom.invert(sltrb.bottom),
+    }
+
+    this.model.update(ltrb)
+    this.model.pan.emit(["pan", ev])
+  }
+
+  _pinch_end(ev: PinchEvent): void {
+    this._pinch_state = null
     this.model.pan.emit(["pan:end", ev])
   }
 
