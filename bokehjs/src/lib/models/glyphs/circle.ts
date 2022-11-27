@@ -160,22 +160,25 @@ export class CircleView extends XYGlyphView {
     const y = this.renderer.yscale.invert(sy)
     const {hit_dilation} = this.model
 
-    let x0, x1, y0, y1
-    if (this.use_radius && this.model.properties.radius.units == "data") {
-      x0 = x - this.max_radius*hit_dilation
-      x1 = x + this.max_radius*hit_dilation
-
-      y0 = y - this.max_radius*hit_dilation
-      y1 = y + this.max_radius*hit_dilation
-    } else {
-      const sx0 = sx - this.max_size*hit_dilation
-      const sx1 = sx + this.max_size*hit_dilation
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-
-      const sy0 = sy - this.max_size*hit_dilation
-      const sy1 = sy + this.max_size*hit_dilation
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    }
+    const [x0, x1, y0, y1] = (() => {
+      if (this.use_radius && this.model.properties.radius.units == "data") {
+        const dr = this.max_radius*hit_dilation
+        const x0 = x - dr
+        const x1 = x + dr
+        const y0 = y - dr
+        const y1 = y + dr
+        return [x0, x1, y0, y1]
+      } else {
+        const ds = this.max_size*hit_dilation
+        const sx0 = sx - ds
+        const sx1 = sx + ds
+        const sy0 = sy - ds
+        const sy1 = sy + ds
+        const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        return [x0, x1, y0, y1]
+      }
+    })()
 
     const candidates = this.index.indices({x0, x1, y0, y1})
 
@@ -207,38 +210,26 @@ export class CircleView extends XYGlyphView {
     const {sx, sy} = geometry
     const bounds = this.bounds()
 
-    let x0, x1, y0, y1
-    if (geometry.direction == "h") {
-      // use circle bounds instead of current pointer y coordinates
-      let sx0, sx1
-      y0 = bounds.y0
-      y1 = bounds.y1
-      if (this.use_radius && this.model.properties.radius.units == "data") {
-        sx0 = sx - this.max_radius
-        sx1 = sx + this.max_radius
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [x0, x1, y0, y1] = (() => {
+      const use_radius = this.use_radius && this.model.properties.radius.units == "data"
+      const dr = use_radius ? this.max_radius : this.max_size/2
+
+      if (geometry.direction == "h") {
+        // use circle bounds instead of current pointer y coordinates
+        const sx0 = sx - dr
+        const sx1 = sx + dr
+        const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        const {y0, y1} = bounds
+        return [x0, x1, y0, y1]
       } else {
-        const ms = this.max_size/2
-        sx0 = sx - ms
-        sx1 = sx + ms
-        ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        // use circle bounds instead of current pointer x coordinates
+        const sy0 = sy - dr
+        const sy1 = sy + dr
+        const {x0, x1} = bounds
+        const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        return [x0, x1, y0, y1]
       }
-    } else {
-      // use circle bounds instead of current pointer x coordinates
-      let sy0, sy1
-      x0 = bounds.x0
-      x1 = bounds.x1
-      if (this.use_radius && this.model.properties.radius.units == "data") {
-        sy0 = sy - this.max_radius
-        sy1 = sy + this.max_radius
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-      } else {
-        const ms = this.max_size/2
-        sy0 = sy - ms
-        sy1 = sy + ms
-        ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-      }
-    }
+    })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
