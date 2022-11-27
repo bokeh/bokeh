@@ -7,8 +7,7 @@ import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {SpatialIndex} from "core/util/spatial"
-import {range} from "core/util/array"
-import {map, max} from "core/util/arrayable"
+import {map, max, minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
@@ -249,21 +248,36 @@ export class CircleView extends XYGlyphView {
     const {sx0, sx1, sy0, sy1} = geometry
     const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    const indices = [...this.index.indices({x0, x1, y0, y1})]
+
+    const candidates = this.index.indices({x0, x1, y0, y1})
+
+    const indices = []
+    for (const i of candidates) {
+      const sx_i = this.sx[i]
+      const sy_i = this.sy[i]
+      if (sx0 <= sx_i && sx_i <= sx1 && sy0 <= sy_i && sy_i <= sy1) {
+        indices.push(i)
+      }
+    }
+
     return new Selection({indices})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
     const {sx, sy} = geometry
 
-    // TODO (bev) use spatial index to pare candidate list
-    const candidates = range(0, this.sx.length)
+    const [sx0, sx1] = minmax(sx)
+    const [sy0, sy1] = minmax(sy)
+
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+
+    const candidates = this.index.indices({x0, x1, y0, y1})
 
     const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
+    for (const i of candidates) {
       if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
-        indices.push(index)
+        indices.push(i)
       }
     }
 
