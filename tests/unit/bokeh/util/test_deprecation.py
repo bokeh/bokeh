@@ -83,19 +83,6 @@ def test_since_with_extra(mock_warn: MagicMock) -> None:
     assert mock_warn.call_args[0] == ("foo was deprecated in Bokeh 1.2.3 and will be removed, use bar instead. baz", dep.BokehDeprecationWarning)
     assert mock_warn.call_args[1] == {'stacklevel': 3}
 
-@patch('warnings.warn')
-def test_find_stack_level(mock_warn: MagicMock) -> None:
-    assert dep.find_stack_level() == 1
-
-    dep.warn("test")
-    assert mock_warn.call_count == 1
-    assert mock_warn.call_args[1] == {'stacklevel': 2}
-
-    dep.deprecated((1,2,3), old="foo", new="bar", extra="baz")
-    assert mock_warn.call_count == 2
-    assert mock_warn.call_args[1] == {'stacklevel': 3}
-
-
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

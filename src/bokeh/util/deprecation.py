@@ -18,13 +18,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
-import inspect
-import warnings  # lgtm [py/import-and-import-from]
 from typing import TYPE_CHECKING, Tuple, overload
 
 # Bokeh imports
-from .warnings import BokehDeprecationWarning
+from .warnings import BokehDeprecationWarning, warn
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -35,7 +32,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'deprecated',
-    'warn',
 )
 
 Version: TypeAlias = Tuple[int, int, int]
@@ -43,12 +39,6 @@ Version: TypeAlias = Tuple[int, int, int]
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def warn(message: str, stacklevel: int | None = None) -> None:
-    if stacklevel is None:
-        stacklevel = find_stack_level()
-
-    warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
 @overload
 def deprecated(since_or_msg: Version, old: str, new: str, extra: str | None = None) -> None:
@@ -80,30 +70,7 @@ def deprecated(since_or_msg: Version | str,
 
         message = since_or_msg
 
-    warn(message)
-
-def find_stack_level() -> int:
-    """
-    Find the first place in the stack that is not inside Bokeh.
-
-    Inspired by: pandas.util._exceptions.find_stack_level
-    """
-
-    import bokeh
-
-    pkg_dir = os.path.dirname(bokeh.__file__)
-
-    # https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
-    frame = inspect.currentframe()
-    n = 0
-    while frame:
-        fname = inspect.getfile(frame)
-        if fname.startswith(pkg_dir):
-            frame = frame.f_back
-            n += 1
-        else:
-            break
-    return n
+    warn(message, BokehDeprecationWarning)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -23,6 +23,16 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+import os
+import inspect
+import warnings  # lgtm [py/import-and-import-from]
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing_extensions import Type
+
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -30,6 +40,8 @@ log = logging.getLogger(__name__)
 __all__ = (
     'BokehDeprecationWarning',
     'BokehUserWarning',
+    'find_stack_level',
+    'warn',
 )
 
 #-----------------------------------------------------------------------------
@@ -49,6 +61,34 @@ class BokehUserWarning(UserWarning):
     Used to selectively filter Bokeh warnings for unconditional display.
 
     '''
+
+def warn(message: str, category: Type[Warning] | None = None, stacklevel: int | None = None) -> None:
+    if stacklevel is None:
+        stacklevel = find_stack_level()
+
+    warnings.warn(message, category, stacklevel=stacklevel)
+
+def find_stack_level() -> int:
+    """Find the first place in the stack that is not inside Bokeh.
+
+    Inspired by: pandas.util._exceptions.find_stack_level
+    """
+
+    import bokeh
+
+    pkg_dir = os.path.dirname(bokeh.__file__)
+
+    # https://stackoverflow.com/questions/17407119/python-inspect-stack-is-slow
+    frame = inspect.currentframe()
+    n = 0
+    while frame:
+        fname = inspect.getfile(frame)
+        if fname.startswith(pkg_dir):
+            frame = frame.f_back
+            n += 1
+        else:
+            break
+    return n
 
 #-----------------------------------------------------------------------------
 # Dev API
