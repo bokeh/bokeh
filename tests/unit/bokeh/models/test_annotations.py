@@ -45,7 +45,11 @@ from bokeh.models import (
 from bokeh.util.serialization import convert_datetime_type
 
 from _util_models import (
+    ABOVE_FILL,
+    ABOVE_HATCH,
     ANGLE,
+    BELOW_FILL,
+    BELOW_HATCH,
     FILL,
     HATCH,
     LINE,
@@ -404,7 +408,7 @@ def test_Slope() -> None:
     check_properties_existence(slope, ANNOTATION + [
         "gradient",
         "y_intercept",
-    ], LINE)
+    ], LINE, ABOVE_FILL, ABOVE_HATCH, BELOW_FILL, BELOW_HATCH)
 
 
 def test_Span() -> None:
