@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from os.path import abspath, expanduser
 from typing import Sequence
-from warnings import warn
 
 # External imports
 from jinja2 import Template
@@ -35,6 +34,7 @@ from ..models.ui import UIElement
 from ..resources import Resources, ResourcesLike
 from ..settings import settings
 from ..themes import Theme
+from ..util.warnings import warn
 from .state import State, curstate
 from .util import default_filename
 
