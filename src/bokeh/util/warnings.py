@@ -24,8 +24,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
 import inspect
+import os
 import warnings  # lgtm [py/import-and-import-from]
 from typing import TYPE_CHECKING
 
