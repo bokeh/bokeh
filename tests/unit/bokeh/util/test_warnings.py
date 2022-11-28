@@ -20,13 +20,10 @@ import pytest ; pytest
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
-import bokeh.util.deprecation as dep # isort:skip
+import bokeh.util.deprecation as dep
 
 # Module under test
 import bokeh.util.warnings as warn # isort:skip
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Setup
