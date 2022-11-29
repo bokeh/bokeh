@@ -2758,4 +2758,36 @@ describe("Bug", () => {
       await display(layout)
     })
   })
+
+  describe("in issue #12640", () => {
+    it("doesn't allow layout computation for initially undisplayed components", async () => {
+      const plot = fig([200, 200])
+      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+
+      const pane = new Pane({
+        stylesheets: [`
+          :host {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 250px;
+            height: 250px;
+            background-color: gray;
+          }
+        `],
+        styles: {display: "none"},
+        children: [plot],
+      })
+
+      const {view} = await display(pane, [300, 300])
+
+      pane.styles = {display: "flex"}
+      await view.ready
+
+      // TODO: this really shouldn't be necessary, because the test framework already awaits
+      // for painting, but it looks like one await cycle is not enough for resize observer
+      // to do its job.
+      await paint()
+    })
+  })
 })

@@ -89,34 +89,34 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _update_bbox(): void {
-    const bbox = (() => {
-      if (this.el.offsetParent != null) {
-        const self = this.el.getBoundingClientRect()
+    const displayed = this.el.offsetParent != null // TODO: position == "sticky"
 
-        const {left, top} = (() => {
-          if (this.parent != null) {
-            const parent = this.parent.el.getBoundingClientRect()
-            return {
-              left: self.left - parent.left,
-              top: self.top - parent.top,
-            }
-          } else {
-            return {left: 0, top: 0}
+    const bbox = !displayed ? new BBox() : (() => {
+      const self = this.el.getBoundingClientRect()
+
+      const {left, top} = (() => {
+        if (this.parent != null) {
+          const parent = this.parent.el.getBoundingClientRect()
+          return {
+            left: self.left - parent.left,
+            top: self.top - parent.top,
           }
-        })()
+        } else {
+          return {left: 0, top: 0}
+        }
+      })()
 
-        return new BBox({
-          left: round(left),
-          top: round(top),
-          width: round(self.width),
-          height: round(self.height),
-        })
-      } else
-        return new BBox()
+      return new BBox({
+        left: round(left),
+        top: round(top),
+        width: round(self.width),
+        height: round(self.height),
+      })
     })()
 
     // TODO: const changed = this._bbox.equals(bbox)
     this._bbox = bbox
+    this._is_displayed = displayed
   }
 
   protected _resize_observer: ResizeObserver
@@ -167,14 +167,17 @@ export abstract class UIElementView extends DOMComponentView {
 
   after_render(): void {
     this.update_style()
+    this.update_bbox()
 
-    if (!this._is_displayed) {
+    // If not displayed, then after_resize() will not be called.
+    if (!this.is_displayed) {
       this.finish()
     }
   }
 
-  protected get _is_displayed(): boolean {
-    return this.el.offsetParent != null // TODO: position == "sticky"
+  private _is_displayed: boolean = false
+  protected get is_displayed(): boolean {
+    return this._is_displayed
   }
 
   protected _apply_styles(): void {

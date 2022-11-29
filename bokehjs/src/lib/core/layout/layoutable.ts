@@ -32,9 +32,15 @@ export abstract class Layoutable {
 
   private _dirty: boolean = false
 
+  get visible(): boolean {
+    return this._sizing.visible
+  }
+
   set visible(visible: boolean) {
-    this._sizing.visible = visible
-    this._dirty = true
+    if (this._sizing.visible != visible) {
+      this._sizing.visible = visible
+      this._dirty = true
+    }
   }
 
   set_sizing(sizing: Partial<BoxSizing> = {}): void {
