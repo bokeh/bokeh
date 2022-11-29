@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Type,
-    overload,
-)
+from typing import TYPE_CHECKING, Any, overload
 
 # External imports
 import yaml
@@ -198,7 +193,7 @@ class Theme:
         # class.
         self._by_class_cache = {}
 
-    def _add_glyph_defaults(self, cls: Type[HasProps], props: dict[str, Any]) -> None:
+    def _add_glyph_defaults(self, cls: type[HasProps], props: dict[str, Any]) -> None:
         from ..models.glyphs import Glyph
         if issubclass(cls, Glyph):
             if hasattr(cls, "line_alpha"):
@@ -208,7 +203,7 @@ class Theme:
             if hasattr(cls, "text_alpha"):
                 props.update(self._text_defaults)
 
-    def _for_class(self, cls: Type[Model]) -> dict[str, Any]:
+    def _for_class(self, cls: type[Model]) -> dict[str, Any]:
         if cls.__name__ not in self._by_class_cache:
             attrs = self._json['attrs']
             combined: dict[str, Any] = {}

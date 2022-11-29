@@ -293,7 +293,7 @@ def gridplot(
             else:
                 raise ValueError("Only UIElement and LayoutDOM items can be inserted into a grid")
 
-    def merge(cls: Type[Tool], group: list[Tool]):
+    def merge(cls: type[Tool], group: list[Tool]):
         if issubclass(cls, (SaveTool, CopyTool, ExamineTool, FullscreenTool)):
             return cls()
         else:
@@ -511,7 +511,7 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
         tool: Tool
         props: Any
 
-    by_type: defaultdict[Type[Tool], list[ToolEntry]] = defaultdict(list)
+    by_type: defaultdict[type[Tool], list[ToolEntry]] = defaultdict(list)
     computed: list[Tool | ToolProxy] = []
 
     for tool in tools:

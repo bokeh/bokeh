@@ -28,7 +28,6 @@ from typing import (
     Any,
     Iterator,
     Sequence,
-    Type,
 )
 from weakref import WeakKeyDictionary
 
@@ -77,7 +76,7 @@ class FromCurdoc:
     pass
 
 @contextmanager
-def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdoc] | None = None,
+def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdoc] | None = None,
         always_new: bool = False) -> Iterator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
@@ -417,7 +416,7 @@ def _dispose_temp_doc(models: Sequence[Model]) -> None:
 
 _themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
 
-def _set_temp_theme(doc: Document, apply_theme: Theme | Type[FromCurdoc] | None) -> None:
+def _set_temp_theme(doc: Document, apply_theme: Theme | type[FromCurdoc] | None) -> None:
     _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
         from ..io import curdoc; curdoc

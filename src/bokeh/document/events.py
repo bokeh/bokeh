@@ -62,7 +62,6 @@ from typing import (
     Callable,
     ClassVar,
     List,
-    Type,
     Union,
     cast,
 )
@@ -205,7 +204,7 @@ class DocumentPatchedEvent(DocumentChangedEvent, Serializable):
 
     kind: ClassVar[str]
 
-    _handlers: ClassVar[dict[str, Type[DocumentPatchedEvent]]] = {}
+    _handlers: ClassVar[dict[str, type[DocumentPatchedEvent]]] = {}
 
     def __init_subclass__(cls):
         cls._handlers[cls.kind] = cls

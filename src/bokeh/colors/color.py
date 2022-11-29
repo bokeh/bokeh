@@ -28,7 +28,6 @@ from re import match
 from typing import (
     TYPE_CHECKING,
     Tuple,
-    Type,
     TypeVar,
     Union,
 )
@@ -120,7 +119,7 @@ class Color(Serializable, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_hsl(cls: Type[Self], value: HSL) -> Self:
+    def from_hsl(cls: type[Self], value: HSL) -> Self:
         ''' Create a new color by converting from an HSL color.
 
         *Subclasses must implement this method.*
@@ -137,7 +136,7 @@ class Color(Serializable, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_rgb(cls: Type[Self], value: RGB) -> Self:
+    def from_rgb(cls: type[Self], value: RGB) -> Self:
         ''' Create a new color by converting from an RGB color.
 
         *Subclasses must implement this method.*

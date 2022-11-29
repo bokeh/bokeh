@@ -37,7 +37,6 @@ from typing import (
     Callable,
     Iterator,
     Sequence,
-    Type,
     TypedDict,
 )
 
@@ -237,7 +236,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 # Private API
 #-----------------------------------------------------------------------------
 
-def _query_extensions(objs: Sequence[Model | Document], query: Callable[[Type[Model]], bool]) -> bool:
+def _query_extensions(objs: Sequence[Model | Document], query: Callable[[type[Model]], bool]) -> bool:
     names: set[str] = set()
 
     for obj in _all_objs(objs):

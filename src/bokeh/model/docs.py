@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from operator import itemgetter
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..util.serialization import make_id
@@ -85,7 +85,7 @@ def html_repr(obj: Model):
 
     return html
 
-def process_example(cls: Type[Any]) -> None:
+def process_example(cls: type[Any]) -> None:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''

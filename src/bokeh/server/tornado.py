@@ -30,7 +30,6 @@ from typing import (
     Any,
     Mapping,
     Sequence,
-    Type,
 )
 from urllib.parse import urljoin
 
@@ -781,7 +780,7 @@ class BokehTornado(TornadoApplication):
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, Type[StaticFileHandler | StaticHandler], dict[str, Any]]:
+def create_static_handler(prefix: str, key: str, app: Application) -> tuple[str, type[StaticFileHandler | StaticHandler], dict[str, Any]]:
     route = prefix
     route += "/static/(.*)" if key == "/" else key + "/static/(.*)"
     if app.static_path is not None:
