@@ -403,6 +403,10 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     super.update_bbox()
+
+    if (this.layout != null) {
+      this.layout.visible = this.is_displayed
+    }
   }
 
   protected _after_layout(): void {}
@@ -427,7 +431,7 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     if (!this._has_finished) {
-      if (!this._is_displayed) {
+      if (!this.is_displayed) {
         this.finish()
       } else  {
         // In case after_resize() wasn't called (see regression test for issue
