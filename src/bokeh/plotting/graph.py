@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..models.graphs import StaticLayoutProvider
 from ..models.renderers import GraphRenderer
+from ..util.warnings import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -79,7 +80,6 @@ def from_networkx(graph, layout_function, **kwargs):
             node_dict[attr_key] = values
 
         if 'index' in node_attr_keys:
-            from warnings import warn
             warn("Converting node attributes labeled 'index' are skipped. "
                  "If you want to convert these attributes, please re-label with other names.")
 
@@ -100,7 +100,6 @@ def from_networkx(graph, layout_function, **kwargs):
             edge_dict[attr_key] = values
 
         if 'start' in edge_attr_keys or 'end' in edge_attr_keys:
-            from warnings import warn
             warn("Converting edge attributes labeled 'start' or 'end' are skipped. "
                  "If you want to convert these attributes, please re-label them with other names.")
 
@@ -118,7 +117,6 @@ def from_networkx(graph, layout_function, **kwargs):
 
             node_keys = graph_renderer.node_renderer.data_source.data['index']
             if set(node_keys) != set(layout_function.keys()):
-                from warnings import warn
                 warn("Node keys in 'layout_function' don't match node keys in the graph. "
                      "These nodes may not be displayed correctly.")
 

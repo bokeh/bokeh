@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import warnings
 from typing import (
     TYPE_CHECKING,
     Any as TAny,
@@ -55,7 +54,7 @@ from ..core.properties import (
 from ..model import Model
 from ..util.deprecation import deprecated
 from ..util.serialization import convert_datetime_array
-from ..util.warnings import BokehUserWarning
+from ..util.warnings import BokehUserWarning, warn
 from .callbacks import CustomJS
 from .filters import AllIndices, Filter, IntersectionFilter
 from .selections import Selection, SelectionPolicy, UnionRenderers
@@ -208,7 +207,7 @@ class ColumnDataSource(ColumnarDataSource):
     ).accepts(
         Object("pandas.core.groupby.GroupBy"), lambda x: ColumnDataSource._data_from_groupby(x)
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
-                 lambda obj, name, data: warnings.warn(
+                 lambda obj, name, data: warn(
                     "ColumnDataSource's columns must be of the same length. " +
                     "Current lengths: %s" % ", ".join(sorted(str((k, len(v))) for k, v in data.items())), BokehUserWarning))
 
@@ -413,7 +412,7 @@ class ColumnDataSource(ColumnarDataSource):
         try:
             del self.data[name]
         except (ValueError, KeyError):
-            warnings.warn("Unable to find column '%s' in data source" % name)
+            warn(f"Unable to find column '{name}' in data source")
 
     def stream(self, new_data: DataDict, rollover: int | None = None) -> None:
         ''' Efficiently update data source columns with new append-only data.

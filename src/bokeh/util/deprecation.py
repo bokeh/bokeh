@@ -18,11 +18,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import warnings  # lgtm [py/import-and-import-from]
 from typing import TYPE_CHECKING, Tuple, overload
 
 # Bokeh imports
-from .warnings import BokehDeprecationWarning
+from .warnings import BokehDeprecationWarning, warn
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -33,7 +32,6 @@ if TYPE_CHECKING:
 
 __all__ = (
     'deprecated',
-    'warn',
 )
 
 Version: TypeAlias = Tuple[int, int, int]
@@ -41,9 +39,6 @@ Version: TypeAlias = Tuple[int, int, int]
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def warn(message: str, stacklevel: int = 2) -> None:
-    warnings.warn(message, BokehDeprecationWarning, stacklevel=stacklevel)
 
 @overload
 def deprecated(since_or_msg: Version, old: str, new: str, extra: str | None = None) -> None:
@@ -75,7 +70,7 @@ def deprecated(since_or_msg: Version | str,
 
         message = since_or_msg
 
-    warn(message)
+    warn(message, BokehDeprecationWarning)
 
 #-----------------------------------------------------------------------------
 # Dev API
