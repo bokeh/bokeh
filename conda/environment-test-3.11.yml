@@ -71,7 +71,7 @@ dependencies:
     - sphinx-design
     - sphinxext-opengraph
     # tests
-    - ruff
+    - ruff ==0.0.144
     - pandas-stubs
     - types-boto
     - types-colorama
