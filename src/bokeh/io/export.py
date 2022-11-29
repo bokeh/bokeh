@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-import warnings
 from contextlib import contextmanager
 from os.path import abspath, expanduser, splitext
 from tempfile import mkstemp
@@ -47,6 +46,7 @@ from ..document import Document
 from ..embed import file_html
 from ..resources import INLINE, Resources
 from ..themes import Theme
+from ..util.warnings import warn
 from .state import State, curstate
 from .util import default_filename
 
@@ -325,7 +325,7 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
-            warnings.warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
+            warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
         else:
             with _resized(obj, width, height):
                 return html()

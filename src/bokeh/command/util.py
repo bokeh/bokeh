@@ -24,7 +24,6 @@ import contextlib
 import errno
 import os
 import sys
-import warnings
 from typing import Iterator
 
 # Bokeh imports
@@ -35,6 +34,7 @@ from bokeh.application.handlers import (
     NotebookHandler,
     ScriptHandler,
 )
+from bokeh.util.warnings import warn
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -127,7 +127,7 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
             handler = NotebookHandler(filename=path, argv=argv)
         elif path.endswith(".py"):
             if path.endswith("main.py"):
-                warnings.warn(DIRSTYLE_MAIN_WARNING)
+                warn(DIRSTYLE_MAIN_WARNING)
             handler = ScriptHandler(filename=path, argv=argv)
         else:
             raise ValueError("Expected a '.py' script or '.ipynb' notebook, got: '%s'" % path)

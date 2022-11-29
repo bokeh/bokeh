@@ -43,7 +43,6 @@ from typing import (
     Union,
     overload,
 )
-from warnings import warn
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
@@ -53,6 +52,7 @@ else:
 
 # Bokeh imports
 from ..util.strings import append_docstring, nice_join
+from ..util.warnings import warn
 from .property.descriptor_factory import PropertyDescriptorFactory
 from .property.descriptors import PropertyDescriptor, UnsetValueError
 from .property.override import Override
@@ -215,12 +215,12 @@ class MetaHasProps(type):
             warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
                  "class. It never makes sense to do this. Redundant properties should be deleted here, or on"
                  "the parent class. Override() can be used to change a default value of a base class property.",
-                 RuntimeWarning, stacklevel=2)
+                 RuntimeWarning)
 
         # Check for no-op Overrides
         unused_overrides = cls.__overridden_defaults__.keys() - cls.properties(_with_props=True).keys()
         if unused_overrides:
-            warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
+            warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning)
 
     @property
     def model_class_reverse_map(cls) -> dict[str, Type[HasProps]]:

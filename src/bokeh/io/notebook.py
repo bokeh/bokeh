@@ -34,7 +34,6 @@ from typing import (
     overload,
 )
 from uuid import uuid4
-from warnings import warn
 
 ## External imports
 if TYPE_CHECKING:
@@ -43,6 +42,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.types import ID
 from ..util.serialization import make_id
+from ..util.warnings import warn
 from .state import curstate
 
 if TYPE_CHECKING:

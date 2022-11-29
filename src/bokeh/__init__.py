@@ -91,7 +91,7 @@ from . import sampledata; sampledata
 from .util import logconfig # isort:skip
 del logconfig
 
-# Configure warnings to always show nice mssages, despite Python's active
+# Configure warnings to always show nice messages, despite Python's active
 # efforts to hide them from users.
 import warnings # isort:skip
 from .util.warnings import BokehDeprecationWarning, BokehUserWarning # isort:skip
