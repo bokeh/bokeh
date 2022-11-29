@@ -8,7 +8,7 @@ describe("Canvas", () => {
   describe("should support composing layers", () => {
     it.dpr(1)("with devicePixelRatio == 1", async () => {
       const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
-      const {view: canvas_view} = await display(canvas, null)
+      const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(1)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(600)
@@ -17,7 +17,7 @@ describe("Canvas", () => {
 
     it.dpr(2)("with devicePixelRatio == 2", async () => {
       const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
-      const {view: canvas_view} = await display(canvas, null)
+      const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(2)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(1200)
@@ -26,7 +26,7 @@ describe("Canvas", () => {
 
     it.dpr(3)("with devicePixelRatio == 3", async () => {
       const canvas = new Canvas({output_backend: "canvas", hidpi: true, styles: {width: "600px", height: "600px"}})
-      const {view: canvas_view} = await display(canvas, null)
+      const {view: canvas_view} = await display(canvas, [650, 650])
       expect(canvas_view.pixel_ratio).to.be.equal(3)
       const composite_layer = canvas_view.compose()
       expect(composite_layer.ctx.canvas.width).to.be.equal(1800)
@@ -35,7 +35,7 @@ describe("Canvas", () => {
 
     it("with SVG backend", async () => {
       const canvas = new Canvas({output_backend: "svg", hidpi: true, styles: {width: "600px", height: "600px"}})
-      const {view: canvas_view} = await display(canvas, null)
+      const {view: canvas_view} = await display(canvas, [650, 650])
 
       canvas_view.primary.prepare()
       canvas_view.overlays.prepare()
