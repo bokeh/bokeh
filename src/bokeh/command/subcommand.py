@@ -31,7 +31,6 @@ from typing import (
     Literal,
     Sequence,
     Tuple,
-    Type,
     Union,
 )
 
@@ -68,7 +67,7 @@ class Argument:
     nargs: NotRequired[int | Literal["?", "*", "+", "..."]] = Unspecified
     const: NotRequired[Any] = Unspecified
     default: NotRequired[Any] = Unspecified
-    type: NotRequired[Type[Any]] = Unspecified
+    type: NotRequired[type[Any]] = Unspecified
     choices: NotRequired[Sequence[Any]] = Unspecified
     required: NotRequired[bool] = Unspecified
     help: NotRequired[str] = Unspecified

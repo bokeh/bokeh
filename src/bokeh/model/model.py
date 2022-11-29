@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from inspect import Parameter, Signature, isclass
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Iterable
 
 # Bokeh imports
 from ..core import properties as p
@@ -231,7 +226,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     @classmethod
     @without_property_validation
-    def parameters(cls: Type[Model]) -> list[Parameter]:
+    def parameters(cls: type[Model]) -> list[Parameter]:
         ''' Generate Python ``Parameter`` values suitable for functions that are
         derived from the glyph.
 
@@ -305,7 +300,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         return arg_params + kwarg_params
 
-    def js_on_event(self, event: str | Type[Event], *callbacks: JSEventCallback) -> None:
+    def js_on_event(self, event: str | type[Event], *callbacks: JSEventCallback) -> None:
         if isinstance(event, str):
             pass
         elif isinstance(event, type) and issubclass(event, Event):
@@ -506,7 +501,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             return None
         return result[0]
 
-    def set_select(self, selector: Type[Model] | SelectorType, updates: dict[str, Any]) -> None:
+    def set_select(self, selector: type[Model] | SelectorType, updates: dict[str, Any]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 

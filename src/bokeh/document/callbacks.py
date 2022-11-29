@@ -25,12 +25,7 @@ log = logging.getLogger(__name__)
 import weakref
 from collections import defaultdict
 from functools import wraps
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.enums import HoldPolicy, HoldPolicyType
@@ -274,7 +269,7 @@ class DocumentCallbackManager:
         if receiver not in self._change_callbacks:
             self._change_callbacks[receiver] = lambda event: event.dispatch(receiver)
 
-    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
 
         '''

@@ -71,7 +71,6 @@ from typing import (
     Any,
     ClassVar,
     Literal,
-    Type,
     TypedDict,
 )
 
@@ -125,7 +124,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-_CONCRETE_EVENT_CLASSES: dict[str, Type[Event]] = {}
+_CONCRETE_EVENT_CLASSES: dict[str, type[Event]] = {}
 
 #-----------------------------------------------------------------------------
 # General API

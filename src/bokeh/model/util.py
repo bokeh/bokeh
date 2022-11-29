@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
@@ -142,7 +137,7 @@ def collect_models(*input_values: Any) -> list[Model]:
     '''
     return collect_filtered_models(None, *input_values)
 
-def get_class(view_model_name: str) -> Type[Model]:
+def get_class(view_model_name: str) -> type[Model]:
     ''' Look up a Bokeh model class, given its view model name.
 
     Args:

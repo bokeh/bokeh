@@ -433,7 +433,7 @@ class PrioritizedSetting(Generic[T]):
 
         raise RuntimeError(f"No configured value found for setting {self._name!r}")
 
-    def __get__(self, instance: Any, owner: Type[Any]) -> PrioritizedSetting[T]:
+    def __get__(self, instance: Any, owner: type[Any]) -> PrioritizedSetting[T]:
         return self
 
     def __set__(self, instance: Any, value: str | T) -> None:

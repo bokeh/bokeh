@@ -23,7 +23,6 @@ from typing import (
     Awaitable,
     Callable,
     NewType,
-    Type,
 )
 
 # External imports
@@ -73,11 +72,11 @@ class AuthProvider:
         self._validate()
 
     @property
-    def endpoints(self) -> list[tuple[str, Type[RequestHandler]]]:
+    def endpoints(self) -> list[tuple[str, type[RequestHandler]]]:
         ''' URL patterns for login/logout endpoints.
 
         '''
-        endpoints: list[tuple[str, Type[RequestHandler]]] = []
+        endpoints: list[tuple[str, type[RequestHandler]]] = []
         if self.login_handler:
             assert self.login_url is not None
             endpoints.append((self.login_url, self.login_handler))
@@ -127,7 +126,7 @@ class AuthProvider:
         pass
 
     @property
-    def login_handler(self) -> Type[RequestHandler] | None:
+    def login_handler(self) -> type[RequestHandler] | None:
         ''' A request handler class for a login page.
 
         This property may return None, if ``login_url`` is supplied
@@ -150,7 +149,7 @@ class AuthProvider:
         pass
 
     @property
-    def logout_handler(self) -> Type[RequestHandler] | None:
+    def logout_handler(self) -> type[RequestHandler] | None:
         ''' A request handler class for a logout page.
 
         This property may return None.

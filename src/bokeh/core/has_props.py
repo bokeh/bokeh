@@ -108,7 +108,7 @@ def abstract(cls: C) -> C:
     cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
 
-def is_DataModel(cls: Type[HasProps]) -> bool:
+def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
     return issubclass(cls, HasProps) and getattr(cls, "__data_model__", False) and cls != DataModel
 
@@ -132,12 +132,12 @@ def _generators(class_dict: dict[str, Any]):
 class _ModelResolver:
     """ """
 
-    _known_models: dict[str, Type[HasProps]]
+    _known_models: dict[str, type[HasProps]]
 
     def __init__(self) -> None:
         self._known_models = {}
 
-    def add(self, cls: Type[HasProps]) -> None:
+    def add(self, cls: type[HasProps]) -> None:
         if not (issubclass(cls, Local) or cls.__name__.startswith("_")):
             # update the mapping of view model names to classes, checking for any duplicates
             previous = self._known_models.get(cls.__qualified_model__, None)
@@ -145,15 +145,15 @@ class _ModelResolver:
                 raise Warning(f"Duplicate qualified model declaration of '{cls.__qualified_model__}'. Previous definition: {previous}")
             self._known_models[cls.__qualified_model__] = cls
 
-    def remove(self, cls: Type[HasProps]) -> None:
+    def remove(self, cls: type[HasProps]) -> None:
         del self._known_models[cls.__qualified_model__]
 
     @property
-    def known_models(self) -> dict[str, Type[HasProps]]:
+    def known_models(self) -> dict[str, type[HasProps]]:
         return dict(self._known_models)
 
     def clear_extensions(self) -> None:
-        def is_extension(obj: Type[HasProps]) -> bool:
+        def is_extension(obj: type[HasProps]) -> bool:
             return getattr(obj, "__implementation__", None) is not None or \
                    getattr(obj, "__javascript__", None) is not None or \
                    getattr(obj, "__css__", None) is not None
@@ -223,7 +223,7 @@ class MetaHasProps(type):
             warn(f"Overrides of {unused_overrides} in class {cls.__name__} does not override anything.", RuntimeWarning, stacklevel=2)
 
     @property
-    def model_class_reverse_map(cls) -> dict[str, Type[HasProps]]:
+    def model_class_reverse_map(cls) -> dict[str, type[HasProps]]:
         return _default_resolver.known_models
 
 class Local:
@@ -762,7 +762,7 @@ class ModelDef(_ModelDef, total=False):
     properties: list[PropertyDef]
     overrides: list[OverrideDef]
 
-def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Ref | ModelDef:
+def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
 
     ref = Ref(id=ID(cls.__qualified_model__))
@@ -772,7 +772,7 @@ def _HasProps_to_serializable(cls: Type[HasProps], serializer: Serializer) -> Re
         return ref
 
     # TODO: consider supporting mixin models
-    bases: list[Type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
+    bases: list[type[HasProps]] = [ base for base in cls.__bases__ if issubclass(base, Model) and base != DataModel ]
     if len(bases) == 0:
         extends = None
     elif len(bases) == 1:

@@ -16,9 +16,6 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import Type
-
 # Bokeh imports
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
@@ -46,7 +43,7 @@ def check_props_with_sizing_mode(layout: LayoutDOM):
     assert layout.sizing_mode is None
 
 
-def check_children_prop(layout_callable: Type[Row | Column]):
+def check_children_prop(layout_callable: type[Row | Column]):
     ## component subclasses are layouts, widgets and plots
     components = [Row(), Column(), figure()]
 
