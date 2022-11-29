@@ -41,6 +41,12 @@ LINE  = ["line_color", "line_width", "line_alpha", "line_join", "line_cap", "lin
 TEXT  = ["text_font", "text_font_size", "text_font_style", "text_color", "text_outline_color",
          "text_alpha", "text_align", "text_baseline", "text_line_height"]
 
+ABOVE_FILL  = [f"above_{name}" for name in FILL]
+ABOVE_HATCH = [f"above_{name}" for name in HATCH]
+
+BELOW_FILL  = [f"below_{name}" for name in FILL]
+BELOW_HATCH = [f"below_{name}" for name in HATCH]
+
 ANGLE = ["angle", "angle_units"]
 
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]

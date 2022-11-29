@@ -249,6 +249,28 @@ class Slope(Annotation):
     The {prop} values for the line.
     """)
 
+    above_fill_props = Include(ScalarFillProps, prefix="above", help="""
+    The {prop} values for the area above the line.
+    """)
+
+    above_hatch_props = Include(ScalarHatchProps, prefix="above", help="""
+    The {prop} values for the area above the line.
+    """)
+
+    below_fill_props = Include(ScalarFillProps, prefix="below", help="""
+    The {prop} values for the area below the line.
+    """)
+
+    below_hatch_props = Include(ScalarHatchProps, prefix="below", help="""
+    The {prop} values for the area below the line.
+    """)
+
+    above_fill_color = Override(default=None)
+    above_fill_alpha = Override(default=0.4)
+
+    below_fill_color = Override(default=None)
+    below_fill_alpha = Override(default=0.4)
+
 class Span(Annotation):
     """ Render a horizontal or vertical line span.
 

@@ -1,9 +1,11 @@
 import {display, fig} from "./_util"
 import {PlotActions, xy} from "../interactive"
 
-import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane} from "@bokehjs/models"
+import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridPlot} from "@bokehjs/models"
 import {paint} from "@bokehjs/core/util/defer"
 import {assert} from "@bokehjs/core/util/assert"
+import {range} from "@bokehjs/core/util/array"
+import {Random} from "@bokehjs/core/util/random"
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -135,6 +137,56 @@ describe("Feature", () => {
 
       pane.styles = {width: "600px", height: "250px"}
       await view.ready
+    })
+  })
+
+  describe("in issue #9194", () => {
+    function plot(gradient: number, y_intercept: number, x_range: [number, number], y_range: [number, number]) {
+      const random = new Random(1)
+
+      const xs = range(0, 20, 0.2)
+      const ys = xs.map((x) => gradient*x + y_intercept + random.normal(0, 4))
+
+      const p = fig([200, 200], {x_range, y_range})
+      p.circle(xs, ys, {size: 6, alpha: 0.6, fill_color: null})
+
+      const slope = new Slope({
+        gradient,
+        y_intercept,
+        line_color: "gray", line_dash: "dashed", line_width: 3,
+        above_fill_color: "orange",
+        below_hatch_color: "red", below_hatch_pattern: "@",
+        level: "underlay",
+      })
+
+      p.add_layout(slope)
+      return p
+    }
+
+    it("should allow above and below fill and hover in Slope annotation", async () => {
+      const p00 = plot(+0.5, 10, [ 0, 20], [  5, 35])
+      const p01 = plot(-0.5, 10, [ 0, 20], [-10, 25])
+      const p02 = plot(+0.5, 10, [ 0, 20], [-10, 15])
+      const p03 = plot(-0.5, 10, [ 0, 20], [-20,  5])
+      const p04 = plot(+0.5, 10, [ 0, 20], [-20,  5])
+      const p05 = plot(-0.5, 10, [ 0, 20], [-30, -5])
+
+      const p10 = plot(+0.0, 10, [ 0, 20], [ 0, 25])
+      const p11 = plot(+0.0, 10, [20,  0], [25,  0])
+      const p12 = plot(+0.5, 10, [ 0, 20], [15, 40])
+      const p13 = plot(-0.5, 10, [ 0, 20], [ 5, 30])
+      const p14 = plot(+0.5, 10, [ 0, 20], [25, 50])
+      const p15 = plot(-0.5, 10, [ 0, 20], [10, 35])
+
+      const gp = new GridPlot({
+        toolbar_location: null,
+        children: [
+          [p00, 0, 0], [p01, 0, 1], [p02, 0, 2], [p03, 0, 3], [p04, 0, 4], [p05, 0, 5],
+          [p10, 1, 0], [p11, 1, 1], [p12, 1, 2], [p13, 1, 3], [p14, 1, 4], [p15, 1, 5],
+        ],
+      })
+
+      await display(gp)
     })
   })
 })

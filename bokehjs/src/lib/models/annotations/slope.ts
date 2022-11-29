@@ -22,36 +22,87 @@ export class SlopeView extends AnnotationView {
     const xscale = this.coordinates.x_scale
     const yscale = this.coordinates.y_scale
 
-    let sy_start, sy_end, sx_start, sx_end
-    if (gradient == 0) {
-      sy_start = yscale.compute(y_intercept)
-      sy_end = sy_start
+    const [sx0, sx1, sy0, sy1] = (() => {
+      if (gradient == 0) {
+        const sy_start = yscale.compute(y_intercept)
+        const sy_end = sy_start
 
-      sx_start = frame.bbox.left
-      sx_end = sx_start + frame.bbox.width
-    } else {
-      sy_start = frame.bbox.top
-      sy_end = sy_start + frame.bbox.height
+        const sx_start = frame.bbox.left
+        const sx_end = frame.bbox.right
+        return [sx_start, sx_end, sy_start, sy_end]
+      } else {
+        const sy_start = frame.bbox.top
+        const sy_end = frame.bbox.bottom
 
-      const y_start = yscale.invert(sy_start)
-      const y_end = yscale.invert(sy_end)
+        const y_start = yscale.invert(sy_start)
+        const y_end = yscale.invert(sy_end)
 
-      const x_start = (y_start - y_intercept) / gradient
-      const x_end = (y_end - y_intercept) / gradient
+        const x_start = (y_start - y_intercept) / gradient
+        const x_end = (y_end - y_intercept) / gradient
 
-      sx_start = xscale.compute(x_start)
-      sx_end = xscale.compute(x_end)
-    }
+        const sx_start = xscale.compute(x_start)
+        const sx_end = xscale.compute(x_end)
+
+        if (sx_start <= sx_end)
+          return [sx_start, sx_end, sy_start, sy_end]
+        else
+          return [sx_end, sx_start, sy_end, sy_start]
+      }
+    })()
 
     const {ctx} = this.layer
     ctx.save()
 
-    ctx.beginPath()
-    this.visuals.line.set_value(ctx)
-    ctx.moveTo(sx_start, sy_start)
-    ctx.lineTo(sx_end, sy_end)
+    if (this.visuals.above_fill.doit || this.visuals.above_hatch.doit) {
+      const {left, right, top, bottom} = frame.bbox
+      ctx.beginPath()
+      ctx.moveTo(sx0, sy0)
+      ctx.lineTo(sx0, sy0)
+      ctx.lineTo(sx1, sy1)
+      ctx.lineTo(sx1, sy1)
+      if (sy0 <= sy1) {
+        if (sx1 < right)
+          ctx.lineTo(right, bottom)
+        ctx.lineTo(right, top)
+        ctx.lineTo(left, top)
+      } else {
+        ctx.lineTo(right, top)
+        ctx.lineTo(left, top)
+        if (sx0 > left)
+          ctx.lineTo(left, bottom)
+      }
+      ctx.closePath()
+      this.visuals.above_fill.apply(ctx)
+      this.visuals.above_hatch.apply(ctx)
+    }
 
-    ctx.stroke()
+    if (this.visuals.below_fill.doit || this.visuals.below_hatch.doit) {
+      const {left, right, top, bottom} = frame.bbox
+      ctx.beginPath()
+      ctx.moveTo(sx0, sy0)
+      ctx.lineTo(sx0, sy0)
+      ctx.lineTo(sx1, sy1)
+      if (sy0 <= sy1) {
+        ctx.lineTo(right, bottom)
+        ctx.lineTo(left, bottom)
+        if (sx0 > left)
+          ctx.lineTo(left, top)
+      } else {
+        if (sx1 < right)
+          ctx.lineTo(right, top)
+        ctx.lineTo(right, bottom)
+        ctx.lineTo(left, bottom)
+      }
+      ctx.closePath()
+      this.visuals.below_fill.apply(ctx)
+      this.visuals.below_hatch.apply(ctx)
+    }
+
+    ctx.beginPath()
+    ctx.moveTo(sx0, sy0)
+    ctx.lineTo(sx1, sy1)
+
+    this.visuals.line.apply(ctx)
     ctx.restore()
   }
 }
@@ -64,9 +115,18 @@ export namespace Slope {
     y_intercept: p.Property<number | null>
   } & Mixins
 
-  export type Mixins = mixins.Line
+  export type Mixins =
+    mixins.Line &
+    mixins.AboveFill & mixins.AboveHatch &
+    mixins.BelowFill & mixins.BelowHatch
 
-  export type Visuals = Annotation.Visuals & {line: visuals.Line}
+  export type Visuals = Annotation.Visuals & {
+    line: visuals.Line
+    above_fill: visuals.Fill
+    above_hatch: visuals.Hatch
+    below_fill: visuals.Fill
+    below_hatch: visuals.Hatch
+  }
 }
 
 export interface Slope extends Slope.Attrs {}
@@ -82,7 +142,13 @@ export class Slope extends Annotation {
   static {
     this.prototype.default_view = SlopeView
 
-    this.mixins<Slope.Mixins>(mixins.Line)
+    this.mixins<Slope.Mixins>([
+      mixins.Line,
+      ["above_", mixins.Fill],
+      ["above_", mixins.Hatch],
+      ["below_", mixins.Fill],
+      ["below_", mixins.Hatch],
+    ])
 
     this.define<Slope.Props>(({Number, Nullable}) => ({
       gradient:    [ Nullable(Number), null ],
@@ -91,6 +157,10 @@ export class Slope extends Annotation {
 
     this.override<Slope.Props>({
       line_color: "black",
+      above_fill_color: null,
+      above_fill_alpha: 0.4,
+      below_fill_color: null,
+      below_fill_alpha: 0.4,
     })
   }
 }
