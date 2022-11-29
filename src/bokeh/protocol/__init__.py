@@ -27,7 +27,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
-    Type,
     overload,
 )
 
@@ -69,7 +68,7 @@ MessageType = Literal[
     "SERVER-INFO-REQ",
 ]
 
-SPEC: dict[MessageType, Type[Message[Any]]] = {
+SPEC: dict[MessageType, type[Message[Any]]] = {
     "ACK": ack,
     "ERROR": error,
     "OK": ok,
@@ -93,7 +92,7 @@ class Protocol:
     ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''
-    _messages: dict[MessageType, Type[Message[Any]]]
+    _messages: dict[MessageType, type[Message[Any]]]
 
     def __init__(self) -> None:
         self._messages = SPEC

@@ -258,7 +258,7 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
 
     # now convert dict to list, saving keys in the same order
     model_keys = None
-    dict_type: Type[dict[Any, Any]] = dict
+    dict_type: type[dict[Any, Any]] = dict
     if isinstance(models, dict):
         dict_type = models.__class__
         model_keys = models.keys()

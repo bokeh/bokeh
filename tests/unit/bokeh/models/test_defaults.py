@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Type
+from typing import Any
 
 # Bokeh imports
 from bokeh.core.property.descriptors import PropertyDescriptor
@@ -46,7 +46,7 @@ def all_descriptors():
             yield (model, name, descriptor)
 
 @pytest.mark.parametrize("model, name, descriptor", list(all_descriptors()))
-def test_default_values(model: Type[Model], name: str, descriptor: PropertyDescriptor[Any]) -> None:
+def test_default_values(model: type[Model], name: str, descriptor: PropertyDescriptor[Any]) -> None:
     p = descriptor.property
     # In a few instances there is a default that needs to be prepared, e.g. by
     # an accepts clause. Use class_default rather than _raw_default.

@@ -29,7 +29,6 @@ from typing import (
     Any,
     Callable,
     Sequence,
-    Type,
     Union,
     cast,
 )
@@ -83,7 +82,7 @@ class EventCallbackManager:
         super().__init__(*args, **kw)
         self._event_callbacks = defaultdict(list)
 
-    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Run callbacks when the specified event occurs on this Model
 
         Not all Events are supported for all Models.

@@ -30,7 +30,6 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Type,
     TypeVar,
 )
 
@@ -67,9 +66,9 @@ class Object(Property[T]):
 
     """
 
-    _instance_type: Type[T] | Callable[[], Type[T]] | str
+    _instance_type: type[T] | Callable[[], type[T]] | str
 
-    def __init__(self, instance_type: Type[T] | Callable[[], Type[T]] | str, default: Init[T] = Undefined, help: str | None = None):
+    def __init__(self, instance_type: type[T] | Callable[[], type[T]] | str, default: Init[T] = Undefined, help: str | None = None):
         if not (isinstance(instance_type, (type, str)) or callable(instance_type)):
             raise ValueError(f"expected a type, fn() -> type, or string, got {instance_type}")
 
@@ -81,7 +80,7 @@ class Object(Property[T]):
         super().__init__(default=default, help=help)
 
     @staticmethod
-    def _assert_type(instance_type: Type[Any]) -> None:
+    def _assert_type(instance_type: type[Any]) -> None:
         pass
 
     def __str__(self) -> str:
@@ -94,8 +93,8 @@ class Object(Property[T]):
         return True
 
     @property
-    def instance_type(self) -> Type[T]:
-        instance_type: Type[Serializable]
+    def instance_type(self) -> type[T]:
+        instance_type: type[Serializable]
         if isinstance(self._instance_type, type):
             instance_type = self._instance_type
         elif isinstance(self._instance_type, str):
@@ -129,7 +128,7 @@ class Instance(Object[S]):
     """ Accept values that are instances of serializable types (e.g. |HasProps|). """
 
     @staticmethod
-    def _assert_type(instance_type: Type[Any]) -> None:
+    def _assert_type(instance_type: type[Any]) -> None:
         if not (isinstance(instance_type, type) and issubclass(instance_type, Serializable)):
             raise ValueError(f"expected a subclass of Serializable (e.g. HasProps), got {instance_type}")
 
@@ -143,7 +142,7 @@ class InstanceDefault(Generic[I]):
     will afford better user-facing documentation than a lambda initializer.
 
     """
-    def __init__(self, model: Type[I], **kwargs: Any) -> None:
+    def __init__(self, model: type[I], **kwargs: Any) -> None:
         self._model = model
         self._kwargs = kwargs
 
