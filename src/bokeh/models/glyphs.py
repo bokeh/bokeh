@@ -1380,7 +1380,7 @@ class Text(XYGlyph, TextGlyph):
     The y-coordinates to locate the text anchors.
     """)
 
-    text = StringSpec("text", help="""
+    text = StringSpec(default=field("text"), help="""
     The text values to render.
     """)
 
@@ -1405,6 +1405,24 @@ class Text(XYGlyph, TextGlyph):
     text_props = Include(TextProps, help="""
     The {prop} values for the text.
     """)
+
+    background_fill_props = Include(FillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(HatchProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    border_line_props = Include(LineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    background_hatch_color = Override(default=None)
+
+    border_line_color = Override(default=None)
 
 class VArea(FillGlyph, HatchGlyph):
     ''' Render a vertically directed area between two equal length sequences

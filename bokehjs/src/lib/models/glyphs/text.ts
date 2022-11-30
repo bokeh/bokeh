@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {TextVector} from "core/property_mixins"
 import {PointGeometry} from "core/geometry"
+import * as mixins from "core/property_mixins"
 import * as hittest from "core/hittest"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
@@ -58,6 +58,20 @@ export class TextView extends XYGlyphView {
       }
       label_i.angle = angle_i
       label_i.align = "auto"
+
+      if (this.visuals.background_fill.v_doit(i) || this.visuals.border_line.v_doit(i)) {
+        const {p0, p1, p2, p3} = label_i.rect()
+        ctx.beginPath()
+        ctx.moveTo(p0.x, p0.y)
+        ctx.lineTo(p1.x, p1.y)
+        ctx.lineTo(p2.x, p2.y)
+        ctx.lineTo(p3.x, p3.y)
+        ctx.closePath()
+
+        this.visuals.background_fill.apply(ctx, i)
+        this.visuals.border_line.apply(ctx, i)
+      }
+
       label_i.paint(ctx)
     }
   }
@@ -99,9 +113,16 @@ export namespace Text {
     y_offset: p.NumberSpec
   } & Mixins
 
-  export type Mixins = TextVector
+  export type Mixins =
+    mixins.TextVector &
+    mixins.BorderLineVector &
+    mixins.BackgroundFillVector
 
-  export type Visuals = XYGlyph.Visuals & {text: visuals.TextVector}
+  export type Visuals = XYGlyph.Visuals & {
+    text: visuals.TextVector
+    border_line: visuals.LineVector
+    background_fill: visuals.FillVector
+  }
 }
 
 export interface Text extends Text.Attrs {}
@@ -117,12 +138,22 @@ export class Text extends XYGlyph {
   static {
     this.prototype.default_view = TextView
 
-    this.mixins<Text.Mixins>(TextVector)
-    this.define<Text.Props>(({}) => ({
-      text:     [ p.NullStringSpec, {field: "text"} ],
-      angle:    [ p.AngleSpec, 0 ],
+    this.mixins<Text.Mixins>([
+      mixins.TextVector,
+      ["border_",     mixins.LineVector],
+      ["background_", mixins.FillVector],
+    ])
+
+    this.define<Text.Props>(() => ({
+      text: [ p.NullStringSpec, {field: "text"} ],
+      angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
     }))
+
+    this.override<Text.Props>({
+      border_line_color: null,
+      background_fill_color: null,
+    })
   }
 }
