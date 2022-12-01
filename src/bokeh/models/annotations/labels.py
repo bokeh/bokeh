@@ -89,11 +89,11 @@ class TextAnnotation(Annotation):
     The {prop} values for the text bounding box.
     """)
 
-    background_fill_color = Override(default=None)
-
     border_props = Include(ScalarLineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
+
+    background_fill_color = Override(default=None)
 
     border_line_color = Override(default=None)
 
@@ -125,26 +125,18 @@ class Label(TextAnnotation):
     The x-coordinate in screen coordinates to locate the text anchors.
     """)
 
+    y = Required(CoordinateLike, help="""
+    The y-coordinate in screen coordinates to locate the text anchors.
+    """)
+
     x_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as |data units| by
     default.
     """)
 
-    y = Required(CoordinateLike, help="""
-    The y-coordinate in screen coordinates to locate the text anchors.
-    """)
-
     y_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as |data units| by
     default.
-    """)
-
-    angle = Angle(default=0, help="""
-    The angle to rotate the text, as measured from the horizontal.
-    """)
-
-    angle_units = Enum(AngleUnits, default='rad', help="""
-    Acceptable values for units are ``"rad"`` and ``"deg"``
     """)
 
     x_offset = Float(default=0, help="""
@@ -159,6 +151,14 @@ class Label(TextAnnotation):
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
+    """)
+
+    angle = Angle(default=0, help="""
+    The angle to rotate the text, as measured from the horizontal.
+    """)
+
+    angle_units = Enum(AngleUnits, default='rad', help="""
+    Acceptable values for units are ``"rad"`` and ``"deg"``.
     """)
 
 class LabelSet(DataAnnotation):

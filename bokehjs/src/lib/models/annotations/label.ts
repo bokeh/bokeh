@@ -1,9 +1,12 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {compute_angle} from "core/util/math"
+import {CoordinateMapper} from "core/util/bbox"
 import {CoordinateUnits, AngleUnits} from "core/enums"
 import type {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import type * as p from "core/properties"
+
+export type XY<T> = {x: T, y: T}
 
 export class LabelView extends TextAnnotationView {
   declare model: Label
@@ -22,61 +25,62 @@ export class LabelView extends TextAnnotationView {
       return {width: 0, height: 0}
 
     const graphics = this._text_view.graphics()
-    const {angle, angle_units} = this.model
-    graphics.angle = compute_angle(angle, angle_units)
+    graphics.angle = this.angle
     graphics.visuals = this.visuals.text.values()
+
     const {width, height} = graphics.size()
     return {width, height}
   }
 
-  protected _render(): void {
+  get mappers(): XY<CoordinateMapper> {
+    function mapper(units: CoordinateUnits, scale: CoordinateMapper, view: CoordinateMapper, canvas: CoordinateMapper) {
+      switch (units) {
+        case "canvas": return canvas
+        case "screen": return view
+        case "data":   return scale
+      }
+    }
+
+    const overlay = this.model
+    const parent = this.layout ?? this.plot_view.frame
+    const {x_scale, y_scale} = this.coordinates
+    const {x_view, y_view} = parent.bbox
+    const {x_screen, y_screen} = this.plot_view.canvas.bbox
+
+    const xy = {
+      x: mapper(overlay.x_units, x_scale, x_view, x_screen),
+      y: mapper(overlay.y_units, y_scale, y_view, y_screen),
+    }
+
+    return xy
+  }
+
+  get angle(): number {
     const {angle, angle_units} = this.model
-    const rotation = compute_angle(angle, angle_units)
+    return compute_angle(angle, angle_units)
+  }
 
-    const panel = this.layout != null ? this.layout : this.plot_view.frame
+  protected _render(): void {
+    const {mappers} = this
+    const {x, y, x_offset, y_offset} = this.model
 
-    const xscale = this.coordinates.x_scale
-    const yscale = this.coordinates.y_scale
+    const sx = mappers.x.compute(x) + x_offset
+    const sy = mappers.y.compute(y) - y_offset
 
-    let sx = (() => {
-      switch (this.model.x_units) {
-        case "canvas":
-          return this.model.x
-        case "screen":
-          return panel.bbox.xview.compute(this.model.x)
-        case "data":
-          return xscale.compute(this.model.x)
-      }
-    })()
-
-    let sy = (() => {
-      switch (this.model.y_units) {
-        case "canvas":
-          return this.model.y
-        case "screen":
-          return panel.bbox.yview.compute(this.model.y)
-        case "data":
-          return yscale.compute(this.model.y)
-      }
-    })()
-
-    sx += this.model.x_offset
-    sy -= this.model.y_offset
-
-    this._paint(this.layer.ctx, {sx, sy}, rotation)
+    this._paint(this.layer.ctx, {sx, sy}, this.angle)
   }
 }
 
 export namespace Label {
   export type Props = TextAnnotation.Props & {
     x: p.Property<number>
-    x_units: p.Property<CoordinateUnits>
     y: p.Property<number>
+    x_units: p.Property<CoordinateUnits>
     y_units: p.Property<CoordinateUnits>
-    angle: p.Property<number>
-    angle_units: p.Property<AngleUnits>
     x_offset: p.Property<number>
     y_offset: p.Property<number>
+    angle: p.Property<number>
+    angle_units: p.Property<AngleUnits>
   }
 
   export type Attrs = p.AttrsOf<Props>
@@ -99,13 +103,13 @@ export class Label extends TextAnnotation {
 
     this.define<Label.Props>(({Number, Angle}) => ({
       x:           [ Number ],
-      x_units:     [ CoordinateUnits, "data" ],
       y:           [ Number ],
+      x_units:     [ CoordinateUnits, "data" ],
       y_units:     [ CoordinateUnits, "data" ],
-      angle:       [ Angle, 0 ],
-      angle_units: [ AngleUnits, "rad" ],
       x_offset:    [ Number, 0 ],
       y_offset:    [ Number, 0 ],
+      angle:       [ Angle, 0 ],
+      angle_units: [ AngleUnits, "rad" ],
     }))
   }
 }
