@@ -42,6 +42,7 @@ from ...core.properties import (
     TextLike,
     field,
 )
+from ...core.property_aliases import Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
     LineProps,
@@ -121,6 +122,14 @@ class Label(TextAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    anchor = TextAnchor(default="auto", help="""
+    Position within the bounding box of the text of a label to which
+    ``x`` and ``y`` coordinates are anchored to.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     x = Required(CoordinateLike, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
     """)
@@ -159,6 +168,13 @@ class Label(TextAnnotation):
 
     angle_units = Enum(AngleUnits, default='rad', help="""
     Acceptable values for units are ``"rad"`` and ``"deg"``.
+    """)
+
+    padding = Padding(default=0, help="""
+    Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
 class LabelSet(DataAnnotation):

@@ -1,12 +1,15 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {compute_angle} from "core/util/math"
-import {CoordinateMapper} from "core/util/bbox"
+import type {CoordinateMapper} from "core/util/bbox"
 import {CoordinateUnits, AngleUnits} from "core/enums"
 import type {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import type * as p from "core/properties"
-
-export type XY<T> = {x: T, y: T}
+import type {Context2d} from "core/util/canvas"
+import type {Position} from "core/graphics"
+import type {LRTB, XY} from "core/util/bbox"
+import {TextAnchor, Padding} from "../common/kinds"
+import * as resolve from "../common/resolve"
 
 export class LabelView extends TextAnnotationView {
   declare model: Label
@@ -55,6 +58,15 @@ export class LabelView extends TextAnnotationView {
     return xy
   }
 
+  get anchor(): XY<number> {
+    const {align, baseline} = this.visuals.text.values()
+    return resolve.text_anchor(this.model.anchor, align, baseline)
+  }
+
+  get padding(): LRTB<number> {
+    return resolve.padding(this.model.padding)
+  }
+
   get angle(): number {
     const {angle, angle_units} = this.model
     return compute_angle(angle, angle_units)
@@ -69,10 +81,49 @@ export class LabelView extends TextAnnotationView {
 
     this._paint(this.layer.ctx, {sx, sy}, this.angle)
   }
+
+  protected override _paint(ctx: Context2d, position: Position, angle: number): void {
+    const graphics = this._text_view.graphics()
+    graphics.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
+    graphics.align = "auto"
+    graphics.visuals = this.visuals.text.values()
+
+    const size = graphics.size()
+    const {sx, sy} = position
+    const {anchor, padding} = this
+
+    const width = size.width + padding.left + padding.right
+    const height = size.height + padding.top + padding.bottom
+
+    const dx = anchor.x*width
+    const dy = anchor.y*height
+
+    ctx.save()
+    ctx.translate(sx, sy)
+    ctx.rotate(angle)
+    ctx.translate(-dx, -dy)
+
+    const {background_fill, border_line} = this.visuals
+    if (background_fill.doit || border_line.doit) {
+      ctx.beginPath()
+      ctx.rect(0, 0, width, height)
+
+      this.visuals.background_fill.apply(ctx)
+      this.visuals.border_line.apply(ctx)
+    }
+
+    if (this.visuals.text.doit) {
+      ctx.translate(padding.left, padding.top)
+      graphics.paint(ctx)
+    }
+
+    ctx.restore()
+  }
 }
 
 export namespace Label {
   export type Props = TextAnnotation.Props & {
+    anchor: p.Property<TextAnchor>
     x: p.Property<number>
     y: p.Property<number>
     x_units: p.Property<CoordinateUnits>
@@ -81,6 +132,7 @@ export namespace Label {
     y_offset: p.Property<number>
     angle: p.Property<number>
     angle_units: p.Property<AngleUnits>
+    padding: p.Property<Padding>
   }
 
   export type Attrs = p.AttrsOf<Props>
@@ -102,6 +154,7 @@ export class Label extends TextAnnotation {
     this.prototype.default_view = LabelView
 
     this.define<Label.Props>(({Number, Angle}) => ({
+      anchor:      [ TextAnchor, "auto" ],
       x:           [ Number ],
       y:           [ Number ],
       x_units:     [ CoordinateUnits, "data" ],
@@ -110,6 +163,7 @@ export class Label extends TextAnnotation {
       y_offset:    [ Number, 0 ],
       angle:       [ Angle, 0 ],
       angle_units: [ AngleUnits, "rad" ],
+      padding:     [ Padding, 0 ],
     }))
   }
 }

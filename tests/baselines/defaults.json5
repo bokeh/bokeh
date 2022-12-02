@@ -5256,6 +5256,7 @@
   },
   Label: {
     __extends__: "TextAnnotation",
+    anchor: "auto",
     x: {
       type: "symbol",
       name: "unset",
@@ -5270,6 +5271,7 @@
     y_offset: 0,
     angle: 0,
     angle_units: "rad",
+    padding: 0,
   },
   LabelSet: {
     __extends__: "DataAnnotation",
