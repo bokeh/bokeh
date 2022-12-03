@@ -1,3 +1,22 @@
+''' A Google Map of Earth marked with all cities with at least 5,000 people.
+
+Rather than hard-coding latitude/longitude coordinates, this example
+programmatically draws many such points from a larger data source.
+
+Rendering this plot requires a Google Maps Platform `API key`_, which is
+supplied as a command-line argument to the rendering script: ``python3 gmap.py
+<GOOGLE_API_KEY>``.
+
+.. bokeh-example-metadata::
+    :sampledata: world_cities
+    :apis: bokeh.models.sources.ColumnDataSource, bokeh.models.map_plots.GMapOptions, bokeh.models.map_plots.GMapPlot
+    :refs: :ref:`ug_topics_geo` > :ref:`ug_topics_geo_google_maps`
+    :keywords: mapping, Google Maps, geographical data, GIS, latitude, longitude
+
+.. _API key: https://developers.google.com/maps/documentation/javascript/get-api-key
+'''
+from sys import argv
+
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, GMapOptions,
@@ -6,9 +25,12 @@ from bokeh.resources import INLINE
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view
 
-# Google Maps now requires an API key. You can find out how to get one here:
-# https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+# For GMaps to function, Google requires you obtain and enable an API key:
+#
+#     https://developers.google.com/maps/documentation/javascript/get-api-key
+#
+# Use an API key supplied as a command-line argument:
+API_KEY = argv[1]
 
 map_options = GMapOptions(lat=15, lng=0, zoom=2)
 
@@ -16,11 +38,6 @@ plot = GMapPlot(
     width=1000, height=500,
     map_options=map_options, api_key=API_KEY, output_backend="webgl",
 )
-
-if plot.api_key == "GOOGLE_API_KEY":
-    plot.add_layout(Label(x=500, y=320, x_units='screen', y_units='screen',
-                          text='Replace GOOGLE_API_KEY with your own key',
-                          text_color='red', text_align='center'))
 
 plot.title.text = "Cities of the world with a population over 5,000 people."
 

@@ -1,4 +1,26 @@
+''' A Google Map of a bicycle trail alongside the trail's altitude profile, color-coded for steepness.
+
+This example shows how to process a provided sequence of latitude/longitude
+coordinates into a path drawn on a map as well a line plot expressing
+interesting metrics along that path (altitude, steepness) as a function of
+distance. It also shows how to compose multiple Bokeh ``Plot`` objects into a
+custom layout.
+
+Rendering this plot requires a Google Maps Platform `API key`_, which is
+supplied as a command-line argument to the rendering script: ``python3 gmap.py
+<GOOGLE_API_KEY>``.
+
+.. bokeh-example-metadata::
+    :sampledata: mtb.obiszow_mtb_xcm
+    :apis: bokeh.models.plots.Plot, bokeh.models.glyphs.Line, bokeh.models.glyphs.Patches, bokeh.models.layouts.Column, bokeh.models.map_plots.GMapOptions, bokeh.models.map_plots.GMapPlot
+    :refs: :ref:`ug_topics_geo` > :ref:`ug_topics_geo_google_maps`
+    :keywords: mapping, Google Maps, geographical data, GIS, latitude, longitude
+
+.. _API key: https://developers.google.com/maps/documentation/javascript/get-api-key
+'''
+
 from math import atan2, cos, radians, sin, sqrt
+from sys import argv
 
 import numpy as np
 import scipy.ndimage as im
@@ -61,9 +83,12 @@ def prep_data(dataset):
 
 name = "Obiszów MTB XCM"
 
-# Google Maps now requires an API key. You can find out how to get one here:
-# https://developers.google.com/maps/documentation/javascript/get-api-key
-API_KEY = "GOOGLE_API_KEY"
+# For GMaps to function, Google requires you obtain and enable an API key:
+#
+#     https://developers.google.com/maps/documentation/javascript/get-api-key
+#
+# Use an API key supplied as a command-line argument:
+API_KEY = argv[1]
 
 def trail_map(data):
     lon = (min(data.lon) + max(data.lon)) / 2
@@ -79,11 +104,6 @@ def trail_map(data):
     line_source = ColumnDataSource(dict(x=data.lon, y=data.lat, dist=data.dist))
     line = Line(x="x", y="y", line_color="blue", line_width=2)
     plot.add_glyph(line_source, line)
-
-    if plot.api_key == "GOOGLE_API_KEY":
-        plot.add_layout(Label(x=240, y=700, x_units='screen', y_units='screen',
-                              text='Replace GOOGLE_API_KEY with your own key',
-                              text_color='red'))
 
     return plot
 
