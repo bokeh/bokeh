@@ -1,10 +1,8 @@
-<p align="center">
-  <picture>
-    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg">
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
-    <img alt="Bokeh logo -- text is white in dark theme and black in light theme" width="30%"/>
-  </picture>
-</p>
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
+  <img alt="Bokeh logo -- text is white in dark theme and black in light theme" height=60/>
+</picture>
 
 ----
 
@@ -50,6 +48,13 @@
     <a href="https://numfocus.org">
     <img src="https://img.shields.io/badge/sponsor-numfocus-ECD078?style=for-the-badge"
          alt="Link to NumFOCUS" />
+    </a>
+  </td>
+
+  <td>
+    <a href="https://docs.bokeh.org/en/latest/">
+    <img src="https://img.shields.io/badge/documentation-latest-ECD078?style=for-the-badge"
+         alt="Link to documentation" />
     </a>
   </td>
 
