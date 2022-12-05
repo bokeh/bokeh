@@ -1,6 +1,10 @@
-<a href="https://bokeh.org">
-  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
-</a>
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
+    <img alt="Bokeh logo -- text is white in dark theme and black in light theme" width="30%"/>
+  </picture>
+</p>
 
 ----
 
