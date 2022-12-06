@@ -5271,7 +5271,9 @@
     y_offset: 0,
     angle: 0,
     angle_units: "rad",
+    direction: "anticlock",
     padding: 0,
+    editable: false,
   },
   LabelSet: {
     __extends__: "DataAnnotation",

@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from ...core.enums import (
     AngleUnits,
     CoordinateUnits,
+    Direction,
     TextAlign,
     VerticalAlign,
 )
@@ -31,6 +32,7 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Angle,
     AngleSpec,
+    Bool,
     CoordinateLike,
     Enum,
     Float,
@@ -166,12 +168,26 @@ class Label(TextAnnotation):
     The angle to rotate the text, as measured from the horizontal.
     """)
 
-    angle_units = Enum(AngleUnits, default='rad', help="""
+    angle_units = Enum(AngleUnits, default="rad", help="""
     Acceptable values for units are ``"rad"`` and ``"deg"``.
+    """)
+
+    direction = Enum(Direction, default="anticlock", help="""
+    The direction for the angle of the label.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     padding = Padding(default=0, help="""
     Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this label.
 
     .. note::
         This property is experimental and may change at any point.
