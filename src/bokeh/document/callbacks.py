@@ -347,6 +347,22 @@ class DocumentCallbackManager:
     def subscribe(self, key: str, model: Model) -> None:
         self._subscribed_models[key].add(weakref.ref(model))
 
+    def event_callbacks_for_event_name(self, event_name: str) -> tuple[EventCallback, ...]:
+        ''' Return a tuple containing all current event callbacks for the given
+        event name.
+
+        Args:
+            event_name (str) : the event name to look up callbacks for
+
+        '''
+        return tuple(self._event_callbacks.get(event_name, []))
+
+    def change_callbacks(self) -> tuple[DocumentChangeCallback, ...]:
+        ''' Return a tuple containing all current change callbacks.
+
+        '''
+        return tuple(self._change_callbacks.values())
+
     def trigger_event(self, event: Event) -> None:
         # This is fairly gorpy, we are not being careful with model vs doc events, etc.
         if isinstance(event, ModelEvent):
@@ -356,8 +372,7 @@ class DocumentCallbackManager:
                 if model:
                     model._trigger_event(event)
 
-        callbacks = self._event_callbacks.get(event.event_name, []).copy()
-        for cb in callbacks:
+        for cb in self.event_callbacks_for_event_name(event.event_name):
             cb(event)
 
     def trigger_on_change(self, event: DocumentChangedEvent) -> None:
@@ -376,8 +391,7 @@ class DocumentCallbackManager:
             invoke_with_curdoc(doc, event.callback_invoker)
 
         def invoke_callbacks() -> None:
-            callbacks = self._change_callbacks.copy()
-            for cb in callbacks.values():
+            for cb in self.change_callbacks():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
 
