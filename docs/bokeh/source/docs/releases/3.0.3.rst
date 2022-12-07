@@ -1,0 +1,14 @@
+.. _release-3-0-3:
+
+3.0.3
+=====
+
+Bokeh Version ``3.0.3`` (Dec 2022) is a point release that addresses layout
+issues affecting downstream projects, as well as other small regressions and
+bugfixes.
+
+* Fix export with fractional CSS lengths (:bokeh-issue:`12611`)
+* Fix layout propagation in nested mixed layouts  (:bokeh-issue:`12583`)
+* Fix application of UI element styles in Firefox  (:bokeh-issue:`12633`)
+* Add default styles to FILE template (:bokeh-issue:`12627`)
+* Ensure change callback manipulation is threadsafe (:bokeh-issue:`12623`)
