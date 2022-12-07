@@ -34,7 +34,7 @@ p1.circle(x, y, color="navy", size=6, alpha=0.6)
 
 p2 = figure(title="selection on mousemove", **opts)
 p2.square(x, y, color="olive", size=6, alpha=0.6)
-p2.select_one(BoxSelectTool).select_every_mousemove = True
+p2.select_one(BoxSelectTool).continuous = True
 
 p3 = figure(title="default highlight", **opts)
 p3.circle(x, y, color="firebrick", alpha=0.5, size=6)

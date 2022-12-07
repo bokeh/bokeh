@@ -5070,7 +5070,7 @@
       "Drag",
       "SelectTool",
     ],
-    select_every_mousemove: false,
+    continuous: false,
     dimensions: "both",
     overlay: {
       type: "object",
@@ -5101,7 +5101,7 @@
       "Drag",
       "SelectTool",
     ],
-    select_every_mousemove: true,
+    continuous: true,
     overlay: {
       type: "object",
       name: "PolyAnnotation",

@@ -891,7 +891,7 @@ class BoxSelectTool(Drag, SelectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    select_every_mousemove = Bool(False, help="""
+    continuous = Bool(False, help="""
     Whether a selection computation should happen on every mouse event, or only
     once, when the selection region is completed. Default: False
     """)
@@ -955,7 +955,7 @@ class LassoSelectTool(Drag, SelectTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    select_every_mousemove = Bool(True, help="""
+    continuous = Bool(True, help="""
     Whether a selection computation should happen on every mouse event, or only
     once, when the selection region is completed.
     """)

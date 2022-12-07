@@ -45,7 +45,7 @@ export class BoxSelectToolView extends SelectToolView {
     const [[left, right], [top, bottom]] = [sxlim, sylim]
     this.model.overlay.update({left, right, top, bottom})
 
-    if (this.model.select_every_mousemove) {
+    if (this.model.continuous) {
       this._do_select(sxlim, sylim, false, this._select_mode(ev))
     }
   }
@@ -93,7 +93,7 @@ export namespace BoxSelectTool {
 
   export type Props = SelectTool.Props & {
     dimensions: p.Property<Dimensions>
-    select_every_mousemove: p.Property<boolean>
+    continuous: p.Property<boolean>
     overlay: p.Property<BoxAnnotation>
     origin: p.Property<BoxOrigin>
   }
@@ -114,7 +114,7 @@ export class BoxSelectTool extends SelectTool {
 
     this.define<BoxSelectTool.Props>(({Boolean, Ref}) => ({
       dimensions:             [ Dimensions, "both" ],
-      select_every_mousemove: [ Boolean, false ],
+      continuous:             [ Boolean, false ],
       overlay:                [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
       origin:                 [ BoxOrigin, "corner" ],
     }))

@@ -43,7 +43,7 @@ export class LassoSelectToolView extends SelectToolView {
     const [sx, sy] = this.plot_view.frame.bbox.clip(ev.sx, ev.sy)
     this._append_overlay(sx, sy)
 
-    if (this.model.select_every_mousemove) {
+    if (this.model.continuous) {
       this._do_select(this.sxs, this.sys, false, this._select_mode(ev))
     }
   }
@@ -78,7 +78,7 @@ export namespace LassoSelectTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = SelectTool.Props & {
-    select_every_mousemove: p.Property<boolean>
+    continuous: p.Property<boolean>
     overlay: p.Property<PolyAnnotation>
     /** internal */
     persistent: p.Property<boolean>
@@ -99,7 +99,7 @@ export class LassoSelectTool extends SelectTool {
     this.prototype.default_view = LassoSelectToolView
 
     this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
-      select_every_mousemove: [ Boolean, true ],
+      continuous:             [ Boolean, true ],
       overlay:                [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
     }))
 
