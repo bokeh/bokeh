@@ -191,6 +191,28 @@ class TestDocumentCallbackManager:
         cm._change_callbacks[recv](evt)
         assert called == evt
 
+    def test_event_callbacks_for_event_name(self) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        def cb1(event: Any) -> None:
+            pass
+        def cb2(event: Any) -> None:
+            pass
+
+        assert cm.event_callbacks_for_event_name("document_ready") == ()
+        cm.on_event("document_ready", cb1)
+
+        assert cm.event_callbacks_for_event_name("junk") == ()
+
+        assert cm.event_callbacks_for_event_name("document_ready") == (cb1,)
+
+        cm.on_event("document_ready", cb2)
+        cbs = cm.event_callbacks_for_event_name("document_ready")
+        assert isinstance(cbs, tuple)
+        assert len(cbs) == 2
+        assert cb1 in cbs
+        assert cb2 in cbs
+
     def test_on_event_good_string(self) -> None:
         d = Document()
         cm = bdc.DocumentCallbackManager(d)
@@ -248,6 +270,26 @@ class TestDocumentCallbackManager:
 
         with pytest.raises(ValueError):
             cm.on_session_destroyed(bad) # type: ignore  [arg-type]  # want to test bad param
+
+    def test_change_callbacks(self) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        def cb1(x: Any) -> None:
+            pass
+        def cb2(x: Any) -> None:
+            pass
+
+        cm.change_callbacks() == ()
+
+        cm.on_change(cb1)
+        cm.change_callbacks() == (cb1,)
+
+        cm.on_change(cb2)
+        cbs = cm.change_callbacks()
+        assert isinstance(cbs, tuple)
+        assert len(cbs) == 2
+        assert cb1 in cbs
+        assert cb2 in cbs
 
     def test_remove_on_change(self) -> None:
         d = Document()
