@@ -314,10 +314,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     })()
 
-    layout.set_sizing({
-      width_policy: "max", height_policy: "max",
-      visible: this._is_displayed,
-    })
+    layout.set_sizing({width_policy: "max", height_policy: "max"})
 
     if (this.visuals.outline_line.doit) {
       const width = this.visuals.outline_line.line_width.get_value()

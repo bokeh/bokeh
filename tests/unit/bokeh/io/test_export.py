@@ -33,6 +33,7 @@ from bokeh.layouts import row
 from bokeh.models import (
     Circle,
     ColumnDataSource,
+    Div,
     Plot,
     Range1d,
     Rect,
@@ -120,6 +121,12 @@ def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tupl
     w, h, b = width, height, border
     expected_count = w*h - 2*b*(w + h) + 4*b**2
     assert count == expected_count
+
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_fractional_sizing__issue_12611(webdriver: WebDriver) -> None:
+    div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
+    png = bie.get_screenshot_as_png(div, driver=webdriver)
+    assert len(png.tobytes()) > 0
 
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> None:

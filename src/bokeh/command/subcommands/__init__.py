@@ -20,11 +20,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-from typing import List, Type
-
 # Bokeh imports
-from ..subcommand import Argument, Subcommand
+from ..subcommand import Subcommand
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -46,7 +43,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-def _collect() -> list[Type[Subcommand]]:
+def _collect() -> list[type[Subcommand]]:
     from importlib import import_module
     from os import listdir
     from os.path import dirname

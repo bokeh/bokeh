@@ -120,6 +120,10 @@ export abstract class LayoutDOMView extends UIElementView {
     return this.child_models.map((child) => this._child_views.get(child)!)
   }
 
+  get layoutable_views(): LayoutDOMView[] {
+    return this.child_views.filter((c): c is LayoutDOMView => c instanceof LayoutDOMView)
+  }
+
   async build_child_views(): Promise<UIElementView[]> {
     const {created, removed} = await build_views(this._child_views, this.child_models, {parent: this})
 
@@ -332,9 +336,8 @@ export abstract class LayoutDOMView extends UIElementView {
   update_layout(): void {
     this.update_style()
 
-    for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView)
-        child_view.update_layout()
+    for (const child_view of this.layoutable_views) {
+      child_view.update_layout()
     }
 
     this._update_layout()
@@ -351,9 +354,8 @@ export abstract class LayoutDOMView extends UIElementView {
   protected _measure_layout(): void {}
 
   measure_layout(): void {
-    for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView)
-        child_view.measure_layout()
+    for (const child_view of this.layoutable_views) {
+      child_view.measure_layout()
     }
 
     this._measure_layout()
@@ -374,16 +376,23 @@ export abstract class LayoutDOMView extends UIElementView {
     if (this.layout != null) {
       this.layout.compute(this.bbox.size)
 
-      for (const child_view of this.child_views) {
-        if (child_view instanceof LayoutDOMView && child_view.layout == null) {
+      for (const child_view of this.layoutable_views) {
+        if (child_view.layout == null)
           child_view._compute_layout()
-        }
+        else
+          child_view._propagate_layout()
       }
     } else {
-      for (const child_view of this.child_views) {
-        if (child_view instanceof LayoutDOMView) {
-          child_view._compute_layout()
-        }
+      for (const child_view of this.layoutable_views) {
+        child_view._compute_layout()
+      }
+    }
+  }
+
+  protected _propagate_layout(): void {
+    for (const child_view of this.layoutable_views) {
+      if (child_view.layout == null) {
+        child_view._compute_layout()
       }
     }
   }
@@ -394,14 +403,17 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     super.update_bbox()
+
+    if (this.layout != null) {
+      this.layout.visible = this.is_displayed
+    }
   }
 
   protected _after_layout(): void {}
 
   after_layout(): void {
-    for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView)
-        child_view.after_layout()
+    for (const child_view of this.layoutable_views) {
+      child_view.after_layout()
     }
 
     this._after_layout()
@@ -419,7 +431,7 @@ export abstract class LayoutDOMView extends UIElementView {
     }
 
     if (!this._has_finished) {
-      if (!this._is_displayed) {
+      if (!this.is_displayed) {
         this.finish()
       } else  {
         // In case after_resize() wasn't called (see regression test for issue

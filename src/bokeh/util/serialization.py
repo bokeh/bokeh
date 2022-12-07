@@ -32,7 +32,7 @@ import datetime as dt
 import uuid
 from functools import lru_cache
 from threading import Lock
-from typing import TYPE_CHECKING, Any, Type
+from typing import TYPE_CHECKING, Any
 
 # External imports
 import numpy as np
@@ -318,7 +318,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
     # XXX: as long as we can't support 64-bit integers, try to convert
     # to 32-bits. If not possible, let the serializer convert to a less
     # efficient representation and/or deal with any error messaging.
-    def _cast_if_can(array: npt.NDArray[Any], dtype: Type[Any]) -> npt.NDArray[Any]:
+    def _cast_if_can(array: npt.NDArray[Any], dtype: type[Any]) -> npt.NDArray[Any]:
         info = np.iinfo(dtype)
 
         if np.any((array < info.min) | (info.max < array)):

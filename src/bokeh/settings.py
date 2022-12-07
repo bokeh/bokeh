@@ -433,7 +433,7 @@ class PrioritizedSetting(Generic[T]):
 
         raise RuntimeError(f"No configured value found for setting {self._name!r}")
 
-    def __get__(self, instance: Any, owner: Type[Any]) -> PrioritizedSetting[T]:
+    def __get__(self, instance: Any, owner: type[Any]) -> PrioritizedSetting[T]:
         return self
 
     def __set__(self, instance: Any, value: str | T) -> None:
@@ -808,10 +808,10 @@ settings = Settings()
 
 _secret_key = settings.secret_key()
 if _secret_key is not None and len(_secret_key) < 32:
-    import warnings
-    warnings.warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
+    from .util.warnings import warn
+    warn("BOKEH_SECRET_KEY is recommended to have at least 32 bytes of entropy chosen with a cryptographically-random algorithm")
 del _secret_key
 
 if settings.sign_sessions() and settings.secret_key() is None:
-    import warnings
-    warnings.warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to True")
+    from .util.warnings import warn
+    warn("BOKEH_SECRET_KEY must be set if BOKEH_SIGN_SESSIONS is set to True")

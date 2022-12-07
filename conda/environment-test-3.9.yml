@@ -24,7 +24,6 @@ dependencies:
   - colorcet
   - coverage
   - firefox =>96
-  - flake8
   - geckodriver
   - ipython
   - isort 5.8
@@ -34,8 +33,8 @@ dependencies:
   - nodejs 16.*
   - pre-commit
   - psutil
-  - pydot
   - pygments
+  - pygraphviz
   - pytest >=7.0
   - pytest-asyncio
   - pytest-cov >=1.8.1
@@ -72,8 +71,8 @@ dependencies:
     - sphinx-design
     - sphinxext-opengraph
     # tests
-    - flake8-pyi
     - pandas-stubs
+    - ruff ==0.0.144
     - types-boto
     - types-colorama
     - types-mock

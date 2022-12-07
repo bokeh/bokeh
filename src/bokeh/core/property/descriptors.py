@@ -97,7 +97,6 @@ from typing import (
     Any,
     Callable,
     Generic,
-    Type,
     TypeVar,
 )
 
@@ -151,7 +150,7 @@ class AliasPropertyDescriptor(Generic[T]):
         self.property = property
         self.__doc__ = f"This is a compatibility alias for the ``{aliased_name}`` property"
 
-    def __get__(self, obj: HasProps | None, owner: Type[HasProps] | None) -> T:
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
         if obj is not None:
             return getattr(obj, self.aliased_name)
         elif owner is not None:
@@ -200,7 +199,7 @@ class PropertyDescriptor(Generic[T]):
         """
         return f"{self.property}"
 
-    def __get__(self, obj: HasProps | None, owner: Type[HasProps] | None) -> T:
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
         """ Implement the getter for the Python `descriptor protocol`_.
 
         For instance attribute access, we delegate to the |Property|. For
@@ -306,7 +305,7 @@ class PropertyDescriptor(Generic[T]):
         if self.name in obj._unstable_default_values:
             del obj._unstable_default_values[self.name]
 
-    def class_default(self, cls: Type[HasProps], *, no_eval: bool = False):
+    def class_default(self, cls: type[HasProps], *, no_eval: bool = False):
         """ Get the default value for a specific subtype of ``HasProps``,
         which may not be used for an individual instance.
 

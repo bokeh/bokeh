@@ -39,6 +39,7 @@ from typing import TYPE_CHECKING, Any, Dict
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
+from .warnings import warn
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -256,13 +257,12 @@ def _get_sysrandom() -> tuple[Any, bool]:
         using_sysrandom = True
         return sysrandom, using_sysrandom
     except NotImplementedError:
-        import warnings
-        warnings.warn('A secure pseudo-random number generator is not available '
-                      'on your system. Falling back to Mersenne Twister.')
+        warn('A secure pseudo-random number generator is not available '
+             'on your system. Falling back to Mersenne Twister.')
         if settings.secret_key() is None:
-            warnings.warn('A secure pseudo-random number generator is not available '
-                          'and no BOKEH_SECRET_KEY has been set. Setting a secret '
-                          'key will mitigate the lack of a secure generator.')
+            warn('A secure pseudo-random number generator is not available '
+                 'and no BOKEH_SECRET_KEY has been set. Setting a secret '
+                 'key will mitigate the lack of a secure generator.')
         using_sysrandom = False
         return random, using_sysrandom
 
@@ -284,7 +284,7 @@ def _reseed_if_needed(using_sysrandom: bool, secret_key: bytes | None) -> None:
         # time a random string is required. This may change the
         # properties of the chosen random sequence slightly, but this
         # is better than absolute predictability.
-        data = f"{random.getstate()}{time.time()}{secret_key!s}".encode('utf-8')
+        data = f"{random.getstate()}{time.time()}{secret_key!s}".encode()
         random.seed(hashlib.sha256(data).digest())
 
 

@@ -21,9 +21,6 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import warnings
-
 # Bokeh imports
 from ..core.enums import (
     ContextWhich,
@@ -51,6 +48,7 @@ from ..core.validation.errors import MISSING_MERCATOR_DIMENSION
 from ..model import Model
 from ..util.deprecation import deprecated
 from ..util.strings import format_docstring
+from ..util.warnings import warn
 from .tickers import Ticker
 
 #-----------------------------------------------------------------------------
@@ -396,7 +394,7 @@ def _deprecated_datetime_list_format(fmt: list[str]) -> str:
     if len(fmt) == 0:
         raise ValueError("Datetime format list must contain one element")
     if len(fmt) > 1:
-        warnings.warn(f"DatetimeFormatter scales now only accept a single format. Using the first prodvided: {fmt[0]!r} ")
+        warn(f"DatetimeFormatter scales now only accept a single format. Using the first provided: {fmt[0]!r}")
     return fmt[0]
 
 class DatetimeTickFormatter(TickFormatter):

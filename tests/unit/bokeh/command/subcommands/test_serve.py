@@ -511,7 +511,7 @@ def test_unix_socket() -> None:
         os.remove(file_name)
 
     sock.bind(file_name)
-    with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]) as (p, nbsr):
+    with run_bokeh_serve(["--unix-socket", file_name, "--glob", APPS]):
         # The server is not ready is binds to the unix socket
         # very quickly, having some sleep helps
         with requests_unixsocket.monkeypatch():
@@ -521,7 +521,7 @@ def test_unix_socket() -> None:
                     r = requests.get(f"http+unix://{file_name.replace('/', '%2F')}/line_on_off")
                     assert r.status_code == 200
                     break
-                except:
+                except Exception:
                     if t == 10:
                         assert False
                     pass
@@ -552,7 +552,7 @@ def test_no_glob_by_default_on_filename_if_wildcard_in_quotes() -> None:
 
 def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
     pat = re.compile(r'Bokeh app running at: http://localhost:(\d+)/line_on_off')
-    with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+    with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
         port = check_port(nbsr)
         assert port > 0
         assert_pattern(nbsr, pat)
@@ -560,7 +560,7 @@ def test_glob_flag_on_filename_if_wildcard_in_quotes() -> None:
         assert r.status_code == 200
 
 def test_actual_port_printed_out() -> None:
-    with run_bokeh_serve(["--port", "0"]) as (p, nbsr):
+    with run_bokeh_serve(["--port", "0"]) as (_, nbsr):
         port = check_port(nbsr)
         assert port > 0
         r = requests.get(f"http://localhost:{port}/")
@@ -568,30 +568,30 @@ def test_actual_port_printed_out() -> None:
 
 def test_websocket_max_message_size_printed_out() -> None:
     pat = re.compile(r'Torndado websocket_max_message_size set to 12345')
-    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as (p, nbsr):
+    with run_bokeh_serve(["--websocket-max-message-size", "12345"]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 
 class TestXSRF:
 
     def test_printed_option(self) -> None:
         pat = re.compile(r'XSRF cookie protection enabled')
-        with run_bokeh_serve(["--enable-xsrf-cookies"]) as (p, nbsr):
+        with run_bokeh_serve(["--enable-xsrf-cookies"]) as (_, nbsr):
             assert_pattern(nbsr, pat)
 
     def test_printed_envar(self) -> None:
         pat = re.compile(r'XSRF cookie protection enabled')
         with envset(BOKEH_XSRF_COOKIES="yes"):
-            with run_bokeh_serve(["--enable-xsrf-cookies"]) as (p, nbsr):
+            with run_bokeh_serve(["--enable-xsrf-cookies"]) as (_, nbsr):
                 assert_pattern(nbsr, pat)
 
 def test_auth_module_printed() -> None:
     pat = re.compile(r'User authentication hooks provided \(no default user\)')
-    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (p, nbsr):
+    with run_bokeh_serve(["--auth-module", join(split(__file__)[0], "_dummy_auth.py")]) as (_, nbsr):
         assert_pattern(nbsr, pat)
 
 class TestIco:
     def test_default(self) -> None:
-        with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+        with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
             r = requests.get(f"http://localhost:{port}/favicon.ico")
@@ -599,7 +599,7 @@ class TestIco:
             assert r.headers["content-type"] == "image/x-icon"
 
     def test_explicit_option(self) -> None:
-        with run_bokeh_serve(["--port", "0", "--ico-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (p, nbsr):
+        with run_bokeh_serve(["--port", "0", "--ico-path", join(HERE, "favicon-dev.ico"), "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
             r = requests.get(f"http://localhost:{port}/favicon.ico")
@@ -609,7 +609,7 @@ class TestIco:
 
     def test_explicit_envvar(self) -> None:
         with envset(BOKEH_ICO_PATH=join(HERE, "favicon-dev.ico")):
-            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
                 port = check_port(nbsr)
                 assert port > 0
                 r = requests.get(f"http://localhost:{port}/favicon.ico")
@@ -618,7 +618,7 @@ class TestIco:
                 assert r.content == open( join(HERE, "favicon-dev.ico"), "rb").read()
 
     def test_none_option(self) -> None:
-        with run_bokeh_serve(["--port", "0", "--ico-path", "none", "--glob", APPS]) as (p, nbsr):
+        with run_bokeh_serve(["--port", "0", "--ico-path", "none", "--glob", APPS]) as (_, nbsr):
             port = check_port(nbsr)
             assert port > 0
             r = requests.get(f"http://localhost:{port}/favicon.ico")
@@ -626,7 +626,7 @@ class TestIco:
 
     def test_none_envvar(self) -> None:
         with envset(BOKEH_ICO_PATH="none"):
-            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (p, nbsr):
+            with run_bokeh_serve(["--port", "0", "--glob", APPS]) as (_, nbsr):
                 port = check_port(nbsr)
                 assert port > 0
                 r = requests.get(f"http://localhost:{port}/favicon.ico")

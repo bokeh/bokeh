@@ -25,12 +25,7 @@ log = logging.getLogger(__name__)
 import weakref
 from collections import defaultdict
 from functools import wraps
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.enums import HoldPolicy, HoldPolicyType
@@ -42,11 +37,14 @@ from ..events import (
 )
 from ..model import Model
 from ..util.callback_manager import _check_callback
-from .events import (  # RootAddedEvent,; RootRemovedEvent,; TitleChangedEvent,
+from .events import (
     DocumentPatchedEvent,
     ModelChangedEvent,
+    RootAddedEvent,
+    RootRemovedEvent,
     SessionCallbackAdded,
     SessionCallbackRemoved,
+    TitleChangedEvent,
 )
 from .locking import UnlockedDocumentProxy
 
@@ -63,7 +61,14 @@ if TYPE_CHECKING:
 
 __all__ = (
     'DocumentCallbackManager',
+    'DocumentPatchedEvent',
     'invoke_with_curdoc',
+    'ModelChangedEvent',
+    'RootAddedEvent',
+    'RootRemovedEvent',
+    'SessionCallbackAdded',
+    'SessionCallbackRemoved',
+    'TitleChangedEvent',
 )
 
 
@@ -261,10 +266,10 @@ class DocumentCallbackManager:
             self._change_callbacks[callback] = callback
 
     def on_change_dispatch_to(self, receiver: Any) -> None:
-        if not receiver in self._change_callbacks:
+        if receiver not in self._change_callbacks:
             self._change_callbacks[receiver] = lambda event: event.dispatch(receiver)
 
-    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
 
         '''
@@ -342,6 +347,22 @@ class DocumentCallbackManager:
     def subscribe(self, key: str, model: Model) -> None:
         self._subscribed_models[key].add(weakref.ref(model))
 
+    def event_callbacks_for_event_name(self, event_name: str) -> tuple[EventCallback, ...]:
+        ''' Return a tuple containing all current event callbacks for the given
+        event name.
+
+        Args:
+            event_name (str) : the event name to look up callbacks for
+
+        '''
+        return tuple(self._event_callbacks.get(event_name, []))
+
+    def change_callbacks(self) -> tuple[DocumentChangeCallback, ...]:
+        ''' Return a tuple containing all current change callbacks.
+
+        '''
+        return tuple(self._change_callbacks.values())
+
     def trigger_event(self, event: Event) -> None:
         # This is fairly gorpy, we are not being careful with model vs doc events, etc.
         if isinstance(event, ModelEvent):
@@ -351,7 +372,7 @@ class DocumentCallbackManager:
                 if model:
                     model._trigger_event(event)
 
-        for cb in self._event_callbacks.get(event.event_name, []):
+        for cb in self.event_callbacks_for_event_name(event.event_name):
             cb(event)
 
     def trigger_on_change(self, event: DocumentChangedEvent) -> None:
@@ -370,7 +391,7 @@ class DocumentCallbackManager:
             invoke_with_curdoc(doc, event.callback_invoker)
 
         def invoke_callbacks() -> None:
-            for cb in self._change_callbacks.values():
+            for cb in self.change_callbacks():
                 cb(event)
         invoke_with_curdoc(doc, invoke_callbacks)
 

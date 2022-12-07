@@ -1,13 +1,14 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ARG CHROME_DEB=google-chrome-stable_current_amd64.deb
-ARG FIXUID_VERSION=0.5
+ARG FIXUID_VERSION=0.5.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+# fonts-dejavu-core needed for headless chrome unicode characters.
 RUN apt update -y && \
     apt upgrade -y && \
-    apt install -y curl git sudo
+    apt install -y curl fonts-dejavu-core git sudo unzip
 
 # User and group setup using fixuid.
 RUN addgroup --gid 1000 docker && \
@@ -28,6 +29,14 @@ RUN curl -LO https://dl.google.com/linux/direct/$CHROME_DEB && \
     apt autoremove -y && \
     apt clean -y && \
     rm -rf /var/lib/apt/lists/*
+
+# Download correct version of chromedriver and put in path.
+RUN CHROME_VERSION=$(google-chrome --version | awk '{print $NF}' | sed 's/\.[0-9]\+$//g') && \
+    DRIVER_VERSION=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE_$CHROME_VERSION) && \
+    curl -LO https://chromedriver.storage.googleapis.com/$DRIVER_VERSION/chromedriver_linux64.zip && \
+    unzip chromedriver_linux64.zip && \
+    mv chromedriver /usr/bin && \
+    rm chromedriver_linux64.zip
 
 EXPOSE 5006
 

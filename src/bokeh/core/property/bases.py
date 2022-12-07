@@ -202,7 +202,7 @@ class Property(PropertyDescriptorFactory[T]):
         """
         return self._copy_default(self._default, no_eval=no_eval)
 
-    def themed_default(self, cls: Type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> T:
+    def themed_default(self, cls: type[HasProps], name: str, theme_overrides: dict[str, Any] | None, *, no_eval: bool = False) -> T:
         """ The default, transformed by prepare_value() and the theme overrides.
 
         """
@@ -339,7 +339,7 @@ class Property(PropertyDescriptorFactory[T]):
     def _hinted_value(self, value: Any, hint: DocumentPatchedEvent | None) -> Any:
         return value
 
-    def prepare_value(self, owner: HasProps | Type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> T:
+    def prepare_value(self, owner: HasProps | type[HasProps], name: str, value: Any, *, hint: DocumentPatchedEvent | None = None) -> T:
         if value is Intrinsic:
             value = self._raw_default()
         if value is Undefined:
@@ -433,7 +433,7 @@ class Property(PropertyDescriptorFactory[T]):
         self.assertions.append((fn, msg_or_fn))
         return self
 
-    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+    def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
             return new
         else:
@@ -499,7 +499,7 @@ class ParameterizedProperty(Property[T]):
         return super()._may_have_unstable_default() or \
             any(type_param._may_have_unstable_default() for type_param in self.type_params)
 
-    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+    def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
             return new
         else:
@@ -543,7 +543,7 @@ class PrimitiveProperty(Property[T]):
 
     """
 
-    _underlying_type: ClassVar[tuple[Type[Any], ...]]
+    _underlying_type: ClassVar[tuple[type[Any], ...]]
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)

@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, Type, TypeVar
+from typing import Any, TypeVar
 
 # Bokeh imports
 from ...util.strings import nice_join
@@ -105,7 +105,7 @@ class Either(ParameterizedProperty[Any]):
             value = tp.wrap(value)
         return value
 
-    def replace(self, old: Type[Property[Any]], new: Property[Any]) -> Property[Any]:
+    def replace(self, old: type[Property[Any]], new: Property[Any]) -> Property[Any]:
         if self.__class__ == old:
             return new
         else:

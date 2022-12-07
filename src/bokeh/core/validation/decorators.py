@@ -25,7 +25,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Type,
     Union,
     cast,
 )
@@ -65,7 +64,7 @@ def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -
         validation decorator
 
     """
-    issues: Type[Error] | Type[Warning] = \
+    issues: type[Error] | type[Warning] = \
         Error if validator_type == "error" else Warning
 
     def decorator(func: ValidationFunction) -> Validator:

@@ -73,7 +73,8 @@ def test_build_single_handler_application_main_py(mock_warn: MagicMock) -> None:
     f.close() #close file to open it later on windows
     util.build_single_handler_application(f.name)
     assert mock_warn.called
-    assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY,)
+    assert mock_warn.call_args[0] == (DIRSTYLE_MAIN_WARNING_COPY, None)
+    assert mock_warn.call_args[1] == {"stacklevel": 3}
     os.remove(f.name)
 
 #-----------------------------------------------------------------------------

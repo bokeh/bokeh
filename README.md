@@ -1,6 +1,7 @@
-<a href="https://bokeh.org">
-  <img src="https://static.bokeh.org/logos/logotype.svg" height="60" alt="Bokeh logotype" />
-</a>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-white-text-no-padding.svg">
+  <img src="https://raw.githubusercontent.com/bokeh/pm/main/assets/logos/SVG/bokeh-logo-black-text-no-padding.svg" alt="Bokeh logo -- text is white in dark theme and black in light theme" height=60/>
+</picture>
 
 ----
 
@@ -46,6 +47,13 @@
     <a href="https://numfocus.org">
     <img src="https://img.shields.io/badge/sponsor-numfocus-ECD078?style=for-the-badge"
          alt="Link to NumFOCUS" />
+    </a>
+  </td>
+
+  <td>
+    <a href="https://docs.bokeh.org/en/latest/">
+    <img src="https://img.shields.io/badge/documentation-latest-ECD078?style=for-the-badge"
+         alt="Link to documentation" />
     </a>
   </td>
 
@@ -134,15 +142,15 @@
 
 ## Installation
 
-To install Bokeh and its required dependencies using `conda`, enter the following command at a Bash or Windows command prompt:
+To install Bokeh and its required dependencies using `pip`, enter the following command at a Bash or Windows command prompt:
+```
+pip install bokeh
+```
+
+To install `conda`, enter the following command at a Bash or Windows command prompt:
 
 ```
 conda install bokeh
-```
-
-To install using `pip`, enter the following command at a Bash or Windows command prompt:
-```
-pip install bokeh
 ```
 
 Refer to the [installation documentation](https://docs.bokeh.org/en/latest/docs/first_steps/installation.html) for more details.

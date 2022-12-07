@@ -10,7 +10,7 @@
 # -----------------------------------------------------------------------------
 from __future__ import annotations # isort:skip
 
-import pytest  # noqa isort:skip
+import pytest  # isort:skip
 
 # -----------------------------------------------------------------------------
 # Imports

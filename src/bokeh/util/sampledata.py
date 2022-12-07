@@ -150,7 +150,7 @@ def open_csv(filename: str | Path) -> TextIO:
     '''
 
     '''
-    return open(filename, 'r', newline='', encoding='utf8')
+    return open(filename, newline='', encoding='utf8')
 
 #-----------------------------------------------------------------------------
 # Private API

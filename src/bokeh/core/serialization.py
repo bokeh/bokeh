@@ -34,7 +34,6 @@ from typing import (
     Literal,
     NoReturn,
     Sequence,
-    Type,
     TypedDict,
     TypeVar,
     Union,
@@ -201,10 +200,10 @@ ObjID = int
 class Serializer:
     """ Convert built-in and custom types into serializable representations. """
 
-    _encoders: ClassVar[dict[Type[Any], Encoder]] = {}
+    _encoders: ClassVar[dict[type[Any], Encoder]] = {}
 
     @classmethod
-    def register(cls, type: Type[Any], encoder: Encoder) -> None:
+    def register(cls, type: type[Any], encoder: Encoder) -> None:
         assert type not in cls._encoders, f"'{type} is already registered"
         cls._encoders[type] = encoder
 
@@ -687,7 +686,7 @@ class Deserializer:
 
         return instance
 
-    def _resolve_type(self, type: str) -> Type[Model]:
+    def _resolve_type(self, type: str) -> type[Model]:
         from ..model import Model
         cls = Model.model_class_reverse_map.get(type)
         if cls is not None:

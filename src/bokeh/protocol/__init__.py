@@ -26,10 +26,7 @@ import json
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
-    Type,
     overload,
 )
 
@@ -50,7 +47,6 @@ if TYPE_CHECKING:
     from ..core.types import ID
     from ..document.document import Document
     from ..document.events import DocumentPatchedEvent
-    from .receiver import Fragment
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +68,7 @@ MessageType = Literal[
     "SERVER-INFO-REQ",
 ]
 
-SPEC: dict[MessageType, Type[Message[Any]]] = {
+SPEC: dict[MessageType, type[Message[Any]]] = {
     "ACK": ack,
     "ERROR": error,
     "OK": ok,
@@ -96,7 +92,7 @@ class Protocol:
     ''' Provide a message factory for the Bokeh Server message protocol.
 
     '''
-    _messages: dict[MessageType, Type[Message[Any]]]
+    _messages: dict[MessageType, type[Message[Any]]]
 
     def __init__(self) -> None:
         self._messages = SPEC

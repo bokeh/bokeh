@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections.abc import Sequence
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Literal,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Literal
 
 # External imports
 import numpy as np
@@ -141,7 +136,7 @@ def process_axis_and_grid(plot: Plot, axis_type: AxisType | None, axis_location:
 # Private API
 #-----------------------------------------------------------------------------
 
-def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) -> tuple[Type[Axis] | None, Any]:
+def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) -> tuple[type[Axis] | None, Any]:
     if axis_type is None:
         return None, {}
     elif axis_type == "linear":
@@ -170,7 +165,7 @@ def _get_axis_class(axis_type: AxisType | None, range_input: Range, dim: Dim) ->
     else:
         raise ValueError(f"Unrecognized axis_type: '{axis_type!r}'")
 
-def _get_num_minor_ticks(axis_class: Type[Axis], num_minor_ticks: int | Literal["auto"] | None) -> int:
+def _get_num_minor_ticks(axis_class: type[Axis], num_minor_ticks: int | Literal["auto"] | None) -> int:
     if isinstance(num_minor_ticks, int):
         if num_minor_ticks <= 1:
             raise ValueError("num_minor_ticks must be > 1")

@@ -19,9 +19,9 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID
-from bokeh.models import *  # NOQA
+from bokeh.models import *  # noqa: F403
 from bokeh.models import CustomJS
-from bokeh.plotting import *  # NOQA
+from bokeh.plotting import *  # noqa: F403
 
 from bokeh.document import document # isort:skip
 

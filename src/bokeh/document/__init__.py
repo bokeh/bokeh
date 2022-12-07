@@ -33,6 +33,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# isort: skip_file
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -47,9 +49,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-from .document import DEFAULT_TITLE ; DEFAULT_TITLE
-from .document import Document ; Document
-from .locking import without_document_lock ; without_document_lock
+from .document import DEFAULT_TITLE
+from .document import Document
+from .locking import without_document_lock
 
 #-----------------------------------------------------------------------------
 # Dev API

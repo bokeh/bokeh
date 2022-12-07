@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import io
 import os
-import warnings
 from contextlib import contextmanager
 from os.path import abspath, expanduser, splitext
 from tempfile import mkstemp
@@ -47,6 +46,7 @@ from ..document import Document
 from ..embed import file_html
 from ..resources import INLINE, Resources
 from ..themes import Theme
+from ..util.warnings import warn
 from .state import State, curstate
 from .util import default_filename
 
@@ -325,7 +325,7 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
         # Defer this import, it is expensive
         from ..models.plots import Plot
         if not isinstance(obj, Plot):
-            warnings.warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
+            warn("Export method called with width or height argument on a non-Plot model. The size values will be ignored.")
         else:
             with _resized(obj, width, height):
                 return html()
@@ -420,15 +420,15 @@ def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
         const root_view = Object.values(Bokeh.index)[0]
         const {width, height} = root_view.el.getBoundingClientRect()
-        return [width, height, window.devicePixelRatio]
+        return [Math.round(width), Math.round(height), window.devicePixelRatio]
     """
     viewport_size: tuple[int, int, int] = web_driver.execute_script(calculate_viewport_size)
     calculate_window_size = """\
         const [width, height, dpr] = arguments
         return [
             // XXX: outer{Width,Height} can be 0 in headless mode under certain window managers
-            Math.max(0, window.outerWidth - window.innerWidth) + width*dpr,
-            Math.max(0, window.outerHeight - window.innerHeight) + height*dpr,
+            Math.round(Math.max(0, window.outerWidth - window.innerWidth) + width*dpr),
+            Math.round(Math.max(0, window.outerHeight - window.innerHeight) + height*dpr),
         ]
     """
     [width, height] = web_driver.execute_script(calculate_window_size, *viewport_size)

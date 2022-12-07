@@ -33,7 +33,6 @@ from typing import (
     Callable,
     ContextManager,
     Iterator,
-    Type,
 )
 
 # Bokeh imports
@@ -62,7 +61,7 @@ class TmpDir(ContextManager[str]):
     def __init__(self, prefix: str) -> None:
         self._dir = tempfile.mkdtemp(prefix=prefix, dir=_LOCAL_TMP)
 
-    def __exit__(self, type: Type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
+    def __exit__(self, type: type[BaseException] | None, value: BaseException | None, traceback: TracebackType | None) -> None:
         try:
             shutil.rmtree(path=self._dir)
         except Exception as e:

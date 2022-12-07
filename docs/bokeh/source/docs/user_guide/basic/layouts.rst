@@ -90,7 +90,7 @@ This produces the following layout:
     :height: 397px
     :alt: A gridplot with several various plots and widgets arranges in a rows and columns layout.
 
-For complete code see :bokeh-tree:`examples/howto/layouts/dashboard.py`.
+For complete code see :bokeh-tree:`examples/basic/layouts/dashboard.py`.
 
 .. _ug_basic_layouts_sizing_mode:
 

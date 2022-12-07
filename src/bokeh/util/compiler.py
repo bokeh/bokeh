@@ -39,7 +39,6 @@ from typing import (
     Callable,
     Dict,
     Sequence,
-    Type,
 )
 
 # Bokeh imports
@@ -218,7 +217,7 @@ class CustomModel:
     ''' Represent a custom (user-defined) Bokeh model.
 
     '''
-    def __init__(self, cls: Type[HasProps]) -> None:
+    def __init__(self, cls: type[HasProps]) -> None:
         self.cls = cls
 
     @property
@@ -301,7 +300,7 @@ def calc_cache_key(custom_models: dict[str, CustomModel]) -> str:
 
 _bundle_cache: dict[str, str] = {}
 
-def bundle_models(models: Sequence[Type[HasProps]] | None) -> str | None:
+def bundle_models(models: Sequence[type[HasProps]] | None) -> str | None:
     """Create a bundle of selected `models`. """
     custom_models = _get_custom_models(models)
     if custom_models is None:
@@ -465,7 +464,7 @@ def _model_cache_no_op(model: CustomModel, implementation: Implementation) -> At
 
 _CACHING_IMPLEMENTATION = _model_cache_no_op
 
-def _get_custom_models(models: Sequence[Type[HasProps]] | None) -> dict[str, CustomModel] | None:
+def _get_custom_models(models: Sequence[type[HasProps]] | None) -> dict[str, CustomModel] | None:
     """Returns CustomModels for models with a custom `__implementation__`"""
     custom_models: dict[str, CustomModel] = dict()
 

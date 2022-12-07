@@ -7,7 +7,6 @@
 '''
 
 '''
-# This file is excluded from flake8 checking in setup.cfg
 
 #-----------------------------------------------------------------------------
 # Boilerplate

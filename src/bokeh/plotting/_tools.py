@@ -20,7 +20,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import itertools
 import re
-import warnings
 from dataclasses import dataclass
 from typing import (
     TYPE_CHECKING,
@@ -48,6 +47,7 @@ from ..models.tools import (
     Scroll,
     Tap,
 )
+from ..util.warnings import warn
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -153,7 +153,7 @@ def process_tools_arg(plot: Plot, tools: str | Sequence[Tool | str],
 
     repeated_tools = [ str(obj) for obj in _collect_repeated_tools(tool_objs) ]
     if repeated_tools:
-        warnings.warn(f"{','.join(repeated_tools)} are being repeated")
+        warn(f"{','.join(repeated_tools)} are being repeated")
 
     if tooltips is not None:
         for tool_obj in tool_objs:

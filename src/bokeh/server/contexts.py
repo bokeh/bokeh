@@ -218,7 +218,7 @@ class ApplicationContext:
             if request is not None:
                 payload = get_token_payload(token) if token else {}
                 if ('cookies' in payload and 'headers' in payload
-                    and not 'Cookie' in payload['headers']):
+                    and 'Cookie' not in payload['headers']):
                     # Restore Cookie header from cookies dictionary
                     payload['headers']['Cookie'] = '; '.join([
                         f'{k}={v}' for k, v in payload['cookies'].items()

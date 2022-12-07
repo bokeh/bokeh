@@ -81,8 +81,8 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["bokeh"]
-omit = ["*sphinxext/*"]
+source = ["src/bokeh"]
+omit = ["*sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -107,6 +107,21 @@ exclude_lines = [
     "pragma: no cover",
     "if TYPE_CHECKING:",
 ]
+
+[tool.ruff]
+exclude = [
+    ".git",
+    'node_modules',
+]
+per-file-ignores = {"__init__.py" = ["F403"]}
+select = ["E", "F", "M", "U", "W"]
+ignore = [
+    'E402', # Module level import not at top of file
+    'E731', # Do not assign a lambda expression, use a def
+    'E741', # Ambiguous variable name: I
+]
+line-length = 165
+target-version = "py38"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

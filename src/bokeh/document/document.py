@@ -37,12 +37,7 @@ log = logging.getLogger(__name__)
 import gc
 import weakref
 from json import loads
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Iterable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Iterable
 
 # External imports
 from jinja2 import Template
@@ -220,7 +215,7 @@ class Document:
         if isinstance(theme, str):
             try:
                 theme = built_in_themes[theme]
-            except:
+            except KeyError:
                 raise ValueError(f"{theme} is not a built-in theme; available themes are {nice_join(built_in_themes)}")
 
         if not isinstance(theme, Theme):
@@ -529,7 +524,7 @@ class Document:
         '''
         self.callbacks.on_change_dispatch_to(receiver)
 
-    def on_event(self, event: str | Type[Event], *callbacks: EventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
 
         '''
@@ -690,7 +685,7 @@ class Document:
             return None
         return result[0]
 
-    def set_select(self, selector: SelectorType | Type[Model], updates: dict[str, Any]) -> None:
+    def set_select(self, selector: SelectorType | type[Model], updates: dict[str, Any]) -> None:
         ''' Update objects that match a given selector with the specified
         attribute/value updates.
 

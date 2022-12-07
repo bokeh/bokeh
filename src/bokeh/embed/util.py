@@ -28,7 +28,6 @@ from typing import (
     Any,
     Iterator,
     Sequence,
-    Type,
 )
 from weakref import WeakKeyDictionary
 
@@ -77,7 +76,7 @@ class FromCurdoc:
     pass
 
 @contextmanager
-def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdoc] | None = None,
+def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdoc] | None = None,
         always_new: bool = False) -> Iterator[Document]:
     ''' Find or create a (possibly temporary) Document to use for serializing
     Bokeh content.
@@ -141,7 +140,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdo
     docs = {obj.document for obj in objs if obj.document is not None}
 
     if always_new:
-        def finish() -> None: # NOQA
+        def finish() -> None:
             _dispose_temp_doc(objs)
         doc = _create_temp_doc(objs)
     else:
@@ -156,7 +155,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdo
 
             # we are not using all the roots, make a quick clone for outputting purposes
             if set(objs) != set(doc.roots):
-                def finish() -> None: # NOQA
+                def finish() -> None:
                     _dispose_temp_doc(objs)
                 doc = _create_temp_doc(objs)
 
@@ -165,7 +164,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | Type[FromCurdo
 
         # models have mixed docs, just make a quick clone
         else:
-            def finish(): # NOQA
+            def finish():
                 _dispose_temp_doc(objs)
             doc = _create_temp_doc(objs)
 
@@ -417,10 +416,10 @@ def _dispose_temp_doc(models: Sequence[Model]) -> None:
 
 _themes: WeakKeyDictionary[Document, Theme] = WeakKeyDictionary()
 
-def _set_temp_theme(doc: Document, apply_theme: Theme | Type[FromCurdoc] | None) -> None:
+def _set_temp_theme(doc: Document, apply_theme: Theme | type[FromCurdoc] | None) -> None:
     _themes[doc] = doc.theme
     if apply_theme is FromCurdoc:
-        from ..io import curdoc; curdoc
+        from ..io import curdoc
         doc.theme = curdoc().theme
     elif isinstance(apply_theme, Theme):
         doc.theme = apply_theme

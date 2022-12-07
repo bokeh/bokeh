@@ -37,10 +37,8 @@ from typing import (
     Callable,
     Iterator,
     Sequence,
-    Type,
     TypedDict,
 )
-from warnings import warn
 
 # Bokeh imports
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
@@ -49,6 +47,7 @@ from ..model import Model
 from ..resources import BaseResources, Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
+from ..util.warnings import warn
 from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
@@ -237,7 +236,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 # Private API
 #-----------------------------------------------------------------------------
 
-def _query_extensions(objs: Sequence[Model | Document], query: Callable[[Type[Model]], bool]) -> bool:
+def _query_extensions(objs: Sequence[Model | Document], query: Callable[[type[Model]], bool]) -> bool:
     names: set[str] = set()
 
     for obj in _all_objs(objs):

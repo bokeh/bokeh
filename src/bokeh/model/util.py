@@ -21,12 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
@@ -142,7 +137,7 @@ def collect_models(*input_values: Any) -> list[Model]:
     '''
     return collect_filtered_models(None, *input_values)
 
-def get_class(view_model_name: str) -> Type[Model]:
+def get_class(view_model_name: str) -> type[Model]:
     ''' Look up a Bokeh model class, given its view model name.
 
     Args:
@@ -165,11 +160,11 @@ def get_class(view_model_name: str) -> Type[Model]:
 
     '''
 
-    # in order to look up from the model catalog that Model maintains, it
-    # has to be creates first. These imports ensure that all built-in Bokeh
+    # In order to look up from the model catalog that Model maintains, it
+    # has to be created first. These imports ensure that all built-in Bokeh
     # models are represented in the catalog.
-    from .. import models; models
-    from ..plotting import figure, GMap; figure, GMap
+    from .. import models  # noqa: F401
+    from .. import plotting  # noqa: F401
     from .model import Model
 
     known_models = Model.model_class_reverse_map

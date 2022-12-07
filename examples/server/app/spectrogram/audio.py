@@ -34,7 +34,7 @@ try:
                 power = spectrum**2
                 bins = simps(np.split(power, NUM_BINS))
                 data['values'] = signal, spectrum, bins
-            except:
+            except Exception:
                 continue
 
 except ImportError:

@@ -21,7 +21,6 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import warnings
 from contextlib import contextmanager
 from typing import (
     Any,
@@ -74,6 +73,7 @@ from ..core.validation.errors import (
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..util.strings import nice_join
+from ..util.warnings import warn
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
 from .glyphs import Glyph
@@ -951,7 +951,7 @@ Before legend properties can be set, you must add a Legend explicitly, or call a
 class _legend_attr_splat(_list_attr_splat):
     def __setattr__(self, attr, value):
         if not len(self):
-            warnings.warn(_LEGEND_EMPTY_WARNING % attr)
+            warn(_LEGEND_EMPTY_WARNING % attr)
         return super().__setattr__(attr, value)
 
 def _select_helper(args, kwargs):
