@@ -1,3 +1,33 @@
+2022-12-09    3.0.3:
+--------------------
+  * bugfixes:
+    - #12583 [component: bokehjs] [BUG] Nested gridplot collapses figures
+    - #12611 [BUG] `get_screenshot_as_png` 
+    - #12627 [BUG]  sizing_mode="stretch_both" fails since 3.0.0
+    - #12633 [component: bokehjs] [BUG] Styles are not applied to model in Firefox
+    - #12640 [component: bokehjs] [BUG] Embedded plot not sized correctly if not visible from the start
+    - #12623 Ensure change callback manipulation is threadsafe
+
+  * tasks:
+    - #12591 [component: tests] Many `CoverageWarning: Couldn't parse (...)` in unit tests
+    - #12595 [component: docs] More neutral install instructions
+    - #12607 output_notebook uses a deprecated API
+    - #12608 models.util.structure uses deprecated API
+    - #12641 [component: docs] Links to many examples are out of date
+    - #12646 [FEATURE]  Add a find_stack_level to deprecation.py
+    - #12351 Updates to Docker image building and testing
+    - #12547 [component: docs] Added metadata to glyphs.py, multi_legend.py, multi_scale.py
+    - #12605 Replace flake8 with ruff
+    - #12620 Remove LGTM
+    - #12630 Update CodeQL action
+    - #12636 Add CodeQL config
+    - #12639 Disable docker from wheel integration tests
+    - #12645 CodeQL: remove import linter hack
+    - #12654 Resolve issues with code quality checks
+    - #12659 [component: docs] Adapt Bokeh logo for dark theme and add docs badge in README.md
+    - #12662 Backports for 3.0.3
+    - #12663 Updates for 3.0.3
+
 2022-11-14    3.0.2:
 --------------------
   * bugfixes:
