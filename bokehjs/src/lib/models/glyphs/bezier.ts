@@ -56,7 +56,7 @@ export class BezierView extends GlyphView {
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
-        const [x0, y0, x1, y1] = cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
+        const {x0, y0, x1, y1} = cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
         index.add_rect(x0, y0, x1, y1)
       }
     }

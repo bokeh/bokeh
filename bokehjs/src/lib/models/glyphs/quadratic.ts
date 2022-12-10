@@ -50,9 +50,7 @@ export class QuadraticView extends GlyphView {
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()
       else {
-        const [x0, x1] = qbb(x0_i, cx_i, x1_i)
-        const [y0, y1] = qbb(y0_i, cy_i, y1_i)
-
+        const {x0, y0, x1, y1} = qbb(x0_i, y0_i, x1_i, y1_i, cx_i, cy_i)
         index.add_rect(x0, y0, x1, y1)
       }
     }
