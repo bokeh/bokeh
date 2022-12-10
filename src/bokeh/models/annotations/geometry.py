@@ -32,16 +32,14 @@ from ...core.properties import (
     Include,
     Instance,
     InstanceDefault,
-    NonNegative,
     Null,
     Nullable,
     Override,
     Seq,
-    Struct,
     UnitsSpec,
     field,
 )
-from ...core.property.struct import Optional
+from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
     ScalarFillProps,
@@ -62,13 +60,6 @@ __all__ = (
     "Slope",
     "Span",
     "Whisker",
-)
-
-BorderRadius = Struct(
-    top_left=Optional(NonNegative(Float)),
-    top_right=Optional(NonNegative(Float)),
-    bottom_right=Optional(NonNegative(Float)),
-    bottom_left=Optional(NonNegative(Float)),
 )
 
 #-----------------------------------------------------------------------------
@@ -122,7 +113,7 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
-    border_radius = Either(NonNegative(Float), BorderRadius, default=0, help="""
+    border_radius = BorderRadius(default=0, help="""
     Allows the box to have rounded corners.
 
     .. note::
