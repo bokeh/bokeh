@@ -6,7 +6,7 @@ import {inplace} from "core/util/projections"
 import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import {qbb} from "core/util/math"
+import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
 export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {

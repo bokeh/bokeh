@@ -6,7 +6,7 @@ import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
-import {cbb} from "core/util/math"
+import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
 export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
