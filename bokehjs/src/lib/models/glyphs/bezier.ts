@@ -6,75 +6,8 @@ import {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
+import {cbb} from "core/util/math"
 import * as p from "core/properties"
-
-// algorithm adapted from http://stackoverflow.com/a/14429749/3406693
-function _cbb(x0: number, y0: number,
-              x1: number, y1: number,
-              x2: number, y2: number,
-              x3: number, y3: number): [number, number, number, number] {
-  const tvalues: number[] = []
-  const bounds: [number[], number[]] = [[], []]
-
-  for (let i = 0; i <= 2; i++) {
-    let a, b, c
-    if (i === 0) {
-      b = ((6 * x0) - (12 * x1)) + (6 * x2)
-      a = (((-3 * x0) + (9 * x1)) - (9 * x2)) + (3 * x3)
-      c = (3 * x1) - (3 * x0)
-    } else {
-      b = ((6 * y0) - (12 * y1)) + (6 * y2)
-      a = (((-3 * y0) + (9 * y1)) - (9 * y2)) + (3 * y3)
-      c = (3 * y1) - (3 * y0)
-    }
-
-    if (Math.abs(a) < 1e-12) { // Numerical robustness
-      if (Math.abs(b) < 1e-12) // Numerical robustness
-        continue
-      const t = -c / b
-      if (0 < t && t < 1)
-        tvalues.push(t)
-      continue
-    }
-
-    const b2ac = (b * b) - (4 * c * a)
-    const sqrtb2ac = Math.sqrt(b2ac)
-
-    if (b2ac < 0)
-      continue
-
-    const t1 = (-b + sqrtb2ac) / (2 * a)
-    if (0 < t1 && t1 < 1)
-      tvalues.push(t1)
-
-    const t2 = (-b - sqrtb2ac) / (2 * a)
-    if (0 < t2 && t2 < 1)
-      tvalues.push(t2)
-  }
-
-  let j = tvalues.length
-  const jlen = j
-  while (j--) {
-    const t = tvalues[j]
-    const mt = 1 - t
-    const x = (mt * mt * mt * x0) + (3 * mt * mt * t * x1) + (3 * mt * t * t * x2) + (t * t * t * x3)
-    bounds[0][j] = x
-    const y = (mt * mt * mt * y0) + (3 * mt * mt * t * y1) + (3 * mt * t * t * y2) + (t * t * t * y3)
-    bounds[1][j] = y
-  }
-
-  bounds[0][jlen] = x0
-  bounds[1][jlen] = y0
-  bounds[0][jlen + 1] = x3
-  bounds[1][jlen + 1] = y3
-
-  return [
-    Math.min(...bounds[0]),
-    Math.max(...bounds[1]),
-    Math.max(...bounds[0]),
-    Math.min(...bounds[1]),
-  ]
-}
 
 export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
   _x0: FloatArray
@@ -123,7 +56,7 @@ export class BezierView extends GlyphView {
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
       else {
-        const [x0, y0, x1, y1] = _cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
+        const [x0, y0, x1, y1] = cbb(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
         index.add_rect(x0, y0, x1, y1)
       }
     }
