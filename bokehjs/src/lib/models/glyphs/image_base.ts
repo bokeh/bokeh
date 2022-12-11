@@ -116,8 +116,8 @@ export abstract class ImageBaseView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
     const {image_data, sx, sy, sw, sh} = data ?? this
 
-    const old_smoothing = ctx.getImageSmoothingEnabled()
-    ctx.setImageSmoothingEnabled(false)
+    ctx.save()
+    ctx.imageSmoothingEnabled = false
 
     const [x_sign, y_sign] = this.xy_sign
     const [x_scale, y_scale] = this.xy_scale
@@ -147,7 +147,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       }
     }
 
-    ctx.setImageSmoothingEnabled(old_smoothing)
+    ctx.restore()
   }
 
   protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
