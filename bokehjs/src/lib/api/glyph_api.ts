@@ -9,10 +9,10 @@ import * as nd from "core/util/ndarray"
 import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep,
-  HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
-  MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
-  Scatter, Segment, Spline, Step, Text, VArea, VAreaStep, VBar, Wedge,
+  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep, HBand, HBar,
+  HSpan, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine, MultiPolygons,
+  Patch, Patches, Quad, Quadratic, Ray, Rect, Scatter, Segment, Spline, Step, Text, VArea,
+  VAreaStep, VBand, VBar, VSpan, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -110,7 +110,9 @@ export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFi
 export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
 export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
 export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill
+export type HBandArgs         = GlyphArgs<HBand.Props>         & AuxLine & AuxFill
 export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
+export type HSpanArgs         = GlyphArgs<HSpan.Props>         & AuxLine
 export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
 export type ImageArgs         = GlyphArgs<Image.Props>
 export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
@@ -133,7 +135,9 @@ export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
 export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill
+export type VBandArgs         = GlyphArgs<VBand.Props>         & AuxLine & AuxFill
 export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
+export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
 
 export abstract class GlyphAPI {
@@ -242,6 +246,15 @@ export abstract class GlyphAPI {
     return this._glyph(HAreaStep, ["x1", "x2", "y", "step_mode"], args)
   }
 
+  hband(args: Partial<HBandArgs>): TypedGlyphRenderer<HBand>
+  hband(
+    top: HBandArgs["top"],
+    bottom: HBandArgs["bottom"],
+    args?: Partial<HBandArgs>): TypedGlyphRenderer<HBand>
+  hband(...args: unknown[]): TypedGlyphRenderer<HBand> {
+    return this._glyph(HBand, ["top", "bottom"], args)
+  }
+
   hbar(args: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
   hbar(
     y: HBarArgs["y"],
@@ -251,6 +264,14 @@ export abstract class GlyphAPI {
     args?: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
   hbar(...args: unknown[]): TypedGlyphRenderer<HBar> {
     return this._glyph(HBar, ["y", "height", "right", "left"], args)
+  }
+
+  hspan(args: Partial<HSpanArgs>): TypedGlyphRenderer<HSpan>
+  hspan(
+    y: HSpanArgs["y"],
+    args?: Partial<HSpanArgs>): TypedGlyphRenderer<HSpan>
+  hspan(...args: unknown[]): TypedGlyphRenderer<HSpan> {
+    return this._glyph(HSpan, ["y"], args)
   }
 
   hex_tile(args: Partial<HexTileArgs>): TypedGlyphRenderer<HexTile>
@@ -461,6 +482,15 @@ export abstract class GlyphAPI {
     return this._glyph(VAreaStep, ["x", "y1", "y2", "step_mode"], args)
   }
 
+  vband(args: Partial<VBandArgs>): TypedGlyphRenderer<VBand>
+  vband(
+    left: VBandArgs["left"],
+    right: VBandArgs["right"],
+    args?: Partial<VBandArgs>): TypedGlyphRenderer<VBand>
+  vband(...args: unknown[]): TypedGlyphRenderer<VBand> {
+    return this._glyph(VBand, ["left", "right"], args)
+  }
+
   vbar(args: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
   vbar(
     x: VBarArgs["x"],
@@ -470,6 +500,14 @@ export abstract class GlyphAPI {
     args?: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
   vbar(...args: unknown[]): TypedGlyphRenderer<VBar> {
     return this._glyph(VBar, ["x", "width", "top", "bottom"], args)
+  }
+
+  vspan(args: Partial<VSpanArgs>): TypedGlyphRenderer<VSpan>
+  vspan(
+    x: VSpanArgs["x"],
+    args?: Partial<VSpanArgs>): TypedGlyphRenderer<VSpan>
+  vspan(...args: unknown[]): TypedGlyphRenderer<VSpan> {
+    return this._glyph(VSpan, ["x"], args)
   }
 
   wedge(args: Partial<WedgeArgs>): TypedGlyphRenderer<Wedge>

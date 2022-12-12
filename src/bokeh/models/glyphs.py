@@ -110,7 +110,9 @@ __all__ = (
     'Glyph',
     'HArea',
     'HAreaStep',
+    'HBand',
     'HBar',
+    'HSpan',
     'HexTile',
     'Image',
     'ImageRGBA',
@@ -132,7 +134,9 @@ __all__ = (
     'Text',
     'VArea',
     'VAreaStep',
+    'VBand',
     'VBar',
+    'VSpan',
     'Wedge',
     'XYGlyph',
 )
@@ -1716,6 +1720,94 @@ class Wedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the wedges.
+    """)
+
+class HSpan(LineGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    _args = ("y")
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates of the spans.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the spans.
+    """)
+
+class VSpan(LineGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    _args = ("x")
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates of the spans.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the spans.
+    """)
+
+class HBand(LineGlyph, FillGlyph, HatchGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    _args = ("top", "bottom")
+
+    top = NumberSpec(default=field("top"), help="""
+    The y-coordinates of the top edges of the bands.
+    """)
+
+    bottom = NumberSpec(default=field("bottom"), help="""
+    The y-coordinates of the bottom edges of the bands.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the bands.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the bands.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the bands.
+    """)
+
+class VBand(LineGlyph, FillGlyph, HatchGlyph):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    _args = ("left", "right")
+
+    left = NumberSpec(default=field("left"), help="""
+    The x-coordinates of the left edges of the bands.
+    """)
+
+    right = NumberSpec(default=field("right"), help="""
+    The x-coordinates of the right edges of the bands.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the bands.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the bands.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the bands.
     """)
 
 #-----------------------------------------------------------------------------

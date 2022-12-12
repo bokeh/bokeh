@@ -678,6 +678,33 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
+  it("should support HSpan, VSpan, HBand, VBand", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        x_range: [-5, 105], y_range: [-5, 105],
+        output_backend, title: output_backend,
+      })
+
+      p.hspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "red"})
+      p.vspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "blue"})
+
+      p.hband({
+        top: [40, 60, 80], bottom: [50, 70, 90],
+        line_color: "pink",
+        fill_color: "purple",
+        hatch_pattern: "x", hatch_color: "yellow",
+      })
+      p.vband({
+        left: [40, 60, 80], right: [50, 70, 90],
+        line_color: "pink",
+        fill_color: "yellow",
+        hatch_pattern: "/", hatch_color: "purple",
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
   it("should support full circle Wedge", async () => {
     const x = [0, 1, 0, 1]
     const y = [0, 0, 1, 1]
