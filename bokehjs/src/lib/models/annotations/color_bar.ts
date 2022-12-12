@@ -193,7 +193,7 @@ export class ColorBarView extends BaseColorBarView {
     ctx.save()
     ctx.globalAlpha = this.model.scale_alpha
     if (this._image != null) {
-      ctx.setImageSmoothingEnabled(false)
+      ctx.imageSmoothingEnabled = false
       ctx.drawImage(this._image, x, y, width, height)
     }
     if (this.visuals.bar_line.doit) {

@@ -51,9 +51,7 @@ export class WaterfallRendererView extends RendererView {
   protected _render(): void {
     const {ctx} = this.layer
     ctx.save()
-
-    const smoothing = ctx.getImageSmoothingEnabled()
-    ctx.setImageSmoothingEnabled(false)
+    ctx.imageSmoothingEnabled = false
 
     this._update_tiles()
 
@@ -66,14 +64,13 @@ export class WaterfallRendererView extends RendererView {
     ctx.scale(1, -1)
     ctx.translate(0, -sy)
 
-    for (let i = 0; i < sx.length; i++)
+    for (let i = 0; i < sx.length; i++) {
       ctx.drawImage(this.canvases[i], sx[i], sy, sw, sh)
+    }
 
     ctx.translate(0, sy)
     ctx.scale(1, -1)
     ctx.translate(0, -sy)
-
-    ctx.setImageSmoothingEnabled(smoothing)
 
     ctx.restore()
   }
