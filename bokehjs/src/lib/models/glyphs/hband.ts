@@ -11,6 +11,8 @@ export type HBandData = GlyphData & p.UniformsOf<HBand.Mixins> & {
   _top: FloatArray
   _bottom: FloatArray
 
+  sleft: ScreenArray
+  sright: ScreenArray
   stop: ScreenArray
   sbottom: ScreenArray
 }
@@ -21,6 +23,19 @@ export class HBandView extends GlyphView {
   declare model: HBand
   declare visuals: HBand.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {LRTBGL} = await import("./webgl/lrtb")
+      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
+    }
+  }
+
   override get _index_size(): number {
     return 0
   }
@@ -30,6 +45,12 @@ export class HBandView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
+    const {left, right} = this.renderer.plot_view.frame.bbox
+    const n = this.data_size
+    this.sleft = new ScreenArray(n)
+    this.sright = new ScreenArray(n)
+    this.sleft.fill(left)
+    this.sright.fill(right)
     this.stop = map(this.stop, (yi) => round(yi))
     this.sbottom = map(this.sbottom, (yi) => round(yi))
   }

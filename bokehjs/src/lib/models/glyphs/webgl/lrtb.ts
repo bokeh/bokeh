@@ -49,8 +49,12 @@ export class LRTBGL extends SingleMarkerGL {
 
     this._angles.set_from_scalar(0)
 
-    const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
-    this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+    if ("border_radius" in this.glyph) {
+      const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
+      this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+    } else {
+      this._border_radius = [0, 0, 0, 0]
+    }
   }
 
   protected override _set_once(): void {

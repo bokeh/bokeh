@@ -13,6 +13,8 @@ export type VBandData = GlyphData & p.UniformsOf<VBand.Mixins> & {
 
   sleft: ScreenArray
   sright: ScreenArray
+  stop: ScreenArray
+  sbottom: ScreenArray
 }
 
 export interface VBandView extends VBandData {}
@@ -20,6 +22,19 @@ export interface VBandView extends VBandData {}
 export class VBandView extends GlyphView {
   declare model: VBand
   declare visuals: VBand.Visuals
+
+  /** @internal */
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {LRTBGL} = await import("./webgl/lrtb")
+      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
+    }
+  }
 
   override get _index_size(): number {
     return 0
@@ -32,6 +47,12 @@ export class VBandView extends GlyphView {
     const {round} = Math
     this.sleft = map(this.sleft, (xi) => round(xi))
     this.sright = map(this.sright, (xi) => round(xi))
+    const {top, bottom} = this.renderer.plot_view.frame.bbox
+    const n = this.data_size
+    this.stop = new ScreenArray(n)
+    this.sbottom = new ScreenArray(n)
+    this.stop.fill(top)
+    this.sbottom.fill(bottom)
   }
 
   scenterxy(i: number): [number, number] {
