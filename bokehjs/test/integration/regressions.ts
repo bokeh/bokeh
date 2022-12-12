@@ -2802,4 +2802,23 @@ describe("Bug", () => {
       actions.hover(xy(1.1, 1.1))
     })
   })
+
+  describe("in issue #12592", () => {
+    it("allows to select circles outside the selection geometry", async () => {
+      const p = fig([200, 200], {
+        x_axis_location: null,
+        y_axis_location: null,
+        outline_line_color: "black",
+      })
+      const g = p.circle([1, 2, 3], [1, 2, 3], {radius: 0.5})
+
+      const {view: pv} = await display(p)
+      const gv = pv.owner.get_one(g)
+      const sel = gv.model.get_selection_manager()
+      const [sx0, sx1] = pv.frame.x_scale.r_compute(1.25, 2.25)
+      const [sy0, sy1] = pv.frame.y_scale.r_compute(1.25, 2.25)
+      sel.select([gv], {type: "rect", sx0, sy0, sx1, sy1}, true, "append")
+      await pv.ready
+    })
+  })
 })
