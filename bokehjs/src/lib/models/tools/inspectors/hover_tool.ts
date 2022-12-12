@@ -388,10 +388,10 @@ export class HoverToolView extends InspectToolView {
             if (point_policy == "snap_to_data") {
               const pt = glyph.get_anchor_point(anchor, i, [sx, sy])
               if (pt != null)
-                return [pt.x,  pt.y]
+                return [pt.x, pt.y]
               const ptc = glyph.get_anchor_point("center", i, [sx, sy])
               if (ptc != null)
-                return [ptc.x,  ptc.y]
+                return [ptc.x, ptc.y]
               return [sx, sy]
             }
             return [sx, sy]
@@ -412,18 +412,21 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    if (tooltips.length == 0)
+    const {bbox} = this.plot_view.frame
+    const in_frame = tooltips.filter(([sx, sy]) => bbox.contains(sx, sy))
+
+    if (in_frame.length == 0)
       tooltip.clear()
     else {
       const {content} = tooltip
       assert(content instanceof Element)
       empty(content)
-      for (const [,, node] of tooltips) {
+      for (const [,, node] of in_frame) {
         if (node != null)
           content.appendChild(node)
       }
 
-      const [x, y] = tooltips[tooltips.length-1]
+      const [x, y] = in_frame[in_frame.length-1]
       tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
     }
   }

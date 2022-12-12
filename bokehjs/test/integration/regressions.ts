@@ -2426,7 +2426,7 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       const actions = new PlotActions(view)
-      actions.hover(xy(3, 3), xy(3, 3))
+      actions.hover(xy(3, 3))
     })
   })
 
@@ -2574,7 +2574,7 @@ describe("Bug", () => {
 
       const pv = view.owner.get_one(p00)
       const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1), xy(2, 1))
+      await actions.hover(xy(2, 1))
     })
 
     it("allows to cut tooltips short in layouts", async () => {
@@ -2594,7 +2594,7 @@ describe("Bug", () => {
 
       const pv = view.owner.get_one(p00)
       const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1), xy(2, 1))
+      await actions.hover(xy(2, 1))
     })
   })
 
@@ -2788,6 +2788,18 @@ describe("Bug", () => {
       // for painting, but it looks like one await cycle is not enough for resize observer
       // to do its job.
       await paint()
+    })
+  })
+
+  describe("in issue #12410", () => {
+    it("allows positioning of hover tool tooltips outside the frame", async () => {
+      const plot = fig([200, 200], {x_range: [1, 2], y_range: [1, 2], tools: "hover"})
+      plot.circle([0.9], [0.9], {radius: 0.5})
+
+      const {view} = await display(plot)
+
+      const actions = new PlotActions(view)
+      actions.hover(xy(1.1, 1.1))
     })
   })
 })
