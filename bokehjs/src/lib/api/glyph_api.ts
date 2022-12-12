@@ -41,6 +41,17 @@ export type ColorAlpha = {
   muted_alpha: AlphaArg
 }
 
+export type AuxHatch = {
+  selection_hatch_color: ColorArg
+  selection_hatch_alpha: AlphaArg
+  nonselection_hatch_color: ColorArg
+  nonselection_hatch_alpha: AlphaArg
+  hover_hatch_color: ColorArg
+  hover_hatch_alpha: AlphaArg
+  muted_hatch_color: ColorArg
+  muted_hatch_alpha: AlphaArg
+}
+
 export type AuxFill = {
   selection_fill_color: ColorArg
   selection_fill_alpha: AlphaArg
@@ -101,44 +112,44 @@ export type UnitsOf<P> = {
 
 export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 
-export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill
-export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
+export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
+export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
-export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill
-export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
-export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
-export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
-export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill
-export type HBandArgs         = GlyphArgs<HBand.Props>         & AuxLine & AuxFill
-export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
+export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
+export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill & AuxHatch
+export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill & AuxHatch
+export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill & AuxHatch
+export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill & AuxHatch
+export type HBandArgs         = GlyphArgs<HBand.Props>         & AuxLine & AuxFill & AuxHatch
+export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill & AuxHatch
 export type HSpanArgs         = GlyphArgs<HSpan.Props>         & AuxLine
-export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
+export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill & AuxHatch
 export type ImageArgs         = GlyphArgs<Image.Props>
 export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
 export type ImageStackArgs    = GlyphArgs<ImageStack.Props>
 export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
 export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
-export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
+export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill & AuxHatch
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
-export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
-export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
-export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
+export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill & AuxHatch
+export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
+export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
+export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
 export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
 export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
-export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
-export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
+export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill & AuxHatch
+export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill & AuxHatch
 export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
 export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
-export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
-export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
-export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill
-export type VBandArgs         = GlyphArgs<VBand.Props>         & AuxLine & AuxFill
-export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
+export type TextArgs          = GlyphArgs<Text.Props>                                          & AuxText
+export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill & AuxHatch
+export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill & AuxHatch
+export type VBandArgs         = GlyphArgs<VBand.Props>         & AuxLine & AuxFill & AuxHatch
+export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill & AuxHatch
 export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
-export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
+export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G>
