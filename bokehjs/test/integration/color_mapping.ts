@@ -2,11 +2,7 @@ import {display, fig, grid} from "./_util"
 
 import pipeline from "./_data"
 
-import {
-  Plot, Range1d, GlyphRenderer,
-  LinearColorMapper, EqHistColorMapper,
-  ColorBar,
-} from "@bokehjs/models"
+import {Range1d, LinearColorMapper, EqHistColorMapper, ColorBar} from "@bokehjs/models"
 import {Plasma256} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
@@ -183,7 +179,6 @@ describe("Color mapping", () => {
         fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
-      mapper.domain.push([g0, "radius"])
 
       const p1 = fig([250, 250], {x_range: range(), y_range: range()})
       const [x1, y1, r1] = data_flat(1.0)
@@ -192,7 +187,6 @@ describe("Color mapping", () => {
         fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
-      mapper.domain.push([g1, "radius"])
 
       const p2 = fig([250, 250], {x_range: range(), y_range: range()})
       const [x2, y2, r2] = data_flat(1.2)
@@ -201,7 +195,6 @@ describe("Color mapping", () => {
         fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
-      mapper.domain.push([g2, "radius"])
 
       const p3 = fig([250, 250], {x_range: range(), y_range: range()})
       const [x3, y3, r3] = data_sloped(2.0)
@@ -210,24 +203,26 @@ describe("Color mapping", () => {
         fill_color: {field: "radius", transform: mapper},
         fill_alpha: 0.6, line_color: null,
       })
-      mapper.domain.push([g3, "radius"])
 
-      // XXX: force change due to using Array.push()
-      mapper.properties.domain.change.emit()
+      mapper.domain = [
+        [g0, "radius"],
+        [g1, "radius"],
+        [g2, "radius"],
+        [g3, "radius"],
+      ]
 
-      return grid([[p0, p1], [p2, p3]])
+      return {grid: grid([[p0, p1], [p2, p3]]), p3, g3}
     }
 
     it("should work", async () => {
-      const grid = make_grid()
+      const {grid} = make_grid()
       await display(grid)
     })
 
     it("should work after panning", async () => {
-      const grid = make_grid()
+      const {grid, p3} = make_grid()
       const {view} = await display(grid)
-      const pv3 = view.child_views[3] as Plot["__view_type__"]
-      const p3 = pv3.model
+      const pv3 = view.owner.get_one(p3)
       // TODO: synchronized
       p3.x_range.start = -60
       p3.x_range.end = 40
@@ -237,11 +232,10 @@ describe("Color mapping", () => {
     })
 
     it("should work after selection", async () => {
-      const grid = make_grid()
+      const {grid, p3, g3} = make_grid()
       const {view} = await display(grid)
-      const pv3 = view.child_views[3] as Plot["__view_type__"]
-      const g3 = pv3.model.renderers[0] as GlyphRenderer
-      const gv3 = pv3.renderer_view(g3)!
+      const pv3 = view.owner.get_one(p3)
+      const gv3 = view.owner.get_one(g3)
       const sel = gv3.model.get_selection_manager()
       const [sx0, sx1] = pv3.frame.x_scale.r_compute(20, 40)
       const [sy0, sy1] = pv3.frame.y_scale.r_compute(20, 40)
