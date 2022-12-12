@@ -69,7 +69,8 @@ describe("core/visuals", () => {
         const model = new SomeModel(attrs)
         const view = await build_view(model)
 
-        const ctx = {} as Context2d
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")! as Context2d
         view.visuals.fill.set_value(ctx)
 
         expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
@@ -120,14 +121,15 @@ describe("core/visuals", () => {
         const view = await build_view(model)
         const {line} = view.visuals
 
-        const ctx = {} as Context2d
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")! as Context2d
         line.set_value(ctx)
 
         expect(ctx.strokeStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
         expect(ctx.lineWidth).to.be.equal(2)
         expect(ctx.lineJoin).to.be.equal("miter")
         expect(ctx.lineCap).to.be.equal("butt")
-        expect(ctx.lineDash).to.be.equal([1, 2])
+        expect(ctx.getLineDash()).to.be.equal([1, 2])
         expect(ctx.lineDashOffset).to.be.equal(2)
       })
     })
@@ -184,7 +186,8 @@ describe("core/visuals", () => {
         const view = await build_view(model)
         const {text} = view.visuals
 
-        const ctx = {} as Context2d
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")! as Context2d
         text.set_value(ctx)
 
         expect(ctx.fillStyle).to.be.equal("rgba(255, 0, 0, 0.6)") // #ff000099
@@ -227,7 +230,7 @@ describe("core/visuals", () => {
 
       it("should get initialized with appropriate indices", async () => {
         const circle = new Circle({fill_color: {field: "fill_color"}, fill_alpha: {field: "fill_alpha"}})
-        const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 1]}
+        const data = {fill_color: ["red", "green", "blue"], fill_alpha: [0, 0.6, 0.8]}
         const renderer_view = await create_glyph_renderer_view(circle, data)
 
         const filter = new IndexFilter({indices: [1, 2]})
@@ -235,11 +238,13 @@ describe("core/visuals", () => {
         // XXX: need to manually set_data because signals for renderer aren't connected by create_glyph_view util
         renderer_view.set_data()
 
-        const ctx = {} as Context2d
+        const canvas = document.createElement("canvas")
+        const ctx = canvas.getContext("2d")! as Context2d
+
         const glyph_view = renderer_view.glyph as CircleView
         glyph_view.visuals.fill.set_vectorize(ctx, 1)
 
-        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 1)") // #ff000099
+        expect(ctx.fillStyle).to.be.equal("rgba(0, 0, 255, 0.8)")
       })
     })
   })

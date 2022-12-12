@@ -146,7 +146,7 @@ export class HTMLLabelSetView extends DataAnnotationView {
       this.visuals.border_line.set_vectorize(ctx, i)
 
       // attempt to support vector-style ("8 4 8") line dashing for css mode
-      el.style.borderStyle = ctx.lineDash.length < 2 ? "solid" : "dashed"
+      el.style.borderStyle = ctx.getLineDash().length < 2 ? "solid" : "dashed"
       el.style.borderWidth = `${ctx.lineWidth}px`
       el.style.borderColor = ctx.strokeStyle as string
     }
