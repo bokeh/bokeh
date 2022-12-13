@@ -259,11 +259,11 @@ export abstract class GlyphAPI {
 
   hband(args: Partial<HBandArgs>): TypedGlyphRenderer<HBand>
   hband(
-    top: HBandArgs["top"],
-    bottom: HBandArgs["bottom"],
+    y0: HBandArgs["y0"],
+    y1: HBandArgs["y1"],
     args?: Partial<HBandArgs>): TypedGlyphRenderer<HBand>
   hband(...args: unknown[]): TypedGlyphRenderer<HBand> {
-    return this._glyph(HBand, ["top", "bottom"], args)
+    return this._glyph(HBand, ["y0", "y1"], args)
   }
 
   hbar(args: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
@@ -495,11 +495,11 @@ export abstract class GlyphAPI {
 
   vband(args: Partial<VBandArgs>): TypedGlyphRenderer<VBand>
   vband(
-    left: VBandArgs["left"],
-    right: VBandArgs["right"],
+    x0: VBandArgs["x0"],
+    x1: VBandArgs["x1"],
     args?: Partial<VBandArgs>): TypedGlyphRenderer<VBand>
   vband(...args: unknown[]): TypedGlyphRenderer<VBand> {
-    return this._glyph(VBand, ["left", "right"], args)
+    return this._glyph(VBand, ["x0", "x1"], args)
   }
 
   vbar(args: Partial<VBarArgs>): TypedGlyphRenderer<VBar>

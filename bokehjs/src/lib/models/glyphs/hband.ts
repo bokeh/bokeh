@@ -8,13 +8,11 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import * as p from "core/properties"
 
 export type HBandData = GlyphData & p.UniformsOf<HBand.Mixins> & {
-  _top: FloatArray
-  _bottom: FloatArray
+  _y0: FloatArray
+  _y1: FloatArray
 
-  sleft: ScreenArray
-  sright: ScreenArray
-  stop: ScreenArray
-  sbottom: ScreenArray
+  sy0: ScreenArray
+  sy1: ScreenArray
 }
 
 export interface HBandView extends HBandData {}
@@ -36,6 +34,30 @@ export class HBandView extends GlyphView {
     }
   }
 
+  get sleft(): ScreenArray {
+    const {left} = this.renderer.plot_view.frame.bbox
+    const n = this.data_size
+    const sleft = new ScreenArray(n)
+    sleft.fill(left)
+    return sleft
+  }
+
+  get sright(): ScreenArray {
+    const {right} = this.renderer.plot_view.frame.bbox
+    const n = this.data_size
+    const sright = new ScreenArray(n)
+    sright.fill(right)
+    return sright
+  }
+
+  get stop(): ScreenArray {
+    return this.sy0
+  }
+
+  get sbottom(): ScreenArray {
+    return this.sy1
+  }
+
   override get _index_size(): number {
     return 0
   }
@@ -45,43 +67,37 @@ export class HBandView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    const {left, right} = this.renderer.plot_view.frame.bbox
-    const n = this.data_size
-    this.sleft = new ScreenArray(n)
-    this.sright = new ScreenArray(n)
-    this.sleft.fill(left)
-    this.sright.fill(right)
-    this.stop = map(this.stop, (yi) => round(yi))
-    this.sbottom = map(this.sbottom, (yi) => round(yi))
+    this.sy0 = map(this.sy0, (yi) => round(yi))
+    this.sy1 = map(this.sy1, (yi) => round(yi))
   }
 
   scenterxy(i: number): [number, number] {
     const {hcenter} = this.renderer.plot_view.frame.bbox
-    return [hcenter, (this.sbottom[i] - this.stop[i])/2]
+    return [hcenter, (this.sy0[i] + this.sy1[i])/2]
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: HBandData): void {
-    const {stop, sbottom} = data ?? this
+    const {sy0, sy1} = data ?? this
     const {left, right, width} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {
-      const stop_i = stop[i]
-      const sbottom_i = sbottom[i]
+      const sy0_i = sy0[i]
+      const sy1_i = sy1[i]
 
-      if (!isFinite(stop_i + sbottom_i))
+      if (!isFinite(sy0_i + sy1_i))
         continue
 
       ctx.beginPath()
-      ctx.rect(left, stop_i, width, sbottom_i - stop_i)
+      ctx.rect(left, sy0_i, width, sy1_i - sy0_i)
 
       this.visuals.fill.apply(ctx, i)
       this.visuals.hatch.apply(ctx, i)
 
       ctx.beginPath()
-      ctx.moveTo(left, stop_i)
-      ctx.lineTo(right, stop_i)
-      ctx.moveTo(left, sbottom_i)
-      ctx.lineTo(right, sbottom_i)
+      ctx.moveTo(left, sy0_i)
+      ctx.lineTo(right, sy0_i)
+      ctx.moveTo(left, sy1_i)
+      ctx.lineTo(right, sy1_i)
 
       this.visuals.line.apply(ctx, i)
     }
@@ -92,8 +108,8 @@ export namespace HBand {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
-    top: p.CoordinateSpec
-    bottom: p.CoordinateSpec
+    y0: p.CoordinateSpec
+    y1: p.CoordinateSpec
   } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
@@ -117,8 +133,8 @@ export class HBand extends Glyph {
     this.mixins<HBand.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<HBand.Props>(() => ({
-      top: [ p.YCoordinateSpec, {field: "top"} ],
-      bottom: [ p.YCoordinateSpec, {field: "bottom"} ],
+      y0: [ p.YCoordinateSpec, {field: "y0"} ],
+      y1: [ p.YCoordinateSpec, {field: "y1"} ],
     }))
   }
 }

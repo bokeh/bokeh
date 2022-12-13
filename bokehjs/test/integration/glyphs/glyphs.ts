@@ -689,13 +689,13 @@ describe("Glyph models", () => {
       p.vspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "blue"})
 
       p.hband({
-        top: [40, 60, 80], bottom: [50, 70, 90],
+        y0: [40, 60, 80], y1: [50, 70, 90],
         line_color: "pink",
         fill_color: "purple",
         hatch_pattern: "x", hatch_color: "yellow",
       })
       p.vband({
-        left: [40, 60, 80], right: [50, 70, 90],
+        x0: [40, 60, 80], x1: [50, 70, 90],
         line_color: "pink",
         fill_color: "yellow",
         hatch_pattern: "/", hatch_color: "purple",

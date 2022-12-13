@@ -2777,13 +2777,13 @@
       "FillGlyph",
       "HatchGlyph",
     ],
-    top: {
+    y0: {
       type: "field",
-      field: "top",
+      field: "y0",
     },
-    bottom: {
+    y1: {
       type: "field",
-      field: "bottom",
+      field: "y1",
     },
     line_color: {
       type: "value",
@@ -2851,13 +2851,13 @@
       "FillGlyph",
       "HatchGlyph",
     ],
-    left: {
+    x0: {
       type: "field",
-      field: "left",
+      field: "x0",
     },
-    right: {
+    x1: {
       type: "field",
-      field: "right",
+      field: "x1",
     },
     line_color: {
       type: "value",
