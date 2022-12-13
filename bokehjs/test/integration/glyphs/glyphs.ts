@@ -702,7 +702,7 @@ describe("Glyph models", () => {
       })
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support full circle Wedge", async () => {
