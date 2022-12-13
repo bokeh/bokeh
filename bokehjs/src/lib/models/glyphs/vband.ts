@@ -1,10 +1,12 @@
+import {Glyph, GlyphView, GlyphData} from "./glyph"
+import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {PointGeometry/*, SpanGeometry, RectGeometry*/} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
-import {Glyph, GlyphView, GlyphData} from "./glyph"
 import * as p from "core/properties"
 
 export type VBandData = GlyphData & p.UniformsOf<VBand.Mixins> & {
@@ -101,6 +103,31 @@ export class VBandView extends GlyphView {
 
       this.visuals.line.apply(ctx, i)
     }
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const {sx} = geometry
+
+    function contains(sx0: number, sx1: number) {
+      if (sx0 <= sx1)
+        return sx0 <= sx && sx <= sx1
+      else
+        return sx1 <= sx && sx <= sx0
+    }
+
+    const {sx0, sx1} = this
+    const n = this.data_size
+    const indices: number[] = []
+
+    for (let i = 0; i < n; i++) {
+      const sx0_i = sx0[i]
+      const sx1_i = sx1[i]
+      if (contains(sx0_i, sx1_i)) {
+        indices.push(i)
+      }
+    }
+
+    return new Selection({indices})
   }
 }
 

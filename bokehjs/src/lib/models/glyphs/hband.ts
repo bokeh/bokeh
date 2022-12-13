@@ -1,10 +1,12 @@
+import {Glyph, GlyphView, GlyphData} from "./glyph"
+import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
+import {PointGeometry/*, SpanGeometry, RectGeometry*/} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
-import {Glyph, GlyphView, GlyphData} from "./glyph"
 import * as p from "core/properties"
 
 export type HBandData = GlyphData & p.UniformsOf<HBand.Mixins> & {
@@ -102,6 +104,45 @@ export class HBandView extends GlyphView {
       this.visuals.line.apply(ctx, i)
     }
   }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const {sy} = geometry
+
+    function contains(sy0: number, sy1: number) {
+      if (sy0 <= sy1)
+        return sy0 <= sy && sy <= sy1
+      else
+        return sy1 <= sy && sy <= sy0
+    }
+
+    const {sy0, sy1} = this
+    const n = this.data_size
+    const indices: number[] = []
+
+    for (let i = 0; i < n; i++) {
+      const sy0_i = sy0[i]
+      const sy1_i = sy1[i]
+      if (contains(sy0_i, sy1_i)) {
+        indices.push(i)
+      }
+    }
+
+    return new Selection({indices})
+  }
+
+  /*
+  protected override _hit_span(_geometry: SpanGeometry): Selection {
+    //const {sy, direction} = geometry
+    const indices: number[] = []
+    return new Selection({indices})
+  }
+
+  protected override _hit_rect(_geometry: RectGeometry): Selection {
+    //const {sy0, sy1} = geometry
+    const indices: number[] = []
+    return new Selection({indices})
+  }
+  */
 }
 
 export namespace HBand {
