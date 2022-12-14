@@ -27,13 +27,7 @@ export class ToolbarPanelView extends AnnotationView {
   }
 
   toolbar_view: ToolbarView
-  el: HTMLElement
-
-  override initialize(): void {
-    super.initialize()
-    this.el = div()
-    this.plot_view.canvas_view.add_event(this.el)
-  }
+  readonly el: HTMLElement = div()
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -89,6 +83,7 @@ export class ToolbarPanelView extends AnnotationView {
       empty(this.el)
       this.el.appendChild(this.toolbar_view.el)
       this.toolbar_view.render()
+      this.plot_view.canvas_view.add_event(this.el)
       this.toolbar_view.after_render()
       this._invalidate_toolbar = false
     }
