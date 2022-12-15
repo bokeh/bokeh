@@ -1,11 +1,10 @@
-import CSS from "css"
-
 import {join, relative} from "path"
 import {argv} from "yargs"
 import fs from "fs"
 
 import {task, passthrough, BuildError} from "../task"
 import {rename, read, write, scan} from "@compiler/sys"
+import {wrap_css_modules} from "@compiler/styles"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker, AssemblyOptions} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
@@ -22,65 +21,12 @@ task("scripts:version", async () => {
 })
 
 task("scripts:styles", ["styles:compile"], async () => {
-  const css_base = paths.build_dir.css
+  const css_dir = paths.build_dir.css
+  const js_dir = paths.build_dir.lib
+  const dts_dir = paths.build_dir.types
+  const dts_internal_dir = join(paths.build_dir.all, "dts")
 
-  function* collect_classes(ast: CSS.Stylesheet) {
-    const {stylesheet} = ast
-    if (stylesheet == null)
-      return
-
-    for (const rule of stylesheet.rules) {
-      if (rule.type == "rule") {
-        const {selectors} = rule as CSS.Rule
-
-        for (const selector of selectors ?? []) {
-          const classes = selector.match(/\.[A-Za-z0-9_-]+/g)
-          if (classes != null) {
-            for (const cls of classes) {
-              yield cls.substring(1)
-            }
-          }
-        }
-      }
-    }
-  }
-
-  for (const css_path of scan(css_base, [".css"])) {
-    const sub_path = relative(css_base, css_path)
-
-    const css_in = read(css_path)!
-    const ast = CSS.parse(css_in)
-
-    const js: string[] = []
-    const dts: string[] = []
-    const dts_internal: string[] = []
-
-    dts_internal.push(`declare module "styles/${sub_path.replace(/\\/g, "/")}" {`)
-
-    const classes = new Set(collect_classes(ast))
-    for (const cls of classes) {
-      if (!cls.startsWith("bk-"))
-        continue
-      const ident = cls.replace(/^bk-/, "").replace(/-/g, "_")
-      js.push(`export const ${ident} = "${cls}"`)
-      dts.push(`export const ${ident}: string`)
-      dts_internal.push(`  export const ${ident}: string`)
-    }
-
-    const css_out = CSS.stringify(ast, {compress: true})
-    js.push(`export default \`${css_out}\``)
-    dts.push("export default \"\"")
-    dts_internal.push("  export default \"\"")
-    dts_internal.push("}")
-
-    const js_file = `${join(paths.build_dir.lib, "styles", sub_path)}.js`
-    const dts_file = `${join(paths.build_dir.types, "styles", sub_path)}.d.ts`
-    const dts_internal_file = `${join(paths.build_dir.all, "dts", "styles", sub_path)}.d.ts`
-
-    write(js_file, `${js.join("\n")}\n`)
-    write(dts_file, `${dts.join("\n")}\n`)
-    write(dts_internal_file, `${dts_internal.join("\n")}\n`)
-  }
+  wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
 })
 
 task("scripts:glsl", async () => {

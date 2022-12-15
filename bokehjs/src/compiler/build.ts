@@ -296,6 +296,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const dist_dir = join(base_dir, "dist")
   const lib_dir = options.outDir ?? dist_dir
   const dts_dir = options.declarationDir ?? lib_dir
+  const dts_internal_dir = join(dist_dir, "dts")
 
   const styles_dir = join(base_dir, "styles")
   const css_dir = join(dist_dir, "css")
@@ -304,7 +305,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (!await compile_styles(styles_dir, css_dir))
     success = false
 
-  wrap_css_modules(css_dir, lib_dir, dts_dir)
+  wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
   const transformers = default_transformers(options)
   const host = compiler_host(new Map(), options, bokehjs_dir)
