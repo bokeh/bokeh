@@ -83,6 +83,8 @@ def test_Legend() -> None:
     legend = Legend()
     assert legend.location == 'top_right'
     assert legend.orientation == 'vertical'
+    assert legend.ncols == "auto"
+    assert legend.nrows == "auto"
     assert legend.title is None
     assert legend.title_standoff == 5
     assert legend.label_standoff == 5
@@ -100,6 +102,8 @@ def test_Legend() -> None:
     check_properties_existence(legend, ANNOTATION + [
         "location",
         "orientation",
+        "ncols",
+        "nrows",
         "title",
         "title_standoff",
         "label_standoff",

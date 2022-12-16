@@ -4887,6 +4887,8 @@
     __extends__: "Annotation",
     location: "top_right",
     orientation: "vertical",
+    ncols: "auto",
+    nrows: "auto",
     title: null,
     title_text_color: "#444444",
     title_text_outline_color: null,

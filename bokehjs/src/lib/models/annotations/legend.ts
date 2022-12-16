@@ -15,7 +15,7 @@ import {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Grid, ContentLayoutable, Sizeable} from "core/layout"
 
-const {max} = Math
+const {max, floor} = Math
 
 type HitTarget = {type: "entry", entry: LegendEntry}
 
@@ -121,15 +121,12 @@ export class LegendView extends AnnotationView {
     }
 
     const entries = []
-    let row = 0
-    let col = 0
     for (const item of this.model.items) {
       // set a backref on render so that items can later signal item_change
       // upates on the model to trigger a re-render
       item.legend = this.model
 
       const labels = item.get_labels_list_from_label_prop()
-
       for (const label of labels) {
         const text_box = new TextBox({text: `${label}`}) // XXX: not always string
         text_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "center"}
@@ -138,10 +135,53 @@ export class LegendView extends AnnotationView {
         const layout = new LegendEntry(item, label, text_box, this.model)
         layout.set_sizing({visible: item.visible})
 
-        entries.push({layout, row, col})
-        vertical ? row++ : col++
+        entries.push({layout, row: 0, col: 0})
       }
     }
+
+    const {ncols, nrows} = (() => {
+      let {ncols, nrows} = this.model
+      const n = entries.length
+      if (vertical) {
+        if (nrows != "auto") {
+        } else if (ncols != "auto")
+          nrows = floor(n / ncols)
+        else
+          nrows = Infinity
+        ncols = Infinity
+      } else {
+        if (ncols != "auto") {
+        } else if (nrows != "auto")
+          ncols = floor(n / nrows)
+        else
+          ncols = Infinity
+        nrows = Infinity
+      }
+      return {ncols, nrows}
+    })()
+
+    let row = 0
+    let col = 0
+
+    for (const entry of entries) {
+      entry.row = row
+      entry.col = col
+
+      if (vertical) {
+        row += 1
+        if (row >= nrows) {
+          row = 0
+          col += 1
+        }
+      } else {
+        col += 1
+        if (col >= ncols) {
+          col = 0
+          row += 1
+        }
+      }
+    }
+
     const grid = new Grid(entries)
     this.grid = grid
 
@@ -355,6 +395,8 @@ export namespace Legend {
 
   export type Props = Annotation.Props & {
     orientation: p.Property<Orientation>
+    ncols: p.Property<number | "auto">
+    nrows: p.Property<number | "auto">
     location: p.Property<LegendLocation | [number, number]>
     title: p.Property<string | null>
     title_standoff: p.Property<number>
@@ -414,8 +456,10 @@ export class Legend extends Annotation {
       ["background_", mixins.Fill],
     ])
 
-    this.define<Legend.Props>(({Number, String, Array, Tuple, Or, Ref, Nullable}) => ({
+    this.define<Legend.Props>(({Number, Int, String, Array, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
       orientation:      [ Orientation, "vertical" ],
+      ncols:            [ Or(Positive(Int), Auto), "auto" ],
+      nrows:            [ Or(Positive(Int), Auto), "auto" ],
       location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
       title:            [ Nullable(String), null ],
       title_standoff:   [ Number, 5 ],
