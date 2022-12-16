@@ -13,6 +13,8 @@ export abstract class Layoutable {
 
   absolute: boolean = false
 
+  position: {left: number, top: number} = {left: 0, top: 0}
+
   protected _bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
 
@@ -186,7 +188,8 @@ export abstract class Layoutable {
     })
 
     const {width, height} = size_hint
-    const outer = new BBox({left: 0, top: 0, width, height})
+    const {left, top} = this.position
+    const outer = new BBox({left, top, width, height})
 
     let inner: BBox | undefined = undefined
 

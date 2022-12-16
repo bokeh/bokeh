@@ -1,5 +1,6 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
@@ -8,16 +9,60 @@ import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {max, every, some} from "core/util/array"
+import {every, some} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
+import {Grid, ContentLayoutable, Sizeable} from "core/layout"
+
+type HitTarget = {type: "entry", entry: LegendEntry}
+
+type EntrySettings = {
+  glyph_width: number
+  glyph_height: number
+  label_standoff: number
+  label_width: number
+  label_height: number
+}
+
+class LegendEntry extends ContentLayoutable {
+
+  constructor(readonly item: LegendItem, readonly label: unknown, readonly text: TextBox, readonly settings: EntrySettings) {
+    super()
+  }
+
+  get field(): string | null {
+    return this.item.get_field_from_label_prop()
+  }
+
+  _content_size(): Sizeable {
+    const text = this.text.size()
+
+    const {glyph_width, glyph_height, label_standoff, label_width, label_height} = this.settings
+
+    const width = glyph_width + label_standoff + Math.max(text.width, label_width)
+    const height = Math.max(glyph_height, text.height, label_height)
+
+    return new Sizeable({width, height})
+  }
+}
 
 export class LegendView extends AnnotationView {
   override model: Legend
   override visuals: Legend.Visuals
 
+  protected override _get_size(): Size {
+    const {width, height} = this.bbox
+    const {margin} = this.model
+    return {
+      width: width + 2*margin,
+      height: height + 2*margin,
+    }
+  }
+
   override update_layout(): void {
+    this.update_geometry()
+
     const {panel} = this
     if (panel != null)
       this.layout = new SideLayout(panel, () => this.get_size())
@@ -25,309 +70,281 @@ export class LegendView extends AnnotationView {
       this.layout = undefined
   }
 
-  protected max_label_height: number
-  protected text_widths: Map<string, number>
+  override connect_signals(): void {
+    super.connect_signals()
+
+    const rerender = () => {
+      this.update_geometry()
+      this.request_render()
+    }
+
+    this.connect(this.model.change, rerender)
+    this.connect(this.model.item_change, rerender)
+  }
+
+  protected bbox: BBox = new BBox()
+  protected grid: Grid<LegendEntry>
+
+  protected title_box: TextBox
   protected title_height: number
   protected title_width: number
 
-  override cursor(_sx: number, _sy: number): string | null {
-    return this.model.click_policy == "none" ? null : "pointer"
-  }
-
-  get legend_padding(): number {
+  get padding(): number {
     return this.model.border_line_color != null ? this.model.padding : 0
   }
 
-  override connect_signals(): void {
-    super.connect_signals()
-    this.connect(this.model.change, () => this.request_render())
-    this.connect(this.model.item_change, () => this.request_render())
-  }
+  override update_geometry(): void {
+    super.update_geometry()
 
-  compute_legend_bbox(): BBox {
-    const {glyph_height, glyph_width} = this.model
-    const {label_height, label_width} = this.model
+    const {spacing, orientation} = this.model
+    const vertical = orientation == "vertical"
 
-    const items = []
-    for (const item of this.model.items) {
-      const field = item.get_field_from_label_prop()
-      const labels = item.get_labels_list_from_label_prop()
-
-      for (const label of labels) {
-        const text_box = new TextBox({text: `${label}`}) // XXX: not always string
-        text_box.visuals = this.visuals.label_text.values()
-        items.push({item, field, label, text_box, bbox: text_box.bbox()})
-      }
-    }
-
-    this.text_widths = new Map()
-    for (const item of items) {
-      this.text_widths.set(item.label, max([item.bbox.width, label_width]))
-    }
-
-    this.max_label_height = max([label_height, glyph_height, ...items.map((item) => item.bbox.height)])
-    const max_label_width = max([0, ...this.text_widths.values()])
+    const {padding} = this
+    const left = padding
+    const top = padding
 
     const {title} = this.model
+    const title_box = new TextBox({text: title ?? ""})
+    this.title_box = title_box
+    title_box.position = {sx: left, sy: top, x_anchor: "left", y_anchor: "top"}
+    title_box.visuals = this.visuals.title_text.values()
+
     if (title == null || title.length == 0) {
       this.title_width = 0
       this.title_height = 0
     } else {
-      const title_box = new TextBox({text: title})
-      title_box.visuals = this.visuals.title_text.values()
-
       const {width, height} = title_box.bbox()
       this.title_width = width
       this.title_height = height + this.model.title_standoff
     }
 
-    const legend_margin = this.model.margin
-    const {legend_padding} = this
-    const legend_spacing = this.model.spacing
-    const {label_standoff} =  this.model
+    const entries = []
+    let row = 0
+    let col = 0
+    for (const item of this.model.items) {
+      // set a backref on render so that items can later signal item_change
+      // upates on the model to trigger a re-render
+      item.legend = this.model
 
-    let legend_height: number, legend_width: number
-    if (this.model.orientation == "vertical") {
-      legend_height = items.length*this.max_label_height + Math.max(items.length - 1, 0)*legend_spacing + 2*legend_padding + this.title_height
-      legend_width = max([(max_label_width + glyph_width + label_standoff + 2*legend_padding), this.title_width + 2*legend_padding])
-    } else {
-      let item_width = 2*legend_padding + Math.max(items.length - 1, 0)*legend_spacing
-      for (const [, width] of this.text_widths) {
-        item_width += max([width, label_width]) + glyph_width + label_standoff
+      const labels = item.get_labels_list_from_label_prop()
+
+      for (const label of labels) {
+        const text_box = new TextBox({text: `${label}`}) // XXX: not always string
+        text_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "center"}
+        text_box.visuals = this.visuals.label_text.values()
+
+        const layout = new LegendEntry(item, label, text_box, this.model)
+        layout.set_sizing({visible: item.visible})
+
+        entries.push({layout, row, col})
+        vertical ? row++ : col++
       }
-      legend_width = max([this.title_width + 2*legend_padding, item_width])
-      legend_height = this.max_label_height + this.title_height + 2*legend_padding
     }
+    const grid = new Grid(entries)
+    this.grid = grid
+
+    grid.position = {left, top: top + this.title_height}
+    grid.spacing = spacing
+    grid.set_sizing({min_width: this.title_width})
+    grid.compute()
+
+    const width  = padding +                     grid.bbox.width  + padding
+    const height = padding + this.title_height + grid.bbox.height + padding
+
+    // Position will be filled-in in `compute_geometry()`.
+    this.bbox = new BBox({left: 0, top: 0, width, height})
+  }
+
+  override compute_geometry(): void {
+    super.compute_geometry()
+
+    const {margin, location} = this.model
+    const {width, height} = this.bbox
 
     const panel = this.layout != null ? this.layout : this.plot_view.frame
     const [hr, vr] = panel.bbox.ranges
 
-    const {location} = this.model
     let sx: number, sy: number
     if (isString(location)) {
       switch (location) {
         case "top_left":
-          sx = hr.start + legend_margin
-          sy = vr.start + legend_margin
+          sx = hr.start + margin
+          sy = vr.start + margin
           break
         case "top":
         case "top_center":
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = vr.start + legend_margin
+          sx = (hr.end + hr.start)/2 - width/2
+          sy = vr.start + margin
           break
         case "top_right":
-          sx = hr.end - legend_margin - legend_width
-          sy = vr.start + legend_margin
+          sx = hr.end - margin - width
+          sy = vr.start + margin
           break
         case "bottom_right":
-          sx = hr.end - legend_margin - legend_width
-          sy = vr.end - legend_margin - legend_height
+          sx = hr.end - margin - width
+          sy = vr.end - margin - height
           break
         case "bottom":
         case "bottom_center":
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = vr.end - legend_margin - legend_height
+          sx = (hr.end + hr.start)/2 - width/2
+          sy = vr.end - margin - height
           break
         case "bottom_left":
-          sx = hr.start + legend_margin
-          sy = vr.end - legend_margin - legend_height
+          sx = hr.start + margin
+          sy = vr.end - margin - height
           break
         case "left":
         case "center_left":
-          sx = hr.start + legend_margin
-          sy = (vr.end + vr.start)/2 - legend_height/2
+          sx = hr.start + margin
+          sy = (vr.end + vr.start)/2 - height/2
           break
         case "center":
         case "center_center":
-          sx = (hr.end + hr.start)/2 - legend_width/2
-          sy = (vr.end + vr.start)/2 - legend_height/2
+          sx = (hr.end + hr.start)/2 - width/2
+          sy = (vr.end + vr.start)/2 - height/2
           break
         case "right":
         case "center_right":
-          sx = hr.end - legend_margin - legend_width
-          sy = (vr.end + vr.start)/2 - legend_height/2
+          sx = hr.end - margin - width
+          sy = (vr.end + vr.start)/2 - height/2
           break
       }
     } else {
       const [vx, vy] = location
       sx = panel.bbox.xview.compute(vx)
-      sy = panel.bbox.yview.compute(vy) - legend_height
+      sy = panel.bbox.yview.compute(vy) - height
     }
 
-    return new BBox({left: sx, top: sy, width: legend_width, height: legend_height})
-  }
-
-  interactive_bbox(): BBox {
-    return this.compute_legend_bbox()
+    this.bbox = new BBox({left: sx, top: sy, width, height})
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
-    const bbox = this.interactive_bbox()
-    return bbox.contains(sx, sy)
+    return this.bbox.contains(sx, sy)
+  }
+
+  protected _hit_test(sx: number, sy: number): HitTarget | null {
+    const {left, top} = this.bbox
+    sx -= left
+    sy -= top
+
+    for (const entry of this.grid) {
+      if (entry.bbox.contains(sx, sy)) {
+        return {type: "entry", entry}
+      }
+    }
+
+    return null
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    if (this.model.click_policy == "none")
+      return null
+    if (this._hit_test(sx, sy) != null)
+      return "pointer"
+    return null
   }
 
   override on_hit(sx: number, sy: number): boolean {
-    let yoffset
-    const {glyph_width} = this.model
-    const {legend_padding} = this
-    const legend_spacing = this.model.spacing
-    const {label_standoff} = this.model
-
-    let xoffset = (yoffset = legend_padding)
-
-    const legend_bbox = this.compute_legend_bbox()
-    const vertical = this.model.orientation == "vertical"
-
-    for (const item of this.model.items) {
-      const labels = item.get_labels_list_from_label_prop()
-
-      for (const label of labels) {
-        const x1 = legend_bbox.x + xoffset
-        const y1 = legend_bbox.y + yoffset + this.title_height
-
-        let w: number, h: number
-        if (vertical)
-          [w, h] = [legend_bbox.width - 2*legend_padding, this.max_label_height]
-        else
-          [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
-
-        const bbox = new BBox({left: x1, top: y1, width: w, height: h})
-
-        if (bbox.contains(sx, sy)) {
-          switch (this.model.click_policy) {
-            case "hide": {
-              for (const r of item.renderers)
-                r.visible = !r.visible
-              break
-            }
-            case "mute": {
-              for (const r of item.renderers)
-                r.muted = !r.muted
-              break
-            }
-          }
-          return true
-        }
-
-        if (vertical)
-          yoffset += this.max_label_height + legend_spacing
-        else
-          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
+    const fn = (() => {
+      switch (this.model.click_policy) {
+        case "hide": return (r: GlyphRenderer) => r.visible = !r.visible
+        case "mute": return (r: GlyphRenderer) => r.muted = !r.muted
+        case "none": return (_: GlyphRenderer) => {}
       }
+    })()
+
+    const target = this._hit_test(sx, sy)
+    if (target != null) {
+      const {renderers} = target.entry.item
+      for (const renderer of renderers) {
+        fn(renderer)
+      }
+      return true
     }
 
     return false
   }
 
   protected _render(): void {
+    this.compute_geometry()
+
     if (this.model.items.length == 0)
       return
-
-    if (!some(this.model.items, item => item.visible))
+    if (!some(this.model.items, (item) => item.visible))
       return
 
-    // set a backref on render so that items can later signal item_change upates
-    // on the model to trigger a re-render
-    for (const item of this.model.items) {
-      item.legend = this.model
-    }
-
     const {ctx} = this.layer
-    const bbox = this.compute_legend_bbox()
-
     ctx.save()
-    this._draw_legend_box(ctx, bbox)
-    this._draw_legend_items(ctx, bbox)
-    this._draw_title(ctx, bbox)
-
+    this._draw_legend_box(ctx)
+    this._draw_legend_items(ctx)
+    this._draw_title(ctx)
     ctx.restore()
   }
 
-  protected _draw_legend_box(ctx: Context2d, bbox: BBox): void {
+  protected _draw_legend_box(ctx: Context2d): void {
+    const {x, y, width, height} = this.bbox
     ctx.beginPath()
-    ctx.rect(bbox.x, bbox.y, bbox.width, bbox.height)
+    ctx.rect(x, y, width, height)
     this.visuals.background_fill.apply(ctx)
     this.visuals.border_line.apply(ctx)
   }
 
-  protected _draw_legend_items(ctx: Context2d, bbox: BBox): void {
-    const {glyph_width, glyph_height} = this.model
-    const {legend_padding} = this
-    const legend_spacing = this.model.spacing
-    const {label_standoff} = this.model
-    let xoffset = legend_padding
-    let yoffset = legend_padding
-    const vertical = this.model.orientation == "vertical"
-
-    for (const item of this.model.items) {
-      if (!item.visible)
-        continue
-      const labels = item.get_labels_list_from_label_prop()
-      const field = item.get_field_from_label_prop()
-
-      if (labels.length == 0)
-        continue
-
-      const active = (() => {
-        switch (this.model.click_policy) {
-          case "none": return true
-          case "hide": return every(item.renderers, r => r.visible)
-          case "mute": return every(item.renderers, r => !r.muted)
-        }
-      })()
-
-      for (const label of labels) {
-        const x1 = bbox.x + xoffset
-        const y1 = bbox.y + yoffset + this.title_height
-        const x2 = x1 + glyph_width
-        const y2 = y1 + glyph_height
-
-        if (vertical)
-          yoffset += this.max_label_height + legend_spacing
-        else
-          xoffset += this.text_widths.get(label)! + glyph_width + label_standoff + legend_spacing
-
-        this.visuals.label_text.set_value(ctx)
-        ctx.fillText(label, x2 + label_standoff, y1 + this.max_label_height/2.0)
-        for (const r of item.renderers) {
-          const view = this.plot_view.renderer_view(r)
-          view?.draw_legend(ctx, x1, x2, y1, y2, field, label, item.index)
-        }
-
-        if (!active) {
-          let w: number, h: number
-          if (vertical)
-            [w, h] = [bbox.width - 2*legend_padding, this.max_label_height]
-          else
-            [w, h] = [this.text_widths.get(label)! + glyph_width + label_standoff, this.max_label_height]
-
-          ctx.beginPath()
-          ctx.rect(x1, y1, w, h)
-          this.visuals.inactive_fill.set_value(ctx)
-          ctx.fill()
-        }
-      }
-    }
-  }
-
-  protected _draw_title(ctx: Context2d, bbox: BBox): void {
+  protected _draw_title(ctx: Context2d): void {
     const {title} = this.model
     if (title == null || title.length == 0 || !this.visuals.title_text.doit)
       return
 
-    ctx.save()
-    ctx.translate(bbox.x0, bbox.y0 + this.title_height)
-    this.visuals.title_text.set_value(ctx)
-    ctx.fillText(title, this.legend_padding, this.legend_padding-this.model.title_standoff)
-    ctx.restore()
+    const {left, top} = this.bbox
+    ctx.translate(left, top)
+    this.title_box.paint(ctx)
+    ctx.translate(-left, -top)
   }
 
-  protected override _get_size(): Size {
-    const {width, height} = this.compute_legend_bbox()
-    return {
-      width: width + 2*this.model.margin,
-      height: height + 2*this.model.margin,
+  protected _draw_legend_items(ctx: Context2d): void {
+    const is_active = (() => {
+      switch (this.model.click_policy) {
+        case "none": return (_item: LegendItem) => true
+        case "hide": return (item: LegendItem)  => every(item.renderers, (r) => r.visible)
+        case "mute": return (item: LegendItem)  => every(item.renderers, (r) => !r.muted)
+      }
+    })()
+
+    const {left, top} = this.bbox
+    ctx.translate(left, top)
+
+    for (const entry of this.grid) {
+      const {bbox, text, item, label, field, settings} = entry
+      const {glyph_width, glyph_height, label_standoff} = settings
+
+      const {left, top, width, height} = bbox
+      ctx.translate(left, top)
+
+      const vcenter = height/2
+      const x0 = 0
+      const y0 = vcenter - glyph_height/2
+      const x1 = x0 + glyph_width
+      const y1 = y0 + glyph_height
+
+      for (const renderer of item.renderers) {
+        const view = this.plot_view.renderer_view(renderer)
+        view?.draw_legend(ctx, x0, x1, y0, y1, field, label, item.index)
+      }
+
+      ctx.translate(x1 + label_standoff, vcenter)
+      text.paint(ctx)
+      ctx.translate(-x1 - label_standoff, -vcenter)
+
+      if (!is_active(item)) {
+        ctx.beginPath()
+        ctx.rect(0, 0, width, height)
+        this.visuals.inactive_fill.set_value(ctx)
+        ctx.fill()
+      }
+
+      ctx.translate(-left, -top)
     }
+
+    ctx.translate(-left, -top)
   }
 }
 

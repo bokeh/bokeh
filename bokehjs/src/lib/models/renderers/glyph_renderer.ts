@@ -414,7 +414,7 @@ export class GlyphRendererView extends DataRendererView {
     ctx.restore()
   }
 
-  get_reference_point(field: string | null, value?: any): number {
+  get_reference_point(field: string | null, value?: unknown): number {
     if (field != null) {
       const array = this.model.data_source.get_column(field)
       if (array != null) {
@@ -427,7 +427,7 @@ export class GlyphRendererView extends DataRendererView {
     return 0
   }
 
-  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: string, index: number | null): void {
+  draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
     if (this.glyph.data_size == 0)
       return
     if (index == null)
