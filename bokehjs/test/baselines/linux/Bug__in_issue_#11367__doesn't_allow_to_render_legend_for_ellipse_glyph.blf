@@ -1,2 +1,3 @@
 Plot bbox=[0, 0, 200, 100]
   CartesianFrame bbox=[5, 5, 190, 90]
+  Legend bbox=[56, 19, 89, 63]
