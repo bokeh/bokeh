@@ -2,7 +2,7 @@ import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
 import {Rect as GraphicsRect} from "./affine"
 
-const {min, max} = Math
+const {min, max, round} = Math
 
 export function empty(): Rect {
   return {
@@ -228,6 +228,15 @@ export class BBox implements Rect, Equatable {
   get vcenter(): number { return (this.top + this.bottom)/2 }
 
   get area(): number { return this.width*this.height }
+
+  round(): BBox {
+    return new BBox({
+      x0: round(this.x0),
+      x1: round(this.x1),
+      y0: round(this.y0),
+      y1: round(this.y1),
+    })
+  }
 
   relative(): BBox {
     const {width, height} = this

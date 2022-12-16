@@ -12,7 +12,7 @@ export class BoxAnnotationView extends AnnotationView {
   override model: BoxAnnotation
   override visuals: BoxAnnotation.Visuals
 
-  protected bbox: BBox = new BBox()
+  override bbox: BBox = new BBox()
 
   override connect_signals(): void {
     super.connect_signals()

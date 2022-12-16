@@ -3,6 +3,7 @@ import {Renderer, RendererView} from "../renderers/renderer"
 import {Panel} from "core/layout/side_panel"
 import {Size, Layoutable} from "core/layout"
 import {SerializableState} from "core/view"
+import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export abstract class AnnotationView extends RendererView {
@@ -10,6 +11,7 @@ export abstract class AnnotationView extends RendererView {
 
   layout?: Layoutable
   panel?: Panel
+  bbox?: BBox
 
   update_layout?(): void
   after_layout?(): void
@@ -44,7 +46,8 @@ export abstract class AnnotationView extends RendererView {
 
   override serializable_state(): SerializableState {
     const state = super.serializable_state()
-    return this.layout == null ? state : {...state, bbox: this.layout.bbox.box}
+    const bbox = this.bbox?.round() ?? this.layout?.bbox
+    return bbox == null ? state : {...state, bbox: bbox.box}
   }
 }
 

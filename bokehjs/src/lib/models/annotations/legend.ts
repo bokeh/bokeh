@@ -15,6 +15,8 @@ import {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Grid, ContentLayoutable, Sizeable} from "core/layout"
 
+const {max} = Math
+
 type HitTarget = {type: "entry", entry: LegendEntry}
 
 type EntrySettings = {
@@ -40,8 +42,8 @@ class LegendEntry extends ContentLayoutable {
 
     const {glyph_width, glyph_height, label_standoff, label_width, label_height} = this.settings
 
-    const width = glyph_width + label_standoff + Math.max(text.width, label_width)
-    const height = Math.max(glyph_height, text.height, label_height)
+    const width = glyph_width + label_standoff + max(text.width, label_width)
+    const height = max(glyph_height, text.height, label_height)
 
     return new Sizeable({width, height})
   }
@@ -82,7 +84,7 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.item_change, rerender)
   }
 
-  protected bbox: BBox = new BBox()
+  override bbox: BBox = new BBox()
   protected grid: Grid<LegendEntry>
 
   protected title_box: TextBox
