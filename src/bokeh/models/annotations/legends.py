@@ -25,6 +25,7 @@ from ...core.enums import (
     Anchor,
     LegendClickPolicy,
     LegendLocation,
+    Location,
     Orientation,
 )
 from ...core.has_props import abstract
@@ -377,6 +378,11 @@ class Legend(Annotation):
     title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
+
+    title_location = Enum(Location, default="above", help="""
+    Specifies on which side of the legend the title will be located.
+    Titles on the left or right side will be rotated accordingly.
+    """)
 
     title_standoff = Int(5, help="""
     The distance (in pixels) to separate the title from the legend.

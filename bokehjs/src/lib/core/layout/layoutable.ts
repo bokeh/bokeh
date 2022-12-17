@@ -1,6 +1,7 @@
 import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
 import {BBox, CoordinateMapper} from "../util/bbox"
 import {isNumber} from "../util/types"
+import {assert} from "../util/assert"
 
 const {min, max, round} = Math
 
@@ -26,21 +27,22 @@ export abstract class Layoutable {
     return this._inner_bbox
   }
 
-  private _sizing: ExtBoxSizing
+  private _sizing: ExtBoxSizing | null = null
 
   get sizing(): ExtBoxSizing {
+    assert(this._sizing != null)
     return this._sizing
   }
 
   private _dirty: boolean = false
 
   get visible(): boolean {
-    return this._sizing.visible
+    return this.sizing.visible
   }
 
   set visible(visible: boolean) {
-    if (this._sizing.visible != visible) {
-      this._sizing.visible = visible
+    if (this.sizing.visible != visible) {
+      this.sizing.visible = visible
       this._dirty = true
     }
   }
@@ -157,6 +159,10 @@ export abstract class Layoutable {
   protected abstract _measure(viewport: Sizeable): SizeHint
 
   measure(viewport_size: Size): SizeHint {
+    if (this._sizing == null) {
+      this.set_sizing()
+    }
+
     if (!this.sizing.visible)
       return {width: 0, height: 0}
 

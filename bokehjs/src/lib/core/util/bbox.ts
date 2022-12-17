@@ -40,6 +40,11 @@ export function union(a: Rect, b: Rect): Rect {
   }
 }
 
+export type XY<T = number> = {
+  x: T
+  y: T
+}
+
 export type LRTB<T = number> = {
   left: T
   right: T
@@ -187,8 +192,8 @@ export class BBox implements Rect, Equatable {
   get right(): number { return this.x1 }
   get bottom(): number { return this.y1 }
 
-  get p0(): [number, number] { return [this.x0, this.y0] }
-  get p1(): [number, number] { return [this.x1, this.y1] }
+  get p0(): XY<number> { return {x: this.x0, y: this.y0} }
+  get p1(): XY<number> { return {x: this.x1, y: this.y1} }
 
   get x(): number { return this.x0 }
   get y(): number { return this.y0 }

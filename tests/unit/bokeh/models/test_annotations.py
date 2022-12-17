@@ -86,6 +86,7 @@ def test_Legend() -> None:
     assert legend.ncols == "auto"
     assert legend.nrows == "auto"
     assert legend.title is None
+    assert legend.title_location == "above"
     assert legend.title_standoff == 5
     assert legend.label_standoff == 5
     assert legend.label_height == 20
@@ -105,6 +106,7 @@ def test_Legend() -> None:
         "ncols",
         "nrows",
         "title",
+        "title_location",
         "title_standoff",
         "label_standoff",
         "label_height",

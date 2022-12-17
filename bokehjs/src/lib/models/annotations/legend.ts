@@ -1,19 +1,19 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {Orientation, LegendLocation, LegendClickPolicy} from "core/enums"
+import {Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import {Size} from "core/layout"
-import {SideLayout} from "core/layout/side_panel"
+import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
-import {Grid, ContentLayoutable, Sizeable} from "core/layout"
+import {Column, Row, Grid, ContentLayoutable, Sizeable} from "core/layout"
 
 const {max, floor} = Math
 
@@ -25,6 +25,17 @@ type EntrySettings = {
   label_standoff: number
   label_width: number
   label_height: number
+}
+
+class TextLayout extends ContentLayoutable {
+
+  constructor(readonly text: TextBox) {
+    super()
+  }
+
+  _content_size(): Sizeable {
+    return new Sizeable(this.text.size())
+  }
 }
 
 class LegendEntry extends ContentLayoutable {
@@ -86,10 +97,8 @@ export class LegendView extends AnnotationView {
 
   override bbox: BBox = new BBox()
   protected grid: Grid<LegendEntry>
-
-  protected title_box: TextBox
-  protected title_height: number
-  protected title_width: number
+  protected border_box: Column | Row
+  protected title_panel: TextLayout
 
   get padding(): number {
     return this.model.border_line_color != null ? this.model.padding : 0
@@ -107,23 +116,15 @@ export class LegendView extends AnnotationView {
 
     const {title} = this.model
     const title_box = new TextBox({text: title ?? ""})
-    this.title_box = title_box
-    title_box.position = {sx: left, sy: top, x_anchor: "left", y_anchor: "top"}
+    title_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
     title_box.visuals = this.visuals.title_text.values()
-
-    if (title == null || title.length == 0) {
-      this.title_width = 0
-      this.title_height = 0
-    } else {
-      const {width, height} = title_box.bbox()
-      this.title_width = width
-      this.title_height = height + this.model.title_standoff
-    }
+    const _title_panel = new Panel(this.model.title_location)
+    title_box.angle = _title_panel.get_label_angle_heuristic("parallel")
 
     const entries = []
     for (const item of this.model.items) {
-      // set a backref on render so that items can later signal item_change
-      // upates on the model to trigger a re-render
+      // Set a backref on render so that items can later signal item_change
+      // upates on the model to trigger a re-render.
       item.legend = this.model
 
       const labels = item.get_labels_list_from_label_prop()
@@ -185,13 +186,33 @@ export class LegendView extends AnnotationView {
     const grid = new Grid(entries)
     this.grid = grid
 
-    grid.position = {left, top: top + this.title_height}
     grid.spacing = spacing
-    grid.set_sizing({min_width: this.title_width})
-    grid.compute()
+    grid.set_sizing()
 
-    const width  = padding +                     grid.bbox.width  + padding
-    const height = padding + this.title_height + grid.bbox.height + padding
+    const title_panel = new TextLayout(title_box)
+    this.title_panel = title_panel
+    const title_visible = title_box.text != "" && this.visuals.title_text.doit
+    title_panel.set_sizing({visible: title_visible}) // doesn't work
+
+    const border_box = (() => {
+      if (!title_visible)
+        return new Column([grid])
+      switch (this.model.title_location) {
+        case "above": return new Column([title_panel, grid])
+        case "below": return new Column([grid, title_panel])
+        case "left":  return new Row([title_panel, grid])
+        case "right": return new Row([grid, title_panel])
+      }
+    })()
+    this.border_box = border_box
+    border_box.position = {left, top}
+
+    border_box.spacing = this.model.title_standoff
+    border_box.set_sizing()
+    border_box.compute()
+
+    const width  = padding + border_box.bbox.width  + padding
+    const height = padding + border_box.bbox.height + padding
 
     // Position will be filled-in in `compute_geometry()`.
     this.bbox = new BBox({left: 0, top: 0, width, height})
@@ -266,8 +287,8 @@ export class LegendView extends AnnotationView {
 
   protected _hit_test(sx: number, sy: number): HitTarget | null {
     const {left, top} = this.bbox
-    sx -= left
-    sy -= top
+    sx -= left + this.grid.bbox.left
+    sy -= top + this.grid.bbox.top
 
     for (const entry of this.grid) {
       if (entry.bbox.contains(sx, sy)) {
@@ -337,9 +358,23 @@ export class LegendView extends AnnotationView {
       return
 
     const {left, top} = this.bbox
+    ctx.save()
     ctx.translate(left, top)
-    this.title_box.paint(ctx)
-    ctx.translate(-left, -top)
+    ctx.translate(this.title_panel.bbox.left, this.title_panel.bbox.top)
+
+    switch (this.model.title_location) {
+      case "left": {
+        ctx.translate(0, this.title_panel.bbox.height)
+        break
+      }
+      case "right": {
+        ctx.translate(this.title_panel.bbox.width, 0)
+        break
+      }
+    }
+
+    this.title_panel.text.paint(ctx)
+    ctx.restore()
   }
 
   protected _draw_legend_items(ctx: Context2d): void {
@@ -353,6 +388,7 @@ export class LegendView extends AnnotationView {
 
     const {left, top} = this.bbox
     ctx.translate(left, top)
+    ctx.translate(this.grid.bbox.left, this.grid.bbox.top)
 
     for (const entry of this.grid) {
       const {bbox, text, item, label, field, settings} = entry
@@ -386,6 +422,7 @@ export class LegendView extends AnnotationView {
       ctx.translate(-left, -top)
     }
 
+    ctx.translate(-this.grid.bbox.left, -this.grid.bbox.top)
     ctx.translate(-left, -top)
   }
 }
@@ -399,6 +436,7 @@ export namespace Legend {
     nrows: p.Property<number | "auto">
     location: p.Property<LegendLocation | [number, number]>
     title: p.Property<string | null>
+    title_location: p.Property<Location>
     title_standoff: p.Property<number>
     label_standoff: p.Property<number>
     glyph_height: p.Property<number>
@@ -462,6 +500,7 @@ export class Legend extends Annotation {
       nrows:            [ Or(Positive(Int), Auto), "auto" ],
       location:         [ Or(LegendLocation, Tuple(Number, Number)), "top_right" ],
       title:            [ Nullable(String), null ],
+      title_location:   [ Location, "above" ],
       title_standoff:   [ Number, 5 ],
       label_standoff:   [ Number, 5 ],
       glyph_height:     [ Number, 20 ],
