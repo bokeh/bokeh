@@ -418,10 +418,19 @@ export enum MouseButton {
 
 import {CSSOurStyles} from "./css"
 
-export class StyleSheet {
-  readonly el: HTMLStyleElement
+export abstract class StyleSheet {
+  protected readonly el: HTMLStyleElement | HTMLLinkElement
+
+  install(el: HTMLElement | ShadowRoot): void {
+    el.append(this.el)
+  }
+}
+
+export class InlineStyleSheet extends StyleSheet {
+  protected override readonly el: HTMLStyleElement
 
   constructor(css?: string) {
+    super()
     this.el = style({type: "text/css"}, css)
   }
 
@@ -465,18 +474,19 @@ export class StyleSheet {
   }
 }
 
-export class GlobalStyleSheet extends StyleSheet {
-  initialize(): void {
+export class GlobalInlineStyleSheet extends InlineStyleSheet {
+  override install(): void {
     if (!this.el.isConnected) {
       document.head.appendChild(this.el)
     }
   }
 }
 
-export class ImportedStyleSheet {
-  readonly el: HTMLLinkElement
+export class ImportedStyleSheet extends StyleSheet {
+  protected override readonly el: HTMLLinkElement
 
   constructor(url: string) {
+    super()
     this.el = link({rel: "stylesheet", href: url})
   }
 
@@ -489,15 +499,15 @@ export class ImportedStyleSheet {
   }
 }
 
-export class GlobalImportedStyleSheet extends StyleSheet {
-  initialize(): void {
+export class GlobalImportedStyleSheet extends ImportedStyleSheet {
+  override install(): void {
     if (!this.el.isConnected) {
       document.head.appendChild(this.el)
     }
   }
 }
 
-export type StyleSheetLike = StyleSheet | ImportedStyleSheet | string
+export type StyleSheetLike = StyleSheet | string
 
 export async function dom_ready(): Promise<void> {
   if (document.readyState == "loading") {

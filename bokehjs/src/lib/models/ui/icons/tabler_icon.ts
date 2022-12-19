@@ -1,5 +1,5 @@
 import {Icon, IconView} from "./icon"
-import {span, StyleSheet, ImportedStyleSheet, GlobalStyleSheet, StyleSheetLike} from "core/dom"
+import {span, InlineStyleSheet, ImportedStyleSheet, GlobalInlineStyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
@@ -8,7 +8,7 @@ export class TablerIconView extends IconView {
 
   protected static readonly _url = "https://unpkg.com/@tabler/icons@latest/iconfont"
 
-  protected static readonly _fonts = new GlobalStyleSheet(`\
+  protected static readonly _fonts = new GlobalInlineStyleSheet(`\
     /*!
     * Tabler Icons 1.68.0 by tabler - https://tabler.io
     * License - https://github.com/tabler/tabler-icons/blob/master/LICENSE
@@ -35,15 +35,10 @@ export class TablerIconView extends IconView {
 
   protected readonly _tabler = new ImportedStyleSheet(`${TablerIconView._url}/tabler-icons.min.css`)
 
-  protected readonly _style = new StyleSheet()
+  protected readonly _style = new InlineStyleSheet()
 
   override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._tabler, this._style]
-  }
-
-  override initialize(): void {
-    super.initialize()
-    TablerIconView._fonts.initialize()
+    return [...super.styles(), TablerIconView._fonts, this._tabler, this._style]
   }
 
   override render(): void {

@@ -35,7 +35,7 @@ import {parse_css_font_size} from "core/util/text"
 import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
 import {StateInfo, StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import {StyleSheet, StyleSheetLike, px} from "core/dom"
+import {InlineStyleSheet, StyleSheetLike, px} from "core/dom"
 
 import plots_css from "styles/plots.css"
 
@@ -54,7 +54,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.canvas_view
   }
 
-  protected _computed_style = new StyleSheet()
+  protected _computed_style = new InlineStyleSheet()
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), plots_css, this._computed_style]

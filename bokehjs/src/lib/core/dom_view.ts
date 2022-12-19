@@ -1,5 +1,5 @@
 import {View} from "./view"
-import {createElement, remove, empty, StyleSheet, StyleSheetLike, ClassList} from "./dom"
+import {createElement, remove, empty, InlineStyleSheet, StyleSheetLike, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
@@ -104,8 +104,8 @@ export abstract class DOMComponentView extends DOMElementView {
     } else {
     */
     for (const style of stylesheets) {
-      const stylesheet = isString(style) ? new StyleSheet(style) : style
-      this.shadow_el.appendChild(stylesheet.el)
+      const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
+      stylesheet.install(this.shadow_el)
     }
   }
 
