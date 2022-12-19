@@ -1,12 +1,12 @@
 import {Icon, IconView} from "./icon"
-import {StyleSheet, StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, StyleSheetLike} from "core/dom"
 import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 export class SVGIconView extends IconView {
   override model: SVGIcon
 
-  protected readonly _style = new StyleSheet()
+  protected readonly _style = new InlineStyleSheet()
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), this._style]

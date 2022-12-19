@@ -1,15 +1,16 @@
 import {Model} from "../../model"
 import {Styles} from "../dom/styles"
+import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import {logger} from "core/logging"
 import {Align} from "core/enums"
 import {SizingPolicy} from "core/layout"
 import {DOMComponentView} from "core/dom_view"
 import {SerializableState} from "core/view"
-import {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
+import {CSSStyles, StyleSheet, InlineStyleSheet, StyleSheetLike} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
 import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
-import {isString, isPlainObject} from "core/util/types"
+import {isString} from "core/util/types"
 import * as p from "core/properties"
 import ui_css from "styles/ui.css"
 
@@ -40,16 +41,49 @@ function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> 
 export abstract class UIElementView extends DOMComponentView {
   override model: UIElement
 
-  protected readonly _display = new StyleSheet()
-  readonly style = new StyleSheet()
+  protected readonly _display = new InlineStyleSheet()
+  readonly style = new InlineStyleSheet()
 
   get stylesheets(): StyleSheet[] {
     return [...this._stylesheets()]
   }
 
-  public *_stylesheets(): Iterable<StyleSheet> {
+  protected *_stylesheets(): Iterable<StyleSheet> {
     yield this.style
     yield this._display
+  }
+
+  get computed_stylesheets(): StyleSheet[] {
+    return [...this._computed_stylesheets()]
+  }
+
+  protected *_computed_stylesheets(): Iterable<StyleSheet> {
+    for (const stylesheet of this.model.stylesheets) {
+      if (isString(stylesheet)) {
+        yield new InlineStyleSheet(stylesheet)
+      } else if (stylesheet instanceof BaseStyleSheet) {
+        yield stylesheet.underlying()
+      } else {
+        const output = []
+
+        for (const [selector, styles] of entries(stylesheet)) {
+          output.push(`${selector} {`)
+
+          for (const [attr, value] of _iter_styles(styles)) {
+            const name = attr.replace(/_/g, "-")
+
+            if (isString(value) && value.length != 0) {
+              output.push(`  ${name}: ${value};`)
+            }
+          }
+
+          output.push("}")
+        }
+
+        const css = output.join("\n")
+        yield new InlineStyleSheet(css)
+      }
+    }
   }
 
   get classes(): string[] {
@@ -158,7 +192,7 @@ export abstract class UIElementView extends DOMComponentView {
     this.empty()
     this._apply_stylesheets(this.styles())
     this._apply_stylesheets(this.stylesheets)
-    this._apply_stylesheets(this.model.stylesheets)
+    this._apply_stylesheets(this.computed_stylesheets)
     this._apply_styles()
     this._apply_classes(this.classes)
     this._apply_classes(this.model.classes)
@@ -201,31 +235,6 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  protected override _apply_stylesheets(stylesheets: (StyleSheetLike | {[key: string]: CSSStyles | Styles})[]): void {
-    super._apply_stylesheets(stylesheets.map((stylesheet) => {
-      if (isPlainObject(stylesheet)) {
-        const output = []
-
-        for (const [selector, styles] of entries(stylesheet)) {
-          output.push(`${selector} {`)
-
-          for (const [attr, value] of _iter_styles(styles)) {
-            const name = attr.replace(/_/g, "-")
-
-            if (isString(value) && value.length != 0) {
-              output.push(`  ${name}: ${value};`)
-            }
-          }
-
-          output.push("}")
-        }
-
-        return output.join("\n")
-      } else
-        return stylesheet
-    }))
-  }
-
   protected _apply_visible(): void {
     if (this.model.visible)
       this._display.clear()
@@ -258,7 +267,7 @@ export namespace UIElement {
     visible: p.Property<boolean>
     classes: p.Property<string[]>
     styles: p.Property<CSSStyles | Styles>
-    stylesheets: p.Property<(string | {[key: string]: CSSStyles | Styles})[]>
+    stylesheets: p.Property<(BaseStyleSheet | string | {[key: string]: CSSStyles | Styles})[]>
   }
 }
 
@@ -279,7 +288,7 @@ export abstract class UIElement extends Model {
         visible: [ Boolean, true ],
         classes: [Array(String), [] ],
         styles: [ StylesLike, {} ],
-        stylesheets: [ Array(Or(String, Dict(StylesLike))), [] ],
+        stylesheets: [ Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike))), [] ],
       }
     })
   }

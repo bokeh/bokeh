@@ -3369,6 +3369,29 @@
       },
     },
   },
+  StyleSheet: {
+    __extends__: "Model",
+  },
+  InlineStyleSheet: {
+    __extends__: "StyleSheet",
+    css: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  ImportedStyleSheet: {
+    __extends__: "StyleSheet",
+    url: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  GlobalInlineStyleSheet: {
+    __extends__: "InlineStyleSheet",
+  },
+  GlobalImportedStyleSheet: {
+    __extends__: "ImportedStyleSheet",
+  },
   Styles: {
     __extends__: "Model",
     align_content: null,

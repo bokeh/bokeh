@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" An abstraction over the CSS object model.
+""" Various abstractions over the CSS object model.
 
 """
 
@@ -21,7 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.properties import Nullable, String
+from ..core.has_props import abstract
+from ..core.properties import Nullable, Required, String
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -29,12 +30,88 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "GlobalImportedStyleSheet",
+    "GlobalInlineStyleSheet",
+    "ImportedStyleSheet",
+    "InlineStyleSheet",
     "Styles",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class StyleSheet(Model):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class InlineStyleSheet(StyleSheet):
+    """
+    Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
+
+    .. note::
+        Depending on the context, this stylesheet will be appended either to
+        the the parent shadow root, if used in a component, or otherwise to
+        the ``<head>`` element. If you want to append globally regardless of
+        the context, use ``GlobalInlineStyleSheet`` instead.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    css = Required(String, help="""
+    The contents of this stylesheet.
+    """)
+
+class ImportedStyleSheet(StyleSheet):
+    """
+    Imported stylesheet equivalent to ``<link rel="stylesheet" href="${url}">``.
+
+    .. note::
+        Depending on the context, this stylesheet will be appended either to
+        the the parent shadow root, if used in a component, or otherwise to
+        the ``<head>`` element. If you want to append globally regardless of
+        the context, use ``GlobalImportedStyleSheet`` instead.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    url = Required(String, help="""
+    The location of an external stylesheet.
+    """)
+
+class GlobalInlineStyleSheet(InlineStyleSheet):
+    """
+    An inline stylesheet that's appended to the ``<head>`` element.
+
+    ..note::
+        A stylesheet will be appended only once, regardless of how
+        many times it's being used in other models.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class GlobalImportedStyleSheet(ImportedStyleSheet):
+    """
+    An imported stylesheet that's appended to the ``<head>`` element.
+
+    ..note::
+        A stylesheet will be appended only once, regardless of how
+        many times it's being used in other models.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
 class Styles(Model):
     """ Allows to configure style attribute of DOM elements. """

@@ -1,6 +1,6 @@
 import {Icon, IconView} from "models/ui/icons/icon"
 import {isNumber} from "core/util/types"
-import {StyleSheet, StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 import "./fontawesome.less"
@@ -8,7 +8,7 @@ import "./fontawesome.less"
 export class FontAwesomeIconView extends IconView {
   model: FontAwesomeIcon
 
-  protected readonly _style = new StyleSheet()
+  protected readonly _style = new InlineStyleSheet()
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), this._style]

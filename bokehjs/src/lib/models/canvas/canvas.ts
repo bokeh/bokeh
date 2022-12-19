@@ -9,7 +9,7 @@ import {Context2d, CanvasLayer} from "core/util/canvas"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {type PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
-import {StyleSheet, StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, StyleSheetLike} from "core/dom"
 import canvas_css from "styles/canvas.css"
 
 export type FrameBox = [number, number, number, number]
@@ -80,7 +80,7 @@ export class CanvasView extends UIElementView {
 
   ui_event_bus: UIEventBus
 
-  protected _size = new StyleSheet()
+  protected _size = new InlineStyleSheet()
 
   override initialize(): void {
     super.initialize()

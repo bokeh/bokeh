@@ -1,6 +1,6 @@
 import {Icon, IconView} from "./icon"
 import {Color} from "core/types"
-import {StyleSheet, StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, StyleSheetLike} from "core/dom"
 import {color2css} from "core/util/color"
 import {isNumber} from "core/util/types"
 import * as p from "core/properties"
@@ -10,7 +10,7 @@ import icons_css from "styles/icons.css"
 export class BuiltinIconView extends IconView {
   override model: BuiltinIcon
 
-  protected readonly _style = new StyleSheet()
+  protected readonly _style = new InlineStyleSheet()
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), icons_css, this._style]

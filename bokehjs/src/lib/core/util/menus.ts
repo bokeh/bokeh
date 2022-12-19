@@ -1,4 +1,4 @@
-import {div, empty, remove, StyleSheet, StyleSheetLike, ClassList} from "../dom"
+import {div, empty, remove, InlineStyleSheet, StyleSheetLike, ClassList} from "../dom"
 import {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isString} from "./types"
@@ -164,8 +164,8 @@ export class ContextMenu { //extends DOMComponentView {
     this.empty()
 
     for (const style of this.styles()) {
-      const stylesheet = isString(style) ? new StyleSheet(style) : style
-      this.shadow_el.appendChild(stylesheet.el)
+      const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
+      stylesheet.install(this.shadow_el)
     }
 
     this.class_list.add(menus[this.orientation])
