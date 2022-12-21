@@ -135,6 +135,20 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
   })
 
+  it("should support PartialStruct kind", () => {
+    const tp = k.PartialStruct({a: k.Int, b: k.String, c: k.Array(k.Int)})
+
+    expect(`${tp}`).to.be.equal("Struct({a?: Int, b?: String, c?: Array(Int)})")
+
+    expect(tp.valid({})).to.be.true
+    expect(tp.valid({a: 0})).to.be.true
+    expect(tp.valid({d: 0})).to.be.false
+    expect(tp.valid({a: 0, b: "a"})).to.be.true
+    expect(tp.valid({a: 0, b: "a", c: [1]})).to.be.true
+    expect(tp.valid({a: 0, b: "a", d: [1]})).to.be.false
+    expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
+  })
+
   it("should support Arrayable kind", () => {
     const tp = k.Arrayable(k.Int)
     expect(`${tp}`).to.be.equal("Arrayable(Int)")

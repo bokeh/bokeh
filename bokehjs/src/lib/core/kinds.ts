@@ -189,6 +189,45 @@ export namespace Kinds {
     }
   }
 
+  export class PartialStruct<T extends {[key: string]: unknown}> extends Kind<Partial<T>> {
+
+    constructor(readonly struct_type: ObjectKind<T>) {
+      super()
+    }
+
+    valid(value: unknown): value is this["__type__"] {
+      if (!tp.isPlainObject(value))
+        return false
+
+      const {struct_type} = this
+
+      for (const key of keys(value)) {
+        if (!hasOwnProperty.call(struct_type, key))
+          return false
+      }
+
+      for (const key in struct_type) {
+        if (!hasOwnProperty.call(value, key))
+          continue
+
+        if (hasOwnProperty.call(struct_type, key)) {
+          const item_type = struct_type[key]
+          const item = value[key]
+
+          if (!item_type.valid(item))
+            return false
+        }
+      }
+
+      return true
+    }
+
+    override toString(): string {
+      const items = entries(this.struct_type).map(([key, kind]) => `${key}?: ${kind}`).join(", ")
+      return `Struct({${items}})`
+    }
+  }
+
   export class Arrayable<ItemType> extends Kind<types.Arrayable<ItemType>> {
     constructor(readonly item_type: Kind<ItemType>) {
       super()
@@ -467,6 +506,7 @@ export const Opt = <BaseType>(base_type: Kind<BaseType>) => new Kinds.Opt(base_t
 export const Or = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Or(types)
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.Struct(struct_type)
+export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.PartialStruct(struct_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
