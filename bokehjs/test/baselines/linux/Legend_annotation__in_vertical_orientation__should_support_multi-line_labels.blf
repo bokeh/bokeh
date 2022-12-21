@@ -1,0 +1,7 @@
+Plot bbox=[0, 0, 300, 300]
+  CartesianFrame bbox=[29, 22, 242, 256]
+  LinearAxis bbox=[29, 0, 242, 22]
+  LinearAxis bbox=[29, 278, 242, 22]
+  LinearAxis bbox=[0, 22, 29, 256]
+  LinearAxis bbox=[271, 22, 29, 256]
+  Legend bbox=[70, 75, 160, 150]

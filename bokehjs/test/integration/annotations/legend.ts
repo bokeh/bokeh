@@ -4,7 +4,8 @@ import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
 import {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
-import {Orientation} from "@bokehjs/core/enums"
+import {Orientation, Location} from "@bokehjs/core/enums"
+import {linspace} from "@bokehjs/core/util/array"
 
 describe("Legend annotation", () => {
   it("should support various combinations of locations and orientations", async () => {
@@ -75,7 +76,7 @@ describe("Legend annotation", () => {
       figure_dimensions,
       legends,
     }) => {
-      const p = fig(figure_dimensions ?? (orientation == "horizontal" ? [250, 150] : [150, 250]))
+      const p = fig(figure_dimensions ?? (orientation == "horizontal" ? [300, 200] : [200, 300]))
 
       p.add_layout(new LinearAxis(), "above")
       p.add_layout(new LinearAxis(), "right")
@@ -133,18 +134,36 @@ describe("Legend annotation", () => {
   }
 
   function test(plot: PlotFn, orientation?: Orientation) {
-    it("should display title correctly", async () => {
-      await plot({legends: [{title: "title"}]})
-    })
+    for (const title_location of Location) {
+      describe(`with title_location=${title_location}`, () => {
+        it("should display title correctly", async () => {
+          await plot({
+            legends: [{
+              title: "title",
+              title_location,
+            }],
+          })
+        })
 
-    it("should display title standoff correctly", async () => {
-      await plot({legends: [{
-        title: "title",
-        title_standoff: 20,
-      }]})
-    })
+        it("should display multi-line title correctly", async () => {
+          await plot({
+            legends: [{
+              title: "This is a long title\nwith two lines",
+              title_location,
+            }]})
+        })
 
-    it("should display label standoff correctly", async () => {
+        it("should display title with standoff correctly", async () => {
+          await plot({legends: [{
+            title: "title",
+            title_location,
+            title_standoff: 20,
+          }]})
+        })
+      })
+    }
+
+    it("should display labels with standoff correctly", async () => {
       await plot({legends: [{
         title: "title",
         label_standoff: 20,
@@ -164,7 +183,7 @@ describe("Legend annotation", () => {
           title: "title",
           glyph_width: 30,
         }],
-        figure_dimensions: orientation == "horizontal" ? [350, 150] : undefined,
+        figure_dimensions: orientation == "horizontal" ? [350, 200] : undefined,
       })
     })
 
@@ -176,10 +195,13 @@ describe("Legend annotation", () => {
     })
 
     it("should display label_width correctly", async () => {
-      await plot({legends: [{
-        title: "title",
-        label_width: 50,
-      }]})
+      await plot({
+        legends: [{
+          title: "title",
+          label_width: 100,
+        }],
+        figure_dimensions: orientation == "horizontal" ? [500, 300] : [300, 200],
+      })
     })
 
     it("should display margin correctly", async () => {
@@ -190,10 +212,13 @@ describe("Legend annotation", () => {
     })
 
     it("should display padding correctly", async () => {
-      await plot({legends: [{
-        title: "title",
-        padding: 5,
-      }]})
+      await plot({
+        legends: [{
+          title: "title",
+          padding: 50,
+        }],
+        figure_dimensions: orientation == "horizontal" ? [400, 300] : [300, 400],
+      })
     })
 
     it("should display spacing correctly", async () => {
@@ -201,6 +226,19 @@ describe("Legend annotation", () => {
         title: "title",
         spacing: 20,
       }]})
+    })
+
+    it("should support multi-line labels", async () => {
+      const legend_items = [
+        {label: "A label with one line", renderers: [0]},
+        {label: "A label with\ntwo lines", renderers: [1, 2]},
+        {label: "A label with\nthree lines\n(thrid line)", renderers: [3]},
+      ]
+      await plot({
+        legend_items,
+        legends: [{title: "title"}],
+        figure_dimensions: orientation == "horizontal" ? [500, 200] : [300, 300],
+      })
     })
 
     it("should hide one non-visible item correctly", async () => {
@@ -222,6 +260,84 @@ describe("Legend annotation", () => {
     })
   }
 
-  describe("in horizontal orientation", () => test(plot({orientation: "horizontal"}), "horizontal"))
-  describe("in vertical orientation", () => test(plot({orientation: "vertical"}), "vertical"))
+  function test_grid(orientation: Orientation) {
+    function plot({nrows, ncols}: {nrows: number | "auto", ncols: number | "auto"}) {
+      const x = linspace(0, 4*Math.PI, 50)
+      const y1 = x.map((xi) => Math.sin(xi))
+      const y2 = y1.map((yi) => 2*yi)
+      const y3 = y1.map((yi) => 3*yi)
+      const y4 = y1.map((yi) => 4*yi)
+      const y5 = y1.map((yi) => 5*yi)
+      const y6 = y1.map((yi) => 6*yi)
+
+      const p = fig([300, 300])
+
+      const cr1 = p.circle(x, y1, {fill_color: null, line_color: "green"})
+
+      const sr2 = p.square(x, y2, {fill_color: null, line_color: "orange"})
+      const lr2 = p.line(x, y2, {line_color: "orange"})
+
+      const cr3 = p.circle(x, y3, {fill_color: null, line_color: "blue"})
+
+      const sr4 = p.square(x, y4, {fill_color: null, line_color: "tomato"})
+      const lr4 = p.line(x, y4, {line_color: "tomato"})
+
+      const cr5 = p.circle(x, y5, {fill_color: null, line_color: "purple"})
+
+      const sr6 = p.square(x, y6, {fill_color: null, line_color: "pink"})
+      const lr6 = p.line(x, y6, {line_color: "pink"})
+
+      const items = [
+        new LegendItem({label: "1*sin(x)", renderers: [cr1]}),
+        new LegendItem({label: "2*sin(x)", renderers: [sr2, lr2]}),
+        new LegendItem({label: "3*sin(x)", renderers: [cr3]}),
+        new LegendItem({label: "4*sin(x)", renderers: [sr4, lr4]}),
+        new LegendItem({label: "5*sin(x)", renderers: [cr5]}),
+        new LegendItem({label: "6*sin(x)", renderers: [sr6, lr6]}),
+      ]
+
+      const legend = new Legend({
+        items,
+        orientation,
+        nrows,
+        ncols,
+        title: `Markers (${nrows} x ${ncols})`,
+      })
+
+      p.add_layout(legend, "center")
+      return p
+    }
+
+    describe("should support grid layout", () => {
+      it("with nrows=2 and ncols=auto", async () => {
+        const p = plot({nrows: 2, ncols: "auto"})
+        await display(p)
+      })
+
+      it("with nrows=3 and ncols=auto", async () => {
+        const p = plot({nrows: 3, ncols: "auto"})
+        await display(p)
+      })
+
+      it("with nrows=auto and ncols=2", async () => {
+        const p = plot({nrows: "auto", ncols: 2})
+        await display(p)
+      })
+
+      it("with nrows=auto and ncols=3", async () => {
+        const p = plot({nrows: "auto", ncols: 3})
+        await display(p)
+      })
+    })
+  }
+
+  describe("in horizontal orientation", () => {
+    test(plot({orientation: "horizontal"}), "horizontal")
+    test_grid("horizontal")
+  })
+
+  describe("in vertical orientation", () => {
+    test(plot({orientation: "vertical"}), "vertical")
+    test_grid("vertical")
+  })
 })
