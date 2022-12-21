@@ -34,7 +34,7 @@ from .bases import Init, PrimitiveProperty
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-bokeh_bool_types = (bool, np.bool8)
+bokeh_bool_types = (bool, np.bool_)
 bokeh_integer_types = (numbers.Integral,)
 
 __all__ = (

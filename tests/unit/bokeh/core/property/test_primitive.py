@@ -60,8 +60,8 @@ class Test_Bool:
         assert prop.is_valid(False)
         assert prop.is_valid(True)
 
-        assert prop.is_valid(np.bool8(False))
-        assert prop.is_valid(np.bool8(True))
+        assert prop.is_valid(np.bool_(False))
+        assert prop.is_valid(np.bool_(True))
 
     def test_invalid(self) -> None:
         prop = bcpp.Bool()
@@ -167,8 +167,8 @@ class Test_Complex:
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-        assert not prop.is_valid(np.bool8(False))
-        assert not prop.is_valid(np.bool8(True))
+        assert not prop.is_valid(np.bool_(False))
+        assert not prop.is_valid(np.bool_(True))
 
     def test_has_ref(self) -> None:
         prop = bcpp.Complex()
@@ -227,8 +227,8 @@ class Test_Float:
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-        assert not prop.is_valid(np.bool8(False))
-        assert not prop.is_valid(np.bool8(True))
+        assert not prop.is_valid(np.bool_(False))
+        assert not prop.is_valid(np.bool_(True))
         assert not prop.is_valid(np.complex64(1.0+1.0j))
         assert not prop.is_valid(np.complex128(1.0+1.0j))
         if hasattr(np, "complex256"):
@@ -359,8 +359,8 @@ class Test_Int:
         assert not prop.is_valid(_TestHasProps())
         assert not prop.is_valid(_TestModel())
 
-        assert not prop.is_valid(np.bool8(False))
-        assert not prop.is_valid(np.bool8(True))
+        assert not prop.is_valid(np.bool_(False))
+        assert not prop.is_valid(np.bool_(True))
         assert not prop.is_valid(np.float16(0))
         assert not prop.is_valid(np.float16(1))
         assert not prop.is_valid(np.float32(0))
