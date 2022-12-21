@@ -47,6 +47,11 @@ ABOVE_HATCH = [f"above_{name}" for name in HATCH]
 BELOW_FILL  = [f"below_{name}" for name in FILL]
 BELOW_HATCH = [f"below_{name}" for name in HATCH]
 
+BORDER_LINE = [f"border_{name}" for name in LINE]
+
+BACKGROUND_FILL  = [f"background_{name}" for name in FILL]
+BACKGROUND_HATCH = [f"background_{name}" for name in HATCH]
+
 ANGLE = ["angle", "angle_units"]
 
 PROPS = ["name", "tags", "js_property_callbacks", "js_event_callbacks", "subscribed_events", "syncable"]

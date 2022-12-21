@@ -38,14 +38,10 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
-    Align,
-    Anchor,
     Direction,
-    HAlign,
     ImageOrigin,
     Palette,
     StepMode,
-    VAlign,
     enumeration,
 )
 from ..core.has_props import abstract
@@ -53,7 +49,6 @@ from ..core.properties import (
     AngleSpec,
     Bool,
     DistanceSpec,
-    Either,
     Enum,
     Float,
     Include,
@@ -64,14 +59,13 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
-    Percent,
     Size,
     SizeSpec,
     String,
     StringSpec,
-    Tuple,
     field,
 )
+from ..core.property_aliases import Anchor, BorderRadius, Padding
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
@@ -695,10 +689,7 @@ class ImageBase(XYGlyph):
     Defines the coordinate space of an image.
     """)
 
-    anchor = Either(
-        Enum(Anchor),
-        Tuple(Either(Enum(Align), Enum(HAlign), Percent),
-              Either(Enum(Align), Enum(VAlign), Percent)), default="bottom_left", help="""
+    anchor = Anchor(default="bottom_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -828,7 +819,7 @@ class ImageURL(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    anchor = Enum(Anchor, default="top_left", help="""
+    anchor = Anchor(default="top_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -1389,17 +1380,43 @@ class Text(XYGlyph, TextGlyph):
     """)
 
     x_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the x-coordinates.
+    Offset values in pixels to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
     """)
 
     y_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the y-coordinates.
+    Offset values in pixels to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
+    """)
+
+    anchor = Anchor(default="top_left", help="""
+    Position within the bounding box of this glyph to which ``x`` and ``y``
+    coordinates are anchored to. This can be a named anchor point like
+    ``top_left`` or ``center``, or a percentage from from left to right
+    and top to bottom, or a combination of those, independently in width
+    and height.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    padding = Padding(default=0, help="""
+    Extra space between the text of a glyphs and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     text_props = Include(TextProps, help="""

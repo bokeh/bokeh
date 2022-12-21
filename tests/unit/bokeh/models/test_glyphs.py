@@ -38,6 +38,9 @@ from bokeh.core.enums import (
 from bokeh.core.property.vectorization import field
 
 from _util_models import (
+    BACKGROUND_FILL,
+    BACKGROUND_HATCH,
+    BORDER_LINE,
     FILL,
     GLYPH,
     HATCH,
@@ -465,8 +468,13 @@ def test_Text() -> None:
     glyph = Text()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.text == "text"
+    assert glyph.text == field("text")
     assert glyph.angle == 0
+    assert glyph.x_offset == 0
+    assert glyph.y_offset == 0
+    assert glyph.anchor == "auto"
+    assert glyph.padding == 0
+    assert glyph.border_radius == 0
     check_text_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -475,8 +483,11 @@ def test_Text() -> None:
         "angle",
         "angle_units",
         "x_offset",
-        "y_offset"
-    ], TEXT, GLYPH)
+        "y_offset",
+        "anchor",
+        "padding",
+        "border_radius",
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
 
 
 def test_VArea() -> None:

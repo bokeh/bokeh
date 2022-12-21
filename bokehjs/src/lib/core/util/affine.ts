@@ -35,6 +35,15 @@ export class AffineTransform {
     return new AffineTransform(a, b, c, d, e, f)
   }
 
+  reset(): void {
+    this.a = 1
+    this.b = 0
+    this.c = 0
+    this.d = 1
+    this.e = 0
+    this.f = 0
+  }
+
   get is_identity(): boolean {
     const {a, b, c, d, e, f} = this
     return a == 1 && b == 0 && c == 0 && d == 1 && e == 0 && f == 0
@@ -97,6 +106,8 @@ export class AffineTransform {
   }
 
   rotate(angle: number): this {
+    if (angle == 0)
+      return this
     const s = sin(angle)
     const c = cos(angle)
     return this.transform(c, s, -s, c, 0, 0)
@@ -104,6 +115,13 @@ export class AffineTransform {
 
   rotate_ccw(angle: number): this {
     return this.rotate(-angle)
+  }
+
+  rotate_around(x: number, y: number, angle: number): this {
+    this.translate(x, y)
+    this.rotate(angle)
+    this.translate(-x, -y)
+    return this
   }
 
   translate_x(tx: number): this {

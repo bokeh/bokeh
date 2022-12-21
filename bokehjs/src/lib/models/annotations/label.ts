@@ -1,5 +1,5 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
-import {resolve_angle} from "core/util/math"
+import {compute_angle} from "core/util/math"
 import {CoordinateUnits, AngleUnits} from "core/enums"
 import {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
@@ -23,7 +23,7 @@ export class LabelView extends TextAnnotationView {
 
     const graphics = this._text_view.graphics()
     const {angle, angle_units} = this.model
-    graphics.angle = resolve_angle(angle, angle_units)
+    graphics.angle = compute_angle(angle, angle_units)
     graphics.visuals = this.visuals.text.values()
     const {width, height} = graphics.size()
     return {width, height}
@@ -31,7 +31,7 @@ export class LabelView extends TextAnnotationView {
 
   protected _render(): void {
     const {angle, angle_units} = this.model
-    const rotation = resolve_angle(angle, angle_units)
+    const rotation = compute_angle(angle, angle_units)
 
     const panel = this.layout != null ? this.layout : this.plot_view.frame
 
