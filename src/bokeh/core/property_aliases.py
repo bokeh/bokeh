@@ -71,15 +71,15 @@ Padding = (
         Pixels,
         Tuple(Pixels, Pixels),
         Struct(
-            vertical=Optional(Pixels),
-            horizontal=Optional(Pixels),
+            x=Optional(Pixels),
+            y=Optional(Pixels),
         ),
         Tuple(Pixels, Pixels, Pixels, Pixels),
         Struct(
-            top=Optional(Pixels),
-            right=Optional(Pixels),
-            bottom=Optional(Pixels),
             left=Optional(Pixels),
+            right=Optional(Pixels),
+            top=Optional(Pixels),
+            bottom=Optional(Pixels),
         ),
     )
 )

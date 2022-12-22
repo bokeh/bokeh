@@ -3,9 +3,9 @@ import * as enums from "core/enums"
 
 const Length = NonNegative(Int)
 
-const VH = <T>(type: Kind<T>) => PartialStruct({vertical: type, horizontal: type})
+const XY = <T>(type: Kind<T>) => PartialStruct({x: type, y: type})
 
-const TRBL = <T>(type: Kind<T>) => PartialStruct({top: type, right: type, bottom: type, left: type})
+const LRTB = <T>(type: Kind<T>) => PartialStruct({left: type, right: type, top: type, bottom: type})
 
 export type Anchor = typeof Anchor["__type__"]
 export const Anchor = (
@@ -23,9 +23,9 @@ export const Padding = (
   Or(
     Length,
     Tuple(Length, Length),
-    VH(Length),
+    XY(Length),
     Tuple(Length, Length, Length, Length),
-    TRBL(Length),
+    LRTB(Length),
   )
 )
 
@@ -33,6 +33,7 @@ export type BorderRadius = typeof BorderRadius["__type__"]
 export const BorderRadius = (
   Or(
     Length,
+    Tuple(Length, Length, Length, Length),
     PartialStruct({
       top_left: Length,
       top_right: Length,

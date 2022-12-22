@@ -83,10 +83,10 @@ export function padding(padding: Padding): LRTB<number> {
   if (isNumber(padding)) {
     return {left: padding, right: padding, top: padding, bottom: padding}
   } else if (isPlainObject(padding)) {
-    if ("h" in padding) {
-      const {h=0, v=0} = padding
-      return {left: h, right: h, top: v, bottom: v}
-    } else if ("left" in padding) {
+    if ("x" in padding || "y" in padding) {
+      const {x=0, y=0} = padding
+      return {left: x, right: x, top: y, bottom: y}
+    } else if ("left" in padding || "right" in padding || "top" in padding || "bottom" in padding) {
       const {left=0, right=0, top=0, bottom=0} = padding
       return {left, right, top, bottom}
     } else {
@@ -94,8 +94,8 @@ export function padding(padding: Padding): LRTB<number> {
     }
   } else {
     if (padding.length == 2) {
-      const [h=0, v=0] = padding
-      return {left: h, right: h, top: v, bottom: v}
+      const [x=0, y=0] = padding
+      return {left: x, right: x, top: y, bottom: y}
     } else {
       const [left=0, right=0, top=0, bottom=0] = padding
       return {left, right, top, bottom}
@@ -111,12 +111,15 @@ export function border_radius(border_radius: BorderRadius): Corners<number> {
       bottom_right: border_radius,
       bottom_left: border_radius,
     }
-  } else {
+  } else if (isPlainObject(border_radius)) {
     return {
       top_left: border_radius.top_left ?? 0,
       top_right: border_radius.top_right ?? 0,
       bottom_right: border_radius.bottom_right ?? 0,
       bottom_left: border_radius.bottom_left ?? 0,
     }
+  } else {
+    const [top_left=0, top_right=0, bottom_right=0, bottom_left=0] = border_radius
+    return {top_left, top_right, bottom_right, bottom_left}
   }
 }
