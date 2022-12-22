@@ -269,6 +269,8 @@ export class GlyphRendererView extends DataRendererView {
     this.nonselection_glyph.set_visuals(source, all_indices)
     this.hover_glyph?.set_visuals(source, all_indices)
     this.muted_glyph.set_visuals(source, all_indices)
+
+    this.glyph.after_visuals()
   }
 
   override get has_webgl(): boolean {

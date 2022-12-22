@@ -22,10 +22,11 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from . import enums
+from .property.auto import Auto
 from .property.container import Tuple
 from .property.either import Either
 from .property.enum import Enum
-from .property.numeric import Int, Percent, NonNegative
+from .property.numeric import Int, NonNegative, Percent
 from .property.struct import Optional, Struct
 
 #-----------------------------------------------------------------------------
@@ -36,6 +37,7 @@ __all__ = (
     "Anchor",
     "BorderRadius",
     "Padding",
+    "TextAnchor",
 )
 
 #-----------------------------------------------------------------------------
@@ -53,6 +55,8 @@ Anchor = (
         ),
     )
 )
+
+TextAnchor = Either(Anchor, Auto)
 
 BorderRadius = (
     Either(

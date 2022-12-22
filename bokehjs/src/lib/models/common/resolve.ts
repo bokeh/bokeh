@@ -1,38 +1,10 @@
-import {Anchor, BorderRadius, Padding} from "./kinds"
+import {Anchor, TextAnchor, BorderRadius, Padding} from "./kinds"
+import {TextAlign, TextBaseline} from "core/enums"
 import {isString, isNumber, isPlainObject} from "core/util/types"
 import {XY, LRTB, Corners} from "core/util/bbox"
 import {unreachable} from "core/util/assert"
 
 export function anchor(anchor: Anchor): XY<number> {
-  /* TODO: legacy align/baseline -> anchor
-  const anchor = (() => {
-    const {anchor} = this.model
-    if (anchor == "auto") {
-      const {align, baseline} = this.visuals.text.values()
-      const x_anchor = (() => {
-        switch (align) {
-          case "left":   return "start"
-          case "center": return "center"
-          case "right":  return "end"
-        }
-      })()
-      const y_anchor = (() => {
-        switch (baseline) {
-          case "alphabetic":
-          case "ideographic":
-          case "hanging":
-            return "center"
-          case "top":    return "start"
-          case "middle": return "center"
-          case "bottom": return "end"
-        }
-      })()
-      return [x_anchor, y_anchor] as const
-    } else
-      return anchor
-  })()
-  */
-
   if (isString(anchor)) {
     switch (anchor) {
       case "top_left":      return {x: 0.0, y: 0.0}
@@ -76,6 +48,32 @@ export function anchor(anchor: Anchor): XY<number> {
       }
     })()
     return {x: x_anchor, y: y_anchor}
+  }
+}
+
+export function text_anchor(text_anchor: TextAnchor, align: TextAlign, baseline: TextBaseline): XY<number> {
+  if (text_anchor != "auto") {
+    return anchor(text_anchor)
+  } else {
+    const x_anchor = (() => {
+      switch (align) {
+        case "left":   return "start"
+        case "center": return "center"
+        case "right":  return "end"
+      }
+    })()
+    const y_anchor = (() => {
+      switch (baseline) {
+        case "alphabetic":
+        case "ideographic":
+        case "hanging":
+          return "center"
+        case "top":    return "start"
+        case "middle": return "center"
+        case "bottom": return "end"
+      }
+    })()
+    return anchor([x_anchor, y_anchor])
   }
 }
 

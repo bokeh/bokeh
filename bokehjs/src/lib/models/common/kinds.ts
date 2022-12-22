@@ -1,4 +1,4 @@
-import {Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct} from "core/kinds"
+import {Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto} from "core/kinds"
 import * as enums from "core/enums"
 
 const Length = NonNegative(Int)
@@ -17,6 +17,9 @@ export const Anchor = (
     ),
   )
 )
+
+export type TextAnchor = typeof TextAnchor["__type__"]
+export const TextAnchor = Or(Anchor, Auto)
 
 export type Padding = typeof Padding["__type__"]
 export const Padding = (

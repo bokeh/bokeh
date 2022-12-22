@@ -2280,7 +2280,7 @@
       type: "value",
       value: 0,
     },
-    anchor: "top_left",
+    anchor: "auto",
     padding: 0,
     border_radius: 0,
     text_color: {

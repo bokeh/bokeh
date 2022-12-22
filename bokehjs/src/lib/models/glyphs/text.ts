@@ -3,14 +3,15 @@ import {PointGeometry} from "core/geometry"
 import * as mixins from "core/property_mixins"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
+import {UniformScalar, UniformVector} from "core/uniforms"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {XY, LRTB, Corners, BBox} from "core/util/bbox"
 import {enumerate} from "core/util/iterator"
 import {AffineTransform, Rect} from "core/util/affine"
 import {TextBox} from "core/graphics"
-import {Anchor, BorderRadius, Padding} from "../common/kinds"
-import {anchor, border_radius, padding} from "../common/resolve"
+import {TextAnchor, BorderRadius, Padding} from "../common/kinds"
+import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
 
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
@@ -24,7 +25,7 @@ export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   swidth: Float32Array
   sheight: Float32Array
 
-  anchor: XY<number>
+  anchor: p.Uniform<XY<number>>
   padding: LRTB<number>
   border_radius: Corners<number>
 }
@@ -46,18 +47,38 @@ export class TextView extends XYGlyphView {
         return new TextBox({text})
       }
     })
-
-    const n = this.data_size
-    this.swidth = new Float32Array(n)
-    this.sheight = new Float32Array(n)
-
-    this.anchor = anchor(this.model.anchor)
-    this.padding = padding(this.model.padding)
-    this.border_radius = border_radius(this.model.border_radius)
   }
 
-  protected override _map_data(): void {
-    super._map_data()
+  override after_visuals(): void {
+    super.after_visuals()
+
+    const n = this.data_size
+    const {anchor, padding, border_radius} = this.model
+
+    if (anchor != "auto") {
+      this.anchor = new UniformScalar(resolve.anchor(anchor), n)
+    } else {
+      const {text_align, text_baseline} = this.visuals.text
+
+      if (text_align.is_Scalar() && text_baseline.is_Scalar()) {
+        const anchor = resolve.text_anchor("auto", text_align.value, text_baseline.value)
+        this.anchor = new UniformScalar(anchor, n)
+      } else {
+        const anchors: XY<number>[] = new Array(n)
+        for (let i = 0; i < n; i++) {
+          const align_i = text_align.get(i)
+          const baseline_i = text_baseline.get(i)
+          anchors[i] = resolve.text_anchor("auto", align_i, baseline_i)
+        }
+        this.anchor = new UniformVector(anchors)
+      }
+    }
+
+    this.padding = resolve.padding(padding)
+    this.border_radius = resolve.border_radius(border_radius)
+
+    this.swidth = new Float32Array(n)
+    this.sheight = new Float32Array(n)
 
     const {left, right, top, bottom} = this.padding
 
@@ -95,9 +116,10 @@ export class TextView extends XYGlyphView {
 
       const swidth_i = swidth[i]
       const sheight_i = sheight[i]
+      const anchor_i = anchor.get(i)
 
-      const dx_i = anchor.x*swidth_i
-      const dy_i = anchor.y*sheight_i
+      const dx_i = anchor_i.x*swidth_i
+      const dy_i = anchor_i.y*sheight_i
 
       ctx.translate(sx_i, sy_i)
       ctx.rotate(angle_i)
@@ -145,9 +167,10 @@ export class TextView extends XYGlyphView {
 
       const swidth_i = swidth[i]
       const sheight_i = sheight[i]
+      const anchor_i = anchor.get(i)
 
-      const dx_i = anchor.x*swidth_i
-      const dy_i = anchor.y*sheight_i
+      const dx_i = anchor_i.x*swidth_i
+      const dy_i = anchor_i.y*sheight_i
 
       const [x, y] = angle_i == 0 ? [px, py] : (() => {
         const tr = new AffineTransform()
@@ -189,9 +212,10 @@ export class TextView extends XYGlyphView {
     }
     const swidth_i = swidth[i]
     const sheight_i = sheight[i]
+    const anchor_i = anchor.get(i)
 
-    const dx_i = anchor.x*swidth_i
-    const dy_i = anchor.y*sheight_i
+    const dx_i = anchor_i.x*swidth_i
+    const dy_i = anchor_i.y*sheight_i
 
     const bbox = new BBox({
       x: sx_i - dx_i,
@@ -226,7 +250,7 @@ export namespace Text {
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
-    anchor: p.Property<Anchor>
+    anchor: p.Property<TextAnchor>
     padding: p.Property<Padding>
     border_radius: p.Property<BorderRadius>
   } & Mixins
@@ -270,7 +294,7 @@ export class Text extends XYGlyph {
       angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
-      anchor: [ Anchor, "bottom_left" ],
+      anchor: [ TextAnchor, "auto" ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
     }))

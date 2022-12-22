@@ -65,7 +65,12 @@ from ..core.properties import (
     StringSpec,
     field,
 )
-from ..core.property_aliases import Anchor, BorderRadius, Padding
+from ..core.property_aliases import (
+    Anchor,
+    BorderRadius,
+    Padding,
+    TextAnchor,
+)
 from ..core.property_mixins import (
     FillProps,
     HatchProps,
@@ -1393,12 +1398,13 @@ class Text(XYGlyph, TextGlyph):
     distance in |screen units| from a given data position.
     """)
 
-    anchor = Anchor(default="top_left", help="""
+    anchor = TextAnchor(default="auto", help="""
     Position within the bounding box of this glyph to which ``x`` and ``y``
     coordinates are anchored to. This can be a named anchor point like
     ``top_left`` or ``center``, or a percentage from from left to right
     and top to bottom, or a combination of those, independently in width
-    and height.
+    and height. If set to ``auto``, then anchor point will be determined
+    from text ``align`` and ``baseline``.
 
     .. note::
         This property is experimental and may change at any point.
