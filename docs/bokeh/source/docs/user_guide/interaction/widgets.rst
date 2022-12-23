@@ -38,8 +38,9 @@ Which one to use depends on whether you are using
   HTML document, the browser needs to handle all interactivity. Therefore,
   you can only use :ref:`ug_interaction_js_callbacks`.
   You can write your own Javascript code, or use Bokeh's pre-defined Python
-  conveniences such as the :ref:`js_link <ug_interaction_linked_properties>` function or a SetValue object
-  which generate the necessary JavaScript code for you.
+  conveniences such as the :ref:`js_link <ug_interaction_linked_properties>`
+  function or a :class:`~bokeh.models.SetValue` object which generate the
+  necessary JavaScript code for you.
 * If you want to use widgets in connection with a **Bokeh server**, the server
   can handle some interactivity. This allows you to use :ref:`callbacks
   written in Python <ug_interaction_python_callbacks>`.
