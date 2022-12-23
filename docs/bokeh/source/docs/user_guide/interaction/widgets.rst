@@ -52,7 +52,16 @@ Which one to use depends on whether you are using
 Widget tooltips
 ---------------
 
-[TBD] Link to tooltip / Special UI elements chapter
+You can attach tooltips to widgets. This can be helpful to provide additional
+information about the widget's purpose or use, for example.
+
+Hover over the question mark icon next to "Choose values" to see the tooltip.
+
+.. bokeh-plot:: __REPO__/examples/interaction/tooltips/tooltip_description.py
+    :source-position: none
+
+See :ref:`ug_interaction_tooltips_supported` for more information about adding
+tooltips to widgets.
 
 .. _ug_interaction_widgets_examples:
 
