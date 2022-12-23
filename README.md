@@ -85,14 +85,14 @@
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/bokeh/bokeh/bokeh-ci.yml?branch=branch-3.1&label=Bokeh-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/actions/workflow/status/bokeh/bokeh/bokeh-ci.yml?label=Bokeh-CI&logo=github&style=for-the-badge"
          alt="Current Bokeh-CI github actions build status" />
     </a>
   </td>
 
   <td>
     <a href="https://github.com/bokeh/bokeh/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/bokeh/bokeh/bokehjs-ci.yml?branch=branch-3.1&label=BokehJS-CI&logo=github&style=for-the-badge"
+    <img src="https://img.shields.io/github/actions/workflow/status/bokeh/bokeh/bokehjs-ci.yml?label=BokehJS-CI&logo=github&style=for-the-badge"
          alt="Current BokehJS-CI github actions build status" />
     </a>
   </td>
