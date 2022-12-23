@@ -6,6 +6,8 @@ import {minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
+import {XY} from "core/util/bbox"
+import * as resolve from "../common/resolve"
 
 export type CanvasImage = HTMLImageElement
 
@@ -26,6 +28,8 @@ export type ImageURLData = XYGlyphData & {
 
   image: (CanvasImage | undefined)[]
   rendered: Indices
+
+  anchor: XY<number>
 }
 
 export interface ImageURLView extends ImageURLData {}
@@ -88,55 +92,21 @@ export class ImageURLView extends XYGlyphView {
     const w_data = this.model.properties.w.units == "data"
     const h_data = this.model.properties.h.units == "data"
 
-    const n = this._x.length
+    const n = this.data_size
 
     const xs = new ScreenArray(w_data ? 2*n : n)
     const ys = new ScreenArray(h_data ? 2*n : n)
 
-    const {anchor} = this.model
+    this.anchor = resolve.anchor(this.model.anchor)
+    const {x: x_anchor, y: y_anchor} = this.anchor
 
-    function x0x1(x: number, w: number): [number, number] {
-      switch (anchor) {
-        case "top_left":
-        case "bottom_left":
-        case "left":
-        case "center_left":
-          return [x, x + w]
-        case "top":
-        case "top_center":
-        case "bottom":
-        case "bottom_center":
-        case "center":
-        case "center_center":
-          return [x - w/2, x + w/2]
-        case "top_right":
-        case "bottom_right":
-        case "right":
-        case "center_right":
-          return [x - w, x]
-      }
+    function x0x1(x: number, w: number) {
+      const x0 = x - x_anchor*w
+      return [x0, x0 + w]
     }
-
-    function y0y1(y: number, h: number): [number, number] {
-      switch (anchor) {
-        case "top_left":
-        case "top":
-        case "top_center":
-        case "top_right":
-          return [y, y - h]
-        case "bottom_left":
-        case "bottom":
-        case "bottom_center":
-        case "bottom_right":
-          return [y + h, y]
-        case "left":
-        case "center_left":
-        case "center":
-        case "center_center":
-        case "right":
-        case "center_right":
-          return [y + h/2, y - h/2]
-      }
+    function y0y1(y: number, h: number) {
+      const y0 = y + y_anchor*h
+      return [y0, y0 - h]
     }
 
     // if the width/height are in screen units, don't try to include them in bounds
@@ -210,25 +180,6 @@ export class ImageURLView extends XYGlyphView {
     }
   }
 
-  protected _final_sx_sy(anchor: Anchor, sx: number, sy: number, sw: number, sh: number): [number, number] {
-    switch (anchor) {
-      case "top_left":      return [sx, sy         ]
-      case "top":
-      case "top_center":    return [sx - (sw/2), sy         ]
-      case "top_right":     return [sx - sw, sy         ]
-      case "right":
-      case "center_right":  return [sx - sw, sy - (sh/2)]
-      case "bottom_right":  return [sx - sw, sy - sh    ]
-      case "bottom":
-      case "bottom_center": return [sx - (sw/2), sy - sh    ]
-      case "bottom_left":   return [sx, sy - sh    ]
-      case "left":
-      case "center_left":   return [sx, sy - (sh/2)]
-      case "center":
-      case "center_center": return [sx - (sw/2), sy - (sh/2)]
-    }
-  }
-
   protected _render_image(ctx: Context2d, i: number, image: CanvasImage,
                           sx: Arrayable<number>, sy: Arrayable<number>,
                           sw: Arrayable<number>, sh: Arrayable<number>,
@@ -239,8 +190,12 @@ export class ImageURLView extends XYGlyphView {
     const sw_i = sw[i]
     const sh_i = sh[i]
 
-    const {anchor} = this.model
-    const [sx_i, sy_i] = this._final_sx_sy(anchor, sx[i], sy[i], sw_i, sh_i)
+    const {anchor} = this
+    const dx_i = anchor.x*sw_i
+    const dy_i = anchor.y*sh_i
+
+    const sx_i = sx[i] - dx_i
+    const sy_i = sy[i] - dy_i
 
     const angle_i = angle.get(i)
     const alpha_i = alpha.get(i)
