@@ -349,11 +349,6 @@ class TextProps(HasProps):
     ''' Properties relevant to rendering text.
 
     Mirrors the BokehJS ``properties.TextVector`` class.
-
-    .. note::
-        There is currently only support for filling text. An interface
-        to stroke the outlines of text has not yet been exposed.
-
     '''
 
     text_color = ColorSpec(default="#444444", help=_color_help % "fill text")
@@ -370,11 +365,6 @@ class ScalarTextProps(HasProps):
     ''' Properties relevant to rendering text.
 
     Mirrors the BokehJS ``properties.Text`` class.
-
-    .. note::
-        There is currently only support for filling text. An interface
-        to stroke the outlines of text has not yet been exposed.
-
     '''
 
     text_color = Nullable(Color, default="#444444", help=_color_help % "fill text")
