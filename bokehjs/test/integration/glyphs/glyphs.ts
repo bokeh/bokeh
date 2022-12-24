@@ -250,7 +250,28 @@ describe("Glyph models", () => {
   it("should support Rect", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.rect({x, y, width: 1, height: 2, angle: [0, 90, -15], angle_units: "deg", alpha: 0.7})
+      p.rect({
+        x, y,
+        width: 1, height: 2,
+        angle: [0, 90, -15], angle_units: "deg",
+        alpha: 0.7, line_color: "red",
+        border_radius: 0,
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Rect with rounded corners where tl=5px, tr=10px, br=15px and bl=20px", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.rect({
+        x, y,
+        width: 1, height: 2,
+        angle: [0, 90, -15], angle_units: "deg",
+        alpha: 0.7, line_color: "red",
+        border_radius: [5, 10, 15, 20],
+      })
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
