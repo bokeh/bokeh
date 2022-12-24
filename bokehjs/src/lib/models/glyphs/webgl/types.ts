@@ -55,6 +55,7 @@ export type MarkerGlyphProps = CommonProps & LineProps & FillProps & {
   width: Float32Buffer
   height: Float32Buffer
   angle: Float32Buffer
+  border_radius: Vec4
   size_hint: number
   show: Uint8Buffer
 }
@@ -86,6 +87,7 @@ export type LineGlyphUniforms = CommonUniforms & {
 export type LineDashGlyphUniforms = LineGlyphUniforms & DashUniforms
 
 export type MarkerGlyphUniforms = CommonUniforms & {
+  u_border_radius: Vec4
   u_size_hint: number
 }
 

@@ -1,3 +1,4 @@
+import {Vec4} from "regl"
 import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
@@ -24,6 +25,9 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _widths?: Float32Buffer
   protected _heights?: Float32Buffer
   protected _angles?: Float32Buffer
+
+  // used by RectGL
+  protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
 
   // indices properties.
   protected _show?: Uint8Buffer
@@ -57,7 +61,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
-  protected _draw_one_marker_type(marker_type: MarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
+  protected _draw_one_marker_type(marker_type: MarkerType | "rect", transform: Transform, main_gl_glyph: BaseMarkerGL): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
       viewport: this.regl_wrapper.viewport,
@@ -67,6 +71,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       width: main_gl_glyph._widths!,
       height: main_gl_glyph._heights!,
       angle: main_gl_glyph._angles!,
+      border_radius: main_gl_glyph._border_radius,
       size_hint: marker_type_to_size_hint(marker_type),
       nmarkers: main_gl_glyph.nvertices,
       antialias: this._antialias,

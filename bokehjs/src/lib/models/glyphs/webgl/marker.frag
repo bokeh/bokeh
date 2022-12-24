@@ -35,6 +35,7 @@ uniform float u_antialias;
 
 varying float v_linewidth;
 varying vec2 v_size;
+varying vec4 v_border_radius;
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
 varying float v_line_cap;
@@ -328,16 +329,52 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
-#if defined(USE_SQUARE) || defined(USE_SQUARE_CROSS) || defined(USE_SQUARE_DOT) || \
-    defined(USE_SQUARE_X)
+#if defined(USE_RECT)
+float rounded_quadrant(in vec2 p, in vec2 half_size, in float radius)
+{
+  vec2 d = abs(p) - half_size + radius;
+  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - radius;
+}
+
+float rounded_box(in vec2 p, in vec2 size, in vec4 radius)
+{
+  vec2 half_size = size/2.0;
+
+  float tl_r = radius.x;
+  float tr_r = radius.y;
+  float br_r = radius.z;
+  float bl_r = radius.w;
+
+  vec2 tl_q = min(p, 0.0);
+  vec2 tr_q = vec2(max(p.x, 0.0), min(p.y, 0.0));
+  vec2 br_q = max(p, 0.0);
+  vec2 bl_q = vec2(min(p.x, 0.0), max(p.y, 0.0));
+
+  float tl_d = rounded_quadrant(tl_q, half_size, tl_r);
+  float tr_d = rounded_quadrant(tr_q, half_size, tr_r);
+  float br_d = rounded_quadrant(br_q, half_size, br_r);
+  float bl_d = rounded_quadrant(bl_q, half_size, bl_r);
+
+  return max(max(max(tl_d, tr_d), br_d), bl_d);
+}
+
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  float dist = rounded_box(p, v_size, v_border_radius);
+  return dist;
+}
+#endif
+
+#if defined(USE_SQUARE) || defined(USE_SQUARE_CROSS) || defined(USE_SQUARE_DOT) || defined(USE_SQUARE_X)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   vec2 p2 = abs(p) - v_size/2.0;  // Offset from corner
   float dist = max(p2.x, p2.y);
 
-  if (line_join != miter_join)
+  if (line_join != miter_join) {
     dist = max(dist, line_join_distance_no_miter(
       p2, vec2(0.0, 0.0), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
+  }
 
   return dist;
 }

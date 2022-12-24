@@ -30,8 +30,8 @@ export class ReglWrapper {
   // Drawing functions.
   private _solid_line?: ReglRenderFunction
   private _dashed_line?: ReglRenderFunction
-  private _marker_no_hatch_map?: Map<MarkerType, ReglRenderFunction>
-  private _marker_hatch_map?: Map<MarkerType, ReglRenderFunction>
+  private _marker_no_hatch_map?: Map<MarkerType | "rect", ReglRenderFunction>
+  private _marker_hatch_map?: Map<MarkerType | "rect", ReglRenderFunction>
 
   // Static Buffers/Elements
   private _line_geometry: Buffer
@@ -107,9 +107,9 @@ export class ReglWrapper {
     return this._dash_cache.get(line_dash)
   }
 
-  public marker_no_hatch(marker_type: MarkerType): ReglRenderFunction {
+  public marker_no_hatch(marker_type: MarkerType | "rect"): ReglRenderFunction {
     if (this._marker_no_hatch_map == null)
-      this._marker_no_hatch_map = new Map<MarkerType, ReglRenderFunction>()
+      this._marker_no_hatch_map = new Map<MarkerType | "rect", ReglRenderFunction>()
 
     let func = this._marker_no_hatch_map.get(marker_type)
     if (func == null) {
@@ -119,9 +119,9 @@ export class ReglWrapper {
     return func
   }
 
-  public marker_hatch(marker_type: MarkerType): ReglRenderFunction {
+  public marker_hatch(marker_type: MarkerType | "rect"): ReglRenderFunction {
     if (this._marker_hatch_map == null)
-      this._marker_hatch_map = new Map<MarkerType, ReglRenderFunction>()
+      this._marker_hatch_map = new Map<MarkerType | "rect", ReglRenderFunction>()
 
     let func = this._marker_hatch_map.get(marker_type)
     if (func == null) {
@@ -304,14 +304,17 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
+function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType | "rect"): ReglRenderFunction {
   type Props = t.MarkerGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
   type Attributes = t.MarkerGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: marker_vertex_shader,
-    frag: `#define USE_${marker_type.toUpperCase()}\n${marker_fragment_shader}`,
+    frag: `\
+  #define USE_${marker_type.toUpperCase()}
+  ${marker_fragment_shader}
+  `,
 
     attributes: {
       a_position: {
@@ -354,6 +357,7 @@ function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType): ReglRenderFu
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
+      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
       u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
     },
 
@@ -381,7 +385,7 @@ function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType): ReglRenderFu
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-function regl_marker_hatch(regl: Regl, marker_type: MarkerType): ReglRenderFunction {
+function regl_marker_hatch(regl: Regl, marker_type: MarkerType | "rect"): ReglRenderFunction {
   type Props = t.MarkerHatchGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
   type Attributes = t.MarkerHatchGlyphAttributes
@@ -443,6 +447,7 @@ function regl_marker_hatch(regl: Regl, marker_type: MarkerType): ReglRenderFunct
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
+      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
       u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
     },
 
