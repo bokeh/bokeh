@@ -1194,6 +1194,13 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The angles to rotate the rectangles, as measured from the horizontal.
     """)
 
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     dilate = Bool(False, help="""
     Whether to always round fractional pixel locations in such a way
     as to make the rectangles bigger.

@@ -2114,6 +2114,7 @@
       type: "value",
       value: 0.0,
     },
+    border_radius: 0,
     dilate: false,
     line_color: {
       type: "value",

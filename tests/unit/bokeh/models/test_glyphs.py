@@ -419,6 +419,7 @@ def test_Rect() -> None:
     assert glyph.width == field("width")
     assert glyph.height == field("height")
     assert glyph.angle == 0
+    assert glyph.border_radius == 0
     assert glyph.dilate is False
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -432,6 +433,7 @@ def test_Rect() -> None:
         "height_units",
         "angle",
         "angle_units",
+        "border_radius",
         "dilate",
     ], LINE, FILL, HATCH, GLYPH)
 
