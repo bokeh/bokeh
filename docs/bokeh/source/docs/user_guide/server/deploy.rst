@@ -436,17 +436,19 @@ Add balancers for both http and websocket protocols:
         BalancerMember "http://127.0.0.1:5100/myapp"
         BalancerMember "http://127.0.0.1:5101/myapp"
         BalancerMember "http://127.0.0.1:5102/myapp"
-        ProxySet lbmethod=byrequests
+        ProxySet lbmethod=bybusyness
     </Proxy>
 
     <Proxy "balancer://myapp_ws">
         BalancerMember "ws://127.0.0.1:5100/myapp"
         BalancerMember "ws://127.0.0.1:5101/myapp"
         BalancerMember "ws://127.0.0.1:5102/myapp"
-        ProxySet lbmethod=byrequests
+        ProxySet lbmethod=bybusyness
     </Proxy>
 
-Finally, you can proxy connections to the two balancers:
+The ``bybusyness`` load balancing method ensures that an incoming connection is assigned to the instance that has the fewest active connections at that time. You may have to enable ``mod_lbmethod_bybusyness``.
+
+Finally, you can proxy websocket and http requests to the corresponding balancers:
 
 .. code-block:: apache
 
