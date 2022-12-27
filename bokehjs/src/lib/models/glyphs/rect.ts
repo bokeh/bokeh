@@ -91,7 +91,6 @@ export class RectView extends CenterRotatableView {
       if (sw_i == 0 || sh_i == 0)
         continue
 
-      ctx.beginPath()
       if (angle_i) {
         ctx.translate(sx_i, sy_i)
         ctx.rotate(angle_i)
