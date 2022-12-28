@@ -15,7 +15,7 @@ these values.
 
 Internally, all datetime values are floating point values that represent
 *milliseconds-since-epoch* (specifically, "epoch" here refers to `unix time`_,
-i.e. *1 January 1970 00:00:00 UTC*). Bokeh will convet datetime values to this
+i.e. *1 January 1970 00:00:00 UTC*). Bokeh will convert datetime values to this
 floating point format before passing on to BokehJS. On occasion (e.g. in
 ``CustomJS`` callbacks) it may be necessary to use these values directly.
 
