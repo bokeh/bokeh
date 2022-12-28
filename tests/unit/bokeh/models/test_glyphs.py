@@ -35,7 +35,7 @@ from bokeh.core.enums import (
     TextAlign,
     TextBaseline,
 )
-from bokeh.core.property.vectorization import field
+from bokeh.core.property.vectorization import field, value
 
 from _util_models import (
     BACKGROUND_FILL,
@@ -474,7 +474,7 @@ def test_Text() -> None:
     assert glyph.angle == 0
     assert glyph.x_offset == 0
     assert glyph.y_offset == 0
-    assert glyph.anchor == "auto"
+    assert glyph.anchor == value("auto")
     assert glyph.padding == 0
     assert glyph.border_radius == 0
     check_text_properties(glyph)

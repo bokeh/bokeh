@@ -14,18 +14,21 @@ import {TextAnchor, BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
 
+class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
+
 export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   readonly text: p.Uniform<string | null>
   readonly angle: p.Uniform<number>
   readonly x_offset: p.Uniform<number>
   readonly y_offset: p.Uniform<number>
+  readonly anchor: p.Uniform<TextAnchor>
 
   labels: (TextBox | null)[]
 
   swidth: Float32Array
   sheight: Float32Array
 
-  anchor: p.Uniform<XY<number>>
+  anchor_: p.Uniform<XY<number>> // can't resolve in v_materialize() due to dependency on other properties
   padding: LRTB<number>
   border_radius: Corners<number>
 }
@@ -53,25 +56,23 @@ export class TextView extends XYGlyphView {
     super.after_visuals()
 
     const n = this.data_size
-    const {anchor, padding, border_radius} = this.model
+    const {anchor} = this
+    const {padding, border_radius} = this.model
 
-    if (anchor != "auto") {
-      this.anchor = new UniformScalar(resolve.anchor(anchor), n)
+    const {text_align, text_baseline} = this.visuals.text
+    if (anchor.is_Scalar() && anchor.value != "auto") {
+      this.anchor_ = new UniformScalar(resolve.anchor(anchor.value), n)
+    } else if (anchor.is_Scalar() && text_align.is_Scalar() && text_baseline.is_Scalar()) {
+      this.anchor_ = new UniformScalar(resolve.text_anchor(anchor.value, text_align.value, text_baseline.value), n)
     } else {
-      const {text_align, text_baseline} = this.visuals.text
-
-      if (text_align.is_Scalar() && text_baseline.is_Scalar()) {
-        const anchor = resolve.text_anchor("auto", text_align.value, text_baseline.value)
-        this.anchor = new UniformScalar(anchor, n)
-      } else {
-        const anchors: XY<number>[] = new Array(n)
-        for (let i = 0; i < n; i++) {
-          const align_i = text_align.get(i)
-          const baseline_i = text_baseline.get(i)
-          anchors[i] = resolve.text_anchor("auto", align_i, baseline_i)
-        }
-        this.anchor = new UniformVector(anchors)
+      const anchors: XY<number>[] = new Array(n)
+      for (let i = 0; i < n; i++) {
+        const anchor_i = anchor.get(i)
+        const align_i = text_align.get(i)
+        const baseline_i = text_baseline.get(i)
+        anchors[i] = resolve.text_anchor(anchor_i, align_i, baseline_i)
       }
+      this.anchor_ = new UniformVector(anchors)
     }
 
     this.padding = resolve.padding(padding)
@@ -102,7 +103,7 @@ export class TextView extends XYGlyphView {
   protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
     const {sx, sy, x_offset, y_offset, angle, labels} = data ?? this
     const {text, background_fill, background_hatch, border_line} = this.visuals
-    const {anchor, border_radius, padding} = this
+    const {anchor_: anchor, border_radius, padding} = this
     const {swidth, sheight} = this
 
     for (const i of indices) {
@@ -150,7 +151,7 @@ export class TextView extends XYGlyphView {
     const {sx: px, sy: py} = geometry
 
     const {sx, sy, x_offset, y_offset, angle, labels} = this
-    const {anchor} = this
+    const {anchor_: anchor} = this
     const {swidth, sheight} = this
 
     const n = this.data_size
@@ -194,7 +195,7 @@ export class TextView extends XYGlyphView {
 
   rect_i(i: number): Rect {
     const {sx, sy, x_offset, y_offset, angle, labels} = this
-    const {anchor} = this
+    const {anchor_: anchor} = this
     const {swidth, sheight} = this
 
     const sx_i = sx[i] + x_offset.get(i)
@@ -250,7 +251,7 @@ export namespace Text {
     angle: p.AngleSpec
     x_offset: p.NumberSpec
     y_offset: p.NumberSpec
-    anchor: p.Property<TextAnchor>
+    anchor: TextAnchorSpec
     padding: p.Property<Padding>
     border_radius: p.Property<BorderRadius>
   } & Mixins
@@ -294,7 +295,7 @@ export class Text extends XYGlyph {
       angle: [ p.AngleSpec, 0 ],
       x_offset: [ p.NumberSpec, 0 ],
       y_offset: [ p.NumberSpec, 0 ],
-      anchor: [ TextAnchor, "auto" ],
+      anchor: [ TextAnchorSpec, {value: "auto"} ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
     }))

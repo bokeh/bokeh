@@ -2281,7 +2281,10 @@
       type: "value",
       value: 0,
     },
-    anchor: "auto",
+    anchor: {
+      type: "value",
+      value: "auto",
+    },
     padding: 0,
     border_radius: 0,
     text_color: {

@@ -48,6 +48,7 @@ from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
+    DataSpec,
     DistanceSpec,
     Enum,
     Float,
@@ -64,6 +65,7 @@ from ..core.properties import (
     String,
     StringSpec,
     field,
+    value,
 )
 from ..core.property_aliases import (
     Anchor,
@@ -1405,7 +1407,7 @@ class Text(XYGlyph, TextGlyph):
     distance in |screen units| from a given data position.
     """)
 
-    anchor = TextAnchor(default="auto", help="""
+    anchor = DataSpec(TextAnchor, default=value("auto"), help="""
     Position within the bounding box of this glyph to which ``x`` and ``y``
     coordinates are anchored to. This can be a named anchor point like
     ``top_left`` or ``center``, or a percentage from from left to right
