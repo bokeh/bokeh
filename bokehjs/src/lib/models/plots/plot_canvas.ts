@@ -983,6 +983,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
     const renderers = this.get_renderer_views()
+      .filter((view) => view.model.syncable) // filters out computed renderers
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
     // TODO: remove this when frame is generalized

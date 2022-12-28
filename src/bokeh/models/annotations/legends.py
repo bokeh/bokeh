@@ -25,6 +25,7 @@ from ...core.enums import (
     Anchor,
     LegendClickPolicy,
     LegendLocation,
+    Location,
     Orientation,
 )
 from ...core.has_props import abstract
@@ -43,6 +44,7 @@ from ...core.properties import (
     Nullable,
     NullStringSpec,
     Override,
+    Positive,
     Seq,
     String,
     TextLike,
@@ -351,6 +353,20 @@ class Legend(Annotation):
     when they are drawn.
     """)
 
+    ncols = Either(Positive(Int), Auto, default="auto", help="""
+    The number of columns in the legend's layout. By default it's either
+    one column if the orientation is vertical or the number of items in
+    the legend otherwise. ``ncols`` takes precendence over ``nrows`` for
+    horizonal orientation.
+    """)
+
+    nrows = Either(Positive(Int), Auto, default="auto", help="""
+    The number of rows in the legend's layout. By default it's either
+    one row if the orientation is horizonal or the number of items in
+    the legend otherwise. ``nrows`` takes precendence over ``ncols``
+    for vertical orientation.
+    """)
+
     title = Nullable(String, help="""
     The title text to render.
     """)
@@ -362,6 +378,11 @@ class Legend(Annotation):
     title_text_font_size = Override(default="13px")
 
     title_text_font_style = Override(default="italic")
+
+    title_location = Enum(Location, default="above", help="""
+    Specifies on which side of the legend the title will be located.
+    Titles on the left or right side will be rotated accordingly.
+    """)
 
     title_standoff = Int(5, help="""
     The distance (in pixels) to separate the title from the legend.
@@ -447,9 +468,9 @@ class Legend(Annotation):
     .. code-block:: python
 
         legend = Legend(items=[
-            LegendItem(label="sin(x)"   , renderers=[r0, r1]),
-            LegendItem(label="2*sin(x)" , renderers=[r2]),
-            LegendItem(label="3*sin(x)" , renderers=[r3, r4])
+            LegendItem(label="sin(x)",   renderers=[r0, r1]),
+            LegendItem(label="2*sin(x)", renderers=[r2]),
+            LegendItem(label="3*sin(x)", renderers=[r3, r4])
         ])
 
     But as a convenience, can also be given more compactly as a list of tuples:
@@ -457,17 +478,15 @@ class Legend(Annotation):
     .. code-block:: python
 
         legend = Legend(items=[
-            ("sin(x)"   , [r0, r1]),
-            ("2*sin(x)" , [r2]),
-            ("3*sin(x)" , [r3, r4])
+            ("sin(x)",   [r0, r1]),
+            ("2*sin(x)", [r2]),
+            ("3*sin(x)", [r3, r4])
         ])
 
     where each tuple is of the form: *(label, renderers)*.
 
-    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))), lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
-
-
-
+    """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))),
+        lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
 #-----------------------------------------------------------------------------
 # Dev API

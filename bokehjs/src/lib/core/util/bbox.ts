@@ -2,7 +2,7 @@ import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
 import {equals, Equatable, Comparator} from "./eq"
 import {Rect as GraphicsRect} from "./affine"
 
-const {min, max} = Math
+const {min, max, round} = Math
 
 export function empty(): Rect {
   return {
@@ -38,6 +38,11 @@ export function union(a: Rect, b: Rect): Rect {
     y0: min(a.y0, b.y0),
     y1: max(a.y1, b.y1),
   }
+}
+
+export type XY<T = number> = {
+  x: T
+  y: T
 }
 
 export type LRTB<T = number> = {
@@ -187,8 +192,8 @@ export class BBox implements Rect, Equatable {
   get right(): number { return this.x1 }
   get bottom(): number { return this.y1 }
 
-  get p0(): [number, number] { return [this.x0, this.y0] }
-  get p1(): [number, number] { return [this.x1, this.y1] }
+  get p0(): XY<number> { return {x: this.x0, y: this.y0} }
+  get p1(): XY<number> { return {x: this.x1, y: this.y1} }
 
   get x(): number { return this.x0 }
   get y(): number { return this.y0 }
@@ -228,6 +233,15 @@ export class BBox implements Rect, Equatable {
   get vcenter(): number { return (this.top + this.bottom)/2 }
 
   get area(): number { return this.width*this.height }
+
+  round(): BBox {
+    return new BBox({
+      x0: round(this.x0),
+      x1: round(this.x1),
+      y0: round(this.y0),
+      y1: round(this.y1),
+    })
+  }
 
   relative(): BBox {
     const {width, height} = this

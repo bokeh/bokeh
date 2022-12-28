@@ -152,6 +152,16 @@ export abstract class RendererView extends View implements visuals.Renderable {
   renderer_view<T extends Renderer>(_renderer: T): T["__view_type__"] | undefined {
     return undefined
   }
+
+  /**
+   * Geometry setup that doesn't change between paints.
+   */
+  update_geometry(): void {}
+
+  /**
+   * Geometry setup that changes between paints.
+   */
+  compute_geometry(): void {}
 }
 
 export namespace Renderer {

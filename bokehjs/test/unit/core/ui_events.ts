@@ -13,11 +13,11 @@ import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
-import {Legend} from "@bokehjs/models/annotations/legend"
+//import {Legend} from "@bokehjs/models/annotations/legend"
 import {Plot, PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
-import {build_view} from "@bokehjs/core/build_views"
+//import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("ui_event_bus module", () => {
@@ -126,6 +126,7 @@ describe("ui_event_bus module", () => {
         ss.restore()
       })
 
+      /*
       it("should change cursor on view_renderer with cursor method", async () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
@@ -158,6 +159,7 @@ describe("ui_event_bus module", () => {
 
         ss.restore()
       })
+      */
     })
 
     describe("base_type=tap", () => {
@@ -182,6 +184,7 @@ describe("ui_event_bus module", () => {
         expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture.id])
       })
 
+      /*
       it("should call on_hit method on view renderer if exists", async () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
@@ -196,6 +199,7 @@ describe("ui_event_bus module", () => {
         on_hit.restore()
         ss.restore()
       })
+      */
     })
 
     describe("base_type=scroll", () => {
