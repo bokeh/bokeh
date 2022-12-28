@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import (
     Anchor,
+    LegendBackgroundPolicy,
     LegendClickPolicy,
     LegendLocation,
     Location,
@@ -400,6 +401,10 @@ class Legend(Annotation):
     The {prop} for the legend background style.
     """)
 
+    item_background_props = Include(ScalarFillProps, prefix="item_background", help="""
+    The {prop} for the legend items' background style.
+    """)
+
     inactive_props = Include(ScalarFillProps, prefix="inactive", help="""
     The {prop} for the legend item style when inactive. These control an overlay
     on the item that can be used to obscure it when the corresponding glyph
@@ -410,9 +415,17 @@ class Legend(Annotation):
     Defines what happens when a lengend's item is clicked.
     """)
 
+    item_background_policy = Enum(LegendBackgroundPolicy, default="none", help="""
+    Defines which items to style, if ``item_background_fill`` is configured.
+    """)
+
     background_fill_color = Override(default="#ffffff")
 
     background_fill_alpha = Override(default=0.95)
+
+    item_background_fill_color = Override(default="#f1f1f1")
+
+    item_background_fill_alpha = Override(default=0.8)
 
     inactive_fill_color = Override(default="white")
 

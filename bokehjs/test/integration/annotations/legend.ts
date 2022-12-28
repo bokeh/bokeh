@@ -302,6 +302,7 @@ describe("Legend annotation", () => {
         nrows,
         ncols,
         title: `Markers (${nrows} x ${ncols})`,
+        item_background_policy: "even",
       })
 
       p.add_layout(legend, "center")

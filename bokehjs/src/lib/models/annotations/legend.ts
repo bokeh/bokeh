@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
+import {Orientation, LegendLocation, LegendClickPolicy, LegendBackgroundPolicy, Location} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -10,6 +10,7 @@ import {Size} from "core/layout"
 import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
+import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
@@ -386,16 +387,33 @@ export class LegendView extends AnnotationView {
       }
     })()
 
+    const has_background = (i: number) => {
+      if (!this.visuals.item_background_fill.doit)
+        return false
+      switch (this.model.item_background_policy) {
+        case "every": return true
+        case "even":  return i % 2 == 0
+        case "odd":   return i % 2 == 1
+        case "none":  return false
+      }
+    }
+
     const {left, top} = this.bbox
     ctx.translate(left, top)
     ctx.translate(this.grid.bbox.left, this.grid.bbox.top)
 
-    for (const entry of this.grid) {
+    for (const [entry, i] of enumerate(this.grid)) {
       const {bbox, text, item, label, field, settings} = entry
       const {glyph_width, glyph_height, label_standoff} = settings
 
       const {left, top, width, height} = bbox
       ctx.translate(left, top)
+
+      if (has_background(i)) {
+        ctx.beginPath()
+        ctx.rect(0, 0, width, height)
+        this.visuals.item_background_fill.apply(ctx)
+      }
 
       const vcenter = height/2
       const x0 = 0
@@ -448,6 +466,7 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
+    item_background_policy: p.Property<LegendBackgroundPolicy>
   } & Mixins
 
   export type Mixins =
@@ -455,7 +474,8 @@ export namespace Legend {
     mixins.TitleText      &
     mixins.InactiveFill   &
     mixins.BorderLine     &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.ItemBackgroundFill
 
   export type Visuals = Annotation.Visuals & {
     label_text: visuals.Text
@@ -463,6 +483,7 @@ export namespace Legend {
     inactive_fill: visuals.Fill
     border_line: visuals.Line
     background_fill: visuals.Fill
+    item_background_fill: visuals.Fill
   }
 }
 
@@ -487,11 +508,12 @@ export class Legend extends Annotation {
     this.prototype.default_view = LegendView
 
     this.mixins<Legend.Mixins>([
-      ["label_",      mixins.Text],
-      ["title_",      mixins.Text],
-      ["inactive_",   mixins.Fill],
-      ["border_",     mixins.Line],
-      ["background_", mixins.Fill],
+      ["label_",           mixins.Text],
+      ["title_",           mixins.Text],
+      ["inactive_",        mixins.Fill],
+      ["border_",          mixins.Line],
+      ["background_",      mixins.Fill],
+      ["item_background_", mixins.Fill],
     ])
 
     this.define<Legend.Props>(({Number, Int, String, Array, Tuple, Or, Ref, Nullable, Positive, Auto}) => ({
@@ -512,6 +534,7 @@ export class Legend extends Annotation {
       spacing:          [ Number, 3 ],
       items:            [ Array(Ref(LegendItem)), [] ],
       click_policy:     [ LegendClickPolicy, "none" ],
+      item_background_policy: [ LegendBackgroundPolicy, "none" ],
     }))
 
     this.override<Legend.Props>({
@@ -520,6 +543,8 @@ export class Legend extends Annotation {
       border_line_width: 1,
       background_fill_color: "#ffffff",
       background_fill_alpha: 0.95,
+      item_background_fill_color: "#f1f1f1",
+      item_background_fill_alpha: 0.8,
       inactive_fill_color: "white",
       inactive_fill_alpha: 0.7,
       label_text_font_size: "13px",

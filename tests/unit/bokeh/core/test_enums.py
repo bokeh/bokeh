@@ -55,6 +55,7 @@ ALL  = (
     'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
+    'LegendBackgroundPolicy',
     'LegendClickPolicy',
     'LegendLocation',
     'LineCap',
@@ -213,6 +214,9 @@ class Test_bce:
     def test_LatLon(self) -> None:
         assert tuple(bce.LatLon) == ("lat", "lon")
 
+    def test_LegendBackgroundPolicy(self) -> None:
+        assert tuple(bce.LegendBackgroundPolicy) == ("none", "even", "odd", "every")
+
     def test_LegendClickPolicy(self) -> None:
         assert tuple(bce.LegendClickPolicy) == ("none", "hide", "mute")
 
@@ -352,6 +356,7 @@ def test_enums_contents() -> None:
         'ImageOrigin',
         'JitterRandomDistribution',
         'LatLon',
+        'LegendBackgroundPolicy',
         'LegendClickPolicy',
         'LegendLocation',
         'LineCap',

@@ -115,6 +115,7 @@ __all__ = (
     'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
+    'LegendBackgroundPolicy',
     'LegendClickPolicy',
     'LegendLocation',
     'LineCap',
@@ -372,6 +373,9 @@ JitterRandomDistribution = enumeration(JitterRandomDistributionType)
 
 #: Specify whether a dimension or coordinate is latitude or longitude
 LatLon = enumeration("lat", "lon")
+
+#: Specify how a legend should style its items
+LegendBackgroundPolicy = enumeration("none", "even", "odd", "every")
 
 #: Specify how a legend should respond to click events
 LegendClickPolicy = enumeration("none", "hide", "mute")
