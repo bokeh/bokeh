@@ -121,7 +121,7 @@ class FileInput(InputWidget):
     value = Readonly(Either(String, List(String)), help='''
     The base64-enconded contents of the file or files that were loaded.
 
-    If `mulitiple` is set to False (default), this value is a single string with the contents
+    If `multiple` is set to False (default), this value is a single string with the contents
     of the single file that was chosen.
 
     If `multiple` is True, this value is a list of strings, each containing the contents of
@@ -133,7 +133,7 @@ class FileInput(InputWidget):
     mime_type = Readonly(Either(String, List(String)), help='''
     The mime-type of the file or files that were loaded.
 
-    If `mulitiple` is set to False (default), this value is a single string with the
+    If `multiple` is set to False (default), this value is a single string with the
     mime-type of the single file that was chosen.
 
     If `multiple` is True, this value is a list of strings, each containing the
@@ -145,7 +145,7 @@ class FileInput(InputWidget):
     filename = Readonly(Either(String, List(String)), help='''
     The name(s) of the file or files that were loaded.
 
-    If `mulitiple` is set to False (default), this value is a single string with the
+    If `multiple` is set to False (default), this value is a single string with the
     name of the single file that was chosen.
 
     If `multiple` is True, this value is a list of strings, each containing the
