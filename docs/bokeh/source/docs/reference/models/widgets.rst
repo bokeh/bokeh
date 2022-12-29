@@ -11,7 +11,7 @@ Display a variety of interactive widgets.
     take care of this automatically. For more advanced use-cases, see
     :ref:`bokeh.resources`.
 
-The full list of wiget categories is below:
+The full list of widget categories is below:
 
 .. toctree::
    :maxdepth: 2
