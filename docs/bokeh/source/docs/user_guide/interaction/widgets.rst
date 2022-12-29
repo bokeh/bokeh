@@ -38,8 +38,9 @@ Which one to use depends on whether you are using
   HTML document, the browser needs to handle all interactivity. Therefore,
   you can only use :ref:`ug_interaction_js_callbacks`.
   You can write your own Javascript code, or use Bokeh's pre-defined Python
-  conveniences such as the :ref:`js_link <ug_interaction_linked_properties>` function or a SetValue object
-  which generate the necessary JavaScript code for you.
+  conveniences such as the :ref:`js_link <ug_interaction_linked_properties>`
+  function or a :class:`~bokeh.models.SetValue` object which generate the
+  necessary JavaScript code for you.
 * If you want to use widgets in connection with a **Bokeh server**, the server
   can handle some interactivity. This allows you to use :ref:`callbacks
   written in Python <ug_interaction_python_callbacks>`.
@@ -52,7 +53,16 @@ Which one to use depends on whether you are using
 Widget tooltips
 ---------------
 
-[TBD] Link to tooltip / Special UI elements chapter
+You can attach tooltips to widgets. This can be helpful to provide additional
+information about the widget's purpose or use, for example.
+
+Hover over the question mark icon next to "Choose values" to see the tooltip.
+
+.. bokeh-plot:: __REPO__/examples/interaction/tooltips/tooltip_description.py
+    :source-position: none
+
+See :ref:`ug_interaction_tooltips_supported` for more information about adding
+tooltips to widgets.
 
 .. _ug_interaction_widgets_examples:
 
@@ -60,8 +70,8 @@ Bokeh's built-in widgets
 ------------------------
 
 The sections below are examples for all widgets available in Bokeh. Many of the
-examples print output that can be observed by looking at your browser's
-JavaScript console log.
+examples produce print output using the JavaScript `console.log` function. You
+can see this output in your browser's JavaScript console log.
 
 .. _ug_interaction_widgets_examples_autocompleteinput:
 
