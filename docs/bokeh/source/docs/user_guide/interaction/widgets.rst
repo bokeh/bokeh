@@ -70,7 +70,7 @@ Bokeh's built-in widgets
 ------------------------
 
 The sections below are examples for all widgets available in Bokeh. Many of the
-examples produce print output using the JavaScrip `console.log` function. You
+examples produce print output using the JavaScript `console.log` function. You
 can see this output in your browser's JavaScript console log.
 
 .. _ug_interaction_widgets_examples_autocompleteinput:
