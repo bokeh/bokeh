@@ -17,14 +17,9 @@ export class EllipseView extends CenterRotatableView  {
   /** @internal */
   declare glglyph?: import("./webgl/ellipse").EllipseGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {EllipseGL} = await import("./webgl/ellipse")
-      this.glglyph = new EllipseGL(webgl.regl_wrapper, this)
-    }
+  override async load_glglyph() {
+    const {EllipseGL} = await import("./webgl/ellipse")
+    return EllipseGL
   }
 
   protected override _map_data(): void {

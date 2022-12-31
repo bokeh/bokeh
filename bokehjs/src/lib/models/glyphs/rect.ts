@@ -34,14 +34,9 @@ export class RectView extends CenterRotatableView {
   /** @internal */
   declare glglyph?: import("./webgl/rect").RectGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {RectGL} = await import("./webgl/rect")
-      this.glglyph = new RectGL(webgl.regl_wrapper, this)
-    }
+  override async load_glglyph() {
+    const {RectGL} = await import("./webgl/rect")
+    return RectGL
   }
 
   protected override _set_data(indices: number[] | null): void {

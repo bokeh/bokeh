@@ -33,14 +33,9 @@ export class CircleView extends XYGlyphView {
   /** @internal */
   declare glglyph?: import("./webgl/circle").CircleGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {CircleGL} = await import("./webgl/circle")
-      this.glglyph = new CircleGL(webgl.regl_wrapper, this)
-    }
+  override async load_glglyph() {
+    const {CircleGL} = await import("./webgl/circle")
+    return CircleGL
   }
 
   get use_radius(): boolean {

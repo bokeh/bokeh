@@ -1,7 +1,11 @@
 // This module implements the Base GL Glyph and some utilities
 import {Context2d} from "core/util/canvas"
-import {GlyphView} from "../glyph"
+import {type GlyphView} from "../glyph"
 import {ReglWrapper} from "./regl_wrap"
+
+export type BaseGLGlyphConstructor = {
+  new(regl: ReglWrapper, base_glyph: GlyphView): BaseGLGlyph
+}
 
 export abstract class BaseGLGlyph {
   protected nvertices: number = 0

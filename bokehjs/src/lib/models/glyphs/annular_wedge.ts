@@ -35,14 +35,9 @@ export class AnnularWedgeView extends XYGlyphView {
   /** @internal */
   declare glglyph?: import("./webgl/annular_wedge").AnnularWedgeGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {AnnularWedgeGL} = await import("./webgl/annular_wedge")
-      this.glglyph = new AnnularWedgeGL(webgl.regl_wrapper, this)
-    }
+  override async load_glglyph() {
+    const {AnnularWedgeGL} = await import("./webgl/annular_wedge")
+    return AnnularWedgeGL
   }
 
   protected override _map_data(): void {
