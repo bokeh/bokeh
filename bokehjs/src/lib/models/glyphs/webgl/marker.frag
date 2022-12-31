@@ -212,6 +212,40 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
+#if defined(USE_ELLIPSE)
+// From https://www.shadertoy.com/view/tttfzr (MIT licensed)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  vec2 ab = 0.5*v_size;
+
+  // symmetry
+	p = abs(p);
+
+  // initial value
+  vec2 q = ab*(p - ab);
+  vec2 cs = normalize(q.x < q.y ? vec2(0.01, 1.0) : vec2(1.0, 0.01));
+
+  // find root with Newton solver (see https://www.shadertoy.com/view/4lsXDN)
+  for (int i = 0; i < 5; i++)
+  {
+    vec2 u = ab*vec2( cs.x, cs.y);
+    vec2 v = ab*vec2(-cs.y, cs.x);
+
+    float a = dot(p - u, v);
+    float c = dot(p - u, u) + dot(v, v);
+    float b = sqrt(c*c - a*a);
+
+    cs = vec2(cs.x*b - cs.y*a, cs.y*b + cs.x*a)/c;
+  }
+
+  // compute final point and distance
+  float d = length(p - ab*cs);
+
+  // return signed distance
+  return dot(p/ab, p/ab) > 1.0 ? d : -d;
+}
+#endif
+
 #if defined(USE_CIRCLE) || defined(USE_CIRCLE_CROSS) || defined(USE_CIRCLE_DOT) || \
     defined(USE_CIRCLE_X) || defined(USE_CIRCLE_Y)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)

@@ -82,11 +82,22 @@ describe("Glyph models", () => {
   it("should support Ellipse", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
-      p.ellipse({x: [1, 2, 3], y, width: [1, 1.5, 2], height: [1.5, 2, 2.5], fill_color, alpha: 0.6, angle: [0, 0.8, -1.6]})
-      p.ellipse({x: [3, 4, 5], y, width: [1, 1.5, 2], height: [1.5, 2, 2.5], fill_color, alpha: 0.6, angle: [0, 0.8, -1.6], hatch_pattern})
+      p.ellipse({
+        x: [1, 2, 3], y,
+        width: [1, 1.5, 2], height: [1.5, 2, 2.5],
+        angle: [0, 30, 90], angle_units: "deg",
+        fill_color, alpha: 0.6,
+      })
+      p.ellipse({
+        x: [3, 4, 5], y,
+        width: [1, 1.5, 2], height: [1.5, 2, 2.5],
+        angle: [0, 30, 90], angle_units: "deg",
+        fill_color, alpha: 0.6,
+        hatch_pattern,
+      })
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support HArea", async () => {
