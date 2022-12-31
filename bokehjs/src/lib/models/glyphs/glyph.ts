@@ -3,6 +3,7 @@ import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as visuals from "core/visuals"
 import * as geometry from "core/geometry"
+import {settings} from "core/settings"
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
 import {Model} from "../../model"
@@ -97,6 +98,8 @@ export abstract class GlyphView extends View {
       this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
       if (this.renderer.needs_webgl_blit)
         return
+    } else if (this.canvas.webgl && settings.force_webgl) {
+      throw new Error(`${this} doesn't support webgl rendering`)
     }
 
     this._render(ctx, indices, data ?? this.base)
