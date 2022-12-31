@@ -1,8 +1,8 @@
-import {Transform} from "./base"
 import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
+import {GLMarkerType} from "./types"
 import type {BlockView} from "../block"
 import type {HBarView} from "../hbar"
 import type {QuadView} from "../quad"
@@ -15,8 +15,8 @@ export class LRTBGL extends SingleMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: AnyLRTBView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "rect")
+  get marker_type(): GLMarkerType {
+    return "rect"
   }
 
   protected override _get_visuals(): MarkerVisuals {

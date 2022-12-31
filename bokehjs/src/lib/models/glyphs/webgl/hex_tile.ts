@@ -1,8 +1,8 @@
-import {Transform} from "./base"
 import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
+import {GLMarkerType} from "./types"
 import type {HexTileView} from "../hex_tile"
 
 export class HexTileGL extends SingleMarkerGL {
@@ -10,8 +10,8 @@ export class HexTileGL extends SingleMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: HexTileView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "hex")
+  get marker_type(): GLMarkerType {
+    return "hex"
   }
 
   protected override _get_visuals(): MarkerVisuals {

@@ -1,9 +1,8 @@
-import {Transform} from "./base"
 import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
-
+import {GLMarkerType} from "./types"
 import type {AnnulusView} from "../annulus"
 
 export class AnnulusGL extends SingleMarkerGL {
@@ -11,8 +10,8 @@ export class AnnulusGL extends SingleMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: AnnulusView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "annulus")
+  get marker_type(): GLMarkerType {
+    return "annulus"
   }
 
   protected override _get_visuals(): MarkerVisuals {

@@ -1,9 +1,8 @@
-import {Transform} from "./base"
 import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
-
+import {GLMarkerType} from "./types"
 import type {AnnularWedgeView} from "../annular_wedge"
 
 export class AnnularWedgeGL extends SingleMarkerGL {
@@ -11,8 +10,8 @@ export class AnnularWedgeGL extends SingleMarkerGL {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: AnnularWedgeView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "annular_wedge")
+  get marker_type(): GLMarkerType {
+    return "annular_wedge"
   }
 
   protected override _get_visuals(): MarkerVisuals {

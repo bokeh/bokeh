@@ -58,8 +58,6 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     this._show_all = false
   }
 
-  abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
-
   protected _draw_one_marker_type(marker_type: GLMarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
