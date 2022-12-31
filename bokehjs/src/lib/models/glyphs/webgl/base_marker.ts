@@ -20,10 +20,10 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   private _antialias: number
 
   // data properties, either all or none are set.
-  protected _centers?: Float32Buffer
-  protected _widths?: Float32Buffer
+  protected readonly _centers = new Float32Buffer(this.regl_wrapper)
+  protected readonly _widths = new Float32Buffer(this.regl_wrapper)
   protected _heights?: Float32Buffer
-  protected _angles?: Float32Buffer
+  protected readonly _angles = new Float32Buffer(this.regl_wrapper)
 
   // used by RectGL
   protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
@@ -64,10 +64,10 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       viewport: this.regl_wrapper.viewport,
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
-      center: main_gl_glyph._centers!,
-      width: main_gl_glyph._widths!,
+      center: main_gl_glyph._centers,
+      width: main_gl_glyph._widths,
       height: main_gl_glyph._heights!,
-      angle: main_gl_glyph._angles!,
+      angle: main_gl_glyph._angles,
       border_radius: main_gl_glyph._border_radius,
       size_hint: marker_type_to_size_hint(marker_type),
       nmarkers: main_gl_glyph.nvertices,

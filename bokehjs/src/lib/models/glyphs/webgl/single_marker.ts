@@ -2,14 +2,15 @@ import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
 import {ReglWrapper} from "./regl_wrap"
 import {GLMarkerType} from "./types"
-import {GlyphView} from "../glyph"
+import {type GlyphView} from "../glyph"
 
-type SingleMarkerGlyphView = GlyphView & {
+export type SingleMarkerGlyphView = GlyphView & {
   visuals: MarkerVisuals
   glglyph?: SingleMarkerGL
 }
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
+
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
   }

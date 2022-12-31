@@ -4,15 +4,12 @@ import {GlyphView} from "../glyph"
 import {ReglWrapper} from "./regl_wrap"
 
 export abstract class BaseGLGlyph {
-  protected regl_wrapper: ReglWrapper
   protected nvertices: number = 0
   protected size_changed: boolean = false
   protected data_changed: boolean = false
   protected visuals_changed: boolean = false
 
-  constructor(regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {
-    this.regl_wrapper = regl_wrapper
-  }
+  constructor(protected readonly regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {}
 
   set_data_changed(): void {
     const {data_size} = this.glyph

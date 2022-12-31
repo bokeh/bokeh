@@ -22,19 +22,6 @@ export class BlockView extends LRTBView {
   declare model: Block
   declare visuals: Block.Visuals
 
-  /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
-
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {LRTBGL} = await import("./webgl/lrtb")
-      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
-    }
-  }
-
   scenterxy(i: number): [number, number] {
     const scx = this.sleft[i]/2 + this.sright[i]/2
     const scy = this.stop[i]/2 + this.sbottom[i]/2

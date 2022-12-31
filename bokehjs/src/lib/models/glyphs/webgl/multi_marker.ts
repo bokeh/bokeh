@@ -1,6 +1,5 @@
 import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import type {ScatterView} from "../scatter"
 import {MarkerType} from "core/enums"
@@ -74,12 +73,8 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _set_data(): void {
     const nmarkers = this.nvertices
 
-    if (this._centers == null) {
-      // Either all or none are set.
-      this._centers = new Float32Buffer(this.regl_wrapper)
-      this._widths = new Float32Buffer(this.regl_wrapper)
+    if (this._heights == null) {
       this._heights = this._widths
-      this._angles = new Float32Buffer(this.regl_wrapper)
     }
 
     const centers_array = this._centers.get_sized_array(nmarkers*2)
@@ -93,8 +88,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
       }
     }
     this._centers.update()
-    this._widths!.set_from_prop(this.glyph.size)
-    this._angles!.set_from_prop(this.glyph.angle)
+
+    this._widths.set_from_prop(this.glyph.size)
+    this._angles.set_from_prop(this.glyph.angle)
 
     this._marker_types = this.glyph.marker
     this._unique_marker_types = [...new Set(this._marker_types)]

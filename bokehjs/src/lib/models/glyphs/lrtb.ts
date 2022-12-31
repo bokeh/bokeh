@@ -37,6 +37,19 @@ export abstract class LRTBView extends GlyphView {
   declare model: LRTB
   declare visuals: LRTB.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {LRTBGL} = await import("./webgl/lrtb")
+      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
+    }
+  }
+
   override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
     const right = Math.max(this.sright[i], this.sleft[i])
