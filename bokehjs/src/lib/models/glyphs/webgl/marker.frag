@@ -213,14 +213,59 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 #endif
 
 #if defined(USE_ANNULUS) || defined(USE_WEDGE) || defined(USE_ANNULAR_WEDGE)
+float merge(in float d1, in float d2)
+{
+  return min(d1, d2);
+}
+
+float intersect(in float d1, in float d2)
+{
+  return max(d1, d2);
+}
+
 float subtract(in float d1, in float d2)
 {
   return max(d1, -d2);
 }
 
+float cro2(in vec2 a, in vec2 b)
+{
+  return a.x*b.y - a.y*b.x;
+}
+
 float circle(in vec2 p, in float radius)
 {
   return length(p) - radius;
+}
+
+float segment_square(in vec2 p, in vec2 q) {
+  vec2 v = p - q*clamp(dot(p, q)/dot(q, q), 0.0, 1.0);
+  return dot(v, v);
+}
+
+vec2 xy(in float angle)
+{
+  return vec2(cos(angle), sin(angle));
+}
+
+// From https://www.shadertoy.com/view/wldXWB (MIT licensed)
+float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
+{
+    vec2 a = r*xy(start_angle);
+    vec2 b = r*xy(end_angle);
+
+    // distance
+    float d = sqrt(merge(segment_square(p, a), segment_square(p, b)));
+
+    // sign
+    float s;
+    if (abs(start_angle - end_angle) > PI) {
+        s =  sign(max(cro2(a, p), cro2(p, b)));
+    } else {
+        s = -sign(max(cro2(p, a), cro2(b, p)));
+    }
+
+    return s*d;
 }
 
 float annulus(in vec2 p, in float outer_radius, in float inner_radius)
@@ -240,6 +285,20 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   float inner_radius = 0.5*outer_radius;
 
   return annulus(p, outer_radius, inner_radius);
+}
+#endif
+
+#if defined(USE_WEDGE)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  // Assuming v_size.x == v.size_y
+  float radius = 0.5*v_size.x;
+  float start_angle = 0.0;
+  float end_angle = 1.0/3.0*PI;
+
+  return intersect(
+    circle(p, radius),
+    wedge(p, radius, start_angle, end_angle));
 }
 #endif
 
