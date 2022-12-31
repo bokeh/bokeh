@@ -302,6 +302,22 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
+#if defined(USE_ANNULAR_WEDGE)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  // Assuming v_size.x == v.size_y
+  float outer_radius = 0.5*v_size.x;
+  float inner_radius = 0.5*outer_radius;
+
+  float start_angle = 0.0;
+  float end_angle = 1.0/3.0*PI;
+
+  return intersect(
+    annulus(p, outer_radius, inner_radius),
+    wedge(p, outer_radius, start_angle, end_angle));
+}
+#endif
+
 #if defined(USE_ELLIPSE)
 // From https://www.shadertoy.com/view/tttfzr (MIT licensed)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)

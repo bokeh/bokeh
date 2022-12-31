@@ -1,4 +1,5 @@
 export {get_regl} from "./regl_wrap"
+export * from "./annular_wedge"
 export * from "./annulus"
 export * from "./base_line"
 export * from "./base_marker"

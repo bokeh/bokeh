@@ -2,7 +2,7 @@ import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
 
 import {MarkerType} from "core/enums"
-export type GLMarkerType = MarkerType | "ellipse" | "annulus" | "wedge"
+export type GLMarkerType = MarkerType | "ellipse" | "annulus" | "wedge" | "annular_wedge"
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
 type CommonProps = {
