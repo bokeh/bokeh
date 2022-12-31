@@ -4,14 +4,23 @@ import {ReglWrapper} from "./regl_wrap"
 import {GLMarkerType} from "./types"
 import {GlyphView} from "../glyph"
 
+type SingleMarkerGlyphView = GlyphView & {
+  visuals: MarkerVisuals
+  glglyph?: SingleMarkerGL
+}
+
 export abstract class SingleMarkerGL extends BaseMarkerGL {
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: GlyphView) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: SingleMarkerGlyphView) {
     super(regl_wrapper, glyph)
   }
 
   abstract get marker_type(): GLMarkerType
 
-  draw(indices: number[], main_glyph: GlyphView & {glglyph?: SingleMarkerGL}, transform: Transform): void {
+  protected override _get_visuals(): MarkerVisuals {
+    return this.glyph.visuals
+  }
+
+  draw(indices: number[], main_glyph: SingleMarkerGlyphView, transform: Transform): void {
     this._draw_impl(indices, transform, main_glyph.glglyph!, this.marker_type)
   }
 
@@ -48,8 +57,4 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
     this._draw_one_marker_type(marker_type, transform, main_gl_glyph)
   }
-
-  protected abstract override _get_visuals(): MarkerVisuals
-
-  protected abstract override _set_data(): void
 }

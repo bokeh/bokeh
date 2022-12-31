@@ -1,4 +1,3 @@
-import {MarkerVisuals} from "./base_marker"
 import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
@@ -12,10 +11,6 @@ export class EllipseGL extends SingleMarkerGL {
 
   get marker_type(): GLMarkerType {
     return "ellipse"
-  }
-
-  protected override _get_visuals(): MarkerVisuals {
-    return this.glyph.visuals
   }
 
   protected override _set_data(): void {
