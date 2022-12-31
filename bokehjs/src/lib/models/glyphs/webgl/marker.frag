@@ -212,6 +212,37 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
+#if defined(USE_ANNULUS) || defined(USE_WEDGE) || defined(USE_ANNULAR_WEDGE)
+float subtract(in float d1, in float d2)
+{
+  return max(d1, -d2);
+}
+
+float circle(in vec2 p, in float radius)
+{
+  return length(p) - radius;
+}
+
+float annulus(in vec2 p, in float outer_radius, in float inner_radius)
+{
+  float outer = circle(p, outer_radius);
+  float inner = circle(p, inner_radius);
+
+  return subtract(outer, inner);
+}
+#endif
+
+#if defined(USE_ANNULUS)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  // Assuming v_size.x == v.size_y
+  float outer_radius = 0.5*v_size.x;
+  float inner_radius = 0.5*outer_radius;
+
+  return annulus(p, outer_radius, inner_radius);
+}
+#endif
+
 #if defined(USE_ELLIPSE)
 // From https://www.shadertoy.com/view/tttfzr (MIT licensed)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)

@@ -1,4 +1,5 @@
 export {get_regl} from "./regl_wrap"
+export * from "./annulus"
 export * from "./base_line"
 export * from "./base_marker"
 export * from "./circle"

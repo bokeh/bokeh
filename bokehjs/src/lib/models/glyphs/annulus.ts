@@ -24,6 +24,19 @@ export class AnnulusView extends XYGlyphView {
   declare model: Annulus
   declare visuals: Annulus.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/annulus").AnnulusGL
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+
+    const {webgl} = this.renderer.plot_view.canvas_view
+    if (webgl != null && webgl.regl_wrapper.has_webgl) {
+      const {AnnulusGL} = await import("./webgl/annulus")
+      this.glglyph = new AnnulusGL(webgl.regl_wrapper, this)
+    }
+  }
+
   protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
