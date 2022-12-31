@@ -2,10 +2,9 @@ import {Vec4} from "regl"
 import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
-import {MarkerGlyphProps, MarkerHatchGlyphProps} from "./types"
+import {MarkerGlyphProps, GLMarkerType} from "./types"
 import {marker_type_to_size_hint} from "./webgl_utils"
 import {GlyphView} from "../glyph"
-import {MarkerType} from "core/enums"
 import * as visuals from "core/visuals"
 
 export type MarkerVisuals = {
@@ -61,7 +60,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
-  protected _draw_one_marker_type(marker_type: MarkerType | "rect", transform: Transform, main_gl_glyph: BaseMarkerGL): void {
+  protected _draw_one_marker_type(marker_type: GLMarkerType, transform: Transform, main_gl_glyph: BaseMarkerGL): void {
     const props_no_hatch: MarkerGlyphProps = {
       scissor: this.regl_wrapper.scissor,
       viewport: this.regl_wrapper.viewport,
@@ -84,16 +83,19 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     }
 
     if (this._have_hatch) {
-      const props_hatch: MarkerHatchGlyphProps = {
+      const props_hatch = {
         ...props_no_hatch,
         hatch_pattern: this._hatch_patterns!,
         hatch_scale: this._hatch_scales!,
         hatch_weight: this._hatch_weights!,
         hatch_color: this._hatch_rgba!,
       }
-      this.regl_wrapper.marker_hatch(marker_type)(props_hatch)
+
+      const draw = this.regl_wrapper.marker_hatch(marker_type)
+      draw(props_hatch)
     } else {
-      this.regl_wrapper.marker_no_hatch(marker_type)(props_no_hatch)
+      const draw = this.regl_wrapper.marker_no_hatch(marker_type)
+      draw(props_no_hatch)
     }
   }
 

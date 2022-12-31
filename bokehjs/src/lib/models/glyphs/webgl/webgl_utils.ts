@@ -1,6 +1,6 @@
 import {HatchPattern} from "core/property_mixins"
 import {hatch_aliases} from "core/visuals/patterns"
-import {MarkerType} from "core/enums"
+import {GLMarkerType} from "./types"
 
 // WebGL shaders use integers for caps, joins and hatching.
 export const cap_lookup = {butt: 0, round: 1, square: 2}
@@ -31,7 +31,7 @@ export function hatch_pattern_to_index(pattern: HatchPattern): number {
   return hatch_pattern_lookup[hatch_aliases[pattern] ?? pattern] ?? 0
 }
 
-export function marker_type_to_size_hint(marker_type: MarkerType | "rect"): number {
+export function marker_type_to_size_hint(marker_type: GLMarkerType): number {
   // Marker size hint is only used here and in the marker fragment shader.
   switch (marker_type) {
     case "dash":

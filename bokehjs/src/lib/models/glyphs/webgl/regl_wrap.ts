@@ -1,12 +1,12 @@
 import createRegl from "regl"
 import {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
 import * as t from "./types"
+import {GLMarkerType} from "./types"
 import {DashCache, DashReturn} from "./dash_cache"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./marker.vert"
 import marker_fragment_shader from "./marker.frag"
-import {MarkerType} from "core/enums"
 
 // All access to regl is performed via the get_regl() function that returns a
 // ReglWrapper object.  This ensures that regl is correctly initialised before
@@ -20,7 +20,7 @@ export function get_regl(gl: WebGLRenderingContext): ReglWrapper {
   return regl_wrapper
 }
 
-type ReglRenderFunction = ({}) => void
+type ReglRenderFunction<T = {}> = (props: T) => void
 
 export class ReglWrapper {
   private _regl: Regl
@@ -30,8 +30,8 @@ export class ReglWrapper {
   // Drawing functions.
   private _solid_line?: ReglRenderFunction
   private _dashed_line?: ReglRenderFunction
-  private _marker_no_hatch_map?: Map<MarkerType | "rect", ReglRenderFunction>
-  private _marker_hatch_map?: Map<MarkerType | "rect", ReglRenderFunction>
+  private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
+  private _marker_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerHatchGlyphProps>> = new Map()
 
   // Static Buffers/Elements
   private _line_geometry: Buffer
@@ -107,10 +107,7 @@ export class ReglWrapper {
     return this._dash_cache.get(line_dash)
   }
 
-  public marker_no_hatch(marker_type: MarkerType | "rect"): ReglRenderFunction {
-    if (this._marker_no_hatch_map == null)
-      this._marker_no_hatch_map = new Map<MarkerType | "rect", ReglRenderFunction>()
-
+  public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
     let func = this._marker_no_hatch_map.get(marker_type)
     if (func == null) {
       func = regl_marker_no_hatch(this._regl, marker_type)
@@ -119,10 +116,7 @@ export class ReglWrapper {
     return func
   }
 
-  public marker_hatch(marker_type: MarkerType | "rect"): ReglRenderFunction {
-    if (this._marker_hatch_map == null)
-      this._marker_hatch_map = new Map<MarkerType | "rect", ReglRenderFunction>()
-
+  public marker_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerHatchGlyphProps> {
     let func = this._marker_hatch_map.get(marker_type)
     if (func == null) {
       func = regl_marker_hatch(this._regl, marker_type)
@@ -304,7 +298,7 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType | "rect"): ReglRenderFunction {
+function regl_marker_no_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
   type Props = t.MarkerGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
   type Attributes = t.MarkerGlyphAttributes
@@ -385,7 +379,7 @@ function regl_marker_no_hatch(regl: Regl, marker_type: MarkerType | "rect"): Reg
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-function regl_marker_hatch(regl: Regl, marker_type: MarkerType | "rect"): ReglRenderFunction {
+function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
   type Props = t.MarkerHatchGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
   type Attributes = t.MarkerHatchGlyphAttributes

@@ -2,8 +2,8 @@ import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
 import {Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
+import {GLMarkerType} from "./types"
 import {GlyphView} from "../glyph"
-import {MarkerType} from "core/enums"
 
 export abstract class SingleMarkerGL extends BaseMarkerGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: GlyphView) {
@@ -12,7 +12,7 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
   abstract override draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
 
-  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: MarkerType | "rect"): void {
+  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: GLMarkerType): void {
     if (main_gl_glyph.data_changed) {
       main_gl_glyph._set_data()
       main_gl_glyph.data_changed = false
