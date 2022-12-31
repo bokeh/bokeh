@@ -29,7 +29,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
 
   // indices properties.
-  protected _show?: Uint8Buffer
+  protected readonly _show = new Uint8Buffer(this.regl_wrapper)
   protected _show_all: boolean
 
   // visual properties, either all or none are set.
@@ -79,7 +79,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       fill_color: this._fill_rgba,
       line_cap: this._line_caps,
       line_join: this._line_joins,
-      show: this._show!,
+      show: this._show,
     }
 
     if (this._have_hatch) {

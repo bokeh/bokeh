@@ -1,6 +1,5 @@
 import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {GLMarkerType} from "./types"
 import {GlyphView} from "../glyph"
@@ -24,9 +23,6 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     }
 
     const nmarkers = main_gl_glyph.nvertices
-
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
 
     const prev_nmarkers = this._show.length
     const show_array = this._show.get_sized_array(nmarkers)

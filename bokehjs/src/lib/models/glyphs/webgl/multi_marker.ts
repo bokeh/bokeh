@@ -1,6 +1,6 @@
 import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {Float32Buffer, Uint8Buffer} from "./buffer"
+import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import type {ScatterView} from "../scatter"
 import {MarkerType} from "core/enums"
@@ -31,9 +31,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
     }
 
     const nmarkers = main_gl_glyph.nvertices
-
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
 
     const ntypes = main_gl_glyph._unique_marker_types.length
     for (const marker_type of main_gl_glyph._unique_marker_types) {
