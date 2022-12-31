@@ -44,6 +44,6 @@ export class CircleGL extends SingleMarkerGL {
     this._centers.update()
     this._widths!.update()
 
-    this._angles!.set_from_prop(this.glyph.angle)
+    this._angles!.set_from_scalar(0, 1) // Circle.angle is defunct
   }
 }
