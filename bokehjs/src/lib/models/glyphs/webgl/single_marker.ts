@@ -30,8 +30,7 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
       this._show_all = false
 
       // Reset all show values to zero.
-      for (let i = 0; i < nmarkers; i++)
-        show_array[i] = 0
+      show_array.fill(0)
 
       // Set show values of markers to render to 255.
       for (let j = 0; j < indices.length; j++) {
@@ -39,8 +38,7 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
       }
     } else if (!this._show_all || prev_nmarkers != nmarkers) {
       this._show_all = true
-      for (let i = 0; i < nmarkers; i++)
-        show_array[i] = 255
+      show_array.fill(255)
     }
     this._show.update()
 
