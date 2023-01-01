@@ -225,8 +225,14 @@ function regl_dashed_line(regl: Regl, line_geometry: Buffer, line_triangles: Ele
   type Attributes = t.LineDashGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: `#define DASHED\n\n${line_vertex_shader}`,
-    frag: `#define DASHED\n\n${line_fragment_shader}`,
+    vert: `\
+#define DASHED
+${line_vertex_shader}
+`,
+    frag: `\
+#define DASHED
+${line_fragment_shader}
+`,
 
     attributes: {
       a_position: {
@@ -304,11 +310,14 @@ function regl_marker_no_hatch(regl: Regl, marker_type: GLMarkerType): ReglRender
   type Attributes = t.MarkerGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: marker_vertex_shader,
+    vert: `\
+#define MULTI_MARKER
+${marker_vertex_shader}
+`,
     frag: `\
-  #define USE_${marker_type.toUpperCase()}
-  ${marker_fragment_shader}
-  `,
+#define USE_${marker_type.toUpperCase()}
+${marker_fragment_shader}
+`,
 
     attributes: {
       a_position: {
@@ -385,8 +394,16 @@ function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFun
   type Attributes = t.MarkerHatchGlyphAttributes
 
   const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: `#define HATCH\n${marker_vertex_shader}`,
-    frag: `#define USE_${marker_type.toUpperCase()}\n#define HATCH\n${marker_fragment_shader}`,
+    vert: `\
+#define HATCH
+#define MULTI_MARKER
+${marker_vertex_shader}
+`,
+    frag: `\
+#define USE_${marker_type.toUpperCase()}
+#define HATCH
+${marker_fragment_shader}
+`,
 
     attributes: {
       a_position: {
