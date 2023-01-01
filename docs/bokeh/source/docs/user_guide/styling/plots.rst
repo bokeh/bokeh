@@ -228,7 +228,7 @@ If you use the |bokeh.models| interface, use the
                 selection_glyph=selected_circle,
                 nonselection_glyph=nonselected_circle)
 
-.. note::
+.. warning::
     When rendering, Bokeh considers only the *visual* properties of
     ``selection_glyph`` and ``nonselection_glyph``. Changing
     positions, sizes, etc., will have no effect.
@@ -251,7 +251,7 @@ This example uses the first method of passing a color parameter with the
 .. bokeh-plot:: __REPO__/examples/styling/plots/glyph_hover.py
     :source-position: above
 
-.. note::
+.. warning::
     When rendering, Bokeh considers only the *visual* properties of
     ``hover_glyph``. Changing positions, sizes, etc. will have no effect.
 
