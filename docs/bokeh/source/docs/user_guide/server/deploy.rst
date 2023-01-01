@@ -436,17 +436,23 @@ Add balancers for both http and websocket protocols:
         BalancerMember "http://127.0.0.1:5100/myapp"
         BalancerMember "http://127.0.0.1:5101/myapp"
         BalancerMember "http://127.0.0.1:5102/myapp"
-        ProxySet lbmethod=byrequests
+        ProxySet lbmethod=bybusyness
     </Proxy>
 
     <Proxy "balancer://myapp_ws">
         BalancerMember "ws://127.0.0.1:5100/myapp"
         BalancerMember "ws://127.0.0.1:5101/myapp"
         BalancerMember "ws://127.0.0.1:5102/myapp"
-        ProxySet lbmethod=byrequests
+        ProxySet lbmethod=bybusyness
     </Proxy>
 
-Finally, you can proxy connections to the two balancers:
+The ``bybusyness`` load balancing method ensures that an incoming connection
+is assigned to the instance that has the fewest active connections at that
+time. It should yield better results than `other available algorithms`_ such
+as ``byrequests``. You may have to enable ``mod_lbmethod_bybusyness``.
+
+Finally, you can proxy websocket and http requests to the corresponding
+balancers:
 
 .. code-block:: apache
 
@@ -698,6 +704,7 @@ Note that the forking operation happens in the underlying Tornado server. For
 further information, see the `Tornado docs`_.
 
 .. _Apache proxy balancer module documentation: https://httpd.apache.org/docs/current/mod/mod_proxy_balancer.html
+.. _other available algorithms: https://httpd.apache.org/docs/current/en/mod/mod_proxy_balancer.html#scheduler
 .. _Authentication and security: https://www.tornadoweb.org/en/stable/guide/security.html
 .. _get_secure_cookie: https://www.tornadoweb.org/en/stable/web.html#tornado.web.RequestHandler.get_secure_cookie
 .. _Nginx load balancer documentation: http://nginx.org/en/docs/http/load_balancing.html
