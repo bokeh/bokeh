@@ -861,6 +861,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this.lineTo(x + width, y + height)
     this.lineTo(x, y + height)
     this.lineTo(x, y)
+    this.closePath()
   }
 
   /**
