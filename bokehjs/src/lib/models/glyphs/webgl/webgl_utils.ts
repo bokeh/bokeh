@@ -1,6 +1,22 @@
+import {Arrayable} from "core/types"
 import {HatchPattern} from "core/property_mixins"
 import {hatch_aliases} from "core/visuals/patterns"
 import {GLMarkerType} from "./types"
+
+export function interleave(arr0: Arrayable<number>, arr1: Arrayable<number>, n: number, alt: number, out: Float32Array): void {
+  for (let i = 0; i < n; i++) {
+    const v0 = arr0[i]
+    const v1 = arr1[i]
+
+    if (isFinite(v0 + v1)) {
+      out[2*i  ] = v0
+      out[2*i+1] = v1
+    } else {
+      out[2*i  ] = alt
+      out[2*i+1] = alt
+    }
+  }
+}
 
 // WebGL shaders use integers for caps, joins and hatching.
 export const cap_lookup = {butt: 0, round: 1, square: 2}

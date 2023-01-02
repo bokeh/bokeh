@@ -1,6 +1,7 @@
 import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
 import {ReglWrapper} from "./regl_wrap"
+import {interleave} from "./webgl_utils"
 import type {ScatterView} from "../scatter"
 import {MarkerType} from "core/enums"
 import {Uniform} from "core/uniforms"
@@ -77,16 +78,8 @@ export class MultiMarkerGL extends BaseMarkerGL {
       this._heights = this._widths
     }
 
-    const centers_array = this._centers.get_sized_array(nmarkers*2)
-    for (let i = 0; i < nmarkers; i++) {
-      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
-        centers_array[2*i  ] = this.glyph.sx[i]
-        centers_array[2*i+1] = this.glyph.sy[i]
-      } else {
-        centers_array[2*i  ] = BaseMarkerGL.missing_point
-        centers_array[2*i+1] = BaseMarkerGL.missing_point
-      }
-    }
+    const centers_array = this._centers.get_sized_array(2*nmarkers)
+    interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
     this._centers.update()
 
     this._widths.set_from_prop(this.glyph.size)
