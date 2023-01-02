@@ -330,32 +330,26 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 #endif
 
 #if defined(USE_RECT)
-float rounded_quadrant(in vec2 p, in vec2 half_size, in float radius)
-{
-  vec2 d = abs(p) - half_size + radius;
-  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0)) - radius;
-}
-
-float rounded_box(in vec2 p, in vec2 size, in vec4 radius)
+// From https://www.shadertoy.com/view/4llXD7 (MIT licensed)
+float rounded_box(in vec2 p, in vec2 size, in vec4 r)
 {
   vec2 half_size = size/2.0;
 
-  float tl_r = radius.x;
-  float tr_r = radius.y;
-  float br_r = radius.z;
-  float bl_r = radius.w;
+  // tl r.x x=-1 y=-1
+  // tr r.y x=+1 y=-1
+  // br r.z x=+1 y=+1
+  // bl r.w x=-1 y=+1
+  vec2 rh = p.x > 0.0 ? r.yz : r.xw;
+  float rq = p.y > 0.0 ? rh.y : rh.x;
 
-  vec2 tl_q = min(p, 0.0);
-  vec2 tr_q = vec2(max(p.x, 0.0), min(p.y, 0.0));
-  vec2 br_q = max(p, 0.0);
-  vec2 bl_q = vec2(min(p.x, 0.0), max(p.y, 0.0));
-
-  float tl_d = rounded_quadrant(tl_q, half_size, tl_r);
-  float tr_d = rounded_quadrant(tr_q, half_size, tr_r);
-  float br_d = rounded_quadrant(br_q, half_size, br_r);
-  float bl_d = rounded_quadrant(bl_q, half_size, bl_r);
-
-  return max(max(max(tl_d, tr_d), br_d), bl_d);
+  // special case for corner miter joins
+  if (rq == 0.0) {
+    vec2 q = abs(p) - half_size;
+    return max(q.x, q.y);
+  } else {
+    vec2 q = abs(p) - half_size + rq;
+    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - rq;
+  }
 }
 
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
