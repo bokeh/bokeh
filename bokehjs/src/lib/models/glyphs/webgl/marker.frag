@@ -361,6 +361,13 @@ float rounded_box(in vec2 p, in vec2 size, in vec4 radius)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   float dist = rounded_box(p, v_size, v_border_radius);
+
+  if (line_join != miter_join) {
+    vec2 p2 = abs(p) - v_size/2.0; // Offset from corner
+    dist = max(dist, line_join_distance_no_miter(
+      p2, vec2(0.0, 0.0), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
+  }
+
   return dist;
 }
 #endif
