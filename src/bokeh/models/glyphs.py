@@ -193,6 +193,21 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the markers.
     """)
 
+@abstract
+class LRTBGlyph(LineGlyph, FillGlyph, HatchGlyph):
+    """ Base class for axis-aligned rectangles. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
 class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render annular wedges.
 
@@ -381,7 +396,7 @@ class Bezier(LineGlyph):
     The {prop} values for the Bezier curves.
     """)
 
-class Block(LineGlyph, FillGlyph, HatchGlyph):
+class Block(LRTBGlyph):
     ''' Render rectangular regions, given a corner coordinate, width, and height.
 
     '''
@@ -542,7 +557,7 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-class HBar(LineGlyph, FillGlyph, HatchGlyph):
+class HBar(LRTBGlyph):
     ''' Render horizontal bars, given a center coordinate, ``height`` and
     (``left``, ``right``) coordinates.
 
@@ -1047,7 +1062,7 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the patches.
     """)
 
-class Quad(LineGlyph, FillGlyph, HatchGlyph):
+class Quad(LRTBGlyph):
     ''' Render axis-aligned quads.
 
     '''
@@ -1490,7 +1505,7 @@ class VArea(FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-class VBar(LineGlyph, FillGlyph, HatchGlyph):
+class VBar(LRTBGlyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
     '''

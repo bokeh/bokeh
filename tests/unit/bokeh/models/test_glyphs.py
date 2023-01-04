@@ -59,6 +59,7 @@ from _util_models import (
 from bokeh.models.glyphs import ( # isort:skip
     AnnularWedge, Annulus, Arc,
     Bezier,
+    Block,
     Circle,
     HArea,
     HBar,
@@ -181,6 +182,25 @@ def test_Bezier() -> None:
     ], LINE, GLYPH)
 
 
+def test_Block() -> None:
+    glyph = Block()
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.width == 1
+    assert glyph.height == 1
+    assert glyph.border_radius == 0
+    check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
+        "width",
+        "height",
+        "border_radius",
+    ], FILL, HATCH, LINE, GLYPH)
+
+
 def test_HArea() -> None:
     glyph = HArea()
     assert glyph.y == field("y")
@@ -201,6 +221,7 @@ def test_HBar() -> None:
     assert glyph.height == 1
     assert glyph.left == 0
     assert glyph.right == field("right")
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -209,6 +230,7 @@ def test_HBar() -> None:
         "height",
         "left",
         "right",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 
@@ -365,6 +387,7 @@ def test_Quad() -> None:
     assert glyph.right == field("right")
     assert glyph.bottom == field("bottom")
     assert glyph.top == field("top")
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -373,6 +396,7 @@ def test_Quad() -> None:
         "right",
         "bottom",
         "top",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 
@@ -512,6 +536,7 @@ def test_VBar() -> None:
     assert glyph.width == 1
     assert glyph.top == field("top")
     assert glyph.bottom == 0
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -520,6 +545,7 @@ def test_VBar() -> None:
         "width",
         "top",
         "bottom",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 

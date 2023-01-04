@@ -890,6 +890,14 @@
       type: "map",
     },
   },
+  LRTBGlyph: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    border_radius: 0,
+  },
   AnnularWedge: {
     __extends__: [
       "XYGlyph",
@@ -1184,11 +1192,7 @@
     },
   },
   Block: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     x: {
       type: "field",
       field: "x",
@@ -1405,11 +1409,7 @@
     },
   },
   HBar: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     y: {
       type: "field",
       field: "y",
@@ -1901,11 +1901,7 @@
     },
   },
   Quad: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     left: {
       type: "field",
       field: "left",
@@ -2427,11 +2423,7 @@
     },
   },
   VBar: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     x: {
       type: "field",
       field: "x",
