@@ -26,7 +26,6 @@ export function round_rect(ctx: Context2d, bbox: BBox, border_radius: Corners<nu
       bottom_left *= scale
     }
 
-    ctx.beginPath()
     ctx.moveTo(left + top_left, top)
     ctx.lineTo(right - top_right, top)
     ctx.arcTo(right, top, right, top + top_right, top_right)
@@ -39,7 +38,6 @@ export function round_rect(ctx: Context2d, bbox: BBox, border_radius: Corners<nu
     ctx.closePath()
   } else {
     const {left, top, width, height} = bbox
-    ctx.beginPath()
     ctx.rect(left, top, width, height)
   }
 }

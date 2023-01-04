@@ -127,6 +127,7 @@ export class TextView extends XYGlyphView {
       ctx.translate(-dx_i, -dy_i)
 
       if (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i)) {
+        ctx.beginPath()
         const bbox = new BBox({x: 0, y: 0, width: swidth_i, height: sheight_i})
         round_rect(ctx, bbox, border_radius)
         background_fill.apply(ctx, i)
