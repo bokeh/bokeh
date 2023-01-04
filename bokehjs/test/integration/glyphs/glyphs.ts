@@ -223,7 +223,23 @@ describe("Glyph models", () => {
   it("should support Quad", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.quad({left: x, right: 1, bottom: y, top: 1})
+      p.quad({
+        left: [1, 2, 3], right: [2, 3, 4], bottom: [1, 2, 3], top: [2, 3, 4],
+        alpha: 0.7, line_color: "red",
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Quad with rounded corners where tl=5px, tr=10px, br=15px and bl=20px", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.quad({
+        left: [1, 2, 3], right: [2, 3, 4], bottom: [1, 2, 3], top: [2, 3, 4],
+        alpha: 0.7, line_color: "red",
+        border_radius: [5, 10, 15, 20],
+      })
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
@@ -271,6 +287,21 @@ describe("Glyph models", () => {
         angle: [0, 90, -15], angle_units: "deg",
         alpha: 0.7, line_color: "red",
         border_radius: [5, 10, 15, 20],
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Rect with large rounded corners that need scaling", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.rect({
+        x, y,
+        width: {value: 50, units: "screen"},
+        height: {value: 100, units: "screen"},
+        alpha: 0.7, line_color: "red",
+        border_radius: [30, 40, 70, 0],
       })
       return p
     }
