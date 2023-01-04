@@ -333,7 +333,28 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 // From https://www.shadertoy.com/view/4llXD7 (MIT licensed)
 float rounded_box(in vec2 p, in vec2 size, in vec4 r)
 {
-  vec2 half_size = size/2.0;
+  float width = size.x;
+  float height = size.y;
+
+  float top_left = r.x;
+  float top_right = r.y;
+  float bottom_right = r.z;
+  float bottom_left = r.w;
+
+  float top = top_left + top_right;
+  float right = top_right + bottom_right;
+  float bottom = bottom_right + bottom_left;
+  float left = top_left + bottom_left;
+
+  float top_scale    = top    == 0.0 ? 1.0 : width  / top;
+  float right_scale  = right  == 0.0 ? 1.0 : height / right;
+  float bottom_scale = bottom == 0.0 ? 1.0 : width  / bottom;
+  float left_scale   = left   == 0.0 ? 1.0 : height / left;
+
+  float scale = min(min(min(top_scale, right_scale), bottom_scale), left_scale);
+  if (scale < 1.0) {
+    r *= scale;
+  }
 
   // tl r.x x=-1 y=-1
   // tr r.y x=+1 y=-1
@@ -343,6 +364,7 @@ float rounded_box(in vec2 p, in vec2 size, in vec4 r)
   float rq = p.y > 0.0 ? rh.y : rh.x;
 
   // special case for corner miter joins
+  vec2 half_size = size/2.0;
   if (rq == 0.0) {
     vec2 q = abs(p) - half_size;
     return max(q.x, q.y);
