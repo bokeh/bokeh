@@ -243,7 +243,7 @@ describe("SVGRenderingContext2d", () => {
           fill="red"
           stroke="none"
           paint-order="stroke"
-          d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10"
+          d="M 10 10 L 20 10 L 20 20 L 10 20 L 10 10 Z"
         />
       </svg>
 
@@ -290,13 +290,13 @@ describe("SVGRenderingContext2d", () => {
           fill="gray"
           stroke="none"
           paint-order="stroke"
-          d="M 100 0 L 180 0 L 180 20 L 100 20 L 100 0"
+          d="M 100 0 L 180 0 L 180 20 L 100 20 L 100 0 Z"
         />
         <path
           fill="red"
           stroke="none"
           paint-order="stroke"
-          d="M 70.71067811865476 70.71067811865474 L 127.27922061357856 127.27922061357854 L 113.13708498984761 141.4213562373095 L 56.568542494923804 84.85281374238569 L 70.71067811865476 70.71067811865474"
+          d="M 70.71067811865476 70.71067811865474 L 127.27922061357856 127.27922061357854 L 113.13708498984761 141.4213562373095 L 56.568542494923804 84.85281374238569 L 70.71067811865476 70.71067811865474 Z"
         />
       </svg>
 
@@ -378,7 +378,7 @@ describe("SVGRenderingContext2d", () => {
     const svg = ctx.get_svg()
     await compare_on_dom(test, svg, size)
 
-    expect(svg.querySelector("clipPath > path")!.getAttribute("d")).to.be.equal("M 200 200 L 600 200 L 600 600 L 200 600 L 200 200")
+    expect(svg.querySelector("clipPath > path")!.getAttribute("d")).to.be.equal("M 200 200 L 600 200 L 600 600 L 200 600 L 200 200 Z")
   })
 
   it("generate ids", async () => {
@@ -668,7 +668,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
+          d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20 Z"
         />
       </svg>
 
@@ -712,7 +712,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20"
+          d="M 20 20 L 220 20 L 220 120 L 20 120 L 20 20 Z"
         />
       </svg>
 
@@ -764,7 +764,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
+          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20 Z"
         />
       </svg>
 
@@ -810,7 +810,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20"
+          d="M 20 20 L 180 20 L 180 180 L 20 180 L 20 20 Z"
         />
       </svg>
 
@@ -854,7 +854,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0"
+          d="M 0 0 L 200 0 L 200 200 L 0 200 L 0 0 Z"
         />
       </svg>
 
@@ -887,7 +887,7 @@ describe("SVGRenderingContext2d", () => {
           fill="url(#ZoSvZRFIOOma)"
           stroke="none"
           paint-order="stroke"
-          d="M 0 0 L 300 0 L 300 300 L 0 300 L 0 0"
+          d="M 0 0 L 300 0 L 300 300 L 0 300 L 0 0 Z"
         />
       </svg>
 

@@ -1,6 +1,6 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
 import {Arrayable, ScreenArray, to_screen} from "core/types"
-import {Anchor, Align, HAlign, VAlign, ImageOrigin} from "core/enums"
+import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
@@ -10,7 +10,9 @@ import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
 import {NDArray} from "core/util/ndarray"
 import {assert} from "core/util/assert"
-import {isString} from "core/util/types"
+import {XY} from "core/util/bbox"
+import {Anchor} from "../common/kinds"
+import {anchor} from "../common/resolve"
 
 export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
@@ -37,92 +39,44 @@ export abstract class ImageBaseView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
-  get xy_scale(): [number, number] {
+  get xy_scale(): XY<number> {
     switch (this.model.origin) {
-      case "bottom_left":  return [ 1, -1]
-      case "top_left":     return [ 1,  1]
-      case "bottom_right": return [-1, -1]
-      case "top_right":    return [-1,  1]
+      case "bottom_left":  return {x:  1, y: -1}
+      case "top_left":     return {x:  1, y:  1}
+      case "bottom_right": return {x: -1, y: -1}
+      case "top_right":    return {x: -1, y:  1}
     }
   }
 
-  get xy_offset(): [number, number] {
+  get xy_offset(): XY<number> {
     switch (this.model.origin) {
-      case "bottom_left":  return [0.0, 1.0]
-      case "top_left":     return [0.0, 0.0]
-      case "bottom_right": return [1.0, 1.0]
-      case "top_right":    return [1.0, 0.0]
+      case "bottom_left":  return {x: 0.0, y: 1.0}
+      case "top_left":     return {x: 0.0, y: 0.0}
+      case "bottom_right": return {x: 1.0, y: 1.0}
+      case "top_right":    return {x: 1.0, y: 0.0}
     }
   }
 
-  get xy_anchor(): [number, number] {
-    const {anchor} = this.model
-    if (isString(anchor)) {
-      switch (anchor) {
-        case "top_left":      return [0.0, 0.0]
-        case "top":
-        case "top_center":    return [0.5, 0.0]
-        case "top_right":     return [1.0, 0.0]
-        case "right":
-        case "center_right":  return [1.0, 0.5]
-        case "bottom_right":  return [1.0, 1.0]
-        case "bottom":
-        case "bottom_center": return [0.5, 1.0]
-        case "bottom_left":   return [0.0, 1.0]
-        case "left":
-        case "center_left":   return [0.0, 0.5]
-        case "center":
-        case "center_center": return [0.5, 0.5]
-      }
-    } else {
-      const x_anchor = (() => {
-        const [x_anchor] = anchor
-        switch (x_anchor) {
-          case "start":
-          case "left":   return 0.0
-          case "center": return 0.5
-          case "end":
-          case "right":  return 1.0
-          default:
-            return x_anchor
-        }
-      })()
-      const y_anchor = (() => {
-        const [, y_anchor] = anchor
-        switch (y_anchor) {
-          case "start":
-          case "top":    return 0.0
-          case "center": return 0.5
-          case "end":
-          case "bottom": return 1.0
-          default:
-            return y_anchor
-        }
-      })()
-      return [x_anchor, y_anchor]
-    }
+  get xy_anchor(): XY<number> {
+    return anchor(this.model.anchor)
   }
 
-  get xy_sign(): [number, number] {
+  get xy_sign(): XY<number> {
     const xr = this.renderer.xscale.source_range
     const yr = this.renderer.yscale.source_range
 
-    const x_sign = xr.is_reversed ? -1 : 1
-    const y_sign = yr.is_reversed ? -1 : 1
-
-    return [x_sign, y_sign]
+    return {
+      x: xr.is_reversed ? -1 : 1,
+      y: yr.is_reversed ? -1 : 1,
+    }
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
     const {image_data, sx, sy, sw, sh} = data ?? this
+    const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
     ctx.save()
     ctx.imageSmoothingEnabled = false
-
-    const [x_sign, y_sign] = this.xy_sign
-    const [x_scale, y_scale] = this.xy_scale
-    const [x_offset, y_offset] = this.xy_offset
-    const [x_anchor, y_anchor] = this.xy_anchor
 
     if (this.visuals.image.doit) {
       for (const i of indices) {
@@ -135,14 +89,14 @@ export abstract class ImageBaseView extends XYGlyphView {
         if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i))
           continue
 
-        const tx_i = x_sign*x_anchor*sw_i
-        const ty_i = y_sign*y_anchor*sh_i
+        const tx_i = xy_sign.x*xy_anchor.x*sw_i
+        const ty_i = xy_sign.y*xy_anchor.y*sh_i
 
         ctx.save()
         ctx.translate(sx_i - tx_i, sy_i - ty_i)
-        ctx.scale(x_sign*x_scale, y_sign*y_scale)
+        ctx.scale(xy_sign.x*xy_scale.x, xy_sign.y*xy_scale.y)
         this.visuals.image.set_vectorize(ctx, i)
-        ctx.drawImage(image_data_i, -x_offset*sw_i, -y_offset*sh_i, sw_i, sh_i)
+        ctx.drawImage(image_data_i, -xy_offset.x*sw_i, -xy_offset.y*sh_i, sw_i, sh_i)
         ctx.restore()
       }
     }
@@ -185,11 +139,10 @@ export abstract class ImageBaseView extends XYGlyphView {
     const x_i = this._x[i]
     const y_i = this._y[i]
 
-    const [x_sign, y_sign] = this.xy_sign
-    const [x_anchor, y_anchor] = this.xy_anchor
+    const {xy_sign, xy_anchor} = this
 
-    const [x0, x1] = [x_i - x_sign*x_anchor*dw_i, x_i + x_sign*(1 - x_anchor)*dw_i]
-    const [y0, y1] = [y_i + y_sign*y_anchor*dh_i, y_i - y_sign*(1 - y_anchor)*dh_i]
+    const [x0, x1] = [x_i - xy_sign.x*xy_anchor.x*dw_i, x_i + xy_sign.x*(1 - xy_anchor.x)*dw_i]
+    const [y0, y1] = [y_i + xy_sign.y*xy_anchor.y*dh_i, y_i - xy_sign.y*(1 - xy_anchor.y)*dh_i]
 
     const [l, r] = x0 < x1 ? [x0, x1] : [x1, x0]
     const [b, t] = y0 < y1 ? [y0, y1] : [y1, y0]
@@ -286,7 +239,7 @@ export namespace ImageBase {
     dh: p.DistanceSpec
     dilate: p.Property<boolean>
     origin: p.Property<ImageOrigin>
-    anchor: p.Property<Anchor | [Align | HAlign | number, Align | VAlign | number]>
+    anchor: p.Property<Anchor>
   } & Mixins
 
   export type Mixins = mixins.ImageVector
@@ -306,13 +259,13 @@ export abstract class ImageBase extends XYGlyph {
 
   static {
     this.mixins<ImageBase.Mixins>(mixins.ImageVector)
-    this.define<ImageBase.Props>(({Boolean, Number, Or, Tuple}) => ({
+    this.define<ImageBase.Props>(({Boolean}) => ({
       image:        [ p.NDArraySpec, {field: "image"} ],
       dw:           [ p.DistanceSpec, {field: "dw"} ],
       dh:           [ p.DistanceSpec, {field: "dh"} ],
       dilate:       [ Boolean, false ],
       origin:       [ ImageOrigin, "bottom_left" ],
-      anchor:       [ Or(Anchor, Tuple(Or(Align, HAlign, Number), Or(Align, VAlign, Number))), "bottom_left" ],
+      anchor:       [ Anchor, "bottom_left" ],
     }))
   }
 }

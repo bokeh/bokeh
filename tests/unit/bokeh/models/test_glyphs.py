@@ -35,9 +35,12 @@ from bokeh.core.enums import (
     TextAlign,
     TextBaseline,
 )
-from bokeh.core.property.vectorization import field
+from bokeh.core.property.vectorization import field, value
 
 from _util_models import (
+    BACKGROUND_FILL,
+    BACKGROUND_HATCH,
+    BORDER_LINE,
     FILL,
     GLYPH,
     HATCH,
@@ -56,6 +59,7 @@ from _util_models import (
 from bokeh.models.glyphs import ( # isort:skip
     AnnularWedge, Annulus, Arc,
     Bezier,
+    Block,
     Circle,
     HArea,
     HBar,
@@ -178,6 +182,25 @@ def test_Bezier() -> None:
     ], LINE, GLYPH)
 
 
+def test_Block() -> None:
+    glyph = Block()
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.width == 1
+    assert glyph.height == 1
+    assert glyph.border_radius == 0
+    check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
+        "width",
+        "height",
+        "border_radius",
+    ], FILL, HATCH, LINE, GLYPH)
+
+
 def test_HArea() -> None:
     glyph = HArea()
     assert glyph.y == field("y")
@@ -198,6 +221,7 @@ def test_HBar() -> None:
     assert glyph.height == 1
     assert glyph.left == 0
     assert glyph.right == field("right")
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -206,6 +230,7 @@ def test_HBar() -> None:
         "height",
         "left",
         "right",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 
@@ -362,6 +387,7 @@ def test_Quad() -> None:
     assert glyph.right == field("right")
     assert glyph.bottom == field("bottom")
     assert glyph.top == field("top")
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -370,6 +396,7 @@ def test_Quad() -> None:
         "right",
         "bottom",
         "top",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 
@@ -416,6 +443,7 @@ def test_Rect() -> None:
     assert glyph.width == field("width")
     assert glyph.height == field("height")
     assert glyph.angle == 0
+    assert glyph.border_radius == 0
     assert glyph.dilate is False
     check_line_properties(glyph)
     check_fill_properties(glyph)
@@ -429,6 +457,7 @@ def test_Rect() -> None:
         "height_units",
         "angle",
         "angle_units",
+        "border_radius",
         "dilate",
     ], LINE, FILL, HATCH, GLYPH)
 
@@ -465,8 +494,13 @@ def test_Text() -> None:
     glyph = Text()
     assert glyph.x == field("x")
     assert glyph.y == field("y")
-    assert glyph.text == "text"
+    assert glyph.text == field("text")
     assert glyph.angle == 0
+    assert glyph.x_offset == 0
+    assert glyph.y_offset == 0
+    assert glyph.anchor == value("auto")
+    assert glyph.padding == 0
+    assert glyph.border_radius == 0
     check_text_properties(glyph)
     check_properties_existence(glyph, [
         "x",
@@ -475,8 +509,11 @@ def test_Text() -> None:
         "angle",
         "angle_units",
         "x_offset",
-        "y_offset"
-    ], TEXT, GLYPH)
+        "y_offset",
+        "anchor",
+        "padding",
+        "border_radius",
+    ], TEXT, BORDER_LINE, BACKGROUND_FILL, BACKGROUND_HATCH, GLYPH)
 
 
 def test_VArea() -> None:
@@ -499,6 +536,7 @@ def test_VBar() -> None:
     assert glyph.width == 1
     assert glyph.top == field("top")
     assert glyph.bottom == 0
+    assert glyph.border_radius == 0
     check_line_properties(glyph)
     check_fill_properties(glyph)
     check_hatch_properties(glyph)
@@ -507,6 +545,7 @@ def test_VBar() -> None:
         "width",
         "top",
         "bottom",
+        "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
 

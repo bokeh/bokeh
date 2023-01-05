@@ -8,11 +8,16 @@ import {max} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
+import {BBox, Corners} from "core/util/bbox"
+import {BorderRadius} from "../common/kinds"
+import * as resolve from "../common/resolve"
+import {round_rect} from "../common/painting"
 
 export type RectData = CenterRotatableData & {
   sx0: ScreenArray
   sy1: ScreenArray
   ssemi_diag: ScreenArray
+  border_radius: Corners<number>
 }
 
 export interface RectView extends RectData {}
@@ -32,6 +37,11 @@ export class RectView extends CenterRotatableView {
       const {RectGL} = await import("./webgl/rect")
       this.glglyph = new RectGL(webgl.regl_wrapper, this)
     }
+  }
+
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+    this.border_radius = resolve.border_radius(this.model.border_radius)
   }
 
   protected override _map_data(): void {
@@ -64,7 +74,7 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
-    const {sx, sy, sx0, sy1, sw, sh, angle} = data ?? this
+    const {sx, sy, sx0, sy1, sw, sh, angle, border_radius} = data ?? this
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -85,11 +95,14 @@ export class RectView extends CenterRotatableView {
       if (angle_i) {
         ctx.translate(sx_i, sy_i)
         ctx.rotate(angle_i)
-        ctx.rect(-sw_i/2, -sh_i/2, sw_i, sh_i)
+        const box = new BBox({x: -sw_i/2, y: -sh_i/2, width: sw_i, height: sh_i})
+        round_rect(ctx, box, border_radius)
         ctx.rotate(-angle_i)
         ctx.translate(-sx_i, -sy_i)
-      } else
-        ctx.rect(sx0_i, sy1_i, sw_i, sh_i)
+      } else {
+        const box = new BBox({x: sx0_i, y: sy1_i, width: sw_i, height: sh_i})
+        round_rect(ctx, box, border_radius)
+      }
 
       this.visuals.fill.apply(ctx, i)
       this.visuals.hatch.apply(ctx, i)
@@ -102,6 +115,7 @@ export class RectView extends CenterRotatableView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
+    // TODO: consider round corners
     let {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)
@@ -219,6 +233,7 @@ export namespace Rect {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CenterRotatable.Props & {
+    border_radius: p.Property<BorderRadius>
     dilate: p.Property<boolean>
   }
 
@@ -238,6 +253,7 @@ export class Rect extends CenterRotatable {
   static {
     this.prototype.default_view = RectView
     this.define<Rect.Props>(({Boolean}) => ({
+      border_radius: [ BorderRadius, 0 ],
       dilate: [ Boolean, false ],
     }))
   }

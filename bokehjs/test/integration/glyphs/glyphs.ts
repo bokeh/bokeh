@@ -223,7 +223,23 @@ describe("Glyph models", () => {
   it("should support Quad", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.quad({left: x, right: 1, bottom: y, top: 1})
+      p.quad({
+        left: [1, 2, 3], right: [2, 3, 4], bottom: [1, 2, 3], top: [2, 3, 4],
+        alpha: 0.7, line_color: "red",
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Quad with rounded corners where tl=5px, tr=10px, br=15px and bl=20px", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.quad({
+        left: [1, 2, 3], right: [2, 3, 4], bottom: [1, 2, 3], top: [2, 3, 4],
+        alpha: 0.7, line_color: "red",
+        border_radius: [5, 10, 15, 20],
+      })
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
@@ -250,7 +266,43 @@ describe("Glyph models", () => {
   it("should support Rect", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
-      p.rect({x, y, width: 1, height: 2, angle: [0, 90, -15], angle_units: "deg", alpha: 0.7})
+      p.rect({
+        x, y,
+        width: 1, height: 2,
+        angle: [0, 90, -15], angle_units: "deg",
+        alpha: 0.7, line_color: "red",
+        border_radius: 0,
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Rect with rounded corners where tl=5px, tr=10px, br=15px and bl=20px", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.rect({
+        x, y,
+        width: 1, height: 2,
+        angle: [0, 90, -15], angle_units: "deg",
+        alpha: 0.7, line_color: "red",
+        border_radius: [5, 10, 15, 20],
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Rect with large rounded corners that need scaling", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.rect({
+        x, y,
+        width: {value: 50, units: "screen"},
+        height: {value: 100, units: "screen"},
+        alpha: 0.7, line_color: "red",
+        border_radius: [30, 40, 70, 0],
+      })
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
@@ -291,24 +343,177 @@ describe("Glyph models", () => {
 
   it("should support Text", async () => {
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.text({x, y, text: "Some"})
+      const p = fig([200, 300], {
+        x_range: [0, 5], y_range: [0, 5],
+        output_backend, title: output_backend,
+      })
+      p.text({
+        x, y,
+        text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+      })
       return p
     }
     await display(row([p("canvas"), p("svg")]))
   })
 
-  it("should support Text with text_outline_color", async () => {
-    function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.text({
-        x, y, text: "Some",
-        text_outline_color: "black", text_color: "yellow",
-        text_font_size: "30px", text_font_style: "bold",
-      })
-      return p
-    }
-    await display(row([p("canvas"), p("svg")]))
+  describe("should support Text", () => {
+    it("with background", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with background and border", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with background, border and padding=10px", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+          padding: 10,
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with anchors, background, border and padding=10px", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          anchor: ["top_left", "center", "bottom_right"],
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+          padding: 10,
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with anchors, background, border, padding=10px and rounded corners where tl=5px, tr=10px, br=15px and bl=20px", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          anchor: ["top_left", "center", "bottom_right"],
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+          padding: 10,
+          border_radius: {top_left: 5, top_right: 10, bottom_right: 15, bottom_left: 20},
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with anchors, angles, background, border and padding=10px", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          anchor: ["top_left", "center", "bottom_right"],
+          angle: [0, -30, -60],
+          angle_units: "deg",
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+          padding: 10,
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with anchors, angles, offsets, background, border and padding=10px", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 5], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          anchor: ["top_left", "center", "bottom_right"],
+          angle: [0, -30, -60],
+          x_offset: [-5, -10, -15],
+          y_offset: [-10, -15, -25],
+          angle_units: "deg",
+          background_fill_color: ["#fee08b", "#fdae61", "#f46d43"],
+          background_fill_alpha: 0.7,
+          border_line_color: ["blue", "red", "green"],
+          padding: 10,
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
+
+    it("with text_outline_color", async () => {
+      function p(output_backend: OutputBackend) {
+        const p = fig([200, 300], {
+          x_range: [0, 4], y_range: [0, 5],
+          output_backend, title: output_backend,
+        })
+        p.text({
+          x, y,
+          text: ["One line", "Two short\nlines", "Three\nshort\nlines"],
+          text_outline_color: "black", text_color: "yellow",
+          text_font_size: "30px", text_font_style: "bold",
+        })
+        return p
+      }
+      await display(row([p("canvas"), p("svg")]))
+    })
   })
 
   it("should support VArea", async () => {

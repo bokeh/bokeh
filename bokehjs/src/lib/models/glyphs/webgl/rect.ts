@@ -11,7 +11,7 @@ export class RectGL extends SingleMarkerGL {
   }
 
   override draw(indices: number[], main_glyph: RectView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "square")
+    this._draw_impl(indices, transform, main_glyph.glglyph!, "rect")
   }
 
   protected override _get_visuals(): MarkerVisuals {
@@ -44,5 +44,8 @@ export class RectGL extends SingleMarkerGL {
     this._widths!.set_from_array(this.glyph.sw)
     this._heights!.set_from_array(this.glyph.sh)
     this._angles!.set_from_prop(this.glyph.angle)
+
+    const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
+    this._border_radius = [top_left, top_right, bottom_right, bottom_left]
   }
 }

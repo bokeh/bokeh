@@ -335,14 +335,14 @@ describe("Bug", () => {
 
       try {
         const p0 = fig([200, 200])
-        p0.image_url([data_url(jpg, "image/jpeg")], 0, 0, null, null)
+        p0.image_url([data_url(jpg, "image/jpeg")], 0, 0, 10, 10)
         await display(p0)
         expect(render.callCount).to.be.equal(1)
 
         render.resetHistory()
 
         const p1 = fig([200, 200])
-        p1.image_url([data_url(png, "image/png")], 0, 0, null, null)
+        p1.image_url([data_url(png, "image/png")], 0, 0, 10, 10)
         await display(p1)
         expect(render.callCount).to.be.equal(1)
 
@@ -350,7 +350,7 @@ describe("Bug", () => {
 
         const url = URL.createObjectURL(new Blob([base64_to_buffer(png)]))
         const p2 = fig([200, 200])
-        p2.image_url([url], 0, 0, null, null)
+        p2.image_url([url], 0, 0, 10, 10)
         await display(p2)
         expect(render.callCount).to.be.above(0)
         expect(render.callCount).to.be.below(3)
@@ -358,7 +358,7 @@ describe("Bug", () => {
         render.resetHistory()
 
         const p3 = fig([200, 200])
-        p3.image_url(["/assets/images/pattern.png"], 0, 0, null, null)
+        p3.image_url(["/assets/images/pattern.png"], 0, 0, 10, 10)
         await display(p3)
         expect(render.callCount).to.be.above(0)
         expect(render.callCount).to.be.below(3)

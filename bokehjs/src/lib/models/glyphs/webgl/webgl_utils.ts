@@ -31,7 +31,7 @@ export function hatch_pattern_to_index(pattern: HatchPattern): number {
   return hatch_pattern_lookup[hatch_aliases[pattern] ?? pattern] ?? 0
 }
 
-export function marker_type_to_size_hint(marker_type: MarkerType): number {
+export function marker_type_to_size_hint(marker_type: MarkerType | "rect"): number {
   // Marker size hint is only used here and in the marker fragment shader.
   switch (marker_type) {
     case "dash":

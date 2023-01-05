@@ -1,4 +1,4 @@
-import {AngleUnits} from "../enums"
+import {AngleUnits, Direction} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
 
@@ -57,9 +57,20 @@ export function degrees(radians: number): number {
   return radians/(PI/180)
 }
 
-export function resolve_angle(angle: number, units: AngleUnits): number {
-  /** Convert CCW angle with units to CW radians (canvas). */
-  return -to_radians_coeff(units)*angle
+export function compute_angle(angle: number, units: AngleUnits, dir: Direction = "anticlock"): number {
+  /**
+   * Convert math CCW(default)/CW angle with units to CW radians (canvas).
+   */
+  const sign = dir == "anticlock" ? 1 : -1
+  return -sign*angle*to_radians_coeff(units)
+}
+
+export function invert_angle(angle: number, units: AngleUnits, dir: Direction = "anticlock"): number {
+  /**
+   * Convert CW radians (canvas) to math CCW(default)/CW angle with units.
+   */
+  const sign = dir == "anticlock" ? 1 : -1
+  return -sign*angle/to_radians_coeff(units)
 }
 
 export function to_radians_coeff(units: AngleUnits): number {

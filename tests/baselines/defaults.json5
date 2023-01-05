@@ -890,6 +890,14 @@
       type: "map",
     },
   },
+  LRTBGlyph: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    border_radius: 0,
+  },
   AnnularWedge: {
     __extends__: [
       "XYGlyph",
@@ -1184,11 +1192,7 @@
     },
   },
   Block: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     x: {
       type: "field",
       field: "x",
@@ -1405,11 +1409,7 @@
     },
   },
   HBar: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     y: {
       type: "field",
       field: "y",
@@ -1901,11 +1901,7 @@
     },
   },
   Quad: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     left: {
       type: "field",
       field: "left",
@@ -2114,6 +2110,7 @@
       type: "value",
       value: 0.0,
     },
+    border_radius: 0,
     dilate: false,
     line_color: {
       type: "value",
@@ -2280,6 +2277,12 @@
       type: "value",
       value: 0,
     },
+    anchor: {
+      type: "value",
+      value: "auto",
+    },
+    padding: 0,
+    border_radius: 0,
     text_color: {
       type: "value",
       value: "#444444",
@@ -2315,6 +2318,65 @@
     text_line_height: {
       type: "value",
       value: 1.2,
+    },
+    background_fill_color: {
+      type: "value",
+      value: null,
+    },
+    background_fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_color: {
+      type: "value",
+      value: null,
+    },
+    background_hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    background_hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    background_hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    background_hatch_extra: {
+      type: "map",
+    },
+    border_line_color: {
+      type: "value",
+      value: null,
+    },
+    border_line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    border_line_width: {
+      type: "value",
+      value: 1,
+    },
+    border_line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    border_line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    border_line_dash: {
+      type: "value",
+      value: [],
+    },
+    border_line_dash_offset: {
+      type: "value",
+      value: 0,
     },
   },
   VArea: {
@@ -2361,11 +2423,7 @@
     },
   },
   VBar: {
-    __extends__: [
-      "LineGlyph",
-      "FillGlyph",
-      "HatchGlyph",
-    ],
+    __extends__: "LRTBGlyph",
     x: {
       type: "field",
       field: "x",

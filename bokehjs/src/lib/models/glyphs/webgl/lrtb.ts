@@ -16,7 +16,7 @@ export class LRTBGL extends SingleMarkerGL {
   }
 
   override draw(indices: number[], main_glyph: AnyLRTBView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "square")
+    this._draw_impl(indices, transform, main_glyph.glglyph!, "rect")
   }
 
   protected override _get_visuals(): MarkerVisuals {
@@ -60,5 +60,8 @@ export class LRTBGL extends SingleMarkerGL {
     this._centers.update()
     this._heights!.update()
     this._widths!.update()
+
+    const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
+    this._border_radius = [top_left, top_right, bottom_right, bottom_left]
   }
 }

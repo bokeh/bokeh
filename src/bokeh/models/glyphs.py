@@ -38,22 +38,18 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import (
-    Align,
-    Anchor,
     Direction,
-    HAlign,
     ImageOrigin,
     Palette,
     StepMode,
-    VAlign,
     enumeration,
 )
 from ..core.has_props import abstract
 from ..core.properties import (
     AngleSpec,
     Bool,
+    DataSpec,
     DistanceSpec,
-    Either,
     Enum,
     Float,
     Include,
@@ -64,13 +60,18 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
-    Percent,
     Size,
     SizeSpec,
     String,
     StringSpec,
-    Tuple,
     field,
+    value,
+)
+from ..core.property_aliases import (
+    Anchor,
+    BorderRadius,
+    Padding,
+    TextAnchor,
 )
 from ..core.property_mixins import (
     FillProps,
@@ -190,6 +191,21 @@ class Marker(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the markers.
+    """)
+
+@abstract
+class LRTBGlyph(LineGlyph, FillGlyph, HatchGlyph):
+    """ Base class for axis-aligned rectangles. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
 class AnnularWedge(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
@@ -380,7 +396,7 @@ class Bezier(LineGlyph):
     The {prop} values for the Bezier curves.
     """)
 
-class Block(LineGlyph, FillGlyph, HatchGlyph):
+class Block(LRTBGlyph):
     ''' Render rectangular regions, given a corner coordinate, width, and height.
 
     '''
@@ -541,7 +557,7 @@ class HArea(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the horizontal directed area.
     """)
 
-class HBar(LineGlyph, FillGlyph, HatchGlyph):
+class HBar(LRTBGlyph):
     ''' Render horizontal bars, given a center coordinate, ``height`` and
     (``left``, ``right``) coordinates.
 
@@ -695,10 +711,7 @@ class ImageBase(XYGlyph):
     Defines the coordinate space of an image.
     """)
 
-    anchor = Either(
-        Enum(Anchor),
-        Tuple(Either(Enum(Align), Enum(HAlign), Percent),
-              Either(Enum(Align), Enum(VAlign), Percent)), default="bottom_left", help="""
+    anchor = Anchor(default="bottom_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -828,7 +841,7 @@ class ImageURL(XYGlyph):
     images to have a gap between them, when they should appear flush.
     """)
 
-    anchor = Enum(Anchor, default="top_left", help="""
+    anchor = Anchor(default="top_left", help="""
     Position of the image should be anchored at the `x`, `y` coordinates.
     """)
 
@@ -1049,7 +1062,7 @@ class Patches(LineGlyph, FillGlyph, HatchGlyph):
     The {prop} values for the patches.
     """)
 
-class Quad(LineGlyph, FillGlyph, HatchGlyph):
+class Quad(LRTBGlyph):
     ''' Render axis-aligned quads.
 
     '''
@@ -1196,6 +1209,13 @@ class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
 
     angle = AngleSpec(default=0.0, help="""
     The angles to rotate the rectangles, as measured from the horizontal.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     dilate = Bool(False, help="""
@@ -1380,7 +1400,7 @@ class Text(XYGlyph, TextGlyph):
     The y-coordinates to locate the text anchors.
     """)
 
-    text = StringSpec("text", help="""
+    text = StringSpec(default=field("text"), help="""
     The text values to render.
     """)
 
@@ -1389,22 +1409,67 @@ class Text(XYGlyph, TextGlyph):
     """)
 
     x_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the x-coordinates.
+    Offset values in pixels to apply to the x-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
     """)
 
     y_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the y-coordinates.
+    Offset values in pixels to apply to the y-coordinates.
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
     """)
 
+    anchor = DataSpec(TextAnchor, default=value("auto"), help="""
+    Position within the bounding box of this glyph to which ``x`` and ``y``
+    coordinates are anchored to. This can be a named anchor point like
+    ``top_left`` or ``center``, or a percentage from from left to right
+    and top to bottom, or a combination of those, independently in width
+    and height. If set to ``auto``, then anchor point will be determined
+    from text ``align`` and ``baseline``.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    padding = Padding(default=0, help="""
+    Extra space between the text of a glyphs and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     text_props = Include(TextProps, help="""
     The {prop} values for the text.
     """)
+
+    background_fill_props = Include(FillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(HatchProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    border_line_props = Include(LineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    background_hatch_color = Override(default=None)
+
+    border_line_color = Override(default=None)
 
 class VArea(FillGlyph, HatchGlyph):
     ''' Render a vertically directed area between two equal length sequences
@@ -1440,7 +1505,7 @@ class VArea(FillGlyph, HatchGlyph):
     The {prop} values for the vertical directed area.
     """)
 
-class VBar(LineGlyph, FillGlyph, HatchGlyph):
+class VBar(LRTBGlyph):
     ''' Render vertical bars, given a center coordinate, width and (top, bottom) coordinates.
 
     '''

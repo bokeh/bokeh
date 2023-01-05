@@ -51,7 +51,7 @@ describe("Canvas", () => {
       expect(primary_svg).to.be.equal('\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="600" height="600">\
 <defs/>\
-<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5"/>\
+<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5 Z"/>\
 </svg>\
 ')
 
@@ -59,7 +59,7 @@ describe("Canvas", () => {
       expect(overlays_svg).to.be.equal('\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="600" height="600">\
 <defs/>\
-<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5"/>\
+<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5 Z"/>\
 </svg>\
 ')
 
@@ -68,8 +68,8 @@ describe("Canvas", () => {
       expect(composite_svg).to.be.equal('\
 <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="600" height="600">\
 <defs/>\
-<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5"/>\
-<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5"/>\
+<path fill="blue" stroke="none" paint-order="stroke" d="M 100.5 200.5 L 400.5 200.5 L 400.5 600.5 L 100.5 600.5 L 100.5 200.5 Z"/>\
+<path fill="green" stroke="none" paint-order="stroke" d="M 300.5 400.5 L 500.5 400.5 L 500.5 500.5 L 300.5 500.5 L 300.5 400.5 Z"/>\
 </svg>\
 ')
     })

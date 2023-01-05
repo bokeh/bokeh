@@ -9,6 +9,10 @@ import {generic_area_vector_legend} from "./utils"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
+import {BBox, Corners} from "core/util/bbox"
+import {BorderRadius} from "../common/kinds"
+import * as resolve from "../common/resolve"
+import {round_rect} from "../common/painting"
 
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
@@ -23,6 +27,8 @@ export type LRTBData = GlyphData & p.UniformsOf<LRTB.Mixins> & {
   sbottom: ScreenArray
   sleft: ScreenArray
   stop: ScreenArray
+
+  border_radius: Corners<number>
 }
 
 export interface LRTBView extends LRTBData {}
@@ -55,6 +61,11 @@ export abstract class LRTBView extends GlyphView {
     }
   }
 
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+    this.border_radius = resolve.border_radius(this.model.border_radius)
+  }
+
   protected abstract _lrtb(i: number): [number, number, number, number]
 
   protected _index_data(index: SpatialIndex): void {
@@ -68,7 +79,7 @@ export abstract class LRTBView extends GlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: LRTBData): void {
-    const {sleft, sright, stop, sbottom} = data ?? this
+    const {sleft, sright, stop, sbottom, border_radius} = data ?? this
 
     for (const i of indices) {
       const sleft_i = sleft[i]
@@ -80,7 +91,8 @@ export abstract class LRTBView extends GlyphView {
         continue
 
       ctx.beginPath()
-      ctx.rect(sleft_i, stop_i, sright_i - sleft_i, sbottom_i - stop_i)
+      const box = BBox.from_lrtb({left: sleft_i, right: sright_i, top: stop_i, bottom: sbottom_i})
+      round_rect(ctx, box, border_radius)
 
       this.visuals.fill.apply(ctx, i)
       this.visuals.hatch.apply(ctx, i)
@@ -142,7 +154,9 @@ export abstract class LRTBView extends GlyphView {
 export namespace LRTB {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Glyph.Props & Mixins
+  export type Props = Glyph.Props & {
+    border_radius: p.Property<BorderRadius>
+  } & Mixins
 
   export type Mixins = LineVector & FillVector & HatchVector
 
@@ -161,5 +175,9 @@ export abstract class LRTB extends Glyph {
 
   static {
     this.mixins<LRTB.Mixins>([LineVector, FillVector, HatchVector])
+
+    this.define<LRTB.Props>(() => ({
+      border_radius: [ BorderRadius, 0 ],
+    }))
   }
 }
