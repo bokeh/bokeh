@@ -387,13 +387,13 @@ export class LegendView extends AnnotationView {
       }
     })()
 
-    const has_background = (i: number) => {
+    const has_background = (_i: number, row: number, col: number) => {
       if (!this.visuals.item_background_fill.doit)
         return false
       switch (this.model.item_background_policy) {
         case "every": return true
-        case "even":  return i % 2 == 0
-        case "odd":   return i % 2 == 1
+        case "even":  return (row % 2 == 0) == (col % 2 == 0)
+        case "odd":   return (row % 2 == 0) != (col % 2 == 0)
         case "none":  return false
       }
     }
@@ -402,14 +402,14 @@ export class LegendView extends AnnotationView {
     ctx.translate(left, top)
     ctx.translate(this.grid.bbox.left, this.grid.bbox.top)
 
-    for (const [entry, i] of enumerate(this.grid)) {
+    for (const [{layout: entry, row, col}, i] of enumerate(this.grid.items)) {
       const {bbox, text, item, label, field, settings} = entry
       const {glyph_width, glyph_height, label_standoff} = settings
 
       const {left, top, width, height} = bbox
       ctx.translate(left, top)
 
-      if (has_background(i)) {
+      if (has_background(i, row, col)) {
         ctx.beginPath()
         ctx.rect(0, 0, width, height)
         this.visuals.item_background_fill.apply(ctx)
