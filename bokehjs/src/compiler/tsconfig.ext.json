@@ -22,6 +22,7 @@
     "experimentalDecorators": true,
     "module": "ES2020",
     "moduleResolution": "node",
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
