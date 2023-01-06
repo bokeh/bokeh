@@ -12,7 +12,7 @@ import {add_document_standalone} from "./standalone"
 import {add_document_from_session, _get_ws_url} from "./server"
 import {_resolve_element, _resolve_root_elements, EmbedTarget} from "./dom"
 
-export {DocsJson, RenderItem, Roots} from "./json"
+export type {DocsJson, RenderItem, Roots} from "./json"
 export {add_document_standalone, index} from "./standalone"
 export {add_document_from_session} from "./server"
 export {embed_items_notebook, kernels} from "./notebook"

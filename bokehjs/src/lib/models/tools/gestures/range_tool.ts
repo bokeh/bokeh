@@ -8,7 +8,7 @@ import * as p from "core/properties"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {tool_icon_range} from "styles/icons.css"
 
-export const enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
+export enum Side { None, Left, Right, LeftRight, Bottom, Top, BottomTop, LeftRightBottomTop }
 
 export function flip_side(side: Side): Side {
   switch (side) {
