@@ -82,7 +82,7 @@ markers = [
 
 [tool.coverage.run]
 source = ["src/bokeh"]
-omit = ["*sphinxext/*", "*/tmp/tmp*.py"]
+omit = ["*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
 python_version = "3.8"
