@@ -1,7 +1,7 @@
 import {Rect} from "../types"
 import {minmax} from "./arrayable"
 
-const {abs, sqrt} = Math
+const {abs, sqrt, min, max} = Math
 
 /**
  * Formula from: http://pomax.nihongoresources.com/pages/bezier/
@@ -25,7 +25,7 @@ export function qbb(
     else {
       const t = (u - v) / (u - 2*v + w)
       const bd = u*(1 - t)**2 + 2*v*(1 - t)*t + w*t**2
-      return [Math.min(u, w, bd), Math.max(u, w, bd)]
+      return [min(u, w, bd), max(u, w, bd)]
     }
   }
 
@@ -108,7 +108,7 @@ export function cbb(
   return {
     x0: x_min,
     x1: x_max,
-    y0: y_max,
-    y1: y_min,
+    y0: y_min,
+    y1: y_max,
   }
 }
