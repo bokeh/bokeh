@@ -16,8 +16,8 @@ const {abs, sqrt, min, max} = Math
  */
 export function qbb(
     x0: number, y0: number,
-    x1: number, y1: number,
-    cx: number, cy: number): Rect {
+    cx: number, cy: number,
+    x1: number, y1: number): Rect {
 
   function _qbb(u: number, v: number, w: number): [number, number] {
     if (v == (u + w)/2)
@@ -40,12 +40,17 @@ export function qbb(
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 export function cbb(
-    x0: number, y0: number, x1: number, y1: number,
-    cx0: number, cy0: number, cx1: number, cy1: number): Rect {
-  const x2 = cx0
-  const y2 = cy0
-  const x3 = cx1
-  const y3 = cy1
+    x0: number, y0: number,
+    cx0: number, cy0: number,
+    cx1: number, cy1: number,
+    x1: number, y1: number): Rect {
+
+  const x3 = x1
+  const y3 = y1
+  x1 = cx0
+  y1 = cy0
+  const x2 = cx1
+  const y2 = cy1
 
   const tvalues: number[] = []
 
