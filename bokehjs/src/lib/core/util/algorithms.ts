@@ -40,14 +40,14 @@ export function qbb(
 
 // algorithm adapted from http://stackoverflow.com/a/14429749/3406693
 export function cbb(
-    x0: number, y0: number,
-    x1: number, y1: number,
-    x2: number, y2: number,
-    x3: number, y3: number): Rect {
-  const tvalues: number[] = []
+    x0: number, y0: number, x1: number, y1: number,
+    cx0: number, cy0: number, cx1: number, cy1: number): Rect {
+  const x2 = cx0
+  const y2 = cy0
+  const x3 = cx1
+  const y3 = cy1
 
-  const x_bounds: number[] = []
-  const y_bounds: number[] = []
+  const tvalues: number[] = []
 
   for (let i = 0; i <= 2; i++) {
     let a, b, c
@@ -85,8 +85,12 @@ export function cbb(
       tvalues.push(t2)
   }
 
-  let j = tvalues.length
-  const jlen = j
+  const n = tvalues.length
+  let j = n
+
+  const x_bounds: number[] = Array(n + 2)
+  const y_bounds: number[] = Array(n + 2)
+
   while (j--) {
     const t = tvalues[j]
     const mt = 1 - t
@@ -98,10 +102,10 @@ export function cbb(
     y_bounds[j] = y
   }
 
-  x_bounds[jlen] = x0
-  x_bounds[jlen + 1] = x3
-  y_bounds[jlen] = y0
-  y_bounds[jlen + 1] = y3
+  x_bounds[n] = x0
+  y_bounds[n] = y0
+  x_bounds[n + 1] = x3
+  y_bounds[n + 1] = y3
 
   const [x_min, x_max] = minmax(x_bounds)
   const [y_min, y_max] = minmax(y_bounds)
