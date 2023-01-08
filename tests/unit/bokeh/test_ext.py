@@ -35,7 +35,7 @@ def test_ext_commands(tmpdir) -> None:
 
     assert _names(tmp) == []
 
-    assert ext.init(tmp, bokehjs_version="2.4.0") is True
+    assert ext.init(tmp, bokehjs_version="3.0.0") is True
     assert _names(tmp) == [
         "bokeh.ext.json",
         "index.ts",

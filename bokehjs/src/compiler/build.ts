@@ -199,7 +199,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
     write_json(paths.tsconfig, tsconfig_json)
   }
 
-  write(paths.index, "")
+  write(paths.index, "export {}")
   print(`Created empty ${cyan("index.ts")}. This is the entry point of your extension.`)
 
   const rel = relative(process.cwd(), base_dir)
