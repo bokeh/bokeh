@@ -2,7 +2,7 @@ import {Align} from "../enums"
 import {Enum} from "../kinds"
 
 import {Size, Extents} from "../types"
-export {Size}
+export {type Size}
 
 import {LRTB} from "../util/bbox"
 

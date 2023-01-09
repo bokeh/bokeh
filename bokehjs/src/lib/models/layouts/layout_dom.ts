@@ -15,7 +15,7 @@ import {CanvasLayer} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import {SerializableState} from "core/view"
 
-export {DOMBoxSizing}
+export {type DOMBoxSizing}
 
 export type CSSSizeKeyword = "auto" | "min-content" | "fit-content" | "max-content"
 

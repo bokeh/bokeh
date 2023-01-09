@@ -23,6 +23,7 @@
     "jsxFactory": "DOM.createSVGElement",
     "module": "ES2020",
     "moduleResolution": "node",
+    "isolatedModules": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

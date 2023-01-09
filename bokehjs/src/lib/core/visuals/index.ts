@@ -14,7 +14,7 @@ import {View} from "../view"
 import * as mixins from "../property_mixins"
 
 import {VisualProperties, VisualUniforms, Renderable} from "./visual"
-export {VisualProperties, VisualUniforms, Renderable}
+export {VisualProperties, VisualUniforms, type Renderable}
 
 export class Visuals {
   *[Symbol.iterator](): Generator<VisualProperties | VisualUniforms, void, undefined> {

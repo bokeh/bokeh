@@ -3,7 +3,7 @@ import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
 import {Size, Box, Extents} from "./types"
 
-export {CSSStyles, CSSStylesNative, CSSOurStyles} from "./css"
+export type {CSSStyles, CSSStylesNative, CSSOurStyles} from "./css"
 
 export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
