@@ -376,6 +376,9 @@ export class Linker {
       const fix_esexports = transforms.fix_esexports()
       transformers.push(fix_esexports)
 
+      const fix_regl = transforms.fix_regl()
+      transformers.push(fix_regl)
+
       const rewrite_deps = transforms.rewrite_deps((dep) => {
         const module_dep = module.dependencies.get(dep)
         return module_dep != null ? module_dep.id : undefined

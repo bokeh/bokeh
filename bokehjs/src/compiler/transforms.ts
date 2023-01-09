@@ -380,6 +380,30 @@ export function fix_esexports() {
   }
 }
 
+export function fix_regl() {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+    if (!root.fileName.endsWith("regl.js")) {
+      return root
+    }
+
+    const {factory} = context
+
+    function visit(node: ts.Node): ts.Node {
+      if (ts.isFunctionDeclaration(node) && node.name != null && ts.isIdentifier(node.name)) {
+        if (node.name.text == "guessCommand" || node.name.text == "guessCallSite") {
+          const value = factory.createStringLiteral("unknown")
+          const body = factory.createBlock([factory.createReturnStatement(value)])
+          return factory.createFunctionDeclaration(undefined, undefined, node.name, undefined, [], undefined, body)
+        }
+      }
+
+      return ts.visitEachChild(node, visit, context)
+    }
+
+    return ts.visitNode(root, visit)
+  }
+}
+
 export function wrap_in_function(module_name: string) {
   return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
     const {factory} = context
