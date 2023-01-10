@@ -23,7 +23,7 @@ describe("Glyph models", () => {
       p.annular_wedge({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support Annulus", async () => {
@@ -33,7 +33,7 @@ describe("Glyph models", () => {
       p.annulus({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it.allowing(1)("should support Arc", async () => {
@@ -574,7 +574,7 @@ describe("Glyph models", () => {
       p.wedge({x: [3, 4, 5], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support full circle Wedge", async () => {
@@ -596,7 +596,7 @@ describe("Glyph models", () => {
       p.wedge({x, y: y2, start_angle, end_angle, radius: 0.4, direction: "anticlock", alpha: 0.6, line_color: "blue", line_width: 2})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support fill with hatch patterns", async () => {
@@ -661,8 +661,8 @@ describe("Glyph models", () => {
       return p
     }
 
-    const r0 = row([p(+1, "canvas"), p(+1, "svg")])
-    const r1 = row([p(-1, "canvas"), p(-1, "svg")])
+    const r0 = row([p(+1, "canvas"), p(+1, "svg"), p(+1, "webgl")])
+    const r1 = row([p(-1, "canvas"), p(-1, "svg"), p(-1, "webgl")])
 
     await display(column([r0, r1]))
   })
