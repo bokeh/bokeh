@@ -61,7 +61,7 @@ def deprecated(since_or_msg: Version | str,
 
         major, minor, patch = since_or_msg
         since = f"{major}.{minor}.{patch}"
-        message = f"{old} was deprecated in Bokeh {since} and will be removed, use {new} instead."
+        message = f"{old!r} was deprecated in Bokeh {since} and will be removed, use {new!r} instead."
         if extra is not None:
             message += " " + extra.strip()
     else:

@@ -37,8 +37,8 @@ p = figure(tools=TOOLS, width=600, height=600, min_border=10, min_border_left=50
            toolbar_location="above", x_axis_location=None, y_axis_location=None,
            title="Linked Histograms")
 p.background_fill_color = "#fafafa"
-p.select(BoxSelectTool).select_every_mousemove = False
-p.select(LassoSelectTool).select_every_mousemove = False
+p.select(BoxSelectTool).continuous = False
+p.select(LassoSelectTool).continuous = False
 
 r = p.scatter(x, y, size=3, color="#3A5785", alpha=0.6)
 

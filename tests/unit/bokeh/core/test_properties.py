@@ -70,6 +70,7 @@ ALL = (
     'DataSpec',
     'Date',
     'Datetime',
+    'DeprecatedAlias',
     'Dict',
     'DistanceSpec',
     'Either',

@@ -28,6 +28,7 @@ import bokeh.core.property.alias as bcpa # isort:skip
 
 ALL = (
     "Alias",
+    "DeprecatedAlias",
 )
 
 #-----------------------------------------------------------------------------
@@ -38,6 +39,13 @@ class Test_Alias:
     def test_create_default(self) -> None:
         alias = bcpa.Alias("width", help="Object's width")
         assert alias.aliased_name == "width"
+        assert alias.help == "Object's width"
+
+class Test_DeprecatedAlias:
+    def test_create_default(self) -> None:
+        alias = bcpa.DeprecatedAlias("width", since=(3, 1, 0), help="Object's width")
+        assert alias.aliased_name == "width"
+        assert alias.since == (3, 1, 0)
         assert alias.help == "Object's width"
 
 #-----------------------------------------------------------------------------

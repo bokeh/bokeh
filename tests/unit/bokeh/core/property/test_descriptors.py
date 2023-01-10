@@ -18,11 +18,18 @@ import pytest ; pytest
 
 # Standard library imports
 import typing as tp
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 # Bokeh imports
-from bokeh.core.properties import Int, List, Nullable
+from bokeh.core.properties import (
+    Alias,
+    DeprecatedAlias,
+    Int,
+    List,
+    Nullable,
+)
 from bokeh.model import Model
+from bokeh.util.warnings import BokehDeprecationWarning
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -36,6 +43,7 @@ ALL = (
     'AliasPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
+    'DeprecatedAliasPropertyDescriptor',
     'PropertyDescriptor',
     'UnitsSpecPropertyDescriptor',
     'UnsetValueError',
@@ -259,17 +267,77 @@ class Test_UnitSpecDescriptor:
         assert d.__doc__ == f.__doc__
         assert d.units_prop == g
 
-class Test_AliasSpecDescriptor:
+class Test_AliasDescriptor:
     def test___init__(self) -> None:
-        class Foo:
-            '''doc'''
-            pass
-        f = Foo()
-        d = bcpd.AliasPropertyDescriptor("foo", "bar", f)
+        f = Alias("bar")
+        d = bcpd.AliasPropertyDescriptor("foo", f)
         assert d.name == "foo"
         assert d.aliased_name == "bar"
         assert d.property == f
-        assert d.__doc__ == "This is a compatibility alias for the ``bar`` property"
+        assert d.__doc__ == "This is a compatibility alias for the 'bar' property."
+
+    def test_values(self) -> None:
+        class Some(Model):
+            p0 = Int(default=17)
+            p1 = Alias("p0")
+
+        obj = Some()
+
+        assert obj.p0 == 17
+        assert obj.p1 == 17
+
+        obj.p0 = 18
+        assert obj.p0 == 18
+        assert obj.p1 == 18
+
+        obj.p1 = 19
+        assert obj.p0 == 19
+        assert obj.p1 == 19
+
+class Test_DeprecatedAliasDescriptor:
+    def test___init__(self) -> None:
+        f = DeprecatedAlias("bar", since=(3, 1, 0))
+        d = bcpd.DeprecatedAliasPropertyDescriptor("foo", f)
+        assert d.name == "foo"
+        assert d.aliased_name == "bar"
+        assert d.property == f
+        assert d.__doc__ == """\
+This is a backwards compatibility alias for the 'bar' property.
+
+.. note::
+    Property 'foo' was deprecated in Bokeh 3.1.0 and will be removed
+    in the future. Update your code to use 'bar' instead.
+"""
+
+    @patch("warnings.warn")
+    def test_warns(self, mock_warn: MagicMock) -> None:
+        class Some(Model):
+            p0 = Int(default=17)
+            p1 = DeprecatedAlias("p0", since=(3, 1, 0))
+
+        obj = Some()
+
+        assert obj.p0 == 17
+        assert not mock_warn.called
+
+        assert obj.p1 == 17
+        mock_warn.assert_called_once_with(
+            "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
+            BokehDeprecationWarning,
+            stacklevel=ANY,
+        )
+        mock_warn.reset_mock()
+
+        obj.p0 = 18
+        assert not mock_warn.called
+
+        obj.p1 = 19
+        mock_warn.assert_called_once_with(
+            "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
+            BokehDeprecationWarning,
+            stacklevel=ANY,
+        )
+        mock_warn.reset_mock()
 
 #-----------------------------------------------------------------------------
 # Private API

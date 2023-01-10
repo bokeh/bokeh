@@ -101,6 +101,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ...util.deprecation import deprecated
 from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
@@ -109,6 +110,7 @@ if TYPE_CHECKING:
 
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps, Setter
+    from .alias import Alias, DeprecatedAlias
     from .bases import Property
 
 #-----------------------------------------------------------------------------
@@ -119,6 +121,7 @@ __all__ = (
     'AliasPropertyDescriptor',
     'ColumnDataPropertyDescriptor',
     'DataSpecPropertyDescriptor',
+    'DeprecatedAliasPropertyDescriptor',
     'PropertyDescriptor',
     'UnitsSpecPropertyDescriptor',
     'UnsetValueError',
@@ -144,11 +147,15 @@ class AliasPropertyDescriptor(Generic[T]):
 
     serialized: bool = False
 
-    def __init__(self, name: str, aliased_name: str, property: Property[T]) -> None:
+    @property
+    def aliased_name(self) -> str:
+        return self.alias.aliased_name
+
+    def __init__(self, name: str, alias: Alias[T]) -> None:
         self.name = name
-        self.aliased_name = aliased_name
-        self.property = property
-        self.__doc__ = f"This is a compatibility alias for the ``{aliased_name}`` property"
+        self.alias = alias
+        self.property = alias
+        self.__doc__ = f"This is a compatibility alias for the {self.aliased_name!r} property."
 
     def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
         if obj is not None:
@@ -164,10 +171,47 @@ class AliasPropertyDescriptor(Generic[T]):
 
     @property
     def readonly(self) -> bool:
-        return self.property.readonly
+        return self.alias.readonly
 
     def has_unstable_default(self, obj: HasProps) -> bool:
         return obj.lookup(self.aliased_name).has_unstable_default(obj)
+
+    def class_default(self, cls: type[HasProps], *, no_eval: bool = False):
+        return cls.lookup(self.aliased_name).class_default(cls, no_eval=no_eval)
+
+class DeprecatedAliasPropertyDescriptor(AliasPropertyDescriptor[T]):
+    """
+
+    """
+
+    alias: DeprecatedAlias[T]
+
+    def __init__(self, name: str, alias: DeprecatedAlias[T]) -> None:
+        super().__init__(name, alias)
+
+        major, minor, patch = self.alias.since
+        since = f"{major}.{minor}.{patch}"
+        self.__doc__ = f"""\
+This is a backwards compatibility alias for the {self.aliased_name!r} property.
+
+.. note::
+    Property {self.name!r} was deprecated in Bokeh {since} and will be removed
+    in the future. Update your code to use {self.aliased_name!r} instead.
+"""
+
+    def _warn(self) -> None:
+        deprecated(self.alias.since, self.name, self.aliased_name, self.alias.extra)
+
+    def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
+        if obj is not None:
+            # Warn only when accesing descriptor's value, otherwise there would
+            # be a lot of spurious warnings from parameter resolution, etc.
+            self._warn()
+        return super().__get__(obj, owner)
+
+    def __set__(self, obj: HasProps | None, value: T) -> None:
+        self._warn()
+        super().__set__(obj, value)
 
 class PropertyDescriptor(Generic[T]):
     """ A base class for Bokeh properties with simple get/set and serialization
