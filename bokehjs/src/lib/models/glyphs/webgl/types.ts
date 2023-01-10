@@ -32,7 +32,7 @@ type DashProps = {
   dash_offset: number
 }
 
-type HatchProps = {
+export type HatchProps = {
   hatch_pattern: Uint8Buffer
   hatch_scale: Float32Buffer
   hatch_weight: Float32Buffer
