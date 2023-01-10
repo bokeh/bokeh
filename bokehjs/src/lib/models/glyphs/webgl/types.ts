@@ -106,7 +106,7 @@ type FillAttributes = {
   a_fill_color: AttributeConfig
 }
 
-type HatchAttributes = {
+export type HatchAttributes = {
   a_hatch_pattern: AttributeConfig
   a_hatch_scale: AttributeConfig
   a_hatch_weight: AttributeConfig

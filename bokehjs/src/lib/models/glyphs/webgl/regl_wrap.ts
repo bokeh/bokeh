@@ -1,5 +1,6 @@
 import createRegl from "regl"
 import {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
+import {Attributes, MaybeDynamicAttributes, DefaultContext} from "regl"
 import * as t from "./types"
 import {GLMarkerType} from "./types"
 import {DashCache, DashReturn} from "./dash_cache"
@@ -110,7 +111,7 @@ export class ReglWrapper {
   public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
     let func = this._marker_no_hatch_map.get(marker_type)
     if (func == null) {
-      func = regl_marker_no_hatch(this._regl, marker_type)
+      func = regl_marker(this._regl, marker_type)
       this._marker_no_hatch_map.set(marker_type, func)
     }
     return func
@@ -304,17 +305,29 @@ ${line_fragment_shader}
   return regl<Uniforms, Attributes, Props>(config)
 }
 
-function regl_marker_no_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
+function regl_marker<A extends Attributes, P extends object>(
+    regl: Regl,
+    marker_type: GLMarkerType,
+    vert_defs: string[] = [],
+    frag_defs: string[] = [],
+    attributes?: MaybeDynamicAttributes<A, DefaultContext, P>,
+): ReglRenderFunction {
+
   type Props = t.MarkerGlyphProps
   type Uniforms = t.MarkerGlyphUniforms
   type Attributes = t.MarkerGlyphAttributes
 
+  const vert_prefix = vert_defs.map((def) => `#define ${def}`).join("\n")
+  const frag_prefix = frag_defs.map((def) => `#define ${def}`).join("\n")
+
   const config: DrawConfig<Uniforms, Attributes, Props> = {
     vert: `\
+${vert_prefix}
 #define MULTI_MARKER
 ${marker_vertex_shader}
 `,
     frag: `\
+${frag_prefix}
 #define USE_${marker_type.toUpperCase()}
 ${marker_fragment_shader}
 `,
@@ -354,6 +367,7 @@ ${marker_fragment_shader}
       a_show(_, props) {
         return props.show.to_attribute_config()
       },
+      ...attributes,
     },
 
     uniforms: {
@@ -389,99 +403,21 @@ ${marker_fragment_shader}
 }
 
 function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
-  type Props = t.MarkerHatchGlyphProps
-  type Uniforms = t.MarkerGlyphUniforms
-  type Attributes = t.MarkerHatchGlyphAttributes
 
-  const config: DrawConfig<Uniforms, Attributes, Props> = {
-    vert: `\
-#define HATCH
-#define MULTI_MARKER
-${marker_vertex_shader}
-`,
-    frag: `\
-#define USE_${marker_type.toUpperCase()}
-#define HATCH
-${marker_fragment_shader}
-`,
-
-    attributes: {
-      a_position: {
-        buffer: regl.buffer([[-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5], [0.5, -0.5]]),
-        divisor: 0,
-      },
-      a_center(_, props) {
-        return props.center.to_attribute_config()
-      },
-      a_width(_, props) {
-        return props.width.to_attribute_config()
-      },
-      a_height(_, props) {
-        return props.height.to_attribute_config()
-      },
-      a_angle(_, props) {
-        return props.angle.to_attribute_config()
-      },
-      a_linewidth(_, props) {
-        return props.linewidth.to_attribute_config()
-      },
-      a_line_color(_, props) {
-        return props.line_color.to_attribute_config()
-      },
-      a_fill_color(_, props) {
-        return props.fill_color.to_attribute_config()
-      },
-      a_line_cap(_, props) {
-        return props.line_cap.to_attribute_config()
-      },
-      a_line_join(_, props) {
-        return props.line_join.to_attribute_config()
-      },
-      a_show(_, props) {
-        return props.show.to_attribute_config()
-      },
-      a_hatch_pattern(_, props) {
-        return props.hatch_pattern.to_attribute_config()
-      },
-      a_hatch_scale(_, props) {
-        return props.hatch_scale.to_attribute_config()
-      },
-      a_hatch_weight(_, props) {
-        return props.hatch_weight.to_attribute_config()
-      },
-      a_hatch_color(_, props) {
-        return props.hatch_color.to_attribute_config()
-      },
+  const hatch_attributes: MaybeDynamicAttributes<t.HatchAttributes, DefaultContext, t.HatchProps> = {
+    a_hatch_pattern(_, props) {
+      return props.hatch_pattern.to_attribute_config()
     },
-
-    uniforms: {
-      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
-      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
-      u_antialias: regl.prop<Props, "antialias">("antialias"),
-      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
-      u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
+    a_hatch_scale(_, props) {
+      return props.hatch_scale.to_attribute_config()
     },
-
-    count: 4,
-    primitive: "triangle fan",
-    instances: regl.prop<Props, "nmarkers">("nmarkers"),
-
-    blend: {
-      enable: true,
-      func: {
-        srcRGB:   "one",
-        srcAlpha: "one",
-        dstRGB:   "one minus src alpha",
-        dstAlpha: "one minus src alpha",
-      },
+    a_hatch_weight(_, props) {
+      return props.hatch_weight.to_attribute_config()
     },
-    depth: {enable: false},
-    scissor: {
-      enable: true,
-      box: regl.prop<Props, "scissor">("scissor"),
+    a_hatch_color(_, props) {
+      return props.hatch_color.to_attribute_config()
     },
-    viewport: regl.prop<Props, "viewport">("viewport"),
   }
 
-  return regl<Uniforms, Attributes, Props>(config)
+  return regl_marker(regl, marker_type, ["HATCH"], ["HATCH"], hatch_attributes)
 }
