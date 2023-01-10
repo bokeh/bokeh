@@ -2,9 +2,10 @@ precision mediump float;
 
 attribute vec2 a_position;
 attribute vec2 a_center;
-attribute float a_width;
-attribute float a_height;
-attribute float a_angle; // In radians
+attribute float a_width;   // or radius or outer_radius
+attribute float a_height;  // or inner_radius
+attribute float a_angle;   // or start_angle
+attribute float a_aux;     // or end_angle
 attribute float a_linewidth;
 attribute vec4 a_line_color;
 attribute vec4 a_fill_color;
@@ -30,6 +31,28 @@ uniform float u_size_hint;
 #ifdef USE_RECT
 uniform vec4 u_border_radius;
 varying vec4 v_border_radius;
+#endif
+
+#ifdef USE_ANNULAR_WEDGE
+varying float v_outer_radius;
+varying float v_inner_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_ANNULUS
+varying float v_outer_radius;
+varying float v_inner_radius;
+#endif
+
+#ifdef USE_WEDGE
+varying float v_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_CIRCLE
+varying float v_radius;
 #endif
 
 varying float v_linewidth;
@@ -95,17 +118,46 @@ vec2 enclosing_size() {
 
 void main()
 {
-  if (a_show < 0.5 || a_width <= 0.0 || a_height <= 0.0) {
+#if defined(USE_RECT) || defined(USE_HEX) || defined(USE_ELLIPSE)
+  v_size = vec2(a_width, a_height);
+#elif defined(USE_CIRCLE) || defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
+  v_size = vec2(2.0*a_width, 2.0*a_width);
+#else
+  v_size = vec2(a_width, a_width);
+#endif
+
+  if (a_show < 0.5 || v_size.x <= 0.0 || v_size.y <= 0.0) {
     // Do not show this rect.
     gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
     return;
   }
 
+#ifdef USE_ANNULAR_WEDGE
+  v_outer_radius = a_width;
+  v_inner_radius = a_height;
+  v_start_angle = -a_angle;
+  v_end_angle = -a_aux;
+#endif
+
+#ifdef USE_ANNULUS
+  v_outer_radius = a_width;
+  v_inner_radius = a_height;
+#endif
+
+#ifdef USE_WEDGE
+  v_radius = a_width;
+  v_start_angle = -a_angle;
+  v_end_angle = -a_aux;
+#endif
+
+#ifdef USE_CIRCLE
+  v_radius = a_width;
+#endif
+
 #ifdef USE_RECT
   v_border_radius = u_border_radius;
 #endif
 
-  v_size = vec2(a_width, a_height);
   v_linewidth = a_linewidth;
   v_line_color = a_line_color;
   v_fill_color = a_fill_color;
@@ -129,11 +181,15 @@ void main()
   // distance functions in fragment shader.
   v_coords = a_position*enclosing_size();
 
+#if defined(USE_CIRCLE) || defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
+  vec2 pos = a_center + v_coords;
+#else
   float c = cos(-a_angle);
   float s = sin(-a_angle);
   mat2 rotation = mat2(c, -s, s, c);
 
   vec2 pos = a_center + rotation*v_coords;
+#endif
 
 #ifdef HATCH
   // Coordinates for hatching in unrotated frame of reference.

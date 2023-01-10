@@ -33,17 +33,41 @@ const int hatch_criss_cross = 16;
 
 uniform float u_antialias;
 
+varying vec2 v_coords;
+varying vec2 v_size;
+
+#ifdef USE_ANNULAR_WEDGE
+varying float v_outer_radius;
+varying float v_inner_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_ANNULUS
+varying float v_outer_radius;
+varying float v_inner_radius;
+#endif
+
+#ifdef USE_WEDGE
+varying float v_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_CIRCLE
+varying float v_radius;
+#endif
+
 #ifdef USE_RECT
 varying vec4 v_border_radius;
 #endif
 
 varying float v_linewidth;
-varying vec2 v_size;
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
 varying float v_line_cap;
 varying float v_line_join;
-varying vec2 v_coords;
+
 #ifdef HATCH
 varying float v_hatch_pattern;
 varying float v_hatch_scale;
@@ -283,41 +307,25 @@ float annulus(in vec2 p, in float outer_radius, in float inner_radius)
 #if defined(USE_ANNULUS)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  // Assuming v_size.x == v.size_y
-  float outer_radius = 0.5*v_size.x;
-  float inner_radius = 0.5*outer_radius;
-
-  return annulus(p, outer_radius, inner_radius);
+  return annulus(p, v_outer_radius, v_inner_radius);
 }
 #endif
 
 #if defined(USE_WEDGE)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  // Assuming v_size.x == v.size_y
-  float radius = 0.5*v_size.x;
-  float start_angle = 0.0;
-  float end_angle = 1.0/3.0*PI;
-
   return intersect(
-    circle(p, radius),
-    wedge(p, radius, start_angle, end_angle));
+    circle(p, v_radius),
+    wedge(p, v_radius, v_start_angle, v_end_angle));
 }
 #endif
 
 #if defined(USE_ANNULAR_WEDGE)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  // Assuming v_size.x == v.size_y
-  float outer_radius = 0.5*v_size.x;
-  float inner_radius = 0.5*outer_radius;
-
-  float start_angle = 0.0;
-  float end_angle = 1.0/3.0*PI;
-
   return intersect(
-    annulus(p, outer_radius, inner_radius),
-    wedge(p, outer_radius, start_angle, end_angle));
+    annulus(p, v_outer_radius, v_inner_radius),
+    wedge(p, v_outer_radius, v_start_angle, v_end_angle));
 }
 #endif
 
@@ -328,7 +336,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
   vec2 ab = 0.5*v_size;
 
   // symmetry
-	p = abs(p);
+  p = abs(p);
 
   // initial value
   vec2 q = ab*(p - ab);

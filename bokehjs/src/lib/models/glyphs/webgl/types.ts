@@ -58,6 +58,7 @@ export type MarkerGlyphProps = CommonProps & LineProps & FillProps & {
   width: Float32Buffer
   height: Float32Buffer
   angle: Float32Buffer
+  aux: Float32Buffer
   border_radius: Vec4
   size_hint: number
   show: Uint8Buffer
@@ -135,6 +136,7 @@ export type MarkerGlyphAttributes = LineAttributes & FillAttributes & {
   a_width: AttributeConfig
   a_height: AttributeConfig
   a_angle: AttributeConfig
+  a_aux: AttributeConfig
 }
 
 export type MarkerHatchGlyphAttributes = MarkerGlyphAttributes & HatchAttributes

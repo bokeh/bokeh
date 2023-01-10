@@ -17,11 +17,13 @@ export type MarkerVisuals = {
 export abstract class BaseMarkerGL extends BaseGLGlyph {
   private readonly _antialias: number = 1.5
 
-  // data properties, either all or none are set.
+  // data properties
   protected readonly _centers = new Float32Buffer(this.regl_wrapper)
+
   protected readonly _widths = new Float32Buffer(this.regl_wrapper)
-  protected _heights?: Float32Buffer
+  protected readonly _heights = new Float32Buffer(this.regl_wrapper)
   protected readonly _angles = new Float32Buffer(this.regl_wrapper)
+  protected readonly _auxs = new Float32Buffer(this.regl_wrapper)
 
   // used by RectGL
   protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
@@ -52,8 +54,9 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   marker_props(main_gl_glyph: BaseMarkerGL) {
     return {
       width: main_gl_glyph._widths,
-      height: main_gl_glyph._heights!,
+      height: main_gl_glyph._heights,
       angle: main_gl_glyph._angles,
+      aux: main_gl_glyph._auxs,
       border_radius: main_gl_glyph._border_radius,
     }
   }

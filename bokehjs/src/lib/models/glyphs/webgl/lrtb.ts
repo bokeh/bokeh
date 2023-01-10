@@ -1,4 +1,3 @@
-import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SingleMarkerGL} from "./single_marker"
 import {GLMarkerType} from "./types"
@@ -17,10 +16,6 @@ export class LRTBGL extends SingleMarkerGL {
 
   protected override _set_data(): void {
     const nmarkers = this.nvertices
-
-    if (this._heights == null) {
-      this._heights = new Float32Buffer(this.regl_wrapper)
-    }
 
     const centers_array = this._centers.get_sized_array(nmarkers*2)
     const widths_array = this._widths.get_sized_array(nmarkers)
@@ -56,5 +51,8 @@ export class LRTBGL extends SingleMarkerGL {
 
     const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
     this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+
+    // unused
+    this._auxs.set_from_scalar(0, 1)
   }
 }

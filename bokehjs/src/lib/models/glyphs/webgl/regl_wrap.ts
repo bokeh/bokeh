@@ -350,6 +350,9 @@ ${marker_fragment_shader}
       a_angle(_, props) {
         return props.angle.to_attribute_config()
       },
+      a_aux(_, props) {
+        return props.aux.to_attribute_config()
+      },
       a_linewidth(_, props) {
         return props.linewidth.to_attribute_config()
       },
@@ -375,8 +378,8 @@ ${marker_fragment_shader}
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
-      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
       u_size_hint: regl.prop<Props, "size_hint">("size_hint"),
+      u_border_radius: regl.prop<Props, "border_radius">("border_radius"),
     },
 
     count: 4,

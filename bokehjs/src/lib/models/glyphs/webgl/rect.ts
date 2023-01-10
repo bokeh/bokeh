@@ -1,4 +1,3 @@
-import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SXSYGlyphGL} from "./sxsy"
 import {GLMarkerType} from "./types"
@@ -16,10 +15,6 @@ export class RectGL extends SXSYGlyphGL {
   protected override _set_data(): void {
     super._set_data()
 
-    if (this._heights == null) {
-      this._heights = new Float32Buffer(this.regl_wrapper)
-    }
-
     this._widths.set_from_array(this.glyph.sw)
     this._heights.set_from_array(this.glyph.sh)
 
@@ -27,5 +22,8 @@ export class RectGL extends SXSYGlyphGL {
 
     const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
     this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+
+    // unused
+    this._auxs.set_from_scalar(0, 1)
   }
 }

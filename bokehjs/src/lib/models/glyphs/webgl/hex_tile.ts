@@ -1,4 +1,3 @@
-import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
 import {SXSYGlyphGL} from "./sxsy"
 import {GLMarkerType} from "./types"
@@ -16,10 +15,6 @@ export class HexTileGL extends SXSYGlyphGL {
   protected override _set_data(): void {
     super._set_data()
 
-    if (this._heights == null) {
-      this._heights = new Float32Buffer(this.regl_wrapper)
-    }
-
     if (this.glyph.model.orientation == "pointytop") {
       this._angles.set_from_scalar(0.5*Math.PI)
       this._widths.set_from_scalar(this.glyph.svy[0]*2)
@@ -29,5 +24,8 @@ export class HexTileGL extends SXSYGlyphGL {
       this._widths.set_from_scalar(this.glyph.svx[0]*2)
       this._heights.set_from_scalar(this.glyph.svy[4]*4/Math.sqrt(3))
     }
+
+    // unused
+    this._auxs.set_from_scalar(0, 1)
   }
 }

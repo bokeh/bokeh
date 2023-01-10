@@ -1,10 +1,10 @@
 import {ReglWrapper} from "./regl_wrap"
+import {Float32Buffer} from "./buffer"
 import {SXSYGlyphGL} from "./sxsy"
 import {GLMarkerType} from "./types"
 import type {AnnularWedgeView} from "../annular_wedge"
 
 export class AnnularWedgeGL extends SXSYGlyphGL {
-
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: AnnularWedgeView) {
     super(regl_wrapper, glyph)
   }
@@ -13,20 +13,29 @@ export class AnnularWedgeGL extends SXSYGlyphGL {
     return "annular_wedge"
   }
 
+  get outer_radius(): Float32Buffer {
+    return this._widths
+  }
+
+  get inner_radius(): Float32Buffer {
+    return this._heights
+  }
+
+  get start_angle(): Float32Buffer {
+    return this._angles
+  }
+
+  get end_angle(): Float32Buffer {
+    return this._auxs
+  }
+
   protected override _set_data(): void {
     super._set_data()
 
-    if (this._heights == null) {
-      this._heights = this._widths
-    }
+    this.outer_radius.set_from_array(this.glyph.souter_radius)
+    this.inner_radius.set_from_array(this.glyph.sinner_radius)
 
-    const nmarkers = this.nvertices
-    const widths_array = this._widths.get_sized_array(nmarkers)
-    for (let i = 0; i < nmarkers; i++) {
-      widths_array[i] = this.glyph.souter_radius[i]*2
-    }
-    this._widths.update()
-
-    this._angles.set_from_scalar(0, 1)
+    this.start_angle.set_from_prop(this.glyph.start_angle)
+    this.end_angle.set_from_prop(this.glyph.end_angle)
   }
 }

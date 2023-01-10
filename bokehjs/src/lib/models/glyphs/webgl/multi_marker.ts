@@ -74,10 +74,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _set_data(): void {
     const nmarkers = this.nvertices
 
-    if (this._heights == null) {
-      this._heights = this._widths
-    }
-
     const centers_array = this._centers.get_sized_array(2*nmarkers)
     interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
     this._centers.update()
@@ -87,5 +83,9 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
     this._marker_types = this.glyph.marker
     this._unique_marker_types = [...new Set(this._marker_types)]
+
+    // unused
+    this._heights.set_from_scalar(0, 1)
+    this._auxs.set_from_scalar(0, 1)
   }
 }
