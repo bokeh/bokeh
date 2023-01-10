@@ -1,10 +1,8 @@
 import {Vec4} from "regl"
 import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
-import {ReglWrapper} from "./regl_wrap"
 import {HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
 import {marker_type_to_size_hint} from "./webgl_utils"
-import {GlyphView} from "../glyph"
 import * as visuals from "core/visuals"
 
 export type MarkerVisuals = {
@@ -17,7 +15,7 @@ export type MarkerVisuals = {
 // one function in the fragment shader that defines the marker geometry and is
 // enabled through a #define.
 export abstract class BaseMarkerGL extends BaseGLGlyph {
-  private _antialias: number
+  private readonly _antialias: number = 1.5
 
   // data properties, either all or none are set.
   protected readonly _centers = new Float32Buffer(this.regl_wrapper)
@@ -30,7 +28,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   // indices properties
   protected readonly _show = new Uint8Buffer(this.regl_wrapper)
-  protected _show_all: boolean
+  protected _show_all: boolean = false
 
   // visual properties
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
@@ -50,13 +48,6 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   // have reduced floating point precision.  So here using a large-ish negative
   // value instead.
   protected static readonly missing_point = -10000
-
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: GlyphView) {
-    super(regl_wrapper, glyph)
-
-    this._antialias = 1.5
-    this._show_all = false
-  }
 
   get hatch_props(): HatchProps {
     return {
