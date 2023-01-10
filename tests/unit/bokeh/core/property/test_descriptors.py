@@ -18,7 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import typing as tp
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -305,8 +305,8 @@ class Test_DeprecatedAliasDescriptor:
 This is a backwards compatibility alias for the 'bar' property.
 
 .. note::
-    Property 'foo' was deprecated in bokeh 3.1.0 and will be removed
-    at some point. Update your code to use 'bar' instead.
+    Property 'foo' was deprecated in Bokeh 3.1.0 and will be removed
+    in the future. Update your code to use 'bar' instead.
 """
 
     @patch("warnings.warn")
@@ -321,16 +321,22 @@ This is a backwards compatibility alias for the 'bar' property.
         assert not mock_warn.called
 
         assert obj.p1 == 17
-        assert mock_warn.called
-        assert mock_warn.call_args[0] == ("p1 was deprecated in Bokeh 3.1.0 and will be removed, use p0 instead.", BokehDeprecationWarning)
+        mock_warn.assert_called_once_with(
+            "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
+            BokehDeprecationWarning,
+            stacklevel=ANY,
+        )
         mock_warn.reset_mock()
 
         obj.p0 = 18
         assert not mock_warn.called
 
         obj.p1 = 19
-        assert mock_warn.called
-        assert mock_warn.call_args[0] == ("p1 was deprecated in Bokeh 3.1.0 and will be removed, use p0 instead.", BokehDeprecationWarning)
+        mock_warn.assert_called_once_with(
+            "'p1' was deprecated in Bokeh 3.1.0 and will be removed, use 'p0' instead.",
+            BokehDeprecationWarning,
+            stacklevel=ANY,
+        )
         mock_warn.reset_mock()
 
 #-----------------------------------------------------------------------------

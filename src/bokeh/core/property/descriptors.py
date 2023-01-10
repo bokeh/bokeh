@@ -155,7 +155,7 @@ class AliasPropertyDescriptor(Generic[T]):
         self.name = name
         self.alias = alias
         self.property = alias
-        self.__doc__ = f"This is a compatibility alias for the '{self.aliased_name}' property."
+        self.__doc__ = f"This is a compatibility alias for the {self.aliased_name!r} property."
 
     def __get__(self, obj: HasProps | None, owner: type[HasProps] | None) -> T:
         if obj is not None:
@@ -192,11 +192,11 @@ class DeprecatedAliasPropertyDescriptor(AliasPropertyDescriptor[T]):
         major, minor, patch = self.alias.since
         since = f"{major}.{minor}.{patch}"
         self.__doc__ = f"""\
-This is a backwards compatibility alias for the '{self.aliased_name}' property.
+This is a backwards compatibility alias for the {self.aliased_name!r} property.
 
 .. note::
-    Property '{self.name}' was deprecated in bokeh {since} and will be removed
-    at some point. Update your code to use '{self.aliased_name}' instead.
+    Property {self.name!r} was deprecated in Bokeh {since} and will be removed
+    in the future. Update your code to use {self.aliased_name!r} instead.
 """
 
     def _warn(self) -> None:
