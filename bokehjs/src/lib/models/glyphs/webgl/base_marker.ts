@@ -1,7 +1,7 @@
 import {Vec4} from "regl"
 import {BaseGLGlyph, Transform} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
-import {HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
+import {LineProps, FillProps, HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
 import {marker_type_to_size_hint} from "./webgl_utils"
 import * as visuals from "core/visuals"
 
@@ -45,9 +45,33 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected readonly _hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
 
   // Avoiding use of nan or inf to represent missing data in webgl as shaders may
-  // have reduced floating point precision.  So here using a large-ish negative
+  // have reduced floating point precision. So here using a large-ish negative
   // value instead.
   protected static readonly missing_point = -10000
+
+  marker_props(main_gl_glyph: BaseMarkerGL) {
+    return {
+      width: main_gl_glyph._widths,
+      height: main_gl_glyph._heights!,
+      angle: main_gl_glyph._angles,
+      border_radius: main_gl_glyph._border_radius,
+    }
+  }
+
+  get line_props(): LineProps {
+    return {
+      linewidth: this._linewidths,
+      line_color: this._line_rgba,
+      line_cap: this._line_caps,
+      line_join: this._line_joins,
+    }
+  }
+
+  get fill_props(): FillProps {
+    return {
+      fill_color: this._fill_rgba,
+    }
+  }
 
   get hatch_props(): HatchProps {
     return {
@@ -64,20 +88,14 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
       viewport: this.regl_wrapper.viewport,
       canvas_size: [transform.width, transform.height],
       pixel_ratio: transform.pixel_ratio,
-      center: main_gl_glyph._centers,
-      width: main_gl_glyph._widths,
-      height: main_gl_glyph._heights!,
-      angle: main_gl_glyph._angles,
-      border_radius: main_gl_glyph._border_radius,
       size_hint: marker_type_to_size_hint(marker_type),
       nmarkers: main_gl_glyph.nvertices,
       antialias: this._antialias,
-      linewidth: this._linewidths,
-      line_color: this._line_rgba,
-      fill_color: this._fill_rgba,
-      line_cap: this._line_caps,
-      line_join: this._line_joins,
       show: this._show,
+      center: main_gl_glyph._centers,
+      ...this.marker_props(main_gl_glyph),
+      ...this.line_props,
+      ...this.fill_props,
     }
 
     if (this._have_hatch) {

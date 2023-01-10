@@ -13,14 +13,14 @@ type CommonProps = {
   antialias: number
 }
 
-type LineProps = {
+export type LineProps = {
   linewidth: Float32Buffer
   line_color: NormalizedUint8Buffer
   line_cap: Uint8Buffer
   line_join: Uint8Buffer
 }
 
-type FillProps = {
+export type FillProps = {
   fill_color: NormalizedUint8Buffer
 }
 
