@@ -33,9 +33,12 @@ const int hatch_criss_cross = 16;
 
 uniform float u_antialias;
 
+#ifdef USE_RECT
+varying vec4 v_border_radius;
+#endif
+
 varying float v_linewidth;
 varying vec2 v_size;
-varying vec4 v_border_radius;
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
 varying float v_line_cap;

@@ -5,7 +5,6 @@ attribute vec2 a_center;
 attribute float a_width;
 attribute float a_height;
 attribute float a_angle; // In radians
-uniform vec4 u_border_radius;
 attribute float a_linewidth;
 attribute vec4 a_line_color;
 attribute vec4 a_fill_color;
@@ -28,9 +27,13 @@ uniform float u_antialias;
 uniform float u_size_hint;
 #endif
 
+#ifdef USE_RECT
+uniform vec4 u_border_radius;
+varying vec4 v_border_radius;
+#endif
+
 varying float v_linewidth;
 varying vec2 v_size; // 2D size for rects compared to 1D for markers.
-varying vec4 v_border_radius;
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
 varying float v_line_cap;
@@ -98,8 +101,11 @@ void main()
     return;
   }
 
-  v_size = vec2(a_width, a_height);
+#ifdef USE_RECT
   v_border_radius = u_border_radius;
+#endif
+
+  v_size = vec2(a_width, a_height);
   v_linewidth = a_linewidth;
   v_line_color = a_line_color;
   v_fill_color = a_fill_color;

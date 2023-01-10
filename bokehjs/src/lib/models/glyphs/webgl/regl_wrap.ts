@@ -324,6 +324,7 @@ function regl_marker<A extends Attributes, P extends object>(
     vert: `\
 ${vert_prefix}
 #define MULTI_MARKER
+#define USE_${marker_type.toUpperCase()}
 ${marker_vertex_shader}
 `,
     frag: `\
