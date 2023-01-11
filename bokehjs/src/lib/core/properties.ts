@@ -167,7 +167,7 @@ export abstract class Property<T = unknown> {
     return this._dirty
   }
 
-  readonly change: Signal0<HasProps> = new Signal0(this.obj, "change")
+  readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
 
@@ -179,6 +179,7 @@ export abstract class Property<T = unknown> {
               readonly kind: Kind<T>,
               readonly default_value: (obj: HasProps) => T,
               options: PropertyOptions<T> = {}) {
+    this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
     this.convert = options.convert
     this.on_update = options.on_update

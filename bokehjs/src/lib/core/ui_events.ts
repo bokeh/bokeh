@@ -120,17 +120,19 @@ export class UIEventBus implements EventListenerObject {
   readonly keydown:      UISignal<KeyEvent>     = new Signal(this, "keydown")
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
-  private readonly hammer = new Hammer(this.hit_area, {
-    cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
-    touchAction: "auto",
-    inputClass: !is_mobile ? Hammer.PointerEventInput : Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
-  })
+  private readonly hammer: HammerManager
 
   get hit_area(): HTMLElement {
     return this.canvas_view.events_el
   }
 
   constructor(readonly canvas_view: CanvasView) {
+    this.hammer = new Hammer(this.hit_area, {
+      cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
+      touchAction: "auto",
+      inputClass: !is_mobile ? Hammer.PointerEventInput : Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
+    })
+
     this._configure_hammerjs()
 
     // Mouse & keyboard events not handled through hammerjs

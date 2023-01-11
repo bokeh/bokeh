@@ -17,9 +17,11 @@ export type StateType = SelectionChange | RangeChange
 type StateEntry = {type: StateType, state: StateInfo}
 
 export class StateManager {
-  constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {}
+  readonly changed: Signal0<this["parent"]>
 
-  readonly changed: Signal0<this["parent"]> = new Signal0(this.parent, "state_changed")
+  constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {
+    this.changed = new Signal0(this.parent, "state_changed")
+  }
 
   protected history: StateEntry[] = []
   protected index: number = -1
