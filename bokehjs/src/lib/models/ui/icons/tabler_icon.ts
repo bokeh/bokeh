@@ -4,7 +4,7 @@ import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 export class TablerIconView extends IconView {
-  override model: TablerIcon
+  declare model: TablerIcon
 
   protected static readonly _url = "https://unpkg.com/@tabler/icons@latest/iconfont"
 
@@ -73,8 +73,8 @@ export namespace TablerIcon {
 export interface TablerIcon extends TablerIcon.Attrs {}
 
 export class TablerIcon extends Icon {
-  override properties: TablerIcon.Props
-  override __view_type__: TablerIconView
+  declare properties: TablerIcon.Props
+  declare __view_type__: TablerIconView
 
   constructor(attrs?: Partial<TablerIcon.Attrs>) {
     super(attrs)

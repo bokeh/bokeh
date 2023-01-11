@@ -9,7 +9,7 @@ import {DTINDEX_NAME, Item} from "./definitions"
 import * as tables from "styles/widgets/tables.css"
 
 export abstract class CellEditorView extends DOMComponentView {
-  override model: CellEditor
+  declare model: CellEditor
 
   defaultValue: any
 
@@ -138,14 +138,14 @@ export namespace CellEditor {
 export interface CellEditor extends CellEditor.Attrs {}
 
 export abstract class CellEditor extends Model {
-  override properties: CellEditor.Props
-  override __view_type__: CellEditorView
+  declare properties: CellEditor.Props
+  declare __view_type__: CellEditorView
 }
 
 export class StringEditorView extends CellEditorView {
-  override model: StringEditor
+  declare model: StringEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   override get emptyValue(): string {
     return ""
@@ -183,7 +183,7 @@ export namespace StringEditor {
 export interface StringEditor extends StringEditor.Attrs {}
 
 export class StringEditor extends CellEditor {
-  override properties: StringEditor.Props
+  declare properties: StringEditor.Props
 
   static {
     this.prototype.default_view = StringEditorView
@@ -194,9 +194,9 @@ export class StringEditor extends CellEditor {
 }
 
 export class TextEditorView extends CellEditorView {
-  override model: TextEditor
+  declare model: TextEditor
 
-  override inputEl: HTMLTextAreaElement
+  declare inputEl: HTMLTextAreaElement
 
   protected _createInput(): HTMLTextAreaElement {
     return textarea()
@@ -217,7 +217,7 @@ export namespace TextEditor {
 export interface TextEditor extends TextEditor.Attrs {}
 
 export class TextEditor extends CellEditor {
-  override properties: TextEditor.Props
+  declare properties: TextEditor.Props
 
   static {
     this.prototype.default_view = TextEditorView
@@ -225,9 +225,9 @@ export class TextEditor extends CellEditor {
 }
 
 export class SelectEditorView extends CellEditorView {
-  override model: SelectEditor
+  declare model: SelectEditor
 
-  override inputEl: HTMLSelectElement
+  declare inputEl: HTMLSelectElement
 
   protected _createInput(): HTMLSelectElement {
     return select()
@@ -252,7 +252,7 @@ export namespace SelectEditor {
 export interface SelectEditor extends SelectEditor.Attrs {}
 
 export class SelectEditor extends CellEditor {
-  override properties: SelectEditor.Props
+  declare properties: SelectEditor.Props
 
   static {
     this.prototype.default_view = SelectEditorView
@@ -263,9 +263,9 @@ export class SelectEditor extends CellEditor {
 }
 
 export class PercentEditorView extends CellEditorView {
-  override model: PercentEditor
+  declare model: PercentEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -281,7 +281,7 @@ export namespace PercentEditor {
 export interface PercentEditor extends PercentEditor.Attrs {}
 
 export class PercentEditor extends CellEditor {
-  override properties: PercentEditor.Props
+  declare properties: PercentEditor.Props
 
   static {
     this.prototype.default_view = PercentEditorView
@@ -289,9 +289,9 @@ export class PercentEditor extends CellEditor {
 }
 
 export class CheckboxEditorView extends CellEditorView {
-  override model: CheckboxEditor
+  declare model: CheckboxEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "checkbox"})
@@ -320,7 +320,7 @@ export namespace CheckboxEditor {
 export interface CheckboxEditor extends CheckboxEditor.Attrs {}
 
 export class CheckboxEditor extends CellEditor {
-  override properties: CheckboxEditor.Props
+  declare properties: CheckboxEditor.Props
 
   static {
     this.prototype.default_view = CheckboxEditorView
@@ -328,9 +328,9 @@ export class CheckboxEditor extends CellEditor {
 }
 
 export class IntEditorView extends CellEditorView {
-  override model: IntEditor
+  declare model: IntEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -381,7 +381,7 @@ export namespace IntEditor {
 export interface IntEditor extends IntEditor.Attrs {}
 
 export class IntEditor extends CellEditor {
-  override properties: IntEditor.Props
+  declare properties: IntEditor.Props
 
   static {
     this.prototype.default_view = IntEditorView
@@ -392,9 +392,9 @@ export class IntEditor extends CellEditor {
 }
 
 export class NumberEditorView extends CellEditorView {
-  override model: NumberEditor
+  declare model: NumberEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -441,7 +441,7 @@ export namespace NumberEditor {
 export interface NumberEditor extends NumberEditor.Attrs {}
 
 export class NumberEditor extends CellEditor {
-  override properties: NumberEditor.Props
+  declare properties: NumberEditor.Props
 
   static {
     this.prototype.default_view = NumberEditorView
@@ -452,9 +452,9 @@ export class NumberEditor extends CellEditor {
 }
 
 export class TimeEditorView extends CellEditorView {
-  override model: TimeEditor
+  declare model: TimeEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -470,7 +470,7 @@ export namespace TimeEditor {
 export interface TimeEditor extends TimeEditor.Attrs {}
 
 export class TimeEditor extends CellEditor {
-  override properties: TimeEditor.Props
+  declare properties: TimeEditor.Props
 
   static {
     this.prototype.default_view = TimeEditorView
@@ -478,9 +478,9 @@ export class TimeEditor extends CellEditor {
 }
 
 export class DateEditorView extends CellEditorView {
-  override model: DateEditor
+  declare model: DateEditor
 
-  override inputEl: HTMLInputElement
+  declare inputEl: HTMLInputElement
 
   protected _createInput(): HTMLInputElement {
     return input({type: "text"})
@@ -548,7 +548,7 @@ export namespace DateEditor {
 export interface DateEditor extends DateEditor.Attrs {}
 
 export class DateEditor extends CellEditor {
-  override properties: DateEditor.Props
+  declare properties: DateEditor.Props
 
   static {
     this.prototype.default_view = DateEditorView

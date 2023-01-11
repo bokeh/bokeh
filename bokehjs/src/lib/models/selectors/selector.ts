@@ -12,7 +12,7 @@ export namespace Selector {
 export interface Selector extends Selector.Attrs {}
 
 export abstract class Selector extends Model {
-  override properties: Selector.Props
+  declare properties: Selector.Props
 
   constructor(attrs?: Partial<Selector.Attrs>) {
     super(attrs)

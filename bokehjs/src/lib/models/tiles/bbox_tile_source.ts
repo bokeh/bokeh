@@ -12,7 +12,7 @@ export namespace BBoxTileSource {
 export interface BBoxTileSource extends BBoxTileSource.Attrs {}
 
 export class BBoxTileSource extends MercatorTileSource {
-  override properties: BBoxTileSource.Props
+  declare properties: BBoxTileSource.Props
 
   constructor(attrs?: Partial<BBoxTileSource.Attrs>) {
     super(attrs)

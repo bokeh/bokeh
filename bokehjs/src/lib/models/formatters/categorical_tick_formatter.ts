@@ -11,7 +11,7 @@ export namespace CategoricalTickFormatter {
 export interface CategoricalTickFormatter extends CategoricalTickFormatter.Attrs {}
 
 export class CategoricalTickFormatter extends TickFormatter {
-  override properties: CategoricalTickFormatter.Props
+  declare properties: CategoricalTickFormatter.Props
 
   constructor(attrs?: Partial<CategoricalTickFormatter.Attrs>) {
     super(attrs)

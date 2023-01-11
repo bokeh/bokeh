@@ -6,7 +6,7 @@ import menus_css from "styles/menus.css"
 import icons_css from "styles/icons.css"
 
 export abstract class MenuItemView extends UIElementView {
-  override model: MenuItem
+  declare model: MenuItem
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), menus_css, icons_css]
@@ -21,8 +21,8 @@ export namespace MenuItem {
 export interface MenuItem extends MenuItem.Attrs {}
 
 export abstract class MenuItem extends UIElement {
-  override properties: MenuItem.Props
-  override __view_type__: MenuItemView
+  declare properties: MenuItem.Props
+  declare __view_type__: MenuItemView
 
   constructor(attrs?: Partial<MenuItem.Attrs>) {
     super(attrs)

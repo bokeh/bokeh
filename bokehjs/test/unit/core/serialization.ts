@@ -32,7 +32,7 @@ namespace SomeModel {
 interface SomeModel extends SomeModel.Attrs {}
 
 class SomeModel extends HasProps {
-  override properties: SomeModel.Props
+  declare properties: SomeModel.Props
 
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)

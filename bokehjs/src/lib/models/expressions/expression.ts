@@ -12,7 +12,7 @@ export namespace Expression {
 export interface Expression<T = Arrayable> extends Expression.Attrs {}
 
 export abstract class Expression<T = Arrayable> extends Model {
-  override properties: Expression.Props
+  declare properties: Expression.Props
 
   constructor(attrs?: Partial<Expression.Attrs>) {
     super(attrs)
@@ -46,7 +46,7 @@ export namespace ScalarExpression {
 export interface ScalarExpression<T> extends ScalarExpression.Attrs {}
 
 export abstract class ScalarExpression<T> extends Model {
-  override properties: ScalarExpression.Props
+  declare properties: ScalarExpression.Props
 
   constructor(attrs?: Partial<ScalarExpression.Attrs>) {
     super(attrs)

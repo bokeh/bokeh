@@ -17,7 +17,7 @@ class SomeView extends DOMElementView {
 class ModelWithoutView extends HasProps {}
 
 class ModelWithView extends HasProps {
-  override __view_type__: SomeView
+  declare __view_type__: SomeView
 
   static {
     this.prototype.default_view = SomeView

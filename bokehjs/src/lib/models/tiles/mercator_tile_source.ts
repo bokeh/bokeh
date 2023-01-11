@@ -15,7 +15,7 @@ export namespace MercatorTileSource {
 export interface MercatorTileSource extends MercatorTileSource.Attrs {}
 
 export class MercatorTileSource extends TileSource {
-  override properties: MercatorTileSource.Props
+  declare properties: MercatorTileSource.Props
 
   constructor(attrs?: Partial<MercatorTileSource.Attrs>) {
     super(attrs)

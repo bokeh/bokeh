@@ -45,9 +45,9 @@ class OurChoices extends Choices {
 }
 
 export class MultiChoiceView extends InputWidgetView {
-  override model: MultiChoice
+  declare model: MultiChoice
 
-  override input_el: HTMLSelectElement
+  declare input_el: HTMLSelectElement
   choice_el: Choices
 
   override connect_signals(): void {
@@ -150,8 +150,8 @@ export namespace MultiChoice {
 export interface MultiChoice extends MultiChoice.Attrs {}
 
 export class MultiChoice extends InputWidget {
-  override properties: MultiChoice.Props
-  override __view_type__: MultiChoiceView
+  declare properties: MultiChoice.Props
+  declare __view_type__: MultiChoiceView
 
   constructor(attrs?: Partial<MultiChoice.Attrs>) {
     super(attrs)

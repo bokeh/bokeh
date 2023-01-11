@@ -11,7 +11,7 @@ export namespace Transform {
 export interface Transform<From = number, To = number> extends Transform.Attrs {}
 
 export abstract class Transform<From = number, To = number> extends Model {
-  override properties: Transform.Props
+  declare properties: Transform.Props
 
   constructor(attrs?: Partial<Transform.Attrs>) {
     super(attrs)

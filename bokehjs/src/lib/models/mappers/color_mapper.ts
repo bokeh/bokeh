@@ -35,7 +35,7 @@ export namespace ColorMapper {
 export interface ColorMapper extends ColorMapper.Attrs {}
 
 export abstract class ColorMapper extends Mapper<Color> {
-  override properties: ColorMapper.Props
+  declare properties: ColorMapper.Props
 
   metrics_change: Signal0<this>
 

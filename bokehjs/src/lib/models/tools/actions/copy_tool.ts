@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {tool_icon_copy} from "styles/icons.css"
 
 export class CopyToolView extends ActionToolView {
-  override model: CopyTool
+  declare model: CopyTool
 
   async copy(): Promise<void> {
     const blob = await this.parent.export().to_blob()
@@ -24,8 +24,8 @@ export namespace CopyTool {
 export interface CopyTool extends CopyTool.Attrs {}
 
 export class CopyTool extends ActionTool {
-  override properties: CopyTool.Props
-  override __view_type__: CopyToolView
+  declare properties: CopyTool.Props
+  declare __view_type__: CopyToolView
 
   constructor(attrs?: Partial<CopyTool.Attrs>) {
     super(attrs)

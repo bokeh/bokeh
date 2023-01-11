@@ -13,7 +13,7 @@ export namespace YearsTicker {
 export interface YearsTicker extends YearsTicker.Attrs {}
 
 export class YearsTicker extends SingleIntervalTicker {
-  override properties: YearsTicker.Props
+  declare properties: YearsTicker.Props
 
   constructor(attrs?: Partial<YearsTicker.Attrs>) {
     super(attrs)

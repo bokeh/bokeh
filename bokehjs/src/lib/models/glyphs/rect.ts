@@ -23,11 +23,11 @@ export type RectData = CenterRotatableData & {
 export interface RectView extends RectData {}
 
 export class RectView extends CenterRotatableView {
-  override model: Rect
-  override visuals: Rect.Visuals
+  declare model: Rect
+  declare visuals: Rect.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/rect").RectGL
+  declare glglyph?: import("./webgl/rect").RectGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -243,8 +243,8 @@ export namespace Rect {
 export interface Rect extends Rect.Attrs {}
 
 export class Rect extends CenterRotatable {
-  override properties: Rect.Props
-  override __view_type__: RectView
+  declare properties: Rect.Props
+  declare __view_type__: RectView
 
   constructor(attrs?: Partial<Rect.Attrs>) {
     super(attrs)

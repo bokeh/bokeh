@@ -18,7 +18,7 @@ export namespace LogTickFormatter {
 export interface LogTickFormatter extends LogTickFormatter.Attrs {}
 
 export class LogTickFormatter extends TickFormatter {
-  override properties: LogTickFormatter.Props
+  declare properties: LogTickFormatter.Props
 
   constructor(attrs?: Partial<LogTickFormatter.Attrs>) {
     super(attrs)

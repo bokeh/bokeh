@@ -35,7 +35,7 @@ const load_google_api = function(api_key: string, api_version: string): void {
 }
 
 export class GMapPlotView extends PlotView {
-  override model: GMapPlot
+  declare model: GMapPlot
 
   protected _tiles_loaded: boolean
 

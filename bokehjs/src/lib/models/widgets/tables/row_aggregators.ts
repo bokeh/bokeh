@@ -17,7 +17,7 @@ export interface RowAggregator extends RowAggregator.Attrs {
 }
 
 export abstract class RowAggregator extends Model {
-  override properties: RowAggregator.Props
+  declare properties: RowAggregator.Props
 
   constructor(attrs?: Partial<RowAggregator.Attrs>) {
     super(attrs)

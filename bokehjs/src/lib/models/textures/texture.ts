@@ -15,7 +15,7 @@ export namespace Texture {
 export interface Texture extends Texture.Attrs {}
 
 export abstract class Texture extends Model {
-  override properties: Texture.Props
+  declare properties: Texture.Props
 
   constructor(attrs?: Partial<Texture.Attrs>) {
     super(attrs)

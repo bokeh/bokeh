@@ -15,7 +15,7 @@ export namespace FixedTicker {
 export interface FixedTicker extends FixedTicker.Attrs {}
 
 export class FixedTicker extends ContinuousTicker {
-  override properties: FixedTicker.Props
+  declare properties: FixedTicker.Props
 
   constructor(attrs?: Partial<FixedTicker.Attrs>) {
     super(attrs)

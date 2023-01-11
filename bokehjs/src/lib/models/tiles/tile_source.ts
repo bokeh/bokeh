@@ -27,7 +27,7 @@ export namespace TileSource {
 export interface TileSource extends TileSource.Attrs {}
 
 export abstract class TileSource extends Model {
-  override properties: TileSource.Props
+  declare properties: TileSource.Props
 
   constructor(attrs?: Partial<TileSource.Attrs>) {
     super(attrs)

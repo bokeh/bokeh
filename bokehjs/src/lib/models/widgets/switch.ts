@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import switch_css from "styles/widgets/switch.css"
 
 export class SwitchView extends ToggleInputView {
-  override model: Switch
+  declare model: Switch
 
   protected knob_el: HTMLElement
   protected bar_el: HTMLElement
@@ -56,8 +56,8 @@ export namespace Switch {
 export interface Switch extends Switch.Attrs {}
 
 export class Switch extends ToggleInput {
-  override properties: Switch.Props
-  override __view_type__: SwitchView
+  declare properties: Switch.Props
+  declare __view_type__: SwitchView
 
   constructor(attrs?: Partial<Switch.Attrs>) {
     super(attrs)

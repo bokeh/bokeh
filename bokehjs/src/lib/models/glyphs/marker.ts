@@ -20,8 +20,8 @@ export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
 export interface MarkerView extends MarkerData {}
 
 export abstract class MarkerView extends XYGlyphView {
-  override model: Marker
-  override visuals: Marker.Visuals
+  declare model: Marker
+  declare visuals: Marker.Visuals
 
   protected _render_one: RenderOne
 
@@ -183,8 +183,8 @@ export namespace Marker {
 export interface Marker extends Marker.Attrs {}
 
 export abstract class Marker extends XYGlyph {
-  override properties: Marker.Props
-  override __view_type__: MarkerView
+  declare properties: Marker.Props
+  declare __view_type__: MarkerView
 
   constructor(attrs?: Partial<Marker.Attrs>) {
     super(attrs)

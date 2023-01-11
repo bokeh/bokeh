@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class DateRangeSliderView extends AbstractRangeSliderView {
-  override model: DateRangeSlider
+  declare model: DateRangeSlider
 
   protected override _calc_to(): SliderSpec {
     const {start, end, value, step} = this.model
@@ -29,8 +29,8 @@ export namespace DateRangeSlider {
 export interface DateRangeSlider extends DateRangeSlider.Attrs {}
 
 export class DateRangeSlider extends AbstractSlider {
-  override properties: DateRangeSlider.Props
-  override __view_type__: DateRangeSliderView
+  declare properties: DateRangeSlider.Props
+  declare __view_type__: DateRangeSliderView
 
   constructor(attrs?: Partial<DateRangeSlider.Attrs>) {
     super(attrs)

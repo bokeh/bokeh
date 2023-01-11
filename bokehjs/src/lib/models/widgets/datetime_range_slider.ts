@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class DatetimeRangeSliderView extends AbstractRangeSliderView {
-  override model: DatetimeRangeSlider
+  declare model: DatetimeRangeSlider
 }
 
 export namespace DatetimeRangeSlider {
@@ -18,8 +18,8 @@ export namespace DatetimeRangeSlider {
 export interface DatetimeRangeSlider extends DatetimeRangeSlider.Attrs {}
 
 export class DatetimeRangeSlider extends AbstractSlider {
-  override properties: DatetimeRangeSlider.Props
-  override __view_type__: DatetimeRangeSliderView
+  declare properties: DatetimeRangeSlider.Props
+  declare __view_type__: DatetimeRangeSliderView
 
   constructor(attrs?: Partial<DatetimeRangeSlider.Attrs>) {
     super(attrs)

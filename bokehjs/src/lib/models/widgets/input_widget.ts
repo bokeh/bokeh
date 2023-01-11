@@ -13,7 +13,7 @@ import icons_css from "styles/icons.css"
 export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
 
 export abstract class InputWidgetView extends ControlView {
-  override model: InputWidget
+  declare model: InputWidget
 
   protected description: TooltipView | null = null
 
@@ -140,8 +140,8 @@ export namespace InputWidget {
 export interface InputWidget extends InputWidget.Attrs {}
 
 export abstract class InputWidget extends Control {
-  override properties: InputWidget.Props
-  override __view_type__: InputWidgetView
+  declare properties: InputWidget.Props
+  declare __view_type__: InputWidgetView
 
   constructor(attrs?: Partial<InputWidget.Attrs>) {
     super(attrs)

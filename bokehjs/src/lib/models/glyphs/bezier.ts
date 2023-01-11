@@ -32,8 +32,8 @@ export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
 export interface BezierView extends BezierData {}
 
 export class BezierView extends GlyphView {
-  override model: Bezier
-  override visuals: Bezier.Visuals
+  declare model: Bezier
+  declare visuals: Bezier.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
@@ -120,8 +120,8 @@ export namespace Bezier {
 export interface Bezier extends Bezier.Attrs {}
 
 export class Bezier extends Glyph {
-  override properties: Bezier.Props
-  override __view_type__: BezierView
+  declare properties: Bezier.Props
+  declare __view_type__: BezierView
 
   constructor(attrs?: Partial<Bezier.Attrs>) {
     super(attrs)

@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends ToggleInputGroupView {
-  override model: CheckboxGroup
+  declare model: CheckboxGroup
 
   get active(): Set<number> {
     return new Set(this.model.active)
@@ -67,8 +67,8 @@ export namespace CheckboxGroup {
 export interface CheckboxGroup extends CheckboxGroup.Attrs {}
 
 export class CheckboxGroup extends ToggleInputGroup {
-  override properties: CheckboxGroup.Props
-  override __view_type__: CheckboxGroupView
+  declare properties: CheckboxGroup.Props
+  declare __view_type__: CheckboxGroupView
 
   constructor(attrs?: Partial<CheckboxGroup.Attrs>) {
     super(attrs)

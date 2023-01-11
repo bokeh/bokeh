@@ -5,7 +5,7 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 export class PaneView extends UIElementView {
-  override model: Pane
+  declare model: Pane
 
   protected get _ui_elements(): UIElement[] {
     return this.model.children.filter((child): child is UIElement => child instanceof UIElement)
@@ -91,8 +91,8 @@ export namespace Pane {
 export interface Pane extends Pane.Attrs {}
 
 export class Pane extends UIElement {
-  override properties: Pane.Props
-  override __view_type__: PaneView
+  declare properties: Pane.Props
+  declare __view_type__: PaneView
 
   constructor(attrs?: Partial<Pane.Attrs>) {
     super(attrs)

@@ -2,7 +2,7 @@ import {PlotActionTool, PlotActionToolView} from "models/tools/actions/plot_acti
 import * as p from "core/properties"
 
 export class ParallelResetToolView extends PlotActionToolView {
-  override model: ParallelResetTool
+  declare model: ParallelResetTool
 
   doit(): void {
     this.plot_view.reset_range()
@@ -18,8 +18,8 @@ export namespace ParallelResetTool {
 export interface ParallelResetTool extends ParallelResetTool.Attrs {}
 
 export class ParallelResetTool extends PlotActionTool {
-  override properties: ParallelResetTool.Props
-  override __view_type__: ParallelResetToolView
+  declare properties: ParallelResetTool.Props
+  declare __view_type__: ParallelResetToolView
 
   constructor(attrs?: Partial<ParallelResetTool.Attrs>) {
     super(attrs)

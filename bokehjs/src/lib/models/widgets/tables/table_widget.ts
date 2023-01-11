@@ -15,7 +15,7 @@ export namespace TableWidget {
 export interface TableWidget extends TableWidget.Attrs {}
 
 export class TableWidget extends Widget {
-  override properties: TableWidget.Props
+  declare properties: TableWidget.Props
 
   constructor(attrs?: Partial<TableWidget.Attrs>) {
     super(attrs)

@@ -9,7 +9,7 @@ import {isArray} from "core/util/types"
 import {tool_icon_crosshair} from "styles/icons.css"
 
 export class CrosshairToolView extends InspectToolView {
-  override model: CrosshairTool
+  declare model: CrosshairTool
 
   protected _spans: Span[]
 
@@ -126,8 +126,8 @@ export namespace CrosshairTool {
 export interface CrosshairTool extends CrosshairTool.Attrs {}
 
 export class CrosshairTool extends InspectTool {
-  override properties: CrosshairTool.Props
-  override __view_type__: CrosshairToolView
+  declare properties: CrosshairTool.Props
+  declare __view_type__: CrosshairToolView
 
   constructor(attrs?: Partial<CrosshairTool.Attrs>) {
     super(attrs)

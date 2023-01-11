@@ -29,8 +29,8 @@ export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> &
 export interface AnnularWedgeView extends AnnularWedgeData {}
 
 export class AnnularWedgeView extends XYGlyphView {
-  override model: AnnularWedge
-  override visuals: AnnularWedge.Visuals
+  declare model: AnnularWedge
+  declare visuals: AnnularWedge.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
@@ -153,8 +153,8 @@ export namespace AnnularWedge {
 export interface AnnularWedge extends AnnularWedge.Attrs {}
 
 export class AnnularWedge extends XYGlyph {
-  override properties: AnnularWedge.Props
-  override __view_type__: AnnularWedgeView
+  declare properties: AnnularWedge.Props
+  declare __view_type__: AnnularWedgeView
 
   constructor(attrs?: Partial<AnnularWedge.Attrs>) {
     super(attrs)

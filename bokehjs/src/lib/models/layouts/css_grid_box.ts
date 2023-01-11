@@ -26,7 +26,7 @@ export const TrackSizingLike = k.Or(TrackSize, TrackSizing)
 export const TracksSizing = k.Or(TrackSizingLike, k.Array(TrackSizingLike), k.Map(k.Int, TrackSizingLike))
 
 export abstract class CSSGridBoxView extends LayoutDOMView {
-  override model: CSSGridBox
+  declare model: CSSGridBox
 
   override connect_signals(): void {
     super.connect_signals()
@@ -167,8 +167,8 @@ export namespace CSSGridBox {
 export interface CSSGridBox extends CSSGridBox.Attrs {}
 
 export abstract class CSSGridBox extends LayoutDOM {
-  override properties: CSSGridBox.Props
-  override __view_type__: CSSGridBoxView
+  declare properties: CSSGridBox.Props
+  declare __view_type__: CSSGridBoxView
 
   constructor(attrs?: Partial<CSSGridBox.Attrs>) {
     super(attrs)

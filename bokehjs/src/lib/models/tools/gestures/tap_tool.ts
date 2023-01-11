@@ -9,7 +9,7 @@ import {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
 
 export class TapToolView extends SelectToolView {
-  override model: TapTool
+  declare model: TapTool
 
   override _tap(ev: TapEvent): void {
     if (this.model.gesture == "tap")
@@ -86,8 +86,8 @@ export namespace TapTool {
 export interface TapTool extends TapTool.Attrs {}
 
 export class TapTool extends SelectTool {
-  override properties: TapTool.Props
-  override __view_type__: TapToolView
+  declare properties: TapTool.Props
+  declare __view_type__: TapToolView
 
   constructor(attrs?: Partial<TapTool.Attrs>) {
     super(attrs)

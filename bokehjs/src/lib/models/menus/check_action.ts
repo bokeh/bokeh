@@ -2,7 +2,7 @@ import {Action, ActionView} from "./action"
 import * as p from "core/properties"
 
 export class CheckActionView extends ActionView {
-  override model: CheckAction
+  declare model: CheckAction
 }
 
 export namespace CheckAction {
@@ -16,8 +16,8 @@ export namespace CheckAction {
 export interface CheckAction extends CheckAction.Attrs {}
 
 export class CheckAction extends Action {
-  override properties: CheckAction.Props
-  override __view_type__: CheckActionView
+  declare properties: CheckAction.Props
+  declare __view_type__: CheckActionView
 
   constructor(attrs?: Partial<CheckAction.Attrs>) {
     super(attrs)

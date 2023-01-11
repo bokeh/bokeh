@@ -5,7 +5,7 @@ import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
-  override model: FreehandDrawTool
+  declare model: FreehandDrawTool
 
   _draw(ev: UIEvent, mode: string, emit: boolean = false): void {
     if (!this.model.active)
@@ -88,8 +88,8 @@ export namespace FreehandDrawTool {
 export interface FreehandDrawTool extends FreehandDrawTool.Attrs {}
 
 export class FreehandDrawTool extends EditTool {
-  override properties: FreehandDrawTool.Props
-  override __view_type__: FreehandDrawToolView
+  declare properties: FreehandDrawTool.Props
+  declare __view_type__: FreehandDrawToolView
 
   constructor(attrs?: Partial<FreehandDrawTool.Attrs>) {
     super(attrs)

@@ -24,8 +24,8 @@ export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
 export interface PatchesView extends PatchesData {}
 
 export class PatchesView extends GlyphView {
-  override model: Patches
-  override visuals: Patches.Visuals
+  declare model: Patches
+  declare visuals: Patches.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
@@ -206,8 +206,8 @@ export namespace Patches {
 export interface Patches extends Patches.Attrs {}
 
 export class Patches extends Glyph {
-  override properties: Patches.Props
-  override __view_type__: PatchesView
+  declare properties: Patches.Props
+  declare __view_type__: PatchesView
 
   constructor(attrs?: Partial<Patches.Attrs>) {
     super(attrs)

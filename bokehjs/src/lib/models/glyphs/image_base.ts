@@ -28,8 +28,8 @@ export type ImageDataBase = XYGlyphData & {
 export interface ImageBaseView extends ImageDataBase {}
 
 export abstract class ImageBaseView extends XYGlyphView {
-  override model: ImageBase
-  override visuals: ImageBase.Visuals
+  declare model: ImageBase
+  declare visuals: ImageBase.Visuals
 
   protected _width: Uint32Array
   protected _height: Uint32Array
@@ -250,8 +250,8 @@ export namespace ImageBase {
 export interface ImageBase extends ImageBase.Attrs {}
 
 export abstract class ImageBase extends XYGlyph {
-  override properties: ImageBase.Props
-  override __view_type__: ImageBaseView
+  declare properties: ImageBase.Props
+  declare __view_type__: ImageBaseView
 
   constructor(attrs?: Partial<ImageBase.Attrs>) {
     super(attrs)

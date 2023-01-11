@@ -9,8 +9,8 @@ import {copy} from "core/util/array"
 import * as p from "core/properties"
 
 export class PolyAnnotationView extends AnnotationView {
-  override model: PolyAnnotation
-  override visuals: PolyAnnotation.Visuals
+  declare model: PolyAnnotation
+  declare visuals: PolyAnnotation.Visuals
 
   override connect_signals(): void {
     super.connect_signals()
@@ -77,8 +77,8 @@ export namespace PolyAnnotation {
 export interface PolyAnnotation extends PolyAnnotation.Attrs {}
 
 export class PolyAnnotation extends Annotation {
-  override properties: PolyAnnotation.Props
-  override __view_type__: PolyAnnotationView
+  declare properties: PolyAnnotation.Props
+  declare __view_type__: PolyAnnotationView
 
   constructor(attrs?: Partial<PolyAnnotation.Attrs>) {
     super(attrs)

@@ -19,11 +19,11 @@ export type VBarData = LRTBData & {
 export interface VBarView extends VBarData {}
 
 export class VBarView extends LRTBView {
-  override model: VBar
-  override visuals: VBar.Visuals
+  declare model: VBar
+  declare visuals: VBar.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -89,8 +89,8 @@ export namespace VBar {
 export interface VBar extends VBar.Attrs {}
 
 export class VBar extends LRTB {
-  override properties: VBar.Props
-  override __view_type__: VBarView
+  declare properties: VBar.Props
+  declare __view_type__: VBarView
 
   constructor(attrs?: Partial<VBar.Attrs>) {
     super(attrs)

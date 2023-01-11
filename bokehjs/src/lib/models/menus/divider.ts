@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import * as menus from "styles/menus.css"
 
 export class DividerView extends MenuItemView {
-  override model: Divider
+  declare model: Divider
 
   override render(): void {
     super.render()
@@ -20,8 +20,8 @@ export namespace Divider {
 export interface Divider extends Divider.Attrs {}
 
 export class Divider extends MenuItem {
-  override properties: Divider.Props
-  override __view_type__: DividerView
+  declare properties: Divider.Props
+  declare __view_type__: DividerView
 
   constructor(attrs?: Partial<Divider.Attrs>) {
     super(attrs)

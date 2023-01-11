@@ -7,7 +7,7 @@ import * as p from "core/properties"
 // import * as menus from "styles/menus.css"
 
 export class ActionView extends MenuItemView {
-  override model: Action
+  declare model: Action
 
   protected _click(): void {
 
@@ -48,8 +48,8 @@ export namespace Action {
 export interface Action extends Action.Attrs {}
 
 export class Action extends MenuItem {
-  override properties: Action.Props
-  override __view_type__: ActionView
+  declare properties: Action.Props
+  declare __view_type__: ActionView
 
   constructor(attrs?: Partial<Action.Attrs>) {
     super(attrs)

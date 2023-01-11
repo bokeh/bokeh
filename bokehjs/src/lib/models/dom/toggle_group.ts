@@ -6,7 +6,7 @@ import {enumerate} from "core/util/iterator"
 import * as p from "core/properties"
 
 export class ToggleGroupView extends ActionView {
-  override model: ToggleGroup
+  declare model: ToggleGroup
 
   update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     for (const [group, j] of enumerate(this.model.groups)) {
@@ -25,8 +25,8 @@ export namespace ToggleGroup {
 export interface ToggleGroup extends ToggleGroup.Attrs {}
 
 export class ToggleGroup extends Action {
-  override properties: ToggleGroup.Props
-  override __view_type__: ToggleGroupView
+  declare properties: ToggleGroup.Props
+  declare __view_type__: ToggleGroupView
 
   constructor(attrs?: Partial<ToggleGroup.Attrs>) {
     super(attrs)

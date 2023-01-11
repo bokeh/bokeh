@@ -14,8 +14,8 @@ import icons_css from "styles/icons.css"
 import type {ToolbarView} from "./toolbar"
 
 export abstract class ToolButtonView extends UIElementView {
-  override model: ToolButton
-  override readonly parent: ToolbarView
+  declare model: ToolButton
+  declare readonly parent: ToolbarView
 
   private _menu: ContextMenu
 
@@ -145,8 +145,8 @@ export namespace ToolButton {
 export interface ToolButton extends ToolButton.Attrs {}
 
 export abstract class ToolButton extends UIElement {
-  override properties: ToolButton.Props
-  override __view_type__: ToolButtonView
+  declare properties: ToolButton.Props
+  declare __view_type__: ToolButtonView
 
   constructor(attrs?: Partial<ToolButton.Attrs>) {
     super(attrs)

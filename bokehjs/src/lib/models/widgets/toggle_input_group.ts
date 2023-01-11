@@ -5,7 +5,7 @@ import inputs_css from "styles/widgets/inputs.css"
 import checkbox_css from "styles/widgets/checkbox.css"
 
 export abstract class ToggleInputGroupView extends ControlView {
-  override model: ToggleInputGroup
+  declare model: ToggleInputGroup
 
   protected _inputs: HTMLInputElement[]
   *controls() {
@@ -36,8 +36,8 @@ export namespace ToggleInputGroup {
 export interface ToggleInputGroup extends ToggleInputGroup.Attrs {}
 
 export abstract class ToggleInputGroup extends Control {
-  override properties: ToggleInputGroup.Props & {active: p.Property<unknown>}
-  override __view_type__: ToggleInputGroupView
+  declare properties: ToggleInputGroup.Props & {active: p.Property<unknown>}
+  declare __view_type__: ToggleInputGroupView
 
   constructor(attrs?: Partial<ToggleInputGroup.Attrs>) {
     super(attrs)

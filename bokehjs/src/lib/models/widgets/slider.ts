@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class SliderView extends AbstractSliderView {
-  override model: Slider
+  declare model: Slider
 }
 
 export namespace Slider {
@@ -18,8 +18,8 @@ export namespace Slider {
 export interface Slider extends Slider.Attrs {}
 
 export class Slider extends AbstractSlider {
-  override properties: Slider.Props
-  override __view_type__: SliderView
+  declare properties: Slider.Props
+  declare __view_type__: SliderView
 
   constructor(attrs?: Partial<Slider.Attrs>) {
     super(attrs)

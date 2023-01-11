@@ -10,7 +10,7 @@ import {BBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 
 export class ContourColorBarView extends BaseColorBarView {
-  override model: ContourColorBar
+  declare model: ContourColorBar
 
   protected _fill_view: GlyphRendererView
   protected _line_view: GlyphRendererView
@@ -107,8 +107,8 @@ export namespace ContourColorBar {
 export interface ContourColorBar extends ContourColorBar.Attrs {}
 
 export class ContourColorBar extends BaseColorBar {
-  override properties: ContourColorBar.Props
-  override __view_type__: ContourColorBarView
+  declare properties: ContourColorBar.Props
+  declare __view_type__: ContourColorBarView
 
   constructor(attrs?: Partial<ContourColorBar.Attrs>) {
     super(attrs)

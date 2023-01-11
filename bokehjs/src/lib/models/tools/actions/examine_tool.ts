@@ -6,7 +6,7 @@ import {Examiner} from "../../ui/examiner"
 import {build_view, IterViews} from "core/build_views"
 
 export class ExamineToolView extends ActionToolView {
-  override model: ExamineTool
+  declare model: ExamineTool
 
   protected _dialog: DialogView
 
@@ -39,8 +39,8 @@ export namespace ExamineTool {
 export interface ExamineTool extends ExamineTool.Attrs {}
 
 export class ExamineTool extends ActionTool {
-  override properties: ExamineTool.Props
-  override __view_type__: ExamineToolView
+  declare properties: ExamineTool.Props
+  declare __view_type__: ExamineToolView
 
   constructor(attrs?: Partial<ExamineTool.Attrs>) {
     super(attrs)

@@ -4,7 +4,7 @@ import {isNumber} from "core/util/types"
 import * as p from "core/properties"
 
 export class SVGIconView extends IconView {
-  override model: SVGIcon
+  declare model: SVGIcon
 
   protected readonly _style = new InlineStyleSheet()
 
@@ -48,8 +48,8 @@ export namespace SVGIcon {
 export interface SVGIcon extends SVGIcon.Attrs {}
 
 export class SVGIcon extends Icon {
-  override properties: SVGIcon.Props
-  override __view_type__: SVGIconView
+  declare properties: SVGIcon.Props
+  declare __view_type__: SVGIconView
 
   constructor(attrs?: Partial<SVGIcon.Attrs>) {
     super(attrs)

@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import {tool_icon_polygon_select} from "styles/icons.css"
 
 export class PolySelectToolView extends SelectToolView {
-  override model: PolySelectTool
+  declare model: PolySelectTool
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -94,8 +94,8 @@ export namespace PolySelectTool {
 export interface PolySelectTool extends PolySelectTool.Attrs {}
 
 export class PolySelectTool extends SelectTool {
-  override properties: PolySelectTool.Props
-  override __view_type__: PolySelectToolView
+  declare properties: PolySelectTool.Props
+  declare __view_type__: PolySelectToolView
 
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)

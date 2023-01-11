@@ -14,7 +14,7 @@ export namespace Range {
 export interface Range extends Range.Attrs {}
 
 export abstract class Range extends Model {
-  override properties: Range.Props
+  declare properties: Range.Props
 
   constructor(attrs?: Partial<Range.Attrs>) {
     super(attrs)

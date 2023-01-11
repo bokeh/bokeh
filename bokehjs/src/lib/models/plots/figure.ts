@@ -3,7 +3,7 @@ import {SerializableState} from "core/view"
 import * as p from "core/properties"
 
 export class FigureView extends PlotView {
-  override model: Figure
+  declare model: Figure
 
   // TODO: remove this before bokeh 3.0 and update *.blf files
   override serializable_state(): SerializableState {
@@ -20,8 +20,8 @@ export namespace Figure {
 export interface Figure extends Figure.Attrs {}
 
 export class Figure extends Plot {
-  override properties: Figure.Props
-  override __view_type__: FigureView
+  declare properties: Figure.Props
+  declare __view_type__: FigureView
 
   constructor(attrs?: Partial<Figure.Attrs>) {
     super(attrs)

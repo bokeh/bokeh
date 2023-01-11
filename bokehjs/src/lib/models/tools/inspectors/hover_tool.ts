@@ -89,7 +89,7 @@ export function _line_hit(
 }
 
 export class HoverToolView extends InspectToolView {
-  override model: HoverTool
+  declare model: HoverTool
 
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
@@ -616,8 +616,8 @@ export namespace HoverTool {
 export interface HoverTool extends HoverTool.Attrs {}
 
 export class HoverTool extends InspectTool {
-  override properties: HoverTool.Props
-  override __view_type__: HoverToolView
+  declare properties: HoverTool.Props
+  declare __view_type__: HoverToolView
 
   constructor(attrs?: Partial<HoverTool.Attrs>) {
     super(attrs)

@@ -18,7 +18,7 @@ export namespace RendererGroup {
 export interface RendererGroup extends RendererGroup.Attrs {}
 
 export class RendererGroup extends Model {
-  override properties: RendererGroup.Props
+  declare properties: RendererGroup.Props
 
   constructor(attrs?: Partial<RendererGroup.Attrs>) {
     super(attrs)
@@ -32,10 +32,10 @@ export class RendererGroup extends Model {
 }
 
 export abstract class RendererView extends View implements visuals.Renderable {
-  override model: Renderer
+  declare model: Renderer
   visuals: Renderer.Visuals
 
-  override readonly parent: PlotView
+  declare readonly parent: PlotView
 
   needs_webgl_blit: boolean
 
@@ -182,8 +182,8 @@ export namespace Renderer {
 export interface Renderer extends Renderer.Attrs {}
 
 export abstract class Renderer extends Model {
-  override properties: Renderer.Props
-  override __view_type__: RendererView
+  declare properties: Renderer.Props
+  declare __view_type__: RendererView
 
   constructor(attrs?: Partial<Renderer.Attrs>) {
     super(attrs)

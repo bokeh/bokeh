@@ -4,7 +4,7 @@ import {default_provider, MathJaxProvider} from "models/text/providers"
 import * as p from "core/properties"
 
 export abstract class WidgetView extends LayoutDOMView {
-  override model: Widget
+  declare model: Widget
 
   override update_style(): void {
     super.update_style()
@@ -70,8 +70,8 @@ export namespace Widget {
 export interface Widget extends Widget.Attrs {}
 
 export abstract class Widget extends LayoutDOM {
-  override properties: Widget.Props
-  override __view_type__: WidgetView
+  declare properties: Widget.Props
+  declare __view_type__: WidgetView
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)

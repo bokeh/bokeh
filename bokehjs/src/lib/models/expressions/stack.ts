@@ -15,7 +15,7 @@ export namespace Stack {
 export interface Stack extends Stack.Attrs {}
 
 export class Stack extends Expression {
-  override properties: Stack.Props
+  declare properties: Stack.Props
 
   constructor(attrs?: Partial<Stack.Attrs>) {
     super(attrs)

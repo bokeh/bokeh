@@ -12,7 +12,7 @@ export interface HasPolyGlyph {
 }
 
 export class PolyEditToolView extends PolyToolView {
-  override model: PolyEditTool
+  declare model: PolyEditTool
 
   _selected_renderer: GlyphRenderer | null
   _drawing: boolean = false
@@ -263,10 +263,10 @@ export namespace PolyEditTool {
 export interface PolyEditTool extends PolyEditTool.Attrs {}
 
 export class PolyEditTool extends PolyTool {
-  override properties: PolyEditTool.Props
-  override __view_type__: PolyEditToolView
+  declare properties: PolyEditTool.Props
+  declare __view_type__: PolyEditToolView
 
-  override renderers: (GlyphRenderer & HasPolyGlyph)[]
+  declare renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)

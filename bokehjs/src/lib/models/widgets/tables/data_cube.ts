@@ -70,7 +70,7 @@ export namespace GroupingInfo {
 export interface GroupingInfo extends GroupingInfo.Attrs {}
 
 export class GroupingInfo extends Model {
-  override properties: GroupingInfo.Props
+  declare properties: GroupingInfo.Props
 
   constructor(attrs?: Partial<GroupingInfo.Attrs>) {
     super(attrs)
@@ -267,9 +267,9 @@ export class DataCubeProvider extends TableDataProvider {
 }
 
 export class DataCubeView extends DataTableView {
-  override model: DataCube
+  declare model: DataCube
 
-  protected override data: DataCubeProvider
+  protected declare data: DataCubeProvider
 
   override _render(): void {
     const options = {
@@ -319,7 +319,7 @@ export namespace DataCube {
 export interface DataCube extends DataCube.Attrs {}
 
 export class DataCube extends DataTable {
-  override properties: DataCube.Props
+  declare properties: DataCube.Props
 
   constructor(attrs?: Partial<DataCube.Attrs>) {
     super(attrs)

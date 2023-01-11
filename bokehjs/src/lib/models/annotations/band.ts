@@ -5,8 +5,8 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class BandView extends UpperLowerView {
-  override model: Band
-  override visuals: Band.Visuals
+  declare model: Band
+  declare visuals: Band.Visuals
 
   paint(ctx: Context2d): void {
     // Draw the band body
@@ -57,8 +57,8 @@ export namespace Band {
 export interface Band extends Band.Attrs {}
 
 export class Band extends UpperLower {
-  override properties: Band.Props
-  override __view_type__: BandView
+  declare properties: Band.Props
+  declare __view_type__: BandView
 
   constructor(attrs?: Partial<Band.Attrs>) {
     super(attrs)

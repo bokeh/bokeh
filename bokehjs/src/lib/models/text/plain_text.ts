@@ -3,7 +3,7 @@ import {GraphicsBox, TextBox} from "core/graphics"
 import * as p from "core/properties"
 
 export class PlainTextView extends BaseTextView {
-  override model: PlainText
+  declare model: PlainText
 
   override initialize(): void {
     super.initialize()
@@ -23,8 +23,8 @@ export namespace PlainText {
 export interface PlainText extends PlainText.Attrs {}
 
 export class PlainText extends BaseText {
-  override properties: PlainText.Props
-  override __view_type__: PlainTextView
+  declare properties: PlainText.Props
+  declare __view_type__: PlainTextView
 
   constructor(attrs?: Partial<PlainText.Attrs>) {
     super(attrs)

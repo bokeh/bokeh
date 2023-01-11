@@ -14,7 +14,7 @@ export namespace InversionFilter {
 export interface InversionFilter extends InversionFilter.Attrs {}
 
 export class InversionFilter extends Filter {
-  override properties: InversionFilter.Props
+  declare properties: InversionFilter.Props
 
   constructor(attrs?: Partial<InversionFilter.Attrs>) {
     super(attrs)

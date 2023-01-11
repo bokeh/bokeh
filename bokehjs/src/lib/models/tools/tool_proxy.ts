@@ -23,8 +23,8 @@ export namespace ToolProxy {
 export interface ToolProxy<T extends Tool> extends ToolProxy.Attrs<T> {}
 
 export class ToolProxy<T extends Tool> extends Model {
-  override properties: ToolProxy.Props<T>
-  override __view_type__: ToolView
+  declare properties: ToolProxy.Props<T>
+  declare __view_type__: ToolView
 
   constructor(attrs?: Partial<ToolProxy.Attrs<T>>) {
     super(attrs)

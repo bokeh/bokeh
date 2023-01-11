@@ -6,9 +6,9 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class MultiSelectView extends InputWidgetView {
-  override model: MultiSelect
+  declare model: MultiSelect
 
-  override input_el: HTMLSelectElement
+  declare input_el: HTMLSelectElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -90,8 +90,8 @@ export namespace MultiSelect {
 export interface MultiSelect extends MultiSelect.Attrs {}
 
 export class MultiSelect extends InputWidget {
-  override properties: MultiSelect.Props
-  override __view_type__: MultiSelectView
+  declare properties: MultiSelect.Props
+  declare __view_type__: MultiSelectView
 
   constructor(attrs?: Partial<MultiSelect.Attrs>) {
     super(attrs)

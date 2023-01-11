@@ -15,7 +15,7 @@ export type HasXYGlyph = {
 }
 
 export abstract class EditToolView extends GestureToolView {
-  override model: EditTool
+  declare model: EditTool
 
   _basepoint: [number, number] | null
   _mouse_in_frame: boolean = true
@@ -177,8 +177,8 @@ export namespace EditTool {
 export interface EditTool extends EditTool.Attrs {}
 
 export abstract class EditTool extends GestureTool {
-  override properties: EditTool.Props
-  override __view_type__: EditToolView
+  declare properties: EditTool.Props
+  declare __view_type__: EditToolView
 
   constructor(attrs?: Partial<EditTool.Attrs>) {
     super(attrs)

@@ -11,8 +11,8 @@ import {Position} from "core/graphics"
 import * as mixins from "core/property_mixins"
 
 export abstract class TextAnnotationView extends AnnotationView {
-  override model: TextAnnotation
-  override visuals: TextAnnotation.Visuals
+  declare model: TextAnnotation
+  declare visuals: TextAnnotation.Visuals
 
   protected _text_view: BaseTextView
 
@@ -119,8 +119,8 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-  override properties: TextAnnotation.Props
-  override __view_type__: TextAnnotationView
+  declare properties: TextAnnotation.Props
+  declare __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)

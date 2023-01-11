@@ -3,7 +3,7 @@ import {Orientation} from "core/enums"
 import * as p from "core/properties"
 
 export abstract class OrientedControlView extends ControlView {
-  override model: OrientedControl
+  declare model: OrientedControl
 }
 
 export namespace OrientedControl {
@@ -17,8 +17,8 @@ export namespace OrientedControl {
 export interface OrientedControl extends OrientedControl.Attrs {}
 
 export abstract class OrientedControl extends Control {
-  override properties: OrientedControl.Props
-  override __view_type__: OrientedControlView
+  declare properties: OrientedControl.Props
+  declare __view_type__: OrientedControlView
 
   constructor(attrs?: Partial<OrientedControl.Attrs>) {
     super(attrs)

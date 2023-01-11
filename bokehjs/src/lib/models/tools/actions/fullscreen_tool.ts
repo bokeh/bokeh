@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
 export class FullscreenToolView extends ActionToolView {
-  override model: FullscreenTool
+  declare model: FullscreenTool
 
   doit(): void {
     if (document.fullscreenElement != null) {
@@ -24,8 +24,8 @@ export namespace FullscreenTool {
 export interface FullscreenTool extends FullscreenTool.Attrs {}
 
 export class FullscreenTool extends ActionTool {
-  override properties: FullscreenTool.Props
-  override __view_type__: FullscreenToolView
+  declare properties: FullscreenTool.Props
+  declare __view_type__: FullscreenToolView
 
   constructor(attrs?: Partial<FullscreenTool.Attrs>) {
     super(attrs)

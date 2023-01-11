@@ -2,8 +2,8 @@ import {DOMNode, DOMNodeView} from "./dom_node"
 import * as p from "core/properties"
 
 export class TextView extends DOMNodeView {
-  override model: Text
-  override el: globalThis.Text
+  declare model: Text
+  declare el: globalThis.Text
 
   override render(): void {
     this.el.textContent = this.model.content
@@ -24,8 +24,8 @@ export namespace Text {
 export interface Text extends Text.Attrs {}
 
 export class Text extends DOMNode {
-  override properties: Text.Props
-  override __view_type__: TextView
+  declare properties: Text.Props
+  declare __view_type__: TextView
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)

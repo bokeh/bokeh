@@ -35,8 +35,8 @@ export type ImageURLData = XYGlyphData & {
 export interface ImageURLView extends ImageURLData {}
 
 export class ImageURLView extends XYGlyphView {
-  override model: ImageURL
-  override visuals: ImageURL.Visuals
+  declare model: ImageURL
+  declare visuals: ImageURL.Visuals
 
   protected _images_rendered = false
 
@@ -254,8 +254,8 @@ export namespace ImageURL {
 export interface ImageURL extends ImageURL.Attrs {}
 
 export class ImageURL extends XYGlyph {
-  override properties: ImageURL.Props
-  override __view_type__: ImageURLView
+  declare properties: ImageURL.Props
+  declare __view_type__: ImageURLView
 
   constructor(attrs?: Partial<ImageURL.Attrs>) {
     super(attrs)

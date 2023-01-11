@@ -27,7 +27,7 @@ export type TileData = Tile & ({img: Image, loaded: true} | {img: undefined, loa
 }
 
 export class TileRendererView extends RendererView {
-  override model: TileRenderer
+  declare model: TileRenderer
 
   protected _tiles: TileData[]
 
@@ -393,8 +393,8 @@ export namespace TileRenderer {
 export interface TileRenderer extends TileRenderer.Attrs {}
 
 export class TileRenderer extends Renderer {
-  override properties: TileRenderer.Props
-  override __view_type__: TileRendererView
+  declare properties: TileRenderer.Props
+  declare __view_type__: TileRendererView
 
   constructor(attrs?: Partial<TileRenderer.Attrs>) {
     super(attrs)

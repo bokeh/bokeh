@@ -20,8 +20,8 @@ export type VAreaData = AreaData & {
 export interface VAreaView extends VAreaData {}
 
 export class VAreaView extends AreaView {
-  override model: VArea
-  override visuals: VArea.Visuals
+  declare model: VArea
+  declare visuals: VArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -99,8 +99,8 @@ export namespace VArea {
 export interface VArea extends VArea.Attrs {}
 
 export class VArea extends Area {
-  override properties: VArea.Props
-  override __view_type__: VAreaView
+  declare properties: VArea.Props
+  declare __view_type__: VAreaView
 
   constructor(attrs?: Partial<VArea.Attrs>) {
     super(attrs)

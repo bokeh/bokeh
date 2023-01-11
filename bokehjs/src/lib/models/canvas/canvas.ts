@@ -68,7 +68,7 @@ const global_webgl: () => Promise<WebGLState | null> = (() => {
 })()
 
 export class CanvasView extends UIElementView {
-  override model: Canvas
+  declare model: Canvas
 
   webgl: WebGLState | null = null
 
@@ -257,8 +257,8 @@ export namespace Canvas {
 export interface Canvas extends Canvas.Attrs {}
 
 export class Canvas extends UIElement {
-  override properties: Canvas.Props
-  override __view_type__: CanvasView
+  declare properties: Canvas.Props
+  declare __view_type__: CanvasView
 
   constructor(attrs?: Partial<Canvas.Attrs>) {
     super(attrs)

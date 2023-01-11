@@ -7,7 +7,7 @@ import {color2hexrgb} from "core/util/color"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class ColorPickerView extends InputWidgetView {
-  override model: ColorPicker
+  declare model: ColorPicker
 
   override connect_signals(): void {
     super.connect_signals()
@@ -47,8 +47,8 @@ export namespace ColorPicker {
 export interface ColorPicker extends ColorPicker.Attrs {}
 
 export class ColorPicker extends InputWidget {
-  override properties: ColorPicker.Props
-  override __view_type__: ColorPickerView
+  declare properties: ColorPicker.Props
+  declare __view_type__: ColorPickerView
 
   constructor(attrs?: Partial<ColorPicker.Attrs>) {
     super(attrs)

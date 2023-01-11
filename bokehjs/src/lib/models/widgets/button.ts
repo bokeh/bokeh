@@ -5,7 +5,7 @@ import {EventCallbackLike} from "model"
 import * as p from "core/properties"
 
 export class ButtonView extends AbstractButtonView {
-  override model: Button
+  declare model: Button
 
   override click(): void {
     this.model.trigger_event(new ButtonClick())
@@ -22,8 +22,8 @@ export namespace Button {
 export interface Button extends Button.Attrs {}
 
 export class Button extends AbstractButton {
-  override properties: Button.Props
-  override __view_type__: ButtonView
+  declare properties: Button.Props
+  declare __view_type__: ButtonView
 
   constructor(attrs?: Partial<Button.Attrs>) {
     super(attrs)

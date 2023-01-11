@@ -14,7 +14,7 @@ export namespace DifferenceFilter {
 export interface DifferenceFilter extends DifferenceFilter.Attrs {}
 
 export class DifferenceFilter extends Filter {
-  override properties: DifferenceFilter.Props
+  declare properties: DifferenceFilter.Props
 
   constructor(attrs?: Partial<DifferenceFilter.Attrs>) {
     super(attrs)

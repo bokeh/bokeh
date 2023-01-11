@@ -13,7 +13,7 @@ type Button = UIElement
 const Button = UIElement
 
 export class DialogView extends UIElementView {
-  override model: Dialog
+  declare model: Dialog
 
   protected _content: DOMNodeView | UIElementView
 
@@ -92,8 +92,8 @@ export namespace Dialog {
 export interface Dialog extends Dialog.Attrs {}
 
 export class Dialog extends UIElement {
-  override properties: Dialog.Props
-  override __view_type__: DialogView
+  declare properties: Dialog.Props
+  declare __view_type__: DialogView
 
   constructor(attrs?: Partial<Dialog.Attrs>) {
     super(attrs)

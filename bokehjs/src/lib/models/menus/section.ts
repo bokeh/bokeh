@@ -2,7 +2,7 @@ import {MenuItem, MenuItemView} from "./menu_item"
 import * as p from "core/properties"
 
 export class SectionView extends MenuItemView {
-  override model: Section
+  declare model: Section
 
   override render(): void {
     super.render()
@@ -20,8 +20,8 @@ export namespace Section {
 export interface Section extends Section.Attrs {}
 
 export class Section extends MenuItem {
-  override properties: Section.Props
-  override __view_type__: SectionView
+  declare properties: Section.Props
+  declare __view_type__: SectionView
 
   constructor(attrs?: Partial<Section.Attrs>) {
     super(attrs)

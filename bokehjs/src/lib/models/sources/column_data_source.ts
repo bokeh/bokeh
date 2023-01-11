@@ -17,7 +17,7 @@ export namespace ColumnDataSource {
 export interface ColumnDataSource extends ColumnDataSource.Attrs {}
 
 export class ColumnDataSource extends ColumnarDataSource {
-  override properties: ColumnDataSource.Props
+  declare properties: ColumnDataSource.Props
 
   constructor(attrs?: Partial<ColumnDataSource.Attrs>) {
     super(attrs)

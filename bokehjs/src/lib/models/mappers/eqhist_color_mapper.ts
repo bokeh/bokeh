@@ -16,7 +16,7 @@ export namespace EqHistColorMapper {
 export interface EqHistColorMapper extends EqHistColorMapper.Attrs {}
 
 export class EqHistColorMapper extends ScanningColorMapper {
-  override properties: EqHistColorMapper.Props
+  declare properties: EqHistColorMapper.Props
 
   constructor(attrs?: Partial<EqHistColorMapper.Attrs>) {
     super(attrs)

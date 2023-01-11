@@ -5,7 +5,7 @@ import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
 import {tool_icon_point_draw} from "styles/icons.css"
 
 export class PointDrawToolView extends EditToolView {
-  override model: PointDrawTool
+  declare model: PointDrawTool
 
   override _tap(ev: TapEvent): void {
     const renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
@@ -82,8 +82,8 @@ export namespace PointDrawTool {
 export interface PointDrawTool extends PointDrawTool.Attrs {}
 
 export class PointDrawTool extends EditTool {
-  override properties: PointDrawTool.Props
-  override __view_type__: PointDrawToolView
+  declare properties: PointDrawTool.Props
+  declare __view_type__: PointDrawToolView
 
   override renderers: (GlyphRenderer & HasXYGlyph)[]
 

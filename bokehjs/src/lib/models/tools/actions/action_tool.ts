@@ -5,8 +5,8 @@ import {Signal} from "core/signaling"
 import * as p from "core/properties"
 
 export abstract class ActionToolView extends ToolView {
-  override model: ActionTool
-  override readonly parent: LayoutDOMView
+  declare model: ActionTool
+  declare readonly parent: LayoutDOMView
 
   override connect_signals(): void {
     super.connect_signals()
@@ -24,8 +24,8 @@ export namespace ActionTool {
 export interface ActionTool extends ActionTool.Attrs {}
 
 export abstract class ActionTool extends Tool {
-  override properties: ActionTool.Props
-  override __view_type__: ActionToolView
+  declare properties: ActionTool.Props
+  declare __view_type__: ActionToolView
 
   constructor(attrs?: Partial<ActionTool.Attrs>) {
     super(attrs)

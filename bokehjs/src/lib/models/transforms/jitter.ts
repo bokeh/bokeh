@@ -22,7 +22,7 @@ export namespace Jitter {
 export interface Jitter extends Jitter.Attrs {}
 
 export class Jitter extends RangeTransform {
-  override properties: Jitter.Props
+  declare properties: Jitter.Props
 
   protected _previous_offsets: Float64Array | null = null
 

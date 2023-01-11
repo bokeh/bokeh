@@ -42,10 +42,10 @@ import plots_css from "styles/plots.css"
 const {max} = Math
 
 export class PlotView extends LayoutDOMView implements Renderable {
-  override model: Plot
+  declare model: Plot
   visuals: Plot.Visuals
 
-  override layout: BorderLayout
+  declare layout: BorderLayout
 
   frame: CartesianFrame
 

@@ -11,7 +11,7 @@ export interface HasLineGlyph {
 }
 
 export class LineEditToolView extends LineToolView {
-  override model: LineEditTool
+  declare model: LineEditTool
 
   _selected_renderer: GlyphRenderer | null
   _drawing: boolean = false
@@ -138,10 +138,10 @@ export namespace LineEditTool {
 export interface LineEditTool extends LineEditTool.Attrs { }
 
 export class LineEditTool extends LineTool {
-  override properties: LineEditTool.Props
-  override __view_type__: LineEditToolView
+  declare properties: LineEditTool.Props
+  declare __view_type__: LineEditToolView
 
-  override renderers: (GlyphRenderer & HasLineGlyph)[]
+  declare renderers: (GlyphRenderer & HasLineGlyph)[]
 
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)

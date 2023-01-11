@@ -10,7 +10,7 @@ export namespace TMSTileSource {
 export interface TMSTileSource extends TMSTileSource.Attrs {}
 
 export class TMSTileSource extends MercatorTileSource {
-  override properties: TMSTileSource.Props
+  declare properties: TMSTileSource.Props
 
   constructor(attrs?: Partial<TMSTileSource.Attrs>) {
     super(attrs)

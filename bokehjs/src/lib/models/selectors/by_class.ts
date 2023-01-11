@@ -9,7 +9,7 @@ export namespace ByClass {
 export interface ByClass extends ByClass.Attrs {}
 
 export class ByClass extends Selector {
-  override properties: ByClass.Props
+  declare properties: ByClass.Props
 
   constructor(attrs?: Partial<ByClass.Attrs>) {
     super(attrs)

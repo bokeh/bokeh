@@ -8,10 +8,10 @@ import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
-  override model: ToolbarPanel
+  declare model: ToolbarPanel
 
-  override panel: Panel
-  override layout: Layoutable
+  declare panel: Panel
+  declare layout: Layoutable
 
   override update_layout(): void {
     this.layout = new SideLayout(this.panel, () => this.get_size(), true)
@@ -116,8 +116,8 @@ export namespace ToolbarPanel {
 export interface ToolbarPanel extends ToolbarPanel.Attrs {}
 
 export class ToolbarPanel extends Annotation {
-  override properties: ToolbarPanel.Props
-  override __view_type__: ToolbarPanelView
+  declare properties: ToolbarPanel.Props
+  declare __view_type__: ToolbarPanelView
 
   constructor(attrs?: Partial<ToolbarPanel.Attrs>) {
     super(attrs)

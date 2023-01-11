@@ -14,7 +14,7 @@ export namespace UnionFilter {
 export interface UnionFilter extends UnionFilter.Attrs {}
 
 export class UnionFilter extends Filter {
-  override properties: UnionFilter.Props
+  declare properties: UnionFilter.Props
 
   constructor(attrs?: Partial<UnionFilter.Attrs>) {
     super(attrs)

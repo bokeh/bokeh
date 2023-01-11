@@ -30,7 +30,7 @@ namespace TestModelWithProps {
 interface TestModelWithProps extends TestModelWithProps.Attrs {}
 
 class TestModelWithProps extends Model {
-  override properties: TestModelWithProps.Props
+  declare properties: TestModelWithProps.Props
 
   constructor(attrs?: Partial<TestModelWithProps.Attrs>) {
     super(attrs)

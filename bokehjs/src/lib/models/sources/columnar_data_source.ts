@@ -29,7 +29,7 @@ export namespace ColumnarDataSource {
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
-  override properties: ColumnarDataSource.Props
+  declare properties: ColumnarDataSource.Props
 
   data: {[key: string]: Arrayable}
 

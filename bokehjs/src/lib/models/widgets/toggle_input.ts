@@ -2,7 +2,7 @@ import {Widget, WidgetView} from "./widget"
 import * as p from "core/properties"
 
 export abstract class ToggleInputView extends WidgetView {
-  override model: ToggleInput
+  declare model: ToggleInput
 
   override connect_signals(): void {
     super.connect_signals()
@@ -34,8 +34,8 @@ export namespace ToggleInput {
 export interface ToggleInput extends ToggleInput.Attrs {}
 
 export abstract class ToggleInput extends Widget {
-  override properties: ToggleInput.Props
-  override __view_type__: ToggleInputView
+  declare properties: ToggleInput.Props
+  declare __view_type__: ToggleInputView
 
   constructor(attrs?: Partial<ToggleInput.Attrs>) {
     super(attrs)

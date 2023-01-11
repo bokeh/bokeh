@@ -12,7 +12,7 @@ import * as icons from "styles/icons.css"
 type Point = [number, number]
 
 export class BoxZoomToolView extends GestureToolView {
-  override model: BoxZoomTool
+  declare model: BoxZoomTool
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -224,8 +224,8 @@ export namespace BoxZoomTool {
 export interface BoxZoomTool extends BoxZoomTool.Attrs {}
 
 export class BoxZoomTool extends GestureTool {
-  override properties: BoxZoomTool.Props
-  override __view_type__: BoxZoomToolView
+  declare properties: BoxZoomTool.Props
+  declare __view_type__: BoxZoomToolView
 
   constructor(attrs?: Partial<BoxZoomTool.Attrs>) {
     super(attrs)

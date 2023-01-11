@@ -8,7 +8,7 @@ import * as p from "core/properties"
 import icons_css from "styles/icons.css"
 
 export class BuiltinIconView extends IconView {
-  override model: BuiltinIcon
+  declare model: BuiltinIcon
 
   protected readonly _style = new InlineStyleSheet()
 
@@ -57,8 +57,8 @@ export namespace BuiltinIcon {
 export interface BuiltinIcon extends BuiltinIcon.Attrs {}
 
 export class BuiltinIcon extends Icon {
-  override properties: BuiltinIcon.Props
-  override __view_type__: BuiltinIconView
+  declare properties: BuiltinIcon.Props
+  declare __view_type__: BuiltinIconView
 
   constructor(attrs?: Partial<BuiltinIcon.Attrs>) {
     super(attrs)

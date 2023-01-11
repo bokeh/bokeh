@@ -101,7 +101,7 @@ export function update_range(range: Range1d, scale: Scale, delta: number, plot_r
 }
 
 export class RangeToolView extends GestureToolView {
-  override model: RangeTool
+  declare model: RangeTool
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -239,8 +239,8 @@ export namespace RangeTool {
 export interface RangeTool extends RangeTool.Attrs {}
 
 export class RangeTool extends GestureTool {
-  override properties: RangeTool.Props
-  override __view_type__: RangeToolView
+  declare properties: RangeTool.Props
+  declare __view_type__: RangeToolView
 
   constructor(attrs?: Partial<RangeTool.Attrs>) {
     super(attrs)

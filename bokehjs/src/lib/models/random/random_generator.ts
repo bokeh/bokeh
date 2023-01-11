@@ -10,7 +10,7 @@ export namespace RandomGenerator {
 export interface RandomGenerator extends RandomGenerator.Attrs {}
 
 export abstract class RandomGenerator extends Model {
-  override properties: RandomGenerator.Props
+  declare properties: RandomGenerator.Props
 
   constructor(attrs?: Partial<RandomGenerator.Attrs>) {
     super(attrs)

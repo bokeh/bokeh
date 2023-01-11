@@ -63,7 +63,7 @@ function combineByKey(key: string, array: any[]) {
 
 
 export class ParallelSelectionView extends BoxSelectToolView {
-  override model: ParallelSelectionTool
+  declare model: ParallelSelectionTool
 
   private xscale: Scale
   private yscale: Scale
@@ -360,8 +360,8 @@ export namespace ParallelSelectionTool {
 export interface ParallelSelectionTool extends ParallelSelectionTool.Attrs {}
 
 export class ParallelSelectionTool extends BoxSelectTool {
-  override properties: ParallelSelectionTool.Props
-  override __view_type__: ParallelSelectionView
+  declare properties: ParallelSelectionTool.Props
+  declare __view_type__: ParallelSelectionView
 
   static {
     this.prototype.default_view = ParallelSelectionView

@@ -6,7 +6,7 @@ import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"
 
 export class WheelPanToolView extends GestureToolView {
-  override model: WheelPanTool
+  declare model: WheelPanTool
 
   override _scroll(ev: ScrollEvent): void {
     let factor = this.model.speed*ev.delta
@@ -80,8 +80,8 @@ export namespace WheelPanTool {
 export interface WheelPanTool extends WheelPanTool.Attrs {}
 
 export class WheelPanTool extends GestureTool {
-  override properties: WheelPanTool.Props
-  override __view_type__: WheelPanToolView
+  declare properties: WheelPanTool.Props
+  declare __view_type__: WheelPanToolView
 
   constructor(attrs?: Partial<WheelPanTool.Attrs>) {
     super(attrs)

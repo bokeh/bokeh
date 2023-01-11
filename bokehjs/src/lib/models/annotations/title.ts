@@ -6,10 +6,10 @@ import * as p from "core/properties"
 import {Position} from "core/graphics"
 
 export class TitleView extends TextAnnotationView {
-  override model: Title
-  override visuals: Title.Visuals
-  override layout: Layoutable
-  override panel: Panel
+  declare model: Title
+  declare visuals: Title.Visuals
+  declare layout: Layoutable
+  declare panel: Panel
 
   protected _get_position(): Position {
     const hmargin = this.model.offset
@@ -109,8 +109,8 @@ export namespace Title {
 export interface Title extends Title.Attrs {}
 
 export class Title extends TextAnnotation {
-  override properties: Title.Props
-  override __view_type__: TitleView
+  declare properties: Title.Props
+  declare __view_type__: TitleView
 
   constructor(attrs?: Partial<Title.Attrs>) {
     super(attrs)

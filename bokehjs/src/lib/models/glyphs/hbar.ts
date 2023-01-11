@@ -19,11 +19,11 @@ export type HBarData = LRTBData & {
 export interface HBarView extends HBarData {}
 
 export class HBarView extends LRTBView {
-  override model: HBar
-  override visuals: HBar.Visuals
+  declare model: HBar
+  declare visuals: HBar.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -89,8 +89,8 @@ export namespace HBar {
 export interface HBar extends HBar.Attrs {}
 
 export class HBar extends LRTB {
-  override properties: HBar.Props
-  override __view_type__: HBarView
+  declare properties: HBar.Props
+  declare __view_type__: HBarView
 
   constructor(attrs?: Partial<HBar.Attrs>) {
     super(attrs)

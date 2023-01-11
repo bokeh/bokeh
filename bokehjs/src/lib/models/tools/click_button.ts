@@ -3,7 +3,7 @@ import type {ActionTool} from "./actions/action_tool"
 import * as p from "core/properties"
 
 export class ClickButtonView extends ToolButtonView {
-  override model: ClickButton
+  declare model: ClickButton
 
   protected _clicked(): void {
     this.model.tool.do.emit(undefined)
@@ -23,8 +23,8 @@ export interface ClickButton extends ClickButton.Attrs {
 }
 
 export class ClickButton extends ToolButton {
-  override properties: ClickButton.Props
-  override __view_type__: ClickButtonView
+  declare properties: ClickButton.Props
+  declare __view_type__: ClickButtonView
 
   constructor(attrs?: Partial<ClickButton.Attrs>) {
     super(attrs)

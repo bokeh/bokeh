@@ -4,7 +4,7 @@ import {Index as DataIndex} from "core/util/templating"
 import * as p from "core/properties"
 
 export abstract class PlaceholderView extends DOMNodeView {
-  override model: Placeholder
+  declare model: Placeholder
   static override tag_name = "span" as const
 
   override render(): void {
@@ -22,8 +22,8 @@ export namespace Placeholder {
 export interface Placeholder extends Placeholder.Attrs {}
 
 export abstract class Placeholder extends DOMNode {
-  override properties: Placeholder.Props
-  override __view_type__: PlaceholderView
+  declare properties: Placeholder.Props
+  declare __view_type__: PlaceholderView
 
   constructor(attrs?: Partial<Placeholder.Attrs>) {
     super(attrs)

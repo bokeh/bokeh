@@ -18,7 +18,7 @@ export namespace CategoricalPatternMapper {
 export interface CategoricalPatternMapper extends Mapper.Attrs, CategoricalMapper.Attrs, CategoricalPatternMapper.Attrs {}
 
 export class CategoricalPatternMapper extends Mapper<string> {
-  override properties: CategoricalPatternMapper.Props
+  declare properties: CategoricalPatternMapper.Props
 
   constructor(attrs?: Partial<CategoricalPatternMapper.Attrs>) {
     super(attrs)

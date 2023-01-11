@@ -8,9 +8,9 @@ import {RendererView} from "../renderers/renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class MarkingView extends View implements visuals.Renderable {
-  override model: Marking
+  declare model: Marking
   visuals: Marking.Visuals
-  override readonly parent: RendererView
+  declare readonly parent: RendererView
 
   size: p.Uniform<number>
 
@@ -51,8 +51,8 @@ export namespace Marking {
 export interface Marking extends Marking.Attrs {}
 
 export abstract class Marking extends Model {
-  override properties: Marking.Props
-  override __view_type__: MarkingView
+  declare properties: Marking.Props
+  declare __view_type__: MarkingView
 
   constructor(attrs?: Partial<Marking.Attrs>) {
     super(attrs)

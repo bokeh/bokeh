@@ -8,8 +8,8 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class HTMLLabelView extends TextAnnotationView {
-  override model: HTMLLabel
-  override visuals: HTMLLabel.Visuals
+  declare model: HTMLLabel
+  declare visuals: HTMLLabel.Visuals
 
   override update_layout(): void {
     const {panel} = this
@@ -94,8 +94,8 @@ export namespace HTMLLabel {
 export interface HTMLLabel extends HTMLLabel.Attrs {}
 
 export class HTMLLabel extends TextAnnotation {
-  override properties: HTMLLabel.Props
-  override __view_type__: HTMLLabelView
+  declare properties: HTMLLabel.Props
+  declare __view_type__: HTMLLabelView
 
   constructor(attrs?: Partial<HTMLLabel.Attrs>) {
     super(attrs)

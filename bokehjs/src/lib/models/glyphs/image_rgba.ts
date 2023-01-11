@@ -8,8 +8,8 @@ export type ImageRGBAData = ImageDataBase
 export interface ImageRGBAView extends ImageRGBAData {}
 
 export class ImageRGBAView extends ImageBaseView {
-  override model: ImageRGBA
-  override visuals: ImageRGBA.Visuals
+  declare model: ImageRGBA
+  declare visuals: ImageRGBA.Visuals
 
   protected _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray {
     let array: TypedArray
@@ -33,8 +33,8 @@ export namespace ImageRGBA {
 export interface ImageRGBA extends ImageRGBA.Attrs {}
 
 export class ImageRGBA extends ImageBase {
-  override properties: ImageRGBA.Props
-  override __view_type__: ImageRGBAView
+  declare properties: ImageRGBA.Props
+  declare __view_type__: ImageRGBAView
 
   constructor(attrs?: Partial<ImageRGBA.Attrs>) {
     super(attrs)

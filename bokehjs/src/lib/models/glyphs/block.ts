@@ -19,11 +19,11 @@ export type BlockData = LRTBData & {
 export interface BlockView extends BlockData {}
 
 export class BlockView extends LRTBView {
-  override model: Block
-  override visuals: Block.Visuals
+  declare model: Block
+  declare visuals: Block.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -94,8 +94,8 @@ export namespace Block {
 export interface Block extends Block.Attrs {}
 
 export class Block extends LRTB {
-  override properties: Block.Props
-  override __view_type__: BlockView
+  declare properties: Block.Props
+  declare __view_type__: BlockView
 
   constructor(attrs?: Partial<Block.Attrs>) {
     super(attrs)

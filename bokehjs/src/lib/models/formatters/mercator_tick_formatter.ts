@@ -14,7 +14,7 @@ export namespace MercatorTickFormatter {
 export interface MercatorTickFormatter extends MercatorTickFormatter.Attrs {}
 
 export class MercatorTickFormatter extends BasicTickFormatter {
-  override properties: MercatorTickFormatter.Props
+  declare properties: MercatorTickFormatter.Props
 
   constructor(attrs?: Partial<MercatorTickFormatter.Attrs>) {
     super(attrs)

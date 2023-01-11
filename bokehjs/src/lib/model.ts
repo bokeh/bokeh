@@ -31,7 +31,7 @@ export namespace Model {
 export interface Model extends Model.Attrs {}
 
 export class Model extends HasProps {
-  override properties: Model.Props
+  declare properties: Model.Props
 
   private /*readonly*/ _js_callbacks: Map<string, (() => void)[]>
 

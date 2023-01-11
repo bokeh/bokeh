@@ -13,7 +13,7 @@ export interface HasRectCDS {
 }
 
 export class BoxEditToolView extends EditToolView {
-  override model: BoxEditTool
+  declare model: BoxEditTool
   _draw_basepoint: [number, number] | null
 
   override _tap(ev: TapEvent): void {
@@ -146,8 +146,8 @@ export namespace BoxEditTool {
 export interface BoxEditTool extends BoxEditTool.Attrs {}
 
 export class BoxEditTool extends EditTool {
-  override properties: BoxEditTool.Props
-  override __view_type__: BoxEditToolView
+  declare properties: BoxEditTool.Props
+  declare __view_type__: BoxEditToolView
 
   override renderers: (GlyphRenderer & HasRectCDS)[]
 

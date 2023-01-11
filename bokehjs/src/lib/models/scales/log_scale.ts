@@ -10,7 +10,7 @@ export namespace LogScale {
 export interface LogScale extends LogScale.Attrs {}
 
 export class LogScale extends ContinuousScale {
-  override properties: LogScale.Props
+  declare properties: LogScale.Props
 
   constructor(attrs?: Partial<LogScale.Attrs>) {
     super(attrs)

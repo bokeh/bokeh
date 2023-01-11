@@ -30,9 +30,9 @@ const MAJOR_DIM_MIN_SCALAR = 0.3
 const MAJOR_DIM_MAX_SCALAR = 0.8
 
 export abstract class BaseColorBarView extends AnnotationView {
-  override model: BaseColorBar
-  override visuals: BaseColorBar.Visuals
-  override layout: Layoutable
+  declare model: BaseColorBar
+  declare visuals: BaseColorBar.Visuals
+  declare layout: Layoutable
 
   protected _frame: CartesianFrame
 
@@ -554,8 +554,8 @@ export namespace BaseColorBar {
 export interface BaseColorBar extends BaseColorBar.Attrs {}
 
 export class BaseColorBar extends Annotation {
-  override properties: BaseColorBar.Props
-  override __view_type__: BaseColorBarView
+  declare properties: BaseColorBar.Props
+  declare __view_type__: BaseColorBarView
 
   constructor(attrs?: Partial<BaseColorBar.Attrs>) {
     super(attrs)

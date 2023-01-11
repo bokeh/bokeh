@@ -5,8 +5,8 @@ import {PlotView} from "../../plots/plot"
 import * as p from "core/properties"
 
 export abstract class InspectToolView extends ToolView {
-  override model: InspectTool
-  override readonly parent: PlotView
+  declare model: InspectTool
+  declare readonly parent: PlotView
 
   get plot_view(): PlotView {
     return this.parent
@@ -24,8 +24,8 @@ export namespace InspectTool {
 export interface InspectTool extends InspectTool.Attrs {}
 
 export abstract class InspectTool extends Tool {
-  override properties: InspectTool.Props
-  override __view_type__: InspectToolView
+  declare properties: InspectTool.Props
+  declare __view_type__: InspectToolView
 
   constructor(attrs?: Partial<InspectTool.Attrs>) {
     super(attrs)

@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import * as buttons from "styles/buttons.css"
 
 export class RadioButtonGroupView extends ToggleButtonGroupView {
-  override model: RadioButtonGroup
+  declare model: RadioButtonGroup
 
   change_active(i: number): void {
     if (this.model.active !== i) {
@@ -32,8 +32,8 @@ export namespace RadioButtonGroup {
 export interface RadioButtonGroup extends RadioButtonGroup.Attrs {}
 
 export class RadioButtonGroup extends ToggleButtonGroup {
-  override properties: RadioButtonGroup.Props
-  override __view_type__: RadioButtonGroupView
+  declare properties: RadioButtonGroup.Props
+  declare __view_type__: RadioButtonGroupView
 
   constructor(attrs?: Partial<RadioButtonGroup.Attrs>) {
     super(attrs)

@@ -61,8 +61,8 @@ class LegendEntry extends ContentLayoutable {
 }
 
 export class LegendView extends AnnotationView {
-  override model: Legend
-  override visuals: Legend.Visuals
+  declare model: Legend
+  declare visuals: Legend.Visuals
 
   protected override _get_size(): Size {
     const {width, height} = this.bbox
@@ -469,8 +469,8 @@ export namespace Legend {
 export interface Legend extends Legend.Attrs {}
 
 export class Legend extends Annotation {
-  override properties: Legend.Props
-  override __view_type__: LegendView
+  declare properties: Legend.Props
+  declare __view_type__: LegendView
 
   item_change: Signal0<this>
 

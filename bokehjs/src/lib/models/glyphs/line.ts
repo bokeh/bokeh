@@ -14,11 +14,11 @@ export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 export interface LineView extends LineData {}
 
 export class LineView extends XYGlyphView {
-  override model: Line
-  override visuals: Line.Visuals
+  declare model: Line
+  declare visuals: Line.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/line_gl").LineGL
+  declare glglyph?: import("./webgl/line_gl").LineGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -152,8 +152,8 @@ export namespace Line {
 export interface Line extends Line.Attrs {}
 
 export class Line extends XYGlyph {
-  override properties: Line.Props
-  override __view_type__: LineView
+  declare properties: Line.Props
+  declare __view_type__: LineView
 
   constructor(attrs?: Partial<Line.Attrs>) {
     super(attrs)

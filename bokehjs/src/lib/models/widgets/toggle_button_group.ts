@@ -7,7 +7,7 @@ import * as p from "core/properties"
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class ToggleButtonGroupView extends OrientedControlView {
-  override model: ToggleButtonGroup
+  declare model: ToggleButtonGroup
 
   protected _buttons: HTMLElement[]
   *controls() {
@@ -66,8 +66,8 @@ export namespace ToggleButtonGroup {
 export interface ToggleButtonGroup extends ToggleButtonGroup.Attrs {}
 
 export abstract class ToggleButtonGroup extends OrientedControl {
-  override properties: ToggleButtonGroup.Props & {active: p.Property<unknown>}
-  override __view_type__: ToggleButtonGroupView
+  declare properties: ToggleButtonGroup.Props & {active: p.Property<unknown>}
+  declare __view_type__: ToggleButtonGroupView
 
   constructor(attrs?: Partial<ToggleButtonGroup.Attrs>) {
     super(attrs)

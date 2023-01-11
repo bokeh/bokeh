@@ -17,8 +17,8 @@ import {BBox} from "core/util/bbox"
 import {Context2d} from "core/util/canvas"
 
 export class ColorBarView extends BaseColorBarView {
-  override model: ColorBar
-  override layout: Layoutable
+  declare model: ColorBar
+  declare layout: Layoutable
 
   protected _image: HTMLCanvasElement | null
 
@@ -311,8 +311,8 @@ export namespace ColorBar {
 export interface ColorBar extends ColorBar.Attrs {}
 
 export class ColorBar extends BaseColorBar {
-  override properties: ColorBar.Props
-  override __view_type__: ColorBarView
+  declare properties: ColorBar.Props
+  declare __view_type__: ColorBarView
 
   constructor(attrs?: Partial<ColorBar.Attrs>) {
     super(attrs)

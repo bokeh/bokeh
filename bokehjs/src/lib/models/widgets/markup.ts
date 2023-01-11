@@ -5,7 +5,7 @@ import {Widget, WidgetView} from "./widget"
 import clearfix_css, {clearfix} from "styles/clearfix.css"
 
 export abstract class MarkupView extends WidgetView {
-  override model: Markup
+  declare model: Markup
 
   protected markup_el: HTMLElement
 
@@ -63,8 +63,8 @@ export namespace Markup {
 export interface Markup extends Markup.Attrs {}
 
 export abstract class Markup extends Widget {
-  override properties: Markup.Props
-  override __view_type__: MarkupView
+  declare properties: Markup.Props
+  declare __view_type__: MarkupView
 
   constructor(attrs?: Partial<Markup.Attrs>) {
     super(attrs)

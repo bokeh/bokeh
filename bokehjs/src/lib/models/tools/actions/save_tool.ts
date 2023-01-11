@@ -4,7 +4,7 @@ import {tool_icon_save} from "styles/icons.css"
 import {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
-  override model: SaveTool
+  declare model: SaveTool
 
   async copy(): Promise<void> {
     const blob = await this.parent.export().to_blob()
@@ -49,8 +49,8 @@ export namespace SaveTool {
 export interface SaveTool extends SaveTool.Attrs {}
 
 export class SaveTool extends ActionTool {
-  override properties: SaveTool.Props
-  override __view_type__: SaveToolView
+  declare properties: SaveTool.Props
+  declare __view_type__: SaveToolView
 
   constructor(attrs?: Partial<SaveTool.Attrs>) {
     super(attrs)

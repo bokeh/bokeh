@@ -36,8 +36,8 @@ export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
 export interface TextView extends TextData {}
 
 export class TextView extends XYGlyphView {
-  override model: Text
-  override visuals: Text.Visuals
+  declare model: Text
+  declare visuals: Text.Visuals
 
   protected override _set_data(indices: number[] | null): void {
     super._set_data(indices)
@@ -274,8 +274,8 @@ export namespace Text {
 export interface Text extends Text.Attrs {}
 
 export class Text extends XYGlyph {
-  override properties: Text.Props
-  override __view_type__: TextView
+  declare properties: Text.Props
+  declare __view_type__: TextView
 
   constructor(attrs?: Partial<Text.Attrs>) {
     super(attrs)

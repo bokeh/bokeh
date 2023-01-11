@@ -16,7 +16,7 @@ describe("glyph module", () => {
 
     it("GlyphView.hit_test() should warn when requested geometry is not implemented", async () => {
       class SomeGlyphView extends GlyphView {
-        override model: SomeGlyph
+        declare model: SomeGlyph
 
         protected _index_data(index: SpatialIndex): void {
           index.add_empty()

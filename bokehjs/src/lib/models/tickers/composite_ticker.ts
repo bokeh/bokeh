@@ -17,7 +17,7 @@ export namespace CompositeTicker {
 export interface CompositeTicker extends CompositeTicker.Attrs {}
 
 export class CompositeTicker extends ContinuousTicker {
-  override properties: CompositeTicker.Props
+  declare properties: CompositeTicker.Props
 
   constructor(attrs?: Partial<CompositeTicker.Attrs>) {
     super(attrs)

@@ -242,7 +242,7 @@ export class Font extends PrimitiveProperty<string> {
 //
 
 export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
-  override __value__: T
+  declare __value__: T
   __scalar__: S
 
   protected override _value: this["__scalar__"] | Unset = unset
@@ -329,7 +329,7 @@ export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
-  override __value__: T
+  declare __value__: T
   __vector__: V
 
   protected override _value: this["__vector__"] | Unset = unset

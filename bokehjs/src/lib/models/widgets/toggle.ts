@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import * as buttons from "styles/buttons.css"
 
 export class ToggleView extends AbstractButtonView {
-  override model: Toggle
+  declare model: Toggle
 
   override connect_signals(): void {
     super.connect_signals()
@@ -39,8 +39,8 @@ export namespace Toggle {
 export interface Toggle extends Toggle.Attrs {}
 
 export class Toggle extends AbstractButton {
-  override properties: Toggle.Props
-  override __view_type__: ToggleView
+  declare properties: Toggle.Props
+  declare __view_type__: ToggleView
 
   constructor(attrs?: Partial<Toggle.Attrs>) {
     super(attrs)

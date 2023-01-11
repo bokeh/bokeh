@@ -19,7 +19,7 @@ export namespace Interpolator {
 export interface Interpolator extends Interpolator.Attrs {}
 
 export abstract class Interpolator extends Transform {
-  override properties: Interpolator.Props
+  declare properties: Interpolator.Props
 
   constructor(attrs?: Partial<Interpolator.Attrs>) {
     super(attrs)

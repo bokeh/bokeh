@@ -15,7 +15,7 @@ export namespace CustomJSTickFormatter {
 export interface CustomJSTickFormatter extends CustomJSTickFormatter.Attrs {}
 
 export class CustomJSTickFormatter extends TickFormatter {
-  override properties: CustomJSTickFormatter.Props
+  declare properties: CustomJSTickFormatter.Props
 
   constructor(attrs?: Partial<CustomJSTickFormatter.Attrs>) {
     super(attrs)

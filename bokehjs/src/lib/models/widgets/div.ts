@@ -2,7 +2,7 @@ import {Markup, MarkupView} from "./markup"
 import * as p from "core/properties"
 
 export class DivView extends MarkupView {
-  override model: Div
+  declare model: Div
 
   override render(): void {
     super.render()
@@ -24,8 +24,8 @@ export namespace Div {
 export interface Div extends Div.Attrs {}
 
 export class Div extends Markup {
-  override properties: Div.Props
-  override __view_type__: DivView
+  declare properties: Div.Props
+  declare __view_type__: DivView
 
   constructor(attrs?: Partial<Div.Attrs>) {
     super(attrs)

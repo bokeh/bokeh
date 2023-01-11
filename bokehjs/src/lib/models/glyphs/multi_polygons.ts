@@ -24,8 +24,8 @@ export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> &
 export interface MultiPolygonsView extends MultiPolygonsData {}
 
 export class MultiPolygonsView extends GlyphView {
-  override model: MultiPolygons
-  override visuals: MultiPolygons.Visuals
+  declare model: MultiPolygons
+  declare visuals: MultiPolygons.Visuals
 
   protected _hole_index: SpatialIndex
 
@@ -311,8 +311,8 @@ export namespace MultiPolygons {
 export interface MultiPolygons extends MultiPolygons.Attrs {}
 
 export class MultiPolygons extends Glyph {
-  override properties: MultiPolygons.Props
-  override __view_type__: MultiPolygonsView
+  declare properties: MultiPolygons.Props
+  declare __view_type__: MultiPolygonsView
 
   constructor(attrs?: Partial<MultiPolygons.Attrs>) {
     super(attrs)

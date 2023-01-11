@@ -3,7 +3,7 @@ import {Model} from "../../model"
 import * as p from "core/properties"
 
 export abstract class DOMNodeView extends DOMView {
-  override model: DOMNode
+  declare model: DOMNode
 }
 
 export namespace DOMNode {
@@ -14,8 +14,8 @@ export namespace DOMNode {
 export interface DOMNode extends DOMNode.Attrs {}
 
 export abstract class DOMNode extends Model {
-  override properties: DOMNode.Props
-  override __view_type__: DOMNodeView
+  declare properties: DOMNode.Props
+  declare __view_type__: DOMNodeView
   static override __module__ = "bokeh.models.dom"
 
   constructor(attrs?: Partial<DOMNode.Attrs>) {

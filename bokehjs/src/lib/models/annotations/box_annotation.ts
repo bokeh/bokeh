@@ -9,8 +9,8 @@ import {BBox, LRTB, CoordinateMapper} from "core/util/bbox"
 export const EDGE_TOLERANCE = 2.5
 
 export class BoxAnnotationView extends AnnotationView {
-  override model: BoxAnnotation
-  override visuals: BoxAnnotation.Visuals
+  declare model: BoxAnnotation
+  declare visuals: BoxAnnotation.Visuals
 
   override bbox: BBox = new BBox()
 
@@ -120,8 +120,8 @@ export namespace BoxAnnotation {
 export interface BoxAnnotation extends BoxAnnotation.Attrs {}
 
 export class BoxAnnotation extends Annotation {
-  override properties: BoxAnnotation.Props
-  override __view_type__: BoxAnnotationView
+  declare properties: BoxAnnotation.Props
+  declare __view_type__: BoxAnnotationView
 
   constructor(attrs?: Partial<BoxAnnotation.Attrs>) {
     super(attrs)

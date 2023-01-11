@@ -20,7 +20,7 @@ export namespace CustomJSExpr {
 export interface CustomJSExpr extends CustomJSExpr.Attrs {}
 
 export class CustomJSExpr extends Expression {
-  override properties: CustomJSExpr.Props
+  declare properties: CustomJSExpr.Props
 
   constructor(attrs?: Partial<CustomJSExpr.Attrs>) {
     super(attrs)

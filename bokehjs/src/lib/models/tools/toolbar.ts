@@ -23,7 +23,7 @@ import logos_css, * as logos from "styles/logo.css"
 import icons_css from "styles/icons.css"
 
 export class ToolbarView extends UIElementView {
-  override model: Toolbar
+  declare model: Toolbar
 
   protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
   protected _tool_buttons: ToolButton[][]
@@ -282,8 +282,8 @@ function create_gesture_map(): GesturesMap {
 }
 
 export class Toolbar extends UIElement {
-  override properties: Toolbar.Props
-  override __view_type__: ToolbarView
+  declare properties: Toolbar.Props
+  declare __view_type__: ToolbarView
 
   constructor(attrs?: Partial<Toolbar.Attrs>) {
     super(attrs)

@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import * as buttons from "styles/buttons.css"
 
 export class CheckboxButtonGroupView extends ToggleButtonGroupView {
-  override model: CheckboxButtonGroup
+  declare model: CheckboxButtonGroup
 
   get active(): Set<number> {
     return new Set(this.model.active)
@@ -36,8 +36,8 @@ export namespace CheckboxButtonGroup {
 export interface CheckboxButtonGroup extends CheckboxButtonGroup.Attrs {}
 
 export class CheckboxButtonGroup extends ToggleButtonGroup {
-  override properties: CheckboxButtonGroup.Props
-  override __view_type__: CheckboxButtonGroupView
+  declare properties: CheckboxButtonGroup.Props
+  declare __view_type__: CheckboxButtonGroupView
 
   constructor(attrs?: Partial<CheckboxButtonGroup.Attrs>) {
     super(attrs)

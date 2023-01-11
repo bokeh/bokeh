@@ -16,7 +16,7 @@ export namespace GroupFilter {
 export interface GroupFilter extends GroupFilter.Attrs {}
 
 export class GroupFilter extends Filter {
-  override properties: GroupFilter.Props
+  declare properties: GroupFilter.Props
 
   constructor(attrs?: Partial<GroupFilter.Attrs>) {
     super(attrs)

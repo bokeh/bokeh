@@ -13,7 +13,7 @@ import tabs_css, * as tabs from "styles/tabs.css"
 import icons_css from "styles/icons.css"
 
 export class TabsView extends LayoutDOMView {
-  override model: Tabs
+  declare model: Tabs
 
   protected header_el: HTMLElement
   protected header_els: HTMLElement[]
@@ -166,8 +166,8 @@ export namespace Tabs {
 export interface Tabs extends Tabs.Attrs {}
 
 export class Tabs extends LayoutDOM {
-  override properties: Tabs.Props
-  override __view_type__: TabsView
+  declare properties: Tabs.Props
+  declare __view_type__: TabsView
 
   constructor(attrs?: Partial<Tabs.Attrs>) {
     super(attrs)

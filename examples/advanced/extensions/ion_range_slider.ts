@@ -15,7 +15,7 @@ export type SliderData = {from: number, to: number}
 // This model will actually need to render things, so we must provide
 // view. The LayoutDOM model has a view already, so we will start with that
 export class IonRangeSliderView extends InputWidgetView {
-  override model: IonRangeSlider
+  declare model: IonRangeSlider
 
   override styles(): StyleSheetLike[] {
     return [
@@ -90,8 +90,8 @@ export namespace IonRangeSlider {
 export interface IonRangeSlider extends IonRangeSlider.Attrs {}
 
 export class IonRangeSlider extends InputWidget {
-  override properties: IonRangeSlider.Props
-  override __view_type__: IonRangeSliderView
+  declare properties: IonRangeSlider.Props
+  declare __view_type__: IonRangeSliderView
 
   constructor(attrs?: Partial<IonRangeSlider.Attrs>) {
     super(attrs)

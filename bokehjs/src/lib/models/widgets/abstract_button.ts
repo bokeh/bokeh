@@ -9,7 +9,7 @@ import {Icon, IconView} from "../ui/icons/icon"
 import buttons_css, * as buttons from "styles/buttons.css"
 
 export abstract class AbstractButtonView extends ControlView {
-  override model: AbstractButton
+  declare model: AbstractButton
 
   protected icon_view?: IconView
 
@@ -89,8 +89,8 @@ export namespace AbstractButton {
 export interface AbstractButton extends AbstractButton.Attrs {}
 
 export abstract class AbstractButton extends Control {
-  override properties: AbstractButton.Props
-  override __view_type__: AbstractButtonView
+  declare properties: AbstractButton.Props
+  declare __view_type__: AbstractButtonView
 
   constructor(attrs?: Partial<AbstractButton.Attrs>) {
     super(attrs)

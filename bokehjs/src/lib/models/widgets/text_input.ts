@@ -6,9 +6,9 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class TextInputView extends TextLikeInputView {
-  override model: TextInput
+  declare model: TextInput
 
-  override input_el: HTMLInputElement
+  declare input_el: HTMLInputElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -38,8 +38,8 @@ export namespace TextInput {
 export interface TextInput extends TextInput.Attrs {}
 
 export class TextInput extends TextLikeInput {
-  override properties: TextInput.Props
-  override __view_type__: TextInputView
+  declare properties: TextInput.Props
+  declare __view_type__: TextInputView
 
   constructor(attrs?: Partial<TextInput.Attrs>) {
     super(attrs)

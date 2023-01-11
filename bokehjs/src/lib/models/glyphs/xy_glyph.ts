@@ -15,8 +15,8 @@ export type XYGlyphData = GlyphData & {
 export interface XYGlyphView extends XYGlyphData {}
 
 export abstract class XYGlyphView extends GlyphView {
-  override model: XYGlyph
-  override visuals: XYGlyph.Visuals
+  declare model: XYGlyph
+  declare visuals: XYGlyph.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._x, this._y)
@@ -51,8 +51,8 @@ export namespace XYGlyph {
 export interface XYGlyph extends XYGlyph.Attrs {}
 
 export abstract class XYGlyph extends Glyph {
-  override properties: XYGlyph.Props
-  override __view_type__: XYGlyphView
+  declare properties: XYGlyph.Props
+  declare __view_type__: XYGlyphView
 
   constructor(attrs?: Partial<XYGlyph.Attrs>) {
     super(attrs)

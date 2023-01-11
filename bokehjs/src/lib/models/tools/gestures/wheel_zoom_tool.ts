@@ -7,7 +7,7 @@ import {is_mobile} from "core/util/platform"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 
 export class WheelZoomToolView extends GestureToolView {
-  override model: WheelZoomTool
+  declare model: WheelZoomTool
 
   override _pinch(ev: PinchEvent): void {
     // TODO (bev) this can probably be done much better
@@ -67,8 +67,8 @@ export namespace WheelZoomTool {
 export interface WheelZoomTool extends WheelZoomTool.Attrs {}
 
 export class WheelZoomTool extends GestureTool {
-  override properties: WheelZoomTool.Props
-  override __view_type__: WheelZoomToolView
+  declare properties: WheelZoomTool.Props
+  declare __view_type__: WheelZoomToolView
 
   constructor(attrs?: Partial<WheelZoomTool.Attrs>) {
     super(attrs)

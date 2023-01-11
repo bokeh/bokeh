@@ -6,8 +6,8 @@ import {SideLayout} from "core/layout/side_panel"
 import {Context2d} from "core/util/canvas"
 
 export abstract class TextAnnotationView extends AnnotationView {
-  override model: TextAnnotation
-  override visuals: TextAnnotation.Visuals
+  declare model: TextAnnotation
+  declare visuals: TextAnnotation.Visuals
 
   override update_layout(): void {
     const {panel} = this
@@ -120,8 +120,8 @@ export namespace TextAnnotation {
 export interface TextAnnotation extends TextAnnotation.Attrs {}
 
 export abstract class TextAnnotation extends Annotation {
-  override properties: TextAnnotation.Props
-  override __view_type__: TextAnnotationView
+  declare properties: TextAnnotation.Props
+  declare __view_type__: TextAnnotationView
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)

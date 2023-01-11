@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {tool_icon_redo} from "styles/icons.css"
 
 export class RedoToolView extends PlotActionToolView {
-  override model: RedoTool
+  declare model: RedoTool
 
   override connect_signals(): void {
     super.connect_signals()
@@ -28,8 +28,8 @@ export namespace RedoTool {
 export interface RedoTool extends RedoTool.Attrs {}
 
 export class RedoTool extends PlotActionTool {
-  override properties: RedoTool.Props
-  override __view_type__: RedoToolView
+  declare properties: RedoTool.Props
+  declare __view_type__: RedoToolView
 
   constructor(attrs?: Partial<RedoTool.Attrs>) {
     super(attrs)
