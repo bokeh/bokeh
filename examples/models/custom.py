@@ -25,7 +25,7 @@ import * as p from "core/properties"
 import "./custom.less"
 
 export class MyPlotView extends PlotView {
-  model: MyPlot
+  declare model: MyPlot
 
   render(): void {
     super.render()
@@ -63,8 +63,8 @@ export interface MyPlot extends MyPlot.Attrs {
 }
 
 export class MyPlot extends Plot {
-  properties: MyPlot.Props
-  __view_type__: MyPlotView
+  declare properties: MyPlot.Props
+  declare __view_type__: MyPlotView
 
   static {
     this.prototype.default_view = MyPlotView

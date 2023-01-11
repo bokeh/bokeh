@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import "./fontawesome.less"
 
 export class FontAwesomeIconView extends IconView {
-  model: FontAwesomeIcon
+  declare model: FontAwesomeIcon
 
   protected readonly _style = new InlineStyleSheet()
 
@@ -57,8 +57,8 @@ export namespace FontAwesomeIcon {
 export interface FontAwesomeIcon extends FontAwesomeIcon.Attrs {}
 
 export class FontAwesomeIcon extends Icon {
-  properties: FontAwesomeIcon.Props
-  __view_type__: FontAwesomeIconView
+  declare properties: FontAwesomeIcon.Props
+  declare __view_type__: FontAwesomeIconView
 
   constructor(attrs?: Partial<FontAwesomeIcon.Attrs>) {
     super(attrs)
