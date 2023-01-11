@@ -23,8 +23,8 @@ export class LinearAxis extends ContinuousAxis {
   declare properties: LinearAxis.Props
   declare __view_type__: LinearAxisView
 
-  override ticker: ContinuousTicker
-  override formatter: BasicTickFormatter
+  declare ticker: ContinuousTicker
+  declare formatter: BasicTickFormatter
 
   constructor(attrs?: Partial<LinearAxis.Attrs>) {
     super(attrs)

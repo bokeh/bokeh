@@ -22,8 +22,8 @@ export class LogAxis extends ContinuousAxis {
   declare properties: LogAxis.Props
   declare __view_type__: LogAxisView
 
-  override ticker: LogTicker
-  override formatter: LogTickFormatter
+  declare ticker: LogTicker
+  declare formatter: LogTickFormatter
 
   constructor(attrs?: Partial<LogAxis.Attrs>) {
     super(attrs)

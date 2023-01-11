@@ -18,10 +18,10 @@ function upperBound(value: number, arr: ArrayLike<number>): number {
 }
 
 class _FlatBush extends FlatBush {
-  protected _pos: number
-  protected _boxes: Float64Array
-  protected _indices: Uint16Array | Uint32Array
-  protected _levelBounds: number[]
+  declare protected _pos: number
+  declare protected _boxes: Float64Array
+  declare protected _indices: Uint16Array | Uint32Array
+  declare protected _levelBounds: number[]
 
   get boxes(): Float64Array { // TODO: readonly
     return this._boxes

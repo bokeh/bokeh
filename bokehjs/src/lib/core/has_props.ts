@@ -49,7 +49,7 @@ export type PropertyGenerator = Generator<Property, void, undefined>
 const _qualified_names = new WeakMap<typeof HasProps, string>()
 
 export abstract class HasProps extends Signalable() implements Equatable, Printable, Serializable, Cloneable {
-  __view_type__: View
+  declare __view_type__: View
 
   readonly id: string
 
@@ -88,17 +88,17 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   /** @prototype */
-  default_view?: Class<View, [View.Options]>
+  declare default_view?: Class<View, [View.Options]>
 
   /** @prototype */
-  _props: {[key: string]: {
+  declare _props: {[key: string]: {
     type: p.PropertyConstructor<unknown>
     default_value: (self: HasProps) => unknown | p.Unset
     options: p.PropertyOptions<unknown>
   }}
 
   /** @prototype */
-  _mixins: [string, object][]
+  declare _mixins: [string, object][]
 
   private static _fix_default(default_value: any, _attr: string): () => any {
     if (default_value === undefined)

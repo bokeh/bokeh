@@ -22,8 +22,8 @@ export class DatetimeAxis extends ContinuousAxis {
   declare properties: DatetimeAxis.Props
   declare __view_type__: DatetimeAxisView
 
-  override ticker: DatetimeTicker
-  override formatter: DatetimeTickFormatter
+  declare ticker: DatetimeTicker
+  declare formatter: DatetimeTickFormatter
 
   constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)

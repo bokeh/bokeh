@@ -97,12 +97,12 @@ export class Hatch extends VisualProperties {
 }
 
 export class HatchScalar extends VisualUniforms {
-  readonly hatch_color: p.UniformScalar<uint32>
-  readonly hatch_alpha: p.UniformScalar<number>
-  readonly hatch_scale: p.UniformScalar<number>
-  readonly hatch_pattern: p.UniformScalar<string>
-  readonly hatch_weight: p.UniformScalar<number>
-  readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
+  declare readonly hatch_color: p.UniformScalar<uint32>
+  declare readonly hatch_alpha: p.UniformScalar<number>
+  declare readonly hatch_scale: p.UniformScalar<number>
+  declare readonly hatch_pattern: p.UniformScalar<string>
+  declare readonly hatch_weight: p.UniformScalar<number>
+  declare readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
   protected _hatch_image: p.UniformScalar<CanvasImageSource | null>
 
@@ -202,12 +202,12 @@ export class HatchScalar extends VisualUniforms {
 }
 
 export class HatchVector extends VisualUniforms {
-  readonly hatch_color: p.Uniform<uint32>
-  readonly hatch_alpha: p.Uniform<number>
-  readonly hatch_scale: p.Uniform<number>
-  readonly hatch_pattern: p.Uniform<string>
-  readonly hatch_weight: p.Uniform<number>
-  readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
+  declare readonly hatch_color: p.Uniform<uint32>
+  declare readonly hatch_alpha: p.Uniform<number>
+  declare readonly hatch_scale: p.Uniform<number>
+  declare readonly hatch_pattern: p.Uniform<string>
+  declare readonly hatch_weight: p.Uniform<number>
+  declare readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
   protected _hatch_image: p.Uniform<CanvasImageSource | null>
 

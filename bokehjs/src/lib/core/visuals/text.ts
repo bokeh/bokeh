@@ -42,7 +42,7 @@ export class Text extends VisualProperties {
     load_font(font, this.obj)
   }
 
-  Values: ValuesOf<mixins.Text>
+  declare Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
       color:         this.text_color.get_value(),
@@ -78,15 +78,15 @@ export class Text extends VisualProperties {
 }
 
 export class TextScalar extends VisualUniforms {
-  readonly text_color:         p.UniformScalar<uint32>
-  readonly text_outline_color: p.UniformScalar<uint32>
-  readonly text_alpha:         p.UniformScalar<number>
-  readonly text_font:          p.UniformScalar<string>
-  readonly text_font_size:     p.UniformScalar<string>
-  readonly text_font_style:    p.UniformScalar<FontStyle>
-  readonly text_align:         p.UniformScalar<TextAlign>
-  readonly text_baseline:      p.UniformScalar<TextBaseline>
-  readonly text_line_height:   p.UniformScalar<number>
+  declare readonly text_color:         p.UniformScalar<uint32>
+  declare readonly text_outline_color: p.UniformScalar<uint32>
+  declare readonly text_alpha:         p.UniformScalar<number>
+  declare readonly text_font:          p.UniformScalar<string>
+  declare readonly text_font_size:     p.UniformScalar<string>
+  declare readonly text_font_style:    p.UniformScalar<FontStyle>
+  declare readonly text_align:         p.UniformScalar<TextAlign>
+  declare readonly text_baseline:      p.UniformScalar<TextBaseline>
+  declare readonly text_line_height:   p.UniformScalar<number>
 
   get doit(): boolean {
     const color = this.text_color.value
@@ -103,7 +103,7 @@ export class TextScalar extends VisualUniforms {
     load_font(font, this.obj)
   }
 
-  Values: ValuesOf<mixins.Text>
+  declare Values: ValuesOf<mixins.Text>
   values(): this["Values"] {
     return {
       color:         this.text_color.value,
@@ -142,22 +142,22 @@ export class TextScalar extends VisualUniforms {
 }
 
 export class TextVector extends VisualUniforms {
-  readonly text_color:         p.Uniform<uint32>
-  readonly text_outline_color: p.Uniform<uint32>
-  readonly text_alpha:         p.Uniform<number>
-  readonly text_font:          p.Uniform<string>
-  readonly text_font_size:     p.Uniform<string>
-  readonly text_font_style:    p.Uniform<FontStyle>
-  readonly text_align:         p.Uniform<TextAlign>
-  readonly text_baseline:      p.Uniform<TextBaseline>
-  readonly text_line_height:   p.Uniform<number>
+  declare readonly text_color:         p.Uniform<uint32>
+  declare readonly text_outline_color: p.Uniform<uint32>
+  declare readonly text_alpha:         p.Uniform<number>
+  declare readonly text_font:          p.Uniform<string>
+  declare readonly text_font_size:     p.Uniform<string>
+  declare readonly text_font_style:    p.Uniform<FontStyle>
+  declare readonly text_align:         p.Uniform<TextAlign>
+  declare readonly text_baseline:      p.Uniform<TextBaseline>
+  declare readonly text_line_height:   p.Uniform<number>
 
   private _assert_font(i: number): void {
     const font = this.font_value(i)
     load_font(font, this.obj)
   }
 
-  Values: ValuesOf<mixins.Text>
+  declare Values: ValuesOf<mixins.Text>
   values(i: number): this["Values"] {
     this._assert_font(i)
     return {
