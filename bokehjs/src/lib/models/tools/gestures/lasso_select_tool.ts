@@ -55,7 +55,7 @@ export class LassoSelectToolView extends SelectToolView {
   }
 
   protected _is_continuous(ev: KeyModifiers): boolean {
-    return this.model.select_every_mousemove != ev.alt_key
+    return this.model.continuous != ev.alt_key
   }
 
   override connect_signals(): void {
