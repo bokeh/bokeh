@@ -10,3 +10,4 @@ Changes
 
 * Official support for Python 3.11 was added
 * ``select_every_mousemove`` was deprecated and renamed to ``continuous``
+* Internal compilation target was upgraded to ES2022. This may affect thirdparty extensions and custom builds of bokehjs.
