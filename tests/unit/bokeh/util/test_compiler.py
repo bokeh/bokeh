@@ -56,8 +56,8 @@ exports.MyModel = MyModel;
         dict(code="""\
 const { Model } = require("lib/model");
 class MyModel extends Model {
+    static __name__ = 'MyModel';
 }
-MyModel.__name__ = 'MyModel';
 exports.MyModel = MyModel;
 """,
              deps=["lib/model"])
