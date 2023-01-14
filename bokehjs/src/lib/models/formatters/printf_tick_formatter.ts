@@ -13,7 +13,7 @@ export namespace PrintfTickFormatter {
 export interface PrintfTickFormatter extends PrintfTickFormatter.Attrs {}
 
 export class PrintfTickFormatter extends TickFormatter {
-  override properties: PrintfTickFormatter.Props
+  declare properties: PrintfTickFormatter.Props
 
   constructor(attrs?: Partial<PrintfTickFormatter.Attrs>) {
     super(attrs)

@@ -14,7 +14,7 @@ export namespace SymmetricDifferenceFilter {
 export interface SymmetricDifferenceFilter extends SymmetricDifferenceFilter.Attrs {}
 
 export class SymmetricDifferenceFilter extends Filter {
-  override properties: SymmetricDifferenceFilter.Props
+  declare properties: SymmetricDifferenceFilter.Props
 
   constructor(attrs?: Partial<SymmetricDifferenceFilter.Attrs>) {
     super(attrs)

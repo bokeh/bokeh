@@ -12,7 +12,7 @@ export namespace Dodge {
 export interface Dodge extends Dodge.Attrs {}
 
 export class Dodge extends RangeTransform {
-  override properties: Dodge.Props
+  declare properties: Dodge.Props
 
   constructor(attrs?: Partial<Dodge.Attrs>) {
     super(attrs)

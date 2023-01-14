@@ -11,8 +11,8 @@ export type EllipseData = CenterRotatableData
 export interface EllipseView extends EllipseData {}
 
 export class EllipseView extends CenterRotatableView  {
-  override model: Ellipse
-  override visuals: Ellipse.Visuals
+  declare model: Ellipse
+  declare visuals: Ellipse.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.width.units == "data")
@@ -124,8 +124,8 @@ export namespace Ellipse {
 export interface Ellipse extends Ellipse.Attrs {}
 
 export class Ellipse extends CenterRotatable {
-  override properties: Ellipse.Props
-  override __view_type__: EllipseView
+  declare properties: Ellipse.Props
+  declare __view_type__: EllipseView
 
   constructor(attrs?: Partial<Ellipse.Attrs>) {
     super(attrs)

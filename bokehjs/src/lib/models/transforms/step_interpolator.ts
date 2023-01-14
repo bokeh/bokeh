@@ -14,7 +14,7 @@ export namespace StepInterpolator {
 export interface StepInterpolator extends StepInterpolator.Attrs {}
 
 export class StepInterpolator extends Interpolator {
-  override properties: StepInterpolator.Props
+  declare properties: StepInterpolator.Props
 
   constructor(attrs?: Partial<StepInterpolator.Attrs>) {
     super(attrs)

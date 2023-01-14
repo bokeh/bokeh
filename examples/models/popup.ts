@@ -15,7 +15,7 @@ export namespace Popup {
 export interface Popup extends Popup.Attrs {}
 
 export class Popup extends Model {
-  properties: Popup.Props
+  declare properties: Popup.Props
 
   constructor(attrs?: Partial<Popup.Attrs>) {
     super(attrs)

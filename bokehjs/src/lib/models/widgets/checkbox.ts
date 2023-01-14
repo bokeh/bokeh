@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import checkbox_css from "styles/widgets/checkbox.css"
 
 export class CheckboxView extends ToggleInputView {
-  override model: Checkbox
+  declare model: Checkbox
 
   protected checkbox_el: HTMLInputElement
   protected label_el: HTMLElement
@@ -54,8 +54,8 @@ export namespace Checkbox {
 export interface Checkbox extends Checkbox.Attrs {}
 
 export class Checkbox extends ToggleInput {
-  override properties: Checkbox.Props
-  override __view_type__: CheckboxView
+  declare properties: Checkbox.Props
+  declare __view_type__: CheckboxView
 
   constructor(attrs?: Partial<Checkbox.Attrs>) {
     super(attrs)

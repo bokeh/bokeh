@@ -291,7 +291,7 @@ Views extend the respective ``BaseView`` base class.
 .. code-block:: typescript
 
     export class NewActionToolView extends ActionToolView {
-      override model: NewActionToolView
+      declare model: NewActionToolView
 
       initialize(): void {
         super.initialize()

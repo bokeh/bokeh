@@ -10,8 +10,8 @@ import {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 
 export class HTMLLabelSetView extends DataAnnotationView {
-  override model: HTMLLabelSet
-  override visuals: HTMLLabelSet.Visuals
+  declare model: HTMLLabelSet
+  declare visuals: HTMLLabelSet.Visuals
 
   protected _x: FloatArray
   protected _y: FloatArray
@@ -184,8 +184,8 @@ export namespace HTMLLabelSet {
 export interface HTMLLabelSet extends HTMLLabelSet.Attrs {}
 
 export class HTMLLabelSet extends DataAnnotation {
-  override properties: HTMLLabelSet.Props
-  override __view_type__: HTMLLabelSetView
+  declare properties: HTMLLabelSet.Props
+  declare __view_type__: HTMLLabelSetView
 
   constructor(attrs?: Partial<HTMLLabelSet.Attrs>) {
     super(attrs)

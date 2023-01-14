@@ -7,7 +7,7 @@ import {build_view, IterViews} from "core/build_views"
 import {SelectionManager} from "core/selection_manager"
 
 export class ContourRendererView extends DataRendererView {
-  override model: ContourRenderer
+  declare model: ContourRenderer
 
   fill_view: GlyphRendererView
   line_view: GlyphRendererView
@@ -68,8 +68,8 @@ export namespace ContourRenderer {
 export interface ContourRenderer extends ContourRenderer.Attrs {}
 
 export class ContourRenderer extends DataRenderer {
-  override properties: ContourRenderer.Props
-  override __view_type__: ContourRendererView
+  declare properties: ContourRenderer.Props
+  declare __view_type__: ContourRendererView
 
   constructor(attrs?: Partial<ContourRenderer.Attrs>) {
     super(attrs)

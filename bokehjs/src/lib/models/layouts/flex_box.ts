@@ -8,7 +8,7 @@ import * as p from "core/properties"
 type Direction = "row" | "column"
 
 export abstract class FlexBoxView extends LayoutDOMView {
-  override model: FlexBox
+  declare model: FlexBox
   protected abstract _direction: Direction
 
   override connect_signals(): void {
@@ -108,8 +108,8 @@ export namespace FlexBox {
 export interface FlexBox extends FlexBox.Attrs {}
 
 export abstract class FlexBox extends LayoutDOM {
-  override properties: FlexBox.Props
-  override __view_type__: FlexBoxView
+  declare properties: FlexBox.Props
+  declare __view_type__: FlexBoxView
 
   constructor(attrs?: Partial<FlexBox.Attrs>) {
     super(attrs)

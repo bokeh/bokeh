@@ -3,7 +3,7 @@ import {p as paragraph} from "core/dom"
 import * as p from "core/properties"
 
 export class ParagraphView extends MarkupView {
-  override model: Paragraph
+  declare model: Paragraph
 
   override render(): void {
     super.render()
@@ -28,8 +28,8 @@ export namespace Paragraph {
 export interface Paragraph extends Paragraph.Attrs {}
 
 export class Paragraph extends Markup {
-  override properties: Paragraph.Props
-  override __view_type__: ParagraphView
+  declare properties: Paragraph.Props
+  declare __view_type__: ParagraphView
 
   constructor(attrs?: Partial<Paragraph.Attrs>) {
     super(attrs)

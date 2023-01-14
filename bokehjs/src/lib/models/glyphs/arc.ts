@@ -19,8 +19,8 @@ export type ArcData = XYGlyphData & p.UniformsOf<Arc.Mixins> & {
 export interface ArcView extends ArcData {}
 
 export class ArcView extends XYGlyphView {
-  override model: Arc
-  override visuals: Arc.Visuals
+  declare model: Arc
+  declare visuals: Arc.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
@@ -103,8 +103,8 @@ export namespace Arc {
 export interface Arc extends Arc.Attrs {}
 
 export class Arc extends XYGlyph {
-  override properties: Arc.Props
-  override __view_type__: ArcView
+  declare properties: Arc.Props
+  declare __view_type__: ArcView
 
   constructor(attrs?: Partial<Arc.Attrs>) {
     super(attrs)

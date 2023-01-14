@@ -229,7 +229,7 @@ export interface LinkerOpts {
   excluded?: (dep: string) => boolean
   builtins?: boolean
   cache?: Path
-  target?: "ES2020" | "ES2017" | "ES2015"
+  target?: "ES2022" | "ES2020" | "ES2017" | "ES2015"
   es_modules?: boolean
   minify?: boolean
   plugin?: boolean
@@ -249,7 +249,7 @@ export class Linker {
   readonly builtins: boolean
   readonly cache_path?: Path
   readonly cache: Map<Path, ModuleArtifact>
-  readonly target: "ES2020" | "ES2017" | "ES2015" | null
+  readonly target: "ES2022" | "ES2020" | "ES2017" | "ES2015" | null
   readonly es_modules: boolean
   readonly minify: boolean
   readonly plugin: boolean
@@ -416,7 +416,15 @@ export class Linker {
         let code: ModuleCode
         if (module.changed || (cached != null && deps_changed(module, cached.module))) {
           const source = print(module)
-          const ecma = this.target == "ES2020" ? 2020 : (this.target == "ES2017" ? 2017 : 5)
+          const ecma = (() => {
+            switch (this.target) {
+              case "ES2022": return 2020 // TODO: 2022
+              case "ES2020": return 2020
+              case null:
+              case "ES2017": return 2017
+              case "ES2015": return 5
+            }
+          })()
           const minified = this.minify ? await minify(module, source, ecma) : {min_source: source}
           code = {source, ...minified}
         } else
@@ -783,8 +791,16 @@ export ${export_type} yaml;
     if (changed) {
       let collected: string[] | null = null
       if ((this.target != null && resolution == "ESM") || type == "json") {
-        const {ES2020, ES2017, ES2015} = ts.ScriptTarget
-        const target = this.target == "ES2020" ? ES2020 : (this.target == "ES2017" ? ES2017 : ES2015)
+        const {ES2022, ES2020, ES2017, ES2015} = ts.ScriptTarget
+        const target = (() => {
+          switch (this.target) {
+            case "ES2022": return ES2022
+            case "ES2020": return ES2020
+            case null:
+            case "ES2017": return ES2017
+            case "ES2015": return ES2015
+          }
+        })()
         const imports = new Set<string>()
         if (canonical != "tslib") {
           imports.add("tslib")

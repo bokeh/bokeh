@@ -18,7 +18,7 @@ export class Image extends VisualProperties {
     return doit
   }
 
-  Values: ValuesOf<mixins.Image>
+  declare Values: ValuesOf<mixins.Image>
   values(): this["Values"] {
     return {
       global_alpha: this.global_alpha.get_value(),
@@ -32,7 +32,7 @@ export class Image extends VisualProperties {
 }
 
 export class ImageScalar extends VisualUniforms {
-  readonly global_alpha: p.UniformScalar<number>
+  declare readonly global_alpha: p.UniformScalar<number>
 
   get doit(): boolean {
     const alpha = this.global_alpha.value
@@ -47,7 +47,7 @@ export class ImageScalar extends VisualUniforms {
     return doit
   }
 
-  Values: ValuesOf<mixins.Image>
+  declare Values: ValuesOf<mixins.Image>
   values(): this["Values"] {
     return {
       global_alpha: this.global_alpha.value,
@@ -61,7 +61,7 @@ export class ImageScalar extends VisualUniforms {
 }
 
 export class ImageVector extends VisualUniforms {
-  readonly global_alpha: p.Uniform<number>
+  declare readonly global_alpha: p.Uniform<number>
 
   get doit(): boolean {
     const {global_alpha} = this
@@ -84,7 +84,7 @@ export class ImageVector extends VisualUniforms {
     return doit
   }
 
-  Values: ValuesOf<mixins.Image>
+  declare Values: ValuesOf<mixins.Image>
   values(i: number): this["Values"] {
     return {
       alpha: this.global_alpha.get(i),

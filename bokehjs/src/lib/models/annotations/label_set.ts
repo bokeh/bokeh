@@ -8,8 +8,8 @@ import {FloatArray, ScreenArray} from "core/types"
 import {Context2d} from "core/util/canvas"
 
 export class LabelSetView extends DataAnnotationView {
-  override model: LabelSet
-  override visuals: LabelSet.Visuals
+  declare model: LabelSet
+  declare visuals: LabelSet.Visuals
 
   protected _x: FloatArray
   protected _y: FloatArray
@@ -119,8 +119,8 @@ export namespace LabelSet {
 export interface LabelSet extends LabelSet.Attrs {}
 
 export class LabelSet extends DataAnnotation {
-  override properties: LabelSet.Props
-  override __view_type__: LabelSetView
+  declare properties: LabelSet.Props
+  declare __view_type__: LabelSetView
 
   constructor(attrs?: Partial<LabelSet.Attrs>) {
     super(attrs)

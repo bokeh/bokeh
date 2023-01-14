@@ -34,8 +34,8 @@ export type LRTBData = GlyphData & p.UniformsOf<LRTB.Mixins> & {
 export interface LRTBView extends LRTBData {}
 
 export abstract class LRTBView extends GlyphView {
-  override model: LRTB
-  override visuals: LRTB.Visuals
+  declare model: LRTB
+  declare visuals: LRTB.Visuals
 
   override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
@@ -166,8 +166,8 @@ export namespace LRTB {
 export interface LRTB extends LRTB.Attrs {}
 
 export abstract class LRTB extends Glyph {
-  override properties: LRTB.Props
-  override __view_type__: LRTBView
+  declare properties: LRTB.Props
+  declare __view_type__: LRTBView
 
   constructor(attrs?: Partial<LRTB.Attrs>) {
     super(attrs)

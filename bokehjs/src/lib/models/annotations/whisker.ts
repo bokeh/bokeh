@@ -9,8 +9,8 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
-  override model: Whisker
-  override visuals: Whisker.Visuals
+  declare model: Whisker
+  declare visuals: Whisker.Visuals
 
   protected lower_head: ArrowHeadView | null
   protected upper_head: ArrowHeadView | null
@@ -92,8 +92,8 @@ export namespace Whisker {
 export interface Whisker extends Whisker.Attrs {}
 
 export class Whisker extends UpperLower {
-  override properties: Whisker.Props
-  override __view_type__: WhiskerView
+  declare properties: Whisker.Props
+  declare __view_type__: WhiskerView
 
   constructor(attrs?: Partial<Whisker.Attrs>) {
     super(attrs)

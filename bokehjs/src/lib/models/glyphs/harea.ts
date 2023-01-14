@@ -20,8 +20,8 @@ export type HAreaData = AreaData & {
 export interface HAreaView extends HAreaData {}
 
 export class HAreaView extends AreaView {
-  override model: HArea
-  override visuals: HArea.Visuals
+  declare model: HArea
+  declare visuals: HArea.Visuals
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
@@ -99,8 +99,8 @@ export namespace HArea {
 export interface HArea extends HArea.Attrs {}
 
 export class HArea extends Area {
-  override properties: HArea.Props
-  override __view_type__: HAreaView
+  declare properties: HArea.Props
+  declare __view_type__: HAreaView
 
   constructor(attrs?: Partial<HArea.Attrs>) {
     super(attrs)

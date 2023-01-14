@@ -10,7 +10,7 @@ import {PanEvent} from "core/ui_events"
 import * as p from "core/properties"
 
 export class DrawToolView extends GestureToolView {
-  model: DrawTool
+  declare model: DrawTool
 
   // this is executed when the pan/drag event starts
   _pan_start(_e: PanEvent): void {
@@ -49,8 +49,8 @@ export namespace DrawTool {
 export interface DrawTool extends DrawTool.Attrs {}
 
 export class DrawTool extends GestureTool {
-  properties: DrawTool.Props
-  __view_type__: DrawToolView
+  declare properties: DrawTool.Props
+  declare __view_type__: DrawToolView
 
   constructor(attrs?: Partial<DrawTool.Attrs>) {
     super(attrs)

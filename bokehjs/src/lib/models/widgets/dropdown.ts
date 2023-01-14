@@ -11,7 +11,7 @@ import dropdown_css, * as dropdown from "styles/dropdown.css"
 import carets_css, * as carets from "styles/caret.css"
 
 export class DropdownView extends AbstractButtonView {
-  override model: Dropdown
+  declare model: Dropdown
 
   protected _open: boolean = false
 
@@ -117,8 +117,8 @@ export namespace Dropdown {
 export interface Dropdown extends Dropdown.Attrs {}
 
 export class Dropdown extends AbstractButton {
-  override properties: Dropdown.Props
-  override __view_type__: DropdownView
+  declare properties: Dropdown.Props
+  declare __view_type__: DropdownView
 
   constructor(attrs?: Partial<Dropdown.Attrs>) {
     super(attrs)

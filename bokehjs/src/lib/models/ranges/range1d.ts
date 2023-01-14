@@ -15,7 +15,7 @@ export namespace Range1d {
 export interface Range1d extends Range1d.Attrs {}
 
 export class Range1d extends Range {
-  override properties: Range1d.Props
+  declare properties: Range1d.Props
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
     super(attrs)

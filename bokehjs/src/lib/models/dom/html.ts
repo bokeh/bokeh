@@ -7,8 +7,8 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 export class HTMLView extends DOMNodeView {
-  override model: HTML
-  override el: HTMLElement
+  declare model: HTML
+  declare el: HTMLElement
 
   protected readonly _refs: ViewStorage<DOMNode | UIElement> = new Map()
 
@@ -82,8 +82,8 @@ export namespace HTML {
 export interface HTML extends HTML.Attrs {}
 
 export class HTML extends DOMNode {
-  override properties: HTML.Props
-  override __view_type__: HTMLView
+  declare properties: HTML.Props
+  declare __view_type__: HTMLView
 
   constructor(attrs?: Partial<HTML.Attrs>) {
     super(attrs)

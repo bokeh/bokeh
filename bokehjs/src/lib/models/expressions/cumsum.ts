@@ -15,7 +15,7 @@ export namespace CumSum {
 export interface CumSum extends CumSum.Attrs {}
 
 export class CumSum extends Expression {
-  override properties: CumSum.Props
+  declare properties: CumSum.Props
 
   constructor(attrs?: Partial<CumSum.Attrs>) {
     super(attrs)

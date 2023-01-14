@@ -2,9 +2,9 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as p from "core/properties"
 
 export abstract class TextLikeInputView extends InputWidgetView {
-  override model: TextLikeInput
+  declare model: TextLikeInput
 
-  override input_el: HTMLInputElement | HTMLTextAreaElement
+  declare input_el: HTMLInputElement | HTMLTextAreaElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -67,8 +67,8 @@ export namespace TextLikeInput {
 export interface TextLikeInput extends TextLikeInput.Attrs {}
 
 export class TextLikeInput extends InputWidget {
-  override properties: TextLikeInput.Props
-  override __view_type__: TextLikeInputView
+  declare properties: TextLikeInput.Props
+  declare __view_type__: TextLikeInputView
 
   constructor(attrs?: Partial<TextLikeInput.Attrs>) {
     super(attrs)

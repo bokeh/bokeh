@@ -8,7 +8,7 @@ export interface DOMView extends View {
 }
 
 export abstract class DOMView extends View {
-  override parent: DOMView | null
+  declare parent: DOMView | null
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
@@ -55,7 +55,7 @@ export abstract class DOMView extends View {
 }
 
 export abstract class DOMElementView extends DOMView {
-  override el: HTMLElement
+  declare el: HTMLElement
 
   class_list: ClassList
 
@@ -66,10 +66,10 @@ export abstract class DOMElementView extends DOMView {
 }
 
 export abstract class DOMComponentView extends DOMElementView {
-  override parent: DOMElementView | null
-  override readonly root: DOMComponentView
+  declare parent: DOMElementView | null
+  declare readonly root: DOMComponentView
 
-  override shadow_el: ShadowRoot
+  declare shadow_el: ShadowRoot
 
   override initialize(): void {
     super.initialize()

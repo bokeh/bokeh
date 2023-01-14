@@ -6,8 +6,8 @@ import {SideLayout} from "core/layout/side_panel"
 import * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
-  override model: Label
-  override visuals: Label.Visuals
+  declare model: Label
+  declare visuals: Label.Visuals
 
   override update_layout(): void {
     const {panel} = this
@@ -87,8 +87,8 @@ export namespace Label {
 export interface Label extends Label.Attrs {}
 
 export class Label extends TextAnnotation {
-  override properties: Label.Props
-  override __view_type__: LabelView
+  declare properties: Label.Props
+  declare __view_type__: LabelView
 
   constructor(attrs?: Partial<Label.Attrs>) {
     super(attrs)

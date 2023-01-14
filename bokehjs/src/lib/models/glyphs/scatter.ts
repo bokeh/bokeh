@@ -12,10 +12,10 @@ export type ScatterData = MarkerData & {
 export interface ScatterView extends ScatterData {}
 
 export class ScatterView extends MarkerView {
-  override model: Scatter
+  declare model: Scatter
 
   /** @internal */
-  override glglyph?: import("./webgl/multi_marker").MultiMarkerGL
+  declare glglyph?: import("./webgl/multi_marker").MultiMarkerGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -81,8 +81,8 @@ export namespace Scatter {
 export interface Scatter extends Scatter.Attrs {}
 
 export class Scatter extends Marker {
-  override properties: Scatter.Props
-  override __view_type__: ScatterView
+  declare properties: Scatter.Props
+  declare __view_type__: ScatterView
 
   constructor(attrs?: Partial<Scatter.Attrs>) {
     super(attrs)

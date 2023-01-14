@@ -5,7 +5,7 @@ import password_input_css from "styles/widgets/password_input.css"
 import icons_css from "styles/icons.css"
 
 export class PasswordInputView extends TextInputView {
-  override model: PasswordInput
+  declare model: PasswordInput
 
   toggle_el: HTMLElement
 
@@ -36,8 +36,8 @@ export namespace PasswordInput {
 export interface PasswordInput extends PasswordInput.Attrs {}
 
 export class PasswordInput extends TextInput {
-  override properties: PasswordInput.Props
-  override __view_type__: PasswordInputView
+  declare properties: PasswordInput.Props
+  declare __view_type__: PasswordInputView
 
   constructor(attrs?: Partial<PasswordInput.Attrs>) {
     super(attrs)

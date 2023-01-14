@@ -14,7 +14,7 @@ import * as mixins from "@bokehjs/core/property_mixins"
 import * as p from "@bokehjs/core/properties"
 
 class SomeModelView extends View implements visuals.Renderable {
-  override model: SomeModel
+  declare model: SomeModel
   visuals: SomeModel.Visuals
 
   override initialize(): void {
@@ -43,8 +43,8 @@ export namespace SomeModel {
 export interface SomeModel extends SomeModel.Attrs {}
 
 export class SomeModel extends Model {
-  override properties: SomeModel.Props
-  override __view_type__: SomeModelView
+  declare properties: SomeModel.Props
+  declare __view_type__: SomeModelView
 
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)

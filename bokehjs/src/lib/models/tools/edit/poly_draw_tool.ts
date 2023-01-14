@@ -12,7 +12,7 @@ export interface HasPolyGlyph {
 }
 
 export class PolyDrawToolView extends PolyToolView {
-  override model: PolyDrawTool
+  declare model: PolyDrawTool
   _drawing: boolean = false
   _initialized: boolean = false
 
@@ -249,10 +249,10 @@ export namespace PolyDrawTool {
 export interface PolyDrawTool extends PolyDrawTool.Attrs {}
 
 export class PolyDrawTool extends PolyTool {
-  override properties: PolyDrawTool.Props
-  override __view_type__: PolyDrawToolView
+  declare properties: PolyDrawTool.Props
+  declare __view_type__: PolyDrawToolView
 
-  override renderers: (GlyphRenderer & HasPolyGlyph)[]
+  declare renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)

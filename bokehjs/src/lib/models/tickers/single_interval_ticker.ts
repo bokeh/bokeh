@@ -16,7 +16,7 @@ export namespace SingleIntervalTicker {
 export interface SingleIntervalTicker extends SingleIntervalTicker.Attrs {}
 
 export class SingleIntervalTicker extends ContinuousTicker {
-  override properties: SingleIntervalTicker.Props
+  declare properties: SingleIntervalTicker.Props
 
   constructor(attrs?: Partial<SingleIntervalTicker.Attrs>) {
     super(attrs)

@@ -16,7 +16,7 @@ export namespace OpenURL {
 export interface OpenURL extends OpenURL.Attrs {}
 
 export class OpenURL extends Callback {
-  override properties: OpenURL.Props
+  declare properties: OpenURL.Props
 
   constructor(attrs?: Partial<OpenURL.Attrs>) {
     super(attrs)

@@ -25,7 +25,7 @@ export namespace TableColumn {
 export interface TableColumn extends TableColumn.Attrs {}
 
 export class TableColumn extends Model {
-  override properties: TableColumn.Props
+  declare properties: TableColumn.Props
 
   constructor(attrs?: Partial<TableColumn.Attrs>) {
     super(attrs)

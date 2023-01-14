@@ -14,9 +14,9 @@ const int_regex = /^[-+]?\d*$/
 const float_regex = /^[-+]?\d*\.?\d*(?:(?:\d|\d.)[eE][-+]?)*\d*$/
 
 export class NumericInputView extends InputWidgetView {
-  override model: NumericInput
+  declare model: NumericInput
 
-  override input_el: HTMLInputElement
+  declare input_el: HTMLInputElement
   protected old_value: string
 
   override connect_signals(): void {
@@ -125,8 +125,8 @@ export namespace NumericInput {
 export interface NumericInput extends NumericInput.Attrs {}
 
 export class NumericInput extends InputWidget {
-  override properties: NumericInput.Props
-  override __view_type__: NumericInputView
+  declare properties: NumericInput.Props
+  declare __view_type__: NumericInputView
 
   constructor(attrs?: Partial<NumericInput.Attrs>) {
     super(attrs)

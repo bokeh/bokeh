@@ -42,7 +42,7 @@ export class Line extends VisualProperties {
     return doit
   }
 
-  Values: ValuesOf<mixins.Line>
+  declare Values: ValuesOf<mixins.Line>
   values(): this["Values"] {
     return {
       color:  this.line_color.get_value(),
@@ -69,13 +69,13 @@ export class Line extends VisualProperties {
 }
 
 export class LineScalar extends VisualUniforms {
-  readonly line_color:       p.UniformScalar<uint32>
-  readonly line_alpha:       p.UniformScalar<number>
-  readonly line_width:       p.UniformScalar<number>
-  readonly line_join:        p.UniformScalar<LineJoin>
-  readonly line_cap:         p.UniformScalar<LineCap>
-  readonly line_dash:        p.UniformScalar<LineDash | number[]>
-  readonly line_dash_offset: p.UniformScalar<number>
+  declare readonly line_color:       p.UniformScalar<uint32>
+  declare readonly line_alpha:       p.UniformScalar<number>
+  declare readonly line_width:       p.UniformScalar<number>
+  declare readonly line_join:        p.UniformScalar<LineJoin>
+  declare readonly line_cap:         p.UniformScalar<LineCap>
+  declare readonly line_dash:        p.UniformScalar<LineDash | number[]>
+  declare readonly line_dash_offset: p.UniformScalar<number>
 
   get doit(): boolean {
     const color = this.line_color.value
@@ -94,7 +94,7 @@ export class LineScalar extends VisualUniforms {
     return doit
   }
 
-  Values: ValuesOf<mixins.Line>
+  declare Values: ValuesOf<mixins.Line>
   values(): this["Values"] {
     return {
       color:  this.line_color.value,
@@ -121,13 +121,13 @@ export class LineScalar extends VisualUniforms {
 }
 
 export class LineVector extends VisualUniforms {
-  readonly line_color:       p.Uniform<uint32>
-  readonly line_alpha:       p.Uniform<number>
-  readonly line_width:       p.Uniform<number>
-  readonly line_join:        p.Uniform<LineJoin>
-  readonly line_cap:         p.Uniform<LineCap>
-  readonly line_dash:        p.Uniform<LineDash | number[]>
-  readonly line_dash_offset: p.Uniform<number>
+  declare readonly line_color:       p.Uniform<uint32>
+  declare readonly line_alpha:       p.Uniform<number>
+  declare readonly line_width:       p.Uniform<number>
+  declare readonly line_join:        p.Uniform<LineJoin>
+  declare readonly line_cap:         p.Uniform<LineCap>
+  declare readonly line_dash:        p.Uniform<LineDash | number[]>
+  declare readonly line_dash_offset: p.Uniform<number>
 
   get doit(): boolean {
     const {line_color} = this
@@ -161,7 +161,7 @@ export class LineVector extends VisualUniforms {
     return doit
   }
 
-  Values: ValuesOf<mixins.Line>
+  declare Values: ValuesOf<mixins.Line>
   values(i: number): this["Values"] {
     return {
       color:  this.line_color.get(i),

@@ -323,7 +323,7 @@ export namespace Styles {
 export interface Styles extends Styles.Attrs {}
 
 export class Styles extends Model {
-  override properties: Styles.Props
+  declare properties: Styles.Props
 
   constructor(attrs?: Partial<Styles.Attrs>) {
     super(attrs)

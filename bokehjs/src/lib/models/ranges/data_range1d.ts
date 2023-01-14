@@ -34,7 +34,7 @@ export namespace DataRange1d {
 export interface DataRange1d extends DataRange1d.Attrs {}
 
 export class DataRange1d extends DataRange {
-  override properties: DataRange1d.Props
+  declare properties: DataRange1d.Props
 
   constructor(attrs?: Partial<DataRange1d.Attrs>) {
     super(attrs)

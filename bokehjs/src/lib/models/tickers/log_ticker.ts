@@ -12,7 +12,7 @@ export namespace LogTicker {
 export interface LogTicker extends LogTicker.Attrs {}
 
 export class LogTicker extends AdaptiveTicker {
-  override properties: LogTicker.Props
+  declare properties: LogTicker.Props
 
   constructor(attrs?: Partial<LogTicker.Attrs>) {
     super(attrs)

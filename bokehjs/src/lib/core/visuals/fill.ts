@@ -40,8 +40,8 @@ export class Fill extends VisualProperties {
 }
 
 export class FillScalar extends VisualUniforms {
-  readonly fill_color: p.UniformScalar<uint32>
-  readonly fill_alpha: p.UniformScalar<number>
+  declare readonly fill_color: p.UniformScalar<uint32>
+  declare readonly fill_alpha: p.UniformScalar<number>
 
   get doit(): boolean {
     const color = this.fill_color.value
@@ -76,8 +76,8 @@ export class FillScalar extends VisualUniforms {
 }
 
 export class FillVector extends VisualUniforms {
-  readonly fill_color: p.Uniform<uint32>
-  readonly fill_alpha: p.Uniform<number>
+  declare readonly fill_color: p.Uniform<uint32>
+  declare readonly fill_alpha: p.Uniform<number>
 
   get doit(): boolean {
     const {fill_color} = this

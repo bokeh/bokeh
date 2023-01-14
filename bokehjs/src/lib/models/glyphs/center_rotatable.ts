@@ -20,8 +20,8 @@ export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mix
 export interface CenterRotatableView extends CenterRotatableData {}
 
 export abstract class CenterRotatableView extends XYGlyphView {
-  override model: CenterRotatable
-  override visuals: CenterRotatable.Visuals
+  declare model: CenterRotatable
+  declare visuals: CenterRotatable.Visuals
 
   get max_w2(): number {
     return this.model.properties.width.units == "data" ? this.max_width/2 : 0
@@ -59,8 +59,8 @@ export namespace CenterRotatable {
 export interface CenterRotatable extends CenterRotatable.Attrs {}
 
 export abstract class CenterRotatable extends XYGlyph {
-  override properties: CenterRotatable.Props
-  override __view_type__: CenterRotatableView
+  declare properties: CenterRotatable.Props
+  declare __view_type__: CenterRotatableView
 
   constructor(attrs?: Partial<CenterRotatable.Attrs>) {
     super(attrs)

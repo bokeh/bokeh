@@ -21,7 +21,7 @@ export interface SliderSpec {
 }
 
 abstract class AbstractBaseSliderView extends OrientedControlView {
-  override model: AbstractSlider
+  declare model: AbstractSlider
 
   protected group_el: HTMLElement
   protected slider_el?: HTMLElement
@@ -233,7 +233,7 @@ export namespace AbstractSlider {
 export interface AbstractSlider extends AbstractSlider.Attrs {}
 
 export abstract class AbstractSlider extends OrientedControl {
-  override properties: AbstractSlider.Props
+  declare properties: AbstractSlider.Props
   // TODO: __view_type__: AbstractSliderView
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {

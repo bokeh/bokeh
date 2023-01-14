@@ -15,7 +15,7 @@ export namespace MercatorTicker {
 export interface MercatorTicker extends MercatorTicker.Attrs {}
 
 export class MercatorTicker extends BasicTicker {
-  override properties: MercatorTicker.Props
+  declare properties: MercatorTicker.Props
 
   constructor(attrs?: Partial<MercatorTicker.Attrs>) {
     super(attrs)

@@ -7,7 +7,7 @@ import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 
 export abstract class DataAnnotationView extends AnnotationView {
-  override model: DataAnnotation
+  declare model: DataAnnotation
 
   override connect_signals(): void {
     super.connect_signals()
@@ -81,8 +81,8 @@ export namespace DataAnnotation {
 export interface DataAnnotation extends DataAnnotation.Attrs {}
 
 export abstract class DataAnnotation extends Annotation {
-  override properties: DataAnnotation.Props
-  override __view_type__: DataAnnotationView
+  declare properties: DataAnnotation.Props
+  declare __view_type__: DataAnnotationView
 
   constructor(attrs?: Partial<DataAnnotation.Attrs>) {
     super(attrs)

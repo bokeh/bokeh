@@ -14,8 +14,8 @@ export interface Renderable {
 
 export abstract class VisualProperties {
   /** @prototype */
-  type: string
-  attrs: string[]
+  declare type: string
+  declare attrs: string[]
 
   private readonly _props: p.Property<unknown>[]
 
@@ -41,8 +41,8 @@ export abstract class VisualProperties {
 
 export abstract class VisualUniforms {
   /** @prototype */
-  type: string
-  attrs: string[]
+  declare type: string
+  declare attrs: string[]
 
   *[Symbol.iterator](): Generator<p.Property<unknown>, void, undefined> {
     for (const attr of this.attrs) {

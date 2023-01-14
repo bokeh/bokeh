@@ -2,14 +2,14 @@ import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
 import {tool_icon_zoom_in} from "styles/icons.css"
 
 export class ZoomInToolView extends ZoomBaseToolView {
-  override model: ZoomBaseTool
+  declare model: ZoomBaseTool
 }
 
 export interface ZoomInTool extends ZoomBaseTool.Attrs {}
 
 export class ZoomInTool extends ZoomBaseTool {
-  override properties: ZoomBaseTool.Props
-  override __view_type__: ZoomBaseToolView
+  declare properties: ZoomBaseTool.Props
+  declare __view_type__: ZoomBaseToolView
 
   readonly maintain_focus: boolean = true
 

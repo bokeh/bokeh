@@ -10,7 +10,7 @@ import {Location} from "core/enums"
 import * as p from "core/properties"
 
 export class GridPlotView extends LayoutDOMView {
-  override model: GridPlot
+  declare model: GridPlot
 
   protected _grid_box: GridBox
 
@@ -153,8 +153,8 @@ export namespace GridPlot {
 export interface GridPlot extends GridPlot.Attrs {}
 
 export class GridPlot extends LayoutDOM {
-  override properties: GridPlot.Props
-  override __view_type__: GridPlotView
+  declare properties: GridPlot.Props
+  declare __view_type__: GridPlotView
 
   constructor(attrs?: Partial<GridPlot.Attrs>) {
     super(attrs)

@@ -9,8 +9,8 @@ import {IntersectionFilter} from "../filters/intersection_filter"
 import {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
-  override model: CDSView
-  override readonly parent: View & {readonly data_source: p.Property<ColumnarDataSource>}
+  declare model: CDSView
+  declare readonly parent: View & {readonly data_source: p.Property<ColumnarDataSource>}
 
   override initialize(): void {
     super.initialize()
@@ -71,8 +71,8 @@ export namespace CDSView {
 export interface CDSView extends CDSView.Attrs {}
 
 export class CDSView extends Model {
-  override properties: CDSView.Props
-  override __view_type__: CDSViewView
+  declare properties: CDSView.Props
+  declare __view_type__: CDSViewView
 
   constructor(attrs?: Partial<CDSView.Attrs>) {
     super(attrs)

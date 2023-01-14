@@ -3,7 +3,7 @@ import * as p from "core/properties"
 import {tool_icon_undo} from "styles/icons.css"
 
 export class UndoToolView extends PlotActionToolView {
-  override model: UndoTool
+  declare model: UndoTool
 
   override connect_signals(): void {
     super.connect_signals()
@@ -28,8 +28,8 @@ export namespace UndoTool {
 export interface UndoTool extends UndoTool.Attrs {}
 
 export class UndoTool extends PlotActionTool {
-  override properties: UndoTool.Props
-  override __view_type__: UndoToolView
+  declare properties: UndoTool.Props
+  declare __view_type__: UndoToolView
 
   constructor(attrs?: Partial<UndoTool.Attrs>) {
     super(attrs)

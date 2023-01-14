@@ -3,7 +3,7 @@ import * as tools from "styles/tool_button.css"
 import * as p from "core/properties"
 
 export class OnOffButtonView extends ToolButtonView {
-  override model: OnOffButton
+  declare model: OnOffButton
 
   protected _toggle_active(): void {
     this.class_list.toggle(tools.active, this.model.tool.active)
@@ -36,8 +36,8 @@ export namespace OnOffButton {
 export interface OnOffButton extends OnOffButton.Attrs {}
 
 export class OnOffButton extends ToolButton {
-  override properties: OnOffButton.Props
-  override __view_type__: OnOffButtonView
+  declare properties: OnOffButton.Props
+  declare __view_type__: OnOffButtonView
 
   constructor(attrs?: Partial<OnOffButton.Attrs>) {
     super(attrs)

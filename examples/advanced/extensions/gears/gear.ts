@@ -24,8 +24,8 @@ export interface GearData extends XYGlyphData {
 export interface GearView extends GearData {}
 
 export class GearView extends XYGlyphView {
-  override model: Gear
-  override visuals: Gear.Visuals
+  declare model: Gear
+  declare visuals: Gear.Visuals
 
   override _map_data(): void {
     this.smodule = this.sdist(this.renderer.xscale, this._x, this.module, 'edge')
@@ -170,8 +170,8 @@ export namespace Gear {
 export interface Gear extends Gear.Attrs {}
 
 export class Gear extends XYGlyph {
-  override properties: Gear.Props
-  override __view_type__: GearView
+  declare properties: Gear.Props
+  declare __view_type__: GearView
 
   constructor(attrs?: Partial<Gear.Attrs>) {
     super(attrs)

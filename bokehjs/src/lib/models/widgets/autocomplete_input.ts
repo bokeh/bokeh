@@ -8,7 +8,7 @@ import {clamp} from "core/util/math"
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
 export class AutocompleteInputView extends TextInputView {
-  override model: AutocompleteInput
+  declare model: AutocompleteInput
 
   protected _open: boolean = false
 
@@ -181,8 +181,8 @@ export namespace AutocompleteInput {
 export interface AutocompleteInput extends AutocompleteInput.Attrs {}
 
 export class AutocompleteInput extends TextInput {
-  override properties: AutocompleteInput.Props
-  override __view_type__: AutocompleteInputView
+  declare properties: AutocompleteInput.Props
+  declare __view_type__: AutocompleteInputView
 
   constructor(attrs?: Partial<AutocompleteInput.Attrs>) {
     super(attrs)

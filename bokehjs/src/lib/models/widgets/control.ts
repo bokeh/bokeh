@@ -3,7 +3,7 @@ import {toggle_attribute} from "core/dom"
 import * as p from "core/properties"
 
 export abstract class ControlView extends WidgetView {
-  override model: Control
+  declare model: Control
 
   abstract controls(): Iterable<HTMLElement & {disabled: boolean}>
 
@@ -27,8 +27,8 @@ export namespace Control {
 export interface Control extends Control.Attrs {}
 
 export abstract class Control extends Widget {
-  override properties: Control.Props
-  override __view_type__: ControlView
+  declare properties: Control.Props
+  declare __view_type__: ControlView
 
   constructor(attrs?: Partial<Control.Attrs>) {
     super(attrs)

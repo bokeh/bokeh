@@ -25,8 +25,8 @@ type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
 export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
 export abstract class LayoutDOMView extends UIElementView {
-  override model: LayoutDOM
-  override parent: DOMElementView | null
+  declare model: LayoutDOM
+  declare parent: DOMElementView | null
 
   protected readonly _child_views: ViewStorage<UIElement> = new Map()
 
@@ -615,8 +615,8 @@ export namespace LayoutDOM {
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
 export abstract class LayoutDOM extends UIElement {
-  override properties: LayoutDOM.Props
-  override __view_type__: LayoutDOMView
+  declare properties: LayoutDOM.Props
+  declare __view_type__: LayoutDOMView
 
   constructor(attrs?: Partial<LayoutDOM.Attrs>) {
     super(attrs)

@@ -14,7 +14,7 @@ export namespace IndexFilter {
 export interface IndexFilter extends IndexFilter.Attrs {}
 
 export class IndexFilter extends Filter {
-  override properties: IndexFilter.Props
+  declare properties: IndexFilter.Props
 
   constructor(attrs?: Partial<IndexFilter.Attrs>) {
     super(attrs)

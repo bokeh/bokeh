@@ -7,7 +7,7 @@ import {div} from "@bokehjs/core/dom"
 import * as p from "@bokehjs/core/properties"
 
 export class FlexDivView extends UIElementView {
-  override model!: FlexDiv
+  declare model: FlexDiv
   static override tag_name = "div" as const
 
   override render(): void {
@@ -29,8 +29,8 @@ export namespace FlexDiv {
 export interface FlexDiv extends FlexDiv.Attrs {}
 
 export class FlexDiv extends UIElement {
-  override properties!: FlexDiv.Props
-  override __view_type__!: FlexDivView
+  declare properties: FlexDiv.Props
+  declare __view_type__: FlexDivView
 
   constructor(attrs?: Partial<FlexDiv.Attrs>) {
     super(attrs)

@@ -11,7 +11,7 @@ import {div} from "core/dom"
 import * as p from "core/properties"
 
 export class CustomView extends UIElementView {
-  model: Custom
+  declare model: Custom
 
   private content_el: HTMLElement
 
@@ -57,8 +57,8 @@ export namespace Custom {
 export interface Custom extends Custom.Attrs {}
 
 export class Custom extends UIElement {
-  properties: Custom.Props
-  __view_type__: CustomView
+  declare properties: Custom.Props
+  declare __view_type__: CustomView
 
   constructor(attrs?: Partial<Custom.Attrs>) {
     super(attrs)

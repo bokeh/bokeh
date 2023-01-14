@@ -5,7 +5,7 @@ import * as p from "core/properties"
 type ChildItem = {child: UIElement, row?: number, span?: number}
 
 export class VBoxView extends CSSGridBoxView {
-  override model: VBox
+  declare model: VBox
 
   override connect_signals(): void {
     super.connect_signals()
@@ -39,8 +39,8 @@ export namespace VBox {
 export interface VBox extends VBox.Attrs {}
 
 export class VBox extends CSSGridBox {
-  override properties: VBox.Props
-  override __view_type__: VBoxView
+  declare properties: VBox.Props
+  declare __view_type__: VBoxView
 
   constructor(attrs?: Partial<VBox.Attrs>) {
     super(attrs)

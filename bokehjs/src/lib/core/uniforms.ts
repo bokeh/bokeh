@@ -2,8 +2,8 @@ import {Indices, Arrayable} from "./types"
 import {equals, Equatable, Comparator} from "./util/eq"
 
 export abstract class Uniform<T = number> implements Equatable {
-  readonly is_scalar: boolean
-  readonly length: number
+  abstract readonly is_scalar: boolean
+  abstract readonly length: number
   abstract get(i: number): T
   abstract [Symbol.iterator](): Generator<T, void, undefined>
   abstract select(indices: Indices): Uniform<T>
@@ -42,10 +42,11 @@ export class UniformScalar<T> extends Uniform<T> {
 
 export class UniformVector<T> extends Uniform<T> {
   override readonly is_scalar = false
-  override readonly length = this.array.length
+  override readonly length: number
 
   constructor(readonly array: Arrayable<T>) {
     super()
+    this.length = this.array.length
   }
 
   get(i: number): T {

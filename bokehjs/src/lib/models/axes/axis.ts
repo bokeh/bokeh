@@ -41,8 +41,8 @@ export interface TickCoords {
 }
 
 export class AxisView extends GuideRendererView {
-  override model: Axis
-  override visuals: Axis.Visuals
+  declare model: Axis
+  declare visuals: Axis.Visuals
 
   panel: Panel
   layout: Layoutable
@@ -678,8 +678,8 @@ export namespace Axis {
 export interface Axis extends Axis.Attrs {}
 
 export class Axis extends GuideRenderer {
-  override properties: Axis.Props
-  override __view_type__: AxisView
+  declare properties: Axis.Props
+  declare __view_type__: AxisView
 
   constructor(attrs?: Partial<Axis.Attrs>) {
     super(attrs)

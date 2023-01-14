@@ -50,7 +50,7 @@ const OPTIONS = {
 //
 // In this case we will subclass from the existing BokehJS ``LayoutDOMView``
 export class Surface3dView extends LayoutDOMView {
-  model: Surface3d
+  declare model: Surface3d
 
   private _graph: vis.Graph3d
 
@@ -121,8 +121,8 @@ export namespace Surface3d {
 export interface Surface3d extends Surface3d.Attrs {}
 
 export class Surface3d extends LayoutDOM {
-  properties: Surface3d.Props
-  __view_type__: Surface3dView
+  declare properties: Surface3d.Props
+  declare __view_type__: Surface3dView
 
   constructor(attrs?: Partial<Surface3d.Attrs>) {
     super(attrs)

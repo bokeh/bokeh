@@ -24,8 +24,8 @@ export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
 export interface WedgeView extends WedgeData {}
 
 export class WedgeView extends XYGlyphView {
-  override model: Wedge
-  override visuals: Wedge.Visuals
+  declare model: Wedge
+  declare visuals: Wedge.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
@@ -132,8 +132,8 @@ export namespace Wedge {
 export interface Wedge extends Wedge.Attrs {}
 
 export class Wedge extends XYGlyph {
-  override properties: Wedge.Props
-  override __view_type__: WedgeView
+  declare properties: Wedge.Props
+  declare __view_type__: WedgeView
 
   constructor(attrs?: Partial<Wedge.Attrs>) {
     super(attrs)

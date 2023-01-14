@@ -16,7 +16,7 @@ export namespace PolarTransform {
 export interface PolarTransform extends PolarTransform.Attrs {}
 
 export class PolarTransform extends CoordinateTransform {
-  override properties: PolarTransform.Props
+  declare properties: PolarTransform.Props
 
   constructor(attrs?: Partial<PolarTransform.Attrs>) {
     super(attrs)

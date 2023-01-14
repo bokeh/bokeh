@@ -21,7 +21,7 @@ export namespace LegendItem {
 export interface LegendItem extends LegendItem.Attrs {}
 
 export class LegendItem extends Model {
-  override properties: LegendItem.Props
+  declare properties: LegendItem.Props
 
   legend: Legend | null
 

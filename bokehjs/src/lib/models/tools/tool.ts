@@ -68,7 +68,7 @@ export type ToolAliases = {
 export type EventRole = EventType | "multi"
 
 export abstract class ToolView extends View {
-  override model: Tool
+  declare model: Tool
 
   override connect_signals(): void {
     super.connect_signals()
@@ -131,8 +131,8 @@ export namespace Tool {
 export interface Tool extends Tool.Attrs {}
 
 export abstract class Tool extends Model {
-  override properties: Tool.Props
-  override __view_type__: ToolView
+  declare properties: Tool.Props
+  declare __view_type__: ToolView
 
   constructor(attrs?: Partial<Tool.Attrs>) {
     super(attrs)

@@ -13,7 +13,7 @@ export interface HasPolyGlyph {
 }
 
 export abstract class PolyToolView extends EditToolView {
-  override model: PolyTool
+  declare model: PolyTool
 
   _set_vertices(xs: number[] | number, ys: number[] | number): void {
     const {vertex_renderer} = this.model
@@ -73,8 +73,8 @@ export namespace PolyTool {
 export interface PolyTool extends PolyTool.Attrs {}
 
 export abstract class PolyTool extends EditTool {
-  override properties: PolyTool.Props
-  override __view_type__: PolyToolView
+  declare properties: PolyTool.Props
+  declare __view_type__: PolyToolView
 
   override renderers: (GlyphRenderer & HasPolyGlyph)[]
 

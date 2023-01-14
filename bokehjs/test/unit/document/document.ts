@@ -25,7 +25,7 @@ namespace AnotherModel {
 interface AnotherModel extends AnotherModel.Attrs {}
 
 class AnotherModel extends Model {
-  override properties: AnotherModel.Props
+  declare properties: AnotherModel.Props
 
   constructor(attrs?: Partial<AnotherModel.Attrs>) {
     super(attrs)
@@ -51,7 +51,7 @@ namespace SomeModel {
 interface SomeModel extends SomeModel.Attrs {}
 
 class SomeModel extends Model {
-  override properties: SomeModel.Props
+  declare properties: SomeModel.Props
 
   constructor(attrs?: Partial<SomeModel.Attrs>) {
     super(attrs)
@@ -77,7 +77,7 @@ namespace SomeModelWithChildren {
 interface SomeModelWithChildren extends SomeModelWithChildren.Attrs {}
 
 class SomeModelWithChildren extends Model {
-  override properties: SomeModelWithChildren.Props
+  declare properties: SomeModelWithChildren.Props
 
   constructor(attrs?: Partial<SomeModelWithChildren.Attrs>) {
     super(attrs)
@@ -103,7 +103,7 @@ namespace ModelWithConstructTimeChanges {
 interface ModelWithConstructTimeChanges extends ModelWithConstructTimeChanges.Attrs {}
 
 class ModelWithConstructTimeChanges extends Model {
-  override properties: ModelWithConstructTimeChanges.Props
+  declare properties: ModelWithConstructTimeChanges.Props
 
   constructor(attrs?: Partial<ModelWithConstructTimeChanges.Attrs>) {
     super(attrs)

@@ -9,7 +9,7 @@ import * as p from "core/properties"
 import menus_css, * as menus from "styles/menus.css"
 
 export class MenuView extends UIElementView {
-  override model: Menu
+  declare model: Menu
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), menus_css]
@@ -63,8 +63,8 @@ export namespace Menu {
 export interface Menu extends Menu.Attrs {}
 
 export class Menu extends UIElement {
-  override properties: Menu.Props
-  override __view_type__: MenuView
+  declare properties: Menu.Props
+  declare __view_type__: MenuView
 
   constructor(attrs?: Partial<Menu.Attrs>) {
     super(attrs)

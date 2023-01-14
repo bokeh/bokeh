@@ -6,8 +6,8 @@ import * as inputs from "styles/widgets/inputs.css"
 import buttons_css from "styles/buttons.css"
 
 export class FileInputView extends InputWidgetView {
-  override model: FileInput
-  override input_el: HTMLInputElement
+  declare model: FileInput
+  declare input_el: HTMLInputElement
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), buttons_css]
@@ -90,8 +90,8 @@ export namespace FileInput {
 export interface FileInput extends FileInput.Attrs {}
 
 export class FileInput extends InputWidget {
-  override properties: FileInput.Props
-  override __view_type__: FileInputView
+  declare properties: FileInput.Props
+  declare __view_type__: FileInputView
 
   constructor(attrs?: Partial<FileInput.Attrs>) {
     super(attrs)

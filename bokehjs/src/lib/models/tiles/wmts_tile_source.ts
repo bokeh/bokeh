@@ -10,7 +10,7 @@ export namespace WMTSTileSource {
 export interface WMTSTileSource extends WMTSTileSource.Attrs {}
 
 export class WMTSTileSource extends MercatorTileSource {
-  override properties: WMTSTileSource.Props
+  declare properties: WMTSTileSource.Props
 
   constructor(attrs?: Partial<WMTSTileSource.Attrs>) {
     super(attrs)

@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends ToggleInputGroupView {
-  override model: RadioGroup
+  declare model: RadioGroup
 
   override connect_signals(): void {
     super.connect_signals()
@@ -61,8 +61,8 @@ export namespace RadioGroup {
 export interface RadioGroup extends RadioGroup.Attrs {}
 
 export class RadioGroup extends ToggleInputGroup {
-  override properties: RadioGroup.Props
-  override __view_type__: RadioGroupView
+  declare properties: RadioGroup.Props
+  declare __view_type__: RadioGroupView
 
   constructor(attrs?: Partial<RadioGroup.Attrs>) {
     super(attrs)

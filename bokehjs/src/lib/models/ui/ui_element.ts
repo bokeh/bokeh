@@ -39,7 +39,7 @@ function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> 
 }
 
 export abstract class UIElementView extends DOMComponentView {
-  override model: UIElement
+  declare model: UIElement
 
   protected readonly _display = new InlineStyleSheet()
   readonly style = new InlineStyleSheet()
@@ -274,8 +274,8 @@ export namespace UIElement {
 export interface UIElement extends UIElement.Attrs {}
 
 export abstract class UIElement extends Model {
-  override properties: UIElement.Props
-  override __view_type__: UIElementView
+  declare properties: UIElement.Props
+  declare __view_type__: UIElementView
 
   constructor(attrs?: Partial<UIElement.Attrs>) {
     super(attrs)

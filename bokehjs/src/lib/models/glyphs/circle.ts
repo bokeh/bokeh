@@ -27,11 +27,11 @@ export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
 export interface CircleView extends CircleData {}
 
 export class CircleView extends XYGlyphView {
-  override model: Circle
-  override visuals: Circle.Visuals
+  declare model: Circle
+  declare visuals: Circle.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/circle").CircleGL
+  declare glglyph?: import("./webgl/circle").CircleGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -313,8 +313,8 @@ export namespace Circle {
 export interface Circle extends Circle.Attrs {}
 
 export class Circle extends XYGlyph {
-  override properties: Circle.Props
-  override __view_type__: CircleView
+  declare properties: Circle.Props
+  declare __view_type__: CircleView
 
   constructor(attrs?: Partial<Circle.Attrs>) {
     super(attrs)

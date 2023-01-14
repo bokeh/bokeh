@@ -9,8 +9,8 @@ export type ImageData = ImageDataBase
 export interface ImageView extends ImageData {}
 
 export class ImageView extends ImageBaseView {
-  override model: Image
-  override visuals: Image.Visuals
+  declare model: Image
+  declare visuals: Image.Visuals
 
   override connect_signals(): void {
     super.connect_signals()
@@ -47,8 +47,8 @@ export namespace Image {
 export interface Image extends Image.Attrs {}
 
 export class Image extends ImageBase {
-  override properties: Image.Props
-  override __view_type__: ImageView
+  declare properties: Image.Props
+  declare __view_type__: ImageView
 
   constructor(attrs?: Partial<Image.Attrs>) {
     super(attrs)

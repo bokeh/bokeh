@@ -16,7 +16,7 @@ import icons_css from "styles/icons.css"
 const arrow_size = 10  // XXX: keep in sync with less
 
 export class TooltipView extends UIElementView {
-  override model: Tooltip
+  declare model: Tooltip
 
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
@@ -281,8 +281,8 @@ export namespace Tooltip {
 export interface Tooltip extends Tooltip.Attrs {}
 
 export class Tooltip extends UIElement {
-  override properties: Tooltip.Props
-  override __view_type__: TooltipView
+  declare properties: Tooltip.Props
+  declare __view_type__: TooltipView
 
   constructor(attrs?: Partial<Tooltip.Attrs>) {
     super(attrs)

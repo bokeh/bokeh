@@ -23,7 +23,7 @@ export namespace DatetimeTicker {
 export interface DatetimeTicker extends DatetimeTicker.Attrs {}
 
 export class DatetimeTicker extends CompositeTicker {
-  override properties: DatetimeTicker.Props
+  declare properties: DatetimeTicker.Props
 
   constructor(attrs?: Partial<DatetimeTicker.Attrs>) {
     super(attrs)

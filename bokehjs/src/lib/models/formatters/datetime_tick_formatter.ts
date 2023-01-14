@@ -117,7 +117,7 @@ export namespace DatetimeTickFormatter {
 export interface DatetimeTickFormatter extends DatetimeTickFormatter.Attrs {}
 
 export class DatetimeTickFormatter extends TickFormatter {
-  override properties: DatetimeTickFormatter.Props
+  declare properties: DatetimeTickFormatter.Props
 
   constructor(attrs?: Partial<DatetimeTickFormatter.Attrs>) {
     super(attrs)

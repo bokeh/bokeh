@@ -126,7 +126,7 @@ export namespace FactorRange {
 export interface FactorRange extends FactorRange.Attrs {}
 
 export class FactorRange extends Range {
-  override properties: FactorRange.Props
+  declare properties: FactorRange.Props
 
   constructor(attrs?: Partial<FactorRange.Attrs>) {
     super(attrs)

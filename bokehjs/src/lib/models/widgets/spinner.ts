@@ -40,7 +40,7 @@ function debounce(func: () => void, wait: number, immediate: boolean = false) {
 
 // Inspiration from https://github.com/uNmAnNeR/ispinjs
 export class SpinnerView extends NumericInputView {
-  override model: Spinner
+  declare model: Spinner
 
   protected wrapper_el: HTMLDivElement
   protected btn_up_el: HTMLButtonElement
@@ -224,8 +224,8 @@ export namespace Spinner {
 export interface Spinner extends Spinner.Attrs {}
 
 export class Spinner extends NumericInput {
-  override properties: Spinner.Props
-  override __view_type__: SpinnerView
+  declare properties: Spinner.Props
+  declare __view_type__: SpinnerView
 
   constructor(attrs?: Partial<Spinner.Attrs>) {
     super(attrs)

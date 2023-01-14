@@ -59,7 +59,7 @@ export namespace CoordinateMapping {
 export interface CoordinateMapping extends CoordinateMapping.Attrs {}
 
 export class CoordinateMapping extends Model {
-  override properties: CoordinateMapping.Props
+  declare properties: CoordinateMapping.Props
 
   constructor(attrs?: Partial<CoordinateMapping.Attrs>) {
     super(attrs)
@@ -132,7 +132,7 @@ export namespace CompositeScale {
 export interface CompositeScale extends CompositeScale.Attrs {}
 
 export class CompositeScale extends Scale {
-  override properties: CompositeScale.Props
+  declare properties: CompositeScale.Props
 
   constructor(attrs?: Partial<CompositeScale.Attrs>) {
     super(attrs)

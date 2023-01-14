@@ -13,11 +13,11 @@ export type StepData = XYGlyphData
 export interface StepView extends StepData {}
 
 export class StepView extends XYGlyphView {
-  override model: Step
-  override visuals: Step.Visuals
+  declare model: Step
+  declare visuals: Step.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/step").StepGL
+  declare glglyph?: import("./webgl/step").StepGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -122,8 +122,8 @@ export namespace Step {
 export interface Step extends Step.Attrs {}
 
 export class Step extends XYGlyph {
-  override properties: Step.Props
-  override __view_type__: StepView
+  declare properties: Step.Props
+  declare __view_type__: StepView
 
   constructor(attrs?: Partial<Step.Attrs>) {
     super(attrs)

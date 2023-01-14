@@ -19,8 +19,8 @@ export type CategoricalTickCoords = TickCoords & {
 }
 
 export class CategoricalAxisView extends AxisView {
-  override model: CategoricalAxis
-  override visuals: CategoricalAxis.Visuals
+  declare model: CategoricalAxis
+  declare visuals: CategoricalAxis.Visuals
 
   protected override _paint(ctx: Context2d, extents: Extents, tick_coords: TickCoords): void {
     this._draw_group_separators(ctx, extents, tick_coords)
@@ -180,11 +180,11 @@ export namespace CategoricalAxis {
 export interface CategoricalAxis extends CategoricalAxis.Attrs {}
 
 export class CategoricalAxis extends Axis {
-  override properties: CategoricalAxis.Props
-  override __view_type__: CategoricalAxisView
+  declare properties: CategoricalAxis.Props
+  declare __view_type__: CategoricalAxisView
 
-  override ticker: CategoricalTicker
-  override formatter: CategoricalTickFormatter
+  declare ticker: CategoricalTicker
+  declare formatter: CategoricalTickFormatter
 
   constructor(attrs?: Partial<CategoricalAxis.Attrs>) {
     super(attrs)

@@ -21,8 +21,8 @@ export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
 export interface AnnulusView extends AnnulusData {}
 
 export class AnnulusView extends XYGlyphView {
-  override model: Annulus
-  override visuals: Annulus.Visuals
+  declare model: Annulus
+  declare visuals: Annulus.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
@@ -131,8 +131,8 @@ export namespace Annulus {
 export interface Annulus extends Annulus.Attrs {}
 
 export class Annulus extends XYGlyph {
-  override properties: Annulus.Props
-  override __view_type__: AnnulusView
+  declare properties: Annulus.Props
+  declare __view_type__: AnnulusView
 
   constructor(attrs?: Partial<Annulus.Attrs>) {
     super(attrs)

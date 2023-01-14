@@ -26,7 +26,7 @@ function _convert_date_list(value: DatesList): flatpickr.Options.DateLimit[] {
 }
 
 export class DatePickerView extends InputWidgetView {
-  override model: DatePicker
+  declare model: DatePicker
 
   private _picker?: flatpickr.Instance
 
@@ -201,8 +201,8 @@ export namespace DatePicker {
 export interface DatePicker extends DatePicker.Attrs {}
 
 export class DatePicker extends InputWidget {
-  override properties: DatePicker.Props
-  override __view_type__: DatePickerView
+  declare properties: DatePicker.Props
+  declare __view_type__: DatePickerView
 
   constructor(attrs?: Partial<DatePicker.Attrs>) {
     super(attrs)

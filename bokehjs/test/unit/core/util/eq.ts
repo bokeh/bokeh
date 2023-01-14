@@ -15,7 +15,7 @@ namespace SomeHasProps {
 interface SomeHasProps extends SomeHasProps.Attrs {}
 
 class SomeHasProps extends HasProps {
-  override properties: SomeHasProps.Props
+  declare properties: SomeHasProps.Props
 
   constructor(attrs?: Partial<SomeHasProps.Attrs>) {
     super(attrs)

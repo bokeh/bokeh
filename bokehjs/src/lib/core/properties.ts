@@ -167,7 +167,7 @@ export abstract class Property<T = unknown> {
     return this._dirty
   }
 
-  readonly change: Signal0<HasProps> = new Signal0(this.obj, "change")
+  readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
 
@@ -179,6 +179,7 @@ export abstract class Property<T = unknown> {
               readonly kind: Kind<T>,
               readonly default_value: (obj: HasProps) => T,
               options: PropertyOptions<T> = {}) {
+    this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
     this.convert = options.convert
     this.on_update = options.on_update
@@ -242,7 +243,7 @@ export class Font extends PrimitiveProperty<string> {
 //
 
 export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
-  override __value__: T
+  declare __value__: T
   __scalar__: S
 
   protected override _value: this["__scalar__"] | Unset = unset
@@ -329,7 +330,7 @@ export class TextAlignScalar extends ScalarSpec<enums.TextAlign> {}
 export class TextBaselineScalar extends ScalarSpec<enums.TextBaseline> {}
 
 export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Property<T | V> {
-  override __value__: T
+  declare __value__: T
   __vector__: V
 
   protected override _value: this["__vector__"] | Unset = unset

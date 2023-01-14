@@ -18,7 +18,7 @@ import {MathJaxProvider, default_provider} from "./providers"
  * Helper class for rendering MathText into Canvas
  */
 export abstract class MathTextView extends BaseTextView implements GraphicsBox {
-  override model: MathText
+  declare model: MathText
 
   graphics(): GraphicsBox {
     return this
@@ -408,8 +408,8 @@ export namespace MathText {
 export interface MathText extends MathText.Attrs {}
 
 export class MathText extends BaseText {
-  override properties: MathText.Props
-  override __view_type__: MathTextView
+  declare properties: MathText.Props
+  declare __view_type__: MathTextView
 
   constructor(attrs?: Partial<MathText.Attrs>) {
     super(attrs)
@@ -417,7 +417,7 @@ export class MathText extends BaseText {
 }
 
 export class AsciiView extends MathTextView {
-  override model: Ascii
+  declare model: Ascii
 
   // TODO: Color ascii
   override get styled_text(): string {
@@ -467,8 +467,8 @@ export namespace Ascii {
 export interface Ascii extends Ascii.Attrs {}
 
 export class Ascii extends MathText {
-  override properties: Ascii.Props
-  override __view_type__: AsciiView
+  declare properties: Ascii.Props
+  declare __view_type__: AsciiView
 
   constructor(attrs?: Partial<Ascii.Attrs>) {
     super(attrs)
@@ -480,7 +480,7 @@ export class Ascii extends MathText {
 }
 
 export class MathMLView extends MathTextView {
-  override model: MathML
+  declare model: MathML
 
   override get styled_text(): string {
     let styled = this.text.trim()
@@ -519,8 +519,8 @@ export namespace MathML {
 export interface MathML extends MathML.Attrs {}
 
 export class MathML extends MathText {
-  override properties: MathML.Props
-  override __view_type__: MathMLView
+  declare properties: MathML.Props
+  declare __view_type__: MathMLView
 
   constructor(attrs?: Partial<MathML.Attrs>) {
     super(attrs)
@@ -532,7 +532,7 @@ export class MathML extends MathText {
 }
 
 export class TeXView extends MathTextView {
-  override model: TeX
+  declare model: TeX
 
   override get styled_text(): string {
     const [r, g, b] = color2rgba(this.color)
@@ -564,8 +564,8 @@ export namespace TeX {
 export interface TeX extends TeX.Attrs {}
 
 export class TeX extends MathText {
-  override properties: TeX.Props
-  override __view_type__: TeXView
+  declare properties: TeX.Props
+  declare __view_type__: TeXView
 
   constructor(attrs?: Partial<TeX.Attrs>) {
     super(attrs)

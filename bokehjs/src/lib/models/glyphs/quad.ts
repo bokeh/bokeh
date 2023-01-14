@@ -17,11 +17,11 @@ export type QuadData = LRTBData & {
 export interface QuadView extends QuadData {}
 
 export class QuadView extends LRTBView {
-  override model: Quad
-  override visuals: Quad.Visuals
+  declare model: Quad
+  declare visuals: Quad.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -64,8 +64,8 @@ export namespace Quad {
 export interface Quad extends Quad.Attrs {}
 
 export class Quad extends LRTB {
-  override properties: Quad.Props
-  override __view_type__: QuadView
+  declare properties: Quad.Props
+  declare __view_type__: QuadView
 
   constructor(attrs?: Partial<Quad.Attrs>) {
     super(attrs)

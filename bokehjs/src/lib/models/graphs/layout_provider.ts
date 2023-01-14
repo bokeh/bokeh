@@ -13,7 +13,7 @@ export namespace LayoutProvider {
 export interface LayoutProvider extends LayoutProvider.Attrs {}
 
 export abstract class LayoutProvider extends Model {
-  override properties: LayoutProvider.Props
+  declare properties: LayoutProvider.Props
 
   constructor(attrs?: Partial<LayoutProvider.Attrs>) {
     super(attrs)
@@ -42,7 +42,7 @@ export namespace GraphCoordinates {
 export interface GraphCoordinates extends GraphCoordinates.Attrs {}
 
 export abstract class GraphCoordinates extends CoordinateTransform {
-  override properties: GraphCoordinates.Props
+  declare properties: GraphCoordinates.Props
 
   constructor(attrs?: Partial<GraphCoordinates.Attrs>) {
     super(attrs)
@@ -63,7 +63,7 @@ export namespace NodeCoordinates {
 export interface NodeCoordinates extends NodeCoordinates.Attrs {}
 
 export class NodeCoordinates extends GraphCoordinates {
-  override properties: NodeCoordinates.Props
+  declare properties: NodeCoordinates.Props
 
   constructor(attrs?: Partial<NodeCoordinates.Attrs>) {
     super(attrs)
@@ -83,7 +83,7 @@ export namespace EdgeCoordinates {
 export interface EdgeCoordinates extends EdgeCoordinates.Attrs {}
 
 export class EdgeCoordinates extends GraphCoordinates {
-  override properties: EdgeCoordinates.Props
+  declare properties: EdgeCoordinates.Props
 
   constructor(attrs?: Partial<EdgeCoordinates.Attrs>) {
     super(attrs)

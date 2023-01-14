@@ -21,7 +21,7 @@ export namespace ContinuousColorMapper {
 export interface ContinuousColorMapper extends ContinuousColorMapper.Attrs {}
 
 export abstract class ContinuousColorMapper extends ColorMapper {
-  override properties: ContinuousColorMapper.Props
+  declare properties: ContinuousColorMapper.Props
 
   constructor(attrs?: Partial<ContinuousColorMapper.Attrs>) {
     super(attrs)

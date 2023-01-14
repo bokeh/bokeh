@@ -5,8 +5,8 @@ import {to_string} from "core/util/pretty"
 import * as p from "core/properties"
 
 export class ValueOfView extends DOMNodeView {
-  override model: ValueOf
-  override el: HTMLElement
+  declare model: ValueOf
+  declare el: HTMLElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -45,8 +45,8 @@ export namespace ValueOf {
 export interface ValueOf extends ValueOf.Attrs {}
 
 export class ValueOf extends DOMNode {
-  override properties: ValueOf.Props
-  override __view_type__: ValueOfView
+  declare properties: ValueOf.Props
+  declare __view_type__: ValueOfView
 
   constructor(attrs?: Partial<ValueOf.Attrs>) {
     super(attrs)

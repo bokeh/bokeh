@@ -5,8 +5,8 @@ import * as p from "core/properties"
 import {RendererView} from "models/renderers/renderer"
 
 export abstract class BaseTextView extends View {
-  override model: BaseText
-  override readonly parent: RendererView
+  declare model: BaseText
+  declare readonly parent: RendererView
 
   abstract graphics(): GraphicsBox
 }
@@ -22,8 +22,8 @@ export namespace BaseText {
 export interface BaseText extends BaseText.Attrs {}
 
 export class BaseText extends Model {
-  override properties: BaseText.Props
-  override __view_type__: BaseTextView
+  declare properties: BaseText.Props
+  declare __view_type__: BaseTextView
 
   constructor(attrs?: Partial<BaseText.Attrs>) {
     super(attrs)

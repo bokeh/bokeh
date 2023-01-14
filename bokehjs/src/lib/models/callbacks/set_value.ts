@@ -16,7 +16,7 @@ export namespace SetValue {
 export interface SetValue extends SetValue.Attrs {}
 
 export class SetValue extends Callback {
-  override properties: SetValue.Props
+  declare properties: SetValue.Props
 
   constructor(attrs?: Partial<SetValue.Attrs>) {
     super(attrs)

@@ -16,8 +16,8 @@ export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
 export interface RayView extends RayData {}
 
 export class RayView extends XYGlyphView {
-  override model: Ray
-  override visuals: Ray.Visuals
+  declare model: Ray
+  declare visuals: Ray.Visuals
 
   protected override _map_data(): void {
     if (this.model.properties.length.units == "data")
@@ -85,8 +85,8 @@ export namespace Ray {
 export interface Ray extends Ray.Attrs {}
 
 export class Ray extends XYGlyph {
-  override properties: Ray.Props
-  override __view_type__: RayView
+  declare properties: Ray.Props
+  declare __view_type__: RayView
 
   constructor(attrs?: Partial<Ray.Attrs>) {
     super(attrs)

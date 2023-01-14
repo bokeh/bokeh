@@ -14,7 +14,7 @@ export namespace IntersectionFilter {
 export interface IntersectionFilter extends IntersectionFilter.Attrs {}
 
 export class IntersectionFilter extends Filter {
-  override properties: IntersectionFilter.Props
+  declare properties: IntersectionFilter.Props
 
   constructor(attrs?: Partial<IntersectionFilter.Attrs>) {
     super(attrs)

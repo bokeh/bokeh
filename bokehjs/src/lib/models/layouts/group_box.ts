@@ -5,7 +5,7 @@ import * as p from "core/properties"
 import group_box_css from "styles/group_box.css"
 
 export class GroupBoxView extends LayoutDOMView {
-  override model: GroupBox
+  declare model: GroupBox
 
   checkbox_el: HTMLInputElement
   fieldset_el: HTMLFieldSetElement
@@ -69,8 +69,8 @@ export namespace GroupBox {
 export interface GroupBox extends GroupBox.Attrs {}
 
 export class GroupBox extends LayoutDOM {
-  override properties: GroupBox.Props
-  override __view_type__: GroupBoxView
+  declare properties: GroupBox.Props
+  declare __view_type__: GroupBoxView
 
   constructor(attrs?: Partial<GroupBox.Attrs>) {
     super(attrs)

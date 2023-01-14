@@ -4,7 +4,7 @@ import {DatetimeTicker} from "../tickers/datetime_ticker"
 import * as p from "core/properties"
 
 export class DatetimeAxisView extends ContinuousAxisView {
-  override model: DatetimeAxis
+  declare model: DatetimeAxis
 }
 
 export namespace DatetimeAxis {
@@ -19,11 +19,11 @@ export namespace DatetimeAxis {
 export interface DatetimeAxis extends DatetimeAxis.Attrs {}
 
 export class DatetimeAxis extends ContinuousAxis {
-  override properties: DatetimeAxis.Props
-  override __view_type__: DatetimeAxisView
+  declare properties: DatetimeAxis.Props
+  declare __view_type__: DatetimeAxisView
 
-  override ticker: DatetimeTicker
-  override formatter: DatetimeTickFormatter
+  declare ticker: DatetimeTicker
+  declare formatter: DatetimeTickFormatter
 
   constructor(attrs?: Partial<DatetimeAxis.Attrs>) {
     super(attrs)

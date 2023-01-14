@@ -3,7 +3,7 @@ import {SerializableState} from "core/view"
 import * as p from "core/properties"
 
 export class GMapView extends GMapPlotView {
-  override model: GMap
+  declare model: GMap
 
   // TODO: remove this before bokeh 3.0 and update *.blf files
   override serializable_state(): SerializableState {
@@ -20,8 +20,8 @@ export namespace GMap {
 export interface GMap extends GMap.Attrs {}
 
 export class GMap extends GMapPlot {
-  override properties: GMap.Props
-  override __view_type__: GMapView
+  declare properties: GMap.Props
+  declare __view_type__: GMapView
 
   constructor(attrs?: Partial<GMap.Attrs>) {
     super(attrs)

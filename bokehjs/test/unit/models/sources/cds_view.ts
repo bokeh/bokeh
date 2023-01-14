@@ -12,7 +12,7 @@ import {View} from "@bokehjs/core/view"
 import {Model} from "@bokehjs/model"
 
 class DummyView extends View {
-  override model: DummyModel
+  declare model: DummyModel
 
   get data_source(): p.Property<ColumnDataSource> {
     return this.model.properties.source
@@ -30,8 +30,8 @@ namespace DummyModel {
 interface DummyModel extends DummyModel.Attrs {}
 
 class DummyModel extends Model {
-  override properties: DummyModel.Props
-  override __view_type__: DummyView
+  declare properties: DummyModel.Props
+  declare __view_type__: DummyView
 
   constructor(attrs?: Partial<DummyModel.Attrs>) {
     super(attrs)

@@ -7,7 +7,7 @@ import {ViewStorage, build_views, remove_views, IterViews} from "core/build_view
 import * as p from "core/properties"
 
 export class TemplateView extends DOMElementView {
-  override model: Template
+  declare model: Template
   static override tag_name = "div" as const
 
   readonly action_views: ViewStorage<Action> = new Map()
@@ -56,8 +56,8 @@ export namespace Template {
 export interface Template extends Template.Attrs {}
 
 export class Template extends DOMElement {
-  override properties: Template.Props
-  override __view_type__: TemplateView
+  declare properties: Template.Props
+  declare __view_type__: TemplateView
 
   static {
     this.prototype.default_view = TemplateView

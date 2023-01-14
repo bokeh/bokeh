@@ -7,8 +7,8 @@ import * as p from "core/properties"
 import {CoordinateMapper} from "core/util/bbox"
 
 export class SpanView extends AnnotationView {
-  override model: Span
-  override visuals: Span.Visuals
+  declare model: Span
+  declare visuals: Span.Visuals
 
   override connect_signals(): void {
     super.connect_signals()
@@ -83,8 +83,8 @@ export namespace Span {
 export interface Span extends Span.Attrs {}
 
 export class Span extends Annotation {
-  override properties: Span.Props
-  override __view_type__: SpanView
+  declare properties: Span.Props
+  declare __view_type__: SpanView
 
   constructor(attrs?: Partial<Span.Attrs>) {
     super(attrs)

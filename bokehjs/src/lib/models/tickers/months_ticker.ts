@@ -40,7 +40,7 @@ export namespace MonthsTicker {
 export interface MonthsTicker extends MonthsTicker.Attrs {}
 
 export class MonthsTicker extends SingleIntervalTicker {
-  override properties: MonthsTicker.Props
+  declare properties: MonthsTicker.Props
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
     super(attrs)

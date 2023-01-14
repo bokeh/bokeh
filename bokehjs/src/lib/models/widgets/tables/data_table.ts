@@ -117,7 +117,7 @@ export class TableDataProvider implements DataProvider<Item> {
 }
 
 export class DataTableView extends WidgetView {
-  override model: DataTable
+  declare model: DataTable
 
   protected cds_view: CDSViewView
 
@@ -440,8 +440,8 @@ export namespace DataTable {
 export interface DataTable extends DataTable.Attrs {}
 
 export class DataTable extends TableWidget {
-  override properties: DataTable.Props
-  override __view_type__: DataTableView
+  declare properties: DataTable.Props
+  declare __view_type__: DataTableView
 
   private _sort_columns: {field: string, sortAsc: boolean}[] = []
   get sort_columns(): {field: string, sortAsc: boolean}[] {

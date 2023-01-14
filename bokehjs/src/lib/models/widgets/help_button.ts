@@ -5,7 +5,7 @@ import {build_view, IterViews} from "core/build_views"
 import * as p from "core/properties"
 
 export class HelpButtonView extends AbstractButtonView {
-  override model: HelpButton
+  declare model: HelpButton
 
   protected tooltip: TooltipView
 
@@ -82,8 +82,8 @@ export namespace HelpButton {
 export interface HelpButton extends HelpButton.Attrs {}
 
 export class HelpButton extends AbstractButton {
-  override properties: HelpButton.Props
-  override __view_type__: HelpButtonView
+  declare properties: HelpButton.Props
+  declare __view_type__: HelpButtonView
 
   constructor(attrs?: Partial<HelpButton.Attrs>) {
     super(attrs)

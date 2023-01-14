@@ -25,8 +25,8 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "ES2020",
-    "lib": ["es2020"],
+    "target": "ES2022",
+    "lib": ["es2022"],
     "types": ["node"],
     "baseUrl": ".",
     "paths": {

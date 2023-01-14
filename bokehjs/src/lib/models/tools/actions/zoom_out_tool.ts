@@ -3,7 +3,7 @@ import {tool_icon_zoom_out} from "styles/icons.css"
 import * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
-  override model: ZoomBaseTool
+  declare model: ZoomBaseTool
 }
 
 export namespace ZoomOutTool {
@@ -17,8 +17,8 @@ export namespace ZoomOutTool {
 export interface ZoomOutTool extends ZoomBaseTool.Attrs {}
 
 export class ZoomOutTool extends ZoomBaseTool {
-  override properties: ZoomOutTool.Props
-  override __view_type__: ZoomBaseToolView
+  declare properties: ZoomOutTool.Props
+  declare __view_type__: ZoomBaseToolView
 
   maintain_focus: boolean
 

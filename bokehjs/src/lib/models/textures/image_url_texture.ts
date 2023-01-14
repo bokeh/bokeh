@@ -15,7 +15,7 @@ export namespace ImageURLTexture {
 export interface ImageURLTexture extends ImageURLTexture.Attrs {}
 
 export class ImageURLTexture extends Texture {
-  override properties: ImageURLTexture.Props
+  declare properties: ImageURLTexture.Props
 
   constructor(attrs?: Partial<ImageURLTexture.Attrs>) {
     super(attrs)

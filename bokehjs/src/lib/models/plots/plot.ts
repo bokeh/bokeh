@@ -109,8 +109,8 @@ export namespace Plot {
 export interface Plot extends Plot.Attrs {}
 
 export class Plot extends LayoutDOM {
-  override properties: Plot.Props
-  override __view_type__: PlotView
+  declare properties: Plot.Props
+  declare __view_type__: PlotView
 
   readonly use_map: boolean = false
 

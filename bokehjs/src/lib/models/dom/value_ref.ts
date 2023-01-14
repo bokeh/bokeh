@@ -4,7 +4,7 @@ import {Index as DataIndex, _get_column_value} from "core/util/templating"
 import * as p from "core/properties"
 
 export class ValueRefView extends PlaceholderView {
-  override model: ValueRef
+  declare model: ValueRef
 
   update(source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     const value = _get_column_value(this.model.field, source, i)
@@ -23,8 +23,8 @@ export namespace ValueRef {
 export interface ValueRef extends ValueRef.Attrs {}
 
 export class ValueRef extends Placeholder {
-  override properties: ValueRef.Props
-  override __view_type__: ValueRefView
+  declare properties: ValueRef.Props
+  declare __view_type__: ValueRefView
 
   constructor(attrs?: Partial<ValueRef.Attrs>) {
     super(attrs)

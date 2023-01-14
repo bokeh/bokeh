@@ -19,7 +19,7 @@ export namespace GraphHitTestPolicy {
 export interface GraphHitTestPolicy extends Model.Attrs {}
 
 export abstract class GraphHitTestPolicy extends Model {
-  override properties: GraphHitTestPolicy.Props
+  declare properties: GraphHitTestPolicy.Props
 
   constructor(attrs?: Partial<GraphHitTestPolicy.Attrs>) {
     super(attrs)
@@ -53,7 +53,7 @@ export namespace EdgesOnly {
 export interface EdgesOnly extends EdgesOnly.Attrs {}
 
 export class EdgesOnly extends GraphHitTestPolicy {
-  override properties: EdgesOnly.Props
+  declare properties: EdgesOnly.Props
 
   constructor(attrs?: Partial<EdgesOnly.Attrs>) {
     super(attrs)
@@ -99,7 +99,7 @@ export namespace NodesOnly {
 export interface NodesOnly extends NodesOnly.Attrs {}
 
 export class NodesOnly extends GraphHitTestPolicy {
-  override properties: NodesOnly.Props
+  declare properties: NodesOnly.Props
 
   constructor(attrs?: Partial<NodesOnly.Attrs>) {
     super(attrs)
@@ -145,7 +145,7 @@ export namespace NodesAndLinkedEdges {
 export interface NodesAndLinkedEdges extends NodesAndLinkedEdges.Attrs {}
 
 export class NodesAndLinkedEdges extends GraphHitTestPolicy {
-  override properties: NodesAndLinkedEdges.Props
+  declare properties: NodesAndLinkedEdges.Props
 
   constructor(attrs?: Partial<NodesAndLinkedEdges.Attrs>) {
     super(attrs)
@@ -222,7 +222,7 @@ export namespace EdgesAndLinkedNodes {
 export interface EdgesAndLinkedNodes extends EdgesAndLinkedNodes.Attrs {}
 
 export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
-  override properties: EdgesAndLinkedNodes.Props
+  declare properties: EdgesAndLinkedNodes.Props
 
   constructor(attrs?: Partial<EdgesAndLinkedNodes.Attrs>) {
     super(attrs)
@@ -293,7 +293,7 @@ export namespace NodesAndAdjacentNodes {
 export interface NodesAndAdjacentNodes extends NodesAndAdjacentNodes.Attrs {}
 
 export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
-  override properties: NodesAndAdjacentNodes.Props
+  declare properties: NodesAndAdjacentNodes.Props
 
   constructor(attrs?: Partial<NodesAndAdjacentNodes.Attrs>) {
     super(attrs)

@@ -9,7 +9,7 @@ export namespace ByCSS {
 export interface ByCSS extends ByCSS.Attrs {}
 
 export class ByCSS extends Selector {
-  override properties: ByCSS.Props
+  declare properties: ByCSS.Props
 
   constructor(attrs?: Partial<ByCSS.Attrs>) {
     super(attrs)

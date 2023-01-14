@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import * as styles from "styles/tooltips.css"
 
 export class ColorRefView extends ValueRefView {
-  override model: ColorRef
+  declare model: ColorRef
 
   value_el?: HTMLElement
   swatch_el?: HTMLElement
@@ -39,8 +39,8 @@ export namespace ColorRef {
 export interface ColorRef extends ColorRef.Attrs {}
 
 export class ColorRef extends ValueRef {
-  override properties: ColorRef.Props
-  override __view_type__: ColorRefView
+  declare properties: ColorRef.Props
+  declare __view_type__: ColorRefView
 
   constructor(attrs?: Partial<ColorRef.Attrs>) {
     super(attrs)

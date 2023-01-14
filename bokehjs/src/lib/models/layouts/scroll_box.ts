@@ -5,7 +5,7 @@ import {StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 
 export class ScrollBoxView extends LayoutDOMView {
-  override model: ScrollBox
+  declare model: ScrollBox
 
   override styles(): StyleSheetLike[] {
     return [...super.styles()]
@@ -55,8 +55,8 @@ export namespace ScrollBox {
 export interface ScrollBox extends ScrollBox.Attrs {}
 
 export class ScrollBox extends LayoutDOM {
-  override properties: ScrollBox.Props
-  override __view_type__: ScrollBoxView
+  declare properties: ScrollBox.Props
+  declare __view_type__: ScrollBoxView
 
   constructor(attrs?: Partial<ScrollBox.Attrs>) {
     super(attrs)

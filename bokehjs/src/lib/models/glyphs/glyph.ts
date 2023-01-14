@@ -29,10 +29,10 @@ export type GlyphData = {}
 export interface GlyphView extends GlyphData {}
 
 export abstract class GlyphView extends View {
-  override model: Glyph
+  declare model: Glyph
   visuals: Glyph.Visuals
 
-  override readonly parent: GlyphRendererView
+  declare readonly parent: GlyphRendererView
 
   get renderer(): GlyphRendererView {
     return this.parent
@@ -394,8 +394,8 @@ export namespace Glyph {
 export interface Glyph extends Glyph.Attrs {}
 
 export abstract class Glyph extends Model {
-  override properties: Glyph.Props
-  override __view_type__: GlyphView
+  declare properties: Glyph.Props
+  declare __view_type__: GlyphView
 
   constructor(attrs?: Partial<Glyph.Attrs>) {
     super(attrs)

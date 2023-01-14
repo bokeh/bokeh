@@ -12,8 +12,8 @@ import * as p from "core/properties"
 import {atan2} from "core/util/math"
 
 export class ArrowView extends DataAnnotationView {
-  override model: Arrow
-  override visuals: Arrow.Visuals
+  declare model: Arrow
+  declare visuals: Arrow.Visuals
 
   protected start: ArrowHeadView | null
   protected end: ArrowHeadView | null
@@ -211,8 +211,8 @@ export namespace Arrow {
 export interface Arrow extends Arrow.Attrs {}
 
 export class Arrow extends DataAnnotation {
-  override properties: Arrow.Props
-  override __view_type__: ArrowView
+  declare properties: Arrow.Props
+  declare __view_type__: ArrowView
 
   constructor(attrs?: Partial<Arrow.Attrs>) {
     super(attrs)

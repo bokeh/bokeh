@@ -20,7 +20,7 @@ export type LinearScanData = {
 export interface LinearColorMapper extends LinearColorMapper.Attrs {}
 
 export class LinearColorMapper extends ContinuousColorMapper {
-  override properties: LinearColorMapper.Props
+  declare properties: LinearColorMapper.Props
 
   constructor(attrs?: Partial<LinearColorMapper.Attrs>) {
     super(attrs)

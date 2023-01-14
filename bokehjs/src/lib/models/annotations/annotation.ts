@@ -7,7 +7,7 @@ import {BBox} from "core/util/bbox"
 import * as p from "core/properties"
 
 export abstract class AnnotationView extends RendererView {
-  override model: Annotation
+  declare model: Annotation
 
   layout?: Layoutable
   panel?: Panel
@@ -62,8 +62,8 @@ export namespace Annotation {
 export interface Annotation extends Annotation.Attrs {}
 
 export abstract class Annotation extends Renderer {
-  override properties: Annotation.Props
-  override __view_type__: AnnotationView
+  declare properties: Annotation.Props
+  declare __view_type__: AnnotationView
 
   constructor(attrs?: Partial<Annotation.Attrs>) {
     super(attrs)

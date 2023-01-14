@@ -12,7 +12,7 @@ export namespace AllIndices {
 export interface AllIndices extends AllIndices.Attrs {}
 
 export class AllIndices extends Filter {
-  override properties: AllIndices.Props
+  declare properties: AllIndices.Props
 
   constructor(attrs?: Partial<AllIndices.Attrs>) {
     super(attrs)

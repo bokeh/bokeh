@@ -3,7 +3,7 @@ import {DOMComponentView} from "core/dom_view"
 import * as p from "core/properties"
 
 export abstract class IconView extends DOMComponentView {
-  override model: Icon
+  declare model: Icon
 }
 
 export namespace Icon {
@@ -17,8 +17,8 @@ export namespace Icon {
 export interface Icon extends Icon.Attrs {}
 
 export abstract class Icon extends Model {
-  override properties: Icon.Props
-  override __view_type__: IconView
+  declare properties: Icon.Props
+  declare __view_type__: IconView
 
   constructor(attrs?: Partial<Icon.Attrs>) {
     super(attrs)

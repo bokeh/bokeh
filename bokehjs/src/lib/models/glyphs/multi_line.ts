@@ -24,8 +24,8 @@ export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
 export interface MultiLineView extends MultiLineData {}
 
 export class MultiLineView extends GlyphView {
-  override model: MultiLine
-  override visuals: MultiLine.Visuals
+  declare model: MultiLine
+  declare visuals: MultiLine.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)
@@ -174,8 +174,8 @@ export namespace MultiLine {
 export interface MultiLine extends MultiLine.Attrs {}
 
 export class MultiLine extends Glyph {
-  override properties: MultiLine.Props
-  override __view_type__: MultiLineView
+  declare properties: MultiLine.Props
+  declare __view_type__: MultiLineView
 
   constructor(attrs?: Partial<MultiLine.Attrs>) {
     super(attrs)

@@ -69,7 +69,7 @@ namespace Some {
 interface Some extends Some.Attrs {}
 
 class Some extends HasProps {
-  override properties: Some.Props
+  declare properties: Some.Props
 
   constructor(attrs?: Partial<Some.Attrs>) {
     super(attrs)

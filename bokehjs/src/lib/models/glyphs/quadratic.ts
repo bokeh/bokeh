@@ -28,8 +28,8 @@ export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
 export interface QuadraticView extends QuadraticData {}
 
 export class QuadraticView extends GlyphView {
-  override model: Quadratic
-  override visuals: Quadratic.Visuals
+  declare model: Quadratic
+  declare visuals: Quadratic.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
@@ -110,8 +110,8 @@ export namespace Quadratic {
 export interface Quadratic extends Quadratic.Attrs {}
 
 export class Quadratic extends Glyph {
-  override properties: Quadratic.Props
-  override __view_type__: QuadraticView
+  declare properties: Quadratic.Props
+  declare __view_type__: QuadraticView
 
   constructor(attrs?: Partial<Quadratic.Attrs>) {
     super(attrs)

@@ -27,8 +27,8 @@ export type SegmentData = GlyphData & p.UniformsOf<Segment.Mixins> & {
 export interface SegmentView extends SegmentData {}
 
 export class SegmentView extends GlyphView {
-  override model: Segment
-  override visuals: Segment.Visuals
+  declare model: Segment
+  declare visuals: Segment.Visuals
 
   protected override _project_data(): void {
     inplace.project_xy(this._x0, this._y0)
@@ -190,8 +190,8 @@ export namespace Segment {
 export interface Segment extends Segment.Attrs {}
 
 export class Segment extends Glyph {
-  override properties: Segment.Props
-  override __view_type__: SegmentView
+  declare properties: Segment.Props
+  declare __view_type__: SegmentView
 
   constructor(attrs?: Partial<Segment.Attrs>) {
     super(attrs)

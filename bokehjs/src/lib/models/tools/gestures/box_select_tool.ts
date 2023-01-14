@@ -7,7 +7,7 @@ import {RectGeometry} from "core/geometry"
 import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends SelectToolView {
-  override model: BoxSelectTool
+  declare model: BoxSelectTool
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -103,8 +103,8 @@ export namespace BoxSelectTool {
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
 export class BoxSelectTool extends SelectTool {
-  override properties: BoxSelectTool.Props
-  override __view_type__: BoxSelectToolView
+  declare properties: BoxSelectTool.Props
+  declare __view_type__: BoxSelectToolView
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)

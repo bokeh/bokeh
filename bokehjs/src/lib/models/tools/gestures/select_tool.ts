@@ -14,7 +14,7 @@ import {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
-  override model: SelectTool
+  declare model: SelectTool
 
   override connect_signals(): void {
     super.connect_signals()
@@ -149,8 +149,8 @@ export namespace SelectTool {
 export interface SelectTool extends SelectTool.Attrs {}
 
 export abstract class SelectTool extends GestureTool {
-  override properties: SelectTool.Props
-  override __view_type__: SelectToolView
+  declare properties: SelectTool.Props
+  declare __view_type__: SelectToolView
 
   clear: Signal0<this>
 

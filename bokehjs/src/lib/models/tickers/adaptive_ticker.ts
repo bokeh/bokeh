@@ -21,7 +21,7 @@ export namespace AdaptiveTicker {
 export interface AdaptiveTicker extends AdaptiveTicker.Attrs {}
 
 export class AdaptiveTicker extends ContinuousTicker {
-  override properties: AdaptiveTicker.Props
+  declare properties: AdaptiveTicker.Props
 
   constructor(attrs?: Partial<AdaptiveTicker.Attrs>) {
     super(attrs)

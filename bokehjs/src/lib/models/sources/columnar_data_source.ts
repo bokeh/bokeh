@@ -29,9 +29,9 @@ export namespace ColumnarDataSource {
 export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 
 export abstract class ColumnarDataSource extends DataSource {
-  override properties: ColumnarDataSource.Props
+  declare properties: ColumnarDataSource.Props
 
-  data: {[key: string]: Arrayable}
+  declare data: {[key: string]: Arrayable}
 
   get_array<T>(key: string): T[] {
     let column = this.data[key] as Arrayable | undefined

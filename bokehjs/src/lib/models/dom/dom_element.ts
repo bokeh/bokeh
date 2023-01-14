@@ -7,8 +7,8 @@ import {isString} from "core/util/types"
 import * as p from "core/properties"
 
 export abstract class DOMElementView extends DOMNodeView {
-  override model: DOMElement
-  override el: HTMLElement
+  declare model: DOMElement
+  declare el: HTMLElement
 
   readonly child_views: ViewStorage<DOMNode | UIElement> = new Map()
 
@@ -83,8 +83,8 @@ export namespace DOMElement {
 export interface DOMElement extends DOMElement.Attrs {}
 
 export abstract class DOMElement extends DOMNode {
-  override properties: DOMElement.Props
-  override __view_type__: DOMElementView
+  declare properties: DOMElement.Props
+  declare __view_type__: DOMElementView
 
   constructor(attrs?: Partial<DOMElement.Attrs>) {
     super(attrs)

@@ -35,11 +35,11 @@ export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
 export interface HexTileView extends HexTileData {}
 
 export class HexTileView extends GlyphView {
-  override model: HexTile
-  override visuals: HexTile.Visuals
+  declare model: HexTile
+  declare visuals: HexTile.Visuals
 
   /** @internal */
-  override glglyph?: import("./webgl/hex_tile").HexTileGL
+  declare glglyph?: import("./webgl/hex_tile").HexTileGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
@@ -242,8 +242,8 @@ export namespace HexTile {
 export interface HexTile extends HexTile.Attrs { }
 
 export class HexTile extends Glyph {
-  override properties: HexTile.Props
-  override __view_type__: HexTileView
+  declare properties: HexTile.Props
+  declare __view_type__: HexTileView
 
   constructor(attrs?: Partial<HexTile.Attrs>) {
     super(attrs)

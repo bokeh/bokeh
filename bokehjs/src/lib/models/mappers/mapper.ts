@@ -12,7 +12,7 @@ export namespace Mapper {
 export interface Mapper<T> extends Mapper.Attrs {}
 
 export abstract class Mapper<T> extends Transform<number, T> {
-  override properties: Mapper.Props
+  declare properties: Mapper.Props
 
   constructor(attrs?: Partial<Mapper.Attrs>) {
     super(attrs)

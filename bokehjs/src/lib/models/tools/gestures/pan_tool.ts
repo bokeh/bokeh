@@ -17,7 +17,7 @@ export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number
 }
 
 export class PanToolView extends GestureToolView {
-  override model: PanTool
+  declare model: PanTool
 
   protected last_dx: number
   protected last_dy: number
@@ -129,8 +129,8 @@ export namespace PanTool {
 export interface PanTool extends PanTool.Attrs {}
 
 export class PanTool extends GestureTool {
-  override properties: PanTool.Props
-  override __view_type__: PanToolView
+  declare properties: PanTool.Props
+  declare __view_type__: PanToolView
 
   constructor(attrs?: Partial<PanTool.Attrs>) {
     super(attrs)

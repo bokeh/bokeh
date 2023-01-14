@@ -10,7 +10,7 @@ export namespace StyleSheet {
 export interface StyleSheet extends StyleSheet.Attrs {}
 
 export abstract class StyleSheet extends Model {
-  override properties: StyleSheet.Props
+  declare properties: StyleSheet.Props
 
   constructor(attrs?: Partial<StyleSheet.Attrs>) {
     super(attrs)
@@ -29,7 +29,7 @@ export namespace InlineStyleSheet {
 export interface InlineStyleSheet extends InlineStyleSheet.Attrs {}
 
 export class InlineStyleSheet extends StyleSheet {
-  override properties: InlineStyleSheet.Props
+  declare properties: InlineStyleSheet.Props
 
   constructor(attrs?: Partial<InlineStyleSheet.Attrs>) {
     super(attrs)
@@ -56,7 +56,7 @@ export namespace ImportedStyleSheet {
 export interface ImportedStyleSheet extends ImportedStyleSheet.Attrs {}
 
 export class ImportedStyleSheet extends StyleSheet {
-  override properties: ImportedStyleSheet.Props
+  declare properties: ImportedStyleSheet.Props
 
   constructor(attrs?: Partial<ImportedStyleSheet.Attrs>) {
     super(attrs)
@@ -81,7 +81,7 @@ export namespace GlobalInlineStyleSheet {
 export interface GlobalInlineStyleSheet extends GlobalInlineStyleSheet.Attrs {}
 
 export class GlobalInlineStyleSheet extends InlineStyleSheet {
-  override properties: GlobalInlineStyleSheet.Props
+  declare properties: GlobalInlineStyleSheet.Props
 
   constructor(attrs?: Partial<GlobalInlineStyleSheet.Attrs>) {
     super(attrs)
@@ -104,7 +104,7 @@ export namespace GlobalImportedStyleSheet {
 export interface GlobalImportedStyleSheet extends GlobalImportedStyleSheet.Attrs {}
 
 export class GlobalImportedStyleSheet extends ImportedStyleSheet {
-  override properties: GlobalImportedStyleSheet.Props
+  declare properties: GlobalImportedStyleSheet.Props
 
   constructor(attrs?: Partial<GlobalImportedStyleSheet.Attrs>) {
     super(attrs)

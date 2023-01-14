@@ -5,8 +5,8 @@ import {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {
-  override model: UpperLower
-  override visuals: UpperLower.Visuals
+  declare model: UpperLower
+  declare visuals: UpperLower.Visuals
 
   protected _lower: Arrayable<number>
   protected _upper: Arrayable<number>
@@ -77,7 +77,7 @@ export abstract class UpperLowerView extends DataAnnotationView {
 }
 
 export class XOrYCoordinateSpec extends p.CoordinateSpec {
-  override readonly obj: UpperLower
+  declare readonly obj: UpperLower
 
   protected override _value: Dimensional<this["__vector__"], CoordinateUnits> | p.Unset = p.unset
 
@@ -107,7 +107,7 @@ export namespace UpperLower {
 export interface UpperLower extends UpperLower.Attrs {}
 
 export class UpperLower extends DataAnnotation {
-  override properties: UpperLower.Props
+  declare properties: UpperLower.Props
 
   constructor(attrs?: Partial<UpperLower.Attrs>) {
     super(attrs)

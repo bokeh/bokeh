@@ -47,7 +47,7 @@ const muted_defaults: Defaults = {
 }
 
 export class GlyphRendererView extends DataRendererView {
-  override model: GlyphRenderer
+  declare model: GlyphRenderer
 
   cds_view: CDSViewView
 
@@ -469,8 +469,8 @@ export namespace GlyphRenderer {
 export interface GlyphRenderer extends GlyphRenderer.Attrs {}
 
 export class GlyphRenderer extends DataRenderer {
-  override properties: GlyphRenderer.Props
-  override __view_type__: GlyphRendererView
+  declare properties: GlyphRenderer.Props
+  declare __view_type__: GlyphRendererView
 
   constructor(attrs?: Partial<GlyphRenderer.Attrs>) {
     super(attrs)

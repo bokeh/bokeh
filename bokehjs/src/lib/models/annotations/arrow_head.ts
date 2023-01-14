@@ -22,8 +22,8 @@ export namespace ArrowHead {
 export interface ArrowHead extends ArrowHead.Attrs {}
 
 export abstract class ArrowHead extends Marking {
-  override properties: ArrowHead.Props
-  override __view_type__: ArrowHeadView
+  declare properties: ArrowHead.Props
+  declare __view_type__: ArrowHeadView
 
   constructor(attrs?: Partial<ArrowHead.Attrs>) {
     super(attrs)
@@ -37,8 +37,8 @@ export abstract class ArrowHead extends Marking {
 }
 
 export class OpenHeadView extends ArrowHeadView {
-  override model: OpenHead
-  override visuals: OpenHead.Visuals
+  declare model: OpenHead
+  declare visuals: OpenHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
     this.visuals.line.set_vectorize(ctx, i)
@@ -74,8 +74,8 @@ export namespace OpenHead {
 export interface OpenHead extends OpenHead.Attrs {}
 
 export class OpenHead extends ArrowHead {
-  override properties: OpenHead.Props
-  override __view_type__: OpenHeadView
+  declare properties: OpenHead.Props
+  declare __view_type__: OpenHeadView
 
   constructor(attrs?: Partial<OpenHead.Attrs>) {
     super(attrs)
@@ -89,8 +89,8 @@ export class OpenHead extends ArrowHead {
 }
 
 export class NormalHeadView extends ArrowHeadView {
-  override model: NormalHead
-  override visuals: NormalHead.Visuals
+  declare model: NormalHead
+  declare visuals: NormalHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
     this.visuals.line.set_vectorize(ctx, i)
@@ -128,8 +128,8 @@ export namespace NormalHead {
 export interface NormalHead extends NormalHead.Attrs {}
 
 export class NormalHead extends ArrowHead {
-  override properties: NormalHead.Props
-  override __view_type__: NormalHeadView
+  declare properties: NormalHead.Props
+  declare __view_type__: NormalHeadView
 
   constructor(attrs?: Partial<NormalHead.Attrs>) {
     super(attrs)
@@ -147,8 +147,8 @@ export class NormalHead extends ArrowHead {
 }
 
 export class VeeHeadView extends ArrowHeadView {
-  override model: VeeHead
-  override visuals: VeeHead.Visuals
+  declare model: VeeHead
+  declare visuals: VeeHead.Visuals
 
   clip(ctx: Context2d, i: number): void {
     this.visuals.line.set_vectorize(ctx, i)
@@ -188,8 +188,8 @@ export namespace VeeHead {
 export interface VeeHead extends VeeHead.Attrs {}
 
 export class VeeHead extends ArrowHead {
-  override properties: VeeHead.Props
-  override __view_type__: VeeHeadView
+  declare properties: VeeHead.Props
+  declare __view_type__: VeeHeadView
 
   constructor(attrs?: Partial<VeeHead.Attrs>) {
     super(attrs)
@@ -207,8 +207,8 @@ export class VeeHead extends ArrowHead {
 }
 
 export class TeeHeadView extends ArrowHeadView {
-  override model: TeeHead
-  override visuals: TeeHead.Visuals
+  declare model: TeeHead
+  declare visuals: TeeHead.Visuals
 
   render(ctx: Context2d, i: number): void {
     const size_i = this.size.get(i)
@@ -234,8 +234,8 @@ export namespace TeeHead {
 export interface TeeHead extends TeeHead.Attrs {}
 
 export class TeeHead extends ArrowHead {
-  override properties: TeeHead.Props
-  override __view_type__: TeeHeadView
+  declare properties: TeeHead.Props
+  declare __view_type__: TeeHeadView
 
   constructor(attrs?: Partial<TeeHead.Attrs>) {
     super(attrs)

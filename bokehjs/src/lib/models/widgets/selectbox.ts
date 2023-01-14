@@ -7,9 +7,9 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class SelectView extends InputWidgetView {
-  override model: Select
+  declare model: Select
 
-  override input_el: HTMLSelectElement
+  declare input_el: HTMLSelectElement
 
   override connect_signals(): void {
     super.connect_signals()
@@ -92,8 +92,8 @@ export namespace Select {
 export interface Select extends Select.Attrs {}
 
 export class Select extends InputWidget {
-  override properties: Select.Props
-  override __view_type__: SelectView
+  declare properties: Select.Props
+  declare __view_type__: SelectView
 
   constructor(attrs?: Partial<Select.Attrs>) {
     super(attrs)

@@ -16,7 +16,7 @@ export namespace TabPanel {
 export interface TabPanel extends TabPanel.Attrs {}
 
 export class TabPanel extends Model {
-  override properties: TabPanel.Props
+  declare properties: TabPanel.Props
 
   constructor(attrs?: Partial<TabPanel.Attrs>) {
     super(attrs)

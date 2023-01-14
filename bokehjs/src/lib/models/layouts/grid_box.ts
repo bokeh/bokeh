@@ -3,7 +3,7 @@ import {UIElement} from "../ui/ui_element"
 import * as p from "core/properties"
 
 export class GridBoxView extends CSSGridBoxView {
-  override model: GridBox
+  declare model: GridBox
 
   override connect_signals(): void {
     super.connect_signals()
@@ -38,8 +38,8 @@ export namespace GridBox {
 export interface GridBox extends GridBox.Attrs {}
 
 export class GridBox extends CSSGridBox {
-  override properties: GridBox.Props
-  override __view_type__: GridBoxView
+  declare properties: GridBox.Props
+  declare __view_type__: GridBoxView
 
   constructor(attrs?: Partial<GridBox.Attrs>) {
     super(attrs)

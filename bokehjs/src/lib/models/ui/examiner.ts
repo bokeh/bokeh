@@ -139,7 +139,7 @@ export class HTMLPrinter {
 }
 
 export class ExaminerView extends UIElementView {
-  override model: Examiner
+  declare model: Examiner
 
   override styles(): StyleSheetLike[] {
     return [...super.styles(), examiner_css]
@@ -441,8 +441,8 @@ export namespace Examiner {
 export interface Examiner extends Examiner.Attrs {}
 
 export class Examiner extends UIElement {
-  override properties: Examiner.Props
-  override __view_type__: ExaminerView
+  declare properties: Examiner.Props
+  declare __view_type__: ExaminerView
 
   constructor(attrs?: Partial<Examiner.Attrs>) {
     super(attrs)

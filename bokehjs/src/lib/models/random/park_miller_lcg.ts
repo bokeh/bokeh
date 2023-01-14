@@ -13,7 +13,7 @@ export namespace ParkMillerLCG {
 export interface ParkMillerLCG extends ParkMillerLCG.Attrs {}
 
 export class ParkMillerLCG extends RandomGenerator {
-  override properties: ParkMillerLCG.Props
+  declare properties: ParkMillerLCG.Props
 
   constructor(attrs?: Partial<ParkMillerLCG.Attrs>) {
     super(attrs)

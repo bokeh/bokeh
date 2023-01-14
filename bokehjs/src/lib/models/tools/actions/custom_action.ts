@@ -4,7 +4,7 @@ import * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
 export class CustomActionView extends ActionToolView {
-  override model: CustomAction
+  declare model: CustomAction
 
   doit(): void {
     this.model.callback?.execute(this.model)
@@ -22,8 +22,8 @@ export namespace CustomAction {
 export interface CustomAction extends CustomAction.Attrs {}
 
 export class CustomAction extends ActionTool {
-  override properties: CustomAction.Props
-  override __view_type__: CustomActionView
+  declare properties: CustomAction.Props
+  declare __view_type__: CustomActionView
 
   constructor(attrs?: Partial<CustomAction.Attrs>) {
     super(attrs)

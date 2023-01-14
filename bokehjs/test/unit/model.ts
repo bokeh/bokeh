@@ -15,7 +15,7 @@ namespace Some0Model {
 }
 interface Some0Model extends Some0Model.Attrs {}
 class Some0Model extends Model {
-  override properties: Some0Model.Props
+  declare properties: Some0Model.Props
   constructor(attrs?: Partial<Some0Model.Attrs>) {
     super(attrs)
   }
@@ -39,7 +39,7 @@ namespace Some1Model {
 }
 interface Some1Model extends Some1Model.Attrs {}
 class Some1Model extends Model {
-  override properties: Some1Model.Props
+  declare properties: Some1Model.Props
   constructor(attrs?: Partial<Some1Model.Attrs>) {
     super(attrs)
   }

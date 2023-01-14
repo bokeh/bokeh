@@ -4,7 +4,7 @@ import {LogTicker} from "../tickers/log_ticker"
 import * as p from "core/properties"
 
 export class LogAxisView extends ContinuousAxisView {
-  override model: LogAxis
+  declare model: LogAxis
 }
 
 export namespace LogAxis {
@@ -19,11 +19,11 @@ export namespace LogAxis {
 export interface LogAxis extends LogAxis.Attrs {}
 
 export class LogAxis extends ContinuousAxis {
-  override properties: LogAxis.Props
-  override __view_type__: LogAxisView
+  declare properties: LogAxis.Props
+  declare __view_type__: LogAxisView
 
-  override ticker: LogTicker
-  override formatter: LogTickFormatter
+  declare ticker: LogTicker
+  declare formatter: LogTickFormatter
 
   constructor(attrs?: Partial<LogAxis.Attrs>) {
     super(attrs)

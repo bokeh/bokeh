@@ -7,10 +7,10 @@ import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
 
 export class HTMLTitleView extends TextAnnotationView {
-  override model: HTMLTitle
-  override visuals: HTMLTitle.Visuals
-  override layout: Layoutable
-  override panel: Panel
+  declare model: HTMLTitle
+  declare visuals: HTMLTitle.Visuals
+  declare layout: Layoutable
+  declare panel: Panel
 
   protected _get_location(): [number, number] {
     const hmargin = this.model.offset
@@ -115,8 +115,8 @@ export namespace HTMLTitle {
 export interface HTMLTitle extends HTMLTitle.Attrs {}
 
 export class HTMLTitle extends TextAnnotation {
-  override properties: HTMLTitle.Props
-  override __view_type__: HTMLTitleView
+  declare properties: HTMLTitle.Props
+  declare __view_type__: HTMLTitleView
 
   constructor(attrs?: Partial<HTMLTitle.Attrs>) {
     super(attrs)

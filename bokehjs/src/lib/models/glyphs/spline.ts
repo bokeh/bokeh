@@ -16,8 +16,8 @@ export type SplineData = XYGlyphData & {
 export interface SplineView extends SplineData {}
 
 export class SplineView extends XYGlyphView {
-  override model: Spline
-  override visuals: Spline.Visuals
+  declare model: Spline
+  declare visuals: Spline.Visuals
 
   protected override _set_data(): void {
     const {tension, closed} = this.model
@@ -73,8 +73,8 @@ export namespace Spline {
 export interface Spline extends Spline.Attrs {}
 
 export class Spline extends XYGlyph {
-  override properties: Spline.Props
-  override __view_type__: SplineView
+  declare properties: Spline.Props
+  declare __view_type__: SplineView
 
   constructor(attrs?: Partial<Spline.Attrs>) {
     super(attrs)

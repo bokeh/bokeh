@@ -8,7 +8,7 @@ import * as p from "core/properties"
 import {tool_icon_lasso_select} from "styles/icons.css"
 
 export class LassoSelectToolView extends SelectToolView {
-  override model: LassoSelectTool
+  declare model: LassoSelectTool
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -88,8 +88,8 @@ export namespace LassoSelectTool {
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
 export class LassoSelectTool extends SelectTool {
-  override properties: LassoSelectTool.Props
-  override __view_type__: LassoSelectToolView
+  declare properties: LassoSelectTool.Props
+  declare __view_type__: LassoSelectToolView
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)

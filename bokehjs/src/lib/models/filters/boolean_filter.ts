@@ -14,7 +14,7 @@ export namespace BooleanFilter {
 export interface BooleanFilter extends BooleanFilter.Attrs {}
 
 export class BooleanFilter extends Filter {
-  override properties: BooleanFilter.Props
+  declare properties: BooleanFilter.Props
 
   constructor(attrs?: Partial<BooleanFilter.Attrs>) {
     super(attrs)

@@ -16,7 +16,7 @@ export namespace Scale {
 export interface Scale<T = number> extends Scale.Attrs {}
 
 export abstract class Scale<T = number> extends Transform<T, number> {
-  override properties: Scale.Props
+  declare properties: Scale.Props
 
   constructor(attrs?: Partial<Scale.Attrs>) {
     super(attrs)

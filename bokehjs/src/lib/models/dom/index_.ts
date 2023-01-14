@@ -4,7 +4,7 @@ import {Index as DataIndex} from "core/util/templating"
 import * as p from "core/properties"
 
 export class IndexView extends PlaceholderView {
-  override model: Index
+  declare model: Index
 
   update(_source: ColumnarDataSource, i: DataIndex | null, _vars: object/*, formatters?: Formatters*/): void {
     this.el.textContent = i == null ? "(null)" : i.toString()
@@ -19,8 +19,8 @@ export namespace Index {
 export interface Index extends Index.Attrs {}
 
 export class Index extends Placeholder {
-  override properties: Index.Props
-  override __view_type__: IndexView
+  declare properties: Index.Props
+  declare __view_type__: IndexView
 
   constructor(attrs?: Partial<Index.Attrs>) {
     super(attrs)

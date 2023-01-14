@@ -17,7 +17,7 @@ export namespace NumeralTickFormatter {
 export interface NumeralTickFormatter extends NumeralTickFormatter.Attrs {}
 
 export class NumeralTickFormatter extends TickFormatter {
-  override properties: NumeralTickFormatter.Props
+  declare properties: NumeralTickFormatter.Props
 
   constructor(attrs?: Partial<NumeralTickFormatter.Attrs>) {
     super(attrs)

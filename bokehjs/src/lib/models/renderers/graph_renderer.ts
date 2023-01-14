@@ -12,7 +12,7 @@ import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
 
 export class GraphRendererView extends DataRendererView {
-  override model: GraphRenderer
+  declare model: GraphRenderer
 
   edge_view: GlyphRendererView
   node_view: GlyphRendererView
@@ -107,8 +107,8 @@ export namespace GraphRenderer {
 export interface GraphRenderer extends GraphRenderer.Attrs {}
 
 export class GraphRenderer extends DataRenderer {
-  override properties: GraphRenderer.Props
-  override __view_type__: GraphRendererView
+  declare properties: GraphRenderer.Props
+  declare __view_type__: GraphRendererView
 
   constructor(attrs?: Partial<GraphRenderer.Attrs>) {
     super(attrs)

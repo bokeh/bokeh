@@ -7,9 +7,9 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 
 export class DecorationView extends View {
-  override model: Decoration
+  declare model: Decoration
   visuals: Decoration.Visuals
-  override readonly parent: RendererView
+  declare readonly parent: RendererView
 
   marking: MarkingView
 
@@ -38,8 +38,8 @@ export namespace Decoration {
 export interface Decoration extends Decoration.Attrs {}
 
 export class Decoration extends Model {
-  override properties: Decoration.Props
-  override __view_type__: DecorationView
+  declare properties: Decoration.Props
+  declare __view_type__: DecorationView
 
   constructor(attrs?: Partial<Decoration.Attrs>) {
     super(attrs)

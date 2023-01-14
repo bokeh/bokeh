@@ -9,7 +9,7 @@ export namespace ByXPath {
 export interface ByXPath extends ByXPath.Attrs {}
 
 export class ByXPath extends Selector {
-  override properties: ByXPath.Props
+  declare properties: ByXPath.Props
 
   constructor(attrs?: Partial<ByXPath.Attrs>) {
     super(attrs)

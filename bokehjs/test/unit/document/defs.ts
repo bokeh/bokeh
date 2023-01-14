@@ -28,7 +28,7 @@ declare namespace _Some0 {
 declare interface _Some0 extends _Some0.Attrs {}
 
 declare class _Some0 extends Model {
-  override properties: _Some0.Props
+  declare properties: _Some0.Props
   constructor(attrs?: Partial<_Some0.Attrs>)
 }
 
@@ -52,7 +52,7 @@ declare namespace _Some1 {
 declare interface _Some1 extends _Some1.Attrs {}
 
 declare class _Some1 extends Model {
-  override properties: _Some1.Props
+  declare properties: _Some1.Props
   constructor(attrs?: Partial<_Some1.Attrs>)
 }
 
@@ -68,7 +68,7 @@ declare namespace _Some2 {
 declare interface _Some2 extends _Some2.Attrs {}
 
 declare class _Some2 extends _Some1 {
-  override properties: _Some2.Props
+  declare properties: _Some2.Props
   constructor(attrs?: Partial<_Some2.Attrs>)
 }
 
@@ -83,7 +83,7 @@ declare namespace _Some3 {
 declare interface _Some3 extends _Some3.Attrs {}
 
 declare class _Some3 extends ColumnDataSource {
-  override properties: _Some3.Props
+  declare properties: _Some3.Props
   constructor(attrs?: Partial<_Some3.Attrs>)
 }
 
@@ -98,7 +98,7 @@ declare namespace _Some4 {
 declare interface _Some4 extends _Some4.Attrs {}
 
 declare class _Some4 extends _Some3 {
-  override properties: _Some4.Props
+  declare properties: _Some4.Props
   constructor(attrs?: Partial<_Some4.Attrs>)
 }
 

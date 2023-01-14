@@ -4,7 +4,7 @@ import {scale_range} from "core/util/zoom"
 import * as p from "core/properties"
 
 export abstract class ZoomBaseToolView extends PlotActionToolView {
-  override model: ZoomBaseTool
+  declare model: ZoomBaseTool
 
   doit(): void {
     const frame = this.plot_view.frame
@@ -39,8 +39,8 @@ export namespace ZoomBaseTool {
 export interface ZoomBaseTool extends ZoomBaseTool.Attrs {}
 
 export abstract class ZoomBaseTool extends PlotActionTool {
-  override properties: ZoomBaseTool.Props
-  override __view_type__: ZoomBaseToolView
+  declare properties: ZoomBaseTool.Props
+  declare __view_type__: ZoomBaseToolView
 
   constructor(attrs?: Partial<ZoomBaseTool.Attrs>) {
     super(attrs)
