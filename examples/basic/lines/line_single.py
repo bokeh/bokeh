@@ -1,7 +1,7 @@
-''' A line graph using user-defined data points. This example 
-demonstrates the use of the ``line`` function to make a graph 
+''' A line graph using user-defined data points. This example
+demonstrates the use of the ``line`` function to make a graph
 by mapping straight linesbetween defined points.
-   
+
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_lines_single`
