@@ -7,16 +7,17 @@
     "noUnusedParameters": true,
     "noImplicitOverride": true,
     "strictNullChecks": true,
-    "strictBindCallApply": false,
-    "strictFunctionTypes": false,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
     "strictPropertyInitialization": false,
     "useUnknownInCatchVariables": true,
     "alwaysStrict": true,
     "noErrorTruncation": true,
     "noEmitOnError": false,
-    "allowJs": false,
+    "allowJs": true,
     "declaration": true,
     "sourceMap": true,
+    "declarationMap": true,
     "importHelpers": false,
     "experimentalDecorators": true,
     "module": "ES2022",
@@ -34,7 +35,5 @@
       ]
     }
   },
-  "include": [
-    "./**/*.ts"
-  ]
+  "include": ["./**/*.ts"]
 }
