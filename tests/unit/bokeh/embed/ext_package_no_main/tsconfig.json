@@ -25,6 +25,7 @@
     "isolatedModules": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "target": "ES2022",
     "lib": ["es2022", "dom", "dom.iterable"],
     "baseUrl": ".",
