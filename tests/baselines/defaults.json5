@@ -5298,10 +5298,7 @@
   },
   EditTool: {
     __extends__: "GestureTool",
-    empty_value: {
-      type: "symbol",
-      name: "unset",
-    },
+    empty_value: 0,
     renderers: [],
   },
   PolyTool: {
