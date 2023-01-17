@@ -9,14 +9,19 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Scale} from "../scales/scale"
 import {BBox, Corners} from "core/util/bbox"
+import {rotate_around} from "core/util/affine"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+
+const {abs, sqrt} = Math
 
 export type RectData = CenterRotatableData & {
   sx0: ScreenArray
   sy1: ScreenArray
   ssemi_diag: ScreenArray
+  max_x2_ddist: number
+  max_y2_ddist: number
   border_radius: Corners<number>
 }
 
@@ -45,15 +50,17 @@ export class RectView extends CenterRotatableView {
   }
 
   protected override _map_data(): void {
+    const n = this.data_size
+
     if (this.model.properties.width.units == "data")
       [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
     else {
       this.sw = to_screen(this.width)
 
-      const n = this.sx.length
       this.sx0 = new ScreenArray(n)
-      for (let i = 0; i < n; i++)
+      for (let i = 0; i < n; i++) {
         this.sx0[i] = this.sx[i] - this.sw[i]/2
+      }
     }
 
     if (this.model.properties.height.units == "data")
@@ -61,16 +68,31 @@ export class RectView extends CenterRotatableView {
     else {
       this.sh = to_screen(this.height)
 
-      const n = this.sy.length
       this.sy1 = new ScreenArray(n)
-      for (let i = 0; i < n; i++)
+      for (let i = 0; i < n; i++) {
         this.sy1[i] = this.sy[i] - this.sh[i]/2
+      }
     }
 
-    const n = this.sw.length
+    const {sw, sh} = this
     this.ssemi_diag = new ScreenArray(n)
-    for (let i = 0; i < n; i++)
-      this.ssemi_diag[i] = Math.sqrt((this.sw[i]/2 * this.sw[i])/2 + (this.sh[i]/2 * this.sh[i])/2)
+
+    for (let i = 0; i < n; i++) {
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      this.ssemi_diag[i] = sqrt(sw_i**2 + sh_i**2)/2
+    }
+
+    const scenter_x = new ScreenArray(n)
+    const scenter_y = new ScreenArray(n)
+
+    for (let i = 0; i < n; i++) {
+      scenter_x[i] = this.sx0[i] + this.sw[i]/2
+      scenter_y[i] = this.sy1[i] + this.sh[i]/2
+    }
+
+    this.max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
+    this.max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
@@ -115,55 +137,37 @@ export class RectView extends CenterRotatableView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    // TODO: consider round corners
-    let {sx, sy} = geometry
+    const hit_xy = {x: geometry.sx, y: geometry.sy}
 
-    const x = this.renderer.xscale.invert(sx)
-    const y = this.renderer.yscale.invert(sy)
+    const x = this.renderer.xscale.invert(hit_xy.x)
+    const y = this.renderer.yscale.invert(hit_xy.y)
 
-    const n = this.sx0.length
+    const candidates = this.index.indices({
+      x0: x - this.max_x2_ddist,
+      x1: x + this.max_x2_ddist,
+      y0: y - this.max_y2_ddist,
+      y1: y + this.max_y2_ddist,
+    })
 
-    const scenter_x = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      scenter_x[i] = this.sx0[i] + this.sw[i]/2
-    }
-
-    const scenter_y = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      scenter_y[i] = this.sy1[i] + this.sh[i]/2
-    }
-
-    const max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
-    const max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
-
-    const x0 = x - max_x2_ddist
-    const x1 = x + max_x2_ddist
-    const y0 = y - max_y2_ddist
-    const y1 = y + max_y2_ddist
-
-    let width_in: boolean
-    let height_in: boolean
-
+    const {sx, sy, sx0, sy1, sw, sh, angle} = this
     const indices = []
-    for (const i of this.index.indices({x0, x1, y0, y1})) {
-      const angle_i = this.angle.get(i)
-      if (angle_i) {
-        const s = Math.sin(-angle_i)
-        const c = Math.cos(-angle_i)
-        const px = c*(sx - this.sx[i]) - s*(sy - this.sy[i]) + this.sx[i]
-        const py = s*(sx - this.sx[i]) + c*(sy - this.sy[i]) + this.sy[i]
-        sx = px
-        sy = py
-        width_in = Math.abs(this.sx[i] - sx) <= this.sw[i]/2
-        height_in = Math.abs(this.sy[i] - sy) <= this.sh[i]/2
-      } else {
-        const dx = sx - this.sx0[i]
-        const dy = sy - this.sy1[i]
-        width_in = 0 <= dx && dx <= this.sw[i]
-        height_in = 0 <= dy && dy <= this.sh[i]
-      }
 
-      if (width_in && height_in) {
+    for (const i of candidates) {
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sx0_i = sx0[i]
+      const sy1_i = sy1[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const angle_i = angle.get(i)
+
+      const hit_rxy = rotate_around(hit_xy, {x: sx_i, y: sy_i}, -angle_i)
+
+      const x = hit_rxy.x - sx0_i
+      const y = hit_rxy.y - sy1_i
+
+      // TODO: consider round corners
+      if (0 <= x && x <= sw_i && 0 <= y && y <= sh_i) {
         indices.push(i)
       }
     }
@@ -220,7 +224,7 @@ export class RectView extends CenterRotatableView {
     const n = pt0.length
     const ddist = new ArrayType(n)
     for (let i = 0; i < n; i++)
-      ddist[i] = Math.abs(pt1[i] - pt0[i])
+      ddist[i] = abs(pt1[i] - pt0[i])
     return ddist
   }
 

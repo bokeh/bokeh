@@ -8,7 +8,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {XY, LRTB, Corners, BBox} from "core/util/bbox"
 import {enumerate} from "core/util/iterator"
-import {AffineTransform, Rect} from "core/util/affine"
+import {rotate_around, AffineTransform, Rect} from "core/util/affine"
 import {TextBox} from "core/graphics"
 import {TextAnchor, BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
@@ -149,7 +149,7 @@ export class TextView extends XYGlyphView {
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
-    const {sx: px, sy: py} = geometry
+    const hit_xy = {x: geometry.sx, y: geometry.sy}
 
     const {sx, sy, x_offset, y_offset, angle, labels} = this
     const {anchor_: anchor} = this
@@ -174,11 +174,7 @@ export class TextView extends XYGlyphView {
       const dx_i = anchor_i.x*swidth_i
       const dy_i = anchor_i.y*sheight_i
 
-      const [x, y] = angle_i == 0 ? [px, py] : (() => {
-        const tr = new AffineTransform()
-        tr.rotate_around(sx_i, sy_i, -angle_i)
-        return tr.apply(px, py)
-      })()
+      const {x, y} = rotate_around(hit_xy, {x: sx_i, y: sy_i}, -angle_i)
 
       const left = sx_i - dx_i
       const top = sy_i - dy_i
