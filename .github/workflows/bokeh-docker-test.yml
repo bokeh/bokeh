@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0 # full history to get proper build version
 
@@ -40,7 +40,7 @@ jobs:
           fi
 
       - name: Upload report
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v3
         with:
           name: bokeh-report-docker
           path: bokeh-report-docker
