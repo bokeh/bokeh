@@ -535,4 +535,47 @@ describe("Bug", () => {
       })
     })
   })
+
+  describe("in issue #9752", () => {
+    it("prevents from hit testing Rect glyph with angle != 0", async () => {
+      const plot = fig([600, 600], {tools: "pan,wheel_zoom,hover", toolbar_location: "right"})
+
+      const index =  [ 0,  1,  2, 3,  4,  5,  6,   7,   8]
+      const x =      [-3, -2, -1, 0,  1,  2,  3,  -2,   2]
+      const y =      [-3, -2, -1, 0,  1,  2,  3,   2,  -2]
+      const width =  [ 3,  2,  1, 1,  1,  2,  3,   2,   3]
+      const height = [ 3,  2,  1, 1,  1,  2,  3,   2,   3]
+      const angle =  [45, 30, 15, 0, 15, 30, 45, 270, 450]
+
+      const rect = plot.rect({x, y, width, height, angle, angle_units: "deg", fill_alpha: 0.5})
+      plot.text({x, y, text: index.map((i) => `${i}`), anchor: "center"})
+
+      const {view} = await display(plot)
+      const rect_view = view.owner.get_one(rect)
+
+      function hit_test(x: number, y: number): number[] | undefined {
+        const sx = view.frame.x_scale.compute(x)
+        const sy = view.frame.y_scale.compute(y)
+        return rect_view.hit_test({type: "point", sx, sy})?.indices
+      }
+
+      expect(hit_test(0, 0)).to.be.equal([3])
+      expect(hit_test(-2, 2)).to.be.equal([7])
+
+      expect(hit_test(-3, -3)).to.be.equal([0])
+      expect(hit_test(-2, -2)).to.be.equal([0, 1])
+      expect(hit_test(-1, -1)).to.be.equal([2])
+      expect(hit_test(0, 0)).to.be.equal([3])
+      expect(hit_test(1, 1)).to.be.equal([4])
+      expect(hit_test(2, 2)).to.be.equal([5, 6])
+      expect(hit_test(3, 3)).to.be.equal([6])
+      expect(hit_test(-2, 2)).to.be.equal([7])
+      expect(hit_test(2, -2)).to.be.equal([8])
+
+      expect(hit_test(2, -4)).to.be.equal([])
+      expect(hit_test(2, 3)).to.be.equal([5, 6])
+      expect(hit_test(2.75, 1.2)).to.be.equal([])
+      expect(hit_test(-1.1, -2.7)).to.be.equal([])
+    })
+  })
 })

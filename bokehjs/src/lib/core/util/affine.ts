@@ -1,12 +1,13 @@
 import {Arrayable} from "../types"
+import {XY} from "./bbox"
+import {Equatable, Comparator, equals} from "./eq"
 
 const {sin, cos} = Math
 
 export type Point = {x: number, y: number}
 export type Rect = {p0: Point, p1: Point, p2: Point, p3: Point}
 
-export class AffineTransform {
-
+export class AffineTransform implements Equatable {
   constructor(
     private a: number = 1,
     private b: number = 0,
@@ -33,6 +34,17 @@ export class AffineTransform {
   clone(): AffineTransform {
     const {a, b, c, d, e, f} = this
     return new AffineTransform(a, b, c, d, e, f)
+  }
+
+  [equals](that: this, cmp: Comparator): boolean {
+    return (
+      cmp.eq(this.a, that.a) &&
+      cmp.eq(this.b, that.b) &&
+      cmp.eq(this.c, that.c) &&
+      cmp.eq(this.d, that.d) &&
+      cmp.eq(this.e, that.e) &&
+      cmp.eq(this.f, that.f)
+    )
   }
 
   reset(): void {
@@ -142,5 +154,16 @@ export class AffineTransform {
 
   flip_y(): this {
     return this.scale(-1, 1)
+  }
+}
+
+export function rotate_around(point: XY, center: XY, angle: number): XY {
+  if (angle == 0) {
+    return point
+  } else {
+    const tr = new AffineTransform()
+    tr.rotate_around(center.x, center.y, angle)
+    const [x, y] = tr.apply(point.x, point.y)
+    return {x, y}
   }
 }
