@@ -74,12 +74,10 @@ export class CanvasLayer {
     return this._ctx instanceof SVGRenderingContext2D ? this._ctx : this.canvas
   }
 
-  private _base_transform: DOMMatrix
-
   undo_transform(fn: (ctx: Context2d) => void) {
     const {ctx} = this
     const current_transform = ctx.getTransform()
-    ctx.setTransform(this._base_transform)
+    ctx.resetTransform()
     try {
       fn(ctx)
     } finally {
@@ -94,7 +92,6 @@ export class CanvasLayer {
       ctx.scale(pixel_ratio, pixel_ratio)
       ctx.translate(0.5, 0.5)
     }
-    this._base_transform = ctx.getTransform()
     this.clear()
   }
 

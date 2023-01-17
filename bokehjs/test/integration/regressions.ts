@@ -2821,4 +2821,30 @@ describe("Bug", () => {
       await pv.ready
     })
   })
+
+  describe("in issue #12735", () => {
+    describe("doesn't allow correct rendering of hatch patterns", () => {
+      function plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.quad({
+          left: 0, right: 1, top: 1, bottom: 0,
+          fill_color: "orange", line_color: "blue",
+          alpha: 0.5, hatch_pattern: "x",
+        })
+        return p
+      }
+
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
+      })
+    })
+  })
 })
