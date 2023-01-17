@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # full history to get proper build version
       - uses: conda-incubator/setup-miniconda@v2
@@ -76,7 +76,7 @@ jobs:
         if: runner.os == 'Windows'
         run: git config --global core.autocrlf false
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -97,7 +97,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -151,7 +151,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -184,7 +184,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -223,7 +223,7 @@ jobs:
       OS: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -247,7 +247,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -270,7 +270,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
@@ -292,11 +292,11 @@ jobs:
       IMAGE_TAG: bokeh/bokeh-dev:branch-3.1
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Download wheel package
         id: download
-        uses: actions/download-artifact@v1
+        uses: actions/download-artifact@v3
         with:
           name: wheel-package
           path: dist/

@@ -28,7 +28,7 @@ runs:
 
     - name: Download wheel package
       id: download
-      uses: actions/download-artifact@v1
+      uses: actions/download-artifact@v3
       with:
         name: wheel-package
         path: dist/
@@ -39,7 +39,7 @@ runs:
 
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.npm # npm cache files are stored in `~/.npm` on Linux/macOS
         key: ${{ runner.os }}-node-${{ hashFiles('bokehjs/package-lock.json') }}
@@ -51,7 +51,7 @@ runs:
 
     - name: Cache sampledata
       if: ${{ inputs.sampledata == 'cache' }}
-      uses: actions/cache@v1
+      uses: actions/cache@v3
       with:
         path: ~/.bokeh/data
         key: ${{ runner.os }}-sampledata-${{ hashFiles('bokeh/util/sampledata.json') }}
