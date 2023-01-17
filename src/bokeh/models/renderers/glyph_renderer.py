@@ -34,10 +34,7 @@ from ...core.properties import (
     Required,
 )
 from ...core.validation import error
-from ...core.validation.errors import (
-    BAD_COLUMN_NAME,
-    CDSVIEW_FILTERS_WITH_CONNECTED,
-)
+from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyphs import ConnectedXYGlyph, Glyph
 from ..graphics import Decoration, Marking

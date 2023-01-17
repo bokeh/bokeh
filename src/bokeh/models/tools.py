@@ -78,7 +78,6 @@ from ..core.properties import (
     Override,
     Percent,
     Regex,
-    Required,
     Seq,
     String,
     Tuple,
