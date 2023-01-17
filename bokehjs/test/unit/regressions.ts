@@ -6,15 +6,19 @@ import {PlotActions, xy, click} from "../interactive"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool,
+  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
+import {is_equal} from "@bokehjs/core/util/eq"
+import {linspace} from "@bokehjs/core/util/array"
+import {ndarray} from "@bokehjs/core/util/ndarray"
 import {build_view} from "@bokehjs/core/build_views"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
 import {Color} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
 import {gridplot} from "@bokehjs/api/gridplot"
+import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
 
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
@@ -22,6 +26,19 @@ import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
 
 function data_url(data: string, mime: string, encoding: string = "base64") {
   return `data:${mime};${encoding},${data}`
+}
+
+function scalar_image(N: number = 100) {
+  const x = linspace(0, 10, N)
+  const y = linspace(0, 10, N)
+  const d = new Float64Array(N*N)
+  const {sin, cos} = Math
+  for (let i = 0; i < N; i++) {
+    for (let j = 0; j < N; j++) {
+      d[i*N + j] = sin(x[i])*cos(y[j])
+    }
+  }
+  return ndarray(d, {shape: [N, N]})
 }
 
 describe("Bug", () => {
@@ -467,6 +484,55 @@ describe("Bug", () => {
       await actions.pan(xy(0, tbv.bbox.height + 1), xy(200, 200))
       await paint()
       expect(r.data_source.selected.indices).to.be.equal([0, 1, 2])
+    })
+  })
+
+  describe("in issue #12678", () => {
+    type Range = [number, number]
+
+    async function test(x_range: Range, y_range: Range) {
+      const p = fig([200, 200], {x_range, y_range})
+      const color_mapper = new LinearColorMapper({palette: Spectral11})
+      const glyph = p.image({image: {value: scalar_image()}, x: -5, y: -5, dw: 10, dh: 10, color_mapper})
+
+      const {view} = await display(p)
+      const glyph_view = view.owner.get_one(glyph)
+
+      function hit_test(x: number, y: number): boolean {
+        const sx = view.frame.x_scale.compute(x)
+        const sy = view.frame.y_scale.compute(y)
+        const result = glyph_view.hit_test({type: "point", sx, sy})
+        return is_equal(result?.indices, [0])
+      }
+
+      expect(hit_test(0, 0)).to.be.true
+
+      expect(hit_test(0, 10)).to.be.false
+      expect(hit_test(0, -10)).to.be.false
+      expect(hit_test(-10, 10)).to.be.false
+      expect(hit_test(-10, -10)).to.be.false
+      expect(hit_test(10, 10)).to.be.false
+      expect(hit_test(10, -10)).to.be.false
+      expect(hit_test(-10, 0)).to.be.false
+      expect(hit_test(10, 0)).to.be.false
+    }
+
+    describe("doesn't allow correctly hit testing Image glyph", () => {
+      it("with normal ranges", async () => {
+        await test([-15, 15], [-15, 15])
+      })
+
+      it("with reversed ranges", async () => {
+        await test([15, -15], [15, -15])
+      })
+
+      it("with reversed x-range", async () => {
+        await test([15, -15], [-15, 15])
+      })
+
+      it("with reversed y-range", async () => {
+        await test([-15, 15], [15, -15])
+      })
     })
   })
 })
