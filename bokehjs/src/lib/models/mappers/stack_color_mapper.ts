@@ -18,7 +18,7 @@ export namespace StackColorMapper {
 export interface StackColorMapper extends StackColorMapper.Attrs {}
 
 export class StackColorMapper extends ColorMapper {
-  override properties: StackColorMapper.Props
+  declare properties: StackColorMapper.Props
 
   constructor(attrs?: Partial<StackColorMapper.Attrs>) {
     super(attrs)
