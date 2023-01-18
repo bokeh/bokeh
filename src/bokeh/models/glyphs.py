@@ -92,7 +92,7 @@ from .glyph import (
     TextGlyph,
     XYGlyph,
 )
-from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
+from .mappers import ColorMapper, LinearColorMapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants

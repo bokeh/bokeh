@@ -69,7 +69,6 @@ export abstract class ColorMapper extends Mapper<Color> {
       v_compute(xs: ArrayableOf<uint32 | Factor>, length_divisor: number): RGBAArray {
         // If could determine if xs is 3D, would not need length_divisor.
         const values = new ColorArray(xs.length / length_divisor)
-        //self._v_compute(xs, values, palette, colors)
         self._v_compute_uint32(xs, values, palette, colors)
         return new Uint8ClampedArray(to_big_endian(values).buffer)
       },

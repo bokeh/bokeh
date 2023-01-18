@@ -447,6 +447,14 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  StackColorMapper: {
+    __extends__: "ColorMapper",
+    alpha_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    color_baseline: null,
+  },
   Ticker: {
     __extends__: "Model",
   },

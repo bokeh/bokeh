@@ -318,7 +318,7 @@ class EqHistColorMapper(ScanningColorMapper):
     """)
 
 class StackColorMapper(ColorMapper):
-    ''' Compound color mapper for ImageStack.
+    ''' Compound color mapper ...
 
     '''
 

@@ -25,12 +25,10 @@ export class StackColorMapper extends ColorMapper {
   }
 
   static {
-    this.define<StackColorMapper.Props>(({Nullable, Number, Ref}) => {
-      return {
-        alpha_mapper:   [ Ref(ContinuousColorMapper) ],
-        color_baseline: [ Nullable(Number), null ],
-      }
-    })
+    this.define<StackColorMapper.Props>(({Nullable, Number, Ref}) => ({
+      alpha_mapper:   [ Ref(ContinuousColorMapper) ],
+      color_baseline: [ Nullable(Number), null ],
+    }))
   }
 
   // Weighted mix of colors.
@@ -81,9 +79,7 @@ export class StackColorMapper extends ColorMapper {
   protected override _v_compute_uint32(data: ArrayableOf<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
 
-    // If always receive 3D array then do not need the outside length_divisor????
-
-    const n = values.length  // Number of pixels/elements
+    const n = values.length
     const ncolor = palette.length
     const nstack = data.length / n
     assert(nstack == ncolor, `Expected ${nstack} not ${ncolor} colors in palette`)
@@ -136,13 +132,8 @@ export class StackColorMapper extends ColorMapper {
 
     // Combine RGBA and alphas.
     for (let i = 0; i < n; i++) {
-      // Combining two bytes here, maybe losing too much precision?
-      // Should be in separate function in core/util/color.ts
       const alpha = byte((values[i] & 0xff)*(alphas[i] & 0xff) / 255.0)
       values[i] = (values[i] & 0xffffff00) | alpha
-
-      //const [r, g, b, a] = decode_rgba(values[i])
-      //console.log(i, r, g, b, a)
     }
   }
 }
