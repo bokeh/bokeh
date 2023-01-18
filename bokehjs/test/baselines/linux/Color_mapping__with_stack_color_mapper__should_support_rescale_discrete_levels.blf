@@ -1,0 +1,7 @@
+Plot bbox=[0, 0, 250, 200]
+  CartesianFrame bbox=[29, 5, 140, 173]
+  LinearAxis bbox=[29, 178, 140, 22]
+  LinearAxis bbox=[0, 5, 29, 173]
+  ColorBar bbox=[169, 5, 81, 173]
+    Title bbox=[179, 15, 0, 153]
+    LinearAxis bbox=[204, 15, 36, 153]

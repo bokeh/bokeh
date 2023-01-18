@@ -2,8 +2,8 @@ import {display, fig, grid} from "./_util"
 
 import pipeline from "./_data"
 
-import {Range1d, LinearColorMapper, EqHistColorMapper, ColorBar} from "@bokehjs/models"
-import {Plasma256} from "@bokehjs/api/palettes"
+import {Range1d, LinearColorMapper, EqHistColorMapper, ColorBar, StackColorMapper} from "@bokehjs/models"
+import {Plasma256, varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
@@ -241,6 +241,52 @@ describe("Color mapping", () => {
       const [sy0, sy1] = pv3.frame.y_scale.r_compute(20, 40)
       sel.select([gv3], {type: "rect", sx0, sy0, sx1, sy1}, true, "append")
       await pv3.ready
+    })
+  })
+
+  describe("with stack color mapper", () => {
+    // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
+    const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
+    const array = new Float64NDArray(data, [3, 3, 2])
+
+    function stack_color_mapper_plot(start_alpha: number = 40, cbar_color: string = "#000", nan_color: string = "#0000",
+        rescale_discrete_levels: boolean = false, color_baseline: number | null = null) {
+      const p = fig([250, 200])
+
+      const alpha_palette = varying_alpha_palette(cbar_color, 6, start_alpha)
+      const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
+      const color_mapper = new StackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
+      p.image({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
+
+      const color_bar = new ColorBar({color_mapper})
+      p.add_layout(color_bar, "right")
+
+      return p
+    }
+
+    it("should support start alpha", async () =>{
+      const p = stack_color_mapper_plot(128)
+      await display(p)
+    })
+
+    it("should support colorbar color", async () =>{
+      const p = stack_color_mapper_plot(40, "green")
+      await display(p)
+    })
+
+    it("should support nan color", async () =>{
+      const p = stack_color_mapper_plot(40, "#000", "green")
+      await display(p)
+    })
+
+    it("should support rescale discrete levels", async () =>{
+      const p = stack_color_mapper_plot(40, "#000", "#0000", true)
+      await display(p)
+    })
+
+    it("should support color baseline", async () =>{
+      const p = stack_color_mapper_plot(40, "#000", "#0000", false, -5)
+      await display(p)
     })
   })
 })

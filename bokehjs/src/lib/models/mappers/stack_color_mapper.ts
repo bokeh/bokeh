@@ -1,7 +1,7 @@
 import {ColorMapper, _convert_palette, _convert_color} from "./color_mapper"
 import {ContinuousColorMapper} from "./continuous_color_mapper"
 import * as p from "core/properties"
-import {Arrayable, ArrayableOf, uint32} from "core/types"
+import {Arrayable, ArrayableOf, RGBAArray, uint32} from "core/types"
 import {min} from "core/util/arrayable"
 import {assert, unreachable} from "core/util/assert"
 import {byte, decode_rgba, encode_rgba} from "core/util/color"
@@ -32,8 +32,7 @@ export class StackColorMapper extends ColorMapper {
   }
 
   // Weighted mix of colors.
-  // This could be in core/util/color.ts
-  protected _mix_colors(colors_rgba: Array<uint32>, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
+  protected _mix_colors(colors_rgba: RGBAArray, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
     if (isNaN(total_weight))
       return nan_color
 
@@ -85,7 +84,7 @@ export class StackColorMapper extends ColorMapper {
     assert(nstack == ncolor, `Expected ${nstack} not ${ncolor} colors in palette`)
 
     // Color mixing is performed separately on each RGBA component, decode them just once
-    const palette_as_rgba = new Array<uint32>(ncolor*4)
+    const palette_as_rgba = new RGBAArray(ncolor*4)
     for (let i = 0; i < ncolor; i++) {
       const [r, g, b, a] = decode_rgba(palette[i])
       palette_as_rgba[i*4  ] = r
