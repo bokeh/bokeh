@@ -35,11 +35,3 @@ interface Float32Array {
 interface Float64Array {
   constructor: Float64ArrayConstructor
 }
-
-declare interface OffscreenCanvas {
-  getContext(contextId: "2d", options?: CanvasRenderingContext2DSettings): OffscreenCanvasRenderingContext2D | null
-  getContext(contextId: "bitmaprenderer", options?: ImageBitmapRenderingContextSettings): ImageBitmapRenderingContext | null
-  getContext(contextId: "webgl", options?: WebGLContextAttributes): WebGLRenderingContext | null
-  getContext(contextId: "webgl2", options?: WebGLContextAttributes): WebGL2RenderingContext | null
-  getContext(contextId: OffscreenRenderingContextId, options?: any): OffscreenRenderingContext | null
-}
