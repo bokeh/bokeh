@@ -36,7 +36,7 @@ jobs:
         working-directory: ./bokehjs
         run: node make build
 
-      - name: Build pip pacakges
+      - name: Build pip packages
         env:
           BOKEHJS_ACTION: 'install'
         run: python -m build .
@@ -51,7 +51,7 @@ jobs:
         run: bash scripts/ci/verify_pip_install_using_wheel.sh
 
       - name: Build conda package
-        run: bash scripts/ci/build_conda_pacakge.sh
+        run: bash scripts/ci/build_conda_package.sh
 
       - name: Verify conda install
         run: bash scripts/ci/verify_conda_install.sh

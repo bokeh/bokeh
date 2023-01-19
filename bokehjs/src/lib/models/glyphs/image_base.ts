@@ -107,7 +107,7 @@ export abstract class ImageBaseView extends XYGlyphView {
   protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
-    this._set_width_heigh_data()
+    this._set_width_height_data()
 
     for (let i = 0, end = this.image.length; i < end; i++) {
       if (indices != null && indices.indexOf(i) < 0)
@@ -149,7 +149,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  protected _set_width_heigh_data(): void {
+  protected _set_width_height_data(): void {
     if (this.image_data == null || this.image_data.length != this.image.length)
       this.image_data = new Array(this.image.length)
 
