@@ -266,7 +266,7 @@ def jitter(field_name: str, width: float, mean: float = 0,
 
 def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
         low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
-    ''' Create a ``DataSpec`` dict that applyies a client-side
+    ''' Create a ``DataSpec`` dict that applies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
     Args:
