@@ -1,0 +1,15 @@
+[workspace]
+members = ["bokeh-lib", "bokeh-web"]
+
+[workspace.package]
+version = "3.1.0"
+edition = "2021"
+license = "BSD-3 (https://opensource.org/license/bsd-3-clause/)"
+repository = "https://github.com/bokeh/bokeh"
+
+[workspace.dependencies]
+bokeh-lib = {path = "./bokeh-lib/", version = "*"}
+
+[profile.release]
+lto = true
+opt-level = "s"

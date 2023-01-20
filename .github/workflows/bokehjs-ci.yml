@@ -36,6 +36,13 @@ jobs:
         run: |
           npm install --location=global npm
 
+      - name: Setup rust
+        shell: bash
+        run: |
+          rustup update
+          rustup target add wasm32-unknown-unknown
+          cargo install wasm-bindgen-cli # TODO: pre-compile
+
       - name: Install chromium
         if: runner.os == 'Linux'
         shell: bash
@@ -63,6 +70,7 @@ jobs:
         run: |
           echo "node $(node --version)"
           echo "npm $(npm --version)"
+          rustup --version
           if [ "$RUNNER_OS" == "Linux" ]; then
             chromium --version
           elif [ "$RUNNER_OS" == "Windows" ]; then
@@ -74,13 +82,27 @@ jobs:
           fi
           npm list
 
+      - name: Build wasm
+        working-directory: ./bokehrs
+        shell: bash
+        run: |
+          ./bindgen.sh
+
+      - name: Test wasm
+        if: success() || failure()
+        working-directory: ./bokehrs
+        shell: bash
+        run: |
+          cargo test --no-fail-fast
+
       - name: Build bokehjs
+        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
           node make build
 
-      - name: Run tests
+      - name: Test bokehjs
         if: success() || failure()
         working-directory: ./bokehjs
         shell: bash

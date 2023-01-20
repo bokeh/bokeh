@@ -1,0 +1,15 @@
+[package]
+name = "bokeh-lib"
+description = ""
+version = {workspace = true}
+edition = {workspace = true}
+license = {workspace = true}
+repository = {workspace = true}
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+
+[dev-dependencies]
+approx = {version = "0.5.1"}

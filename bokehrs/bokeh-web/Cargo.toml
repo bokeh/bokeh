@@ -1,0 +1,20 @@
+[package]
+name = "bokeh-web"
+description = ""
+version = {workspace = true}
+edition = {workspace = true}
+license = {workspace = true}
+repository = {workspace = true}
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["console_error_panic_hook"]
+
+[dependencies]
+wasm-bindgen = "0.2.84"
+js-sys = "*"
+web-sys = {version = "*", features = ["HtmlCanvasElement"]}
+console_error_panic_hook = {version = "0.1.6", optional = true}
+bokeh-lib = {workspace = true}

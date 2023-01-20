@@ -1,6 +1,7 @@
 import {resolve, relative, join, dirname, basename, extname, normalize, sep} from "path"
 import module from "module"
 import crypto from "crypto"
+import fs from "fs"
 
 import ts from "typescript"
 import * as terser from "terser"
@@ -29,7 +30,7 @@ export type Parent = {
 
 export type ResoType = "ESM" | "CJS"
 
-export type ModuleType = "js" | "json" | "json5" | "yaml" | "css"
+export type ModuleType = "js" | "wasm" | "json" | "json5" | "yaml" | "css"
 
 export type ModuleInfo = {
   file: Path
@@ -701,6 +702,7 @@ export class Linker {
         case ".mjs": return "js"
         case ".cjs": return "js"
         case ".js": return "js"
+        case ".wasm": return "wasm"
         default:
           throw new BuildError("linker", `unsupported extension of ${file}`)
       }
@@ -741,6 +743,14 @@ export ${export_type} yaml;
         break
       }
       case "js": {
+        break
+      }
+      case "wasm": {
+        const buffer = fs.readFileSync(file)
+        source = `\
+const wasm = "${buffer.toString("base64")}";
+export ${export_type} wasm;
+`
         break
       }
     }
