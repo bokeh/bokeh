@@ -12,11 +12,11 @@ import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {build_view} from "@bokehjs/core/build_views"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
 import {Color} from "@bokehjs/core/types"
-import {Document, DocJson, DocumentEvent, ModelChangedEvent} from "@bokehjs/document"
+import {Document, DocJson, DocumentEvent, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
+import {DocumentReady} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
@@ -321,7 +321,7 @@ describe("Bug", () => {
           },
         }],
         title: "Bokeh Application",
-        version: "3.0.0",
+        version: "3.1.0",
       }
 
       const events0: DocumentEvent[] = []
@@ -332,13 +332,18 @@ describe("Bug", () => {
 
       const events1: DocumentEvent[] = []
       doc.on_change((event) => events1.push(event))
-      await build_view(doc.roots()[0], {parent: null})
+      await display(doc)
 
       expect(events1).to.be.similar([
         new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", -0.15707963267948988),
         new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",    3.2986722862692828),
         new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", -1.0840481406628186),
         new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",    1.0992403876506105),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_width",  565),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_height", 590),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_width",  600),
+        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_height", 600),
+        new MessageSentEvent(doc, "bokeh_event", new DocumentReady()),
       ])
     })
   })
