@@ -318,7 +318,16 @@ class EqHistColorMapper(ScanningColorMapper):
     """)
 
 class StackColorMapper(ColorMapper):
-    ''' Compound color mapper ...
+    ''' Maps a 3D data array of shape ``(ny, nx, nstack)`` to a 2D RGBA image
+    of shape ``(ny, nx)`` using a palette of length ``nstack``.
+
+    The mapping occurs in two stages. Firstly the RGB values are calculated
+    using a weighted sum of the palette colors in the ``nstack`` direction.
+    Then the alpha values are calculated using the ``alpha_mapper`` applied to
+    the sum of the array in the ``nstack`` direction.
+
+    The RGB values calculated by the ``alpha_mapper`` are ignored by the color
+    mapping but are used in any ``ColorBar`` that is displayed.
 
     '''
 
@@ -327,9 +336,17 @@ class StackColorMapper(ColorMapper):
         super().__init__(*args, **kwargs)
 
     alpha_mapper = Instance(ContinuousColorMapper, help="""
+    Color mapper used to calculate the alpha values of the mapped data.
     """)
 
     color_baseline = Nullable(Float, help="""
+    Baseline value used for the weights when calculating the weighted sum of
+    palette colors. If ``None`` then the minimum of the supplied data is used
+    meaning that values at this minimum have a weight of zero and do not
+    contribute to the weighted sum. As a special case, if all data for a
+    particular output pixel are at the color baseline then the color is an
+    evenly weighted average of the colors corresponding to all such values,
+    to avoid the color being undefined.
     """)
 
 #-----------------------------------------------------------------------------

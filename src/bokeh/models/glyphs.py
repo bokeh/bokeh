@@ -753,6 +753,11 @@ class Image(ImageBase):
 
     image = NumberSpec(default=field("image"), help="""
     The arrays of scalar data for the images to be colormapped.
+
+    Usually these are 2D arrays with shape (ny, nx). Alternatively they can be
+    3D arrays, which are essentially stacks of 2D arrays, with shape
+    (ny, nx, nstack) where ``nstack` is the number of stacks. Such 3D arrays
+    are colormapped using a ``StackColorMapper``.
     """)
 
     color_mapper = Instance(ColorMapper, default=InstanceDefault(LinearColorMapper, palette="Greys9"), help="""
