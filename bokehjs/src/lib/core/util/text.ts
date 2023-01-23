@@ -1,4 +1,4 @@
-import {unreachable} from "./assert"
+import {assert, unreachable} from "./assert"
 import {is_defined} from "./types"
 
 export type BoxMetrics = {
@@ -39,7 +39,10 @@ const _offscreen_canvas = (() => {
 
 const _native_font_metrics = (() => {
   const canvas = _offscreen_canvas(0, 0)
-  const ctx = canvas.getContext("2d")!
+
+  // XXX: explicit type required due to insuffient quality of stdlib's type declarations
+  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null
+  assert(ctx != null, "can't obtain 2d context")
 
   return (font: string): FontMetrics => {
     ctx.font = font

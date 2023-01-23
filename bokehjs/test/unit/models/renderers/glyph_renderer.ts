@@ -5,8 +5,8 @@ import {Circle} from "@bokehjs/models/glyphs"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
 
-function mkrenderer(glyph_obj: Circle): GlyphRenderer {
-  const source = new ColumnDataSource({
+function mkrenderer(glyph: Circle): GlyphRenderer {
+  const data_source = new ColumnDataSource({
     data: {
       x: [10, 20, 30, 40],
       y: [1, 2, 3, 4],
@@ -14,12 +14,11 @@ function mkrenderer(glyph_obj: Circle): GlyphRenderer {
       label: ["foo", "bar", "foo", "bar"],
     },
   })
-  return new GlyphRenderer({glyph: glyph_obj, data_source: source})
+  return new GlyphRenderer({glyph, data_source})
 }
 
 describe("GlyphRendererView", async () => {
   // Basic case with no all glyphs going to their defaults
-
   const basic_circle = new Circle({fill_color: "red"})
   const glyph_renderer = mkrenderer(basic_circle)
   const grv = await build_view(
@@ -72,5 +71,4 @@ describe("GlyphRendererView", async () => {
     expect((decimated_glyph.model as Circle).line_alpha).to.be.equal({value: 0.3})
     expect((decimated_glyph.model as Circle).line_color).to.be.equal({value: "grey"})
   })
-
 })

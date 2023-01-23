@@ -97,6 +97,7 @@ type StyleAttr =
   "shadowOffsetX" |
   "shadowOffsetY" |
   "shadowBlur" |
+  "fontKerning" |
   "textAlign" |
   "textBaseline" |
   "lineDash" |
@@ -163,6 +164,9 @@ const STYLES: StyleState = {
   },
   shadowBlur: {
     canvas: 0,
+  },
+  fontKerning: {
+    canvas: "auto",
   },
   textAlign: {
     canvas: "start",
@@ -317,6 +321,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   shadowOffsetX: number
   shadowOffsetY: number
   shadowBlur: number
+  fontKerning: CanvasFontKerning
   textAlign: CanvasTextAlign
   textBaseline: CanvasTextBaseline
   lineDash: string | number[] | null
@@ -915,6 +920,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     const rect = this.__createElement("rect", {x, y, width, height, fill: "#FFFFFF"}, true)
     this._apply_transform(rect)
     this.__root.appendChild(rect)
+  }
+
+  roundRect(_x: number, _y: number, _w: number, _h: number, _radii?: number | DOMPointInit | Iterable<number | DOMPointInit>): void {
+    throw new Error("not implemented")
   }
 
   /**

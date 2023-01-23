@@ -1,5 +1,6 @@
 import {UIElement, UIElementView, DOMBoxSizing} from "../ui/ui_element"
 import {Menu} from "../menus/menu"
+import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {remove, px, CSSOurStyles} from "core/dom"
@@ -46,7 +47,13 @@ export abstract class LayoutDOMView extends UIElementView {
   override _after_resize(): void {
     this._resized = true
     super._after_resize()
-    this.compute_layout()
+
+    if (this.is_layout_root && !this._was_built) {
+      // This can happen only in pathological cases primarily in tests.
+      logger.warn(`${this} wasn't built properly`)
+      this.build()
+    } else
+      this.compute_layout()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -433,7 +440,7 @@ export abstract class LayoutDOMView extends UIElementView {
     if (!this._has_finished) {
       if (!this.is_displayed) {
         this.finish()
-      } else  {
+      } else {
         // In case after_resize() wasn't called (see regression test for issue
         // #9113), then wait one macro task and consider this view finished.
         defer().then(() => {
@@ -445,12 +452,14 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
+  private _was_built: boolean = false
   build(): this {
     if (!this.is_layout_root)
       throw new Error(`${this.toString()} is not a root layout`)
 
     this.render()
     this.after_render()
+    this._was_built = true
 
     return this
   }
