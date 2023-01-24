@@ -23,6 +23,7 @@ from dataclasses import dataclass
 from typing import Any
 
 # Bokeh imports
+from bokeh.core.property.singletons import Undefined
 from bokeh.document import Document
 from bokeh.events import LODEnd, LODStart, RangesUpdate
 from bokeh.layouts import column
@@ -90,12 +91,12 @@ class Test_Plot:
         time.sleep(0.5)
 
         assert data.iw is not None, "inner_width was not updated"
-        assert data.iw[0] == 0
+        assert data.iw[0] is Undefined
         assert isinstance(data.iw[1], int)
         assert 0 < data.iw[1] < 400
 
         assert data.ih is not None, "inner_height was not updated"
-        assert data.ih[0] == 0
+        assert data.ih[0] is Undefined
         assert isinstance(data.ih[1], int)
         assert 0 < data.ih[1] < 400
 

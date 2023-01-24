@@ -34,8 +34,10 @@ from bokeh.core.properties import (
     Int,
     List,
     Nullable,
+    Required,
     String,
 )
+from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.core.serialization import (
     Buffer,
     BytesRep,
@@ -81,6 +83,9 @@ class SomeModel(Model):
     p1 = String()
     p2 = List(Int)
     p3 = Nullable(Instance(lambda: SomeModel))
+
+class SomeModelUnset(SomeModel):
+    p4 = Required(Int)
 
 @dataclass
 class SomeDataClass:
@@ -611,6 +616,13 @@ class TestSerializer:
             ),
         )
         assert encoder.buffers == []
+
+    def test_Model_unset(self) -> None:
+        val0 = SomeModelUnset()
+
+        encoder = Serializer()
+        with pytest.raises(UnsetValueError):
+            encoder.encode(val0)
 
     def test_dataclass(self) -> None:
         val = SomeDataClass(f0=2, f1=[1, 2, 3])

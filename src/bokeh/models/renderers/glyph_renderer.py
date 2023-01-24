@@ -31,14 +31,10 @@ from ...core.properties import (
     Instance,
     InstanceDefault,
     Nullable,
+    Required,
 )
 from ...core.validation import error
-from ...core.validation.errors import (
-    BAD_COLUMN_NAME,
-    CDSVIEW_FILTERS_WITH_CONNECTED,
-    MISSING_GLYPH,
-    NO_SOURCE_FOR_GLYPH,
-)
+from ...core.validation.errors import BAD_COLUMN_NAME, CDSVIEW_FILTERS_WITH_CONNECTED
 from ..filters import AllIndices
 from ..glyphs import ConnectedXYGlyph, Glyph
 from ..graphics import Decoration, Marking
@@ -76,19 +72,10 @@ class GlyphRenderer(DataRenderer):
         if isinstance(self.glyph, ConnectedXYGlyph) and not isinstance(self.view.filter, AllIndices):
             return str(self)
 
-    @error(MISSING_GLYPH)
-    def _check_missing_glyph(self):
-        if not self.glyph: return str(self)
-
-    @error(NO_SOURCE_FOR_GLYPH)
-    def _check_no_source_for_glyph(self):
-        if not self.data_source: return str(self)
-
     @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
-        if not self.glyph: return
-        if not self.data_source: return
-        if isinstance(self.data_source, WebDataSource): return
+        if isinstance(self.data_source, WebDataSource):
+            return
         missing_values = set()
         specs = self.glyph.dataspecs()
         for name, item in self.glyph.properties_with_values(include_defaults=False).items():
@@ -104,7 +91,7 @@ class GlyphRenderer(DataRenderer):
             missing = ['key "%s" value "%s' % (k, v) for v, k in missing_values]
             return "%s [renderer: %s]" % (", ".join(sorted(missing)), self)
 
-    data_source = Instance(DataSource, help="""
+    data_source = Required(Instance(DataSource), help="""
     Local data source to use when rendering glyphs on the plot.
     """)
 
@@ -119,7 +106,7 @@ class GlyphRenderer(DataRenderer):
         views for these glyphs will result in a warning and undefined behavior.
     """)
 
-    glyph = Instance(Glyph, help="""
+    glyph = Required(Instance(Glyph), help="""
     The glyph to render, in conjunction with the supplied data source
     and ranges.
     """)

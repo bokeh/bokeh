@@ -1,4 +1,4 @@
-from bokeh.core.properties import Bool, Enum, Required
+from bokeh.core.properties import Bool, Enum, Nullable, Required
 from bokeh.models import Icon
 
 from named_icon import NamedIcon
@@ -15,7 +15,7 @@ class FontAwesomeIcon(Icon):
     for the list of available icons.
     """)
 
-    flip = Enum("horizontal", "vertical", default=None, help="""
+    flip = Nullable(Enum("horizontal", "vertical"), help="""
     Optionally flip the icon horizontally or vertically.
     """)
 

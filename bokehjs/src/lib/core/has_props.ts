@@ -101,7 +101,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   declare _mixins: [string, object][]
 
   private static _fix_default(default_value: any, _attr: string): () => any {
-    if (default_value === undefined)
+    if (default_value === undefined || default_value === p.unset)
       return () => p.unset
     else if (isFunction(default_value))
       return default_value
@@ -142,10 +142,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         default_value: this._fix_default(default_value, name),
         options,
       }
-
-      const props = {...this.prototype._props}
-      props[name] = refined_prop
-      this.prototype._props = props
+      this.prototype._props = {
+        ...this.prototype._props,
+        [name]: refined_prop,
+      }
     }
   }
 
@@ -342,6 +342,13 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   initialize(): void {}
+
+  assert_initialized(): void {
+    for (const prop of this) {
+      if (prop.syncable && !prop.readonly)
+        prop.get_value()
+    }
+  }
 
   connect_signals(): void {
     for (const prop of this) {

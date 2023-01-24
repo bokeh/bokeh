@@ -21,10 +21,8 @@ type Constructor<T> = Function & {prototype: T}
 
 export namespace Kinds {
   export class Any extends Kind<any> {
-    readonly [Symbol.toStringTag] = "Any"
-
-    valid(_value: unknown): _value is any {
-      return true
+    valid(value: unknown): value is any {
+      return value !== undefined
     }
 
     override toString(): string {
@@ -33,8 +31,8 @@ export namespace Kinds {
   }
 
   export class Unknown extends Kind<unknown> {
-    valid(_value: unknown): _value is unknown {
-      return true
+    valid(value: unknown): value is unknown {
+      return value !== undefined
     }
 
     override toString(): string {

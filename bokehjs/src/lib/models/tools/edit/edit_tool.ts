@@ -186,7 +186,7 @@ export abstract class EditTool extends GestureTool {
 
   static {
     this.define<EditTool.Props>(({Unknown, Array, Ref}) => ({
-      empty_value: [ Unknown ],
+      empty_value: [ Unknown, 0 ],
       renderers:   [ Array(Ref(GlyphRenderer)), [] ],
     }))
   }

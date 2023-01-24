@@ -1,5 +1,5 @@
 import {TickSpec} from "./ticker"
-import {SingleIntervalTicker} from "./single_interval_ticker"
+import {BaseSingleIntervalTicker} from "./single_interval_ticker"
 import {copy_date, last_year_no_later_than, ONE_MONTH} from "./util"
 import * as p from "core/properties"
 import {concat} from "core/util/array"
@@ -32,14 +32,14 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
 export namespace MonthsTicker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SingleIntervalTicker.Props & {
+  export type Props = BaseSingleIntervalTicker.Props & {
     months: p.Property<number[]>
   }
 }
 
 export interface MonthsTicker extends MonthsTicker.Attrs {}
 
-export class MonthsTicker extends SingleIntervalTicker {
+export class MonthsTicker extends BaseSingleIntervalTicker {
   declare properties: MonthsTicker.Props
 
   constructor(attrs?: Partial<MonthsTicker.Attrs>) {
@@ -51,6 +51,8 @@ export class MonthsTicker extends SingleIntervalTicker {
       months: [ Array(Int), [] ],
     }))
   }
+
+  interval: number
 
   override initialize(): void {
     super.initialize()

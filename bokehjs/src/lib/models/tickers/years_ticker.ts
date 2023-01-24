@@ -1,31 +1,26 @@
 import {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
-import {SingleIntervalTicker} from "./single_interval_ticker"
+import {BaseSingleIntervalTicker} from "./single_interval_ticker"
 import {last_year_no_later_than, ONE_YEAR} from "./util"
 import * as p from "core/properties"
 
 export namespace YearsTicker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SingleIntervalTicker.Props
+  export type Props = BaseSingleIntervalTicker.Props
 }
 
 export interface YearsTicker extends YearsTicker.Attrs {}
 
-export class YearsTicker extends SingleIntervalTicker {
+export class YearsTicker extends BaseSingleIntervalTicker {
   declare properties: YearsTicker.Props
 
   constructor(attrs?: Partial<YearsTicker.Attrs>) {
     super(attrs)
   }
 
-  protected basic_ticker: BasicTicker
-
-  override initialize(): void {
-    super.initialize()
-    this.interval = ONE_YEAR
-    this.basic_ticker = new BasicTicker({num_minor_ticks: 0})
-  }
+  readonly interval = ONE_YEAR
+  readonly basic_ticker = new BasicTicker({num_minor_ticks: 0})
 
   override get_ticks_no_defaults(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {
     const start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()

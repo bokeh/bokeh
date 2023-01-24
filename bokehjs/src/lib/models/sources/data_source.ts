@@ -21,7 +21,7 @@ export abstract class DataSource extends Model {
 
   static {
     this.define<DataSource.Props>(({Ref}) => ({
-      selected: [ Ref(Selection), () => new Selection() ],
+      selected: [ Ref(Selection), () => new Selection(), {readonly: true} ],
     }))
   }
 

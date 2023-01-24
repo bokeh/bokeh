@@ -641,9 +641,6 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 selected_keys |= themed_keys
 
         for key in keys:
-            if key not in selected_keys:
-                continue
-
             descriptor = self.lookup(key)
             if not query(descriptor):
                 continue
@@ -654,8 +651,14 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 if include_undefined:
                     value = Undefined
                 else:
-                    continue
+                    raise
             else:
+                # TODO: this should happen before get_value(), however there's currently
+                # no reliable way of checking if a property is unset without actually
+                # getting the value.
+                if key not in selected_keys:
+                    continue
+
                 if not include_defaults and key not in themed_keys:
                     if isinstance(value, PropertyValueContainer) and key in self._unstable_default_values:
                         continue

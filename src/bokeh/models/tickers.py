@@ -178,7 +178,14 @@ class CompositeTicker(ContinuousTicker):
 
     """)
 
-class SingleIntervalTicker(ContinuousTicker):
+class BaseSingleIntervalTicker(ContinuousTicker):
+    ''' Base class for single interval tickers. '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class SingleIntervalTicker(BaseSingleIntervalTicker):
     ''' Generate evenly spaced ticks at a fixed interval regardless of
     scale.
 
@@ -192,7 +199,7 @@ class SingleIntervalTicker(ContinuousTicker):
     The interval between adjacent ticks.
     """)
 
-class DaysTicker(SingleIntervalTicker):
+class DaysTicker(BaseSingleIntervalTicker):
     ''' Generate ticks spaced apart by specific, even multiples of days.
 
     '''
@@ -207,7 +214,7 @@ class DaysTicker(SingleIntervalTicker):
 
     num_minor_ticks = Override(default=0)
 
-class MonthsTicker(SingleIntervalTicker):
+class MonthsTicker(BaseSingleIntervalTicker):
     ''' Generate ticks spaced apart by specific, even multiples of months.
 
     '''
@@ -220,7 +227,7 @@ class MonthsTicker(SingleIntervalTicker):
     The intervals of months to use.
     """)
 
-class YearsTicker(SingleIntervalTicker):
+class YearsTicker(BaseSingleIntervalTicker):
     ''' Generate ticks spaced apart even numbers of years.
 
     '''

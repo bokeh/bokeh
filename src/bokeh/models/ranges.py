@@ -397,7 +397,7 @@ class FactorRange(Range):
     as an absolute quantity. (default: ``"percent"``)
     """)
 
-    start = Readonly(Float, help="""
+    start = Readonly(Float, default=0, help="""
     The start of the range, in synthetic coordinates.
 
     .. note::
@@ -407,7 +407,7 @@ class FactorRange(Range):
         available (e.g. server, notebook).
     """)
 
-    end = Readonly(Float, help="""
+    end = Readonly(Float, default=0, help="""
     The end of the range, in synthetic coordinates.
 
     .. note::

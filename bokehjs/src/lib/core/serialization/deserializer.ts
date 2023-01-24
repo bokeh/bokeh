@@ -68,6 +68,7 @@ export class Deserializer {
     for (const instance of finalizable) {
       this.finalize?.(instance)
       instance.finalize()
+      instance.assert_initialized()
     }
 
     // `connect_signals` has to be executed last because it may rely on properties
