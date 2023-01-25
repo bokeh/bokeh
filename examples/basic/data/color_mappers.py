@@ -10,7 +10,7 @@ log mapping and linear mapping with different color palette.
 import numpy as np
 
 from bokeh.layouts import column, gridplot
-from bokeh.models import ColorBar, ColumnDataSource, LinearColorMapper, LogColorMapper
+from bokeh.models import ColumnDataSource, LinearColorMapper, LogColorMapper
 from bokeh.plotting import figure, show
 from bokeh.transform import transform
 
@@ -24,10 +24,11 @@ def make_plot(mapper_type, palette):
 
     p = figure(x_range=(1, 1000), title=f"{palette} with {mapper_type} mapping",
                toolbar_location=None, tools="", x_axis_type=mapper_type)
-    p.scatter('x', 'y', alpha=0.8, source=source, color=transform('x', mapper))
+    r = p.scatter('x', 'y', alpha=0.8, source=source, color=transform('x', mapper))
 
-    color_bar = ColorBar(color_mapper=mapper, padding=0,
-                         ticker=p.xaxis.ticker, formatter=p.xaxis.formatter)
+    color_bar = r.construct_color_bar(padding=0,
+                                      ticker=p.xaxis.ticker,
+                                      formatter=p.xaxis.formatter)
     p.add_layout(color_bar, 'below')
 
     return p
