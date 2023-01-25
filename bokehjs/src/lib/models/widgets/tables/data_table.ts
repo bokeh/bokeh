@@ -2,7 +2,7 @@ import {RowSelectionModel} from "@bokeh/slickgrid/plugins/slick.rowselectionmode
 import {CheckboxSelectColumn} from "@bokeh/slickgrid/plugins/slick.checkboxselectcolumn"
 import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellexternalcopymanager"
 
-import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
+import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs, GridOptions} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {div, StyleSheetLike} from "core/dom"
 import {Arrayable} from "core/types"
@@ -26,11 +26,12 @@ import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
 
 export const AutosizeModes = {
-  fit_columns: "FCV",
-  fit_viewport: "FVC",
-  force_fit: "LFF",
-  none: "NOA",
+  fit_columns: "FCV" as const,
+  fit_viewport: "FVC" as const,
+  force_fit: "LFF" as const,
+  none: "NOA" as const,
 }
+export type AutosizeMode = "FCV" | "FVC" | "LFF" | "NOA"
 
 let _warned_not_reorderable = false
 
@@ -262,8 +263,8 @@ export class DataTableView extends WidgetView {
     }
   }
 
-  get autosize(): string {
-    let autosize: string
+  get autosize(): AutosizeMode {
+    let autosize: AutosizeMode
     if (this.model.fit_columns === true)
       autosize = AutosizeModes.force_fit
     else if (this.model.fit_columns === false)
@@ -325,7 +326,7 @@ export class DataTableView extends WidgetView {
       frozen_row = Math.abs(frozen_rows)
     }
 
-    const options = {
+    const options: GridOptions<Item> = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
       autosizeColsMode: this.autosize,
@@ -337,6 +338,7 @@ export class DataTableView extends WidgetView {
       frozenColumn: frozen_column,
       frozenRow: frozen_row,
       frozenBottom: frozen_bottom,
+      explicitInitialization: false,
     }
 
     const initialized = is_defined(this.grid)
@@ -401,8 +403,9 @@ export class DataTableView extends WidgetView {
       }
     }
 
-    if (initialized)
+    if (initialized) {
       this.updateLayout(initialized, false)
+    }
   }
 
   _hide_header(): void {

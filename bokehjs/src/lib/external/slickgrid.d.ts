@@ -1,3 +1,9 @@
+declare namespace Slick {
+  interface GridOptions<T extends {}> {
+    autosizeColsMode?: "FCV" | "FVC" | "LFF" | "NOA"
+  }
+}
+
 declare module "@bokeh/slickgrid/plugins/slick.rowselectionmodel" {
   class RowSelectionModel<T extends Slick.SlickData, E> extends Slick.SelectionModel<T, E> {
     constructor(options?: {selectActiveRow: boolean})
