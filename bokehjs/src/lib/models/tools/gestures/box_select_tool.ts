@@ -94,8 +94,12 @@ export class BoxSelectToolView extends RegionSelectToolView {
 
   override _pan_start(ev: PanEvent): void {
     const {sx, sy} = ev
-    if (this.plot_view.frame.bbox.contains(sx, sy))
-      this._base_point = [sx, sy]
+    const {frame} = this.plot_view
+    if (!frame.bbox.contains(sx, sy))
+      return
+
+    this._clear_other_overlays()
+    this._base_point = [sx, sy]
   }
 
   override _pan(ev: PanEvent): void {

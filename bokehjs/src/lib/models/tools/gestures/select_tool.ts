@@ -46,6 +46,16 @@ export abstract class SelectToolView extends GestureToolView {
     return renderers_by_source
   }
 
+  protected _clear_overlay(): void {}
+
+  protected _clear_other_overlays(): void {
+    for (const view of this.plot_view.tool_views.values()) {
+      if (view instanceof SelectToolView && view != this) {
+        view._clear_overlay()
+      }
+    }
+  }
+
   protected _clear_selection(): void {
     this._clear()
   }

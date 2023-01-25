@@ -70,8 +70,14 @@ export class LassoSelectToolView extends RegionSelectToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    this._is_selecting = true
     const {sx, sy} = ev
+    const {frame} = this.plot_view
+    if (!frame.bbox.contains(sx, sy))
+      return
+
+    this._clear_other_overlays()
+
+    this._is_selecting = true
     const [xs, ys] = this._v_invert([sx], [sy])
     this.model.overlay.update({xs, ys})
   }

@@ -69,10 +69,11 @@ export class PolySelectToolView extends RegionSelectToolView {
 
   override _tap(ev: TapEvent): void {
     const {sx, sy} = ev
-
     const {frame} = this.plot_view
     if (!frame.bbox.contains(sx, sy))
       return
+
+    this._clear_other_overlays()
 
     const [sxs, sys] = (() => {
       if (this._is_selecting) {

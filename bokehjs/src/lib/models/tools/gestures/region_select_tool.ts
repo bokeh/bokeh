@@ -37,7 +37,8 @@ export abstract class RegionSelectToolView extends SelectToolView {
     this._emit_selection_event(geometry, final)
   }
 
-  protected _clear_overlay(): void {
+  protected override _clear_overlay(): void {
+    super._clear_overlay()
     this.model.overlay.clear()
   }
 }
