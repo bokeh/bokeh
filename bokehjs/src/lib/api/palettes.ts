@@ -1,4 +1,6 @@
+import {Color} from "core/types"
 import {linspace} from "core/util/array"
+import {color2hex, color2rgba} from "core/util/color"
 
 export const YlGn3       = [0x31a354ff, 0xaddd8eff, 0xf7fcb9ff]
 export const YlGn4       = [0x238443ff, 0x78c679ff, 0xc2e699ff, 0xffffccff]
@@ -1014,6 +1016,35 @@ export function linear_palette<T>(palette: T[], n: number): T[] {
     return linspace(0, palette.length - 1, n).map((i) => palette[i|0])
   else
     throw new Error("too many color entries requested")
+}
+
+export function varying_alpha_palette(color: Color, n: number | null = null, start_alpha: number = 0, end_alpha: number = 255): string[] {
+  if (start_alpha < 0 || start_alpha > 255)
+    throw new Error("start_alpha must be in the range 0 to 255")
+
+  if (end_alpha < 0 || end_alpha > 255)
+    throw new Error("end_alpha must be in the range 0 to 255")
+
+  const rgba = color2rgba(color)
+
+  if (rgba[3] < 255) {
+    const factor = rgba[3] / 255
+    start_alpha *= factor
+    end_alpha *= factor
+  }
+
+  // Length of returned palette
+  const npalette = (n != null && n > 0) ? n : Math.round(Math.abs(end_alpha - start_alpha)) + 1
+
+  // Convert alpha to range 0 to 1
+  const diff_alpha = (end_alpha - start_alpha) / 255
+  start_alpha /= 255
+
+  const palette = new Array<string>(npalette)
+  for (let i = 0; i < npalette; i++)
+    palette[i] = color2hex(rgba, start_alpha + diff_alpha*i / (npalette-1))
+
+  return palette
 }
 
 export function magma(n: number) {
