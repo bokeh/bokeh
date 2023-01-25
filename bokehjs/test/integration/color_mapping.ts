@@ -256,7 +256,7 @@ describe("Color mapping", () => {
       const alpha_palette = varying_alpha_palette(cbar_color, 6, start_alpha)
       const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
       const color_mapper = new StackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
-      p.image({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
+      p.image_stack({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
 
       const color_bar = new ColorBar({color_mapper})
       p.add_layout(color_bar, "right")

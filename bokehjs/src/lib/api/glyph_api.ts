@@ -10,7 +10,7 @@ import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} fr
 
 import {
   AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea,
-  HBar, HexTile, Image, ImageRGBA, ImageURL, Line, MultiLine,
+  HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
   MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
   Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
 } from "../models/glyphs"
@@ -113,6 +113,7 @@ export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFi
 export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
 export type ImageArgs         = GlyphArgs<Image.Props>
 export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
+export type ImageStackArgs    = GlyphArgs<ImageStack.Props>
 export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
 export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
 export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
@@ -258,6 +259,18 @@ export abstract class GlyphAPI {
     args?: Partial<ImageArgs>): TypedGlyphRenderer<Image>
   image(...args: unknown[]): TypedGlyphRenderer<Image> {
     return this._glyph(Image, ["color_mapper", "image", "x", "y", "dw", "dh"], args)
+  }
+
+  image_stack(args: Partial<ImageStackArgs>): TypedGlyphRenderer<ImageStack>
+  image_stack(
+    image: ImageStackArgs["image"],
+    x: ImageStackArgs["x"],
+    y: ImageStackArgs["y"],
+    dw: ImageStackArgs["dw"],
+    dh: ImageStackArgs["dh"],
+    args?: Partial<ImageStackArgs>): TypedGlyphRenderer<ImageStack>
+  image_stack(...args: unknown[]): TypedGlyphRenderer<ImageStack> {
+    return this._glyph(ImageStack, ["color_mapper", "image", "x", "y", "dw", "dh"], args)
   }
 
   image_rgba(args: Partial<ImageRGBAArgs>): TypedGlyphRenderer<ImageRGBA>

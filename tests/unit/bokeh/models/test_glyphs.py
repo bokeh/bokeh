@@ -63,7 +63,7 @@ from bokeh.models.glyphs import ( # isort:skip
     Circle,
     HArea,
     HBar,
-    Image, ImageRGBA, ImageURL,
+    Image, ImageRGBA, ImageStack, ImageURL,
     Line,
     MultiLine,
     MultiPolygons,
@@ -266,6 +266,7 @@ def test_Image_kwargs() -> None:
     assert glyph.dh == 10
     assert glyph.dilate is False
 
+
 def test_ImageRGBA() -> None:
     glyph = ImageRGBA()
     assert glyph.image == field("image")
@@ -287,6 +288,39 @@ def test_ImageRGBA() -> None:
         "origin",
         "anchor",
     ], GLYPH)
+
+
+def test_ImageStack() -> None:
+    glyph = ImageStack()
+    assert glyph.image == field("image")
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.dw == field("dw")
+    assert glyph.dh == field("dh")
+    assert glyph.dilate is False
+    check_properties_existence(glyph, [
+        "image",
+        "x",
+        "y",
+        "dw",
+        "dw_units",
+        "dh",
+        "dh_units",
+        "global_alpha",
+        "dilate",
+        "origin",
+        "anchor",
+        "color_mapper",
+    ], GLYPH)
+
+def test_ImageStack_kwargs() -> None:
+    glyph = Image(x=0, y=0, dw=10, dh=10)
+    assert glyph.image == field("image")
+    assert glyph.x == 0
+    assert glyph.y == 0
+    assert glyph.dw == 10
+    assert glyph.dh == 10
+    assert glyph.dilate is False
 
 
 def test_ImageURL() -> None:

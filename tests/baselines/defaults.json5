@@ -1635,6 +1635,17 @@
       field: "image",
     },
   },
+  ImageStack: {
+    __extends__: "ImageBase",
+    image: {
+      type: "field",
+      field: "image",
+    },
+    color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   ImageURL: {
     __extends__: "XYGlyph",
     url: {
