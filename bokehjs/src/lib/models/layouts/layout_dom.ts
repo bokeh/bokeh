@@ -153,7 +153,7 @@ export abstract class LayoutDOMView extends UIElementView {
     for (const child_view of this.child_views) {
       child_view.render()
       this.shadow_el.appendChild(child_view.el)
-      child_view.after_render()
+      //child_view.after_render()
     }
   }
 
@@ -441,13 +441,25 @@ export abstract class LayoutDOMView extends UIElementView {
     this.render()
     if (element != null)
       element.appendChild(this.el)
-    this.after_render()
+    this.rafter_render()
     this._was_built = true
 
     this.notify_finished()
   }
 
+  protected _after_render(): void {}
+
+  rafter_render(): void {
+    for (const child_view of this.layoutable_views) {
+      child_view.rafter_render()
+    }
+
+    this.after_render()
+  }
+
   override after_render(): void {
+    this._after_render()
+
     if (!this.is_managed) {
       this.invalidate_layout()
     }

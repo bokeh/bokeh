@@ -279,11 +279,11 @@ export class DataTableView extends WidgetView {
 
     this.wrapper_el = div({class: tables.data_table})
     this.shadow_el.appendChild(this.wrapper_el)
-
-    this._render()
   }
 
-  protected _render(): void {
+  override _after_render(): void {
+    super._after_render()
+
     const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
