@@ -8,7 +8,7 @@ import * as p from "core/properties"
 import {KeyEvent, KeyModifiers} from "core/ui_events"
 import {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
-import {Geometry, GeometryData} from "core/geometry"
+import {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
 import {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
@@ -108,37 +108,34 @@ export abstract class SelectToolView extends GestureToolView {
   _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame
 
-    let geometry_data: GeometryData
-    switch (geometry.type) {
-      case "point": {
-        const {sx, sy} = geometry
-        const x = x_scale.invert(sx)
-        const y = y_scale.invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
+    const geometry_data = (() => {
+      switch (geometry.type) {
+        case "point": {
+          const {sx, sy} = geometry
+          const x = x_scale.invert(sx)
+          const y = y_scale.invert(sy)
+          return {...geometry, x, y}
+        }
+        case "span": {
+          const {sx, sy} = geometry
+          const x = x_scale.invert(sx)
+          const y = y_scale.invert(sy)
+          return {...geometry, x, y}
+        }
+        case "rect": {
+          const {sx0, sx1, sy0, sy1} = geometry
+          const [x0, x1] = x_scale.r_invert(sx0, sx1)
+          const [y0, y1] = y_scale.r_invert(sy0, sy1)
+          return {...geometry, x0, y0, x1, y1}
+        }
+        case "poly": {
+          const {sx, sy} = geometry
+          const x = x_scale.v_invert(sx)
+          const y = y_scale.v_invert(sy)
+          return {...geometry, x, y}
+        }
       }
-      case "span": {
-        const {sx, sy} = geometry
-        const x = x_scale.invert(sx)
-        const y = y_scale.invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
-      }
-      case "rect": {
-        const {sx0, sx1, sy0, sy1} = geometry
-        const [x0, x1] = x_scale.r_invert(sx0, sx1)
-        const [y0, y1] = y_scale.r_invert(sy0, sy1)
-        geometry_data = {...geometry, x0, y0, x1, y1}
-        break
-      }
-      case "poly": {
-        const {sx, sy} = geometry
-        const x = x_scale.v_invert(sx)
-        const y = y_scale.v_invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
-      }
-    }
+    })()
 
     this.plot_view.model.trigger_event(new SelectionGeometry(geometry_data, final))
   }
