@@ -98,10 +98,6 @@ export abstract class SelectToolView extends GestureToolView {
       sm.select(r_views, geometry, final, mode)
     }
 
-    // XXX: messed up class structure
-    if ((this.model as any).callback != null)
-      (this as any)._emit_callback(geometry)
-
     this._emit_selection_event(geometry, final)
   }
 
