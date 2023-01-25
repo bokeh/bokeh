@@ -1,7 +1,7 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
+import {DataRenderer} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
 import * as p from "core/properties"
@@ -82,26 +82,9 @@ export abstract class SelectToolView extends GestureToolView {
     this.plot_view.request_paint(renderer_views)
   }
 
-  _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
-    const renderers_by_source = this._computed_renderers_by_data_source()
+  abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
 
-    for (const [, renderers] of renderers_by_source) {
-      const sm = renderers[0].get_selection_manager()
-
-      const r_views: DataRendererView[] = []
-      for (const r of renderers) {
-        const r_view = this.plot_view.renderer_view(r)
-        if (r_view != null) {
-          r_views.push(r_view)
-        }
-      }
-      sm.select(r_views, geometry, final, mode)
-    }
-
-    this._emit_selection_event(geometry, final)
-  }
-
-  _emit_selection_event(geometry: Geometry, final: boolean = true): void {
+  protected _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame
 
     const geometry_data = (() => {

@@ -1,4 +1,4 @@
-import {SelectTool, SelectToolView} from "./select_tool"
+import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {Scale} from "../../scales/scale"
 import {SelectionMode, CoordinateUnits} from "core/enums"
@@ -11,14 +11,10 @@ import {tool_icon_polygon_select} from "styles/icons.css"
 
 type NumArray = Arrayable<number>
 
-export class PolySelectToolView extends SelectToolView {
+export class PolySelectToolView extends RegionSelectToolView {
   declare model: PolySelectTool
 
   protected _is_selecting: boolean = false
-
-  override get overlays() {
-    return [...super.overlays, this.model.overlay]
-  }
 
   protected _mappers(): {x: CoordinateMapper, y: CoordinateMapper} {
     const mapper = (units: CoordinateUnits, scale: Scale,
@@ -50,10 +46,6 @@ export class PolySelectToolView extends SelectToolView {
   protected _v_invert(sxs: NumArray, sys: NumArray): [NumArray, NumArray] {
     const {x, y} = this._mappers()
     return [x.v_invert(sxs), y.v_invert(sys)]
-  }
-
-  protected _is_continuous(ev: KeyModifiers): boolean {
-    return this.model.continuous != ev.alt_key
   }
 
   override connect_signals(): void {
@@ -148,9 +140,9 @@ export class PolySelectToolView extends SelectToolView {
     }
   }
 
-  _clear_overlay(): void {
+  protected override _clear_overlay(): void {
     this._is_selecting = false
-    this.model.overlay.clear()
+    super._clear_overlay()
   }
 
   _do_select(sx: NumArray, sy: NumArray, final: boolean, mode: SelectionMode): void {
@@ -179,18 +171,17 @@ export const DEFAULT_POLY_OVERLAY = () => {
 export namespace PolySelectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SelectTool.Props & {
-    continuous: p.Property<boolean>
+  export type Props = RegionSelectTool.Props & {
     overlay: p.Property<PolyAnnotation>
-    persistent: p.Property<boolean>
   }
 }
 
 export interface PolySelectTool extends PolySelectTool.Attrs {}
 
-export class PolySelectTool extends SelectTool {
+export class PolySelectTool extends RegionSelectTool {
   declare properties: PolySelectTool.Props
   declare __view_type__: PolySelectToolView
+  declare overlay: PolyAnnotation
 
   constructor(attrs?: Partial<PolySelectTool.Attrs>) {
     super(attrs)
@@ -199,10 +190,8 @@ export class PolySelectTool extends SelectTool {
   static {
     this.prototype.default_view = PolySelectToolView
 
-    this.define<PolySelectTool.Props>(({Boolean, Ref}) => ({
-      continuous: [ Boolean, false ],
+    this.define<PolySelectTool.Props>(({Ref}) => ({
       overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
-      persistent: [ Boolean, false ],
     }))
 
     this.register_alias("poly_select", () => new PolySelectTool())

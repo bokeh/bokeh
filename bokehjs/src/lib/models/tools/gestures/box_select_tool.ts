@@ -1,23 +1,15 @@
-import {SelectTool, SelectToolView} from "./select_tool"
+import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Scale} from "../../scales/scale"
 import * as p from "core/properties"
 import {Dimensions, BoxOrigin, SelectionMode, CoordinateUnits} from "core/enums"
-import {PanEvent, KeyEvent, KeyModifiers} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {RectGeometry} from "core/geometry"
 import {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
-export class BoxSelectToolView extends SelectToolView {
+export class BoxSelectToolView extends RegionSelectToolView {
   declare model: BoxSelectTool
-
-  override get overlays() {
-    return [...super.overlays, this.model.overlay]
-  }
-
-  protected _is_continuous(ev: KeyModifiers): boolean {
-    return this.model.continuous != ev.alt_key
-  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -172,10 +164,6 @@ export class BoxSelectToolView extends SelectToolView {
       super._clear_selection()
   }
 
-  _clear_overlay(): void {
-    this.model.overlay.clear()
-  }
-
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
     const geometry: RectGeometry = {type: "rect", sx0, sx1, sy0, sy1}
     this._select(geometry, final, mode)
@@ -204,20 +192,20 @@ const DEFAULT_BOX_OVERLAY = () => {
 export namespace BoxSelectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SelectTool.Props & {
+  export type Props = RegionSelectTool.Props & {
     dimensions: p.Property<Dimensions>
-    continuous: p.Property<boolean>
     overlay: p.Property<BoxAnnotation>
     origin: p.Property<BoxOrigin>
-    persistent: p.Property<boolean>
   }
 }
 
 export interface BoxSelectTool extends BoxSelectTool.Attrs {}
 
-export class BoxSelectTool extends SelectTool {
+export class BoxSelectTool extends RegionSelectTool {
   declare properties: BoxSelectTool.Props
   declare __view_type__: BoxSelectToolView
+
+  declare overlay: BoxAnnotation
 
   constructor(attrs?: Partial<BoxSelectTool.Attrs>) {
     super(attrs)
@@ -226,12 +214,10 @@ export class BoxSelectTool extends SelectTool {
   static {
     this.prototype.default_view = BoxSelectToolView
 
-    this.define<BoxSelectTool.Props>(({Boolean, Ref}) => ({
+    this.define<BoxSelectTool.Props>(({Ref}) => ({
       dimensions: [ Dimensions, "both" ],
-      continuous: [ Boolean, false ],
       overlay:    [ Ref(BoxAnnotation), DEFAULT_BOX_OVERLAY ],
       origin:     [ BoxOrigin, "corner" ],
-      persistent: [ Boolean, false ],
     }))
 
     this.register_alias("box_select", () => new BoxSelectTool())

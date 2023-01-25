@@ -27,7 +27,7 @@ export class TapToolView extends SelectToolView {
     this._select(geometry, true, this._select_mode(ev))
   }
 
-  override _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
     const {callback} = this.model
 
     if (this.model.behavior == "select") {

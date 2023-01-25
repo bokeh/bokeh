@@ -9,7 +9,7 @@ import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {PolySelectTool} from "@bokehjs/models/tools/gestures/poly_select_tool"
-import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
+import {GestureTool, GestureToolView} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
@@ -582,12 +582,12 @@ describe("ui_event_bus module", () => {
     })
 
     it("multi-gesture tool should receive multiple events", async () => {
-      class MultiToolView extends SelectToolView {
+      class MultiToolView extends GestureToolView {
         override _tap(_e: TapEvent): void {}
         override _pan_start(_e: PanEvent): void {}
       }
 
-      class MultiTool extends SelectTool {
+      class MultiTool extends GestureTool {
         override default_view = MultiToolView
         override tool_name = "Multi Tool"
         override event_type = ["tap" as "tap", "pan" as "pan"]

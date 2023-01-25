@@ -1,11 +1,11 @@
-import {SelectTool, SelectToolView} from "./select_tool"
+import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
 import {Scale} from "../../scales/scale"
 import {DEFAULT_POLY_OVERLAY} from "./poly_select_tool"
 import {SelectionMode, CoordinateUnits} from "core/enums"
 import {PolyGeometry} from "core/geometry"
 import {Arrayable} from "core/types"
-import {PanEvent, KeyEvent, KeyModifiers} from "core/ui_events"
+import {PanEvent, KeyEvent} from "core/ui_events"
 import {CoordinateMapper} from "core/util/bbox"
 import {assert} from "core/util/assert"
 import * as p from "core/properties"
@@ -13,12 +13,8 @@ import {tool_icon_lasso_select} from "styles/icons.css"
 
 type NumArray = Arrayable<number>
 
-export class LassoSelectToolView extends SelectToolView {
+export class LassoSelectToolView extends RegionSelectToolView {
   declare model: LassoSelectTool
-
-  override get overlays() {
-    return [...super.overlays, this.model.overlay]
-  }
 
   protected _is_selecting: boolean = false
 
@@ -52,10 +48,6 @@ export class LassoSelectToolView extends SelectToolView {
   protected _v_invert(sxs: NumArray, sys: NumArray): [NumArray, NumArray] {
     const {x, y} = this._mappers()
     return [x.v_invert(sxs), y.v_invert(sys)]
-  }
-
-  protected _is_continuous(ev: KeyModifiers): boolean {
-    return this.model.continuous != ev.alt_key
   }
 
   override connect_signals(): void {
@@ -140,10 +132,6 @@ export class LassoSelectToolView extends SelectToolView {
       super._clear_selection()
   }
 
-  _clear_overlay(): void {
-    this.model.overlay.clear()
-  }
-
   _do_select(sx: NumArray, sy: NumArray, final: boolean, mode: SelectionMode): void {
     const geometry: PolyGeometry = {type: "poly", sx, sy}
     this._select(geometry, final, mode)
@@ -153,18 +141,18 @@ export class LassoSelectToolView extends SelectToolView {
 export namespace LassoSelectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = SelectTool.Props & {
-    continuous: p.Property<boolean>
-    persistent: p.Property<boolean>
+  export type Props = RegionSelectTool.Props & {
     overlay: p.Property<PolyAnnotation>
   }
 }
 
 export interface LassoSelectTool extends LassoSelectTool.Attrs {}
 
-export class LassoSelectTool extends SelectTool {
+export class LassoSelectTool extends RegionSelectTool {
   declare properties: LassoSelectTool.Props
   declare __view_type__: LassoSelectToolView
+
+  declare overlay: PolyAnnotation
 
   constructor(attrs?: Partial<LassoSelectTool.Attrs>) {
     super(attrs)
@@ -173,11 +161,13 @@ export class LassoSelectTool extends SelectTool {
   static {
     this.prototype.default_view = LassoSelectToolView
 
-    this.define<LassoSelectTool.Props>(({Boolean, Ref}) => ({
-      continuous: [ Boolean, true ],
-      persistent: [ Boolean, false ],
+    this.define<LassoSelectTool.Props>(({Ref}) => ({
       overlay: [ Ref(PolyAnnotation), DEFAULT_POLY_OVERLAY ],
     }))
+
+    this.override<LassoSelectTool.Props>({
+      continuous: true,
+    })
 
     this.register_alias("lasso_select", () => new LassoSelectTool())
   }
