@@ -202,6 +202,17 @@ values, a ``step`` size in units of days, an initial ``value``, and a ``title``:
 
 More information can be found in the reference guide entry for |DateRangeSlider|.
 
+DateSlider
+~~~~~~~~~~
+
+The Bokeh date slider can be configured with ``start`` and ``end`` date
+values, a ``step`` size in units of days, an initial ``value``, and a ``title``:
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/dateslider.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |DateSlider|.
+
 DatetimeRangeSlider
 ~~~~~~~~~~~~~~~~~~~
 
@@ -486,6 +497,7 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 .. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
 .. |DateRangeSlider|        replace:: :class:`~bokeh.models.widgets.sliders.DateRangeSlider`
+.. |DateSlider|             replace:: :class:`~bokeh.models.widgets.sliders.DateSlider`
 .. |DatetimeRangeSlider|    replace:: :class:`~bokeh.models.widgets.sliders.DatetimeRangeSlider`
 .. |Div|                    replace:: :class:`~bokeh.models.widgets.markups.Div`
 .. |Dropdown|               replace:: :class:`~bokeh.models.widgets.buttons.Dropdown`
