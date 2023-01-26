@@ -20,6 +20,9 @@ export const Anchor = Enum(
 export type AngleUnits = "deg" | "rad" | "grad" | "turn"
 export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 
+export type AlternationPolicy = typeof AlternationPolicy["__type__"]
+export const AlternationPolicy = Enum("none", "even", "odd", "every")
+
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 
@@ -79,9 +82,6 @@ export const ImageOrigin = Enum("bottom_left", "top_left", "bottom_right", "top_
 
 export type LatLon = "lat" | "lon"
 export const LatLon = Enum("lat", "lon")
-
-export type LegendBackgroundPolicy = typeof LegendBackgroundPolicy["__type__"]
-export const LegendBackgroundPolicy = Enum("none", "even", "odd", "every")
 
 export type LegendClickPolicy = "none" | "hide" | "mute"
 export const LegendClickPolicy = Enum("none", "hide", "mute")

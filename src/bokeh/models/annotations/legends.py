@@ -22,8 +22,8 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import (
+    AlternationPolicy,
     Anchor,
-    LegendBackgroundPolicy,
     LegendClickPolicy,
     LegendLocation,
     Location,
@@ -415,7 +415,7 @@ class Legend(Annotation):
     Defines what happens when a lengend's item is clicked.
     """)
 
-    item_background_policy = Enum(LegendBackgroundPolicy, default="none", help="""
+    item_background_policy = Enum(AlternationPolicy, default="none", help="""
     Defines which items to style, if ``item_background_fill`` is configured.
     """)
 

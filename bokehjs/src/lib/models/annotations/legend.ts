@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
-import {Orientation, LegendLocation, LegendClickPolicy, LegendBackgroundPolicy, Location} from "core/enums"
+import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
 import * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import * as p from "core/properties"
@@ -387,7 +387,7 @@ export class LegendView extends AnnotationView {
       }
     })()
 
-    const has_background = (_i: number, row: number, col: number) => {
+    const has_item_background = (_i: number, row: number, col: number) => {
       if (!this.visuals.item_background_fill.doit)
         return false
       switch (this.model.item_background_policy) {
@@ -409,7 +409,7 @@ export class LegendView extends AnnotationView {
       const {left, top, width, height} = bbox
       ctx.translate(left, top)
 
-      if (has_background(i, row, col)) {
+      if (has_item_background(i, row, col)) {
         ctx.beginPath()
         ctx.rect(0, 0, width, height)
         this.visuals.item_background_fill.apply(ctx)
@@ -466,7 +466,7 @@ export namespace Legend {
     spacing: p.Property<number>
     items: p.Property<LegendItem[]>
     click_policy: p.Property<LegendClickPolicy>
-    item_background_policy: p.Property<LegendBackgroundPolicy>
+    item_background_policy: p.Property<AlternationPolicy>
   } & Mixins
 
   export type Mixins =
@@ -534,7 +534,7 @@ export class Legend extends Annotation {
       spacing:          [ Number, 3 ],
       items:            [ Array(Ref(LegendItem)), [] ],
       click_policy:     [ LegendClickPolicy, "none" ],
-      item_background_policy: [ LegendBackgroundPolicy, "none" ],
+      item_background_policy: [ AlternationPolicy, "none" ],
     }))
 
     this.override<Legend.Props>({

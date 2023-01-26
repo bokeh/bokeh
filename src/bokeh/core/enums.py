@@ -90,6 +90,7 @@ from ..util.strings import nice_join
 
 __all__ = (
     'Align',
+    'AlternationPolicy',
     'Anchor',
     'AngleUnits',
     'AutosizeMode',
@@ -115,7 +116,6 @@ __all__ = (
     'ImageOrigin',
     'JitterRandomDistribution',
     'LatLon',
-    'LegendBackgroundPolicy',
     'LegendClickPolicy',
     'LegendLocation',
     'LineCap',
@@ -256,6 +256,9 @@ HAlign = enumeration("top", "center", "bottom")
 #: Vertical alignment of a child item
 VAlign = enumeration("left", "center", "right")
 
+#: Specify to which items apply styling in a container (e.g. in a legend)
+AlternationPolicy = enumeration("none", "even", "odd", "every")
+
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(
     "top_left",    "top_center",    "top_right",
@@ -373,9 +376,6 @@ JitterRandomDistribution = enumeration(JitterRandomDistributionType)
 
 #: Specify whether a dimension or coordinate is latitude or longitude
 LatLon = enumeration("lat", "lon")
-
-#: Specify how a legend should style its items
-LegendBackgroundPolicy = enumeration("none", "even", "odd", "every")
 
 #: Specify how a legend should respond to click events
 LegendClickPolicy = enumeration("none", "hide", "mute")
