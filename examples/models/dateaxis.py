@@ -36,5 +36,5 @@ if __name__ == "__main__":
     filename = "dateaxis.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Date Axis Example"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

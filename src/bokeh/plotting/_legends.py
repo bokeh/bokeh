@@ -47,7 +47,7 @@ LEGEND_ARGS = ['legend', 'legend_label', 'legend_field', 'legend_group']
 def pop_legend_kwarg(kwargs):
     result = {attr: kwargs.pop(attr) for attr in LEGEND_ARGS if attr in kwargs}
     if len(result) > 1:
-        raise ValueError("Only one of %s may be provided, got: %s" % (nice_join(LEGEND_ARGS), nice_join(result.keys())))
+        raise ValueError(f"Only one of {nice_join(LEGEND_ARGS)} may be provided, got: {nice_join(result.keys())}")
     return result
 
 def update_legend(plot, legend_kwarg, glyph_renderer):

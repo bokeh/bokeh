@@ -59,5 +59,5 @@ if __name__ == "__main__":
     filename = "maps.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Google Maps Example"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

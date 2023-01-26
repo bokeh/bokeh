@@ -240,12 +240,12 @@ class TestThemes:
         for name, value in props.items():
             property = model.lookup(name)
             if property is None:
-                raise RuntimeError("Model %r has no property %s" % (model, name))
+                raise RuntimeError(f"Model {model!r} has no property {name!r}")
             default = property.class_default(model_class)
             if default != value:
-                print("%s.%s differs default %r theme %r" % (model_class.__name__, name, default, value))
+                print(f"{model_class.__name__}.{name} differs default {default!r} theme {value!r}")
             else:
-                print("%s.%s default %r is identical in the theme" % (model_class.__name__, name, default))
+                print(f"{model_class.__name__}.{name} default {default!r} is identical in the theme")
 
     def _compare_dict_to_model_defaults(self, props, model_name):
         import bokeh.models as models

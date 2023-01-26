@@ -63,7 +63,7 @@ layout = column(
     #RadioGroup(labels=["Radio Option 7", "Radio Option 8", "Radio Option 9"], active=2, inline=True),
 
     #Select(options=["Select Option 1", "Select Option 2", "Select Option 3"]),
-    #MultiSelect(options=["MultiSelect Option %d" % (i+1) for i in range(16)], size=6),
+    #MultiSelect(options=[f"MultiSelect Option {i+1}" for i in range(16)], size=6),
 
     #Paragraph(text="Paragraph 1"),
     #Paragraph(text="Paragraph 2"),

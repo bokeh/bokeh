@@ -137,5 +137,5 @@ if __name__ == "__main__":
     filename = "trail.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Trail map and altitude profile"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

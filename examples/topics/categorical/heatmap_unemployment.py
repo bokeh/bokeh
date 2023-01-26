@@ -33,7 +33,7 @@ mapper = LinearColorMapper(palette=colors, low=df.rate.min(), high=df.rate.max()
 
 TOOLS = "hover,save,pan,box_zoom,reset,wheel_zoom"
 
-p = figure(title="US Unemployment ({0} - {1})".format(years[0], years[-1]),
+p = figure(title=f"US Unemployment ({years[0]} - {years[-1]})",
            x_range=years, y_range=list(reversed(months)),
            x_axis_location="above", width=900, height=400,
            tools=TOOLS, toolbar_location='below',

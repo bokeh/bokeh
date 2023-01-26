@@ -136,7 +136,7 @@ class FileOutputSubcommand(Subcommand):
         else:
             base = route[1:]
 
-        return "%s.%s" % (base, ext)
+        return f"{base}.{ext}"
 
     def invoke(self, args: argparse.Namespace) -> None:
         '''

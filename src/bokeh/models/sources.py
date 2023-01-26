@@ -529,16 +529,14 @@ class ColumnDataSource(ColumnarDataSource):
         oldkeys = set(self.data.keys())
 
         if newkeys != oldkeys:
-            missing = oldkeys - newkeys
-            extra = newkeys - oldkeys
+            missing = sorted(oldkeys - newkeys)
+            extra = sorted(newkeys - oldkeys)
             if missing and extra:
-                raise ValueError(
-                    "Must stream updates to all existing columns (missing: %s, extra: %s)" % (", ".join(sorted(missing)), ", ".join(sorted(extra)))
-                )
+                raise ValueError(f"Must stream updates to all existing columns (missing: {', '.join(missing)}, extra: {', '.join(extra)})")
             elif missing:
-                raise ValueError("Must stream updates to all existing columns (missing: %s)" % ", ".join(sorted(missing)))
+                raise ValueError(f"Must stream updates to all existing columns (missing: {', '.join(missing)})")
             else:
-                raise ValueError("Must stream updates to all existing columns (extra: %s)" % ", ".join(sorted(extra)))
+                raise ValueError(f"Must stream updates to all existing columns (extra: {', '.join(extra)})")
 
         if needs_length_check:
             lengths: set[int] = set()
@@ -546,7 +544,7 @@ class ColumnDataSource(ColumnarDataSource):
             for _, x in new_data.items():
                 if isinstance(x, arr_types):
                     if len(x.shape) != 1:
-                        raise ValueError("stream(...) only supports 1d sequences, got ndarray with size %r" % (x.shape,))
+                        raise ValueError(f"stream(...) only supports 1d sequences, got ndarray with size {x.shape!r}")
                     lengths.add(x.shape[0])
                 else:
                     lengths.add(len(x))

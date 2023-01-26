@@ -8,7 +8,7 @@ x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
+    f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50+2*x, 30+2*y)
 ]
 
 p = figure(tools="", toolbar_location=None)

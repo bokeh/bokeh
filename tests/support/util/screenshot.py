@@ -92,7 +92,7 @@ def _run_in_browser(engine: list[str], url: str, local_wait: int | None = None, 
         cmd += [str(local_wait)]
     if global_wait is not None:
         cmd += [str(global_wait)]
-    trace("Running command: %s" % " ".join(cmd))
+    trace(f"Running command: {' '.join(cmd)}")
 
     env = os.environ.copy()
     env["NODE_PATH"] = join(TOP_PATH, 'bokehjs', 'node_modules')
@@ -100,7 +100,7 @@ def _run_in_browser(engine: list[str], url: str, local_wait: int | None = None, 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=env)
     except OSError as e:
-        fail("Failed to run: %s" % " ".join(cmd))
+        fail(f"Failed to run: {' '.join(cmd)}")
         fail(str(e))
         sys.exit(1)
 

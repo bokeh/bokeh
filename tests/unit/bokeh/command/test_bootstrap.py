@@ -34,7 +34,7 @@ from bokeh.command.bootstrap import main # isort:skip
 def _assert_version_output(capsys: Capture):
     out, err = capsys.readouterr()
     err_expected = ""
-    out_expected = ("%s\n" % __version__)
+    out_expected = (f"{__version__}\n")
     assert err == err_expected
     assert out == out_expected
 

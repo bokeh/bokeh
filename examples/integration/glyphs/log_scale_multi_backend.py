@@ -14,7 +14,7 @@ def make_figure(output_backend):
                height=400,
                toolbar_location=None,
                output_backend=output_backend,
-               title="Backend: %s" % output_backend)
+               title=f"Backend: {output_backend}")
 
     p.xaxis.axis_label = 'Domain'
     p.yaxis.axis_label = 'Values (log scale)'

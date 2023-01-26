@@ -42,7 +42,7 @@ plot.add_layout(xaxis_below, 'below')
 plot.add_layout(CategoricalAxis(), 'left')
 
 url = "http://www.colors.commutercreative.com/@names/"
-tooltips = """Click the color to go to:<br /><a href="{url}">{url}</a>""".format(url=url)
+tooltips = f"Click the color to go to:<br /><a href='{url}'>{url}</a>"
 
 tap = TapTool(renderers=[rect_renderer], callback=OpenURL(url=url))
 hover = HoverTool(renderers=[rect_renderer], tooltips=tooltips)
@@ -56,5 +56,5 @@ if __name__ == "__main__":
     filename = "colors.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "CSS3 Color Names"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

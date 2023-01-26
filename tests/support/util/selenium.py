@@ -212,9 +212,9 @@ INIT = 'Bokeh._testing.init();'
 
 def RECORD(key: str, value: Any, *, final: bool = True) -> str:
     if final:
-        return 'Bokeh._testing.record(%r, %s);' % (key, value)
+        return f"Bokeh._testing.record({key!r}, {value});"
     else:
-        return 'Bokeh._testing.record0(%r, %s);' % (key, value)
+        return f"Bokeh._testing.record0({key!r}, {value});"
 
 RESULTS = 'return Bokeh._testing.results'
 

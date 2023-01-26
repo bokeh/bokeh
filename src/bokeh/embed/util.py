@@ -140,7 +140,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
     docs = {obj.document for obj in objs if obj.document is not None}
 
     if always_new:
-        def finish() -> None:
+        def finish() -> None:  # noqa
             _dispose_temp_doc(objs)
         doc = _create_temp_doc(objs)
     else:
@@ -268,7 +268,7 @@ class RenderRoots:
                 if root.name == key:
                     break
             else:
-                raise ValueError("root with '%s' name not found" % key)
+                raise ValueError(f"root with {key!r} name not found")
 
         return RenderRoot(elementid, root.id, root.name, root.tags)
 

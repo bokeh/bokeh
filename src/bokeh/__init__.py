@@ -103,7 +103,7 @@ def _formatwarning(message, category, filename, lineno, line=None):
     from .util.warnings import BokehDeprecationWarning, BokehUserWarning
     if category not in (BokehDeprecationWarning, BokehUserWarning):
         return original_formatwarning(message, category, filename, lineno, line)
-    return "%s: %s\n" % (category.__name__, message)
+    return f"{category.__name__}: {message}\n"
 warnings.formatwarning = _formatwarning
 
 del _formatwarning

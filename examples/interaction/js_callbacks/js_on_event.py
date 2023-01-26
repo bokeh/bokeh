@@ -16,22 +16,22 @@ def display_event(div, attributes=[]):
     in the div model.
     """
     style = 'float: left; clear: left; font-size: 13px'
-    return CustomJS(args=dict(div=div), code="""
-        const attrs = %s;
+    return CustomJS(args=dict(div=div), code=f"""
+        const attrs = {attributes};
         const args = [];
-        for (let i = 0; i < attrs.length; i++) {
-            const val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {
+        for (let i = 0; i < attrs.length; i++) {{
+            const val = JSON.stringify(cb_obj[attrs[i]], function(key, val) {{
                 return val.toFixed ? Number(val.toFixed(2)) : val;
-            })
+            }})
             args.push(attrs[i] + '=' + val)
-        }
-        const line = "<span style=%r><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
+        }}
+        const line = "<span style={style!r}><b>" + cb_obj.event_name + "</b>(" + args.join(", ") + ")</span>\\n";
         const text = div.text.concat(line);
         const lines = text.split("\\n")
         if (lines.length > 35)
             lines.shift();
         div.text = lines.join("\\n");
-    """ % (attributes, style))
+    """)
 
 # Follows the color_scatter gallery example
 
@@ -40,7 +40,7 @@ x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
 colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
+    f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50+2*x, 30+2*y)
 ]
 
 p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select,box_zoom,undo,redo")

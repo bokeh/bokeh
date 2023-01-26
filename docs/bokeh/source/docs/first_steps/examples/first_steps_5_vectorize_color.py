@@ -7,7 +7,7 @@ x = list(range(0, 26))
 y = random.sample(range(0, 100), 26)
 
 # generate list of rgb hex colors in relation to y
-colors = ["#%02x%02x%02x" % (255, int(round(value * 255 / 100)), 255) for value in y]
+colors = [f"#{255:02x}{int((value * 255) / 100):02x}{255:02x}" for value in y]
 
 # create new plot
 p = figure(

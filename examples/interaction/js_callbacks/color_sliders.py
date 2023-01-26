@@ -14,10 +14,10 @@ from bokeh.themes import Theme
 
 R, G, B = (75, 125, 125)
 
-def rgb_to_hex(rgb):
-    return '#%02x%02x%02x' % rgb
+def rgb_to_hex(r, g, b):
+    return f"#{r:02x}{g:02x}{b:02x}"
 
-color = rgb_to_hex((R, G, B))
+color = rgb_to_hex(R, G, B)
 text_color = '#ffffff'
 
 # create a data source to enable refreshing of fill & text color

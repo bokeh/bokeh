@@ -9,7 +9,7 @@ y = np.random.random(size=N) * 100
 
 # generate radii and colors based on data
 radii = y / 100 * 2
-colors = ["#%02x%02x%02x" % (255, int(round(value * 255 / 100)), 255) for value in y]
+colors = [f"#{255:02x}{int((value * 255) / 100):02x}{255:02x}" for value in y]
 
 # create a new plot with a specific size
 p = figure(

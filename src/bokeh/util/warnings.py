@@ -27,11 +27,7 @@ log = logging.getLogger(__name__)
 import inspect
 import os
 import warnings  # lgtm [py/import-and-import-from]
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from typing_extensions import Type
-
+from typing import Type
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -239,7 +239,7 @@ class _BytesEncoder(json.JSONEncoder):
 
 class _BytesDecoder(json.JSONDecoder):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        super().__init__(object_hook=self.bytes_object_hook, *args, **kwargs)
+        super().__init__(*args, object_hook=self.bytes_object_hook, **kwargs)
 
     def bytes_object_hook(self, obj: dict[Any, Any]) -> Any:
         if set(obj.keys()) == {"bytes"}:
