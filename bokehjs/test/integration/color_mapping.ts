@@ -244,7 +244,7 @@ describe("Color mapping", () => {
     })
   })
 
-  describe("with stack color mapper", () => {
+  describe("with weighted stack color mapper", () => {
     // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
     const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
     const array = new Float64NDArray(data, [3, 3, 2])
