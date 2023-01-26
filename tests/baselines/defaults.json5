@@ -449,6 +449,9 @@
   },
   StackColorMapper: {
     __extends__: "ColorMapper",
+  },
+  WeightedStackColorMapper: {
+    __extends__: "StackColorMapper",
     alpha_mapper: {
       type: "symbol",
       name: "unset",

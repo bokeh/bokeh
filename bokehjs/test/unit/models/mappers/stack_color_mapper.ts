@@ -3,11 +3,11 @@ import {expect} from "assertions"
 import {varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {EqHistColorMapper} from "@bokehjs/models/mappers/eqhist_color_mapper"
-import {StackColorMapper} from "@bokehjs/models/mappers/stack_color_mapper"
+import {WeightedStackColorMapper} from "@bokehjs/models/mappers/weighted_stack_color_mapper"
 
-describe("StackColorMapper module", () => {
+describe("WeightedStackColorMapper module", () => {
 
-  describe("StackColorMapper.rgba_mapper method", () => {
+  describe("WeightedStackColorMapper.rgba_mapper method", () => {
     // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
     const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
     const array = new Float64NDArray(data, [3, 3, 2])
@@ -16,7 +16,7 @@ describe("StackColorMapper module", () => {
         rescale_discrete_levels: boolean = false, color_baseline: number | null = null) {
       const alpha_palette = varying_alpha_palette("black", 6, start_alpha)
       const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
-      const color_mapper = new StackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
+      const color_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
       const rgba_mapper = color_mapper.rgba_mapper
       return Array.from(rgba_mapper.v_compute(array, 2))  // Cannot directly compare Uint8ClampedArray
     }

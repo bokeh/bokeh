@@ -63,6 +63,7 @@ __all__ = (
     'LogColorMapper',
     'EqHistColorMapper',
     'StackColorMapper',
+    'WeightedStackColorMapper',
 )
 
 #-----------------------------------------------------------------------------
@@ -317,8 +318,22 @@ class EqHistColorMapper(ScanningColorMapper):
     palette.
     """)
 
+@abstract
 class StackColorMapper(ColorMapper):
-    ''' Maps a 3D data array of shape ``(ny, nx, nstack)`` to a 2D RGBA image
+    ''' Abstract base class for color mappers that operate on ``ImageStack``
+    glyphs.
+
+    These map 3D data arrays of shape ``(ny, nx, nstack)`` to 2D RGBA images
+    of shape ``(ny, nx)``.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class WeightedStackColorMapper(StackColorMapper):
+    ''' Maps 3D data arrays of shape ``(ny, nx, nstack)`` to 2D RGBA images
     of shape ``(ny, nx)`` using a palette of length ``nstack``.
 
     The mapping occurs in two stages. Firstly the RGB values are calculated

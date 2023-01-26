@@ -2,7 +2,7 @@ import {display, fig, grid} from "./_util"
 
 import pipeline from "./_data"
 
-import {Range1d, LinearColorMapper, EqHistColorMapper, ColorBar, StackColorMapper} from "@bokehjs/models"
+import {Range1d, LinearColorMapper, EqHistColorMapper, ColorBar, WeightedStackColorMapper} from "@bokehjs/models"
 import {Plasma256, varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
 import {linspace} from "@bokehjs/core/util/array"
@@ -255,7 +255,7 @@ describe("Color mapping", () => {
 
       const alpha_palette = varying_alpha_palette(cbar_color, 6, start_alpha)
       const alpha_mapper = new EqHistColorMapper({palette: alpha_palette, rescale_discrete_levels})
-      const color_mapper = new StackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
+      const color_mapper = new WeightedStackColorMapper({palette: ["red", "blue"], nan_color, alpha_mapper, color_baseline})
       p.image_stack({image: [array], x: 0, y: 0, dw: 1, dh: 1, color_mapper})
 
       const color_bar = new ColorBar({color_mapper})

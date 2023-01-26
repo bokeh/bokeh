@@ -137,9 +137,9 @@ class Test_LogColorMapper:
         )
 
 
-class Test_StackColorMapper:
+class Test_WeightedStackColorMapper:
     def test_basic(self) -> None:
-        mapper = bmm.StackColorMapper()
+        mapper = bmm.WeightedStackColorMapper()
         check_properties_existence(mapper, [
             "palette",
             "nan_color",
