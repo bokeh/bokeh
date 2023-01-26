@@ -507,7 +507,7 @@ following command(s):
 
         .. code-block:: sh
 
-            BOKEH_RESOURCES=inline python examples/plotting/marker_map.py
+            BOKEH_RESOURCES=inline python examples/basic/data/transform_markers.py
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -515,7 +515,7 @@ following command(s):
         .. code-block:: powershell
 
             $Env:BOKEH_RESOURCES = "inline"
-            python.exe .\examples\plotting\file\marker_map.py
+            python.exe .\examples\basic\data\transform_markers.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -523,12 +523,12 @@ following command(s):
         .. code-block:: doscon
 
             set BOKEH_RESOURCES=inline
-            python examples\plotting\file\marker_map.py
+            python examples\basic\data\transform_markers.py
 
-This creates a file ``marker_map.html`` locally. When you open this file in a web
-browser, it should display this visualization:
+This creates a file ``transform_markers.html`` locally. When you open this file in
+a web browser, it should display this visualization:
 
-.. image:: /_images/bokeh_marker_map_html.png
+.. image:: /_images/bokeh_transform_markers_html.png
     :class: image-border
     :scale: 50 %
     :align: center
