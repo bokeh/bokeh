@@ -423,7 +423,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
-#if defined(USE_HEX) || defined(USE_HEX_DOT)
+#if defined(USE_HEX_TILE) || defined(USE_HEX) || defined(USE_HEX_DOT)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   // A regular hexagon has v_size.x == v.size_y = r where r is the length of

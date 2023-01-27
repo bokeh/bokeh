@@ -59,6 +59,7 @@ export function marker_type_to_size_hint(marker_type: GLMarkerType): number {
     case "diamond_dot":
       return 3
     case "hex":
+    case "hex_tile":
       return 4
     case "square_pin":
       return 5

@@ -9,7 +9,7 @@ export class HexTileGL extends SXSYGlyphGL {
   }
 
   get marker_type(): GLMarkerType {
-    return "hex"
+    return "hex_tile"
   }
 
   protected override _set_data(): void {

@@ -118,7 +118,7 @@ vec2 enclosing_size() {
 
 void main()
 {
-#if defined(USE_RECT) || defined(USE_HEX) || defined(USE_ELLIPSE)
+#if defined(USE_RECT) || defined(USE_HEX_TILE) || defined(USE_ELLIPSE)
   v_size = vec2(a_width, a_height);
 #elif defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
   v_size = vec2(2.0*a_width, 2.0*a_width);
