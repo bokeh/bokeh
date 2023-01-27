@@ -382,14 +382,14 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         '''
         descriptor = self.lookup(attr, raises=False)
         if descriptor is None:
-            raise ValueError("%r is not a property of self (%r)" % (attr, self))
+            raise ValueError(f"{attr!r} is not a property of self ({self!r})")
 
         if not isinstance(other, Model):
             raise ValueError("'other' is not a Bokeh model: %r" % other)
 
         other_descriptor = other.lookup(other_attr, raises=False)
         if other_descriptor is None:
-            raise ValueError("%r is not a property of other (%r)" % (other_attr, other))
+            raise ValueError(f"{other_attr!r} is not a property of other ({other!r})")
 
         from bokeh.models import CustomJS
 
@@ -496,7 +496,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         '''
         result = list(self.select(selector))
         if len(result) > 1:
-            raise ValueError("Found more than one object matching %s: %r" % (selector, result))
+            raise ValueError(f"Found more than one object matching {selector}: {result!r}")
         if len(result) == 0:
             return None
         return result[0]

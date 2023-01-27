@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os  # noqa: F401 # lgtm [py/unused-import]
+import os
 from typing import (
     TYPE_CHECKING,
     Literal,

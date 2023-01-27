@@ -163,7 +163,7 @@ class TestResources:
             r.log_level = level
             assert r.log_level == level
             if not r.dev:
-                assert r.js_raw[-1] == 'Bokeh.set_log_level("%s");' % level
+                assert r.js_raw[-1] == f'Bokeh.set_log_level("{level}");'
         with pytest.raises(ValueError):
             setattr(r, "log_level", "foo")
 

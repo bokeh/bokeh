@@ -314,43 +314,43 @@ class Test_FontSizeSpec:
 
         for unit in css_units.split("|"):
 
-            v = '10%s' % unit
+            v = f"10{unit}"
             a.x = v
             assert a.x == v
             assert a.lookup('x').get_value(a) == Value(v)
 
-            v = '10.2%s' % unit
+            v = f"10.2{unit}"
             a.x = v
             assert a.x == v
             assert a.lookup('x').get_value(a) == Value(v)
 
-            f = '_10%s' % unit
+            f = f"_10{unit}"
             a.x = f
             assert a.x == f
             assert a.lookup('x').get_value(a) == Field(f)
 
-            f = '_10.2%s' % unit
+            f = f"_10.2{unit}"
             a.x = f
             assert a.x == f
             assert a.lookup('x').get_value(a) == Field(f)
 
         for unit in css_units.upper().split("|"):
-            v = '10%s' % unit
+            v = f"10{unit}"
             a.x = v
             assert a.x == v
             assert a.lookup('x').get_value(a) == Value(v)
 
-            v = '10.2%s' % unit
+            v = f"10.2{unit}"
             a.x = v
             assert a.x == v
             assert a.lookup('x').get_value(a) == Value(v)
 
-            f = '_10%s' % unit
+            f = f"_10{unit}"
             a.x = f
             assert a.x == f
             assert a.lookup('x').get_value(a) == Field(f)
 
-            f = '_10.2%s' % unit
+            f = f"_10.2{unit}"
             a.x = f
             assert a.x == f
             assert a.lookup('x').get_value(a) == Field(f)

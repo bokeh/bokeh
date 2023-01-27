@@ -76,7 +76,8 @@ def build_finished(app, exception):
         with open(filename, "w") as f:
             f.write(_header)
             for link in links_iter:
-                f.write(_item % escape(link.strip().replace("https://", "http://")))  # TODO (bev) get rid of old style string subsitution
+                http_link = escape(link.strip().replace("https://", "http://"))
+                f.write(_item.format(link=http_link))
             f.write(_footer)
     except OSError as e:
         raise SphinxError(f"cannot write sitemap.txt, reason: {e}")
@@ -103,7 +104,7 @@ _header = """\
 
 _item = """\
    <url>
-      <loc>%s</loc>
+      <loc>{link}</loc>
    </url>
 
 """

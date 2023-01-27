@@ -104,5 +104,5 @@ if __name__ == "__main__":
     filename = "calendars.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Calendar 2014"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

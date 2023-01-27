@@ -162,14 +162,14 @@ def test_file_examples(file_example: Example, example: Example, report: list[Exa
             continue
         warn(line, label="PY")
 
-    assert status != "timeout", "%s timed out" % example.relpath
-    assert status == 0, "%s failed to run (exit code %s)" % (example.relpath, status)
+    assert status != "timeout", f"{example.relpath} timed out"
+    assert status == 0, f"{example.relpath} failed to run (exit code {status})"
 
     if example.no_js:
         if not config.option.no_js:
-            warn("skipping bokehjs for %s" % example.relpath)
+            warn(f"skipping bokehjs for {example.relpath}")
     else:
-        _run_in_browser(example, "file://%s.html" % example.path_no_ext, report, config.option.verbose)
+        _run_in_browser(example, f"file://{example.path_no_ext}.html", report, config.option.verbose)
 
 def test_server_examples(server_example: Example, example: Example, report: list[Example], config: _pytest.config.Config, bokeh_server: str) -> None:
     if config.option.verbose:
@@ -208,7 +208,7 @@ def _print_webengine_output(result: JSResult) -> None:
         line = message['line']
         col = message['col']
 
-        msg = "{%s} %s:%s:%s %s" % (level, url, line, col, text)
+        msg = f"{{{level}}} {url}:{line}:{col} {text}"
         info(msg, label="JS")
 
     for error in errors:
@@ -223,7 +223,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], verbose: 
     result = run_in_chrome(url)
     end = time.time()
 
-    info("Example rendered in %s" % white("%.3fs" % (end - start)))
+    info(f"Example rendered in {(end-start):.3f} seconds")
 
     success = result["success"]
     timeout = result["timeout"]
@@ -236,7 +236,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], verbose: 
     no_errors = len(errors) == 0
 
     if timeout:
-        warn("%s %s" % (red("TIMEOUT:"), "bokehjs did not finish"))
+        warn(f"{red('TIMEOUT:')} bokehjs did not finish")
 
     if verbose:
         _print_webengine_output(result)

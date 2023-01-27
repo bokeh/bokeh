@@ -12,7 +12,7 @@ N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
-colors = ["#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50 + 2 * x, 30 + 2 * y)]
+colors = [f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50 + 2 * x, 30 + 2 * y)]
 plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset',
                       title="Cannot pan outside data (bounds='auto')",
                       lod_threshold=None)

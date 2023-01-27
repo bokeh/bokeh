@@ -260,7 +260,7 @@ class CustomModel:
                 impl = TypeScript(impl)
 
         if isinstance(impl, Inline) and impl.file is None:
-            file = "%s%s.ts" % (self.file + ":" if self.file else "", self.name)
+            file = f"{self.file + ':' if self.file else ''}{self.name}.ts"
             impl = impl.__class__(impl.code, file)
 
         return impl

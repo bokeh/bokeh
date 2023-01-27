@@ -75,5 +75,5 @@ if __name__ == "__main__":
     filename = "buttons.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Button widgets"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

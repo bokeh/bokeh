@@ -15,7 +15,7 @@ def render_plot():
     y = np.random.random(size=N) * 100
     radii = np.random.random(size=N) * 1.5
     colors = [
-        "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
+        f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50+2*x, 30+2*y)
     ]
 
     TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,save,box_select,poly_select,lasso_select"

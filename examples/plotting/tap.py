@@ -10,7 +10,7 @@ N = len(x)
 inds = [str(i) for i in np.arange(N)]
 radii = np.random.random(size=N)*0.4 + 1.7
 colors = [
-    "#%02x%02x%02x" % (int(r), int(g), 150) for r, g in zip(50+2*x, 30+2*y)
+    f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50+2*x, 30+2*y)
 ]
 
 TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,save"

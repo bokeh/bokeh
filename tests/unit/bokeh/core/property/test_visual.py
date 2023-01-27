@@ -159,34 +159,34 @@ class Test_FontSize:
         prop = bcpv.FontSize()
 
         for unit in css_units.split("|"):
-            v = '10%s' % unit
+            v = f"10{unit}"
             assert prop.is_valid(v)
 
-            v = '10.2%s' % unit
+            v = f"10.2{unit}"
             assert prop.is_valid(v)
 
         for unit in css_units.upper().split("|"):
-            v = '10%s' % unit
+            v = f"10{unit}"
             assert prop.is_valid(v)
 
-            v = '10.2%s' % unit
+            v = f"10.2{unit}"
             assert prop.is_valid(v)
 
     def test_invalid(self) -> None:
         prop = bcpv.FontSize()
 
         for unit in css_units.split("|"):
-            v = '_10%s' % unit
+            v = f"_10{unit}"
             assert not prop.is_valid(v)
 
-            v = '_10.2%s' % unit
+            v = f"_10.2{unit}"
             assert not prop.is_valid(v)
 
         for unit in css_units.upper().split("|"):
-            v = '_10%s' % unit
+            v = f"_10{unit}"
             assert not prop.is_valid(v)
 
-            v = '_10.2%s' % unit
+            v = f"_10.2{unit}"
             assert not prop.is_valid(v)
 
         assert not prop.is_valid(None)

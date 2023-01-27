@@ -48,5 +48,5 @@ if __name__ == "__main__":
     filename = "twin_axis.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Twin Axis Plot"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

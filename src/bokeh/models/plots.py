@@ -467,22 +467,16 @@ class Plot(LayoutDOM):
         if self.x_scale is not None:
             for rng in x_ranges:
                 if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.x_scale, (LinearScale, LogScale)):
-                    incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.x_scale, CategoricalScale):
-                    incompatible.append("incompatibility on x-dimension: %s/%s" %(rng, self.x_scale))
-                # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.x_scale, CategoricalScale):
-                    incompatible.append("incompatibility on x-dimension: %s, %s" %(rng, self.x_scale))
+                    incompatible.append(f"incompatibility on x-dimension: {rng}, {self.x_scale}")
 
         if self.y_scale is not None:
             for rng in y_ranges:
                 if isinstance(rng, (DataRange1d, Range1d)) and not isinstance(self.y_scale, (LinearScale, LogScale)):
-                    incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
+                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
                 elif isinstance(rng, FactorRange) and not isinstance(self.y_scale, CategoricalScale):
-                    incompatible.append("incompatibility on y-dimension: %s/%s" %(rng, self.y_scale))
-                # special case because CategoricalScale is a subclass of LinearScale, should be removed in future
-                if isinstance(rng, (DataRange1d, Range1d)) and isinstance(self.y_scale, CategoricalScale):
-                    incompatible.append("incompatibility on y-dimension: %s, %s" %(rng, self.y_scale))
+                    incompatible.append(f"incompatibility on y-dimension: {rng}, {self.y_scale}")
 
         if incompatible:
             return ", ".join(incompatible) + " [%s]" % self
@@ -918,7 +912,7 @@ class GridPlot(LayoutDOM):
 
 def _check_conflicting_kwargs(a1, a2, kwargs):
     if a1 in kwargs and a2 in kwargs:
-        raise ValueError("Conflicting properties set on plot: %r and %r" % (a1, a2))
+        raise ValueError(f"Conflicting properties set on plot: {a1!r} and {a2!r}")
 
 class _list_attr_splat(list):
     def __setattr__(self, attr, value):
@@ -934,7 +928,7 @@ class _list_attr_splat(list):
         try:
             return _list_attr_splat([getattr(x, attr) for x in self])
         except Exception:
-            raise AttributeError("Trying to access %r attribute on a 'splattable' list, but list items have no %r attribute" % (attr, attr))
+            raise AttributeError(f"Trying to access {attr!r} attribute on a 'splattable' list, but list items have no {attr!r} attribute")
 
     def __dir__(self):
         if len({type(x) for x in self}) == 1:

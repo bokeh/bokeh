@@ -23,7 +23,7 @@ for col in range(0, ncols):
         x = 100.0/ncols*col
         y = 100.0/nrows*row
         r, g, b = int(50+2*x), int(30+2*y), 150
-        color = "#%02x%02x%02x" % (r, g, b)
+        color = f"#{r:02x}{g:02x}{b:02x}"
         figures.append(fig(color, row, col))
 
 save(gridplot(figures, ncols=ncols, toolbar_location=None))

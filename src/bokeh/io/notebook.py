@@ -377,7 +377,7 @@ def destroy_server(server_id: ID) -> None:
     '''
     server = curstate().uuid_to_server.get(server_id, None)
     if server is None:
-        log.debug("No server instance found for uuid: %r" % server_id)
+        log.debug(f"No server instance found for uuid: {server_id!r}")
         return
 
     try:
@@ -553,8 +553,8 @@ def show_app(app: Application, state: State, notebook_url: str | Callable[[int |
     else:
         url = _server_url(notebook_url, server.port)
 
-    logging.debug("Server URL is %s" % url)
-    logging.debug("Origin URL is %s" % origin)
+    logging.debug(f"Server URL is {url}")
+    logging.debug(f"Origin URL is {origin}")
 
     from ..embed import server_document
     script = server_document(url, resources=None)

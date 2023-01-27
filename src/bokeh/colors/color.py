@@ -342,9 +342,9 @@ class RGB(Color):
 
         '''
         if self.a < 1.0:
-            return "#%02X%02X%02X%02X" % (self.r, self.g, self.b, round(self.a*255))
+            return f"#{self.r:02x}{self.g:02x}{self.b:02x}{int(round(self.a*255)):02x}"
         else:
-            return "#%02X%02X%02X" % (self.r, self.g, self.b)
+            return f"#{self.r:02x}{self.g:02x}{self.b:02x}"
 
     def to_hsl(self) -> HSL:
         ''' Return a corresponding HSL color for this RGB color.
