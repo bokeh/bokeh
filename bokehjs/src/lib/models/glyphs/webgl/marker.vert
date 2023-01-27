@@ -120,7 +120,7 @@ void main()
 {
 #if defined(USE_RECT) || defined(USE_HEX) || defined(USE_ELLIPSE)
   v_size = vec2(a_width, a_height);
-#elif defined(USE_CIRCLE) || defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
+#elif defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
   v_size = vec2(2.0*a_width, 2.0*a_width);
 #else
   v_size = vec2(a_width, a_width);
@@ -151,7 +151,7 @@ void main()
 #endif
 
 #ifdef USE_CIRCLE
-  v_radius = a_width;
+  v_radius = 0.5*a_width;
 #endif
 
 #ifdef USE_RECT
