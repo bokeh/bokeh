@@ -35,7 +35,12 @@ export class AnnularWedgeGL extends SXSYGlyphGL {
     this.outer_radius.set_from_array(this.glyph.souter_radius)
     this.inner_radius.set_from_array(this.glyph.sinner_radius)
 
-    this.start_angle.set_from_prop(this.glyph.start_angle)
-    this.end_angle.set_from_prop(this.glyph.end_angle)
+    if (this.glyph.model.direction == "anticlock") {
+      this.start_angle.set_from_prop(this.glyph.start_angle)
+      this.end_angle.set_from_prop(this.glyph.end_angle)
+    } else {
+      this.start_angle.set_from_prop(this.glyph.end_angle)
+      this.end_angle.set_from_prop(this.glyph.start_angle)
+    }
   }
 }

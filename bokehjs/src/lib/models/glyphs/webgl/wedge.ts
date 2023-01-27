@@ -29,8 +29,14 @@ export class WedgeGL extends SXSYGlyphGL {
     super._set_data()
 
     this.radius.set_from_array(this.glyph.sradius)
-    this.start_angle.set_from_prop(this.glyph.start_angle)
-    this.end_angle.set_from_prop(this.glyph.end_angle)
+
+    if (this.glyph.model.direction == "anticlock") {
+      this.start_angle.set_from_prop(this.glyph.start_angle)
+      this.end_angle.set_from_prop(this.glyph.end_angle)
+    } else {
+      this.start_angle.set_from_prop(this.glyph.end_angle)
+      this.end_angle.set_from_prop(this.glyph.start_angle)
+    }
 
     // unused
     this._heights.set_from_scalar(0, 1)

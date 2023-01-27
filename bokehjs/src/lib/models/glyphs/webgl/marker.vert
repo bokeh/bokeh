@@ -135,8 +135,8 @@ void main()
 #ifdef USE_ANNULAR_WEDGE
   v_outer_radius = a_width;
   v_inner_radius = a_height;
-  v_start_angle = -a_angle;
-  v_end_angle = -a_aux;
+  v_start_angle = a_angle;
+  v_end_angle = a_aux;
 #endif
 
 #ifdef USE_ANNULUS
@@ -146,8 +146,8 @@ void main()
 
 #ifdef USE_WEDGE
   v_radius = a_width;
-  v_start_angle = -a_angle;
-  v_end_angle = -a_aux;
+  v_start_angle = a_angle;
+  v_end_angle = a_aux;
 #endif
 
 #ifdef USE_CIRCLE

@@ -286,7 +286,7 @@ float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
 
     // sign
     float s;
-    if (abs(start_angle - end_angle) > PI) {
+    if (cro2(a, b) < 0.0) {
         s =  sign(max(cro2(a, p), cro2(p, b)));
     } else {
         s = -sign(max(cro2(p, a), cro2(b, p)));
