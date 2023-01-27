@@ -16,14 +16,81 @@ describe("Glyph models", () => {
   const fill_color = ["red", "orange", "green"]
   const hatch_pattern = ["/", ">", "@"]
 
-  it.allowing(1)("should support AnnularWedge", async () => {
-    function p(output_backend: OutputBackend) {
+  describe("should support AnnularWedge", async () => {
+    function annular_wedge(output_backend: OutputBackend, start_angle: number, end_angle: number) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
-      p.annular_wedge({x: [1, 2, 3], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
-      p.annular_wedge({x: [3, 4, 5], y, inner_radius: 0.5, outer_radius: 1, start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
+      p.annular_wedge({
+        x: [1, 2, 3], y,
+        inner_radius: 0.5, outer_radius: 1,
+        start_angle, start_angle_units: "deg",
+        end_angle, end_angle_units: "deg",
+        fill_color, alpha: 0.6,
+      })
+      p.annular_wedge({
+        x: [3, 4, 5], y,
+        inner_radius: 0.5, outer_radius: 1,
+        start_angle, start_angle_units: "deg",
+        end_angle, end_angle_units: "deg",
+        fill_color, alpha: 0.6, hatch_pattern,
+      })
       return p
     }
-    await display(row([p("canvas"), p("svg"), p("webgl")]))
+
+    it.allowing(1)("with angle range 23..275", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, 23, 275)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range 23..135", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, 23, 135)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range -23..-275", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, -23, -275)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range -23..-135", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, -23, -135)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range 23..-135", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, 23, -135)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range 23..-275", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, 23, -275)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range -23..135", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, -23, 135)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
+
+    it.allowing(1)("with angle range -23..275", async () => {
+      function p(output_backend: OutputBackend) {
+        return annular_wedge(output_backend, -23, 275)
+      }
+      await display(row([p("canvas"), p("svg"), p("webgl")]))
+    })
   })
 
   it("should support Annulus", async () => {
@@ -570,8 +637,42 @@ describe("Glyph models", () => {
   it("should support Wedge", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
-      p.wedge({x: [1, 2, 3], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6})
-      p.wedge({x: [3, 4, 5], y, radius: [1, 1.25, 1.5], start_angle: 0.4, end_angle: 4.8, fill_color, alpha: 0.6, hatch_pattern})
+      p.wedge({
+        x: [1, 2, 3], y,
+        radius: [1, 1.25, 1.5],
+        start_angle: 23, start_angle_units: "deg",
+        end_angle: 275, end_angle_units: "deg",
+        fill_color, alpha: 0.6,
+      })
+      p.wedge({
+        x: [3, 4, 5], y,
+        radius: [1, 1.25, 1.5],
+        start_angle: 23, start_angle_units: "deg",
+        end_angle: 275, end_angle_units: "deg",
+        fill_color, alpha: 0.6, hatch_pattern,
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support Wedge with angle difference < PI", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
+      p.wedge({
+        x: [1, 2, 3], y,
+        radius: [1, 1.25, 1.5],
+        start_angle: 23, start_angle_units: "deg",
+        end_angle: 135, end_angle_units: "deg",
+        fill_color, alpha: 0.6,
+      })
+      p.wedge({
+        x: [3, 4, 5], y,
+        radius: [1, 1.25, 1.5],
+        start_angle: 23, start_angle_units: "deg",
+        end_angle: 135, end_angle_units: "deg",
+        fill_color, alpha: 0.6, hatch_pattern,
+      })
       return p
     }
     await display(row([p("canvas"), p("svg"), p("webgl")]))
@@ -625,38 +726,38 @@ describe("Glyph models", () => {
       const outer_radius = 1
       const alpha = 0.6
 
-      function f(direction: Direction, color: Color) {
+      function f(direction: Direction, fill_color: Color, line_color: Color) {
         p.annular_wedge({
-          x: 0, y, inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          x: 0, y, inner_radius, outer_radius, fill_color, line_color, alpha,
           start_angle: {value: sign*Math.PI/2, units: "rad"},
           end_angle: {value: sign*Math.PI/4, units: "rad"},
           direction,
         })
         p.annular_wedge({
           x: 2, y,
-          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          inner_radius, outer_radius, fill_color, line_color, alpha,
           start_angle: {value: sign*90, units: "deg"},
           end_angle: {value: sign*45, units: "deg"},
           direction,
         })
         p.annular_wedge({
           x: 4, y,
-          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          inner_radius, outer_radius, fill_color, line_color, alpha,
           start_angle: {value: sign*100, units: "grad"},
           end_angle: {value: sign*50, units: "grad"},
           direction,
         })
         p.annular_wedge({
           x: 6, y,
-          inner_radius, outer_radius, fill_color: color, line_color: null, alpha,
+          inner_radius, outer_radius, fill_color, line_color, alpha,
           start_angle: {value: sign*0.25, units: "turn"},
           end_angle: {value: sign*0.125, units: "turn"},
           direction,
         })
       }
 
-      f("anticlock", "green")
-      f("clock", "blue")
+      f("anticlock", "yellow", "green")
+      f("clock", "blue", "red")
 
       return p
     }
