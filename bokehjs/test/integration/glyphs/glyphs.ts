@@ -656,7 +656,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
-  it("should support Wedge with angle difference < PI", async () => {
+  it("should support Wedge with angle range 23..135", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {x_range: [0, 6], y_range: [0, 4], output_backend, title: output_backend})
       p.wedge({
