@@ -20,6 +20,9 @@ export const Anchor = Enum(
 export type AngleUnits = "deg" | "rad" | "grad" | "turn"
 export const AngleUnits = Enum("deg", "rad", "grad", "turn")
 
+export type AlternationPolicy = typeof AlternationPolicy["__type__"]
+export const AlternationPolicy = Enum("none", "even", "odd", "every")
+
 export type BoxOrigin = "corner" | "center"
 export const BoxOrigin = Enum("corner", "center")
 

@@ -30,6 +30,7 @@ import bokeh.core.enums as bce # isort:skip
 
 ALL  = (
     'Align',
+    'AlternationPolicy',
     'Anchor',
     'AngleUnits',
     'AutosizeMode',
@@ -213,6 +214,9 @@ class Test_bce:
     def test_LatLon(self) -> None:
         assert tuple(bce.LatLon) == ("lat", "lon")
 
+    def test_AlternationPolicy(self) -> None:
+        assert tuple(bce.AlternationPolicy) == ("none", "even", "odd", "every")
+
     def test_LegendClickPolicy(self) -> None:
         assert tuple(bce.LegendClickPolicy) == ("none", "hide", "mute")
 
@@ -329,6 +333,7 @@ class Test_bce:
 def test_enums_contents() -> None:
     assert [ name for name in dir(bce) if isinstance(getattr(bce, name), bce.Enumeration) ] == [
         'Align',
+        'AlternationPolicy',
         'Anchor',
         'AngleUnits',
         'AutosizeMode',

@@ -16,6 +16,10 @@ describe("enums module", () => {
     expect([...enums.VAlign]).to.be.equal(["top", "center", "bottom"])
   })
 
+  it("should have AlternationPolicy", () => {
+    expect([...enums.AlternationPolicy]).to.be.equal(["none", "even", "odd", "every"])
+  })
+
   it("should have Anchor", () => {
     expect([...enums.Anchor]).to.be.equal([
       "top_left",    "top_center",    "top_right",

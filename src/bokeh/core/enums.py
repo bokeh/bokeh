@@ -90,6 +90,7 @@ from ..util.strings import nice_join
 
 __all__ = (
     'Align',
+    'AlternationPolicy',
     'Anchor',
     'AngleUnits',
     'AutosizeMode',
@@ -254,6 +255,9 @@ HAlign = enumeration("top", "center", "bottom")
 
 #: Vertical alignment of a child item
 VAlign = enumeration("left", "center", "right")
+
+#: Specify to which items apply styling in a container (e.g. in a legend)
+AlternationPolicy = enumeration("none", "even", "odd", "every")
 
 #: Specify an anchor position on a box/frame
 Anchor = enumeration(

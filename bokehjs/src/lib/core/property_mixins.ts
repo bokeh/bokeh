@@ -267,6 +267,7 @@ export type AxisLine = Prefixed<"axis", Line>
 export type BackgroundFill = Prefixed<"background", Fill>
 export type BackgroundFillVector = Prefixed<"background", FillVector>
 export type BackgroundHatchVector = Prefixed<"background", HatchVector>
+export type ItemBackgroundFill = Prefixed<"item_background", Fill>
 export type BandFill = Prefixed<"band", Fill>
 export type BandHatch = Prefixed<"band", Hatch>
 export type BarLine = Prefixed<"bar", Line>

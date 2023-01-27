@@ -19,6 +19,7 @@ describe("Legend annotation", () => {
     const y0 = random.floats(10)
     const y1 = random.floats(10)
     const y2 = random.floats(10)
+    const y3 = random.floats(10)
 
     const cr0 = p.circle(x, y0, {fill_color: "red"})
 
@@ -27,27 +28,30 @@ describe("Legend annotation", () => {
 
     const cr2 = p.circle(x, y2, {fill_color: "green"})
 
+    const cr3 = p.square(x, y3, {fill_color: "yellow", line_color: "blue"})
+
     const items = [
       new LegendItem({label: "#0", renderers: [cr0]}),
       new LegendItem({label: "#1", renderers: [cr1, lr1]}),
       new LegendItem({label: "#2", renderers: [cr2]}),
+      new LegendItem({label: "#3", renderers: [cr3]}),
     ]
 
     const legend = (attrs: Partial<Legend.Attrs>) => {
       return new Legend({items, background_fill_alpha: 0.7, ...attrs})
     }
 
-    p.add_layout(legend({location: "center_left", orientation: "vertical"}))
-    p.add_layout(legend({location: "center", orientation: "vertical"}))
-    p.add_layout(legend({location: "top_center", orientation: "horizontal"}))
-    p.add_layout(legend({location: "top_right", orientation: "horizontal"}))
-    p.add_layout(legend({location: "bottom_right", orientation: "horizontal"}))
-    p.add_layout(legend({location: [0, 0], orientation: "vertical"}))
+    p.add_layout(legend({location: "center_left", orientation: "vertical", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}))
+    p.add_layout(legend({location: "top_center", orientation: "horizontal", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({location: "top_right", orientation: "horizontal", item_background_policy: "odd", title: "odd"}))
+    p.add_layout(legend({location: "bottom_right", orientation: "horizontal", item_background_policy: "even", title: "even"}))
+    p.add_layout(legend({location: [0, 0], orientation: "vertical", item_background_policy: "odd", title: "odd"}))
 
-    p.add_layout(legend({location: "center", orientation: "horizontal"}), "above")
-    p.add_layout(legend({location: "center", orientation: "horizontal"}), "below")
-    p.add_layout(legend({location: "center", orientation: "vertical"}), "left")
-    p.add_layout(legend({location: "center", orientation: "vertical"}), "right")
+    p.add_layout(legend({location: "center", orientation: "horizontal", item_background_policy: "even", title: "even"}), "above")
+    p.add_layout(legend({location: "center", orientation: "horizontal", item_background_policy: "odd", title: "odd"}), "below")
+    p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "even", title: "even"}), "left")
+    p.add_layout(legend({location: "center", orientation: "vertical", item_background_policy: "odd", title: "odd"}), "right")
 
     await display(p)
   })
@@ -296,15 +300,20 @@ describe("Legend annotation", () => {
         new LegendItem({label: "6*sin(x)", renderers: [sr6, lr6]}),
       ]
 
-      const legend = new Legend({
-        items,
-        orientation,
-        nrows,
-        ncols,
-        title: `Markers (${nrows} x ${ncols})`,
-      })
+      function legend(policy: "even" | "odd") {
+        return new Legend({
+          location: policy == "even" ? "top_right" : "bottom_right",
+          items,
+          orientation,
+          nrows,
+          ncols,
+          title: `Markers (${nrows} x ${ncols}) (fill=${policy})`,
+          item_background_policy: policy,
+        })
+      }
 
-      p.add_layout(legend, "center")
+      p.add_layout(legend("even"), "center")
+      p.add_layout(legend("odd"), "center")
       return p
     }
 

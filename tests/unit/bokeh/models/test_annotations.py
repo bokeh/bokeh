@@ -97,9 +97,12 @@ def test_Legend() -> None:
     assert legend.spacing == 3
     assert legend.margin == 10
     assert legend.items == []
+    assert legend.click_policy == "none"
+    assert legend.item_background_policy == "none"
     check_line_properties(legend, "border_", "#e5e5e5", 1.0, 0.5)
     check_text_properties(legend, "label_", "13px", "middle", scalar=True)
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
+    check_fill_properties(legend, "item_background_", "#f1f1f1", 0.8)
     check_properties_existence(legend, ANNOTATION + [
         "location",
         "orientation",
@@ -118,11 +121,13 @@ def test_Legend() -> None:
         "spacing",
         "items",
         "click_policy",
+        "item_background_policy",
     ],
         prefix('label_', TEXT),
         prefix('title_', TEXT),
         prefix('border_', LINE),
         prefix('background_', FILL),
+        prefix('item_background_', FILL),
         prefix('inactive_', FILL),
     )
 
