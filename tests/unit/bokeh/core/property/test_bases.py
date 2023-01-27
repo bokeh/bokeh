@@ -110,7 +110,7 @@ class TestProperty:
         def raise_(ex):
                 raise ex
 
-        p.asserts(False, lambda obj, name, value: raise_(ValueError("bad %s %s %s" % (hp==obj, name, value))))
+        p.asserts(False, lambda obj, name, value: raise_(ValueError(f"bad {hp==obj} {name} {value}")))
 
         with pytest.raises(ValueError) as e:
                 p.prepare_value(hp, "foo", 10)

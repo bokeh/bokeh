@@ -225,5 +225,5 @@ if __name__ == "__main__":
     filename = "widgets.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Widgets"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

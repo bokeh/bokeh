@@ -74,5 +74,5 @@ if __name__ == "__main__":
     filename = "sliders.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "sliders"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

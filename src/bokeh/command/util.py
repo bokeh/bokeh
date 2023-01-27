@@ -135,7 +135,7 @@ def build_single_handler_application(path: str, argv: list[str] | None = None) -
         raise ValueError("Path for Bokeh server application does not exist: %s" % path)
 
     if handler.failed:
-        raise RuntimeError("Error loading %s:\n\n%s\n%s " % (path, handler.error, handler.error_detail))
+        raise RuntimeError(f"Error loading {path}:\n\n{handler.error}\n{handler.error_detail} ")
 
     application = Application(handler)
 

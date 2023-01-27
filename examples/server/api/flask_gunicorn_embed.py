@@ -60,7 +60,7 @@ sockets, port = bind_sockets("localhost", 0)
 
 @app.route('/', methods=['GET'])
 def bkapp_page():
-    script = server_document('http://localhost:%d/bkapp' % port)
+    script = server_document(f"http://localhost:{port}/bkapp")
     return render_template("embed.html", script=script, template="Flask")
 
 def bk_worker():

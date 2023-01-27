@@ -54,7 +54,7 @@ def update():
         errbox.text = ""
     x, fy, ty = taylor(expr, xs, slider.value, (-2*sy.pi, 2*sy.pi), 200)
 
-    p.title.text = "Taylor (n=%d) expansion comparison for: %s" % (slider.value, expr)
+    p.title.text = f"Taylor (n={slider.value}) expansion comparison for: {expr}"
     legend.items[0].label = value(f"{expr}")
     legend.items[1].label = value(f"taylor({expr})")
     source.data = dict(x=x, fy=fy, ty=ty)

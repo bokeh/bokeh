@@ -42,5 +42,5 @@ if __name__ == "__main__":
     filename = "basic_plot.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Basic Glyph Plot"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

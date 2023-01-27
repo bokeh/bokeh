@@ -94,7 +94,7 @@ class Example:
             "no_js"    if self.no_js       else "",
         ]
 
-        return "Example(%r, %s)" % (self.relpath, "|".join(f for f in flags if f))
+        return f"Example({self.relpath!r}, {'|'.join(f for f in flags if f)})"
 
     __repr__ = __str__
 

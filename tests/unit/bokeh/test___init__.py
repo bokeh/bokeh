@@ -92,7 +92,7 @@ class TestWarnings:
     @pytest.mark.parametrize('cat', (BokehDeprecationWarning, BokehUserWarning))
     def test_bokeh_custom(self, cat) -> None:
         r = warnings.formatwarning("message", cat, "line", "lineno")
-        assert r == "%s: %s\n" %(cat.__name__, "message")
+        assert r == f"{cat.__name__}: message\n"
 
     def test_general_default(self) -> None:
         r = warnings.formatwarning("message", RuntimeWarning, "line", "lineno")

@@ -228,15 +228,15 @@ A rough measure of the 'size' of the hatching pattern. Generally speaking, the
 higher the number, the more spread out the pattern will be.
 """
 
-_hatch_pattern_help = """
+_hatch_pattern_help = f"""
 Built-in patterns are can either be specified as long names:
 
-%s
+{', '. join(HatchPattern)}
 
 or as one-letter abbreviations:
 
-%s
-""" % (", ". join(HatchPattern), ", ". join(repr(x) for x in HatchPatternAbbreviation))
+{', '. join(repr(x) for x in HatchPatternAbbreviation)}
+"""
 
 _hatch_weight_help = """
 A width value for line-strokes used in hatching.

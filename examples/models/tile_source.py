@@ -29,5 +29,5 @@ if __name__ == "__main__":
     filename = "tile_source.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Tile Source Example"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

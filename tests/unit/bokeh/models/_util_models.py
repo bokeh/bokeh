@@ -60,8 +60,8 @@ def check_properties_existence(model: HasProps, *props: list[str]) -> None:
     found = set(model.properties())
     missing = expected.difference(found)
     extra = found.difference(expected)
-    assert len(missing) == 0, "Properties missing: {0}".format(", ".join(sorted(missing)))
-    assert len(extra) == 0, "Extra properties: {0}".format(", ".join(sorted(extra)))
+    assert len(missing) == 0, f"Properties missing: {', '.join(sorted(missing))}"
+    assert len(extra) == 0, f"Extra properties: {', '.join(sorted(extra))}"
 
 def check_fill_properties(model: HasProps, prefix: str = "", fill_color: str | None = Color.gray, fill_alpha: float = 1.0) -> None:
     assert getattr(model, prefix + "fill_color") == fill_color

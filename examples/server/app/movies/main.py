@@ -22,7 +22,7 @@ movies = psql.read_sql(query, conn)
 movies["color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
 movies["alpha"] = np.where(movies["Oscars"] > 0, 0.9, 0.25)
 movies.fillna(0, inplace=True)  # just replace missing values with zero
-movies["revenue"] = movies.BoxOffice.apply(lambda x: '{:,d}'.format(int(x)))
+movies["revenue"] = movies.BoxOffice.apply(lambda x: f"{int(x)}")
 
 with open(join(dirname(__file__), "razzies-clean.csv")) as f:
     razzies = f.read().splitlines()

@@ -43,7 +43,7 @@ def create_figure():
         kw['x_range'] = sorted(set(xs))
     if y.value in discrete:
         kw['y_range'] = sorted(set(ys))
-    kw['title'] = "%s vs %s" % (x_title, y_title)
+    kw['title'] = f"{x_title} vs {y_title}"
 
     p = figure(height=600, width=800, tools='pan,box_zoom,hover,reset', **kw)
     p.xaxis.axis_label = x_title

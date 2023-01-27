@@ -152,7 +152,7 @@ def test_websocket_compression_level() -> None:
 def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
-        assert server._tornado.websocket_origins == {"localhost:%s" % unused_tcp_port}
+        assert server._tornado.websocket_origins == {f"localhost:{unused_tcp_port}"}
 
     # OK this is a bit of a confusing mess. The user-facing arg for server is
     # "allow_websocket_origin" which gets converted to "extra_websocket_origins"

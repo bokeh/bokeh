@@ -14,7 +14,7 @@ p.hex_tile(q, r, size=1, fill_color=["firebrick"]*3 + ["navy"]*4,
 
 x, y = axial_to_cartesian(q, r, 1, "pointytop")
 
-p.text(x, y, text=["(%d, %d)" % (q,r) for (q, r) in zip(q, r)],
+p.text(x, y, text=[f"({q}, {r})" for (q, r) in zip(q, r)],
        text_baseline="middle", text_align="center")
 
 show(p)

@@ -66,8 +66,8 @@ class Test_Select:
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
-            assert opt.text == "Option %d" % i
-            assert opt.get_attribute('value') == "Option %d" % i
+            assert opt.text == f"Option {i}"
+            assert opt.get_attribute('value') == f"Option {i}"
 
         assert page.has_no_console_errors()
 
@@ -84,8 +84,8 @@ class Test_Select:
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
-            assert opt.text == "Option %d" % i
-            assert opt.get_attribute('value') == "Option %d" % i
+            assert opt.text == f"Option {i}"
+            assert opt.get_attribute('value') == f"Option {i}"
 
         assert page.has_no_console_errors()
 
@@ -103,8 +103,8 @@ class Test_Select:
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
-            assert opt.text == "Option %d" % i
-            assert opt.get_attribute('value') == "%d" % i
+            assert opt.text == f"Option {i}"
+            assert opt.get_attribute('value') == str(i)
 
         assert page.has_no_console_errors()
 
@@ -121,8 +121,8 @@ class Test_Select:
         assert len(opts) == 3
 
         for i, opt in enumerate(opts, 1):
-            assert opt.text == "Option %d" % i
-            assert opt.get_attribute('value') == "%d" % i
+            assert opt.text == f"Option {i}"
+            assert opt.get_attribute('value') == str(i)
 
         assert page.has_no_console_errors()
 
@@ -139,12 +139,12 @@ class Test_Select:
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
-            assert grp.get_attribute('label') == "g%d" %i
+            assert grp.get_attribute('label') == f"g{i}"
             opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
-                assert opt.text == "Option %d" % (i*10 + j)
-                assert opt.get_attribute('value') == "Option %d" % (i*10 + j)
+                assert opt.text == f"Option {i*10 + j}"
+                assert opt.get_attribute('value') == f"Option {i*10 + j}"
 
         assert page.has_no_console_errors()
 
@@ -163,11 +163,11 @@ class Test_Select:
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
-            assert grp.get_attribute('label') == "g%d" %i
+            assert grp.get_attribute('label') == f"g{i}"
             opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
-                assert opt.text == "Option %d" % (i*10 + j)
+                assert opt.text == f"Option {i*10 + j}"
                 assert opt.get_attribute('value') == f"Option {i*10 + j}"
 
         assert page.has_no_console_errors()
@@ -185,12 +185,12 @@ class Test_Select:
         assert len(grps) == 2
 
         for i, grp in enumerate(grps, 1):
-            assert grp.get_attribute('label') == "g%d" %i
+            assert grp.get_attribute('label') == f"g{i}"
             opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
-                assert opt.text == "Option %d" % (i*10 + j)
-                assert opt.get_attribute('value') == "%d" % (i*10 + j)
+                assert opt.text == f"Option {i*10 + j}"
+                assert opt.get_attribute('value') == f"{i*10 + j}"
 
         assert page.has_no_console_errors()
 
@@ -213,7 +213,7 @@ class Test_Select:
             opts = grp.find_elements(By.TAG_NAME, 'option')
             assert len(opts) == i
             for j, opt in enumerate(opts, 1):
-                assert opt.text == "Option %d" % (i*10 + j)
+                assert opt.text == f"Option {i*10 + j}"
                 assert opt.get_attribute('value') == f"{i*10 + j}"
 
         assert page.has_no_console_errors()

@@ -117,5 +117,5 @@ if __name__ == "__main__":
     filename = "custom.html"
     with open(filename, "w") as f:
         f.write(file_html(doc, INLINE, "Demonstration of user-defined models"))
-    print("Wrote %s" % filename)
+    print(f"Wrote {filename}")
     view(filename)

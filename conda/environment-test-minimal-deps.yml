@@ -61,7 +61,7 @@ dependencies:
     - sphinx-design
     - sphinxext-opengraph
     # tests
-    - ruff ==0.0.144
+    - ruff ==0.0.234
     - types-boto
     - types-colorama
     - types-mock

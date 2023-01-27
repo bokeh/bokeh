@@ -498,7 +498,7 @@ class _TempFile:
         # default tmp directory.
         try:
             self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix, dir=os.getcwd())
-        except (OSError, IOError):
+        except OSError:
             self.fd, self.path = mkstemp(prefix=prefix, suffix=suffix)
 
     def __enter__(self) -> _TempFile:

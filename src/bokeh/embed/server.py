@@ -310,7 +310,7 @@ def _process_arguments(arguments: dict[str, str] | None) -> str:
     result = ""
     for key, value in arguments.items():
         if not key.startswith("bokeh-"):
-            result += "&{}={}".format(quote_plus(str(key)), quote_plus(str(value)))
+            result += f"&{quote_plus(str(key))}={quote_plus(str(value))}"
     return result
 
 def _process_app_path(app_path: str) -> str:

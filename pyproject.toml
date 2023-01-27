@@ -114,14 +114,20 @@ exclude = [
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["E", "F", "M", "U", "W"]
+select = ["E", "F", "RUF", "UP", "W"]
 ignore = [
+    'E401', # Multiple imports on one line
     'E402', # Module level import not at top of file
     'E731', # Do not assign a lambda expression, use a def
     'E741', # Ambiguous variable name: I
+    'RUF001',
+    'RUF005',
 ]
 line-length = 165
 target-version = "py38"
+
+[tool.ruff.pyupgrade]
+keep-runtime-typing = true
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

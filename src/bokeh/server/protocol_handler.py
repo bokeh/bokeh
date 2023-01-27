@@ -91,7 +91,7 @@ class ProtocolHandler:
             handler = self._handlers.get(message.msgtype)
 
         if handler is None:
-            raise ProtocolError("%s not expected on server" % message)
+            raise ProtocolError(f"{message} not expected on server")
 
         try:
             work = await handler(message, connection)
