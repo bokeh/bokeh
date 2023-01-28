@@ -7,19 +7,19 @@ from bokeh.models import LinearAxis, Range1d
 from bokeh.plotting import figure, show
 from bokeh.sampledata.stocks import AAPL, GOOG
 
-# Plot where bounds are set by auto
 N = 4000
 x = np.random.random(size=N) * 100
 y = np.random.random(size=N) * 100
 radii = np.random.random(size=N) * 1.5
-colors = [f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50 + 2 * x, 30 + 2 * y)]
+colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
+
+# Plot where bounds are set by auto
 plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset',
                       title="Cannot pan outside data (bounds='auto')",
                       lod_threshold=None)
 plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 plot_default.x_range.bounds = 'auto'
 plot_default.y_range.bounds = 'auto'
-
 
 # Plot where ranges are manually set
 x_range = Range1d(0, 3, bounds=(-1, 3.5), min_interval=1.5)
@@ -29,7 +29,6 @@ plot_range = figure(tools='pan, box_zoom, wheel_zoom, reset',
                     title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_interval:1.5")
 plot_range.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9)
 
-
 # Manually set y_max only
 x_range = Range1d(0, 3, max_interval=4)
 y_range = Range1d(0, 3, bounds=(None, 3), max_interval=4)
@@ -38,8 +37,6 @@ plot_range_un = figure(tools='pan, wheel_zoom, reset',
                        title="Unbounded (except for y_max=3 and max_interval=4)")
 plot_range_un.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#043A8D')
 
-
-
 # Bounded on reversed ranges (except for y_max)
 x_range = Range1d(3, 0, bounds=(-1, 3.5), min_interval=1.5)
 y_range = Range1d(3, 0, bounds=(-0.5, 4), min_interval=1.5)
@@ -47,8 +44,6 @@ plot_range_rev = figure(tools='pan,wheel_zoom,reset',
                         x_range=x_range, y_range=y_range,
                         title="Manual bounds x:(-1, 3.5) y:(-0.5, 4) min_range:1.5 (reverse ranges)")
 plot_range_rev.rect(x=[1, 2], y=[1, 1], width=0.9, height=0.9, color='#8CBEDB')
-
-
 
 # Chart where limits are set on a categorical range
 fruits = {

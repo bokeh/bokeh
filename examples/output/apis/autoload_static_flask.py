@@ -14,9 +14,7 @@ def render_plot():
     x = np.random.random(size=N) * 100
     y = np.random.random(size=N) * 100
     radii = np.random.random(size=N) * 1.5
-    colors = [
-        f"#{int(r):02x}{int(g):02x}{150:02x}" for r, g in zip(50+2*x, 30+2*y)
-    ]
+    colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
 
     TOOLS="crosshair,pan,wheel_zoom,box_zoom,reset,tap,save,box_select,poly_select,lasso_select"
 
@@ -26,18 +24,18 @@ def render_plot():
               fill_color=colors, fill_alpha=0.6,
               line_color=None)
 
-    js, tag = autoload_static(p, CDN, "http://localhost:%s/plot.js" % port)
+    js, tag = autoload_static(p, CDN, f"http://localhost:{port}/plot.js")
 
-    html = """
+    html = f"""
     <html>
         <head>
             <title>color_scatter example</title>
         </head>
         <body>
-            %s
+            {tag}
         </body>
     </html>
-    """ % tag
+    """
 
     return html, js
 
@@ -50,11 +48,6 @@ def plot_html():
 @app.route('/plot.js')
 def plot_js():
     return Response(js, mimetype='text/javascript')
-
-    #return app.send_static_file("plot.js")
-    #with open("plot.js") as plot_js:
-    #    js = plot_js.read()
-    #return Response(js, mimetype='text/javascript')
 
 if __name__ == "__main__":
     app.run(port=port)
