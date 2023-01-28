@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from difflib import get_close_matches
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 # Bokeh imports
 from bokeh.core.property.vectorization import Field
@@ -160,40 +160,60 @@ class GlyphRenderer(DataRenderer):
 
         return decoration
 
-    def construct_color_bar(self, visual: Literal["fill", "line"] = "fill", **kwargs) -> ColorBar:
+    def construct_color_bar(self, **kwargs: Any) -> ColorBar:
         ''' Construct and return a new ``ColorBar`` for this ``GlyphRenderer``.
 
-        Args:
-            visual ("fill" or "line", optional):
-                Which visual field to use for constructing a color bar (default: "fill")
+        The function will check for a color mapper on an appropriate property
+        of the GlyphRenderer's main glyph, in this order:
+
+        * ``fill_color.transform`` for FillGlyph
+        * ``line_color.transform`` for LineGlyph
+        * ``text_color.transform`` for TextGlyph
+        * ``color_mapper`` for Image
+
+        In general, the function will "do th right thing" based on glyph type.
+        If different behavior is needed, ColorBars can be consructed by hand.
+
+        Extra keyword arguments may be passed in to control ``ColorBar``
+        properties such as `title`.
 
         Returns:
             ColorBar
 
-        The constructed color bar will use the fill or line color mapper from
-        the  GlyphRenderer's main glyph, as specified by ``visual``. Extra
-        keyword arguments may be passed in to control ``ColorBar`` properties
-        such as `title`.
-
         '''
         from ...core.property.vectorization import Field
         from ..annotations import ColorBar
+        from ..glyphs import (
+            FillGlyph,
+            Image,
+            LineGlyph,
+            TextGlyph,
+        )
         from ..mappers import ColorMapper
 
-        if visual == "fill":
+        if isinstance(self.glyph, FillGlyph):
             fill_color = self.glyph.fill_color
             if not (isinstance(fill_color, Field) and isinstance(fill_color.transform, ColorMapper)):
-                raise ValueError("construct_color_bar expects fill_color to be a field with a colormapper transform")
+                raise ValueError("expected fill_color to be a field with a ColorMapper transform")
             return ColorBar(color_mapper=fill_color.transform, **kwargs)
 
-        elif visual == "line":
+        elif isinstance(self.glyph, LineGlyph):
             line_color = self.glyph.line_color
             if not (isinstance(line_color, Field) and isinstance(line_color.transform, ColorMapper)):
-                raise ValueError("construct_color_bar expects line_color to be a field with a colormapper transform")
+                raise ValueError("expected line_color to be a field with a ColorMapper transform")
             return ColorBar(color_mapper=line_color.transform, **kwargs)
 
+        elif isinstance(self.glyph, TextGlyph):
+            text_color = self.glyph.text_color
+            if not (isinstance(text_color, Field) and isinstance(text_color.transform, ColorMapper)):
+                raise ValueError("expected text_color to be a field with a ColorMapper transform")
+            return ColorBar(color_mapper=text_color.transform, **kwargs)
+
+        elif type(self.glyph) is Image:
+            return ColorBar(color_mapper=self.glyph.color_mapper, **kwargs)
+
         else:
-            raise ValueError(f"construct_color_bar expects 'fill' or 'line' for visual, got {visual!r}")
+            raise ValueError(f"construct_color_bar does not handle glyph type {type(self.glyph).__name__}")
 
 #-----------------------------------------------------------------------------
 # Dev API

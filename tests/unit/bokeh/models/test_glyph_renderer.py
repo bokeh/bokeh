@@ -23,9 +23,13 @@ from bokeh.models import (
     ColorBar,
     ColumnDataSource,
     GeoJSONDataSource,
+    Image,
+    ImageRGBA,
     IndexFilter,
     Line,
+    MultiLine,
     Patch,
+    Text,
     WebDataSource,
 )
 from bokeh.transform import linear_cmap, log_cmap
@@ -44,15 +48,8 @@ import bokeh.models.renderers as bmr # isort:skip
 
 class TestGlyphRenderer_construct_color_bar:
 
-    def test_bad_visual(self):
-        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-
-        msg = "construct_color_bar expects 'fill' or 'line' for visual, got 'junk'"
-        with pytest.raises(ValueError, match=msg):
-            renderer.construct_color_bar("junk")
-
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
-    def test_default_good(self, mapper):
+    def test_fill_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
         cb = renderer.construct_color_bar(title="Title")
@@ -60,47 +57,64 @@ class TestGlyphRenderer_construct_color_bar:
         assert cb.color_mapper is renderer.glyph.fill_color.transform
         assert cb.title == "Title"
 
-    def test_default_bad(self):
+    def test_fill_missing_transform(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle()
 
-        msg = "construct_color_bar expects fill_color to be a field with a colormapper transform"
+        msg = "expected fill_color to be a field with a ColorMapper transform"
         with pytest.raises(ValueError, match=msg):
             renderer.construct_color_bar()
 
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
-    def test_fill_good(self, mapper):
-        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
-        cb = renderer.construct_color_bar("fill", title="Title")
-        assert isinstance(cb, ColorBar)
-        assert cb.color_mapper is renderer.glyph.fill_color.transform
-        assert cb.title == "Title"
-
-    def test_fill_bad(self):
-        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle()
-
-        msg = "construct_color_bar expects fill_color to be a field with a colormapper transform"
-        with pytest.raises(ValueError, match=msg):
-            renderer.construct_color_bar("fill")
-
-    @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
     def test_line_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle(line_color=linear_cmap("foo", "Viridis256", 0, 100))
-        cb = renderer.construct_color_bar("line", title="Title")
+        renderer.glyph = MultiLine(line_color=linear_cmap("foo", "Viridis256", 0, 100))
+        cb = renderer.construct_color_bar(title="Title")
         assert isinstance(cb, ColorBar)
         assert cb.color_mapper is renderer.glyph.line_color.transform
         assert cb.title == "Title"
 
-    def test_line_bad(self):
+    def test_line_missing_transform(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle()
+        renderer.glyph = MultiLine()
 
-        msg = "construct_color_bar expects line_color to be a field with a colormapper transform"
+        msg = "expected line_color to be a field with a ColorMapper transform"
         with pytest.raises(ValueError, match=msg):
-            renderer.construct_color_bar("line")
+            renderer.construct_color_bar()
+
+    @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
+    def test_text_good(self, mapper):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+        renderer.glyph = Text(text_color=linear_cmap("foo", "Viridis256", 0, 100))
+        cb = renderer.construct_color_bar(title="Title")
+        assert isinstance(cb, ColorBar)
+        assert cb.color_mapper is renderer.glyph.text_color.transform
+        assert cb.title == "Title"
+
+    def test_text_missing_transform(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+        renderer.glyph = Text()
+
+        msg = "expected text_color to be a field with a ColorMapper transform"
+        with pytest.raises(ValueError, match=msg):
+            renderer.construct_color_bar()
+
+    @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
+    def test_image_good(self, mapper):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+        renderer.glyph = Image(color_mapper=linear_cmap("foo", "Viridis256", 0, 100).transform)
+        cb = renderer.construct_color_bar(title="Title")
+        assert isinstance(cb, ColorBar)
+        assert cb.color_mapper is renderer.glyph.color_mapper
+        assert cb.title == "Title"
+
+    def test_unknown_glyph_type(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+        renderer.glyph = ImageRGBA()
+
+        msg = f"construct_color_bar does not handle glyph type {type(renderer.glyph).__name__}"
+        with pytest.raises(ValueError, match=msg):
+            renderer.construct_color_bar()
 
 class TestGlyphRenderer_check_bad_column_name:
 
