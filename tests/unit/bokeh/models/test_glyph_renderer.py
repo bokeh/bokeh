@@ -17,13 +17,16 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.validation.check import ValidationIssue
 from bokeh.models import (
     Circle,
     ColorBar,
     ColumnDataSource,
+    GeoJSONDataSource,
     IndexFilter,
     Line,
     Patch,
+    WebDataSource,
 )
 from bokeh.transform import linear_cmap, log_cmap
 
@@ -39,9 +42,9 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 
 
-class TestGlyphRenderer:
+class TestGlyphRenderer_construct_color_bar:
 
-    def test_construct_color_bar_bad_visual(self):
+    def test_bad_visual(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
 
         msg = "construct_color_bar expects 'fill' or 'line' for visual, got 'junk'"
@@ -49,7 +52,7 @@ class TestGlyphRenderer:
             renderer.construct_color_bar("junk")
 
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
-    def test_construct_color_bar_default_good(self, mapper):
+    def test_default_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
         cb = renderer.construct_color_bar(title="Title")
@@ -57,7 +60,7 @@ class TestGlyphRenderer:
         assert cb.color_mapper is renderer.glyph.fill_color.transform
         assert cb.title == "Title"
 
-    def test_construct_color_bar_default_bad(self):
+    def test_default_bad(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle()
 
@@ -66,7 +69,7 @@ class TestGlyphRenderer:
             renderer.construct_color_bar()
 
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
-    def test_construct_color_bar_fill_good(self, mapper):
+    def test_fill_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
         cb = renderer.construct_color_bar("fill", title="Title")
@@ -74,7 +77,7 @@ class TestGlyphRenderer:
         assert cb.color_mapper is renderer.glyph.fill_color.transform
         assert cb.title == "Title"
 
-    def test_construct_color_bar_fill_bad(self):
+    def test_fill_bad(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle()
 
@@ -83,7 +86,7 @@ class TestGlyphRenderer:
             renderer.construct_color_bar("fill")
 
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
-    def test_construct_color_bar_line_good(self, mapper):
+    def test_line_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle(line_color=linear_cmap("foo", "Viridis256", 0, 100))
         cb = renderer.construct_color_bar("line", title="Title")
@@ -91,7 +94,7 @@ class TestGlyphRenderer:
         assert cb.color_mapper is renderer.glyph.line_color.transform
         assert cb.title == "Title"
 
-    def test_construct_color_bar_line_bad(self):
+    def test_line_bad(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Circle()
 
@@ -99,17 +102,88 @@ class TestGlyphRenderer:
         with pytest.raises(ValueError, match=msg):
             renderer.construct_color_bar("line")
 
-    @pytest.mark.parametrize('glyph', (Line, Patch))
-    def test_check_cdsview_filters_with_connected_error(self, glyph) -> None:
+class TestGlyphRenderer_check_bad_column_name:
+
+    def test_web_data_source(self) -> None:
+        renderer = bmr.GlyphRenderer(data_source=WebDataSource())
+
+        assert renderer._check_bad_column_name() == []
+
+    def test_non_cds_data_source(self) -> None:
+        renderer = bmr.GlyphRenderer(data_source=GeoJSONDataSource())
+
+        assert renderer._check_bad_column_name() == []
+
+    def test_empty(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = glyph()
+        renderer.glyph = Circle()
 
-        check = renderer._check_cdsview_filters_with_connected()
-        assert check == []
+        assert renderer._check_bad_column_name() == []
 
-        renderer.view.filter = IndexFilter()
-        check = renderer._check_cdsview_filters_with_connected()
-        assert check != []
+    def test_good(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
+        renderer.glyph = Circle(x="x", y="y")
+
+        assert renderer._check_bad_column_name() ==  []
+
+    def test_bad_with_matches(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
+        renderer.glyph = Circle(x="xx", y="yy")
+
+        check = renderer._check_bad_column_name()
+
+        assert len(check) == 1
+        assert check[0] == ValidationIssue(
+            code=1001,
+            name='BAD_COLUMN_NAME',
+            text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
+            extra=f"x='xx' [closest match: 'x'], y='yy' [closest match: 'y'] {{renderer: {renderer}}}"
+        )
+
+    def test_bad_with_no_matches(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
+        renderer.glyph = Circle(x="foo", y="bar")
+
+        check = renderer._check_bad_column_name()
+
+        assert len(check) == 1
+        assert check[0] == ValidationIssue(
+            code=1001,
+            name='BAD_COLUMN_NAME',
+            text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
+            extra=f"x='foo' [no close matches], y='bar' [no close matches] {{renderer: {renderer}}}"
+        )
+
+    def test_bad_with_mixed_matches(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
+        renderer.glyph = Circle(x="xx", y="bar")
+
+        check = renderer._check_bad_column_name()
+
+        assert len(check) == 1
+        assert check[0] == ValidationIssue(
+            code=1001,
+            name='BAD_COLUMN_NAME',
+            text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
+            extra=f"x='xx' [closest match: 'x'], y='bar' [no close matches] {{renderer: {renderer}}}"
+        )
+
+@pytest.mark.parametrize('glyph', (Line, Patch))
+def test_check_cdsview_filters_with_connected_error(glyph) -> None:
+    renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+    renderer.glyph = glyph()
+
+    assert renderer._check_cdsview_filters_with_connected() == []
+
+    renderer.view.filter = IndexFilter()
+    check = renderer._check_cdsview_filters_with_connected()
+    assert len(check) == 1
+    assert check[0] == ValidationIssue(
+        code=1024,
+        name='CDSVIEW_FILTERS_WITH_CONNECTED',
+        text='CDSView filters are not compatible with glyphs with connected topology such as Line or Patch',
+        extra=str(renderer)
+    )
 
 #-----------------------------------------------------------------------------
 # Dev API

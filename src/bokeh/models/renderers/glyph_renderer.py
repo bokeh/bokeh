@@ -24,6 +24,9 @@ from difflib import get_close_matches
 from typing import TYPE_CHECKING, Literal
 
 # Bokeh imports
+from bokeh.core.property.vectorization import Field
+
+# Bokeh imports
 from ...core.properties import (
     Auto,
     Bool,
@@ -78,22 +81,27 @@ class GlyphRenderer(DataRenderer):
 
     @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
-        if isinstance(self.data_source, WebDataSource):
+        source = self.data_source
+
+        if not isinstance(source, ColumnDataSource) or isinstance(source, WebDataSource):
             return
-        missing_values = set()
-        specs = self.glyph.dataspecs()
-        for name, item in self.glyph.properties_with_values(include_defaults=False).items():
-            if name not in specs: continue
-            if not isinstance(item, dict): continue
-            if not isinstance(self.data_source, ColumnDataSource): continue
-            if 'field' in item and item['field'] not in self.data_source.column_names:
-                missing_values.add((item['field'], name))
-        if missing_values:
-            suggestions = ['" (closest match: "%s")' % s[0] if s else '"' for s in [
-                get_close_matches(term[0], self.data_source.column_names, n=1) for term in missing_values]]
-            missing_values = [("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)]
-            missing = [f'key "{k}" value "{v}' for v, k in missing_values]
-            return "{} [renderer: {}]".format(", ".join(sorted(missing)), self)
+
+        colnames = source.column_names
+
+        props = self.glyph.properties_with_values(include_defaults=False)
+        specs = self.glyph.dataspecs().keys() & props.keys()
+
+        missing = []
+
+        for spec in sorted(specs):
+            if isinstance(props[spec], Field) and (field := props[spec].field) not in colnames:
+                if close := get_close_matches(field, colnames, n=1):
+                    missing.append(f"{spec}={field!r} [closest match: {close[0]!r}]")
+                else:
+                    missing.append(f"{spec}={field!r} [no close matches]")
+
+        if missing:
+            return f"{', '.join(missing)} {{renderer: {self}}}"
 
     data_source = Required(Instance(DataSource), help="""
     Local data source to use when rendering glyphs on the plot.
