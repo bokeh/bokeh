@@ -171,7 +171,7 @@ class GlyphRenderer(DataRenderer):
         * ``text_color.transform`` for TextGlyph
         * ``color_mapper`` for Image
 
-        In general, the function will "do th right thing" based on glyph type.
+        In general, the function will "do the right thing" based on glyph type.
         If different behavior is needed, ColorBars can be consructed by hand.
 
         Extra keyword arguments may be passed in to control ``ColorBar``
