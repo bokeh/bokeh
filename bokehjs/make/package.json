@@ -12,16 +12,16 @@
     "./src/compiler"
   ],
   "devDependencies": {
-    "@types/node": "^18.7.16",
+    "@types/node": "^18.11.18",
     "@types/which": "^2.0.1",
     "@types/yargs": "^16.0.4",
     "chalk": "^4.1.2",
     "del": "^6.1.1",
-    "semver": "^7.3.7",
+    "semver": "^7.3.8",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.1.0",
-    "typescript": "~4.9.3",
-    "which": "^2.0.2",
-    "yargs": "^17.4.0"
+    "tsconfig-paths": "^4.1.2",
+    "typescript": "~4.9.4",
+    "which": "^3.0.0",
+    "yargs": "^17.6.2"
   }
 }

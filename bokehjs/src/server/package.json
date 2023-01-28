@@ -9,13 +9,13 @@
     "url": "https://github.com/bokeh/bokeh.git"
   },
   "devDependencies": {
-    "@types/node": "^18.7.16",
-    "@types/ws": "^8.5.3",
+    "@types/node": "^18.11.18",
+    "@types/ws": "^8.5.4",
     "@types/yargs": "^16.0.4",
     "chalk": "^4.1.2",
     "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.1.0",
-    "ws": "^8.8.1",
-    "yargs": "^17.4.0"
+    "tsconfig-paths": "^4.1.2",
+    "ws": "^8.12.0",
+    "yargs": "^17.6.2"
   }
 }
