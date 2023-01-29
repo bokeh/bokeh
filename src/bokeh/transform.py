@@ -36,9 +36,9 @@ from .models.mappers import (
     CategoricalColorMapper,
     CategoricalMarkerMapper,
     CategoricalPatternMapper,
+    EqHistColorMapper,
     LinearColorMapper,
     LogColorMapper,
-    EqHistColorMapper,
 )
 from .models.transforms import Dodge, Jitter
 
