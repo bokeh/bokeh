@@ -24,6 +24,7 @@ from bokeh.models import (
     CategoricalPatternMapper,
     CumSum,
     Dodge,
+    EqHistColorMapper,
     FactorRange,
     Jitter,
     LinearColorMapper,
@@ -42,6 +43,7 @@ import bokeh.transform as bt # isort:skip
 ALL = (
     'cumsum',
     'dodge',
+    'eqhist_cmap',
     'factor_cmap',
     'factor_hatch',
     'factor_mark',
@@ -93,6 +95,32 @@ class Test_dodge:
         assert t.transform.value == 0.5
         assert t.transform.range is r
         assert t.transform.range.factors == ["a"]
+
+
+class Test_eqhist_cmap:
+    def test_basic(self) -> None:
+        t = bt.eqhist_cmap("foo", ["red", "green"], 0, 10, low_color="orange", high_color="blue", nan_color="pink")
+        assert isinstance(t, Field)
+        assert t.field == "foo"
+        assert isinstance(t.transform, EqHistColorMapper)
+        assert t.transform.palette == ["red", "green"]
+        assert t.transform.low == 0
+        assert t.transform.high == 10
+        assert t.transform.low_color == "orange"
+        assert t.transform.high_color == "blue"
+        assert t.transform.nan_color == "pink"
+
+    def test_defaults(self) -> None:
+        t = bt.eqhist_cmap("foo", ["red", "green"], 0, 10)
+        assert isinstance(t, Field)
+        assert t.field == "foo"
+        assert isinstance(t.transform, EqHistColorMapper)
+        assert t.transform.palette == ["red", "green"]
+        assert t.transform.low == 0
+        assert t.transform.high == 10
+        assert t.transform.low_color is None
+        assert t.transform.high_color is None
+        assert t.transform.nan_color == "gray"
 
 
 class Test_factor_cmap:
