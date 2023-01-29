@@ -121,8 +121,15 @@ def dodge(field_name: str, value: float, range: Range | None = None) -> Field:
     '''
     return Field(field_name, Dodge(value=value, range=range))
 
-def eqhist_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
-        low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
+def eqhist_cmap(
+    field_name: str,
+    palette: Sequence[ColorLike],
+    low: float,
+    high: float,
+    low_color: ColorLike | None = None,
+    high_color: ColorLike | None = None,
+    nan_color: ColorLike = "gray",
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``EqHistColorMapper`` transformation to a ``ColumnDataSource`` column.
 
@@ -161,8 +168,14 @@ def eqhist_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high:
         )
     )
 
-def factor_cmap(field_name: str, palette: Sequence[ColorLike], factors: Factors,
-        start: float = 0, end: float | None = None, nan_color: ColorLike = "gray") -> Field:
+def factor_cmap(
+    field_name: str,
+    palette: Sequence[ColorLike],
+    factors: Factors,
+    start: float = 0,
+    end: float | None = None,
+    nan_color: ColorLike = "gray",
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalColorMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -199,8 +212,13 @@ def factor_cmap(field_name: str, palette: Sequence[ColorLike], factors: Factors,
         )
     )
 
-def factor_hatch(field_name: str, patterns: Sequence[str], factors: Factors,
-        start: float = 0, end: float | None = None) -> Field:
+def factor_hatch(
+    field_name: str,
+    patterns: Sequence[str],
+    factors: Factors,
+    start: float = 0,
+    end: float | None = None,
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalPatternMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -235,8 +253,13 @@ def factor_hatch(field_name: str, patterns: Sequence[str], factors: Factors,
         )
     )
 
-def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
-        start: float = 0, end: float | None = None) -> Field:
+def factor_mark(
+    field_name: str,
+    markers: Sequence[str],
+    factors: Factors,
+    start: float = 0,
+    end: float | None = None,
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``CategoricalMarkerMapper`` transformation to a ``ColumnDataSource``
     column.
@@ -273,8 +296,13 @@ def factor_mark(field_name: str, markers: Sequence[str], factors: Factors,
         )
     )
 
-def jitter(field_name: str, width: float, mean: float = 0,
-        distribution: JitterRandomDistributionType = "uniform", range: Range | None = None) -> Field:
+def jitter(
+    field_name: str,
+    width: float,
+    mean: float = 0,
+    distribution: JitterRandomDistributionType = "uniform",
+    range: Range | None = None,
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``Jitter``
     transformation to a ``ColumnDataSource`` column.
 
@@ -306,8 +334,15 @@ def jitter(field_name: str, width: float, mean: float = 0,
         )
     )
 
-def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
-        low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
+def linear_cmap(
+    field_name: str,
+    palette: Sequence[ColorLike],
+    low: float,
+    high: float,
+    low_color: ColorLike | None = None,
+    high_color: ColorLike | None = None,
+    nan_color: ColorLike = "gray",
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side
     ``LinearColorMapper`` transformation to a ``ColumnDataSource`` column.
 
@@ -346,8 +381,15 @@ def linear_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high:
         )
     )
 
-def log_cmap(field_name: str, palette: Sequence[ColorLike], low: float, high: float,
-        low_color: ColorLike | None = None, high_color: ColorLike | None = None, nan_color: ColorLike = "gray") -> Field:
+def log_cmap(
+    field_name: str,
+    palette: Sequence[ColorLike],
+    low: float,
+    high: float,
+    low_color: ColorLike | None = None,
+    high_color: ColorLike | None = None,
+    nan_color: ColorLike = "gray",
+) -> Field:
     ''' Create a ``DataSpec`` dict that applies a client-side ``LogColorMapper``
     transformation to a ``ColumnDataSource`` column.
 
