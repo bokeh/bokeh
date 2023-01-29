@@ -172,7 +172,7 @@ class GlyphRenderer(DataRenderer):
         * ``color_mapper`` for Image
 
         In general, the function will "do the right thing" based on glyph type.
-        If different behavior is needed, ColorBars can be consructed by hand.
+        If different behavior is needed, ColorBars can be constructed by hand.
 
         Extra keyword arguments may be passed in to control ``ColorBar``
         properties such as `title`.
