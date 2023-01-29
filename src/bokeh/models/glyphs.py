@@ -92,7 +92,7 @@ from .glyph import (
     TextGlyph,
     XYGlyph,
 )
-from .mappers import ColorMapper, LinearColorMapper
+from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -113,6 +113,7 @@ __all__ = (
     'HexTile',
     'Image',
     'ImageRGBA',
+    'ImageStack',
     'ImageURL',
     'Line',
     'Marker',
@@ -779,6 +780,34 @@ class ImageRGBA(ImageBase):
 
     image = NumberSpec(default=field("image"), help="""
     The arrays of RGBA data for the images.
+    """)
+
+class ImageStack(ImageBase):
+    ''' Render images given as 3D stacked arrays by flattening each stack into
+    an RGBA image using a ``StackColorMapper``.
+
+    The 3D arrays have shape (ny, nx, nstack) where ``nstack` is the number of
+    stacks. The ``color_mapper`` produces an RGBA value for each of the
+    (ny, nx) pixels by combining array values in the ``nstack`` direction.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    _args = ('image', 'x', 'y', 'dw', 'dh', 'dilate')
+
+    image = NumberSpec(default=field("image"), help="""
+    The 3D arrays of data for the images.
+    """)
+
+    color_mapper = Instance(StackColorMapper, help="""
+    ``ScalarColorMapper`` used to map the scalar data from ``image``
+    into RGBA values for display.
+
+    .. note::
+        The color mapping step happens on the client.
     """)
 
 class ImageURL(XYGlyph):

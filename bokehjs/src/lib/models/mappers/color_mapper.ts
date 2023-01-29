@@ -7,7 +7,7 @@ import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
 
 export interface RGBAMapper {
-  v_compute(xs: Arrayable<number> | Arrayable<Factor>): RGBAArray
+  v_compute(xs: Arrayable<number> | Arrayable<Factor>, length_divisor: number): RGBAArray
 }
 
 // export for testing
@@ -66,9 +66,10 @@ export abstract class ColorMapper extends Mapper<Color> {
     const palette = _convert_palette(this.palette)
     const colors = this._colors(_convert_color)
     return {
-      v_compute(xs: ArrayableOf<uint32 | Factor>): RGBAArray {
-        const values = new ColorArray(xs.length)
-        self._v_compute(xs, values, palette, colors)
+      v_compute(xs: ArrayableOf<uint32 | Factor>, length_divisor: number): RGBAArray {
+        // If could determine if xs is 3D, would not need length_divisor.
+        const values = new ColorArray(xs.length / length_divisor)
+        self._v_compute_uint32(xs, values, palette, colors)
         return new Uint8ClampedArray(to_big_endian(values).buffer)
       },
     }
@@ -80,4 +81,9 @@ export abstract class ColorMapper extends Mapper<Color> {
 
   protected abstract _v_compute<T>(xs: ArrayableOf<uint32 | Factor>,
     values: Arrayable<T>, palette: Arrayable<T>, colors: {nan_color: T}): void
+
+  protected _v_compute_uint32(xs: ArrayableOf<uint32 | Factor>, values: Arrayable<uint32>,
+      palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
+    this._v_compute(xs, values, palette, colors)
+  }
 }

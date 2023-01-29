@@ -447,6 +447,17 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  StackColorMapper: {
+    __extends__: "ColorMapper",
+  },
+  WeightedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    alpha_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    color_baseline: null,
+  },
   Ticker: {
     __extends__: "Model",
   },
@@ -1625,6 +1636,17 @@
     image: {
       type: "field",
       field: "image",
+    },
+  },
+  ImageStack: {
+    __extends__: "ImageBase",
+    image: {
+      type: "field",
+      field: "image",
+    },
+    color_mapper: {
+      type: "symbol",
+      name: "unset",
     },
   },
   ImageURL: {

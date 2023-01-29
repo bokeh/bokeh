@@ -5,7 +5,7 @@ import {isInteger, isString, isArray} from "./types"
 
 const {round, sqrt} = Math
 
-function byte(v: number): uint8 {
+export function byte(v: number): uint8 {
   return clamp(round(v), 0, 255)
 }
 

@@ -3,7 +3,7 @@ import {Axis, CategoricalAxis, LinearAxis, LogAxis} from "../axes"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
 import {ColorMapper} from "../mappers/color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper} from "../mappers"
+import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper, WeightedStackColorMapper} from "../mappers"
 import {Range, Range1d, FactorRange} from "../ranges"
 import {Scale, LinearScale, LogScale, LinearInterpolationScale, CategoricalScale} from "../scales"
 import {Ticker} from "../tickers/ticker"
@@ -40,6 +40,14 @@ export class ColorBarView extends BaseColorBarView {
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
   }
 
+  get color_mapper(): ColorMapper {
+    // Color mapper that is used to render this colorbar.
+    let mapper = this.model.color_mapper
+    if (mapper instanceof WeightedStackColorMapper)
+      mapper = mapper.alpha_mapper
+    return mapper
+  }
+
   override update_layout(): void {
     super.update_layout()
 
@@ -47,7 +55,7 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   override _create_axis(): Axis {
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper)
       return new CategoricalAxis()
@@ -58,7 +66,7 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   override _create_formatter(): TickFormatter {
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (this._ticker instanceof LogTicker)
       return new LogTickFormatter()
@@ -78,7 +86,7 @@ export class ColorBarView extends BaseColorBarView {
     Note: the type of color_mapper has to match the type of scale (i.e.
     a LinearColorMapper will require a corresponding LinearScale instance).
     */
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (color_mapper instanceof CategoricalColorMapper)
       return new FactorRange({factors: color_mapper.factors})
@@ -90,7 +98,7 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   override _create_major_scale(): Scale {
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (color_mapper instanceof LinearColorMapper)
       return new LinearScale()
@@ -105,7 +113,7 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   override _create_ticker(): Ticker {
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (color_mapper instanceof LogColorMapper)
       return new LogTicker()
@@ -153,14 +161,14 @@ export class ColorBarView extends BaseColorBarView {
   }
 
   override _get_major_size_factor(): number | null {
-    return this.model.color_mapper.palette.length
+    return this.color_mapper.palette.length
   }
 
   protected _metrics_changed(): void {
     const range = this._major_range
     const scale = this._major_scale
 
-    const {color_mapper} = this.model
+    const {color_mapper} = this
 
     if (color_mapper instanceof ScanningColorMapper && scale instanceof LinearInterpolationScale) {
       const binning = this._scanning_binning(color_mapper)
@@ -258,7 +266,7 @@ export class ColorBarView extends BaseColorBarView {
   protected _set_canvas_image(): void {
     const {orientation} = this
 
-    let {palette} = this.model.color_mapper
+    let {palette} = this.color_mapper
 
     if (this._index_high != null || this._index_low != null) {
       palette = palette.slice(
@@ -292,7 +300,7 @@ export class ColorBarView extends BaseColorBarView {
     // LinearColorMapper instance and map a monotonic range of values with
     // length = palette.length to get each palette color in order.
     const cmap = new LinearColorMapper({palette}).rgba_mapper
-    const buf8 = cmap.v_compute(range(0, palette.length))
+    const buf8 = cmap.v_compute(range(0, palette.length), 1)
     image_data.data.set(buf8)
     image_ctx.putImageData(image_data, 0, 0)
   }

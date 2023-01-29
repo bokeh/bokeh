@@ -39,6 +39,10 @@ export abstract class ImageBaseView extends XYGlyphView {
     this.connect(this.model.properties.global_alpha.change, () => this.renderer.request_render())
   }
 
+  get image_dimension(): number {
+    return 2
+  }
+
   get xy_scale(): XY<number> {
     switch (this.model.origin) {
       case "bottom_left":  return {x:  1, y: -1}
@@ -104,21 +108,25 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.restore()
   }
 
-  protected abstract _flat_img_to_buf8(img: Arrayable<number>): Uint8ClampedArray
+  protected abstract _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
     this._set_width_height_data()
+
+    const {image_dimension} = this
 
     for (let i = 0, end = this.image.length; i < end; i++) {
       if (indices != null && indices.indexOf(i) < 0)
         continue
 
       const img = this.image.get(i)
-      assert(img.dimension == 2, "expected a 2D array")
+      assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
+
       this._height[i] = img.shape[0]
       this._width[i] = img.shape[1]
 
-      const buf8 = this._flat_img_to_buf8(img)
+      const length_divisor = img.dimension == 3 ? img.shape[2] : 1
+      const buf8 = this._flat_img_to_buf8(img, length_divisor)
       this._set_image_data_from_buffer(i, buf8)
     }
   }
