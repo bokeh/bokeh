@@ -1068,13 +1068,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     start_angle = start_angle % (2 * Math.PI)
     end_angle = end_angle % (2 * Math.PI)
 
-    const cos_rotation = Math.cos(rotation)
-    const sin_rotation = Math.sin(rotation)
-
+    const transform = new AffineTransform().translate(x, y).rotate(rotation)
     const dx = radius_x*Math.cos(start_angle)
     const dy = radius_y*Math.sin(start_angle)
-    const start_x = x + dx*cos_rotation - dy*sin_rotation
-    const start_y = y + dx*sin_rotation + dy*cos_rotation
+    const [start_x, start_y] = transform.apply(dx, dy)
     this.lineTo(start_x, start_y)
 
     // Canvas ellipse defines rotation in radians and SVG elliptical arc is defined in degrees
@@ -1098,8 +1095,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
       const dx = radius_x*Math.cos(start_angle + Math.PI)
       const dy = radius_y*Math.sin(start_angle + Math.PI)
-      const mid_x = x + dx*cos_rotation - dy*sin_rotation
-      const mid_y = y + dx*sin_rotation + dy*cos_rotation
+      const [mid_x, mid_y] = transform.apply(dx, dy)
       const [tmid_x, tmid_y] = this._transform.apply(mid_x, mid_y)
 
       this.__addPathCommand(tstart_x, tstart_y, `A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tmid_x} ${tmid_y} A ${radius_x} ${radius_y} ${rotation_in_degrees} 0 ${sweep_flag} ${tstart_x} ${tstart_y}`)
@@ -1107,8 +1103,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       // Draw partial ellipse only.
       const dx = radius_x*Math.cos(end_angle)
       const dy = radius_y*Math.sin(end_angle)
-      const end_x = x + dx*cos_rotation - dy*sin_rotation
-      const end_y = y + dx*sin_rotation + dy*cos_rotation
+      const [end_x, end_y] = transform.apply(dx, dy)
 
       let diff = end_angle - start_angle
 
