@@ -8,7 +8,7 @@
 '''
 import numpy as np
 
-from bokeh.models import ColorBar, LogColorMapper
+from bokeh.models import LogColorMapper
 from bokeh.plotting import figure, show
 
 
@@ -23,10 +23,10 @@ image = Z * 1e6
 color_mapper = LogColorMapper(palette="Viridis256", low=1, high=1e7)
 
 plot = figure(x_range=(0,1), y_range=(0,1), toolbar_location=None)
-plot.image(image=[image], color_mapper=color_mapper,
-           dh=1.0, dw=1.0, x=0, y=0)
+r = plot.image(image=[image], color_mapper=color_mapper,
+               dh=1.0, dw=1.0, x=0, y=0)
 
-color_bar = ColorBar(color_mapper=color_mapper)
+color_bar = r.construct_color_bar(padding=1)
 
 plot.add_layout(color_bar, "right")
 

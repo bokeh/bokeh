@@ -20,10 +20,7 @@ import pytest ; pytest
 from bokeh.models import (
     Circle,
     ColumnDataSource,
-    IndexFilter,
-    Line,
     MultiLine,
-    Patch,
     StaticLayoutProvider,
 )
 
@@ -37,20 +34,6 @@ import bokeh.models.renderers as bmr # isort:skip
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-
-class TestGlyphRenderer:
-    @pytest.mark.parametrize('glyph', [Line, Patch])
-    def test_check_cdsview_filters_with_connected_error(self, glyph) -> None:
-        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = glyph()
-
-        check = renderer._check_cdsview_filters_with_connected()
-        assert check == []
-
-        renderer.view.filter = IndexFilter()
-        check = renderer._check_cdsview_filters_with_connected()
-        assert check != []
 
 
 class TestGraphRenderer:

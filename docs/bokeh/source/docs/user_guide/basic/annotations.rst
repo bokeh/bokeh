@@ -215,8 +215,20 @@ See |interactive legends| in the user guide for more information and examples.
 Color bars
 ----------
 
-To create a |ColorBar|, use an instance of |ColorMapper| containing a color
-palette.
+To create a |ColorBar|, you can pass an instance of |ColorMapper| containing
+a color palette, for example:
+
+.. code:: python
+
+    color_bar = ColorBar(color_mapper=color_mapper, padding=5)
+
+However, for many glyphs, you can call ``construct_color_bar`` on the renderer
+returned by the glyph method to create a color bar automatically, if the glyph
+already has a color mapping configured:
+
+.. code:: python
+
+    color_bar = r.construct_color_bar(padding=5)
 
 Color bars can be located inside as well as left, right, below, or above the
 plot. Specify the location of a color bar when adding the |ColorBar| object to

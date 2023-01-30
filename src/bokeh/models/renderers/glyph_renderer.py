@@ -21,7 +21,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from difflib import get_close_matches
-from typing import Literal
+from typing import TYPE_CHECKING, Any, Literal
+
+# Bokeh imports
+from bokeh.core.property.vectorization import Field
 
 # Bokeh imports
 from ...core.properties import (
@@ -46,6 +49,9 @@ from ..sources import (
 )
 from .renderer import DataRenderer
 
+if TYPE_CHECKING:
+    from ..annotations import ColorBar
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
@@ -57,6 +63,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
 
 class GlyphRenderer(DataRenderer):
     '''
@@ -74,22 +81,27 @@ class GlyphRenderer(DataRenderer):
 
     @error(BAD_COLUMN_NAME)
     def _check_bad_column_name(self):
-        if isinstance(self.data_source, WebDataSource):
+        source = self.data_source
+
+        if not isinstance(source, ColumnDataSource) or isinstance(source, WebDataSource):
             return
-        missing_values = set()
-        specs = self.glyph.dataspecs()
-        for name, item in self.glyph.properties_with_values(include_defaults=False).items():
-            if name not in specs: continue
-            if not isinstance(item, dict): continue
-            if not isinstance(self.data_source, ColumnDataSource): continue
-            if 'field' in item and item['field'] not in self.data_source.column_names:
-                missing_values.add((item['field'], name))
-        if missing_values:
-            suggestions = ['" (closest match: "%s")' % s[0] if s else '"' for s in [
-                get_close_matches(term[0], self.data_source.column_names, n=1) for term in missing_values]]
-            missing_values = [("".join([m[0], s]), m[1]) for m, s in zip(missing_values, suggestions)]
-            missing = [f'key "{k}" value "{v}' for v, k in missing_values]
-            return "{} [renderer: {}]".format(", ".join(sorted(missing)), self)
+
+        colnames = source.column_names
+
+        props = self.glyph.properties_with_values(include_defaults=False)
+        specs = self.glyph.dataspecs().keys() & props.keys()
+
+        missing = []
+
+        for spec in sorted(specs):
+            if isinstance(props[spec], Field) and (field := props[spec].field) not in colnames:
+                if close := get_close_matches(field, colnames, n=1):
+                    missing.append(f"{spec}={field!r} [closest match: {close[0]!r}]")
+                else:
+                    missing.append(f"{spec}={field!r} [no close matches]")
+
+        if missing:
+            return f"{', '.join(missing)} {{renderer: {self}}}"
 
     data_source = Required(Instance(DataSource), help="""
     Local data source to use when rendering glyphs on the plot.
@@ -147,6 +159,61 @@ class GlyphRenderer(DataRenderer):
                 glyph.decorations.append(decoration)
 
         return decoration
+
+    def construct_color_bar(self, **kwargs: Any) -> ColorBar:
+        ''' Construct and return a new ``ColorBar`` for this ``GlyphRenderer``.
+
+        The function will check for a color mapper on an appropriate property
+        of the GlyphRenderer's main glyph, in this order:
+
+        * ``fill_color.transform`` for FillGlyph
+        * ``line_color.transform`` for LineGlyph
+        * ``text_color.transform`` for TextGlyph
+        * ``color_mapper`` for Image
+
+        In general, the function will "do the right thing" based on glyph type.
+        If different behavior is needed, ColorBars can be constructed by hand.
+
+        Extra keyword arguments may be passed in to control ``ColorBar``
+        properties such as `title`.
+
+        Returns:
+            ColorBar
+
+        '''
+        from ...core.property.vectorization import Field
+        from ..annotations import ColorBar
+        from ..glyphs import (
+            FillGlyph,
+            Image,
+            LineGlyph,
+            TextGlyph,
+        )
+        from ..mappers import ColorMapper
+
+        if isinstance(self.glyph, FillGlyph):
+            fill_color = self.glyph.fill_color
+            if not (isinstance(fill_color, Field) and isinstance(fill_color.transform, ColorMapper)):
+                raise ValueError("expected fill_color to be a field with a ColorMapper transform")
+            return ColorBar(color_mapper=fill_color.transform, **kwargs)
+
+        elif isinstance(self.glyph, LineGlyph):
+            line_color = self.glyph.line_color
+            if not (isinstance(line_color, Field) and isinstance(line_color.transform, ColorMapper)):
+                raise ValueError("expected line_color to be a field with a ColorMapper transform")
+            return ColorBar(color_mapper=line_color.transform, **kwargs)
+
+        elif isinstance(self.glyph, TextGlyph):
+            text_color = self.glyph.text_color
+            if not (isinstance(text_color, Field) and isinstance(text_color.transform, ColorMapper)):
+                raise ValueError("expected text_color to be a field with a ColorMapper transform")
+            return ColorBar(color_mapper=text_color.transform, **kwargs)
+
+        elif type(self.glyph) is Image:
+            return ColorBar(color_mapper=self.glyph.color_mapper, **kwargs)
+
+        else:
+            raise ValueError(f"construct_color_bar does not handle glyph type {type(self.glyph).__name__}")
 
 #-----------------------------------------------------------------------------
 # Dev API
