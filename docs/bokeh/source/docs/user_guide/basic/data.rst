@@ -312,13 +312,14 @@ Client-side color mapping
 With color mapping, you can encode values from a sequence of data into
 specific colors.
 
-Bokeh provides two functions to perform color mapping directly in the
+Bokeh provides three functions to perform color mapping directly in the
 browser:
 
 * The :func:`~bokeh.transform.linear_cmap` function for linear color mapping
 * The :func:`~bokeh.transform.log_cmap` function for logarithmic color mapping
+* The :func:`~bokeh.transform.eqhist_cmap` function for equalized histogram color mapping
 
-Both functions operate similarly and accept the following arguments:
+All three functions operate similarly and accept the following arguments:
 
 * The name of a ``ColumnDataSource`` column containing the data to map colors to
 * A palette (which can be one of :ref:`Bokeh's pre-defined palettes
