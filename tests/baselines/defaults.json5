@@ -5126,7 +5126,7 @@
     dimensions: "both",
   },
   RangeTool: {
-    __extends__: "Drag",
+    __extends__: "Tool",
     x_range: null,
     y_range: null,
     x_interaction: true,

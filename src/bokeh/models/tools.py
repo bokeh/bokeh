@@ -426,7 +426,7 @@ DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
     line_dash=[2, 2],
 )
 
-class RangeTool(Drag):
+class RangeTool(Tool):
     ''' *toolbar icon*: |range_icon|
 
     The range tool allows the user to update range objects for either or both

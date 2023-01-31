@@ -1,12 +1,15 @@
-import {GestureTool, GestureToolView} from "./gesture_tool"
+import {Tool, ToolView} from "../tool"
+import {OnOffButton} from "../on_off_button"
+import {type PlotView} from "../../plots/plot"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range1d} from "../../ranges/range1d"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import {tool_icon_range} from "styles/icons.css"
 
-export class RangeToolView extends GestureToolView {
+export class RangeToolView extends ToolView {
   declare model: RangeTool
+  declare readonly parent: PlotView
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]
@@ -29,8 +32,13 @@ export class RangeToolView extends GestureToolView {
       if (state == "pan") {
         this.model.update_ranges_from_overlay()
       } else if (state == "pan:end") {
-        this.plot_view.trigger_ranges_update_event()
+        this.parent.trigger_ranges_update_event()
       }
+    })
+
+    const {active} = this.model.properties
+    this.on_change(active, () => {
+      this.model.overlay.editable = this.model.active
     })
   }
 }
@@ -54,7 +62,7 @@ const DEFAULT_RANGE_OVERLAY = () => {
 export namespace RangeTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = GestureTool.Props & {
+  export type Props = Tool.Props & {
     x_range: p.Property<Range1d | null>
     y_range: p.Property<Range1d | null>
     x_interaction: p.Property<boolean>
@@ -65,7 +73,7 @@ export namespace RangeTool {
 
 export interface RangeTool extends RangeTool.Attrs {}
 
-export class RangeTool extends GestureTool {
+export class RangeTool extends Tool {
   declare properties: RangeTool.Props
   declare __view_type__: RangeToolView
 
@@ -83,10 +91,16 @@ export class RangeTool extends GestureTool {
       y_interaction: [ Boolean, true ],
       overlay:       [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],
     }))
+
+    this.override<RangeTool.Props>({
+      active: true,
+    })
   }
 
   override initialize(): void {
     super.initialize()
+
+    this.overlay.editable = this.active
 
     const has_x = this.x_range != null && this.x_interaction
     const has_y = this.y_range != null && this.y_interaction
@@ -135,6 +149,8 @@ export class RangeTool extends GestureTool {
 
   override tool_name = "Range Tool"
   override tool_icon = tool_icon_range
-  override event_type = "pan" as "pan"
-  override default_order = 1
+
+  override tool_button(): OnOffButton {
+    return new OnOffButton({tool: this})
+  }
 }
