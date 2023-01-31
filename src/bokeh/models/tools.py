@@ -1606,7 +1606,7 @@ class PolyDrawTool(PolyTool, Drag, Tap):
       to add each subsequent vertex, to finalize the draw action double tap to
       insert the final vertex or press the <<esc> key.
 
-    * Move patch or ulti-line: Tap and drag an existing patch/multi-line, the
+    * Move patch or multi-line: Tap and drag an existing patch/multi-line, the
       point will be dropped once you let go of the mouse button.
 
     * Delete patch or multi-line: Tap a patch/multi-line to select it then
