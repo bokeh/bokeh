@@ -16,7 +16,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy, PanTool, LassoSelectTool, HoverTool, ZoomInTool,
+  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
   TileRenderer, WMTSTileSource,
   Renderer,
   ImageURLTexture,
@@ -51,6 +51,7 @@ import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
+import {XY} from "@bokehjs/core/util/bbox"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
@@ -2845,6 +2846,153 @@ describe("Bug", () => {
       it.dpr(3)("with devicePixelRatio == 3", async () => {
         await display(row([plot("canvas"), plot("svg"), plot("webgl")]))
       })
+    })
+  })
+
+  describe("in issue #5829", () => {
+    it("allows PolySelectTool's overlay to stay the same at all zoom levels", async () => {
+      const poly_select = new PolySelectTool()
+      const poly_select_button = poly_select.tool_button()
+      const zoom_out = new ZoomOutTool()
+      const zoom_out_button = zoom_out.tool_button()
+      const toolbar = new Toolbar({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
+      const p = fig([200, 200], {toolbar, toolbar_location: "right"})
+      p.circle([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
+
+      const {view} = await display(p)
+      await paint()
+
+      //const actions = new PlotActions(view)
+      //await actions.tap({x: 15, y: 15})
+      //await actions.tap({x: 15, y: 35})
+      //await actions.tap({x: 35, y: 35})
+
+      function tap(xy: XY) {
+        const sx = view.frame.x_scale.compute(xy.x)
+        const sy = view.frame.y_scale.compute(xy.y)
+        const poly_select_view = view.owner.get_one(poly_select)
+        poly_select_view._tap({type: "tap", sx, sy, ctrl_key: false, shift_key: false, alt_key: false})
+      }
+
+      tap({x: 15, y: 15})
+      tap({x: 15, y: 35})
+      tap({x: 35, y: 35})
+
+      const zoom_out_button_view = view.owner.get_one(zoom_out_button)
+      for (let i = 0; i < 5; i++) {
+        await click(zoom_out_button_view.el)
+      }
+    })
+  })
+
+  describe("in issue #8180", () => {
+    it("does not allow propagation of UI events through RangeTool's overlay", async () => {
+      const p = fig([200, 200], {tools: "pan"})
+      p.quad({left: 0, right: 9, top: 0, bottom: 9})
+
+      const range_tool = new RangeTool({
+        x_range: new Range1d({start: 2, end: 7}),
+        y_range: new Range1d({start: 2, end: 7}),
+      })
+
+      const hover_tool = new HoverTool({
+        tooltips: [
+          ["(dx,dy)", "($x, $y)"],
+          ["(sx,sy)", "($sx, $sy)"],
+        ],
+        point_policy: "follow_mouse",
+      })
+
+      p.add_tools(range_tool, hover_tool)
+
+      const {view} = await display(p)
+      await paint()
+
+      const actions = new PlotActions(view)
+      await actions.hover({x: 3, y: 3})
+      await paint()
+    })
+  })
+
+  describe("in issue #9047", () => {
+    it("does not allow to interact with multiple RangeTools", async () => {
+      const p = fig([400, 200], {tools: "pan", toolbar_location: "above"})
+
+      const random = new Random(1)
+      const x = random.floats(100, 0, 9)
+      const y = random.floats(100, 0, 1)
+      p.circle(x, y, {size: 10})
+
+      const tool0 = new RangeTool({
+        x_range: new Range1d({start: 1, end: 2}),
+        y_range: new Range1d({start: 0, end: 1}),
+        y_interaction: false,
+      })
+
+      const tool1 = new RangeTool({
+        x_range: new Range1d({start: 3, end: 4}),
+        y_range: new Range1d({start: 0, end: 1}),
+        y_interaction: false,
+      })
+
+      const tool2 = new RangeTool({
+        x_range: new Range1d({start: 5, end: 6}),
+        y_range: new Range1d({start: 0, end: 1}),
+        y_interaction: false,
+      })
+
+      const tool3 = new RangeTool({
+        x_range: new Range1d({start: 7, end: 8}),
+        y_range: new Range1d({start: 0, end: 1}),
+        y_interaction: false,
+      })
+
+      p.add_tools(tool0, tool1, tool2, tool3)
+
+      const {view} = await display(p)
+      await paint()
+
+      const actions = new PlotActions(view)
+      await actions.pan_along({type: "line", xy0: {x: 1.5, y: 0.5}, xy1: {x: 0.0, y: 0.5}})
+      await paint()
+      await actions.pan_along({type: "line", xy0: {x: 3.5, y: 0.5}, xy1: {x: 2.0, y: 0.5}})
+      await paint()
+      await actions.pan_along({type: "line", xy0: {x: 5.5, y: 0.5}, xy1: {x: 6.0, y: 0.5}})
+      await paint()
+      await actions.pan_along({type: "line", xy0: {x: 7.5, y: 0.5}, xy1: {x: 8.5, y: 0.5}})
+      await paint()
+    })
+  })
+
+  describe("in issue #9381", () => {
+    it("does not allow RangeTool to work on axes with inverted ranges", async () => {
+      const xx = [20, 22, 21]
+      const yy = [2, 3, 4]
+
+      const overview_rng = new Range1d({start: 5, end: 0})
+      const zoomed_rng = new Range1d({start: 4, end: 2})
+
+      const fig_overview = fig([200, 200], {y_range: overview_rng})
+      fig_overview.line(xx, yy)
+
+      const range_tool = new RangeTool({y_range: zoomed_rng})
+      fig_overview.add_tools(range_tool)
+
+      const fig_zoomed = fig([200, 200], {y_range: zoomed_rng})
+      fig_zoomed.line(xx, yy)
+
+      const {view} = await display(row([fig_overview, fig_zoomed]))
+      await paint()
+
+      const overview_view = view.owner.get_one(fig_overview)
+
+      const actions = new PlotActions(overview_view)
+      await actions.pan_along({type: "line", xy0: {x: 21, y: 2.0}, xy1: {x: 21, y: 3.0}}) // drag top edge down
+      await paint()
+      await actions.pan_along({type: "line", xy0: {x: 21, y: 3.5}, xy1: {x: 21, y: 3.0}}) // move up
+      await paint()
+      await actions.pan_along({type: "line", xy0: {x: 21, y: 3.5}, xy1: {x: 21, y: 3.1}}) // drag bottom edge up
+      await paint()
     })
   })
 })
