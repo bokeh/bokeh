@@ -64,7 +64,8 @@ The source code for the Bokeh project is hosted on GitHub_, at
 https://github.com/bokeh/bokeh.
 
 Unless you are a `@bokeh/dev team member`_, you first need to create a fork of
-Bokeh's main repository. For more information on creating a fork, see
+Bokeh's main repository. While forking, make sure to uncheck the `Copy the
+branch-3.1 branch only` checkbox. For more information on creating a fork, see
 `Fork a repo`_ in `GitHub Help`_.
 
 Next, clone the version of the Bokeh repository you want to work on to a local
@@ -74,6 +75,34 @@ folder on your hard drive. Use ``git clone`` or follow the instructions for
 Cloning the repository creates a ``bokeh`` directory at your file system
 location. This local ``bokeh`` directory is referred to as the *source checkout*
 for the remainder of this document.
+
+.. note::
+    Before continuing, you should make sure that all tags have been added to your
+    local directory by running the following command:
+
+    .. code-block:: sh
+
+        git tag -l |tail
+
+    If this command does not show any tags, there's another step you need to take:
+
+    .. tab-set::
+
+        .. tab-item:: SSH
+
+            .. code-block:: sh
+
+                git remote add upstream git@github.com:bokeh/bokeh.git
+                git fetch upstream
+
+        .. tab-item:: HTTPS
+
+            ..code-block:: sh
+
+                git remote add upstream https://github.com/bokeh/bokeh.git
+                git fetch upstream
+
+    Now the necessary tags should be there, you can again with `git tag -l |tail`.
 
 .. _contributor_guide_setup_creating_conda_env:
 
