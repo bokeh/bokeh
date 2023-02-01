@@ -102,7 +102,7 @@ for the remainder of this document.
                 git remote add upstream https://github.com/bokeh/bokeh.git
                 git fetch upstream
 
-    Now the necessary tags should be there, you can again with `git tag -l |tail`.
+    Now the necessary tags should be there, you can check again with `git tag -l |tail`.
 
 .. _contributor_guide_setup_creating_conda_env:
 
