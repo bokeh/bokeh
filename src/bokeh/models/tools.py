@@ -627,7 +627,7 @@ class TapTool(Tap, SelectTool):
 
     .. note::
         Selections can be comprised of multiple regions, even those
-        made by different selection tools. Hold down the <<shift>> key
+        made by different selection tools. Hold down the SHIFT key
         while making a selection to append the new selection to any
         previous selection that might exist.
 
@@ -941,7 +941,7 @@ class LassoSelectTool(Drag, SelectTool):
 
     .. note::
         Selections can be comprised of multiple regions, even those made by
-        different selection tools. Hold down the <<shift>> key while making a
+        different selection tools. Hold down the SHIFT key while making a
         selection to append the new selection to any previous selection that
         might exist.
 
@@ -978,7 +978,7 @@ class PolySelectTool(Tap, SelectTool):
 
     .. note::
         Selections can be comprised of multiple regions, even those
-        made by different selection tools. Hold down the <<shift>> key
+        made by different selection tools. Hold down the SHIFT key
         while making a selection to append the new selection to any
         previous selection that might exist.
 
@@ -1462,17 +1462,17 @@ class BoxEditTool(EditTool, Drag, Tap):
     * Move box: Click and drag an existing box, the box will be dropped once
       you let go of the mouse button.
 
-    * Delete box: Tap a box to select it then press <<backspace>> key while the
+    * Delete box: Tap a box to select it then press BACKSPACE key while the
       mouse is within the plot area.
 
     To **Move** or **Delete** multiple boxes at once:
 
-    * Move selection: Select box(es) with <<shift>>+tap (or another selection
+    * Move selection: Select box(es) with SHIFT+tap (or another selection
       tool) then drag anywhere on the plot. Selecting and then dragging on a
       specific box will move both.
 
-    * Delete selection: Select box(es) with <<shift>>+tap (or another selection
-      tool) then press <<backspace>> while the mouse is within the plot area.
+    * Delete selection: Select box(es) with SHIFT+tap (or another selection
+      tool) then press BACKSPACE while the mouse is within the plot area.
 
     .. |box_edit_icon| image:: /_images/icons/BoxEdit.png
         :height: 24px
@@ -1536,7 +1536,7 @@ class PointDrawTool(EditTool, Drag, Tap):
     * Move point: Tap and drag an existing point, the point will be
       dropped once you let go of the mouse button.
 
-    * Delete point: Tap a point to select it then press <<backspace>>
+    * Delete point: Tap a point to select it then press BACKSPACE
       key while the mouse is within the plot area.
 
     .. |point_draw_icon| image:: /_images/icons/PointDraw.png
@@ -1595,13 +1595,13 @@ class PolyDrawTool(PolyTool, Drag, Tap):
 
     * Add patch or multi-line: Double tap to add the first vertex, then use tap
       to add each subsequent vertex, to finalize the draw action double tap to
-      insert the final vertex or press the <<esc> key.
+      insert the final vertex or press the ESC key.
 
-    * Move patch or ulti-line: Tap and drag an existing patch/multi-line, the
+    * Move patch or multi-line: Tap and drag an existing patch/multi-line, the
       point will be dropped once you let go of the mouse button.
 
     * Delete patch or multi-line: Tap a patch/multi-line to select it then
-      press <<backspace>> key while the mouse is within the plot area.
+      press BACKSPACE key while the mouse is within the plot area.
 
     .. |poly_draw_icon| image:: /_images/icons/PolyDraw.png
         :height: 24px
@@ -1650,7 +1650,7 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     * Draw vertices: Click and drag to draw a line
 
     * Delete patch/multi-line: Tap a patch/multi-line to select it then press
-      <<backspace>> key while the mouse is within the plot area.
+      BACKSPACE key while the mouse is within the plot area.
 
     .. |freehand_draw_icon| image:: /_images/icons/FreehandDraw.png
         :height: 24px
@@ -1698,12 +1698,12 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     * Add vertex: Double tap an existing vertex to select it, the tool will
       draw the next point, to add it tap in a new location. To finish editing
-      and add a point double tap otherwise press the <<esc> key to cancel.
+      and add a point double tap otherwise press the ESC key to cancel.
 
     * Move vertex: Drag an existing vertex and let go of the mouse button to
       release it.
 
-    * Delete vertex: After selecting one or more vertices press <<backspace>>
+    * Delete vertex: After selecting one or more vertices press BACKSPACE
       while the mouse cursor is within the plot area.
 
     .. |poly_edit_icon| image:: /_images/icons/PolyEdit.png
