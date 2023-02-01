@@ -127,7 +127,7 @@ def get_all_sri_hashes() -> dict[str, Hashes]:
     global _SRI_HASHES
 
     if not _SRI_HASHES:
-        with open(join(ROOT_DIR, "_sri.json")) as f:
+        with open(join(ROOT_DIR, "_sri.json"), "rb") as f:
             _SRI_HASHES = json.load(f)
 
     assert _SRI_HASHES is not None

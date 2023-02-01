@@ -109,6 +109,18 @@ class TestThemes:
         file.close()
         os.remove(file.name)
 
+    def test_construct_nonempty_theme_from_utf16_file(self) -> None:
+        # windows will throw permissions error with auto-delete
+        with (tempfile.NamedTemporaryFile(delete=False)) as file:
+            # create and apply empty theme with no exception thrown
+            file.file.write(FILE_CONTENTS.decode("ascii").encode("utf16"))
+            file.file.flush()
+            theme = Theme(filename=file.name)
+            assert dict(number=57) == theme._for_class(ThemedModel)
+            assert dict(number=57, another_string="boo") == theme._for_class(SubOfThemedModel)
+        file.close()
+        os.remove(file.name)
+
     def test_theming_a_model(self) -> None:
         theme = Theme(json={
             'attrs' : {

@@ -157,7 +157,7 @@ class Theme:
             raise ValueError("Theme should be constructed from a file or from json not both")
 
         if filename is not None:
-            with open(filename) as f:
+            with open(filename, "rb") as f:
                 json = yaml.safe_load(f)
                 # empty docs result in None rather than {}, fix it.
                 if json is None:
