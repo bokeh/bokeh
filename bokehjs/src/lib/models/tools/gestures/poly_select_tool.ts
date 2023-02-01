@@ -53,7 +53,7 @@ export class PolySelectToolView extends RegionSelectToolView {
 
     const {pan} = this.model.overlay
     this.connect(pan, ([phase, ev]) => {
-      if ((phase == "pan" && this._is_continuous(ev)) || phase == "pan:end") {
+      if ((phase == "pan" && this._is_continuous(ev)) || (phase == "pan:end" && !this._is_selecting)) {
         const {xs, ys} = this.model.overlay
         const [sxs, sys] = this._v_compute(xs, ys)
         this._do_select(sxs, sys, false, this._select_mode(ev))
