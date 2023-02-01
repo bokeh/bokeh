@@ -129,7 +129,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom: compute(bottom, mappers.bottom, frame.bbox.bottom),
     })
 
-    this._paint_box()
+    if (this.bbox.is_valid) {
+      this._paint_box()
+    }
   }
 
   get border_radius(): Corners<number> {

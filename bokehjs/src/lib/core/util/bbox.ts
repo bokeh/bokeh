@@ -96,12 +96,19 @@ export class BBox implements Rect, Equatable {
       this.y1 = 0
     } else if ("x0" in box) {
       const {x0, y0, x1, y1} = box
-      if (!(x0 <= x1 && y0 <= y1))
-        throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
-      this.x0 = x0
-      this.y0 = y0
-      this.x1 = x1
-      this.y1 = y1
+      if (!isFinite(x0 + y0 + x1 + y1)) {
+        this.x0 = NaN
+        this.y0 = NaN
+        this.x1 = NaN
+        this.y1 = NaN
+      } else {
+        if (!(x0 <= x1 && y0 <= y1))
+          throw new Error(`invalid bbox {x0: ${x0}, y0: ${y0}, x1: ${x1}, y1: ${y1}}`)
+        this.x0 = x0
+        this.y0 = y0
+        this.x1 = x1
+        this.y1 = y1
+      }
     } else if ("x" in box) {
       const {x, y, width, height} = box
       if (!(width >= 0 && height >= 0))
@@ -190,6 +197,11 @@ export class BBox implements Rect, Equatable {
 
   toString(): string {
     return `BBox({left: ${this.left}, top: ${this.top}, width: ${this.width}, height: ${this.height}})`
+  }
+
+  get is_valid(): boolean {
+    const {x0, x1, y0, y1} = this
+    return isFinite(x0 + x1 + y0 + y1)
   }
 
   get is_empty(): boolean {
