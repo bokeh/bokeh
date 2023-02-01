@@ -56,7 +56,9 @@ def download(progress: bool = True) -> None:
 
     # HTTP requests are cheaper for us, and there is nothing private to protect
     s3 = 'http://sampledata.bokeh.org'
-    files = json.load(open(Path(__file__).parent / "sampledata.json"))
+
+    with (Path(__file__).parent / "sampledata.json").open("rb") as f:
+        files = json.load(f)
 
     for filename, md5 in files:
         real_name, ext = splitext(filename)
@@ -145,6 +147,10 @@ def package_path(filename: str | Path) -> Path:
 
     '''
     return package_dir() / filename
+
+def load_json(filename: str | Path) -> Any:
+    with open(filename, "rb") as f:
+        return json.load(f)
 
 def open_csv(filename: str | Path) -> TextIO:
     '''

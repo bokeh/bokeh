@@ -32,11 +32,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import json
-
 # Bokeh imports
-from ..util.sampledata import external_path
+from ..util.sampledata import external_path, load_json
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -62,4 +59,4 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-data = json.load(open(external_path('us_cities.json')))
+data = load_json(external_path('us_cities.json'))

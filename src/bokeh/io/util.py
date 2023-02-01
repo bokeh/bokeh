@@ -107,7 +107,10 @@ def temp_filename(ext: str) -> str:
     ''' Generate a temporary, writable filename with the given extension
 
     '''
-    return NamedTemporaryFile(suffix="." + ext).name
+    # todo: not safe - the file is deleted before being written to so another
+    # process can generate the same filename
+    with NamedTemporaryFile(suffix="." + ext) as f:
+        return f.name
 
 #-----------------------------------------------------------------------------
 # Private API
