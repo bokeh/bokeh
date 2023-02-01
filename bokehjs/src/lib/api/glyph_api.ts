@@ -190,10 +190,10 @@ export abstract class GlyphAPI {
 
   block(args: Partial<BlockArgs>): TypedGlyphRenderer<Block>
   block(
-    x0: BlockArgs["x"],
-    y0: BlockArgs["y"],
-    x1: BlockArgs["width"],
-    y1: BlockArgs["height"],
+    x: BlockArgs["x"],
+    y: BlockArgs["y"],
+    width: BlockArgs["width"],
+    height: BlockArgs["height"],
     args?: Partial<BlockArgs>): TypedGlyphRenderer<Block>
   block(...args: unknown[]): TypedGlyphRenderer<Block> {
     return this._glyph(Block, ["x", "y", "width", "height"], args)
