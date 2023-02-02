@@ -64,9 +64,10 @@ The source code for the Bokeh project is hosted on GitHub_, at
 https://github.com/bokeh/bokeh.
 
 Unless you are a `@bokeh/dev team member`_, you first need to create a fork of
-Bokeh's main repository. While forking, make sure to uncheck the `Copy the
-branch-3.1 branch only` checkbox. For more information on creating a fork, see
-`Fork a repo`_ in `GitHub Help`_.
+Bokeh's main repository. While forking, make sure to uncheck the checkbox that
+limits copying to a specific branch (for example "Copy the branch-3.2 branch
+only"). For more information on creating a fork, see `Fork a repo`_ in
+`GitHub Help`_.
 
 Next, clone the version of the Bokeh repository you want to work on to a local
 folder on your hard drive. Use ``git clone`` or follow the instructions for
@@ -76,33 +77,24 @@ Cloning the repository creates a ``bokeh`` directory at your file system
 location. This local ``bokeh`` directory is referred to as the *source checkout*
 for the remainder of this document.
 
-.. note::
-    Before continuing, you should make sure that all tags have been added to your
-    local directory by running the following command:
+Before continuing, it is necessary to add the Bokeh repository as an additional
+upstream with the following commands:
 
-    .. code-block:: sh
+.. tab-set::
 
-        git tag -l |tail
+    .. tab-item:: SSH
 
-    If this command does not show any tags, there's another step you need to take:
+        .. code-block:: sh
 
-    .. tab-set::
+            git remote add upstream git@github.com:bokeh/bokeh.git
+            git fetch upstream
 
-        .. tab-item:: SSH
+    .. tab-item:: HTTPS
 
-            .. code-block:: sh
+        ..code-block:: sh
 
-                git remote add upstream git@github.com:bokeh/bokeh.git
-                git fetch upstream
-
-        .. tab-item:: HTTPS
-
-            ..code-block:: sh
-
-                git remote add upstream https://github.com/bokeh/bokeh.git
-                git fetch upstream
-
-    Now the necessary tags should be there, you can again with `git tag -l |tail`.
+            git remote add upstream https://github.com/bokeh/bokeh.git
+            git fetch upstream
 
 .. _contributor_guide_setup_creating_conda_env:
 
@@ -613,6 +605,34 @@ expected. Make sure your
 :ref:`conda environment <contributor_guide_setup_creating_conda_env>`,
 :ref:`Node packages <contributor_guide_setup_installing_node_packages>`, and
 :ref:`local build <contributor_guide_setup_install_locally>` are up to date.
+
+Sometimes you may run into issues if the tags of the Bokeh repository have not
+been cloned to your local directory. To check if the necessary tags are present,
+run the following command:
+
+.. tab-set::
+    .. tab-item:: Linux/macOS
+            :sync: sh
+
+            .. code-block:: sh
+
+                git tag -l | tail
+
+        .. tab-item:: Windows (PS)
+            :sync: ps
+
+            .. code-block:: powershell
+
+                git tag -l
+
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
+
+            .. code-block:: doscon
+
+                git tag -l
+
+If there are no tags present, make sure that you follow the steps of :ref:`setting the Bokeh repository as an additional upstream<contributor_guide_setup_cloning>`.
 
 If you keep getting errors after updating an older environment, use
 ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
