@@ -214,6 +214,21 @@ export async function run(seq: TestSeq): Promise<Result> {
   return {...result, error: _handle_error(result.error)}
 }
 
+export async function get_state(seq: TestSeq): Promise<State | null> {
+  const [, test] = from_seq(seq)
+  return _get_state(test)
+}
+
+function _get_state(test: Test): State | null {
+  for (const view of test.views) {
+    if (!(view instanceof UIElementView))
+      continue
+    const state = _resolve_bbox(view.serializable_state()) as State
+    return state
+  }
+  return null
+}
+
 export async function clear(seq: TestSeq): Promise<void> {
   const [, test] = from_seq(seq)
   _clear_test(test)
