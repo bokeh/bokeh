@@ -97,6 +97,11 @@ filterwarnings = [
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
     '''ignore:unclosed event loop <.*>:ResourceWarning''',
     '''ignore:move_to_element_with_offset\(\) currently tries to use the top left corner of the element as the origin; in Selenium 4\.3 it will use the in-view center point of the element as the origin\.:DeprecationWarning''',
+    '''ignore:Using or importing the ABCs from 'collections' instead of from 'collections\.abc' is deprecated since Python 3\.3, and in 3\.10 it will stop working:DeprecationWarning:tornado''',
+    '''ignore:Unknown config option. asyncio_mode:pytest.PytestConfigWarning''',
+    '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
+    '''ignore:the `interpolation=` argument to percentile was renamed to `method=`.*:DeprecationWarning:pandas''',
+    '''ignore:numpy\.ufunc size changed, may indicate binary incompatibility\. Expected 216 from C header, got 232 from PyObject:RuntimeWarning''',
 ]
 
 [tool.coverage.run]
