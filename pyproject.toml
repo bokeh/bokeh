@@ -102,6 +102,8 @@ filterwarnings = [
     '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
     '''ignore:the `interpolation=` argument to percentile was renamed to `method=`.*:DeprecationWarning:pandas''',
     '''ignore:numpy\.ufunc size changed, may indicate binary incompatibility\. Expected 216 from C header, got 232 from PyObject:RuntimeWarning''',
+    '''ignore:elementwise comparison failed; this will raise an error in the future\.:DeprecationWarning''',
+    '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
 ]
 
 [tool.coverage.run]

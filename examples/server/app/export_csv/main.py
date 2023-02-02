@@ -3,6 +3,7 @@ This example shows the capability of exporting a csv file from ColumnDataSource.
 
 '''
 from os.path import dirname, join
+from pathlib import Path
 
 import pandas as pd
 
@@ -27,8 +28,13 @@ slider = RangeSlider(title="Max Salary", start=10000, end=110000, value=(10000, 
 slider.on_change('value', lambda attr, old, new: update())
 
 button = Button(label="Download", button_type="success")
-button.js_on_event("button_click", CustomJS(args=dict(source=source),
-                            code=open(join(dirname(__file__), "download.js")).read()))
+button.js_on_event(
+    "button_click",
+    CustomJS(
+        args=dict(source=source),
+        code=(Path(__file__).parent / "download.js").read_text(encoding="utf8")
+    )
+)
 
 columns = [
     TableColumn(field="name", title="Employee Name"),
