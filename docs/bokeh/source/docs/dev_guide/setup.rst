@@ -611,26 +611,27 @@ been cloned to your local directory. To check if the necessary tags are present,
 run the following command:
 
 .. tab-set::
+
     .. tab-item:: Linux/macOS
-            :sync: sh
+        :sync: sh
 
-            .. code-block:: sh
+        .. code-block:: sh
 
-                git tag -l | tail
+            git tag -l | tail
 
-        .. tab-item:: Windows (PS)
-            :sync: ps
+    .. tab-item:: Windows (PS)
+        :sync: ps
 
-            .. code-block:: powershell
+        .. code-block:: powershell
 
-                git tag -l
+            git tag -l
 
-        .. tab-item:: Windows (CMD)
-            :sync: cmd
+    .. tab-item:: Windows (CMD)
+        :sync: cmd
 
-            .. code-block:: doscon
+        .. code-block:: doscon
 
-                git tag -l
+            git tag -l
 
 If there are no tags present, make sure that you follow the steps of :ref:`setting the Bokeh repository as an additional upstream<contributor_guide_setup_cloning>`.
 
