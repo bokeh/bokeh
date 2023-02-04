@@ -1,3 +1,4 @@
+import {logger} from "../logging"
 import {Context2d, CanvasLayer} from "../util/canvas"
 import {color2css} from "../util/color"
 import {Color} from "../types"
@@ -161,5 +162,7 @@ function create_hatch_canvas(ctx: Context2d,
       _horz(ctx, h, h2)
       _vert(ctx, h, h2)
       break
+    default:
+      logger.warn(`unknown hatch pattern: ${hatch_pattern}`)
   }
 }

@@ -48,7 +48,6 @@ range_rool.overlay.fill_alpha = 0.2
 select.line('date', 'close', source=source)
 select.ygrid.grid_line_color = None
 select.add_tools(range_rool)
-select.toolbar.active_multi = range_rool
 select.background_fill_color = "#f5f5f5"
 select.grid.grid_line_color = "white"
 select.x_range.range_padding = 0.01

@@ -62,8 +62,8 @@ export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
 }
 
-export type DefineOf<P> = {
-  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HasProps) => T))?, PropertyOptions<T>?] : never
+export type DefineOf<P, HP extends HasProps = HasProps> = {
+  [K in keyof P]: P[K] extends Property<infer T> ? [PropertyConstructor<T> | PropertyAlias | Kind<T>, (Unset | T | ((obj: HP) => T))?, PropertyOptions<T>?] : never
 }
 
 export type DefaultsOf<P> = {

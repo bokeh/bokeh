@@ -4,7 +4,7 @@ import {fig, display} from "../../_util"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {ToolbarPanelView} from "@bokehjs/models/annotations/toolbar_panel"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
-import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
+import {SelectTool} from "@bokehjs/models/tools/gestures/select_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {build_view} from "@bokehjs/core/build_views"
@@ -209,10 +209,7 @@ describe("ToolbarView", () => {
   })
 })
 
-class MultiToolView extends SelectToolView {}
-
 class MultiTool extends SelectTool {
-  override default_view = MultiToolView
   override tool_name = "Multi Tool"
   override event_type = ["tap" as "tap", "pan" as "pan"]
   override default_order = 10

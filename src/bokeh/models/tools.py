@@ -312,6 +312,12 @@ class RegionSelectTool(SelectTool):
 
     select_every_mousemove = DeprecatedAlias("continuous", since=(3, 1, 0))
 
+    persistent = Bool(default=False, help="""
+    Whether the selection overlay should persist after selection gesture
+    is completed. This can be paired with setting ``editable = True`` on
+    the annotation, to allow to modify the selection.
+    """)
+
 @abstract
 class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
@@ -409,15 +415,18 @@ class PanTool(Drag):
 DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
     syncable=False,
     level="overlay",
+    visible=True,
+    editable=True,
+    propagate_hover=True,
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
     line_alpha=1.0,
     line_width=0.5,
-    line_dash=[2,2],
+    line_dash=[2, 2],
 )
 
-class RangeTool(Drag):
+class RangeTool(Tool):
     ''' *toolbar icon*: |range_icon|
 
     The range tool allows the user to update range objects for either or both
@@ -444,6 +453,11 @@ class RangeTool(Drag):
     will span the entire x-dimension.
     """)
 
+    y_range = Nullable(Instance(Range1d), help="""
+    A range synchronized to the y-dimension of the overlay. If None, the overlay
+    will span the entire y-dimension.
+    """)
+
     x_interaction = Bool(default=True, help="""
     Whether to respond to horizontal pan motions when an ``x_range`` is present.
 
@@ -452,11 +466,6 @@ class RangeTool(Drag):
     box, or along the top or bottom edge of the box. To disable this, and fix
     the  range box in place horizontally, set to False. (The box will still
     update if the ``x_range`` is updated programmatically.)
-    """)
-
-    y_range = Nullable(Instance(Range1d), help="""
-    A range synchronized to the y-dimension of the overlay. If None, the overlay
-    will span the entire y-dimension.
     """)
 
     y_interaction = Bool(default=True, help="""
@@ -759,14 +768,32 @@ class CrosshairTool(InspectTool):
     Stroke width in units of pixels.
     """)
 
-DEFAULT_BOX_OVERLAY = InstanceDefault(BoxAnnotation,
+DEFAULT_BOX_ZOOM_OVERLAY = InstanceDefault(BoxAnnotation,
     syncable=False,
     level="overlay",
     visible=False,
+    editable=False,
     top_units="canvas",
     left_units="canvas",
     bottom_units="canvas",
     right_units="canvas",
+    fill_color="lightgrey",
+    fill_alpha=0.5,
+    line_color="black",
+    line_alpha=1.0,
+    line_width=2,
+    line_dash=[4, 4],
+)
+
+DEFAULT_BOX_SELECT_OVERLAY = InstanceDefault(BoxAnnotation,
+    syncable=False,
+    level="overlay",
+    visible=False,
+    editable=True,
+    top_units="data",
+    left_units="data",
+    bottom_units="data",
+    right_units="data",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -806,7 +833,7 @@ class BoxZoomTool(Drag):
     of the plot, and the vertical dimension can be controlled.
     """)
 
-    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_ZOOM_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
@@ -917,7 +944,7 @@ class BoxSelectTool(Drag, RegionSelectTool):
     plot, and the vertical dimension can be controlled.
     """)
 
-    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_OVERLAY, help="""
+    overlay = Instance(BoxAnnotation, default=DEFAULT_BOX_SELECT_OVERLAY, help="""
     A shaded annotation drawn to indicate the selection region.
     """)
 
@@ -930,8 +957,9 @@ DEFAULT_POLY_OVERLAY = InstanceDefault(PolyAnnotation,
     syncable=False,
     level="overlay",
     visible=False,
-    xs_units="canvas",
-    ys_units="canvas",
+    editable=True,
+    xs_units="data",
+    ys_units="data",
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",

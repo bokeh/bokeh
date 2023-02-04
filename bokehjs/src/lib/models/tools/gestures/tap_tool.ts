@@ -23,11 +23,17 @@ export class TapToolView extends SelectToolView {
 
   _handle_tap(ev: TapEvent): void {
     const {sx, sy} = ev
+    const {frame} = this.plot_view
+    if (!frame.bbox.contains(sx, sy))
+      return
+
+    this._clear_other_overlays()
+
     const geometry: PointGeometry = {type: "point", sx, sy}
     this._select(geometry, true, this._select_mode(ev))
   }
 
-  override _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
     const {callback} = this.model
 
     if (this.model.behavior == "select") {

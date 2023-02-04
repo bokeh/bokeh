@@ -32,18 +32,30 @@ export abstract class ToolButtonView extends UIElementView {
       prevent_hide: (event) => event.composedPath().includes(this.el),
     })
 
+    const duration = 250 /*ms*/
     let start: number | null = null
+    let timer: number | null = null
 
     this.el.addEventListener("pointerdown", (e) => {
       if (e.buttons == MouseButton.Left) {
         start = e.timeStamp
+        timer = setTimeout(() => {
+          start = null
+          timer = null
+          this._pressed()
+        }, duration)
       }
     })
 
     this.el.addEventListener("pointerup", (e) => {
+      if (timer != null) {
+        clearTimeout(timer)
+        timer = null
+      }
+
       if (start != null) {
         const end = e.timeStamp
-        if (end - start >= 250 /*ms*/) {
+        if (end - start >= duration) {
           this._pressed()
         } else {
           if (this._menu.is_open) {
@@ -59,8 +71,15 @@ export abstract class ToolButtonView extends UIElementView {
     })
 
     this.el.addEventListener("keydown", (event) => {
-      if (event.key == "Enter") {
-        this._clicked()
+      switch (event.key) {
+        case "Enter": {
+          this._clicked()
+          break
+        }
+        case " ": {
+          this._pressed()
+          break
+        }
       }
     })
   }

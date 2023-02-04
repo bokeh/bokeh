@@ -1,14 +1,14 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
-import {DataRenderer, DataRendererView} from "../../renderers/data_renderer"
+import {DataRenderer} from "../../renderers/data_renderer"
 import {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
 import * as p from "core/properties"
-import {KeyEvent, UIEvent} from "core/ui_events"
+import {KeyEvent, KeyModifiers} from "core/ui_events"
 import {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
-import {Geometry, GeometryData} from "core/geometry"
+import {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
 import {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
@@ -18,7 +18,7 @@ export abstract class SelectToolView extends GestureToolView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.model.clear.connect(() => this._clear())
+    this.model.clear.connect(() => this._clear_selection())
   }
 
   get computed_renderers(): DataRenderer[] {
@@ -46,7 +46,21 @@ export abstract class SelectToolView extends GestureToolView {
     return renderers_by_source
   }
 
-  protected _select_mode(ev: UIEvent): SelectionMode {
+  protected _clear_overlay(): void {}
+
+  protected _clear_other_overlays(): void {
+    for (const view of this.plot_view.tool_views.values()) {
+      if (view instanceof SelectToolView && view != this) {
+        view._clear_overlay()
+      }
+    }
+  }
+
+  protected _clear_selection(): void {
+    this._clear()
+  }
+
+  protected _select_mode(ev: KeyModifiers): SelectionMode {
     const {shift_key, ctrl_key} = ev
 
     if (!shift_key && !ctrl_key)
@@ -62,6 +76,9 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   override _keyup(ev: KeyEvent): void {
+    if (!this.model.active)
+      return
+
     if (ev.key == "Escape") {
       this._clear()
     }
@@ -75,63 +92,39 @@ export abstract class SelectToolView extends GestureToolView {
     this.plot_view.request_paint(renderer_views)
   }
 
-  _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {
-    const renderers_by_source = this._computed_renderers_by_data_source()
+  abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
 
-    for (const [, renderers] of renderers_by_source) {
-      const sm = renderers[0].get_selection_manager()
-
-      const r_views: DataRendererView[] = []
-      for (const r of renderers) {
-        const r_view = this.plot_view.renderer_view(r)
-        if (r_view != null) {
-          r_views.push(r_view)
-        }
-      }
-      sm.select(r_views, geometry, final, mode)
-    }
-
-    // XXX: messed up class structure
-    if ((this.model as any).callback != null)
-      (this as any)._emit_callback(geometry)
-
-    this._emit_selection_event(geometry, final)
-  }
-
-  _emit_selection_event(geometry: Geometry, final: boolean = true): void {
+  protected _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame
 
-    let geometry_data: GeometryData
-    switch (geometry.type) {
-      case "point": {
-        const {sx, sy} = geometry
-        const x = x_scale.invert(sx)
-        const y = y_scale.invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
+    const geometry_data = (() => {
+      switch (geometry.type) {
+        case "point": {
+          const {sx, sy} = geometry
+          const x = x_scale.invert(sx)
+          const y = y_scale.invert(sy)
+          return {...geometry, x, y}
+        }
+        case "span": {
+          const {sx, sy} = geometry
+          const x = x_scale.invert(sx)
+          const y = y_scale.invert(sy)
+          return {...geometry, x, y}
+        }
+        case "rect": {
+          const {sx0, sx1, sy0, sy1} = geometry
+          const [x0, x1] = x_scale.r_invert(sx0, sx1)
+          const [y0, y1] = y_scale.r_invert(sy0, sy1)
+          return {...geometry, x0, y0, x1, y1}
+        }
+        case "poly": {
+          const {sx, sy} = geometry
+          const x = x_scale.v_invert(sx)
+          const y = y_scale.v_invert(sy)
+          return {...geometry, x, y}
+        }
       }
-      case "span": {
-        const {sx, sy} = geometry
-        const x = x_scale.invert(sx)
-        const y = y_scale.invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
-      }
-      case "rect": {
-        const {sx0, sx1, sy0, sy1} = geometry
-        const [x0, x1] = x_scale.r_invert(sx0, sx1)
-        const [y0, y1] = y_scale.r_invert(sy0, sy1)
-        geometry_data = {...geometry, x0, y0, x1, y1}
-        break
-      }
-      case "poly": {
-        const {sx, sy} = geometry
-        const x = x_scale.v_invert(sx)
-        const y = y_scale.v_invert(sy)
-        geometry_data = {...geometry, x, y}
-        break
-      }
-    }
+    })()
 
     this.plot_view.model.trigger_event(new SelectionGeometry(geometry_data, final))
   }
@@ -208,7 +201,7 @@ export abstract class SelectTool extends GestureTool {
       null,
       {
         icon: "bk-tool-icon-clear-selection",
-        tooltip: "Clear the current selection (Esc)",
+        tooltip: "Clear the current selection and/or selection overlay (Esc)",
         handler: () => {
           this.clear.emit()
         },

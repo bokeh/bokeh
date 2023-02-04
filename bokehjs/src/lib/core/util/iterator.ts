@@ -72,6 +72,20 @@ export function* join<T>(seq: Iterable<Iterable<T>>, separator?: () => T): Itera
   }
 }
 
+export function* zip<T0, T1>(iterable0: Iterable<T0>, iterable1: Iterable<T1>): Iterable<[T0, T1]> {
+  const it0 = iterable0[Symbol.iterator]()
+  const it1 = iterable1[Symbol.iterator]()
+
+  do {
+    const r0 = it0.next()
+    const r1 = it1.next()
+    if (r0.done === true || r1.done === true)
+      break
+    else
+      yield [r0.value, r1.value]
+  } while (true)
+}
+
 export function* interleave<T>(seq: Iterable<T>, separator: () => T): Iterable<T> {
   let first = true
   for (const entry of seq) {

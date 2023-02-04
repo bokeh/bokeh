@@ -114,7 +114,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   }
 
   // TODO: don't use Partial<>, but exclude inherited properties
-  static define<T>(obj: Partial<p.DefineOf<T>> | ((types: typeof kinds) => Partial<p.DefineOf<T>>)): void {
+  static define<T, HP extends HasProps = HasProps>(obj: Partial<p.DefineOf<T, HP>> | ((types: typeof kinds) => Partial<p.DefineOf<T, HP>>)): void {
     for (const [name, prop] of entries(isFunction(obj) ? obj(kinds) : obj)) {
       if (name in this.prototype._props)
         throw new Error(`attempted to redefine property '${this.prototype.type}.${name}'`)

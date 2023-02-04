@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
+    Bool,
     CoordinateLike,
     Either,
     Enum,
@@ -38,6 +39,7 @@ from ...core.properties import (
     UnitsSpec,
     field,
 )
+from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import (
     LineProps,
     ScalarFillProps,
@@ -111,6 +113,44 @@ class BoxAnnotation(Annotation):
     default.
     """)
 
+    border_radius = BorderRadius(default=0, help="""
+    Allows the box to have rounded corners.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all", default="all", help="""
+    If `editable` is set, this property allows to configure which
+    combinations of edges are allowed to be moved, thus allows
+    restrictions on resizing of the box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    movable = Enum("none", "x", "y", "both", default="both", help="""
+    If `editable` is set, this property allows to configure in which
+    directions the box can be moved.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    symmetric = Bool(default=False, help="""
+    Indicates whether the box is resizable around its center or its corners.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the box.
     """)
@@ -123,13 +163,29 @@ class BoxAnnotation(Annotation):
     The {prop} values for the box.
     """)
 
-    line_alpha = Override(default=0.3)
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
+
+    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
+    The {prop} values for the box when hovering over.
+    """)
 
     line_color = Override(default="#cccccc")
-
-    fill_alpha = Override(default=0.4)
+    line_alpha = Override(default=0.3)
 
     fill_color = Override(default="#fff9ba")
+    fill_alpha = Override(default=0.4)
+
+    hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
+
+    hover_fill_color = Override(default=None)
+    hover_fill_alpha = Override(default=0.4)
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.
@@ -206,6 +262,13 @@ class PolyAnnotation(Annotation):
     default.
     """)
 
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this polygon.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the polygon.
     """)
@@ -218,13 +281,29 @@ class PolyAnnotation(Annotation):
     The {prop} values for the polygon.
     """)
 
-    line_alpha = Override(default=0.3)
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
+
+    hover_fill_props = Include(ScalarFillProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
+
+    hover_hatch_props = Include(ScalarHatchProps, prefix="hover", help="""
+    The {prop} values for the polygon when hovering over.
+    """)
 
     line_color = Override(default="#cccccc")
-
-    fill_alpha = Override(default=0.4)
+    line_alpha = Override(default=0.3)
 
     fill_color = Override(default="#fff9ba")
+    fill_alpha = Override(default=0.4)
+
+    hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
+
+    hover_fill_color = Override(default=None)
+    hover_fill_alpha = Override(default=0.4)
 
 class Slope(Annotation):
     """ Render a sloped line as an annotation.
@@ -296,9 +375,23 @@ class Span(Annotation):
     to "height" (``y`` direction) or "width" (``x`` direction).
     """)
 
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this span.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     line_props = Include(ScalarLineProps, help="""
     The {prop} values for the span.
     """)
+
+    hover_line_props = Include(ScalarLineProps, prefix="hover", help="""
+    The {prop} values for the span when hovering over.
+    """)
+
+    hover_line_color = Override(default=None)
+    hover_line_alpha = Override(default=0.3)
 
 class Whisker(DataAnnotation):
     ''' Render a whisker along a dimension.

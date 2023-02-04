@@ -9,7 +9,7 @@ import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {PolySelectTool} from "@bokehjs/models/tools/gestures/poly_select_tool"
-import {SelectTool, SelectToolView} from "@bokehjs/models/tools/gestures/select_tool"
+import {GestureTool, GestureToolView} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
@@ -62,7 +62,7 @@ describe("ui_event_bus module", () => {
       let spy_cursor: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "mousemove", sx: 0, sy: 0, ctrl_key: false, shift_key: false}
+        e = {type: "mousemove", sx: 0, sy: 0, ctrl_key: false, shift_key: false, alt_key: false}
         spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
@@ -165,7 +165,7 @@ describe("ui_event_bus module", () => {
     describe("base_type=tap", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "tap", sx: 10, sy: 15, ctrl_key: false, shift_key: false}
+        e = {type: "tap", sx: 10, sy: 15, ctrl_key: false, shift_key: false, alt_key: false}
       })
 
       it("should not trigger tap event if no active tap tool", () => {
@@ -209,7 +209,7 @@ describe("ui_event_bus module", () => {
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrl_key: false, shift_key: false}
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrl_key: false, shift_key: false, alt_key: false}
         srcEvent = new Event("scroll")
 
         preventDefault = sinon.spy(srcEvent, "preventDefault")
@@ -253,7 +253,7 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false}
+        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false, alt_key: false}
       })
 
       it("should not trigger event if no active tool", () => {
@@ -582,12 +582,12 @@ describe("ui_event_bus module", () => {
     })
 
     it("multi-gesture tool should receive multiple events", async () => {
-      class MultiToolView extends SelectToolView {
+      class MultiToolView extends GestureToolView {
         override _tap(_e: TapEvent): void {}
         override _pan_start(_e: PanEvent): void {}
       }
 
-      class MultiTool extends SelectTool {
+      class MultiTool extends GestureTool {
         override default_view = MultiToolView
         override tool_name = "Multi Tool"
         override event_type = ["tap" as "tap", "pan" as "pan"]

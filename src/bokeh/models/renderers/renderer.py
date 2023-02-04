@@ -97,6 +97,13 @@ class Renderer(Model):
 
     group = Nullable(Instance(RendererGroup))
 
+    propagate_hover = Bool(default=False, help="""
+    Allows to propagate hover events to the parent renderer, frame or canvas.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
 @abstract
 class DataRenderer(Renderer):
     """ An abstract base class for data renderer types (e.g. ``GlyphRenderer``, ``GraphRenderer``).

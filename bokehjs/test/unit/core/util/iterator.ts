@@ -1,8 +1,8 @@
 import {expect} from "assertions"
 
 import {
-  range, reverse, enumerate, take, skip, tail, join, interleave,
-  map, flat_map, every, some, combinations, subsets,
+  range, reverse, enumerate, take, skip, tail, join, zip,
+  interleave, map, flat_map, every, some, combinations, subsets,
 } from "@bokehjs/core/util/iterator"
 
 import {AssertionError} from "@bokehjs/core/util/assert"
@@ -80,6 +80,14 @@ describe("core/util/iterator module", () => {
     expect([...join([], () => 0)]).to.be.equal([])
     expect([...join([[1, 2, 3], [4, 5, 6]], () => 0)]).to.be.equal([1, 2, 3, 0, 4, 5, 6])
     expect([...join([[1, 2, 3], [4, 5, 6], [7, 8, 9]], () => 0)]).to.be.equal([1, 2, 3, 0, 4, 5, 6, 0, 7, 8, 9])
+  })
+
+  it("implements zip() function", () => {
+    expect([...zip([], [])]).to.be.equal([])
+    expect([...zip([1, 10, 100], [2, 20, 200])]).to.be.equal([[1, 2], [10, 20], [100, 200]])
+    expect([...zip([1, 10], [2, 20, 200])]).to.be.equal([[1, 2], [10, 20]])
+    expect([...zip([1, 10, 100], [2, 20])]).to.be.equal([[1, 2], [10, 20]])
+    expect([...zip([1, 2, 3], ["a", "b", "c"])]).to.be.equal([[1, "a"], [2, "b"], [3, "c"]])
   })
 
   it("implements interleave() function", () => {

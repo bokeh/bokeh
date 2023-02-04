@@ -52,6 +52,9 @@ from _util_models import (
     BELOW_HATCH,
     FILL,
     HATCH,
+    HOVER_FILL,
+    HOVER_HATCH,
+    HOVER_LINE,
     LINE,
     TEXT,
     check_fill_properties,
@@ -73,6 +76,7 @@ ANNOTATION = [
     "x_range_name",
     "y_range_name",
     "group",
+    "propagate_hover",
 ]
 
 #-----------------------------------------------------------------------------
@@ -241,9 +245,13 @@ def test_BoxAnnotation() -> None:
     assert box.x_range_name == "default"
     assert box.y_range_name == "default"
     assert box.level == "annotation"
+    assert box.editable is False
     check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
     check_hatch_properties(box)
+    check_line_properties(box, "hover_", None, 1, 0.3)
+    check_fill_properties(box, "hover_", None, 0.4)
+    check_hatch_properties(box, "hover_")
     check_properties_existence(box, ANNOTATION + [
         "left",
         "left_units",
@@ -253,7 +261,12 @@ def test_BoxAnnotation() -> None:
         "bottom_units",
         "top",
         "top_units",
-    ], LINE, FILL, HATCH)
+        "border_radius",
+        "editable",
+        "resizable",
+        "movable",
+        "symmetric",
+    ], LINE, FILL, HATCH, HOVER_LINE, HOVER_FILL, HOVER_HATCH)
 
 def test_BoxAnnotation_accepts_datetime() -> None:
     obj = BoxAnnotation(
@@ -386,15 +399,20 @@ def test_PolyAnnotation() -> None:
     assert poly.x_range_name == "default"
     assert poly.y_range_name == "default"
     assert poly.level == "annotation"
+    assert poly.editable is False
     check_line_properties(poly, "", "#cccccc", 1, 0.3)
     check_fill_properties(poly, "", "#fff9ba", 0.4)
     check_hatch_properties(poly)
+    check_line_properties(poly, "hover_", None, 1, 0.3)
+    check_fill_properties(poly, "hover_", None, 0.4)
+    check_hatch_properties(poly, "hover_")
     check_properties_existence(poly, ANNOTATION + [
         "xs",
         "xs_units",
         "ys",
         "ys_units",
-    ], LINE, FILL, HATCH)
+        "editable",
+    ], LINE, FILL, HATCH, HOVER_LINE, HOVER_FILL, HOVER_HATCH)
 
 def test_PolyAnnotation_accepts_datetime_xs_ys() -> None:
     obj = PolyAnnotation(
@@ -430,12 +448,14 @@ def test_Span() -> None:
     assert line.x_range_name == 'default'
     assert line.y_range_name == 'default'
     assert line.level == 'annotation'
+    assert line.editable is False
     check_line_properties(line, "", 'black', 1.0)
     check_properties_existence(line, ANNOTATION + [
         "location",
         "location_units",
         "dimension",
-    ], LINE)
+        "editable",
+    ], LINE, HOVER_LINE)
 
 def test_Span_accepts_datetime_location() -> None:
     obj = Span(

@@ -607,7 +607,7 @@ export class AxisView extends GuideRendererView {
   override serializable_state(): SerializableState {
     return {
       ...super.serializable_state(),
-      bbox: this.layout.bbox.box,
+      bbox: this.layout.bbox,
     }
   }
 

@@ -109,6 +109,7 @@ export class ToolbarView extends UIElementView {
           ...values(this.model.gestures).map((gesture) => gesture.tools),
           this.model.actions,
           this.model.inspectors.filter((tool) => tool.toggleable),
+          this.model.auxiliaries,
         ]
         return groups.map((group) => group.map((tool) => tool.tool_button()))
       } else {
@@ -258,6 +259,7 @@ export namespace Toolbar {
     actions: p.Property<ToolLike<ActionTool>[]>
     inspectors: p.Property<ToolLike<InspectTool>[]>
     help: p.Property<ToolLike<HelpTool>[]>
+    auxiliaries: p.Property<ToolLike<Tool>[]>
 
   } & ActiveGestureToolsProps & {
     active_inspect: p.Property<ToolLike<Inspection> | ToolLike<Inspection>[] | "auto" | null>
@@ -327,6 +329,7 @@ export class Toolbar extends UIElement {
         gestures:   [ GestureMap, create_gesture_map ],
         actions:    [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors: [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
+        auxiliaries: [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
         help:       [ Array(Or(Ref(HelpTool), Ref(ToolProxy))), [] ],
       }
     })
@@ -359,8 +362,13 @@ export class Toolbar extends UIElement {
   protected _init_tools(): void {
     type AbstractConstructor<T, Args extends any[] = any[]> = abstract new (...args: Args) => T
 
-    function isa<A extends Tool>(tool: unknown, type: AbstractConstructor<A>): tool is ToolLike<A> {
-      return (tool instanceof ToolProxy ? tool.underlying : tool) instanceof type
+    const visited = new Set<ToolLike<Tool>>()
+    function isa<A extends Tool>(tool: ToolLike<Tool>, type: AbstractConstructor<A>): tool is ToolLike<A> {
+      const is = (tool instanceof ToolProxy ? tool.underlying : tool) instanceof type
+      if (is) {
+        visited.add(tool)
+      }
+      return is
     }
 
     const new_inspectors = this.tools.filter(t => isa(t, InspectTool)) as ToolLike<InspectTool>[]
@@ -386,6 +394,9 @@ export class Toolbar extends UIElement {
         gesture.active = null
       }
     }
+
+    const new_auxiliaries = this.tools.filter((tool) => !visited.has(tool))
+    this.auxiliaries = new_auxiliaries
   }
 
   protected _activate_tools(): void {

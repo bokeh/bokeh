@@ -1,7 +1,5 @@
-import {DataRenderer} from "./renderers/data_renderer"
+import {Renderer} from "./renderers/renderer"
 
-export type RendererSpec = DataRenderer[] | "auto" | null
-
-export function compute_renderers(renderers: RendererSpec, all_renderers: DataRenderer[]): DataRenderer[] {
+export function compute_renderers<T extends Renderer>(renderers: T[] | "auto" | null, all_renderers: T[]): T[] {
   return renderers == "auto" ? all_renderers : renderers ?? []
 }

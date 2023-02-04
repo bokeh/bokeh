@@ -1,14 +1,25 @@
 import {DataRange} from "./data_range"
-import type {Renderer} from "../renderers/renderer"
-import type {DataRenderer} from "../renderers/data_renderer"
+import type {Renderer, RendererView} from "../renderers/renderer"
 import {PaddingUnits, StartEnd} from "core/enums"
 import {Rect} from "core/types"
 import {flat_map} from "core/util/iterator"
 import {logger} from "core/logging"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import type {Plot} from "../plots/plot"
+import type {PlotView} from "../plots/plot"
 import {compute_renderers} from "../util"
+
+export const auto_ranged = Symbol("auto_ranged")
+
+export interface AutoRanged {
+  readonly [auto_ranged]: true
+  bounds(): Rect
+  log_bounds(): Rect
+}
+
+export function is_auto_ranged<T extends RendererView>(r: T): r is T & AutoRanged {
+  return auto_ranged in r
+}
 
 export type Dim = 0 | 1
 export type Bounds = Map<Renderer, Rect>
@@ -58,7 +69,7 @@ export class DataRange1d extends DataRange {
     }))
   }
 
-  readonly plots = new Set<Plot>()
+  readonly plots = new Set<PlotView>()
 
   protected _initial_start: number | null
   protected _initial_end: number | null
@@ -68,7 +79,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<Plot, Rect>
+  protected _plot_bounds: Map<PlotView, Rect>
 
   override have_updated_interactively: boolean = false
 
@@ -94,10 +105,10 @@ export class DataRange1d extends DataRange {
     return Math.max(this.start, this.end)
   }
 
-  computed_renderers(): DataRenderer[] {
+  computed_renderers(): Renderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const {renderers} = this
-    const all_renderers = flat_map(this.plots, (plot) => plot.data_renderers)
+    const all_renderers = flat_map(this.plots, (plot) => plot.auto_ranged_renderers.map((r) => r.model))
     return compute_renderers(renderers.length == 0 ? "auto" : renderers, [...all_renderers])
   }
 
@@ -140,10 +151,10 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Iterable<[Plot, Rect]>, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<[PlotView, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const [plot, rect] of plot_bounds) {
-      if (plot.visible)
+      if (plot.model.visible)
         overall = bbox.union(overall, rect)
     }
 
@@ -233,7 +244,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, plot: Plot, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, plot: PlotView, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 

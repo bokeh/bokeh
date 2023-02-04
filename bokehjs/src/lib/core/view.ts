@@ -2,13 +2,13 @@ import type {HasProps} from "./has_props"
 import {Property} from "./properties"
 import {Signal0, Signal, Slot, ISignalable} from "./signaling"
 import {isArray} from "./util/types"
-import {Box} from "./types"
+import {BBox} from "./util/bbox"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
 export type SerializableState = {
   type: string
-  bbox?: Box
+  bbox?: BBox
   children?: SerializableState[]
 }
 

@@ -519,31 +519,52 @@ async function run_tests(): Promise<boolean> {
                   if (baselines_root != null) {
                     const baseline_path = path.join(baselines_root, platform, baseline_name)
 
-                    const {state} = result
-                    if (state == null) {
+                    const {state: state_early} = result
+                    if (state_early == null) {
                       status.errors.push("state not present in output")
                       status.failure = true
                     } else {
-                      await (async () => {
-                        const baseline_file = `${baseline_path}.blf`
-                        const baseline = create_baseline([state])
-                        await fs.promises.writeFile(baseline_file, baseline)
-                        status.baseline = baseline
+                      const output = await evaluate<State | null>(`Tests.get_state(${seq})`)
+                      if (!(output instanceof Value) || output.value == null) {
+                        status.errors.push("state not present in output")
+                        status.failure = true
+                      } else {
+                        const state = output.value
 
-                        const existing = load_baseline(baseline_file, ref)
-                        if (existing != baseline) {
-                          if (existing == null) {
-                            status.errors.push("missing baseline")
-                          } else {
-                            if (test.retries != null)
-                              may_retry = true
+                        await (async () => {
+                          const baseline_early = create_baseline([state_early])
+                          const baseline = create_baseline([state])
+
+                          // This shouldn't happen, but sometimes does, especially in
+                          // interactive tests. This needs to be resolved earlier, but
+                          // at least the state will be consistent with images.
+                          if (baseline_early != baseline) {
+                            status.errors.push("inconsistent state")
+                            status.errors.push("early:", baseline_early)
+                            status.errors.push("later:", baseline)
+                            status.failure = true
+                            return
                           }
-                          const diff = diff_baseline(baseline_file, ref)
-                          status.failure = true
-                          status.baseline_diff = diff
-                          status.errors.push(diff)
-                        }
-                      })()
+
+                          const baseline_file = `${baseline_path}.blf`
+                          await fs.promises.writeFile(baseline_file, baseline)
+                          status.baseline = baseline
+
+                          const existing = load_baseline(baseline_file, ref)
+                          if (existing != baseline) {
+                            if (existing == null) {
+                              status.errors.push("missing baseline")
+                            } else {
+                              if (test.retries != null)
+                                may_retry = true
+                            }
+                            const diff = diff_baseline(baseline_file, ref)
+                            status.failure = true
+                            status.baseline_diff = diff
+                            status.errors.push(diff)
+                          }
+                        })()
+                      }
                     }
 
                     await (async () => {
