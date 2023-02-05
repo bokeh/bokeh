@@ -130,6 +130,7 @@ __all__ = (
     'Step',
     'Text',
     'VArea',
+    'VAreaStep',
     'VBar',
     'Wedge',
     'XYGlyph',
@@ -1530,6 +1531,49 @@ class VArea(FillGlyph, HatchGlyph):
 
     y2 = NumberSpec(default=field("y2"), help="""
     The y-coordinates for the points of the other side of the area.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the vertical directed area.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the vertical directed area.
+    """)
+
+class VAreaStep(FillGlyph, HatchGlyph):
+    ''' Render a vertically directed area between two equal length sequences
+    of y-coordinates with the same x-coordinates using step lines.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/VAreaStep.py"
+
+    _args = ('x', 'y1', 'y2')
+
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates for the points of the area.
+    """)
+
+    y1 = NumberSpec(default=field("y1"), help="""
+    The y-coordinates for the points of one side of the area.
+    """)
+
+    y2 = NumberSpec(default=field("y2"), help="""
+    The y-coordinates for the points of the other side of the area.
+    """)
+
+    step_mode = Enum(StepMode, default="before", help="""
+    Where the step "level" should be drawn in relation to the x and y
+    coordinates. The parameter can assume one of three values:
+
+    * ``before``: (default) Draw step levels before each x-coordinate (no step before the first point)
+    * ``after``:  Draw step levels after each x-coordinate (no step after the last point)
+    * ``center``: Draw step levels centered on each x-coordinate
     """)
 
     fill_props = Include(ScalarFillProps, help="""

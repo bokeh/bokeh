@@ -12,7 +12,7 @@ import {
   AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea,
   HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
   MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
-  Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
+  Scatter, Segment, Spline, Step, Text, VArea, VAreaStep, VBar, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -131,6 +131,7 @@ export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
+export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill
 export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
 
@@ -435,6 +436,17 @@ export abstract class GlyphAPI {
     args?: Partial<VAreaArgs>): TypedGlyphRenderer<VArea>
   varea(...args: unknown[]): TypedGlyphRenderer<VArea> {
     return this._glyph(VArea, ["x", "y1", "y2"], args)
+  }
+
+  varea_step(args: Partial<VAreaStepArgs>): TypedGlyphRenderer<VAreaStep>
+  varea_step(
+    x: VAreaStepArgs["x"],
+    y1: VAreaStepArgs["y1"],
+    y2: VAreaStepArgs["y2"],
+    step_mode: VAreaStepArgs["step_mode"],
+    args?: Partial<VAreaStepArgs>): TypedGlyphRenderer<VAreaStep>
+  varea_step(...args: unknown[]): TypedGlyphRenderer<VAreaStep> {
+    return this._glyph(VAreaStep, ["x", "y1", "y2", "step_mode"], args)
   }
 
   vbar(args: Partial<VBarArgs>): TypedGlyphRenderer<VBar>

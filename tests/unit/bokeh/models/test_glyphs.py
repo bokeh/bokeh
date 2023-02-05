@@ -74,6 +74,7 @@ from bokeh.models.glyphs import ( # isort:skip
     Step,
     Text,
     VArea,
+    VAreaStep,
     VBar,
     Wedge)
 
@@ -561,6 +562,22 @@ def test_VArea() -> None:
         "x",
         "y1",
         "y2",
+    ], FILL, HATCH, GLYPH)
+
+
+def test_VAreaStep() -> None:
+    glyph = VAreaStep()
+    assert glyph.x == field("x")
+    assert glyph.y1 == field("y1")
+    assert glyph.y2 == field("y2")
+    assert glyph.step_mode == "before"
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y1",
+        "y2",
+        "step_mode",
     ], FILL, HATCH, GLYPH)
 
 

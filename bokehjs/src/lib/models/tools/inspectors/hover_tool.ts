@@ -25,6 +25,7 @@ import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
 import {PatchView} from "../../glyphs/patch"
 import {VAreaView} from "../../glyphs/varea"
+import {VAreaStepView} from "../../glyphs/varea_step"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
@@ -266,7 +267,7 @@ export class HoverToolView extends InspectToolView {
       }
       const rendered = this._render_tooltips(ds, vars)
       tooltips.push([snap_sx, snap_sy, rendered])
-    } else if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
+    } else if (glyph instanceof VAreaView || glyph instanceof HAreaView || glyph instanceof VAreaStepView) {
       for (const i of subset_indices.line_indices) {
         const [snap_x, snap_y] = [x, y]
         const [snap_sx, snap_sy] = [sx, sy]

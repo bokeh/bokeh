@@ -2447,6 +2447,50 @@
       type: "map",
     },
   },
+  VAreaStep: {
+    __extends__: [
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    y2: {
+      type: "field",
+      field: "y2",
+    },
+    step_mode: "before",
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
   VBar: {
     __extends__: "LRTBGlyph",
     x: {

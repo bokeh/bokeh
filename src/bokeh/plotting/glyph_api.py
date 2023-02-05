@@ -852,6 +852,23 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.VAreaStep)
+    def varea_step(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300)
+        plot.varea_step(x=[1, 2, 3], y1=[0, 0, 0], y2=[1, 4, 2],
+                        step_mode="after", fill_color="#99D594")
+
+        show(plot)
+
+"""
+
     @glyph_method(glyphs.VBar)
     def vbar(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """

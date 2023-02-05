@@ -152,6 +152,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.triangle_dot`
         * :func:`~bokeh.plotting.figure.triangle_pin`
         * :func:`~bokeh.plotting.figure.varea`
+        * :func:`~bokeh.plotting.figure.varea_step`
         * :func:`~bokeh.plotting.figure.vbar`
         * :func:`~bokeh.plotting.figure.wedge`
         * :func:`~bokeh.plotting.figure.x`

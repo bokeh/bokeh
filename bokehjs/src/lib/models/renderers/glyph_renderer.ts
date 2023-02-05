@@ -2,6 +2,7 @@ import {DataRenderer, DataRendererView} from "./data_renderer"
 import {LineView} from "../glyphs/line"
 import {PatchView} from "../glyphs/patch"
 import {HAreaView} from "../glyphs/harea"
+import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
 import {Glyph, GlyphView} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -364,7 +365,7 @@ export class GlyphRendererView extends DataRendererView {
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
           glyph.render(ctx, all_indices)
-      } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView) {
+      } else if (this.glyph instanceof PatchView || this.glyph instanceof HAreaView || this.glyph instanceof VAreaView || this.glyph instanceof VAreaStepView) {
         if (inspected.selected_glyphs.length == 0 || this.hover_glyph == null) {
           glyph.render(ctx, all_indices)
         } else {

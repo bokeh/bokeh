@@ -525,6 +525,17 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
+  it("should support VAreaStep", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.varea_step({x: [1.0, 1.3, 1.6, 1.9], y1: [1, 2, 3, 4], y2: [4, 5, 6, 7], step_mode: "before", color: "red"})
+      p.varea_step({x: [2.0, 2.3, 2.6, 2.9], y1: [1, 2, 3, 4], y2: [4, 5, 6, 7], step_mode: "center", color: "green"})
+      p.varea_step({x: [3.0, 3.3, 3.6, 3.9], y1: [1, 2, 3, 4], y2: [4, 5, 6, 7], step_mode: "after", color: "blue"})
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
   it("should support VBar", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})
