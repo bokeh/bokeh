@@ -18,7 +18,12 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.core.serialization import Deserializer
-from bokeh.models import Button, Div, Plot
+from bokeh.models import (
+    Button,
+    Div,
+    Plot,
+    TextInput,
+)
 
 # Module under test
 from bokeh import events # isort:skip
@@ -55,17 +60,22 @@ def test_common_decode_json() -> None:
 
         if issubclass(event_cls, events.ButtonClick):
             model = Button()
+        elif issubclass(event_cls, events.ValueSubmit):
+            model = TextInput()
         else:
             model = Plot()
+
+        entries = []
+        if issubclass(event_cls, events.ModelEvent):
+            entries.append(["model", dict(id=model.id)])
+        if issubclass(event_cls, events.ValueSubmit):
+            entries.append(["value", ""])
 
         decoder = Deserializer(references=[model])
         event = decoder.decode(dict(
             type="event",
             name=event_cls.event_name,
-            values=dict(
-                type="map",
-                entries=[["model", dict(id=model.id)]] if issubclass(event_cls, events.ModelEvent) else [],
-            ),
+            values=dict(type="map", entries=entries),
         ))
 
         assert isinstance(event, events.Event)

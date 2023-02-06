@@ -82,6 +82,7 @@ if TYPE_CHECKING:
     from .model import Model
     from .models.plots import Plot
     from .models.widgets.buttons import AbstractButton
+    from .models.widgets.inputs import TextInput
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -93,8 +94,8 @@ __all__ = (
     'DocumentReady',
     'DoubleTap',
     'Event',
-    'LODStart',
     'LODEnd',
+    'LODStart',
     'MenuItemClick',
     'ModelEvent',
     'MouseEnter',
@@ -107,17 +108,18 @@ __all__ = (
     'Pinch',
     'PinchEnd',
     'PinchStart',
-    'RangesUpdate',
-    'Rotate',
-    'RotateEnd',
-    'RotateStart',
     'PlotEvent',
     'PointEvent',
     'Press',
     'PressUp',
+    'RangesUpdate',
     'Reset',
+    'Rotate',
+    'RotateEnd',
+    'RotateStart',
     'SelectionGeometry',
     'Tap',
+    'ValueSubmit',
 )
 
 #-----------------------------------------------------------------------------
@@ -237,6 +239,22 @@ class MenuItemClick(ModelEvent):
     def __init__(self, model: Model, item: str | None = None) -> None:
         self.item = item
         super().__init__(model=model)
+
+class ValueSubmit(ModelEvent):
+    ''' Announce a value being submitted on a text input widget.
+
+    '''
+    event_name = 'value_submit'
+
+    value: str
+
+    def __init__(self, model: TextInput | None, value: str) -> None:
+        from .models.widgets import TextInput
+        if model is not None and not isinstance(model, TextInput):
+            clsname = self.__class__.__name__
+            raise ValueError(f"{clsname} event only applies to text input models")
+        super().__init__(model=model)
+        self.value = value
 
 class PlotEvent(ModelEvent):
     ''' The base class for all events applicable to Plot models.

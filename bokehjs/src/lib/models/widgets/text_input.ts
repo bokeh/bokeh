@@ -2,6 +2,7 @@ import {TextLikeInput, TextLikeInputView} from "./text_like_input"
 
 import {input, div} from "core/dom"
 import * as p from "core/properties"
+import {ValueSubmit} from "core/bokeh_events"
 
 import * as inputs from "styles/widgets/inputs.css"
 
@@ -23,6 +24,17 @@ export class TextInputView extends TextLikeInputView {
     const suffix_el = suffix != null ? div({class: "bk-input-suffix"}, suffix) : null
     const container_el = div({class: "bk-input-container"}, prefix_el, this.input_el, suffix_el)
     return container_el
+  }
+
+  override render(): void {
+    super.render()
+    this.input_el.addEventListener("keyup", (event) => this._keyup(event))
+  }
+
+  protected _keyup(event: KeyboardEvent): void {
+    if (event.key == "Enter" && !event.shiftKey && !event.ctrlKey && !event.altKey) {
+      this.model.trigger_event(new ValueSubmit(this.input_el.value))
+    }
   }
 }
 
