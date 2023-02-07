@@ -1,6 +1,7 @@
 import {Color} from "core/types"
-import {linspace} from "core/util/array"
-import {color2hex, color2rgba} from "core/util/color"
+import {linspace, range} from "core/util/array"
+import {interpolate} from "core/util/arrayable"
+import {color2hex, color2rgba, encode_rgba} from "core/util/color"
 
 export const YlGn3       = [0x31a354ff, 0xaddd8eff, 0xf7fcb9ff]
 export const YlGn4       = [0x238443ff, 0x78c679ff, 0xc2e699ff, 0xffffccff]
@@ -1009,6 +1010,43 @@ export const tol = {
 
 export const colorblind = {
   Colorblind,
+}
+
+export function interp_palette(palette: Color[], n: number): Color[] {
+  const npalette = palette.length
+  if (npalette < 1)
+    throw new Error("palette must contain at least one color")
+  if (n < 0)
+    throw new Error("requested palette length cannot be negative")
+
+  // Arrayable.interpolate operates on whole arrays, not slices, so need separate
+  // arrays for each of the R, G, B and A components.
+  const r = new Uint8Array(n)
+  const g = new Uint8Array(n)
+  const b = new Uint8Array(n)
+  const a = new Uint8Array(n)
+  for (let i = 0; i < npalette; i++) {
+    const rgba = color2rgba(palette[i])
+    r[i] = rgba[0]
+    g[i] = rgba[1]
+    b[i] = rgba[2]
+    a[i] = rgba[3]
+  }
+
+  const integers = range(0, npalette)
+  const fractions = linspace(0, npalette-1, n)
+
+  const r_interp = interpolate(fractions, integers, r)
+  const g_interp = interpolate(fractions, integers, g)
+  const b_interp = interpolate(fractions, integers, b)
+  const a_interp = interpolate(fractions, integers, a)
+
+  const ret = new Array<string>(n)
+  for (let i = 0; i < n; i++) {
+    ret[i] = color2hex(encode_rgba([r_interp[i], g_interp[i], b_interp[i], a_interp[i]]))
+  }
+
+  return ret
 }
 
 export function linear_palette<T>(palette: T[], n: number): T[] {

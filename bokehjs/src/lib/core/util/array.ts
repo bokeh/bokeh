@@ -104,7 +104,7 @@ export function range(start: number, stop?: number, step: number = 1): number[] 
 }
 
 export function linspace(start: number, stop: number, num: number = 100): number[] {
-  const step = (stop - start) / (num - 1)
+  const step = num == 1 ? 0 : (stop - start) / (num - 1)
   const array = new Array(num)
 
   for (let i = 0; i < num; i++) {

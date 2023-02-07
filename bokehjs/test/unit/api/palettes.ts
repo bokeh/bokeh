@@ -1,8 +1,44 @@
 import {expect} from "assertions"
 
-import {linear_palette, varying_alpha_palette} from "@bokehjs/api/palettes"
+import {interp_palette, linear_palette, varying_alpha_palette} from "@bokehjs/api/palettes"
 
 describe("in api/palettes module", () => {
+  describe("interp_palette", () => {
+    // Equivalent tests to bokeh's python unit tests for this function.
+    // Individual RGBA components can differ from Python due to different rounding.
+    it("should support fixed alpha", () => {
+      const palette = ["black", "red"]
+      expect(interp_palette(palette, 0)).to.be.equal([])
+      expect(interp_palette(palette, 1)).to.be.equal(["#000000"])
+      expect(interp_palette(palette, 2)).to.be.equal(["#000000", "#ff0000"])
+      expect(interp_palette(palette, 3)).to.be.equal(["#000000", "#7f0000", "#ff0000"])
+      expect(interp_palette(palette, 4)).to.be.equal(["#000000", "#550000", "#aa0000", "#ff0000"])
+    })
+
+    it("should support varying alpha", () => {
+      const palette = ["#00ff0080", "#00ffff40"]
+      expect(interp_palette(palette, 1)).to.be.equal(["#00ff0080"])
+      expect(interp_palette(palette, 2)).to.be.equal(["#00ff0080", "#00ffff40"])
+      expect(interp_palette(palette, 3)).to.be.equal(["#00ff0080", "#00ff7f60", "#00ffff40"])
+      expect(interp_palette(palette, 4)).to.be.equal(["#00ff0080", "#00ff556a", "#00ffaa55", "#00ffff40"])
+    })
+
+    it("should support passing single color palette", () => {
+      const palette = ["red"]
+      expect(interp_palette(palette, 0)).to.be.equal([])
+      expect(interp_palette(palette, 1)).to.be.equal(["#ff0000"])
+      expect(interp_palette(palette, 2)).to.be.equal(["#ff0000", "#ff0000"])
+    })
+
+    it("should throw error if pass empty palette", () => {
+      expect(() => interp_palette([], 1)).to.throw(Error)
+    })
+
+    it("should throw error if request negative length", () => {
+      expect(() => interp_palette(["red"], -1)).to.throw(Error)
+    })
+  })
+
   describe("linear_palette", () => {
     const palette = ["red", "green", "blue", "black", "yellow", "magenta"]
 
