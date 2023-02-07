@@ -363,8 +363,8 @@ export function interpolate(points: Arrayable<number>, x_values: Arrayable<numbe
   for (let i = 0; i < n; i++) {
     const point = points[i]
 
-    if (isNaN(point)) {
-      results[i] = point
+    if (isNaN(point) || x_values.length == 0) {
+      results[i] = NaN
       continue
     }
 
@@ -402,6 +402,9 @@ export function left_edge_index(point: number, intervals: Arrayable<number>): nu
     return -1
   if (point > intervals[intervals.length - 1])
     return intervals.length
+  if (intervals.length == 1)
+    // Implies point == intervals[0]
+    return 0
   let leftEdgeIndex = 0
   let rightEdgeIndex = intervals.length - 1
   while (rightEdgeIndex - leftEdgeIndex != 1) {
