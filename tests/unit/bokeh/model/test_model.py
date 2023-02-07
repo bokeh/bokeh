@@ -101,35 +101,41 @@ class Test_js_on_change:
 
 class Test_js_on_event:
 
+    def test_fails_with_unknown_event_name(self) -> None:
+        cb = CustomJS(code="foo")
+        m = SomeModel()
+        with pytest.raises(ValueError):
+            m.js_on_event("foo", cb)
+
     def test_with_multple_callbacks(self) -> None:
         cb1 = CustomJS(code="foo")
         cb2 = CustomJS(code="bar")
         m = SomeModel()
-        m.js_on_event("some", cb1, cb2)
-        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+        m.js_on_event("document_ready", cb1, cb2)
+        assert m.js_event_callbacks == {"document_ready": [cb1, cb2]}
 
     def test_with_multple_callbacks_separately(self) -> None:
         cb1 = CustomJS(code="foo")
         cb2 = CustomJS(code="bar")
         m = SomeModel()
-        m.js_on_event("some", cb1)
-        assert m.js_event_callbacks == {"some": [cb1]}
-        m.js_on_event("some", cb2)
-        assert m.js_event_callbacks == {"some": [cb1, cb2]}
+        m.js_on_event("document_ready", cb1)
+        assert m.js_event_callbacks == {"document_ready": [cb1]}
+        m.js_on_event("document_ready", cb2)
+        assert m.js_event_callbacks == {"document_ready": [cb1, cb2]}
 
     def test_ignores_dupe_callbacks(self) -> None:
         cb = CustomJS(code="foo")
         m = SomeModel()
-        m.js_on_event("some", cb, cb)
-        assert m.js_event_callbacks == {"some": [cb]}
+        m.js_on_event("document_ready", cb, cb)
+        assert m.js_event_callbacks == {"document_ready": [cb]}
 
     def test_ignores_dupe_callbacks_separately(self) -> None:
         cb = CustomJS(code="foo")
         m = SomeModel()
-        m.js_on_event("some", cb)
-        assert m.js_event_callbacks == {"some": [cb]}
-        m.js_on_event("some", cb)
-        assert m.js_event_callbacks == {"some": [cb]}
+        m.js_on_event("document_ready", cb)
+        assert m.js_event_callbacks == {"document_ready": [cb]}
+        m.js_on_event("document_ready", cb)
+        assert m.js_event_callbacks == {"document_ready": [cb]}
 
 class Test_js_link:
     def test_value_error_on_bad_attr(self) -> None:

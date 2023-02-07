@@ -302,19 +302,19 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     def js_on_event(self, event: str | type[Event], *callbacks: JSEventCallback) -> None:
         if isinstance(event, str):
-            pass
+            event_name = Event.cls_for(event).event_name
         elif isinstance(event, type) and issubclass(event, Event):
-            event = event.event_name
+            event_name = event.event_name
         else:
             raise ValueError(f"expected string event name or event class, got {event}")
 
-        all_callbacks = list(self.js_event_callbacks.get(event, []))
+        all_callbacks = list(self.js_event_callbacks.get(event_name, []))
 
         for callback in callbacks:
             if callback not in all_callbacks:
                 all_callbacks.append(callback)
 
-        self.js_event_callbacks[event] = all_callbacks
+        self.js_event_callbacks[event_name] = all_callbacks
 
     def js_link(self, attr: str, other: Model, other_attr: str, attr_selector: int | str | None = None) -> None:
         ''' Link two Bokeh model properties using JavaScript.

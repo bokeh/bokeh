@@ -48,7 +48,7 @@ def slider():
 
         const x = source.data.x
         const y = Array.from(x, (x) => B + A*Math.sin(k*x+phi))
-        source.data = { x, y }
+        source.data = {x, y}
     """)
 
     amp.js_on_change('value', callback)
