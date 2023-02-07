@@ -429,11 +429,8 @@ import numpy as np
 from .colors.util import NamedColor, RGB
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     import numpy.typing as npt
-
-    from .colors.color import RGB
+    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
