@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import type {PlotView} from "../plots/plot"
 import * as p from "core/properties"
 
 export namespace Range {
@@ -49,4 +50,7 @@ export abstract class Range extends Model {
   get span(): number {
     return Math.abs(this.end - this.start)
   }
+
+  /** internal */
+  readonly plots = new Set<PlotView>()
 }

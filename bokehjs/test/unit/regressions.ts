@@ -6,7 +6,7 @@ import {PlotActions, xy, click} from "../interactive"
 
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper,
+  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper, Row,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
@@ -16,7 +16,7 @@ import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
 import {Color} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
-import {DocumentReady} from "@bokehjs/core/bokeh_events"
+import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
@@ -581,6 +581,37 @@ describe("Bug", () => {
       expect(hit_test(2, 3)).to.be.equal([5, 6])
       expect(hit_test(2.75, 1.2)).to.be.equal([])
       expect(hit_test(-1.1, -2.7)).to.be.equal([])
+    })
+  })
+
+  describe("in issue #12778", () => {
+    it("doesn't allow emitting RangesUpdate event for linked plots", async () => {
+      const p0 = fig([200, 200], {tools: "pan"})
+      const p1 = fig([200, 200], {tools: "pan", x_range: p0.x_range, y_range: p0.y_range})
+      const p2 = fig([200, 200], {tools: "pan", x_range: p0.x_range})
+
+      p0.circle([1, 2, 3], [0, 1, 2])
+      p1.circle([1, 2, 3], [2, 3, 4])
+      p2.circle([1, 2, 3], [5, 6, 7])
+
+      const events: RangesUpdate[] = []
+      p0.on_event(RangesUpdate, (event) => events.push(event))
+      p1.on_event(RangesUpdate, (event) => events.push(event))
+      p2.on_event(RangesUpdate, (event) => events.push(event))
+
+      const row = new Row({children: [p0, p1, p2]})
+      const {view} = await display(row)
+
+      const pv0 = view.owner.get_one(p0)
+      const actions = new PlotActions(pv0)
+      await actions.pan(xy(2, 1), xy(2, 3))
+      await paint()
+
+      expect(events.length).to.be.equal(3)
+
+      expect(events[0].origin).to.be.equal(p0)
+      expect(events[1].origin).to.be.equal(p1)
+      expect(events[2].origin).to.be.equal(p2)
     })
   })
 })

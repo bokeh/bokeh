@@ -69,8 +69,6 @@ export class DataRange1d extends DataRange {
     }))
   }
 
-  readonly plots = new Set<PlotView>()
-
   protected _initial_start: number | null
   protected _initial_end: number | null
   protected _initial_range_padding: number
