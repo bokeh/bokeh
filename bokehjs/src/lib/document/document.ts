@@ -38,13 +38,16 @@ export type DocumentEventCallbackLike<T extends BokehEvent = BokehEvent> = Docum
 
 // Dispatches events to the subscribed models
 export class EventManager {
-  subscribed_models: Set<Model> = new Set()
+  readonly subscribed_models: Set<Model> = new Set()
 
   constructor(readonly document: Document) {}
 
   send_event(bokeh_event: BokehEvent): void {
-    const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event)
-    this.document._trigger_on_change(event)
+    if (bokeh_event.publish) {
+      const event = new MessageSentEvent(this.document, "bokeh_event", bokeh_event)
+      this.document._trigger_on_change(event)
+    }
+
     this.document._trigger_on_event(bokeh_event)
   }
 

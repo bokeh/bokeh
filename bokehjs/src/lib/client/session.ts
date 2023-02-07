@@ -1,5 +1,5 @@
 import {Document, DocumentEvent, DocumentEventBatch} from "document"
-import {Reconnected, Disconnected} from "core/bokeh_events"
+import {ConnectionLost} from "core/bokeh_events"
 import type {Patch} from "document"
 import {Message} from "protocol/message"
 import {ClientConnection} from "./connection"
@@ -44,12 +44,8 @@ export class ClientSession {
     }
   }
 
-  notify_reconnected(): void {
-    this.document.event_manager.send_event(new Reconnected())
-  }
-
-  notify_disconnected(): void {
-    this.document.event_manager.send_event(new Disconnected())
+  notify_connection_lost(): void {
+    this.document.event_manager.send_event(new ConnectionLost())
   }
 
   close(): void {

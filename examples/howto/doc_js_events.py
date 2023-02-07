@@ -15,15 +15,15 @@ document.body.insertAdjacentHTML("beforeend", html)
 
 curdoc().on_event("document_ready", py_ready, js_ready)
 
-def py_disconnected(event: Event):
-    print("DISCONNECTED!")
+def py_connection_lost(event: Event):
+    print("CONNECTION LOST!")
 
-js_disconnected = CustomJS(code="""
+js_connection_lost = CustomJS(code="""
 const html = "<div>DISCONNECTED!</div>"
 document.body.insertAdjacentHTML("beforeend", html)
 """)
 
-curdoc().on_event("disconnected", py_disconnected, js_disconnected)
+curdoc().on_event("connection_lost", py_connection_lost, js_connection_lost)
 
 def py_clicked(event: Event):
     print("CLICKED!")

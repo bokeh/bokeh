@@ -14,8 +14,7 @@ export type DocumentEventType =
   ConnectionEventType
 
 export type ConnectionEventType =
-  "reconnected" |
-  "disconnected"
+  "connection_lost"
 
 export type ModelEventType =
   "button_click" |
@@ -52,8 +51,7 @@ export type PointEventType =
 
 export type BokehEventMap = {
   document_ready: DocumentReady
-  reconnected: Reconnected
-  disconnected: Disconnected
+  connection_lost: ConnectionLost
   button_click: ButtonClick
   menu_item_click: MenuItemClick
   value_submit: ValueSubmit
@@ -90,11 +88,13 @@ export type BokehEventRep = {
 function event(event_name: string) {
   return (cls: Class<BokehEvent>) => {
     cls.prototype.event_name = event_name
+    cls.prototype.publish = true
   }
 }
 
 export abstract class BokehEvent implements Serializable, Equatable {
-  /* prototype */ event_name: string
+  declare event_name: string
+  declare publish: boolean
 
   [serialize](serializer: Serializer): BokehEventRep {
     const {event_name: name, event_values} = this
@@ -128,17 +128,17 @@ export class DocumentReady extends DocumentEvent {
 
 export abstract class ConnectionEvent extends DocumentEvent {}
 
-@event("reconnected")
-export class Reconnected extends ConnectionEvent {
-  protected get event_values(): Attrs {
-    return {}
-  }
-}
+export class ConnectionLost extends ConnectionEvent {
+  readonly timestamp = new Date()
 
-@event("disconnected")
-export class Disconnected extends ConnectionEvent {
   protected get event_values(): Attrs {
-    return {}
+    const {timestamp} = this
+    return {timestamp}
+  }
+
+  static {
+    this.prototype.event_name = "connection_lost"
+    this.prototype.publish = false
   }
 }
 

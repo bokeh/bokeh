@@ -40,6 +40,7 @@ if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
 
 # Bokeh imports
+from ..events import ConnectionLost
 from ..util.token import generate_jwt_token
 from .callbacks import DocumentCallbackGroup
 
@@ -295,6 +296,9 @@ class ServerSession:
         ''' Handle a PATCH-DOC, return a Future with work to be scheduled. '''
         return connection.session._handle_patch(message, connection)
 
+    def notify_connection_lost(self) -> None:
+        ''' Notify the document that the connection was lost. '''
+        self.document.callbacks.trigger_event(ConnectionLost())
 
 #-----------------------------------------------------------------------------
 # Dev API
