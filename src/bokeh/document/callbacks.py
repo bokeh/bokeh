@@ -92,7 +92,7 @@ class DocumentCallbackManager:
 
     '''
 
-    _document : weakref.ReferenceType[Document]
+    _document: weakref.ReferenceType[Document]
 
     _change_callbacks: dict[Any, DocumentChangeCallback]
     _event_callbacks: dict[str, list[EventCallback]]

@@ -11,7 +11,7 @@ from bokeh.models import Button, CustomJS, Div, TextInput
 from bokeh.plotting import figure
 
 
-def display_event(div, attributes=[]):
+def display_event(div: Div, attributes: list[str] = []) -> CustomJS:
     """
     Function to build a suitable CustomJS to display the current event
     in the div model.
@@ -100,6 +100,6 @@ p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0'
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
 
-curdoc().on_event("document_ready", display_event(div))
+curdoc().on_event(events.DocumentReady, display_event(div))
 
 show(layout)
