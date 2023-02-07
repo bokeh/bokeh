@@ -130,4 +130,33 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.minmax([1, 2, NaN, 3])).to.be.equal([1, 3])
     expect(arrayable.minmax([3, 2, NaN, 1])).to.be.equal([1, 3])
   })
+
+  it("should support left_edge_index() function", () => {
+    expect(arrayable.left_edge_index(-100, [1, 2])).to.be.equal(-1)
+    expect(arrayable.left_edge_index(0.999, [1, 2])).to.be.equal(-1)
+    expect(arrayable.left_edge_index(1, [1, 2])).to.be.equal(0)
+    expect(arrayable.left_edge_index(1.5, [1, 2])).to.be.equal(0)
+    expect(arrayable.left_edge_index(2, [1, 2])).to.be.equal(0)
+    expect(arrayable.left_edge_index(2.001, [1, 2])).to.be.equal(2)
+    expect(arrayable.left_edge_index(100, [1, 2])).to.be.equal(2)
+
+    expect(arrayable.left_edge_index(0.999, [1])).to.be.equal(-1)
+    expect(arrayable.left_edge_index(1, [1])).to.be.equal(0)
+    expect(arrayable.left_edge_index(1.001, [1])).to.be.equal(1)
+  })
+
+  it("should support interpolate() function", () => {
+    const x = [1, 2, 4]
+    const y = [-1, 0, 2]
+    expect(arrayable.interpolate([], x, y)).to.be.equal([])
+    expect(arrayable.interpolate([1, 2, 4], x, y)).to.be.equal([-1, 0, 2])
+    expect(arrayable.interpolate([1.5, 2.5, 3, 3.5], x, y)).to.be.equal([-0.5, 0.5, 1, 1.5])
+    expect(arrayable.interpolate([-100, 0.9, 4.1, 100], x, y)).to.be.equal([-1, -1, 2, 2])
+
+    expect(arrayable.interpolate([], [1], [2])).to.be.equal([])
+    expect(arrayable.interpolate([0.999, 1, 1.001], [1], [2])).to.be.equal([2, 2, 2])
+
+    expect(arrayable.interpolate([], [], [])).to.be.equal([])
+    expect(arrayable.interpolate([1], [], [])).to.be.equal([NaN])
+  })
 })
