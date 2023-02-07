@@ -1,6 +1,7 @@
 """ Demonstration of how to register event callbacks using an adaptation
 of the color_scatter example from the bokeh gallery
 """
+from __future__ import annotations
 
 import numpy as np
 
