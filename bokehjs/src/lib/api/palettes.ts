@@ -1026,11 +1026,7 @@ export function interp_palette(palette: Color[], n: number): Color[] {
   const b = new Uint8Array(n)
   const a = new Uint8Array(n)
   for (let i = 0; i < npalette; i++) {
-    const rgba = color2rgba(palette[i])
-    r[i] = rgba[0]
-    g[i] = rgba[1]
-    b[i] = rgba[2]
-    a[i] = rgba[3]
+    [r[i], g[i], b[i], a[i]] = color2rgba(palette[i])
   }
 
   const integers = range(0, npalette)
