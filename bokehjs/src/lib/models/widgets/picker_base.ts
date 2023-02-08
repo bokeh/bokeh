@@ -40,10 +40,8 @@ export abstract class PickerBaseView extends InputWidgetView {
   }
 
   override render(): void {
-    if (this._picker != null)
-      return
-
     super.render()
+    this._picker?.destroy()
 
     this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
     this.group_el.appendChild(this.input_el)
