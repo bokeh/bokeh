@@ -426,7 +426,7 @@ from typing import TYPE_CHECKING, Dict, Tuple
 import numpy as np
 
 # Bokeh imports
-from .colors.util import NamedColor, RGB
+from .colors.util import RGB, NamedColor
 
 if TYPE_CHECKING:
     import numpy.typing as npt
