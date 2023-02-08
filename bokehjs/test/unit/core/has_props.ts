@@ -10,7 +10,38 @@ import {default_resolver} from "@bokehjs/base"
 import * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 
-class TestModel extends HasProps {}
+class EmptyModel extends HasProps {}
+
+namespace TestModel {
+  export type Attrs = p.AttrsOf<Props>
+  export type Props = HasProps.Props & {
+    p0: p.Property<number>
+    p1: p.Property<string>
+    p2: p.Property<TestModel | null>
+    p3: p.Property<TestModel[]>
+    p4: p.Property<Set<TestModel>>
+    p5: p.Property<Map<TestModel, TestModel>>
+    p6: p.Property<{foo: TestModel | null}>
+  }
+}
+interface TestModel extends TestModel.Attrs {}
+class TestModel extends HasProps {
+  declare properties: TestModel.Props
+  constructor(attrs?: Partial<TestModel.Attrs>) {
+    super(attrs)
+  }
+  static {
+    this.define<TestModel.Props>(({Number, String, Nullable, Ref, Array, Set, Map, Struct}) => ({
+      p0: [ Number, 0 ],
+      p1: [ String, "abc" ],
+      p2: [ Nullable(Ref(TestModel)), null ],
+      p3: [ Array(Ref(TestModel)), [] ],
+      p4: [ Set(Ref(TestModel)), new globalThis.Set() ],
+      p5: [ Map(Ref(TestModel), Ref(TestModel)), new globalThis.Map() ],
+      p6: [ Struct({foo: Nullable(Ref(TestModel))}), {foo: null} ],
+    }))
+  }
+}
 
 namespace SubclassWithProps {
   export type Attrs = p.AttrsOf<Props>
@@ -96,7 +127,7 @@ describe("core/has_props module", () => {
   describe("creation", () => {
 
     it("empty model should have no properties", () => {
-      const obj = new TestModel()
+      const obj = new EmptyModel()
       expect(keys(obj.properties)).to.be.equal([])
       expect(keys(obj.attributes)).to.be.equal([])
     })
@@ -193,5 +224,32 @@ describe("core/has_props module", () => {
 
     expect(Object.prototype.toString.call(obj0)).to.be.equal("[object SubclassWithProps]")
     expect(Object.prototype.toString.call(obj1)).to.be.equal("[object SubSubclassWithProps]")
+  })
+
+  it("support HasProps.references() method (issue #12783)", () => {
+    const obj0 = new TestModel()
+    const obj1 = new TestModel()
+    const obj2 = new TestModel()
+    const obj3 = new TestModel()
+    const obj4 = new TestModel()
+    const obj5 = new TestModel()
+    const obj6 = new TestModel()
+    const obj7 = new TestModel()
+    const obj8 = new TestModel()
+    const obj9 = new TestModel()
+
+    obj3.p2 = obj8
+    obj5.p5 = new Map([[obj9, obj9]])
+
+    const obj = new TestModel({
+      p2: obj0,
+      p3: [obj1, obj2],
+      p4: new Set([obj3, obj4]),
+      p5: new Map([[obj5, obj6]]),
+      p6: {foo: obj7},
+    })
+
+    const refs = new Set([obj, obj0, obj1, obj2, obj3, obj4, obj5, obj6, obj7, obj8, obj9])
+    expect(obj.references()).to.be.equal(refs)
   })
 })
