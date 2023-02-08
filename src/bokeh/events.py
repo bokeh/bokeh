@@ -143,6 +143,14 @@ class Event:
     '''
     event_name: ClassVar[str]
 
+    @staticmethod
+    def cls_for(event_name: str) -> type[Event]:
+        event_cls = _CONCRETE_EVENT_CLASSES.get(event_name)
+        if event_cls is not None:
+            return event_cls
+        else:
+            raise ValueError(f"unknown event name '{event_name}'")
+
     @classmethod
     def __init_subclass__(cls):
         super().__init_subclass__()

@@ -11,7 +11,7 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis, AxisView} from "../axes/axis"
 import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
-import {DataRange1d, AutoRanged, is_auto_ranged} from "../ranges/data_range1d"
+import {AutoRanged, is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import {ViewStorage, IterViews, build_view, build_views, remove_views} from "core/build_views"
@@ -204,9 +204,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   override remove(): void {
     for (const r of this.frame.ranges.values()) {
-      if (r instanceof DataRange1d) {
-        r.plots.delete(this)
-      }
+      r.plots.delete(this)
     }
 
     remove_views(this.renderer_views)
@@ -247,9 +245,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     )
 
     for (const r of this.frame.ranges.values()) {
-      if (r instanceof DataRange1d) {
-        r.plots.add(this)
-      }
+      r.plots.add(this)
     }
 
     this._range_manager = new RangeManager(this)
@@ -561,7 +557,12 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   trigger_ranges_update_event(): void {
     const {x_range, y_range} = this.model
-    this.model.trigger_event(new RangesUpdate(x_range.start, x_range.end, y_range.start, y_range.end))
+    const linked_plots = new Set([...x_range.plots, ...y_range.plots])
+
+    for (const plot_view of linked_plots) {
+      const {x_range, y_range} = plot_view.model
+      plot_view.model.trigger_event(new RangesUpdate(x_range.start, x_range.end, y_range.start, y_range.end))
+    }
   }
 
   get_selection(): Map<DataRenderer, Selection> {

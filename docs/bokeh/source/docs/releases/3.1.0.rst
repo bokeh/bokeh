@@ -3,7 +3,7 @@
 3.1.0
 =====
 
-Bokeh Version ``3.1.0`` (?? Jan 2023) is a minor milestone of Bokeh project.
+Bokeh Version ``3.1.0`` (?? Feb 2023) is a minor milestone of Bokeh project.
 
 Changes
 -------
@@ -20,3 +20,5 @@ Changes
   now required to fill-in all property values before serialization.
 * `RangeTool` is not a multi `GestureTool` anymore, thus it can't be activated
   with `Toolbar.active_multi`. The tool is now active by default.
+* ``RangesUpdate`` event now triggers on all linked plots instead of on the
+  one that user interaction resulted in changed ranges.
