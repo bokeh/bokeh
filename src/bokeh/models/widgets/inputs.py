@@ -542,6 +542,30 @@ class DatePicker(InputWidget):
         Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
     """)
 
+    date_format = String(default="Y-m-d", help="""
+    Formatting specification for the display of the picked date.
+
+    +---+-----------------------------------------------------------+-----------------------------------------+
+    | d | Day of the month, 2 digits with leading zeros             | 01 to 31                                |
+    | D | A textual representation of a day                         | Mon through Sun                         |
+    | l | A full textual representation of the day of the week      | Sunday through Saturday                 |
+    | j | Day of the month without leading zeros                    | 1 to 31                                 |
+    | J | Day of the month without leading zeros and ordinal suffix | 1st, 2nd, to 31st                       |
+    | w | Numeric representation of the day of the week             | 0 (for Sunday) through 6 (for Saturday) |
+    | W | Numeric representation of the week                        | 0 through 52                            |
+    | F | A full textual representation of a month                  | January through December                |
+    | m | Numeric representation of a month, with leading zero      | 01 through 12                           |
+    | n | Numeric representation of a month, without leading zeros  | 1 through 12                            |
+    | M | A short textual representation of a month                 | Jan through Dec                         |
+    | U | The number of seconds since the Unix Epoch                | 1413704993                              |
+    | y | A two digit representation of a year                      | 99 or 03                                |
+    | Y | A full numeric representation of a year, 4 digits         | 1999 or 2003                            |
+    | Z | ISO Date format                                           | 2017-03-04T01:23:43.000Z                |
+    +---+-----------------------------------------------------------+-----------------------------------------+
+
+    See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
+    """)
+
     position = Enum(CalendarPosition, default="auto", help="""
     Where the calendar is rendered relative to the input when ``inline`` is False.
     """)

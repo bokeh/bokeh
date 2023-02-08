@@ -17,7 +17,7 @@ export class DatePickerView extends PickerBaseView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {value, min_date, max_date, disabled_dates, enabled_dates} = this.model.properties
+    const {value, min_date, max_date, disabled_dates, enabled_dates, date_format} = this.model.properties
     this.connect(value.change, () => {
       const {value} = this.model
       if (value != null) {
@@ -36,10 +36,11 @@ export class DatePickerView extends PickerBaseView {
       const {enabled_dates} = this.model
       this._picker?.set("enable", enabled_dates != null ? this._convert_date_list(enabled_dates) : undefined)
     })
+    this.connect(date_format.change, () => this._picker?.set("dateFormat", this.model.date_format))
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
-    const {value, min_date, max_date, disabled_dates, enabled_dates} = this.model
+    const {value, min_date, max_date, disabled_dates, enabled_dates, date_format} = this.model
 
     const options = super.flatpickr_options
 
@@ -62,6 +63,8 @@ export class DatePickerView extends PickerBaseView {
     if (enabled_dates != null) {
       options.enable = this._convert_date_list(enabled_dates)
     }
+
+    options.dateFormat = date_format
 
     return options
   }
@@ -94,6 +97,7 @@ export namespace DatePicker {
     max_date:       p.Property<string | null>
     disabled_dates: p.Property<DatesList | null>
     enabled_dates:  p.Property<DatesList | null>
+    date_format:    p.Property<string>
   }
 }
 
@@ -116,6 +120,7 @@ export class DatePicker extends PickerBase {
       max_date:       [ Nullable(DateString), null ],
       disabled_dates: [ Nullable(DatesList), null ],
       enabled_dates:  [ Nullable(DatesList), null ],
+      date_format:    [ String, "Y-m-d" ],
     }))
   }
 }

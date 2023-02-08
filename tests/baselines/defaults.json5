@@ -5826,6 +5826,7 @@
     max_date: null,
     disabled_dates: null,
     enabled_dates: null,
+    date_format: "Y-m-d",
     position: "auto",
     inline: false,
   },

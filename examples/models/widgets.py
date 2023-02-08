@@ -106,7 +106,7 @@ Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
-date_picker = DatePicker()
+date_picker = DatePicker(date_format="F j, Y")
 
 date_picker_with_a_value = DatePicker(value=date(2022, 2, 8), min_date=date(2022, 2, 1))
 
