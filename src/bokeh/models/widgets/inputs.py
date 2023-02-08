@@ -575,11 +575,7 @@ class DatePicker(InputWidget):
     """)
 
 class ColorPicker(InputWidget):
-    ''' Color picker widget
-
-    .. warning::
-        This widget as a limited support on *Internet Explorer* (it will be displayed
-        as a simple text input).
+    ''' Color picker widget.
 
     '''
 
