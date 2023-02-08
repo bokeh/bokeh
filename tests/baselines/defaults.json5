@@ -5819,16 +5819,27 @@
     placeholder: null,
     solid: true,
   },
-  DatePicker: {
+  PickerBase: {
     __extends__: "InputWidget",
+    position: "auto",
+    inline: false,
+  },
+  DatePicker: {
+    __extends__: "PickerBase",
     value: null,
     min_date: null,
     max_date: null,
     disabled_dates: null,
     enabled_dates: null,
     date_format: "Y-m-d",
-    position: "auto",
-    inline: false,
+  },
+  DatetimePicker: {
+    __extends__: "DatePicker",
+    value: null,
+  },
+  TimePicker: {
+    __extends__: "PickerBase",
+    value: null,
   },
   ColorPicker: {
     __extends__: "InputWidget",

@@ -27,6 +27,7 @@ from ...core.properties import (
     Bool,
     ColorHex,
     Date,
+    Datetime,
     Dict,
     Either,
     Enum,
@@ -57,6 +58,7 @@ __all__ = (
     'Checkbox',
     'ColorPicker',
     'DatePicker',
+    'DatetimePicker',
     'FileInput',
     'InputWidget',
     'MultiChoice',
@@ -66,8 +68,9 @@ __all__ = (
     'Select',
     'Spinner',
     'Switch',
+    'TextAreaInput',
     'TextInput',
-    'TextAreaInput'
+    'TimePicker',
 )
 
 #-----------------------------------------------------------------------------
@@ -504,11 +507,26 @@ class MultiChoice(InputWidget):
     solid = Bool(default=True, help="""
     Specify whether the choices should be solidly filled.""")
 
+@abstract
+class PickerBase(InputWidget):
+    """ """
 
-class DatePicker(InputWidget):
-    ''' Calendar-based date picker widget.
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
 
-    '''
+    position = Enum(CalendarPosition, default="auto", help="""
+    Where the calendar is rendered relative to the input when ``inline`` is False.
+    """)
+
+    inline = Bool(default=False, help="""
+    Whether the calendar sholud be displayed inline.
+    """)
+
+class DatePicker(PickerBase):
+    """ Calendar-based date picker widget.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -566,12 +584,26 @@ class DatePicker(InputWidget):
     See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
     """)
 
-    position = Enum(CalendarPosition, default="auto", help="""
-    Where the calendar is rendered relative to the input when ``inline`` is False.
+class DatetimePicker(DatePicker):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Nullable(Datetime, default=None, help="""
+    The initial or picked date and time.
     """)
 
-    inline = Bool(default=False, help="""
-    Whether the calendar sholud be displayed inline.
+class TimePicker(PickerBase):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Nullable(String, default=None, help="""
+    The initial or picked time.
     """)
 
 class ColorPicker(InputWidget):
