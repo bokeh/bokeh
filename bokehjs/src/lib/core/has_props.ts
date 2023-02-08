@@ -10,7 +10,7 @@ import {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
 import {keys, values, entries, extend, is_empty, Dict} from "./util/object"
-import {isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
+import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import type {Document} from "../document/document"
@@ -505,6 +505,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // descend into non-refs
   static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
     const {recursive} = options
+    if (!isObject(v))
+      return
     if (v instanceof HasProps) {
       if (!refs.has(v)) {
         refs.add(v)
@@ -517,9 +519,10 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           }
         }
       }
-    } else if (isArray(v)) {
-      for (const elem of v)
+    } else if (isIterable(v)) {
+      for (const elem of v) {
         HasProps._value_record_references(elem, refs, {recursive})
+      }
     } else if (isPlainObject(v)) {
       for (const elem of values(v)) {
         HasProps._value_record_references(elem, refs, {recursive})
