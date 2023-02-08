@@ -1665,7 +1665,7 @@ def interp_palette(palette: Palette, n: int) -> Palette:
     if n < 0:
         raise ValueError("requested palette length cannot be negative")
 
-    rgba_array = _to_rgba_array(palette)
+    rgba_array = to_rgba_array(palette)
     integers = np.arange(npalette)
     fractions = np.linspace(0, npalette-1, n)
 
@@ -1922,7 +1922,7 @@ def gray(n: int) -> Palette:
 # Dev API
 #-----------------------------------------------------------------------------
 
-def _to_rgba_array(palette: Palette) -> npt.NDArray[np.uint8]:
+def to_rgba_array(palette: Palette) -> npt.NDArray[np.uint8]:
     """ Convert palette to a numpy array of uint8 RGBA components.
     """
     rgba_array = np.empty((len(palette), 4), dtype=np.uint8)
