@@ -106,7 +106,9 @@ Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
-date_picker = DatePicker(value=date(2017, 8, 1))
+date_picker = DatePicker()
+
+date_picker_with_a_value = DatePicker(value=date(2022, 2, 8), min_date=date(2022, 2, 1))
 
 checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
 
@@ -196,7 +198,7 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker, date_picker,
+            spinner, color_picker, date_picker, date_picker_with_a_value,
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),

@@ -514,15 +514,15 @@ class DatePicker(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    value = Date(help="""
+    value = Nullable(Date, default=None, help="""
     The initial or picked date.
     """)
 
-    min_date = Nullable(Date, help="""
+    min_date = Nullable(Date, default=None, help="""
     Optional earliest allowable date.
     """)
 
-    max_date = Nullable(Date, help="""
+    max_date = Nullable(Date, default=None, help="""
     Optional latest allowable date.
     """)
 

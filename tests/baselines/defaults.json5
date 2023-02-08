@@ -5821,10 +5821,7 @@
   },
   DatePicker: {
     __extends__: "InputWidget",
-    value: {
-      type: "symbol",
-      name: "unset",
-    },
+    value: null,
     min_date: null,
     max_date: null,
     disabled_dates: null,
