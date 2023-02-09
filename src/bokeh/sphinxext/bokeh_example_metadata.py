@@ -24,7 +24,7 @@ The ``bokeh-example-metadata`` directive can be used by supplying:
 from __future__ import annotations
 
 # use the wrapped sphinx logger
-from sphinx.util import logging  # isort:skip
+from sphinxext.util import logging  # isort:skip
 log = logging.getLogger(__name__)
 
 # -----------------------------------------------------------------------------
