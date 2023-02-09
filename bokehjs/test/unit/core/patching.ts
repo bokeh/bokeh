@@ -374,5 +374,17 @@ describe("core/patching module", () => {
       const r2 = stream_to_column(a2, [100, 200, 300], 10)
       expect(r2).to.be.equal(new Int32NDArray([1, 2, 3, 4, 5, 100, 200, 300]))
     })
+
+    it("should stream Float64 to Array", () => {
+      const a = new Float64NDArray([1, 2, 3, 4, 5])
+      const r = stream_to_column(a, [100, 200])
+      expect(r).to.be.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200]))
+    })
+
+    it("should stream Array to Float64", () => {
+      const a = [1, 2, 3, 4, 5]
+      const r = stream_to_column(a, new Float64NDArray([100, 200]))
+      expect(r).to.be.equal(new Float64NDArray([1, 2, 3, 4, 5, 100, 200]))
+    })
   })
 })

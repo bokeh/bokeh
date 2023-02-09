@@ -1,4 +1,4 @@
-import {Arrayable, Data, TypedArray} from "core/types"
+import {Arrayable, Data} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
@@ -6,48 +6,65 @@ import {union} from "core/util/set"
 import {Slice} from "core/util/slice"
 import * as typed_array from "core/util/typed_array"
 
-//exported for testing
+// exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
-  if (isArray(col)) {
+  if (isArray(col) && isArray(new_col)) {
     const result = col.concat(new_col)
 
     if (rollover != null && result.length > rollover)
       return result.slice(-rollover)
     else
       return result
-  } else if (isTypedArray(col)) {
-    const total_len = col.length + new_col.length
+  }
 
-    // handle rollover case for typed arrays
-    if (rollover != null && total_len > rollover) {
-      const start = total_len - rollover
-      const end = col.length
+  const total_len = col.length + new_col.length
 
-      // resize col if it is shorter than the rollover length
-      let result: TypedArray
+  // handle rollover case for typed arrays
+  if (rollover != null && total_len > rollover) {
+    const start = total_len - rollover
+    const end = col.length
+
+    // resize col if it is shorter than the rollover length
+    const result = (() => {
       if (col.length < rollover) {
-        result = new col.constructor(rollover)
+        const ctor = (() => {
+          if (isTypedArray(col))
+            return col.constructor
+          else if (isTypedArray(new_col))
+            return new_col.constructor
+          else
+            throw new Error("unsupported array types")
+        })()
+
+        const result = new ctor(rollover)
         result.set(col, 0)
+        return result
       } else
-        result = col
+        return col
+    })()
 
-      // shift values in original col to accommodate new_col
-      for (let i = start, endi = end; i < endi; i++) {
-        result[i-start] = result[i]
-      }
-
-      // update end values in col with new_col
-      for (let i = 0, endi = new_col.length; i < endi; i++) {
-        result[i+(end-start)] = new_col[i]
-      }
-
-      return result
-    } else {
-      const tmp = new col.constructor(new_col)
-      return typed_array.concat(col, tmp)
+    // shift values in original col to accommodate new_col
+    for (let i = start, endi = end; i < endi; i++) {
+      result[i-start] = result[i]
     }
-  } else
-    throw new Error("unsupported array types")
+
+    // update end values in col with new_col
+    for (let i = 0, endi = new_col.length; i < endi; i++) {
+      result[i+(end-start)] = new_col[i]
+    }
+
+    return result
+  } else {
+    const col_ = (() => {
+      if (isTypedArray(col))
+        return col
+      else if (isTypedArray(new_col))
+        return new new_col.constructor(col)
+      else
+        throw new Error("unsupported array types")
+    })()
+    return typed_array.concat(col_, new_col)
+  }
 }
 
 // exported for testing
