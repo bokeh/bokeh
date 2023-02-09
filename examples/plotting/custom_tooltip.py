@@ -1,5 +1,5 @@
 ''' A plot of periodic table elements using a Periodic table dataset.
-This example demonstrates the use of custom css tooltips when creating plots. 
+This example demonstrates the use of custom css tooltips when creating plots.
 The chart shows correlation between atomic mass and density of gssperiodic table elements.
 
 .. bokeh-example-metadata::
