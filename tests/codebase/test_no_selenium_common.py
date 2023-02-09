@@ -38,10 +38,10 @@ MODULES = ls_modules(skip_prefixes=SELENIUM_ALLOWED)
 
 # This test takes a long time to run, but if the combined test fails then
 # uncommenting it will locate exactly what module(s) are the problem
-# @pytest.mark.parametrize('module', MODULES)
-# def test_no_selenium_common_individual(module) -> None:
-#     proc = run([python, "-c", verify_clean_imports('selenium', [module])])
-#     assert proc.returncode == 0, f"Selenium imported in common module {module}"
+@pytest.mark.parametrize('module', MODULES)
+def test_no_selenium_common_individual(module) -> None:
+    proc = run([python, "-c", verify_clean_imports('selenium', [module])])
+    assert proc.returncode == 0, f"Selenium imported in common module {module}"
 
 def test_no_selenium_common_combined() -> None:
     ''' Basic usage of Bokeh should not result in any Selenium code being
