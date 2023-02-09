@@ -39,7 +39,7 @@ MODULES = ls_modules(skip_prefixes=PANDAS_ALLOWED)
 
 # This test takes a long time to run, but if the combined test fails then
 # uncommenting it will locate exactly what module(s) are the problem
- @pytest.mark.parametrize('module', MODULES)
+@pytest.mark.parametrize('module', MODULES)
 def test_no_pandas_common_individual(module) -> None:
     proc = run([python, "-c", verify_clean_imports('pandas', [module])])
     assert proc.returncode == 0, f"pandas imported in common module {module}"
