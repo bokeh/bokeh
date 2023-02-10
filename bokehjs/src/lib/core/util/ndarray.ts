@@ -218,8 +218,16 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
 export class ObjectNDArray extends Array implements NDArrayType {
   readonly [__ndarray__] = true
   readonly dtype: "object" = "object"
-  readonly shape: number[]
-  readonly dimension: number
+
+  private _shape?: number[]
+
+  get shape(): number[] {
+    return this._shape ?? [this.length]
+  }
+
+  get dimension(): number {
+    return this.shape.length
+  }
 
   constructor(init_: Init<unknown>, shape?: number[]) {
     const init = init_ instanceof ArrayBuffer ? new Float64Array(init_) : init_
@@ -233,8 +241,7 @@ export class ObjectNDArray extends Array implements NDArrayType {
       }
     }
 
-    this.shape = shape ?? (is_NDArray(init) ? init.shape : [this.length])
-    this.dimension = this.shape.length
+    this._shape = shape ?? (is_NDArray(init) ? init.shape : undefined)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
