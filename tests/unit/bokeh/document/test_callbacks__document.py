@@ -30,6 +30,7 @@ from bokeh.document.events import DocumentChangedEvent, SessionCallbackAdded, Se
 from bokeh.document.locking import UnlockedDocumentProxy
 from bokeh.events import ButtonClick, DocumentReady
 from bokeh.io import curdoc
+from bokeh.models.callbacks import CustomJS
 from bokeh.models.widgets import Button, Div
 from bokeh.server.callbacks import SessionCallback
 from bokeh.util.logconfig import basicConfig
@@ -247,6 +248,37 @@ class TestDocumentCallbackManager:
         with pytest.raises(ValueError):
             cm.on_event(ButtonClick, good)
         assert cm._event_callbacks == {}
+
+    def test_js_on_event_good_string(self) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        cb = CustomJS()
+        cm.js_on_event("document_ready", cb)
+        assert cm._js_event_callbacks == {"document_ready": [cb]}
+
+    @pytest.mark.parametrize("evt", ("button_click", "junk"))
+    def test_js_on_event_bad_string(self, evt: str) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        cb = CustomJS()
+        with pytest.raises(ValueError):
+            cm.js_on_event(evt, cb)
+        assert cm._js_event_callbacks == {}
+
+    def test_js_on_event_good_event(self) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        cb = CustomJS()
+        cm.js_on_event(DocumentReady, cb)
+        assert cm._js_event_callbacks == {"document_ready": [cb]}
+
+    def test_js_on_event_bad_event(self) -> None:
+        d = Document()
+        cm = bdc.DocumentCallbackManager(d)
+        cb = CustomJS()
+        with pytest.raises(ValueError):
+            cm.js_on_event(ButtonClick, cb)
+        assert cm._js_event_callbacks == {}
 
     def test_on_message(self) -> None:
         d = Document()

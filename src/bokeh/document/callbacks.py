@@ -275,10 +275,19 @@ class DocumentCallbackManager:
         if receiver not in self._change_callbacks:
             self._change_callbacks[receiver] = lambda event: event.dispatch(receiver)
 
-    def on_event(self, event: str | type[Event], *callbacks: EventCallback | JSEventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
 
         '''
+        self._on_event(event, *callbacks)
+
+    def js_on_event(self, event: str | type[Event], *callbacks: JSEventCallback) -> None:
+        ''' Provide JS callbacks to invoke if a bokeh event is received.
+
+        '''
+        self._on_event(event, *callbacks)
+
+    def _on_event(self, event: str | type[Event], *callbacks: EventCallback | JSEventCallback) -> None:
         if not isinstance(event, str) and issubclass(event, Event):
             event = event.event_name
 

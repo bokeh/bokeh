@@ -527,11 +527,17 @@ class Document:
         '''
         self.callbacks.on_change_dispatch_to(receiver)
 
-    def on_event(self, event: str | type[Event], *callbacks: EventCallback | JSEventCallback) -> None:
+    def on_event(self, event: str | type[Event], *callbacks: EventCallback) -> None:
         ''' Provide callbacks to invoke if a bokeh event is received.
 
         '''
         self.callbacks.on_event(event, *callbacks)
+
+    def js_on_event(self, event: str | type[Event], *callbacks: JSEventCallback) -> None:
+        ''' Provide JS callbacks to invoke if a bokeh event is received.
+
+        '''
+        self.callbacks.js_on_event(event, *callbacks)
 
     def on_message(self, msg_type: str, *callbacks: MessageCallback) -> None:
         '''

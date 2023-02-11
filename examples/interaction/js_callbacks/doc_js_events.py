@@ -13,7 +13,8 @@ const html = "<div>READY!</div>"
 document.body.insertAdjacentHTML("beforeend", html)
 """)
 
-curdoc().on_event("document_ready", py_ready, js_ready)
+curdoc().on_event("document_ready", py_ready)
+curdoc().js_on_event("document_ready", js_ready)
 
 def py_connection_lost(event: Event):
     print("CONNECTION LOST!")
@@ -23,7 +24,8 @@ const html = "<div>DISCONNECTED!</div>"
 document.body.insertAdjacentHTML("beforeend", html)
 """)
 
-curdoc().on_event("connection_lost", py_connection_lost, js_connection_lost)
+curdoc().on_event("connection_lost", py_connection_lost)
+curdoc().js_on_event("connection_lost", js_connection_lost)
 
 def py_clicked(event: Event):
     print("CLICKED!")
