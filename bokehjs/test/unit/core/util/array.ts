@@ -1,5 +1,5 @@
-import * as array from '@bokehjs/core/util/array';
-import { expect } from 'assertions';
+import * as array from "@bokehjs/core/util/array";
+import {expect} from "assertions";
 
 describe("core/util/array module", () => {
 
@@ -121,10 +121,8 @@ describe("core/util/array module", () => {
 
   it("transpose should return the given array with transposed axes", () => {
     expect(array.transpose([[1, 2], [3, 4]])).to.be.equal([[1, 3], [2, 4]])
-    expect(array.transpose([[1, 2, 3, 4],
-      [5, 6, 7, 8],])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, 8]])
-    expect(array.transpose([[1, 2, 3, 4],
-      [5, 6, 7],])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, undefined]])
+    expect(array.transpose([[1, 2, 3, 4], [5, 6, 7, 8]])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, 8]])
+    expect(array.transpose([[1, 2, 3, 4], [5, 6, 7]])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, undefined]])
     expect(array.transpose([[1, null, 3, undefined], [NaN]])).to.be.equal([[1, NaN], [null, undefined], [3, undefined], [undefined, undefined]])
   })
 
