@@ -1,5 +1,5 @@
-import * as array from "@bokehjs/core/util/array";
-import {expect} from "assertions";
+import * as array from "@bokehjs/core/util/array"
+import {expect} from "assertions"
 
 describe("core/util/array module", () => {
 
