@@ -3,12 +3,46 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import {randomIn} from "./math"
-import {assert} from "./assert"
-import {Arrayable} from "../types"
+import { Arrayable } from '../types';
+import {
+  cumsum,
+  every,
+  find,
+  find_index,
+  find_last,
+  find_last_index,
+  is_empty,
+  map,
+  max,
+  max_by,
+  min,
+  min_by,
+  reduce,
+  some,
+  sorted_index,
+  sum,
+} from './arrayable';
+import { assert } from './assert';
+import { randomIn } from './math';
 
-import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty} from "./arrayable"
-export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty}
+export {
+  cumsum,
+  every,
+  find,
+  find_index,
+  find_last,
+  find_last_index,
+  is_empty,
+  map,
+  max,
+  max_by,
+  min,
+  min_by,
+  reduce,
+  some,
+  sorted_index,
+  sum,
+};
 
 const slice = Array.prototype.slice
 
@@ -279,9 +313,6 @@ export function reversed<T>(array: T[]): T[] {
 }
 
 export function repeat<T>(value: T, n: number): T[] {
-  const result: T[] = new Array(n)
-  for (let i = 0; i < n; i++) {
-    result[i] = value
-  }
+  const result: T[] = new Array(n).fill(value)
   return result
 }
