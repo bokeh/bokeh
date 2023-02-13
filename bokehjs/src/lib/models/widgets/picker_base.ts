@@ -41,8 +41,14 @@ export abstract class PickerBaseView extends InputWidgetView {
       positionElement: this.input_el,
       inline: this.model.inline,
       position: this._position.bind(this),
+      onChange: (selected_dates, date_string) => {
+        this._on_change(selected_dates, date_string)
+        this.change_input()
+      },
     }
   }
+
+  protected abstract _on_change(selected_dates: Date[], _date_string: string): void
 
   override render(): void {
     super.render()

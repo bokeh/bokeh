@@ -44,11 +44,6 @@ export abstract class BaseDatePickerView extends PickerBaseView {
 
     const options = super.flatpickr_options
 
-    options.onChange = (selected_dates, date_string) => {
-      this._on_change(selected_dates, date_string)
-      this.change_input()
-    }
-
     options.dateFormat = date_format
 
     if (value != null) {
@@ -69,8 +64,6 @@ export abstract class BaseDatePickerView extends PickerBaseView {
 
     return options
   }
-
-  protected abstract _on_change(selected_dates: Date[], _date_string: string): void
 
   protected _convert_date_list(value: DateLikeList): flatpickr.Options.DateLimit[] {
     const result: flatpickr.Options.DateLimit[] = []
