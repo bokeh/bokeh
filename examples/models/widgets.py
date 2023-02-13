@@ -22,7 +22,8 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbo
                           PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
                           Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
                           StringFormatter, SVGIcon, Switch, TableColumn, TablerIcon,
-                          TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip)
+                          TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip,
+                          DateRangePicker, MultipleDatePicker)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -106,9 +107,13 @@ Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
-date_picker = DatePicker(date_format="F j, Y")
+date_picker = DatePicker(title="Single:", date_format="F j, Y")
 
-date_picker_with_a_value = DatePicker(value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+date_picker_with_a_value = DatePicker(title="Single:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+
+date_range_picker = DateRangePicker(title="Range:", width=400)
+
+multiple_date_picker = MultipleDatePicker(title="Multiple:", width=400)
 
 checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
 
@@ -198,7 +203,7 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker, date_picker, date_picker_with_a_value,
+            spinner, color_picker, date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),

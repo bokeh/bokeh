@@ -4,6 +4,7 @@ import {InputWidget, InputWidgetView} from "./input_widget"
 import {input, StyleSheetLike} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import {bounding_box} from "core/dom"
+import {assert} from "core/util/assert"
 import * as p from "core/properties"
 
 import flatpickr_css from "styles/widgets/flatpickr.css"
@@ -13,6 +14,10 @@ export abstract class PickerBaseView extends InputWidgetView {
   declare model: PickerBase
 
   protected _picker?: flatpickr.Instance
+  get picker(): flatpickr.Instance {
+    assert(this._picker != null)
+    return this._picker
+  }
 
   override remove(): void {
     this._picker?.destroy()

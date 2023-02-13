@@ -5824,17 +5824,30 @@
     position: "auto",
     inline: false,
   },
-  DatePicker: {
+  BaseDatePicker: {
     __extends__: "PickerBase",
-    value: null,
     min_date: null,
     max_date: null,
     disabled_dates: null,
     enabled_dates: null,
     date_format: "Y-m-d",
   },
+  DatePicker: {
+    __extends__: "BaseDatePicker",
+    value: null,
+  },
+  DateRangePicker: {
+    __extends__: "BaseDatePicker",
+    value: null,
+    conjunction: " :: ",
+  },
+  MultipleDatePicker: {
+    __extends__: "BaseDatePicker",
+    value: [],
+    conjunction: ", ",
+  },
   DatetimePicker: {
-    __extends__: "DatePicker",
+    __extends__: "BaseDatePicker",
     value: null,
   },
   TimePicker: {

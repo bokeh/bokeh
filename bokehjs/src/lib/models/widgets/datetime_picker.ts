@@ -1,12 +1,9 @@
 import {DatePicker, DatePickerView} from "./date_picker"
+import {DateLike} from "./base_date_picker"
 import * as p from "core/properties"
 
 export class DatetimePickerView extends DatePickerView {
   declare model: DatetimePicker
-
-  override connect_signals(): void {
-    super.connect_signals()
-  }
 }
 
 export namespace DatetimePicker {
@@ -21,6 +18,8 @@ export interface DatetimePicker extends DatetimePicker.Attrs {}
 export class DatetimePicker extends DatePicker {
   declare properties: DatetimePicker.Props
   declare __view_type__: DatetimePickerView
+
+  declare value: DateLike | null
 
   constructor(attrs?: Partial<DatetimePicker.Attrs>) {
     super(attrs)

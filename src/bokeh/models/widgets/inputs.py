@@ -58,11 +58,13 @@ __all__ = (
     'Checkbox',
     'ColorPicker',
     'DatePicker',
+    'DateRangePicker',
     'DatetimePicker',
     'FileInput',
     'InputWidget',
     'MultiChoice',
     'MultiSelect',
+    'MultipleDatePicker',
     'NumericInput',
     'PasswordInput',
     'Select',
@@ -523,18 +525,14 @@ class PickerBase(InputWidget):
     Whether the calendar sholud be displayed inline.
     """)
 
-class DatePicker(PickerBase):
-    """ Calendar-based date picker widget.
+class BaseDatePicker(PickerBase):
+    """ Bases for various calendar-based date picker widgets.
 
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    value = Nullable(Date, default=None, help="""
-    The initial or picked date.
-    """)
 
     min_date = Nullable(Date, default=None, help="""
     Optional earliest allowable date.
@@ -584,7 +582,50 @@ class DatePicker(PickerBase):
     See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
     """)
 
-class DatetimePicker(DatePicker):
+class DatePicker(BaseDatePicker):
+    """ Calendar-based date picker widget.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Nullable(Date, default=None, help="""
+    The initial or picked date.
+    """)
+
+class DateRangePicker(BaseDatePicker):
+    """ Calendar-based picker of date ranges. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Nullable(Tuple(Date, Date), default=None, help="""
+    The initial or picked date range.
+    """)
+
+    conjunction = String(default=" :: ", help="""
+    The separator between displayed dates.
+    """)
+
+class MultipleDatePicker(BaseDatePicker):
+    """ Calendar-based picker of dates. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = List(Date, default=[], help="""
+    The initial or picked dates.
+    """)
+
+    conjunction = String(default=", ", help="""
+    The separator between displayed dates.
+    """)
+
+class DatetimePicker(BaseDatePicker):
     """ """
 
     # explicit __init__ to support Init signatures
