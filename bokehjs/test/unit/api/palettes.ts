@@ -5,29 +5,28 @@ import {interp_palette, linear_palette, varying_alpha_palette} from "@bokehjs/ap
 describe("in api/palettes module", () => {
   describe("interp_palette", () => {
     // Equivalent tests to bokeh's python unit tests for this function.
-    // Individual RGBA components can differ from Python due to different rounding.
     it("should support fixed alpha", () => {
       const palette = ["black", "red"]
       expect(interp_palette(palette, 0)).to.be.equal([])
-      expect(interp_palette(palette, 1)).to.be.equal(["#000000"])
-      expect(interp_palette(palette, 2)).to.be.equal(["#000000", "#ff0000"])
-      expect(interp_palette(palette, 3)).to.be.equal(["#000000", "#7f0000", "#ff0000"])
-      expect(interp_palette(palette, 4)).to.be.equal(["#000000", "#550000", "#aa0000", "#ff0000"])
+      expect(interp_palette(palette, 1)).to.be.equal([[0, 0, 0, 255]])
+      expect(interp_palette(palette, 2)).to.be.equal([[0, 0, 0, 255], [255, 0, 0, 255]])
+      expect(interp_palette(palette, 3)).to.be.equal([[0, 0, 0, 255], [128, 0, 0, 255], [255, 0, 0, 255]])
+      expect(interp_palette(palette, 4)).to.be.equal([[0, 0, 0, 255], [85, 0, 0, 255], [170, 0, 0, 255], [255, 0, 0, 255]])
     })
 
     it("should support varying alpha", () => {
       const palette = ["#00ff0080", "#00ffff40"]
-      expect(interp_palette(palette, 1)).to.be.equal(["#00ff0080"])
-      expect(interp_palette(palette, 2)).to.be.equal(["#00ff0080", "#00ffff40"])
-      expect(interp_palette(palette, 3)).to.be.equal(["#00ff0080", "#00ff7f60", "#00ffff40"])
-      expect(interp_palette(palette, 4)).to.be.equal(["#00ff0080", "#00ff556a", "#00ffaa55", "#00ffff40"])
+      expect(interp_palette(palette, 1)).to.be.equal([[0, 255, 0, 128]])
+      expect(interp_palette(palette, 2)).to.be.equal([[0, 255, 0, 128], [0, 255, 255, 64]])
+      expect(interp_palette(palette, 3)).to.be.equal([[0, 255, 0, 128], [0, 255, 128, 96], [0, 255, 255, 64]])
+      expect(interp_palette(palette, 4)).to.be.equal([[0, 255, 0, 128], [0, 255, 85, 107], [0, 255, 170, 85], [0, 255, 255, 64]])
     })
 
     it("should support passing single color palette", () => {
       const palette = ["red"]
       expect(interp_palette(palette, 0)).to.be.equal([])
-      expect(interp_palette(palette, 1)).to.be.equal(["#ff0000"])
-      expect(interp_palette(palette, 2)).to.be.equal(["#ff0000", "#ff0000"])
+      expect(interp_palette(palette, 1)).to.be.equal([[255, 0, 0, 255]])
+      expect(interp_palette(palette, 2)).to.be.equal([[255, 0, 0, 255], [255, 0, 0, 255]])
     })
 
     it("should throw error if pass empty palette", () => {
