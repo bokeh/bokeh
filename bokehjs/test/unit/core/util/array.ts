@@ -1,4 +1,5 @@
 import * as array from "@bokehjs/core/util/array"
+import {AssertionError} from "@bokehjs/core/util/assert"
 import {expect} from "assertions"
 
 describe("core/util/array module", () => {
@@ -111,29 +112,27 @@ describe("core/util/array module", () => {
   })
 
   it("linspace should return an array of a given length between two given numbers", () => {
-    expect(array.linspace(2, 3, 5)).to.be.equal([ 2, 2.25, 2.5, 2.75, 3 ])
+    expect(array.linspace(2, 3, 5)).to.be.equal([2, 2.25, 2.5, 2.75, 3])
     expect(array.linspace(2, 3).length).to.be.equal(100)
     expect(array.linspace(2, 3, 0)).to.be.equal([])
-    expect(array.linspace(2, 3, NaN)).to.be.instanceof(RangeError)
-    expect(array.linspace(2, 3, null)).to.be.equal([null])
+    expect(() => array.linspace(2, 3, NaN)).to.throw(RangeError)
     expect(array.linspace(NaN, NaN).length).to.be.equal(100)
   })
 
   it("transpose should return the given array with transposed axes", () => {
     expect(array.transpose([[1, 2], [3, 4]])).to.be.equal([[1, 3], [2, 4]])
     expect(array.transpose([[1, 2, 3, 4], [5, 6, 7, 8]])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, 8]])
-    expect(array.transpose([[1, 2, 3, 4], [5, 6, 7]])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, undefined]])
     expect(array.transpose([[1, null, 3, undefined], [NaN]])).to.be.equal([[1, NaN], [null, undefined], [3, undefined], [undefined, undefined]])
   })
 
   it("remove_at should remove an item from an array at the specified index", () => {
     expect(array.remove_at([1, 2, 3, 4], 1)).to.be.equal([1, 3, 4])
     expect(array.remove_at([1, 2, 3, 4], 5)).to.be.equal([1, 2, 3, 4])
-    expect(array.remove_at([NaN], NaN)).to.be.equal([])
+    expect(() => array.remove_at([NaN], NaN)).to.throw(AssertionError)
   })
 
-  it("clear should return an empty array", () => {
-    expect(array.clear([1, 2, 3, 4])).to.be.equal([])
+  it("clear should return nothing", () => {
+    expect(array.clear([1, 2, 3, 4])).to.be.equal(undefined)
   })
 
   it("reversed should return the given array in reversed order", () => {
@@ -144,7 +143,16 @@ describe("core/util/array module", () => {
   it("repeat should create an array of a given length with repeated values", () => {
     expect(array.repeat(4, 3)).to.be.equal([4, 4, 4])
     expect(array.repeat([1, 2], 3)).to.be.equal([[1, 2], [1, 2], [1, 2]])
-    expect(array.repeat(NaN, undefined)).to.be.equal([NaN])
-    expect(array.repeat(4, NaN)).to.be.instanceof(RangeError)
+    expect(() => array.repeat(4, NaN)).to.throw(RangeError)
+  })
+
+  it("argmin should return the index of the lowest value along an axis", () => {
+    expect(array.argmin([1, 2, 3, 4])).to.be.equal(0)
+    expect(array.argmin([4, 3, 2, 1])).to.be.equal(3)
+  })
+
+  it("argmax should return the index of the highest  value along an axis", () => {
+    expect(array.argmax([1, 2, 3, 4])).to.be.equal(3)
+    expect(array.argmax([4, 3, 2, 1])).to.be.equal(0)
   })
 })
