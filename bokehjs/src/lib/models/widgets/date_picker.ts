@@ -2,14 +2,14 @@ import flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import * as p from "core/properties"
-import {isString} from "core/util/types"
-import {Or, Tuple, String, Array} from "core/kinds"
+import {isArray} from "core/util/types"
+import {Or, Tuple, String, Array, Ref, Struct} from "core/kinds"
 
-type DateString = typeof DateString["__type__"]
-const DateString = String
+type DateLike = typeof DateLike["__type__"]
+const DateLike = Or(Ref(Date), String)
 
-type DatesList = typeof DatesList["__type__"]
-const DatesList = Array(Or(DateString, Tuple(DateString, DateString)))
+type DateLikeList = typeof DateLikeList["__type__"]
+const DateLikeList = Array(Or(DateLike, Tuple(DateLike, DateLike), Struct({from: DateLike, to: DateLike})))
 
 export class DatePickerView extends PickerBaseView {
   declare model: DatePicker
@@ -74,14 +74,14 @@ export class DatePickerView extends PickerBaseView {
     this.change_input()
   }
 
-  protected _convert_date_list(value: DatesList): flatpickr.Options.DateLimit[] {
+  protected _convert_date_list(value: DateLikeList): flatpickr.Options.DateLimit[] {
     const result: flatpickr.Options.DateLimit[] = []
     for (const item of value) {
-      if (isString(item))
-        result.push(item)
-      else {
+      if (isArray(item)) {
         const [from, to] = item
         result.push({from, to})
+      } else {
+        result.push(item)
       }
     }
     return result
@@ -92,11 +92,11 @@ export namespace DatePicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = PickerBase.Props & {
-    value:          p.Property<string | null>
-    min_date:       p.Property<string | null>
-    max_date:       p.Property<string | null>
-    disabled_dates: p.Property<DatesList | null>
-    enabled_dates:  p.Property<DatesList | null>
+    value:          p.Property<Date | string | null>
+    min_date:       p.Property<Date | string | null>
+    max_date:       p.Property<Date | string | null>
+    disabled_dates: p.Property<DateLikeList | null>
+    enabled_dates:  p.Property<DateLikeList | null>
     date_format:    p.Property<string>
   }
 }
@@ -115,11 +115,11 @@ export class DatePicker extends PickerBase {
     this.prototype.default_view = DatePickerView
 
     this.define<DatePicker.Props>(({Nullable}) => ({
-      value:          [ Nullable(DateString), null ],
-      min_date:       [ Nullable(DateString), null ],
-      max_date:       [ Nullable(DateString), null ],
-      disabled_dates: [ Nullable(DatesList), null ],
-      enabled_dates:  [ Nullable(DatesList), null ],
+      value:          [ Nullable(DateLike), null ],
+      min_date:       [ Nullable(DateLike), null ],
+      max_date:       [ Nullable(DateLike), null ],
+      disabled_dates: [ Nullable(DateLikeList), null ],
+      enabled_dates:  [ Nullable(DateLikeList), null ],
       date_format:    [ String, "Y-m-d" ],
     }))
   }
