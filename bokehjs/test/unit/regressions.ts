@@ -21,8 +21,20 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
 
+import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
+
+class QualifiedModelView extends UIElementView {
+  declare model: QualifiedModel
+}
+class QualifiedModel extends UIElement {
+  declare __view_type__: QualifiedModelView
+  static override __module__ = "some.external.provider"
+  static {
+    this.prototype.default_view = QualifiedModelView
+  }
+}
 
 function data_url(data: string, mime: string, encoding: string = "base64") {
   return `data:${mime};${encoding},${data}`
@@ -612,6 +624,15 @@ describe("Bug", () => {
       expect(events[0].origin).to.be.equal(p0)
       expect(events[1].origin).to.be.equal(p1)
       expect(events[2].origin).to.be.equal(p2)
+    })
+  })
+
+  describe("in issue #12797", () => {
+    it("allows UIElement with qualified type to use invalid characters in CSS classes", async () => {
+      const obj = new QualifiedModel()
+      const {view} = await display(obj, [200, 200])
+      const cls = "bk-some-external-provider-QualifiedModel"
+      expect(view.el.classList.contains(cls)).to.be.true
     })
   })
 })
