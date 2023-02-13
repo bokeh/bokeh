@@ -15,15 +15,16 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
-                          ColumnDataSource, DataTable, DatePicker, DateRangeSlider,
-                          DateSlider, Dialog, Div, Dropdown, Examiner, GroupBox,
-                          HelpButton, IntEditor, Menu, MultiChoice, MultiSelect,
+                          ColumnDataSource, DataTable, DatePicker, DateRangePicker,
+                          DateRangeSlider, DateSlider, Dialog, Div, Dropdown,
+                          Examiner, GroupBox, HelpButton, IntEditor, Menu,
+                          MultiChoice, MultipleDatePicker, MultiSelect,
                           NumberEditor, NumberFormatter, Paragraph, PasswordInput,
                           PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
-                          Select, SelectEditor, SetValue, Slider, Spinner, StringEditor,
-                          StringFormatter, SVGIcon, Switch, TableColumn, TablerIcon,
-                          TabPanel, Tabs, TextAreaInput, TextInput, Toggle, Tooltip,
-                          DateRangePicker, MultipleDatePicker)
+                          Select, SelectEditor, SetValue, Slider, Spinner,
+                          StringEditor, StringFormatter, SVGIcon, Switch,
+                          TableColumn, TablerIcon, TabPanel, Tabs, TextAreaInput,
+                          TextInput, TimePicker, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.resources import INLINE
@@ -115,6 +116,8 @@ date_range_picker = DateRangePicker(title="Range:", width=400)
 
 multiple_date_picker = MultipleDatePicker(title="Multiple:", width=400)
 
+time_picker = TimePicker(title="Time:")
+
 checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
 
 checkbox_1 = Checkbox(active=True, label="Active checkbox")
@@ -203,7 +206,8 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker, date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,
+            spinner, color_picker,
+            date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker, time_picker,
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),

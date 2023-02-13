@@ -5853,6 +5853,13 @@
   TimePicker: {
     __extends__: "PickerBase",
     value: null,
+    min_time: null,
+    max_time: null,
+    time_format: "H:i",
+    hour_increment: 1,
+    minute_increment: 1,
+    seconds: false,
+    am_pm: false,
   },
   ColorPicker: {
     __extends__: "InputWidget",
