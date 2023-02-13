@@ -1208,7 +1208,13 @@ class Ray(XYGlyph, LineGlyph):
     """)
 
 class Rect(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
-    ''' Render rectangles.
+    ''' Render rectangles, characterised by x and y position, width, height,
+    and angle of rotation.
+
+    .. warning::
+        ``Rect`` glyphs are not well defined on logarithmic scales. Use
+        :class:`~bokeh.models.Block` or :class:`~bokeh.models.Quad` glyphs
+        instead.
 
     '''
 
