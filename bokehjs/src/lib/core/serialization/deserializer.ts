@@ -12,8 +12,8 @@ import {Slice} from "../util/slice"
 import {Value, Field, Expr} from "../vectorization"
 
 import {
-  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, TypedArrayRep,
-  NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
+  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
+  TypedArrayRep, NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
 export type Decoder = (rep: any, deserializer: Deserializer) => unknown
@@ -108,6 +108,8 @@ export class Deserializer {
             return this._decode_bytes(obj as BytesRep)
           case "slice":
             return this._decode_slice(obj as SliceRep)
+          case "date":
+            return this._decode_date(obj as DateRep)
           case "value":
             return this._decode_value(obj as ValueRep)
           case "field":
@@ -218,6 +220,11 @@ export class Deserializer {
     const stop = this._decode(obj.stop) as number | null
     const step = this._decode(obj.step) as number | null
     return new Slice({start, stop, step})
+  }
+
+  protected _decode_date(obj: DateRep): Date {
+    const iso = this._decode(obj.iso) as string
+    return new Date(iso)
   }
 
   protected _decode_value(obj: ValueRep): Value<unknown> {

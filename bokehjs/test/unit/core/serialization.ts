@@ -167,6 +167,11 @@ describe("core/serialization module", () => {
       })
     })
 
+    it("that supports Date instances", () => {
+      const iso = "2023-02-13T13:48:29.712Z"
+      expect(to_serializable(new Date(iso))).to.be.equal({rep: {type: "date", iso}, json: `{"type":"date","iso":"${iso}"}`})
+    })
+
     it("should support ArrayBuffer instances", () => {
       const buf0 = new Uint8Array([0, 1, 2, 3, 4, 5, 6]).buffer
       expect(to_serializable(buf0)).to.be.equal({
@@ -290,7 +295,17 @@ describe("core/serialization module", () => {
   })
 
   describe("implements deserialization protocol", () => {
-    it("should support ndarrays", () => {
+    it("that supports Date instances", () => {
+      const iso = "2023-02-13T13:48:29.712Z"
+
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+
+      const val = deserializer.decode({type: "date", iso})
+      expect(val).to.be.equal(new Date(iso))
+    })
+
+    it("that supports ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 
       const rep = {

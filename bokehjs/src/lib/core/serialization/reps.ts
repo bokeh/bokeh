@@ -2,7 +2,7 @@ import {ByteOrder, DataType, NDDataType} from "../types"
 import {Ref} from "../util/refs"
 import {Buffer} from "./buffer"
 
-export type AnyVal = null | boolean | number | string | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
+export type AnyVal = null | boolean | number | string | Date | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
 export type AnyRep = SymbolRep | NumberRep | ArrayRep | SetRep | MapRep | BytesRep | TypedArrayRep | NDArrayRep | ObjectRep | ObjectRefRep
 
 export type SymbolRep = {
@@ -42,6 +42,11 @@ export type SliceRep = {
   start: number | null
   stop: number | null
   step: number | null
+}
+
+export type DateRep = {
+  type: "date"
+  iso: string
 }
 
 export type ValueRep = {
