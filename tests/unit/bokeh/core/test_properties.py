@@ -130,6 +130,7 @@ ALL = (
     'String',
     'StringSpec',
     'Struct',
+    'Time',
     'TimeDelta',
     'TextAlignSpec',
     'TextBaselineSpec',

@@ -39,6 +39,7 @@ import bokeh.core.property.datetime as bcpd # isort:skip
 ALL = (
     'Date',
     'Datetime',
+    'Time',
     'TimeDelta',
 )
 
@@ -135,6 +136,36 @@ class Test_Datetime:
     def test_str(self) -> None:
         prop = bcpd.Datetime()
         assert str(prop) == "Datetime"
+
+class Test_Time:
+    def test_valid(self) -> None:
+        prop = bcpd.Time()
+        assert prop.is_valid(datetime.time(19, 34, 57))
+        assert prop.is_valid("19:34:57")
+
+    def test_invalid(self) -> None:
+        prop = bcpd.Time()
+        assert not prop.is_valid(None)
+        assert not prop.is_valid(datetime.datetime(2020, 1, 11, 19, 34, 57))
+        assert not prop.is_valid(datetime.date(2020, 1, 11))
+        assert not prop.is_valid("")
+        assert not prop.is_valid("02 01 2019")
+        assert not prop.is_valid(False)
+        assert not prop.is_valid(True)
+        assert not prop.is_valid(1.0+1.0j)
+        assert not prop.is_valid(())
+        assert not prop.is_valid([])
+        assert not prop.is_valid({})
+        assert not prop.is_valid(_TestHasProps())
+        assert not prop.is_valid(_TestModel())
+
+    def test_has_ref(self) -> None:
+        prop = bcpd.Time()
+        assert not prop.has_ref
+
+    def test_str(self) -> None:
+        prop = bcpd.Time()
+        assert str(prop) == "Time"
 
 # TODO (bev) class Test_TimeDelta(object)
 
