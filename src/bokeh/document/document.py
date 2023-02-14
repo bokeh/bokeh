@@ -734,7 +734,7 @@ class Document:
             roots=roots,
         )
 
-        self.models.flush()
+        self.models.flush_synced()
         return doc_json
 
     def unhold(self) -> None:
