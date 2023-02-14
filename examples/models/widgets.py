@@ -116,7 +116,7 @@ date_range_picker = DateRangePicker(title="Range:", width=400)
 
 multiple_date_picker = MultipleDatePicker(title="Multiple:", width=400)
 
-time_picker = TimePicker(title="Time:")
+time_picker = TimePicker(title="Time:", seconds=True, second_increment=5)
 
 checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
 

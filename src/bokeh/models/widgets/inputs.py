@@ -680,6 +680,10 @@ class TimePicker(PickerBase):
     Defines the granularity of minute value incremements in the UI.
     """)
 
+    second_increment = Positive(Int)(default=1, help="""
+    Defines the granularity of second value incremements in the UI.
+    """)
+
     seconds = Bool(default=False, help="""
     Allows to select seconds. By default only hours and minuts are
     selectable, and AM/PM depending on ``am_pm`` option.

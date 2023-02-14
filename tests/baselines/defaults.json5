@@ -5858,6 +5858,7 @@
     time_format: "H:i",
     hour_increment: 1,
     minute_increment: 1,
+    second_increment: 1,
     seconds: false,
     am_pm: false,
   },
