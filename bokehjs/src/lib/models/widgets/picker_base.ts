@@ -38,7 +38,6 @@ export abstract class PickerBaseView extends InputWidgetView {
   protected get flatpickr_options(): flatpickr.Options.Options {
     return {
       appendTo: this.group_el,
-      positionElement: this.input_el,
       inline: this.model.inline,
       position: this._position.bind(this),
       onChange: (selected_dates, date_string) => {

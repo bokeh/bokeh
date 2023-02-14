@@ -36,7 +36,7 @@ export abstract class BaseDatePickerView extends PickerBaseView {
       const {enabled_dates} = this.model
       this._picker?.set("enable", enabled_dates != null ? this._convert_date_list(enabled_dates) : undefined)
     })
-    this.connect(date_format.change, () => this._picker?.set("dateFormat", this.model.date_format))
+    this.connect(date_format.change, () => this._picker?.set("altFormat", this.model.date_format))
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
@@ -44,7 +44,8 @@ export abstract class BaseDatePickerView extends PickerBaseView {
 
     const options = super.flatpickr_options
 
-    options.dateFormat = date_format
+    options.altInput = true
+    options.altFormat = date_format
 
     if (value != null) {
       options.defaultDate = value

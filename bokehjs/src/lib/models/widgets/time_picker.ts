@@ -28,7 +28,7 @@ export class TimePickerView extends PickerBaseView {
     })
     this.connect(min_time.change, () => this._picker?.set("minTime", this.model.min_time))
     this.connect(max_time.change, () => this._picker?.set("maxTime", this.model.max_time))
-    this.connect(time_format.change, () => this._picker?.set("dateFormat", this.model.time_format))
+    this.connect(time_format.change, () => this._picker?.set("altFormat", this.model.time_format))
     this.connect(hour_increment.change, () => this._picker?.set("hourIncrement", this.model.hour_increment))
     this.connect(minute_increment.change, () => this._picker?.set("minuteIncrement", this.model.minute_increment))
     this.connect(second_increment.change, () => this._update_second_increment())
@@ -44,7 +44,9 @@ export class TimePickerView extends PickerBaseView {
     options.enableTime = true
     options.noCalendar = true
 
-    options.dateFormat = time_format
+    options.altInput = true
+    options.altFormat = time_format
+
     options.hourIncrement = hour_increment
     options.minuteIncrement = minute_increment
     options.enableSeconds = seconds
