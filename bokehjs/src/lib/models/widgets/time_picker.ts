@@ -3,12 +3,18 @@ import flatpickr from "flatpickr"
 import {PickerBase, PickerBaseView} from "./picker_base"
 import {String} from "core/kinds"
 import * as p from "core/properties"
+import {assert} from "core/util/assert"
 
 export type TimeLike = typeof TimeLike["__type__"]
 export const TimeLike = String
 
 export class TimePickerView extends PickerBaseView {
   declare model: TimePicker
+
+  protected _format_time(date: Date): string {
+    const {picker} = this
+    return picker.formatDate(date, picker.config.dateFormat)
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -46,6 +52,7 @@ export class TimePickerView extends PickerBaseView {
 
     options.altInput = true
     options.altFormat = time_format
+    options.dateFormat = "H:i:S"
 
     options.hourIncrement = hour_increment
     options.minuteIncrement = minute_increment
@@ -75,8 +82,22 @@ export class TimePickerView extends PickerBaseView {
     this.picker.secondElement!.setAttribute("step", second_increment.toString())
   }
 
-  protected _on_change(_selected_dates: Date[], date_string: string): void {
-    this.model.value = date_string
+  protected _on_change(selected: Date[]): void {
+    switch (selected.length) {
+      case 0: {
+        this.model.value = null
+        break
+      }
+      case 1: {
+        const [datetime] = selected
+        const time = this._format_time(datetime)
+        this.model.value = time
+        break
+      }
+      default: {
+        assert(false, "invalid length")
+      }
+    }
   }
 }
 

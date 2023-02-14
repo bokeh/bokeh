@@ -14,6 +14,11 @@ export const DateLikeList = Array(Or(DateLike, Tuple(DateLike, DateLike), Struct
 export abstract class BaseDatePickerView extends PickerBaseView {
   declare model: BaseDatePicker
 
+  protected _format_date(date: Date): string {
+    const {picker} = this
+    return picker.formatDate(date, picker.config.dateFormat)
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
@@ -46,6 +51,7 @@ export abstract class BaseDatePickerView extends PickerBaseView {
 
     options.altInput = true
     options.altFormat = date_format
+    options.dateFormat = "Y-m-d"
 
     if (value != null) {
       options.defaultDate = value
@@ -77,11 +83,6 @@ export abstract class BaseDatePickerView extends PickerBaseView {
       }
     }
     return result
-  }
-
-  protected _format_date(date: Date): string {
-    const {picker} = this
-    return picker.formatDate(date, picker.config.dateFormat)
   }
 }
 

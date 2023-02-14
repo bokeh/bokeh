@@ -14,8 +14,8 @@ export class MultipleDatePickerView extends BaseDatePickerView {
     }
   }
 
-  protected override _on_change(selected_dates: Date[], _date_string: string): void {
-    this.model.value = selected_dates.map((date) => this._format_date(date))
+  protected override _on_change(selected: Date[]): void {
+    this.model.value = selected.map((datetime) => this._format_date(datetime))
   }
 }
 

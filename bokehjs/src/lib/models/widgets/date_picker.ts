@@ -14,9 +14,22 @@ export class DatePickerView extends BaseDatePickerView {
     }
   }
 
-  protected _on_change(selected_dates: Date[], _date_string: string): void {
-    assert(selected_dates.length == 1)
-    this.model.value = this._format_date(selected_dates[0])
+  protected _on_change(selected: Date[]): void {
+    switch (selected.length) {
+      case 0: {
+        this.model.value = null
+        break
+      }
+      case 1: {
+        const [datetime] = selected
+        const date = this._format_date(datetime)
+        this.model.value = date
+        break
+      }
+      default: {
+        assert(false, "invalid length")
+      }
+    }
   }
 }
 

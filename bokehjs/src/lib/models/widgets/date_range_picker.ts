@@ -14,22 +14,22 @@ export class DateRangePickerView extends BaseDatePickerView {
     }
   }
 
-  protected override _on_change(selected_dates: Date[], _date_string: string): void {
-    switch (selected_dates.length) {
+  protected override _on_change(selected: Date[]): void {
+    switch (selected.length) {
       case 0:
         this.model.value = null
         break
       case 1: {
-        const [date] = selected_dates
-        const date_str = this._format_date(date)
-        this.model.value = [date_str, date_str]
+        const [datetime] = selected
+        const date = this._format_date(datetime)
+        this.model.value = [date, date]
         break
       }
       case 2: {
-        const [from, to] = selected_dates
-        const from_str = this._format_date(from)
-        const to_str = this._format_date(to)
-        this.model.value = [from_str, to_str]
+        const [from, to] = selected
+        const from_date = this._format_date(from)
+        const to_date = this._format_date(to)
+        this.model.value = [from_date, to_date]
         break
       }
       default: {
