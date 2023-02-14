@@ -607,10 +607,6 @@ class DateRangePicker(BaseDatePicker):
     The initial or picked date range.
     """)
 
-    conjunction = String(default=" :: ", help="""
-    The separator between displayed dates.
-    """)
-
 class MultipleDatePicker(BaseDatePicker):
     """ Calendar-based picker of dates. """
 

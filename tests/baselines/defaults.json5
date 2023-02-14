@@ -5839,7 +5839,6 @@
   DateRangePicker: {
     __extends__: "BaseDatePicker",
     value: null,
-    conjunction: " :: ",
   },
   MultipleDatePicker: {
     __extends__: "BaseDatePicker",

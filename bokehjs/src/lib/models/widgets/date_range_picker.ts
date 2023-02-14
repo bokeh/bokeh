@@ -11,7 +11,6 @@ export class DateRangePickerView extends BaseDatePickerView {
     return {
       ...super.flatpickr_options,
       mode: "range",
-      conjunction: this.model.conjunction,
     }
   }
 
@@ -43,9 +42,7 @@ export class DateRangePickerView extends BaseDatePickerView {
 export namespace DateRangePicker {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = BaseDatePicker.Props & {
-    conjunction: p.Property<string>
-  }
+  export type Props = BaseDatePicker.Props
 }
 
 export interface DateRangePicker extends DateRangePicker.Attrs {}
@@ -63,9 +60,8 @@ export class DateRangePicker extends BaseDatePicker {
   static {
     this.prototype.default_view = DateRangePickerView
 
-    this.define<DateRangePicker.Props>(({String, Tuple, Nullable}) => ({
+    this.define<DateRangePicker.Props>(({Tuple, Nullable}) => ({
       value: [ Nullable(Tuple(DateLike, DateLike)), null ],
-      conjunction: [ String, " :: " ],
     }))
   }
 }
