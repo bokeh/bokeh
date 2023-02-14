@@ -10,7 +10,7 @@ export class MultipleDatePickerView extends BaseDatePickerView {
     return {
       ...super.flatpickr_options,
       mode: "multiple",
-      conjunction: this.model.conjunction,
+      conjunction: this.model.separator,
     }
   }
 
@@ -23,7 +23,7 @@ export namespace MultipleDatePicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BaseDatePicker.Props & {
-    conjunction: p.Property<string>
+    separator: p.Property<string>
   }
 }
 
@@ -44,7 +44,7 @@ export class MultipleDatePicker extends BaseDatePicker {
 
     this.define<MultipleDatePicker.Props>(({String, Array}) => ({
       value: [ Array(DateLike), [] ],
-      conjunction: [ String, ", " ],
+      separator: [ String, ", " ],
     }))
   }
 }

@@ -618,7 +618,7 @@ class MultipleDatePicker(BaseDatePicker):
     The initial or picked dates.
     """)
 
-    conjunction = String(default=", ", help="""
+    separator = String(default=", ", help="""
     The separator between displayed dates.
     """)
 

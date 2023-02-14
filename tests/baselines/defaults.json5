@@ -5843,7 +5843,7 @@
   MultipleDatePicker: {
     __extends__: "BaseDatePicker",
     value: [],
-    conjunction: ", ",
+    separator: ", ",
   },
   DatetimePicker: {
     __extends__: "BaseDatePicker",
