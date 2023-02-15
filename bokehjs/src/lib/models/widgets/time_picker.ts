@@ -27,19 +27,19 @@ export class TimePickerView extends PickerBaseView {
     this.connect(value.change, () => {
       const {value} = this.model
       if (value != null) {
-        this._picker?.setDate(value)
+        this.picker.setDate(value)
       } else {
-        this._picker?.clear()
+        this.picker.clear()
       }
     })
-    this.connect(min_time.change, () => this._picker?.set("minTime", this.model.min_time))
-    this.connect(max_time.change, () => this._picker?.set("maxTime", this.model.max_time))
-    this.connect(time_format.change, () => this._picker?.set("altFormat", this.model.time_format))
-    this.connect(hour_increment.change, () => this._picker?.set("hourIncrement", this.model.hour_increment))
-    this.connect(minute_increment.change, () => this._picker?.set("minuteIncrement", this.model.minute_increment))
+    this.connect(min_time.change, () => this.picker.set("minTime", this.model.min_time))
+    this.connect(max_time.change, () => this.picker.set("maxTime", this.model.max_time))
+    this.connect(time_format.change, () => this.picker.set("altFormat", this.model.time_format))
+    this.connect(hour_increment.change, () => this.picker.set("hourIncrement", this.model.hour_increment))
+    this.connect(minute_increment.change, () => this.picker.set("minuteIncrement", this.model.minute_increment))
     this.connect(second_increment.change, () => this._update_second_increment())
-    this.connect(seconds.change, () => this._picker?.set("enableSeconds", this.model.seconds))
-    this.connect(am_pm.change, () => this._picker?.set("time_24hr", this.model.am_pm))
+    this.connect(seconds.change, () => this.picker.set("enableSeconds", this.model.seconds))
+    this.connect(am_pm.change, () => this.picker.set("time_24hr", this.model.am_pm))
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {

@@ -32,7 +32,7 @@ export abstract class PickerBaseView extends InputWidgetView {
     super.connect_signals()
 
     const {inline} = this.model.properties
-    this.connect(inline.change, () => this._picker?.set("inline", this.model.inline))
+    this.connect(inline.change, () => this.picker.set("inline", this.model.inline))
   }
 
   protected get flatpickr_options(): flatpickr.Options.Options {

@@ -26,22 +26,22 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     this.connect(value.change, () => {
       const {value} = this.model
       if (value != null) {
-        this._picker?.setDate(value)
+        this.picker.setDate(value)
       } else {
-        this._picker?.clear()
+        this.picker.clear()
       }
     })
-    this.connect(min_date.change, () => this._picker?.set("minDate", this.model.min_date))
-    this.connect(max_date.change, () => this._picker?.set("maxDate", this.model.max_date))
+    this.connect(min_date.change, () => this.picker.set("minDate", this.model.min_date))
+    this.connect(max_date.change, () => this.picker.set("maxDate", this.model.max_date))
     this.connect(disabled_dates.change, () => {
       const {disabled_dates} = this.model
-      this._picker?.set("disable", disabled_dates != null ? this._convert_date_list(disabled_dates) : undefined)
+      this.picker.set("disable", disabled_dates != null ? this._convert_date_list(disabled_dates) : undefined)
     })
     this.connect(enabled_dates.change, () => {
       const {enabled_dates} = this.model
-      this._picker?.set("enable", enabled_dates != null ? this._convert_date_list(enabled_dates) : undefined)
+      this.picker.set("enable", enabled_dates != null ? this._convert_date_list(enabled_dates) : undefined)
     })
-    this.connect(date_format.change, () => this._picker?.set("altFormat", this.model.date_format))
+    this.connect(date_format.change, () => this.picker.set("altFormat", this.model.date_format))
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
