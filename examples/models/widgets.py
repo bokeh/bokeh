@@ -9,16 +9,16 @@ buttons, groups, inputs, panels, sliders, and tables, using the low-level
     :keywords: widgets, select, button, slider, figure
 
 ''' # noqa: E501
-from datetime import date
+from datetime import date, datetime, time
 
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
-                          ColumnDataSource, DataTable, DatePicker, DatetimePicker,
-                          DateRangePicker, DatetimeRangePicker, DateRangeSlider,
-                          DateSlider, Dialog, Div, Dropdown, Examiner, GroupBox,
-                          HelpButton, IntEditor, Menu, MultiChoice,
+                          ColumnDataSource, DataTable, DatePicker, DateRangePicker,
+                          DateRangeSlider, DateSlider, DatetimePicker,
+                          DatetimeRangePicker, Dialog, Div, Dropdown, Examiner,
+                          GroupBox, HelpButton, IntEditor, Menu, MultiChoice,
                           MultipleDatePicker, MultipleDatetimePicker, MultiSelect,
                           NumberEditor, NumberFormatter, Paragraph, PasswordInput,
                           PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
@@ -111,6 +111,8 @@ color_picker = ColorPicker(color="red", title="Choose color:", description=toolt
 
 time_picker = TimePicker(title="Time:", seconds=True, second_increment=5)
 
+time_picker_with_a_value = TimePicker(title="Time:", value=time(14, 53, 21), time_format="h:i:S K", seconds=True, second_increment=5)
+
 date_picker = DatePicker(title="Single date:", date_format="F j, Y")
 
 date_picker_with_a_value = DatePicker(title="Single date:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
@@ -121,7 +123,7 @@ multiple_date_picker = MultipleDatePicker(title="Multiple dates:", width=400)
 
 datetime_picker = DatetimePicker(title="Single date and time:", date_format="F j, Y")
 
-datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=datetime(2022, 2, 8, 14, 53, 21), min_date=date(2022, 2, 1))
 
 datetime_range_picker = DatetimeRangePicker(title="Date and time range:", width=400)
 
@@ -215,7 +217,8 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker, time_picker,
+            spinner, color_picker,
+            time_picker, time_picker_with_a_value,
             date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,
             datetime_picker, datetime_picker_with_a_value, datetime_range_picker, multiple_datetime_picker,
             checkbox_0,

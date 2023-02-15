@@ -1,12 +1,12 @@
 import flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
-import {String} from "core/kinds"
+import {String, Number, Or} from "core/kinds"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 
 export type TimeLike = typeof TimeLike["__type__"]
-export const TimeLike = String
+export const TimeLike = Or(String, Number)
 
 export class TimePickerView extends PickerBaseView {
   declare model: TimePicker
