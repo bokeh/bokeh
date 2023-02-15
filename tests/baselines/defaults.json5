@@ -5819,10 +5819,44 @@
     placeholder: null,
     solid: true,
   },
+  ColorPicker: {
+    __extends__: "InputWidget",
+    color: "#000000",
+  },
+  Markup: {
+    __extends__: "Widget",
+    text: "",
+    disable_math: false,
+  },
+  Paragraph: {
+    __extends__: "Markup",
+  },
+  Div: {
+    __extends__: "Markup",
+    render_as_text: false,
+  },
+  PreText: {
+    __extends__: "Paragraph",
+  },
   PickerBase: {
     __extends__: "InputWidget",
     position: "auto",
     inline: false,
+  },
+  BaseTimePicker: {
+    __extends__: "PickerBase",
+    min_time: null,
+    max_time: null,
+    hour_increment: 1,
+    minute_increment: 1,
+    second_increment: 1,
+    seconds: false,
+    am_pm: false,
+  },
+  TimePicker: {
+    __extends__: "BaseTimePicker",
+    value: null,
+    time_format: "H:i",
   },
   BaseDatePicker: {
     __extends__: "PickerBase",
@@ -5845,40 +5879,25 @@
     value: [],
     separator: ", ",
   },
+  BaseDatetimePicker: {
+    __extends__: [
+      "BaseDatePicker",
+      "BaseTimePicker",
+    ],
+    date_format: "Y-m-d H:i",
+  },
   DatetimePicker: {
-    __extends__: "BaseDatePicker",
+    __extends__: "BaseDatetimePicker",
     value: null,
   },
-  TimePicker: {
-    __extends__: "PickerBase",
+  DatetimeRangePicker: {
+    __extends__: "BaseDatetimePicker",
     value: null,
-    min_time: null,
-    max_time: null,
-    time_format: "H:i",
-    hour_increment: 1,
-    minute_increment: 1,
-    second_increment: 1,
-    seconds: false,
-    am_pm: false,
   },
-  ColorPicker: {
-    __extends__: "InputWidget",
-    color: "#000000",
-  },
-  Markup: {
-    __extends__: "Widget",
-    text: "",
-    disable_math: false,
-  },
-  Paragraph: {
-    __extends__: "Markup",
-  },
-  Div: {
-    __extends__: "Markup",
-    render_as_text: false,
-  },
-  PreText: {
-    __extends__: "Paragraph",
+  MultipleDatetimePicker: {
+    __extends__: "BaseDatetimePicker",
+    value: [],
+    separator: ", ",
   },
   AbstractSlider: {
     __extends__: "Widget",
