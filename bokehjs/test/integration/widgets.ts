@@ -249,7 +249,7 @@ describe("Widgets", () => {
     const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
     const {view} = await display(obj, [500, 400])
 
-    const input_el = view.shadow_el.querySelector(".bk-input")!
+    const input_el = view.picker._input
     const {left, top} = input_el.getBoundingClientRect()
 
     const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
