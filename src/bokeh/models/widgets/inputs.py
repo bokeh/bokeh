@@ -21,13 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import CalendarPosition
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     ColorHex,
-    Date,
-    Datetime,
     Dict,
     Either,
     Enum,
@@ -43,7 +40,6 @@ from ...core.properties import (
     Positive,
     Readonly,
     String,
-    Time,
     Tuple,
 )
 from ..formatters import TickFormatter
@@ -58,16 +54,10 @@ __all__ = (
     'AutocompleteInput',
     'Checkbox',
     'ColorPicker',
-    'DatePicker',
-    'DateRangePicker',
-    'DatetimePicker',
-    'DatetimeRangePicker',
     'FileInput',
     'InputWidget',
     'MultiChoice',
     'MultiSelect',
-    'MultipleDatePicker',
-    'MultipleDatetimePicker',
     'NumericInput',
     'PasswordInput',
     'Select',
@@ -75,7 +65,6 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
-    'TimePicker',
 )
 
 #-----------------------------------------------------------------------------
@@ -511,232 +500,6 @@ class MultiChoice(InputWidget):
 
     solid = Bool(default=True, help="""
     Specify whether the choices should be solidly filled.""")
-
-@abstract
-class PickerBase(InputWidget):
-    """ """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    position = Enum(CalendarPosition, default="auto", help="""
-    Where the calendar is rendered relative to the input when ``inline`` is False.
-    """)
-
-    inline = Bool(default=False, help="""
-    Whether the calendar sholud be displayed inline.
-    """)
-
-@abstract
-class BaseTimePicker(PickerBase):
-    """ Base class for time picker widgets. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    min_time = Nullable(Time)(default=None, help="""
-    Optional earliest allowable time.
-    """)
-
-    max_time = Nullable(Time)(default=None, help="""
-    Optional latest allowable time.
-    """)
-
-    hour_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of hour value incremements in the UI.
-    """)
-
-    minute_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of minute value incremements in the UI.
-    """)
-
-    second_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of second value incremements in the UI.
-    """)
-
-    seconds = Bool(default=False, help="""
-    Allows to select seconds. By default only hours and minuts are
-    selectable, and AM/PM depending on ``am_pm`` option.
-    """)
-
-    am_pm = Bool(default=False, help="""
-    Whether to use 12 hour or 24 hour clock.
-    """)
-
-class TimePicker(BaseTimePicker):
-    """ Widget for picking time. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Nullable(Time, default=None, help="""
-    The initial or picked time.
-    """)
-
-    time_format = String(default="H:i", help="""
-    Formatting specification for the display of the picked date.
-
-    +---+------------------------------------+------------+
-    | H | Hours (24 hours)                   | 00 to 23   |
-    | h | Hours                              | 1 to 12    |
-    | G | Hours, 2 digits with leading zeros | 1 to 12    |
-    | i | Minutes                            | 00 to 59   |
-    | S | Seconds, 2 digits                  | 00 to 59   |
-    | s | Seconds                            | 0, 1 to 59 |
-    | K | AM/PM                              | AM or PM   |
-    +---+------------------------------------+------------+
-
-    See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
-    """)
-
-@abstract
-class BaseDatePicker(PickerBase):
-    """ Bases for various calendar-based date picker widgets.
-
-    """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    min_date = Nullable(Date, default=None, help="""
-    Optional earliest allowable date.
-    """)
-
-    max_date = Nullable(Date, default=None, help="""
-    Optional latest allowable date.
-    """)
-
-    disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
-    A list of dates of ``(start, end)`` date ranges to make unavailable for
-    selection. All other dates will be avalable.
-
-    .. note::
-        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
-    """)
-
-    enabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
-    A list of dates of ``(start, end)`` date ranges to make available for
-    selection. All other dates will be unavailable.
-
-    .. note::
-        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
-    """)
-
-    date_format = String(default="Y-m-d", help="""
-    Formatting specification for the display of the picked date.
-
-    +---+-----------------------------------------------------------+-----------------------------------------+
-    | d | Day of the month, 2 digits with leading zeros             | 01 to 31                                |
-    | D | A textual representation of a day                         | Mon through Sun                         |
-    | l | A full textual representation of the day of the week      | Sunday through Saturday                 |
-    | j | Day of the month without leading zeros                    | 1 to 31                                 |
-    | J | Day of the month without leading zeros and ordinal suffix | 1st, 2nd, to 31st                       |
-    | w | Numeric representation of the day of the week             | 0 (for Sunday) through 6 (for Saturday) |
-    | W | Numeric representation of the week                        | 0 through 52                            |
-    | F | A full textual representation of a month                  | January through December                |
-    | m | Numeric representation of a month, with leading zero      | 01 through 12                           |
-    | n | Numeric representation of a month, without leading zeros  | 1 through 12                            |
-    | M | A short textual representation of a month                 | Jan through Dec                         |
-    | U | The number of seconds since the Unix Epoch                | 1413704993                              |
-    | y | A two digit representation of a year                      | 99 or 03                                |
-    | Y | A full numeric representation of a year, 4 digits         | 1999 or 2003                            |
-    | Z | ISO Date format                                           | 2017-03-04T01:23:43.000Z                |
-    +---+-----------------------------------------------------------+-----------------------------------------+
-
-    See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
-    """)
-
-class DatePicker(BaseDatePicker):
-    """ Calendar-based date picker widget.
-
-    """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Nullable(Date, default=None, help="""
-    The initial or picked date.
-    """)
-
-class DateRangePicker(BaseDatePicker):
-    """ Calendar-based picker of date ranges. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Nullable(Tuple(Date, Date), default=None, help="""
-    The initial or picked date range.
-    """)
-
-class MultipleDatePicker(BaseDatePicker):
-    """ Calendar-based picker of dates. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = List(Date, default=[], help="""
-    The initial or picked dates.
-    """)
-
-    separator = String(default=", ", help="""
-    The separator between displayed dates.
-    """)
-
-@abstract
-class BaseDatetimePicker(BaseDatePicker, BaseTimePicker):
-    """ Bases for various calendar-based datetime picker widgets.
-
-    """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-class DatetimePicker(BaseDatePicker):
-    """ Calendar-based date and time picker widget.
-
-    """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Nullable(Datetime, default=None, help="""
-    The initial or picked date and time.
-    """)
-
-class DatetimeRangePicker(BaseDatetimePicker):
-    """ Calendar-based picker of date and time ranges. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Nullable(Tuple(Datetime, Datetime), default=None, help="""
-    The initial or picked date and time range.
-    """)
-
-class MultipleDatetimePicker(BaseDatetimePicker):
-    """ Calendar-based picker of dates and times. """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = List(Datetime, default=[], help="""
-    The initial or picked dates and times.
-    """)
-
-    separator = String(default=", ", help="""
-    The separator between displayed dates and times.
-    """)
 
 class ColorPicker(InputWidget):
     ''' Color picker widget.
