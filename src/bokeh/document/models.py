@@ -24,7 +24,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import contextlib
 import weakref
-from typing import TYPE_CHECKING, Generator, Iterator
+from typing import (
+    TYPE_CHECKING,
+    Callable,
+    Generator,
+    Iterator,
+)
 
 # Bokeh imports
 from ..core.types import ID
@@ -172,9 +177,12 @@ class DocumentModelManager:
     def synced_references(self) -> set[Model]:
         return set(model for model in self._models.values() if model not in self._new_models)
 
-    def flush(self) -> None:
+    def flush_synced(self, is_still_new: Callable[[Model], bool] | None = None) -> None:
         ''' Clean up transient state of the document's models. '''
-        self._new_models.clear()
+        if is_still_new is None:
+            self._new_models.clear()
+        else:
+            self._new_models = set(new_model for new_model in self._new_models if is_still_new(new_model))
 
     def invalidate(self) -> None:
         ''' Recompute the set of all models, if not currently frozen

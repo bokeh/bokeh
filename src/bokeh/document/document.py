@@ -374,6 +374,8 @@ class Document:
             # TODO: assert isinstance(event, DocumentPatchedEvent)
             DocumentPatchedEvent.handle_event(self, event, setter)
 
+        self.models.flush_synced(lambda model: not deserializer.has_ref(model))
+
     def clear(self) -> None:
         ''' Remove all content from the document but do not reset title.
 
@@ -734,7 +736,7 @@ class Document:
             roots=roots,
         )
 
-        self.models.flush()
+        self.models.flush_synced()
         return doc_json
 
     def unhold(self) -> None:

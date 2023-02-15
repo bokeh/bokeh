@@ -21,8 +21,11 @@ import gc
 from unittest.mock import MagicMock, patch
 
 # Bokeh imports
+from bokeh.core.has_props import Local
+from bokeh.core.properties import Instance, Nullable
 from bokeh.core.types import ID
 from bokeh.document import Document
+from bokeh.model import Model
 from bokeh.models import Div, Row
 
 # Module under test
@@ -300,6 +303,52 @@ class TestDocumentModelManager:
         assert set(dm.get_all_by_name("baz")) == {m1, m2, m3}
         assert set(dm.get_all_by_name("foo")) == set()
         assert set(dm.get_all_by_name("bar")) == set()
+
+    def test_flush_synced(self) -> None:
+        class SomeModel(Model, Local):
+            child = Nullable(Instance(Model), default=None)
+
+        child0 = SomeModel()
+        child1 = SomeModel()
+        child2 = SomeModel()
+        d = Document()
+        d.add_root(child0)
+        d.add_root(child1)
+
+        assert d.models._new_models == {child0, child1}
+        assert d.models.synced_references == set()
+        d.models.flush_synced()
+        assert d.models._new_models == set()
+        assert d.models.synced_references == {child0, child1}
+
+        d.add_root(child2)
+        assert d.models._new_models == {child2}
+        assert d.models.synced_references == {child0, child1}
+
+        child2.child = child0
+        assert d.models._new_models == {child2}
+        assert d.models.synced_references == {child0, child1}
+        d.models.flush_synced()
+        assert d.models._new_models == set()
+        assert d.models.synced_references == {child0, child1, child2}
+
+    def test_flush_synced_with_fn(self) -> None:
+        class SomeModel(Model, Local):
+            child = Nullable(Instance(Model), default=None)
+
+        child0 = SomeModel()
+        child1 = SomeModel()
+        child2 = SomeModel(child=child0)
+        d = Document()
+        d.add_root(child0)
+        d.add_root(child1)
+        d.add_root(child2)
+
+        assert d.models._new_models == {child0, child1, child2}
+        assert d.models.synced_references == set()
+        d.models.flush_synced(lambda model: model.child is not None)
+        assert d.models._new_models == {child2}
+        assert d.models.synced_references == {child0, child1}
 
 #-----------------------------------------------------------------------------
 # Dev API

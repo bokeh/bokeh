@@ -58,6 +58,7 @@ class TestPatchDocument:
         another = AnotherModelInTestPatchDoc()
         doc.add_root(SomeModelInTestPatchDoc(child=another))
         doc.add_root(SomeModelInTestPatchDoc())
+        doc.to_json() # clear new model queue
         return doc
 
     def test_create_no_events(self) -> None:
