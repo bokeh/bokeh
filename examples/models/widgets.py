@@ -15,10 +15,11 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
                           CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
-                          ColumnDataSource, DataTable, DatePicker, DateRangePicker,
-                          DateRangeSlider, DateSlider, Dialog, Div, Dropdown,
-                          Examiner, GroupBox, HelpButton, IntEditor, Menu,
-                          MultiChoice, MultipleDatePicker, MultiSelect,
+                          ColumnDataSource, DataTable, DatePicker, DatetimePicker,
+                          DateRangePicker, DatetimeRangePicker, DateRangeSlider,
+                          DateSlider, Dialog, Div, Dropdown, Examiner, GroupBox,
+                          HelpButton, IntEditor, Menu, MultiChoice,
+                          MultipleDatePicker, MultipleDatetimePicker, MultiSelect,
                           NumberEditor, NumberFormatter, Paragraph, PasswordInput,
                           PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
                           Select, SelectEditor, SetValue, Slider, Spinner,
@@ -108,15 +109,23 @@ Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
-date_picker = DatePicker(title="Single:", date_format="F j, Y")
-
-date_picker_with_a_value = DatePicker(title="Single:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
-
-date_range_picker = DateRangePicker(title="Range:", width=400)
-
-multiple_date_picker = MultipleDatePicker(title="Multiple:", width=400)
-
 time_picker = TimePicker(title="Time:", seconds=True, second_increment=5)
+
+date_picker = DatePicker(title="Single date:", date_format="F j, Y")
+
+date_picker_with_a_value = DatePicker(title="Single date:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+
+date_range_picker = DateRangePicker(title="Date range:", width=400)
+
+multiple_date_picker = MultipleDatePicker(title="Multiple dates:", width=400)
+
+datetime_picker = DatetimePicker(title="Single date and time:", date_format="F j, Y")
+
+datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+
+datetime_range_picker = DatetimeRangePicker(title="Date and time range:", width=400)
+
+multiple_datetime_picker = MultipleDatetimePicker(title="Multiple dates and times:", width=400)
 
 checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
 
@@ -206,8 +215,9 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker,
-            date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker, time_picker,
+            spinner, color_picker, time_picker,
+            date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,
+            datetime_picker, datetime_picker_with_a_value, datetime_range_picker, multiple_datetime_picker,
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),

@@ -61,11 +61,13 @@ __all__ = (
     'DatePicker',
     'DateRangePicker',
     'DatetimePicker',
+    'DatetimeRangePicker',
     'FileInput',
     'InputWidget',
     'MultiChoice',
     'MultiSelect',
     'MultipleDatePicker',
+    'MultipleDatetimePicker',
     'NumericInput',
     'PasswordInput',
     'Select',
@@ -526,6 +528,71 @@ class PickerBase(InputWidget):
     Whether the calendar sholud be displayed inline.
     """)
 
+@abstract
+class BaseTimePicker(PickerBase):
+    """ Base class for time picker widgets. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    min_time = Nullable(Time)(default=None, help="""
+    Optional earliest allowable time.
+    """)
+
+    max_time = Nullable(Time)(default=None, help="""
+    Optional latest allowable time.
+    """)
+
+    hour_increment = Positive(Int)(default=1, help="""
+    Defines the granularity of hour value incremements in the UI.
+    """)
+
+    minute_increment = Positive(Int)(default=1, help="""
+    Defines the granularity of minute value incremements in the UI.
+    """)
+
+    second_increment = Positive(Int)(default=1, help="""
+    Defines the granularity of second value incremements in the UI.
+    """)
+
+    seconds = Bool(default=False, help="""
+    Allows to select seconds. By default only hours and minuts are
+    selectable, and AM/PM depending on ``am_pm`` option.
+    """)
+
+    am_pm = Bool(default=False, help="""
+    Whether to use 12 hour or 24 hour clock.
+    """)
+
+class TimePicker(BaseTimePicker):
+    """ Widget for picking time. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Nullable(Time, default=None, help="""
+    The initial or picked time.
+    """)
+
+    time_format = String(default="H:i", help="""
+    Formatting specification for the display of the picked date.
+
+    +---+------------------------------------+------------+
+    | H | Hours (24 hours)                   | 00 to 23   |
+    | h | Hours                              | 1 to 12    |
+    | G | Hours, 2 digits with leading zeros | 1 to 12    |
+    | i | Minutes                            | 00 to 59   |
+    | S | Seconds, 2 digits                  | 00 to 59   |
+    | s | Seconds                            | 0, 1 to 59 |
+    | K | AM/PM                              | AM or PM   |
+    +---+------------------------------------+------------+
+
+    See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
+    """)
+
+@abstract
 class BaseDatePicker(PickerBase):
     """ Bases for various calendar-based date picker widgets.
 
@@ -622,8 +689,20 @@ class MultipleDatePicker(BaseDatePicker):
     The separator between displayed dates.
     """)
 
+@abstract
+class BaseDatetimePicker(BaseDatePicker, BaseTimePicker):
+    """ Bases for various calendar-based datetime picker widgets.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 class DatetimePicker(BaseDatePicker):
-    """ """
+    """ Calendar-based date and time picker widget.
+
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -633,60 +712,30 @@ class DatetimePicker(BaseDatePicker):
     The initial or picked date and time.
     """)
 
-class TimePicker(PickerBase):
-    """ Widget for picking time. """
+class DatetimeRangePicker(BaseDatetimePicker):
+    """ Calendar-based picker of date and time ranges. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    value = Nullable(Time, default=None, help="""
-    The initial or picked time.
+    value = Nullable(Tuple(Datetime, Datetime), default=None, help="""
+    The initial or picked date and time range.
     """)
 
-    min_time = Nullable(Time)(default=None, help="""
-    Optional earliest allowable time.
+class MultipleDatetimePicker(BaseDatetimePicker):
+    """ Calendar-based picker of dates and times. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = List(Datetime, default=[], help="""
+    The initial or picked dates and times.
     """)
 
-    max_time = Nullable(Time)(default=None, help="""
-    Optional latest allowable time.
-    """)
-
-    time_format = String(default="H:i", help="""
-    Formatting specification for the display of the picked date.
-
-    +---+------------------------------------+------------+
-    | H | Hours (24 hours)                   | 00 to 23   |
-    | h | Hours                              | 1 to 12    |
-    | G | Hours, 2 digits with leading zeros | 1 to 12    |
-    | i | Minutes                            | 00 to 59   |
-    | S | Seconds, 2 digits                  | 00 to 59   |
-    | s | Seconds                            | 0, 1 to 59 |
-    | K | AM/PM                              | AM or PM   |
-    +---+------------------------------------+------------+
-
-    See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
-    """)
-
-    hour_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of hour value incremements in the UI.
-    """)
-
-    minute_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of minute value incremements in the UI.
-    """)
-
-    second_increment = Positive(Int)(default=1, help="""
-    Defines the granularity of second value incremements in the UI.
-    """)
-
-    seconds = Bool(default=False, help="""
-    Allows to select seconds. By default only hours and minuts are
-    selectable, and AM/PM depending on ``am_pm`` option.
-    """)
-
-    am_pm = Bool(default=False, help="""
-    Whether to use 12 hour or 24 hour clock.
+    separator = String(default=", ", help="""
+    The separator between displayed dates and times.
     """)
 
 class ColorPicker(InputWidget):
