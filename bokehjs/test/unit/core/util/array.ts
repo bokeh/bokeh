@@ -131,8 +131,10 @@ describe("core/util/array module", () => {
     expect(() => array.remove_at([NaN], NaN)).to.throw(AssertionError)
   })
 
-  it("clear should return nothing", () => {
-    expect(array.clear([1, 2, 3, 4])).to.be.equal(undefined)
+  it("clear should remove all items from a given array", () => {
+    const arr = [1, 2, 3, 4]
+    array.clear(arr)
+    expect(arr.length).to.be.equal(0)
   })
 
   it("reversed should return the given array in reversed order", () => {
