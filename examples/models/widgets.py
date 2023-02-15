@@ -121,9 +121,9 @@ date_range_picker = DateRangePicker(title="Date range:", width=400)
 
 multiple_date_picker = MultipleDatePicker(title="Multiple dates:", width=400)
 
-datetime_picker = DatetimePicker(title="Single date and time:", date_format="F j, Y")
+datetime_picker = DatetimePicker(title="Single date and time:", date_format="F j, Y @ H:i:S", seconds=True, second_increment=5, width=250)
 
-datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=datetime(2022, 2, 8, 14, 53, 21), min_date=date(2022, 2, 1))
+datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=datetime(2022, 2, 8, 14, 53, 21), min_date=date(2022, 2, 1), width=250)
 
 datetime_range_picker = DatetimeRangePicker(title="Date and time range:", width=400)
 

@@ -32,6 +32,7 @@ from ...core.properties import (
     Int,
     List,
     Nullable,
+    Override,
     Positive,
     String,
     Time,
@@ -244,7 +245,9 @@ class BaseDatetimePicker(BaseDatePicker, BaseTimePicker):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-class DatetimePicker(BaseDatePicker):
+    date_format = Override(default="Y-m-d H:i")
+
+class DatetimePicker(BaseDatetimePicker):
     """ Calendar-based date and time picker widget.
 
     """

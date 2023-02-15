@@ -14,7 +14,7 @@ export class DatePickerView extends BaseDatePickerView {
     }
   }
 
-  protected _on_change(selected: Date[]): void {
+  protected override _on_change(selected: Date[]): void {
     switch (selected.length) {
       case 0: {
         this.model.value = null
