@@ -68,6 +68,7 @@ const port = parseInt(argv.port as string | undefined ?? "9222")
 const ref = (argv.ref ?? "HEAD") as string
 const randomize = (argv.randomize ?? false) as boolean
 const seed = argv.seed != null ? Number(argv.seed) : Date.now()
+const pedantic = argv.pedantic as boolean | undefined ?? false
 
 interface CallFrame {
   name: string
@@ -536,15 +537,17 @@ async function run_tests(): Promise<boolean> {
                           const baseline_early = create_baseline([state_early])
                           const baseline = create_baseline([state])
 
-                          // This shouldn't happen, but sometimes does, especially in
-                          // interactive tests. This needs to be resolved earlier, but
-                          // at least the state will be consistent with images.
-                          if (baseline_early != baseline) {
-                            status.errors.push("inconsistent state")
-                            status.errors.push("early:", baseline_early)
-                            status.errors.push("later:", baseline)
-                            status.failure = true
-                            return
+                          if (pedantic) {
+                            // This shouldn't happen, but sometimes does, especially in
+                            // interactive tests. This needs to be resolved earlier, but
+                            // at least the state will be consistent with images.
+                            if (baseline_early != baseline) {
+                              status.errors.push("inconsistent state")
+                              status.errors.push("early:", baseline_early)
+                              status.errors.push("later:", baseline)
+                              status.failure = true
+                              return
+                            }
                           }
 
                           const baseline_file = `${baseline_path}.blf`

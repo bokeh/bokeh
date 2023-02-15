@@ -178,6 +178,7 @@ function devtools(devtools_port: number, server_port: number, name: string, base
     opt("baselines-root", baselines_root),
     opt("randomize", argv.randomize),
     opt("seed", argv.seed),
+    opt("pedantic", argv.pedantic),
     `--screenshot=${argv.screenshot ?? "test"}`,
   ]
   return _devtools(devtools_port, args)
