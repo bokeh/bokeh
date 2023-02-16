@@ -485,6 +485,9 @@ class Deserializer:
         self._decoding = False
         self._buffers = {}
 
+    def has_ref(self, obj: Model) -> bool:
+        return obj.id in self._references
+
     def deserialize(self, obj: Any | Serialized[Any]) -> Any:
         if isinstance(obj, Serialized):
             return self.decode(obj.content, obj.buffers)

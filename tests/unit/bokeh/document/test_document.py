@@ -891,9 +891,14 @@ class TestDocument:
         assert child2.id not in d.models
         assert child3.id not in d.models
 
+        assert d.models._new_models == {root1, root2, child1}
+        d.to_json() # clear new model queue
+        assert d.models._new_models == set()
+
         event1 = ModelChangedEvent(d, root1, 'child', child3)
         patch1 = patch_doc.create([event1]).content
         d.apply_json_patch(patch1)
+        assert d.models._new_models == set()
 
         assert root1.child.id == child3.id
         assert root1.child.child.id == child2.id
@@ -905,6 +910,7 @@ class TestDocument:
         event2 = ModelChangedEvent(d, root1, 'child', child1)
         patch2 = patch_doc.create([event2]).content
         d.apply_json_patch(patch2)
+        assert d.models._new_models == set()
 
         assert root1.child.id == child1.id
         assert root1.child.child is None

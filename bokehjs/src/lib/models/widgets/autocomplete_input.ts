@@ -142,7 +142,9 @@ export class AutocompleteInputView extends TextInputView {
 
   _keydown(_event: KeyboardEvent): void {}
 
-  _keyup(event: KeyboardEvent): void {
+  protected override _keyup(event: KeyboardEvent): void {
+    super._keyup(event)
+
     switch (event.key) {
       case "Enter": {
         this.change_input()

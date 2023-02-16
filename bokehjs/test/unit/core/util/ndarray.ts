@@ -6,6 +6,7 @@ import {
   Uint16NDArray, Int16NDArray,
   Uint32NDArray, Int32NDArray,
   Float32NDArray, Float64NDArray,
+  ObjectNDArray,
 } from "@bokehjs/core/util/ndarray"
 
 describe("core/util/ndarray module", () => {
@@ -318,6 +319,22 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("float64")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+  })
+
+  it("should support ObjectNDArray", () => {
+    const nd0 = new ObjectNDArray([null, 1, "a", true, [1, 2, 3], {foo: 1}])
+    expect(is_NDArray(nd0)).to.be.true
+    expect(nd0.dtype).to.be.equal("object")
+    expect(nd0.shape).to.be.equal([6])
+    expect(nd0.length).to.be.equal(6)
+    expect(nd0.dimension).to.be.equal(1)
+
+    const nd1 = nd0.concat(new ObjectNDArray([false, 2, "b"])) as ObjectNDArray
+    expect(is_NDArray(nd1)).to.be.true
+    expect(nd1.dtype).to.be.equal("object")
+    expect(nd1.shape).to.be.equal([9])
+    expect(nd1.length).to.be.equal(9)
+    expect(nd0.dimension).to.be.equal(1)
   })
 
   it("should support ndarray() function widthout dtype", () => {

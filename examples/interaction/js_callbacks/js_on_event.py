@@ -6,7 +6,7 @@ import numpy as np
 
 from bokeh import events
 from bokeh.layouts import column, row
-from bokeh.models import Button, CustomJS, Div
+from bokeh.models import Button, CustomJS, Div, TextInput
 from bokeh.plotting import figure, show
 
 
@@ -51,13 +51,16 @@ p.scatter(x, y, radius=radii,
 
 div = Div(width=1000)
 button = Button(label="Button", button_type="success", width=300)
-layout = column(button, row(p, div))
-
+text_input = TextInput(placeholder="Input a value and press Enter ...", width=300)
+layout = column(button, text_input, row(p, div))
 
 # Register event callbacks
 
-# Button event
+# Button events
 button.js_on_event(events.ButtonClick, display_event(div))
+
+# TextInput events
+text_input.js_on_event(events.ValueSubmit, display_event(div, ["value"]))
 
 # LOD events
 p.js_on_event(events.LODStart, display_event(div))
