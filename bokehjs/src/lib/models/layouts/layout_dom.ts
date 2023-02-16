@@ -189,7 +189,7 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   protected _update_layout(): void {
-    function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string) {
+    function css_sizing(policy: SizingPolicy | "auto", size: number | null, auto_size: string, margin: string | null) {
       switch (policy) {
         case "auto":
           return size != null ? px(size) : auto_size
@@ -200,7 +200,7 @@ export abstract class LayoutDOMView extends UIElementView {
         case "min":
           return "min-content"
         case "max":
-          return "100%"
+          return margin == null ? "100%" : `calc(100% - ${margin})`
       }
     }
 
@@ -252,9 +252,29 @@ export abstract class LayoutDOMView extends UIElementView {
     } else if (isNumber(aspect_ratio))
       styles.aspect_ratio = `${aspect_ratio}`
 
+    const {margin} = this.model
+    const margins = (() => {
+      if (margin != null) {
+        if (isNumber(margin)) {
+          styles.margin = px(margin)
+          return {width: px(2*margin), height: px(2*margin)}
+        } else if (margin.length == 2) {
+          const [vertical, horizontal] = margin
+          styles.margin = `${px(vertical)} ${px(horizontal)}`
+          return {width: px(2*horizontal), height: px(2*vertical)}
+        } else {
+          const [top, right, bottom, left] = margin
+          styles.margin = `${px(top)} ${px(right)} ${px(bottom)} ${px(left)}`
+          return {width: px(left + right), height: px(top + bottom)}
+        }
+      } else {
+        return {width: null, height: null}
+      }
+    })()
+
     const [css_width, css_height] = (() => {
-      const css_width = css_sizing(width_policy, width, this._auto_width)
-      const css_height = css_sizing(height_policy, height, this._auto_height)
+      const css_width = css_sizing(width_policy, width, this._auto_width, margins.width)
+      const css_height = css_sizing(height_policy, height, this._auto_height, margins.height)
 
       if (aspect_ratio != null) {
         if (width_policy != height_policy) {
@@ -307,19 +327,6 @@ export abstract class LayoutDOMView extends UIElementView {
         styles.max_height = `min(${to_css(max_height)}, 100%)`
       else if (height_policy != "fixed")
         styles.max_height = "100%"
-    }
-
-    const {margin} = this.model
-    if (margin != null) {
-      if (isNumber(margin))
-        styles.margin = px(margin)
-      else if (margin.length == 2) {
-        const [vertical, horizontal] = margin
-        styles.margin = `${px(vertical)} ${px(horizontal)}`
-      } else {
-        const [top, right, bottom, left] = margin
-        styles.margin = `${px(top)} ${px(right)} ${px(bottom)} ${px(left)}`
-      }
     }
 
     const {resizable} = this.model
