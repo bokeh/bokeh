@@ -1,3 +1,12 @@
+''' This example displays a hoverful scatter plot of random data points
+showing how the hover widget works.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.circle, bokeh.models.ColumnDataSource,
+    :keywords: hover, scatter, circles, crosshair, pan, wheel
+
+'''
+
 import itertools
 
 import numpy as np
