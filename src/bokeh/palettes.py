@@ -1653,10 +1653,10 @@ def interp_palette(palette: Palette, n: int) -> Palette:
             The size of the palette to generate
 
     Returns:
-        seq[str] : a sequence of hex RGB(A) color strings
+        tuple[str] : a sequence of hex RGB(A) color strings
 
     Raises:
-        ValueError if n is negative
+        ValueError if ``n`` is negative or the supplied ``palette`` is empty.
 
     """
     npalette = len(palette)
@@ -1672,9 +1672,9 @@ def interp_palette(palette: Palette, n: int) -> Palette:
     r = np.interp(fractions, integers, rgba_array[:, 0]).astype(np.uint8)
     g = np.interp(fractions, integers, rgba_array[:, 1]).astype(np.uint8)
     b = np.interp(fractions, integers, rgba_array[:, 2]).astype(np.uint8)
-    a = np.interp(fractions, integers, rgba_array[:, 3]) / 255  # Remains floating-point
+    a = np.interp(fractions, integers, rgba_array[:, 3]) / 255.0  # Remains floating-point
 
-    return tuple(RGB(*args).to_hex() for args in zip(r, g ,b, a))
+    return tuple(RGB(*args).to_hex() for args in zip(r, g, b, a))
 
 def magma(n: int) -> Palette:
     """ Generate a palette of colors from the Magma palette.
