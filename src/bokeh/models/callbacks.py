@@ -47,6 +47,7 @@ from ..model import Model
 __all__ = (
     'Callback',
     'OpenURL',
+    'CustomESM',
     'CustomJS',
     'SetValue',
 )
@@ -64,7 +65,6 @@ class Callback(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
 
 class OpenURL(Callback):
     ''' Open a URL in a new or current tab or window.
@@ -86,7 +86,14 @@ class OpenURL(Callback):
     dependent.
     """)
 
-class CustomJS(Callback):
+class CustomCode(Callback):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class CustomJS(CustomCode):
     ''' Execute a JavaScript function.
 
     .. warning::
@@ -114,6 +121,44 @@ class CustomJS(Callback):
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
+    """)
+
+class CustomESM(CustomCode):
+    ''' Execute a JavaScript function.
+
+    .. warning::
+        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
+        code* for a browser to execute. If any part of the code is derived
+        from untrusted user inputs, then you must take appropriate care to
+        sanitize the user input prior to passing to Bokeh.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    args = Dict(String, AnyRef, help="""
+    A mapping of names to Python objects. In particular those can be bokeh's models.
+    These objects are made available to the callback's code snippet as the values of
+    named parameters to the callback.
+    """)
+
+    code = String(default="", help="""
+    A JavaScript module (ESM) exporting a default function with the following
+    signature:
+
+    .. code-block: javascript
+
+        export default function(args, obj, data) {
+            // program logic
+        }
+
+    where ``args`` is a key-value mapping of user-provided parameters, ``obj``
+    refers to the object that triggered the callback, and ``data`` is a key-value
+    mapping of optional parameters provided by the caller.
+
+    This function can be an asynchronous function (``async function``).
     """)
 
 class SetValue(Callback):

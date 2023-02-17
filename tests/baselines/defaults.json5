@@ -170,8 +170,18 @@
     url: "http://",
     same_tab: false,
   },
-  CustomJS: {
+  CustomCode: {
     __extends__: "Callback",
+  },
+  CustomJS: {
+    __extends__: "CustomCode",
+    args: {
+      type: "map",
+    },
+    code: "",
+  },
+  CustomESM: {
+    __extends__: "CustomCode",
     args: {
       type: "map",
     },
