@@ -114,7 +114,7 @@ exclude = [
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["E", "F", "RUF", "UP", "W"]
+select = ["B", "E", "F", "RUF", "UP", "W"]
 ignore = [
     'E401', # Multiple imports on one line
     'E402', # Module level import not at top of file
