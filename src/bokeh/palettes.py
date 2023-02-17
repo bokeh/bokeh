@@ -384,6 +384,7 @@ to generate palettes of arbitrary size.
 .. autofunction:: bokeh.palettes.gray(n)
 .. autofunction:: bokeh.palettes.grey(n)
 .. autofunction:: bokeh.palettes.inferno(n)
+.. autofunction:: bokeh.palettes.interp_palette(palette, n)
 .. autofunction:: bokeh.palettes.linear_palette(palette, n)
 .. autofunction:: bokeh.palettes.magma(n)
 .. autofunction:: bokeh.palettes.varying_alpha_palette(palette, n, start_alpha, end_alpha)
@@ -425,12 +426,11 @@ from typing import TYPE_CHECKING, Dict, Tuple
 import numpy as np
 
 # Bokeh imports
-from .colors.util import NamedColor
+from .colors.util import RGB, NamedColor
 
 if TYPE_CHECKING:
+    import numpy.typing as npt
     from typing_extensions import TypeAlias
-
-    from .colors.color import RGB
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -1639,6 +1639,43 @@ def varying_alpha_palette(color: str, n: int | None = None, start_alpha: int = 0
 
     return palette
 
+def interp_palette(palette: Palette, n: int) -> Palette:
+    """ Generate a new palette by interpolating a given palette.
+
+    Linear interpolation is performed separately on each of the RGBA
+    components.
+
+    Args:
+        palette (seq[str]) :
+            A sequence of hex RGB(A) color strings to create new palette from
+
+        n (int) :
+            The size of the palette to generate
+
+    Returns:
+        tuple[str] : a sequence of hex RGB(A) color strings
+
+    Raises:
+        ValueError if ``n`` is negative or the supplied ``palette`` is empty.
+
+    """
+    npalette = len(palette)
+    if npalette < 1:
+        raise ValueError("palette must contain at least one color")
+    if n < 0:
+        raise ValueError("requested palette length cannot be negative")
+
+    rgba_array = to_rgba_array(palette)
+    integers = np.arange(npalette)
+    fractions = np.linspace(0, npalette-1, n)
+
+    r = np.interp(fractions, integers, rgba_array[:, 0]).astype(np.uint8)
+    g = np.interp(fractions, integers, rgba_array[:, 1]).astype(np.uint8)
+    b = np.interp(fractions, integers, rgba_array[:, 2]).astype(np.uint8)
+    a = np.interp(fractions, integers, rgba_array[:, 3]) / 255.0  # Remains floating-point
+
+    return tuple(RGB(*args).to_hex() for args in zip(r, g, b, a))
+
 def magma(n: int) -> Palette:
     """ Generate a palette of colors from the Magma palette.
 
@@ -1884,6 +1921,17 @@ def gray(n: int) -> Palette:
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def to_rgba_array(palette: Palette) -> npt.NDArray[np.uint8]:
+    """ Convert palette to a numpy array of uint8 RGBA components.
+    """
+    rgba_array = np.empty((len(palette), 4), dtype=np.uint8)
+
+    for i, color in enumerate(palette):
+        rgba = NamedColor.from_string(color)
+        rgba_array[i] = (rgba.r, rgba.g, rgba.b, rgba.a*255)
+
+    return rgba_array
 
 #-----------------------------------------------------------------------------
 # Private API

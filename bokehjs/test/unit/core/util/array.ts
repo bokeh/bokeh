@@ -109,4 +109,9 @@ describe("core/util/array module", () => {
     expect(array.split([1, null, 2], null)).to.be.equal([[1], [2]])
     expect(array.split([0, 1, null, 2, null, 3, 4, 5], null)).to.be.equal([[0, 1], [2], [3, 4, 5]])
   })
+
+  it("linspace() should support num less than 2", () => {
+    expect(array.linspace(0, 1, 0)).to.be.equal([])
+    expect(array.linspace(0, 1, 1)).to.be.equal([0])
+  })
 })
