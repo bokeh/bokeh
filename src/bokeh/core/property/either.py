@@ -81,7 +81,7 @@ class Either(ParameterizedProperty[Any]):
         super().__init__(type_param0, *type_params, default=default, help=help)
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
-        self.valids)
+        self.valids = []
 
     def transform(self, value: Any) -> Any:
         for param in self.type_params:
