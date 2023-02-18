@@ -81,11 +81,15 @@ class Either(ParameterizedProperty[Any]):
         super().__init__(type_param0, *type_params, default=default, help=help)
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
+        self.valids)
 
     def transform(self, value: Any) -> Any:
         for param in self.type_params:
             try:
-                return param.transform(value)
+                # if valid was not executed, or all valids failed - transform one by one
+                # else: run transform on the first param that pass validation
+                if len(self.valids)==0 or not any(self.valids) or self.valids[i]: 
+                    return param.transform(value)
             except ValueError:
                 pass
 
@@ -93,8 +97,8 @@ class Either(ParameterizedProperty[Any]):
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
-
-        if any(param.is_valid(value) for param in self.type_params):
+        self.valids = [param.is_valid(value) for param in self.type_params]
+        if any(self.valids):
             return
 
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
