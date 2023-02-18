@@ -27,6 +27,7 @@ from bokeh.models import (
     Legend,
     LegendItem,
 )
+from bokeh.plotting import figure
 
 # Module under test
 import bokeh.plotting._legends as bpl # isort:skip
@@ -154,3 +155,29 @@ class Test__handle_legend_label:
         assert legend.items[0].renderers == []
         assert legend.items[1].label == value("bar")
         assert legend.items[1].renderers == [renderer]
+
+
+class Test__get_or_create_legend:
+    def test_legend_not_already_exists(self) -> None:
+        plot = figure()
+        assert plot.legend == []
+        legend = bpl._get_or_create_legend(plot)
+        assert plot.legend == [legend]
+
+    @pytest.mark.parametrize('place', ['above', 'below', 'left', 'right', 'center'])
+    def test_legend_already_exists(self, place) -> None:
+        plot = figure()
+        legend = Legend()
+        plot.add_layout(legend, place)
+
+        got_legend = bpl._get_or_create_legend(plot)
+        assert got_legend == legend
+
+    def test_multiple_legends(self) -> None:
+        plot = figure()
+        plot.add_layout(Legend())
+        plot.add_layout(Legend())
+
+        with pytest.raises(RuntimeError) as e:
+            bpl._get_or_create_legend(plot)
+            assert str(e).endswith('configured with more than one legend renderer, cannot use legend_* convenience arguments')
