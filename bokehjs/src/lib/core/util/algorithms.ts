@@ -96,7 +96,7 @@ export function cbb(
   const x_bounds: number[] = Array(n + 2)
   const y_bounds: number[] = Array(n + 2)
 
-  while (j--) {
+  while (j-- > 0) {
     const t = tvalues[j]
     const mt = 1 - t
 

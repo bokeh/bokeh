@@ -114,7 +114,7 @@ export class RectView extends CenterRotatableView {
         continue
 
       ctx.beginPath()
-      if (angle_i) {
+      if (angle_i != 0) {
         ctx.translate(sx_i, sy_i)
         ctx.rotate(angle_i)
         const box = new BBox({x: -sw_i/2, y: -sh_i/2, width: sw_i, height: sh_i})

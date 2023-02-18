@@ -169,14 +169,14 @@ export function collect_exports(exported: Exports[]) {
         exported.push({type: "named", name: "default"})
       } else if (ts.isClassDeclaration(statement) || ts.isFunctionDeclaration(statement)) {
         const flags = ts.getCombinedModifierFlags(statement)
-        if (flags & ts.ModifierFlags.Export) {
+        if ((flags & ts.ModifierFlags.Export) != 0) {
           // export class X {}
           // export function f() {}
           if (statement.name != null) {
             const name = statement.name.text
             exported.push({type: "named", name})
           }
-        } else if (flags & ts.ModifierFlags.ExportDefault) {
+        } else if ((flags & ts.ModifierFlags.ExportDefault) != 0) {
           // export default class X {}
           // export function f() {}
           exported.push({type: "named", name: "default"})

@@ -109,7 +109,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     if (res != null) {
       let {value, unit} = res
       value *= font_size_scale
-      if (unit == "em" && _base_font_size) {
+      if (unit == "em" && _base_font_size != 0) {
         value *= _base_font_size
         unit = "px"
       }
@@ -206,11 +206,13 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     // XXX: perhaps use getComputedStyle()?
     const svg_styles = this.svg_element.getAttribute("style")?.split(";")
-    if (svg_styles) {
+    if (svg_styles != null) {
       const rules_map = new Map()
       svg_styles.forEach(property => {
         const [rule, value] = property.split(":")
-        if (rule) rules_map.set(rule.trim(), value.trim())
+        if (rule.trim() != "") {
+          rules_map.set(rule.trim(), value.trim())
+        }
       })
       const v_align = parse_css_length(rules_map.get("vertical-align"))
 
@@ -247,7 +249,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   height?: {value: number, unit: "%"}
 
   _size(): Size {
-    if (!this.svg_image) {
+    if (this.svg_image == null) {
       if (this.provider.status == "failed" || this.provider.status == "not_started") {
         return {
           width: text_width(this.truncated_text, this.font),
@@ -357,7 +359,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
    * been loaded draws the image in it otherwise draws the model's text.
   */
   paint(ctx: Context2d): void {
-    if (!this.svg_image) {
+    if (this.svg_image == null) {
       if (this.provider.status == "not_started" || this.provider.status == "loading")
         this.provider.ready.connect(() => this.load_image())
 
@@ -377,7 +379,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     const {x, y} = this._computed_position()
 
-    if (this.svg_image) {
+    if (this.svg_image != null) {
       const {width, height} = this.get_image_dimensions()
       ctx.drawImage(this.svg_image, x, y, width, height)
     } else if (this.provider.status == "failed" || this.provider.status == "not_started") {
@@ -390,7 +392,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     ctx.restore()
 
-    if (!this._has_finished && (this.provider.status == "failed" || this.svg_image)) {
+    if (!this._has_finished && (this.provider.status == "failed" || this.svg_image != null)) {
       this._has_finished = true
       this.parent.notify_finished_after_paint()
     }
@@ -485,7 +487,7 @@ export class MathMLView extends MathTextView {
   override get styled_text(): string {
     let styled = this.text.trim()
     let matchs = styled.match(/<math(.*?[^?])?>/s)
-    if (!matchs)
+    if (matchs == null)
       return this.text.trim()
 
     styled = insert_text_on_position(
@@ -495,7 +497,7 @@ export class MathMLView extends MathTextView {
     )
 
     matchs = styled.match(/<\/[^>]*?math.*?>/s)
-    if (!matchs)
+    if (matchs == null)
       return this.text.trim()
 
     return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")

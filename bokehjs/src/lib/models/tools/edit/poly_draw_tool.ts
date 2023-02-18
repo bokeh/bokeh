@@ -232,7 +232,7 @@ export class PolyDrawToolView extends PolyToolView {
       this._remove()
       this._drawing = false
     }
-    if (this.model.vertex_renderer)
+    if (this.model.vertex_renderer != null)
       this._hide_vertices()
   }
 }

@@ -355,7 +355,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
 
     // allow passing in an existing context to wrap around
     // if a context is passed in, we know a canvas already exist
-    if (options?.ctx) {
+    if (options?.ctx != null) {
       this.__ctx = options.ctx
     } else {
       this.__canvas = this.__document.createElement("canvas")
@@ -635,13 +635,13 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     * Helper function to add path command
     */
   __addPathCommand(x: number, y: number, path: string): void {
-    const separator = !this.__currentDefaultPath ? "" : " "
+    const separator = this.__currentDefaultPath == "" ? "" : " "
     this.__currentDefaultPath += separator + path
     this.__currentPosition = {x, y}
   }
 
   get _hasCurrentDefaultPath(): boolean {
-    return !!this.__currentDefaultPath
+    return this.__currentDefaultPath != ""
   }
 
   /**
@@ -1218,7 +1218,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       if (this.globalAlpha != 1.0)
         svgImage.setAttribute("opacity", `${this.globalAlpha}`)
 
-      if (sx || sy || sw !== image.width || sh !== image.height) {
+      if (sx != 0 || sy != 0 || sw !== image.width || sh !== image.height) {
         // crop the image using a temporary canvas
         const canvas = this.__document.createElement("canvas")
         canvas.width = dw
@@ -1343,7 +1343,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     else if (args[0] instanceof DOMMatrix)
       matrix = args[0]
     else
-      matrix = new DOMMatrix(Object.values(!args[0]))
+      matrix = new DOMMatrix(Object.values(args[0] == null))
 
     this._transform = AffineTransform.from_DOMMatrix(matrix)
   }

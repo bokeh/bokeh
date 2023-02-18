@@ -34,7 +34,7 @@ export abstract class WidgetView extends LayoutDOMView {
   }
 
   process_tex(text: string): string {
-    if (!this.provider.MathJax)
+    if (this.provider.MathJax == null)
       return text
 
     const tex_parts = this.provider.MathJax.find_tex(text)
@@ -55,7 +55,7 @@ export abstract class WidgetView extends LayoutDOMView {
   }
 
   protected contains_tex_string(text: string): boolean {
-    if (!this.provider.MathJax)
+    if (this.provider.MathJax == null)
       return false
 
     return this.provider.MathJax.find_tex(text).length > 0

@@ -95,7 +95,7 @@ export class RangeManager {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
         xr.update(bounds_to_use, 0, this.parent, r)
-        if (xr.follow) {
+        if (xr.follow != null) {
           follow_enabled = true
         }
       }
@@ -107,7 +107,7 @@ export class RangeManager {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
         yr.update(bounds_to_use, 1, this.parent, r)
-        if (yr.follow) {
+        if (yr.follow != null) {
           follow_enabled = true
         }
       }

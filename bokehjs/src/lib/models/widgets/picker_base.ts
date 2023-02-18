@@ -88,7 +88,7 @@ export abstract class PickerBaseView extends InputWidgetView {
     //   window.scrollY +
     //   inputBounds.top +
     //   (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
-    const top = self.config.appendTo
+    const top = self.config.appendTo != null
       ? inputBounds.top +
         (!showOnTop ? positionElement.offsetHeight + 2 : -calendarHeight - 2)
       : window.scrollY +

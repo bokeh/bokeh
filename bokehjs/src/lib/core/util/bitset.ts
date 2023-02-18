@@ -78,7 +78,7 @@ export class BitSet implements Equatable {
     this._check_bounds(k)
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
-    return !!((this._array[i] >> j) & 0x1)
+    return ((this._array[i] >> j) & 0b1) == 0b1
   }
 
   set(k: number, v: boolean = true): void {
@@ -87,9 +87,9 @@ export class BitSet implements Equatable {
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
     if (v)
-      this._array[i] |= 0x1 << j
+      this._array[i] |= 0b1 << j
     else
-      this._array[i] &= ~(0x1 << j)
+      this._array[i] &= ~(0b1 << j)
   }
 
   unset(k: number): void {
@@ -117,7 +117,7 @@ export class BitSet implements Equatable {
         k += 32
       } else {
         for (let j = 0; j < 32 && k < size; j++, k++) {
-          if ((word >>> j) & 0x1)
+          if (((word >>> j) & 0b1) == 0b1)
             c += 1
         }
       }
@@ -134,7 +134,7 @@ export class BitSet implements Equatable {
         continue
       }
       for (let j = 0; j < 32 && k < size; j++, k++) {
-        if ((word >>> j) & 0x1)
+        if (((word >>> j) & 0b1) == 0b1)
           yield k
       }
     }
@@ -149,7 +149,7 @@ export class BitSet implements Equatable {
         continue
       }
       for (let j = 0; j < 32 && k < size; j++, k++) {
-        if (!((word >>> j) & 0x1))
+        if (((word >>> j) & 0b1) == 0b0)
           yield k
       }
     }

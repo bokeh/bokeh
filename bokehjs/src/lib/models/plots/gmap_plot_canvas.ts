@@ -65,7 +65,7 @@ export class GMapPlotView extends PlotView {
     const decoder = new TextDecoder("utf-8")
     this._api_key = decoder.decode(this.model.api_key)
 
-    if (!this._api_key) {
+    if (this._api_key == "") {
       const url = "https://developers.google.com/maps/documentation/javascript/get-api-key"
       logger.error(`api_key is required. See ${url} for more information on how to obtain your own.`)
     }

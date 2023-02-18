@@ -142,7 +142,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
 
     // missing value, return ???
     if (value == null)
-      return encode ? encode("???") : "???"
+      return encode != null ? encode("???") : "???"
 
     // 'safe' format, return the value as-is
     if (format == "safe") {
@@ -153,7 +153,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
     // format and escape everything else
     const formatter = get_formatter(spec, format, formatters)
     const result = `${formatter(value, format, special_vars)}`
-    return encode ? encode(result) : result
+    return encode != null ? encode(result) : result
   })
 
   if (!has_html)

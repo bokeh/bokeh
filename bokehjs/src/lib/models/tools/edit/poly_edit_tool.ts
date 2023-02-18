@@ -32,7 +32,7 @@ export class PolyEditToolView extends PolyToolView {
     // Type once dataspecs are typed
     const point_glyph: any = this.model.vertex_renderer.glyph
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
-    if (vertex_selected.length && this._selected_renderer != null) {
+    if (vertex_selected.length != 0 && this._selected_renderer != null) {
       // Insert a new point after the selected vertex and enter draw mode
       const index = point_cds.selected.indices[0]
       if (this._drawing) {
@@ -62,7 +62,7 @@ export class PolyEditToolView extends PolyToolView {
     const vsync_ds = vsync_renderer.data_source
 
     const renderers = this._select_event(ev, "replace", this.model.renderers)
-    if (!renderers.length) {
+    if (renderers.length == 0) {
       this._set_vertices([], [])
       this._selected_renderer = null
       this._drawing = false
@@ -137,7 +137,7 @@ export class PolyEditToolView extends PolyToolView {
     const point = this._map_drag(ev.sx, ev.sy, renderer)
     if (point == null)
       return
-    else if (this._drawing && this._selected_renderer) {
+    else if (this._drawing && this._selected_renderer != null) {
       let [x, y] = point
       const cds = renderer.data_source
       // Type once dataspecs are typed
@@ -169,7 +169,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   _remove_vertex(): void {
-    if (!this._drawing || !this._selected_renderer)
+    if (!this._drawing || this._selected_renderer == null)
       return
     const renderer = this.model.vertex_renderer
     if (renderer == null)
@@ -198,7 +198,7 @@ export class PolyEditToolView extends PolyToolView {
     if (this.model.vertex_renderer == null)
       return
     this._drag_points(ev, [this.model.vertex_renderer])
-    if (this._selected_renderer)
+    if (this._selected_renderer != null)
       this._selected_renderer.data_source.change.emit()
   }
 
@@ -209,7 +209,7 @@ export class PolyEditToolView extends PolyToolView {
       return
     this._drag_points(ev, [this.model.vertex_renderer])
     this._emit_cds_changes(this.model.vertex_renderer.data_source, false, true, true)
-    if (this._selected_renderer) {
+    if (this._selected_renderer != null) {
       this._emit_cds_changes(this._selected_renderer.data_source)
     }
     this._basepoint = null
@@ -219,7 +219,7 @@ export class PolyEditToolView extends PolyToolView {
     if (!this.model.active || !this._mouse_in_frame)
       return
     let renderers: GlyphRenderer[]
-    if (this._selected_renderer) {
+    if (this._selected_renderer != null) {
       const {vertex_renderer} = this.model
       renderers = vertex_renderer != null ? [vertex_renderer] : []
     } else {
@@ -228,14 +228,14 @@ export class PolyEditToolView extends PolyToolView {
     for (const renderer of renderers) {
       if (ev.key == "Backspace") {
         this._delete_selected(renderer)
-        if (this._selected_renderer) {
+        if (this._selected_renderer != null) {
           this._emit_cds_changes(this._selected_renderer.data_source)
         }
       } else if (ev.key == "Escape") {
         if (this._drawing) {
           this._remove_vertex()
           this._drawing = false
-        } else if (this._selected_renderer) {
+        } else if (this._selected_renderer != null) {
           this._hide_vertices()
         }
         renderer.data_source.selection_manager.clear()
@@ -244,7 +244,7 @@ export class PolyEditToolView extends PolyToolView {
   }
 
   override deactivate(): void {
-    if (!this._selected_renderer) {
+    if (this._selected_renderer == null) {
       return
     } else if (this._drawing) {
       this._remove_vertex()

@@ -63,7 +63,7 @@ export class Comparator {
     // It's done here since we only need them for objects and arrays comparison.
     const {a_stack, b_stack} = this
     let length = a_stack.length
-    while (length--) {
+    while (length-- > 0) {
       // Linear search. Performance is inversely proportional to the number of
       // unique nested structures.
       if (a_stack[length] === a)

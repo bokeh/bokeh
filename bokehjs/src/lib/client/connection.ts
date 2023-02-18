@@ -143,7 +143,7 @@ export class ClientConnection {
   }
 
   protected async _repull_session_doc(resolve: SessionResolver, reject: Rejecter): Promise<void> {
-    logger.debug(this.session ? "Repulling session" : "Pulling session for first time")
+    logger.debug(this.session != null ? "Repulling session" : "Pulling session for first time")
     try {
       const doc_json = await this._pull_doc_json()
       if (this.session == null) {
@@ -247,10 +247,10 @@ export class ClientConnection {
   protected _steady_state_handler(message: Message<unknown>): void {
     const reqid = message.reqid()
     const pr = this._pending_replies.get(reqid)
-    if (pr) {
+    if (pr != null) {
       this._pending_replies.delete(reqid)
       pr.resolve(message)
-    } else if (this.session) {
+    } else if (this.session != null) {
       this.session.handle(message)
     } else if (message.msgtype() != "PATCH-DOC") {
       // This branch can be executed only before we get the document.

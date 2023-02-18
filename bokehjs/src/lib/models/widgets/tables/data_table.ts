@@ -106,10 +106,12 @@ export class TableDataProvider implements DataProvider<Item> {
         const v1 = records[old_index.indexOf(i1)][field!]
         if (v0 === v1)
           continue
-        if (isNumber(v0) && isNumber(v1))
+        if (isNumber(v0) && isNumber(v1)) {
+          /* eslint-disable @typescript-eslint/strict-boolean-expressions */
           return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
-        else
+        } else {
           return `${v0}` > `${v1}` ? sign : -sign
+        }
       }
       return 0
     })

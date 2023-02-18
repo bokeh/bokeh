@@ -35,9 +35,9 @@ function indentFormatter(formatter?: Formatter<Item>, indent?: number): Formatte
       class: "slick-group-toggle",
       style: {"margin-left": `${(indent ?? 0) * 15}px`},
     })
-    const formatted = formatter ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
+    const formatted = formatter != null ? formatter(row, cell, value, columnDef, dataContext) : `${value}`
 
-    return `${spacer.outerHTML}${formatted && formatted.replace(/^<div/, "<span").replace(/div>$/, "span>")}`
+    return `${spacer.outerHTML}${formatted.replace(/^<div/, "<span").replace(/div>$/, "span>")}`
   }
 }
 
@@ -117,15 +117,15 @@ export class DataCubeProvider extends TableDataProvider {
   private extractGroups(rows: number[], parentGroup?: Group<number>): Group<number>[] {
     const groups: Group<number>[] = []
     const groupsByValue: Map<any, Group<number>> = new Map()
-    const level = parentGroup ? parentGroup.level + 1 : 0
+    const level = (parentGroup != null) ? parentGroup.level + 1 : 0
     const {comparer, getter} = this.groupingInfos[level]
 
     rows.forEach((row) => {
       const value = this.source.data[getter][row]
       let group = groupsByValue.get(value)
 
-      if (!group) {
-        const groupingKey = parentGroup ? `${parentGroup.groupingKey}${this.groupingDelimiter}${value}` : `${value}`
+      if (group == null) {
+        const groupingKey = parentGroup != null ? `${parentGroup.groupingKey}${this.groupingDelimiter}${value}` : `${value}`
         group = Object.assign(new Group(), {value, level, groupingKey}) as any
         groups.push(group!)
         groupsByValue.set(value, group!)
@@ -166,7 +166,7 @@ export class DataCubeProvider extends TableDataProvider {
         this.addTotals(group.groups, level + 1)
       }
 
-      if (aggregators.length && group.rows.length) {
+      if (aggregators.length != 0 && group.rows.length != 0) {
         group.totals = this.calculateTotals(group, aggregators)
       }
 
@@ -194,7 +194,7 @@ export class DataCubeProvider extends TableDataProvider {
     const groups = this.extractGroups([...this.view.indices])
     const labels = this.source.data[this.columns[0].field!]
 
-    if (groups.length) {
+    if (groups.length != 0) {
       this.addTotals(groups)
       this.rows = this.flattenedGroupedRows(groups)
       this.target.data = {
@@ -230,11 +230,11 @@ export class DataCubeProvider extends TableDataProvider {
       const {field: myField, formatter} = column
       const aggregator = aggregators.find(({field_}) => field_ === myField)
 
-      if (aggregator) {
+      if (aggregator != null) {
         const {key} = aggregator
         return {
           formatter(row: number, cell: number, _value: unknown, columnDef: Column<Item>, dataContext: Item): string {
-            return formatter ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ""
+            return formatter != null ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ""
           },
         }
       }

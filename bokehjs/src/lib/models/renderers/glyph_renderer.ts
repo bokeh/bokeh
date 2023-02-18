@@ -316,7 +316,7 @@ export class GlyphRendererView extends DataRendererView {
       if (inspected.is_empty())
         return []
       else {
-        if (inspected.selected_glyph)
+        if (inspected.selected_glyph != null)
           return this.model.view.convert_indices_from_subset(indices)
         else if (inspected.indices.length > 0)
           return inspected.indices
@@ -347,7 +347,7 @@ export class GlyphRendererView extends DataRendererView {
       selection_glyph = this.selection_glyph
     }
 
-    if (this.hover_glyph != null && inspected_subset_indices.length) {
+    if (this.hover_glyph != null && inspected_subset_indices.length != 0) {
       // TODO: keep working on Indices instead of converting back and forth
       const set = new Set(indices)
       for (const i of inspected_subset_indices) {
@@ -357,9 +357,9 @@ export class GlyphRendererView extends DataRendererView {
     }
 
     // Render with no selection
-    if (!selected_full_indices.length) {
+    if (selected_full_indices.length == 0) {
       if (this.glyph instanceof LineView) {
-        if (this.hover_glyph != null && inspected_subset_indices.length)
+        if (this.hover_glyph != null && inspected_subset_indices.length != 0)
           this.hover_glyph.render(ctx, this.model.view.convert_indices_from_subset(inspected_subset_indices))
         else
           glyph.render(ctx, all_indices)
@@ -374,7 +374,7 @@ export class GlyphRendererView extends DataRendererView {
         }
       } else {
         glyph.render(ctx, indices)
-        if (this.hover_glyph != null && inspected_subset_indices.length)
+        if (this.hover_glyph != null && inspected_subset_indices.length != 0)
           this.hover_glyph.render(ctx, inspected_subset_indices)
       }
     // Render with selection

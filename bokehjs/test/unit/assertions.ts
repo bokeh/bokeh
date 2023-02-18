@@ -243,7 +243,7 @@ function Throws(fn: () => unknown) {
       }
 
       if (pattern instanceof RegExp) {
-        if (!error.message.match(pattern)) {
+        if (error.message.match(pattern) == null) {
           throw new ExpectationError(`expected ${to_string(fn)} to throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
         }
       } else if (isString(pattern)) {
@@ -285,7 +285,7 @@ function NotThrows(fn: () => unknown) {
 
         if (pattern != null && error instanceof Error) {
           if (pattern instanceof RegExp) {
-            if (error.message.match(pattern))
+            if (error.message.match(pattern) != null)
               throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
           } else if (isString(pattern)) {
             if (error.message.includes(pattern))

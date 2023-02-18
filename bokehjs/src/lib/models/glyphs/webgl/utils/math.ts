@@ -11,7 +11,7 @@ function gcd2(a: number, b: number): number {
     lower = a
   }
 
-  let divisor: number = higher % lower
+  let divisor = higher % lower
 
   while (divisor != 0) {
     higher = lower
@@ -23,7 +23,7 @@ function gcd2(a: number, b: number): number {
 }
 
 export function gcd(values: number[]): number {
-  let ret: number = values[0]
+  let ret = values[0]
 
   for (let i = 1; i < values.length; i++)
     ret = gcd2(ret, values[i])
@@ -33,5 +33,5 @@ export function gcd(values: number[]): number {
 
 // From regl
 export function is_pow_2(v: number): boolean {
-  return !(v & (v - 1)) && (!!v)
+  return (v & (v - 1)) == 0 && v != 0
 }

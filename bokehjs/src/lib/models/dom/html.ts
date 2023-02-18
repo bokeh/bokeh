@@ -43,7 +43,7 @@ export class HTMLView extends DOMNodeView {
         })
 
         let node: Node | null
-        while (node = iter.nextNode()) {
+        while ((node = iter.nextNode()) != null) {
           assert(node instanceof Element)
 
           const id = node.getAttribute("id")
