@@ -2,6 +2,7 @@ import flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
 import {String, Number, Or} from "core/kinds"
+import {Clock} from "core/enums"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
 
@@ -21,7 +22,7 @@ export class TimePickerView extends PickerBaseView {
 
     const {
       value, min_time, max_time, time_format, hour_increment,
-      minute_increment, second_increment, seconds, am_pm,
+      minute_increment, second_increment, seconds, clock,
     } = this.model.properties
 
     this.connect(value.change, () => {
@@ -39,11 +40,11 @@ export class TimePickerView extends PickerBaseView {
     this.connect(minute_increment.change, () => this.picker.set("minuteIncrement", this.model.minute_increment))
     this.connect(second_increment.change, () => this._update_second_increment())
     this.connect(seconds.change, () => this.picker.set("enableSeconds", this.model.seconds))
-    this.connect(am_pm.change, () => this.picker.set("time_24hr", this.model.am_pm))
+    this.connect(clock.change, () => this.picker.set("time_24hr", this.model.clock == "24h"))
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
-    const {value, min_time, max_time, time_format, hour_increment, minute_increment, seconds, am_pm} = this.model
+    const {value, min_time, max_time, time_format, hour_increment, minute_increment, seconds, clock} = this.model
 
     const options = super.flatpickr_options
 
@@ -57,7 +58,7 @@ export class TimePickerView extends PickerBaseView {
     options.hourIncrement = hour_increment
     options.minuteIncrement = minute_increment
     options.enableSeconds = seconds
-    options.time_24hr = !am_pm
+    options.time_24hr = clock == "24h"
 
     if (value != null) {
       options.defaultDate = value
@@ -113,7 +114,7 @@ export namespace TimePicker {
     minute_increment: p.Property<number>
     second_increment: p.Property<number>
     seconds: p.Property<boolean>
-    am_pm: p.Property<boolean>
+    clock: p.Property<Clock>
   }
 }
 
@@ -139,7 +140,7 @@ export class TimePicker extends PickerBase {
       minute_increment: [ Positive(Int), 1 ],
       second_increment: [ Positive(Int), 1 ],
       seconds: [ Boolean, false ],
-      am_pm: [ Boolean, false ],
+      clock: [ Clock, "24h" ],
     }))
   }
 }

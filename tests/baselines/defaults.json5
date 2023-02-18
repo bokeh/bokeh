@@ -5851,7 +5851,7 @@
     minute_increment: 1,
     second_increment: 1,
     seconds: false,
-    am_pm: false,
+    clock: "24h",
   },
   TimePicker: {
     __extends__: "BaseTimePicker",

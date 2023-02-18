@@ -104,10 +104,10 @@ class BaseTimePicker(PickerBase):
 
     seconds = Bool(default=False, help="""
     Allows to select seconds. By default only hours and minuts are
-    selectable, and AM/PM depending on ``am_pm`` option.
+    selectable, and AM/PM depending on ``clock`` option.
     """)
 
-    am_pm = Bool(default=False, help="""
+    clock = Enum("12h", "24h", default="24h", help="""
     Whether to use 12 hour or 24 hour clock.
     """)
 
