@@ -5843,10 +5843,7 @@
     position: "auto",
     inline: false,
   },
-  BaseTimePicker: {
-    __extends__: "PickerBase",
-    min_time: null,
-    max_time: null,
+  TimeCommon: {
     hour_increment: 1,
     minute_increment: 1,
     second_increment: 1,
@@ -5854,17 +5851,27 @@
     clock: "24h",
   },
   TimePicker: {
-    __extends__: "BaseTimePicker",
+    __extends__: [
+      "PickerBase",
+      "TimeCommon",
+    ],
     value: null,
     time_format: "H:i",
+    min_time: null,
+    max_time: null,
   },
-  BaseDatePicker: {
-    __extends__: "PickerBase",
-    min_date: null,
-    max_date: null,
+  DateCommon: {
     disabled_dates: null,
     enabled_dates: null,
     date_format: "Y-m-d",
+  },
+  BaseDatePicker: {
+    __extends__: [
+      "PickerBase",
+      "DateCommon",
+    ],
+    min_date: null,
+    max_date: null,
   },
   DatePicker: {
     __extends__: "BaseDatePicker",
@@ -5881,10 +5888,13 @@
   },
   BaseDatetimePicker: {
     __extends__: [
-      "BaseDatePicker",
-      "BaseTimePicker",
+      "PickerBase",
+      "DateCommon",
+      "TimeCommon",
     ],
     date_format: "Y-m-d H:i",
+    min_date: null,
+    max_date: null,
   },
   DatetimePicker: {
     __extends__: "BaseDatetimePicker",

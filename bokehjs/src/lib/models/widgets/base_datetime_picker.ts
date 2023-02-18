@@ -1,7 +1,6 @@
 import flatpickr from "flatpickr"
 
 import {BaseDatePicker, BaseDatePickerView} from "./base_date_picker"
-import {TimeLike} from "./time_picker"
 import {Clock} from "core/enums"
 import * as p from "core/properties"
 
@@ -12,7 +11,7 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
     super.connect_signals()
 
     const {
-      value, min_time, max_time, hour_increment,
+      value, hour_increment,
       minute_increment, second_increment, seconds, clock,
     } = this.model.properties
 
@@ -24,8 +23,6 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
         this.picker.clear()
       }
     })
-    this.connect(min_time.change, () => this.picker.set("minTime", this.model.min_time))
-    this.connect(max_time.change, () => this.picker.set("maxTime", this.model.max_time))
     this.connect(hour_increment.change, () => this.picker.set("hourIncrement", this.model.hour_increment))
     this.connect(minute_increment.change, () => this.picker.set("minuteIncrement", this.model.minute_increment))
     this.connect(second_increment.change, () => this._update_second_increment())
@@ -34,7 +31,7 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
   }
 
   protected override get flatpickr_options(): flatpickr.Options.Options {
-    const {min_time, max_time, hour_increment, minute_increment, seconds, clock} = this.model
+    const {hour_increment, minute_increment, seconds, clock} = this.model
 
     const options = super.flatpickr_options
     options.enableTime = true
@@ -43,13 +40,6 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
     options.minuteIncrement = minute_increment
     options.enableSeconds = seconds
     options.time_24hr = clock == "24h"
-
-    if (min_time != null) {
-      options.minTime = min_time
-    }
-    if (max_time != null) {
-      options.maxTime = max_time
-    }
 
     return options
   }
@@ -69,8 +59,6 @@ export namespace BaseDatetimePicker {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = BaseDatePicker.Props & {
-    min_time: p.Property<TimeLike | null>
-    max_time: p.Property<TimeLike | null>
     hour_increment: p.Property<number>
     minute_increment: p.Property<number>
     second_increment: p.Property<number>
@@ -90,9 +78,7 @@ export abstract class BaseDatetimePicker extends BaseDatePicker {
   }
 
   static {
-    this.define<BaseDatetimePicker.Props>(({Boolean, Nullable, Positive, Int}) => ({
-      min_time: [ Nullable(TimeLike), null ],
-      max_time: [ Nullable(TimeLike), null ],
+    this.define<BaseDatetimePicker.Props>(({Boolean, Positive, Int}) => ({
       hour_increment: [ Positive(Int), 1 ],
       minute_increment: [ Positive(Int), 1 ],
       second_increment: [ Positive(Int), 1 ],

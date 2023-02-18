@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.enums import CalendarPosition
-from ...core.has_props import abstract
+from ...core.has_props import HasProps, abstract
 from ...core.properties import (
     Bool,
     Date,
@@ -75,20 +75,12 @@ class PickerBase(InputWidget):
     """)
 
 @abstract
-class BaseTimePicker(PickerBase):
-    """ Base class for time picker widgets. """
+class TimeCommon(HasProps):
+    """ Common properties for time-like picker widgets. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    min_time = Nullable(Time)(default=None, help="""
-    Optional earliest allowable time.
-    """)
-
-    max_time = Nullable(Time)(default=None, help="""
-    Optional latest allowable time.
-    """)
 
     hour_increment = Positive(Int)(default=1, help="""
     Defines the granularity of hour value incremements in the UI.
@@ -111,7 +103,7 @@ class BaseTimePicker(PickerBase):
     Whether to use 12 hour or 24 hour clock.
     """)
 
-class TimePicker(BaseTimePicker):
+class TimePicker(PickerBase, TimeCommon):
     """ Widget for picking time. """
 
     # explicit __init__ to support Init signatures
@@ -138,23 +130,21 @@ class TimePicker(BaseTimePicker):
     See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
     """)
 
-@abstract
-class BaseDatePicker(PickerBase):
-    """ Bases for various calendar-based date picker widgets.
+    min_time = Nullable(Time)(default=None, help="""
+    Optional earliest allowable time.
+    """)
 
-    """
+    max_time = Nullable(Time)(default=None, help="""
+    Optional latest allowable time.
+    """)
+
+@abstract
+class DateCommon(HasProps):
+    """ Common properties for date-like picker widgets. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    min_date = Nullable(Date, default=None, help="""
-    Optional earliest allowable date.
-    """)
-
-    max_date = Nullable(Date, default=None, help="""
-    Optional latest allowable date.
-    """)
 
     disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
     A list of dates of ``(start, end)`` date ranges to make unavailable for
@@ -194,6 +184,24 @@ class BaseDatePicker(PickerBase):
     +---+-----------------------------------------------------------+-----------------------------------------+
 
     See also https://flatpickr.js.org/formatting/#date-formatting-tokens.
+    """)
+
+@abstract
+class BaseDatePicker(PickerBase, DateCommon):
+    """ Bases for various calendar-based date picker widgets.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    min_date = Nullable(Date, default=None, help="""
+    Optional earliest allowable date.
+    """)
+
+    max_date = Nullable(Date, default=None, help="""
+    Optional latest allowable date.
     """)
 
 class DatePicker(BaseDatePicker):
@@ -236,7 +244,7 @@ class MultipleDatePicker(BaseDatePicker):
     """)
 
 @abstract
-class BaseDatetimePicker(BaseDatePicker, BaseTimePicker):
+class BaseDatetimePicker(PickerBase, DateCommon, TimeCommon):
     """ Bases for various calendar-based datetime picker widgets.
 
     """
@@ -244,6 +252,14 @@ class BaseDatetimePicker(BaseDatePicker, BaseTimePicker):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    min_date = Nullable(Either(Datetime, Date), default=None, help="""
+    Optional earliest allowable date and time.
+    """)
+
+    max_date = Nullable(Either(Datetime, Date), default=None, help="""
+    Optional latest allowable date and time.
+    """)
 
     date_format = Override(default="Y-m-d H:i")
 
