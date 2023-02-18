@@ -41,11 +41,11 @@ export abstract class WebDataSource extends ColumnDataSource {
     this.setup()
   }
 
-  load_data(raw_data: any, mode: UpdateMode, max_size?: number): void {
+  async load_data(raw_data: any, mode: UpdateMode, max_size?: number): Promise<void> {
     const {adapter} = this
     let data: Data
     if (adapter != null)
-      data = adapter.execute(this, {response: raw_data})
+      data = await adapter.execute(this, {response: raw_data})
     else
       data = raw_data
 
