@@ -40,7 +40,15 @@
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
     "@typescript-eslint/no-unnecessary-condition": ["warn", {"allowConstantLoopConditions": true}],
-    "@typescript-eslint/strict-boolean-expressions": ["error", {"allowAny": true}],
+    "@typescript-eslint/strict-boolean-expressions": ["error", {
+      "allowAny": true,
+      "allowString": false,
+      "allowNumber": false,
+      "allowNullableObject": false,
+      "allowNullableBoolean": false,
+      "allowNullableString": false,
+      "allowNullableNumber": false
+    }],
     "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
     "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
     "no-self-assign": ["error", {"props": false}],
