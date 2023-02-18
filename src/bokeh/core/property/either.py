@@ -84,7 +84,7 @@ class Either(ParameterizedProperty[Any]):
         self.valids = []
 
     def transform(self, value: Any) -> Any:
-        for param in self.type_params:
+        for i, param in enumerate(self.type_params):
             try:
                 # if valid was not executed, or all valids failed - transform one by one
                 # else: run transform on the first param that pass validation
