@@ -354,6 +354,7 @@ class Property(PropertyDescriptorFactory[T]):
             for tp, converter in self.alternatives:
                 if tp.is_valid(value):
                     value = converter(value)
+                    self.validate(value)
                     break
             else:
                 error = e
