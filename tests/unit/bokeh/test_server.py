@@ -17,7 +17,8 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import asyncio, logging
+import asyncio
+import logging
 
 # Bokeh imports
 from bokeh.application import Application
