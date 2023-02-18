@@ -122,6 +122,13 @@ class Test_bundle_for_objs_and_resources:
         # this is a cheap test that a BokehJS file is NOT inline
         assert all(len(x) < 5000 for x in b.js_raw)
 
+    def test_no_objs_all_resources_bundled(self) -> None:
+        b = beb.bundle_for_objs_and_resources([], 'relative')
+        assert any('bokeh-widgets' in f for f in b.js_files)
+        assert any('bokeh-gl' in f for f in b.js_files)
+        assert any('bokeh-tables' in f for f in b.js_files)
+        assert any('bokeh-mathjax' in f for f in b.js_files)
+
 class Test_bundle_custom_extensions:
 
     @classmethod
