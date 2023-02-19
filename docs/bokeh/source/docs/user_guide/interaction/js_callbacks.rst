@@ -139,8 +139,8 @@ custom formula:
 
 In addition to responding to property change events using ``js_on_change``,
 Bokeh allows ``CustomJS`` and ``SetValue`` callbacks to be triggered by specific
-interaction events with the plot canvas, on button click events, and on LOD
-(Level-of-Detail) events.
+interaction events with the plot canvas, on button click events, on LOD
+(Level-of-Detail) events, and document events.
 
 These event callbacks are defined on models using the ``js_on_event`` method,
 with the callback receiving the event object as a locally defined ``cb_obj``
@@ -174,6 +174,30 @@ user interacts with it:
 
 .. bokeh-plot:: __REPO__/examples/interaction/js_callbacks/js_on_event.py
     :source-position: above
+
+JS callbacks for document events can be registred with ``Document.js_on_event()``
+method. In the case of the standalone embedding mode, one will use the current
+document via ``curdoc()`` to set up such callbacks. For example:
+
+.. code:: python
+
+    from bokeh.models import Div
+    from bokeh.models.callbacks import CustomJS
+    from bokeh.io import curdoc, show
+
+    div = Div()
+    # execute a callback when the document is fully rendered
+    callback = CustomJS(args=dict(div=div, code="""div.text = "READY!"""")
+    curdoc().js_on_event("document_ready", callback)
+    show(div)
+
+Similarily to model-level JS events, one can also use event classes in place of
+event names, to register document event callbacks:
+
+.. code:: python
+
+    from bokeh.events import DocumentReady
+    curdoc().js_on_event(DocumentReady, callback)
 
 Examples
 ~~~~~~~~

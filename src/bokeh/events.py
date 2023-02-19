@@ -193,7 +193,18 @@ class DocumentEvent(Event):
 
 
 class DocumentReady(DocumentEvent):
-    ''' Announce when a Document is fully idle.
+    '''
+    Announce when a Document is fully idle.
+
+    .. note::
+        To register a JS callback for this event in standalone embedding
+        mode, one has to either use ``curdoc()`` or an explicit ``Document``
+        instance, e.g.:
+
+        .. code-block:: python
+
+            from bokeh.io import curdoc
+            curdoc().js_on_event("document_ready", handler)
 
     '''
     event_name = 'document_ready'
@@ -204,7 +215,18 @@ class ConnectionEvent(DocumentEvent):
     '''
 
 class ConnectionLost(ConnectionEvent):
-    ''' Announce when a connection to the server/client was lost.
+    '''
+    Announce when a connection to the server/client was lost.
+
+    .. note::
+        To register a JS callback for this event in standalone embedding
+        mode, one has to either use ``curdoc()`` or an explicit ``Document``
+        instance, e.g.:
+
+        .. code-block:: python
+
+            from bokeh.io import curdoc
+            curdoc().js_on_event("document_ready", handler)
 
     '''
     event_name = 'connection_lost'
