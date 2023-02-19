@@ -736,10 +736,11 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         self.apply_theme(property_values={})
 
-    def _clone(self) -> HasProps:
+    def clone(self) -> HasProps:
         ''' Duplicate a HasProps object.
 
-        Values that are containers are shallow-copied.
+        This creates a shallow clone of the original model, i.e. any
+        mutable containers or child models will not be duplicated.
 
         '''
         attrs = self.properties_with_values(include_defaults=False, include_undefined=True)
