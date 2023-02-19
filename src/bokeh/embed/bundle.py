@@ -177,18 +177,25 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
     else:
         raise ValueError(f"expected Resources or a pair of optional Resources, got {resources!r}")
 
-    from copy import deepcopy
-
-    # XXX: force all components on server and in notebook, because we don't know in advance what will be used
-    use_widgets = _use_widgets(objs) if objs else True
-    use_tables  = _use_tables(objs)  if objs else True
-    use_gl      = _use_gl(objs)      if objs else True
-    use_mathjax = _use_mathjax(objs) if objs else True
+    if objs is not None:
+        all_objs = _all_objs(objs)
+        use_widgets = _use_widgets(all_objs)
+        use_tables  = _use_tables(all_objs)
+        use_gl      = _use_gl(all_objs)
+        use_mathjax = _use_mathjax(all_objs)
+    else:
+        # XXX: force all components on server and in notebook, because we don't know in advance what will be used
+        use_widgets = True
+        use_tables  = True
+        use_gl      = True
+        use_mathjax = True
 
     js_files: list[str] = []
     js_raw: list[str] = []
     css_files: list[str] = []
     css_raw: list[str] = []
+
+    from copy import deepcopy
 
     if js_resources:
         js_resources = deepcopy(js_resources)
@@ -210,7 +217,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         css_raw.extend(css_resources.css_raw)
 
     if js_resources:
-        extensions = _bundle_extensions(objs, js_resources)
+        extensions = _bundle_extensions(all_objs if objs else None, js_resources)
         mode = js_resources.mode if resources is not None else "inline"
         if mode == "inline":
             js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
@@ -225,7 +232,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         else:
             js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
-    models = [ obj.__class__ for obj in _all_objs(objs) ] if objs else None
+    models = [ obj.__class__ for obj in all_objs ] if objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
@@ -236,10 +243,10 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 # Private API
 #-----------------------------------------------------------------------------
 
-def _query_extensions(objs: Sequence[Model | Document], query: Callable[[type[Model]], bool]) -> bool:
+def _query_extensions(all_objs: set[Model], query: Callable[[type[Model]], bool]) -> bool:
     names: set[str] = set()
 
-    for obj in _all_objs(objs):
+    for obj in all_objs:
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]
@@ -272,13 +279,13 @@ class Pkg(TypedDict, total=False):
 
 extension_dirs: dict[str, str] = {} # name -> path
 
-def _bundle_extensions(objs: Sequence[Model | Document], resources: Resources) -> list[ExtensionEmbed]:
+def _bundle_extensions(all_objs: set[Model], resources: Resources) -> list[ExtensionEmbed]:
     names: set[str] = set()
     bundles: list[ExtensionEmbed] = []
 
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
-    for obj in _all_objs(objs) if objs is not None else Model.model_class_reverse_map.values():
+    for obj in all_objs if all_objs is not None else Model.model_class_reverse_map.values():
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]
@@ -359,11 +366,11 @@ def _all_objs(objs: Sequence[Model | Document]) -> set[Model]:
 
     return all_objs
 
-def _any(objs: Sequence[Model | Document], query: Callable[[Model], bool]) -> bool:
+def _any(objs: set[Model], query: Callable[[Model], bool]) -> bool:
     ''' Whether any of a collection of objects satisfies a given query predicate
 
     Args:
-        objs (seq[Model or Document]) :
+        objs (set[Model]) :
 
         query (callable)
 
@@ -371,16 +378,10 @@ def _any(objs: Sequence[Model | Document], query: Callable[[Model], bool]) -> bo
         True, if ``query(obj)`` is True for some object in ``objs``, else False
 
     '''
-    for obj in objs:
-        if isinstance(obj, Document):
-            if _any(obj.roots, query):
-                return True
-        else:
-            if any(query(ref) for ref in obj.references()):
-                return True
-    return False
 
-def _use_tables(objs: Sequence[Model | Document]) -> bool:
+    return any(query(x) for x in objs)
+
+def _use_tables(all_objs: set[Model]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
@@ -391,9 +392,9 @@ def _use_tables(objs: Sequence[Model | Document]) -> bool:
 
     '''
     from ..models.widgets import TableWidget
-    return _any(objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(objs)
+    return _any(all_objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(all_objs)
 
-def _use_widgets(objs: Sequence[Model | Document]) -> bool:
+def _use_widgets(all_objs: set[Model]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
@@ -404,7 +405,7 @@ def _use_widgets(objs: Sequence[Model | Document]) -> bool:
 
     '''
     from ..models.widgets import Widget
-    return _any(objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(objs)
+    return _any(all_objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(all_objs)
 
 def _model_requires_mathjax(model: Model) -> bool:
     """Whether a model requires MathJax to be loaded
@@ -444,7 +445,7 @@ def _model_requires_mathjax(model: Model) -> bool:
 
     return False
 
-def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
+def _use_mathjax(all_objs: set[Model]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
         objs (seq[Model or Document]) :
@@ -453,9 +454,9 @@ def _use_mathjax(objs: Sequence[Model | Document]) -> bool:
     '''
     from ..models.text import MathText
 
-    return _any(objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(objs)
+    return _any(all_objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
 
-def _use_gl(objs: Sequence[Model | Document]) -> bool:
+def _use_gl(all_objs: set[Model]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
@@ -466,19 +467,19 @@ def _use_gl(objs: Sequence[Model | Document]) -> bool:
 
     '''
     from ..models.plots import Plot
-    return _any(objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
+    return _any(all_objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
-def _ext_use_tables(objs: Sequence[Model | Document]) -> bool:
+def _ext_use_tables(all_objs: set[Model]) -> bool:
     from ..models.widgets import TableWidget
-    return _query_extensions(objs, lambda cls: issubclass(cls, TableWidget))
+    return _query_extensions(all_objs, lambda cls: issubclass(cls, TableWidget))
 
-def _ext_use_widgets(objs: Sequence[Model | Document]) -> bool:
+def _ext_use_widgets(all_objs: set[Model]) -> bool:
     from ..models.widgets import Widget
-    return _query_extensions(objs, lambda cls: issubclass(cls, Widget))
+    return _query_extensions(all_objs, lambda cls: issubclass(cls, Widget))
 
-def _ext_use_mathjax(objs: Sequence[Model | Document]) -> bool:
+def _ext_use_mathjax(all_objs: set[Model]) -> bool:
     from ..models.text import MathText
-    return _query_extensions(objs, lambda cls: issubclass(cls, MathText))
+    return _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
 # Code
 #-----------------------------------------------------------------------------
