@@ -1,4 +1,4 @@
-import {Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto} from "core/kinds"
+import {Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto} from "../../core/kinds"
 import * as enums from "core/enums"
 
 const Length = NonNegative(Int)

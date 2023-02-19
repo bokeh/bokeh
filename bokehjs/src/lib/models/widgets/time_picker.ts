@@ -1,7 +1,7 @@
 import flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
-import {String, Number, Or} from "core/kinds"
+import {String, Number, Or} from "../../core/kinds"
 import {Clock} from "core/enums"
 import * as p from "core/properties"
 import {assert} from "core/util/assert"
