@@ -35,6 +35,7 @@ export abstract class BaseDatetimePickerView extends BaseDatePickerView {
 
     const options = super.flatpickr_options
     options.enableTime = true
+    options.dateFormat = "Y-m-dTH:i:S"
 
     options.hourIncrement = hour_increment
     options.minuteIncrement = minute_increment
