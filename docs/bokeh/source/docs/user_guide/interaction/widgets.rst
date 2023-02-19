@@ -179,17 +179,89 @@ in static HTML documents).
 
 More information can be found in the reference guide entry for |DataTable|.
 
-.. _ug_interaction_widgets_examples_datepicker:
+.. _ug_interaction_widgets_examples_date_picker:
 
 DatePicker
-~~~~~~~~~~~
+~~~~~~~~~~
 
 A widget to allow the user to specify a date value.
 
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/datepicker.py
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/date_picker.py
     :source-position: below
 
 More information can be found in the reference guide entry for |DatePicker|.
+
+.. _ug_interaction_widgets_examples_date_range_picker:
+
+DateRangePicker
+~~~~~~~~~~~~~~~
+
+A widget to allow the user to specify a range between two date values.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/date_range_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |DateRangePicker|.
+
+.. _ug_interaction_widgets_examples_multiple_date_picker:
+
+MultipleDatePicker
+~~~~~~~~~~~~~~~~~~
+
+A widget to allow the user to specify multiple date values.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/multiple_date_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |MultipleDatePicker|.
+
+.. _ug_interaction_widgets_examples_datetime_picker:
+
+DatetimePicker
+~~~~~~~~~~~~~~
+
+A widget to allow the user to specify a date and time value.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/datetime_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |DatetimePicker|.
+
+.. _ug_interaction_widgets_examples_datetime_range_picker:
+
+DatetimeRangePicker
+~~~~~~~~~~~~~~~~~~~
+
+A widget to allow the user to specify a range between two date and time values.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/datetime_range_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |DatetimeRangePicker|.
+
+.. _ug_interaction_widgets_examples_multiple_datetime_picker:
+
+MultipleDatetimePicker
+~~~~~~~~~~~~~~~~~~~~~~
+
+A widget to allow the user to specify multiple date and time values.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/multiple_datetime_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |MultipleDatetimePicker|.
+
+.. _ug_interaction_widgets_examples_timepicker:
+
+TimePicker
+~~~~~~~~~~
+
+A widget to allow the user to specify a time value.
+
+.. bokeh-plot:: __REPO__/examples/interaction/widgets/time_picker.py
+    :source-position: below
+
+More information can be found in the reference guide entry for |TimePicker|.
 
 DateRangeSlider
 ~~~~~~~~~~~~~~~
@@ -496,6 +568,12 @@ More information can be found in the reference guide entry for |Toggle|.
 .. |DataCube|               replace:: :class:`~bokeh.models.widgets.tables.DataCube`
 .. |DataTable|              replace:: :class:`~bokeh.models.widgets.tables.DataTable`
 .. |DatePicker|             replace:: :class:`~bokeh.models.widgets.inputs.DatePicker`
+.. |DateRangePicker|        replace:: :class:`~bokeh.models.widgets.inputs.DateRangePicker`
+.. |MultipleDatePicker|     replace:: :class:`~bokeh.models.widgets.inputs.MultipleDatePicker`
+.. |DatetimePicker|         replace:: :class:`~bokeh.models.widgets.inputs.DatetimePicker`
+.. |DatetimeRangePicker|    replace:: :class:`~bokeh.models.widgets.inputs.DatetimeRangePicker`
+.. |MultipleDatetimePicker| replace:: :class:`~bokeh.models.widgets.inputs.MultipleDatetimePicker`
+.. |TimePicker|             replace:: :class:`~bokeh.models.widgets.inputs.TimePicker`
 .. |DateRangeSlider|        replace:: :class:`~bokeh.models.widgets.sliders.DateRangeSlider`
 .. |DateSlider|             replace:: :class:`~bokeh.models.widgets.sliders.DateSlider`
 .. |DatetimeRangeSlider|    replace:: :class:`~bokeh.models.widgets.sliders.DatetimeRangeSlider`
