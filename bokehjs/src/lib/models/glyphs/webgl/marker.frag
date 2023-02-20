@@ -255,11 +255,6 @@ float subtract(in float d1, in float d2)
   return max(d1, -d2);
 }
 
-float cro2(in vec2 a, in vec2 b)
-{
-  return a.x*b.y - a.y*b.x;
-}
-
 float circle(in vec2 p, in float radius)
 {
   return length(p) - radius;
@@ -275,6 +270,11 @@ vec2 xy(in float angle)
   return vec2(cos(angle), sin(angle));
 }
 
+float cross_z(in vec2 v0, in vec2 v1)
+{
+    return v0.x*v1.y - v0.y*v1.x;
+}
+
 // From https://www.shadertoy.com/view/wldXWB (MIT licensed)
 float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
 {
@@ -286,10 +286,10 @@ float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
 
     // sign
     float s;
-    if (cro2(a, b) < 0.0) {
-        s =  sign(max(cro2(a, p), cro2(p, b)));
+    if (cross_z(a, b) < 0.0) {
+        s =  sign(max(cross_z(a, p), cross_z(p, b)));
     } else {
-        s = -sign(max(cro2(p, a), cro2(b, p)));
+        s = -sign(max(cross_z(p, a), cross_z(b, p)));
     }
 
     return s*d;
