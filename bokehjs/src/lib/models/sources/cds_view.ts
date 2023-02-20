@@ -29,6 +29,7 @@ export class CDSViewView extends View {
       this.connect(source.change, fn)
       this.connect(source.streaming, fn)
       this.connect(source.patching, fn)
+      this.connect(source.properties.data.change, fn)
     }
 
     connect_listeners()
