@@ -803,7 +803,7 @@ class TestDeserializer:
 
         rep4 = SliceRep(type="slice", start=None, stop=None, step=None)
         assert decoder.decode(rep4) == slice(None, None, None)
-    
+
     def test_pandas_string_array(self) -> None:
         data = ['This is', 'some text', 'data.']
         arr = pd.array(data, dtype='string')
