@@ -1,16 +1,18 @@
 """ Demonstration of how to register event callbacks using an adaptation
 of the color_scatter example from the bokeh gallery
 """
+from __future__ import annotations
 
 import numpy as np
 
 from bokeh import events
+from bokeh.io import curdoc, show
 from bokeh.layouts import column, row
 from bokeh.models import Button, CustomJS, Div, TextInput
-from bokeh.plotting import figure, show
+from bokeh.plotting import figure
 
 
-def display_event(div, attributes=[]):
+def display_event(div: Div, attributes: list[str] = []) -> CustomJS:
     """
     Function to build a suitable CustomJS to display the current event
     in the div model.
@@ -98,5 +100,7 @@ p.js_on_event(events.RangesUpdate, display_event(div, attributes=['x0','x1','y0'
 
 # Selection events
 p.js_on_event(events.SelectionGeometry, display_event(div, attributes=['geometry', 'final']))
+
+curdoc().on_event(events.DocumentReady, display_event(div))
 
 show(layout)

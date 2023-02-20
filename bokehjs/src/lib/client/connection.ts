@@ -100,8 +100,10 @@ export class ClientConnection {
       /*
       if (this.closed_permanently) {
       */
-      if (!this.closed_permanently)
+      if (!this.closed_permanently) {
         logger.info(`Websocket connection ${this._number} disconnected, will not attempt to reconnect`)
+        this.session?.notify_connection_lost()
+      }
       return
       /*
       } else {

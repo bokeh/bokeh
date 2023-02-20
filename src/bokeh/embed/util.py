@@ -145,7 +145,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
         doc = _create_temp_doc(objs)
     else:
         if len(docs) == 0:
-            doc = Document()
+            doc = _new_doc()
             for model in objs:
                 doc.add_root(model)
 
@@ -397,8 +397,17 @@ be used. For more information on building and running Bokeh applications, see:
     https://docs.bokeh.org/en/latest/docs/user_guide/server.html
 """
 
-def _create_temp_doc(models: Sequence[Model]) -> Document:
+def _new_doc() -> Document:
+    # TODO: embed APIs need to actually respect the existing document's
+    # configuration, but for now this is better than nothing.
+    from ..io import curdoc
     doc = Document()
+    callbacks = curdoc().callbacks._js_event_callbacks
+    doc.callbacks._js_event_callbacks.update(callbacks)
+    return doc
+
+def _create_temp_doc(models: Sequence[Model]) -> Document:
+    doc = _new_doc()
     for m in models:
         doc.models[m.id] = m
         m._temp_document = doc

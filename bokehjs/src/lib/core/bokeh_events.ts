@@ -6,8 +6,15 @@ import {serialize, Serializable, Serializer} from "./serialization"
 import {equals, Equatable, Comparator} from "./util/eq"
 
 export type BokehEventType =
-  "document_ready" |
+  DocumentEventType |
   ModelEventType
+
+export type DocumentEventType =
+  "document_ready" |
+  ConnectionEventType
+
+export type ConnectionEventType =
+  "connection_lost"
 
 export type ModelEventType =
   "button_click" |
@@ -44,6 +51,7 @@ export type PointEventType =
 
 export type BokehEventMap = {
   document_ready: DocumentReady
+  connection_lost: ConnectionLost
   button_click: ButtonClick
   menu_item_click: MenuItemClick
   value_submit: ValueSubmit
@@ -80,11 +88,13 @@ export type BokehEventRep = {
 function event(event_name: string) {
   return (cls: Class<BokehEvent>) => {
     cls.prototype.event_name = event_name
+    cls.prototype.publish = true
   }
 }
 
 export abstract class BokehEvent implements Serializable, Equatable {
-  /* prototype */ event_name: string
+  declare event_name: string
+  declare publish: boolean
 
   [serialize](serializer: Serializer): BokehEventRep {
     const {event_name: name, event_values} = this
@@ -107,10 +117,28 @@ export abstract class ModelEvent extends BokehEvent {
   }
 }
 
+export abstract class DocumentEvent extends BokehEvent {}
+
 @event("document_ready")
-export class DocumentReady extends BokehEvent {
+export class DocumentReady extends DocumentEvent {
   protected get event_values(): Attrs {
     return {}
+  }
+}
+
+export abstract class ConnectionEvent extends DocumentEvent {}
+
+export class ConnectionLost extends ConnectionEvent {
+  readonly timestamp = new Date()
+
+  protected get event_values(): Attrs {
+    const {timestamp} = this
+    return {timestamp}
+  }
+
+  static {
+    this.prototype.event_name = "connection_lost"
+    this.prototype.publish = false
   }
 }
 
