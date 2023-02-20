@@ -27,7 +27,7 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: GLMarkerType): void {
     if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
+      main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
     }
 

@@ -21,7 +21,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const main_gl_glyph = main_glyph.glglyph!
 
     if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
+      main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
     }
 
@@ -83,8 +83,10 @@ export class MultiMarkerGL extends BaseMarkerGL {
 
     this._marker_types = this.glyph.marker
     this._unique_marker_types = [...new Set(this._marker_types)]
+  }
 
-    // unused
+  protected override _set_once(): void {
+    super._set_once()
     this._heights.set_from_scalar(0)
     this._auxs.set_from_scalar(0)
   }

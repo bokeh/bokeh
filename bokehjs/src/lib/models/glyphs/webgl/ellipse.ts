@@ -18,8 +18,10 @@ export class EllipseGL extends SXSYGlyphGL {
     this._widths.set_from_array(this.glyph.sw)
     this._heights.set_from_array(this.glyph.sh)
     this._angles.set_from_prop(this.glyph.angle)
+  }
 
-    // unused
+  protected override _set_once(): void {
+    super._set_once()
     this._auxs.set_from_scalar(0)
   }
 }

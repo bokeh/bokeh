@@ -26,8 +26,10 @@ export class AnnulusGL extends SXSYGlyphGL {
 
     this.outer_radius.set_from_array(this.glyph.souter_radius)
     this.inner_radius.set_from_array(this.glyph.sinner_radius)
+  }
 
-    // unused
+  protected override _set_once(): void {
+    super._set_once()
     this._angles.set_from_scalar(0)
     this._auxs.set_from_scalar(0)
   }

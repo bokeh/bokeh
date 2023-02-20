@@ -24,8 +24,10 @@ export class HexTileGL extends SXSYGlyphGL {
       this._widths.set_from_scalar(this.glyph.svx[0]*2)
       this._heights.set_from_scalar(this.glyph.svy[4]*4/Math.sqrt(3))
     }
+  }
 
-    // unused
+  protected override _set_once(): void {
+    super._set_once()
     this._auxs.set_from_scalar(0)
   }
 }

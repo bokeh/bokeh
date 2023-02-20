@@ -111,9 +111,20 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
     }
   }
 
-  protected abstract _get_visuals(): MarkerVisuals
+  private _did_set_once: boolean = false
+  set_data(): void {
+    if (!this._did_set_once) {
+      this._did_set_once = true
+      this._set_once()
+    }
+    this._set_data()
+  }
 
   protected abstract _set_data(): void
+
+  protected _set_once(): void {}
+
+  protected abstract _get_visuals(): MarkerVisuals
 
   protected _set_visuals(): void {
     const {line, fill, hatch} = this._get_visuals()

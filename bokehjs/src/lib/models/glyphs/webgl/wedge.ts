@@ -37,8 +37,10 @@ export class WedgeGL extends SXSYGlyphGL {
       this.start_angle.set_from_prop(this.glyph.end_angle)
       this.end_angle.set_from_prop(this.glyph.start_angle)
     }
+  }
 
-    // unused
+  protected override _set_once(): void {
+    super._set_once()
     this._heights.set_from_scalar(0)
   }
 }
