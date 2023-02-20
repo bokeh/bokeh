@@ -44,11 +44,12 @@ from ...core.properties import (
     TextLike,
     field,
 )
-from ...core.property_aliases import Padding, TextAnchor
+from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
     LineProps,
     ScalarFillProps,
+    ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
     TextProps,
@@ -88,7 +89,11 @@ class TextAnnotation(Annotation):
     The {prop} values for the text.
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
     The {prop} values for the text bounding box.
     """)
 
@@ -97,6 +102,8 @@ class TextAnnotation(Annotation):
     """)
 
     background_fill_color = Override(default=None)
+
+    background_hatch_color = Override(default=None)
 
     border_line_color = Override(default=None)
 
@@ -181,6 +188,14 @@ class Label(TextAnnotation):
 
     padding = Padding(default=0, help="""
     Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows label's box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
 
     .. note::
         This property is experimental and may change at any point.

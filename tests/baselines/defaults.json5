@@ -5089,6 +5089,14 @@
     text_line_height: 1.2,
     background_fill_color: null,
     background_fill_alpha: 1.0,
+    background_hatch_color: null,
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
     border_line_color: null,
     border_line_alpha: 1.0,
     border_line_width: 1,
@@ -5273,6 +5281,7 @@
     angle_units: "rad",
     direction: "anticlock",
     padding: 0,
+    border_radius: 0,
     editable: false,
   },
   LabelSet: {

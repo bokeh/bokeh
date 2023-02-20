@@ -109,12 +109,14 @@ export namespace TextAnnotation {
   export type Mixins =
     mixins.Text &
     mixins.BorderLine &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.BackgroundHatch
 
   export type Visuals = Annotation.Visuals & {
     text: visuals.Text
     border_line: visuals.Line
     background_fill: visuals.Fill
+    background_hatch: visuals.Hatch
   }
 }
 
@@ -133,6 +135,7 @@ export abstract class TextAnnotation extends Annotation {
       mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
+      ["background_", mixins.Hatch],
     ])
 
     this.define<TextAnnotation.Props>(({String, Or, Ref}) => ({
@@ -140,8 +143,9 @@ export abstract class TextAnnotation extends Annotation {
     }))
 
     this.override<TextAnnotation.Props>({
-      background_fill_color: null,
       border_line_color: null,
+      background_fill_color: null,
+      background_hatch_color: null,
     })
   }
 }

@@ -10,9 +10,11 @@ import {assert} from "core/util/assert"
 import type {Pannable, PanEvent, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
 import {rotate_around} from "core/util/affine"
-import type {LRTB, XY} from "core/util/bbox"
-import {TextAnchor, Padding} from "../common/kinds"
+import type {LRTB, XY, Corners} from "core/util/bbox"
+import {BBox} from "core/util/bbox"
+import {TextAnchor, Padding, BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
+import {round_rect} from "../common/painting"
 
 type HitTarget = "area"
 type SXY = {sx: number, sy: number}
@@ -78,6 +80,10 @@ export class LabelView extends TextAnnotationView implements Pannable {
     return resolve.padding(this.model.padding)
   }
 
+  get border_radius(): Corners<number> {
+    return resolve.border_radius(this.model.border_radius)
+  }
+
   get angle(): number {
     const {angle, angle_units, direction} = this.model
     return compute_angle(angle, angle_units, direction)
@@ -102,6 +108,7 @@ export class LabelView extends TextAnnotationView implements Pannable {
     angle: number
     anchor: XY<number>
     padding: LRTB<number>
+    border_radius: Corners<number>
   }
 
   override update_geometry(): void {
@@ -114,43 +121,48 @@ export class LabelView extends TextAnnotationView implements Pannable {
 
     const size = text_box.size()
     const {sx, sy} = this.origin
-    const {anchor, padding, angle} = this
+    const {anchor, padding, border_radius, angle} = this
 
     const width = size.width + padding.left + padding.right
     const height = size.height + padding.top + padding.bottom
 
     this._text_box = text_box
-    this._rect = {sx, sy, width, height, angle, anchor, padding}
+    this._rect = {sx, sy, width, height, angle, anchor, padding, border_radius}
   }
 
   protected _render(): void {
     const {ctx} = this.layer
 
-    const {sx, sy, width, height, angle, anchor, padding} = this._rect
+    const {sx, sy, width, height, angle, anchor, padding, border_radius} = this._rect
+    const label = this._text_box
 
     const dx = anchor.x*width
     const dy = anchor.y*height
 
-    ctx.save()
     ctx.translate(sx, sy)
     ctx.rotate(angle)
     ctx.translate(-dx, -dy)
 
-    const {background_fill, border_line} = this.visuals
-    if (background_fill.doit || border_line.doit) {
+    const {background_fill, background_hatch, border_line, text} = this.visuals
+    if (background_fill.doit || background_hatch.doit || border_line.doit) {
       ctx.beginPath()
-      ctx.rect(0, 0, width, height)
-
-      this.visuals.background_fill.apply(ctx)
-      this.visuals.border_line.apply(ctx)
+      const bbox = new BBox({x: 0, y: 0, width, height})
+      round_rect(ctx, bbox, border_radius)
+      background_fill.apply(ctx)
+      background_hatch.apply(ctx)
+      border_line.apply(ctx)
     }
 
-    if (this.visuals.text.doit) {
-      ctx.translate(padding.left, padding.top)
-      this._text_box.paint(ctx)
+    if (text.doit) {
+      const {left, top} = padding
+      ctx.translate(left, top)
+      label.paint(ctx)
+      ctx.translate(-left, -top)
     }
 
-    ctx.restore()
+    ctx.translate(dx, dy)
+    ctx.rotate(-angle)
+    ctx.translate(-sx, -sy)
   }
 
   override interactive_hit(sx: number, sy: number): boolean {
@@ -247,6 +259,7 @@ export namespace Label {
     angle_units: p.Property<AngleUnits>
     direction: p.Property<Direction>
     padding: p.Property<Padding>
+    border_radius: p.Property<BorderRadius>
     editable: p.Property<boolean>
   }
 
@@ -280,6 +293,7 @@ export class Label extends TextAnnotation {
       angle_units: [ AngleUnits, "rad" ],
       direction:   [ Direction, "anticlock" ],
       padding:     [ Padding, 0 ],
+      border_radius: [ BorderRadius, 0 ],
       editable:    [ Boolean, false ],
     }))
   }
