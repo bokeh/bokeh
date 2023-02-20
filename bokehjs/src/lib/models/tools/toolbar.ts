@@ -28,6 +28,10 @@ export class ToolbarView extends UIElementView {
   protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
   protected _tool_buttons: ToolButton[][]
 
+  get tool_buttons(): ToolButton[] {
+    return this._tool_buttons.flat()
+  }
+
   protected _overflow_menu: ContextMenu
   protected _overflow_el: HTMLElement
 

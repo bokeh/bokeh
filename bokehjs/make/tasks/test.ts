@@ -4,6 +4,7 @@ import {join, delimiter, basename, extname, dirname} from "path"
 import chalk from "chalk"
 import which from "which"
 import fs from "fs"
+import os from "os"
 
 import {task, task2, success, passthrough, BuildError} from "../task"
 import * as paths from "../paths"
@@ -76,12 +77,19 @@ function chrome(): string {
   throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
 }
 
-async function headless(port: number): Promise<ChildProcess> {
+const devtools_host = argv.host as string | undefined ?? "127.0.0.1"
+
+async function headless(devtools_port: number): Promise<ChildProcess> {
+  const data_dir = fs.mkdtempSync(join(os.tmpdir(), "headless"))
+  if (fs.existsSync(data_dir)) {
+    fs.rmSync(data_dir, {recursive: true, force: true})
+  }
   const args = [
-    "--headless",
+    "--headless=new",
     "--no-first-run",
-    `--remote-debugging-address=${argv.host ?? "127.0.0.1"}`,
-    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${data_dir}`,
+    `--remote-debugging-address=${devtools_host}`,
+    `--remote-debugging-port=${devtools_port}`,
     "--font-render-hinting=none",           // fixes measureText() on Linux with external fonts
     "--disable-font-subpixel-positioning",  // makes images look similar on all platform
     "--force-color-profile=srgb",           // ^^^
@@ -113,7 +121,7 @@ async function headless(port: number): Promise<ChildProcess> {
       } else if (buffer.match(/bind\(\)/)) {
         proc.stderr.removeAllListeners()
         clearTimeout(timer)
-        reject(new BuildError("headless", `can't start headless browser on port ${port}`))
+        reject(new BuildError("headless", `can't start headless browser on port ${devtools_port}`))
       }
     })
   })
@@ -183,6 +191,7 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   const args = [
     "--no-warnings",
     "./test/devtools",
+    `--host=${devtools_host}`,
     `--port=${devtools_port}`,
     ...user_args,
   ]
