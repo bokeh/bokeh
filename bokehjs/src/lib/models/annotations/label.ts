@@ -111,8 +111,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
     border_radius: Corners<number>
   }
 
-  override update_geometry(): void {
-    super.update_geometry()
+  override compute_geometry(): void {
+    super.compute_geometry()
 
     const text_box = this._text_view.graphics()
     text_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
@@ -131,6 +131,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
   }
 
   protected _render(): void {
+    this.compute_geometry() // TODO: remove this
+
     const {ctx} = this.layer
 
     const {sx, sy, width, height, angle, anchor, padding, border_radius} = this._rect
