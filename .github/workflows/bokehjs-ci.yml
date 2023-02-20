@@ -8,8 +8,8 @@ on:
   pull_request:
 
 env:
-  CHROME_VER: "109.0.5414.74"
-  CHROME_REV: "chromium_2271"
+  CHROME_VER: "110.0.5481.100"
+  CHROME_REV: "chromium_2333"
 
 jobs:
   test:
