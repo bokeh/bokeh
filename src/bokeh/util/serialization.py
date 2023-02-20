@@ -349,11 +349,14 @@ def transform_series(series: pd.Series[Any] | pd.Index) -> npt.NDArray[Any]:
 
     '''
     import pandas as pd
+    from pandas.core.arrays import PandasArray
 
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
         vals = series.to_timestamp().values  # type: ignore
+    elif isinstance(series, PandasArray):
+        vals = series.to_numpy()
     else:
         vals = series.values
     return vals
