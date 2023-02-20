@@ -20,6 +20,6 @@ export class EllipseGL extends SXSYGlyphGL {
     this._angles.set_from_prop(this.glyph.angle)
 
     // unused
-    this._auxs.set_from_scalar(0, 1)
+    this._auxs.set_from_scalar(0)
   }
 }

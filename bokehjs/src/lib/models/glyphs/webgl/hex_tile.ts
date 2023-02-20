@@ -26,6 +26,6 @@ export class HexTileGL extends SXSYGlyphGL {
     }
 
     // unused
-    this._auxs.set_from_scalar(0, 1)
+    this._auxs.set_from_scalar(0)
   }
 }

@@ -24,6 +24,6 @@ export class RectGL extends SXSYGlyphGL {
     this._border_radius = [top_left, top_right, bottom_right, bottom_left]
 
     // unused
-    this._auxs.set_from_scalar(0, 1)
+    this._auxs.set_from_scalar(0)
   }
 }

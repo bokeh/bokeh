@@ -39,6 +39,6 @@ export class WedgeGL extends SXSYGlyphGL {
     }
 
     // unused
-    this._heights.set_from_scalar(0, 1)
+    this._heights.set_from_scalar(0)
   }
 }

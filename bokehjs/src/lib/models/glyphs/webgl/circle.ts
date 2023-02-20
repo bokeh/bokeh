@@ -28,7 +28,7 @@ export class CircleGL extends SXSYGlyphGL {
     this.size.set_from_array(mul(this.glyph.sradius, 2.0))
 
     // unused
-    this._heights.set_from_scalar(0, 1)
-    this._angles.set_from_scalar(0, 1)
+    this._heights.set_from_scalar(0)
+    this._angles.set_from_scalar(0)
   }
 }

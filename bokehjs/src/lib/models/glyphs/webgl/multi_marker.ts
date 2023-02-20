@@ -85,7 +85,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     this._unique_marker_types = [...new Set(this._marker_types)]
 
     // unused
-    this._heights.set_from_scalar(0, 1)
-    this._auxs.set_from_scalar(0, 1)
+    this._heights.set_from_scalar(0)
+    this._auxs.set_from_scalar(0)
   }
 }
