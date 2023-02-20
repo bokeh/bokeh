@@ -20,7 +20,7 @@ import pytest ; pytest
 import numpy as np
 
 # Bokeh imports
-from bokeh.core.has_props import HasProps
+from bokeh.core.has_props import HasProps, Local
 from bokeh.core.properties import (
     Alias,
     Dict,
@@ -37,7 +37,7 @@ from bokeh.core.properties import (
     String,
     UnsetValueError,
 )
-from bokeh.models import Plot
+from bokeh.model import Model
 from tests.support.util.api import verify_all
 
 # Module under test
@@ -525,11 +525,47 @@ def test_HasProps_equals() -> None:
     assert v is False
 
 def test_HasProps_clone() -> None:
-    p1 = Plot(width=1000)
-    c1 = p1.properties_with_values(include_defaults=False)
-    p2 = p1._clone()
-    c2 = p2.properties_with_values(include_defaults=False)
+    class Foo(HasProps):
+        p0 = Int()
+        p1 = Alias("p0")
+        p2 = List(Int)
+        p3 = Nullable(Instance(lambda: Foo), default=None)
+
+    f1 = Foo(p0=10, p2=[1, 2, 3], p3=Foo(p0=20, p2=[4, 5, 6]))
+    c1 = f1.properties_with_values(include_defaults=False)
+
+    f2 = f1.clone()
+    c2 = f2.properties_with_values(include_defaults=False)
     assert c1 == c2
+
+    f2.p2.append(4)
+    assert f1.p2 == [1, 2, 3, 4]
+
+    f2.p3.p0 = 30
+    assert f1.p3.p0 == 30
+
+def test_Model_clone() -> None:
+    class Foo(Model, Local):
+        p0 = Int()
+        p1 = Alias("p0")
+        p2 = List(Int)
+        p3 = Nullable(Instance(lambda: Foo), default=None)
+
+    f1 = Foo(p0=10, p2=[1, 2, 3], p3=Foo(p0=20, p2=[4, 5, 6]))
+    c1 = f1.properties_with_values(include_defaults=False)
+
+    f2 = f1.clone()
+    c2 = f2.properties_with_values(include_defaults=False)
+
+    assert f1.id != f2.id
+    assert c1 == c2
+    assert f1.p3.id == f2.p3.id
+
+    f2.p2.append(4)
+    assert f1.p2 == [1, 2, 3, 4]
+
+    f2.p3.p0 = 30
+    assert f1.p3.p0 == 30
 
 def test_Alias() -> None:
     class Foo(HasProps):
