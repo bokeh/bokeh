@@ -337,7 +337,6 @@ export class DataTableView extends WidgetView {
 
     const initialized = is_defined(this.grid)
 
-    //this.cds_view.compute_indices()
     this.data = new TableDataProvider(this.model.source, this.model.view)
     this.grid = new SlickGrid(this.wrapper_el, this.data, columns, options)
 
