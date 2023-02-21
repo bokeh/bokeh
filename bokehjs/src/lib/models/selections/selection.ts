@@ -4,8 +4,11 @@ import {SelectionMode} from "core/enums"
 import {union, intersection, difference} from "core/util/array"
 import {merge, entries, to_object} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
+import {Arrayable, Int} from "../../core/kinds"
+import {map} from "core/util/arrayable"
 
-export type OpaqueIndices = number[]
+export type OpaqueIndices = typeof OpaqueIndices["__type__"]
+export const OpaqueIndices = Arrayable(Int)
 
 export type MultiIndices = {[key: string]: OpaqueIndices}
 
@@ -44,9 +47,9 @@ export class Selection extends Model {
 
   static {
     this.define<Selection.Props>(({Int, Array, Dict, Struct}) => ({
-      indices:           [ Array(Int), [] ],
-      line_indices:      [ Array(Int), [] ],
-      multiline_indices: [ Dict(Array(Int)), {} ],
+      indices:           [ OpaqueIndices, [] ],
+      line_indices:      [ OpaqueIndices, [] ],
+      multiline_indices: [ Dict(OpaqueIndices), {} ],
       image_indices:     [ Array(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
     }))
 
@@ -102,7 +105,7 @@ export class Selection extends Model {
   map(mapper: (index: number) => number): Selection {
     return new Selection({
       ...this.attributes,
-      indices: this.indices.map(mapper),
+      indices: map(this.indices, mapper),
       // NOTE: line_indices don't support subset indexing
       multiline_indices: to_object(entries(this.multiline_indices).map(([index, line_indices]) => [mapper(Number(index)), line_indices])),
       image_indices: this.image_indices.map((ndx) => ({...ndx, index: mapper(ndx.index)})),

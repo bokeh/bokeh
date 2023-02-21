@@ -106,7 +106,6 @@ export class LineView extends XYGlyphView {
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
-    const result = new Selection()
 
     let val: number
     let values: Arrayable<number>
@@ -118,14 +117,22 @@ export class LineView extends XYGlyphView {
       values = this._x
     }
 
+    const indices = []
     for (let i = 0, end = values.length-1; i < end; i++) {
-      if ((values[i] <= val && val <= values[i + 1]) || (values[i + 1] <= val && val <= values[i])) {
-        result.add_to_selected_glyphs(this.model)
-        result.view = this
-        result.line_indices.push(i)
+      const curr = values[i]
+      const next = values[i + 1]
+
+      if ((curr <= val && val <= next) || (next <= val && val <= curr)) {
+        indices.push(i)
       }
     }
 
+    const result = new Selection()
+    if (indices.length != 0) {
+      result.add_to_selected_glyphs(this.model)
+      result.view = this
+      result.line_indices = indices
+    }
     return result
   }
 

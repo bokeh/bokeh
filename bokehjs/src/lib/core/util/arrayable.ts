@@ -64,14 +64,15 @@ export function prepend<T>(array: Arrayable<T>, item: T): Arrayable<T> {
   return splice(array, 0, 0, item)
 }
 
-export function indexOf<T>(array: Arrayable<T>, item: T): number {
-  for (let i = 0, n = array.length; i < n; i++) {
-    if (array[i] === item)
-      return i
-  }
-
-  return -1
+export function index_of<T>(array: Arrayable<T>, item: T): number {
+  return array.indexOf(item)
 }
+
+export function includes<T>(array: Arrayable<T>, value: T): boolean {
+  return array.indexOf(value) !== -1
+}
+
+export const contains = includes
 
 export function subselect<T>(array: Arrayable<T>, indices: Arrayable<number>): Arrayable<T> {
   const n = indices.length
@@ -294,14 +295,6 @@ export function some<T>(iter: Iterable<T>, predicate: (item: T) => boolean): boo
       return true
   }
   return false
-}
-
-export function index_of<T>(array: Arrayable<T>, value: T): number {
-  for (let i = 0, length = array.length; i < length; i++) {
-    if (array[i] === value)
-      return i
-  }
-  return -1
 }
 
 function _find_index(dir: -1 | 1) {

@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {indexOf} from "core/util/arrayable"
+import {index_of, map} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
 import {HitTestResult} from "core/hittest"
 import {Geometry} from "core/geometry"
@@ -9,6 +9,8 @@ import {Selection} from "../selections/selection"
 import {GraphRenderer, GraphRendererView} from "../renderers/graph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {GlyphRendererView} from "../renderers/glyph_renderer"
+
+type IndicesType = "selection" | "inspection"
 
 export namespace GraphHitTestPolicy {
   export type Attrs = p.AttrsOf<Props>
@@ -155,13 +157,14 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
-  get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
-    let node_indices = []
-    if (mode == "selection") {
-      node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
-    } else if (mode == "inspection") {
-      node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
-    }
+  get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+    const node_indices = (() => {
+      switch (mode) {
+        case "selection":  return map(node_source.selected.indices, (i) => node_source.data.index[i])
+        case "inspection": return map(node_source.inspected.indices, (i) => node_source.data.index[i])
+      }
+    })()
+
     const edge_indices = []
     for (let i = 0; i < edge_source.data.start.length; i++) {
       if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i]))
@@ -232,19 +235,21 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.edge_view)
   }
 
-  get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
-    let edge_indices: number[] = []
-    if (mode == "selection")
-      edge_indices = edge_source.selected.indices
-    else if (mode == "inspection")
-      edge_indices = edge_source.inspected.indices
+  get_linked_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+    const edge_indices = (() => {
+      switch (mode) {
+        case "selection":  return edge_source.selected.indices
+        case "inspection": return edge_source.inspected.indices
+      }
+    })()
+
     const nodes = []
     for (const i of edge_indices) {
       nodes.push(edge_source.data.start[i])
       nodes.push(edge_source.data.end[i])
     }
 
-    const node_indices = uniq(nodes).map((i) => indexOf(node_source.data.index, i))
+    const node_indices = uniq(nodes).map((i) => index_of(node_source.data.index, i))
     return new Selection({indices: node_indices})
   }
 
@@ -303,13 +308,14 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
     return this._hit_test(geometry, graph_view, graph_view.node_view)
   }
 
-  get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: string): Selection {
-    let selected_node_indices = []
-    if (mode == "selection") {
-      selected_node_indices = node_source.selected.indices.map((i) => node_source.data.index[i])
-    } else if (mode == "inspection") {
-      selected_node_indices = node_source.inspected.indices.map((i) => node_source.data.index[i])
-    }
+  get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+    const selected_node_indices = (() => {
+      switch (mode) {
+        case "selection":  return map(node_source.selected.indices, (i) => node_source.data.index[i])
+        case "inspection": return map(node_source.inspected.indices, (i) => node_source.data.index[i])
+      }
+    })()
+
     const adjacent_nodes = []
     const selected_nodes = []
     for (let i = 0; i < edge_source.data.start.length; i++) {
@@ -322,10 +328,11 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
         selected_nodes.push(edge_source.data.end[i])
       }
     }
-    for (let i = 0; i < selected_nodes.length; i++)
+    for (let i = 0; i < selected_nodes.length; i++) {
       adjacent_nodes.push(selected_nodes[i])
+    }
 
-    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => indexOf(node_source.data.index, i))
+    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => index_of(node_source.data.index, i))
     return new Selection({indices: adjacent_node_indices})
   }
 

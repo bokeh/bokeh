@@ -60,6 +60,8 @@ export type Arrayable<T = any> = {
   [n: number]: T
   [Symbol.iterator](): IterableIterator<T>
   slice(start?: number, end?: number): Arrayable<T>
+  sort(compare_fn?: (a: T, b: T) => number): Arrayable<T>
+  indexOf(element: T, from_index?: number): number
 }
 
 export type ArrayableNew = {new <T>(n: number): Arrayable<T>}

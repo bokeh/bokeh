@@ -291,15 +291,16 @@ export class GlyphRendererView extends DataRendererView {
 
     // selected is in full set space
     const {selected} = this.model.data_source
-    let selected_full_indices: number[]
-    if (selected.is_empty())
-      selected_full_indices = []
-    else {
-      if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
-        selected_full_indices = this.model.view.convert_indices_from_subset(indices)
-      else
-        selected_full_indices = selected.indices
-    }
+    const selected_full_indices = (() => {
+      if (selected.is_empty())
+        return []
+      else {
+        if (this.glyph instanceof LineView && selected.selected_glyph === this.glyph.model)
+          return this.model.view.convert_indices_from_subset(indices)
+        else
+          return selected.indices
+      }
+    })()
 
     // inspected is in full set space
     const {inspected} = this.model.data_source

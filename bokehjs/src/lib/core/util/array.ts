@@ -3,13 +3,17 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
+import {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
-import {Arrayable} from "../types"
 import {isInteger} from "./types"
+import {min, min_by, max_by, includes, filter} from "./arrayable"
 
-import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty} from "./arrayable"
-export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty}
+export {
+  map, reduce, min, min_by, max, max_by, sum, cumsum, every, some,
+  find, find_last, find_index, find_last_index, sorted_index,
+  is_empty, includes, contains,
+} from "./arrayable"
 
 const slice = Array.prototype.slice
 
@@ -32,12 +36,6 @@ export function copy<T>(array: T[]): T[] {
 export function concat<T>(arrays: T[][]): T[] {
   return ([] as T[]).concat(...arrays)
 }
-
-export function includes<T>(array: T[], value: T): boolean {
-  return array.indexOf(value) !== -1
-}
-
-export const contains = includes
 
 export function nth<T>(array: T[], index: number): T {
   return array[index >= 0 ? index : array.length + index]
@@ -177,17 +175,21 @@ export function uniq_by<T, U>(array: T[], key: (item: T) => U): T[] {
   return result
 }
 
-export function union<T>(...arrays: T[][]): T[] {
+export function _union<T>(arrays: Arrayable<T>[]): Set<T> {
   const result = new Set<T>()
   for (const array of arrays) {
     for (const value of array) {
       result.add(value)
     }
   }
-  return [...result]
+  return result
 }
 
-export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
+export function union<T>(...arrays: Arrayable<T>[]): T[] {
+  return [..._union(arrays)]
+}
+
+export function intersection<T>(array: Arrayable<T>, ...arrays: Arrayable<T>[]): T[] {
   const result: T[] = []
   top: for (const item of array) {
     if (includes(result, item))
@@ -201,9 +203,9 @@ export function intersection<T>(array: T[], ...arrays: T[][]): T[] {
   return result
 }
 
-export function difference<T>(array: T[], ...arrays: T[][]): T[] {
-  const rest = concat(arrays)
-  return array.filter((value) => !includes(rest, value))
+export function difference<T>(array: Arrayable<T>, ...arrays: Arrayable<T>[]): Arrayable<T> {
+  const rest = _union(arrays)
+  return filter(array, (value) => !rest.has(value))
 }
 
 export function remove_at<T>(array: T[], i: number): T[] {

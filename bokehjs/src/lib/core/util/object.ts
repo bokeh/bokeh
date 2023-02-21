@@ -1,4 +1,4 @@
-import {PlainObject} from "../types"
+import {PlainObject, Arrayable} from "../types"
 import {concat, union} from "./array"
 
 const {hasOwnProperty} = Object.prototype
@@ -15,7 +15,7 @@ export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
   return {...obj}
 }
 
-export function merge<T>(obj1: PlainObject<T[]>, obj2: PlainObject<T[]>): PlainObject<T[]> {
+export function merge<T>(obj1: PlainObject<Arrayable<T>>, obj2: PlainObject<Arrayable<T>>): PlainObject<T[]> {
   /*
    * Returns an object with the array values for obj1 and obj2 unioned by key.
    */
