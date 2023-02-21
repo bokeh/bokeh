@@ -1,6 +1,6 @@
-import * as array from '@bokehjs/core/util/array';
-import { AssertionError } from '@bokehjs/core/util/assert';
-import { expect } from 'assertions';
+import * as array from "@bokehjs/core/util/array"
+import {AssertionError} from "@bokehjs/core/util/assert"
+import {expect} from "assertions"
 
 describe("core/util/array module", () => {
 
