@@ -240,13 +240,7 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _configure_hammerjs(): void {
-    // This is to be able to distinguish double taps from single taps
-    this.hammer.get("doubletap").recognizeWith("tap")
-    this.hammer.get("tap").requireFailure("doubletap")
-    this.hammer.get("doubletap").dropRequireFailure("tap")
-
-    this.hammer.on("doubletap", (e) => this._doubletap(e))
-    this.hammer.on("tap", (e) => this._tap(e))
+    this.hammer.on("tap", (e) => this._tap_or_doubletap(e))
     this.hammer.on("press", (e) => this._press(e))
     this.hammer.on("pressup", (e) => this._pressup(e))
 
@@ -852,6 +846,19 @@ export class UIEventBus implements EventListenerObject {
 
   /*private*/ _rotate_end(e: HammerEvent): void {
     this._trigger(this.rotate_end, this._rotate_event(e), e.srcEvent)
+  }
+
+  private _tap_timer: number | null = null
+
+  private _tap_or_doubletap(e: HammerEvent): void {
+    if (this._tap_timer == null) {
+      this._tap(e)
+      this._tap_timer = setTimeout(() => this._tap_timer = null, 300 /*ms*/)
+    } else {
+      clearTimeout(this._tap_timer)
+      this._tap_timer = null
+      this._doubletap(e)
+    }
   }
 
   /*private*/ _tap(e: HammerEvent): void {
