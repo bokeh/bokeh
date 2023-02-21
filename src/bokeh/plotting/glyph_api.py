@@ -616,6 +616,11 @@ Examples:
 
         show(plot)
 
+    .. warning::
+        ``Rect`` glyphs are not well defined on logarithmic scales. Use
+        :class:`~bokeh.models.Block` or :class:`~bokeh.models.Quad` glyphs
+        instead.
+
 """
 
     @glyph_method(glyphs.Step)

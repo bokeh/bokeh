@@ -67,7 +67,13 @@ def _find_legend_item(label, legend):
     return None
 
 def _get_or_create_legend(plot):
-    legends = plot.select(type=Legend)
+    # Using the simpler plot.select(type=Legend) to find the existing legend
+    # here is very inefficient on already populated plots, therefore we do it
+    # like this. TODO: This will need to be reworked when introducing nested
+    # layouts!
+    panels = plot.above + plot.below + plot.left + plot.right + plot.center
+    legends = [obj for obj in panels if isinstance(obj, Legend)]
+
     if not legends:
         legend = Legend()
         plot.add_layout(legend)

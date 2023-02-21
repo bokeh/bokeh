@@ -66,6 +66,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from datetime import datetime
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -90,6 +91,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'ButtonClick',
+    'ConnectionLost',
     'DocumentEvent',
     'DocumentReady',
     'DoubleTap',
@@ -191,11 +193,48 @@ class DocumentEvent(Event):
 
 
 class DocumentReady(DocumentEvent):
-    ''' Announce when a Document is fully idle.
+    '''
+    Announce when a Document is fully idle.
+
+    .. note::
+        To register a JS callback for this event in standalone embedding
+        mode, one has to either use ``curdoc()`` or an explicit ``Document``
+        instance, e.g.:
+
+        .. code-block:: python
+
+            from bokeh.io import curdoc
+            curdoc().js_on_event("document_ready", handler)
 
     '''
     event_name = 'document_ready'
 
+class ConnectionEvent(DocumentEvent):
+    ''' Base class for connection status related events.
+
+    '''
+
+class ConnectionLost(ConnectionEvent):
+    '''
+    Announce when a connection to the server/client was lost.
+
+    .. note::
+        To register a JS callback for this event in standalone embedding
+        mode, one has to either use ``curdoc()`` or an explicit ``Document``
+        instance, e.g.:
+
+        .. code-block:: python
+
+            from bokeh.io import curdoc
+            curdoc().js_on_event("document_ready", handler)
+
+    '''
+    event_name = 'connection_lost'
+    timestamp: datetime
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.timestamp = datetime.now()
 
 class ModelEvent(Event):
     ''' Base class for all Bokeh Model events.

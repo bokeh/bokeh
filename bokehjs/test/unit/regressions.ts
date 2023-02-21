@@ -7,6 +7,7 @@ import {PlotActions, xy, click} from "../interactive"
 import {
   HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
   Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper, Row,
+  Toolbar,
 } from "@bokehjs/models"
 import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
@@ -21,8 +22,20 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
 
+import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
+
+class QualifiedModelView extends UIElementView {
+  declare model: QualifiedModel
+}
+class QualifiedModel extends UIElement {
+  declare __view_type__: QualifiedModelView
+  static override __module__ = "some.external.provider"
+  static {
+    this.prototype.default_view = QualifiedModelView
+  }
+}
 
 function data_url(data: string, mime: string, encoding: string = "base64") {
   return `data:${mime};${encoding},${data}`
@@ -434,9 +447,12 @@ describe("Bug", () => {
   })
 
   describe("in issue #8531", () => {
-    it("initiates multiple downloads when using save tool in a gridplot", async () => {
+    it("initiates multiple downloads when using copy tool in a gridplot", async () => {
       function f(color: Color) {
-        const p = fig([100, 100], {tools: [new CopyTool()]})
+        const copy = new CopyTool()
+        const copy_btn = copy.tool_button()
+        const toolbar = new Toolbar({tools: [copy], buttons: [copy_btn]})
+        const p = fig([100, 100], {toolbar})
         p.circle({x: [0, 1, 2], y: [0, 1, 2], color})
         return p
       }
@@ -449,17 +465,20 @@ describe("Bug", () => {
       const grid = gridplot(plots, {merge_tools: true})
       const {view} = await display(grid)
 
-      const el = view.toolbar_view.shadow_el.querySelector(".bk-ClickButton") // TODO: don't depend on CSS selectors
-      assert(el != null)
+      const {tool_buttons} = view.toolbar_view
+      expect(tool_buttons.length).to.be.equal(1)
 
-      const spy = sinon.spy(CopyToolView.prototype, "copy")
+      const [copy_btn] = tool_buttons
+      const copy_btn_view = view.owner.get_one(copy_btn)
+
+      const stub = sinon.stub(CopyToolView.prototype, "copy")
+      stub.callsFake(async () => undefined)
       try {
-        // XXX: this code may raise `DOMException: Document is not focused` during interactive testing
-        await click(el)
+        await click(copy_btn_view.el)
         await defer()
-        expect(spy.callCount).to.be.equal(1)
+        expect(stub.callCount).to.be.equal(1)
       } finally {
-        spy.restore()
+        stub.restore()
       }
     })
   })
@@ -612,6 +631,15 @@ describe("Bug", () => {
       expect(events[0].origin).to.be.equal(p0)
       expect(events[1].origin).to.be.equal(p1)
       expect(events[2].origin).to.be.equal(p2)
+    })
+  })
+
+  describe("in issue #12797", () => {
+    it("allows UIElement with qualified type to use invalid characters in CSS classes", async () => {
+      const obj = new QualifiedModel()
+      const {view} = await display(obj, [200, 200])
+      const cls = "bk-some-external-provider-QualifiedModel"
+      expect(view.el.classList.contains(cls)).to.be.true
     })
   })
 })

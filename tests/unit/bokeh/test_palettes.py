@@ -48,6 +48,31 @@ def test_palettes_dir() -> None:
     assert 'turbo' in dir(pal)
     assert '__new__' not in dir(pal)
 
+def test_interp_palette() -> None:
+    # Constant alpha
+    assert pal.interp_palette(("black", "red"), 0) == ()
+    assert pal.interp_palette(("black", "red"), 1) == ("#000000",)
+    assert pal.interp_palette(("black", "red"), 2) == ("#000000", "#ff0000")
+    assert pal.interp_palette(("black", "red"), 3) == ("#000000", "#7f0000", "#ff0000")
+    assert pal.interp_palette(("black", "red"), 4) == ("#000000", "#550000", "#aa0000", "#ff0000")
+
+    # Varying alpha
+    assert pal.interp_palette(("#00ff0080", "#00ffff40"), 1) == ("#00ff0080",)
+    assert pal.interp_palette(("#00ff0080", "#00ffff40"), 2) == ("#00ff0080", "#00ffff40")
+    assert pal.interp_palette(("#00ff0080", "#00ffff40"), 3) == ("#00ff0080", "#00ff7f60", "#00ffff40")
+    assert pal.interp_palette(("#00ff0080", "#00ffff40"), 4) == ("#00ff0080", "#00ff556b", "#00ffaa55", "#00ffff40")
+
+    # Passing single color palette
+    assert pal.interp_palette(("red",), 0) == ()
+    assert pal.interp_palette(("red",), 1) == ("#ff0000",)
+    assert pal.interp_palette(("red",), 2) == ("#ff0000", "#ff0000")
+
+    with pytest.raises(ValueError):
+        pal.interp_palette((), 1)
+
+    with pytest.raises(ValueError):
+        pal.interp_palette(("black", "red"), -1)
+
 def test_varying_alpha_palette() -> None:
     assert pal.varying_alpha_palette("blue", 3) == ("#0000ff00", "#0000ff80", "#0000ff")
     assert pal.varying_alpha_palette("red", 3, start_alpha=255, end_alpha=128) == ("#ff0000", "#ff0000c0", "#ff000080")

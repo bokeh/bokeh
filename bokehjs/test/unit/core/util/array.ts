@@ -1,6 +1,6 @@
-import * as array from "@bokehjs/core/util/array"
-import {AssertionError} from "@bokehjs/core/util/assert"
-import {expect} from "assertions"
+import * as array from '@bokehjs/core/util/array';
+import { AssertionError } from '@bokehjs/core/util/assert';
+import { expect } from 'assertions';
 
 describe("core/util/array module", () => {
 
@@ -119,6 +119,11 @@ describe("core/util/array module", () => {
     expect(array.linspace(NaN, NaN).length).to.be.equal(100)
   })
 
+  it("linspace() should support num less than 2", () => {
+    expect(array.linspace(0, 1, 0)).to.be.equal([])
+    expect(array.linspace(0, 1, 1)).to.be.equal([0])
+  })
+
   it("transpose should return the given array with transposed axes", () => {
     expect(array.transpose([[1, 2], [3, 4]])).to.be.equal([[1, 3], [2, 4]])
     expect(array.transpose([[1, 2, 3, 4], [5, 6, 7, 8]])).to.be.equal([[1, 5], [2, 6], [3, 7], [4, 8]])
@@ -157,4 +162,5 @@ describe("core/util/array module", () => {
     expect(array.argmax([1, 2, 3, 4])).to.be.equal(3)
     expect(array.argmax([4, 3, 2, 1])).to.be.equal(0)
   })
+
 })

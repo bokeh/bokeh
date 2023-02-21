@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import calendar
 import datetime as dt
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 from urllib.parse import urlparse
 
 # External imports
@@ -42,6 +42,9 @@ from ...protocol.receiver import Receiver
 from ...util.dataclasses import dataclass
 from ..protocol_handler import ProtocolHandler
 from .auth_request_handler import AuthRequestHandler
+
+if TYPE_CHECKING:
+    from ..connection import ServerConnection
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -63,6 +66,9 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
     ''' Implements a custom Tornado WebSocketHandler for the Bokeh Server.
 
     '''
+
+    connection: ServerConnection | None
+
     def __init__(self, tornado_app, *args, **kw) -> None:
         self.receiver = None
         self.handler = None
@@ -299,6 +305,7 @@ class WSHandler(AuthRequestHandler, WebSocketHandler):
         '''
         log.info('WebSocket connection closed: code=%s, reason=%r', self.close_code, self.close_reason)
         if self.connection is not None:
+            self.connection.session.notify_connection_lost()
             self.application.client_lost(self.connection)
 
     async def _receive(self, fragment: str | bytes) -> Message[Any] | None:

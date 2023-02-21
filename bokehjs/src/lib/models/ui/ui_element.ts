@@ -91,7 +91,7 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   public *_classes(): Iterable<string> {
-    yield `bk-${this.model.type}`
+    yield `bk-${this.model.type.replace(/\./g, "-")}`
   }
 
   override styles(): StyleSheetLike[] {

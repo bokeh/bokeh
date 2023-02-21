@@ -1,8 +1,43 @@
 import {expect} from "assertions"
 
-import {linear_palette, varying_alpha_palette} from "@bokehjs/api/palettes"
+import {interp_palette, linear_palette, varying_alpha_palette} from "@bokehjs/api/palettes"
 
 describe("in api/palettes module", () => {
+  describe("interp_palette", () => {
+    // Equivalent tests to bokeh's python unit tests for this function.
+    it("should support fixed alpha", () => {
+      const palette = ["black", "red"]
+      expect(interp_palette(palette, 0)).to.be.equal([])
+      expect(interp_palette(palette, 1)).to.be.equal([[0, 0, 0, 255]])
+      expect(interp_palette(palette, 2)).to.be.equal([[0, 0, 0, 255], [255, 0, 0, 255]])
+      expect(interp_palette(palette, 3)).to.be.equal([[0, 0, 0, 255], [128, 0, 0, 255], [255, 0, 0, 255]])
+      expect(interp_palette(palette, 4)).to.be.equal([[0, 0, 0, 255], [85, 0, 0, 255], [170, 0, 0, 255], [255, 0, 0, 255]])
+    })
+
+    it("should support varying alpha", () => {
+      const palette = ["#00ff0080", "#00ffff40"]
+      expect(interp_palette(palette, 1)).to.be.equal([[0, 255, 0, 128]])
+      expect(interp_palette(palette, 2)).to.be.equal([[0, 255, 0, 128], [0, 255, 255, 64]])
+      expect(interp_palette(palette, 3)).to.be.equal([[0, 255, 0, 128], [0, 255, 128, 96], [0, 255, 255, 64]])
+      expect(interp_palette(palette, 4)).to.be.equal([[0, 255, 0, 128], [0, 255, 85, 107], [0, 255, 170, 85], [0, 255, 255, 64]])
+    })
+
+    it("should support passing single color palette", () => {
+      const palette = ["red"]
+      expect(interp_palette(palette, 0)).to.be.equal([])
+      expect(interp_palette(palette, 1)).to.be.equal([[255, 0, 0, 255]])
+      expect(interp_palette(palette, 2)).to.be.equal([[255, 0, 0, 255], [255, 0, 0, 255]])
+    })
+
+    it("should throw error if pass empty palette", () => {
+      expect(() => interp_palette([], 1)).to.throw(Error)
+    })
+
+    it("should throw error if request negative length", () => {
+      expect(() => interp_palette(["red"], -1)).to.throw(Error)
+    })
+  })
+
   describe("linear_palette", () => {
     const palette = ["red", "green", "blue", "black", "yellow", "magenta"]
 

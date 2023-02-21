@@ -11,8 +11,8 @@ import {CallbackLike0} from "./models/callbacks/callback"
 export type ModelSelector<T> = Class<T> | string | {type: string}
 
 export type ChangeCallback = CallbackLike0<Model>
-export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
 
+export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
 export type EventCallbackLike<T extends ModelEvent = ModelEvent> = EventCallback<T> | EventCallback<T>["execute"]
 
 export namespace Model {

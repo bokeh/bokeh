@@ -7,6 +7,7 @@
 - path: "examples/integration/**"
 
 - path: "examples/interaction/**"
+  skip: ["doc_js_events.py"]
 
 - path: "examples/models/*"
   no_js: ["maps_cities.py", "maps.py", "trail.py"]

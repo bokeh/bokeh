@@ -63,6 +63,7 @@ process.on("exit", () => {
 })
 
 const url = argv._[0] as string
+const host = argv.host as string | undefined ?? "127.0.0.1"
 const port = parseInt(argv.port as string | undefined ?? "9222")
 const ref = (argv.ref ?? "HEAD") as string
 const randomize = (argv.randomize ?? false) as boolean
@@ -115,7 +116,7 @@ async function run_tests(): Promise<boolean> {
   let client
   let failure = false
   try {
-    client = await CDP({port})
+    client = await CDP({port, host})
     const {Emulation, Network, Browser, Page, Runtime, Log, Performance} = client
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
@@ -721,7 +722,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 107
+const chromium_min_version = 110
 
 async function check_version(version: string): Promise<boolean> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
