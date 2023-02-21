@@ -237,6 +237,7 @@ export interface LinkerOpts {
   shims?: string[]
   detect_cycles?: boolean
   overrides?: {[key: string]: string}
+  apply_transforms?: boolean
 }
 
 export class Linker {
@@ -257,6 +258,7 @@ export class Linker {
   readonly shims: Set<string>
   readonly detect_cycles: boolean
   readonly overrides: Map<string, string>
+  readonly apply_transforms: boolean
 
   constructor(opts: LinkerOpts) {
     this.entries = opts.entries.map((path) => resolve(path))
@@ -299,6 +301,7 @@ export class Linker {
     this.detect_cycles = opts.detect_cycles ?? true
 
     this.overrides = new Map(Object.entries(opts.overrides ?? {}))
+    this.apply_transforms = opts.apply_transforms ?? true
   }
 
   is_external(dep: string): boolean {
@@ -364,20 +367,22 @@ export class Linker {
     const transformers = (module: ModuleInfo): Transformers => {
       const transformers = []
 
-      const remove_use_strict = transforms.remove_use_strict()
-      transformers.push(remove_use_strict)
+      if (this.apply_transforms) {
+        const remove_use_strict = transforms.remove_use_strict()
+        transformers.push(remove_use_strict)
 
-      const fix_esmodule = transforms.fix_esmodule()
-      transformers.push(fix_esmodule)
+        const fix_esmodule = transforms.fix_esmodule()
+        transformers.push(fix_esmodule)
 
-      const remove_void0 = transforms.remove_void0()
-      transformers.push(remove_void0)
+        const remove_void0 = transforms.remove_void0()
+        transformers.push(remove_void0)
 
-      const fix_esexports = transforms.fix_esexports()
-      transformers.push(fix_esexports)
+        const fix_esexports = transforms.fix_esexports()
+        transformers.push(fix_esexports)
 
-      const fix_regl = transforms.fix_regl()
-      transformers.push(fix_regl)
+        const fix_regl = transforms.fix_regl()
+        transformers.push(fix_regl)
+      }
 
       const rewrite_deps = transforms.rewrite_deps((dep) => {
         const module_dep = module.dependencies.get(dep)
