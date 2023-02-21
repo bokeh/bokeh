@@ -105,10 +105,10 @@ export class MultiChoiceView extends InputWidgetView {
       shouldSort: false,
       removeItemButton: this.model.delete_button,
       classNames: {item, button} as any, // XXX: missing typings
-      placeholderValue: this.model.placeholder ?? undefined,
-      maxItemCount: this.model.max_items ?? undefined,
-      renderChoiceLimit: this.model.option_limit ?? undefined,
-      searchResultLimit: this.model.search_option_limit ?? undefined,
+      placeholderValue: this.model.placeholder,
+      maxItemCount: this.model.max_items ?? -1,
+      renderChoiceLimit: this.model.option_limit ?? -1,
+      searchResultLimit: this.model.search_option_limit ?? 4,
     }
 
     this.choice_el = new OurChoices(this.input_el, options)
@@ -162,14 +162,14 @@ export class MultiChoice extends InputWidget {
     this.prototype.default_view = MultiChoiceView
 
     this.define<MultiChoice.Props>(({Boolean, Int, String, Array, Tuple, Or, Nullable}) => ({
-      value:         [ Array(String), [] ],
-      options:       [ Array(Or(String, Tuple(String, String))), [] ],
-      max_items:     [ Nullable(Int),  null ],
-      delete_button: [ Boolean, true ],
-      placeholder:   [ Nullable(String),  null ],
-      option_limit:  [ Nullable(Int),  null ],
-      search_option_limit:  [ Nullable(Int),  null ],
-      solid:         [ Boolean, true ],
+      value:               [ Array(String), [] ],
+      options:             [ Array(Or(String, Tuple(String, String))), [] ],
+      max_items:           [ Nullable(Int), null ],
+      delete_button:       [ Boolean, true ],
+      placeholder:         [ Nullable(String), null ],
+      option_limit:        [ Nullable(Int), null ],
+      search_option_limit: [ Nullable(Int), null ],
+      solid:               [ Boolean, true ],
     }))
   }
 }
