@@ -45,6 +45,7 @@ from .strings import format_docstring
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
+    from pandas.core.arrays import PandasArray
     from typing_extensions import TypeGuard
 
 #-----------------------------------------------------------------------------
@@ -338,7 +339,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
 
     return array
 
-def transform_series(series: pd.Series[Any] | pd.Index) -> npt.NDArray[Any]:
+def transform_series(series: pd.Series[Any] | pd.Index | PandasArray) -> npt.NDArray[Any]:
     ''' Transforms a Pandas series into serialized form
 
     Args:
