@@ -6,6 +6,7 @@
 import {randomIn} from "./math"
 import {assert} from "./assert"
 import {Arrayable} from "../types"
+import {isInteger} from "./types"
 
 import {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty} from "./arrayable"
 export {map, reduce, min, min_by, max, max_by, sum, cumsum, every, some, find, find_last, find_index, find_last_index, sorted_index, is_empty}
@@ -206,6 +207,7 @@ export function difference<T>(array: T[], ...arrays: T[][]): T[] {
 }
 
 export function remove_at<T>(array: T[], i: number): T[] {
+  assert(isInteger(i) && i >= 0)
   const result = copy(array)
   result.splice(i, 1)
   return result
@@ -279,9 +281,6 @@ export function reversed<T>(array: T[]): T[] {
 }
 
 export function repeat<T>(value: T, n: number): T[] {
-  const result: T[] = new Array(n)
-  for (let i = 0; i < n; i++) {
-    result[i] = value
-  }
+  const result: T[] = new Array(n).fill(value)
   return result
 }
