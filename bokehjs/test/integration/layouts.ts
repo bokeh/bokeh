@@ -731,6 +731,27 @@ describe("gridplot()", () => {
   })
 })
 
+describe("LayoutDOM", () => {
+  describe("should correctly support margin with max width and height policies", () => {
+    it("for top-level layouts", async () => {
+      const input = new TextInput({width_policy: "max", height_policy: "max", margin: 20})
+      await display(input, [200, 100])
+    })
+
+    it("in nested layouts", async () => {
+      const column = new Column({
+        width_policy: "max", height_policy: "max", margin: 20,
+        children: [
+          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
+          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
+          new TextInput({width_policy: "max", height_policy: "max", margin: 20}),
+        ],
+      })
+      await display(column, [200, 300])
+    })
+  })
+})
+
 describe("GroupBox", () => {
   it.allowing(3*8)("should allow multiple TextInput widgets", async () => {
     const group_box = new GroupBox({
