@@ -411,16 +411,18 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
-  override update_bbox(): void {
+  override update_bbox(): boolean {
     for (const child_view of this.child_views) {
       child_view.update_bbox()
     }
 
-    super.update_bbox()
+    const changed = super.update_bbox()
 
     if (this.layout != null) {
       this.layout.visible = this.is_displayed
     }
+
+    return changed
   }
 
   protected _after_layout(): void {}
@@ -446,8 +448,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
     this.notify_finished()
   }
-
-  protected _after_render(): void {}
 
   rafter_render(): void {
     for (const child_view of this.layoutable_views) {

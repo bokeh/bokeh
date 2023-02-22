@@ -27,6 +27,7 @@ export class ToolbarView extends UIElementView {
 
   protected readonly _tool_button_views: ViewStorage<ToolButton> = new Map()
   protected _tool_buttons: ToolButton[][]
+  protected _items: HTMLElement[] = []
 
   get tool_buttons(): ToolButton[] {
     return this._tool_buttons.flat()
@@ -170,13 +171,13 @@ export class ToolbarView extends UIElementView {
       }
     })
 
-    let size = 0
+    this._items = []
+
     if (this.model.logo != null) {
       const gray = this.model.logo === "grey" ? logos.grey : null
       const logo_el = a({href: "https://bokeh.org/", target: "_blank", class: [logos.logo, logos.logo_small, gray]})
+      this._items.push(logo_el)
       this.shadow_el.appendChild(logo_el)
-      const {width, height} = logo_el.getBoundingClientRect()
-      size += horizontal ? width : height
     }
 
     for (const [, button_view] of this._tool_button_views) {
@@ -189,16 +190,27 @@ export class ToolbarView extends UIElementView {
 
     const divider = () => div({class: toolbars.divider})
 
+    for (const el of join<HTMLElement>(non_empty, divider)) {
+      this._items.push(el)
+      this.shadow_el.appendChild(el)
+    }
+  }
+
+  override _after_render(): void {
+    super._after_render()
+
+    const {horizontal} = this.model
     const overflow_size = 15
     const {bbox} = this
     const overflow_cls = horizontal ? toolbars.right : toolbars.above
+    let size = 0
     let overflowed = false
 
-    for (const el of join<HTMLElement>(non_empty, divider)) {
+    for (const el of this._items) {
       if (overflowed) {
+        this.shadow_el.removeChild(el)
         this._overflow_menu.items.push({content: el, class: overflow_cls})
       } else {
-        this.shadow_el.appendChild(el)
         const {width, height} = el.getBoundingClientRect()
         size += horizontal ? width : height
         overflowed = horizontal ? size > bbox.width - overflow_size : size > bbox.height - overflow_size

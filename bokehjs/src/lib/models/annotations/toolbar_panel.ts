@@ -50,45 +50,38 @@ export class ToolbarPanelView extends AnnotationView {
     super.remove()
   }
 
-  override render(): void {
-    if (!this.model.visible)
-      undisplay(this.el)
-
-    super.render()
-  }
-
-  private _invalidate_toolbar = true
   private _previous_bbox: BBox = new BBox()
 
   protected _render(): void {
-    const {style} = this.toolbar_view.el
-    if (this.toolbar_view.model.horizontal) {
-      style.width = "100%"
-      style.height = "unset"
-    } else {
-      style.width = "unset"
-      style.height = "100%"
-    }
+    display(this.el)
 
     // TODO: this should be handled by the layout
     const {bbox} = this.layout
     if (!this._previous_bbox.equals(bbox)) {
       position(this.el, bbox)
       this._previous_bbox = bbox
-      this._invalidate_toolbar = true
-    }
 
-    if (this._invalidate_toolbar) {
-      this.el.style.position = "absolute"
       empty(this.el)
-      this.el.appendChild(this.toolbar_view.el)
+      this.el.style.position = "absolute"
+
+      const {style} = this.toolbar_view.el
+      if (this.toolbar_view.model.horizontal) {
+        style.width = "100%"
+        style.height = "unset"
+      } else {
+        style.width = "unset"
+        style.height = "100%"
+      }
+
       this.toolbar_view.render()
       this.plot_view.canvas_view.add_event(this.el)
+      this.el.appendChild(this.toolbar_view.el)
       this.toolbar_view.after_render()
-      this._invalidate_toolbar = false
     }
 
-    display(this.el)
+    if (!this.model.visible) {
+      undisplay(this.el)
+    }
   }
 
   protected override _get_size(): Size {
