@@ -45,6 +45,10 @@ describe("enums module", () => {
     expect([...enums.CalendarPosition]).to.be.equal(["auto", "above", "below"])
   })
 
+  it("should have Clock", () => {
+    expect([...enums.Clock]).to.be.equal(["12h", "24h"])
+  })
+
   it("should have ContextWhich", () => {
     expect([...enums.ContextWhich]).to.be.equal(["start", "center", "end", "all"])
   })

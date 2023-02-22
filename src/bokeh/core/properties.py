@@ -107,6 +107,7 @@ Basic Properties
 .. autoclass:: Size
 .. autoclass:: String
 .. autoclass:: Struct
+.. autoclass:: Time
 .. autoclass:: TimeDelta
 
 Container Properties
@@ -279,6 +280,7 @@ __all__ = (
     'String',
     'StringSpec',
     'Struct',
+    'Time',
     'TimeDelta',
     'TextAlignSpec',
     'TextBaselineSpec',
@@ -346,6 +348,7 @@ from .property.dataspec import UnitsSpec
 
 from .property.datetime import Date
 from .property.datetime import Datetime
+from .property.datetime import Time
 from .property.datetime import TimeDelta
 
 from .property.descriptors import UnsetValueError

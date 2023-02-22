@@ -13,7 +13,9 @@ import {
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
-  DatePicker,
+  TimePicker,
+  DatePicker, DateRangePicker, MultipleDatePicker,
+  DatetimePicker, DatetimeRangePicker, MultipleDatetimePicker,
   Paragraph, Div, PreText,
 } from "@bokehjs/models/widgets"
 
@@ -23,6 +25,23 @@ import {
   StringFormatter,
   SumAggregator, GroupingInfo,
 } from "@bokehjs/models/widgets/tables"
+
+import {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+
+async function finished_animating(el: Element): Promise<void> {
+  return new Promise((resolve, reject) => {
+    el.addEventListener("animationend", () => resolve(), {once: true})
+    el.addEventListener("animationcancel", () => reject(), {once: true})
+  })
+}
+
+async function open_picker(view: PickerBaseView): Promise<void> {
+  view.picker._input.dispatchEvent(new MouseEvent("click"))
+  await view.ready
+
+  const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
+  await finished_animating(calendar_el)
+}
 
 describe("Widgets", () => {
   it("should allow Button", async () => {
@@ -241,31 +260,74 @@ describe("Widgets", () => {
   })
 
   it.allowing(8)("should allow DatePicker", async () => {
-    const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
-    await display(obj, [500, 100])
+    const d0 = "2023-01-18"
+    const obj = new DatePicker({value: d0, width: 400})
+    const {view} = await display(obj, [500, 400])
+    await open_picker(view)
   })
 
-  it.allowing(8)("should allow DatePicker with dialog open", async () => {
-    const obj = new DatePicker({value: new Date(Date.UTC(2017, 8, 1)).toDateString()})
+  it.allowing(8)("should allow DateRangePicker", async () => {
+    const d0 = "2023-01-18"
+    const d1 = "2023-01-23"
+    const obj = new DateRangePicker({value: [d0, d1], width: 400})
     const {view} = await display(obj, [500, 400])
+    await open_picker(view)
+  })
 
-    const input_el = view.shadow_el.querySelector(".bk-input")!
-    const {left, top} = input_el.getBoundingClientRect()
+  it.allowing(8)("should allow MultipleDatePicker", async () => {
+    const d0 = "2023-01-18"
+    const d1 = "2023-01-23"
+    const d2 = "2023-01-24"
+    const d3 = "2023-01-27"
+    const obj = new MultipleDatePicker({value: [d0, d1, d2, d3], width: 400})
+    const {view} = await display(obj, [500, 400])
+    await open_picker(view)
+  })
 
-    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
-    input_el.dispatchEvent(ev)
+  it.allowing(8)("should allow DatetimePicker", async () => {
+    const d0 = "2023-01-18T09:37:52"
+    const obj = new DatetimePicker({value: d0, width: 400})
+    const {view} = await display(obj, [500, 400])
+    await open_picker(view)
+  })
 
-    await view.ready
+  it.allowing(8)("should allow DatetimeRangePicker", async () => {
+    const d0 = "2023-01-18T09:37:52"
+    const d1 = "2023-01-23T20:17:25"
+    const obj = new DatetimeRangePicker({value: [d0, d1], width: 400})
+    const {view} = await display(obj, [500, 400])
+    await open_picker(view)
+  })
 
-    async function finished_animating(el: Element) {
-      return new Promise<void>((resolve, reject) => {
-        el.addEventListener("animationend", () => resolve(), {once: true})
-        el.addEventListener("animationcancel", () => reject(), {once: true})
-      })
-    }
+  it.allowing(8)("should allow MultipleDatetimePicker", async () => {
+    const d0 = "2023-01-18T09:37:52"
+    const d1 = "2023-01-23T20:17:25"
+    const d2 = "2023-01-24T15:00:00"
+    const d3 = "2023-01-27T03:59:59"
+    const obj = new MultipleDatetimePicker({value: [d0, d1, d2, d3], width: 400})
+    const {view} = await display(obj, [500, 400])
+    await open_picker(view)
+  })
 
-    const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
-    await finished_animating(calendar_el)
+  it.allowing(8)("should allow TimePicker", async () => {
+    const t0 = "09:37:52"
+    const obj = new TimePicker({value: t0})
+    const {view} = await display(obj, [500, 150])
+    await open_picker(view)
+  })
+
+  it.allowing(8)("should allow TimePicker with seconds", async () => {
+    const t0 = "09:37:52"
+    const obj = new TimePicker({value: t0, time_format: "H:i:S", seconds: true})
+    const {view} = await display(obj, [500, 150])
+    await open_picker(view)
+  })
+
+  it.allowing(8)("should allow TimePicker with seconds and 12h clock", async () => {
+    const t0 = "09:37:52"
+    const obj = new TimePicker({value: t0, time_format: "H:i:S", seconds: true, clock: "12h"})
+    const {view} = await display(obj, [500, 150])
+    await open_picker(view)
   })
 
   it("should allow Div", async () => {

@@ -13,6 +13,7 @@ export type SerializableType =
   | boolean
   | number
   | string
+  | Date
   | Serializable
   | SerializableType[]
   | {[key: string]: SerializableType}
@@ -149,6 +150,9 @@ export class Serializer {
         return {type: "number", value: `${obj < 0 ? "-" : "+"}inf`}
       else
         return obj
+    } else if (obj instanceof Date) {
+      const iso = obj.toISOString()
+      return {type: "date", iso}
     } else if (obj instanceof Set) {
       if (obj.size == 0)
         return {type: "set"}

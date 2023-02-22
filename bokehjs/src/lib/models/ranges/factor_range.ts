@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
+import {Or, String as Str, Array as Arr, Tuple} from "../../core/kinds"
 import {Arrayable, ScreenArray} from "core/types"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"

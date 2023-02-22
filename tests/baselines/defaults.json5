@@ -5819,19 +5819,6 @@
     placeholder: null,
     solid: true,
   },
-  DatePicker: {
-    __extends__: "InputWidget",
-    value: {
-      type: "symbol",
-      name: "unset",
-    },
-    min_date: null,
-    max_date: null,
-    disabled_dates: null,
-    enabled_dates: null,
-    position: "auto",
-    inline: false,
-  },
   ColorPicker: {
     __extends__: "InputWidget",
     color: "#000000",
@@ -5850,6 +5837,77 @@
   },
   PreText: {
     __extends__: "Paragraph",
+  },
+  PickerBase: {
+    __extends__: "InputWidget",
+    position: "auto",
+    inline: false,
+  },
+  TimeCommon: {
+    hour_increment: 1,
+    minute_increment: 1,
+    second_increment: 1,
+    seconds: false,
+    clock: "24h",
+  },
+  TimePicker: {
+    __extends__: [
+      "PickerBase",
+      "TimeCommon",
+    ],
+    value: null,
+    time_format: "H:i",
+    min_time: null,
+    max_time: null,
+  },
+  DateCommon: {
+    disabled_dates: null,
+    enabled_dates: null,
+    date_format: "Y-m-d",
+  },
+  BaseDatePicker: {
+    __extends__: [
+      "PickerBase",
+      "DateCommon",
+    ],
+    min_date: null,
+    max_date: null,
+  },
+  DatePicker: {
+    __extends__: "BaseDatePicker",
+    value: null,
+  },
+  DateRangePicker: {
+    __extends__: "BaseDatePicker",
+    value: null,
+  },
+  MultipleDatePicker: {
+    __extends__: "BaseDatePicker",
+    value: [],
+    separator: ", ",
+  },
+  BaseDatetimePicker: {
+    __extends__: [
+      "PickerBase",
+      "DateCommon",
+      "TimeCommon",
+    ],
+    date_format: "Y-m-d H:i",
+    min_date: null,
+    max_date: null,
+  },
+  DatetimePicker: {
+    __extends__: "BaseDatetimePicker",
+    value: null,
+  },
+  DatetimeRangePicker: {
+    __extends__: "BaseDatetimePicker",
+    value: null,
+  },
+  MultipleDatetimePicker: {
+    __extends__: "BaseDatetimePicker",
+    value: [],
+    separator: ", ",
   },
   AbstractSlider: {
     __extends__: "Widget",

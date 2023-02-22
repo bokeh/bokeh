@@ -23,6 +23,7 @@ from . import (
     groups,
     inputs,
     markups,
+    pickers,
     sliders,
     tables,
     widget,
@@ -31,6 +32,7 @@ from .buttons import *
 from .groups import *
 from .inputs import *
 from .markups import *
+from .pickers import *
 from .sliders import *
 from .tables import *
 from .widget import *
@@ -44,6 +46,7 @@ __all__ = (
     *groups.__all__,
     *inputs.__all__,
     *markups.__all__,
+    *pickers.__all__,
     *sliders.__all__,
     *tables.__all__,
     *widget.__all__,

@@ -21,12 +21,10 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import CalendarPosition
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
     ColorHex,
-    Date,
     Dict,
     Either,
     Enum,
@@ -56,7 +54,6 @@ __all__ = (
     'AutocompleteInput',
     'Checkbox',
     'ColorPicker',
-    'DatePicker',
     'FileInput',
     'InputWidget',
     'MultiChoice',
@@ -66,8 +63,8 @@ __all__ = (
     'Select',
     'Spinner',
     'Switch',
+    'TextAreaInput',
     'TextInput',
-    'TextAreaInput'
 )
 
 #-----------------------------------------------------------------------------
@@ -504,58 +501,8 @@ class MultiChoice(InputWidget):
     solid = Bool(default=True, help="""
     Specify whether the choices should be solidly filled.""")
 
-
-class DatePicker(InputWidget):
-    ''' Calendar-based date picker widget.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    value = Date(help="""
-    The initial or picked date.
-    """)
-
-    min_date = Nullable(Date, help="""
-    Optional earliest allowable date.
-    """)
-
-    max_date = Nullable(Date, help="""
-    Optional latest allowable date.
-    """)
-
-    disabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
-    A list of dates of ``(start, end)`` date ranges to make unavailable for
-    selection. All other dates will be avalable.
-
-    .. note::
-        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
-    """)
-
-    enabled_dates = Nullable(List(Either(Date, Tuple(Date, Date))), default=None, help="""
-    A list of dates of ``(start, end)`` date ranges to make available for
-    selection. All other dates will be unavailable.
-
-    .. note::
-        Only one of ``disabled_dates`` and ``enabled_dates`` should be specified.
-    """)
-
-    position = Enum(CalendarPosition, default="auto", help="""
-    Where the calendar is rendered relative to the input when ``inline`` is False.
-    """)
-
-    inline = Bool(default=False, help="""
-    Whether the calendar sholud be displayed inline.
-    """)
-
 class ColorPicker(InputWidget):
-    ''' Color picker widget
-
-    .. warning::
-        This widget as a limited support on *Internet Explorer* (it will be displayed
-        as a simple text input).
+    ''' Color picker widget.
 
     '''
 

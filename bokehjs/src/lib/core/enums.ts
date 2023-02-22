@@ -32,6 +32,9 @@ export const ButtonType = Enum("default", "primary", "success", "warning", "dang
 export type CalendarPosition = "auto" | "above" | "below"
 export const CalendarPosition = Enum("auto", "above", "below")
 
+export type Clock = typeof Clock["__type__"]
+export const Clock = Enum("12h", "24h")
+
 export type CoordinateUnits = "canvas" | "screen" | "data"
 export const CoordinateUnits = Enum("canvas", "screen", "data")
 

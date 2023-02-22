@@ -435,8 +435,8 @@
       "alt": "Thumbnail link to the examples/interaction/widgets/multichoice.py example shows a simple example of a multi-choice widget."
     },
     {
-      "name": "datepicker.py",
-      "alt": "Thumbnail link to the examples/interaction/widgets/datepicker.py example shows a simple example of a widget for seleting dates and date ranges."
+      "name": "date_picker.py",
+      "alt": "Thumbnail link to the examples/interaction/widgets/date_picker.py example shows a simple example of a widget for seleting dates and date ranges."
     },
     {
       "name": "dropdown.py",

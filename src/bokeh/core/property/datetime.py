@@ -37,6 +37,7 @@ from .singletons import Undefined
 __all__ = (
     'Date',
     'Datetime',
+    'Time',
     'TimeDelta',
 )
 
@@ -118,6 +119,38 @@ class Datetime(Property[Union[str, datetime.date, datetime.datetime]]):
     @staticmethod
     def is_timestamp(value: Any) -> bool:
         return isinstance(value, (float,) + bokeh_integer_types) and not isinstance(value, bool)
+
+class Time(Property[Union[str, datetime.time]]):
+    """ Accept ISO format time values.
+
+    """
+
+    def __init__(self, default: Init[str | datetime.time] = Undefined, *, help: str | None = None) -> None:
+        super().__init__(default=default, help=help)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if isinstance(value, datetime.time):
+            return
+
+        if isinstance(value, str):
+            try:
+                datetime.time.fromisoformat(value)
+                return
+            except ValueError:
+                pass
+
+        msg = "" if not detail else f"Expected a time object, or ISO formatted time string, got {value!r}"
+        raise ValueError(msg)
+
+    def transform(self, value: Any) -> Any:
+        value = super().transform(value)
+
+        if isinstance(value, str):
+            value = datetime.time.fromisoformat(value)
+
+        return value
 
 class TimeDelta(Property[datetime.timedelta]):
     """ Accept TimeDelta values.
