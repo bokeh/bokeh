@@ -810,6 +810,14 @@ class TestDeserializer:
         serialized = Serializer().serialize(arr)
         deserialized = Deserializer().deserialize(serialized)
         assert (deserialized == np.array(data)).all()
+    
+    def test_pandas_sparse_array(self) -> None:
+        data = np.random.rand(20)
+        data[10:15] = np.nan
+        sparse_array = pd.arrays.SparseArray(data)
+        serialized = Serializer().serialize(sparse_array)
+        deserialized = Deserializer().deserialize(serialized)
+        np.testing.assert_allclose(data, deserialized, equal_nan=True)
 """
     def test_set_data_from_json_list(self) -> None:
         ds = bms.ColumnDataSource()

@@ -452,8 +452,8 @@ class Serializer:
         module = type(obj).__module__
         if module is not None and module.startswith("pandas"):
             import pandas as pd
-            from pandas.core.arrays import PandasArray
-            if isinstance(obj, (pd.Series, pd.Index, PandasArray)):
+            from pandas.core.arrays import PandasArray, SparseArray
+            if isinstance(obj, (pd.Series, pd.Index, PandasArray, SparseArray)):
                 return self._encode_ndarray(transform_series(obj))
 
         self.error(f"can't serialize {type(obj)}")
