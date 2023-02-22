@@ -71,7 +71,7 @@ Currently, the following input widgets support tooltips directly:
 
 * :ref:`ug_interaction_widgets_examples_autocompleteinput`
 * :ref:`ug_interaction_widgets_examples_colorpicker`
-* :ref:`ug_interaction_widgets_examples_datepicker`
+* :ref:`ug_interaction_widgets_examples_date_picker`
 * :ref:`ug_interaction_widgets_examples_fileinput`
 * :ref:`ug_interaction_widgets_examples_multichoice`
 * :ref:`ug_interaction_widgets_examples_multiselect`
