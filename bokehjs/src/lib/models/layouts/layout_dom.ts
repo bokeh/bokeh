@@ -95,7 +95,13 @@ export abstract class LayoutDOMView extends UIElementView {
       this.disabled.emit(this.model.disabled)
     })
 
+    this.on_change(p.css_classes, () => {
+      this._apply_classes(this.model.css_classes)
+    })
+
     this.on_change([
+      p.css_classes,
+      p.stylesheets,
       p.width, p.height,
       p.min_width, p.min_height,
       p.max_width, p.max_height,
@@ -105,11 +111,6 @@ export abstract class LayoutDOMView extends UIElementView {
       p.aspect_ratio,
       p.visible,
     ], () => this.invalidate_layout())
-
-    this.on_change([
-      p.css_classes,
-      p.stylesheets,
-    ], () => this.invalidate_render())
   }
 
   override css_classes(): string[] {

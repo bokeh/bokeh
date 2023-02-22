@@ -166,9 +166,11 @@ export abstract class UIElementView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, styles} = this.model.properties
+    const {visible, styles, classes, stylesheets} = this.model.properties
     this.on_change(visible, () => this._apply_visible())
     this.on_change(styles, () => this._apply_styles())
+    this.on_change(classes, () => this._apply_classes(this.model.classes))
+    this.on_change(stylesheets, () => this._apply_stylesheets(this.computed_stylesheets))
   }
 
   override remove(): void {
