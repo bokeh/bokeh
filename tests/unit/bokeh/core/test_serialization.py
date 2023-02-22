@@ -810,7 +810,7 @@ class TestDeserializer:
         serialized = Serializer().serialize(arr)
         deserialized = Deserializer().deserialize(serialized)
         assert (deserialized == np.array(data)).all()
-    
+
     def test_pandas_sparse_array(self) -> None:
         data = np.random.rand(20)
         data[10:15] = np.nan
