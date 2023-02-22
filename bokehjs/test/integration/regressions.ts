@@ -805,7 +805,7 @@ describe("Bug", () => {
       const layout = column([choices, button, table])
       const {view} = await display(layout, [350, 250])
 
-      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
       await paint()
     })
@@ -829,7 +829,7 @@ describe("Bug", () => {
       plot.circle([1, 2, 3], [1, 2, 3])
       await show(plot, el)
 
-      const choices_view = view.child_views[0] as MultiChoice["__view_type__"]
+      const choices_view = view.owner.get_one(choices)
       choices_view.choice_el.showDropdown()
       await paint()
     })
@@ -3023,6 +3023,60 @@ describe("Bug", () => {
 
       cds_view.filter = new IndexFilter({indices: [1, 2]})
       await view.ready
+    })
+  })
+
+  describe("in issue #12157", () => {
+    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
+      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
+    }
+
+    it("doesn't allow MultiChoice widget's menu to persist after selection an option", async () => {
+      const input = new MultiChoice({options: ["A", "B", "C", "D"], width: 200})
+      const {view} = await display(input, [300, 200])
+      await paint()
+
+      const input_el = view.choice_el.input.element
+      await click(input_el)
+      await paint()
+
+      const el_D = view.shadow_el.querySelector("[data-value='D']")
+      assert(el_D != null)
+      await click(el_D, "mousedown")
+      await paint()
+
+      const el_A = view.shadow_el.querySelector("[data-value='A']")
+      assert(el_A != null)
+      await click(el_A, "mousedown")
+      await paint()
+
+      const el_B = view.shadow_el.querySelector("[data-value='B']")
+      assert(el_B != null)
+      await click(el_B, "mousedown")
+      await paint()
+    })
+  })
+
+  describe("in issue #12584", () => {
+    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
+      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
+    }
+
+    it("doesn't allow auto-completion to work correctly in MultiChoice widget", async () => {
+      const input = new MultiChoice({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
+      const {view} = await display(input, [300, 300])
+      await paint()
+
+      const input_el = view.choice_el.input.element
+      await click(input_el)
+      input_el.value = "B" // Can't enter value with a synthetic event.
+      input_el.focus()
+      await paint()
+      view.choice_el.input.isFocussed = true // Can't focus in headless.
+
+      const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
+      input_el.dispatchEvent(new KeyboardEvent("keyup", init))
+      await paint()
     })
   })
 })
