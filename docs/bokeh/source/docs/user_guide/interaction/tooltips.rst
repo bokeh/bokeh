@@ -71,7 +71,11 @@ Currently, the following input widgets support tooltips directly:
 
 * :ref:`ug_interaction_widgets_examples_autocompleteinput`
 * :ref:`ug_interaction_widgets_examples_colorpicker`
-* :ref:`ug_interaction_widgets_examples_datepicker`
+* :ref:`ug_interaction_widgets_examples_date_picker`
+* :ref:`ug_interaction_widgets_examples_date_range_picker`
+* :ref:`ug_interaction_widgets_examples_multiple_date_picker`
+* :ref:`ug_interaction_widgets_examples_datetime_range_picker`
+* :ref:`ug_interaction_widgets_examples_multiple_datetime_picker`
 * :ref:`ug_interaction_widgets_examples_fileinput`
 * :ref:`ug_interaction_widgets_examples_multichoice`
 * :ref:`ug_interaction_widgets_examples_multiselect`
@@ -81,6 +85,7 @@ Currently, the following input widgets support tooltips directly:
 * :ref:`ug_interaction_widgets_examples_spinner`
 * :ref:`ug_interaction_widgets_examples_textareainput`
 * :ref:`ug_interaction_widgets_examples_textinput`
+* :ref:`ug_interaction_widgets_examples_timepicker`
 
 .. tip::
     A single instance of ``Tooltip`` should only be used once. If two widgets

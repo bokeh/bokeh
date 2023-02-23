@@ -15,7 +15,6 @@ Contribute
     dev_guide/writing_tests
     dev_guide/python
     dev_guide/bokehjs
-    dev_guide/server
 
 Bokeh is an open source project and only exists because of contributors like
 you. Bokeh is made possible by a diverse group of software developers, testers,
@@ -63,18 +62,6 @@ You can then contribute to Bokeh's codebase in many ways:
         If you would like to help with anything related to :term:`BokehJS`:
 
         * :ref:`contributor_guide_bokehjs`
-        * :ref:`contributor_guide_testing`
-        * :ref:`contributor_guide_writing_tests`
-        * :ref:`contributor_guide_issues`
-        * :ref:`contributor_guide_pull_requests`
-
-    .. grid-item-card::
-
-        Bokeh Server
-        ^^^
-        If you would like to help with the :term:`Server` component of Bokeh:
-
-        * :ref:`contributor_guide_server`
         * :ref:`contributor_guide_testing`
         * :ref:`contributor_guide_writing_tests`
         * :ref:`contributor_guide_issues`
