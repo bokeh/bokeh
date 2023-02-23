@@ -45,7 +45,6 @@ from .strings import format_docstring
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
-    from pandas.core.arrays import PandasArray
     from typing_extensions import TypeGuard
 
 #-----------------------------------------------------------------------------
