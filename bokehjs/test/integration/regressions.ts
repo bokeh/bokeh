@@ -2995,4 +2995,34 @@ describe("Bug", () => {
       await paint()
     })
   })
+
+  describe("in issue #11955", () => {
+    it("does not allow updating DataTable when its CDSView's filters change", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          col1: ["a", "b", "c", "d"],
+          col2: [1, 2, 3, 4],
+          col3: [10, 20, 30, 40],
+        },
+      })
+
+      const cds_view = new CDSView({filter: new IndexFilter({indices: [1, 2, 3]})})
+
+      const columns = [
+        new TableColumn({field: "col1", title: "col1"}),
+        new TableColumn({field: "col2", title: "col2"}),
+        new TableColumn({field: "col3", title: "col3"}),
+      ]
+      const table = new DataTable({source, columns, view: cds_view, width: 200})
+
+      const p = fig([200, 200])
+      p.circle({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+
+      const {view} = await display(row([table, p]))
+      await paint()
+
+      cds_view.filter = new IndexFilter({indices: [1, 2]})
+      await view.ready
+    })
+  })
 })
