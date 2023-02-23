@@ -156,7 +156,19 @@ export class DataTableView extends WidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => {
+      this.render()
+      this.after_render()
+      this.invalidate_layout()
+    })
+
+    for (const column of this.model.columns) {
+      this.connect(column.change, () => {
+        this.render()
+        this.after_render()
+        this.invalidate_layout()
+      })
+    }
 
     // changes to the source trigger the callback below via
     // compute_indices hooks in cds view
@@ -165,13 +177,6 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
-
-    for (const column of this.model.columns) {
-      this.connect(column.change, () => {
-        this.invalidate_layout()
-        this.render()
-      })
-    }
   }
 
   override styles(): StyleSheetLike[] {
@@ -180,6 +185,12 @@ export class DataTableView extends WidgetView {
 
   override _after_resize(): void {
     super._after_resize()
+    this.grid.resizeCanvas()
+    this.updateLayout(true, false)
+  }
+
+  override _after_layout(): void {
+    super._after_layout()
     this.grid.resizeCanvas()
     this.updateLayout(true, false)
   }
@@ -403,9 +414,7 @@ export class DataTableView extends WidgetView {
       }
     }
 
-    if (initialized) {
-      this.updateLayout(initialized, false)
-    }
+    this.updateLayout(initialized, false)
   }
 
   _hide_header(): void {
