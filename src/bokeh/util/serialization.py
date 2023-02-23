@@ -45,7 +45,6 @@ from .strings import format_docstring
 if TYPE_CHECKING:
     import numpy.typing as npt
     import pandas as pd
-    from pandas.core.arrays import PandasArray
     from typing_extensions import TypeGuard
 
 #-----------------------------------------------------------------------------
@@ -339,7 +338,7 @@ def transform_array(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
 
     return array
 
-def transform_series(series: pd.Series[Any] | pd.Index | PandasArray) -> npt.NDArray[Any]:
+def transform_series(series: pd.Series[Any] | pd.Index | pd.api.extensions.ExtensionArray) -> npt.NDArray[Any]:
     ''' Transforms a Pandas series into serialized form
 
     Args:
@@ -350,13 +349,12 @@ def transform_series(series: pd.Series[Any] | pd.Index | PandasArray) -> npt.NDA
 
     '''
     import pandas as pd
-    from pandas.core.arrays import PandasArray
 
     # not checking for pd here, this function should only be called if it
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
         vals = series.to_timestamp().values  # type: ignore
-    elif isinstance(series, PandasArray):
+    elif isinstance(series, pd.api.extensions.ExtensionArray):
         vals = series.to_numpy()
     else:
         vals = series.values

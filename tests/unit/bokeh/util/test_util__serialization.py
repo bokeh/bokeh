@@ -171,6 +171,53 @@ def test_transform_series() -> None:
     out = bus.transform_series(df)
     assert isinstance(out, np.ndarray)
 
+    # boolean array
+    arr = pd.array([True, False])
+    assert isinstance(arr, pd.arrays.BooleanArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # string array
+    arr = pd.array(['hello', 'world'])
+    assert isinstance(arr, pd.arrays.StringArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # floating array
+    arr = pd.array([1.0, 42.0, np.nan])
+    assert isinstance(arr, pd.core.arrays.floating.FloatingArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # integer array
+    arr = pd.array([0, 1])
+    assert isinstance(arr, pd.core.arrays.integer.IntegerArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # sparse array
+    arr = pd.arrays.SparseArray([1.0, 2.0, np.nan, np.nan, 5.0])
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # datetime array
+    arr = pd.array([pd.NaT, datetime.datetime.today(), pd.Timestamp.today()])
+    assert isinstance(arr, pd.arrays.DatetimeArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # timdelta array
+    arr = pd.array([datetime.timedelta(seconds=1), pd.Timedelta(0, unit='s')])
+    assert isinstance(arr, pd.arrays.TimedeltaArray)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
+    # categorical array
+    arr = pd.array(pd.Series(['dog', 'cat', 'dog']).astype('category'))
+    assert isinstance(arr, pd.arrays.Categorical)
+    out = bus.transform_series(arr)
+    assert isinstance(out, np.ndarray)
+
 def test_array_encoding_disabled_by_dtype() -> None:
 
     assert len(bus.BINARY_ARRAY_TYPES) > 0
