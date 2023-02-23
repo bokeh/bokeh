@@ -448,13 +448,15 @@ class Serializer:
         if np.issubdtype(type(obj), np.bool_):
             return self._encode_bool(bool(obj))
 
-        # avoid importing pandashere unless it is actually in use
+        # avoid importing pandas here unless it is actually in use
         module = type(obj).__module__
         if module is not None and module.startswith("pandas"):
             import pandas as pd
             from pandas.core.arrays import PandasArray
             if isinstance(obj, (pd.Series, pd.Index, PandasArray)):
                 return self._encode_ndarray(transform_series(obj))
+            elif obj is pd.NA:
+                return None
 
         self.error(f"can't serialize {type(obj)}")
 
