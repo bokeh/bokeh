@@ -153,10 +153,10 @@ export class DataTableView extends WidgetView {
     super.connect_signals()
     this.connect(this.model.change, () => this.render())
 
-    this.connect(this.model.source.streaming, () => this.updateGrid())
-    this.connect(this.model.source.patching, () => this.updateGrid())
-    this.connect(this.model.source.change, () => this.updateGrid())
-    this.connect(this.model.source.properties.data.change, () => this.updateGrid())
+    // changes to the source trigger the callback below via
+    // compute_indices hooks in cds view
+    // TODO reevaluate the control flow when taking a general look at events
+    this.connect(this.model.view.change, () => this.updateGrid())
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
@@ -197,11 +197,6 @@ export class DataTableView extends WidgetView {
   }
 
   updateGrid(): void {
-    // TODO (bev) This is to ensure that CDSView indices are properly computed
-    // before passing to the DataProvider. This will result in extra calls to
-    // compute_indices. This "over execution" will be addressed in a more
-    // general look at events
-    this.cds_view.compute_indices()
     this.data.init(this.model.source, this.model.view)
 
     // This is obnoxious but there is no better way to programmatically force
