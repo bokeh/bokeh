@@ -169,8 +169,8 @@ class Tool(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    icon = Nullable(Either(Enum(ToolIcon), Regex(r"^\."), Image), help="""
+    #Image has to be first! see #12775, temporary fix
+    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^\.")), help="""
     An icon to display in the toolbar.
 
     The icon can provided as well known tool icon name, a CSS class selector,
