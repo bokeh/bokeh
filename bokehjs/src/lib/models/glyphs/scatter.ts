@@ -45,13 +45,15 @@ export class ScatterView extends MarkerView {
       ctx.beginPath()
       ctx.translate(sx_i, sy_i)
 
-      if (angle_i)
+      if (angle_i != 0) {
         ctx.rotate(angle_i)
+      }
 
       marker_funcs[marker_i](ctx, i, r, this.visuals)
 
-      if (angle_i)
+      if (angle_i != 0) {
         ctx.rotate(-angle_i)
+      }
 
       ctx.translate(-sx_i, -sy_i)
     }

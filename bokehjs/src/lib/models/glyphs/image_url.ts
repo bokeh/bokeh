@@ -69,7 +69,7 @@ export class ImageURLView extends XYGlyphView {
 
     for (let i = 0; i < n_urls; i++) {
       const url = this.url.get(i)
-      if (!url)
+      if (url == "")
         continue
 
       const loader = new ImageLoader(url, {
@@ -205,7 +205,7 @@ export class ImageURLView extends XYGlyphView {
     const sw2 = sw_i/2
     const sh2 = sh_i/2
 
-    if (angle_i) {
+    if (angle_i != 0) {
       ctx.translate(sx_i, sy_i)
 
       //rotation about center of image

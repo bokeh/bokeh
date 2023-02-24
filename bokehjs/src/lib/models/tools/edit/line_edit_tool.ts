@@ -39,7 +39,7 @@ export class LineEditToolView extends LineToolView {
       return
 
     const renderers = this.model.renderers
-    if (!renderers.length) {
+    if (renderers.length == 0) {
       this._set_intersection([], [])
       this._selected_renderer = null
       this._drawing = false
@@ -62,7 +62,7 @@ export class LineEditToolView extends LineToolView {
     const point = this._map_drag(ev.sx, ev.sy, renderer)
     if (point == null)
       return
-    else if (this._drawing && this._selected_renderer) {
+    else if (this._drawing && this._selected_renderer != null) {
       const mode = this._select_mode(ev)
       const selected_points = this._select_event(ev, mode, [renderer])
       if (selected_points.length == 0) {
@@ -98,7 +98,7 @@ export class LineEditToolView extends LineToolView {
     if (this._basepoint == null)
       return
     this._drag_points(ev, [this.model.intersection_renderer], this.model.dimensions)
-    if (this._selected_renderer)
+    if (this._selected_renderer != null)
       this._selected_renderer.data_source.change.emit()
   }
 
@@ -107,7 +107,7 @@ export class LineEditToolView extends LineToolView {
       return
     this._drag_points(ev, [this.model.intersection_renderer])
     this._emit_cds_changes(this.model.intersection_renderer.data_source, false, true, true)
-    if (this._selected_renderer) {
+    if (this._selected_renderer != null) {
       this._emit_cds_changes(this._selected_renderer.data_source)
     }
     this._basepoint = null
@@ -118,7 +118,7 @@ export class LineEditToolView extends LineToolView {
   }
 
   override deactivate(): void {
-    if (!this._selected_renderer) {
+    if (this._selected_renderer == null) {
       return
     } else if (this._drawing) {
       this._drawing = false

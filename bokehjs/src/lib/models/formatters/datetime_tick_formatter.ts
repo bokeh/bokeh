@@ -226,14 +226,12 @@ export class DatetimeTickFormatter extends TickFormatter {
       if (context == "")
         return label
 
-      if (loc == "above")
-        return `${context}\n${label}`
-      if (loc == "below")
-        return `${label}\n${context}`
-      if (loc == "left")
-        return `${context} ${label}`
-      if (loc == "right")
-        return `${label} ${context}`
+      switch (loc) {
+        case "above": return `${context}\n${label}`
+        case "below": return `${label}\n${context}`
+        case "left":  return `${context} ${label}`
+        case "right": return `${label} ${context}`
+      }
     }
     return label
   }

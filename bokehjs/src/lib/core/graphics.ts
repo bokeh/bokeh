@@ -174,7 +174,7 @@ export class TextBox extends GraphicsBox {
     if (res != null) {
       let {value, unit} = res
       value *= font_size_scale
-      if (unit == "em" && base_font_size) {
+      if (unit == "em" && base_font_size != 0) {
         value *= base_font_size
         unit = "px"
       }

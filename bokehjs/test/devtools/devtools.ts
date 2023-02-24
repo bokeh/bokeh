@@ -122,7 +122,7 @@ async function run_tests(): Promise<boolean> {
     try {
       function collect_trace(stackTrace: Protocol.Runtime.StackTrace): CallFrame[] {
         return stackTrace.callFrames.map(({functionName, url, lineNumber, columnNumber}) => {
-          return {name: functionName ? functionName : "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
+          return {name: functionName != "" ? functionName : "(anonymous)", url, line: lineNumber+1, col: columnNumber+1}
         })
       }
 
@@ -133,7 +133,7 @@ async function run_tests(): Promise<boolean> {
           url: url ?? "(inline)",
           line: lineNumber+1,
           col: columnNumber+1,
-          trace: stackTrace ? collect_trace(stackTrace) : [],
+          trace: stackTrace != null ? collect_trace(stackTrace) : [],
         }
       }
 
@@ -655,7 +655,7 @@ async function run_tests(): Promise<boolean> {
         progress.stop()
       }
 
-      if (out_stream) {
+      if (out_stream != null) {
         out_stream.write("\n")
         out_stream.write(`Tests finished on ${new Date().toISOString()} with ${failures} failures.\n`)
         out_stream.end()
@@ -709,7 +709,7 @@ async function run_tests(): Promise<boolean> {
       console.error(`INTERNAL ERROR: ${msg}`)
     }
   } finally {
-    if (client) {
+    if (client != null) {
       await client.close()
     }
   }

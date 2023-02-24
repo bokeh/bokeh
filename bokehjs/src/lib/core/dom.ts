@@ -174,7 +174,7 @@ export function prepend(element: Node, ...nodes: Node[]): void {
 
 export function empty(node: Node, attrs: boolean = false): void {
   let child: ChildNode | null
-  while (child = node.firstChild) {
+  while ((child = node.firstChild) != null) {
     node.removeChild(child)
   }
   if (attrs && node instanceof Element) {
@@ -233,7 +233,7 @@ export function offset_bbox(element: Element): BBox {
 export function parent(el: HTMLElement, selector: string): HTMLElement | null {
   let node: HTMLElement | null = el
 
-  while (node = node.parentElement) {
+  while ((node = node.parentElement) != null) {
     if (node.matches(selector))
       return node
   }
@@ -242,7 +242,8 @@ export function parent(el: HTMLElement, selector: string): HTMLElement | null {
 }
 
 function num(value: string | null): number {
-  return parseFloat(value!) || 0
+  const num = parseFloat(value!)
+  return isFinite(num) ? num : 0
 }
 
 export type ElementExtents = {

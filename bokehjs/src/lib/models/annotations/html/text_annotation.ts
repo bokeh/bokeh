@@ -75,7 +75,7 @@ export abstract class TextAnnotationView extends AnnotationView {
     })()
 
     let transform = `translate(${x_t}, ${y_t})`
-    if (angle) {
+    if (angle != 0) {
       transform += `rotate(${angle}rad)`
     }
 

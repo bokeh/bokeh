@@ -9,7 +9,7 @@ export class PointDrawToolView extends EditToolView {
 
   override _tap(ev: TapEvent): void {
     const renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
-    if (renderers.length || !this.model.add) {
+    if (renderers.length != 0 || !this.model.add) {
       return
     }
 

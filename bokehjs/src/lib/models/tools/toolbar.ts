@@ -394,7 +394,7 @@ export class Toolbar extends UIElement {
       const gesture = this.gestures[et]
       gesture.tools = sort_by(new_gestures[et].tools, (tool) => tool.default_order)
 
-      if (gesture.active && every(gesture.tools, (tool) => tool.id != gesture.active?.id)) {
+      if (gesture.active != null && every(gesture.tools, (tool) => tool.id != gesture.active?.id)) {
         gesture.active = null
       }
     }
@@ -465,7 +465,7 @@ export class Toolbar extends UIElement {
     for (const [event_role, gesture] of entries(this.gestures)) {
       const et = event_role as EventRole
       const active_attr = _get_active_attr(et)
-      if (active_attr) {
+      if (active_attr != null) {
         const active_tool = this[active_attr]
         if (active_tool == "auto") {
           if (gesture.tools.length != 0 && _supports_auto(et)) {

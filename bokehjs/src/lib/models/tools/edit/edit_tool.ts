@@ -76,7 +76,7 @@ export abstract class EditToolView extends GestureToolView {
   _pop_glyphs(cds: ColumnarDataSource, num_objects: number): void {
     // Pops rows in the CDS until only num_objects are left
     const columns = cds.columns()
-    if (!num_objects || !columns.length)
+    if (num_objects == 0 || columns.length == 0)
       return
     for (const column of columns) {
       let array = cds.get_array(column)

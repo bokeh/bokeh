@@ -159,7 +159,7 @@ function is_decimal_digit(ch: number): boolean {
 function is_identifier_start(ch: number): boolean {
   return (ch >= 65 && ch <= 90) || // A...Z
     (ch >= 97 && ch <= 122) || // a...z
-    (ch >= 128 && !binary_ops[String.fromCharCode(ch)]) || // any non-ASCII that is not an operator
+    (ch >= 128 && !(String.fromCharCode(ch) in binary_ops)) || // any non-ASCII that is not an operator
     (additional_identifier_chars.has(String.fromCharCode(ch))) // additional characters
 }
 
@@ -636,7 +636,7 @@ export class Parser {
         closed = true
         this.index++
 
-        if (termination == CPAREN_CODE && separator_count && separator_count >= args.length) {
+        if (termination == CPAREN_CODE && separator_count != 0 && separator_count >= args.length) {
           this.error(`Unexpected token '${String.fromCharCode(termination)}'`)
         }
 
@@ -690,7 +690,7 @@ export class Parser {
       this.index++
       if (nodes.length == 1) {
         return nodes[0]
-      } else if (!nodes.length) {
+      } else if (nodes.length == 0) {
         return false
       } else {
         return {

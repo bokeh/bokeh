@@ -124,7 +124,7 @@ export function css4_parse(color: string): RGBA | null {
   */
   color = color.trim().toLowerCase()
 
-  if (!color)
+  if (color == "")
     return null
   else if (color == "transparent")
     return transparent()
