@@ -1,7 +1,7 @@
 import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {Arrayable} from "core/types"
+import {NDArrayType} from "core/util/ndarray"
 import * as p from "core/properties"
 
 export type ImageData = ImageDataBase
@@ -25,9 +25,9 @@ export class ImageView extends ImageBaseView {
     }
   }
 
-  protected _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray {
+  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
-    return cmap.v_compute(img, length_divisor)
+    return cmap.v_compute(img)
   }
 }
 

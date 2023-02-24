@@ -1,6 +1,6 @@
 import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
-import {Arrayable, TypedArray} from "core/types"
-import {isArray} from "core/util/types"
+import {NDArrayType} from "core/util/ndarray"
+import {isTypedArray} from "core/util/types"
 import * as p from "core/properties"
 
 export type ImageRGBAData = ImageDataBase
@@ -11,13 +11,8 @@ export class ImageRGBAView extends ImageBaseView {
   declare model: ImageRGBA
   declare visuals: ImageRGBA.Visuals
 
-  protected _flat_img_to_buf8(img: Arrayable<number>, _length_divisor: number): Uint8ClampedArray {
-    let array: TypedArray
-    if (isArray(img)) {
-      array = new Uint32Array(img)
-    } else {
-      array = img as TypedArray
-    }
+  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
+    const array = isTypedArray(img) ? img : new Uint32Array(img)
     return new Uint8ClampedArray(array.buffer)
   }
 }
