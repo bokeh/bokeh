@@ -15,7 +15,7 @@ import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
-import {Color} from "@bokehjs/core/types"
+import {Color, Arrayable} from "@bokehjs/core/types"
 import {Document, DocJson, DocumentEvent, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -577,7 +577,7 @@ describe("Bug", () => {
       const {view} = await display(plot)
       const rect_view = view.owner.get_one(rect)
 
-      function hit_test(x: number, y: number): number[] | undefined {
+      function hit_test(x: number, y: number): Arrayable<number> | undefined {
         const sx = view.frame.x_scale.compute(x)
         const sy = view.frame.y_scale.compute(y)
         return rect_view.hit_test({type: "point", sx, sy})?.indices

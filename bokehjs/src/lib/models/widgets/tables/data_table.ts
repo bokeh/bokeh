@@ -5,9 +5,11 @@ import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellextern
 import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {div, StyleSheetLike} from "core/dom"
+import {Arrayable} from "core/types"
 import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
+import {map} from "core/util/arrayable"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
 import {DOMBoxSizing} from "../../layouts/layout_dom"
@@ -222,11 +224,11 @@ export class DataTableView extends WidgetView {
 
     const {selected} = this.model.source
 
-    const permuted_indices = selected.indices.map((x) => this.data.index.indexOf(x)).sort()
+    const permuted_indices = map(selected.indices, (x) => this.data.index.indexOf(x)).sort()
 
     this._in_selection_update = true
     try {
-      this.grid.setSelectedRows(permuted_indices)
+      this.grid.setSelectedRows([...permuted_indices])
     } finally {
       this._in_selection_update = false
     }
@@ -479,7 +481,7 @@ export class DataTable extends TableWidget {
     this._sort_columns = sort_cols.map(({sortCol, sortAsc}) => ({field: sortCol.field!, sortAsc}))
   }
 
-  get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: number[]): number | null {
+  get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: Arrayable<number>): number | null {
     if (!this.scroll_to_selection || (selected_indices.length == 0))
       return null
 

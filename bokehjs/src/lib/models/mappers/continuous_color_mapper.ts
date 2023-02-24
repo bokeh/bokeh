@@ -89,7 +89,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
         const masked = renderer.view.masked
         const selected = renderer.data_source.selected.indices
 
-        let subset: number[] | undefined
+        let subset: Arrayable<number> | undefined
         if (masked != null && selected.length > 0)
           subset = intersection([...masked], selected)
         else if (masked != null)

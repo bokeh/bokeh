@@ -162,5 +162,4 @@ describe("core/util/array module", () => {
     expect(array.argmax([1, 2, 3, 4])).to.be.equal(3)
     expect(array.argmax([4, 3, 2, 1])).to.be.equal(0)
   })
-
 })
