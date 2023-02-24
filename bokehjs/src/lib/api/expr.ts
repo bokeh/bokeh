@@ -1,5 +1,6 @@
-import {NDArray} from "core/util/ndarray"
+import {Arrayable} from "core/types"
 import {isFunction} from "core/util/types"
+import {NDArrayType} from "core/util/ndarray"
 
 import {
   Parser,
@@ -97,7 +98,8 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
 }
 
 export function f(strings: TemplateStringsArray, ...subs: number[]): number
-export function f(strings: TemplateStringsArray, ...subs: Numerical[]): NDArray
+export function f<T = number>(strings: TemplateStringsArray, sub: NDArrayType<T>, ...subs: Numerical<T>[]): NDArrayType<T>
+export function f<T = number>(strings: TemplateStringsArray, ...subs: Numerical<T>[]): Arrayable<T>
 
 export function f(strings: TemplateStringsArray, ...subs: unknown[]): unknown {
   const [head, ...tail] = strings

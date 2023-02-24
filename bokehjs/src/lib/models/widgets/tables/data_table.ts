@@ -9,6 +9,7 @@ import {Arrayable} from "core/types"
 import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range} from "core/util/array"
+import {is_NDArray} from "core/util/ndarray"
 import {map} from "core/util/arrayable"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
@@ -58,19 +59,26 @@ export class TableDataProvider implements DataProvider<Item> {
 
   getItem(offset: number): Item {
     const item: Item = {}
-    for (const field of keys(this.source.data)) {
-      item[field] = this.source.data[field][this.index[offset]]
+    const {data} = this.source
+    for (const field of keys(data)) {
+      const column = data[field]
+      const i = this.index[offset]
+      const value = is_NDArray(column) ? column.get(i) : column[i]
+      item[field] = value
     }
     item[DTINDEX_NAME] = this.index[offset]
     return item
   }
 
   getField(offset: number, field: string): unknown {
-    // offset is the
     if (field == DTINDEX_NAME) {
       return this.index[offset]
+    } else {
+      const {data} = this.source
+      const column = data[field]
+      const i = this.index[offset]
+      return is_NDArray(column) ? column.get(i) : column[i]
     }
-    return this.source.data[field][this.index[offset]]
   }
 
   setField(offset: number, field: string, value: unknown): void {

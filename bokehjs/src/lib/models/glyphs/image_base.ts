@@ -8,7 +8,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
-import {NDArray} from "core/util/ndarray"
+import {NDArrayType} from "core/util/ndarray"
 import {assert} from "core/util/assert"
 import {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
@@ -17,7 +17,7 @@ import {anchor} from "../common/resolve"
 export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
-  readonly image: p.Uniform<NDArray>
+  readonly image: p.Uniform<NDArrayType<number>>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
 
