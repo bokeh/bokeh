@@ -784,6 +784,10 @@ class TestSerializer:
         rep = encoder.encode(val)
         assert rep == -684115200000
 
+    def test_pd_NA(self) -> None:
+        encoder = Serializer()
+        assert encoder.encode(pd.NA) is None
+
 class TestDeserializer:
 
     def test_slice(self) -> None:
