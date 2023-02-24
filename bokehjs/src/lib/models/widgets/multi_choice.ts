@@ -2,6 +2,7 @@ import Choices from "choices.js"
 
 import {select, StyleSheetLike} from "core/dom"
 import {isString} from "core/util/types"
+import {is_equal} from "core/util/eq"
 import * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
@@ -55,7 +56,16 @@ export class MultiChoiceView extends InputWidgetView {
     this.connect(this.model.properties.disabled.change, () => this.set_disabled())
 
     const {value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title} = this.model.properties
-    this.on_change([value, max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.render())
+    this.on_change([max_items, option_limit, search_option_limit, delete_button, placeholder, options, name, title], () => this.render())
+    this.on_change(value, () => {
+      // Detects if value change originated in UI or elsewhere. Choices.js automatically
+      // updates itself, so we don't have to do anything, and in fact we shouldn't do
+      // anything, because the component is finicky and hard to update without breaking
+      // something, loosing focus, etc.
+      if (!is_equal(this.model.value, this._current_values)) {
+        this.render()
+      }
+    })
   }
 
   override styles(): StyleSheetLike[] {
@@ -95,10 +105,10 @@ export class MultiChoiceView extends InputWidgetView {
       shouldSort: false,
       removeItemButton: this.model.delete_button,
       classNames: {item, button} as any, // XXX: missing typings
-      placeholderValue: this.model.placeholder ?? undefined,
-      maxItemCount: this.model.max_items ?? undefined,
-      renderChoiceLimit: this.model.option_limit ?? undefined,
-      searchResultLimit: this.model.search_option_limit ?? undefined,
+      placeholderValue: this.model.placeholder,
+      maxItemCount: this.model.max_items ?? -1,
+      renderChoiceLimit: this.model.option_limit ?? -1,
+      searchResultLimit: this.model.search_option_limit ?? 4,
     }
 
     this.choice_el = new OurChoices(this.input_el, options)
@@ -112,23 +122,14 @@ export class MultiChoiceView extends InputWidgetView {
       this.choice_el.enable()
   }
 
+  protected get _current_values(): string[] {
+    const values = this.choice_el.getValue() as {value: string}[]
+    return values.map((item) => item.value)
+  }
+
   override change_input(): void {
-    const is_focused = this.shadow_el.querySelector("select:focus") != null
-
-    const values = []
-    for (const el of this.shadow_el.querySelectorAll("option")) {
-      if (el.selected)
-        values.push(el.value)
-    }
-
-    this.model.value = values
+    this.model.value = this._current_values
     super.change_input()
-    // Restore focus back to the <select> afterwards,
-    // so that even if python on_change callback is invoked,
-    // focus remains on <select> and one can seamlessly scroll
-    // up/down.
-    if (is_focused)
-      this.input_el.focus()
   }
 }
 
@@ -161,14 +162,14 @@ export class MultiChoice extends InputWidget {
     this.prototype.default_view = MultiChoiceView
 
     this.define<MultiChoice.Props>(({Boolean, Int, String, Array, Tuple, Or, Nullable}) => ({
-      value:         [ Array(String), [] ],
-      options:       [ Array(Or(String, Tuple(String, String))), [] ],
-      max_items:     [ Nullable(Int),  null ],
-      delete_button: [ Boolean, true ],
-      placeholder:   [ Nullable(String),  null ],
-      option_limit:  [ Nullable(Int),  null ],
-      search_option_limit:  [ Nullable(Int),  null ],
-      solid:         [ Boolean, true ],
+      value:               [ Array(String), [] ],
+      options:             [ Array(Or(String, Tuple(String, String))), [] ],
+      max_items:           [ Nullable(Int), null ],
+      delete_button:       [ Boolean, true ],
+      placeholder:         [ Nullable(String), null ],
+      option_limit:        [ Nullable(Int), null ],
+      search_option_limit: [ Nullable(Int), null ],
+      solid:               [ Boolean, true ],
     }))
   }
 }

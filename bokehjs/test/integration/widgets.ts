@@ -11,7 +11,7 @@ import {
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
-  Select, MultiSelect,
+  MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
   TimePicker,
   DatePicker, DateRangePicker, MultipleDatePicker,
@@ -212,6 +212,11 @@ describe("Widgets", () => {
 
   it.allowing(8)("should allow FileInput", async () => {
     const obj = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow MultiChoice", async () => {
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3" ]})
     await display(obj, [500, 100])
   })
 
