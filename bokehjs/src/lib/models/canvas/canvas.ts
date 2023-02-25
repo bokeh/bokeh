@@ -148,12 +148,16 @@ export class CanvasView extends UIElementView {
 
     if (changed) {
       const {width, height} = this.bbox
+
       this._size.replace(`
       .bk-layer {
         width: ${width}px;
         height: ${height}px;
       }
       `)
+
+      this.primary.resize(width, height)
+      this.overlays.resize(width, height)
     }
 
     return changed
