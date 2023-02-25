@@ -153,7 +153,7 @@ export abstract class LayoutDOMView extends UIElementView {
     for (const child_view of this.child_views) {
       child_view.render()
       this.shadow_el.appendChild(child_view.el)
-      //child_view.after_render()
+      // No after_render() here. See r_after_render().
     }
   }
 
@@ -412,7 +412,7 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override update_bbox(): boolean {
-    for (const child_view of this.child_views) {
+    for (const child_view of this.layoutable_views) {
       child_view.update_bbox()
     }
 
@@ -443,15 +443,18 @@ export abstract class LayoutDOMView extends UIElementView {
     this.render()
     if (element != null)
       element.appendChild(this.el)
-    this.rafter_render()
+    this.r_after_render()
     this._was_built = true
 
     this.notify_finished()
   }
 
-  rafter_render(): void {
-    for (const child_view of this.layoutable_views) {
-      child_view.rafter_render()
+  r_after_render(): void {
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.r_after_render()
+      else
+        child_view.after_render()
     }
 
     this.after_render()

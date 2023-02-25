@@ -138,7 +138,7 @@ export class ToolbarView extends UIElementView {
 
   override _after_resize(): void {
     super._after_resize()
-    this.render()
+    this._after_render()
   }
 
   override render(): void {
@@ -199,6 +199,18 @@ export class ToolbarView extends UIElementView {
   override _after_render(): void {
     super._after_render()
 
+    clear(this._overflow_menu.items)
+
+    if (this.shadow_el.contains(this._overflow_el)) {
+      this.shadow_el.removeChild(this._overflow_el)
+    }
+
+    for (const el of this._items) {
+      if (!this.shadow_el.contains(el)) {
+        this.shadow_el.append(el)
+      }
+    }
+
     const {horizontal} = this.model
     const overflow_size = 15
     const {bbox} = this
@@ -217,8 +229,6 @@ export class ToolbarView extends UIElementView {
         if (overflowed) {
           this.shadow_el.removeChild(el)
           this.shadow_el.appendChild(this._overflow_el)
-
-          clear(this._overflow_menu.items)
           this._overflow_menu.items.push({content: el, class: overflow_cls})
         }
       }
