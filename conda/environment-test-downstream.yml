@@ -17,4 +17,5 @@ dependencies:
 
   # tests
   - pytest >=7.0
+  - pytest-timeout
   - scipy

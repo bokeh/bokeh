@@ -39,6 +39,7 @@ dependencies:
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
+  - pytest-timeout
   - requests >=1.2.3
   - selenium 4.2
 

@@ -28,6 +28,7 @@ from tests.support.util.project import TOP_PATH
 # Tests
 #-----------------------------------------------------------------------------
 
+@pytest.mark.timeout(240)
 def test_eslint() -> None:
     ''' Assures that the BokehJS codebase passes configured eslint checks
 
