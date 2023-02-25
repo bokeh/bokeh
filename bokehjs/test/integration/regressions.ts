@@ -30,7 +30,11 @@ import {
   BasicTickFormatter,
 } from "@bokehjs/models"
 
-import {Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup, Div, TextInput} from "@bokehjs/models/widgets"
+import {
+  Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
+  Div, TextInput, DatePicker,
+} from "@bokehjs/models/widgets"
+
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
 
 import {Factor} from "@bokehjs/models/ranges/factor_range"
@@ -3077,6 +3081,23 @@ describe("Bug", () => {
       const init = {key: "B", code: "KeyB", keyCode: 66, shiftKey: true, bubbles: true, composed: true}
       input_el.dispatchEvent(new KeyboardEvent("keyup", init))
       await paint()
+    })
+  })
+
+  describe("in issue #12709", () => {
+    it("doesn't allow using DatePicker widget in complex layouts", async () => {
+      const plot = fig([200, 200])
+      const xs = [0, 1, 2, 3, 4, 5]
+      const ys = [0, 1, 4, 9, 16, 25]
+      plot.line(xs, ys, {line_width: 2})
+
+      const select = new Select({options: ["A", "B"], width: 100})
+      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+
+      const col = column([select, date_picker])
+      const layout = row([col, plot])
+
+      await display(layout, [350, 250])
     })
   })
 })
