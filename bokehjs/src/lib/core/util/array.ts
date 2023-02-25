@@ -12,7 +12,7 @@ import {min, min_by, max_by, includes, filter} from "./arrayable"
 export {
   map, reduce, min, min_by, max, max_by, sum, cumsum, every, some,
   find, find_last, find_index, find_last_index, sorted_index,
-  is_empty, includes, contains,
+  is_empty, includes, contains, sort_by,
 } from "./arrayable"
 
 const slice = Array.prototype.slice
@@ -136,22 +136,6 @@ export function argmin(array: number[]): number {
 
 export function argmax(array: number[]): number {
   return max_by(range(array.length), (i) => array[i])
-}
-
-export function sort_by<T>(array: T[], key: (item: T) => number): T[] {
-  const tmp = array.map((value, index) => {
-    return {value, index, key: key(value)}
-  })
-  tmp.sort((left, right) => {
-    const a = left.key
-    const b = right.key
-    if (a !== b) {
-      if (a > b) return  1
-      if (a < b) return -1
-    }
-    return left.index - right.index
-  })
-  return tmp.map((item) => item.value)
 }
 
 export function uniq<T>(array: Arrayable<T>): T[] {
