@@ -449,13 +449,13 @@ export class Toolbar extends UIElement {
 
     function _get_active_attr(et: EventType | "multi"): keyof ActiveGestureToolsProps | null {
       switch (et) {
-        case "tap": return "active_tap"
-        case "pan": return "active_drag"
+        case "tap":    return "active_tap"
+        case "pan":    return "active_drag"
         case "pinch":
         case "scroll": return "active_scroll"
-        case "multi": return "active_multi"
+        case "multi":  return "active_multi"
+        default:       return null
       }
-      return null
     }
 
     function _supports_auto(et: string): boolean {

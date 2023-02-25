@@ -68,10 +68,16 @@ export class StringFormatter extends CellFormatter {
 
     const text = div(value == null ? "" : `${value}`)
     switch (font_style) {
+      case "normal":
+        break
       case "bold":
         text.style.fontWeight = "bold"
         break
       case "italic":
+        text.style.fontStyle = "italic"
+        break
+      case "bold italic":
+        text.style.fontWeight = "bold"
         text.style.fontStyle = "italic"
         break
     }

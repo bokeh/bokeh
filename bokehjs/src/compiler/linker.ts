@@ -706,13 +706,14 @@ export class Linker {
 
     const export_type = this.es_modules ? "default" : "="
     switch (type) {
-      case "json":
+      case "json": {
         source = `\
 const json = ${source};
 export ${export_type} json;
 `
         break
-      case "json5":
+      }
+      case "json5": {
         source = `\
 const json5 = \`
 ${source}
@@ -720,13 +721,15 @@ ${source}
 export ${export_type} json5;
 `
         break
-      case "css":
+      }
+      case "css": {
         source = `\
 const css = \`${source}\`;
 export ${export_type} css;
 `
         break
-      case "yaml":
+      }
+      case "yaml": {
         source = `\
 const yaml = \`
 ${source}
@@ -734,6 +737,10 @@ ${source}
 export ${export_type} yaml;
 `
         break
+      }
+      case "js": {
+        break
+      }
     }
 
     const [base, base_path, canonical, resolution] = ((): [string, string, string | undefined, ResoType] => {

@@ -372,6 +372,10 @@ export class LegendView extends AnnotationView {
         ctx.translate(this.title_panel.bbox.width, 0)
         break
       }
+      case "above":
+      case "below": {
+        break
+      }
     }
 
     this.title_panel.text.paint(ctx)

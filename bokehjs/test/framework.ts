@@ -468,6 +468,8 @@ function _infer_layoutdom_viewport(obj: LayoutDOM): Size {
           case "right":
             width += 30
             break
+          case null:
+            break
         }
       }
     } else if (obj instanceof Toolbar) {
