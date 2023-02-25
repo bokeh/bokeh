@@ -274,12 +274,19 @@ export class DateFormatter extends StringFormatter {
   }
 
   override doFormat(row: any, cell: any, value: unknown, columnDef: any, dataContext: any): string {
+    function parse(date: string) {
+      /* Parse bare dates as UTC. */
+      const has_tz = /Z$|[+-]\d\d((:?)\d\d)?$/.test(date) // ISO 8601 TZ designation or offset
+      const iso_date = has_tz ? date : `${date}Z`
+      return new Date(iso_date).getTime()
+    }
+
     const epoch = (() => {
       if (value == null || isNumber(value)) {
         return value
       } else if (isString(value)) {
         const epoch = Number(value)
-        return isNaN(epoch) ? Date.parse(value) : epoch
+        return isNaN(epoch) ? parse(value) : epoch
       } else if (value instanceof Date) {
         return value.valueOf()
       } else {
