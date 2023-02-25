@@ -4,12 +4,13 @@ import {assert} from "./assert"
 
 export class BitSet implements Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
+  private static readonly _word_length = 32
 
   private readonly _array: Uint32Array
   private readonly _nwords: number
 
   constructor(readonly size: number, init: Uint32Array | 1 | 0 = 0) {
-    this._nwords = Math.ceil(size/32)
+    this._nwords = Math.ceil(size/BitSet._word_length)
     if (init == 0 || init == 1) {
       this._array = new Uint32Array(this._nwords)
       if (init == 1) {
@@ -29,7 +30,7 @@ export class BitSet implements Equatable {
     if (!cmp.eq(this.size, that.size))
       return false
     const {_nwords} = this
-    const trailing = this.size % _nwords
+    const trailing = this.size % BitSet._word_length
     const n = trailing == 0 ? _nwords : _nwords - 1
     for (let i = 0; i < n; i++) {
       if (this._array[i] != that._array[i])
@@ -114,9 +115,9 @@ export class BitSet implements Equatable {
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
       if (word == 0) {
-        k += 32
+        k += BitSet._word_length
       } else {
-        for (let j = 0; j < 32 && k < size; j++, k++) {
+        for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
           if (((word >>> j) & 0b1) == 0b1)
             c += 1
         }
@@ -130,10 +131,10 @@ export class BitSet implements Equatable {
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
       if (word == 0) {
-        k += 32
+        k += BitSet._word_length
         continue
       }
-      for (let j = 0; j < 32 && k < size; j++, k++) {
+      for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b1)
           yield k
       }
@@ -145,10 +146,10 @@ export class BitSet implements Equatable {
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
       if (word == 0xffffffff) {
-        k += 32
+        k += BitSet._word_length
         continue
       }
-      for (let j = 0; j < 32 && k < size; j++, k++) {
+      for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b0)
           yield k
       }

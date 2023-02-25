@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {range} from "@bokehjs/core/util/array"
+import {is_equal} from "@bokehjs/core/util/eq"
 
 describe("core/util/bitset module", () => {
 
@@ -157,6 +158,12 @@ describe("core/util/bitset module", () => {
       const k = 100
       expect(bs0.select(range(k, k + bs0.size + 10))).to.be.equal([100, 101, 115, 116, 131, 132, 133, 138])
       expect(bs1.select(range(k, k + bs1.size + 10))).to.be.equal([101, 106, 115, 131, 132, 134, 135, 138])
+    })
+
+    it("should support equality comparisons", () => {
+      const bs2 = BitSet.from_indices(159, [])
+      const bs3 = BitSet.from_indices(159, [158])
+      expect(is_equal(bs2, bs3)).to.be.equal(false)
     })
   })
 })
