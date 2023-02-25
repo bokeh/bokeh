@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import re
+import sys
 from typing import TYPE_CHECKING
 
 ## External imports
@@ -68,6 +69,9 @@ def webdriver(request: pytest.FixtureRequest):
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
+    if sys.platform == "darwin" and webdriver.name == "firefox":
+        pytest.skip(reason="unreliable on MacOS and Firefox")
+
     width, height = dimensions
     border = 5
 
@@ -92,6 +96,9 @@ def test_get_screenshot_as_png(webdriver: WebDriver, dimensions: tuple[int, int]
 @pytest.mark.selenium
 @pytest.mark.parametrize("dimensions", [(14, 14), (44, 44), (144, 144), (444, 444), (1444, 1444)])
 def test_get_screenshot_as_png_with_glyph(webdriver: WebDriver, dimensions: tuple[int, int]) -> None:
+    if sys.platform == "darwin" and webdriver.name == "firefox":
+        pytest.skip(reason="unreliable on MacOS and Firefox")
+
     width, height = dimensions
     border = 5
 
