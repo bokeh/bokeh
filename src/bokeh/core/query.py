@@ -351,7 +351,7 @@ class NEQ(_Operator):
 #-----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
-_operators: dict[Type["_Operator"], Callable[[Any, Any], Any]] = {
+_operators: dict[Type[_Operator], Callable[[Any, Any], Any]] = {
    IN:  lambda x, y: x in y,
    GT:  lambda x, y: x > y,
    LT:  lambda x, y: x < y,
