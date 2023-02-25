@@ -123,14 +123,14 @@ class GlyphRenderer(DataRenderer):
     and ranges.
     """)
 
-    selection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
+    selection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help="""
     An optional glyph used for selected points.
 
     If set to "auto" then the standard glyph will be used for selected
     points.
     """)
 
-    nonselection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
+    nonselection_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help="""
     An optional glyph used for explicitly non-selected points
     (i.e., non-selected when there are other points that are selected,
     but not when no points at all are selected.)
@@ -144,10 +144,17 @@ class GlyphRenderer(DataRenderer):
     being hovered over by a ``HoverTool``.
     """)
 
-    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help=""""
+    muted_glyph = Nullable(Either(Auto, Instance(Glyph)), default="auto", help="""
+    An optional glyph that replaces the primary glyph when ``muted`` is set. If
+    set to ``"auto"``, it will create a new glyph based off the primary glyph
+    with predefined visual properties.
     """)
 
-    muted = Bool(False, help="""
+    muted = Bool(default=False, help="""
+    Defines whether this glyph renderer is muted or not. Muted renderer will use
+    the muted glyph instead of the primary glyph for rendering. Usually renderers
+    are muted by the user through an UI action, e.g. by clicking a legend item, if
+    a legend was configured with ``click_policy = "mute"``.
     """)
 
     def add_decoration(self, marking: Marking, node: Literal["start", "middle", "end"]) -> Decoration:
