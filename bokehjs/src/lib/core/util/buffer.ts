@@ -71,5 +71,10 @@ export function swap(buffer: ArrayBuffer, dtype: NDDataType): void {
     case "float64":
       swap64(buffer)
       break
+    case "object":
+    case "uint8":
+    case "int8":
+    case "bool":
+      break
   }
 }
