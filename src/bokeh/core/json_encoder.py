@@ -69,17 +69,14 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, indent: int | None = None) -> str:
-    ''' Return a serialized JSON representation of objects, suitable to
-    send to BokehJS.
+    '''
+    Convert an object or a serialized representation to a JSON string.
 
-    This function is typically used to serialize single python objects in
-    the manner expected by BokehJS. In particular, many datetime values are
-    automatically normalized to an expected format. Some Bokeh objects can
-    also be passed, but note that Bokeh models are typically properly
-    serialized in the context of an entire Bokeh document.
-
-    The resulting JSON always has sorted keys. By default. the output is
-    as compact as possible unless pretty output or indentation is requested.
+    This function accepts Python-serializable objects and converts them to
+    a JSON string. This function does not perform any advaced serialization,
+    in particular it won't serialize Bokeh models or numpy arrays. For that,
+    use :class:`bokeh.core.serialization.Serializer` class, which handles
+    serialization of all types of objects that may be encountered in Bokeh.
 
     Args:
         obj (obj) : the object to serialize to JSON format
@@ -99,32 +96,56 @@ def serialize_json(obj: Any | Serialized[Any], *, pretty: bool | None = None, in
             then no indentation is used, unless pretty output is enabled,
             in which case two spaces are used. (default: None)
 
-    Any additional keyword arguments are passed to ``json.dumps``, except for
-    some that  are computed internally, and cannot be overridden:
+    Returns:
 
-    * allow_nan
-    * indent
-    * separators
-    * sort_keys
+        str: RFC-8259 JSON string
 
     Examples:
 
         .. code-block:: python
 
-            >>> data = dict(b=np.datetime64('2017-01-01'), a = np.arange(3))
+            >>> import numpy as np
 
-            >>>print(serialize_json(data))
-            {"a":[0,1,2],"b":1483228800000.0}
+            >>> from bokeh.core.serialization import Serializer
+            >>> from bokeh.core.json_encoder import serialize_json
 
-            >>> print(serialize_json(data, pretty=True))
+            >>> s = Serializer()
+
+            >>> obj = dict(b=np.datetime64("2023-02-25"), a=np.arange(3))
+            >>> rep = s.encode(obj)
+            >>> rep
             {
-              "a": [
-                0,
-                1,
-                2
-              ],
-              "b": 1483228800000.0
+                'type': 'map',
+                'entries': [
+                    ('b', 1677283200000.0),
+                    ('a', {
+                        'type': 'ndarray',
+                        'array': {'type': 'bytes', 'data': Buffer(id='p1000', data=<memory at 0x7fe5300e2d40>)},
+                        'shape': [3],
+                        'dtype': 'int32',
+                        'order': 'little',
+                    }),
+                ],
             }
+
+            >>> serialize_json(rep)
+            '{"type":"map","entries":[["b",1677283200000.0],["a",{"type":"ndarray","array":'
+            "{"type":"bytes","data":"AAAAAAEAAAACAAAA"},"shape":[3],"dtype":"int32","order":"little"}]]}'
+
+    .. note::
+
+        Using this function isn't strictly necessary. The serializer can be
+        configured to produce output that's fully compatible with ``dumps()``
+        from the standard library module ``json``. The main difference between
+        this function and ``dumps()`` is handling of memory buffers. Use the
+        following setup:
+
+        .. code-block:: python
+
+            >>> s = Serializer(deferred=False)
+
+            >>> import json
+            >>> json.dumps(s.encode(obj))
 
     '''
     pretty = settings.pretty(pretty)
