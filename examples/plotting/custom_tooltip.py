@@ -42,11 +42,11 @@ data=dict(
 )
 
 TOOLTIPS = """
-    <div style="width: 62px; height: 62px; opacity: .8; padding: 5px; background-color: @type_color;>
-    <h1 style="margin: 0; font-size: 12px;"> @atomic_number </h1>
-    <h1 style="margin: 0; font-size: 24px;"><strong> @sym </strong></h1>
-    <p style=" margin: 0; font-size: 8px;"><strong> @name </strong></p>
-    <p style="margin: 0; font-size: 8px;"> @atomic_mass{0.00} </p>
+    <div style="opacity: 0.8; padding: 0.5em; background-color: @type_color;">
+        <div style="font-size: 12px;">@atomic_number</div>
+        <div style="font-size: 24px;"><strong>@sym</strong></div>
+        <div style="font-size: 8px;"><strong>@name</strong></div>
+        <div style="font-size: 8px;">@atomic_mass{0.00}</div>
     </div>
 """
 
