@@ -8,9 +8,8 @@ import {div, StyleSheetLike} from "core/dom"
 import {Arrayable} from "core/types"
 import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
-import {some, range} from "core/util/array"
+import {some, range, sort_by, map} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
-import {map} from "core/util/arrayable"
 import {keys} from "core/util/object"
 import {logger} from "core/logging"
 import {DOMBoxSizing} from "../../layouts/layout_dom"
@@ -232,9 +231,8 @@ export class DataTableView extends WidgetView {
     if (this.model.selectable === false || this._in_selection_update)
       return
 
-    const {selected} = this.model.source
-
-    const permuted_indices = map(selected.indices, (x) => this.data.index.indexOf(x)).sort()
+    const {indices} = this.model.source.selected
+    const permuted_indices = sort_by(map(indices, (x) => this.data.index.indexOf(x)), (x) => x)
 
     this._in_selection_update = true
     try {
@@ -418,6 +416,10 @@ export class DataTableView extends WidgetView {
       (el as HTMLElement).style.height = "0px"
     }
     this.grid.resizeCanvas()
+  }
+
+  get_selected_rows(): number[] {
+    return this.grid.getSelectedRows()
   }
 }
 

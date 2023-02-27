@@ -6,7 +6,7 @@ import * as p from "core/properties"
 import {div, i} from "core/dom"
 import {Color} from "core/types"
 import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
-import {isString} from "core/util/types"
+import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
 import {color2css} from "core/util/color"
 import {Model} from "../../../model"
@@ -242,7 +242,7 @@ export class DateFormatter extends StringFormatter {
 
   static {
     this.define<DateFormatter.Props>(({String}) => ({
-      format:     [ String,           "ISO-8601" ],
+      format: [ String, "ISO-8601" ],
     }))
   }
 
@@ -273,15 +273,36 @@ export class DateFormatter extends StringFormatter {
     }
   }
 
-  override doFormat(row: any, cell: any, value: any, columnDef: any, dataContext: any): string {
-    const {nan_format} = this
-    value = isString(value) ? parseInt(value, 10) : value
-    let date: string
-    // Handle null, NaN and NaT
-    if ((value == null || isNaN(value) || value === -9223372036854776))
-      date = nan_format
-    else
-      date = tz(value, this.getFormat())
+  override doFormat(row: any, cell: any, value: unknown, columnDef: any, dataContext: any): string {
+    function parse(date: string) {
+      /* Parse bare dates as UTC. */
+      const has_tz = /Z$|[+-]\d\d((:?)\d\d)?$/.test(date) // ISO 8601 TZ designation or offset
+      const iso_date = has_tz ? date : `${date}Z`
+      return new Date(iso_date).getTime()
+    }
+
+    const epoch = (() => {
+      if (value == null || isNumber(value)) {
+        return value
+      } else if (isString(value)) {
+        const epoch = Number(value)
+        return isNaN(epoch) ? parse(value) : epoch
+      } else if (value instanceof Date) {
+        return value.valueOf()
+      } else {
+        return Number(value)
+      }
+    })()
+
+    const NaT = -9223372036854776.0
+
+    const date = (() => {
+      if (epoch == null || isNaN(epoch) || epoch == NaT)
+        return this.nan_format
+      else
+        return tz(epoch, this.getFormat())
+    })()
+
     return super.doFormat(row, cell, date, columnDef, dataContext)
   }
 }

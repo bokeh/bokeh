@@ -155,6 +155,25 @@ export function reduce<T>(array: Arrayable<T>, fn: (previous: T, current: T, ind
   return value
 }
 
+export function sort_by<T>(array: T[], key: (item: T) => number): T[]
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T>
+
+export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Arrayable<T> {
+  const tmp = Array.from(array, (value, index) => {
+    return {index, key: key(value)}
+  })
+  tmp.sort((left, right) => {
+    const a = left.key
+    const b = right.key
+    if (a !== b) {
+      if (a > b) return  1
+      if (a < b) return -1
+    }
+    return left.index - right.index
+  })
+  return map(array, (_, i) => array[tmp[i].index])
+}
+
 export function min(array: Arrayable<number>): number {
   let value: number
   let result = Infinity
