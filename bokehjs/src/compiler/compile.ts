@@ -17,6 +17,7 @@ function parse_patched_tsconfig(base_dir: string, preconfigure: ts.CompilerOptio
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
   const preconfigure: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
+    target: ts.ScriptTarget.ES2017,
     paths: {
       "*": [
         path.join(bokehjs_dir, "js/lib/*"),
