@@ -550,6 +550,17 @@ class TestSerializer:
             dtype="object",
         )
 
+    def test_ndarray_zero_dimensional(self):
+        encoder = Serializer()
+
+        # floating point
+        res = encoder.encode(np.array(2.4))
+        assert res == 2.4
+
+        # integer
+        res = encoder.encode(np.array(2))
+        assert res == 2
+
     def test_HasProps(self) -> None:
         val = SomeProps(p0=2, p1="a", p2=[1, 2, 3])
         encoder = Serializer()
