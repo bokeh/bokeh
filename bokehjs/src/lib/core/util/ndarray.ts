@@ -1,4 +1,4 @@
-import {NDDataType} from "../types"
+import {NDDataType, Arrayable} from "../types"
 import {isObject, isNumber} from "./types"
 import {BYTE_ORDER} from "./platform"
 import {equals, Equatable, Comparator} from "./eq"
@@ -17,16 +17,18 @@ function encode_NDArray(array: NDArray, serializer: Serializer): NDArrayRep {
   }
 }
 
-export interface NDArrayType extends Equatable, Serializable {
+export interface NDArrayType<T, U=T> extends Arrayable<U>, Equatable, Serializable {
   readonly [__ndarray__]: boolean
   readonly dtype: NDDataType
   readonly shape: number[]
   readonly dimension: number
+  get(i: number): T // TODO: multi-dimensional indices
+  [i: number]: U
 }
 
 type Init<T> = number | ArrayBuffer | ArrayLike<T>
 
-export class BoolNDArray extends Uint8Array implements NDArrayType {
+export class BoolNDArray extends Uint8Array implements NDArrayType<boolean, number> {
   readonly [__ndarray__] = true
   readonly dtype: "bool" = "bool"
   readonly shape: number[]
@@ -45,9 +47,13 @@ export class BoolNDArray extends Uint8Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): boolean {
+    return this[i] == 1
+  }
 }
 
-export class Uint8NDArray extends Uint8Array implements NDArrayType {
+export class Uint8NDArray extends Uint8Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "uint8" = "uint8"
   readonly shape: number[]
@@ -66,9 +72,13 @@ export class Uint8NDArray extends Uint8Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Int8NDArray extends Int8Array implements NDArrayType {
+export class Int8NDArray extends Int8Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "int8" = "int8"
   readonly shape: number[]
@@ -87,9 +97,13 @@ export class Int8NDArray extends Int8Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Uint16NDArray extends Uint16Array implements NDArrayType {
+export class Uint16NDArray extends Uint16Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "uint16" = "uint16"
   readonly shape: number[]
@@ -108,9 +122,13 @@ export class Uint16NDArray extends Uint16Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Int16NDArray extends Int16Array implements NDArrayType {
+export class Int16NDArray extends Int16Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "int16" = "int16"
   readonly shape: number[]
@@ -129,9 +147,13 @@ export class Int16NDArray extends Int16Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Uint32NDArray extends Uint32Array implements NDArrayType {
+export class Uint32NDArray extends Uint32Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "uint32" = "uint32"
   readonly shape: number[]
@@ -150,9 +172,13 @@ export class Uint32NDArray extends Uint32Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Int32NDArray extends Int32Array implements NDArrayType {
+export class Int32NDArray extends Int32Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "int32" = "int32"
   readonly shape: number[]
@@ -171,9 +197,13 @@ export class Int32NDArray extends Int32Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Float32NDArray extends Float32Array implements NDArrayType {
+export class Float32NDArray extends Float32Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "float32" = "float32"
   readonly shape: number[]
@@ -192,9 +222,13 @@ export class Float32NDArray extends Float32Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class Float64NDArray extends Float64Array implements NDArrayType {
+export class Float64NDArray extends Float64Array implements NDArrayType<number> {
   readonly [__ndarray__] = true
   readonly dtype: "float64" = "float64"
   readonly shape: number[]
@@ -213,9 +247,13 @@ export class Float64NDArray extends Float64Array implements NDArrayType {
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
   }
+
+  get(i: number): number {
+    return this[i]
+  }
 }
 
-export class ObjectNDArray extends Array implements NDArrayType {
+export class ObjectNDArray<T=unknown> extends Array<T> implements NDArrayType<T> {
   readonly [__ndarray__] = true
   readonly dtype: "object" = "object"
 
@@ -229,7 +267,7 @@ export class ObjectNDArray extends Array implements NDArrayType {
     return this.shape.length
   }
 
-  constructor(init_: Init<unknown>, shape?: number[]) {
+  constructor(init_: Init<T>, shape?: number[]) {
     const init = init_ instanceof ArrayBuffer ? new Float64Array(init_) : init_
     const size = isNumber(init) ? init : init.length
 
@@ -237,7 +275,7 @@ export class ObjectNDArray extends Array implements NDArrayType {
 
     if (!isNumber(init)) {
       for (let i = 0; i < init.length; i++) {
-        this[i] = init[i]
+        this[i] = init[i] as T
       }
     }
 
@@ -250,6 +288,10 @@ export class ObjectNDArray extends Array implements NDArrayType {
 
   [serialize](serializer: Serializer): unknown {
     return encode_NDArray(this, serializer)
+  }
+
+  get(i: number): T {
+    return this[i]
   }
 }
 

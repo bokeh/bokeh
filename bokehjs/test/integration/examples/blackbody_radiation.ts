@@ -6,7 +6,7 @@ import {dark_minimal} from "@bokehjs/api/themes"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
-import {NDArray} from "@bokehjs/core/util/ndarray"
+import {Arrayable} from "@bokehjs/core/types"
 import {enumerate} from "@bokehjs/core/util/iterator"
 
 import {Theme, use_theme} from "@bokehjs/core/properties"
@@ -39,7 +39,7 @@ describe("Examples", () => {
       title: "Black body spectral radiance as a function of frequency",
     })
 
-    function spectral_radiance(nu: NDArray, T: NDArray | number): NDArray {
+    function spectral_radiance(nu: Arrayable<number>, T: Arrayable<number> | number): Arrayable<number> {
       const h = 6.626e-34   // Planck constant (Js)
       const k = 1.3806e-23  // Boltzman constant (J/K)
       const c = 2.9979e8    // Speed of light in vacuum (m/s)

@@ -1,5 +1,5 @@
 import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Arrayable, ScreenArray, to_screen} from "core/types"
+import {ScreenArray, to_screen} from "core/types"
 import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
 import * as visuals from "core/visuals"
@@ -8,7 +8,7 @@ import {Context2d} from "core/util/canvas"
 import {Selection, ImageIndex} from "../selections/selection"
 import {PointGeometry} from "core/geometry"
 import {SpatialIndex} from "core/util/spatial"
-import {NDArray} from "core/util/ndarray"
+import {NDArrayType} from "core/util/ndarray"
 import {assert} from "core/util/assert"
 import {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
@@ -17,7 +17,7 @@ import {anchor} from "../common/resolve"
 export type ImageDataBase = XYGlyphData & {
   image_data: HTMLCanvasElement[]
 
-  readonly image: p.Uniform<NDArray>
+  readonly image: p.Uniform<NDArrayType<number>>
   readonly dw: p.Uniform<number>
   readonly dh: p.Uniform<number>
 
@@ -108,7 +108,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.restore()
   }
 
-  protected abstract _flat_img_to_buf8(img: Arrayable<number>, length_divisor: number): Uint8ClampedArray
+  protected abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
     this._set_width_height_data()
@@ -125,8 +125,7 @@ export abstract class ImageBaseView extends XYGlyphView {
       this._height[i] = img.shape[0]
       this._width[i] = img.shape[1]
 
-      const length_divisor = img.dimension == 3 ? img.shape[2] : 1
-      const buf8 = this._flat_img_to_buf8(img, length_divisor)
+      const buf8 = this._flat_img_to_buf8(img)
       this._set_image_data_from_buffer(i, buf8)
     }
   }

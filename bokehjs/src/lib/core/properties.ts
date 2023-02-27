@@ -15,7 +15,7 @@ import {ColumnarDataSource} from "../models/sources/columnar_data_source"
 import {isValue, isField, isExpr, /*Value,*/ Scalar, Vector, Dimensional, ScalarExpression, VectorExpression} from "./vectorization"
 import {settings} from "./settings"
 import {Kind} from "./kinds"
-import {is_NDArray, NDArray} from "./util/ndarray"
+import {is_NDArray, NDArray, NDArrayType} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
 import {serialize} from "./serialization"
@@ -630,7 +630,7 @@ export class ColorSpec extends DataSpec<types.Color | null> {
           return new ColorArray(array.buffer)
         }
       } else if (colors.dtype == "object" && colors.dimension == 1) {
-        return this._from_css_array(colors)
+        return this._from_css_array(colors as NDArrayType<types.Color | null>)
       }
     } else {
       return this._from_css_array(colors)
