@@ -135,7 +135,7 @@ def update_bokehjs_versions(config: Config, system: System) -> ActionReturn:
         content["version"] = config.js_version
 
     def update_package_lock_json(content: dict[str, Any]) -> None:
-        assert content["lockfileVersion"] == 2, "Expected lock file v2"
+        assert content["lockfileVersion"] == 3, "Expected lock file v3"
         content["version"] = config.js_version
         for pkg in content["packages"].values():
             if pkg.get("name", "").startswith("@bokeh/"):
