@@ -2,7 +2,7 @@ import {RowSelectionModel} from "@bokeh/slickgrid/plugins/slick.rowselectionmode
 import {CheckboxSelectColumn} from "@bokeh/slickgrid/plugins/slick.checkboxselectcolumn"
 import {CellExternalCopyManager} from "@bokeh/slickgrid/plugins/slick.cellexternalcopymanager"
 
-import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs} from "@bokeh/slickgrid"
+import {Grid as SlickGrid, DataProvider, SortColumn, OnSortEventArgs, OnSelectedRowsChangedEventArgs, GridOptions} from "@bokeh/slickgrid"
 import * as p from "core/properties"
 import {div, StyleSheetLike} from "core/dom"
 import {Arrayable} from "core/types"
@@ -26,11 +26,12 @@ import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
 
 export const AutosizeModes = {
-  fit_columns: "FCV",
-  fit_viewport: "FVC",
-  force_fit: "LFF",
-  none: "NOA",
+  fit_columns: "FCV" as const,
+  fit_viewport: "FVC" as const,
+  force_fit: "LFF" as const,
+  none: "NOA" as const,
 }
+export type AutosizeMode = "FCV" | "FVC" | "LFF" | "NOA"
 
 let _warned_not_reorderable = false
 
@@ -162,7 +163,19 @@ export class DataTableView extends WidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.change, () => this.render())
+    this.connect(this.model.change, () => {
+      this.render()
+      this.after_render()
+      this.invalidate_layout()
+    })
+
+    for (const column of this.model.columns) {
+      this.connect(column.change, () => {
+        this.render()
+        this.after_render()
+        this.invalidate_layout()
+      })
+    }
 
     // changes to the source trigger the callback below via
     // compute_indices hooks in cds view
@@ -171,13 +184,6 @@ export class DataTableView extends WidgetView {
 
     this.connect(this.model.source.selected.change, () => this.updateSelection())
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
-
-    for (const column of this.model.columns) {
-      this.connect(column.change, () => {
-        this.invalidate_layout()
-        this.render()
-      })
-    }
   }
 
   override styles(): StyleSheetLike[] {
@@ -186,6 +192,12 @@ export class DataTableView extends WidgetView {
 
   override _after_resize(): void {
     super._after_resize()
+    this.grid.resizeCanvas()
+    this.updateLayout(true, false)
+  }
+
+  override _after_layout(): void {
+    super._after_layout()
     this.grid.resizeCanvas()
     this.updateLayout(true, false)
   }
@@ -268,8 +280,8 @@ export class DataTableView extends WidgetView {
     }
   }
 
-  get autosize(): string {
-    let autosize: string
+  get autosize(): AutosizeMode {
+    let autosize: AutosizeMode
     if (this.model.fit_columns === true)
       autosize = AutosizeModes.force_fit
     else if (this.model.fit_columns === false)
@@ -284,11 +296,11 @@ export class DataTableView extends WidgetView {
 
     this.wrapper_el = div({class: tables.data_table})
     this.shadow_el.appendChild(this.wrapper_el)
-
-    this._render()
   }
 
-  protected _render(): void {
+  override _after_render(): void {
+    super._after_render()
+
     const columns: ColumnType[] = this.model.columns.filter((column) => column.visible).map((column) => {
       return {...column.toColumn(), parent: this}
     })
@@ -331,7 +343,7 @@ export class DataTableView extends WidgetView {
       frozen_row = Math.abs(frozen_rows)
     }
 
-    const options = {
+    const options: GridOptions<Item> = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: reorderable,
       autosizeColsMode: this.autosize,
@@ -343,6 +355,7 @@ export class DataTableView extends WidgetView {
       frozenColumn: frozen_column,
       frozenRow: frozen_row,
       frozenBottom: frozen_bottom,
+      explicitInitialization: false,
     }
 
     const initialized = is_defined(this.grid)
@@ -407,8 +420,7 @@ export class DataTableView extends WidgetView {
       }
     }
 
-    if (initialized)
-      this.updateLayout(initialized, false)
+    this.updateLayout(initialized, false)
   }
 
   _hide_header(): void {

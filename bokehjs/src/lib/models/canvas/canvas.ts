@@ -143,16 +143,24 @@ export class CanvasView extends UIElementView {
     return this.primary.pixel_ratio // XXX: primary
   }
 
-  override _update_bbox(): void {
-    super._update_bbox()
+  override _update_bbox(): boolean {
+    const changed = super._update_bbox()
 
-    const {width, height} = this.bbox
-    this._size.replace(`
-    .bk-layer {
-      width: ${width}px;
-      height: ${height}px;
+    if (changed) {
+      const {width, height} = this.bbox
+
+      this._size.replace(`
+      .bk-layer {
+        width: ${width}px;
+        height: ${height}px;
+      }
+      `)
+
+      this.primary.resize(width, height)
+      this.overlays.resize(width, height)
     }
-    `)
+
+    return changed
   }
 
   override _after_resize(): void {

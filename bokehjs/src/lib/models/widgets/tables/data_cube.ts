@@ -271,7 +271,9 @@ export class DataCubeView extends DataTableView {
 
   protected declare data: DataCubeProvider
 
-  override _render(): void {
+  override _after_render(): void {
+    super._after_render()
+
     const options = {
       enableCellNavigation: this.model.selectable !== false,
       enableColumnReorder: false,

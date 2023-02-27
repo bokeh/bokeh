@@ -1,5 +1,5 @@
-GridPlot bbox=[0, 0, 200, 230]
-  Toolbar bbox=[0, 200, 200, 30]
+GridPlot bbox=[0, 0, 207, 230]
+  Toolbar bbox=[0, 0, 207, 30]
   GridBox bbox=[0, 0, 200, 200]
     Plot bbox=[0, 0, 100, 100]
       CartesianFrame bbox=[29, 5, 66, 73]

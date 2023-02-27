@@ -53,8 +53,8 @@ export class PaneView extends UIElementView {
         this.shadow_el.append(text)
       } else {
         const child_view = this._child_views.get(child)!
-        this.shadow_el.append(child_view.el)
         child_view.render()
+        this.shadow_el.append(child_view.el)
         child_view.after_render()
       }
     }

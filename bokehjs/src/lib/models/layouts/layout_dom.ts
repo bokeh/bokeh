@@ -51,7 +51,7 @@ export abstract class LayoutDOMView extends UIElementView {
     if (this.is_layout_root && !this._was_built) {
       // This can happen only in pathological cases primarily in tests.
       logger.warn(`${this} wasn't built properly`)
-      this.build()
+      this.render_to(null)
     } else
       this.compute_layout()
   }
@@ -151,9 +151,9 @@ export abstract class LayoutDOMView extends UIElementView {
     this.class_list.add(...this.css_classes())
 
     for (const child_view of this.child_views) {
-      this.shadow_el.appendChild(child_view.el)
       child_view.render()
-      child_view.after_render()
+      this.shadow_el.appendChild(child_view.el)
+      // No after_render() here. See r_after_render().
     }
   }
 
@@ -411,16 +411,18 @@ export abstract class LayoutDOMView extends UIElementView {
     }
   }
 
-  override update_bbox(): void {
-    for (const child_view of this.child_views) {
+  override update_bbox(): boolean {
+    for (const child_view of this.layoutable_views) {
       child_view.update_bbox()
     }
 
-    super.update_bbox()
+    const changed = super.update_bbox()
 
     if (this.layout != null) {
       this.layout.visible = this.is_displayed
     }
+
+    return changed
   }
 
   protected _after_layout(): void {}
@@ -433,13 +435,34 @@ export abstract class LayoutDOMView extends UIElementView {
     this._after_layout()
   }
 
-  override render_to(element: Node): void {
-    element.appendChild(this.el)
-    this.build()
+  private _was_built: boolean = false
+  override render_to(element: Node | null): void {
+    if (!this.is_layout_root)
+      throw new Error(`${this.toString()} is not a root layout`)
+
+    this.render()
+    if (element != null)
+      element.appendChild(this.el)
+    this.r_after_render()
+    this._was_built = true
+
     this.notify_finished()
   }
 
+  r_after_render(): void {
+    for (const child_view of this.child_views) {
+      if (child_view instanceof LayoutDOMView)
+        child_view.r_after_render()
+      else
+        child_view.after_render()
+    }
+
+    this.after_render()
+  }
+
   override after_render(): void {
+    this._after_render()
+
     if (!this.is_managed) {
       this.invalidate_layout()
     }
@@ -457,18 +480,6 @@ export abstract class LayoutDOMView extends UIElementView {
         })
       }
     }
-  }
-
-  private _was_built: boolean = false
-  build(): this {
-    if (!this.is_layout_root)
-      throw new Error(`${this.toString()} is not a root layout`)
-
-    this.render()
-    this.after_render()
-    this._was_built = true
-
-    return this
   }
 
   async rebuild(): Promise<void> {

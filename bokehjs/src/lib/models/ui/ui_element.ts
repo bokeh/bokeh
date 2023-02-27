@@ -118,11 +118,11 @@ export abstract class UIElementView extends DOMComponentView {
     return this._bbox!
   }
 
-  update_bbox(): void {
-    this._update_bbox()
+  update_bbox(): boolean {
+    return this._update_bbox()
   }
 
-  protected _update_bbox(): void {
+  protected _update_bbox(): boolean {
     const displayed = this.el.offsetParent != null // TODO: position == "sticky"
 
     const bbox = !displayed ? new BBox() : (() => {
@@ -148,9 +148,10 @@ export abstract class UIElementView extends DOMComponentView {
       })
     })()
 
-    // TODO: const changed = this._bbox.equals(bbox)
+    const changed = this._bbox == null || !this._bbox.equals(bbox)
     this._bbox = bbox
     this._is_displayed = displayed
+    return changed
   }
 
   protected _resize_observer: ResizeObserver
@@ -178,8 +179,9 @@ export abstract class UIElementView extends DOMComponentView {
   protected _after_resize(): void {}
 
   after_resize(): void {
-    this.update_bbox()
-    this._after_resize()
+    if (this.update_bbox()) {
+      this._after_resize()
+    }
     this.finish()
   }
 
@@ -199,9 +201,13 @@ export abstract class UIElementView extends DOMComponentView {
     this._apply_visible()
   }
 
+  protected _after_render(): void {}
+
   after_render(): void {
     this.update_style()
     this.update_bbox()
+
+    this._after_render()
 
     // If not displayed, then after_resize() will not be called.
     if (!this.is_displayed) {
