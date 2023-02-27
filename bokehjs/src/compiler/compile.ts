@@ -1,4 +1,4 @@
-import * as path from "path"
+import {join, basename, dirname} from "path"
 import ts from "typescript"
 import lesscss from "less"
 
@@ -20,7 +20,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
     target: ts.ScriptTarget.ES2017,
     paths: {
       "*": [
-        path.join(bokehjs_dir, "js/lib/*"),
+        join(bokehjs_dir, "js/lib/*"),
       ],
     },
     outDir: undefined,
@@ -30,7 +30,15 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
   if (tsconfig.diagnostics != null)
     return {diagnostics: tsconfig.diagnostics}
 
-  const host = compiler_host(inputs, tsconfig.options, bokehjs_dir)
+  const tslib_dir = (() => {
+    // bokeh/server/static or bokehjs/build
+    if (basename(bokehjs_dir) == "static")
+      return join(bokehjs_dir, "lib")
+    else
+      return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
+  })()
+
+  const host = compiler_host(inputs, tsconfig.options, tslib_dir)
   const transformers = default_transformers(tsconfig.options)
 
   const outputs: Outputs = new Map()
