@@ -3,10 +3,15 @@ import {CallbackLike1} from "../../callbacks/callback"
 import * as p from "core/properties"
 import {TapEvent} from "core/ui_events"
 import {PointGeometry} from "core/geometry"
-import {TapBehavior, SelectionMode} from "core/enums"
+import {TapBehavior, TapGesture, SelectionMode} from "core/enums"
 import {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
+
+export type TapToolCallback = CallbackLike1<TapTool, {
+  geometries: PointGeometry & {x: number, y: number}
+  source: ColumnarDataSource
+}>
 
 export class TapToolView extends SelectToolView {
   declare model: TapTool
@@ -81,11 +86,8 @@ export namespace TapTool {
 
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
-    gesture: p.Property<"tap" | "doubletap">
-    callback: p.Property<CallbackLike1<TapTool, {
-      geometries: PointGeometry & {x: number, y: number}
-      source: ColumnarDataSource
-    }> | null>
+    gesture: p.Property<TapGesture>
+    callback: p.Property<TapToolCallback | null>
   }
 }
 
@@ -102,9 +104,9 @@ export class TapTool extends SelectTool {
   static {
     this.prototype.default_view = TapToolView
 
-    this.define<TapTool.Props>(({Any, Enum, Nullable}) => ({
+    this.define<TapTool.Props>(({Any, Nullable}) => ({
       behavior: [ TapBehavior, "select" ],
-      gesture:  [ Enum("tap", "doubletap"), "tap"],
+      gesture:  [ TapGesture, "tap"],
       callback: [ Nullable(Any /*TODO*/), null ],
     }))
 

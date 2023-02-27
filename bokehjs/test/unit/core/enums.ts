@@ -221,6 +221,10 @@ describe("enums module", () => {
     expect([...enums.TapBehavior]).to.be.equal(["select", "inspect"])
   })
 
+  it("should have TapGesture", () => {
+    expect([...enums.TapGesture]).to.be.equal(["tap", "doubletap"])
+  })
+
   it("should have TextAlign", () => {
     expect([...enums.TextAlign]).to.be.equal(["left", "right", "center"])
   })
