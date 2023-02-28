@@ -9,7 +9,7 @@ import * as nd from "core/util/ndarray"
 import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea,
+  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep,
   HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
   MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
   Scatter, Segment, Spline, Step, Text, VArea, VAreaStep, VBar, Wedge,
@@ -109,6 +109,7 @@ export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFi
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
 export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
 export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
+export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill
 export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
 export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
 export type ImageArgs         = GlyphArgs<Image.Props>
@@ -228,6 +229,17 @@ export abstract class GlyphAPI {
     args?: Partial<HAreaArgs>): TypedGlyphRenderer<HArea>
   harea(...args: unknown[]): TypedGlyphRenderer<HArea> {
     return this._glyph(HArea, ["x1", "x2", "y"], args)
+  }
+
+  harea_step(args: Partial<HAreaStepArgs>): TypedGlyphRenderer<HAreaStep>
+  harea_step(
+    x1: HAreaStepArgs["x1"],
+    x2: HAreaStepArgs["x2"],
+    y: HAreaStepArgs["y"],
+    step_mode: HAreaStepArgs["step_mode"],
+    args?: Partial<HAreaStepArgs>): TypedGlyphRenderer<HAreaStep>
+  harea_step(...args: unknown[]): TypedGlyphRenderer<HAreaStep> {
+    return this._glyph(HAreaStep, ["x1", "x2", "y", "step_mode"], args)
   }
 
   hbar(args: Partial<HBarArgs>): TypedGlyphRenderer<HBar>

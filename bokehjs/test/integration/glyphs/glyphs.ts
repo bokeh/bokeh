@@ -98,6 +98,17 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg")]))
   })
 
+  it("should support HAreaStep", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([200, 300], {output_backend, title: output_backend})
+      p.harea_step({x1: [1, 2, 3, 4], x2: [4, 5, 6, 7], y: [1.0, 1.3, 1.6, 1.9], step_mode: "before", color: "red"})
+      p.harea_step({x1: [1, 2, 3, 4], x2: [4, 5, 6, 7], y: [2.0, 2.3, 2.6, 2.9], step_mode: "center", color: "green"})
+      p.harea_step({x1: [1, 2, 3, 4], x2: [4, 5, 6, 7], y: [3.0, 3.3, 3.6, 3.9], step_mode: "after", color: "blue"})
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
   it("should support HBar", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {output_backend, title: output_backend})

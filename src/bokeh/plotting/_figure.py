@@ -120,6 +120,7 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.dot`
         * :func:`~bokeh.plotting.figure.ellipse`
         * :func:`~bokeh.plotting.figure.harea`
+        * :func:`~bokeh.plotting.figure.harea_step`
         * :func:`~bokeh.plotting.figure.hbar`
         * :func:`~bokeh.plotting.figure.hex`
         * :func:`~bokeh.plotting.figure.hex_tile`
