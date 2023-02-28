@@ -283,7 +283,10 @@ class Serializer:
         elif isinstance(obj, TypedArray):
             return self._encode_typed_array(obj)
         elif isinstance(obj, np.ndarray):
-            return self._encode_ndarray(obj)
+            if obj.shape != ():
+                return self._encode_ndarray(obj)
+            else:
+                return self._encode(obj.item())
         elif is_dataclass(obj):
             return self._encode_dataclass(obj)
         else:
