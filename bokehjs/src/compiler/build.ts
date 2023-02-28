@@ -281,12 +281,14 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const package_json = (is_package ? read_json(package_json_path) : {}) as Partial<Package>
 
+  const is_static_dir = basename(bokehjs_dir) == "static"
+
   const tslib_dir = (() => {
     if (package_json.devDependencies?.typescript != null) {
       return join(base_dir, "node_modules", "typescript", "lib")
     } else {
       // bokeh/server/static or bokehjs/build
-      if (basename(bokehjs_dir) == "static")
+      if (is_static_dir)
         return join(bokehjs_dir, "lib")
       else
         return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")

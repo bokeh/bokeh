@@ -15,6 +15,8 @@ function parse_patched_tsconfig(base_dir: string, preconfigure: ts.CompilerOptio
 }
 
 export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir: string): {outputs?: Outputs} & TSOutput {
+  const is_static_dir = basename(bokehjs_dir) == "static"
+
   const preconfigure: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2017,
@@ -32,7 +34,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
 
   const tslib_dir = (() => {
     // bokeh/server/static or bokehjs/build
-    if (basename(bokehjs_dir) == "static")
+    if (is_static_dir)
       return join(bokehjs_dir, "lib")
     else
       return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
