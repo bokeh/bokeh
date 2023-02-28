@@ -262,7 +262,8 @@ warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
 
 for ext_dir in {example.extensions!r}:
     from bokeh.ext import build
-    build(ext_dir)
+    if not build(ext_dir):
+        raise RuntimeError("failed to build extension '" + ext_dir + "'")
 
 with open(filename, 'rb') as example:
     exec(compile(example.read(), filename, 'exec'))
