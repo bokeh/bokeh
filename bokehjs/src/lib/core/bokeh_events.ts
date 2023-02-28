@@ -88,7 +88,6 @@ export type BokehEventRep = {
 function event(event_name: string) {
   return (cls: Class<BokehEvent>) => {
     cls.prototype.event_name = event_name
-    cls.prototype.publish = true
   }
 }
 
@@ -107,6 +106,10 @@ export abstract class BokehEvent implements Serializable, Equatable {
   }
 
   protected abstract get event_values(): Attrs
+
+  static {
+    this.prototype.publish = true
+  }
 }
 
 export abstract class ModelEvent extends BokehEvent {
