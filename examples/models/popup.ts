@@ -1,5 +1,6 @@
 import {Model} from "model"
 import {ColumnarDataSource} from "models/sources/columnar_data_source"
+import {TapTool, TapToolCallback} from "models/tools/gestures/tap_tool"
 import {replace_placeholders} from "core/util/templating"
 import * as p from "core/properties"
 import {popup} from "./popup_helper"
@@ -14,7 +15,7 @@ export namespace Popup {
 
 export interface Popup extends Popup.Attrs {}
 
-export class Popup extends Model {
+export class Popup extends Model implements TapToolCallback {
   declare properties: Popup.Props
 
   constructor(attrs?: Partial<Popup.Attrs>) {
@@ -27,9 +28,9 @@ export class Popup extends Model {
     }))
   }
 
-  execute(data_source: ColumnarDataSource): void {
-    for (const i of data_source.selected.indices) {
-      const message = replace_placeholders(this.message, data_source, i)
+  execute(_: TapTool, {source}: {source: ColumnarDataSource}): void {
+    for (const i of source.selected.indices) {
+      const message = replace_placeholders(this.message, source, i)
       popup(message.toString())
     }
   }

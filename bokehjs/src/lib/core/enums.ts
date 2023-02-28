@@ -184,6 +184,9 @@ export const StepMode = Enum("after", "before", "center")
 export type TapBehavior = "select" | "inspect"
 export const TapBehavior = Enum("select", "inspect")
 
+export type TapGesture = typeof TapGesture["__type__"]
+export const TapGesture = Enum("tap", "doubletap")
+
 export type TextAlign = "left" | "right" | "center"
 export const TextAlign = Enum("left", "right", "center")
 
