@@ -22,7 +22,9 @@ export type GridPlotOpts = {
 
 export type MergeFn = (cls: typeof Tool, group: Tool[]) => Tool | ToolProxy<Tool> | null
 
-export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn): ToolLike<Tool>[] {
+export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
+    ignore: Set<string> = new Set(["overlay", "renderers"])): ToolLike<Tool>[] {
+
   type ToolEntry = {tool: Tool, attrs: Attrs}
   const by_type: Map<typeof Tool, Set<ToolEntry>> = new Map()
 
@@ -33,8 +35,12 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn): ToolLike<
       computed.push(tool)
     } else {
       const attrs = tool.attributes
-      if ("overlay" in attrs)
-        delete attrs.overlay
+      for (const attr of ignore) {
+        if (attr in attrs) {
+          delete attrs[attr]
+        }
+      }
+
       const proto = tool.constructor.prototype
       let values = by_type.get(proto)
       if (values == null)

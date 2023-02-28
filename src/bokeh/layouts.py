@@ -504,7 +504,8 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 T = TypeVar("T", bound=Tool)
 MergeFn: TypeAlias = Callable[[Type[T], List[T]], Union[Tool, ToolProxy, None]]
 
-def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None) -> list[Tool | ToolProxy]:
+def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None,
+        ignore: set[str] | None = None) -> list[Tool | ToolProxy]:
     """ Group common tools into tool proxies. """
     @dataclass
     class ToolEntry:
@@ -514,18 +515,22 @@ def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = 
     by_type: defaultdict[type[Tool], list[ToolEntry]] = defaultdict(list)
     computed: list[Tool | ToolProxy] = []
 
+    if ignore is None:
+        ignore = {"overlay", "renderers"}
+
     for tool in tools:
         if isinstance(tool, ToolProxy):
             computed.append(tool)
         else:
             props = tool.properties_with_values()
-            if "overlay" in props:
-                del props["overlay"]
+            for attr in ignore:
+                if attr in props:
+                    del props[attr]
             by_type[tool.__class__].append(ToolEntry(tool, props))
 
     for cls, entries in by_type.items():
         if merge is not None:
-            merged = merge(cls, [entry.tool for entry in entries ])
+            merged = merge(cls, [entry.tool for entry in entries])
             if merged is not None:
                 computed.append(merged)
                 continue

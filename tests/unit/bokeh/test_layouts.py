@@ -30,9 +30,13 @@ from bokeh.layouts import (
     row,
 )
 from bokeh.models import (
+    BoxAnnotation,
+    BoxSelectTool,
     Column,
+    GlyphRenderer,
     GridBox,
     GridPlot,
+    HoverTool,
     LayoutDOM,
     PanTool,
     Row,
@@ -212,14 +216,24 @@ def test_group_tools() -> None:
     tap0 = TapTool(behavior="select")
     tap1 = TapTool(behavior="select")
     tap2 = TapTool(behavior="inspect")
-    save0 = SaveTool()
-    save1 = SaveTool()
+    save0 = SaveTool(filename="foo.png")
+    save1 = SaveTool(filename="foo.png")
+    select0 = BoxSelectTool(overlay=BoxAnnotation())
+    select1 = BoxSelectTool(overlay=BoxAnnotation())
+    select2 = BoxSelectTool(overlay=BoxAnnotation())
+    hover0 = HoverTool(renderers=[GlyphRenderer()])
+    hover1 = HoverTool(renderers=[GlyphRenderer()])
+    hover2 = HoverTool(renderers=[GlyphRenderer()])
 
-    tools = [pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0, save1]
+    tools = [
+        pan0, tap0, pan2, pan1, tap1, pan5, pan4, pan3, tap2, save0,
+        save1, select0, hover0, hover1, select1, select2, hover2,
+    ]
+
     groupped = group_tools(tools, merge=lambda cls, tools: SaveTool() if issubclass(cls, SaveTool) else None)
 
-    assert len(groupped) == 6
-    t0, t1, t2, t3, t4, t5 = groupped
+    assert len(groupped) == 8
+    t0, t1, t2, t3, t4, t5, t6, t7 = groupped
 
     assert isinstance(t0, ToolProxy)
     assert isinstance(t1, ToolProxy)
@@ -227,13 +241,17 @@ def test_group_tools() -> None:
     assert isinstance(t3, ToolProxy)
     assert isinstance(t4, TapTool)
     assert isinstance(t5, SaveTool)
+    assert isinstance(t6, ToolProxy)
+    assert isinstance(t7, ToolProxy)
 
     assert t0.tools == [pan0, pan1]
     assert t1.tools == [pan2, pan4, pan3]
     assert t2 == pan5
     assert t3.tools == [tap0, tap1]
     assert t4 == tap2
-    assert t5 != save0 and t5 != save1
+    assert t5 != save0 and t5 != save1 and t5.filename is None
+    assert t6.tools == [select0, select1, select2]
+    assert t7.tools == [hover0, hover1, hover2]
 
 #-----------------------------------------------------------------------------
 # Dev API
