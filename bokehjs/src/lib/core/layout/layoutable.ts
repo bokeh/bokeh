@@ -3,7 +3,7 @@ import {BBox, CoordinateMapper} from "../util/bbox"
 import {isNumber} from "../util/types"
 import {assert} from "../util/assert"
 
-const {min, max, round} = Math
+const {abs, min, max, round} = Math
 
 export type ExtBoxSizing = BoxSizing & {
   readonly size: Partial<Size>
@@ -131,8 +131,8 @@ export abstract class Layoutable {
           const h_width = round(height * aspect)
           const h_height = height
 
-          const w_diff = Math.abs(viewport.width - w_width) + Math.abs(viewport.height - w_height)
-          const h_diff = Math.abs(viewport.width - h_width) + Math.abs(viewport.height - h_height)
+          const w_diff = abs(viewport.width - w_width) + abs(viewport.height - w_height)
+          const h_diff = abs(viewport.width - h_width) + abs(viewport.height - h_height)
 
           if (w_diff <= h_diff) {
             width = w_width
@@ -220,12 +220,12 @@ export abstract class Layoutable {
       if (min_size == null)
         min_size = 0
       else if (!isNumber(min_size))
-        min_size = Math.round(min_size.percent*vsize)
+        min_size = round(min_size.percent*vsize)
 
       if (max_size == null)
         max_size = Infinity
       else if (!isNumber(max_size))
-        max_size = Math.round(max_size.percent*vsize)
+        max_size = round(max_size.percent*vsize)
 
       return max(min_size, min(size, max_size))
     }
@@ -263,7 +263,7 @@ export abstract class ContentLayoutable extends Layoutable {
         case "fit":
           return bounds.width
         case "max":
-          return Math.max(content_size.width, bounds.width)
+          return max(content_size.width, bounds.width)
       }
     })()
 
@@ -276,7 +276,7 @@ export abstract class ContentLayoutable extends Layoutable {
         case "fit":
           return bounds.height
         case "max":
-          return Math.max(content_size.height, bounds.height)
+          return max(content_size.height, bounds.height)
       }
     })()
 

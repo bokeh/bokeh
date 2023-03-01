@@ -3,6 +3,7 @@ import {display} from "../../_util"
 
 import {Canvas} from "@bokehjs/models/canvas/canvas"
 import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
+import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("Canvas", () => {
   describe("should support composing layers", () => {
@@ -73,5 +74,18 @@ describe("Canvas", () => {
 </svg>\
 ')
     })
+  })
+
+  it("should floor CSS width and height when computing dimensions of canvas element", async () => {
+    const canvas = new Canvas({output_backend: "canvas", styles: {width: "300.5px", height: "300.5px"}})
+    const {view: canvas_view} = await display(canvas, [350, 350])
+    expect(canvas_view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 300, height: 300}))
+
+    for (const layer of canvas_view.layers) {
+      const el = layer instanceof HTMLElement ? layer : layer.el
+
+      const {width, height} = getComputedStyle(el)
+      expect([width, height]).to.be.equal(["300px", "300px"])
+    }
   })
 })

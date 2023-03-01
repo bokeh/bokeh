@@ -1,5 +1,5 @@
-Column bbox=[0, 0, 85, 38]
-  Button bbox=[5, 5, 75, 28]
+Column bbox=[0, 0, 84, 38]
+  Button bbox=[5, 5, 74, 28]
   Row bbox=[0, 0, 0, 0]
     Column bbox=[0, 0, 0, 0]
       RadioGroup bbox=[0, 0, 0, 0]
