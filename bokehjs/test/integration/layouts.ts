@@ -70,34 +70,6 @@ describe("Column", () => {
   })
 })
 
-describe("HBox", () => {
-  it("should allow to expand horizontally when width policy is 'max'", async () => {
-    const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
-    const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
-
-    const row = new HBox({
-      children: [{child: s0}, {child: s1}],
-      width_policy: "max",
-      styles: {background_color: "orange"},
-    })
-    await display(row, [200, 100])
-  })
-})
-
-describe("VBox", () => {
-  it("should allow to expand vertically when height policy is 'max'", async () => {
-    const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
-    const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
-
-    const col = new VBox({
-      children: [{child: s0}, {child: s1}],
-      height_policy: "max",
-      styles: {background_color: "orange"},
-    })
-    await display(col, [100, 200])
-  })
-})
-
 describe("3x3 GridBox", () => {
   const colors = Matrix.from([
     ["red",  "green",  "blue"   ],
@@ -212,7 +184,7 @@ describe("3x3 GridBox", () => {
   })
   */
 
-  it("fixed and 3 x-max spacers, c2 size=2fr and align=end", async () => {
+  it("fixed and 3 x-max spacers, c2 size=100px and align=end", async () => {
     const s0 = spacer("fixed", "fixed", 50, 50)
     const s1 = spacer("max", "fixed", 50, 50)
 
@@ -225,7 +197,7 @@ describe("3x3 GridBox", () => {
     const grid = new GridBox({
       children: items.to_sparse(),
       cols: new Map([
-        [2, {size: "2fr", align: "end"}],
+        [2, {size: "100px", align: "end"}],
       ]),
     })
     await display(grid, viewport)
@@ -374,6 +346,18 @@ describe("HBox", () => {
 
     await display(row, [650, 250])
   })
+
+  it("should allow to expand horizontally when width policy is 'max'", async () => {
+    const s0 = spacer("max", "fixed", null, 40)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 60, 30)(["green", 0.5])
+
+    const row = new HBox({
+      children: [{child: s0}, {child: s1}],
+      width_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(row, [200, 100])
+  })
 })
 
 describe("VBox", () => {
@@ -399,6 +383,18 @@ describe("VBox", () => {
     })
 
     await display(row, [250, 650])
+  })
+
+  it("should allow to expand vertically when height policy is 'max'", async () => {
+    const s0 = spacer("fixed", "max", 40, null)(["red", 0.5])
+    const s1 = spacer("fixed", "fixed", 30, 60)(["green", 0.5])
+
+    const col = new VBox({
+      children: [{child: s0}, {child: s1}],
+      height_policy: "max",
+      styles: {background_color: "orange"},
+    })
+    await display(col, [100, 200])
   })
 })
 

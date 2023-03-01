@@ -3125,4 +3125,22 @@ describe("Bug", () => {
       await display(layout, [350, 250])
     })
   })
+
+  describe("in issue #12863", () => {
+    it("doesn't allow GridPlot with plots all with sizing_mode='stretch_width'", async () => {
+      function plot(color: Color) {
+        const p = figure({sizing_mode: "stretch_width", height: 200})
+        p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+        return p
+      }
+
+      const p0 = plot("red")
+      const p1 = plot("green")
+      const p2 = plot("blue")
+      const p3 = plot("purple")
+
+      const gp = gridplot([[p0, p1], [p2, p3]], {sizing_mode: "stretch_width", toolbar_location: "right"})
+      await display(gp, [600, 450])
+    })
+  })
 })

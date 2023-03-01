@@ -1,4 +1,5 @@
-import {CSSGridBox, CSSGridBoxView, TracksSizing} from "./css_grid_box"
+import {CSSGridBox, CSSGridBoxView} from "./css_grid_box"
+import {TracksSizing, GridChild} from "../common/kinds"
 import {UIElement} from "../ui/ui_element"
 import * as p from "core/properties"
 
@@ -48,9 +49,9 @@ export class GridBox extends CSSGridBox {
   static {
     this.prototype.default_view = GridBoxView
 
-    this.define<GridBox.Props>(({Int, Tuple, Array, Ref, Opt, Nullable}) => {
+    this.define<GridBox.Props>(({Array, Nullable}) => {
       return {
-        children: [ Array(Tuple(Ref(UIElement), Int, Int, Opt(Int), Opt(Int))), [] ],
+        children: [ Array(GridChild(UIElement)), [] ],
         rows:     [ Nullable(TracksSizing), null ],
         cols:     [ Nullable(TracksSizing), null ],
       }

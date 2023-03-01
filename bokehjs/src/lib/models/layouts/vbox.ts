@@ -1,8 +1,11 @@
-import {CSSGridBox, CSSGridBoxView, TracksSizing} from "./css_grid_box"
+import {CSSGridBox, CSSGridBoxView} from "./css_grid_box"
+import {TracksSizing, Index, Span} from "../common/kinds"
 import {UIElement} from "../ui/ui_element"
+import {Struct, Ref, Opt} from "../../core/kinds"
 import * as p from "core/properties"
 
-type ChildItem = {child: UIElement, row?: number, span?: number}
+type VBoxChild = {child: UIElement, row?: number, span?: number} // XXX: can't infere ?
+const VBoxChild = Struct<VBoxChild>({child: Ref(UIElement), row: Opt(Index), span: Opt(Span)})
 
 export class VBoxView extends CSSGridBoxView {
   declare model: VBox
@@ -31,7 +34,7 @@ export namespace VBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CSSGridBox.Props & {
-    children: p.Property<ChildItem[]>
+    children: p.Property<VBoxChild[]>
     rows: p.Property<TracksSizing | null>
   }
 }
@@ -49,8 +52,8 @@ export class VBox extends CSSGridBox {
   static {
     this.prototype.default_view = VBoxView
 
-    this.define<VBox.Props>(({Int, Struct, Array, Ref, Opt, Nullable}) => ({
-      children: [ Array(Struct({child: Ref(UIElement), row: Opt(Int), span: Opt(Int)})), [] ],
+    this.define<VBox.Props>(({Array, Nullable}) => ({
+      children: [ Array(VBoxChild), [] ],
       rows: [ Nullable(TracksSizing), null ],
     }))
   }

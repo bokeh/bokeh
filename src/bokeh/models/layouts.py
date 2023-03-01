@@ -31,9 +31,8 @@ from ..core.enums import (
     SizingMode,
     SizingPolicy,
 )
-from ..core.has_props import abstract
+from ..core.has_props import HasProps, abstract
 from ..core.properties import (
-    Any,
     Auto,
     Bool,
     Either,
@@ -51,6 +50,7 @@ from ..core.properties import (
     Tuple,
 )
 from ..core.property.struct import Optional
+from ..core.property_aliases import GridSpacing, Pixels, TracksSizing
 from ..core.validation import error, warning
 from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
 from ..core.validation.warnings import (
@@ -345,7 +345,6 @@ class LayoutDOM(UIElement):
             return self.height
         return None
 
-
 class Spacer(LayoutDOM):
     ''' A container for space used to fill an empty spot in a row or column.
 
@@ -355,9 +354,58 @@ class Spacer(LayoutDOM):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-TracksSizing = Any
+@abstract
+class GridCommon(HasProps):
+    """ Common properties for grid-like layouts. """
 
-class GridBox(LayoutDOM):
+    rows = Nullable(TracksSizing, default=None, help="""
+    Describes how the grid should maintain its rows' heights.
+
+    This maps to CSS grid's track sizing options. In particular the following
+    values are allowed:
+
+    * length, e.g. ``100px``, ``5.5em``
+    * percentage, e.g. ``33%``
+    * flex, e.g. 1fr
+    * enums, e.g.  ``max-content``, ``min-content``, ``auto``, etc.
+
+    If a single value is provided, then it applies to all rows. A list of
+    values can be provided to size all rows, or a dictionary providing
+    sizing for individual rows.
+
+    See https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-rows
+    or https://w3c.github.io/csswg-drafts/css-grid/#track-sizing for details.
+    """)
+
+    cols = Nullable(TracksSizing, default=None, help="""
+    Describes how the grid should maintain its columns' widths.
+
+    This maps to CSS grid's track sizing options. In particular the following
+    values are allowed:
+
+    * length, e.g. ``100px``, ``5.5em``
+    * percentage, e.g. ``33%``
+    * flex, e.g. 1fr
+    * enums, e.g.  ``max-content``, ``min-content``, ``auto``, etc.
+
+    If a single value is provided, then it applies to all columns. A list of
+    values can be provided to size all columns, or a dictionary providing
+    sizing for individual columns.
+
+    See https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns
+    or https://w3c.github.io/csswg-drafts/css-grid/#track-sizing for details.
+    """)
+
+    spacing = GridSpacing(default=0, help="""
+    The gap between children (in pixels).
+
+    Either a number, if spacing is the same for both dimensions, or a pair
+    of numbers indicating spacing in the vertical and horizontal dimensions
+    respectively.
+    """)
+
+class GridBox(LayoutDOM, GridCommon):
+    """ A CSS grid-based grid container. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -367,22 +415,6 @@ class GridBox(LayoutDOM):
         Tuple(Instance(UIElement), Int, Int),
         Tuple(Instance(UIElement), Int, Int, Int, Int)), default=[], help="""
     A list of children with their associated position in the grid (row, column).
-    """)
-
-    rows = Nullable(TracksSizing, default=None, help="""
-    Describes how the grid should maintain its rows' heights.
-    """)
-
-    cols = Nullable(TracksSizing, default=None, help="""
-    Describes how the grid should maintain its columns' widths.
-    """)
-
-    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
-    The gap between children (in pixels).
-
-    Either a number, if spacing is the same for both dimensions, or a pair
-    of numbers indicating spacing in the vertical and horizontal dimensions
-    respectively.
     """)
 
     @error(REPEATED_LAYOUT_CHILD)
@@ -406,7 +438,7 @@ class HBox(LayoutDOM):
     Describes how the grid should maintain its columns' widths.
     """)
 
-    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    spacing = Pixels(default=0, help="""
     The gap between children (in pixels).
     """)
 
@@ -431,7 +463,7 @@ class VBox(LayoutDOM):
     Describes how the grid should maintain its rows' heights.
     """)
 
-    spacing = Either(Int, Tuple(Int, Int), default=0, help="""
+    spacing = Pixels(default=0, help="""
     The gap between children (in pixels).
     """)
 

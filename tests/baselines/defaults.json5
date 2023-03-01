@@ -4055,12 +4055,17 @@
   Spacer: {
     __extends__: "LayoutDOM",
   },
-  GridBox: {
-    __extends__: "LayoutDOM",
-    children: [],
+  GridCommon: {
     rows: null,
     cols: null,
     spacing: 0,
+  },
+  GridBox: {
+    __extends__: [
+      "LayoutDOM",
+      "GridCommon",
+    ],
+    children: [],
   },
   HBox: {
     __extends__: "LayoutDOM",
@@ -5535,7 +5540,10 @@
     hold_render: false,
   },
   GridPlot: {
-    __extends__: "LayoutDOM",
+    __extends__: [
+      "LayoutDOM",
+      "GridCommon",
+    ],
     toolbar: {
       type: "object",
       name: "Toolbar",
@@ -5543,9 +5551,6 @@
     },
     toolbar_location: "above",
     children: [],
-    rows: "max-content",
-    cols: "max-content",
-    spacing: 0,
   },
   MapOptions: {
     __extends__: "Model",

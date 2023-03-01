@@ -1,8 +1,11 @@
-import {CSSGridBox, CSSGridBoxView, TracksSizing} from "./css_grid_box"
+import {CSSGridBox, CSSGridBoxView} from "./css_grid_box"
+import {TracksSizing, Index, Span} from "../common/kinds"
 import {UIElement} from "../ui/ui_element"
+import {Struct, Ref, Opt} from "../../core/kinds"
 import * as p from "core/properties"
 
-type ChildItem = {child: UIElement, col?: number, span?: number}
+type HBoxChild = {child: UIElement, col?: number, span?: number} // XXX: can't infere ?
+const HBoxChild = Struct<HBoxChild>({child: Ref(UIElement), col: Opt(Index), span: Opt(Span)})
 
 export class HBoxView extends CSSGridBoxView {
   declare model: HBox
@@ -31,7 +34,7 @@ export namespace HBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CSSGridBox.Props & {
-    children: p.Property<ChildItem[]>
+    children: p.Property<HBoxChild[]>
     cols: p.Property<TracksSizing | null>
   }
 }
@@ -49,8 +52,8 @@ export class HBox extends CSSGridBox {
   static {
     this.prototype.default_view = HBoxView
 
-    this.define<HBox.Props>(({Int, Struct, Array, Ref, Opt, Nullable}) => ({
-      children: [ Array(Struct({child: Ref(UIElement), col: Opt(Int), span: Opt(Int)})), [] ],
+    this.define<HBox.Props>(({Array, Nullable}) => ({
+      children: [ Array(HBoxChild), [] ],
       cols: [ Nullable(TracksSizing), null ],
     }))
   }

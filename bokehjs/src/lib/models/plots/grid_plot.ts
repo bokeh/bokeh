@@ -1,6 +1,6 @@
 import {LayoutDOM, LayoutDOMView, FullDisplay} from "../layouts/layout_dom"
 import {GridBox, GridBoxView} from "../layouts/grid_box"
-import {TracksSizing} from "../layouts/css_grid_box"
+import {TracksSizing, GridChild, GridSpacing} from "../common/kinds"
 import {Toolbar, ToolbarView} from "../tools/toolbar"
 import {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
@@ -35,7 +35,7 @@ export class GridPlotView extends LayoutDOMView {
     this._update_location()
 
     const {children, rows, cols, spacing} = this.model
-    this._grid_box = new GridBox({children, rows, cols, spacing})
+    this._grid_box = new GridBox({children, rows, cols, spacing, sizing_mode: "inherit"})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -163,13 +163,13 @@ export class GridPlot extends LayoutDOM {
   static {
     this.prototype.default_view = GridPlotView
 
-    this.define<GridPlot.Props>(({Int, Number, Tuple, Array, Ref, Or, Opt, Nullable}) => ({
+    this.define<GridPlot.Props>(({Array, Ref, Nullable}) => ({
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
-      children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows: [ Nullable(TracksSizing), "max-content" ],
-      cols: [ Nullable(TracksSizing), "max-content" ],
-      spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
+      children: [ Array(GridChild(LayoutDOM)), [] ],
+      rows: [ Nullable(TracksSizing), null ],
+      cols: [ Nullable(TracksSizing), null ],
+      spacing: [ GridSpacing, 0 ],
     }))
   }
 }
