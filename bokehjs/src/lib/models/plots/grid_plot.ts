@@ -35,7 +35,7 @@ export class GridPlotView extends LayoutDOMView {
     this._update_location()
 
     const {children, rows, cols, spacing} = this.model
-    this._grid_box = new GridBox({children, rows, cols, spacing})
+    this._grid_box = new GridBox({children, rows, cols, spacing, sizing_mode: "inherit"})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -167,8 +167,8 @@ export class GridPlot extends LayoutDOM {
       toolbar: [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location: [ Nullable(Location), "above" ],
       children: [ Array(Tuple(Ref(LayoutDOM), Int, Int, Opt(Int), Opt(Int))), [] ],
-      rows: [ Nullable(TracksSizing), "max-content" ],
-      cols: [ Nullable(TracksSizing), "max-content" ],
+      rows: [ Nullable(TracksSizing), null ],
+      cols: [ Nullable(TracksSizing), null ],
       spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
     }))
   }

@@ -5543,8 +5543,8 @@
     },
     toolbar_location: "above",
     children: [],
-    rows: "max-content",
-    cols: "max-content",
+    rows: null,
+    cols: null,
     spacing: 0,
   },
   MapOptions: {
