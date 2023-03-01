@@ -94,6 +94,16 @@ export class CanvasView extends UIElementView {
     this.ui_event_bus = new UIEventBus(this)
   }
 
+  get layers(): (HTMLElement | CanvasLayer)[] {
+    return [
+      this.underlays_el,
+      this.primary,
+      this.overlays,
+      this.overlays_el,
+      this.events_el,
+    ]
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
