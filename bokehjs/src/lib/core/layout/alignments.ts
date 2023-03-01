@@ -2,6 +2,8 @@ import {SizeHint, Size} from "./types"
 import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 
+const {max, round} = Math
+
 export abstract class Stack extends Layoutable {
   override *[Symbol.iterator]() {
     yield* this.children
@@ -18,7 +20,7 @@ export class HStack extends Stack {
     for (const child of this.children) {
       const size_hint = child.measure({width: 0, height: 0})
       width += size_hint.width
-      height = Math.max(height, size_hint.height)
+      height = max(height, size_hint.height)
     }
 
     return {width, height}
@@ -52,7 +54,7 @@ export class VStack extends Stack {
 
     for (const child of this.children) {
       const size_hint = child.measure({width: 0, height: 0})
-      width = Math.max(width, size_hint.width)
+      width = max(width, size_hint.width)
       height += size_hint.height
     }
 
@@ -142,8 +144,8 @@ export class NodeLayout extends Layoutable {
       const bbox = this.absolute ? outer : outer.relative()
       const {left, right, top, bottom} = bbox
 
-      const vcenter = Math.round(bbox.vcenter)
-      const hcenter = Math.round(bbox.hcenter)
+      const vcenter = round(bbox.vcenter)
+      const hcenter = round(bbox.hcenter)
 
       for (const layout of this.children) {
         const {margin, halign = "start", valign = "start"} = layout.sizing
