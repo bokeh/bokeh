@@ -17,7 +17,7 @@ export abstract class Kind<T> {
   abstract valid(value: unknown): value is this["__type__"]
 }
 
-type Constructor<T> = Function & {prototype: T}
+export type Constructor<T> = Function & {prototype: T}
 
 export namespace Kinds {
   export class Any extends Kind<any> {

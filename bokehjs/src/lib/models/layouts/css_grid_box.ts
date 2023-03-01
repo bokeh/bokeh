@@ -1,29 +1,14 @@
 import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {UIElement} from "../ui/ui_element"
+import {TracksSizing, TrackSizing, GridSpacing} from "../common/kinds"
 import {px, CSSOurStyles} from "core/dom"
 import {Container} from "core/layout/grid"
-import {Enum} from "../../core/kinds"
 import {enumerate} from "core/util/iterator"
 import {isNumber, isString, isArray} from "core/util/types"
 import * as p from "core/properties"
-import * as k from "core/kinds"
 
 const {max} = Math
-
-export type TrackAlign = "start" | "center" | "end" | "auto"
-export const TrackAlign = Enum("start", "center", "end", "auto")
-
-export type TrackSize = string // CSS track size, e.g. 1fr
-export type TrackSizing = {size?: TrackSize, align?: TrackAlign}
-export type TrackSizingLike = TrackSize | TrackSizing
-
-export type TracksSizing = TrackSizingLike | TrackSizingLike[] | Map<number, TrackSizingLike>
-
-export const TrackSize = k.String
-export const TrackSizing = k.Struct({size: k.Opt(TrackSize), align: k.Opt(TrackAlign)})
-export const TrackSizingLike = k.Or(TrackSize, TrackSizing)
-export const TracksSizing = k.Or(TrackSizingLike, k.Array(TrackSizingLike), k.Map(k.Int, TrackSizingLike))
 
 export abstract class CSSGridBoxView extends LayoutDOMView {
   declare model: CSSGridBox
@@ -160,7 +145,7 @@ export namespace CSSGridBox {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutDOM.Props & {
-    spacing: p.Property<number | [number, number]>
+    spacing: p.Property<GridSpacing>
   }
 }
 
@@ -175,8 +160,8 @@ export abstract class CSSGridBox extends LayoutDOM {
   }
 
   static {
-    this.define<CSSGridBox.Props>(({Number, Tuple, Or}) => ({
-      spacing: [ Or(Number, Tuple(Number, Number)), 0 ],
+    this.define<CSSGridBox.Props>(() => ({
+      spacing: [ GridSpacing, 0 ],
     }))
   }
 }

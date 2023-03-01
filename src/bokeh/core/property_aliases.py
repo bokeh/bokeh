@@ -23,10 +23,11 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from . import enums
 from .property.auto import Auto
-from .property.container import Tuple
+from .property.container import Dict, List, Tuple
 from .property.either import Either
 from .property.enum import Enum
 from .property.numeric import Int, NonNegative, Percent
+from .property.string import String
 from .property.struct import Optional, Struct
 
 #-----------------------------------------------------------------------------
@@ -36,8 +37,11 @@ from .property.struct import Optional, Struct
 __all__ = (
     "Anchor",
     "BorderRadius",
+    "GridSpacing",
     "Padding",
+    "Pixels",
     "TextAnchor",
+    "TracksSizing",
 )
 
 #-----------------------------------------------------------------------------
@@ -87,6 +91,18 @@ Padding = (
         ),
     )
 )
+
+GridSpacing = Either(Pixels, Tuple(Pixels, Pixels))
+
+TrackAlign = Enum("start", "center", "end", "auto")
+
+# CSS length, percentage, flex, max-content, min-content, auto, etc.
+# See https://developer.mozilla.org/en-US/docs/Web/CSS/grid-template-columns.
+TrackSize = String()
+
+TrackSizing = Either(TrackSize, Struct(size=Optional(TrackSize), align=Optional(TrackAlign)))
+
+TracksSizing = Either(TrackSizing, List(TrackSizing), Dict(Int, TrackSizing))
 
 #-----------------------------------------------------------------------------
 # Dev API

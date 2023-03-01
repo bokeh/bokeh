@@ -1,7 +1,12 @@
-import {Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto} from "../../core/kinds"
+import {
+  Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto,
+  Enum, Array, String, Map, Opt, Ref, Constructor,
+} from "../../core/kinds"
+import {type HasProps} from "core/has_props"
 import * as enums from "core/enums"
 
-const Length = NonNegative(Int)
+export type Length = typeof Length["__type__"]
+export const Length = NonNegative(Int)
 
 const XY = <T>(type: Kind<T>) => PartialStruct({x: type, y: type})
 
@@ -45,3 +50,29 @@ export const BorderRadius = (
     }),
   )
 )
+
+export type Index = typeof Index["__type__"]
+export const Index = NonNegative(Int)
+
+export type Span = typeof Span["__type__"]
+export const Span = NonNegative(Int)
+
+export const GridChild = <T extends HasProps>(child: Constructor<T>) => Tuple(Ref(child), Index, Index, Opt(Span), Opt(Span))
+
+export type GridSpacing = typeof GridSpacing["__type__"]
+export const GridSpacing = Or(Length, Tuple(Length, Length))
+
+export type TrackAlign = typeof TrackAlign["__type__"]
+export const TrackAlign = Enum("start", "center", "end", "auto")
+
+export type TrackSize = typeof TrackSize["__type__"]
+export const TrackSize = String
+
+export type TrackSizing = typeof TrackSizing["__type__"]
+export const TrackSizing = PartialStruct({size: TrackSize, align: TrackAlign})
+
+export type TrackSizingLike = typeof TrackSizingLike["__type__"]
+export const TrackSizingLike = Or(TrackSize, TrackSizing)
+
+export type TracksSizing = typeof TracksSizing["__type__"]
+export const TracksSizing = Or(TrackSizingLike, Array(TrackSizingLike), Map(Int, TrackSizingLike))
