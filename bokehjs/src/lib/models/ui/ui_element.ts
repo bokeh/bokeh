@@ -24,7 +24,7 @@ export type DOMBoxSizing = {
   valign?: Align
 }
 
-const {round} = Math
+const {round, floor} = Math
 
 function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> {
   if (styles instanceof Styles) {
@@ -143,8 +143,8 @@ export abstract class UIElementView extends DOMComponentView {
       return new BBox({
         left: round(left),
         top: round(top),
-        width: round(self.width),
-        height: round(self.height),
+        width: floor(self.width),
+        height: floor(self.height),
       })
     })()
 
