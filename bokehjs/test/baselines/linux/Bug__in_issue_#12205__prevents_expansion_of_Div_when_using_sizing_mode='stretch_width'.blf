@@ -1,5 +1,5 @@
-Column bbox=[0, 0, 300, 331]
-  Div bbox=[5, 5, 290, 21]
+Column bbox=[0, 0, 300, 330]
+  Div bbox=[5, 5, 290, 20]
   Plot bbox=[0, 31, 300, 300]
     CartesianFrame bbox=[20, 5, 275, 273]
     LinearAxis bbox=[20, 278, 275, 22]
