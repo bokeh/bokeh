@@ -301,10 +301,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const {mappers} = this
     const ltrb = {
-      left:   mappers.left.invert(sltrb.left),
-      right:  mappers.right.invert(sltrb.right),
-      top:    mappers.top.invert(sltrb.top),
-      bottom: mappers.bottom.invert(sltrb.bottom),
+      left:   this.model.left == null   ? null : mappers.left.invert(sltrb.left),
+      right:  this.model.right == null  ? null : mappers.right.invert(sltrb.right),
+      top:    this.model.top == null    ? null : mappers.top.invert(sltrb.top),
+      bottom: this.model.bottom == null ? null : mappers.bottom.invert(sltrb.bottom),
     }
 
     this.model.update(ltrb)
@@ -360,10 +360,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const {mappers} = this
     const ltrb = {
-      left:   mappers.left.invert(sltrb.left),
-      right:  mappers.right.invert(sltrb.right),
-      top:    mappers.top.invert(sltrb.top),
-      bottom: mappers.bottom.invert(sltrb.bottom),
+      left:   this.model.left == null   ? null : mappers.left.invert(sltrb.left),
+      right:  this.model.right == null  ? null : mappers.right.invert(sltrb.right),
+      top:    this.model.top == null    ? null : mappers.top.invert(sltrb.top),
+      bottom: this.model.bottom == null ? null : mappers.bottom.invert(sltrb.bottom),
     }
 
     this.model.update(ltrb)
