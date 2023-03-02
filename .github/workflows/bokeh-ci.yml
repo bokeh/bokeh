@@ -66,7 +66,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: bokehjs-package
-          path: bokehjs/build/dist/bokeh-bokehjs.tgz
+          path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
 
   codebase:
     needs: build
