@@ -3795,7 +3795,7 @@
   UIElement: {
     __extends__: "Model",
     visible: true,
-    classes: [],
+    css_classes: [],
     styles: {
       type: "map",
     },
@@ -4048,7 +4048,6 @@
     flow_mode: "block",
     sizing_mode: null,
     align: "auto",
-    css_classes: [],
     context_menu: null,
     resizable: false,
   },

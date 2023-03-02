@@ -95,10 +95,6 @@ export abstract class LayoutDOMView extends UIElementView {
       this.disabled.emit(this.model.disabled)
     })
 
-    this.on_change(p.css_classes, () => {
-      this._apply_classes(this.model.css_classes)
-    })
-
     this.on_change([
       p.css_classes,
       p.stylesheets,
@@ -111,10 +107,6 @@ export abstract class LayoutDOMView extends UIElementView {
       p.aspect_ratio,
       p.visible,
     ], () => this.invalidate_layout())
-  }
-
-  override css_classes(): string[] {
-    return [...super.css_classes(), ...this.model.css_classes]
   }
 
   override *children(): IterViews {
@@ -148,8 +140,6 @@ export abstract class LayoutDOMView extends UIElementView {
 
   override render(): void {
     super.render()
-
-    this.class_list.add(...this.css_classes())
 
     for (const child_view of this.child_views) {
       child_view.render()
@@ -634,7 +624,6 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align] | "auto">
-    css_classes: p.Property<string[]>
     context_menu: p.Property<Menu | null>
     resizable: p.Property<boolean | Dimensions>
   }
@@ -652,7 +641,7 @@ export abstract class LayoutDOM extends UIElement {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, String, Auto, Array, Tuple, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable, Ref} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -670,7 +659,6 @@ export abstract class LayoutDOM extends UIElement {
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
-        css_classes:   [ Array(String), [] ],
         context_menu:  [ Nullable(Ref(Menu)), null ],
         resizable:     [ Or(Boolean, Dimensions), false ],
       }

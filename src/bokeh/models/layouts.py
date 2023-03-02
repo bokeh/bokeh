@@ -44,7 +44,6 @@ from ..core.properties import (
     NonNegative,
     Null,
     Nullable,
-    Seq,
     String,
     Struct,
     Tuple,
@@ -270,15 +269,6 @@ class LayoutDOM(UIElement):
     (e.g. a grid). Self alignment can be overridden by the parent container (e.g.
     grid track align).
     """)
-
-    # List in order for in-place changes to trigger changes, ref: https://github.com/bokeh/bokeh/issues/6841
-    css_classes = List(String, help="""
-    A list of CSS class names to add to this DOM element. Note: the class names are
-    simply added as-is, no other guarantees are provided.
-
-    It is also permissible to assign from tuples, however these are adapted -- the
-    property will always contain a list.
-    """).accepts(Seq(String), lambda x: list(x))
 
     context_menu = Nullable(Instance(Menu), default=None, help="""
     A menu to display when user right clicks on the component.
