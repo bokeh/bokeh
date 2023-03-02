@@ -42,6 +42,9 @@ export class HAreaStepView extends AreaView {
     let prev_y = sy[from_i]
     const idx_dir = from_i < to_i ? 1 : -1
     for (let i = from_i + idx_dir; i != to_i; i += idx_dir) {
+      if (!isFinite(sx[i] + sy[i])) {
+        continue
+      }
       switch (mode) {
         case "before":
           ctx.lineTo(sx[i], prev_y)
@@ -71,11 +74,15 @@ export class HAreaStepView extends AreaView {
     const forward_mode = this.model.step_mode
     const backward_mode = flip_step_mode(this.model.step_mode)
 
-    ctx.beginPath()
-    ctx.moveTo(sx1[0], sy[0])
+    const from_i = sy.findIndex((_, i) => [sx1[i], sx2[i], sy[i]].every(isFinite))
+    const to_i = sy.length - sy.map((_, i) => [sx1[i], sx2[i], sy[i]].reduce((a, b) => a + b, 0)).reverse().findIndex(isFinite)
 
-    this._step_path(ctx, forward_mode, sx1, sy, 0, sy.length)
-    this._step_path(ctx, backward_mode, sx2, sy, sy.length, -1)
+    ctx.beginPath()
+
+    ctx.moveTo(sx1[from_i], sy[from_i])
+    this._step_path(ctx, forward_mode, sx1, sy, from_i, to_i)
+    ctx.lineTo(sx2[to_i - 1], sy[to_i - 1])
+    this._step_path(ctx, backward_mode, sx2, sy, to_i - 1, from_i - 1)
 
     ctx.closePath()
 
