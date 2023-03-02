@@ -1,6 +1,17 @@
-from bokeh.io import show
+from bokeh.io import save
 from bokeh.layouts import column
 from bokeh.models import Div, InlineStyleSheet
+
+template = """
+{% block postamble %}
+<style>
+    :root {
+        --custom-1-border-color: #2397D8;
+        --custom-2-border-color: #14999A;
+    }
+</style>
+{% endblock %}
+"""
 
 stylesheet = InlineStyleSheet(css="""
 :host(.custom) {
@@ -8,10 +19,10 @@ stylesheet = InlineStyleSheet(css="""
     padding: 1em;
 }
 :host(.custom-1) {
-    border: 3px solid #2397D8;
+    border: 3px solid var(--custom-1-border-color);
 }
 :host(.custom-2) {
-    border: 3px solid #14999A;
+    border: 3px solid var(--custom-2-border-color);
     background-color: whitesmoke;
 }
 """)
@@ -49,4 +60,4 @@ div2 = Div(text="""
 div2.css_classes = ["custom", "custom-2"]
 div2.stylesheets = [stylesheet]
 
-show(column(p, div1, div2))
+save(column(p, div1, div2), template=template)
