@@ -24,16 +24,15 @@
     "moduleResolution": "node",
     "isolatedModules": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true,
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "target": "ES2022",
     "lib": ["es2022", "dom", "dom.iterable"],
     "baseUrl": ".",
     "outDir": "./dist/lib",
     "paths": {
       "@bokehjs/*": [
-        "./node_modules/@bokeh/bokehjs/build/js/lib/*",
-        "./node_modules/@bokeh/bokehjs/build/js/types/*"
+        "./node_modules/@bokeh/bokehjs/build/js/lib/*"
       ]
     }
   },

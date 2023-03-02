@@ -25,18 +25,19 @@ function reply(data: unknown): void {
 }
 
 async function compile() {
-  if (argv.file != null) {
-    const input = {
-      code: argv.code != null ? argv.code as string : read(argv.file as string)!,
-      lang: (argv.lang as string | undefined) ?? "typescript",
-      file: argv.file as string,
-      bokehjs_dir: (argv.bokehjsDir as string | undefined) ?? "./build", // this is what bokeh.settings defaults to
+  const input = await (async () => {
+    if (argv.file != null) {
+      return {
+        code: argv.code != null ? argv.code as string : read(argv.file as string)!,
+        lang: (argv.lang as string | undefined) ?? "typescript",
+        file: argv.file as string,
+        bokehjs_dir: (argv.bokehjsDir as string | undefined) ?? "./build", // this is what bokeh.settings defaults to
+      }
+    } else {
+      return JSON.parse(await read_stdin())
     }
-    return await compile_and_resolve_deps(input)
-  } else {
-    const input = JSON.parse(await read_stdin())
-    return await compile_and_resolve_deps(input)
-  }
+  })()
+  return await compile_and_resolve_deps(input)
 }
 
 async function main() {

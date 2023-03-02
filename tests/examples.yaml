@@ -1,5 +1,6 @@
 - path: "examples/advanced/extensions/*"
-  skip: ["gears", "widget.py"]
+  skip: ["widget.py"]
+  no_js: ["gears"]
 
 - path: "examples/basic/**"
   skip: ["ajax_source.py", "server_sent_events_source.py"]

@@ -1,11 +1,13 @@
 import * as ts from "typescript"
 
 import * as cp from "child_process"
-import {join, basename, relative} from "path"
+import {join, dirname, basename, relative} from "path"
 
 import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, Path} from "./sys"
-import {compile_files, read_tsconfig, parse_tsconfig, is_failed,
-        default_transformers, compiler_host, report_diagnostics} from "./compiler"
+import {
+  compile_files, read_tsconfig, parse_tsconfig, is_failed,
+  default_transformers, compiler_host, report_diagnostics,
+} from "./compiler"
 import {Linker} from "./linker"
 import {compile_styles, wrap_css_modules} from "./styles"
 import * as preludes from "./prelude"
@@ -21,6 +23,17 @@ import "@typescript-eslint/eslint-plugin"
 import "@typescript-eslint/parser"
 
 import * as readline from "readline"
+
+type Package = {
+  name: string
+  version: string
+  description: string
+  license: string
+  keywords: string[]
+  repository: {type: string, url: string}
+  dependencies: {[key: string]: string}
+  devDependencies: {[key: string]: string}
+}
 
 const toString = Object.prototype.toString
 export function isString(obj: unknown): obj is string {
@@ -266,6 +279,24 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     }
   }
 
+  const package_json = (is_package ? read_json(package_json_path) : {}) as Partial<Package>
+
+  const is_static_dir = basename(bokehjs_dir) == "static"
+
+  const tslib_dir = (() => {
+    if (package_json.devDependencies?.typescript != null) {
+      return join(base_dir, "node_modules", "typescript", "lib")
+    } else {
+      // bokeh/server/static or bokehjs/build
+      if (is_static_dir)
+        return join(bokehjs_dir, "lib")
+      else
+        return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
+    }
+  })()
+
+  print(`TypeScript lib: ${cyan(tslib_dir)}`)
+
   const tsconfig_path = join(base_dir, "tsconfig.json")
   const tsconfig = (() => {
     const preconfigure: ts.CompilerOptions = {
@@ -273,7 +304,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       paths: {
         "@bokehjs/*": [
           join(bokehjs_dir, "js/lib/*"),
-          join(bokehjs_dir, "js/types/*"),
         ],
       },
     }
@@ -294,7 +324,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const {files, options} = tsconfig
 
   const dist_dir = join(base_dir, "dist")
-  const lib_dir = options.outDir ?? dist_dir
+  const lib_dir = options.outDir ?? join(dist_dir, "lib")
   const dts_dir = options.declarationDir ?? lib_dir
   const dts_internal_dir = join(dist_dir, "dts")
 
@@ -308,7 +338,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
   const transformers = default_transformers(options)
-  const host = compiler_host(new Map(), options, bokehjs_dir)
+  const host = compiler_host(new Map(), options, tslib_dir)
 
   print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
   const tsoutput = compile_files(files, options, transformers, host)

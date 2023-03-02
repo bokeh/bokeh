@@ -32,7 +32,7 @@
     "types": [],
     "baseUrl": ".",
     "paths": {
-      "*": ["../build/js/lib/*", "../build/js/types/*"]
+      "*": ["../build/js/lib/*"]
     },
     "outDir": "../build/examples"
   },

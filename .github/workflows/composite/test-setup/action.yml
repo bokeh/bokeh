@@ -37,6 +37,17 @@ runs:
       shell: bash -l {0}
       run: pip install dist/bokeh-*-py3-none-any.whl
 
+    - name: Download bokehjs package
+      uses: actions/download-artifact@v3
+      with:
+        name: bokehjs-package
+        path: bokehjs/build/dist/
+
+    - name: Symlink bokehjs package
+      shell: bash -l {0}
+      working-directory: ./bokehjs/build/dist/
+      run: ln -s $(ls -t bokeh-bokehjs-*.tgz | head -n 1) bokeh-bokehjs.tgz
+
     - name: Cache node modules
       if: ${{ inputs.source-tree == 'keep' }}
       uses: actions/cache@v3

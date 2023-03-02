@@ -33,6 +33,7 @@ from os.path import (
     isabs,
     join,
 )
+from pathlib import Path
 from subprocess import PIPE, Popen
 from typing import (
     Any,
@@ -507,14 +508,15 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
     exports = []
     modules = []
 
-    with open(join(bokehjs_dir, "js", "bokeh.json"), encoding="utf-8") as f:
-        bokeh = json.load(f)
+    lib_dir = Path(bokehjs_dir) / "js" / "lib"
+    known_modules: set[str] = set()
 
-    known_modules = set()
-    for artifact in bokeh["artifacts"]:
-        canonical = artifact["module"].get("canonical")
-        if canonical is not None:
-            known_modules.add(canonical)
+    for path in lib_dir.rglob("*.d.ts"):
+        s = str(path.relative_to(lib_dir))
+        if s.endswith(".d.ts"):
+            s = s[:-5] # TODO: removesuffix() (Py 3.9+)
+        s = s.replace(os.path.sep, "/")
+        known_modules.add(s)
 
     custom_impls = _compile_models(custom_models)
 

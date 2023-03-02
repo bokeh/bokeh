@@ -1,14 +1,14 @@
 import chalk from "chalk"
 import ts from "typescript"
 
-import {basename, dirname, join, relative} from "path"
+import {dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
 import {Path} from "./sys"
 import {BuildError} from "./error"
 
 export type CompileConfig = {
-  bokehjs_dir?: Path
+  tslib_dir?: Path
   inputs?(files: Path[]): Inputs
 }
 
@@ -52,7 +52,7 @@ export function report_diagnostics(diagnostics: Diagnostics): {count: number, te
   return {count: errors.length, text}
 }
 
-export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokehjs_dir?: Path): ts.CompilerHost {
+export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib_dir?: Path): ts.CompilerHost {
   const default_host = ts.createIncrementalCompilerHost(options)
 
   const host = {
@@ -74,14 +74,8 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, bokeh
     },
   }
 
-  if (bokehjs_dir != null) {
-    host.getDefaultLibLocation = () => {
-      // bokeh/server/static or bokehjs/build
-      if (basename(bokehjs_dir) == "static")
-        return join(bokehjs_dir, "lib")
-      else
-        return join(dirname(bokehjs_dir), "node_modules/typescript/lib")
-    }
+  if (tslib_dir != null) {
+    host.getDefaultLibLocation = () => tslib_dir
   }
 
   return host
@@ -172,7 +166,7 @@ function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
 
   const transformers = default_transformers(tsconfig.options)
   const inputs = config.inputs?.(files) ?? new Map()
-  const host = compiler_host(inputs, options, config.bokehjs_dir)
+  const host = compiler_host(inputs, options, config.tslib_dir)
 
   const input_files = [...inputs.keys(), ...files]
   return compile_files(input_files, options, transformers, host)

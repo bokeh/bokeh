@@ -14,7 +14,6 @@ export const build_dir = {
   js: JS_BUILD_DIR,
   css: CSS_BUILD_DIR,
   test: join(BUILD_DIR, "test"),
-  types: join(JS_BUILD_DIR, "types"),
   lib: join(JS_BUILD_DIR, "lib"),
   compiler: join(JS_BUILD_DIR, "compiler"),
   server: join(JS_BUILD_DIR, "server"),

@@ -12,6 +12,10 @@ function is_require(node: ts.Node): node is ts.CallExpression {
          node.arguments.length === 1
 }
 
+function isImportCall(node: ts.Node): node is ts.ImportCall {
+  return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
+}
+
 export function relativize_modules(relativize: (file: string, module_path: string) => string | null) {
   function relativize_specifier(context: ts.TransformationContext, source: ts.SourceFile, expr: ts.Expression | undefined): ts.StringLiteral | null {
     const {factory} = context
@@ -36,15 +40,19 @@ export function relativize_modules(relativize: (file: string, module_path: strin
               const {modifiers, importClause, assertClause} = node
               return factory.updateImportDeclaration(node, modifiers, importClause, moduleSpecifier, assertClause)
             }
-          }
-          if (ts.isExportDeclaration(node)) {
+          } else if (ts.isExportDeclaration(node)) {
             const moduleSpecifier = relativize_specifier(context, root, node.moduleSpecifier)
             if (moduleSpecifier != null) {
               const {modifiers, isTypeOnly, exportClause, assertClause} = node
               return factory.updateExportDeclaration(node, modifiers, isTypeOnly, exportClause, moduleSpecifier, assertClause)
             }
-          }
-          if (is_require(node)) {
+          } else if (is_require(node)) {
+            const moduleSpecifier = relativize_specifier(context, root, node.arguments[0])
+            if (moduleSpecifier != null) {
+              const {expression, typeArguments} = node
+              return factory.updateCallExpression(node, expression, typeArguments, [moduleSpecifier])
+            }
+          } else if (isImportCall(node)) {
             const moduleSpecifier = relativize_specifier(context, root, node.arguments[0])
             if (moduleSpecifier != null) {
               const {expression, typeArguments} = node
@@ -186,10 +194,6 @@ export function collect_exports(exported: Exports[]) {
 
     return root
   }
-}
-
-function isImportCall(node: ts.Node): node is ts.ImportCall {
-  return ts.isCallExpression(node) && node.expression.kind == ts.SyntaxKind.ImportKeyword
 }
 
 export function collect_imports(imports: Set<string>) {

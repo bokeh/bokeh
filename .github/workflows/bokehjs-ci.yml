@@ -97,6 +97,13 @@ jobs:
             cp ${SRC}/report.{json,out} ${CHANGED} ${DST}
           fi
 
+      - name: Upload package
+        if: runner.os == 'Linux' && (success() || failure())
+        uses: actions/upload-artifact@v3
+        with:
+          name: bokehjs-package
+          path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
+
       - name: Upload report
         if: runner.os == 'Linux' && (success() || failure())
         uses: actions/upload-artifact@v3
