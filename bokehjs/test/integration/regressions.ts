@@ -3143,4 +3143,26 @@ describe("Bug", () => {
       await display(gp, [600, 450])
     })
   })
+
+  describe("in issue #12880", () => {
+    it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
+      async function box() {
+        const box = new BoxAnnotation({
+          left: 1, right: 3, top: null /*frame top*/, bottom: null /*frame bottom*/,
+          editable: true,
+          line_color: "blue",
+        })
+
+        const p = fig([300, 300], {tools: ["pan"], renderers: [box], x_range: [0, 6], y_range: [0, 6]})
+        const {view} = await display(p)
+        await paint()
+        return view
+      }
+
+      const view = await box()
+      const actions = new PlotActions(view, {units: "screen"})
+      await actions.pan_along({type: "line", xy0: xy(250, 50), xy1: xy(250, 250)}) // pan the plot up
+      await paint()
+    })
+  })
 })
