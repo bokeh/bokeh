@@ -29,11 +29,11 @@ export abstract class DOMView extends View {
     super.remove()
   }
 
-  css_classes(): string[] {
+  stylesheets(): StyleSheetLike[] {
     return []
   }
 
-  styles(): StyleSheetLike[] {
+  css_classes(): string[] {
     return []
   }
 
@@ -76,8 +76,8 @@ export abstract class DOMComponentView extends DOMElementView {
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), base_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), base_css]
   }
 
   empty(): void {
@@ -94,7 +94,7 @@ export abstract class DOMComponentView extends DOMElementView {
   }
 
   protected *_stylesheets(): Iterable<StyleSheet> {
-    for (const style of this.styles()) {
+    for (const style of this.stylesheets()) {
       yield isString(style) ? new InlineStyleSheet(style) : style
     }
   }

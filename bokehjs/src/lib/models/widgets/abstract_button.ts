@@ -45,8 +45,8 @@ export abstract class AbstractButtonView extends ControlView {
     super.remove()
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), buttons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), buttons_css]
   }
 
   _render_button(...children: (string | HTMLElement)[]): HTMLButtonElement {

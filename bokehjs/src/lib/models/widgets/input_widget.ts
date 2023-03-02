@@ -53,8 +53,8 @@ export abstract class InputWidgetView extends ControlView {
     })
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), inputs_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), inputs_css, icons_css]
   }
 
   override render(): void {

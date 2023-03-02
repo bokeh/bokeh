@@ -65,8 +65,8 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     this.on_change([value, title, show_value], () => this._update_title())
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), nouislider_css, sliders_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), nouislider_css, sliders_css]
   }
 
   _update_title(): void {

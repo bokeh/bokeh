@@ -8,8 +8,8 @@ export class SVGIconView extends IconView {
 
   protected readonly _style = new InlineStyleSheet()
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), this._style]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), this._style]
   }
 
   override render(): void {

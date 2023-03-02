@@ -24,8 +24,8 @@ export abstract class PickerBaseView extends InputWidgetView {
     super.remove()
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), flatpickr_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), flatpickr_css]
   }
 
   override connect_signals(): void {

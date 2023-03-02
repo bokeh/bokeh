@@ -8,8 +8,8 @@ import icons_css from "styles/icons.css"
 export abstract class MenuItemView extends UIElementView {
   declare model: MenuItem
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), menus_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), menus_css, icons_css]
   }
 }
 

@@ -17,9 +17,9 @@ export type SliderData = {from: number, to: number}
 export class IonRangeSliderView extends InputWidgetView {
   declare model: IonRangeSlider
 
-  override styles(): StyleSheetLike[] {
+  override stylesheets(): StyleSheetLike[] {
     return [
-      ...super.styles(),
+      ...super.stylesheets(),
       new ImportedStyleSheet("https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/css/ion.rangeSlider.css"),
       new ImportedStyleSheet("https://cdnjs.cloudflare.com/ajax/libs/ion-rangeslider/2.1.4/css/ion.rangeSlider.skinFlat.min.css"),
     ]

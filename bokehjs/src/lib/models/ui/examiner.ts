@@ -141,8 +141,8 @@ export class HTMLPrinter {
 export class ExaminerView extends UIElementView {
   declare model: Examiner
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), examiner_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), examiner_css]
   }
 
   private prev_listener: ((obj: unknown) => void) | null = null

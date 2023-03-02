@@ -98,8 +98,8 @@ export class TooltipView extends UIElementView {
     super.remove()
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), tooltips_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), tooltips_css, icons_css]
   }
 
   get content(): Node {

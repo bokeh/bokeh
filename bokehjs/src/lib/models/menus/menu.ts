@@ -11,8 +11,8 @@ import menus_css, * as menus from "styles/menus.css"
 export class MenuView extends UIElementView {
   declare model: Menu
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), menus_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), menus_css]
   }
 
   protected readonly items: ViewStorage<MenuItem> = new Map()

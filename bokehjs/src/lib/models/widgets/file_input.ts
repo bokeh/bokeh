@@ -9,8 +9,8 @@ export class FileInputView extends InputWidgetView {
   declare model: FileInput
   declare input_el: HTMLInputElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), buttons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), buttons_css]
   }
 
   override render(): void {

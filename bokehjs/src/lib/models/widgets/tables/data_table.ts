@@ -186,8 +186,8 @@ export class DataTableView extends WidgetView {
     this.connect(this.model.source.selected.properties.indices.change, () => this.updateSelection())
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), slickgrid_css, tables_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), slickgrid_css, tables_css]
   }
 
   override _after_resize(): void {

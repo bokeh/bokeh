@@ -85,8 +85,8 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), ui_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), ui_css]
   }
 
   update_style(): void {

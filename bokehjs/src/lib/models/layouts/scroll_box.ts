@@ -7,8 +7,8 @@ import * as p from "core/properties"
 export class ScrollBoxView extends LayoutDOMView {
   declare model: ScrollBox
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles()]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets()]
   }
 
   override connect_signals(): void {

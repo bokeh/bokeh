@@ -12,8 +12,8 @@ export class BuiltinIconView extends IconView {
 
   protected readonly _style = new InlineStyleSheet()
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), icons_css, this._style]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), icons_css, this._style]
   }
 
   override render(): void {

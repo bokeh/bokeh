@@ -37,8 +37,8 @@ export abstract class MarkupView extends WidgetView {
     })
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), clearfix_css, "p { margin: 0; }"]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), clearfix_css, "p { margin: 0; }"]
   }
 
   override render(): void {
