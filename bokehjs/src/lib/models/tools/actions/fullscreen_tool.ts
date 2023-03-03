@@ -2,6 +2,14 @@ import {ActionTool, ActionToolView} from "./action_tool"
 import * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
+const request_fullscreen = (() => {
+  if (typeof Element.prototype.webkitRequestFullscreen !== "undefined") {
+    return (el: Element, options?: FullscreenOptions) => el.webkitRequestFullscreen(options)
+  } else {
+    return (el: Element, options?: FullscreenOptions) => el.requestFullscreen(options)
+  }
+})()
+
 export class FullscreenToolView extends ActionToolView {
   declare model: FullscreenTool
 
@@ -10,7 +18,7 @@ export class FullscreenToolView extends ActionToolView {
       document.exitFullscreen()
     } else {
       (async () => {
-        await this.parent.el.requestFullscreen()
+        await request_fullscreen(this.parent.el)
       })()
     }
   }

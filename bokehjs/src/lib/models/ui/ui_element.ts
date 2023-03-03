@@ -101,12 +101,9 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  private _bbox?: BBox
+  private _bbox: BBox = new BBox()
   get bbox(): BBox {
-    // XXX: this shouldn't be necessary
-    if (this._bbox == null)
-      this._update_bbox()
-    return this._bbox!
+    return this._bbox
   }
 
   update_bbox(): boolean {
@@ -114,7 +111,18 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _update_bbox(): boolean {
-    const displayed = this.el.offsetParent != null // TODO: position == "sticky"
+    const displayed = (() => {
+      // Consider using Element.checkVisibility() in the future.
+      // https://w3c.github.io/csswg-drafts/cssom-view-1/#dom-element-checkvisibility
+      if (!this.el.isConnected)
+        return false
+      else if (this.el.offsetParent != null)
+        return true
+      else {
+        const {position, display} = getComputedStyle(this.el)
+        return position == "fixed" && display != "none"
+      }
+    })()
 
     const bbox = !displayed ? new BBox() : (() => {
       const self = this.el.getBoundingClientRect()
@@ -139,7 +147,7 @@ export abstract class UIElementView extends DOMComponentView {
       })
     })()
 
-    const changed = this._bbox == null || !this._bbox.equals(bbox)
+    const changed = !this._bbox.equals(bbox)
     this._bbox = bbox
     this._is_displayed = displayed
     return changed
@@ -204,7 +212,7 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   private _is_displayed: boolean = false
-  protected get is_displayed(): boolean {
+  get is_displayed(): boolean {
     return this._is_displayed
   }
 

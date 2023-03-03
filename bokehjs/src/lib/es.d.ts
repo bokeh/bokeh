@@ -35,3 +35,7 @@ interface Float32Array {
 interface Float64Array {
   constructor: Float64ArrayConstructor
 }
+
+interface Element {
+  webkitRequestFullscreen(options?: FullscreenOptions): Promise<void>
+}

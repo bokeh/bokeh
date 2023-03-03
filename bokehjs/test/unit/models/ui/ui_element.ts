@@ -4,6 +4,8 @@ import {expect} from "assertions"
 import {display} from "../../../framework"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
+import {BBox} from "@bokehjs/core/util/bbox"
+import {paint} from "@bokehjs/core/util/defer"
 import {StyleSheetLike} from "@bokehjs/core/dom"
 import base_css from "@bokehjs/styles/base.css"
 
@@ -88,5 +90,78 @@ describe("UIElement", () => {
     } finally {
       render_spy.restore()
     }
+  })
+
+  describe("should detect if the host element is displayed", () => {
+    const size = {width: "50px", height: "75px"}
+
+    it("under normal conditions", async () => {
+      const ui = new UI({styles: {...size}})
+      const {view} = await display(ui, [100, 100])
+      expect(view.is_displayed).to.be.true
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
+    })
+
+    it("when using 'visibility: hidden'", async () => {
+      const ui = new UI({styles: {...size, visibility: "hidden"}})
+      const {view} = await display(ui, [100, 100])
+      expect(view.is_displayed).to.be.true
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
+    })
+
+    it("when using 'display: none'", async () => {
+      const ui = new UI({styles: {...size, display: "none"}})
+      const {view} = await display(ui, [100, 100])
+      expect(view.is_displayed).to.be.false
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+    })
+
+    it("when using 'position: fixed'", async () => {
+      const ui = new UI({styles: {...size, position: "fixed"}})
+      const {view} = await display(ui, [100, 100])
+      expect(view.is_displayed).to.be.true
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
+    })
+
+    it("when using 'position: fixed' and 'display: none'", async () => {
+      const ui = new UI({styles: {...size, position: "fixed", display: "none"}})
+      const {view} = await display(ui, [100, 100])
+      expect(view.is_displayed).to.be.false
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+    })
+
+    it("when not connected to DOM", async () => {
+      const ui = new UI({styles: {...size}})
+      const {view} = await display(ui, [100, 100], null)
+      expect(view.is_displayed).to.be.false
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+    })
+
+    it("when switched to 'display: none' after display", async () => {
+      const ui = new UI({styles: {...size}})
+      const {view} = await display(ui, [100, 100])
+      await paint()
+
+      ui.styles = {...size, display: "none"}
+      await paint()
+
+      expect(view.is_displayed).to.be.false
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+    })
+
+    it("when disconnected from DOM after display", async () => {
+      const ui = new UI({styles: {...size}})
+      const {view} = await display(ui, [100, 100])
+
+      expect(view.is_displayed).to.be.true
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 50, height: 75}))
+
+      view.el.remove()
+      await paint()
+      await paint() // TODO: we need to await resize
+
+      expect(view.is_displayed).to.be.false
+      expect(view.bbox).to.be.equal(new BBox({x: 0, y: 0, width: 0, height: 0}))
+    })
   })
 })
