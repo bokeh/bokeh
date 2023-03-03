@@ -101,12 +101,9 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  private _bbox?: BBox
+  private _bbox: BBox = new BBox()
   get bbox(): BBox {
-    // XXX: this shouldn't be necessary
-    if (this._bbox == null)
-      this._update_bbox()
-    return this._bbox!
+    return this._bbox
   }
 
   update_bbox(): boolean {
@@ -150,7 +147,7 @@ export abstract class UIElementView extends DOMComponentView {
       })
     })()
 
-    const changed = this._bbox == null || !this._bbox.equals(bbox)
+    const changed = !this._bbox.equals(bbox)
     this._bbox = bbox
     this._is_displayed = displayed
     return changed
