@@ -325,11 +325,11 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{views: ViewOf<HasProps>[], el: HTMLElement}>
-export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement): Promise<{view: ViewOf<T>, el: HTMLElement}>
+export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<{views: ViewOf<HasProps>[], el: HTMLElement}>
+export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<{view: ViewOf<T>, el: HTMLElement}>
 
 export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto",
-    el?: HTMLElement): Promise<{view: ViewOf<HasProps>, el: HTMLElement} | {views: ViewOf<HasProps>[], el: HTMLElement}> {
+    el?: HTMLElement | null): Promise<{view: ViewOf<HasProps>, el: HTMLElement} | {views: ViewOf<HasProps>[], el: HTMLElement}> {
   const test = current_test
   assert(test != null, "display() must be called in it(...) or before*() blocks")
 
@@ -370,7 +370,10 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
     }
   })()
 
-  container.appendChild(viewport_el)
+  if (el !== null) {
+    container.appendChild(viewport_el)
+  }
+
   const views = await show(doc, el ?? viewport_el)
   test.views = views
   test.el = viewport_el
