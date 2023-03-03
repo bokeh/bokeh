@@ -9,8 +9,8 @@ export class CheckboxView extends ToggleInputView {
   protected checkbox_el: HTMLInputElement
   protected label_el: HTMLElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), checkbox_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), checkbox_css]
   }
 
   override connect_signals(): void {

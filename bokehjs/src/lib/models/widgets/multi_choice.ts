@@ -68,8 +68,8 @@ export class MultiChoiceView extends InputWidgetView {
     })
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), choices_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), choices_css]
   }
 
   override render(): void {

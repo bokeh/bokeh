@@ -23,8 +23,8 @@ export abstract class ToggleButtonGroupView extends OrientedControlView {
     this.on_change(p.active,      () => this._update_active())
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), buttons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), buttons_css]
   }
 
   override render(): void {

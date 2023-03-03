@@ -37,8 +37,8 @@ export class TablerIconView extends IconView {
 
   protected readonly _style = new InlineStyleSheet()
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), TablerIconView._fonts, this._tabler, this._style]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), TablerIconView._fonts, this._tabler, this._style]
   }
 
   override render(): void {

@@ -29,6 +29,7 @@ from ...core.properties import (
     Instance,
     List,
     Nullable,
+    Seq,
     String,
 )
 from ...model import Model
@@ -63,9 +64,9 @@ class UIElement(Model):
     Whether the component should be displayed on screen.
     """)
 
-    classes = List(String, default=[], help="""
-    List of additional CSS classes to add to the underlying DOM element.
-    """)
+    css_classes = List(String, default=[], help="""
+    A list of additional CSS classes to add to the underlying DOM element.
+    """).accepts(Seq(String), lambda x: list(x))
 
     styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
     Inline CSS styles applied to the underlying DOM element.

@@ -425,6 +425,10 @@ export abstract class StyleSheet {
   install(el: HTMLElement | ShadowRoot): void {
     el.append(this.el)
   }
+
+  uninstall(): void {
+    this.el.remove()
+  }
 }
 
 export class InlineStyleSheet extends StyleSheet {

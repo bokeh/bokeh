@@ -10,8 +10,8 @@ export class GroupBoxView extends LayoutDOMView {
   checkbox_el: HTMLInputElement
   fieldset_el: HTMLFieldSetElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), group_box_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), group_box_css]
   }
 
   override connect_signals(): void {

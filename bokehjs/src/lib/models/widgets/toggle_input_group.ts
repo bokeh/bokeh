@@ -19,8 +19,8 @@ export abstract class ToggleInputGroupView extends ControlView {
     this.on_change([labels, inline], () => this.render())
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), inputs_css, checkbox_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), inputs_css, checkbox_css]
   }
 }
 

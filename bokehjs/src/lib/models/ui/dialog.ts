@@ -22,8 +22,8 @@ export class DialogView extends UIElementView {
     yield this._content
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), dialogs_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), dialogs_css, icons_css]
   }
 
   override async lazy_initialize(): Promise<void> {

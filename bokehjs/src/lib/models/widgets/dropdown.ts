@@ -17,8 +17,8 @@ export class DropdownView extends AbstractButtonView {
 
   protected menu: HTMLElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), dropdown_css, carets_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), dropdown_css, carets_css]
   }
 
   override render(): void {

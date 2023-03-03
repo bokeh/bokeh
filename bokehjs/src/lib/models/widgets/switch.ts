@@ -9,8 +9,8 @@ export class SwitchView extends ToggleInputView {
   protected knob_el: HTMLElement
   protected bar_el: HTMLElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), switch_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), switch_css]
   }
 
   override connect_signals(): void {

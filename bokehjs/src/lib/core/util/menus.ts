@@ -151,8 +151,8 @@ export class ContextMenu { //extends DOMComponentView {
     style.bottom = pos.bottom != null ? `${origin.bottom - pos.bottom}px` : "auto"
   }
 
-  styles(): StyleSheetLike[] {
-    return [base_css, /*...super.styles(), */ menus_css, icons_css, ...this.extra_styles]
+  stylesheets(): StyleSheetLike[] {
+    return [base_css, /*...super.stylesheets(), */ menus_css, icons_css, ...this.extra_styles]
   }
 
   empty(): void {
@@ -163,7 +163,7 @@ export class ContextMenu { //extends DOMComponentView {
   render(): void {
     this.empty()
 
-    for (const style of this.styles()) {
+    for (const style of this.stylesheets()) {
       const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
       stylesheet.install(this.shadow_el)
     }

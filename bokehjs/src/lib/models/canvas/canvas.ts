@@ -119,8 +119,8 @@ export class CanvasView extends UIElementView {
     super.remove()
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), canvas_css, this._size]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), canvas_css, this._size]
   }
 
   override render(): void {
