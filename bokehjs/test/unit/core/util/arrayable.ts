@@ -159,4 +159,32 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.interpolate([], [], [])).to.be.equal([])
     expect(arrayable.interpolate([1], [], [])).to.be.equal([NaN])
   })
+
+  it("should support subselect() function", () => {
+    const a = [1, 2, 3, 4, 5, 6, undefined]
+    const b = [1, 4, 5]
+    expect(arrayable.subselect(a, b)).to.be.equal([2, 5, 6])
+    const c = [0, 100]
+    const d = [10, NaN]
+    expect(arrayable.subselect(a, c)).to.be.equal([1, undefined])
+    expect(arrayable.subselect(a, d)).to.be.equal([undefined, undefined])
+  })
+
+  it("should support insert() function", () => {
+    expect(arrayable.insert([1, 2, 3], 4, 1)).to.be.equal([1, 4, 2, 3])
+  })
+
+  it("should support append() function", () => {
+    expect(arrayable.append([1, 2, 3], 4)).to.be.equal([1, 2, 3, 4])
+  })
+
+  it("should support prepend() function", () => {
+    expect(arrayable.prepend([1, 2, 3], 4)).to.be.equal([4, 1, 2, 3])
+  })
+
+  it("should support mul() function", () => {
+    const a = [1, 2, 3]
+    const b = [2, 4, 6]
+    expect(arrayable.mul(a, 2)).to.be.equal(b)
+  })
 })
