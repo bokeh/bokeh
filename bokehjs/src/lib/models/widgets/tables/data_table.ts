@@ -120,7 +120,11 @@ export class TableDataProvider implements DataProvider<Item> {
           /* eslint-disable @typescript-eslint/strict-boolean-expressions */
           return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
         } else {
-          return `${v0}` > `${v1}` ? sign : -sign
+          const result = `${v0}`.localeCompare(`${v1}`)
+          if (result == 0)
+            continue
+          else
+            return sign*result
         }
       }
       return 0
