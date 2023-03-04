@@ -53,7 +53,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None, resources: ResourcesLike | None = None,
-        title: str | None = None, template: Template | None = None, state: State | None = None) -> str:
+        title: str | None = None, template: Template | str | None = None, state: State | None = None) -> str:
     ''' Save an HTML file with the data for the current document.
 
     Will fall back to the default output state (or an explicitly provided
@@ -76,7 +76,7 @@ def save(obj: UIElement | Sequence[UIElement], filename: PathLike | None = None,
             If None, use the default state title value, if there is one.
             Otherwise, use "Bokeh Plot"
 
-        template (Template, optional) : HTML document template (default: FILE)
+        template (Template, str, optional) : HTML document template (default: FILE)
             A Jinja2 Template, see bokeh.core.templates.FILE for the required template
             parameters
 
@@ -156,7 +156,7 @@ def _get_save_title(state: State, title: str | None, suppress_warning: bool) -> 
     return DEFAULT_TITLE
 
 def _save_helper(obj: UIElement | Sequence[UIElement], filename: PathLike, resources: Resources | None,
-        title: str | None, template: Template | None, theme: Theme | None = None) -> None:
+        title: str | None, template: Template | str | None, theme: Theme | None = None) -> None:
     '''
 
     '''
