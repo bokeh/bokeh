@@ -3,15 +3,13 @@
 Styling DOM elements
 ====================
 
-Adding CSS classes
-------------------
-.. bokeh-plot:: __REPO__/examples/styling/dom/css_classes.py
-    :source-position: above
+Bokeh has a few different mechanism for including CSS styles in output.
 
 Styles
 ------
 
-:class:`~bokeh.models.css.Styles` allows to configure style attribute of DOM elements.
+The :class:`~bokeh.models.css.Styles` class can be used to configure
+inline style attribute of DOM elements directly:
 
 .. code-block:: python
 
@@ -25,9 +23,9 @@ Styles
 Stylesheets
 -----------
 
-Bokeh defines different variations of a style sheet object that can be
-used to apply CSS rules to the DOM elements that are generated in Bokeh
-output:
+It is also possible to define and inlude stylesheets in generated output.
+Bokeh provides a few different variations that can be used to apply CSS rules
+to DOM objects in Bokeh output:
 
 * :class:`~bokeh.models.css.InlineStyleSheet`
 
@@ -39,11 +37,11 @@ output:
 
 * :class:`~bokeh.models.css.GlobalInlineStyleSheet`
 
-    Analogous ``InlineStyleSheet`` but appended to the ``<head>`` element.
+    Analogous to ``InlineStyleSheet`` but appended to the ``<head>`` element.
 
-* :class:`~bokeh.models.css.GLobalImportedStyleSheet`
+* :class:`~bokeh.models.css.GlobalImportedStyleSheet`
 
-    Analogous ``ImportedStyleSheet`` but appended to the ``<head>`` element.
+    Analogous to ``ImportedStyleSheet`` but appended to the ``<head>`` element.
 
 The global variants are appended to ``<head>`` only once, so that the same
 stylesheet model can be shared between various UI components efficiently.
