@@ -569,7 +569,7 @@ checkout* directory:
 
         .. code-block:: sh
 
-            BOKEH_DEV=false python -m bokeh serve --show examples/app/sliders.py
+            BOKEH_DEV=false python -m bokeh serve --show examples/server/app/sliders.py
 
     .. tab-item:: Windows (PS)
         :sync: ps
@@ -577,7 +577,7 @@ checkout* directory:
         .. code-block:: powershell
 
             $Env:BOKEH_DEV = "False"
-            python.exe -m bokeh serve --show .\examples\app\sliders.py
+            python.exe -m bokeh serve --show .\examples\server\app\sliders.py
 
     .. tab-item:: Windows (CMD)
         :sync: cmd
@@ -585,7 +585,7 @@ checkout* directory:
         .. code-block:: doscon
 
             set BOKEH_DEV=false
-            python -m bokeh serve --show examples\app\sliders.py
+            python -m bokeh serve --show examples\server\app\sliders.py
 
 This should open up a browser with an interactive figure:
 
