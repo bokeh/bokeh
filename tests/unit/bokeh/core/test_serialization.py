@@ -56,7 +56,7 @@ from bokeh.core.serialization import (
 )
 from bokeh.model import Model
 from bokeh.util.dataclasses import NotRequired, Unspecified, dataclass
-from tests.support.util.types import Capture
+from bokeh.util.warnings import BokehUserWarning
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -125,15 +125,14 @@ class TestSerializer:
         with pytest.raises(SerializationError):
             encoder.encode(range(0, 10))
 
-    def test_max_int(self, capsys: Capture) -> None:
+    def test_max_int(self) -> None:
         encoder = Serializer()
-        rep = encoder.encode(2**64)
+
+        with pytest.warns(BokehUserWarning, match="out of range integer may result in loss of precision"):
+            rep = encoder.encode(2**64)
+
         assert rep == 2.0**64
         assert isinstance(rep, float)
-
-        out, err = capsys.readouterr()
-        assert out == ""
-        assert err == "" # "out of range integer may result in loss of precision"
 
     def test_list_empty(self) -> None:
         val = []
@@ -818,6 +817,18 @@ class TestDeserializer:
 
         rep4 = SliceRep(type="slice", start=None, stop=None, step=None)
         assert decoder.decode(rep4) == slice(None, None, None)
+
+    def test_known_Model(self) -> None:
+        val = SomeModel()
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        decoder = Deserializer([val])
+        with pytest.warns(BokehUserWarning, match=f"reference already known '{val.id}'"):
+            ret = decoder.deserialize(rep)
+
+        assert ret == val
 
 """
     def test_set_data_from_json_list(self) -> None:
