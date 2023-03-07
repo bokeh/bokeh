@@ -1,3 +1,11 @@
+'''This example shows different ways to place legends on a graph using LegendLocation. 
+The legend can be placed at defined axes, fixed locations, name locations and side panels. 
+The legend can be defined in terms of title, shape and orientation. This graphs shows sin and cos graph. 
+.. bokeh-example-metadata::
+    :apis: bokeh.core.enus.LegendLocation, bokeh.io.show, bokeh.models.Circle, bokeh.models.ColumnDataSource, bokeh.models.DataRange1d, bokeh.models.Plot
+    :keywords: sin, cos, pi, linspace, LegendLocation
+'''
+
 from numpy import cos, linspace, pi, sin
 
 from bokeh.core.enums import LegendLocation
