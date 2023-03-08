@@ -20,7 +20,7 @@ X, Y = np.mgrid[-3:3:200j, -2:2:200j]
 Z = normal2d(X, Y, 0.1, 0.2, 1.0, 1.0) + 0.1*normal2d(X, Y, 1.0, 1.0)
 image = Z * 1e6
 
-color_mapper = LogColorMapper(palette="Viridis256", low=1, high=1e7)
+color_mapper = LogColorMapper(palette="Iridescent23", low=1, high=1e7)
 
 plot = figure(x_range=(0,1), y_range=(0,1), toolbar_location=None)
 r = plot.image(image=[image], color_mapper=color_mapper,
