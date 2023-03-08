@@ -1,5 +1,6 @@
 ''' An interactive plot showcasing Bokeh's ability to add interactions
 using Custom Javascript.
+
 This example demonstrates adding links between points on a graph.
 These lines only show on hover using ``CustomJS`` callbacks to update the plot.
 
