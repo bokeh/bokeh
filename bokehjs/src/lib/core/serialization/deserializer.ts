@@ -1,3 +1,4 @@
+import {logger} from "../logging"
 import {type HasProps} from "../has_props"
 import {type ModelResolver} from "../resolvers"
 import {ID, Attrs, PlainObject, TypedArray} from "../types"
@@ -301,8 +302,11 @@ export class Deserializer {
   }
 
   protected _decode_object_ref(obj: ObjectRefRep): HasProps {
-    if (this.references.has(obj.id))
-      this.error(`reference already known '${obj.id}'`)
+    const ref = this.references.get(obj.id)
+    if (ref != null) {
+      this.warning(`reference already known '${obj.id}'`)
+      return ref
+    }
 
     const {id, name: type, attributes} = obj
 
@@ -319,6 +323,10 @@ export class Deserializer {
 
   error(message: string): never {
     throw new DeserializationError(message)
+  }
+
+  warning(message: string): void {
+    logger.warn(message)
   }
 
   private _resolve_type(type: string): any {
