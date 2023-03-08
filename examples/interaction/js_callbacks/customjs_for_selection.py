@@ -1,5 +1,6 @@
 ''' An interactive plot showcasing Bokeh's ability to add interactions
 using Custom Javascript.
+
 This example demonstrates selecting highlighted points on a graph.
 These points will show on the secondary graph which uses ``CustomJS``
 callbacks to update its plot.
