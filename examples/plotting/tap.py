@@ -3,7 +3,7 @@
     This highlights that datapoint, and displays other datapoints in faded color.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.segment
+    :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.models.TapTool
     :refs: :ref:`ug_basic_tap`
     :keywords: circle, tapplot, text, select_one, renderers
 '''
