@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :sampledata: None
     :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.models.Block
-    :refs: :ref:`uuserguide_plotting_visualization_glyphs`
+    :refs: :ref:`ug_basic_areas_rects`
     :keywords: block, plot
 """
 
