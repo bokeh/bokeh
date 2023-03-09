@@ -1,5 +1,4 @@
-"""
-Creates a block plot using Bokeh and displays it using the show() function.
+""" Creates a block plot using Bokeh and displays it using the show() function.
 
 .. bokeh-example-metadata::
     :sampledata: None
