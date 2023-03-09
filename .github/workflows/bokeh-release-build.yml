@@ -49,8 +49,8 @@ jobs:
 
       - name: Post install status
         run: |
-          echo "$(which node) @ $(node --version)"
-          echo "$(which npm) @ $(npm --version)"
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
           conda info
           conda list
 
