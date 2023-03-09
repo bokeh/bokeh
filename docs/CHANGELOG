@@ -1,3 +1,151 @@
+2023-03-09      3.1:
+--------------------
+  * bugfixes:
+    - #5829 [component: bokehjs] PolySelectTool area remains the same at all zoom levels
+    - #6931 "Slider" widget: omitting a required argument does not produce error message
+    - #8180 [component: bokehjs] HoverTool not working with RangeTool
+    - #9047 [component: bokehjs] [BUG] Can't interact with multiple RangeTools
+    - #9381 [component: bokehjs] [BUG] range_tool broken on inverted axes
+    - #9752 [component: bokehjs] [BUG] Hover tool not working correctly for rotated rectangles
+    - #10749 [component: bokehjs] [BUG] Plaintext copy-pasted from DataTable has a different order
+    - #10769 [component: bokehjs] [BUG] Dates in DataTables appear as zero-epoch
+    - #11830 [BUG] TypeError when customizing tools icon using PIL Image
+    - #11955 [component: bokehjs] [BUG] Replacing filter of CDSView does not trigger update of DataTable
+    - #11969 [component: bokehjs] [BUG] DataTable rendering behaves inconsistently for different indices of an IndexFilter
+    - #11994 [BUG] Allow reset of DatePicker to empty date
+    - #12315 [component: bokehjs] [BUG] ColumnDataSource does not work with NumPy floating-point scalars
+    - #12331 [component: bokehjs] [FEATURE] enable linebreaks in legend labels
+    - #12379 Figure out why `HexTile` with `pointytop` orientation and `aspect_scale=0.5` fails
+    - #12410 [component: bokehjs] Hover tool can point to data outside of the frame
+    - #12540 Handle Datetime values consistently in annotations
+    - #12574 [component: docs] [BUG] `bokeh.core.json_encoder.serialize_json` doesn't work as shown in example
+    - #12584 [component: bokehjs] [BUG] MultiChoice dropdown and autocomplete
+    - #12592 [component: bokehjs] Rect hit testing on circles is overzealous, at least by the default
+    - #12610 light_minimal theme is missing
+    - #12614 [component: bokehjs] [BUG] sizing_mode='stretch_both' broken in gridplot (bokeh 3.0.2)
+    - #12624 [BUG] bokeh v3 ColumnDataSource.selected.indices no longer works with ndarray
+    - #12666 [BUG] Performance differences between v2 and v3
+    - #12674 [component: docs] Ref guide autoclasstoc links are missing
+    - #12678 [component: bokehjs] [BUG] tooltips disappear when range of image is reversed
+    - #12700 [component: bokehjs] ReGL initialization is excessively and unnecessarily slow in tests
+    - #12709 [component: bokehjs] [BUG] DatePicker kills layout
+    - #12710 [component: docs] [BUG] CheckboxGroup minimal example in the documentation (Widgets and DOM elements 3.0.3) does not work properly
+    - #12714 [component: bokehjs] [BUG] Updating DatePicker css_classes from callbacks not working
+    - #12719 Type check errors due to updated `pandas-stubs`
+    - #12730 [component: docs] [BUG] No such file: examples/plotting/marker_map.py
+    - #12731 [component: bokehjs] [BUG] Possible regression: pinching not working with wheelzoomtool
+    - #12735 [component: bokehjs] [BUG] hatching scales differently on different displays
+    - #12756 [component: examples] Custom tooltip example mis-renders
+    - #12757 [component: bokehjs] Custom extension examples do not work
+    - #12767 [component: docs] [BUG] No module named 'bokeh.server.tests'
+    - #12776 [component: bokehjs] [BUG] DataTable does not output true/false for numpy arrays
+    - #12778 [component: bokehjs] `RangesUpdate` is not emitted for linked plots
+    - #12783 [component: bokehjs] [BUG] HasProps does not record references for models declared inside Map objects
+    - #12784 [component: bokehjs] [BUG] BokehJS interpolate doesn't handle length-1 arrays
+    - #12788 [component: bokehjs] [BUG] Streaming broken when switching from Array to TypedArray
+    - #12797 [component: bokehjs] There are dots in HTML class names
+    - #12799 [BUG] Time to add glyph with legend label grows exponentially with number of existing glyphs
+    - #12805 [BUG] Serialization of new models breaks with Document.hold()
+    - #12838 [BUG] Cannot serialize pd.NA
+    - #12839 [BUG] Cannot serialize pandas numeric arrays
+    - #12846 [component: docs] Update Docs for GlyphRenderer
+    - #12850 [component: docs] Missing title in docs for glyphs
+    - #12857 [component: docs] [BUG] Example in "Setting up a development environment" doesn't exist anymore
+    - #12863 [BUG] GridPlot sizing mode not respected
+    - #12864 [BUG] GridPlot does not combine tools with different renderers
+    - #12876 [component: bokehjs] Unnecessary scrollbars can toggle back and forth in layouts
+    - #12880 [component: bokehjs] Editable `BoxAnnotation` doesn't respect symbolic coordinates
+    - #12883 [component: bokehjs] css_classes example not working
+    - #12885 [BUG] Pandas series encoding can fail with pyarrow dtypes
+    - #12888 [component: bokehjs] Layout collapses when using `FullscreenTool` in Chromium
+    - #12894 [component: server] [BUG] Server does not allow websocket connection on unix socket
+    - #12917 [component: bokehjs] Candlestick chart broken
+    - #12924 [component: docs] Thumbnails not being rendered in docs gallery
+    - #12698 [component: docs] Fix typo.
+    - #12725 [component: bokehjs] Refactor `qbb()` and `cbb()` and fix usage of `cbb()`
+    - #12754 [component: bokehjs] Update Tabler icon CSS URL
+    - #12766 [component: bokehjs] Fix svg rotated ellipses
+    - #12809 [component: bokehjs] Consider margins when using `100%` width with `max` policy
+    - #12822 [component: tests] Resolve issues with headless Chromium 110
+    - #12866 [component: bokehjs] Build bokehjs' examples in CI and fix errors
+    - #12882 Fix alignment in `_templates/file.html`
+
+  * features:
+    - #3412 Add support for persistent selection overlays
+    - #3880 ncol and nrow in Legend object
+    - #4272 Hook for callback upon document init
+    - #8592 Allow models.Span.location to accept categorical values
+    - #8926 [component: bokehjs] [FEATURE]Change date format of DatePicker
+    - #9194 [component: bokehjs] [FEATURE] Add fill properties to slope
+    - #11328 [component: bokehjs] [FEATURE] Add JS event on Websocket disconnect
+    - #11348 [component: bokehjs] Add rounded corners for rect/quad glyphs
+    - #12157 [component: bokehjs] [FEATURE] MultiChoice: allow flag for the options menu to be closed after an item is selected or not
+    - #12507 [BUG] Sparse DataFrame can't be plotted without transformation to CDS
+    - #12529 Add support for background, border, padding, etc. to `Text` glyph
+    - #12692 [FEATURE] Add visual separation for legend items with multiline text
+    - #12736 [FEATURE] Add method to construct a ColorBar
+    - #12752 [FEATURE] Add transform.eqhist_cmap
+    - #12772 [component: bokehjs] Add configurable option for invoking callback when pressing enter for TextInput 
+    - #12821 [BUG] Cannot plot `pandas.DataFrame` with columns of type string
+    - #12356 Categorical colormapping of 3D arrays
+    - #12688 Expose stylesheet model API publicly
+    - #12749 [component: bokehjs] Implement varying_alpha_palette in BokehJS
+    - #12789 [component: bokehjs] Add interp_palette function
+    - #12823 Allow to clone `HasProps` instances
+
+  * tasks:
+    - #6389 [component: tests] Test that bokehjs is npm-installable
+    - #11653 [component: tests] Test for `MultiChoice` widget
+    - #12590 Rename `select_every_mousemove` to `continuous`
+    - #12598 [component: build] Raise min numpy to 1.16 
+    - #12609 [component: tests] Server tests use deprecated API
+    - #12617 [component: build] [BUG]  Runtime error of incorrect option name crashes webapp (Angular)
+    - #12642 [component: docs] [FEATURE] Add ``text_outline_color`` to docs
+    - #12647 [component: docs] [BUG] First steps 2 doc figures have low contrast
+    - #12675 [component: docs] User guide section for CSS stying
+    - #12684 [component: docs] Docs on load balancing with Apache can be improved
+    - #12689 [BUG] numpy.bool8 is deprecated
+    - #12711 [BUG] EncodingWarning in bokeh.resources and bokeh.themes.Theme(...)
+    - #12716 Codecov not skipping sphinxext
+    - #12734 [component: docs] [DOCS] rect glyph shouldn't be used on log axes
+    - #12744 [component: docs] Built-in widgets docs page does not include DateSlider
+    - #12760 [component: examples] Improve examples' color handling
+    - #12768 [component: docs] Dev setup docs needs to ensure repo tags
+    - #12769 Activate bugbear checks in ruff
+    - #12793 [component: docs] Update docs for release
+    - #12918 [component: docs] Gallery thumbnails for image examples need updating
+    - #12919 [component: docs] Date picker gallery thumbnail broken 
+    - #12555 Forward ports for 3.0.1
+    - #12621 Forward ports from 3.0.2
+    - #12631 [component: build] Upgrade to TypeScript 4.9
+    - #12676 [component: bokehjs] Remove legacy `CanvasRenderingContext2D` polyfills
+    - #12685 [component: build] Add support for CSS modules to extensions' compiler
+    - #12686 [component: docs] Promote note to warning in docs
+    - #12694 [component: docs] Fix tooltip ug entry
+    - #12705 Update copyright statements to 2023
+    - #12715 [component: bokehjs] Remove legacy CSS styles
+    - #12723 [component: build] Switch to isolated modules in TypeScript
+    - #12732 [component: build] Switch to ES2022 tsc compilation target
+    - #12741 Upgrade `actions/{checkout,cache,...}` to `v3`
+    - #12743 [component: examples] Added metadata to examples
+    - #12748 Fix a few typos
+    - #12755 Update ruff / f-string cleanup
+    - #12762 [component: bokehjs] Upgrade bokehjs dependencies and refresh `package-lock.json`
+    - #12770 [component: docs] spelling mistake
+    - #12792 `DatePicker` improvements and new types of pickers
+    - #12795 [component: examples] 11765 metadata custom tooltips
+    - #12810 [component: examples] Added metadata to hover.py
+    - #12816 Reuse object traversal result when bundling
+    - #12817 [component: bokehjs] Enable strict boolean expressions lint rule
+    - #12828 Use ubuntu-latest and nodejs 18.x in CI
+    - #12836 [component: bokehjs] Don't re-render when `css_classes` or `stylesheets` change
+    - #12852 Resolve issues with testing on MacOS in CI
+    - #12853 [component: bokehjs] Enable `switch-exhaustiveness-checks` lint rule
+    - #12856 Upgrade to ruff 0.0.252
+    - #12865 [component: build] Check for package-lock.json v3 in release scripts
+    - #12871 [component: bokehjs] Make `publish = true` the default for `BokehEvent`
+    - #12915 Warn about already known references, but don't fail
+
 2022-11-14    3.0.2:
 --------------------
   * bugfixes:
