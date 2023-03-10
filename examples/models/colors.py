@@ -1,5 +1,5 @@
 '''This example demonstrates the usage of grouping different shades
-of same color together using bokeh groups.
+of the same color together using Bokeh groups.
 
 A hover tooltip displays the URL of the color to go to.
 
