@@ -1,6 +1,6 @@
 ''' A interactive numerical tap plot based on simple Python array of data.
     One particiular datapoint can be focused by tapping on it. 
-    This highlights that datapoint, and displays other datapoints in faded color.
+    This highlights that datapoint and displays all other datapoints in a faded color.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.models.TapTool
