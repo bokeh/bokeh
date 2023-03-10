@@ -1,4 +1,4 @@
-''' A interactive numerical tap plot based on simple Python array of data.
+''' An interactive numerical tap plot based on a simple Python array of data.
     One particiular datapoint can be focused by tapping on it. 
     This highlights that datapoint and displays all other datapoints in a faded color.
 
