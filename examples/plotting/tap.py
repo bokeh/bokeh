@@ -1,5 +1,5 @@
 ''' An interactive numerical tap plot based on a simple Python array of data.
-    You can select any datapoint by tapping on it. 
+    You can select any datapoint by tapping on it.
     This highlights that datapoint and displays all other datapoints in a faded color.
 
 .. bokeh-example-metadata::
