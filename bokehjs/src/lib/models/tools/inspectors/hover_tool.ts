@@ -20,11 +20,13 @@ import {CallbackLike1} from "../../callbacks/callback"
 import {Template, TemplateView} from "../../dom/template"
 import {GlyphView} from "../../glyphs/glyph"
 import {HAreaView} from "../../glyphs/harea"
+import {HAreaStepView} from "../../glyphs/harea_step"
 import {ImageBaseView} from "../../glyphs/image_base"
 import {LineView} from "../../glyphs/line"
 import {MultiLineView} from "../../glyphs/multi_line"
 import {PatchView} from "../../glyphs/patch"
 import {VAreaView} from "../../glyphs/varea"
+import {VAreaStepView} from "../../glyphs/varea_step"
 import {DataRenderer} from "../../renderers/data_renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
@@ -266,7 +268,10 @@ export class HoverToolView extends InspectToolView {
       }
       const rendered = this._render_tooltips(ds, vars)
       tooltips.push([snap_sx, snap_sy, rendered])
-    } else if (glyph instanceof VAreaView || glyph instanceof HAreaView) {
+    } else if (glyph instanceof HAreaStepView ||
+               glyph instanceof HAreaView ||
+               glyph instanceof VAreaStepView ||
+               glyph instanceof VAreaView) {
       for (const i of subset_indices.line_indices) {
         const [snap_x, snap_y] = [x, y]
         const [snap_sx, snap_sy] = [sx, sy]
