@@ -21,3 +21,4 @@ in a visualization.
     styling/plots
     styling/mathtext
     styling/themes
+    styling/dom

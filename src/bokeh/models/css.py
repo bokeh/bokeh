@@ -50,8 +50,7 @@ class StyleSheet(Model):
         super().__init__(*args, **kwargs)
 
 class InlineStyleSheet(StyleSheet):
-    """
-    Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
+    """ Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
 
     .. note::
         Depending on the context, this stylesheet will be appended either to
@@ -69,8 +68,7 @@ class InlineStyleSheet(StyleSheet):
     """)
 
 class ImportedStyleSheet(StyleSheet):
-    """
-    Imported stylesheet equivalent to ``<link rel="stylesheet" href="${url}">``.
+    """ Imported stylesheet equivalent to ``<link rel="stylesheet" href="${url}">``.
 
     .. note::
         Depending on the context, this stylesheet will be appended either to
@@ -88,8 +86,7 @@ class ImportedStyleSheet(StyleSheet):
     """)
 
 class GlobalInlineStyleSheet(InlineStyleSheet):
-    """
-    An inline stylesheet that's appended to the ``<head>`` element.
+    """ An inline stylesheet that's appended to the ``<head>`` element.
 
     ..note::
         A stylesheet will be appended only once, regardless of how
@@ -101,8 +98,7 @@ class GlobalInlineStyleSheet(InlineStyleSheet):
         super().__init__(*args, **kwargs)
 
 class GlobalImportedStyleSheet(ImportedStyleSheet):
-    """
-    An imported stylesheet that's appended to the ``<head>`` element.
+    """ An imported stylesheet that's appended to the ``<head>`` element.
 
     ..note::
         A stylesheet will be appended only once, regardless of how

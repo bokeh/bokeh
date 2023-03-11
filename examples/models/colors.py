@@ -1,3 +1,16 @@
+'''This example demonstrates the usage of grouping different shades
+of the same color together using Bokeh groups.
+
+A hover tooltip displays the URL of the color to go to.
+
+Navigate to the specific color by tapping.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.axes.CategoricalAxis, bokeh.models.tools.HoverTool, bokeh.models.plots.Plot
+    :refs: :ref:`ug_interaction_tools_hover_tool`
+    :keywords: groups, hover, color, tap, tooltip
+
+'''
 from math import pi
 
 import pandas as pd

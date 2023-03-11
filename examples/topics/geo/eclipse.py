@@ -28,6 +28,8 @@ states.drop(["AK", "HI"], inplace=True)
 
 trends = pd.read_csv(join(ROOT, "eclipse_data/trends.csv"))
 
+df = states.merge(trends, left_on="name", right_on="Region")
+
 totality_path = shp.Reader(join(ROOT, "eclipse_data/upath17")).shapes()[0]
 
 p = figure(
@@ -43,9 +45,9 @@ p.title.text_font_size = "21px"
 p.title.text_color = "#333344"
 
 source = ColumnDataSource(data=dict(
-    state_xs=states.lons,
-    state_ys=states.lats,
-    trend=trends["solar eclipse"],
+    state_xs=df.lons,
+    state_ys=df.lats,
+    trend=df["solar eclipse"],
 ))
 
 us = p.patches(
