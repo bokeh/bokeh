@@ -56,8 +56,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   protected _computed_style = new InlineStyleSheet()
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), plots_css, this._computed_style]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), plots_css, this._computed_style]
   }
 
   protected _title?: Title

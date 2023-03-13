@@ -18,8 +18,8 @@ export class AutocompleteInputView extends TextInputView {
 
   protected menu: HTMLElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), dropdown_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), dropdown_css]
   }
 
   override render(): void {

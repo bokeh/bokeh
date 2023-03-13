@@ -60,6 +60,7 @@ from ..util.serialization import (
     transform_array,
     transform_series,
 )
+from ..util.warnings import BokehUserWarning, warn
 from .types import ID
 
 if TYPE_CHECKING:
@@ -302,7 +303,7 @@ class Serializer:
         if -_MAX_SAFE_INT < obj <= _MAX_SAFE_INT:
             return obj
         else:
-            log.warning("out of range integer may result in loss of precision")
+            warn("out of range integer may result in loss of precision", BokehUserWarning)
             return self._encode_float(float(obj))
 
     def _encode_float(self, obj: float) -> NumberRep | float:
@@ -667,7 +668,8 @@ class Deserializer:
         id = obj["id"]
         instance = self._references.get(id)
         if instance is not None:
-            self.error(f"reference already known '{id}'")
+            warn(f"reference already known '{id}'", BokehUserWarning)
+            return instance
 
         name = obj["name"]
         attributes = obj.get("attributes")

@@ -354,10 +354,8 @@ def transform_series(series: pd.Series[Any] | pd.Index | pd.api.extensions.Exten
     # is already known that series is a Pandas Series type
     if isinstance(series, pd.PeriodIndex):
         vals = series.to_timestamp().values  # type: ignore
-    elif isinstance(series, pd.api.extensions.ExtensionArray):
-        vals = series.to_numpy()
     else:
-        vals = series.values
+        vals = series.to_numpy()
     return vals
 
 #-----------------------------------------------------------------------------

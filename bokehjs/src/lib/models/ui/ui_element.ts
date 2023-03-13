@@ -44,17 +44,16 @@ export abstract class UIElementView extends DOMComponentView {
   protected readonly _display = new InlineStyleSheet()
   readonly style = new InlineStyleSheet()
 
-  get stylesheets(): StyleSheet[] {
-    return [...this._stylesheets()]
+  protected override *_css_classes(): Iterable<string> {
+    yield* super._css_classes()
+    yield* this.model.css_classes
   }
 
-  protected *_stylesheets(): Iterable<StyleSheet> {
+  protected override *_stylesheets(): Iterable<StyleSheet> {
+    yield* super._stylesheets()
     yield this.style
     yield this._display
-  }
-
-  get computed_stylesheets(): StyleSheet[] {
-    return [...this._computed_stylesheets()]
+    yield* this._computed_stylesheets()
   }
 
   protected *_computed_stylesheets(): Iterable<StyleSheet> {
@@ -86,16 +85,8 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  get classes(): string[] {
-    return [...this.css_classes(), ...this._classes()]
-  }
-
-  public *_classes(): Iterable<string> {
-    yield `bk-${this.model.type.replace(/\./g, "-")}`
-  }
-
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), ui_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), ui_css]
   }
 
   update_style(): void {
@@ -110,12 +101,9 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  private _bbox?: BBox
+  private _bbox: BBox = new BBox()
   get bbox(): BBox {
-    // XXX: this shouldn't be necessary
-    if (this._bbox == null)
-      this._update_bbox()
-    return this._bbox!
+    return this._bbox
   }
 
   update_bbox(): boolean {
@@ -123,7 +111,18 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _update_bbox(): boolean {
-    const displayed = this.el.offsetParent != null // TODO: position == "sticky"
+    const displayed = (() => {
+      // Consider using Element.checkVisibility() in the future.
+      // https://w3c.github.io/csswg-drafts/cssom-view-1/#dom-element-checkvisibility
+      if (!this.el.isConnected)
+        return false
+      else if (this.el.offsetParent != null)
+        return true
+      else {
+        const {position, display} = getComputedStyle(this.el)
+        return position == "fixed" && display != "none"
+      }
+    })()
 
     const bbox = !displayed ? new BBox() : (() => {
       const self = this.el.getBoundingClientRect()
@@ -148,7 +147,7 @@ export abstract class UIElementView extends DOMComponentView {
       })
     })()
 
-    const changed = this._bbox == null || !this._bbox.equals(bbox)
+    const changed = !this._bbox.equals(bbox)
     this._bbox = bbox
     this._is_displayed = displayed
     return changed
@@ -166,9 +165,11 @@ export abstract class UIElementView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, styles} = this.model.properties
-    this.on_change(visible, () => this._apply_visible())
-    this.on_change(styles, () => this._apply_styles())
+    const {visible, styles, css_classes, stylesheets} = this.model.properties
+    this.on_change(visible, () => this._update_visible())
+    this.on_change(styles, () => this._update_styles())
+    this.on_change(css_classes, () => this._update_css_classes())
+    this.on_change(stylesheets, () => this._update_stylesheets())
   }
 
   override remove(): void {
@@ -191,13 +192,8 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   override render(): void {
-    this.empty()
-    this._apply_stylesheets(this.styles())
-    this._apply_stylesheets(this.stylesheets)
-    this._apply_stylesheets(this.computed_stylesheets)
+    super.render()
     this._apply_styles()
-    this._apply_classes(this.classes)
-    this._apply_classes(this.model.classes)
     this._apply_visible()
   }
 
@@ -216,8 +212,17 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   private _is_displayed: boolean = false
-  protected get is_displayed(): boolean {
+  get is_displayed(): boolean {
     return this._is_displayed
+  }
+
+  protected _apply_visible(): void {
+    if (this.model.visible)
+      this._display.clear()
+    else {
+      // in case `display` element style was set, use `!important` to work around this
+      this._display.replace(":host { display: none !important; }")
+    }
   }
 
   protected _apply_styles(): void {
@@ -241,13 +246,13 @@ export abstract class UIElementView extends DOMComponentView {
     }
   }
 
-  protected _apply_visible(): void {
-    if (this.model.visible)
-      this._display.clear()
-    else {
-      // in case `display` element style was set, use `!important` to work around this
-      this._display.replace(":host { display: none !important; }")
-    }
+  protected _update_visible(): void {
+    this._apply_visible()
+  }
+
+  protected _update_styles(): void {
+    this.el.removeAttribute("style") // TODO: maintain _applied_styles
+    this._apply_styles()
   }
 
   export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
@@ -268,7 +273,7 @@ export namespace UIElement {
 
   export type Props = Model.Props & {
     visible: p.Property<boolean>
-    classes: p.Property<string[]>
+    css_classes: p.Property<string[]>
     styles: p.Property<CSSStyles | Styles>
     stylesheets: p.Property<(BaseStyleSheet | string | {[key: string]: CSSStyles | Styles})[]>
   }
@@ -289,7 +294,7 @@ export abstract class UIElement extends Model {
       const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
       return {
         visible: [ Boolean, true ],
-        classes: [Array(String), [] ],
+        css_classes: [ Array(String), [] ],
         styles: [ StylesLike, {} ],
         stylesheets: [ Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike))), [] ],
       }

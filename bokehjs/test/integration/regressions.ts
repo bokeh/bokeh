@@ -55,7 +55,7 @@ import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
-import {XY} from "@bokehjs/core/util/bbox"
+import {XY, LRTB} from "@bokehjs/core/util/bbox"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
@@ -3141,6 +3141,66 @@ describe("Bug", () => {
 
       const gp = gridplot([[p0, p1], [p2, p3]], {sizing_mode: "stretch_width", toolbar_location: "right"})
       await display(gp, [600, 450])
+    })
+  })
+
+  describe("in issue #12880", () => {
+    it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
+      async function box() {
+        const box = new BoxAnnotation({
+          left: 1, right: 3, top: null /*frame top*/, bottom: null /*frame bottom*/,
+          editable: true,
+          line_color: "blue",
+        })
+
+        const p = fig([300, 300], {tools: ["pan"], renderers: [box], x_range: [0, 6], y_range: [0, 6]})
+        const {view} = await display(p)
+        await paint()
+        return view
+      }
+
+      const view = await box()
+      const actions = new PlotActions(view, {units: "screen"})
+      await actions.pan_along({type: "line", xy0: xy(250, 50), xy1: xy(250, 250)}) // pan the plot up
+      await paint()
+      await actions.pan_along({type: "line", xy0: xy(100, 150), xy1: xy(200, 150)}) // move the box right
+      await paint()
+    })
+  })
+
+  describe("in issue #12917", () => {
+    it("doesn't allow BoxAnnotation to participate in auto-ranging when its edges are bound to the frame", async () => {
+      function plot(lrtb: LRTB<number | null>) {
+        const box = new BoxAnnotation({...lrtb, line_color: "blue"})
+        const p = fig([200, 200], {
+          renderers: [box],
+          x_range: new DataRange1d({range_padding: 0.3}),
+          y_range: new DataRange1d({range_padding: 0.3}),
+        })
+        p.circle(0, 0, {radius: 1, fill_color: null})
+        return p
+      }
+
+      const p00 = plot({left: null, right: null, top: null, bottom: null})
+      const p01 = plot({left: -2, right: null, top: null, bottom: null})
+      const p02 = plot({left: null, right: 2, top: null, bottom: null})
+      const p03 = plot({left: -2, right: 2, top: null, bottom: null})
+      const p10 = plot({left: null, right: null, top: 2, bottom: null})
+      const p11 = plot({left: null, right: null, top: null, bottom: -2})
+      const p12 = plot({left: null, right: null, top: 2, bottom: -2})
+      const p13 = plot({left: -2, right: null, top: null, bottom: -2})
+      const p20 = plot({left: null, right: 2, top: 2, bottom: null})
+      const p21 = plot({left: -2, right: null, top: 2, bottom: null})
+      const p22 = plot({left: null, right: 2, top: null, bottom: -2})
+      const p23 = plot({left: -2, right: 2, top: 2, bottom: -2})
+
+      const gp = gridplot([
+        [p00, p01, p02, p03],
+        [p10, p11, p12, p13],
+        [p20, p21, p22, p23],
+      ], {toolbar_location: null})
+
+      await display(gp)
     })
   })
 })

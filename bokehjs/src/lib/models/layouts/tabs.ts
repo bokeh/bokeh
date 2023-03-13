@@ -30,8 +30,8 @@ export class TabsView extends LayoutDOMView {
     })
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), tabs_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), tabs_css, icons_css]
   }
 
   get child_models(): UIElement[] {

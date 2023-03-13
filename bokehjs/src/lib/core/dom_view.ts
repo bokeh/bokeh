@@ -1,5 +1,5 @@
 import {View} from "./view"
-import {createElement, remove, empty, InlineStyleSheet, StyleSheetLike, ClassList} from "./dom"
+import {createElement, remove, empty, StyleSheet, InlineStyleSheet, StyleSheetLike, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 
@@ -29,11 +29,11 @@ export abstract class DOMView extends View {
     super.remove()
   }
 
-  css_classes(): string[] {
+  stylesheets(): StyleSheetLike[] {
     return []
   }
 
-  styles(): StyleSheetLike[] {
+  css_classes(): string[] {
     return []
   }
 
@@ -76,40 +76,55 @@ export abstract class DOMComponentView extends DOMElementView {
     this.shadow_el = this.el.attachShadow({mode: "open"})
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), base_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), base_css]
   }
 
   empty(): void {
     empty(this.shadow_el)
     this.class_list.clear()
+    this._applied_css_classes = []
+    this._applied_stylesheets = []
   }
 
   render(): void {
     this.empty()
-    this._apply_stylesheets(this.styles())
-    this._apply_classes(this.css_classes())
+    this._update_stylesheets()
+    this._update_css_classes()
   }
 
-  protected _apply_stylesheets(stylesheets: StyleSheetLike[]): void {
-    /*
-    if (supports_adopted_stylesheets) {
-      const sheets: CSSStyleSheet[] = []
-      for (const style of this.styles()) {
-        const sheet = new CSSStyleSheet()
-        sheet.replaceSync(style)
-        sheets.push(sheet)
-      }
-      this.shadow_el.adoptedStyleSheets = sheets
-    } else {
-    */
-    for (const style of stylesheets) {
-      const stylesheet = isString(style) ? new InlineStyleSheet(style) : style
-      stylesheet.install(this.shadow_el)
+  protected *_stylesheets(): Iterable<StyleSheet> {
+    for (const style of this.stylesheets()) {
+      yield isString(style) ? new InlineStyleSheet(style) : style
     }
   }
 
-  protected _apply_classes(classes: string[]): void {
+  protected *_css_classes(): Iterable<string> {
+    yield `bk-${this.model.type.replace(/\./g, "-")}`
+    yield* this.css_classes()
+  }
+
+  protected _applied_stylesheets: StyleSheet[] = []
+  protected _apply_stylesheets(stylesheets: StyleSheet[]): void {
+    this._applied_stylesheets.push(...stylesheets)
+    stylesheets.forEach((stylesheet) => stylesheet.install(this.shadow_el))
+  }
+
+  protected _applied_css_classes: string[] = []
+  protected _apply_css_classes(classes: string[]): void {
+    this._applied_css_classes.push(...classes)
     this.class_list.add(...classes)
+  }
+
+  protected _update_stylesheets(): void {
+    this._applied_stylesheets.forEach((stylesheet) => stylesheet.uninstall())
+    this._applied_stylesheets = []
+    this._apply_stylesheets([...this._stylesheets()])
+  }
+
+  protected _update_css_classes(): void {
+    this.class_list.remove(this._applied_css_classes)
+    this._applied_css_classes = []
+    this._apply_css_classes([...this._css_classes()])
   }
 }

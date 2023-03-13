@@ -424,7 +424,10 @@ class Server(BaseServer):
             sockets = [netutil.bind_unix_socket(opts.unix_socket)]
             self._unix_socket = opts.unix_socket
             self._address, self._port = None, None
-            extra_websocket_origins = []
+            if opts.allow_websocket_origin:
+                extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, None)
+            else:
+                extra_websocket_origins = []
         else:
             sockets, self._port = bind_sockets(opts.address, opts.port)
             self._address = opts.address

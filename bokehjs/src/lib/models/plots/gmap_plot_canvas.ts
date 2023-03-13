@@ -183,7 +183,7 @@ export class GMapPlotView extends PlotView {
 
     // wire up listeners so that changes to properties are reflected
     this.connect(this.model.properties.map_options.change, () => this._update_options())
-    this.connect(this.model.map_options.properties.styles.change, () => this._update_styles())
+    this.connect(this.model.map_options.properties.styles.change, () => this._update_styling())
     this.connect(this.model.map_options.properties.lat.change, () => this._update_center("lat"))
     this.connect(this.model.map_options.properties.lng.change, () => this._update_center("lng"))
     this.connect(this.model.map_options.properties.zoom.change, () => this._update_zoom())
@@ -248,14 +248,14 @@ export class GMapPlotView extends PlotView {
   }
 
   protected _update_options(): void {
-    this._update_styles()
+    this._update_styling()
     this._update_center("lat")
     this._update_center("lng")
     this._update_zoom()
     this._update_map_type()
   }
 
-  protected _update_styles(): void {
+  protected _update_styling(): void {
     const {styles} = this.model.map_options
     this.map.setOptions({styles: styles != null ? JSON.parse(styles) : null})
   }

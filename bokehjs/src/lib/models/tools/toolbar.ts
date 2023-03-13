@@ -97,8 +97,8 @@ export class ToolbarView extends UIElementView {
     })
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), toolbars_css, logos_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), toolbars_css, logos_css, icons_css]
   }
 
   override remove(): void {

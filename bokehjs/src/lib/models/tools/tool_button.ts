@@ -95,8 +95,8 @@ export abstract class ToolButtonView extends UIElementView {
     super.remove()
   }
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), tool_button_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), tool_button_css, icons_css]
   }
 
   override render(): void {

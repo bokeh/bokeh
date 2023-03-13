@@ -897,7 +897,7 @@ class Serve(Subcommand):
         if 'unix_socket' in server_kwargs:
             if server_kwargs['port'] != DEFAULT_SERVER_PORT:
                 die("--port arg is not supported with a unix socket")
-            invalid_args = ['address', 'allow_websocket_origin', 'ssl_certfile', 'ssl_keyfile']
+            invalid_args = ['address', 'ssl_certfile', 'ssl_keyfile']
 
             if any(server_kwargs.get(x) for x in invalid_args):
                 die(f"{invalid_args + ['port']} args are not supported with a unix socket")

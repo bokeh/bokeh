@@ -9,8 +9,8 @@ export class PasswordInputView extends TextInputView {
 
   toggle_el: HTMLElement
 
-  override styles(): StyleSheetLike[] {
-    return [...super.styles(), password_input_css, icons_css]
+  override stylesheets(): StyleSheetLike[] {
+    return [...super.stylesheets(), password_input_css, icons_css]
   }
 
   override render(): void {

@@ -9,10 +9,10 @@ import * as nd from "core/util/ndarray"
 import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea,
+  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep,
   HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
   MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
-  Scatter, Segment, Spline, Step, Text, VArea, VBar, Wedge,
+  Scatter, Segment, Spline, Step, Text, VArea, VAreaStep, VBar, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -109,6 +109,7 @@ export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFi
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
 export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
 export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
+export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill
 export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
 export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
 export type ImageArgs         = GlyphArgs<Image.Props>
@@ -131,6 +132,7 @@ export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
 export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
 export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
+export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill
 export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
 export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
 
@@ -227,6 +229,17 @@ export abstract class GlyphAPI {
     args?: Partial<HAreaArgs>): TypedGlyphRenderer<HArea>
   harea(...args: unknown[]): TypedGlyphRenderer<HArea> {
     return this._glyph(HArea, ["x1", "x2", "y"], args)
+  }
+
+  harea_step(args: Partial<HAreaStepArgs>): TypedGlyphRenderer<HAreaStep>
+  harea_step(
+    x1: HAreaStepArgs["x1"],
+    x2: HAreaStepArgs["x2"],
+    y: HAreaStepArgs["y"],
+    step_mode: HAreaStepArgs["step_mode"],
+    args?: Partial<HAreaStepArgs>): TypedGlyphRenderer<HAreaStep>
+  harea_step(...args: unknown[]): TypedGlyphRenderer<HAreaStep> {
+    return this._glyph(HAreaStep, ["x1", "x2", "y", "step_mode"], args)
   }
 
   hbar(args: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
@@ -435,6 +448,17 @@ export abstract class GlyphAPI {
     args?: Partial<VAreaArgs>): TypedGlyphRenderer<VArea>
   varea(...args: unknown[]): TypedGlyphRenderer<VArea> {
     return this._glyph(VArea, ["x", "y1", "y2"], args)
+  }
+
+  varea_step(args: Partial<VAreaStepArgs>): TypedGlyphRenderer<VAreaStep>
+  varea_step(
+    x: VAreaStepArgs["x"],
+    y1: VAreaStepArgs["y1"],
+    y2: VAreaStepArgs["y2"],
+    step_mode: VAreaStepArgs["step_mode"],
+    args?: Partial<VAreaStepArgs>): TypedGlyphRenderer<VAreaStep>
+  varea_step(...args: unknown[]): TypedGlyphRenderer<VAreaStep> {
+    return this._glyph(VAreaStep, ["x", "y1", "y2", "step_mode"], args)
   }
 
   vbar(args: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
