@@ -207,7 +207,7 @@ describe("core/util/arrayable module", () => {
   })
 
   it("should support some() function", () => {
-    expect(arrayable.some([-1, 2, 6, 11], (num) => !!(num % 2))).to.be.true
+    expect(arrayable.some([-1, 2, 6, 11], (num) => num % 2 === 0)).to.be.true
     expect(arrayable.some([1, 2, 3, 4], (num) => num > 5)).to.be.false
   })
 
