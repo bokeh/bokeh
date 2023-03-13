@@ -1,3 +1,18 @@
+"""
+====================================
+Twin Axis Plot with Bokeh and NumPy
+====================================
+
+This example demonstrates how to create a plot with two y-axes using Bokeh and NumPy.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle
+    :refs: :ref:`userguide_plotting` > :ref:`userguide_plotting_markers`, :ref:`userguide_plotting` > :ref:`userguide_plotting_extra_axes`
+    :keywords: twin axis, circle
+
+
+"""
+
 from numpy import arange, linspace, pi, sin
 
 from bokeh.document import Document
