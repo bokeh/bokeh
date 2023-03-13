@@ -8,7 +8,6 @@ export abstract class TextLikeInputView extends InputWidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.properties.name.change, () => this.input_el.name = this.model.name ?? "")
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
     this.connect(this.model.properties.value_input.change, () => this.input_el.value = this.model.value_input)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
@@ -31,7 +30,6 @@ export abstract class TextLikeInputView extends InputWidgetView {
     this.group_el.appendChild(el)
 
     const {input_el} = this
-    input_el.name = this.model.name ?? ""
     input_el.value = this.model.value
     input_el.disabled = this.model.disabled
     input_el.placeholder = this.model.placeholder
