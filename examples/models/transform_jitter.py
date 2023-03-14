@@ -1,7 +1,4 @@
 """
-==========================================
-Jittered Scatter Plot with Bokeh and NumPy
-==========================================
 
 This example demonstrates how to add jitter to a scatter plot using Bokeh and NumPy.
 
