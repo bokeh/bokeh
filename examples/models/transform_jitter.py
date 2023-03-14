@@ -3,7 +3,7 @@
 This example demonstrates how to add jitter to a scatter plot using Bokeh and NumPy.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle, bokeh.models.Jitter, bokeh.models.LabelSet, bokeh.models.widgets.Button, bokeh.models.callbacks.CustomJS
+    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter, bokeh.models.LabelSet, bokeh.models.Button, bokeh.models.CustomJS
     :refs: :ref:`ug_interaction` > :ref:`ug_interaction_widgets`, :ref:`ug_topics` > :ref:`ug_topics_categorical_scatters_jitter`
     :keywords: scatter plot, Jitter, Bokeh, NumPy
 
