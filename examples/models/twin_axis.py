@@ -1,7 +1,4 @@
 """
-====================================
-Twin Axis Plot with Bokeh and NumPy
-====================================
 
 This example demonstrates how to create a plot with two y-axes using Bokeh and NumPy.
 
