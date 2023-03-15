@@ -292,6 +292,7 @@ jobs:
         run: bash scripts/ci/run_downstream_tests.sh
 
   docker_from_wheel:
+    if: ${{ false }}  # temporarily disable
     needs: build
     runs-on: ubuntu-latest
     env:
