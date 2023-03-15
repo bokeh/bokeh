@@ -1,0 +1,8 @@
+.. _release-3-2-0:
+
+3.2.0
+=====
+
+Bokeh Version ``3.2.0`` (?? April 2023) is a minor milestone of Bokeh project.
+
+* Official support for Python 3.8 was removed

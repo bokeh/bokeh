@@ -41,7 +41,7 @@ for y in cats:
     source.data[f"{y} text"] = [f"{r}\n{x*100:0.1f}%" for r, x in zip(regions, pcts)]
 
     p.text(y=value(y), x=left, text=f"{y} text", source=source, x_offset=10,
-           text_color="color", text_baseline="center", text_font_size="15px")
+           text_color="color", text_baseline="middle", text_font_size="15px")
 
 totals = pd.crosstab(df.Category, df.Region, margins=True, aggfunc='sum',
                      values=df.Sales, normalize="columns").All
@@ -49,7 +49,7 @@ totals = pd.crosstab(df.Category, df.Region, margins=True, aggfunc='sum',
 p.hbar(right=0, left=-totals, y=totals.index, height=0.9, color="#dadada")
 
 text = [f"{name} ({totals.loc[name]*100:0.1f}%)" for name in cats]
-p.text(y=cats, x=0, text=text, text_baseline="center", text_align="right",
+p.text(y=cats, x=0, text=text, text_baseline="middle", text_align="right",
        x_offset=-12, text_color="#4a4a4a", text_font_size="20px",
        text_font_style="bold")
 
