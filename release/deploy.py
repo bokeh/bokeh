@@ -52,7 +52,7 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
     flags = "--only-show-errors --acl bucket-owner-full-control"
     WEEK = 3600 * 24 * 7
     YEAR = 3600 * 24 * 365
-    def cache(max_age: int):
+    def cache(max_age: int) -> str:
         return f"--cache-control max-age={max_age},public"
     try:
         if config.prerelease:
