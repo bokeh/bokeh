@@ -1,7 +1,7 @@
 ''' A map representation of unemployment rate in US using the `US_Sates Dataset`_.
 This example demonstrates using IndexFilter, ColorMapper and HoverTool with 
 basic plot elements such as patches. When hovering over the points, 
-the states and it's umemployment rate are shown. 
+the state and its unemployment rate is shown. 
 
 .. bokeh-example-metadata::
     :sampledata: US_States
