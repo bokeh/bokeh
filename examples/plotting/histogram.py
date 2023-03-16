@@ -6,6 +6,9 @@
     :keywords: histogram
 
 '''
+#Updated all basic colors to their hexadecimal counterparts
+#Updated Warm/Low Contrast Pallette to High Contrast Pallettes
+
 import numpy as np
 import scipy.special
 
@@ -16,16 +19,16 @@ from bokeh.plotting import figure, show
 def make_plot(title, hist, edges, x, pdf, cdf):
     p = figure(title=title, tools='', background_fill_color="#fafafa")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
-           fill_color="blue", line_color="white", alpha=0.5)
-    p.line(x, pdf, line_color="red", line_width=3, alpha=0.7, legend_label="PDF")
-    p.line(x, cdf, line_color="orange", line_width=2, alpha=0.7, legend_label="CDF") #updated colors and line width
+           fill_color="#004488", line_color="#ffffff", alpha=0.5) #updated basic fill color from low contrast pallette(navy) to HighContrast (#004488)
+    p.line(x, pdf, line_color="#BB5566", line_width=4, alpha=0.7, legend_label="PDF") #updated line color from low contrast pallette(#ff8888) to HighContrast (#BB5566)
+    p.line(x, cdf, line_color="#DDAA33", line_width=2, alpha=0.7, legend_label="CDF") #updated basic line color from low contrast pallette(orange) to HighContrast (#DDAA33)
 
     p.y_range.start = 0
     p.legend.location = "center_right"
     p.legend.background_fill_color = "#fefefe"
     p.xaxis.axis_label = 'x'
     p.yaxis.axis_label = 'Pr(x)'
-    p.grid.grid_line_color="white"
+    p.grid.grid_line_color="#ffffff"
     return p
 
 # Normal Distribution
