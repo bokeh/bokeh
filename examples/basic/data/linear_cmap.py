@@ -9,10 +9,10 @@ y = standard_normal(50000)
 
 bins = hexbin(x, y, 0.1)
 
-p = figure(tools="", match_aspect=True, background_fill_color='#00204C')
+p = figure(tools="", match_aspect=True, background_fill_color='#440154')
 p.grid.visible = False
 
 p.hex_tile(q="q", r="r", size=0.1, line_color=None, source=bins,
-           fill_color=linear_cmap('counts', 'Cividis256', 0, max(bins.counts)))
+           fill_color=linear_cmap('counts', 'Viridis256', 0, max(bins.counts)))
 
 show(p)
