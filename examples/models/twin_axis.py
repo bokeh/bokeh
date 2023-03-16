@@ -1,4 +1,4 @@
-''' This example demonstrates how to create a plot with two y-axes using Bokeh and NumPy.
+''' This example demonstrates how to create a plot with two y-axes.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle
