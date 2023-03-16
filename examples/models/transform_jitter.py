@@ -1,4 +1,4 @@
-''' This example demonstrates how to add jitter to a scatter plot using Bokeh and NumPy.
+''' This example demonstrates how to us a jitter transform on coordinate data.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter
