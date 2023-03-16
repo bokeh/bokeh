@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.slope, bokeh.plotting.figure.circle
-    :refs: :ref:`ug_basic_annotations_slopes`
+    :refs: :ref:`ug_basic_annotations_slope`
     :keywords: slope
 
 '''
