@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter
-    :refs: :ref:`ug_interaction` > :ref:`ug_interaction_widgets` > :ref:`ug_topics` > :ref:`ug_topics_categorical_scatters_jitter`
+    :refs: :ref:`ug_interaction_widgets`, :ref:`ug_topics_categorical_scatters_jitter`
     :keywords: scatter plot, Jitter, Bokeh, NumPy
 
 '''
