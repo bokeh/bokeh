@@ -71,7 +71,7 @@ plot.add_glyph(patch1_source, patch1)
 patch2 = Patch(x="dates", y="times", fill_color="#ffdd91")
 plot.add_glyph(patch2_source, patch2)
 
-sunrise_line = Line(x="dates", y="sunrises", line_color="#FF8C00", line_width=4)
+sunrise_line = Line(x="dates", y="sunrises", line_color="orange", line_width=4)
 sunrise_line_renderer = plot.add_glyph(source, sunrise_line)
 
 sunset_line = Line(x="dates", y="sunsets", line_color="crimson", line_width=4)
