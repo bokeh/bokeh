@@ -1,4 +1,5 @@
 ''' This example demonstrates using CustomJS Expression to create a sinusoidal line chart with Bokeh.
+
 .. bokeh-example-metadata::
     :apis: bokeh.models.CustomJSExpr, bokeh.model.DataModel
     :refs: :ref:`ug_interaction_js_callback`
