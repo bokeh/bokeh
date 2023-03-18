@@ -63,7 +63,7 @@ export function relativize_modules(relativize: (file: string, module_path: strin
           return ts.visitEachChild(node, visit, context)
         }
 
-        return ts.visitNode(root, visit)
+        return ts.visitEachChild(root, visit, context)
       },
       transformBundle(_root: ts.Bundle): ts.Bundle {
         throw new Error("unsupported")
@@ -81,7 +81,7 @@ export function insert_class_name() {
     return node.members.find((member) => ts.isPropertyDeclaration(member) && member.name.getText() == "__name__" && is_static(member)) != null
   }
 
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
 
     function visit(node: ts.Node): ts.VisitResult<ts.Node> {
@@ -107,7 +107,7 @@ export function insert_class_name() {
       return node
     }
 
-    return ts.visitNode(root, visit)
+    return ts.visitEachChild(root, visit, context)
   }
 }
 
@@ -197,7 +197,7 @@ export function collect_exports(exported: Exports[]) {
 }
 
 export function collect_imports(imports: Set<string>) {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
         const name = node.moduleSpecifier
@@ -211,7 +211,7 @@ export function collect_imports(imports: Set<string>) {
 
       return ts.visitEachChild(node, visit, context)
     }
-    return ts.visitNode(root, visit)
+    return ts.visitEachChild(root, visit, context)
   }
 }
 
@@ -232,7 +232,7 @@ export function collect_deps(source: ts.SourceFile): string[] {
 }
 
 export function rewrite_deps(resolve: (dep: string) => number | string | undefined) {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
 
     function visit(node: ts.Node): ts.Node {
@@ -255,13 +255,13 @@ export function rewrite_deps(resolve: (dep: string) => number | string | undefin
       return ts.visitEachChild(node, visit, context)
     }
 
-    return ts.visitNode(root, visit)
+    return ts.visitEachChild(root, visit, context)
   }
 }
 
 // XXX: this is pretty naive, but affects very litte code
 export function rename_exports() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
 
     function is_exports(node: ts.Node): boolean {
@@ -285,7 +285,7 @@ export function rename_exports() {
         return ts.visitEachChild(node, visit, context)
       }
 
-      return ts.visitNode(root, visit)
+      return ts.visitEachChild(root, visit, context)
     } else
       return root
   }
@@ -385,7 +385,7 @@ export function fix_esexports() {
 }
 
 export function fix_regl() {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     if (!root.fileName.endsWith("regl.js")) {
       return root
     }
@@ -404,12 +404,12 @@ export function fix_regl() {
       return ts.visitEachChild(node, visit, context)
     }
 
-    return ts.visitNode(root, visit)
+    return ts.visitEachChild(root, visit, context)
   }
 }
 
 export function wrap_in_function(module_name: string) {
-  return (context: ts.TransformationContext) => (root: ts.SourceFile) => {
+  return (context: ts.TransformationContext) => (root: ts.SourceFile): ts.SourceFile => {
     const {factory} = context
     const p = (name: string) => factory.createParameterDeclaration(undefined, undefined, name)
     const params = [p("require"), p("module"), p("exports"), p("__esModule"), p("__esExport")]
