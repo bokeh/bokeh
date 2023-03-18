@@ -58,10 +58,14 @@ class Test_make_id:
             assert len(bus.make_id()) == 36
             assert isinstance(bus.make_id(), str)
 
-class Test_make_globally_unique_id:
-    def test_basic(self) -> None:
-        assert len(bus.make_globally_unique_id()) == 36
-        assert isinstance(bus.make_globally_unique_id(), str)
+def test_make_globally_unique_id() -> None:
+    assert len(bus.make_globally_unique_id()) == 36
+    assert isinstance(bus.make_globally_unique_id(), str)
+
+def test_make_globally_unique_css_safe_id() -> None:
+    assert len(bus.make_globally_unique_css_safe_id()) == 36
+    assert isinstance(bus.make_globally_unique_id(), str)
+    assert all(bus.make_globally_unique_css_safe_id()[0].isalpha() for _ in range(1000))
 
 def test_np_consts() -> None:
     assert bus.NP_EPOCH == np.datetime64(0, 'ms')
