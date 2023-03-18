@@ -199,8 +199,10 @@ class Serializable:
 ObjID = int
 
 class Serializer:
-    """ Convert built-in and custom types into serializable representations. """
-
+    """ Convert built-in and custom types into serializable representations.
+        Not all built-in types are supported (e.g., decimal.Decimal due to
+        lacking support for fixed point arithmetic in JavaScript).
+    """
     _encoders: ClassVar[dict[type[Any], Encoder]] = {}
 
     @classmethod

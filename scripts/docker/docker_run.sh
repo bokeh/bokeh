@@ -2,7 +2,7 @@
 
 # Usage: docker_run.sh bokeh-dev:latest
 # Can put env vars first, e.g.
-#   BOKEH_DOCKER_PY=3.8 docker_run.sh bokeh-dev:latest
+#   BOKEH_DOCKER_PY=3.9 docker_run.sh bokeh-dev:latest
 
 set -eu
 

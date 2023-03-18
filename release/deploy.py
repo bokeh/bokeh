@@ -49,16 +49,20 @@ def publish_conda_package(config: Config, system: System) -> ActionReturn:
 def publish_documentation(config: Config, system: System) -> ActionReturn:
     version, release_level = config.version, config.release_level
     path = f"deployment-{version}/docs/bokeh/build/html"
-    flags = "--acl bucket-owner-full-control --cache-control max-age=31536000,public"
+    flags = "--only-show-errors --acl bucket-owner-full-control"
+    WEEK = 3600 * 24 * 7
+    YEAR = 3600 * 24 * 365
+    def cache(max_age: int) -> str:
+        return f"--cache-control max-age={max_age},public"
     try:
         if config.prerelease:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags} {REGION}")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags} {cache(YEAR)} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION}')
         else:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ {flags} {REGION}")
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {REGION}")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {cache(YEAR)} {REGION}")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/latest/ --delete {flags} {cache(WEEK)} {REGION}")
             switcher = f"deployment-{version}/docs/bokeh/switcher.json"
-            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {REGION}")
+            system.run(f"aws s3 cp {switcher} s3://docs.bokeh.org/ {flags} {cache(WEEK)} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/latest*" "/en/{version}*" "/switcher.json" {REGION}')
         return PASSED("Publish to documentation site succeeded")
     except RuntimeError as e:
