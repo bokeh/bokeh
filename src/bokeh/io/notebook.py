@@ -442,10 +442,13 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
     from ..embed.bundle import bundle_for_objs_and_resources
     from ..resources import Resources
     from ..settings import settings
-    from ..util.serialization import make_id
+    from ..util.serialization import make_globally_unique_css_safe_id
 
     if resources is None:
         resources = Resources(mode=settings.resources())
+
+    element_id: ID | None
+    html: str | None
 
     if not hide_banner:
         if resources.mode == 'inline':
@@ -459,7 +462,7 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
         if _NOTEBOOK_LOADED and verbose:
             warnings.append('Warning: BokehJS previously loaded')
 
-        element_id: ID | None = make_id()
+        element_id = make_globally_unique_css_safe_id()
 
         html = NOTEBOOK_LOAD.render(
             element_id    = element_id,
@@ -482,9 +485,10 @@ def load_notebook(resources: Resources | None = None, verbose: bool = False,
 
     if html is not None:
         publish_display_data({'text/html': html})
+
     publish_display_data({
-        JS_MIME_TYPE   : nb_js,
-        LOAD_MIME_TYPE : jl_js,
+        JS_MIME_TYPE:   nb_js,
+        LOAD_MIME_TYPE: jl_js,
     })
 
 def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None = None, *, transient: dict[str, Any] | None = None, **kwargs: Any) -> None:
