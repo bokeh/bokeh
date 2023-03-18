@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle
-    :refs: :ref:`userguide_plotting_markers`, :ref:`userguide_plotting_extra_axes`
+    :refs: :ref:`ug_basic_scatters`, :ref:`ug_basic_axes_twin`
     :keywords: twin axis, circle
 
 '''
