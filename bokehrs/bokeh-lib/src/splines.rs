@@ -49,20 +49,18 @@ pub fn catmullrom_spline(x: &[f64], y: &[f64], options: SplineOptions) -> (Vec<f
     yy[N+1] = y[n-1];
   }
 
-  let mut basis: Vec<Coeffs> = Vec::with_capacity(T + 1);
-
-  for j in 0..=T {
+  let basis = (0..=T).map(|j| {
     let t = (j as f64)/(T as f64);
     let t_2 = t*t;
     let t_3 = t*t_2;
 
-    basis.push(Coeffs {
+    Coeffs {
       h00:  2.0*t_3 - 3.0*t_2     + 1.0,
       h01: -2.0*t_3 + 3.0*t_2,
       h10:      t_3 - 2.0*t_2 + t,
       h11:      t_3 -     t_2,
-    })
-  }
+    }
+  }).collect::<Vec<_>>();
 
   let mut xt: Vec<f64> = Vec::with_capacity((N - 1)*(T + 1));
   let mut yt: Vec<f64> = Vec::with_capacity((N - 1)*(T + 1));
