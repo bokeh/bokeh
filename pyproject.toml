@@ -7,7 +7,7 @@ name = "bokeh"
 dynamic = ["version"]
 description = "Interactive plots and applications in the browser from Python"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "Jinja2 >=2.9",
     "contourpy >=1",
@@ -41,7 +41,6 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -86,7 +85,7 @@ source = ["src/bokeh"]
 omit = ["*/sphinxext/*", "*/tmp/tmp*.py"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 mypy_path = "src/typings/"
 files = ["src/typings", "src/bokeh", "release", "tests"]
 

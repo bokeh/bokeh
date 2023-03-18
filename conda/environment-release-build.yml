@@ -2,7 +2,7 @@ name: bk-release-build
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.9
 
   # build
   - boto
