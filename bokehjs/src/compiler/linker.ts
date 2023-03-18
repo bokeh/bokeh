@@ -365,7 +365,7 @@ export class Linker {
     }
 
     const transformers = (module: ModuleInfo): Transformers => {
-      const transformers = []
+      const transformers: Transformers = []
 
       if (this.apply_transforms) {
         const remove_use_strict = transforms.remove_use_strict()

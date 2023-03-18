@@ -24,10 +24,9 @@
     "convert-source-map": "^2.0.0",
     "css": "^3.0.0",
     "eslint": "^8.32.0",
-    "eslint-plugin-deprecation": "^1.3.3",
     "less": "^4.1.3",
     "terser": "^5.16.1",
-    "typescript": "~4.9.4",
+    "typescript": "~5.0.2",
     "yargs": "^17.6.2"
   }
 }
