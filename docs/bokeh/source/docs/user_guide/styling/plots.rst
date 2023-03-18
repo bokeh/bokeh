@@ -101,8 +101,8 @@ as the ``.title`` property of the |Plot|.
 
 You can use most of the standard |text properties|. However, ``text_align`` and
 ``text_baseline`` do not apply. To position the title relative to the entire
-plot, use the properties :class:`~bokeh.models.annotations.Title.align` and
-:class:`~bokeh.models.annotations.Title.offset` instead.
+plot, use the properties :class:`~bokeh.models.Title.align` and
+:class:`~bokeh.models.Title.offset` instead.
 
 As an example, to set the color and font style of the title text, use
 ``plot.title.text_color``:
@@ -617,7 +617,7 @@ bokeh.models.plots.Plot.legend
 .. code-block:: python
 
     >>> p.legend
-    [<bokeh.models.annotations.Legend at 0x106fa2278>]
+    [<bokeh.models.Legend at 0x106fa2278>]
 
 This method also returns a splattable list. Therefore, you can set an attribute
 on the list as if it was a single object, and the attribute is changed
@@ -814,7 +814,7 @@ You can see a complete example with output in the section
 
 
 .. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
-.. |Title| replace:: :class:`~bokeh.models.annotations.Title`
+.. |Title| replace:: :class:`~bokeh.models.Title`
 .. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
 .. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
 .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`

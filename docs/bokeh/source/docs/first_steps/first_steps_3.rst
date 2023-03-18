@@ -67,7 +67,7 @@ There are various ways to style the text for your headline. For example:
 .. seealso::
     For more information on working with ``title``, see
     :ref:`ug_basic_annotations_titles` in the user guide. In the reference guide,
-    the entry for :class:`~bokeh.models.annotations.Title` contains a list of
+    the entry for :class:`~bokeh.models.Title` contains a list of
     all available properties.
 
 .. _first_steps_3_annotations:
@@ -121,4 +121,4 @@ This is what the finished code looks like:
     To find out more about the different kinds of annotations in Bokeh, see
     :ref:`ug_basic_annotations` in the user guide.
 
-.. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.annotations.BoxAnnotation`
+.. |BoxAnnotation|      replace:: :py:class:`~bokeh.models.BoxAnnotation`

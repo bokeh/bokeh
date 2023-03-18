@@ -157,7 +157,7 @@ Hiding legend items
 ~~~~~~~~~~~~~~~~~~~
 
 To manually control the visibility of individual legend items, set the
-``visible`` property of a :class:`~bokeh.models.annotations.LegendItem` to
+``visible`` property of a :class:`~bokeh.models.LegendItem` to
 either ``True`` or ``False``.
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/legends_item_visibility.py
@@ -184,7 +184,7 @@ Explicit index
 ~~~~~~~~~~~~~~
 
 To explicitly specify which index into a |ColumnDataSource| to use in a legend,
-set the ``index`` property of a :class:`~bokeh.models.annotations.LegendItem`.
+set the ``index`` property of a :class:`~bokeh.models.LegendItem`.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
@@ -446,14 +446,14 @@ These are the most commonly used properties for this annotation:
 
 .. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
 
-.. |Arrow|         replace:: :class:`~bokeh.models.annotations.Arrow`
+.. |Arrow|         replace:: :class:`~bokeh.models.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
-.. |Band|          replace:: :class:`~bokeh.models.annotations.Band`
-.. |PolyAnnotation| replace:: :class:`~bokeh.models.annotations.PolyAnnotation`
-.. |ColorBar|      replace:: :class:`~bokeh.models.annotations.ColorBar`
-.. |Label|         replace:: :class:`~bokeh.models.annotations.Label`
-.. |LabelSet|      replace:: :class:`~bokeh.models.annotations.LabelSet`
-.. |Slope|         replace:: :class:`~bokeh.models.annotations.Slope`
-.. |Span|          replace:: :class:`~bokeh.models.annotations.Span`
-.. |Title|         replace:: :class:`~bokeh.models.annotations.Title`
-.. |Whisker|       replace:: :class:`~bokeh.models.annotations.Whisker`
+.. |Band|          replace:: :class:`~bokeh.models.Band`
+.. |PolyAnnotation| replace:: :class:`~bokeh.models.PolyAnnotation`
+.. |ColorBar|      replace:: :class:`~bokeh.models.ColorBar`
+.. |Label|         replace:: :class:`~bokeh.models.Label`
+.. |LabelSet|      replace:: :class:`~bokeh.models.LabelSet`
+.. |Slope|         replace:: :class:`~bokeh.models.Slope`
+.. |Span|          replace:: :class:`~bokeh.models.Span`
+.. |Title|         replace:: :class:`~bokeh.models.Title`
+.. |Whisker|       replace:: :class:`~bokeh.models.Whisker`
