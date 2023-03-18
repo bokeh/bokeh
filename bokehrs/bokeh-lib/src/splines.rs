@@ -28,10 +28,9 @@ pub fn catmullrom_spline(x: &[f64], y: &[f64], options: SplineOptions) -> (Vec<f
   let n = x.len();
   let N = if closed { n + 1 } else { n };
 
-  let mut xx: Vec<f64> = Vec::with_capacity(N + 2);
-  let mut yy: Vec<f64> = Vec::with_capacity(N + 2);
-  xx.resize(N + 2, 0.0);
-  yy.resize(N + 2, 0.0);
+  let mut xx: Vec<f64> = vec![0.0; N + 2];
+  let mut yy: Vec<f64> = vec![0.0; N + 2];
+
   xx[1..=n].clone_from_slice(&x);
   yy[1..=n].clone_from_slice(&y);
 
@@ -62,11 +61,8 @@ pub fn catmullrom_spline(x: &[f64], y: &[f64], options: SplineOptions) -> (Vec<f
     }
   }).collect::<Vec<_>>();
 
-  let mut xt: Vec<f64> = Vec::with_capacity((N - 1)*(T + 1));
-  let mut yt: Vec<f64> = Vec::with_capacity((N - 1)*(T + 1));
-
-  xt.resize((N - 1)*(T + 1), 0.0);
-  yt.resize((N - 1)*(T + 1), 0.0);
+  let mut xt: Vec<f64> = vec![0.0; (N - 1)*(T + 1)];
+  let mut yt: Vec<f64> = vec![0.0; (N - 1)*(T + 1)];
 
   let mut k = 0;
 
