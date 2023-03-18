@@ -18,7 +18,7 @@ def make_plot(title, hist, edges, x, pdf, cdf):
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color="#004488", line_color="#ffffff", alpha=0.5)
     p.line(x, pdf, line_color="#BB5566", line_width=4, alpha=0.7, legend_label="PDF")
-    p.line(x, cdf, line_color="#DDAA33", line_width=2, alpha=0.7, legend_label="CDF")
+    p.line(x, cdf, line_color="#DDAA33", line_width=4, alpha=0.7, legend_label="CDF")
 
     p.y_range.start = 0
     p.legend.location = "center_right"
