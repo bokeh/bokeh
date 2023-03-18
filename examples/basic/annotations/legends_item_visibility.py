@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.LegendItem, bokeh.plotting.figure.circle, bokeh.plotting.figure.line
-    :refs: :ref:`ug_basic_annotations` > :ref:`ug_basic_annotations_legends_item_visibility`
+    :refs: :ref:`ug_basic_annotations_legends_item_visibility`
     :keywords: legend
 
 '''
