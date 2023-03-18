@@ -18,6 +18,8 @@ There are two public classes in this module:
     :class:`~bokeh.application.application.Application` instances, and will
     automatically create and coordinate the lower level Tornado components.
 
+See :ref:`userguide_server_introduction` for information on server.
+
 '''
 
 #-----------------------------------------------------------------------------
