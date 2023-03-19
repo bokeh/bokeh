@@ -680,10 +680,10 @@ class TapTool(Tap, SelectTool):
     A callback to execute *whenever a glyph is "hit"* by a mouse click
     or tap.
 
-    This is often useful with the  :class:`~bokeh.models.callbacks.OpenURL`
+    This is often useful with the  :class:`~bokeh.models.OpenURL`
     model to open URLs based on a user clicking or tapping a specific glyph.
 
-    However, it may also be a :class:`~bokeh.models.callbacks.CustomJS`
+    However, it may also be a :class:`~bokeh.models.CustomJS`
     which can execute arbitrary JavaScript code in response to clicking or
     tapping glyphs. The callback will be executed for each individual glyph
     that is it hit by a click or tap, and will receive the ``TapTool`` model
@@ -1309,9 +1309,9 @@ class HoverTool(InspectTool):
     If no formatter is specified for a column name, the default ``"numeral"``
     formatter is assumed.
 
-    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+    .. |NumeralTickFormatter| replace:: :class:`~bokeh.models.NumeralTickFormatter`
+    .. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.DatetimeTickFormatter`
+    .. |PrintfTickFormatter| replace:: :class:`~bokeh.models.PrintfTickFormatter`
 
     """)
 

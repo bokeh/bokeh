@@ -210,7 +210,7 @@ Toggling ToolBar autohide
 -------------------------
 
 To make your toolbar hide automatically, set the toolbar's
-:class:`~bokeh.models.tools.Toolbar.autohide` property to True. When you set
+:class:`~bokeh.models.Toolbar.autohide` property to True. When you set
 ``autohide`` to True, the toolbar is visible only when the mouse is inside the
 plot area and is otherwise hidden.
 
@@ -1112,14 +1112,14 @@ control LOD behavior:
     :module: bokeh.models.plots
 
 
-.. |HoverTool| replace:: :class:`~bokeh.models.tools.HoverTool`
-.. |CustomJSHover| replace:: :class:`~bokeh.models.tools.CustomJSHover`
+.. |HoverTool| replace:: :class:`~bokeh.models.HoverTool`
+.. |CustomJSHover| replace:: :class:`~bokeh.models.CustomJSHover`
 
-.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.NumeralTickFormatter`
+.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.DatetimeTickFormatter`
+.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.PrintfTickFormatter`
 
-.. |Selection| replace:: :class:`~bokeh.models.selections.Selection`
+.. |Selection| replace:: :class:`~bokeh.models.Selection`
 
 .. |hover_basic| image:: /_images/hover_basic.png
 

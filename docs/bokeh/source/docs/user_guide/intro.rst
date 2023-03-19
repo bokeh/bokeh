@@ -347,6 +347,6 @@ For more information on Bokeh models, see |bokeh.models| in the |reference guide
 
 .. |bokeh.io|       replace:: :ref:`bokeh.io <bokeh.io>`
 
-.. |Rect| replace:: :class:`~bokeh.models.glyphs.Rect`
+.. |Rect| replace:: :class:`~bokeh.models.Rect`
 
 .. |figure.circle|   replace:: :func:`figure.circle <bokeh.plotting.figure.circle>`

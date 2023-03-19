@@ -6,7 +6,7 @@ Interactive legends
 :ref:`ug_basic_annotations_legends` added to Bokeh plots can be made interactive
 so that clicking or tapping on the legend entries will hide or mute the
 corresponding glyph in a plot. These modes are activated by setting the
-``click_policy`` property on a :class:`~bokeh.models.annotation.Legend` to
+``click_policy`` property on a :class:`~bokeh.models.Legend` to
 either ``"hide"`` or ``"mute"``.
 
 .. note::

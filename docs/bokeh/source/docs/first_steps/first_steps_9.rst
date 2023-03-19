@@ -20,10 +20,10 @@ interactively control elements of your Bokeh document, for example:
 
 This Bokeh document combines a plot with three widgets:
 
-* A :class:`~bokeh.models.widgets.markups.Div` widget to display HTML text
-* A :class:`~bokeh.models.widgets.inputs.Spinner` widget to select a numeric
+* A :class:`~bokeh.models.Div` widget to display HTML text
+* A :class:`~bokeh.models.Spinner` widget to select a numeric
   value
-* A :class:`~bokeh.models.widgets.sliders.RangeSlider` widget to adjust a
+* A :class:`~bokeh.models.RangeSlider` widget to adjust a
   range
 
 See :ref:`ug_interaction_widgets_examples` in the user guide for a

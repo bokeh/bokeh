@@ -102,7 +102,7 @@ MathML
 ------
 
 To add mathematical notations written in MathML, use Bokeh's
-:class:`~bokeh.models.text.MathML` model directly. This model has a ``text``
+:class:`~bokeh.models.MathML` model directly. This model has a ``text``
 property that accepts a string containing MathML. For example:
 
 .. bokeh-plot:: __REPO__/examples/styling/mathtext/mathml_axis_labels.py
@@ -118,7 +118,7 @@ notations. For example:
     plot.xaxis.axis_label_text_color = "green"
     plot.xaxis.axis_label_text_font_size = "50px"
 
-For more information, see :class:`~bokeh.models.text.MathML` in the
+For more information, see :class:`~bokeh.models.MathML` in the
 |reference guide|.
 
 .. _LaTeX: https://www.latex-project.org/

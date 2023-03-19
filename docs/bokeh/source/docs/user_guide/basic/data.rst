@@ -379,10 +379,10 @@ Including JavaScript code with CustomJSTransform
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to the built-in transformation functions above, you can use your own
-JavaScript code. Use the :func:`~bokeh.models.transforms.CustomJSTransform`
+JavaScript code. Use the :func:`~bokeh.models.CustomJSTransform`
 function to add custom JavaScript code that is executed in the browser.
 
-The example below uses the :func:`~bokeh.models.transforms.CustomJSTransform`
+The example below uses the :func:`~bokeh.models.CustomJSTransform`
 function with the argument ``v_func``. ``v_func`` is short for "vectorized
 function". The JavaScript code you supply to ``v_func`` needs to expect an array
 of inputs in the variable ``xs``, and return a JavaScript array with the
@@ -616,9 +616,9 @@ more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
 .. |CDSView| replace:: :class:`~bokeh.models.CDSView`
-.. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
-.. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
-.. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`
-.. |GroupFilter| replace:: :class:`~bokeh.models.filters.GroupFilter`
-.. |CustomJSFilter| replace:: :class:`~bokeh.models.filters.CustomJSFilter`
-.. |DataTable| replace:: :class:`~bokeh.models.widgets.tables.DataTable`
+.. |Filter| replace:: :class:`~bokeh.models.Filter`
+.. |IndexFilter| replace:: :class:`~bokeh.models.IndexFilter`
+.. |BooleanFilter| replace:: :class:`~bokeh.models.BooleanFilter`
+.. |GroupFilter| replace:: :class:`~bokeh.models.GroupFilter`
+.. |CustomJSFilter| replace:: :class:`~bokeh.models.CustomJSFilter`
+.. |DataTable| replace:: :class:`~bokeh.models.DataTable`

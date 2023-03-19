@@ -75,11 +75,11 @@ Responsive sizes
 
 To automatically adjust the width or height of your plot in relation to the
 available space in the browser, use the plot's
-:class:`~bokeh.models.plots.Plot.sizing_mode` property.
+:class:`~bokeh.models.Plot.sizing_mode` property.
 
 To control how the plot scales to fill its container, see the documentation for
 :ref:`bokeh.models.layouts`, in particular the ``sizing_mode`` property of
-:class:`~bokeh.models.layouts.LayoutDOM`.
+:class:`~bokeh.models.LayoutDOM`.
 
 If you set ``sizing_mode`` to anything different than ``fixed``, Bokeh adjusts
 the ``width`` and ``height`` as soon as a plot is rendered. However,
@@ -191,10 +191,10 @@ To customize the styling of selected and non-selected glyphs, set the
 |selection_glyph| and |nonselection_glyph| attributes of the |GlyphRenderer|.
 You can either set them manually or by passing them to |add_glyph|.
 
-.. |add_glyph| replace:: :func:`~bokeh.models.plots.Plot.add_glyph`
-.. |GlyphRenderer| replace:: :class:`~bokeh.models.renderers.GlyphRenderer`
-.. |selection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.selection_glyph`
-.. |nonselection_glyph| replace:: :attr:`~bokeh.models.renderers.GlyphRenderer.nonselection_glyph`
+.. |add_glyph| replace:: :func:`~bokeh.models.Plot.add_glyph`
+.. |GlyphRenderer| replace:: :class:`~bokeh.models.GlyphRenderer`
+.. |selection_glyph| replace:: :attr:`~bokeh.models.GlyphRenderer.selection_glyph`
+.. |nonselection_glyph| replace:: :attr:`~bokeh.models.GlyphRenderer.nonselection_glyph`
 
 The plot below uses the |bokeh.plotting| interface to set these attributes.
 Click or tap any of the circles on the plot to see the effect on the selected
@@ -212,7 +212,7 @@ prefixed by ``"selection_"`` or ``"nonselection_"``:
     :source-position: above
 
 If you use the |bokeh.models| interface, use the
-:func:`~bokeh.models.plots.Plot.add_glyph` function:
+:func:`~bokeh.models.Plot.add_glyph` function:
 
 .. code-block:: python
 
@@ -334,7 +334,7 @@ placement model automatically.
 
 In case you need to control which ticker placement model to use, you can also
 explicitly define a list of tick locations. Assign
-:class:`~bokeh.models.tickers.FixedTicker` with a list of tick locations to an
+:class:`~bokeh.models.FixedTicker` with a list of tick locations to an
 axis:
 
 .. code-block:: python
@@ -609,10 +609,10 @@ Styling legends
 ---------------
 
 Similar to the convenience methods for axes and grids, there is a
-:func:`~bokeh.models.plots.Plot.legend` method on |Plot| that you can use to
+:func:`~bokeh.models.Plot.legend` method on |Plot| that you can use to
 obtain a plot's |Legend| objects:
 
-bokeh.models.plots.Plot.legend
+bokeh.models.Plot.legend
 
 .. code-block:: python
 
@@ -813,15 +813,15 @@ You can see a complete example with output in the section
 :ref:`ug_topics_images_colormapped`.
 
 
-.. |select| replace:: :func:`~bokeh.models.plots.Plot.select`
+.. |select| replace:: :func:`~bokeh.models.Plot.select`
 .. |Title| replace:: :class:`~bokeh.models.Title`
-.. |BasicTickFormatter| replace:: :class:`~bokeh.models.formatters.BasicTickFormatter`
-.. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.formatters.CategoricalTickFormatter`
-.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.formatters.DatetimeTickFormatter`
-.. |CustomJSTickFormatter| replace:: :class:`~bokeh.models.formatters.CustomJSTickFormatter`
-.. |LogTickFormatter| replace:: :class:`~bokeh.models.formatters.LogTickFormatter`
-.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.formatters.NumeralTickFormatter`
-.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.formatters.PrintfTickFormatter`
+.. |BasicTickFormatter| replace:: :class:`~bokeh.models.BasicTickFormatter`
+.. |CategoricalTickFormatter| replace:: :class:`~bokeh.models.CategoricalTickFormatter`
+.. |DatetimeTickFormatter| replace:: :class:`~bokeh.models.DatetimeTickFormatter`
+.. |CustomJSTickFormatter| replace:: :class:`~bokeh.models.CustomJSTickFormatter`
+.. |LogTickFormatter| replace:: :class:`~bokeh.models.LogTickFormatter`
+.. |NumeralTickFormatter| replace:: :class:`~bokeh.models.NumeralTickFormatter`
+.. |PrintfTickFormatter| replace:: :class:`~bokeh.models.PrintfTickFormatter`
 .. |legend| replace:: :class:`~bokeh.plotting.figure.legend`
 .. |grid|   replace:: :class:`~bokeh.plotting.figure.grid`
 .. |xgrid|  replace:: :class:`~bokeh.plotting.figure.xgrid`

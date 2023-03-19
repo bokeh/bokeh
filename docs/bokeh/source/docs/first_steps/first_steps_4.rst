@@ -81,7 +81,7 @@ Enabling responsive plot sizing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To make your plot automatically adjust to your browser or screen size, use the
-attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
+attribute :class:`~bokeh.models.Plot.sizing_mode`:
 
 .. literalinclude:: examples/first_steps_4_plot_size_responsive.py
    :language: python
@@ -97,7 +97,7 @@ attribute :class:`~bokeh.models.plots.Plot.sizing_mode`:
 
     For more information on responsive sizing, see
     :ref:`ug_basic_layouts_sizing_mode` in the user guide and
-    :class:`~bokeh.models.plots.Plot.sizing_mode` in the reference guide.
+    :class:`~bokeh.models.Plot.sizing_mode` in the reference guide.
 
 .. _first_steps_4_axes:
 
@@ -134,8 +134,8 @@ the values on your y-axis are between 2 and 17, Bokeh automatically creates
 a y-axis that ranges from a little below 2 to a little above 17.
 
 To define the range for your axes manually, use the
-:func:`~bokeh.models.plots.Plot.y_range` function or the
-:func:`~bokeh.models.plots.Plot.y_range` properties of your |Plot| object when
+:func:`~bokeh.models.Plot.y_range` function or the
+:func:`~bokeh.models.Plot.y_range` properties of your |Plot| object when
 you call the |figure| function:
 
 .. literalinclude:: examples/first_steps_4_plot_axis_ranges.py
@@ -156,9 +156,9 @@ symbols on your y-axis, for example:
     :source-position: none
 
 To display dollar amounts instead of just numbers on your y-axis, use the
-:class:`~bokeh.models.formatters.NumeralTickFormatter`:
+:class:`~bokeh.models.NumeralTickFormatter`:
 
-First, import the :class:`~bokeh.models.formatters.NumeralTickFormatter` from
+First, import the :class:`~bokeh.models.NumeralTickFormatter` from
 |bokeh.models|:
 
 .. code-block:: python
@@ -172,7 +172,7 @@ Then, after creating your plot with the ``figure()`` function, assign the
 
     p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
 
-The :class:`~bokeh.models.formatters.NumeralTickFormatter` supports different
+The :class:`~bokeh.models.NumeralTickFormatter` supports different
 formats, including ``"$0.00"`` to generate values such as ``"$7.42"``.
 
 This is what the completed code looks like:
@@ -205,10 +205,10 @@ Enabling datetime axes
 
 Set the ``x_axis_type`` or ``y_axis_type`` to ``datetime`` to display date or
 time information on an axis. Bokeh then creates a
-:class:`~bokeh.models.axes.DatetimeAxis`.
+:class:`~bokeh.models.DatetimeAxis`.
 
 To format the ticks of a ``DatetimeAxis``, use the
-:class:`~bokeh.models.formatters.DatetimeTickFormatter`.
+:class:`~bokeh.models.DatetimeTickFormatter`.
 
 .. literalinclude:: examples/first_steps_4_datetime_axis.py
    :language: python
@@ -229,9 +229,9 @@ Customizing the grid
 --------------------
 
 To change the appearance of the grid, set the various properties of the
-:func:`~bokeh.models.plots.Plot.xgrid`,
-:func:`~bokeh.models.plots.Plot.ygrid`, and
-:func:`~bokeh.models.plots.Plot.grid` methods of your |Plot| object.
+:func:`~bokeh.models.Plot.xgrid`,
+:func:`~bokeh.models.Plot.ygrid`, and
+:func:`~bokeh.models.Plot.grid` methods of your |Plot| object.
 
 Styling lines
 ~~~~~~~~~~~~~
@@ -307,7 +307,7 @@ your very fist visualization, as part of
 Positioning the toolbar
 ~~~~~~~~~~~~~~~~~~~~~~~
 To define the position of the toolbar, use the
-:class:`~bokeh.models.plots.Plot.toolbar_location` attribute with one of these
+:class:`~bokeh.models.Plot.toolbar_location` attribute with one of these
 values: ``above``, ``below``, ``left``, ``right``
 
 Pass a value to ``toolbar_location`` when creating your figure:
@@ -336,7 +336,7 @@ To deactivate the toolbar completely, set ``toolbar_location`` to ``None``.
     p.toolbar_location = None
 
 To make your toolbar hide automatically, set
-:class:`~bokeh.models.tools.Toolbar.autohide` to ``True``:
+:class:`~bokeh.models.Toolbar.autohide` to ``True``:
 
 .. literalinclude:: examples/first_steps_4_toolbar_autohide.py
    :language: python
@@ -348,8 +348,8 @@ is inside the plot area or you tap inside the plot area:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_toolbar_autohide.py
     :source-position: none
 
-Similarly, use the :class:`~bokeh.models.tools.Toolbar.logo` property of the
-:class:`~bokeh.models.tools.Toolbar` to deactivate the Bokeh logo:
+Similarly, use the :class:`~bokeh.models.Toolbar.logo` property of the
+:class:`~bokeh.models.Toolbar` to deactivate the Bokeh logo:
 
 .. code-block:: python
 
@@ -373,8 +373,8 @@ Next, define which tools to use when creating a new figure by passing the
 ``tools`` attribute to the |figure| function.
 
 The ``tools`` attribute accepts a list of tools. This example enables only the
-:class:`~bokeh.models.tools.BoxZoomTool` and
-:class:`~bokeh.models.tools.ResetTool`:
+:class:`~bokeh.models.BoxZoomTool` and
+:class:`~bokeh.models.ResetTool`:
 
 .. code-block:: python
 
@@ -387,10 +387,10 @@ toolbar:
     :source-position: none
 
 To change the available tools at any time after creating your figure,
-use the :func:`~bokeh.models.plots.Plot.add_tools` and :func:`~bokeh.models.plots.Plot.remove_tools` functions.
+use the :func:`~bokeh.models.Plot.add_tools` and :func:`~bokeh.models.Plot.remove_tools` functions.
 
 All tools also offer various properties to define how they can be used. With the
-:class:`~bokeh.models.tools.PanTool`, for example, you can limit the movement to
+:class:`~bokeh.models.PanTool`, for example, you can limit the movement to
 only horizontal or vertical panning. The default behavior is to allow panning in
 both directions.
 
@@ -408,7 +408,7 @@ tools being available:
 .. seealso::
     To learn more about tools and toolbars, see :ref:`ug_interaction_tools`. For
     detailed information about all tools and their respective properties, see
-    :class:`~bokeh.models.tools` and :class:`~bokeh.models.tools.Toolbar` in the
+    :class:`~bokeh.models.tools` and :class:`~bokeh.models.Toolbar` in the
     reference guide.
 
 .. _first_steps_4_tooltips:
@@ -422,18 +422,18 @@ data point or when you tap on a data point:
 .. bokeh-plot:: docs/first_steps/examples/first_steps_4_tooltips.py
     :source-position: none
 
-Tooltips are based on the :class:`~bokeh.models.tools.HoverTool`. The hover tool
+Tooltips are based on the :class:`~bokeh.models.HoverTool`. The hover tool
 is part of Bokeh's toolbar.
 
 There are several ways to enable tooltips in Bokeh. This is the quickest:
 
-1. Import the :class:`~bokeh.models.tools.HoverTool` class from
+1. Import the :class:`~bokeh.models.HoverTool` class from
    :class:`bokeh.models.tools`.
 
 2. Include ``HoverTool()`` in the list passed to the ``tools`` argument when
    calling the |figure| function.
 
-3. Include the :class:`~bokeh.models.tools.HoverTool.tooltips` argument when
+3. Include the :class:`~bokeh.models.HoverTool.tooltips` argument when
    calling the |figure| function.
 
 The ``tooltips`` argument accepts a string with a special syntax. Use the "@"
@@ -452,4 +452,4 @@ This is what the code looks like:
     The user guide contains much more information on using the hover tool to
     create tooltips. See :ref:`ug_interaction_tools_basic_tooltips` for more details.
     More information is also available at the entry for
-    :class:`~bokeh.models.tools.HoverTool` in the reference guide.
+    :class:`~bokeh.models.HoverTool` in the reference guide.

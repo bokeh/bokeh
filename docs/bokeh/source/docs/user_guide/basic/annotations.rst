@@ -188,9 +188,9 @@ set the ``index`` property of a :class:`~bokeh.models.LegendItem`.
 
 This is useful for displaying multiple entries in a legend when you use glyphs
 that are rendered in several parts, such as
-:class:`~bokeh.models.glyphs.MultiLine`
+:class:`~bokeh.models.MultiLine`
 (:func:`~bokeh.plotting.figure.multi_line`) or
-:class:`~bokeh.models.glyphs.Patches` :func:`~bokeh.plotting.figure.patches`:
+:class:`~bokeh.models.Patches` :func:`~bokeh.plotting.figure.patches`:
 
 .. bokeh-plot:: __REPO__/examples/basic/annotations/legends_multi_index.py
     :source-position: above

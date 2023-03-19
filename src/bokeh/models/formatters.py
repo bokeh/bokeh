@@ -77,7 +77,7 @@ def _DATETIME_TICK_FORMATTER_HELP(field: str) -> str:
     return f"""
     Formats for displaying datetime values in the {field} range.
 
-    See the :class:`~bokeh.models.formatters.DatetimeTickFormatter` help for a list of all supported formats.
+    See the :class:`~bokeh.models.DatetimeTickFormatter` help for a list of all supported formats.
     """
 
 #-----------------------------------------------------------------------------

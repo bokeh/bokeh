@@ -46,7 +46,7 @@ Categorical axes
 ~~~~~~~~~~~~~~~~
 
 To create a categorical axis, specify a
-:class:`~bokeh.models.ranges.FactorRange` for one of the plot's ranges or a
+:class:`~bokeh.models.FactorRange` for one of the plot's ranges or a
 list of factors to be converted to one. Here's an example:
 
 .. bokeh-plot:: __REPO__/examples/basic/axes/categorical_axis.py

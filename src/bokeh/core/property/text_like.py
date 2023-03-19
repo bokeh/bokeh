@@ -7,8 +7,8 @@
 ''' ``TextLike`` is a shortcut for properties that accepts strings, parsed
 strings, and text-like objects, e.g.:
 
-* :class:`~bokeh.models.text.MathText`
-* :class:`~bokeh.models.text.PlainText`
+* :class:`~bokeh.models.MathText`
+* :class:`~bokeh.models.PlainText`
 
 '''
 

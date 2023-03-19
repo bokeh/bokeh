@@ -8,7 +8,7 @@ Bokeh has a few different mechanism for including CSS styles in output.
 Styles
 ------
 
-The :class:`~bokeh.models.css.Styles` class can be used to configure
+The :class:`~bokeh.models.Styles` class can be used to configure
 inline style attribute of DOM elements directly:
 
 .. code-block:: python
@@ -27,19 +27,19 @@ It is also possible to define and inlude stylesheets in generated output.
 Bokeh provides a few different variations that can be used to apply CSS rules
 to DOM objects in Bokeh output:
 
-* :class:`~bokeh.models.css.InlineStyleSheet`
+* :class:`~bokeh.models.InlineStyleSheet`
 
   Inline stylesheet equivalent to ``<style type="text/css">${css}</style>``.
 
-* :class:`~bokeh.models.css.ImportedStyleSheet`
+* :class:`~bokeh.models.ImportedStyleSheet`
 
   Imported stylesheet equivalent to ``<link rel="stylesheet" href="${url}">``.
 
-* :class:`~bokeh.models.css.GlobalInlineStyleSheet`
+* :class:`~bokeh.models.GlobalInlineStyleSheet`
 
     Analogous to ``InlineStyleSheet`` but appended to the ``<head>`` element.
 
-* :class:`~bokeh.models.css.GlobalImportedStyleSheet`
+* :class:`~bokeh.models.GlobalImportedStyleSheet`
 
     Analogous to ``ImportedStyleSheet`` but appended to the ``<head>`` element.
 

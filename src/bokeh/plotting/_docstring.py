@@ -58,7 +58,7 @@ hover. See the :ref:`ug_styling_plots_glyphs` section of the user guide for
 full details.
 
 Returns:
-    :class:`~bokeh.models.renderers.GlyphRenderer`
+    :class:`~bokeh.models.GlyphRenderer`
 
 {_docstring_extra(extra_docs)}
 """
@@ -95,7 +95,7 @@ def _docstring_extra(extra_docs):
 
 def _docstring_header(glyphclass):
     glyph_class = "Scatter" if issubclass(glyphclass, Marker) else glyphclass.__name__
-    return f"Configure and add :class:`~bokeh.models.glyphs.{glyph_class}` glyphs to this figure."
+    return f"Configure and add :class:`~bokeh.models.{glyph_class}` glyphs to this figure."
 
 def _docstring_kwargs(parameters):
     arglines = []

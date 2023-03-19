@@ -15,7 +15,7 @@
 .. |unit|               replace:: :ref:`unit <ug_styling_units>`
 .. |user guide|         replace:: :ref:`user guide <userguide>`
 
-.. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
+.. |add layout|         replace:: :py:func:`~bokeh.models.Plot.add_layout`
 .. |components|         replace:: :py:func:`~bokeh.embed.components`
 .. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
 .. |field|              replace:: :py:func:`~bokeh.core.properties.field`
@@ -32,7 +32,7 @@
 .. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
 .. |Legend|             replace:: :py:class:`~bokeh.models.Legend`
 .. |Model|              replace:: :py:class:`~bokeh.model.Model`
-.. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
+.. |Plot|               replace:: :py:class:`~bokeh.models.Plot`
 .. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
 
 .. _CHANGELOG: https://raw.githubusercontent.com/bokeh/bokeh/HEAD/docs/CHANGELOG

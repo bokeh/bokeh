@@ -66,7 +66,7 @@ To assign these categories to the x-axis, pass this list as the
     p = figure(x_range=fruits, ... )
 
 Doing so is a convenient shorthand for creating a
-:class:`~bokeh.models.ranges.FactorRange` object.
+:class:`~bokeh.models.FactorRange` object.
 The equivalent explicit notation is:
 
 .. code-block:: python

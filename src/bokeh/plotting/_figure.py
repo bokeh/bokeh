@@ -235,7 +235,7 @@ class figure(Plot, GlyphAPI):
     def hexbin(self, x, y, size, orientation="pointytop", palette="Viridis256", line_color=None, fill_color=None, aspect_scale=1, **kwargs):
         ''' Perform a simple equal-weight hexagonal binning.
 
-        A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
+        A :class:`~bokeh.models.HexTile` glyph will be added to display
         the binning. The :class:`~bokeh.models.ColumnDataSource` for
         the glyph will have columns ``q``, ``r``, and ``count``, where ``q``
         and ``r`` are `axial coordinates`_ for a tile, and ``count`` is the
@@ -660,7 +660,7 @@ class figure(Plot, GlyphAPI):
                 :class:`~bokeh.models.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
 
-            layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to
+            layout_provider (:class:`~bokeh.models.LayoutProvider`) : a ``LayoutProvider`` instance to
                 provide the graph coordinates in Cartesian space.
 
             **kwargs: |line properties| and |fill properties|

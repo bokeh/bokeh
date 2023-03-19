@@ -92,9 +92,9 @@ To plot with a filtered subset of data, pass a ``CDSView`` object to the
 
 A :class:`~bokeh.models.CDSView` object has one property:
 
-* ``filter``: an instance of :class:`~bokeh.models.filters.Filter` models
+* ``filter``: an instance of :class:`~bokeh.models.Filter` models
 
-The simplest filter is the :class:`~bokeh.models.filters.IndexFilter`. An
+The simplest filter is the :class:`~bokeh.models.IndexFilter`. An
 IndexFilter uses a list of index positions and creates a view that contains
 nothing but the data points located at those index positions.
 
@@ -113,4 +113,4 @@ first, the third, and the fifth value of your original list:
    For more information on the various filters in Bokeh, see
    :ref:`ug_basic_data_filtering` in the user guide. More information is also
    available in the entries for :class:`~bokeh.models.CDSView` and
-   :class:`~bokeh.models.filters.Filter` in the reference guide.
+   :class:`~bokeh.models.Filter` in the reference guide.

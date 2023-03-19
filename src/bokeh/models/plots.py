@@ -213,21 +213,21 @@ class Plot(LayoutDOM):
 
     @property
     def xaxis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.Axis` objects for the x dimension.
 
         '''
         return self._axis("above", "below")
 
     @property
     def yaxis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.Axis` objects for the y dimension.
 
         '''
         return self._axis("left", "right")
 
     @property
     def axis(self):
-        ''' Splattable list of :class:`~bokeh.models.axes.Axis` objects.
+        ''' Splattable list of :class:`~bokeh.models.Axis` objects.
 
         '''
         return _list_attr_splat(self.xaxis + self.yaxis)
@@ -243,7 +243,7 @@ class Plot(LayoutDOM):
 
     @property
     def hover(self):
-        ''' Splattable list of :class:`~bokeh.models.tools.HoverTool` objects.
+        ''' Splattable list of :class:`~bokeh.models.HoverTool` objects.
 
         '''
         hovers = [obj for obj in self.tools if isinstance(obj, HoverTool)]
@@ -255,21 +255,21 @@ class Plot(LayoutDOM):
 
     @property
     def xgrid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the x dimension.
+        ''' Splattable list of :class:`~bokeh.models.Grid` objects for the x dimension.
 
         '''
         return self._grid(0)
 
     @property
     def ygrid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects for the y dimension.
+        ''' Splattable list of :class:`~bokeh.models.Grid` objects for the y dimension.
 
         '''
         return self._grid(1)
 
     @property
     def grid(self):
-        ''' Splattable list of :class:`~bokeh.models.grids.Grid` objects.
+        ''' Splattable list of :class:`~bokeh.models.Grid` objects.
 
         '''
         return _list_attr_splat(self.xgrid + self.ygrid)

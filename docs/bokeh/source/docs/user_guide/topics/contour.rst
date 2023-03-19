@@ -127,8 +127,8 @@ To exclude grid points from the contour calculation then either use a NumPy
 masked array for ``z`` with the excluded grid points masked out, or set the
 ``z`` values of those grid points to ``np.nan``.
 
-Contour lines are implemented using a :class:`~bokeh.models.glyphs.MultiLine`
-glyph and filled contour polygons as a :class:`~bokeh.models.glyphs.MultiPolygons`
+Contour lines are implemented using a :class:`~bokeh.models.MultiLine`
+glyph and filled contour polygons as a :class:`~bokeh.models.MultiPolygons`
 glyph with the ``line_width`` set to zero.
 
 The calculation of contours is performed by ``ContourPy``. For information

@@ -42,7 +42,7 @@ Defining sizing behavior
 
 You can use the functions ``row()``, ``column()``, and ``gridplot()`` with
 additional arguments to define how Bokeh scales the individual plots. See
-:class:`~bokeh.models.layouts.LayoutDOM.sizing_mode` for a list of all sizing
+:class:`~bokeh.models.LayoutDOM.sizing_mode` for a list of all sizing
 modes that Bokeh supports.
 
 For example: To make all plots in a row responsively fill the available width

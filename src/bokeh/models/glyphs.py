@@ -1363,7 +1363,7 @@ class Scatter(Marker):
         When you draw ``circle`` markers with ``Scatter``, you can only assign a
         size in |screen units| (by passing a number of pixels to the ``size``
         property). In case you want to define the radius of circles in
-        |data units|, use the :class:`~bokeh.models.glyphs.Circle` glyph instead
+        |data units|, use the :class:`~bokeh.models.Circle` glyph instead
         of the ``Scatter`` glyph.
 
     .. note::
