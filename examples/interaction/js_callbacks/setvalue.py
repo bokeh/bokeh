@@ -1,3 +1,14 @@
+''' An visualization of buttons in bokeh.models. This example demonstrates
+changing the value of an object when a certain event(like clicking of a button)
+occurs through SetValue.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.SetValue
+    :refs: :ref:`ug_interaction_js_callbacks_SetValue`
+    :keywords: javascript SetValue
+'''
+
+
 from bokeh.io import show
 from bokeh.models import Button, SetValue
 
