@@ -91,7 +91,7 @@ upstream with the following commands:
 
     .. tab-item:: HTTPS
 
-        ..code-block:: sh
+        .. code-block:: sh
 
             git remote add upstream https://github.com/bokeh/bokeh.git
             git fetch upstream
