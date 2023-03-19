@@ -14,12 +14,15 @@ which is defined by the range bounds supplied in web mercator coordinates.
 '''
 
 import xyzservices.providers as xyz
-
 from bokeh.plotting import figure, show
+from bokeh.tile_providers import get_provider, Vendors
 
 # range bounds supplied in web mercator coordinates
 p = figure(x_range=(-2000000, 6000000), y_range=(-1000000, 7000000),
            x_axis_type="mercator", y_axis_type="mercator")
-p.add_tile(xyz.OpenStreetMap.Mapnik)
+
+# Retrieve the OpenStreetMap.Mapnik tile source from the tile providers
+tile_provider = get_provider(Vendors.CARTODBPOSITRON)
+p.add_tile(tile_provider)
 
 show(p)
