@@ -1,3 +1,12 @@
+''' A plot showing CSS3 Colors being fetched from a given URL, grouped and displayed
+    using the ``TapTool`` plot element and ``OpenURL`` callback.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.OpenURL, bokeh.colors.groups, bokeh.models.Rect, bokeh.models.TapTool, bokeh.document.document.Document
+    :refs: :ref:`bokeh.models.OpenURL`
+    :keywords: OpenURL, TapTool, colors, Rect
+'''
+
 from math import pi
 
 import pandas as pd
