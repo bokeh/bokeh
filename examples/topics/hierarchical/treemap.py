@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :sampledata: sample_superstore
-    :apis: bokeh.plotting.figure.block, bokeh.models.sources.ColumnDataSource
+    :apis: bokeh.plotting.figure.block, bokeh.models.ColumnDataSource
     :refs: :ref:`ug_topics_hierarchical_treemap`
     :keywords: hierarchical, block, treemap
 

@@ -1,7 +1,7 @@
 ''' This example demonstrates how to create a plot with two y-axes.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle
+    :apis: bokeh.plotting.figure.circle, bokeh.models.ColumnDataSource, bokeh.models.markers.Circle
     :refs: :ref:`ug_basic_scatters`, :ref:`ug_basic_axes_twin`
     :keywords: twin axis, circle
 

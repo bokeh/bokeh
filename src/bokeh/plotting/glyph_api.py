@@ -971,8 +971,8 @@ Examples:
 
             color (color value, optional): shorthand to set both fill and line color
 
-            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
-                An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
+            source (:class:`~bokeh.models.ColumnDataSource`) : a user-supplied data source.
+                An attempt will be made to convert the object to :class:`~bokeh.models.ColumnDataSource`
                 if needed. If none is supplied, one is created for the user automatically.
 
             **kwargs: |line properties| and |fill properties|

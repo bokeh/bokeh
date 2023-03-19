@@ -93,7 +93,7 @@ __all__ = (
 class DataSpec(Either):
     """ Base class for properties that accept either a fixed value, or a
     string name that references a column in a
-    :class:`~bokeh.models.sources.ColumnDataSource`.
+    :class:`~bokeh.models.ColumnDataSource`.
 
     Many Bokeh models have properties that a user might want to set either
     to a single fixed value, or to have the property take values from some
@@ -483,7 +483,7 @@ class AngleSpec(UnitsSpec):
 
 class DistanceSpec(UnitsSpec):
     """ A |DataSpec| property that accepts numeric fixed values or strings
-    that refer to columns in a :class:`~bokeh.models.sources.ColumnDataSource`,
+    that refer to columns in a :class:`~bokeh.models.ColumnDataSource`,
     and also provides an associated units property to store units information.
     Acceptable values for units are ``"screen"`` and ``"data"``.
 
@@ -517,7 +517,7 @@ class NullDistanceSpec(DistanceSpec):
 class SizeSpec(NumberSpec):
     """ A |DataSpec| property that accepts non-negative numeric fixed values
     for size values or strings that refer to columns in a
-    :class:`~bokeh.models.sources.ColumnDataSource`.
+    :class:`~bokeh.models.ColumnDataSource`.
     """
 
     def prepare_value(self, cls, name, value):

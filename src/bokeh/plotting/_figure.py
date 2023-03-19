@@ -236,7 +236,7 @@ class figure(Plot, GlyphAPI):
         ''' Perform a simple equal-weight hexagonal binning.
 
         A :class:`~bokeh.models.glyphs.HexTile` glyph will be added to display
-        the binning. The :class:`~bokeh.models.sources.ColumnDataSource` for
+        the binning. The :class:`~bokeh.models.ColumnDataSource` for
         the glyph will have columns ``q``, ``r``, and ``count``, where ``q``
         and ``r`` are `axial coordinates`_ for a tile, and ``count`` is the
         associated bin count.
@@ -650,14 +650,14 @@ class figure(Plot, GlyphAPI):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:
-            node_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+            node_source (:class:`~bokeh.models.ColumnDataSource`) : a user-supplied data source
                 for the graph nodes. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
+                :class:`~bokeh.models.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
 
-            edge_source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source
+            edge_source (:class:`~bokeh.models.ColumnDataSource`) : a user-supplied data source
                 for the graph edges. An attempt will be made to convert the object to
-                :class:`~bokeh.models.sources.ColumnDataSource` if needed. If none is supplied, one is created
+                :class:`~bokeh.models.ColumnDataSource` if needed. If none is supplied, one is created
                 for the user automatically.
 
             layout_provider (:class:`~bokeh.models.graphs.LayoutProvider`) : a ``LayoutProvider`` instance to

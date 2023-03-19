@@ -5,7 +5,7 @@ This example demonstrates adding links between points on a graph.
 These lines only show on hover using ``CustomJS`` callbacks to update the plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.add_tools, bokeh.models.HoverTool, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS
+    :apis: bokeh.plotting.figure.add_tools, bokeh.models.HoverTool, bokeh.models.ColumnDataSource, bokeh.models.callbacks.CustomJS
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: hover, javascript callback, CustomJS
 

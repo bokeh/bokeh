@@ -168,7 +168,7 @@ class LabelSet(DataAnnotation):
     coordinates, which can be in either screen (pixel) space, or data (axis
     range) space. In this case (as opposed to the single ``Label`` model),
     ``x`` and ``y`` can also be the name of a column from a
-    :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
+    :class:`~bokeh.models.ColumnDataSource`, in which case the labels
     will be "vectorized" using coordinate values from the specified columns.
 
     The label can also be configured with a screen space offset from ``x`` and

@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :sampledata: sample_superstore
-    :apis: bokeh.plotting.figure.hbar, bokeh.models.sources.ColumnDataSource
+    :apis: bokeh.plotting.figure.hbar, bokeh.models.ColumnDataSource
     :refs: :ref:`ug_topics_hierarchical_crosstab`
     :keywords: hierarchical, crosstab
 

@@ -14,7 +14,7 @@ filter data.
 Using ColumnDataSource
 ----------------------
 
-The :class:`~bokeh.models.sources.ColumnDataSource` is Bokeh's own data
+The :class:`~bokeh.models.ColumnDataSource` is Bokeh's own data
 structure. For details about the ``ColumnDataSource``, see |ColumnDataSource| in
 the user guide.
 
@@ -24,11 +24,11 @@ data to Bokeh. Bokeh has automatically converted these lists into
 
 Follow these steps to create a ``ColumnDataSource`` directly:
 
-* First, import :class:`~bokeh.models.sources.ColumnDataSource`.
+* First, import :class:`~bokeh.models.ColumnDataSource`.
 * Next, create a dict with your data: The dict's keys are the column names
   (strings). The dict's values are lists or arrays of data.
 * Then, pass your dict as the ``data`` argument to
-  :class:`~bokeh.models.sources.ColumnDataSource`:
+  :class:`~bokeh.models.ColumnDataSource`:
 * You can then use your ``ColumnDataSource`` as ``source`` for your
   renderer.
 
@@ -51,7 +51,7 @@ Follow these steps to create a ``ColumnDataSource`` directly:
 .. seealso::
    For more information on Bokeh's ``ColumnDataSource``, see
    |ColumnDataSource| in the user guide and
-   :class:`~bokeh.models.sources.ColumnDataSource` in the reference guide.
+   :class:`~bokeh.models.ColumnDataSource` in the reference guide.
 
    For information about adding data to a ColumnDataSource, see
    :ref:`ug_basic_data_cds_streaming`. Information about replacing data of a

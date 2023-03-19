@@ -4,7 +4,7 @@ panning.
 
 .. bokeh-example-metadata::
     :sampledata: penguins
-    :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d
+    :apis: bokeh.models.glyphs.Circle, bokeh.models.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d
     :refs: :ref:`ug_topics_stats_splom`
     :keywords: models, scatter, splom
 

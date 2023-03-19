@@ -222,7 +222,7 @@ class Dict(ContainerProperty[Any]):
 
 class ColumnData(Dict):
     """ Accept a Python dictionary suitable as the ``data`` attribute of a
-    :class:`~bokeh.models.sources.ColumnDataSource`.
+    :class:`~bokeh.models.ColumnDataSource`.
 
     This class is a specialization of ``Dict`` that handles efficiently
     encoding columns that are NumPy arrays.

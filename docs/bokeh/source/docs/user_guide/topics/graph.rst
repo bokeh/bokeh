@@ -110,7 +110,7 @@ Explicit paths
 By default, the :class:`~bokeh.models.graphs.StaticLayoutProvider` model
 draws straight-line paths between the supplied node positions. To set
 explicit edge paths, supply lists of paths to the
-:class:`bokeh.models.sources.ColumnDataSource` data source of the
+:class:`bokeh.models.ColumnDataSource` data source of the
 ``edge_renderer``. The :class:`~bokeh.models.graphs.StaticLayoutProvider`
 model looks for these paths in the ``"xs"`` and ``"ys"`` columns of the
 data source. The paths should be in the same order as the ``"start"``

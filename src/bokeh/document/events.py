@@ -379,7 +379,7 @@ class ModelChangedEvent(DocumentPatchedEvent):
 
 class ColumnDataChangedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently replacing *all*
-    existing data for a :class:`~bokeh.models.sources.ColumnDataSource`
+    existing data for a :class:`~bokeh.models.ColumnDataSource`
 
     '''
 
@@ -469,7 +469,7 @@ class ColumnDataChangedEvent(DocumentPatchedEvent):
 
 class ColumnsStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
-    to a :class:`~bokeh.models.sources.ColumnDataSource`
+    to a :class:`~bokeh.models.ColumnDataSource`
 
     '''
 
@@ -569,7 +569,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches
-    to a :class:`~bokeh.models.sources.ColumnDataSource`
+    to a :class:`~bokeh.models.ColumnDataSource`
 
     '''
 

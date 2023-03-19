@@ -236,10 +236,10 @@ Appending data to a ColumnDataSource
 
 |ColumnDataSource| streaming is an efficient way to append new data to a
 ColumnDataSource. When you use the
-:func:`~bokeh.models.sources.ColumnDataSource.stream` method, Bokeh only sends
+:func:`~bokeh.models.ColumnDataSource.stream` method, Bokeh only sends
 new data to the browser instead of sending the entire dataset.
 
-The :func:`~bokeh.models.sources.ColumnDataSource.stream` method takes a
+The :func:`~bokeh.models.ColumnDataSource.stream` method takes a
 ``new_data`` parameter. This parameter expects a dict that maps column names
 to the sequences of data that you want appended to the respective columns.
 
@@ -269,15 +269,15 @@ Replacing data in a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 |ColumnDataSource| patching is an efficient way to update slices of a data
-source. By using the :func:`~bokeh.models.sources.ColumnDataSource.patch`
+source. By using the :func:`~bokeh.models.ColumnDataSource.patch`
 method, Bokeh only sends new data to the browser instead of the entire
 dataset.
 
-The :func:`~bokeh.models.sources.ColumnDataSource.patch` requires a dict which
+The :func:`~bokeh.models.ColumnDataSource.patch` requires a dict which
 maps column names to list of tuples that represent a patch change to apply.
 
 Examples of tuples that you can use with
-:func:`~bokeh.models.sources.ColumnDataSource.patch`:
+:func:`~bokeh.models.ColumnDataSource.patch`:
 
 .. code-block:: python
 
