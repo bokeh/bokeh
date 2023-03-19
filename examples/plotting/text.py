@@ -1,3 +1,12 @@
+'''This example shows multiple variations in angle and alignment to multi-line text using CustomJS.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.model.CustomJS, bokeh.model.Slider
+    :refs: :ref:`bokeh.models.Slider.js_on_change`
+    :keywords: CustomJS, Slider, Text Angle, Text Align
+
+'''
+
 from bokeh.layouts import column
 from bokeh.models import CustomJS, Slider
 from bokeh.plotting import figure, show
