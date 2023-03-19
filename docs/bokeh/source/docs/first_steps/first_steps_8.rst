@@ -85,12 +85,12 @@ Bokeh comes with various filtering methods. Use these filters if you want to
 create a specific subset of the data contained in your ColumnDataSource.
 
 In Bokeh, these filtered subsets are called "views". Views are represented by
-Bokeh's :class:`~bokeh.models.sources.CDSView` class.
+Bokeh's :class:`~bokeh.models.CDSView` class.
 
 To plot with a filtered subset of data, pass a ``CDSView`` object to the
 ``view`` argument of your renderer.
 
-A :class:`~bokeh.models.sources.CDSView` object has one property:
+A :class:`~bokeh.models.CDSView` object has one property:
 
 * ``filter``: an instance of :class:`~bokeh.models.filters.Filter` models
 
@@ -112,5 +112,5 @@ first, the third, and the fifth value of your original list:
 .. seealso::
    For more information on the various filters in Bokeh, see
    :ref:`ug_basic_data_filtering` in the user guide. More information is also
-   available in the entries for :class:`~bokeh.models.sources.CDSView` and
+   available in the entries for :class:`~bokeh.models.CDSView` and
    :class:`~bokeh.models.filters.Filter` in the reference guide.

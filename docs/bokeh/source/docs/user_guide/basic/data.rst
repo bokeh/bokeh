@@ -523,7 +523,7 @@ AjaxDataSource
 Updating and streaming data works very well with
 :ref:`Bokeh server applications<ug_server>`. However, it is also possible
 to use similar functionality in standalone documents. The
-:class:`~bokeh.models.sources.AjaxDataSource` provides this capability without
+:class:`~bokeh.models.AjaxDataSource` provides this capability without
 requiring a Bokeh server.
 
 To set up an ``AjaxDataSource``, you need to configure it with a URL to a REST
@@ -615,7 +615,7 @@ You can also use Bokeh to render network graph data and geographical data. For
 more information about how to set up the data for these types of plots, see
 :ref:`ug_topics_graph` and :ref:`ug_topics_geo`.
 
-.. |CDSView| replace:: :class:`~bokeh.models.sources.CDSView`
+.. |CDSView| replace:: :class:`~bokeh.models.CDSView`
 .. |Filter| replace:: :class:`~bokeh.models.filters.Filter`
 .. |IndexFilter| replace:: :class:`~bokeh.models.filters.IndexFilter`
 .. |BooleanFilter| replace:: :class:`~bokeh.models.filters.BooleanFilter`

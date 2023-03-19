@@ -3,7 +3,7 @@ demonstrates using a ``LogColorMapper`` and hover tool.
 
 .. bokeh-example-metadata::
     :sampledata: unemployment, us_counties
-    :apis: bokeh.plotting.figure.patches, bokeh.models.mappers.LogColorMapper
+    :apis: bokeh.plotting.figure.patches, bokeh.models.LogColorMapper
     :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: colormap, map, patches
 

@@ -444,7 +444,7 @@ These are the most commonly used properties for this annotation:
 .. bokeh-plot:: __REPO__/examples/basic/annotations/whisker.py
     :source-position: above
 
-.. |ColorMapper| replace:: :class:`~bokeh.models.mappers.ColorMapper`
+.. |ColorMapper| replace:: :class:`~bokeh.models.ColorMapper`
 
 .. |Arrow|         replace:: :class:`~bokeh.models.Arrow`
 .. |ArrowHead|     replace:: :class:`~bokeh.models.arrow_heads.ArrowHead`
