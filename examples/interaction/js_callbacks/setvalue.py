@@ -1,6 +1,6 @@
 ''' An visualization of buttons in bokeh.models. This example demonstrates
 changing the value of an object when a certain event (like clicking of a button)
-occurs through SetValue.
+happens.
 
 .. bokeh-example-metadata::
     :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.SetValue
