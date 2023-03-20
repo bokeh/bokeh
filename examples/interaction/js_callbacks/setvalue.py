@@ -4,7 +4,7 @@ occurs through SetValue.
 
 .. bokeh-example-metadata::
     :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.SetValue
-    :refs: :ref:`ug_interaction_js_callbacks_SetValue`
+    :refs: :ref:`ug_interaction_js_callbacks_setvalue`
     :keywords: javascript SetValue
 '''
 
