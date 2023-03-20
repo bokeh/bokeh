@@ -45,8 +45,8 @@ for v in range(number_of_modes):
     yupper = np.where(y >= E_v, y, E_v)
     ylower = np.where(y <= E_v, y, E_v)
 
-    p.varea(q, yupper, E_v, fill_color="coral")
-    p.varea(q, ylower, E_v, fill_color="orange")
+    p.varea(q, yupper, E_v, fill_color= "#5D3A9B")
+    p.varea(q, ylower, E_v, fill_color= "#E66100")
     p.line(q, y, color="red", line_width=2)
 
     p.add_layout(Label(x=-5.8, y=E_v, y_offset=-21, text=r"$$v = " + str(v) + r"$$"))

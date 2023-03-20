@@ -1,8 +1,13 @@
 ''' Marker and line plots that demonstrate manual control of legend visibility of individual items
 
 .. bokeh-example-metadata::
+<<<<<<< HEAD
     :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line
     :refs: :ref:`ug_basic_annotations_hiding-legend-items`
+=======
+    :apis: bokeh.models.LegendItem, bokeh.plotting.figure.circle, bokeh.plotting.figure.line
+    :refs: :ref:`ug_basic_annotations_legends_item_visibility`
+>>>>>>> ba60576193aa54c5dbcbd557360db8603e0598c7
     :keywords: legend
 
 '''
