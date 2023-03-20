@@ -16,7 +16,7 @@ First steps
 Installing Bokeh
 ----------------
 
-Bokeh is officially supported and tested on Python 3.8 and above (CPython).
+Bokeh is officially supported and tested on Python 3.9 and above (CPython).
 
 You can install Bokeh with either ``conda`` or ``pip``:
 

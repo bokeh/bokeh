@@ -1,3 +1,17 @@
+''' An interactive plot showcasing Bokeh's ability to add interactions
+using Custom Javascript.
+
+This example demonstrates adding links between points on a graph.
+These lines only show on hover using ``CustomJS`` callbacks to update the plot.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.add_tools, bokeh.models.HoverTool, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS
+    :refs: :ref:`ug_interaction_js_callbacks_customjs`
+    :keywords: hover, javascript callback, CustomJS
+
+'''
+
+
 from bokeh.models import ColumnDataSource, CustomJS, HoverTool
 from bokeh.plotting import figure, show
 

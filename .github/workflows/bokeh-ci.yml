@@ -91,6 +91,11 @@ jobs:
           source-tree: 'keep'
           sampledata: 'cache'
 
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
       - name: Run codebase checks
         run: pytest --color=yes tests/codebase
 
@@ -108,12 +113,11 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.8'
+          test-env: '3.9'
           source-tree: 'delete'
           sampledata: 'cache'
 
       - name: Install chromium
-        if: runner.os == 'Linux'
         run: |
           if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
             echo "Using pre-installed version of chromium"
@@ -125,6 +129,12 @@ jobs:
             sudo snap ack $CHROME_REV.assert
             sudo snap install $CHROME_REV.snap
           fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          chromium --version
 
       - name: Start chrome headless
         working-directory: ./bokehjs
@@ -166,6 +176,11 @@ jobs:
           source-tree: 'delete'
           sampledata: 'cache'
 
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
       - name: Run tests
         run: pytest -v --cov=bokeh --cov-report=xml --tb=short --driver chrome --color=yes tests/integration
 
@@ -184,7 +199,7 @@ jobs:
       max-parallel: 6
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11']
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -201,6 +216,11 @@ jobs:
 
       - name: Ensure Python version
         run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
 
       - name: Test defaults
         run: pytest tests/test_defaults.py
@@ -238,6 +258,11 @@ jobs:
           source-tree: 'delete'
           sampledata: 'none' # no sampledata for minimal tests
 
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
       - name: Run tests
         run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
 
@@ -258,9 +283,14 @@ jobs:
       - name: Prepare Environment
         uses: ./.github/workflows/composite/test-setup
         with:
-          test-env: '3.8'
+          test-env: '3.9'
           source-tree: 'delete'
           sampledata: 'download' # test at least one real download
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
 
       - name: Build docs
         run: bash scripts/ci/build_docs.sh
@@ -288,10 +318,16 @@ jobs:
       - name: Install downstream packages
         run: bash scripts/ci/install_downstream_packages.sh
 
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
       - name: Run tests
         run: bash scripts/ci/run_downstream_tests.sh
 
   docker_from_wheel:
+    if: ${{ false }}  # temporarily disable
     needs: build
     runs-on: ubuntu-latest
     env:

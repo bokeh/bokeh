@@ -31,12 +31,12 @@ p.title.text = "Rolling Standard Deviation"
 p.xgrid.grid_line_color=None
 p.ygrid.grid_line_alpha=0.5
 
-p.scatter(x="x", y="y", marker="dot", size=10, alpha=0.4, source=source)
+p.scatter(x="x", y="y", color="blue", marker="dot", size=10, alpha=0.4, source=source)
 
 p.line("x", "y_mean", line_dash=(10, 7), line_width=2, source=source)
 
 band = Band(base="x", lower="lower", upper="upper", source=source,
-            fill_alpha=0.3, fill_color="gray", line_color="black")
+            fill_alpha=0.3, fill_color="yellow", line_color="black")
 p.add_layout(band)
 
 show(p)
