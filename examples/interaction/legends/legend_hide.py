@@ -7,7 +7,7 @@ the corresponding lines.
     :sampledata: bokeh.sampledata.stocks
     :apis: bokeh.plotting.figure.line, bokeh.palettes.Spectral4
     :refs: :ref:`ug_basic_annotations_legends`
-    :keywords: line chart, time series, legend_hide, interactive
+    :keywords: line chart, time series, legend_hide, interactive, legend
     
 '''
 
