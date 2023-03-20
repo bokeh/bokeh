@@ -17,6 +17,19 @@ pub fn catmullrom_spline(x: &[f64], y: &[f64]) -> Array {
   )
 }
 
+
+#[wasm_bindgen]
+pub fn invert(sx: f64, sy: f64) -> Array {
+  use bokeh_lib::hit_test::{SPoint, invert};
+  let values = invert(&SPoint {sx, sy});
+  values.iter().map(|&(x, y)| {
+    Array::of2(
+      &JsValue::from(x),
+      &JsValue::from(y),
+    )
+  }).collect()
+}
+
 #[wasm_bindgen]
 pub struct AABB {
   pub x0: f64,

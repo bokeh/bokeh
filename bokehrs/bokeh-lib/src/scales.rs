@@ -1,7 +1,7 @@
 #[derive(Clone, Copy)]
 pub struct Range {
-  start: f64,
-  end: f64,
+  pub start: f64,
+  pub end: f64,
 }
 
 pub trait Scale {
