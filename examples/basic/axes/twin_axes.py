@@ -19,12 +19,12 @@ y2 = linspace(0, 100, len(x))
 p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1))
 p.background_fill_color = "#fafafa"
 
-p.scatter(x, y, color="crimson", size=8)
+p.scatter(x, y, line_color="black", fill_color="lightyellow", size=12)
 p.yaxis.axis_label = "red circles"
 p.yaxis.axis_label_text_color ="crimson"
 
 p.extra_y_ranges['foo'] = Range1d(0, 100)
-p.scatter(x, y2, color="navy", size=8, y_range_name="foo")
+p.scatter(x, y2, color="darkmagenta", size=8, y_range_name="foo")
 
 ax2 = LinearAxis(y_range_name="foo", axis_label="blue circles")
 ax2.axis_label_text_color ="navy"
