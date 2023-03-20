@@ -7,12 +7,8 @@ end angles at defined point(coordinates) .
     :apis: bokeh.plotting.figure.arc
     :refs: :ref:`ug_basic_lines_arcs`
     :keywords: arc, figure, glyph
+    
 '''
-
-
-
-
-
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)
