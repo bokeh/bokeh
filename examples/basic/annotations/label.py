@@ -1,3 +1,12 @@
+''' A scatter plot that displays a label.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.LabelSet bokeh.plotting.figure.scatter
+    :refs: :ref:`ug_basic_annotations_labels`
+    :keywords: scatter, label
+
+'''
+
 from bokeh.models import ColumnDataSource, Label, LabelSet
 from bokeh.plotting import figure, show
 

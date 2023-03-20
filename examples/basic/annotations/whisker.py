@@ -1,3 +1,14 @@
+''' A marker plot that shows the relationship between Car class and HWY from the autommpg sample data. 
+This example demonstrates the use of Whisker to display quintile ranges in the plot.
+
+.. bokeh-example-metadata::
+    :sampledata: autompg2
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.circle
+    :refs: :ref:`ug_basic_annotations_whiskers`
+    :keywords: whisker, jitter, scatter, error
+
+'''
+
 from bokeh.models import ColumnDataSource, Whisker
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg2 import autompg2 as df
