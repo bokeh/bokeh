@@ -1,3 +1,11 @@
+""" Creates a block plot using Bokeh and displays it using the show() function.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.models.Block
+    :refs: :ref:`ug_basic_areas_rects`
+    :keywords: block, plot
+"""
+
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400)

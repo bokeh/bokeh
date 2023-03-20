@@ -32,12 +32,30 @@ export function positive_y(): Rect {
   }
 }
 
+function _min(a: number, b: number): number {
+  if (isNaN(a))
+    return b
+  else if (isNaN(b))
+    return a
+  else
+    return min(a, b)
+}
+
+function _max(a: number, b: number): number {
+  if (isNaN(a))
+    return b
+  else if (isNaN(b))
+    return a
+  else
+    return max(a, b)
+}
+
 export function union(a: Rect, b: Rect): Rect {
   return {
-    x0: min(a.x0, b.x0),
-    x1: max(a.x1, b.x1),
-    y0: min(a.y0, b.y0),
-    y1: max(a.y1, b.y1),
+    x0: _min(a.x0, b.x0),
+    x1: _max(a.x1, b.x1),
+    y0: _min(a.y0, b.y0),
+    y1: _max(a.y1, b.y1),
   }
 }
 

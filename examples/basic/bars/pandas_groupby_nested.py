@@ -12,7 +12,7 @@ information for each bar.
 .. _Auto MPG dataset: https://archive.ics.uci.edu/ml/datasets/auto+mpg
 
 '''
-from bokeh.palettes import Spectral5
+from bokeh.palettes import MediumContrast5
 from bokeh.plotting import figure, show
 from bokeh.sampledata.autompg import autompg_clean as df
 from bokeh.transform import factor_cmap
@@ -22,7 +22,7 @@ df.yr = df.yr.astype(str)
 
 group = df.groupby(['cyl', 'mfr'])
 
-index_cmap = factor_cmap('cyl_mfr', palette=Spectral5, factors=sorted(df.cyl.unique()), end=1)
+index_cmap = factor_cmap('cyl_mfr', palette=MediumContrast5, factors=sorted(df.cyl.unique()), end=1)
 
 p = figure(width=800, height=300, title="Mean MPG by # Cylinders and Manufacturer",
            x_range=group, toolbar_location=None, tooltips=[("MPG", "@mpg_mean"), ("Cyl, Mfr", "@cyl_mfr")])

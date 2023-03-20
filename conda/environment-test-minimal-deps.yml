@@ -2,7 +2,7 @@ name: bk-test
 channels:
   - conda-forge
 dependencies:
-  - python=3.8
+  - python=3.9
 
   # runtime
   - contourpy >=1
@@ -54,7 +54,7 @@ dependencies:
   - pip:
     - mypy >=0.990
     # docs
-    - autoclasstoc
+    - autoclasstoc <=1.4
     - pydata_sphinx_theme ==0.9
     - requests-unixsocket >= 0.3.0
     - sphinx >5.1

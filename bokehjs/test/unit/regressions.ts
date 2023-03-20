@@ -13,6 +13,7 @@ import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
+import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
 import {Color, Arrayable} from "@bokehjs/core/types"
@@ -25,6 +26,9 @@ import {defer, paint} from "@bokehjs/core/util/defer"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
+import {TableDataProvider} from "@bokehjs/models/widgets/tables/data_table"
+import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
+import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -640,6 +644,42 @@ describe("Bug", () => {
       const {view} = await display(obj, [200, 200])
       const cls = "bk-some-external-provider-QualifiedModel"
       expect(view.el.classList.contains(cls)).to.be.true
+    })
+  })
+
+  describe("in issue #6683", () => {
+    it("doesn't allow TableDataProvider to correctly sort strings with accents", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          words: ["met", "no", "mute", "méteo", "mill", "mole"],
+        },
+      })
+      const indices = BitSet.from_indices(6, [0, 1, 2, 3, 4, 5])
+      const view = new CDSView({indices})
+      const provider = new TableDataProvider(source, view)
+      const column = new TableColumn({field: "words"}).toColumn()
+
+      provider.sort([{sortCol: column, sortAsc: true}])
+      const records_asc = provider.getRecords()
+      expect(records_asc).to.be.equal([
+        {words: "met",   [DTINDEX_NAME]: 0},
+        {words: "méteo", [DTINDEX_NAME]: 3},
+        {words: "mill",  [DTINDEX_NAME]: 4},
+        {words: "mole",  [DTINDEX_NAME]: 5},
+        {words: "mute",  [DTINDEX_NAME]: 2},
+        {words: "no",    [DTINDEX_NAME]: 1},
+      ])
+
+      provider.sort([{sortCol: column, sortAsc: false}])
+      const records_dsc = provider.getRecords()
+      expect(records_dsc).to.be.equal([
+        {words: "no",    [DTINDEX_NAME]: 1},
+        {words: "mute",  [DTINDEX_NAME]: 2},
+        {words: "mole",  [DTINDEX_NAME]: 5},
+        {words: "mill",  [DTINDEX_NAME]: 4},
+        {words: "méteo", [DTINDEX_NAME]: 3},
+        {words: "met",   [DTINDEX_NAME]: 0},
+      ])
     })
   })
 })

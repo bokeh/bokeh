@@ -91,7 +91,7 @@ upstream with the following commands:
 
     .. tab-item:: HTTPS
 
-        ..code-block:: sh
+        .. code-block:: sh
 
             git remote add upstream https://github.com/bokeh/bokeh.git
             git fetch upstream
@@ -156,7 +156,7 @@ directory, and run the following commands:
 .. code-block:: sh
 
     cd bokehjs
-    npm install --location=global npm@8
+    npm install --location=global npm
 
 If you do not want to install npm globally, leave out the ``--location=global``
 flag. In this case, you need to adjust all subsequent ``npm`` commands to use

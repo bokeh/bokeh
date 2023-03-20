@@ -1,5 +1,6 @@
 import cp from "child_process"
 import fs from "fs"
+import os from "os"
 import path from "path"
 import {task, BuildError} from "../task"
 
@@ -27,7 +28,16 @@ function npm_pack() {
     fs.unlinkSync(tgz_latest)
   }
 
-  fs.symlinkSync(tgz, tgz_latest)
+  try {
+    fs.symlinkSync(tgz, tgz_latest)
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      const e = error as NodeJS.ErrnoException
+      if (e.errno === os.constants.errno.EPERM) {
+        fs.copyFileSync(tgz, tgz_latest)
+      }
+    }
+  }
 }
 
 task("pack", async () => {

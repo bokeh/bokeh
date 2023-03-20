@@ -1,5 +1,5 @@
-import {expect} from "assertions"
 import * as arrayable from "@bokehjs/core/util/arrayable"
+import {expect} from "assertions"
 
 describe("core/util/arrayable module", () => {
 
@@ -158,5 +158,61 @@ describe("core/util/arrayable module", () => {
 
     expect(arrayable.interpolate([], [], [])).to.be.equal([])
     expect(arrayable.interpolate([1], [], [])).to.be.equal([NaN])
+  })
+
+  it("should support subselect() function", () => {
+    const a = [1, 2, 3, 4, 5, 6, undefined]
+    const b = [1, 4, 5]
+    expect(arrayable.subselect(a, b)).to.be.equal([2, 5, 6])
+    const c = [0, 100]
+    const d = [10, NaN]
+    expect(arrayable.subselect(a, c)).to.be.equal([1, undefined])
+    expect(arrayable.subselect(a, d)).to.be.equal([undefined, undefined])
+  })
+
+  it("should support insert() function", () => {
+    expect(arrayable.insert([1, 2, 3], 4, 1)).to.be.equal([1, 4, 2, 3])
+  })
+
+  it("should support append() function", () => {
+    expect(arrayable.append([1, 2, 3], 4)).to.be.equal([1, 2, 3, 4])
+  })
+
+  it("should support prepend() function", () => {
+    expect(arrayable.prepend([1, 2, 3], 4)).to.be.equal([4, 1, 2, 3])
+  })
+
+  it("should support mul() function", () => {
+    const a = [1, 2, 3]
+    const b = [2, 4, 6]
+    expect(arrayable.mul(a, 2)).to.be.equal(b)
+  })
+
+  it("should support map() function", () => {
+    const a = [1, 2, 3]
+    const b = [2, 4, 6]
+    expect(arrayable.map(a, (num) => num * 2)).to.be.equal(b)
+  })
+
+  it("should support map() function with Float32Array", () => {
+    const arr = Float32Array.of(1, 2, 3)
+    const ret = arrayable.map(arr, (num) => num * 2)
+    expect(ret).to.be.instanceof(Float32Array)
+    expect(ret).to.be.equal(Float32Array.of(2, 4, 6))
+  })
+
+  it("should support sum() function", () => {
+    expect(arrayable.sum([1, 2, 3, 4])).to.be.equal(10)
+    expect(arrayable.sum([1, 2, 3, NaN])).to.be.equal(NaN)
+  })
+
+  it("should support some() function", () => {
+    expect(arrayable.some([-1, 2, 6, 11], (num) => num % 2 === 0)).to.be.true
+    expect(arrayable.some([1, 2, 3, 4], (num) => num > 5)).to.be.false
+  })
+
+  it("should support every() function", () => {
+    expect(arrayable.every([1, 2, 3, 4], (num) => num > 0)).to.be.true
+    expect(arrayable.every([-2, 1, 2, 3, 4], (num) => num > 0)).to.be.false
   })
 })

@@ -29,6 +29,19 @@
   background-image: none;
 }
 
+// slick-default-theme.css
+.slick-header-columns {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-over-bg.gif");
+}
+
 .slick-group-toggle.expanded {
   background-image: data-uri("@{slickgrid_images}/collapse.gif");
 }
@@ -57,6 +70,15 @@
 // plugins/slick.headermenu.css
 .slick-header-menubutton {
   background-image: data-uri("@{slickgrid_images}/down.gif");
+}
+
+// plugins/slick.rowdetailview.css
+.detailView-toggle.expand {
+  background-image: data-uri("@{slickgrid_images}/arrow-right.gif");
+}
+
+.detailView-toggle.collapse {
+  background-image: data-uri("@{slickgrid_images}/sort-desc.gif");
 }
 
 // controls/slick.pager.css
