@@ -1,4 +1,4 @@
-''' An visualization of buttons in bokeh.models. This example demonstrates
+''' A visualization of buttons in bokeh.models. This example demonstrates
 changing the value of an object when a certain event (like clicking of a button)
 happens.
 
