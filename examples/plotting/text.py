@@ -1,9 +1,8 @@
-''' A grid plot using descriptive test. This example demonstrates
+''' A grid plot using descriptive text. This example demonstrates
 how to align text in a plain background in two dimensions. It also
 demonstrates how to change the angle of the texts in the plot.
 
 .. bokeh-example-metadata::
-    :sampledata: text
     :apis: bokeh.plotting.figure.line, bokeh.layouts.gridplot
     :refs: :ref:`ug_basic_layouts_gridplot`
     :keywords: Slider, gridplot, line, text
