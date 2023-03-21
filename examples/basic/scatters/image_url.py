@@ -4,7 +4,7 @@
     :apis: bokeh.plotting.figure.image_url
     :refs: :ref:`ug_basic_scatters_urls`
     :keywords: image, scatter
- 
+
 .. _Bokeh image logo: https://static.bokeh.org/logos/logo.png
 '''
 import numpy as np
