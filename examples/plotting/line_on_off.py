@@ -3,9 +3,11 @@ It involves checking and unchecking the checkboxes representing
 the plotted lines to turn the lines on/off.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.layouts.row
-    :refs: :ref:`ug_basic_lines_line_multiple`
-    :keywords: line_on_off, checkbox, CustomJS
+    :apis: bokeh.plotting.figure.line, bokeh.layouts.row, bokeh.models.CustomJS
+    :refs: :ref:`ug_basic_lines_line_multiple`,
+    :ref:`_ug_interaction_widgets_examples_checkboxgroup`,
+    :ref:`ug_interaction_js_callbacks`
+    :keywords: line, checkbox, CustomJS
 
 """
 
