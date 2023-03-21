@@ -640,6 +640,9 @@ If you keep getting errors after updating an older environment, use
 and reinstall your development environment, following the steps in this guide
 from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
 
+For users on Windows systems, sometimes you may get a "File contains carriage returns at end of line: <file path>" error while trying to push your local branch to your remote branch on Github. If that happens, go to your *source checkout* directory and run the following command:
+ ``git config --global core.autocrlf false``, then delete and re-clone your forked repository. This command preserves the original LF-only newlines in all the files in the repository.
+
 For more information on running and installing Bokeh, check the
 :ref:`additional resources available to contributors <contributor_guide_resources>`.
 Please feel free to ask at the `Bokeh Discourse`_ or `Bokeh's contributor
