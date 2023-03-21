@@ -17,7 +17,7 @@ from bokeh.transform import factor_cmap, jitter
 classes = list(sorted(df["class"].unique()))
 
 p = figure(height=400, x_range=classes, background_fill_color="#efefef",
-           title="Car class vs HWY mpg with quintile ranges")
+           title="Car class vs HWY mpg with quantile ranges")
 p.xgrid.grid_line_color = None
 
 g = df.groupby("class")
