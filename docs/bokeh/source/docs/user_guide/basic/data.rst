@@ -445,6 +445,8 @@ renderer function:
     p = figure()
     p.circle(x="x", y="y", source=source, view=view)
 
+.. _ug_basic_data_filtering_index:
+
 IndexFilter
 ~~~~~~~~~~~
 
