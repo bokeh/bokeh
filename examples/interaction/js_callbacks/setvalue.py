@@ -8,8 +8,6 @@ happens.
     :keywords: js callbacks
     
 '''
-
-
 from bokeh.io import show
 from bokeh.models import Button, SetValue
 
