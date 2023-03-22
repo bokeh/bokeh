@@ -7,6 +7,7 @@ automatic colormapping of nested categorical factors.
     :keywords: bar, colormap, vbar
 
 '''
+from bokeh.palettes import MediumContrast3
 from bokeh.models import ColumnDataSource, FactorRange
 from bokeh.plotting import figure, show
 from bokeh.transform import factor_cmap
@@ -19,7 +20,7 @@ data = {'fruits' : fruits,
         '2016'   : [5, 3, 3, 2, 4, 6],
         '2017'   : [3, 2, 4, 4, 5, 3]}
 
-palette = ["#c9d9d3", "#718dbf", "#e84d60"]
+palette = MediumContrast3
 
 # this creates [ ("Apples", "2015"), ("Apples", "2016"), ("Apples", "2017"), ("Pears", "2015), ... ]
 x = [ (fruit, year) for fruit in fruits for year in years ]
