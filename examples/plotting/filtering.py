@@ -6,7 +6,7 @@ the state and its umemployment rate is shown.
 .. bokeh-example-metadata::
     :sampledata: US_States
     :apis: bokeh.models.IndexFilter, bokeh.models.HoverTool, bokeh.models.LinearColorMapper
-    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug__basic_data_filtering_index`
+    :refs: :ref:`ug_basic_areas_patches`, :ref:`ug_basic_data_filtering_index`
     :keywords: hover tool, indexfilter, filtering, US
 
 .. _US_States Dataset: https://docs.bokeh.org/en/latest/docs/reference/sampledata.html#module-bokeh.sampledata.us_states
