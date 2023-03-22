@@ -2,8 +2,8 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.model.CustomJS, bokeh.model.Slider
-    :refs: :ref:`bokeh.models.Slider.js_on_change`
-    :keywords: CustomJS, Slider, Text Angle, Text Align
+    :refs: :ref:`ug_interaction_js_callbacks_customjs`
+    :keywords: customJS, slider, text angle, text align
 
 '''
 
