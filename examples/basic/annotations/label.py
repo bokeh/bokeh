@@ -1,4 +1,4 @@
-''' A scatter plot that displays a label.
+''' A scatter plot that demonstrates different ways of adding labels.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.ColumnDataSource, bokeh.models.Label, bokeh.models.LabelSet bokeh.plotting.figure.scatter
