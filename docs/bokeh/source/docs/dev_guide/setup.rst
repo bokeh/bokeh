@@ -601,47 +601,70 @@ Troubleshooting
 ---------------
 
 Updating an existing development environment does not always work as
-expected. Make sure your
+expected. As a general rule, make sure your
 :ref:`conda environment <contributor_guide_setup_creating_conda_env>`,
 :ref:`Node packages <contributor_guide_setup_installing_node_packages>`, and
-:ref:`local build <contributor_guide_setup_install_locally>` are up to date.
+:ref:`local build <contributor_guide_setup_install_locally>` are always up to date.
 
-Sometimes you may run into issues if the tags of the Bokeh repository have not
-been cloned to your local directory. To check if the necessary tags are present,
-run the following command:
+The following list contains solutions to common issue that you might encounter when
+setting up a development environment:
 
-.. tab-set::
+.. dropdown:: Git tags missing (``KeyError: '0.0.1'``)
 
-    .. tab-item:: Linux/macOS
-        :sync: sh
+    Sometimes you may run into issues if the tags of the Bokeh repository have not
+    been cloned to your local directory. You might see a ``KeyError: '0.0.1'`` on your
+    console output, for example.
 
-        .. code-block:: sh
+    To check if the necessary tags are present, run the following command:
 
-            git tag -l | tail
+    .. tab-set::
 
-    .. tab-item:: Windows (PS)
-        :sync: ps
+        .. tab-item:: Linux/macOS
+            :sync: sh
 
-        .. code-block:: powershell
+            .. code-block:: sh
 
-            git tag -l
+                git tag -l | tail
 
-    .. tab-item:: Windows (CMD)
-        :sync: cmd
+        .. tab-item:: Windows (PS)
+            :sync: ps
 
-        .. code-block:: doscon
+            .. code-block:: powershell
 
-            git tag -l
+                git tag -l
 
-If there are no tags present, make sure that you follow the steps of :ref:`setting the Bokeh repository as an additional upstream<contributor_guide_setup_cloning>`.
+        .. tab-item:: Windows (CMD)
+            :sync: cmd
 
-If you keep getting errors after updating an older environment, use
-``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
-and reinstall your development environment, following the steps in this guide
-from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
+            .. code-block:: doscon
 
-For users on Windows systems, sometimes you may get a "File contains carriage returns at end of line: <file path>" error while trying to push your local branch to your remote branch on Github. If that happens, go to your *source checkout* directory and run the following command:
- ``git config --global core.autocrlf false``, then delete and re-clone your forked repository. This command preserves the original LF-only newlines in all the files in the repository.
+                git tag -l
+
+    If there are no tags present, make sure that you follow the steps of
+    :ref:`setting the Bokeh repository as an additional upstream <contributor_guide_setup_cloning>`.
+
+.. dropdown:: Git commit fails due to line endings (``test_code_quality.py``, ``File
+    contains carriage returns``)
+
+    On Windows systems, you may get a ``File contains carriage returns at end of line:
+    <file path>`` error while trying to push your local branch to your remote branch on
+    GitHub. This is because Bokeh only allows LF line endings, while some Windows-based
+    tools may add CR LF line endings.
+
+    If you see this error, try running the following command:
+    ``git config --global core.autocrlf false``. After running this command, delete and
+    re-clone your forked repository (see :ref:`contributor_guide_setup_cloning`)
+
+    This command configures git to always preserves the original LF-only newlines.
+    See the `GitHub documentation`_ or `Git config documentation`_ for other options.
+
+
+.. dropdown:: Errors after updating from an older version
+
+    If you keep getting errors after updating an older environment, use
+    ``conda remove --name bkdev --all``, delete your local ``bokeh`` folder,
+    and reinstall your development environment, following the steps in this guide
+    from :ref:`the beginning <contributor_guide_setup_preliminaries>`.
 
 For more information on running and installing Bokeh, check the
 :ref:`additional resources available to contributors <contributor_guide_resources>`.
@@ -676,3 +699,5 @@ Slack`_.
 .. _pip: https://pip.pypa.io/
 .. _merge conflicts: https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging#_basic_merge_conflicts
 .. _source maps: https://developer.mozilla.org/en-US/docs/Tools/Debugger/How_to/Use_a_source_map
+.. _GitHub documentation: https://docs.github.com/en/get-started/getting-started-with-git/configuring-git-to-handle-line-endings
+.. _Git config documentation: https://git-scm.com/docs/git-config#Documentation/git-config.txt-coreautocrlf
