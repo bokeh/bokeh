@@ -88,7 +88,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 .. image:: _images/bokeh-hero.png
     :width: 100%
     :alt: A collage of 36 thumbnails of Bokeh plots
-    :target: _galery
+    :target: _gallery
 
 .. _galery: https://docs.bokeh.org/en/latest/docs/gallery.html
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb
