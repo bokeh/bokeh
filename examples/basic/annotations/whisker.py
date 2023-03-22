@@ -1,5 +1,5 @@
-''' A marker plot that shows the relationship between Car class and HWY from the autommpg sample data. 
-This example demonstrates the use of Whisker to display quantile ranges in the plot.
+''' A marker plot that shows the relationship between car type and highway MPG from the autompg
+sample data.  This example demonstrates the use of whiskers to display quantile ranges in the plot.
 
 .. bokeh-example-metadata::
     :sampledata: autompg2
