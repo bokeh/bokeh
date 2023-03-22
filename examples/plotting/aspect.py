@@ -1,3 +1,11 @@
+''' An example demonstrating how to plot a circle within a rectangle in different aspect scales.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.layouts.layout
+    :refs: :ref:`_ug_basic_layouts`
+    :keywords: rect, circle, layout, aspect, scale
+'''
+
 from bokeh.layouts import layout
 from bokeh.plotting import figure, show
 
