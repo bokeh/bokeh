@@ -90,7 +90,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
     :alt: A collage of 36 thumbnails of Bokeh plots
     :target: _gallery
 
-.. _galery: https://docs.bokeh.org/en/latest/docs/gallery.html
+.. _gallery: https://docs.bokeh.org/en/latest/docs/gallery.html
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb
 .. _Bokeh community: https://bokeh.org/community/
 .. _Bokeh Discourse: https://discourse.bokeh.org
