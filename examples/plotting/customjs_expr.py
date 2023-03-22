@@ -5,6 +5,7 @@
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: js callbacks, expressions
 '''
+
 import numpy as np
 
 from bokeh.core.properties import Float, expr
