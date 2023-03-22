@@ -1,9 +1,11 @@
-''' A demonstration of the Band annotation
+''' An interactive numerical band plot based on simple Python array of data.
+    It is a combination of scatter plots and line plots added with a band of covered area.
+    The line passes through the mean of the area covered by the band.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource
+    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show,
     :refs: :ref:`ug_basic_annotations_bands`
-    :keywords: band
+    :keywords: figure, scatter, line, band, layout
 
 '''
 import numpy as np
