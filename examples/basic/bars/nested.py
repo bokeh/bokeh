@@ -7,9 +7,6 @@ creating a ``FactorRange`` with nested categories.
     :keywords: bars, categorical, grouped
 
 '''
-from bokeh.models import ColumnDataSource, FactorRange
-from bokeh.plotting import figure, show
-
 fruits = ['Apples', 'Pears', 'Nectarines', 'Plums', 'Grapes', 'Strawberries']
 years = ['2015', '2016', '2017']
 
@@ -18,16 +15,29 @@ data = {'fruits' : fruits,
         '2016'   : [5, 3, 3, 2, 4, 6],
         '2017'   : [3, 2, 4, 4, 5, 3]}
 
-# this creates [ ("Apples", "2015"), ("Apples", "2016"), ("Apples", "2017"), ("Pears", "2015), ... ]
-x = [ (fruit, year) for fruit in fruits for year in years ]
-counts = sum(zip(data['2015'], data['2016'], data['2017']), ()) # like an hstack
+# Define group colors for each fruit
+fruit_colors = Turbo[6]
 
-source = ColumnDataSource(data=dict(x=x, counts=counts))
+# Create a list of tuples for x values
+x = [ (fruit, year) for fruit in fruits for year in years ]
+
+# Create a list of counts for each fruit and year
+counts = []
+for i in range(len(fruits)):
+    fruit_counts = [data[year][i] for year in years]
+    counts += fruit_counts
+
+# Create a list of group colors for each fruit
+group_colors = []
+for color in fruit_colors:
+    group_colors += [color] * len(years)
+
+source = ColumnDataSource(data=dict(x=x, counts=counts, group_colors=group_colors))
 
 p = figure(x_range=FactorRange(*x), height=350, title="Fruit Counts by Year",
            toolbar_location=None, tools="")
 
-p.vbar(x='x', top='counts', width=0.9, source=source)
+p.vbar(x='x', top='counts', width=0.9, source=source, line_color='white', fill_color='group_colors')
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1
