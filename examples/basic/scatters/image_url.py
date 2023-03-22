@@ -1,3 +1,12 @@
+''' An scatter plot showing `Bokeh image logo`_ as marker.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.image_url
+    :refs: :ref:`ug_basic_scatters_urls`
+    :keywords: image, scatter
+
+.. _Bokeh image logo: https://static.bokeh.org/logos/logo.png
+'''
 import numpy as np
 
 from bokeh.core.properties import value
