@@ -1,4 +1,4 @@
-''' An example of plots showing how to add alpha value (transparency) to images for three different image methods.
+''' An example demonstrating how to add alpha value (transparency) to images in different ways.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure, bokeh.plotting.figure.image, bokeh.layouts.Column
