@@ -5,7 +5,7 @@
 .. bokeh-example-metadata::
     :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show,
     :refs: :ref:`ug_basic_annotations_bands`
-    :keywords: bandplot, figure, scatter, line, Band, add_layout, rolling
+    :keywords: figure, scatter, line, band, layout
 
 '''
 import numpy as np
