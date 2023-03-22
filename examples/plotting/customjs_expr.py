@@ -2,8 +2,8 @@
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.CustomJSExpr, bokeh.model.DataModel
-    :refs: :ref:`ug_interaction_js_callback`
-    :keywords: CustomJS, CustomJSExpr
+    :refs: :ref:`ug_interaction_js_callbacks_customjs`
+    :keywords: js callbacks, expressions
 '''
 import numpy as np
 
