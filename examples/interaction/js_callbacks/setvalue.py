@@ -6,7 +6,6 @@ happens.
     :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.SetValue
     :refs: :ref:`ug_interaction_js_callbacks_setvalue`
     :keywords: js callbacks
-    
 '''
 from bokeh.io import show
 from bokeh.models import Button, SetValue
