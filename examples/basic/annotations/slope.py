@@ -9,8 +9,8 @@
 import numpy as np
 
 from bokeh.models import Slope
-from bokeh.plotting import figure, show
 from bokeh.palettes import Sunset10
+from bokeh.plotting import figure, show
 
 # linear equation parameters
 slope, intercept = 2, 10
