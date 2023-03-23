@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :sampledata: world_cities
-    :apis: bokeh.models.glyphs.Circle, bokeh.models.map_plots.GMapPlot, bokeh.models.map_plots.GMapOptions, bokeh.models.tools.PanTool, bokeh.models.tools.WheelZoomTool
+    :apis: bokeh.models.glyphs.Circle, bokeh.models.map_plots.GMapPlot, bokeh.models.tools.PanTool, bokeh.models.tools.WheelZoomTool
     :refs: :ref:`_ug_styling_plots_axes_labels`, :ref:`_ug_topics_geo`, :ref:`_ug_basic_data`
     :keywords: circle, map, label, pantool, gmapplot, document
 '''
