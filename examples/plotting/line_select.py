@@ -1,5 +1,11 @@
-""" Example demonstrating the picking of line objects.
+""" Example demonstrating the picking of line objects -using customJS.
+It involves clicking on any of the plotted lines to select/ deselect the line.
 
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.line, bokeh.models.CustomJS, bokeh.models.TapTool
+    :refs: :ref:`ug_basic_lines_line_multi`,:ref:`ug_interaction_js_callbacks`
+    :keywords: line, taptool, customjS
+    
 """
 import numpy as np
 
