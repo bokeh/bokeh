@@ -29,7 +29,7 @@ p.yaxis.axis_label_text_color ="blue"
 p.extra_y_ranges['foo'] = Range1d(0, 100)
 p.scatter(x, y2, color=redshade, size=8, y_range_name="foo")
 
-ax2 = LinearAxis(y_range_name="foo", axis_label="brown circles")
+ax2 = LinearAxis(y_range_name="foo", axis_label="red circles")
 ax2.axis_label_text_color ="brown"
 p.add_layout(ax2, 'left')
 
