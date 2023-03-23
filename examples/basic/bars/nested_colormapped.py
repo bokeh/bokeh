@@ -7,8 +7,8 @@ automatic colormapping of nested categorical factors.
     :keywords: bar, colormap, vbar
 
 '''
-from bokeh.palettes import MediumContrast3
 from bokeh.models import ColumnDataSource, FactorRange
+from bokeh.palettes import MediumContrast3
 from bokeh.plotting import figure, show
 from bokeh.transform import factor_cmap
 
