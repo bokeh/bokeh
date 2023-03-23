@@ -10,8 +10,8 @@ for the label values.
 from numpy import arange, linspace, pi, sin
 
 from bokeh.models import LinearAxis, Range1d
-from bokeh.plotting import figure, show
 from bokeh.palettes import Sunset6
+from bokeh.plotting import figure, show
 
 x = arange(-2*pi, 2*pi, 0.2)
 y = sin(x)
