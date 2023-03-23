@@ -17,17 +17,17 @@ x = arange(-2*pi, 2*pi, 0.2)
 y = sin(x)
 y2 = linspace(0, 100, len(x))
 
-blueshade, redshade = Sunset6[2], Sunset6[5]
+blue, red = Sunset6[2], Sunset6[5]
 
 p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1))
 p.background_fill_color = "#fafafa"
 
-p.scatter(x, y, line_color="black", fill_color=blueshade, size=12)
+p.scatter(x, y, line_color="black", fill_color=blue, size=12)
 p.yaxis.axis_label = "light blue circles"
 p.yaxis.axis_label_text_color ="blue"
 
 p.extra_y_ranges['foo'] = Range1d(0, 100)
-p.scatter(x, y2, color=redshade, size=8, y_range_name="foo")
+p.scatter(x, y2, color=red, size=8, y_range_name="foo")
 
 ax2 = LinearAxis(y_range_name="foo", axis_label="red circles")
 ax2.axis_label_text_color ="brown"
