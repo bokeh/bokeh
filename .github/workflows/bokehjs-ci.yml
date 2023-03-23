@@ -82,24 +82,11 @@ jobs:
           fi
           npm list
 
-      - name: Build wasm
-        working-directory: ./bokehrs
-        shell: bash
-        run: |
-          ./bindgen.sh
-
-      - name: Test wasm
-        if: success() || failure()
-        working-directory: ./bokehrs
-        shell: bash
-        run: |
-          cargo test --no-fail-fast
-
       - name: Build bokehjs
-        if: success() || failure()
         working-directory: ./bokehjs
         shell: bash
         run: |
+          ./make/bindgen.sh
           node make build
 
       - name: Test bokehjs
@@ -107,6 +94,7 @@ jobs:
         working-directory: ./bokehjs
         shell: bash
         run: |
+          cargo test --no-fail-fast
           node make test
 
       - name: Lint codebase

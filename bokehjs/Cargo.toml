@@ -1,5 +1,5 @@
 [workspace]
-members = ["bokeh-lib", "bokeh-web"]
+members = ["./src/wasm/bokeh-lib", "./src/wasm/bokeh-web"]
 
 [workspace.package]
 version = "3.1.0"
@@ -8,7 +8,7 @@ license = "BSD-3 (https://opensource.org/license/bsd-3-clause/)"
 repository = "https://github.com/bokeh/bokeh"
 
 [workspace.dependencies]
-bokeh-lib = {path = "./bokeh-lib/", version = "*"}
+bokeh-lib = {path = "./src/wasm/bokeh-lib/", version = "*"}
 
 [profile.release]
 lto = true

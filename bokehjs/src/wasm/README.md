@@ -24,11 +24,11 @@ and the following to your workspace configuration:
 ```json
 {
   "rust-analyzer.linkedProjects": [
-    "${workspaceFolder}/bokehrs/Cargo.toml"
+    "${workspaceFolder}/bokehjs/Cargo.toml"
   ],
   "rust-analyzer.check.extraArgs": [
     "--all-targets",
-    "--target-dir", "${workspaceFolder}/bokehrs/target/rust-analyzer"
+    "--target-dir", "${workspaceFolder}/bokehjs/build/target/rust-analyzer"
   ]
 }
 ```
@@ -41,8 +41,7 @@ resulting in an endless update and recompilation cycle.
 
 To generate WASM and JS glue code, issue:
 ```bash
-$ cd bokehrs
-$ ./bindgen.sh
+$ ./make/bindgen.sh
 ```
 
 To test the project, issue:

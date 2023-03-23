@@ -1,4 +1,4 @@
-import {join, relative, resolve} from "path"
+import {join, relative} from "path"
 import {argv} from "yargs"
 import fs from "fs"
 
@@ -35,7 +35,7 @@ task("scripts:styles", ["styles:compile"], async () => {
 })
 
 task("scripts:wasm", async () => {
-  const wasm_base = resolve(paths.base_dir, "..", "bokehrs", "dist")
+  const wasm_base = paths.build_dir.wasm
 
   const lib_dir = paths.build_dir.lib
   const dts_internal_base = join(paths.build_dir.all, "dts")
@@ -76,8 +76,8 @@ export default wasm;
 
     const dts_internal = `\
 declare module "wasm/${sub_path.replace(/\\/g, "/")}" {
-  declare const wasm: string;
-  export default wasm;
+  declare const wasm: string
+  export default wasm
 }
 `
 
