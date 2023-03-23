@@ -1,6 +1,11 @@
 """ Example demonstrating the picking of line objects.
 
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure, bokeh.models.ColumnDataSource, bokeh.models.CustomJS, bokeh.models.TapTool
+    :refs: :ref:`_ug_basic_lines_multi`
+    :keywords: line, text, taptool, customjs, columndatasource
 """
+
 import numpy as np
 
 from bokeh.models import ColumnDataSource, CustomJS, TapTool
