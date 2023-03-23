@@ -24,7 +24,7 @@ p.background_fill_color = "#fafafa"
 
 p.scatter(x, y, line_color="black", fill_color=blue, size=12)
 p.yaxis.axis_label = "light blue circles"
-p.yaxis.axis_label_text_color ="blue"
+p.yaxis.axis_label_text_color = blue
 
 p.extra_y_ranges['foo'] = Range1d(0, 100)
 p.scatter(x, y2, color=red, size=8, y_range_name="foo")
