@@ -1,4 +1,4 @@
-''' An example demonstrating how to plot a circle within a rectangle in different aspect scales.
+''' This example demonstrates how a circle with a data-space radius appears when plotted with different aspect scales specified.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.layouts.layout
