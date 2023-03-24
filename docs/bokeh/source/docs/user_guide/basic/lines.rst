@@ -136,7 +136,7 @@ and end angles.
 .. bokeh-plot:: __REPO__/examples/basic/lines/arcs.py
     :source-position: above
     
-.. _ug_basic_lines_with_parameter: 
+.. _ug_basic_lines_parameterized: 
 
 Parameterized
 ~~~~~~~~~~~~~
