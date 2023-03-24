@@ -130,7 +130,11 @@ def die(x: str) -> NoReturn:
     print(f"{x}\n")
     sys.exit(1)
 
-MISSING_TAGS = "\n!!! This repository is missing git tags! Full tag history is required to build Bokeh\n!!!\n!!! See https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html#troubleshooting"  # noqa
+MISSING_TAGS = """
+!!! This repository is missing git tags! Full tag history is required to build Bokeh.
+!!!
+!!! See https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html#troubleshooting
+"""
 SUCCESS = f"{bright(green('Success!'))}\n"
 FAILED = f"{bright(red('Failed.'))}\n"
 BUILD_SUCCESS_MSG =f"{SUCCESS}\nBuild output:\n\n{{msg}}"
