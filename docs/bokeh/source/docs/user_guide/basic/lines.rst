@@ -49,7 +49,7 @@ method as follows:
     ``ColumnDataSource`` consisting of a list of lists of point coordinates
     and a list of scalar values of matching length.
     
-.. _ug_basic_lines_with_missing_points:    
+.. _ug_basic_lines_missing_points:    
 
 Missing points
 --------------
