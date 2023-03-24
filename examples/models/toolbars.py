@@ -7,7 +7,6 @@ with respect to the plot
     :keywords: tools, toolbar, axes, layout
 
 '''
-
 import numpy as np
 
 from bokeh.layouts import column, row
