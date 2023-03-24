@@ -1,4 +1,4 @@
-''' This example shows multiple ways to place the toolbar and the x and y axes 
+''' This example shows multiple ways to place the toolbar and the x and y axes
 with respect to the plot
 
 .. bokeh-example-metadata::
