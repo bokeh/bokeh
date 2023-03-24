@@ -1,4 +1,5 @@
-''' A plot showing a map of the world, highlighting cities where the population is over 5,000 people, made using the 'GMapPlot' class.
+''' A plot showing a map of the world, highlighting cities where the population
+is over 5,000 people, made using the ``GMapPlot`` class.
 
 .. bokeh-example-metadata::
     :sampledata: world_cities
