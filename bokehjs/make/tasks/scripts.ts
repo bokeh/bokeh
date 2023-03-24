@@ -45,6 +45,11 @@ task("scripts:wasm", async () => {
     await fs.promises.mkdir(wasm_dir)
   }
 
+  const snippets_dir = join(wasm_base, "snippets")
+  if (fs.existsSync(snippets_dir)) {
+    await fs.promises.cp(snippets_dir, join(wasm_dir, "snippets"), {recursive: true, force: true})
+  }
+
   for (const wasm_path of scan(wasm_base, [".wasm"])) {
     const sub_path = relative(wasm_base, wasm_path)
 
