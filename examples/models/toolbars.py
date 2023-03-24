@@ -1,4 +1,5 @@
-'''This example shows multiple ways to place the toolbar and the x and y axes with respect to the plot
+''' This example shows multiple ways to place the toolbar and the x and y axes 
+with respect to the plot
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.column, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
