@@ -3,7 +3,7 @@ with respect to the plot
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.column, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
-    :refs: :ref:`ug_interaction_positioning-the-toolbar`
+    :refs: :ref:`ug_interaction_tools_toolbar`
     :keywords: tools, toolbar, axes, layout
 
 '''
