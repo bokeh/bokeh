@@ -1,4 +1,4 @@
-''' This example demonstrates how a circle with a data-space radius appears 
+''' This example demonstrates how a circle with a data-space radius appears
 when plotted with different aspect scales specified.
 
 .. bokeh-example-metadata::
