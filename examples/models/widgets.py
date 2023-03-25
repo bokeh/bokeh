@@ -76,6 +76,8 @@ text_input_units = TextInput(title="Initial temperature:", placeholder="Enter te
 completions = ["aaa", "aab", "aac", "baa", "caa"]
 autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
 
+autocomplete_input_includes = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions, search_strategy="includes")
+
 text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 
 select = Select(options=["Option 1", "Option 2", "Option 3"])
@@ -214,7 +216,7 @@ widgets = Column(children=[
             Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
-            password_input, text_input, text_input_units, autocomplete_input, text_area,
+            password_input, text_input, text_input_units, autocomplete_input, autocomplete_input_includes, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker,
