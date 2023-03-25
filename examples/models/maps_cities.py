@@ -4,7 +4,7 @@ is over 5,000 people, made using the ``GMapPlot`` class.
 .. bokeh-example-metadata::
     :sampledata: world_cities
     :apis: bokeh.models.Circle, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
-    :refs: :ref:`_ug_styling_plots_axes_labels`, :ref:`_ug_topics_geo_google_maps`, :ref:`_ug_basic_data`
+    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
     :keywords: circle, map, label, pantool, gmapplot, document
 '''
 
