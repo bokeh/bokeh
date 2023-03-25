@@ -1,0 +1,27 @@
+.. _release-0-11-1:
+
+0.11.1
+======
+
+Bokeh version ``0.11.1`` (Feb 2016) focuses on providing bug fixes, small
+features, and documentation improvements. Highlights include:
+
+* settings and documentation for Bokeh server behind an SSL terminated proxy
+* bugfixes:
+
+  - MultiSelect works
+  - Oval legend renders correctly
+  - Plot title orientation setting works
+  - Annulus glyph works on IE/Edge
+
+* features:
+
+  - preview of new streaming API in OHLC demo
+  - undo/redo tool add, reset tool now resets plot size
+  - "bokeh static" and "bokeh sampledata" commands
+  - can now create Bokeh apps directly from Jupyter Notebooks
+  - headers and content type now configurable on AjaxDataSource
+
+Additionally some internal work has started to refactor and clean up BokehJS
+to bring the class and file structure into closer alignment with the Bokeh
+python library.

@@ -1,0 +1,10 @@
+.. _release-0-12-13:
+
+0.12.13
+=======
+
+Bokeh Version ``0.12.13`` (Dec 2017) is a targeted bugfix release that
+addresses two issues:
+
+* ``push_notebook`` regression in ``0.12.11``
+* Windows package install failures due to reserved "aux" filename

@@ -1,0 +1,28 @@
+# Package files and data
+graft src/bokeh/core/_templates
+graft src/bokeh/sampledata/_data
+graft src/bokeh/sphinxext/_templates
+include src/bokeh/server/views/*.html
+include src/bokeh/server/views/*.ico
+include src/bokeh/util/sampledata.json
+include src/bokeh/_sri.json
+include src/bokeh/LICENSE.txt
+include src/bokeh/py.typed
+
+# start with an empty static/ dir
+prune src/bokeh/server/static
+
+# include bundles
+include src/bokeh/server/static/js/bokeh*.js
+include src/bokeh/server/static/js/bokeh*.min.js
+
+# don't include ESM bundles yet
+exclude src/bokeh/server/static/js/bokeh*.esm.js
+exclude src/bokeh/server/static/js/bokeh*.esm.min.js
+
+# include extensions' compiler
+include src/bokeh/server/static/js/compiler.js
+
+# include bokeh's and typescript's type declarations
+recursive-include src/bokeh/server/static/js/lib *.d.ts
+recursive-include src/bokeh/server/static/lib *.d.ts

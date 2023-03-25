@@ -1,0 +1,39 @@
+.. _release-0-12-0:
+
+0.12.0
+======
+
+Bokeh Version ``0.12.0`` (Jun 2016) is a large release with many new
+improvements:
+
+* Responsive layout and styling improvements throughout
+* BokehJS plotting and charts APIs for pure JS dev
+* Legends can be placed outside / next to the central plot area
+* Expanded WebGL support to all markers, fixed webgl bugs
+* New color palettes: Viridis, Magma, Inferno, and Plasma
+* New model types:
+
+  - Arrow, Title, and Label annotations
+  - LogColorMapper for scaled color mapping
+  - FuncTickFormatter for simpler custom ticking
+
+* Support for computed transforms (e.g. Jitter) on data columns
+* Documentation improvements:
+
+  - re-done user gude sections for layout
+  - new user guide sections for JS APIs
+  - new user guide sections for custom extensions
+
+* Server features:
+
+  - unlocked callbacks for use with threads
+  - "--num-threads" option for simpler deployment
+  - new index landing page listing installed aps
+
+* UX improvements
+
+  - toolbar moved to the right, and made sticky, by default
+  - left aligned title, closer in, by default
+  - smaller, italic axes labels
+
+* New hosted demos at https://demo.bokeh.org

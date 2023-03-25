@@ -1,0 +1,11 @@
+.. _release-2-3-2:
+
+2.3.2
+=====
+
+Bokeh Version ``2.3.2`` (May 2021) is a patch-release that fixes bugs that
+affects downstream projects:
+
+* SelectionGeometry event is slow compared to js equivalent(:bokeh-issue:`11169`)
+* Forward slash is changed to %2F in link (:bokeh-issue:`11182`)
+* Cannot clear active of RadiGroup (:bokeh-issue:`11203`)

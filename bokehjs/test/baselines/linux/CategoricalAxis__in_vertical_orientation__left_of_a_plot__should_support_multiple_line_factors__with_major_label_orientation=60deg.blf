@@ -1,0 +1,3 @@
+Plot bbox=[0, 0, 100, 300]
+  CartesianFrame bbox=[93, 20, 7, 260]
+  CategoricalAxis bbox=[0, 20, 93, 260]

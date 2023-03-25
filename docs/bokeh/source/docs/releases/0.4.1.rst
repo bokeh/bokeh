@@ -1,0 +1,12 @@
+.. _release-0-4-1:
+
+0.4.1
+=====
+
+Bokeh ``0.4.1`` (Feb 2014) is a minor release:
+
+* Improved MPL interface, LineCollection plus examples
+* Scala interface
+* Categorical axes and ranges
+* Hover tool
+* Improved pan/zoom tool interactions

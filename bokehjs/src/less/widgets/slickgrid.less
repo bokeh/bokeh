@@ -1,0 +1,87 @@
+@slickgrid: "../../../node_modules/@bokeh/slickgrid";
+
+@import (less) "@{slickgrid}/slick.grid.css";
+@import (less) "@{slickgrid}/slick-default-theme.css";
+@import (less) "@{slickgrid}/plugins/slick.headerbuttons.css";
+@import (less) "@{slickgrid}/plugins/slick.headermenu.css";
+@import (less) "@{slickgrid}/controls/slick.columnpicker.css";
+@import (less) "@{slickgrid}/controls/slick.pager.css";
+
+@slickgrid_images: "@{slickgrid}/images";
+
+// slick-default-theme.css
+.slick-header-columns {
+  border-bottom: 1px solid silver;
+  background-image: none;
+}
+
+.slick-header-column {
+  border-right: 1px solid transparent;
+  background-image: none;
+}
+
+.slick-header-column:last-of-type {
+  border-right-color: transparent;
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+  background-color: #F0F8FF;
+  background-image: none;
+}
+
+// slick-default-theme.css
+.slick-header-columns {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-bg.gif");
+}
+
+.slick-header-column:hover, .slick-header-column-active {
+  background-image: none; // data-uri("@{slickgrid_images}/header-columns-over-bg.gif");
+}
+
+.slick-group-toggle.expanded {
+  background-image: data-uri("@{slickgrid_images}/collapse.gif");
+}
+
+.slick-group-toggle.collapsed {
+  background-image: data-uri("@{slickgrid_images}/expand.gif");
+}
+
+.slick-group-select-checkbox.checked {
+  background-image: data-uri("@{slickgrid_images}/GrpCheckboxY.png");
+}
+
+.slick-group-select-checkbox.unchecked {
+  background-image: data-uri("@{slickgrid_images}/GrpCheckboxN.png");
+}
+
+// slick.grid.css
+.slick-sort-indicator-desc {
+  background-image: data-uri("@{slickgrid_images}/sort-desc.gif");
+}
+
+.slick-sort-indicator-asc {
+  background-image: data-uri("@{slickgrid_images}/sort-asc.gif");
+}
+
+// plugins/slick.headermenu.css
+.slick-header-menubutton {
+  background-image: data-uri("@{slickgrid_images}/down.gif");
+}
+
+// plugins/slick.rowdetailview.css
+.detailView-toggle.expand {
+  background-image: data-uri("@{slickgrid_images}/arrow-right.gif");
+}
+
+.detailView-toggle.collapse {
+  background-image: data-uri("@{slickgrid_images}/sort-desc.gif");
+}
+
+// controls/slick.pager.css
+.slick-pager {
+  background-image: none;
+}

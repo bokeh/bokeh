@@ -1,0 +1,37 @@
+- path: "examples/advanced/extensions/*"
+  skip: ["widget.py"]
+  no_js: ["gears"]
+
+- path: "examples/basic/**"
+  skip: ["ajax_source.py", "server_sent_events_source.py"]
+
+- path: "examples/integration/**"
+
+- path: "examples/interaction/**"
+  skip: ["doc_js_events.py"]
+
+- path: "examples/models/*"
+  no_js: ["maps_cities.py", "maps.py", "trail.py"]
+
+- path: "examples/output/webgl/*"
+
+- path: "examples/output/apis/*"
+  skip: ["autoload_static.py", "autoload_static_flask.py", "components.py", "components_themed.py", "json_item.py", "json_item_themed.py", "server_document", "server_session"]
+
+- path: "examples/plotting/*"
+
+- path: "examples/server/app/*"
+  type: server
+  skip: [
+    "faces",
+    "simple_hdf5",
+    "spectrogram",
+    "stocks",      # Bokeh.index not avaiable, can't compute bbox
+    "surface3d",   # Bokeh.index not avaiable, can't compute bbox
+  ]
+
+- path: "examples/styling/**"
+
+- path: "examples/topics/**"
+  slow: ["geo/choropleth.py"]
+  no_js: ["geo/gmap.py"]

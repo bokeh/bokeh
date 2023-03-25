@@ -1,0 +1,17 @@
+coverage:
+  range: 85..95
+  status:
+    project:
+      bokeh:
+        target: auto
+        threshold: 1%
+        flags:
+          - integration
+          - minimal
+          - unit
+        paths:
+          - "src"
+
+comment:
+  layout: "diff"
+  behavior: once

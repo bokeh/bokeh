@@ -1,0 +1,23 @@
+[
+    ["CGM.csv",                                     "db498f26107d24a57c6739181fd22099"],
+    ["US_Counties.zip",                             "a66149494850e1cea70219bbd1439fa0"],
+    ["us_cities.json",                              "752e0ff8c11f56da3e6cd6fbfabad864"],
+    ["unemployment09.csv",                          "c81a05bdad4c76cd4f91721f9ee88a5a"],
+    ["AAPL.csv",                                    "efce638e972e51a87edeb1ce742effa9"],
+    ["FB.csv",                                      "4565ada5427deb9e20366c235d9f4f3f"],
+    ["GOOG.csv",                                    "2cea7d1b8870f51a04787765f1a27c82"],
+    ["IBM.csv",                                     "b0e59e3d1a07a514103cab07f2a64be3"],
+    ["MSFT.csv",                                    "0108831ca1055dbe430350d4404a4e9d"],
+    ["WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.zip", "3eaed1eb0a096d6465bd92df2a720e8b"],
+    ["gapminder_fertility.csv",                     "4eafa0b4b474413e5353de0c89fb889a"],
+    ["gapminder_population.csv",                    "30e93fe2db4dc35a702d119fe3a1f655"],
+    ["gapminder_life_expectancy.csv",               "1a037146e4082f71c5b088121876ae89"],
+    ["gapminder_regions.csv",                       "586733f0d562498c21f999b350909603"],
+    ["world_cities.zip",                            "f9ae6d9019b67541144e455b8c5eb851"],
+    ["airports.json",                               "b946620186bb2ffa82582614c0a70d5a"],
+    ["movies.db.zip",                               "8a7d9c1e82a4c4758dd4b0f826b991a7"],
+    ["airports.csv",                                "adb72c88d638dd6f6e39f32e37378bd6"],
+    ["routes.csv",                                  "e69f7519769c29498f058cd34b16495d"],
+    ["haarcascade_frontalface_default.xml",         "a03f92a797e309e76e6a034ab9e02616"],
+    ["SampleSuperstore.csv.zip",                    "4c92bac7f4e66e7fa1ac0b9aae648f30"]
+]

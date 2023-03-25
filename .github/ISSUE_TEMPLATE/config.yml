@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Bokeh Discourse
+    url: https://discourse.bokeh.org
+    about: Any other issue, including usage questions

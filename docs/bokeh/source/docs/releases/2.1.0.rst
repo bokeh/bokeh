@@ -1,0 +1,12 @@
+.. _release-2-1-0:
+
+2.1.0
+=====
+
+Bokeh Version ``2.1.0`` (June 2020) is a minor-release.
+
+* New scatter marker types (:bokeh-issue:`9863`, :bokeh-issue:`9890`)
+* Performance improvements (:bokeh-issue:`9515`, :bokeh-issue:`10006`, :bokeh-issue:`10021`, :bokeh-issue:`10072`)
+* ``push_notebook`` fixed for Google Colaboratory (:bokeh-issue:`9302`)
+* Tools fixes and features (:bokeh-issue:`4567`, :bokeh-issue:`9909`, :bokeh-issue:`9959`, :bokeh-issue:`9963`, :bokeh-issue:`10107`, :bokeh-issue:`10085`)
+* Fix "Themed glyphs not applying" (:bokeh-issue:`6821`)

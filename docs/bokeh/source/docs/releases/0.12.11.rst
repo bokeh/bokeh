@@ -1,0 +1,11 @@
+.. _release-0-12-11:
+
+0.12.11
+=======
+
+Bokeh Version ``0.12.11`` (Nov 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* ``Step`` glyph for step lines added (:bokeh-issue:`3644`)
+* Level-of-Detail works with linked plots (:bokeh-issue:`5937`)
+* Bokeh applications in notebooks made simpler to create (:bokeh-issue:`6565`)

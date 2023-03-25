@@ -1,0 +1,12 @@
+attrs:
+  Plot:
+    width: 400
+    height: 400
+    background_fill_color: 'lightgrey'
+    background_fill_alpha: 0.2
+
+  Grid:
+    grid_line_color: null
+
+  Title:
+    text_font_size: '13px'

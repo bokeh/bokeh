@@ -1,0 +1,92 @@
+{% extends base %}
+{% block preamble %}
+
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+  <!-- Custom Style -->
+  <link href="dash/static/css/custom.css" rel="stylesheet">
+
+{% endblock %}
+
+{% block contents %}
+
+<div class="container body">
+  <div class="main_container">
+
+
+    <!-- page content -->
+    <div class="right_col" role="main">
+
+      <!-- top tiles -->
+      <div class="row tile_count">
+        {% for name in stats_names %}
+        <div class="col-md-2 col-sm-4 col-xs-6 tile_stats_count">
+          <span class="count_top"><i class="fa fa-{{stats[name].icon}}"></i> {{ stats[name].label }}</span>
+          <div class="count">{{ stats[name].value }}</div>
+          {% set color = "green" if stats[name].change >0 else "red" %}
+          {% set dir = "asc" if stats[name].change >0 else "desc" %}
+          <span class="count_bottom"><i class="{{color}}"}><i class="fa fa-sort-{{dir}}"></i>{{ stats[name].change }}% </i> From last Week</span>
+        </div>
+        {% endfor %}
+      </div>
+      <!-- /top tiles -->
+
+      <div class="row">
+
+          <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel tile fixed_height_390 overflow_hidden">
+              <div class="row x_title">
+                <div class="col-md-6">
+                  <h3>Network Activities <small>Traffic per day</small></h3>
+                </div>
+              </div>
+              {{ embed(roots.line) }}
+            </div>
+          </div>
+
+      </div>
+
+      <div class="row">
+
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="x_panel tile fixed_height_320 overflow_hidden">
+            <div class="x_title">
+              <h2>By Region</h2>
+              <div class="clearfix"></div>
+            </div>
+            {{ embed(roots.region) }}
+          </div>
+        </div>
+
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="x_panel tile fixed_height_320 overflow_hidden">
+            <div class="x_title">
+              <h2>By Platform</h2>
+              <div class="clearfix"></div>
+            </div>
+            {{ embed(roots.platform) }}
+          </div>
+        </div>
+
+
+        <div class="col-md-4 col-sm-4 col-xs-12">
+          <div class="x_panel tile fixed_height_320 overflow_hidden">
+            <div class="x_title">
+              <h2>Details</h2>
+              <div class="clearfix"></div>
+            </div>
+            {{ embed(roots.table) }}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+<!-- /page content -->
+
+{% endblock %}

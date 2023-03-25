@@ -1,0 +1,4 @@
+Column bbox=[0, 0, 310, 190]
+  MultiChoice bbox=[5, 5, 206, 32]
+  Button bbox=[5, 47, 71, 28]
+  DataTable bbox=[5, 85, 300, 100]

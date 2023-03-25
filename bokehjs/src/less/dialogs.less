@@ -1,0 +1,71 @@
+@import "./_mixins.less";
+
+:host {
+  --bokeh-bg-color: white;
+  --bokeh-border-color: #e5e5e5;
+  --bokeh-shadow-color: #e5e5e5;
+}
+
+:host {
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  /*
+  min-width: 10vw;
+  min-height: 10vh;
+  width: max-content;
+  height: max-content;
+  max-width: 80vw;
+  max-height: 60vh;
+  */
+  width: 80vw;
+  height: 60vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  background-color: var(--bokeh-bg-color);
+  border: 1px solid var(--bokeh-border-color);
+  box-shadow: 5px 5px 10px var(--bokeh-shadow-color);
+}
+
+.bk-title {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.bk-content {
+  position: relative;
+  flex: 1;
+  min-height: 100%;
+  display: flex;
+}
+
+.bk-buttons {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.bk-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+
+  .icon-mask(var(--bokeh-icon-x), gray);
+
+  &:hover {
+    background-color: red;
+  }
+}

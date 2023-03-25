@@ -1,0 +1,4 @@
+Column bbox=[0, 0, 160, 260]
+  TextInput bbox=[20, 20, 120, 46]
+  TextInput bbox=[20, 107, 120, 46]
+  TextInput bbox=[20, 193, 120, 46]

@@ -1,0 +1,25 @@
+attrs:
+  Plot:
+    outline_line_color: null
+    toolbar_location: null
+    min_border: 20
+
+  Axis:
+    minor_tick_in: 0
+    minor_tick_out: 0
+    major_tick_in: 0
+    major_label_text_font_size: '13px'
+    major_label_text_font_style: 'normal'
+    axis_label_text_font_size: '13px'
+
+    axis_line_color: '#AAAAAA'
+    major_tick_line_color: '#AAAAAA'
+    major_label_text_color: '#666666'
+
+    major_tick_line_cap: 'round'
+    axis_line_cap: 'round'
+    axis_line_width: 1
+    major_tick_line_width: 1
+
+  Grid:
+    grid_line_alpha: 0.4

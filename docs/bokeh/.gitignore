@@ -1,0 +1,4 @@
+/build
+/source/**/*.html
+/source/docs/gallery/*
+/source/docs/examples/*

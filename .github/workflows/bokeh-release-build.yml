@@ -1,0 +1,65 @@
+name: Release - Build
+run-name: Release - Build ${{ github.event.inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to build a release for (e.g. 3.0.0, 2.4.0.dev8)"
+        required: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+
+  build:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Check Maintainer
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
+        run: |
+          if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
+            echo
+            echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
+            git config --global user.email "info@bokeh.org"
+            git config --global user.name "${{github.actor}}"
+            exit 0
+          fi
+          echo
+          echo "User is NOT authorized to build releases, aborting..."
+          echo
+          echo "Please contact @bokeh/core about conducting releases."
+          exit 1
+
+      - uses: actions/checkout@v3
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-release-build
+          environment-file: conda/environment-release-build.yml
+
+      - name: Install sampledata
+        run: python src/bokeh/util/sampledata.py
+
+      - name: Post install status
+        run: |
+          echo "node $(node --version)"
+          echo "npm $(npm --version)"
+          conda info
+          conda list
+
+      - name: Build Release Tarball
+        env:
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
+        run: python -m release build $BOKEH_VERSION

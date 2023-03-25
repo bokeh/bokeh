@@ -1,0 +1,67 @@
+@import (less) "../../../node_modules/nouislider/dist/nouislider.css";
+
+.noUi-handle {
+  cursor: grab;
+  cursor: -webkit-grab;
+
+  &.noUi-active {
+    cursor: grabbing;
+    cursor: -webkit-grabbing;
+  }
+
+  &:after, &:before {
+    display: none;
+  }
+}
+
+.noUi-tooltip {
+  display: none;
+  white-space: nowrap;
+}
+
+.noUi-handle:hover {
+  .noUi-tooltip {
+    display: block;
+  }
+}
+
+:host {
+  --slider-size: 10px;
+
+  --handle-width: 14px;
+  --handle-height: 18px;
+  --handle-right: calc(-1*var(--handle-width)/2);
+  --handle-top: calc(-1*(var(--handle-height) - var(--slider-size))/2 - 1px);
+
+  --slider-margin: calc((var(--handle-height) - var(--slider-size))/2 + 1px);
+}
+
+.noUi-horizontal {
+  width: 100%;
+  height: var(--slider-size);
+}
+.noUi-vertical {
+  width: var(--slider-size);
+  height: 100%;
+}
+
+.noUi-horizontal .noUi-handle {
+  width: var(--handle-width);
+  height: var(--handle-height);
+  right: var(--handle-right);
+  top: var(--handle-top);
+}
+.noUi-vertical .noUi-handle {
+  width: var(--handle-height);
+  height: var(--handle-width);
+  right: var(--handle-top);
+  top: var(--handle-right);
+}
+
+.noUi-target.noUi-horizontal {
+  margin: var(--slider-margin) 0px;
+}
+
+.noUi-target.noUi-vertical {
+  margin: 0px var(--slider-margin);
+}

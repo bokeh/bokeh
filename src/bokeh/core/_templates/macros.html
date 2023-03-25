@@ -1,0 +1,3 @@
+{% macro embed(obj) -%}
+<div id="{{ obj.elementid }}"{% if obj.id %} data-root-id="{{ obj.id }}"{% endif %} style="display: contents;"></div>
+{%- endmacro %}

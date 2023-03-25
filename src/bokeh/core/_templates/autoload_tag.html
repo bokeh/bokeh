@@ -1,0 +1,24 @@
+{#
+Renders ``<script>`` tags that automatically load BokehJS (if necessary)
+and then renders a Bokeh model or document. The document may be specified
+as either an embedded doc ID or a server session ID. If a specific model
+ID is not specified, the entire document will be rendered.
+
+:param src_path: path to AUTOLOAD script
+:type src_path: str
+
+:param elementid: the a unique id for the script tag
+:type elementid: str
+
+:param modelid: The Bokeh model id for the object to render (if missing, render
+    the whole doc; if present, only render the one model)
+:type modelid: str
+
+:param docid: The id of the embedded Bokeh document to render
+:type docid: str
+
+.. note::
+    This script injects a ``<div>`` in place, so must be placed under ``<body>``.
+
+-#}
+<script src="{{ src_path }}" id="{{ elementid }}"></script>

@@ -1,0 +1,11 @@
+.. _release-0-13-0:
+
+0.13.0
+======
+
+Bokeh Version ``0.13.0`` (June 2018) is an incremental update that adds a few
+new features and fixes several bugs. Some of the highlights include:
+
+* Improved hover tool fields for common stacked bar plot cases
+* New ``CumSum`` transform to generate values from cumulative sums
+  of CDS columns on the client side.

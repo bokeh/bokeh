@@ -1,0 +1,31 @@
+{% extends base %}
+
+{% block postamble %}
+  <style>
+    h1 {
+      margin: 2em 0 0 0;
+      color: #2e484c;
+      font-family: 'Julius Sans One', sans-serif;
+      font-size: 1.4em;
+      text-transform: uppercase;
+    }
+    p {
+      font: "Libre Baskerville", sans-serif;
+      text-align: justify;
+      text-justify: inter-word;
+    }
+  </style>
+{% endblock %}
+
+{% block contents %}
+  <div>
+    <h1>Export data to CSV</h1>
+    <p> This demo uses a <code>CustomJS</code> callback to export <code>DataTable</code> contents to CSV.
+    <p><b>NOTE</b>: On Safari the CSV will open in a new tab, rather than downloading.</p>
+    <ul style="list-style-type:circle">
+      <li>Scrub the "Max Salary" slider and watch the <code>DataTable</code> change.</li>
+      <li>Click the "Download" button to export data to a CSV file.</li>
+    </ul>
+  </div>
+  {{ super() }}
+{% endblock %}

@@ -1,0 +1,12 @@
+{#
+Renders a ``<script>`` tag for raw JavaScript code.
+
+:param js_code: raw JavaScript code to put in the tag.
+:type js_code: str
+
+#}
+
+<script type="{{ type }}"{% if id %} id="{{ id }}"{% endif %}>
+{# Already indented in wrappers.py #}
+{{ js_code }}
+</script>

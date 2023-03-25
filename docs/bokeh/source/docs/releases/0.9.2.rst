@@ -1,0 +1,15 @@
+.. _release-0-9-2:
+
+0.9.2
+=====
+
+Bokeh ``0.9.2`` (Jul 2015) provides several bugfixes. Additionally, the MPL
+compatibility layer was updated.
+
+* Several nan-related fixes including the slow rendering of plots
+* Removed some unused dependencies
+* Fixes in our automated release process
+* Fixed the patchs vanishing on selection
+* More control over ticks and gridlines
+* MPL compatibility updated
+* Several examples updated

@@ -1,0 +1,13 @@
+.. _release-2-0-1:
+
+2.0.1
+=====
+
+Bokeh Version ``2.0.1`` (April 2020) is a micro-release that fixes some bugs and
+improves some small features. Highlights include:
+
+* Addressing a Cross-Origin Resource Sharing (CORS) issue seen in Chrome and
+  Chromium-based browsers :bokeh-issue:`9773`.
+* Adding multi-file support for FileInput widgets :bokeh-issue:`9727`
+* Bokeh server can now serve custom extension code :bokeh-issue:`9799`
+* A handful of documentation clarifications, corrections, and expansions

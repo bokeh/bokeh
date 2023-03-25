@@ -1,0 +1,63 @@
+name: Feature request
+description: Suggest an idea for this project
+title: "[FEATURE] "
+labels: TRIAGE
+body:
+  - type: markdown
+    attributes:
+      value: "# Feature request"
+  - type: markdown
+    attributes:
+      value: Thank you for helping us improve Bokeh!
+  - type: markdown
+    attributes:
+      value: >
+        See [Creating issues](https://docs.bokeh.org/en/latest/docs/dev_guide/creating_issues.html)
+        in the [Bokeh contributor guide](https://docs.bokeh.org/en/latest/docs/dev_guide.html)
+        for more information on how to file an issue.
+  - type: markdown
+    attributes:
+      value: >
+        Please be aware that the issue tracker is NOT the place for general
+        support. For questions and technical assistance, come join the
+        [Bokeh Project Discourse](https://discourse.bokeh.org).
+  - type: markdown
+    attributes:
+      value: ---
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem description
+      description: >-
+        Describe the problem you would like to solve with the suggested
+        feature. Please be as clear and concise as possible.
+    validations:
+      required: true
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature description
+      description: >-
+        Describe the solution you would like to see for the problem. Please
+        provide a clear and concise description of what you want to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Potential alternatives
+      description: >-
+        Describe any potential alternative solutions you have considered.
+    validations:
+      required: true
+  - type: textarea
+    id: additional_info
+    attributes:
+      label: Additional information
+      description: >-
+        Add any additional information you think will be helpful to better
+        understand the feature you are proposing. This can be screenshots or
+        [screencasts](https://github.blog/2021-05-13-video-uploads-available-github/)
+        that demonstrate the behavior you are requesting, for example.
+    validations:
+      required: false

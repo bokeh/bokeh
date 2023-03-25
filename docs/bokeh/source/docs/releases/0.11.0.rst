@@ -1,0 +1,35 @@
+.. _release-0-11-0:
+
+0.11.0
+======
+
+Bokeh Version ``0.11.0`` (Jan 2016) is a large release with many new improvements
+
+* New Tornado and websocket-based Bokeh Server
+
+  - ``bokeh`` command line tool for creating applications
+  - expanded docs including deployment guidance
+  - video demonstrations and tutorials
+  - supports async, periodic, timeout and model event callbacks
+  - python client API
+
+* User-Defined Models allowing anyone to extend Bokeh
+* GeoJSON data source and map tiles renderer
+* WebGL support for rendering lines
+* Python -> JS compilation for CustomJS callbacks (Py3 only for now)
+* New general push_notebook() based on Jupyter comms
+* Updates to charts
+
+  - all legacy charts converted
+  - more examples and expanded docs
+
+* UX improvements
+
+  - configurable and "auto" range bounds
+  - wheel zoom scroll capture turned off by default
+  - hover policy for glyphs
+  - responsive improvements
+
+* Known issues
+
+  - annulus glyph does not render correctly on IE and Edge

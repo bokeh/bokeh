@@ -1,0 +1,11 @@
+.. _release-0-12-9:
+
+0.12.9
+======
+
+Bokeh Version ``0.12.9`` (Sep 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* JupyterLab integration with the ``jupyterlab_bokeh`` extension
+* Efficient binary transport for sending arrays to clients
+* Improvements to new Graph/Network capability

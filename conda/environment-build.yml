@@ -1,0 +1,14 @@
+name: bk-test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.9
+
+  - build
+  - conda-build=3.22.0
+  - conda-verify=3.4.2
+  - libiconv
+  - nodejs 18.*
+  - ripgrep=0.10.0
+  - setuptools
+  - yaml

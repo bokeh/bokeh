@@ -1,0 +1,18 @@
+.. _release-1-4-0:
+
+1.4.0
+=====
+
+Bokeh Version ``1.4.0`` (October 2019) is a significant release that marks the
+end of support for Python 2.7 and Python 3.5 and earlier.
+
+*Starting with the next release, Bokeh 2.0, Python 3.6 or later will be required.*
+
+This release includes several important fixes and features:
+
+* Complete new site design for documentation, including search  :bokeh-issue:`8209`
+* Jupyterlab ipywidgets integrations  :bokeh-issue:`9137`
+* Security related improvements to the Bokeh server   :bokeh-issue:`9139`, :bokeh-issue:`9140`
+* New integration added fot Django Channels   :bokeh-issue:`9009`
+* Precompiled Bokeh extensions   :bokeh-issue:`9196`
+* Legend improvements  :bokeh-issue:`9135`,  :bokeh-issue:`9144`

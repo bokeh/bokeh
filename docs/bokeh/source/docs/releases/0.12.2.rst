@@ -1,0 +1,17 @@
+.. _release-0-12-2:
+
+0.12.2
+======
+
+Bokeh version 0.12.2 (Sept 2016) is aminor update that adds a few "small in
+footprint, but big in impact" features and several bug fixes including:
+
+* Client-side color mapping support for all glyphs
+* New color bar annotation
+* Support for loading external resources in custom models
+* Hit-testing support for MultiLine glyphs
+* Improved hover tooltip default styling
+* Addition of the Brewer qualitative color palettes
+* Fix intermittent issues with BokehJS loading in Jupyter Notebooks
+* Split of the Bokeh JS API into a stand-alone bundle
+* Many small bug fixes

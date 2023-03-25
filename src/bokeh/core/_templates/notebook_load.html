@@ -1,0 +1,80 @@
+{#
+Renders HTML for loading BokehJS JavaScript code and CSS into a Jupyter
+Notebook according to a Resources object.
+
+:param plot_resources: typically the output of RESOURCES
+:type plot_resources: str
+
+:param verbose: whether to display verbose info about BokehJS configuration, etc
+:type verbose: bool
+
+:param bokeh_version: the current version of Bokeh
+:type bokeh_version: str
+
+:param js_info: information about the location, version, etc. of BokehJS code
+:type js_info: str
+
+:param css_info: information about the location, version, etc. of BokehJS css
+:type css_info: str
+
+:param warnings: a list of warnings to display to user
+:type warnings: list[str]
+
+-#}
+    <style>
+        .bk-notebook-logo {
+            display: block;
+            width: 20px;
+            height: 20px;
+            background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAABx0RVh0U29mdHdhcmUAQWRvYmUgRmlyZXdvcmtzIENTNui8sowAAAOkSURBVDiNjZRtaJVlGMd/1/08zzln5zjP1LWcU9N0NkN8m2CYjpgQYQXqSs0I84OLIC0hkEKoPtiH3gmKoiJDU7QpLgoLjLIQCpEsNJ1vqUOdO7ppbuec5+V+rj4ctwzd8IIbbi6u+8f1539dt3A78eXC7QizUF7gyV1fD1Yqg4JWz84yffhm0qkFqBogB9rM8tZdtwVsPUhWhGcFJngGeWrPzHm5oaMmkfEg1usvLFyc8jLRqDOMru7AyC8saQr7GG7f5fvDeH7Ej8CM66nIF+8yngt6HWaKh7k49Soy9nXurCi1o3qUbS3zWfrYeQDTB/Qj6kX6Ybhw4B+bOYoLKCC9H3Nu/leUTZ1JdRWkkn2ldcCamzrcf47KKXdAJllSlxAOkRgyHsGC/zRday5Qld9DyoM4/q/rUoy/CXh3jzOu3bHUVZeU+DEn8FInkPBFlu3+nW3Nw0mk6vCDiWg8CeJaxEwuHS3+z5RgY+YBR6V1Z1nxSOfoaPa4LASWxxdNp+VWTk7+4vzaou8v8PN+xo+KY2xsw6une2frhw05CTYOmQvsEhjhWjn0bmXPjpE1+kplmmkP3suftwTubK9Vq22qKmrBhpY4jvd5afdRA3wGjFAgcnTK2s4hY0/GPNIb0nErGMCRxWOOX64Z8RAC4oCXdklmEvcL8o0BfkNK4lUg9HTl+oPlQxdNo3Mg4Nv175e/1LDGzZen30MEjRUtmXSfiTVu1kK8W4txyV6BMKlbgk3lMwYCiusNy9fVfvvwMxv8Ynl6vxoByANLTWplvuj/nF9m2+PDtt1eiHPBr1oIfhCChQMBw6Aw0UulqTKZdfVvfG7VcfIqLG9bcldL/+pdWTLxLUy8Qq38heUIjh4XlzZxzQm19lLFlr8vdQ97rjZVOLf8nclzckbcD4wxXMidpX30sFd37Fv/GtwwhzhxGVAprjbg0gCAEeIgwCZyTV2Z1REEW8O4py0wsjeloKoMr6iCY6dP92H6Vw/oTyICIthibxjm/DfN9lVz8IqtqKYLUXfoKVMVQVVJOElGjrnnUt9T9wbgp8AyYKaGlqingHZU/uG2NTZSVqwHQTWkx9hxjkpWDaCg6Ckj5qebgBVbT3V3NNXMSiWSDdGV3hrtzla7J+duwPOToIg42ChPQOQjspnSlp1V+Gjdged7+8UN5CRAV7a5EdFNwCjEaBR27b3W890TE7g24NAP/mMDXRWrGoFPQI9ls/MWO2dWFAar/xcOIImbbpA3zgAAAABJRU5ErkJggg==);
+        }
+    </style>
+    <div>
+        <a href="https://bokeh.org" target="_blank" class="bk-notebook-logo"></a>
+        <span id="{{ element_id }}">Loading BokehJS ...</span>
+    </div>
+    {% if verbose %}
+    <style>
+        p.bokeh_notebook { margin-left: 24px; }
+        table.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            margin: 5px;
+            margin-left: 24px;
+            width: 80%;
+        }
+        tr.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #FFF;
+        }
+        th.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #f8f8f8;
+            text-align: center;
+        }
+        td.bokeh_notebook {
+            border: 1px solid #e7e7e7;
+            background-color: #d2d7ec;
+            text-align: left;
+        }
+    </style>
+    <p class="bokeh_notebook">Using Settings:</p>
+    <table class="bokeh_notebook">
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook">Bokeh</th>
+            <th class="bokeh_notebook">version</th>
+            <td class="bokeh_notebook">{{ bokeh_version }}</td>
+        </tr>
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook" rowspan="2">BokehJS</th>
+            <th class="bokeh_notebook">js</th>
+            <td class="bokeh_notebook">{{ js_info }}</td>
+        </tr>
+        <tr class="bokeh_notebook">
+            <th class="bokeh_notebook">css</th>
+            <td class="bokeh_notebook">{{ css_info }}</td>
+        </tr>
+    </table>
+    {% endif %}
+    {% for warning in warnings %}
+    <p style="background-color: #f2d7dc;">{{ warning }}</p>
+    {% endfor %}

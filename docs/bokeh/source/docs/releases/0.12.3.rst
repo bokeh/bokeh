@@ -1,0 +1,14 @@
+.. _release-0-12-3:
+
+0.12.3
+======
+
+Bokeh Version ``0.12.3`` (Oct 2016) is a minor, incremental update that adds
+a few new small features and fixes several bugs. Some of the highlights include:
+
+* BokehJS reduced in size by nearly twenty percent
+* New Categorical color mapper
+* Tap tool and tooltips working for VBar and HBar
+* Better hover tool support for some Charts
+* Auto-generate legends from data in a column
+* Many small bugfixes

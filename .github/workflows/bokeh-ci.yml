@@ -1,0 +1,351 @@
+name: Bokeh-CI
+
+on:
+  push:
+    branches:
+      - main
+      - branch-*
+  pull_request:
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+env:
+  CHROME_VER: "110.0.5481.100"
+  CHROME_REV: "chromium_2333"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # full history to get proper build version
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-test
+          environment-file: conda/environment-build.yml
+
+      - name: Install node modules
+        run: bash scripts/ci/install_node_modules.sh
+
+      - name: Build BokehJS
+        working-directory: ./bokehjs
+        run: node make build
+
+      - name: Build pip packages
+        env:
+          BOKEHJS_ACTION: 'install'
+        run: python -m build .
+
+      - name: Verify pip install from sdist
+        run: bash scripts/ci/verify_pip_install_from_sdist.sh
+
+      - name: Verify pip install using sdist
+        run: bash scripts/ci/verify_pip_install_using_sdist.sh
+
+      - name: Verify pip install using wheel
+        run: bash scripts/ci/verify_pip_install_using_wheel.sh
+
+      - name: Build conda package
+        run: bash scripts/ci/build_conda_package.sh
+
+      - name: Verify conda install
+        run: bash scripts/ci/verify_conda_install.sh
+
+      - name: Upload wheel package
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheel-package
+          path: dist/bokeh-*-py3-none-any.whl
+
+      - name: Upload bokehjs package
+        uses: actions/upload-artifact@v3
+        with:
+          name: bokehjs-package
+          path: bokehjs/build/dist/bokeh-bokehjs-*.tgz
+
+  codebase:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Configure line endings in git
+        if: runner.os == 'Windows'
+        run: git config --global core.autocrlf false
+
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.9'
+          source-tree: 'keep'
+          sampledata: 'cache'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Run codebase checks
+        run: pytest --color=yes tests/codebase
+
+      - name: MyPy
+        if: success() || failure()
+        run: mypy --version && mypy
+
+  examples:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.9'
+          source-tree: 'delete'
+          sampledata: 'cache'
+
+      - name: Install chromium
+        run: |
+          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
+            echo "Using pre-installed version of chromium"
+          else
+            URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
+            wget --no-verbose $URL/$CHROME_REV.assert
+            wget --no-verbose $URL/$CHROME_REV.snap
+
+            sudo snap ack $CHROME_REV.assert
+            sudo snap install $CHROME_REV.snap
+          fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+          chromium --version
+
+      - name: Start chrome headless
+        working-directory: ./bokehjs
+        run: node make test:spawn:headless # starts chrome in the background on port 9222
+
+      - name: Run tests
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: pytest -s -v --color=yes --tb line tests/test_examples.py
+
+      - name: Collect results
+        if: always()
+        env:
+          DST: "examples-report"
+        run: |
+          mkdir -p ${DST}
+          cp --parents examples-report.html $(cat .images-list) ${DST}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: examples-report
+          path: examples-report
+
+  integration-tests:
+    if: ${{ false }}  # disable for now
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.11'
+          source-tree: 'delete'
+          sampledata: 'cache'
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Run tests
+        run: pytest -v --cov=bokeh --cov-report=xml --tb=short --driver chrome --color=yes tests/integration
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          flags: integration
+          verbose: true
+
+  unit-test:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.9', '3.10', '3.11']
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: ${{ matrix.python-version }}
+          source-tree: 'delete'
+          sampledata: 'cache'
+
+      - name: Ensure Python version
+        run: if [[ ! "$(python --version | cut -d' ' -f2)" == "${{ matrix.python-version }}"* ]]; then exit 1; fi
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Test defaults
+        run: pytest tests/test_defaults.py
+
+      - name: Run tests
+        if: success() || failure()
+        run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        if: success() || failure()
+        with:
+          env_vars: OS,PYTHON
+          flags: unit
+          verbose: true
+
+  minimal-deps:
+    needs: build
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    env:
+      OS: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'minimal-deps'
+          source-tree: 'delete'
+          sampledata: 'none' # no sampledata for minimal tests
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Run tests
+        run: pytest -m "not sampledata" --cov=bokeh --cov-report=xml --color=yes tests/unit
+
+      - name: Upload code coverage
+        uses: codecov/codecov-action@v3
+        with:
+          env_vars: OS
+          flags: unit,minimal
+          verbose: true
+
+  documentation:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: '3.9'
+          source-tree: 'delete'
+          sampledata: 'download' # test at least one real download
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Build docs
+        run: bash scripts/ci/build_docs.sh
+
+      - name: Upload docs
+        uses: actions/upload-artifact@v3
+        with:
+          name: docs-html
+          path: docs/bokeh/docs-html.tgz
+
+  downstream:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Prepare Environment
+        uses: ./.github/workflows/composite/test-setup
+        with:
+          test-env: 'downstream'
+          source-tree: 'delete'
+          sampledata: 'none'
+
+      - name: Install downstream packages
+        run: bash scripts/ci/install_downstream_packages.sh
+
+      - name: List installed software
+        run: |
+          conda info
+          conda list
+
+      - name: Run tests
+        run: bash scripts/ci/run_downstream_tests.sh
+
+  docker_from_wheel:
+    if: ${{ false }}  # temporarily disable
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_TAG: bokeh/bokeh-dev:branch-3.1
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download wheel package
+        id: download
+        uses: actions/download-artifact@v3
+        with:
+          name: wheel-package
+          path: dist/
+
+      - name: Start Docker container, install Bokeh from wheel and run Python tests.
+        env:
+          BOKEH_DOCKER_FROM_WHEEL: 1
+          BOKEH_DOCKER_INTERACTIVE: 0
+        run: |
+          scripts/docker/docker_run.sh $IMAGE_TAG

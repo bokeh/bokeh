@@ -1,0 +1,45 @@
+.. _release-2-3-0:
+
+2.3.0
+=====
+
+Bokeh Version ``2.3.0`` (February 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
+
+* Multi-line axis and tick labels are now possible (:bokeh-issue:`8169`)
+* Log axes display using superscripts (:bokeh-issue:`8954`)
+* ``DataModel`` base class to define custom "properties-only" Bokeh subclasses
+  added (:bokeh-issue:`3674`)
+* Colorbar supports "eqhist" and categorical color mappings
+  (:bokeh-issue:`5618`,  :bokeh-issue:`10493`)
+* "Edges Only" inspection policy added for graphs (:bokeh-issue:`10637`)
+* Hatch patterns can be used with all fill-able glyphs and annotations
+  (:bokeh-issue:`10824`)
+* New "star" markers added (:bokeh-issue:`10836`)
+* Arrowheads and line-dash patterns can be vectorized
+  (:bokeh-issue:`6835`, :bokeh-issue:`10203`)
+* Tornado websocket compression options added (:bokeh-issue:`10798`)
+
+Important bug-fixes include:
+
+* A major bug with datetime precision causing several regressions was fixed
+  (:bokeh-issue:`10738`)
+* SVG export no longer flips images (:bokeh-issue:`10725`)
+* ``LabelSet`` and ``Whisker`` now work for categorical ranges
+  (:bokeh-issue:`10454`, :bokeh-issue:`10575`)
+* ``MultiLine`` hover fixed (:bokeh-issue:`10458`)
+* ``MultiChoice`` and ``MulitSelect`` disabling now works
+  (:bokeh-issue:`10452`, :bokeh-issue:`10507`)
+* Date sliders can use a ``TickFormatter`` (:bokeh-issue:`10458`)
+
+The documentation has also received renewed attention:
+
+* New `First steps <https://docs.bokeh.org/en/latest/docs/first_steps.html>`_
+  sections
+* Documentation updated to reflect
+  `new style guidelines <https://docs.bokeh.org/en/latest/docs/dev_guide/documentation.html#documentation-style-guidelines>`_
+* Basic OpenGraph metadata has been added to docs pages
+* New landing page on `docs.bokeh.org <https://docs.bokeh.org>`_
+
+Please note that the next release level (2.4) will drop support for Python 3.6,
+and also be the final release level to support IE and other legacy browsers.

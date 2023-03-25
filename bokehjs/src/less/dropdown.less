@@ -1,0 +1,41 @@
+@import "./_mixins.less";
+
+:host {
+  position: relative; // required to position the menu
+}
+
+.bk-menu {
+  &.bk-above {
+    bottom: 100%;
+  }
+  &.bk-below {
+    top: 100%;
+  }
+
+  position: absolute;
+  left: 0;
+  width: 100%;
+  .bring-to-front();
+
+  cursor: pointer;
+  font-size: var(--font-size);
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+
+  & > .bk-divider {
+    height: 1px;
+    margin: calc(var(--line-height-computed)/2 - 1px) 0;
+    overflow: hidden;
+    background-color: #e5e5e5;
+  }
+
+  & > :not(.bk-divider) {
+    padding: var(--padding-vertical) var(--padding-horizontal);
+
+    &:hover, &.bk-active {
+      background-color: darken(white, 10%);
+    }
+  }
+}

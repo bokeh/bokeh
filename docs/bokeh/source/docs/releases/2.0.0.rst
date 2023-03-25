@@ -1,0 +1,18 @@
+.. _release-2-0-0:
+
+2.0.0
+=====
+
+Bokeh Version ``2.0.0`` (March 2020) is a major milestone of the Bokeh project.
+This release cycle closed more than 180 issues. Highlights include:
+
+* Python 3.6+ is now required
+* New, modern  ``MultiChoice`` widget added :bokeh-issue:`9532`
+* BokehJS CDN resources are loaded with Sub-resource integrity hashes enabled :bokeh-issue:`8937`
+* New ``DatePicker`` implementation with more features :bokeh-issue:`9509`, :bokeh-issue:`9494`, :bokeh-issue:`6728`, :bokeh-issue:`8917`
+* Package relative imports work in directory-style Bokeh apps :bokeh-issue:`9545`
+* App sessions now use an expirable token that is not visible in query arguments :bokeh-issue:`3458`
+* Full HTTP header and cookies can be accessed by Bokeh app code :bokeh-issue:`9505`
+* Reference documentation show inherited properties on all Bokeh models :bokeh-issue:`4966`
+* IPyWidgets can be used in Bokeh applications, and Bokeh content can be put in IPyWidgets :bokeh-issue:`9590`
+* Added tile providers for ESRI and OSM :bokeh-issue:`9560`

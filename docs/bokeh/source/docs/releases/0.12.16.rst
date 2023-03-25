@@ -1,0 +1,15 @@
+.. _release-0-12-16:
+
+0.12.16
+=======
+
+Bokeh Version ``0.12.16`` (May 2018) is an incremental update that adds a few
+new features and fixes several bugs. Some of the highlights include:
+
+* Hover tools now work with image glyphs (:bokeh-issue:`3886`)
+* BokehJS exposes a public ``reset`` method for Plots (:bokeh-issue:`5071`)
+* Categorical tick labels at all levels may be rotates (:bokeh-issue`7643`)
+* New ``CustomJSHover`` for highly customized tooltip fields (:bokeh-issue:`7647`)
+* Axes may now have fixed positions inside plots (:bokeh-issue:`113`)
+* Small zoom tool enhancements (:bokeh-issue:`3126`, :bokeh-issue:`3125`, :bokeh-issue:`2427`)
+* ``MultiLine`` and ``Patches`` now function with categorical ranges (:bokeh-issue:`7462`)

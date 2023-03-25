@@ -1,0 +1,7 @@
+.. _release-0-12-10:
+
+0.12.10
+=======
+
+Bokeh Version ``0.12.10`` (Oct 2017) is an incremental update that adds a few
+important features and fixes several bugs.

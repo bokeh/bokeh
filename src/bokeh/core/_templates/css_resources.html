@@ -1,0 +1,19 @@
+{#
+Renders HTML that loads Bokeh CSS according to the configuration in a
+Resources object.
+
+:param css_files: a list of URIs for CSS files to include
+:type css_files: list[str]
+
+:param css_raw: a list of raw CSS snippets to put between ``<style>`` tags
+:type css_raw: list[str]
+
+-#}
+{% for file in css_files %}
+    <link rel="stylesheet" href="{{ file }}" type="text/css" />
+{% endfor %}
+{% for css in css_raw %}
+    <style>
+        {{ css }}
+    </style>
+{% endfor %}

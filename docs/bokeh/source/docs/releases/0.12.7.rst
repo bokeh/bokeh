@@ -1,0 +1,30 @@
+.. _release-0-12-7:
+
+0.12.7
+======
+
+Bokeh Version ``0.12.7`` (Aug 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* Support graphs/trees/networks (:bokeh-issue:`187`) including configurable
+  and extendable policies for highlighting and selection.
+* Filterable/Sliceable CDS views (:bokeh-issue:`4070`)
+* Pass HTTP request args to embedded sessions (:bokeh-issue:`5992`)
+* New :class:`~bokeh.models.expressions.Expression` models for client-side
+  computations, including :class:`~bokeh.models.expressions.Stack`, for
+  stacking CDS columns.
+* New module :ref:`bokeh.transform` with helper functions for simplifying
+  ``DataSpec`` expressions, including  :func:`~bokeh.transform.jitter`,
+  :func:`~bokeh.transform.dodge`, :func:`~bokeh.transform.factor_cmap`, etc.
+* Added :func:`~bokeh.plotting.figure.hbar_stack` and
+  :func:`~bokeh.plotting.figure.vbar_stack` to greatly simplify
+  creation of stacked bar charts.
+* Improvements for using Bokeh with Categorical data:
+
+  - Support multi-level categories and hierarchical axes
+  - Arbitrary limits on category names (e.g. no ``':'``) have been lifted
+  - Optional Pandas integration creates CDS from directly from ``GroupBy``
+    objects
+  - Categorical Bar, Heatmap and Scatter plots easier to create with stable
+    ``bokeh.plotting`` APIs
+  - New User's Guide chapter "Handling Categorical Data"

@@ -1,0 +1,41 @@
+.. _release-2-4-0:
+
+2.4.0
+=====
+
+Bokeh Version ``2.4.0`` (September 2021) is a new minor-release level that
+brings many updates. Some of the new feature work includes:
+
+First support for LaTeX- and MathML-based Mathtext (axis labels, tick labels,
+and Divs) over the course of several PRs: :bokeh-issue:`11466`,
+:bokeh-issue:`11525`, :bokeh-issue:`11584`,  :bokeh-issue:`11585`. Look for
+upcoming releases to extend support to titles, legends, and labels.
+
+Other work in this cycle includes:
+
+* Docs fixes and improvements
+    - Contributor's guide refreshed :bokeh-issue:`11513`
+    - ``pre-commit`` hooks added :bokeh-issue:`11442`
+    - Reference guide improvements  :bokeh-issue:`9961`, :bokeh-issue:`11445`, :bokeh-issue:`11563`
+    - Sampledata and gallery example data added :bokeh-issue:`9329`, :bokeh-issue:`11489`
+
+* WebGL fixes and improvements
+    - WebGL backend rewritten using ReGL :bokeh-issue:`10861`
+    - Dashed line styles fixed :bokeh-issue:`10876`
+    - Hatch patterns supported :bokeh-issue:`11159`
+    - Markers and rects re-use buffers efficiently :bokeh-issue:`11343`
+    - Implemented all marker types :bokeh-issue:`11098`
+
+* SVG fixes and improvements
+    - Fix line dash offset and hatch patterns :bokeh-issue:`11058`
+    - Missing ellipse glyph added :bokeh-issue:`11404`
+    - Clipping area problem fixed :bokeh-issue:`11551`
+
+* Misc fixes and improvements
+    - Labels can now be multi-line :bokeh-issue:`7317`
+    - Individual legend items and table columns can be hidden :bokeh-issue:`9261`, :bokeh-issue:`11423`
+    - Tab panels can be set to disabled :bokeh-issue:`10898`
+    - Toolbar buttons respect tab ordering :bokeh-issue:`11266`
+    - Radio button groups support vertical orientation :bokeh-issue:`11374`
+    - New consolidated RangesUpdate event :bokeh-issue:`11095`
+    - Output from json_items includes Bokeh version :bokeh-issue:`11146`

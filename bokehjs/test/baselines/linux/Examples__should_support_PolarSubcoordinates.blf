@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 900, 900]
+  CartesianFrame bbox=[20, 5, 875, 873]
+  LinearAxis bbox=[20, 878, 875, 22]
+  LinearAxis bbox=[0, 5, 20, 873]

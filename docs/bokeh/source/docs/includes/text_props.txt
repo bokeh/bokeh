@@ -1,0 +1,37 @@
+``text_font``
+    font name, e.g., ``'times'``, ``'helvetica'``
+
+``text_font_size``
+    font size in *px*, *em*, or *pt*, e.g., ``'16px'``, ``'1.5em'``
+
+``text_font_style``
+    font style to use
+
+    - ``'normal'`` normal text
+    - ``'italic'`` *italic text*
+    - ``'bold'`` **bold text**
+
+``text_color``
+    color to use to render text with
+
+``text_outline_color``
+    color to use to provide a stroked outline to text
+
+``text_alpha``
+    floating point between 0 (transparent) and 1 (opaque)
+
+``text_align``
+     horizontal anchor point for text: ``'left'``, ``'right'``, ``'center'``
+
+``text_baseline``
+    vertical anchor point for text
+
+    - ``'top'``
+    - ``'middle'``
+    - ``'bottom'``
+    - ``'alphabetic'``
+    - ``'hanging'``
+
+.. note::
+    There is currently only support for providing an outline color for text. An interface for more advanced control of stroked
+    outlines of text has not yet been exposed.

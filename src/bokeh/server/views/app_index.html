@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Basic Page Needs
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta charset="utf-8">
+  <title>Running Bokeh Applications</title>
+
+  <!-- Mobile Specific Metas
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- FONT
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600&Lato|Work+Sans:400,700&display=swap" rel="stylesheet" type='text/css'>
+
+
+  <!-- CSS
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="stylesheet" href="https://static.bokeh.org/vendor/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://bokeh.org//css/main.css" />
+
+  <!-- Favicon
+  –––––––––––––––––––––––––––––––––––––––––––––––––– -->
+  <link rel="apple-touch-icon" sizes="180x180" href="https://static.bokeh.org/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="https://static.bokeh.org/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="https://static.bokeh.org/favicon/favicon-16x16.png">
+  <link rel="manifest" href="https://static.bokeh.org/favicon/site.webmanifest">
+  <link rel="mask-icon" href="https://static.bokeh.org/favicon/safari-pinned-tab.svg" color="#5bbad5">
+  <meta name="msapplication-TileColor" content="#da532c">
+  <meta name="theme-color" content="#ffffff">
+
+</head>
+<body>
+
+  <!-- main menu -->
+  <div class="container py-3 py-lg-0">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light" id="main-menu">
+
+      <a class="navbar-brand" href="//bokeh.org" id="logo">
+        <img src="https://static.bokeh.org/logos/logotype.svg" height="30" width="110" />
+      </a>
+
+      <button class="navbar-toggler ml-auto hidden-sm-up float-xs-left" type="button" data-toggle="collapse" data-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <ul class="navbar-nav mr-auto">
+
+          <li class="nav-item flex-md-fill text-md-center">
+            <a class="nav-link" href="//docs.bokeh.org/en/latest">Documentation</a>
+          </li>
+
+          <li class="nav-item flex-md-fill text-md-center">
+            <a class="nav-link" href="//discourse.bokeh.org">Community</a>
+          </li>
+
+          <li class="nav-item flex-md-fill text-md-center">
+            <a class="nav-link" href="//mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">Tutorials</a>
+          </li>
+
+          <li class="nav-item flex-md-fill text-md-center">
+            <a class="nav-link" href="//demo.bokeh.org">Demos</a>
+          </li>
+
+          <li class="nav-item flex-md-fill text-md-center">
+            <a class="nav-link" href="//medium.com/bokeh">Blog</a>
+          </li>
+
+          <li class="nav-item flex-md-fill text-md-center">
+              <a class="nav-link" href="//github.com/bokeh/bokeh">GitHub</a>
+          </li>
+
+        </ul>
+      </div>
+
+    </nav>
+  </div>
+  <!-- end main menu -->
+
+  <!-- applications -->
+  <div class="container py-3 py-lg-0" style="min-height: 250px">
+    <br />
+    <h2>Active Bokeh Applications</h2>
+
+      <p>The following applications are currently running on this server:</p>
+      <div class="list-group list-group-flush">
+        {% for item in items %}
+        <h4><a href="{{ prefix }}{{ item }}">{{ item[1:] }}</a></h4>
+        {% end %}
+      </div>
+      <br />
+  </div>
+  <!-- end applications -->
+
+  <!-- footer -->
+  <footer class="container-fluid links">
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-3 col-md-6 col-sm-4 links-item">
+          <h6>Project</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="https://bokeh.org/roadmap/">Roadmap</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles">Team</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://bokeh.org/branding/">Branding</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-4 links-item">
+          <h6>Documentation</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/user_guide.html">User Guide</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/gallery.html">Gallery</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/reference.html">Reference Guide</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-4 links-item">
+          <h6>Hands On</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/master?filepath=tutorial%2F00%20-%20Introduction%20and%20Setup.ipynb">Tutorials</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://demo.bokeh.org">Demos</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://bokeh.org/community/">Support</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-lg-3 col-md-6 col-sm-3 links-item">
+          <h6>Contribute</h6>
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="https://github.com/bokeh/bokeh">GitHub</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://docs.bokeh.org/en/latest/docs/dev_guide.html">Contributor Guide</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="https://bokeh.org/sponsor/">Sponsor</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <br />
+  </footer>
+  <!-- end footer -->
+
+  <script src="https://static.bokeh.org/vendor/js/jquery.min.js"></script>
+  <script src="https://static.bokeh.org/vendor/js/bootstrap.min.js"></script>
+
+</body>
+</html>

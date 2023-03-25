@@ -1,0 +1,15 @@
+.. _release-2-0-2:
+
+2.0.2
+=====
+
+Bokeh Version ``2.0.2`` (April 2020) is a micro-release that fixes some bugs and
+improves some small features. Highlights include:
+
+* Allow multiple versions of BokehJS on a page :bokeh-issue:`9812`
+* Cross-timezone issue with session token expiry :bokeh-issue:`9938`.
+* Fix server resources with Django integration :bokeh-issue:`9724`
+* Make `add_layout` update a figure :bokeh-issue:`8862`
+* Precompiled extensions broken on Windows :bokeh-issue:`9900`
+* BoxAnnotation ignores `fill_color=None` :bokeh-issue:`9877`
+* A handful of documentation clarifications, corrections, and expansions

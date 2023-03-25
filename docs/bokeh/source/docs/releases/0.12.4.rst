@@ -1,0 +1,16 @@
+.. _release-0-12-4:
+
+0.12.4
+======
+
+Bokeh Version ``0.12.4`` (Jan 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* Efficient binary array protocol. (:bokeh-issue:`2204`)
+* A general mechanism to add ``CustomJS`` callbacks to any property. (:bokeh-issue:`5498`)
+* Several fixes to log plots. (:bokeh-issue:`2789`, :bokeh-issue:`3834`, :bokeh-issue:`5389`, :bokeh-issue:`5549`, :bokeh-issue:`5576`)
+* Fixes related to custom extensions. (:bokeh-issue:`5315`, :bokeh-issue:`5590`)
+* Guidance and examples for embedding a Bokeh server directly in standalone scripts, Jupyter notebooks, and Tornado and Flask applications.
+* Support for read-only (client-side) properties, e.g. plot inner dimensions (:bokeh-issue:`5199`)
+* Improved documentation for the :ref:`bokeh.palettes` module. (:bokeh-issue:`5619`)
+* Major refactor of ``bokeh.core`` including expanded documentation and tests (:bokeh-issue:`5626`, :bokeh-issue:`5627`)

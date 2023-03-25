@@ -1,0 +1,22 @@
+.. _release-0-12-5:
+
+0.12.5
+======
+
+Bokeh Version ``0.12.5`` (Mar 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* New general capability for Python/JS events (:bokeh-issue:`3210`,
+  :bokeh-issue:`3748`, :bokeh-issue:`5278`)
+* Bokeh apps easily viewable inline in Jupyter Notebooks (:bokeh-issue:`3461`)
+* Confusing ``--host`` parameter no longer necessary (:bokeh-issue:`5692`)
+* Interactive legends can now control glyph visibility (:bokeh-issue:`2274`,
+  :bokeh-issue:`3715`)
+* Many fixes and improvements to ``GMapPlot`` including a new ``gmap``
+  function for creating Google Maps plots easily (:bokeh-issue:`2822`,
+  :bokeh-issue:`2940`, :bokeh-issue:`3737`, :bokeh-issue:`4835`,
+  :bokeh-issue:`5592`, :bokeh-issue:`5826`, :bokeh-issue:`5845`)
+* ``CustomJSTransform`` now available for CDS columns (:bokeh-issue:`5015`)
+* Sophisticated "pivot" example app contributed (:bokeh-issue:`5894`)
+* Themes now work with ``components`` and in Jupyter notebooks
+  (:bokeh-issue:`4722`, :bokeh-issue:`4952`, )

@@ -1,0 +1,14 @@
+.. _release-0-7-1:
+
+0.7.1
+=====
+
+Bokeh ``0.7.1`` (Jan 2015) focused on stability, bug fixes, improved
+documentation and better examples.
+
+* Several bokeh.charts bug fixes and enhancements, such as configurable tools
+* Docs improvements, in particular, documenting json for bokeh.models
+* Mpl compatibility improved, now returning the plot object
+* A lot of encoding fixes, including fixes in some of our sample data
+* Faster runs in TravisCI using the new docker-based containerized infrastructure
+* New and improved examples, such as the Interactive Image Processing with Numba and Bokeh notebook

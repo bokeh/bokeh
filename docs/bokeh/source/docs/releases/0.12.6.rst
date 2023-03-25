@@ -1,0 +1,23 @@
+.. _release-0-12-6:
+
+0.12.6
+======
+
+Bokeh Version ``0.12.6`` (Jun 2017) is an incremental update that adds a few
+important features and fixes several bugs. Some of the highlights include:
+
+* Headless, programmatic export of SVG and PNG images (:bokeh-issue:`538`)
+* New annotations ``Band`` and ``Whisker`` for displaying error estimates
+  (:bokeh-issue:`2352`)
+* Fine-grained sub-element patching for images and other "multi" glyphs
+  (:bokeh-issue:`6285`)
+* Hover hit-testing extended to segments and all markers (:bokeh-issue:`5907`,
+  :bokeh-issue:`5907`)
+* Fixes for sorting and selecting from DataTables (:bokeh-issue:`3564`,
+  :bokeh-issue:`6115`)
+* Large cleanup and refactor of the layout system (:bokeh-issue:`4764`,
+  :bokeh-issue:`4810`, :bokeh-issue:`5131`, :bokeh-issue:`5518`,
+  :bokeh-issue:`6213`, :bokeh-issue:`6287`)
+* Improved formatting options for hover tool fields and axis tick labels
+  (:bokeh-issue:`1239`, :bokeh-issue:`1671`, :bokeh-issue:`2595`,
+  :bokeh-issue:`6079`)

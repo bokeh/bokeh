@@ -1,0 +1,42 @@
+{
+  "name": "@bokeh/bokehjs",
+  "version": "3.1.0",
+  "description": "Interactive, novel data visualization",
+  "keywords": [
+    "bokeh",
+    "datavis",
+    "dataviz",
+    "visualization",
+    "plotting",
+    "plot",
+    "graph"
+  ],
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bokeh/bokeh.git"
+  },
+  "engines": {
+    "node": ">=16.0",
+    "npm": ">=8.0"
+  },
+  "files": [
+    "build/js/bokeh*.min.js",
+    "build/js/lib/**/*.js",
+    "build/js/lib/**/*.d.ts"
+  ],
+  "workspaces": [
+    "./make",
+    "./src/compiler",
+    "./src/lib",
+    "./src/server",
+    "./test"
+  ],
+  "scripts": {
+    "prepare": "node ./prepare.js",
+    "build": "node make build",
+    "dev-build": "node make dev-build"
+  },
+  "main": "build/js/lib/bokeh.js",
+  "types": "build/js/types/bokeh.d.ts"
+}

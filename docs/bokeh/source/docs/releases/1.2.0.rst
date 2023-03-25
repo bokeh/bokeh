@@ -1,0 +1,12 @@
+.. _release-1-2-0:
+
+1.2.0
+=====
+
+Bokeh Version ``1.2.0`` (May 2019) is a point release that adds some
+interesting new features:
+
+* Styling options for fill patterns / hatching :bokeh-issue:`6135`
+* Built-in support for stacked areas and lines :bokeh-issue:`8848`
+* New `title` property for `Legend` :bokeh-issue:`6769`
+* Slider `callback_policy` now works for Bokeh Apps :bokeh-issue:`4540`

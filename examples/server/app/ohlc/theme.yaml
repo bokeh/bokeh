@@ -1,0 +1,7 @@
+attrs:
+  Plot:
+    background_fill_color: "#eeeeee"
+    width: 1200
+    toolbar_location: "left"
+    min_border_bottom: 0
+    min_border_top: 0

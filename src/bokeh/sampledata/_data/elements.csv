@@ -1,0 +1,119 @@
+atomic number,symbol,name,atomic mass,CPK,electronic configuration,electronegativity,atomic radius,ion radius,van der Waals radius,IE-1,EA,standard state,bonding type,melting point,boiling point,density,metal,year discovered,group,period
+1,H,Hydrogen,1.00794,#FFFFFF,1s1,2.2,37.0,,120.0,1312.0,-73.0,gas,diatomic,14,20,8.99E-05,nonmetal,1766,1,1
+2,He,Helium,4.002602,#D9FFFF,1s2,,32.0,,140.0,2372.0,0.0,gas,atomic,,4,0,noble gas,1868,18,1
+3,Li,Lithium,6.941,#CC80FF,[He] 2s1,0.98,134.0,76 (+1),182.0,520.0,-60.0,solid,metallic,454,1615,0.54,alkali metal,1817,1,2
+4,Be,Beryllium,9.012182,#C2FF00,[He] 2s2,1.57,90.0,45 (+2),,900.0,0.0,solid,metallic,1560,2743,1.85,alkaline earth metal,1798,2,2
+5,B,Boron,10.811,#FFB5B5,[He] 2s2 2p1,2.04,82.0,27 (+3),,801.0,-27.0,solid,covalent network,2348,4273,2.46,metalloid,1807,13,2
+6,C,Carbon,12.0107,#909090,[He] 2s2 2p2,2.55,77.0,16 (+4),170.0,1087.0,-154.0,solid,covalent network,3823,4300,2.26,nonmetal,Ancient,14,2
+7,N,Nitrogen,14.0067,#3050F8,[He] 2s2 2p3,3.04,75.0,146 (-3),155.0,1402.0,-7.0,gas,diatomic,63,77,0,nonmetal,1772,15,2
+8,O,Oxygen,15.9994,#FF0D0D,[He] 2s2 2p4,3.44,73.0,140 (-2),152.0,1314.0,-141.0,gas,diatomic,55,90,0,nonmetal,1774,16,2
+9,F,Fluorine,18.9984032,#90E050,[He] 2s2 2p5,3.98,71.0,133 (-1),147.0,1681.0,-328.0,gas,atomic,54,85,0,halogen,1670,17,2
+10,Ne,Neon,20.1797,#B3E3F5,[He] 2s2 2p6,,69.0,,154.0,2081.0,0.0,gas,atomic,25,27,0,noble gas,1898,18,2
+11,Na,Sodium,22.98976928,#AB5CF2,[Ne] 3s1,0.93,154.0,102 (+1),227.0,496.0,-53.0,solid,metallic,371,1156,0.97,alkali metal,1807,1,3
+12,Mg,Magnesium,24.3050,#8AFF00,[Ne] 3s2,1.31,130.0,72 (+2),173.0,738.0,0.0,solid,metallic,923,1363,1.74,alkaline earth metal,1808,2,3
+13,Al,Aluminum,26.9815386,#BFA6A6,[Ne] 3s2 3p1,1.61,118.0,53.5 (+3),,578.0,-43.0,solid,metallic,933,2792,2.7,metal,Ancient,13,3
+14,Si,Silicon,28.0855,#F0C8A0,[Ne] 3s2 3p2,1.9,111.0,40 (+4),210.0,787.0,-134.0,solid,metallic,1687,3173,2.33,metalloid,1854,14,3
+15,P,Phosphorus,30.973762,#FF8000,[Ne] 3s2 3p3,2.19,106.0,44 (+3),180.0,1012.0,-72.0,solid,covalent network,317,554,1.82,nonmetal,1669,15,3
+16,S,Sulfur,32.065,#FFFF30,[Ne] 3s2 3p4,2.58,102.0,184 (-2),180.0,1000.0,-200.0,solid,covalent network,388,718,1.96,nonmetal,Ancient,16,3
+17,Cl,Chlorine,35.453,#1FF01F,[Ne] 3s2 3p5,3.16,99.0,181 (-1),175.0,1251.0,-349.0,gas,covalent network,172,239,0,halogen,1774,17,3
+18,Ar,Argon,39.948,#80D1E3,[Ne] 3s2 3p6,,97.0,,188.0,1521.0,0.0,gas,atomic,84,87,0,noble gas,1894,18,3
+19,K,Potassium,39.0983,#8F40D4,[Ar] 4s1,0.82,196.0,138 (+1),275.0,419.0,-48.0,solid,metallic,337,1032,0.86,alkali metal,1807,1,4
+20,Ca,Calcium,40.078,#3DFF00,[Ar] 4s2,1.0,174.0,100 (+2),,590.0,-2.0,solid,metallic,1115,1757,1.55,alkaline earth metal,Ancient,2,4
+21,Sc,Scandium,44.955912,#E6E6E6,[Ar] 3d1 4s2,1.36,144.0,74.5 (+3),,633.0,-18.0,solid,metallic,1814,3103,2.99,transition metal,1876,3,4
+22,Ti,Titanium,47.867,#BFC2C7,[Ar] 3d2 4s2,1.54,136.0,86 (+2),,659.0,-8.0,solid,metallic,1941,3560,4.51,transition metal,1791,4,4
+23,V,Vanadium,50.9415,#A6A6AB,[Ar] 3d3 4s2,1.63,125.0,79 (+2),,651.0,-51.0,solid,metallic,2183,3680,6.11,transition metal,1803,5,4
+24,Cr,Chromium,51.9961,#8A99C7,[Ar] 3d5 4s1,1.66,127.0,80 (+2*),,653.0,-64.0,solid,metallic,2180,2944,7.14,transition metal,Ancient,6,4
+25,Mn,Manganese,54.938045,#9C7AC7,[Ar] 3d5 4s2,1.55,139.0,67 (+2),,717.0,0.0,solid,metallic,1519,2334,7.47,transition metal,1774,7,4
+26,Fe,Iron,55.845,#E06633,[Ar] 3d6 4s2,1.83,125.0,78 (+2*),,763.0,-16.0,solid,metallic,1811,3134,7.87,transition metal,Ancient,8,4
+27,Co,Cobalt,58.933195,#F090A0,[Ar] 3d7 4s2,1.88,126.0,74.5 (+2*),,760.0,-64.0,solid,metallic,1768,3200,8.9,transition metal,Ancient,9,4
+28,Ni,Nickel,58.6934,#50D050,[Ar] 3d8 4s2,1.91,121.0,69 (+2),163.0,737.0,-112.0,solid,metallic,1728,3186,8.91,transition metal,1751,10,4
+29,Cu,Copper,63.546,#C88033,[Ar] 3d10 4s1,1.9,138.0,77 (+1),140.0,746.0,-118.0,solid,metallic,1358,3200,8.92,transition metal,Ancient,11,4
+30,Zn,Zinc,65.38,#7D80B0,[Ar] 3d10 4s2,1.65,131.0,74 (+2),139.0,906.0,0.0,solid,metallic,693,1180,7.14,transition metal,1746,12,4
+31,Ga,Gallium,69.723,#C28F8F,[Ar] 3d10 4s2 4p1,1.81,126.0,62 (+3),187.0,579.0,-29.0,solid,metallic,303,2477,5.9,metal,1875,13,4
+32,Ge,Germanium,72.64,#668F8F,[Ar] 3d10 4s2 4p2,2.01,122.0,73 (+2),,762.0,-119.0,solid,metallic,1211,3093,5.32,metalloid,1886,14,4
+33,As,Arsenic,74.92160,#BD80E3,[Ar] 3d10 4s2 4p3,2.18,119.0,58 (+3),185.0,947.0,-78.0,solid,metallic,1090,887,5.73,metalloid,Ancient,15,4
+34,Se,Selenium,78.96,#FFA100,[Ar] 3d10 4s2 4p4,2.55,116.0,198 (-2),190.0,941.0,-195.0,solid,metallic,494,958,4.82,nonmetal,1817,16,4
+35,Br,Bromine,79.904,#A62929,[Ar] 3d10 4s2 4p5,2.96,114.0,196 (-1),185.0,1140.0,-325.0,liquid,covalent network,266,332,3.12,halogen,1826,17,4
+36,Kr,Krypton,83.798,#5CB8D1,[Ar] 3d10 4s2 4p6,,110.0,,202.0,1351.0,0.0,gas,atomic,116,120,0,noble gas,1898,18,4
+37,Rb,Rubidium,85.4678,#702EB0,[Kr] 5s1,0.82,211.0,152 (+1),,403.0,-47.0,solid,metallic,312,961,1.53,alkali metal,1861,1,5
+38,Sr,Strontium,87.62,#00FF00,[Kr] 5s2,0.95,192.0,118 (+2),,550.0,-5.0,solid,metallic,1050,1655,2.63,alkaline earth metal,1790,2,5
+39,Y,Yttrium,88.90585,#94FFFF,[Kr] 4d1 5s2,1.22,162.0,90 (+3),,600.0,-30.0,solid,metallic,1799,3618,4.47,transition metal,1794,3,5
+40,Zr,Zirconium,91.224,#94E0E0,[Kr] 4d2 5s2,1.33,148.0,72 (+4),,640.0,-41.0,solid,metallic,2128,4682,6.51,transition metal,1789,4,5
+41,Nb,Niobium,92.90638,#73C2C9,[Kr] 4d4 5s1,1.6,137.0,72 (+3),,652.0,-86.0,solid,metallic,2750,5017,8.57,transition metal,1801,5,5
+42,Mo,Molybdenum,95.96,#54B5B5,[Kr] 4d5 5s1,2.16,145.0,69 (+3),,684.0,-72.0,solid,metallic,2896,4912,10.28,transition metal,1778,6,5
+43,Tc,Technetium,[98],#3B9E9E,[Kr] 4d5 5s2,1.9,156.0,64.5 (+4),,702.0,-53.0,solid,metallic,2430,4538,11.5,transition metal,1937,7,5
+44,Ru,Ruthenium,101.07,#248F8F,[Kr] 4d7 5s1,2.2,126.0,68 (+3),,710.0,-101.0,solid,metallic,2607,4423,12.37,transition metal,1827,8,5
+45,Rh,Rhodium,102.90550,#0A7D8C,[Kr] 4d8 5s1,2.28,135.0,66.5 (+3),,720.0,-110.0,solid,metallic,2237,3968,12.45,transition metal,1803,9,5
+46,Pd,Palladium,106.42,#006985,[Kr] 4d10,2.2,131.0,59 (+1),163.0,804.0,-54.0,solid,metallic,1828,3236,12.02,transition metal,1803,10,5
+47,Ag,Silver,107.8682,#C0C0C0,[Kr] 4d10 5s1,1.93,153.0,115 (+1),172.0,731.0,-126.0,solid,metallic,1235,2435,10.49,transition metal,Ancient,11,5
+48,Cd,Cadmium,112.411,#FFD98F,[Kr] 4d10 5s2,1.69,148.0,95 (+2),158.0,868.0,0.0,solid,metallic,594,1040,8.65,transition metal,1817,12,5
+49,In,Indium,114.818,#A67573,[Kr] 4d10 5s2 5p1,1.78,144.0,80 (+3),193.0,558.0,-29.0,solid,metallic,430,2345,7.31,metal,1863,13,5
+50,Sn,Tin,118.710,#668080,[Kr] 4d10 5s2 5p2,1.96,141.0,112 (+2),217.0,709.0,-107.0,solid,metallic,505,2875,7.31,metal,Ancient,14,5
+51,Sb,Antimony,121.760,#9E63B5,[Kr] 4d10 5s2 5p3,2.05,138.0,76 (+3),,834.0,-103.0,solid,metallic,904,1860,6.7,metalloid,Ancient,15,5
+52,Te,Tellurium,127.60,#D47A00,[Kr] 4d10 5s2 5p4,2.1,135.0,221 (-2),206.0,869.0,-190.0,solid,metallic,723,1261,6.24,metalloid,1782,16,5
+53,I,Iodine,126.90447,#940094,[Kr] 4d10 5s2 5p5,2.66,133.0,220 (-1),198.0,1008.0,-295.0,solid,covalent network,387,457,4.94,halogen,1811,17,5
+54,Xe,Xenon,131.293,#429EB0,[Kr] 4d10 5s2 5p6,,130.0,48 (+8),216.0,1170.0,0.0,gas,atomic,161,165,0.01,noble gas,1898,18,5
+55,Cs,Cesium,132.9054519,#57178F,[Xe] 6s1,0.79,225.0,167 (+1),,376.0,-46.0,solid,metallic,302,944,1.88,alkali metal,1860,1,6
+56,Ba,Barium,137.327,#00C900,[Xe] 6s2,0.89,198.0,135 (+2),,503.0,-14.0,solid,metallic,1000,2143,3.51,alkaline earth metal,1808,2,6
+57,La,Lanthanum,138.90547,#70D4FF,[Xe] 5d1 6s2,1.1,169.0,103.2 (+3),,538.0,-48.0,solid,metallic,1193,3737,6.15,lanthanoid,1839,-,6
+58,Ce,Cerium,140.116,#FFFFC7,[Xe] 4f1 5d1 6s2,1.12,,102 (+3),,534.0,-50.0,solid,metallic,1071,3633,6.69,lanthanoid,1803,-,6
+59,Pr,Praseodymium,140.90765,#D9FFC7,[Xe] 4f3 6s2,1.13,,99 (+3),,527.0,-50.0,solid,metallic,1204,3563,6.64,lanthanoid,1885,-,6
+60,Nd,Neodymium,144.242,#C7FFC7,[Xe] 4f4 6s2,1.14,,129 (+2),,533.0,-50.0,solid,metallic,1294,3373,7.01,lanthanoid,1885,-,6
+61,Pm,Promethium,[145],#A3FFC7,[Xe] 4f5 6s2,1.13,,97 (+3),,540.0,-50.0,solid,metallic,1373,3273,7.26,lanthanoid,1947,-,6
+62,Sm,Samarium,150.36,#8FFFC7,[Xe] 4f6 6s2,1.17,,122 (+2),,545.0,-50.0,solid,metallic,1345,2076,7.35,lanthanoid,1853,-,6
+63,Eu,Europium,151.964,#61FFC7,[Xe] 4f7 6s2,1.2,,117 (+2),,547.0,-50.0,solid,metallic,1095,1800,5.24,lanthanoid,1901,-,6
+64,Gd,Gadolinium,157.25,#45FFC7,[Xe] 4f7 5d1 6s2,1.2,,93.8 (+3),,593.0,-50.0,solid,metallic,1586,3523,7.9,lanthanoid,1880,-,6
+65,Tb,Terbium,158.92535,#30FFC7,[Xe] 4f9 6s2,1.2,,92.3 (+3),,566.0,-50.0,solid,metallic,1629,3503,8.22,lanthanoid,1843,-,6
+66,Dy,Dysprosium,162.500,#1FFFC7,[Xe] 4f10 6s2,1.22,,107 (+2),,573.0,-50.0,solid,metallic,1685,2840,8.55,lanthanoid,1886,-,6
+67,Ho,Holmium,164.93032,#00FF9C,[Xe] 4f11 6s2,1.23,,90.1 (+3),,581.0,-50.0,solid,metallic,1747,2973,8.8,lanthanoid,1878,-,6
+68,Er,Erbium,167.259,#00E675,[Xe] 4f12 6s2,1.24,,89 (+3),,589.0,-50.0,solid,metallic,1770,3141,9.07,lanthanoid,1842,-,6
+69,Tm,Thulium,168.93421,#00D452,[Xe] 4f13 6s2,1.25,,103 (+2),,597.0,-50.0,solid,metallic,1818,2223,9.32,lanthanoid,1879,-,6
+70,Yb,Ytterbium,173.054,#00BF38,[Xe] 4f14 6s2,1.1,,102 (+2),,603.0,-50.0,solid,metallic,1092,1469,6.57,lanthanoid,1878,-,6
+71,Lu,Lutetium,174.9668,#00AB24,[Xe] 4f14 5d1 6s2,1.27,160.0,86.1 (+3),,524.0,-50.0,solid,metallic,1936,3675,9.84,transition metal,1907,3,6
+72,Hf,Hafnium,178.49,#4DC2FF,[Xe] 4f14 5d2 6s2,1.3,150.0,71 (+4),,659.0,0.0,solid,metallic,2506,4876,13.31,transition metal,1923,4,6
+73,Ta,Tantalum,180.94788,#4DA6FF,[Xe] 4f14 5d3 6s2,1.5,138.0,72 (+3),,761.0,-31.0,solid,metallic,3290,5731,16.65,transition metal,1802,5,6
+74,W,Tungsten,183.84,#2194D6,[Xe] 4f14 5d4 6s2,2.36,146.0,66 (+4),,770.0,-79.0,solid,metallic,3695,5828,19.25,transition metal,1783,6,6
+75,Re,Rhenium,186.207,#267DAB,[Xe] 4f14 5d5 6s2,1.9,159.0,63 (+4),,760.0,-15.0,solid,metallic,3459,5869,21.02,transition metal,1925,7,6
+76,Os,Osmium,190.23,#266696,[Xe] 4f14 5d6 6s2,2.2,128.0,63 (+4),,840.0,-106.0,solid,metallic,3306,5285,22.59,transition metal,1803,8,6
+77,Ir,Iridium,192.217,#175487,[Xe] 4f14 5d7 6s2,2.2,137.0,68 (+3),,880.0,-151.0,solid,metallic,2739,4701,22.56,transition metal,1803,9,6
+78,Pt,Platinum,195.084,#D0D0E0,[Xe] 4f14 5d9 6s1,2.28,128.0,86 (+2),175.0,870.0,-205.0,solid,metallic,2041,4098,21.09,transition metal,Ancient,10,6
+79,Au,Gold,196.966569,#FFD123,[Xe] 4f14 5d10 6s1,2.54,144.0,137 (+1),166.0,890.0,-223.0,solid,metallic,1337,3129,19.3,transition metal,Ancient,11,6
+80,Hg,Mercury,200.59,#B8B8D0,[Xe] 4f14 5d10 6s2,2.0,149.0,119 (+1),155.0,1007.0,0.0,liquid,metallic,234,630,13.53,transition metal,Ancient,12,6
+81,Tl,Thallium,204.3833,#A6544D,[Xe] 4f14 5d10 6s2 6p1,2.04,148.0,150 (+1),196.0,589.0,-19.0,solid,metallic,577,1746,11.85,metal,1861,13,6
+82,Pb,Lead,207.2,#575961,[Xe] 4f14 5d10 6s2 6p2,2.33,147.0,119 (+2),202.0,716.0,-35.0,solid,metallic,601,2022,11.34,metal,Ancient,14,6
+83,Bi,Bismuth,208.98040,#9E4FB5,[Xe] 4f14 5d10 6s2 6p3,2.02,146.0,103 (+3),,703.0,-91.0,solid,metallic,544,1837,9.78,metal,Ancient,15,6
+84,Po,Polonium,[209],#AB5C00,[Xe] 4f14 5d10 6s2 6p4,2.0,,94 (+4),,812.0,-183.0,solid,metallic,527,1235,9.2,metalloid,1898,16,6
+85,At,Astatine,[210],#754F45,[Xe] 4f14 5d10 6s2 6p5,2.2,,62 (+7),,920.0,-270.0,solid,covalent network,575,,,halogen,1940,17,6
+86,Rn,Radon,[222],#428296,[Xe] 4f14 5d10 6s2 6p6,,145.0,,,1037.0,,gas,atomic,202,211,0.01,noble gas,1900,18,6
+87,Fr,Francium,[223],#420066,[Rn] 7s1,0.7,,180 (+1),,380.0,,solid,metallic,,,,alkali metal,1939,1,7
+88,Ra,Radium,[226],#007D00,[Rn] 7s2,0.9,,148 (+2),,509.0,,solid,metallic,973,2010,5,alkaline earth metal,1898,2,7
+89,Ac,Actinium,[227],#70ABFA,[Rn] 6d1 7s2,1.1,,112 (+3),,499.0,,solid,metallic,1323,3473,10.07,actinoid,1899,-,7
+90,Th,Thorium,232.03806,#00BAFF,[Rn] 6d2 7s2,1.3,,94 (+4),,587.0,,solid,metallic,2023,5093,11.72,actinoid,1828,-,7
+91,Pa,Protactinium,231.03588,#00A1FF,[Rn] 5f2 6d1 7s2,1.5,,104 (+3),,568.0,,solid,metallic,1845,4273,15.37,actinoid,1913,-,7
+92,U,Uranium,238.02891,#008FFF,[Rn] 5f3 6d1 7s2,1.38,,102.5 (+3),186.0,598.0,,solid,metallic,1408,4200,19.05,actinoid,1789,-,7
+93,Np,Neptunium,[237],#0080FF,[Rn] 5f4 6d1 7s2,1.36,,110 (+2),,605.0,,solid,metallic,917,4273,20.45,actinoid,1940,-,7
+94,Pu,Plutonium,[244],#006BFF,[Rn] 5f6 7s2,1.28,,100 (+3),,585.0,,solid,metallic,913,3503,19.82,actinoid,1940,-,7
+95,Am,Americium,[243],#545CF2,[Rn] 5f7 7s2,1.3,,126 (+2),,578.0,,solid,metallic,1449,2284,13.67,actinoid,1944,-,7
+96,Cm,Curium,[247],#785CE3,[Rn] 5f7 6d1 7s2,1.3,,97 (+3),,581.0,,solid,metallic,1618,3383,13.51,actinoid,1944,-,7
+97,Bk,Berkelium,[247],#8A4FE3,[Rn] 5f9 7s2,1.3,,96 (+3),,601.0,,solid,metallic,1323,,14.78,actinoid,1949,-,7
+98,Cf,Californium,[251],#A136D4,[Rn] 5f10 7s2,1.3,,95 (+3),,608.0,,solid,metallic,1173,,15.1,actinoid,1950,-,7
+99,Es,Einsteinium,[252],#B31FD4,[Rn] 5f11 7s2,1.3,,,,619.0,,solid,,1133,,,actinoid,1952,-,7
+100,Fm,Fermium,[257],#B31FBA,[Rn] 5f12 7s2,1.3,,,,627.0,,,,1800,,,actinoid,1952,-,7
+101,Md,Mendelevium,[258],#B30DA6,[Rn] 5f13 7s2,1.3,,,,635.0,,,,1100,,,actinoid,1955,-,7
+102,No,Nobelium,[259],#BD0D87,[Rn] 5f14 7s2,1.3,,,,642.0,,,,1100,,,actinoid,1957,-,7
+103,Lr,Lawrencium,[262],#C70066,[Rn] 5f14 7s2 7p1,1.3,,,,,,,,1900,,,transition metal,1961,3,7
+104,Rf,Rutherfordium,[267],#CC0059,[Rn] 5f14 6d2 7s2,,,,,,,,,,,,transition metal,1969,4,7
+105,Db,Dubnium,[268],#D1004F,[Rn].5f14.6d3.7s2,,,,,,,,,,,,transition metal,1967,5,7
+106,Sg,Seaborgium,[271],#D90045,[Rn].5f14.6d4.7s2,,,,,,,,,,,,transition metal,1974,6,7
+107,Bh,Bohrium,[272],#E00038,[Rn].5f14.6d5.7s2,,,,,,,,,,,,transition metal,1976,7,7
+108,Hs,Hassium,[270],#E6002E,[Rn].5f14.6d6.7s2,,,,,,,,,,,,transition metal,1984,8,7
+109,Mt,Meitnerium,[276],#EB0026,[Rn].5f14.6d7.7s2,,,,,,,,,,,,transition metal,1982,9,7
+110,Ds,Darmstadtium,[281],#FF1493,[Rn].5f14.6d9.7s1,,,,,,,,,,,,transition metal,1994,10,7
+111,Rg,Roentgenium,[280],#FF1493,[Rn].5f14.6d10.7s1,,,,,,,,,,,,transition metal,1994,11,7
+112,Cn,Copernicium,[285],#FF1493,[Rn].5f14.6d10.7s2,,,,,,,,,,,,transition metal,1996,12,7
+113,Nh,Nihomium,[284],#FF1493,[Rn].5f14.6d10.7s2.7p1,,,,,,,,,,,,metal,2003,13,7
+114,Fl,Flerovium,[289],#FF1493,[Rn].5f14.6d10.7s2.7p2,,,,,,,,,,,,metal,1998,14,7
+115,Mc,Moscovium,[288],#FF1493,[Rn].5f14.6d10.7s2.7p3,,,,,,,,,,,,metal,2003,15,7
+116,Lv,Livermorium,[293],#FF1493,[Rn].5f14.6d10.7s2.7p4,,,,,,,,,,,,metal,2000,16,7
+117,Ts,Tennessine,[294],#FF1493,[Rn].5f14.6d10.7s2.7p5,,,,,,,,,,,,halogen,2010,17,7
+118,Og,Oganesson,[294],#FF1493,[Rn].5f14.6d10.7s2.7p6,,,,,,,,,,,,noble gas,2002,18,7

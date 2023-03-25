@@ -1,0 +1,23 @@
+.. _release-0-10-0:
+
+0.10.0
+======
+
+Bokeh ``0.10.0`` (Sep 2015) provides several new features such as WebGL support,
+a new refactored and more powerful chart interface and responsive plots. Also
+bugfixes and enhancements in our documentation, testing and build machinery,
+and examples.
+
+* Initial webgl support (check our new examples: maps city, iris blend, scatter 10K, clustering.py)
+* New charts interface supporting aggregation (see our new Bars, BoxPlot, Histogram and Scatter examples)
+* Responsive plots
+* Lower-level jsresources & cssresources (allow more subtle uses of resources)
+* Several test machinery fixes
+* Several build machinery enhancements
+* More pytest-related fixes and enhancements
+* More docs fixes and enhancements
+* Now the glyph methods return the glyph renderer (not the plot)
+* Gmap points moves consistently
+* Added alpha control for imageurl objects
+* Removed python33 testing and packaging
+* Removed multiuserblazeserver

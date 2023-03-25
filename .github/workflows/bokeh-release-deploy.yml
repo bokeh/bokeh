@@ -1,0 +1,54 @@
+name: Release - Deploy
+run-name: Release - Deploy ${{ github.event.inputs.version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to deploy a release for (e.g. 3.0.0, 2.4.0.dev8)"
+        required: true
+
+defaults:
+  run:
+    shell: bash -l {0}
+
+jobs:
+
+  deploy:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Check Maintainer
+        env:
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
+        run: |
+          if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
+            echo
+            echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"
+            exit 0
+          fi
+          echo
+          echo "User is NOT authorized to deploy releases, aborting..."
+          echo
+          echo "Please contact @bokeh/core about conducting releases."
+          exit 1
+
+      - uses: actions/checkout@v3
+
+      - uses: conda-incubator/setup-miniconda@v2
+        with:
+          miniconda-version: 'latest'
+          activate-environment: bk-release-deploy
+          environment-file: conda/environment-release-deploy.yml
+
+      - name: Deploy Release Tarball
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          BOKEH_VERSION: ${{ github.event.inputs.version }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+          SLACK_TOKEN: ${{ secrets.SLACK_BUILD_RELEASE_TOKEN }}
+        run: python -m release deploy $BOKEH_VERSION

@@ -1,0 +1,11 @@
+.. _release-2-3-1:
+
+2.3.1
+=====
+
+Bokeh Version ``2.3.1`` (April 2021) is a patch-release that fixes bugs that
+affects downstream projects:
+
+* Bugs causing excessive data transfer (:bokeh-issue:`10822`, :bokeh-issue:`11026`, :bokeh-issue:`11029`)
+* Minor layout regression (:bokeh-issue:`11057`)
+* Log axis exponent render issue (:bokeh-issue:`11006`)

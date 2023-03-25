@@ -1,0 +1,31 @@
+:host {
+  --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
+  --mono-font: var(--bokeh-mono-font, monospace);
+
+  --font-size: 12px;
+  --line-height: calc(20 / 14);
+  --line-height-computed: calc(var(--font-size) * var(--line-height));
+
+  --border-radius: 4px;
+
+  --padding-vertical: 6px;
+  --padding-horizontal: 12px;
+}
+
+:host {
+  box-sizing: border-box;
+  font-family: var(--base-font);
+  font-size: 13px; // 0.8em
+  line-height: var(--line-height);
+}
+
+*, *:before, *:after {
+  // box-sizing is not inherited by default, so force it to get consistent results
+  box-sizing: inherit;
+  font-family: inherit;
+}
+
+pre, code {
+  font-family: var(--mono-font);
+  margin: 0;
+}

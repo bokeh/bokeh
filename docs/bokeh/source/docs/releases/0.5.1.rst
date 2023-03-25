@@ -1,0 +1,13 @@
+.. _release-0-5-1:
+
+0.5.1
+=====
+
+Bokeh ``0.5.1`` (Jul 2014) is an incremental update:
+
+* Hover activated by default
+* Boxplot in bokeh.charts
+* Better messages when you forgot to start the bokeh-server
+* Fixed some packaging bugs
+* Fixed NBviewer rendering
+* Fixed some Unicodeencodeerror

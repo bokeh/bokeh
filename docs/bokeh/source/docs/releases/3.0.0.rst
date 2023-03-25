@@ -1,0 +1,24 @@
+.. _release-3-0-0:
+
+3.0.0
+=====
+
+Bokeh Version ``3.0.0`` (Oct 2022) is a major milestone of Bokeh project.
+
+Major changes
+-------------
+
+* Support for legacy web browser (e.g. IE, non-ES6 compliant) was removed
+* Official support for Python 3.7 was removed and for 3.10 added
+* Layout and CSS interoperability was redesigned and greatly improved
+* Serialization protocol was redesigned and vastly improved
+* CSS was modularized and all UI components are now Web components
+* Django integration was moved to https://github.com/bokeh/bokeh-django
+
+Minor changes
+-------------
+
+* Support added for favicon.ico files
+* Initial import times reduced
+* Support added for new selection policy NodesAndAdjacentNodes
+* ``Plot.remove_tools()`` function added

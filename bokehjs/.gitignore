@@ -1,0 +1,7 @@
+/build
+/npm-debug.log
+/.eslintcache
+.package.json
+/test/baselines/*/report.json
+/test/baselines/*/report.out
+!/test/baselines/*/*.png

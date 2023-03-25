@@ -1,0 +1,21 @@
+.. _release-3-1-0:
+
+3.1.0
+=====
+
+Bokeh Version ``3.1.0`` (Mar 2023) is a minor milestone of Bokeh project.
+
+Changes
+-------
+
+* Official support for Python 3.11
+* JavaScript event hooks for ``document_ready`` and ``connection_lost`` (:bokeh-issue:`4272`, :bokeh-issue:`11328`)
+* Public APIs for CSS styles and stylesheets (:bokeh-issue:`12688`)
+* Colormapping of 3D stacked image arrays (:bokeh-issue:`12356`)
+* Convenience ``construct_colorbar`` API for glyphs (:bokeh-issue:`12736`)
+* Multi-line legend items (:bokeh-issue:`12331`)
+* Gridded legends via ``nrows`` and ``ncols`` (:bokeh-issue:`3880`)
+* New properties Text glyph properties: background, border, border_radius, padding, etc. (:bokeh-issue:`12529`)
+* Add rounded corners for rectangular glpyhs ``Rect``, ``Block``, etc. (:bokeh-issue:`11348`)
+* Fill properties for slope annotations (:bokeh-issue:`9194`)
+* Editable annotations and persistent selection overlays (:bokeh-issue:`12468`)

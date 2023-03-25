@@ -1,0 +1,80 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+
+---
+default_stages: [push]
+
+repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.252
+    hooks:
+      - id: ruff
+        stages: [commit]
+
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.10.1
+    hooks:
+      - id: validate-pyproject
+        name: Validate pyproject.toml
+
+  - repo: local
+    hooks:
+      - id: run-code-quality
+        name: Run code quality checks
+        entry: pytest tests/codebase/test_code_quality.py
+        language: conda
+        pass_filenames: false
+
+      - id: run-eslint
+        name: Run ESLint
+        entry: pytest tests/codebase/test_eslint.py
+        language: conda
+        pass_filenames: false
+
+      - id: run-isort
+        name: Run isort checks
+        entry: pytest tests/codebase/test_isort.py
+        language: conda
+        pass_filenames: false
+
+      - id: run-ruff
+        name: Run ruff checks
+        entry: pytest tests/codebase/test_ruff.py
+        language: conda
+        pass_filenames: false
+
+      - id: validate-json
+        name: Validate JSON files
+        entry: pytest tests/codebase/test_json.py
+        language: conda
+        pass_filenames: false
+
+      - id: validate-license
+        name: Validate LICENSE file
+        entry: pytest tests/codebase/test_license.py
+        language: conda
+        pass_filenames: false
+
+      - id: check-exclusions
+        name: Verify package exclusions
+        entry: pytest tests/codebase -k test_no
+        language: conda
+        pass_filenames: false
+
+      - id: check-optimized
+        name: Verify that OO mode works
+        entry: pytest tests/codebase/test_python_execution_with_OO.py
+        language: conda
+        pass_filenames: false
+
+      - id: check-windows-filenames
+        name: Check for reserved windows filenames
+        entry: pytest tests/codebase/test_windows_reserved_filenames.py
+        language: conda
+        pass_filenames: false
+
+      - id: protect-branches
+        name: Protect Git branches
+        entry: python scripts/hooks/protect_branches.py
+        language: conda
+        pass_filenames: false

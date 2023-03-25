@@ -1,0 +1,121 @@
+@import "./_mixins.less";
+
+:host {
+  display: grid;
+}
+
+:host(.bk-above) {
+  grid-template:
+    "header" max-content
+    "stack"  1fr         / 1fr;
+}
+
+:host(.bk-below) {
+  grid-template:
+    "stack"  1fr
+    "header" max-content / 1fr;
+}
+
+:host(.bk-left) {
+  grid-template:
+    "header stack" 1fr / max-content 1fr;
+}
+
+:host(.bk-right) {
+  grid-template:
+    "stack header" 1fr / 1fr max-content;
+}
+
+.bk-header {
+  grid-area: "header";
+
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+
+  .no-user-select();
+}
+
+:host(.bk-above), :host(.bk-below) {
+  .bk-header {
+    flex-direction: row;
+  }
+}
+
+:host(.bk-left), :host(.bk-right) {
+  .bk-header {
+    flex-direction: column;
+  }
+}
+
+@border: 1px solid lighten(black, 90%);
+
+:host(.bk-above) .bk-header { border-bottom: @border; }
+:host(.bk-right) .bk-header { border-left:   @border; }
+:host(.bk-below) .bk-header { border-top:    @border; }
+:host(.bk-left)  .bk-header { border-right:  @border; }
+
+.bk-tab {
+  padding: 4px 8px; // var(--padding-vertical) var(--padding-horizontal);
+  border: solid transparent;
+  outline: 0;
+  outline-offset: -5px;
+  white-space: nowrap;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    background-color: lighten(black, 95%);
+  }
+
+  &:focus, &:active {
+    outline: 1px dotted #ccc;
+  }
+
+  &.bk-active {
+    color: lighten(black, 30%);
+    background-color: white;
+    border-color: lighten(black, 90%);
+  }
+
+  .bk-close {
+    margin-left: 10px;
+  }
+
+  &.bk-disabled { // TODO: same as elsewhere, so use a mixin
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: 0.65;
+  }
+}
+
+:host(.bk-above) .bk-tab {
+  border-width: 3px 1px 0px 1px;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+:host(.bk-right) .bk-tab {
+  border-width: 1px 3px 1px 0px;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+:host(.bk-below) .bk-tab {
+  border-width: 0px 1px 3px 1px;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+}
+:host(.bk-left) .bk-tab {
+  border-width: 1px 0px 1px 3px;
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
+
+.bk-close {
+  display: inline-block;
+  vertical-align: middle;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+
+  .icon-mask(var(--bokeh-icon-x), gray);
+
+  &:hover {
+    background-color: red;
+  }
+}

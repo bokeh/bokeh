@@ -1,0 +1,9 @@
+.. _release-2-2-2:
+
+2.2.2
+=====
+
+Bokeh Version ``2.2.2`` (Oct 2020) is a patch-release that fixes a bug that
+affects downstream projects:
+
+* Selectively update data when CDSView changes (:bokeh-issue:`10521`)

@@ -1,0 +1,16 @@
+.. _release-2-4-2:
+
+2.4.2
+=====
+
+Bokeh Version ``2.4.2`` (Nov 2021) is a patch-release that fixes a number of minor bugs/regressions and build issues.
+
+* DeserializationError when trying to change a DataTable's columns with CustomJS (:bokeh-issue:`11422`)
+* Clarify use of color in first steps guide (:bokeh-issue:`11761`)
+* Fix transform jitter example (:bokeh-issue:`11781`)
+* Add OS to bokeh info  (:bokeh-issue:`11797`)
+* DeserializationError when plotting graphs (:bokeh-issue:`11800`)
+* Log axis figures don't render if they're not visible at start (:bokeh-issue:`11801`)
+* Work around issues with initialization-time change discovery (:bokeh-issue:`11807`)
+* Don't unnecessarily update node/edge renderers in graphs (:bokeh-issue:`11808`)
+* Update docs for new issue forms (:bokeh-issue:`11810`)

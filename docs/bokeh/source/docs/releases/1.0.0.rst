@@ -1,0 +1,19 @@
+.. _release-1-0-0:
+
+1.0.0
+=====
+
+Bokeh Version ``1.0.0`` (October 2018) is a major milestone of the Bokeh project.
+
+Some of the highlights include:
+
+* Support for ``MultiPolygons`` with holes (:bokeh-issue:`2321`)
+* Fixes and improvements to `DataTable` (:bokeh-issue:`6454`, :bokeh-issue:`7116`, :bokeh-issue:`7417`, :bokeh-issue:`8021`, :bokeh-issue:`8040`, :bokeh-issue:`8050`, :bokeh-issue:`8201`)
+* ``CustomAction`` for user-defined Toolbar buttons (:bokeh-issue:`8099`)
+* Plain JSON export/embed functions (:bokeh-issue:`5231`)
+* Toolbar ``autohide`` property to hide toolbars when not in us(:bokeh-issue:`8284`)
+* Callback to allow ``AjaxDataSource`` to adapt JSON responses (:bokeh-issue:`8321`)
+* ``Scatter`` glyph for parameterizable marker type (:bokeh-issue:`5884`)
+* Reuse webdrivers for faster PNG/SVG export by default (:bokeh-issue:`8329`)
+* Improved testing capabilities (:bokeh-issue:`2596`, :bokeh-issue:`8078`, :bokeh-issue:`8139`, :bokeh-issue:`8146`, :bokeh-issue:`8217`, :bokeh-issue:`8225`)
+* Faster import times (:bokeh-issue:`8309`)

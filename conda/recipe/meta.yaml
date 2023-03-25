@@ -1,0 +1,51 @@
+{% set data = load_file_data('../../pyproject.toml', from_recipe_dir=True) %}
+
+package:
+  name: bokeh
+  version: {{ VERSION }}
+
+source:
+  url: ../../dist/bokeh-{{ VERSION }}-py3-none-any.whl
+
+build:
+  noarch: python
+  script:
+     - {{ PYTHON }} -m pip install -vv --no-deps bokeh-{{ VERSION }}-py3-none-any.whl
+  script_env:
+    - VERSION
+  entry_points:
+    - bokeh = bokeh.__main__:main
+
+extra:
+  channels:
+    - bokeh
+    - conda-forge
+
+requirements:
+  build:
+    - jinja2
+    - packaging
+    - python
+    - python-dateutil
+    - pyyaml
+    - ripgrep
+    - setuptools >=62.3.3
+    - yaml
+
+  host:
+    - python >=3.9
+
+  run:
+    - python >=3.9
+
+    {% for dep in data['project']['dependencies'] %}
+    - {{ dep.lower() }}
+    {% endfor %}
+
+about:
+  license: BSD-3-Clause
+  summary: {{ data['project']['description'] }}
+  description: {{ data['project']['readme'] }}
+  home: {{ data['project']['urls']['homepage'] }}
+  doc_url: {{ data['project']['urls']['documentation'] }}
+  dev_url: {{ data['project']['urls']['repository'] }}

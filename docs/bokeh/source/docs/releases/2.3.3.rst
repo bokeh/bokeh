@@ -1,0 +1,16 @@
+.. _release-2-3-3:
+
+2.3.3
+=====
+
+Bokeh Version ``2.3.3`` (Jul 2021) is a patch-release that fixes some
+layout and extension related bugs:
+
+* Column ignores css class scrollable (:bokeh-issue:`11083`)
+* Bad formatting of y axis labels with theme (:bokeh-issue:`11110`)
+* Layout regression in panel (:bokeh-issue:`11123`)
+* Div model layout differences (:bokeh-issue:`11161`)
+* Active tab should be in view on render (:bokeh-issue:`11284`)
+* Plot's height can not go below 600px (:bokeh-issue:`11344`)
+* Dropdown menu is hidden in multi choice (:bokeh-issue:`11365`)
+* Extensions should fetch exact version from CDN (:bokeh-issue:`11380`)

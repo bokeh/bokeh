@@ -1,0 +1,53 @@
+.. |bokeh.models|       replace:: :ref:`bokeh.models`
+.. |bokeh.plotting|     replace:: :ref:`bokeh.plotting`
+.. |ColumnDataSource|   replace:: :ref:`ColumnDataSource <ug_basic_data_cds>`
+.. |contributor guide| replace:: :ref:`contributor guide <contributor_guide>`
+.. |data units|         replace:: :ref:`data units <ug_styling_units>`
+.. |fill properties|    replace:: :ref:`fill properties <ug_styling_fill_properties>`
+.. |hatch properties|   replace:: :ref:`hatch properties <ug_styling_hatch_properties>`
+.. |interactive legends| replace:: :ref:`interactive legends <ug_interaction_legends>`
+.. |line properties|    replace:: :ref:`line properties <ug_styling_line_properties>`
+.. |models interface|   replace:: :ref:`bokeh.models interface <ug_interfaces_models>`
+.. |plotting interface| replace:: :ref:`bokeh.plotting interface <ug_interfaces_plotting>`
+.. |reference guide|    replace:: :ref:`reference guide <refguide>`
+.. |screen units|       replace:: :ref:`screen units <ug_styling_units>`
+.. |text properties|    replace:: :ref:`text properties <ug_styling_text_properties>`
+.. |unit|               replace:: :ref:`unit <ug_styling_units>`
+.. |user guide|         replace:: :ref:`user guide <userguide>`
+
+.. |add layout|         replace:: :py:func:`~bokeh.models.plots.Plot.add_layout`
+.. |components|         replace:: :py:func:`~bokeh.embed.components`
+.. |factor_cmap|        replace:: :py:func:`~bokeh.transform.factor_cmap`
+.. |field|              replace:: :py:func:`~bokeh.core.properties.field`
+.. |figure|             replace:: :py:func:`~bokeh.plotting.figure`
+.. |output_file|        replace:: :py:func:`~bokeh.io.output_file`
+.. |output_notebook|    replace:: :py:func:`~bokeh.io.output_notebook`
+.. |save|               replace:: :py:func:`~bokeh.io.save`
+.. |show|               replace:: :py:func:`~bokeh.io.show`
+.. |value|              replace:: :py:func:`~bokeh.core.properties.value`
+
+.. |Color|              replace:: :py:class:`~bokeh.core.properties.Color`
+.. |DataSpec|           replace:: :py:class:`~bokeh.core.properties.DataSpec`
+.. |Document|           replace:: :py:class:`~bokeh.document.Document`
+.. |HasProps|           replace:: :py:class:`~bokeh.core.has_props.HasProps`
+.. |Legend|             replace:: :py:class:`~bokeh.models.annotations.Legend`
+.. |Model|              replace:: :py:class:`~bokeh.model.Model`
+.. |Plot|               replace:: :py:class:`~bokeh.models.plots.Plot`
+.. |Property|           replace:: :py:class:`~bokeh.core.property.bases.Property`
+
+.. _CHANGELOG: https://raw.githubusercontent.com/bokeh/bokeh/HEAD/docs/CHANGELOG
+.. _Migration Guides: https://github.com/bokeh/bokeh/wiki/Migration-Guides
+
+.. |named CSS colors| replace:: `named CSS colors`_
+.. _`named CSS colors`: https://www.w3.org/TR/css-color-4/#named-colors
+
+.. _CC BY 2.0: https://creativecommons.org/licenses/by/2.0/
+.. _CC BY 3.0 IGO: https://creativecommons.org/licenses/by/3.0/igo/
+.. _CC BY-NC 4.0: https://creativecommons.org/licenses/by-nc/4.0/
+.. _CC BY-ND 4.0: https://creativecommons.org/licenses/by-nd/4.0/
+.. _CC BY-SA 3.0: https://creativecommons.org/licenses/by-sa/3.0/
+.. _CC0: https://creativecommons.org/share-your-work/public-domain/cc0/
+.. _MIT license: https://opensource.org/licenses/MIT
+.. _ODbL 1.0: https://opendatacommons.org/licenses/odbl/1-0/
+.. _Open Government Licence: http://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/
+.. _Public Domain: https://wiki.creativecommons.org/wiki/public_domain

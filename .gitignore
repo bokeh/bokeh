@@ -1,0 +1,72 @@
+*.py[ocd]
+
+# setup.py things
+/build
+/dist
+/MANIFEST
+**/*.egg-info*
+
+# coverage reports
+/.coverage
+/coverage.xml
+
+# ipython files
+**/.ipynb_checkpoints
+
+# HTML files
+*.html
+!/src/bokeh/core/_templates/*.html
+
+# node things
+**/node_modules
+**/package-lock.json
+**/dist
+**/.bokeh
+
+# conda build
+/linux-64
+/osx-64
+/win-64
+
+# dev files
+*.patch
+*.diff
+*.rej
+
+# common editor cruft
+.#*
+[#]*#
+*~
+*$
+*.bak
+.project
+.pydevproject
+.*.sw[nop]
+.sw[nop]
+*.tmp
+.vscode
+
+# compressed / binary files
+*.bz2
+*.bzip2
+*.dmg
+*.gz
+*.iso
+*.png
+*.tar
+*.tgz
+*.zip
+
+# test files
+/.cache/
+/.pytest_cache/
+/.mypy_cache/
+/.images-list
+examples-report.html
+examples.log
+
+# used by docker container
+.conda_docker
+
+# OS junk
+.DS_Store

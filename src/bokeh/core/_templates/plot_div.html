@@ -1,0 +1,13 @@
+{#
+Renders a basic plot div, that can be used in conjunction with PLOT_JS.
+
+:param elementid: a unique identifier for the ``<div>`` a PLOT_JS
+    template should be configured with the same ``elementid``
+:type elementid: str
+
+-#}
+{% from macros import embed %}
+{{ embed(doc) if doc.elementid }}
+{% for root in doc.roots %}
+  {{ embed(root) }}
+{% endfor %}

@@ -1,0 +1,46 @@
+:host {
+  cursor: pointer;
+}
+
+:host(.disabled) {
+  cursor: default;
+}
+
+:host {
+  --switch-size: 16px;
+  --bar-height: 10px;
+}
+
+.body {
+  width: 100%;
+  height: var(--switch-size);
+}
+
+.bar {
+  position: relative;
+  top: calc(50% - var(--bar-height)/2);
+  height: var(--bar-height);
+  border-radius: calc(var(--bar-height)/2);
+  background-color: #e5e5e5;
+  transition-property: background-color;
+}
+
+.knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--switch-size);
+  height: var(--switch-size);
+  border-radius: 8px;
+  background-color: #adadad;
+  transition-property: left, background-color;
+}
+
+:host(.active) .bar {
+  background-color: #c2d5f7;
+}
+
+:host(.active) .knob {
+  left: calc(100% - var(--switch-size));
+  background-color: #3b80f0;
+}

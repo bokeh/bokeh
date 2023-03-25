@@ -1,0 +1,10 @@
+attrs:
+    Plot:
+        background_fill_color: "#DDDDDD"
+        outline_line_color: white
+        toolbar_location: above
+        height: 500
+        width: 800
+    Grid:
+        grid_line_dash: [6, 4]
+        grid_line_color: white

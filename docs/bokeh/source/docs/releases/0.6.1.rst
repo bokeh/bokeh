@@ -1,0 +1,14 @@
+.. _release-0-6-1:
+
+0.6.1
+=====
+
+Bokeh ``0.6.1`` (Sep 2014) is a minor release.
+
+* Toolbar enhancements
+* bokeh-server fixes
+* Improved documentation
+* Button widgets
+* Google map support in the Python side
+* Code cleanup in the JS side and examples
+* New examples

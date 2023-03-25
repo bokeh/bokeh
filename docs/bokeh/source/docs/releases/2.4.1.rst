@@ -1,0 +1,18 @@
+.. _release-2-4-1:
+
+2.4.1
+=====
+
+Bokeh Version ``2.4.1`` (Oct 2021) is a patch-release that fixes a number of minor bugs/regressions and build issues.
+
+* Support full text search for MultiChoice and auto complete input (:bokeh-issue:`10525`)
+* Reduce Tornado imports (:bokeh-issue:`11618`)
+* Fix regression causing slow Hover tool rendering (:bokeh-issue:`11629`)
+* RangesUpdate not emitted when using xwheel_pan (:bokeh-issue:`11633`)
+* Actually fix clipping in SVG <text> nodes (:bokeh-issue:`11644`)
+* bokeh init creates a package.json which refers to the deprecated Bokeh JS node package (:bokeh-issue:`11645`)
+* Using band_hatch_pattern with images doesn't work (:bokeh-issue:`11646`)
+* Update bokehjs' dependencies (:bokeh-issue:`11652`)
+* Support "pip install" from sdist (:bokeh-issue:`11658`)
+* Issue with line rendering when selecting indices (:bokeh-issue:`11661`)
+* Fix WebGL marker count change (:bokeh-issue:`11686`)

@@ -1,0 +1,36 @@
+.. _release-2-4-3:
+
+2.4.3
+=====
+
+Bokeh Version ``2.4.3`` (May 2022) is a patch release that fixes a number of
+minor bugs/regressions and build issues.
+
+This release also includes several improvements to Bokeh's
+:ref:`WebGL output backend <ug_output_webgl>`. Updates include newly added WebGL
+support for hbar, quad, vbar and hex_tile glyphs, as well as improvements and
+bug fixes for line, scatter, circle and rect glyphs:
+
+* Support multiple marker types in WebGL scatter (:bokeh-issue:`11840`)
+* Fix webgl line NaN handling (:bokeh-issue:`11829`)
+* Force webgl backend when requested for testing (:bokeh-issue:`11823`)
+* Correctly handle odd-length dash patterns in WebGL (:bokeh-issue:`11819`)
+* Fix webgl dashed line joins with butt end caps (:bokeh-issue:`11814`)
+* WebGL line refactor (:bokeh-issue:`12120`)
+* Correctly render straight WebGL lines with bevel joins (:bokeh-issue:`12065`)
+* WebGL support for HBar VBar and HexTile glyphs (:bokeh-issue:`12061`)
+* Implement WebGL marker line joins (:bokeh-issue:`12055`)
+* WebGL typescript refactor and add quad glyph (:bokeh-issue:`12046`)
+* Unify WebGL markers and rects (:bokeh-issue:`12040`)
+
+Other work in this cycle includes:
+
+* Use channel instead of explicit version for GMap API (:bokeh-issue:`12112`)
+* Wedge/AnnularWedge hit testing cuts off top/bottom (:bokeh-issue:`12070`)
+* Table formatting causes layout crash/collapse (:bokeh-issue:`11965`)
+* Avoid expensive over-computing "all models" on Document init (:bokeh-issue:`11707`)
+* Tap events respond outside plot area (:bokeh-issue:`7390`)
+* Add hover tooltip support for Patch, HArea, and VArea (:bokeh-issue:`11707`)
+* Add sphinx_copybutton (:bokeh-issue:`11993`)
+* Add DatetimeRangeSlider (:bokeh-issue:`12034`)
+* Add search_option_limit to MultiChoice widget (:bokeh-issue:`11605`)

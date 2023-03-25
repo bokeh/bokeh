@@ -1,0 +1,23 @@
+attrs:
+  Axis:
+    major_tick_line_color: "#E0E0E0"
+    minor_tick_line_color: null
+    axis_line_color: "#E0E0E0"
+    major_label_text_color: "#E0E0E0"
+    major_label_text_font_size: "0.7em"
+    axis_label_standoff: 10
+    axis_label_text_color: "#E0E0E0"
+    axis_label_text_font_size: "0.8em"
+  Grid:
+    grid_line_color: null
+  Plot:
+    background_fill_color: "#20262B"
+    border_fill_color: null
+    outline_line_color: null
+    sizing_mode: "scale_width"
+    min_border_left: 60
+    min_border_right: 60
+    min_border_top: 0
+    min_border_bottom: 4
+  Title:
+    text_color: "#CCCCCC"
