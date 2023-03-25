@@ -205,6 +205,11 @@ describe("Widgets", () => {
     await view.ready
   })
 
+  it.allowing(8)("should allow AutocompleteInput with search_strategy='includes'", async () => {
+    const obj = new AutocompleteInput({placeholder: "Enter value ...", search_strategy: "includes"})
+    await display(obj, [500, 100])
+  })
+
   it.allowing(8)("should allow TextAreaInput", async () => {
     const obj = new TextAreaInput({placeholder: "Enter text ...", cols: 20, rows: 4})
     await display(obj, [500, 100])

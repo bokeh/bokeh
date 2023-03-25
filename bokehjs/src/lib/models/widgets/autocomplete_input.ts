@@ -73,9 +73,13 @@ export class AutocompleteInputView extends TextInputView {
       return case_sensitive ? (t: string) => t : (t: string) => t.toLowerCase()
     })()
 
+    const search_function = this.model.search_strategy === "startswith"
+      ? (t: string, v: string) => acnorm(t).startsWith(acnorm(v))
+      : (t: string, v: string) => acnorm(t).includes(acnorm(v))
+
     const completions: string[] = []
     for (const text of this.model.completions) {
-      if (acnorm(text).startsWith(acnorm(value))) {
+      if (search_function(text, value)) {
         completions.push(text)
       }
     }
@@ -177,6 +181,7 @@ export namespace AutocompleteInput {
     max_completions: p.Property<number | null>
     case_sensitive: p.Property<boolean>
     restrict: p.Property<boolean>
+    search_strategy: p.Property<"startswith" | "includes">
   }
 }
 
@@ -193,12 +198,13 @@ export class AutocompleteInput extends TextInput {
   static {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative, Positive, Nullable}) => ({
+    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, Enum, NonNegative, Positive, Nullable}) => ({
       completions:    [ Array(String), [] ],
       min_characters: [ NonNegative(Int), 2 ],
       max_completions: [ Nullable(Positive(Int)), null ],
       case_sensitive: [ Boolean, true ],
       restrict: [ Boolean, true ],
+      search_strategy: [ Enum("startswith", "includes"), "startswith" ],
     }))
   }
 }
