@@ -10,7 +10,7 @@ factors.
 '''
 from bokeh.models import FactorRange
 from bokeh.plotting import figure, show
-from bokeh.palettes import TolYlOrBr3
+from bokeh.palettes import TolYlOrBr4
 
 factors = [
     ("Q1", "jan"), ("Q1", "feb"), ("Q1", "mar"),
@@ -22,10 +22,10 @@ factors = [
 p = figure(x_range=FactorRange(*factors), height=500,
            toolbar_location=None, tools="")
 
-orange, brown = TolYlOrBr3[1], TolYlOrBr3[2]
+orange, brown = TolYlOrBr4[1], TolYlOrBr4[3]
 
 x = [ 10, 12, 16, 9, 10, 8, 12, 13, 14, 14, 12, 16 ]
-p.vbar(x=factors, top=x, width=0.9, color=orange, alpha=0.7)
+p.vbar(x=factors, top=x, width=0.9, fill_color=orange, line_color="black", alpha=0.8)
 
 p.line(x=["Q1", "Q2", "Q3", "Q4"], y=[12, 9, 13, 14], color=brown, line_width=2)
 
