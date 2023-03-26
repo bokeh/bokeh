@@ -1,6 +1,5 @@
 ''' A graph showing how to plot a glyph using your own custom theme.
     This could be json or yaml
-    
 .. bokeh-example-metadata::
     :apis: bokeh.models.Ellipse, bokeh.models.BasicTicker, bokeh.models.ColumnDataSource
     :refs: :ref:`ug_appearance_themes`, :ref:`ug_plotting_area_glyphs`
