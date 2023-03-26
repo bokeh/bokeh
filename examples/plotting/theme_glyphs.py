@@ -6,7 +6,6 @@
     :keywords: glyph, theme
 ''' 
 import numpy as np
-
 from bokeh.io import curdoc, show
 from bokeh.models import (BasicTicker, BasicTickFormatter, ColumnDataSource, Ellipse,
                           HBar, Line, LinearAxis, Plot, Scatter, Text, Title)
