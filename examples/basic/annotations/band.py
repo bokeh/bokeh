@@ -1,9 +1,11 @@
-''' A demonstration of the Band annotation
+''' An interactive numerical band plot based on simple Python array of data.
+    It is a combination of scatter plots and line plots added with a band of covered area.
+    The line passes through the mean of the area covered by the band.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource
+    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show,
     :refs: :ref:`ug_basic_annotations_bands`
-    :keywords: band
+    :keywords: figure, scatter, line, band, layout
 
 '''
 import numpy as np
@@ -31,12 +33,12 @@ p.title.text = "Rolling Standard Deviation"
 p.xgrid.grid_line_color=None
 p.ygrid.grid_line_alpha=0.5
 
-p.scatter(x="x", y="y", marker="dot", size=10, alpha=0.4, source=source)
+p.scatter(x="x", y="y", color="blue", marker="dot", size=10, alpha=0.4, source=source)
 
 p.line("x", "y_mean", line_dash=(10, 7), line_width=2, source=source)
 
 band = Band(base="x", lower="lower", upper="upper", source=source,
-            fill_alpha=0.3, fill_color="gray", line_color="black")
+            fill_alpha=0.3, fill_color="yellow", line_color="black")
 p.add_layout(band)
 
 show(p)

@@ -68,6 +68,8 @@ All the markers have the same set of properties: ``x``, ``y``, ``size`` (in
 an exception: this method accepts an additional ``radius`` property that you can
 use with |data units|.
 
+.. _ug_basic_scatters_urls:
+
 Image URLs
 ----------
 

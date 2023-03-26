@@ -1,3 +1,12 @@
+''' This example demonstrates how to us a jitter transform on coordinate data.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.Circle, bokeh.models.Jitter
+    :refs: :ref:`ug_interaction_widgets`, :ref:`ug_topics_categorical_scatters_jitter`
+    :keywords: scatter plot, Jitter, Bokeh, NumPy
+
+'''
+
 import numpy as np
 
 from bokeh.core.properties import field
