@@ -25,7 +25,19 @@ pub enum Geometry<'a> {
 pub struct Selection {}
 
 pub trait HitTest {
-  fn hit_test(geometry: Geometry) -> Selection;
+  fn hit_test(geometry: Geometry) -> Selection {
+    match geometry {
+      Geometry::Point {..} => Selection {},
+      Geometry::Span {..} => Selection {},
+      Geometry::Rect {..} => Selection {},
+      Geometry::Poly {..} => Selection {},
+    }
+  }
+
+  //fn hit_point(geometry: Geometry::Point) -> Selection;
+  //fn hit_span(geometry: Geometry::Span) -> Selection;
+  //fn hit_rect(geometry: Geometry::Rect) -> Selection;
+  //fn hit_poly(geometry: Geometry::Poly) -> Selection;
 }
 
 pub enum Anchor {
@@ -50,40 +62,93 @@ pub struct Point {
   pub y: f64,
 }
 
-pub struct LRTBGlyph {
+pub enum Spec<'a, T> {
+  Field {
+    name: &'a str,
+  },
+  Value {
+    value: T,
+  },
+}
+
+pub struct XCoordinateSpec;
+pub struct YCoordinateSpec;
+pub struct NumberSpec;
+
+pub enum LRTBGlyph {
+  Block {
+    x: XCoordinateSpec,
+    y: YCoordinateSpec,
+    width: NumberSpec,
+    height: NumberSpec,
+  },
+  Quad {
+    right: XCoordinateSpec,
+    bottom: YCoordinateSpec,
+    left: XCoordinateSpec,
+    top: YCoordinateSpec,
+  },
+  HBar {
+    left: XCoordinateSpec,
+    y: YCoordinateSpec,
+    height: NumberSpec,
+    right: XCoordinateSpec,
+  },
+  VBar {
+    x: XCoordinateSpec,
+    bottom: YCoordinateSpec,
+    width: NumberSpec,
+    top: YCoordinateSpec,
+  },
+}
+
+pub enum Uniform {
+  Scalar,
+  Vector,
+}
+
+pub struct LRTBData {
   pub sleft: Vec<f64>,
   pub sright: Vec<f64>,
   pub stop: Vec<f64>,
   pub sbottom: Vec<f64>,
 }
 
-pub fn get_anchor_point(glyph: LRTBGlyph, anchor: Anchor, i: usize, _spt: Point) -> Option<Point> {
-  let left = f64::min(glyph.sleft[i], glyph.sright[i]);
-  let right = f64::max(glyph.sright[i], glyph.sleft[i]);
-  let top = f64::min(glyph.stop[i], glyph.sbottom[i]);
-  let bottom = f64::max(glyph.sbottom[i], glyph.stop[i]);
-
-  let hcenter = (left + right)/2.0;
-  let vcenter = (top + bottom)/2.0;
-
-  let (x, y) = match anchor {
-    Anchor::TopLeft                       => (left, top),
-    Anchor::Top    | Anchor::TopCenter    => (hcenter, top),
-    Anchor::TopRight                      => (right, top),
-    Anchor::BottomLeft                    => (left, bottom),
-    Anchor::Bottom | Anchor::BottomCenter => (hcenter, bottom),
-    Anchor::BottomRight                   => (right, bottom),
-    Anchor::Left   | Anchor::CenterLeft   => (left, vcenter),
-    Anchor::Center | Anchor::CenterCenter => (hcenter, vcenter),
-    Anchor::Right  | Anchor::CenterRight  => (right, vcenter),
-  };
-
-  Some(Point {x, y})
+pub trait Glyph {
 }
 
-pub enum Uniform {
-  Scalar,
-  Vector,
+pub trait Anchored {
+  type Type;
+
+  fn get_anchor_point(glyph: Self::Type, anchor: Anchor, i: usize, spt: Point) -> Option<Point>;
+}
+
+impl Anchored for LRTBGlyph {
+  type Type = LRTBData;
+
+  fn get_anchor_point(glyph: Self::Type, anchor: Anchor, i: usize, _spt: Point) -> Option<Point> {
+    let left = f64::min(glyph.sleft[i], glyph.sright[i]);
+    let right = f64::max(glyph.sright[i], glyph.sleft[i]);
+    let top = f64::min(glyph.stop[i], glyph.sbottom[i]);
+    let bottom = f64::max(glyph.sbottom[i], glyph.stop[i]);
+
+    let hcenter = (left + right)/2.0;
+    let vcenter = (top + bottom)/2.0;
+
+    let (x, y) = match anchor {
+      Anchor::TopLeft                       => (left, top),
+      Anchor::Top    | Anchor::TopCenter    => (hcenter, top),
+      Anchor::TopRight                      => (right, top),
+      Anchor::BottomLeft                    => (left, bottom),
+      Anchor::Bottom | Anchor::BottomCenter => (hcenter, bottom),
+      Anchor::BottomRight                   => (right, bottom),
+      Anchor::Left   | Anchor::CenterLeft   => (left, vcenter),
+      Anchor::Center | Anchor::CenterCenter => (hcenter, vcenter),
+      Anchor::Right  | Anchor::CenterRight  => (right, vcenter),
+    };
+
+    Some(Point {x, y})
+  }
 }
 
 use crate::scales::Scale;
