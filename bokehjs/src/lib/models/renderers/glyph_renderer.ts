@@ -26,9 +26,7 @@ import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
-import {base64_to_buffer} from "core/util/buffer"
-import wasm_binary from "wasm/bokeh_web_bg.wasm"
-import init, * as wasm from "wasm/bokeh_web"
+import {wasm_lib, not_available} from "../common/wasm"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -95,10 +93,11 @@ export class GlyphRendererView extends DataRendererView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const wasm_bytes = base64_to_buffer(wasm_binary)
-    await init(wasm_bytes)
-    console.log(wasm.some(10))
-    console.log(wasm.quadratic_bezier_macro_object(0, 0, 1, 0, 2, 0))
+    const lib = await wasm_lib()
+    if (lib !== not_available) {
+      console.log(lib.some(10))
+      console.log(lib.quadratic_bezier_macro_object(0, 0, 1, 0, 2, 0))
+    }
 
     this.cds_view = await build_view(this.model.view, {parent: this})
 
