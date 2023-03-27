@@ -3,3 +3,4 @@ pub mod bezier;
 pub mod splines;
 pub mod scales;
 pub mod hit_test;
+pub mod ndarrays;

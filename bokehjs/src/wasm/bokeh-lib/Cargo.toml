@@ -10,6 +10,7 @@ repository = {workspace = true}
 crate-type = ["lib"]
 
 [dependencies]
+ndarray = "0.15.6"
 
 [dev-dependencies]
 approx = {version = "0.5.1"}

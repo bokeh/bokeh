@@ -115,3 +115,8 @@ pub fn quadratic_bezier_macro_object(x0: f64, y0: f64, cx: f64, cy: f64, x1: f64
   let Rect {x0, y0, x1, y1} = result;
   object! {"x0" => x0, "x1" => x1, "y0" => y0, "y1" => y1}
 }
+
+#[wasm_bindgen]
+pub fn some(n: u32) -> f64 {
+  bokeh_lib::ndarrays::some(n)
+}
