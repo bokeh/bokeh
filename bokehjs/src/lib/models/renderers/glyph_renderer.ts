@@ -97,7 +97,8 @@ export class GlyphRendererView extends DataRendererView {
 
     const wasm_bytes = base64_to_buffer(wasm_binary)
     await init(wasm_bytes)
-    console.log(wasm.quadratic_bezier(0, 0, 1, 0, 2, 0).toString())
+    console.log(wasm.some(10))
+    console.log(wasm.quadratic_bezier_macro_object(0, 0, 1, 0, 2, 0))
 
     this.cds_view = await build_view(this.model.view, {parent: this})
 
