@@ -10,11 +10,12 @@ import numpy as np
 import scipy.special
 
 from bokeh.layouts import gridplot
-from bokeh.plotting import figure, show
 from bokeh.palettes import HighContrast3
+from bokeh.plotting import figure, show
+
 
 def make_plot(title, hist, edges, x, pdf, cdf):
-    blue, orange, red = HighContrast3[0], HighContrast3[1], HighContrast3[2] 
+    blue, orange, red = HighContrast3[0], HighContrast3[1], HighContrast3[2]
     p = figure(title=title, tools='', background_fill_color="#fafafa")
     p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
            fill_color=blue, line_color="white", alpha=0.5)
