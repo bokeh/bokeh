@@ -10,6 +10,7 @@ on:
 env:
   CHROME_VER: "110.0.5481.100"
   CHROME_REV: "chromium_2333"
+  BINARYEN_VER: "112"
 
 jobs:
   test:
@@ -43,6 +44,19 @@ jobs:
           rustup target add wasm32-unknown-unknown
           cargo install wasm-bindgen-cli # TODO: pre-compile
 
+      - name: Install binaryen
+        shell: bash
+        run: |
+          PLATFORM="${RUNNER_OS,,}"
+          VER=${BINARYEN_VER}
+          ARCH="x86_64"
+          NAME="binaryen-version_${VER}"
+          FILE="${NAME}-${ARCH}-${PLATFORM}.tar.gz"
+          URL="https://github.com/WebAssembly/binaryen/releases/download/version_${VER}/${FILE}"
+          curl -L -O ${URL}
+          tar -xzvf ${FILE}
+          echo "$(pwd)/${NAME}/bin" >> ${GITHUB_PATH}
+
       - name: Install chromium
         if: runner.os == 'Linux'
         shell: bash
@@ -70,7 +84,10 @@ jobs:
         run: |
           echo "node $(node --version)"
           echo "npm $(npm --version)"
-          rustup --version
+          rustc --version
+          cargo --version
+          wasm-bindgen --version
+          wasm-opt --version
           if [ "$RUNNER_OS" == "Linux" ]; then
             chromium --version
           elif [ "$RUNNER_OS" == "Windows" ]; then
