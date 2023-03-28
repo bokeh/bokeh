@@ -178,14 +178,11 @@
     args: {
       type: "map",
     },
-    code: "",
-  },
-  CustomESM: {
-    __extends__: "CustomCode",
-    args: {
-      type: "map",
+    code: {
+      type: "symbol",
+      name: "unset",
     },
-    code: "",
+    module: "auto",
   },
   SetValue: {
     __extends__: "Callback",

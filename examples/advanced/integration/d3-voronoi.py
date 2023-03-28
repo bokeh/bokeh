@@ -1,10 +1,11 @@
 import numpy as np
-from bokeh.plotting import figure
-from bokeh.models import CustomESM, ColumnDataSource, PointDrawTool, Slider, ColorBar
-from bokeh.palettes import Sunset8
-from bokeh.transform import linear_cmap
+
 from bokeh.io import curdoc, show
 from bokeh.layouts import column
+from bokeh.models import ColorBar, ColumnDataSource, CustomJS, PointDrawTool, Slider
+from bokeh.palettes import Sunset8
+from bokeh.plotting import figure
+from bokeh.transform import linear_cmap
 
 x =  np.random.random(100)*3
 y  = np.random.random(100)*2
@@ -33,7 +34,7 @@ vr = p.patches(xs="pxs", ys="pys", fill_color=cmap, line_color="black", fill_alp
 
 slider = Slider(title="Buffer extent", value=0, start=0, end=1, step=0.1)
 
-cb = CustomESM(args=dict(source=source, slider=slider), code="""
+cb = CustomJS(args=dict(source=source, slider=slider), code="""
     import {Delaunay} from "https://cdn.skypack.dev/d3-delaunay@6"
     const {min, max, transpose} = Bokeh.require("core/util/array")
 

@@ -28,8 +28,10 @@ from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Any,
     AnyRef,
+    Auto,
     Bool,
     Dict,
+    Either,
     Instance,
     Required,
     String,
@@ -47,7 +49,6 @@ from ..model import Model
 __all__ = (
     'Callback',
     'OpenURL',
-    'CustomESM',
     'CustomJS',
     'SetValue',
 )
@@ -108,43 +109,28 @@ class CustomJS(CustomCode):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    args = Dict(String, AnyRef, help="""
+    args = Dict(String, AnyRef)(default={}, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.
     """)
 
-    code = String(default="", help="""
-    A snippet of JavaScript code to execute in the browser. The
-    code is made into the body of a function, and all of of the named objects in
+    code = Required(String)(help="""
+    A snippet of JavaScript code to execute in the browser.
+
+    This can be interpreted either as a JavaScript function or a module, depending
+    on the ``module`` property:
+
+    1. A JS function.
+
+    The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
-    """)
 
-class CustomESM(CustomCode):
-    ''' Execute a JavaScript function.
+    2. An ES module.
 
-    .. warning::
-        The explicit purpose of this Bokeh Model is to embed *raw JavaScript
-        code* for a browser to execute. If any part of the code is derived
-        from untrusted user inputs, then you must take appropriate care to
-        sanitize the user input prior to passing to Bokeh.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    args = Dict(String, AnyRef, help="""
-    A mapping of names to Python objects. In particular those can be bokeh's models.
-    These objects are made available to the callback's code snippet as the values of
-    named parameters to the callback.
-    """)
-
-    code = String(default="", help="""
     A JavaScript module (ESM) exporting a default function with the following
     signature:
 
@@ -159,6 +145,11 @@ class CustomESM(CustomCode):
     mapping of optional parameters provided by the caller.
 
     This function can be an asynchronous function (``async function``).
+    """)
+
+    module = Either(Auto, Bool, default="auto", help="""
+    Whether to interpret the code as a JS function or ES module. If set to
+    ``"auto"``, the this will be inferred from the code.
     """)
 
 class SetValue(Callback):
