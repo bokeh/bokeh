@@ -21,7 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any as any
+import pathlib
+from typing import TYPE_CHECKING, Any as any
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
@@ -41,6 +42,9 @@ from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
+
+if TYPE_CHECKING:
+    from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -151,6 +155,36 @@ class CustomJS(CustomCode):
     Whether to interpret the code as a JS function or ES module. If set to
     ``"auto"``, the this will be inferred from the code.
     """)
+
+    @classmethod
+    def from_file(cls, path: PathLike, **args: any) -> CustomJS:
+        """
+        Construct a ``CustomJS`` instance from a ``*.js`` or ``*.mjs`` file.
+
+        For example, if we want to construct a ``CustomJS`` instance from
+        a JavaScript module ``my_module.mjs``, that takes a single argument
+        ``source``, then we would use:
+
+        .. code-block: python
+
+            from bokeh.models import ColumnDataSrouce, CustomJS
+            source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+            CustomJS.from_file("./my_module.mjs", source=source)
+
+        """
+        path = pathlib.Path(path)
+
+        if path.suffix == ".js":
+            module = False
+        elif path.suffix == ".mjs":
+            module = True
+        else:
+            raise RuntimeError(f"expected a *.js or *.mjs file, got {path}")
+
+        with open(path, encoding="utf-8") as file:
+            code = file.read()
+
+        return CustomJS(code=code, args=args, module=module)
 
 class SetValue(Callback):
     """ Allows to update a property of an object. """
