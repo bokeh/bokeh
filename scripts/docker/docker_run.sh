@@ -31,6 +31,6 @@ if [ "${BOKEH_DOCKER_CHROME_VERSION:-0}" == 1 ]; then
     INTERACTIVE=""
 fi
 
-CMD="docker run -v $PWD:/bokeh -u $UID_GID -p 5006:5006 $ENV_VARS $INTERACTIVE $IMAGE_AND_TAG"
+CMD="docker run -v $PWD:/bokeh -u $UID_GID -p 5006-5009:5006-5009 $ENV_VARS $INTERACTIVE $IMAGE_AND_TAG"
 echo $CMD
 $CMD
