@@ -6,9 +6,9 @@ ARG FIXUID_VERSION=0.5.1
 ENV DEBIAN_FRONTEND=noninteractive
 
 # fonts-dejavu-core needed for headless chrome unicode characters.
-RUN apt update -y && \
-    apt upgrade -y && \
-    apt install -y curl fonts-dejavu-core git make sudo unzip
+RUN apt update -yq && \
+    apt upgrade -yq && \
+    apt install -yq curl fonts-dejavu-core git make sudo unzip
 
 # User and group setup using fixuid.
 RUN addgroup --gid 1000 docker && \
