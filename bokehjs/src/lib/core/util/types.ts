@@ -56,7 +56,15 @@ export function isPrimitive(obj: unknown): obj is Primitive {
 
 export function isFunction(obj: unknown): obj is Function {
   const rep = toString.call(obj)
-  return rep === "[object Function]" || rep === "[object AsyncFunction]"
+  switch (rep) {
+    case "[object Function]":
+    case "[object AsyncFunction]":
+    case "[object GeneratorFunction]":
+    case "[object AsyncGeneratorFunction]":
+      return true
+    default:
+      return false
+  }
 }
 
 export function isArray<T>(obj: unknown): obj is T[] {

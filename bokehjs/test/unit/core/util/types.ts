@@ -74,11 +74,20 @@ describe("core/util/types module", () => {
   })
 
   it("should support isFunction() function", () => {
-    expect(isFunction(() => 0)).to.be.true
     expect(isFunction(new Function("return 1"))).to.be.true
     expect(isFunction(new X())).to.be.false
-    expect(isFunction(() => new Promise(() => {}))).to.be.true
+
+    expect(isFunction(() => 0)).to.be.true
+    expect(isFunction(function() { return 0 })).to.be.true
+
+    expect(isFunction(function() { return new Promise((resolve) => resolve(0)) })).to.be.true
+    expect(isFunction(async function() { return 0 })).to.be.true
+
+    expect(isFunction(() => new Promise((resolve) => resolve(0)))).to.be.true
     expect(isFunction(async () => 0)).to.be.true
+
+    expect(isFunction(function* () { yield 0; return 10 })).to.be.true
+    expect(isFunction(async function* () { yield 0; return 10 })).to.be.true
   })
 
   it("should support isArray() function", () => {
