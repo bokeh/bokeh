@@ -107,7 +107,7 @@ export abstract class GlyphView extends View {
       this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
       if (this.renderer.needs_webgl_blit)
         return
-    } else if (this.canvas.webgl && settings.force_webgl) {
+    } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     }
 
