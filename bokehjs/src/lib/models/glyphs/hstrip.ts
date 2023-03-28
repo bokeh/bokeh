@@ -9,7 +9,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import * as p from "core/properties"
 
-export type HBandData = GlyphData & p.UniformsOf<HBand.Mixins> & {
+export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
   _y0: FloatArray
   _y1: FloatArray
 
@@ -17,11 +17,11 @@ export type HBandData = GlyphData & p.UniformsOf<HBand.Mixins> & {
   sy1: ScreenArray
 }
 
-export interface HBandView extends HBandData {}
+export interface HStripView extends HStripData {}
 
-export class HBandView extends GlyphView {
-  declare model: HBand
-  declare visuals: HBand.Visuals
+export class HStripView extends GlyphView {
+  declare model: HStrip
+  declare visuals: HStrip.Visuals
 
   /** @internal */
   declare glglyph?: import("./webgl/lrtb").LRTBGL
@@ -78,7 +78,7 @@ export class HBandView extends GlyphView {
     return [hcenter, (this.sy0[i] + this.sy1[i])/2]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HBandData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HStripData): void {
     const {sy0, sy1} = data ?? this
     const {left, right, width} = this.renderer.plot_view.frame.bbox
 
@@ -145,7 +145,7 @@ export class HBandView extends GlyphView {
   */
 }
 
-export namespace HBand {
+export namespace HStrip {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
@@ -158,22 +158,22 @@ export namespace HBand {
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
-export interface HBand extends HBand.Attrs {}
+export interface HStrip extends HStrip.Attrs {}
 
-export class HBand extends Glyph {
-  declare properties: HBand.Props
-  declare __view_type__: HBandView
+export class HStrip extends Glyph {
+  declare properties: HStrip.Props
+  declare __view_type__: HStripView
 
-  constructor(attrs?: Partial<HBand.Attrs>) {
+  constructor(attrs?: Partial<HStrip.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = HBandView
+    this.prototype.default_view = HStripView
 
-    this.mixins<HBand.Mixins>([LineVector, FillVector, HatchVector])
+    this.mixins<HStrip.Mixins>([LineVector, FillVector, HatchVector])
 
-    this.define<HBand.Props>(() => ({
+    this.define<HStrip.Props>(() => ({
       y0: [ p.YCoordinateSpec, {field: "y0"} ],
       y1: [ p.YCoordinateSpec, {field: "y1"} ],
     }))

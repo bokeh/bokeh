@@ -9,7 +9,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import * as p from "core/properties"
 
-export type VBandData = GlyphData & p.UniformsOf<VBand.Mixins> & {
+export type VStripData = GlyphData & p.UniformsOf<VStrip.Mixins> & {
   _x0: FloatArray
   _x1: FloatArray
 
@@ -17,11 +17,11 @@ export type VBandData = GlyphData & p.UniformsOf<VBand.Mixins> & {
   sx1: ScreenArray
 }
 
-export interface VBandView extends VBandData {}
+export interface VStripView extends VStripData {}
 
-export class VBandView extends GlyphView {
-  declare model: VBand
-  declare visuals: VBand.Visuals
+export class VStripView extends GlyphView {
+  declare model: VStrip
+  declare visuals: VStrip.Visuals
 
   /** @internal */
   declare glglyph?: import("./webgl/lrtb").LRTBGL
@@ -78,7 +78,7 @@ export class VBandView extends GlyphView {
     return [(this.sx0[i] + this.sx1[i])/2, vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VBandData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: VStripData): void {
     const {sx0, sx1} = data ?? this
     const {top, bottom, height} = this.renderer.plot_view.frame.bbox
 
@@ -131,7 +131,7 @@ export class VBandView extends GlyphView {
   }
 }
 
-export namespace VBand {
+export namespace VStrip {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Glyph.Props & {
@@ -144,22 +144,22 @@ export namespace VBand {
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 }
 
-export interface VBand extends VBand.Attrs {}
+export interface VStrip extends VStrip.Attrs {}
 
-export class VBand extends Glyph {
-  declare properties: VBand.Props
-  declare __view_type__: VBandView
+export class VStrip extends Glyph {
+  declare properties: VStrip.Props
+  declare __view_type__: VStripView
 
-  constructor(attrs?: Partial<VBand.Attrs>) {
+  constructor(attrs?: Partial<VStrip.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = VBandView
+    this.prototype.default_view = VStripView
 
-    this.mixins<VBand.Mixins>([LineVector, FillVector, HatchVector])
+    this.mixins<VStrip.Mixins>([LineVector, FillVector, HatchVector])
 
-    this.define<VBand.Props>(() => ({
+    this.define<VStrip.Props>(() => ({
       x0: [ p.XCoordinateSpec, {field: "x0"} ],
       x1: [ p.XCoordinateSpec, {field: "x1"} ],
     }))

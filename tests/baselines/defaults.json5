@@ -2771,7 +2771,7 @@
       value: 0,
     },
   },
-  HBand: {
+  HStrip: {
     __extends__: [
       "LineGlyph",
       "FillGlyph",
@@ -2845,7 +2845,7 @@
       type: "map",
     },
   },
-  VBand: {
+  VStrip: {
     __extends__: [
       "LineGlyph",
       "FillGlyph",

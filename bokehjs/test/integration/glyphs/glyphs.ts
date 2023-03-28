@@ -678,7 +678,7 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
-  it("should support HSpan, VSpan, HBand, VBand", async () => {
+  it("should support HSpan, VSpan, HStrip, VStrip", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([300, 300], {
         x_range: [-5, 105], y_range: [-5, 105],
@@ -688,13 +688,13 @@ describe("Glyph models", () => {
       p.hspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "red"})
       p.vspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "blue"})
 
-      p.hband({
+      p.hstrip({
         y0: [40, 60, 80], y1: [50, 70, 90],
         line_color: "pink",
         fill_color: "purple",
         hatch_pattern: "x", hatch_color: "yellow",
       })
-      p.vband({
+      p.vstrip({
         x0: [40, 60, 80], x1: [50, 70, 90],
         line_color: "pink",
         fill_color: "yellow",

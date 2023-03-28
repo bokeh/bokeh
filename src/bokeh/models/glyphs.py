@@ -110,9 +110,9 @@ __all__ = (
     'Glyph',
     'HArea',
     'HAreaStep',
-    'HBand',
     'HBar',
     'HSpan',
+    'HStrip',
     'HexTile',
     'Image',
     'ImageRGBA',
@@ -134,9 +134,9 @@ __all__ = (
     'Text',
     'VArea',
     'VAreaStep',
-    'VBand',
     'VBar',
     'VSpan',
+    'VStrip',
     'Wedge',
     'XYGlyph',
 )
@@ -1756,8 +1756,8 @@ class VSpan(LineGlyph):
     The {prop} values for the spans.
     """)
 
-class HBand(LineGlyph, FillGlyph, HatchGlyph):
-    """ Horizontal bands of infinite width. """
+class HStrip(LineGlyph, FillGlyph, HatchGlyph):
+    """ Horizontal strips of infinite width. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -1766,27 +1766,27 @@ class HBand(LineGlyph, FillGlyph, HatchGlyph):
     _args = ("y0", "y1")
 
     y0 = NumberSpec(default=field("y0"), help="""
-    The y-coordinates of the coordinates of one side of the bands.
+    The y-coordinates of the coordinates of one side of the strips.
     """)
 
     y1 = NumberSpec(default=field("y1"), help="""
-    The y-coordinates of the coordinates of the other side of the bands.
+    The y-coordinates of the coordinates of the other side of the strips.
     """)
 
     line_props = Include(LineProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
     fill_props = Include(FillProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
     hatch_props = Include(HatchProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
-class VBand(LineGlyph, FillGlyph, HatchGlyph):
-    """ Vertical bands of infinite height. """
+class VStrip(LineGlyph, FillGlyph, HatchGlyph):
+    """ Vertical strips of infinite height. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
@@ -1795,23 +1795,23 @@ class VBand(LineGlyph, FillGlyph, HatchGlyph):
     _args = ("x0", "x1")
 
     x0 = NumberSpec(default=field("x0"), help="""
-    The x-coordinates of the coordinates of one side of the bands.
+    The x-coordinates of the coordinates of one side of the strips.
     """)
 
     x1 = NumberSpec(default=field("x1"), help="""
-    The x-coordinates of the coordinates of the other side of the bands.
+    The x-coordinates of the coordinates of the other side of the strips.
     """)
 
     line_props = Include(LineProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
     fill_props = Include(FillProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
     hatch_props = Include(HatchProps, help="""
-    The {prop} values for the bands.
+    The {prop} values for the strips.
     """)
 
 #-----------------------------------------------------------------------------
