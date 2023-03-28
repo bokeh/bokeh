@@ -45,7 +45,7 @@ if [ "${BOKEH_DOCKER_CONDA:-1}" == 1 ]; then
 
     if [ ! -d "$CONDA_DIR/envs/$ENV_NAME" ]; then
         # Create conda environment and install required packages.
-        conda env create -n $ENV_NAME -f $ENV_YML_FILE
+        conda env create -n $ENV_NAME -f $ENV_YML_FILE -q
 
         # Ensure conda environment is activated in this shell and in new shells.
         conda activate $ENV_NAME
