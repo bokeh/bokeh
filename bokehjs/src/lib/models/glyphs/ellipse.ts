@@ -14,14 +14,6 @@ export class EllipseView extends CenterRotatableView  {
   declare model: Ellipse
   declare visuals: Ellipse.Visuals
 
-  /** @internal */
-  declare glglyph?: import("./webgl/ellipse").EllipseGL
-
-  override async load_glglyph() {
-    const {EllipseGL} = await import("./webgl/ellipse")
-    return EllipseGL
-  }
-
   protected override _map_data(): void {
     if (this.model.properties.width.units == "data")
       this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")

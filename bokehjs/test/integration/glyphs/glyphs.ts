@@ -164,7 +164,7 @@ describe("Glyph models", () => {
       })
       return p
     }
-    await display(row([p("canvas"), p("svg"), p("webgl")]))
+    await display(row([p("canvas"), p("svg")]))
   })
 
   it("should support HArea", async () => {
