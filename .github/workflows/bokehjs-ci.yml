@@ -47,7 +47,7 @@ jobs:
       - name: Install binaryen
         shell: bash
         run: |
-          PLATFORM="${RUNNER_OS,,}"
+          PLATFORM=$(echo ${RUNNER_OS} | tr '[A-Z]' '[a-z]')
           VER=${BINARYEN_VER}
           ARCH="x86_64"
           NAME="binaryen-version_${VER}"
