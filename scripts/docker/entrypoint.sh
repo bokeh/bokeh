@@ -44,13 +44,18 @@ if [ "${BOKEH_DOCKER_CONDA:-1}" == 1 ]; then
     . $CONDA_DIR/etc/profile.d/conda.sh
 
     if [ ! -d "$CONDA_DIR/envs/$ENV_NAME" ]; then
-        # Create conda environment and install required packagaes.
+        # Create conda environment and install required packages.
         conda env create -n $ENV_NAME -f $ENV_YML_FILE
-    fi
 
-    # Ensure conda environment is activated in this shell and in new shells.
-    conda activate $ENV_NAME
-    echo "conda activate $ENV_NAME" >> ~/.bashrc
+        # Ensure conda environment is activated in this shell and in new shells.
+        conda activate $ENV_NAME
+        echo "conda activate $ENV_NAME" >> ~/.bashrc
+
+        conda install -c conda-forge pre-commit
+        pre-commit install
+    else
+        conda activate $ENV_NAME
+    fi
 fi
 
 google-chrome --version
