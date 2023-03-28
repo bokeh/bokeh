@@ -19,7 +19,6 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   private _antialias: number
   private _miter_limit: number
-
   protected _color: number[]
   protected _linewidth: number
   protected _line_dash: number[]
@@ -36,7 +35,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     super(regl_wrapper, glyph)
 
     this._antialias = 1.5   // Make this larger to test antialiasing at edges.
-    this._miter_limit = 5.0 // Threshold for miters to be replaced by bevels.
+    this._miter_limit = 10.0  // Threshold for miters to be replaced by bevels.
   }
 
   abstract override draw(_indices: number[], main_glyph: GlyphView, transform: Transform): void
