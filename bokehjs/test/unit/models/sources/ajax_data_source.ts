@@ -26,43 +26,43 @@ describe("ajax_data_source module", () => {
 
     describe("do_load method", () => {
 
-      it("should replace", () => {
+      it("should replace", async () => {
         const s = new AjaxDataSource({data_url: "http://foo.com"})
         expect(s.data).to.be.equal({})
 
         const xhr0 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [10, 20], "bar": [1, 2]}')
-        s.do_load(xhr0, "replace", 10)
+        await s.do_load(xhr0, "replace", 10)
         expect(s.data).to.be.equal({foo: [10, 20], bar: [1, 2]})
 
         const xhr1 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [100, 200], "bar": [1.1, 2.2]}')
-        s.do_load(xhr1, "replace", 10)
+        await s.do_load(xhr1, "replace", 10)
         expect(s.data).to.be.equal({foo: [100, 200], bar: [1.1, 2.2]})
 
         // max size ignored when replacing
         const xhr2 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [1000, 2000], "bar": [10.1, 20.2]}')
-        s.do_load(xhr2, "replace", 1)
+        await s.do_load(xhr2, "replace", 1)
         expect(s.data).to.be.equal({foo: [1000, 2000], bar: [10.1, 20.2]})
       })
 
-      it("should append up to max_size", () => {
+      it("should append up to max_size", async () => {
         const s = new AjaxDataSource({data_url: "http://foo.com"})
         expect(s.data).to.be.equal({})
 
         const xhr0 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [10, 20], "bar": [1, 2]}')
-        s.do_load(xhr0, "append", 3)
+        await s.do_load(xhr0, "append", 3)
         expect(s.data).to.be.equal({foo: [10, 20], bar: [1, 2]})
 
         const xhr1 = s.prepare_request()
         last(requests).respond(200, {}, '{"foo": [100, 200], "bar": [1.1, 2.2]}')
-        s.do_load(xhr1, "append", 3)
+        await s.do_load(xhr1, "append", 3)
         expect(s.data).to.be.equal({foo: [20, 100, 200], bar: [2, 1.1, 2.2]})
       })
 
-      it("should use a CustomJS adapter", () => {
+      it("should use a CustomJS adapter", async () => {
         const code = `
           const result = {foo: [], bar: []}
           const pts = cb_data.response.points
@@ -78,11 +78,11 @@ describe("ajax_data_source module", () => {
 
         const xhr = s.prepare_request()
         last(requests).respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
-        s.do_load(xhr, "replace", 10)
+        await s.do_load(xhr, "replace", 10)
         expect(s.data).to.be.equal({foo: [10, 20], bar: [1, 2]})
       })
 
-      it("should use a JavaScript function adapter", () => {
+      it("should use a JavaScript function adapter", async () => {
         function execute(_cb_obj: WebDataSource, cb_data: {response: Data}): Data {
           const foo: number[] = []
           const bar: number[] = []
@@ -98,7 +98,7 @@ describe("ajax_data_source module", () => {
 
         const xhr = s.prepare_request()
         last(requests).respond(200, {}, '{"points": [[10, 1], [20, 2]]}')
-        s.do_load(xhr, "replace", 10)
+        await s.do_load(xhr, "replace", 10)
         expect(s.data).to.be.equal({foo: [10, 20], bar: [1, 2]})
       })
     })
