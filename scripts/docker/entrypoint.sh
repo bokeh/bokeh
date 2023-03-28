@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 CONDA_DIR=/home/docker/conda_bokeh
 DEFAULT_PY=3.9

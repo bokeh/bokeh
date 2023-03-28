@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Note do not exit on error, as want remaining tests to run.
-set -u
+set -ux
 
 echo "Start of $0"
 

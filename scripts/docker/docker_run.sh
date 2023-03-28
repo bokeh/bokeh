@@ -4,7 +4,7 @@
 # Can put env vars first, e.g.
 #   BOKEH_DOCKER_PY=3.9 docker_run.sh bokeh-dev:latest
 
-set -eu
+set -eux
 
 if [ $# -ne 1 ]; then
     echo "Usage: docker_run.sh <docker image and tag>, e.g. docker_run.sh bokeh/bokeh-dev:latest"

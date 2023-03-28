@@ -1,7 +1,7 @@
 #!/bin/bash
 # This installs Bokeh from a single wheel in the dist directory and runs some of the Python tests.
 
-set -eu
+set -eux
 
 echo "Start of $0"
 

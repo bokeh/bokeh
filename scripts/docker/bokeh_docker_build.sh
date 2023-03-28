@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -eux
 
 echo "Start of $0"
 
