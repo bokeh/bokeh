@@ -527,6 +527,9 @@ class Test_AutocompleteInput:
         el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "23", click=2, enter=False)
 
+        el = find_element_for(page.driver, text_input, ".bk-menu")
+        assert 'display: none;' not in el.get_attribute('style')
+
         items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 3
         assert items[0].text == "123"
@@ -536,6 +539,9 @@ class Test_AutocompleteInput:
 
         el = find_element_for(page.driver, text_input, "input")
         enter_text_in_element(page.driver, el, "32", click=2, enter=False)
+
+        el = find_element_for(page.driver, text_input, ".bk-menu")
+        assert 'display: none;' not in el.get_attribute('style')
 
         items = el.find_elements(By.TAG_NAME, "div")
         assert len(items) == 2
