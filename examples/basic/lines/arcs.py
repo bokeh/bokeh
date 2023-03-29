@@ -1,5 +1,6 @@
 ''' A ac graph using pre-defined data points. This example
 demonstrates the use of the ``arc`` method to make a graph
+<<<<<<< HEAD
 by drawing three arcs of defined radius, defined start and
 end angles at defined point(coordinates).
 
@@ -8,6 +9,16 @@ end angles at defined point(coordinates).
     :refs: :ref:`ug_basic_lines_arcs
     :keywords: arc, figure, glyph
 
+=======
+by drawing three arcs of defined radius, defined start and 
+end angles at defined point(coordinates) .
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.arc
+    :refs: :ref:`ug_basic_lines_arcs`
+    :keywords: arc, figure, glyph
+    
+>>>>>>> 4f0a2513906c63ad4ba81da4054c73a76cee2cf8
 '''
 from bokeh.plotting import figure, show
 
