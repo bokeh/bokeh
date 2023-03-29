@@ -82,18 +82,12 @@ The AutocompleteInput widget is a general-purpose text input widget that uses
 a list of possible inputs to provide autocomplete while typing.
 
 By default the ``search_strategy`` property is ``"startswith"``, which will
-match against the start of the possible inputs:
+match against the start of the possible inputs. Changing ``search_strategy`` to
+``"includes"`` means that matches against any substring of the possible inputs
+will be shown:
 
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/autocompleteinput.py
     :source-position: below
-
-Changing ``search_strategy`` to ``"includes"`` means that matches against any
-substring of the possible inputs will be shown:
-
-.. bokeh-plot:: __REPO__/examples/interaction/widgets/autocompleteinput_includes.py
-    :source-position: below
-
-Try entering "ysk" to see the different results for each strategy.
 
 More information about buttons can be found in the reference guide entry for
 |AutocompleteInput|.
