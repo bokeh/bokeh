@@ -60,7 +60,11 @@ disjointed lines with gaps for ``NaN`` values.
 .. bokeh-plot:: __REPO__/examples/basic/lines/line_missing_points.py
     :source-position: above
 
+<<<<<<< HEAD
 .. _ug_basic_lines_stacked:
+=======
+.. _ug_basic_lines_stacked:    
+>>>>>>> 53e2b9d626402c06af78b0f2aa9c0a709e4d546c
 
 Stacked lines
 -------------
