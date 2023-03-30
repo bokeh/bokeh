@@ -5,6 +5,7 @@ array as low, high or median.
     :apis: bokeh.plotting.figure, bokeh.layouts.gridplot, bokeh.models.LinearColorMapper, bokeh.transform.transform
     :refs: :ref:`ug_plotting_scatter_markers`, :ref:`ug_interaction_tooltips`
     :keywords: plot, tooltips, tools
+    
 '''
 import numpy as np
 
