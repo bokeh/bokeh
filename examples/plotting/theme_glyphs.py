@@ -4,6 +4,7 @@
     :apis: bokeh.models.Ellipse, bokeh.models.BasicTicker, bokeh.models.ColumnDataSource
     :refs: :ref:`ug_appearance_themes`, :ref:`ug_plotting_area_glyphs`
     :keywords: glyph, theme
+    
 '''
 import numpy as np
 
