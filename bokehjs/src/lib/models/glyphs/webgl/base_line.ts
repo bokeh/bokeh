@@ -19,6 +19,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   private _antialias: number
   private _miter_limit: number
+
   protected _color: number[]
   protected _linewidth: number
   protected _line_dash: number[]

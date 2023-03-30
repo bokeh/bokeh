@@ -3203,4 +3203,27 @@ describe("Bug", () => {
       await display(gp)
     })
   })
+
+  describe("in issue #12913", () => {
+    it("incorrectly renders webgl lines with very small angular separation", async () => {
+      const x = [0, 0.5, 0.5+1e-8, 0.5, 1]
+      const y = [0.4, 0, 1, 0.4, 0]
+      const line_join = "round"
+      const line_width = 20
+      const line_alpha = 0.8
+      const x_range = new Range1d({start: -0.2, end: 1.2})
+      const y_range = new Range1d({start: -0.2, end: 1.2})
+
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend, x_range, y_range})
+        p.line(x, y, {line_width, line_join, line_alpha})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
+  })
 })

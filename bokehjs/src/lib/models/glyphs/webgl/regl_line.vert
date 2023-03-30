@@ -33,7 +33,6 @@ varying vec2 v_coords;
 varying float v_flags;  // Boolean flags
 varying float v_cos_turn_angle_start;
 varying float v_cos_turn_angle_end;
-
 #ifdef DASHED
 varying float v_length_so_far;
 #endif
@@ -50,18 +49,19 @@ vec2 right_vector(in vec2 v)
     return vec2(v.y, -v.x);
 }
 
-// Calculate con/sin turn angle with adjacent segment, and unit normal vector to right
+// Calculate cos/sin turn angle with adjacent segment, and unit normal vector to right
 float calc_turn_angle(in bool has_cap, in vec2 segment_right, in vec2 other_right, out vec2 point_right, out float sin_turn_angle)
 {
     float cos_turn_angle;
     vec2 diff = segment_right + other_right;
-    if (has_cap || abs(dot(diff, diff)) < SMALL) {
+    float len = length(diff);
+    if (has_cap || len < SMALL) {
         point_right = segment_right;
         cos_turn_angle = -1.0;  // Turns back on itself.
         sin_turn_angle = 0.0;
     }
     else {
-        point_right = normalize(diff);
+        point_right = diff / len;
         cos_turn_angle = dot(segment_right, other_right);   // cos zero at +/-pi/2, +ve angle is turn right
         sin_turn_angle = cross_z(segment_right, other_right);
     }

@@ -300,6 +300,38 @@ describe("Line glyph", () => {
 
     await display(row([p0, p1, p2]))
   })
+
+  it("should support 180 degree turns", async () => {
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([300, 300], {output_backend, title: output_backend})
+
+      const x = [1.1, 1.9, 1.5]
+      let y = 0.5
+      const Y = () => [y+=1, y, y]
+
+      const dashes = [[], [30, 10], [40, 20]]
+
+      for (let i = 0; i < colors.length; i++) {
+        for (let j = 0; j < linewidths.length; j++) {
+          p.line(x, Y(), {
+            line_width: linewidths[j],
+            line_color: colors[i],
+            line_alpha: alphas[i],
+            line_join: joins[i],
+            line_dash: dashes[i],
+          })
+        }
+      }
+
+      return p
+    }
+
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("svg")
+    const p2 = make_plot("webgl")
+
+    await display(row([p0, p1, p2]))
+  })
 })
 
 // webgl vs canvas comparison

@@ -43,7 +43,7 @@ vec2 right_vector(in vec2 v)
 
 float bevel_join_distance(in vec2 coords, in vec2 other_right, in float sign_turn_right)
 {
-    // other_right is unit vector facing right of the other (previous or next) segment
+    // other_right is unit vector facing right of the other (previous or next) segment, in coord reference frame
     float hw = 0.5*u_linewidth;  // Not including antialiasing
     if (other_right.y >= ONE_MINUS_SMALL) {  // other_right.y is -cos(turn_angle)
         // 180 degree turn.
@@ -51,7 +51,7 @@ float bevel_join_distance(in vec2 coords, in vec2 other_right, in float sign_tur
     }
     else {
         const vec2 segment_right = vec2(0.0, -1.0);
-        // corner_right is unit vector bisecting corner facing right
+        // corner_right is unit vector bisecting corner facing right, in coord reference frame
         vec2 corner_right = normalize(other_right + segment_right);
         vec2 outside_point = (-hw*sign_turn_right)*segment_right;
         return hw + sign_turn_right*dot(outside_point - coords, corner_right);
@@ -160,9 +160,8 @@ void main()
         }
     }
 
-    if (end_coords.x < half_antialias) {
+    if (end_coords.x <= half_antialias) {
         if (has_end_cap) {
-            // End cap
             dist = max(abs(dist), cap(cap_type, end_coords.x, v_coords.y));
         }
         else if (join_type == bevel_join || miter_too_large_end) {
