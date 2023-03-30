@@ -10,7 +10,6 @@ the corresponding lines.
     :keywords: line, time series, legend
     
 '''
-
 import pandas as pd
 
 from bokeh.palettes import Spectral4
