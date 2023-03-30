@@ -26,7 +26,6 @@ import asyncio
 import gc
 import os
 import sys
-from pprint import pformat
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -41,6 +40,7 @@ from tornado.web import Application as TornadoApplication
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
+    from tornado.web import RequestHandler
 
 from ..application import Application
 from ..embed.resources import extension_dirs
@@ -59,6 +59,7 @@ from .core import (
     DEFAULT_STATS_LOG_FREQ_MS,
     DEFAULT_UNUSED_LIFETIME_MS,
     DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES,
+    StatsSnapshot,
     create_session as _create_session,
 )
 from .executor import _ServerExecutor
@@ -253,7 +254,10 @@ class BokehTornado(TornadoApplication):
 
     _clients: set[ServerConnection]
 
+    _last_stats: StatsSnapshot | None
+    _stats_job: PeriodicCallback
     _mem_job: PeriodicCallback | None
+
     def __init__(self,
                  applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
                  *,
@@ -471,9 +475,10 @@ class BokehTornado(TornadoApplication):
                 prefixed_pat = (self._prefix + p[0], *p[1:])
                 all_patterns.append(prefixed_pat)
 
-        log.debug("Patterns are:")
-        for line in pformat(all_patterns, width=60).split("\n"):
-            log.debug("  " + line)
+        if log.isEnabledFor(logging.DEBUG):
+            log.debug("Patterns are:")
+            for path, handler, *_ in all_patterns:
+                log.debug("  %s -> %s", path, _handler_name(handler))
 
         super().__init__(all_patterns, websocket_max_message_size=websocket_max_message_size_bytes, **kwargs)
 
@@ -487,6 +492,7 @@ class BokehTornado(TornadoApplication):
             app_context._loop = cast("Loop", self._loop)
 
         self._clients = set()
+        self._last_stats = None
         self._stopping = False
         self._shutdown_pending_sessions = ()
         self._stop_task = None
@@ -830,15 +836,16 @@ class BokehTornado(TornadoApplication):
             # avoid the work below if we aren't going to log anything
             return
 
-        log.debug("[pid %d] %d clients connected", PID, len(self._clients))
-        for app_path, app in self._applications.items():
-            sessions = list(app.sessions)
-            unused_count = 0
-            for s in sessions:
-                if s.connection_count == 0:
-                    unused_count += 1
+        # log only when something changed to avoid flooding logs with repeated stats
+        stats = StatsSnapshot.compute(self._clients, self._applications)
+        if stats == self._last_stats:
+            return
+        self._last_stats = stats
+
+        log.debug("[pid %d] %d clients connected", PID, stats.clients)
+        for app in stats.apps:
             log.debug("[pid %d]   %s has %d sessions with %d unused",
-                      PID, app_path, len(sessions), unused_count)
+                      PID, app.path, app.sessions, app.unused)
 
     def _log_mem(self) -> None:
         # we should be able to assume PROC is define, if psutil is not installed
@@ -911,6 +918,15 @@ def create_static_handlers(prefix: str, key: str, app: Application) -> URLRoutes
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _handler_name(handler: type[RequestHandler] | str) -> str:
+    ''' Fully qualified name of a request handler class, or the handler
+    itself (e.g. an import string), if it isn't a class.
+
+    '''
+    if isinstance(handler, type):
+        return f"{handler.__module__}.{handler.__qualname__}"
+    return str(handler)
 
 #-----------------------------------------------------------------------------
 # Code

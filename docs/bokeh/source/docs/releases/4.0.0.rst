@@ -40,6 +40,7 @@ New features
   a shorthand for ``tools=[]`` with ``toolbar_location=None``. BokehJS'
   ``figure()`` API supports the equivalent ``tools: null``
   (:bokeh-issue:`15747`).
+* Reduced verboseness of server debug logs (:bokeh-pull:`13038`)
 
 Removals
 --------

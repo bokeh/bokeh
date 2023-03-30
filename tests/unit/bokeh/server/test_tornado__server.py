@@ -410,6 +410,29 @@ def test_log_stats(ManagedServerLoop: MSL) -> None:
         session2.close()
         server._tornado._log_stats()
 
+def test_log_stats_only_logs_changes(ManagedServerLoop: MSL, caplog: pytest.LogCaptureFixture) -> None:
+    def logged() -> list[str]:
+        messages = [record.getMessage() for record in caplog.records if record.name == "bokeh.server.tornado"]
+        caplog.clear()
+        return messages
+
+    application = Application()
+    with ManagedServerLoop(application) as server:
+        with caplog.at_level(logging.DEBUG, logger="bokeh.server.tornado"):
+            server._tornado._log_stats()
+            assert [m.split("] ", 1)[1] for m in logged()] == ["0 clients connected", "  / has 0 sessions with 0 unused"]
+
+            server._tornado._log_stats()
+            assert logged() == []
+
+            server._tornado._clients.add(Mock())
+            server._tornado._log_stats()
+            assert [m.split("] ", 1)[1] for m in logged()] == ["1 clients connected", "  / has 0 sessions with 0 unused"]
+
+def test__handler_name() -> None:
+    assert bst._handler_name(WSHandler) == "bokeh.server.views.ws.WSHandler"
+    assert bst._handler_name("myapp.handlers.FooHandler") == "myapp.handlers.FooHandler"
+
 async def test_metadata(ManagedServerLoop: MSL) -> None:
     application = Application(metadata=dict(hi="hi", there="there"))
     with ManagedServerLoop(application) as server:
