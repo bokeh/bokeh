@@ -1,3 +1,12 @@
+''' This example demonstrates how a circle with a data-space radius appears
+when plotted with different aspect scales specified.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure, bokeh.plotting.show, bokeh.layouts.layout
+    :refs: :ref:`ug_basic_layouts`
+    :keywords: rect, circle, layout, aspect, scale
+'''
+
 from bokeh.layouts import layout
 from bokeh.plotting import figure, show
 

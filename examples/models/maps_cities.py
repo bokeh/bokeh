@@ -1,3 +1,13 @@
+''' A plot showing a map of the world, highlighting cities where the population
+is over 5,000 people, made using the ``GMapPlot`` class.
+
+.. bokeh-example-metadata::
+    :sampledata: world_cities
+    :apis: bokeh.models.Circle, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
+    :keywords: circle, map, label, pantool, gmapplot, document
+'''
+
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, GMapOptions,
