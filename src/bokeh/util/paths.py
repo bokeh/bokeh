@@ -18,52 +18,49 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import sys
-from os.path import (
-    abspath,
-    dirname,
-    isdir,
-    join,
-    normpath,
-    realpath,
-)
+from pathlib import Path
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 # Root dir of Bokeh package
-ROOT_DIR = dirname(dirname(abspath(__file__)))
+ROOT_DIR = Path(__file__).absolute().resolve().parent.parent
 
 __all__ = (
-    'serverdir',
-    'bokehjsdir',
+    "serverdir",
+    "bokehjsdir",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def serverdir() -> str:
-    """ Get the location of the server subpackage
+def serverdir() -> Path:
     """
-    path = join(ROOT_DIR, 'server')
-    path = normpath(path)
-    if sys.platform == 'cygwin': path = realpath(path)
-    return path
-
-
-def bokehjsdir(dev: bool = False) -> str:
-    """ Get the location of the bokehjs source files. If dev is True,
-    the files in bokehjs/build are preferred. Otherwise uses the files
-    in bokeh/server/static.
+    Get the location of the server subpackage.
     """
-    dir1 = join(ROOT_DIR, '..', 'bokehjs', 'build')
-    dir2 = join(serverdir(), 'static')
-    if dev and isdir(dir1):
-        return dir1
+    return ROOT_DIR / "server"
+
+def staticdir() -> Path:
+    """
+    Get the location of server's static directory.
+    """
+    return serverdir() / "static"
+
+def bokehjsdir(dev: bool = False) -> Path:
+    """
+    Get the location of the bokehjs source files.
+
+    If ``dev`` is ``True``, the files in ``bokehjs/build`` are preferred.
+    Otherwise uses the files in ``bokeh/server/static``.
+    """
+    if dev:
+        js_dir = ROOT_DIR.parent.parent / "bokehjs" / "build"
+        assert js_dir.is_dir(), f"{js_dir} doesn't exist"
+        return js_dir
     else:
-        return dir2
+        return staticdir()
 
 #-----------------------------------------------------------------------------
 # Dev API

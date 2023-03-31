@@ -19,7 +19,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from os.path import join
 from subprocess import Popen
 
 # Bokeh imports
@@ -96,9 +95,9 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
     bokehjs_dir = settings.bokehjsdir()
 
     if debug:
-        compiler_script = join(bokehjs_dir, "js", "compiler", "main.js")
+        compiler_script = bokehjs_dir / "js" / "compiler" / "main.js"
     else:
-        compiler_script = join(bokehjs_dir, "js", "compiler.js")
+        compiler_script = bokehjs_dir / "js" / "compiler.js"
 
     cmd = [
         "--no-deprecation",
