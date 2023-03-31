@@ -1,3 +1,12 @@
+''' Example to demonstrate creating map-based visualizations and
+working with geographical data using WMTSTileSource in Bokeh.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.WMTSTileSource, bokeh.models.Range1d, bokeh.models.BoxZoomTool, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :refs: :ref:`ug_topics_tile_provider_maps`
+    :keywords: tile source
+
+'''
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,

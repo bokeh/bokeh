@@ -11,9 +11,9 @@ p.y_range.start = 0
 p.y_range.end = 24 * 60 * 60 * 1000
 
 p.line("Date", "Sunset", source=daylight_warsaw_2013,
-       color='navy',legend_label="Sunset")
+       color='navy', line_dash="dotted", line_width=2, legend_label="Sunset")
 p.line("Date", "Sunrise", source=daylight_warsaw_2013,
-       color='orange', legend_label="Sunrise")
+       color='orange', line_dash="dashed", line_width=2, legend_label="Sunrise")
 
 dst_start = Span(location=dt(2013, 3, 31, 2, 0, 0), dimension='height',
                  line_color='#009E73', line_width=5)

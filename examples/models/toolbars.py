@@ -1,3 +1,12 @@
+''' This example shows multiple ways to place the toolbar and the x and y axes
+with respect to the plot
+
+.. bokeh-example-metadata::
+    :apis: bokeh.layouts.column, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
+    :refs: :ref:`ug_interaction_tools_toolbar`
+    :keywords: tools, toolbar, axes, layout
+
+'''
 import numpy as np
 
 from bokeh.layouts import column, row

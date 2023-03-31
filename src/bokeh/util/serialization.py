@@ -289,7 +289,7 @@ def make_globally_unique_css_safe_id() -> ID:
         str
 
     '''
-    max_iter = 10
+    max_iter = 100
 
     for _i in range(0, max_iter):
         id = make_globally_unique_id()
