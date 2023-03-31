@@ -73,7 +73,7 @@ export class AutocompleteInputView extends TextInputView {
       return case_sensitive ? (t: string) => t : (t: string) => t.toLowerCase()
     })()
 
-    const search_function = this.model.search_strategy === "startswith"
+    const search_function = this.model.search_strategy === "starts_with"
       ? (t: string, v: string) => acnorm(t).startsWith(acnorm(v))
       : (t: string, v: string) => acnorm(t).includes(acnorm(v))
 
@@ -181,7 +181,7 @@ export namespace AutocompleteInput {
     max_completions: p.Property<number | null>
     case_sensitive: p.Property<boolean>
     restrict: p.Property<boolean>
-    search_strategy: p.Property<"startswith" | "includes">
+    search_strategy: p.Property<"starts_with" | "includes">
   }
 }
 
@@ -204,7 +204,7 @@ export class AutocompleteInput extends TextInput {
       max_completions: [ Nullable(Positive(Int)), null ],
       case_sensitive: [ Boolean, true ],
       restrict: [ Boolean, true ],
-      search_strategy: [ Enum("startswith", "includes"), "startswith" ],
+      search_strategy: [ Enum("starts_with", "includes"), "starts_with" ],
     }))
   }
 }
