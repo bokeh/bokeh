@@ -217,8 +217,9 @@ class Test_components:
         assert isinstance(divs3, OrderedDict)
         assert all(isinstance(x, str) for x in divs3.keys())
 
+    @patch('bokeh.embed.util.make_globally_unique_css_safe_id', new_callable=lambda: stable_id)
     @patch('bokeh.embed.util.make_globally_unique_id', new_callable=lambda: stable_id)
-    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_id: MagicMock) -> None:
+    def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_css_safe_id: MagicMock, mock_make_id: MagicMock) -> None:
         doc = Document()
         plot1 = figure()
         plot1.circle([], [])
@@ -247,6 +248,7 @@ class Test_components:
         assert len(scripts) == 1
         assert scripts[0].attrs == {'type': 'text/javascript'}
 
+    @patch('bokeh.embed.util.make_globally_unique_css_safe_id', new=stable_id)
     @patch('bokeh.embed.util.make_globally_unique_id', new=stable_id)
     def test_div_attrs(self, test_plot: figure) -> None:
         _, div = bes.components(test_plot)

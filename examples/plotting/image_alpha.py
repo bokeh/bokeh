@@ -1,3 +1,11 @@
+''' An example demonstrating how to add alpha value (transparency) to images in different ways.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure, bokeh.plotting.figure.image, bokeh.layouts.Column
+    :refs: :ref:`ug_topics_images`
+    :keywords: image, alpha, line
+'''
+
 import numpy as np
 
 from bokeh.layouts import Column

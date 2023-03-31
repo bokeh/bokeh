@@ -41,7 +41,7 @@ const _native_font_metrics = (() => {
   const canvas = _offscreen_canvas(0, 0)
 
   // XXX: explicit type required due to insuffient quality of stdlib's type declarations
-  const ctx = canvas.getContext("2d") as CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null
+  const ctx = canvas.getContext("2d")
   assert(ctx != null, "can't obtain 2d context")
 
   return (font: string): FontMetrics => {
