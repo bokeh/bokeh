@@ -70,7 +70,12 @@ if TYPE_CHECKING:
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
-DEFAULT_SERVER_HTTP_URL = f"http://{DEFAULT_SERVER_HOST}:{DEFAULT_SERVER_PORT}/"
+
+def server_url(host: str | None = None, port: int | None = None, ssl: bool = False) -> str:
+    protocol = "https" if ssl else "http"
+    return f"{protocol}://{host or DEFAULT_SERVER_HOST}:{port or DEFAULT_SERVER_PORT}/"
+
+DEFAULT_SERVER_HTTP_URL = server_url()
 
 BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
 DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]

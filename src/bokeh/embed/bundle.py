@@ -159,11 +159,6 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         Bundle
 
     '''
-    # Any env vars will overide a local default passed in
-    resources = settings.resources(default=resources)
-    if isinstance(resources, str):
-        resources = Resources(mode=resources)
-
     if resources is None or isinstance(resources, BaseResources):
         js_resources = css_resources = resources
     elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
@@ -197,7 +192,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 
     from copy import deepcopy
 
-    if js_resources:
+    if js_resources is not None:
         js_resources = deepcopy(js_resources)
         if not use_widgets and "bokeh-widgets" in js_resources.js_components:
             js_resources.js_components.remove("bokeh-widgets")
@@ -211,12 +206,12 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         js_files.extend(js_resources.js_files)
         js_raw.extend(js_resources.js_raw)
 
-    if css_resources:
+    if css_resources is not None:
         css_resources = deepcopy(css_resources)
         css_files.extend(css_resources.css_files)
         css_raw.extend(css_resources.css_raw)
 
-    if js_resources:
+    if js_resources is not None:
         extensions = _bundle_extensions(all_objs if objs else None, js_resources)
         mode = js_resources.mode if resources is not None else "inline"
         if mode == "inline":
