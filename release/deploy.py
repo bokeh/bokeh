@@ -56,7 +56,7 @@ def publish_documentation(config: Config, system: System) -> ActionReturn:
         return f"--cache-control max-age={max_age},public"
     try:
         if config.prerelease:
-            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ {flags} {cache(YEAR)} {REGION}")
+            system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/dev-{release_level}/ --delete {flags} {cache(YEAR)} {REGION}")
             system.run(f'aws cloudfront create-invalidation --distribution-id {CLOUDFRONT_ID} --paths "/en/dev-{release_level}*" {REGION}')
         else:
             system.run(f"aws s3 sync {path} s3://docs.bokeh.org/en/{version}/ {flags} {cache(YEAR)} {REGION}")

@@ -110,7 +110,7 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
     }
   }
 
-  const base = (() => {
+  const base: typeof HasProps = (() => {
     const name = def.extends?.id ?? "Model"
     if (name == "Model") // TODO: support base classes in general
       return Model
