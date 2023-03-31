@@ -74,12 +74,14 @@ export class AutocompleteInputView extends TextInputView {
     })()
 
     const search_function = this.model.search_strategy === "starts_with"
-      ? (t: string, v: string) => acnorm(t).startsWith(acnorm(v))
-      : (t: string, v: string) => acnorm(t).includes(acnorm(v))
+      ? (t: string, v: string) => t.startsWith(v)
+      : (t: string, v: string) => t.includes(v)
 
     const completions: string[] = []
+    const normValue = acnorm(value)
     for (const text of this.model.completions) {
-      if (search_function(text, value)) {
+      const normText = acnorm(text)
+      if (search_function(normText, normValue)) {
         completions.push(text)
       }
     }
