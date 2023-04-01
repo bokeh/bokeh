@@ -86,7 +86,9 @@ class Static(Subcommand):
             if server.address is not None and server.address != '':
                 address_string = ' address ' + server.address
 
-            log.info("Starting Bokeh static server on port %d%s", server.port, address_string)
+            log.info(f"Starting Bokeh static server at {server.port}{address_string}")
+            log.debug(f"Serving static files from: {settings.bokehjsdir()}")
+
             server.run_until_shutdown()
 
 #-----------------------------------------------------------------------------
