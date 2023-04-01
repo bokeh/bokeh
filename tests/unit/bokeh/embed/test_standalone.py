@@ -38,7 +38,7 @@ from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.resources import CDN, CSSResources, JSResources
+from bokeh.resources import CDN
 from bokeh.themes import Theme
 
 # Module under test
@@ -321,38 +321,6 @@ class Test_file_html:
                           template=fake_template(self, {"test_var"}), # type: ignore[arg-type]
                           template_variables={"test_var": "test"})
         assert isinstance(r, str)
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_js_only_resources(self, mock_warn: MagicMock, test_plot: figure) -> None:
-        js_resources = JSResources(mode="absolute", components=["bokeh"])
-        template = Template("<head>{{ bokeh_js }}</head><body></body>")
-        output = bes.file_html(test_plot, (js_resources, None), "title", template=template)
-        html = f"<head>{js_resources.render_js()}</head><body></body>"
-        assert output == html
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_css(self, mock_warn: MagicMock, test_plot: figure) -> None:
-        js_resources = JSResources()
-        bes.file_html(test_plot, (js_resources, None), "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh CSS Resources provided to template. If required you will need to provide them manually.'
-        )
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_handles_css_only_resources(self, mock_warn: MagicMock, test_plot: figure) -> None:
-        css_resources = CSSResources(mode="relative", components=["bokeh"])
-        template = Template("<head>{{ bokeh_css }}</head><body></body>")
-        output = bes.file_html(test_plot, (None, css_resources), "title", template=template)
-        html = f"<head>{css_resources.render_css()}</head><body></body>"
-        assert output == html
-
-    @patch('bokeh.embed.bundle.warn')
-    def test_file_html_provides_warning_if_no_js(self, mock_warn: MagicMock, test_plot: figure) -> None:
-        css_resources = CSSResources()
-        bes.file_html(test_plot, (None, css_resources), "title")
-        mock_warn.assert_called_once_with(
-            'No Bokeh JS Resources provided to template. If required you will need to provide them manually.'
-        )
 
     def test_file_html_title_is_escaped(self, test_plot: figure) -> None:
         r = bes.file_html(test_plot, CDN, "&<")

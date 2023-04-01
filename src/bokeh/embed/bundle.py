@@ -45,10 +45,9 @@ from typing import (
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
 from ..model import Model
-from ..resources import BaseResources, Resources
+from ..resources import Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
-from ..util.warnings import warn
 from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
@@ -146,41 +145,28 @@ class Bundle:
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
-def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
-        resources: BaseResources | tuple[BaseResources | None, BaseResources | None] | None) -> Bundle:
+def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resources: Resources | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
     Args:
         objs (seq[Model or Document]) :
 
-        resources (BaseResources or tuple[BaseResources])
+        resources (Resources)
 
     Returns:
         Bundle
 
     '''
-    if resources is None or isinstance(resources, BaseResources):
-        js_resources = css_resources = resources
-    elif isinstance(resources, tuple) and len(resources) == 2 and all(r is None or isinstance(r, BaseResources) for r in resources):
-        js_resources, css_resources = resources
-
-        if js_resources and not css_resources:
-            warn('No Bokeh CSS Resources provided to template. If required you will need to provide them manually.')
-
-        if css_resources and not js_resources:
-            warn('No Bokeh JS Resources provided to template. If required you will need to provide them manually.')
-    else:
-        raise ValueError(f"expected Resources or a pair of optional Resources, got {resources!r}")
-
     if objs is not None:
-        all_objs = _all_objs(objs)
+        all_objs    = _all_objs(objs)
         use_widgets = _use_widgets(all_objs)
         use_tables  = _use_tables(all_objs)
         use_gl      = _use_gl(all_objs)
         use_mathjax = _use_mathjax(all_objs)
     else:
         # XXX: force all components on server and in notebook, because we don't know in advance what will be used
+        all_objs    = None
         use_widgets = True
         use_tables  = True
         use_gl      = True
@@ -193,28 +179,25 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
 
     from copy import deepcopy
 
-    if js_resources is not None:
-        js_resources = deepcopy(js_resources)
-        if not use_widgets and "bokeh-widgets" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-widgets")
-        if not use_tables and "bokeh-tables" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-tables")
-        if not use_gl and "bokeh-gl" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-gl")
-        if not use_mathjax and "bokeh-mathjax" in js_resources.js_components:
-            js_resources.js_components.remove("bokeh-mathjax")
+    if resources is not None:
+        resources = deepcopy(resources)
+        if not use_widgets and "bokeh-widgets" in resources.js_components:
+            resources.js_components.remove("bokeh-widgets")
+        if not use_tables and "bokeh-tables" in resources.js_components:
+            resources.js_components.remove("bokeh-tables")
+        if not use_gl and "bokeh-gl" in resources.js_components:
+            resources.js_components.remove("bokeh-gl")
+        if not use_mathjax and "bokeh-mathjax" in resources.js_components:
+            resources.js_components.remove("bokeh-mathjax")
 
-        js_files.extend(js_resources.js_files)
-        js_raw.extend(js_resources.js_raw)
+        js_files.extend(resources.js_files)
+        js_raw.extend(resources.js_raw)
 
-    if css_resources is not None:
-        css_resources = deepcopy(css_resources)
-        css_files.extend(css_resources.css_files)
-        css_raw.extend(css_resources.css_raw)
+        css_files.extend(resources.css_files)
+        css_raw.extend(resources.css_raw)
 
-    if js_resources is not None:
-        extensions = _bundle_extensions(all_objs if objs else None, js_resources)
-        mode = js_resources.mode if resources is not None else "inline"
+        extensions = _bundle_extensions(all_objs if objs else None, resources)
+        mode = resources.mode
         if mode == "inline":
             js_raw.extend([ Resources._inline(bundle.artifact_path) for bundle in extensions ])
         elif mode == "server":
@@ -228,12 +211,12 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None,
         else:
             js_files.extend([ bundle.artifact_path for bundle in extensions ])
 
-    models = [ obj.__class__ for obj in all_objs ] if objs else None
+    models = [ obj.__class__ for obj in all_objs ] if all_objs else None
     ext = bundle_models(models)
     if ext is not None:
         js_raw.append(ext)
 
-    return Bundle(js_files, js_raw, css_files, css_raw, js_resources.hashes if js_resources else {})
+    return Bundle(js_files, js_raw, css_files, css_raw, resources.hashes if resources else {})
 
 #-----------------------------------------------------------------------------
 # Private API

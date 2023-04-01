@@ -255,7 +255,55 @@ class Urls:
 
 ResourceAttr = Literal["__css__", "__javascript__"]
 
-class BaseResources:
+class Resources:
+    """
+    The Resources class encapsulates information relating to loading or
+    embedding Bokeh Javascript and CSS.
+
+    Args:
+        mode (str) : how should Bokeh JS and CSS be included in output
+
+            See below for descriptions of available modes
+
+        version (str, optional) : what version of Bokeh JS and CSS to load
+
+            Only valid with the ``'cdn'`` mode
+
+        root_dir (str, optional) : root directory for loading Bokeh JS and CSS assets
+
+            Only valid with ``'relative'`` and ``'relative-dev'`` modes
+
+        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
+
+        root_url (str, optional) : URL and port of Bokeh Server to load resources from
+
+            Only valid with ``'server'`` and ``'server-dev'`` modes
+
+    The following **mode** values are available for configuring a Resource object:
+
+    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
+    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
+    * ``'server'`` configure to load from a Bokeh Server
+    * ``'server-dev'`` same as ``server`` but supports non-minified assets
+    * ``'relative'`` configure to load relative to the given directory
+    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
+    * ``'absolute'`` configure to load from the installed Bokeh library static directory
+    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
+
+    Once configured, a Resource object exposes the following public attributes:
+
+    Attributes:
+        js_raw : any raw JS that needs to be placed inside ``<script>`` tags
+        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
+        js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
+        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
+        messages : any informational messages concerning this configuration
+
+    These attributes are often useful as template parameters when embedding
+    Bokeh plots.
+
+    """
+
     _default_root_dir = "."
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
@@ -423,61 +471,8 @@ class BaseResources:
         end = f"/* END {filename} */"
         return f"{begin}\n{middle}\n{end}"
 
-
-class JSResources(BaseResources):
-    """ The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
-
-    Args:
-        mode (str) : How should Bokeh JS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh JS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading Bokeh JS assets
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether JavaScript should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
-
-            If ``None``, absolute URLs based on the default server configuration will
-            be generated.
-
-            ``root_url`` can also be the empty string, in which case relative URLs,
-            e.g., "static/js/bokeh.min.js", are generated.
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified assets
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding
-    Bokeh plots.
-
-    """
-
     _js_components = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
-
-    # Properties --------------------------------------------------------------
+    _css_components = []
 
     @property
     def js_files(self) -> list[str]:
@@ -502,59 +497,9 @@ class JSResources(BaseResources):
         _, _, hashes = self._resolve("js")
         return hashes
 
-    # Public methods ----------------------------------------------------------
-
     def render_js(self) -> str:
         return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
 
-
-class CSSResources(BaseResources):
-    """ The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.
-
-    Args:
-        mode (str) : how should Bokeh CSS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh CSS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading BokehJS resources
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether CSS should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load Bokeh CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified CSS
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified CSS
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified CSS
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding Bokeh plots.
-
-    """
-
-    _css_components = []
-
-    # Properties --------------------------------------------------------------
 
     @property
     def css_files(self) -> list[str]:
@@ -571,61 +516,8 @@ class CSSResources(BaseResources):
     def css_raw_str(self) -> list[str]:
         return [json.dumps(css) for css in self.css_raw]
 
-    # Public methods ----------------------------------------------------------
-
     def render_css(self) -> str:
         return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
-
-
-class Resources(JSResources, CSSResources):
-    """ The Resources class encapsulates information relating to loading or
-    embedding Bokeh Javascript and CSS.
-
-    Args:
-        mode (str) : how should Bokeh JS and CSS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh JS and CSS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading Bokeh JS and CSS assets
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified assets
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        js_raw : any raw JS that needs to be placed inside ``<script>`` tags
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        js_files : URLs of any JS files that need to be loaded by ``<script>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding
-    Bokeh plots.
-
-    """
-
-    # Public methods ----------------------------------------------------------
 
     def render(self) -> str:
         css, js = self.render_css(), self.render_js()
@@ -761,8 +653,6 @@ __all__ = (
     "CDN",
     "INLINE",
     "Resources",
-    "JSResources",
-    "CSSResources",
     "get_all_sri_hashes",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",
