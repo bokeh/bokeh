@@ -32,6 +32,7 @@ from os.path import (
     join,
     normpath,
 )
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -272,7 +273,7 @@ class Pkg(TypedDict, total=False):
     module: str
     main: str
 
-extension_dirs: dict[str, str] = {} # name -> path
+extension_dirs: dict[str, Path] = {}
 
 def _bundle_extensions(all_objs: set[Model], resources: Resources) -> list[ExtensionEmbed]:
     names: set[str] = set()
@@ -342,7 +343,7 @@ def _bundle_extensions(all_objs: set[Model], resources: Resources) -> list[Exten
             else:
                 raise ValueError(f"can't resolve artifact path for '{name}' extension")
 
-        extension_dirs[name] = artifacts_dir
+        extension_dirs[name] = Path(artifacts_dir)
         server_url = f"{server_prefix}/{server_path}"
         embed = ExtensionEmbed(artifact_path, server_url, cdn_url)
         bundles.append(embed)
