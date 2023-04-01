@@ -196,8 +196,8 @@ export const TextBaseline = Enum("top", "middle", "bottom", "alphabetic", "hangi
 export type TextureRepetition = "repeat" | "repeat_x" | "repeat_y" | "no_repeat"
 export const TextureRepetition = Enum("repeat", "repeat_x", "repeat_y", "no_repeat")
 
-export type TickLabelOrientation = "vertical" | "horizontal" | "parallel" | "normal"
-export const TickLabelOrientation = Enum("vertical", "horizontal", "parallel", "normal")
+export type LabelOrientation = "vertical" | "horizontal" | "parallel" | "normal"
+export const LabelOrientation = Enum("vertical", "horizontal", "parallel", "normal")
 
 export type TooltipAttachment = "horizontal" | "vertical" | "left" | "right" | "above" | "below"
 export const TooltipAttachment = Enum("horizontal", "vertical", "left", "right", "above", "below")
