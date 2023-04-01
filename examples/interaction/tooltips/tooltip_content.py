@@ -3,7 +3,7 @@ This example demonstrates defining two distinct tooltip renderers,
 i.e. plaintext and html tooltip, and accepting text input through those renderers.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.io.show, bokeh.models.Button, Bokeh.models.Tooltip
+    :apis: bokeh.io.show, bokeh.models.TextInput, Bokeh.models.Tooltip
     :refs: :ref:`ug_interaction_tooltips_tooltip_content`
     :keywords: Tooltip
 '''
