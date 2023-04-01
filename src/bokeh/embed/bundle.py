@@ -275,13 +275,15 @@ class Pkg(TypedDict, total=False):
 
 extension_dirs: dict[str, Path] = {}
 
-def _bundle_extensions(all_objs: set[Model], resources: Resources) -> list[ExtensionEmbed]:
+def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[ExtensionEmbed]:
     names: set[str] = set()
     bundles: list[ExtensionEmbed] = []
 
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
-    for obj in all_objs if all_objs is not None else Model.model_class_reverse_map.values():
+    all_objs = objs if objs is not None else Model.model_class_reverse_map.values()
+
+    for obj in all_objs:
         if hasattr(obj, "__implementation__"):
             continue
         name = obj.__view_module__.split(".")[0]
