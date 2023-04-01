@@ -1,5 +1,5 @@
+import {expect} from "../unit/assertions"
 import {display, column} from "./_util"
-
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
@@ -205,9 +205,31 @@ describe("Widgets", () => {
     await view.ready
   })
 
-  it.allowing(8)("should allow AutocompleteInput with search_strategy='includes'", async () => {
-    const obj = new AutocompleteInput({placeholder: "Enter value ...", search_strategy: "includes"})
-    await display(obj, [500, 100])
+  it.allowing(8)("should allow AutocompleteInput with search_strategy='includes' to find correct completions for inputs", async () => {
+    const completions = ["123", "1123", "231", "1324", "3211"]
+    const obj = new AutocompleteInput({placeholder: "Enter value ...", completions, search_strategy: "includes"})
+    const {view} = await display(obj, [500, 300])
+
+    obj.value = "23"
+    const ev = new FocusEvent("focusin")
+    view.input_el.dispatchEvent(ev)
+    await view.ready
+
+    const menu = view.shadow_el.querySelector(".bk-menu")
+    const matchedCompletionsFirstInput = menu!.querySelectorAll("div")
+    expect(matchedCompletionsFirstInput.length).to.be.equal(3)
+    expect(matchedCompletionsFirstInput[0]!.innerHTML).to.be.equal("123")
+    expect(matchedCompletionsFirstInput[1]!.innerHTML).to.be.equal("1123")
+    expect(matchedCompletionsFirstInput[2]!.innerHTML).to.be.equal("231")
+
+    obj.value = "32"
+    view.input_el.dispatchEvent(ev)
+    await view.ready
+
+    const matchedCompletionsSecondInput = menu!.querySelectorAll("div")
+    expect(matchedCompletionsSecondInput.length).to.be.equal(2)
+    expect(matchedCompletionsSecondInput[0]!.innerHTML).to.be.equal("1324")
+    expect(matchedCompletionsSecondInput[1]!.innerHTML).to.be.equal("3211")
   })
 
   it.allowing(8)("should allow TextAreaInput", async () => {
