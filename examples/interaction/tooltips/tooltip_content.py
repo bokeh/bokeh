@@ -4,7 +4,7 @@ i.e. plaintext and html tooltip, and accepting text input through those widgets.
 
 .. bokeh-example-metadata::
     :apis: bokeh.io.show, bokeh.models.TextInput, Bokeh.models.Tooltip
-    :refs: ref:`ug_interaction_widgets_examples_textinput`
+    :refs: ref:`ug_interaction_tooltips
     :keywords: tooltip
 '''
 from bokeh.io import show
