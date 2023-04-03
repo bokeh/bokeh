@@ -27,33 +27,30 @@ export class RangeManager {
 
   invalidate_dataranges: boolean = true
 
-  update(range_info: RangeInfo | null, options: RangeOptions = {}): void {
+  update(range_info: RangeInfo, options: RangeOptions = {}): void {
     const {x_ranges, y_ranges} = this.frame
-    if (range_info == null) {
-      for (const [, range] of x_ranges) {
-        range.reset()
-      }
-      for (const [, range] of y_ranges) {
-        range.reset()
-      }
-      this.update_dataranges()
-    } else {
-      const range_info_iter: [Range, Interval][] = []
-      for (const [name, range] of x_ranges) {
-        range_info_iter.push([range, range_info.xrs.get(name)!])
-      }
-      for (const [name, range] of y_ranges) {
-        range_info_iter.push([range, range_info.yrs.get(name)!])
-      }
-      if (options.scrolling ?? false) {
-        this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
-      }
-      this._update_ranges_individually(range_info_iter, options)
+    const range_info_iter: [Range, Interval][] = []
+    for (const [name, interval] of range_info.xrs) {
+      range_info_iter.push([x_ranges.get(name)!, interval])
     }
+    for (const [name, interval] of range_info.yrs) {
+      range_info_iter.push([y_ranges.get(name)!, interval])
+    }
+    if (options.scrolling ?? false) {
+      this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
+    }
+    this._update_ranges_individually(range_info_iter, options)
   }
 
   reset(): void {
-    this.update(null)
+    const {x_ranges, y_ranges} = this.frame
+    for (const range of x_ranges.values()) {
+      range.reset()
+    }
+    for (const range of y_ranges.values()) {
+      range.reset()
+    }
+    this.update_dataranges()
   }
 
   protected _update_dataranges(frame: CartesianFrame | CoordinateMapping): void {

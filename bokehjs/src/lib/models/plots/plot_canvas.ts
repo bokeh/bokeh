@@ -555,14 +555,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return views
   }
 
-  update_range(range_info: RangeInfo | null, options?: RangeOptions): void {
+  update_range(range_info: RangeInfo, options?: RangeOptions): void {
     this.pause()
     this._range_manager.update(range_info, options)
     this.unpause()
   }
 
   reset_range(): void {
-    this.update_range(null)
+    this.pause()
+    this._range_manager.reset()
+    this.unpause()
     this.trigger_ranges_update_event()
   }
 

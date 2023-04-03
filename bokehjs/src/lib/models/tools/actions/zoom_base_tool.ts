@@ -6,17 +6,19 @@ import type * as p from "core/properties"
 export abstract class ZoomBaseToolView extends PlotActionToolView {
   declare model: ZoomBaseTool
 
+  abstract get factor(): number
+
   doit(): void {
-    const frame = this.plot_view.frame
-    const dims = this.model.dimensions
-
     // restrict to axis configured in tool's dimensions property
-    const h_axis = dims == "width"  || dims == "both"
-    const v_axis = dims == "height" || dims == "both"
+    const {dimensions} = this.model
+    const x_axis = dimensions == "width"  || dimensions == "both"
+    const y_axis = dimensions == "height" || dimensions == "both"
 
-    const factor = this.model.get_factor()
+    const {frame} = this.plot_view
+    const {x_range, y_range} = frame.bbox
+    const {x_scales, y_scales} = frame
 
-    const zoom_info = scale_range(frame, factor, h_axis, v_axis)
+    const zoom_info = scale_range(x_scales, y_scales, x_range, y_range, this.factor, x_axis, y_axis)
 
     this.plot_view.state.push("zoom_out", {range: zoom_info})
     this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus: this.model.maintain_focus})
@@ -58,6 +60,4 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   }
 
   abstract readonly maintain_focus: boolean
-
-  abstract get_factor(): number
 }

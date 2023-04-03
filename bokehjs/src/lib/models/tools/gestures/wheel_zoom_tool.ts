@@ -15,7 +15,7 @@ export class WheelZoomToolView extends GestureToolView {
 
     let delta: number
     if (scale >= 1)
-      delta = (scale - 1) * 20.0
+      delta = (scale - 1)*20.0
     else
       delta = -20.0/scale
 
@@ -23,33 +23,52 @@ export class WheelZoomToolView extends GestureToolView {
   }
 
   override _scroll(ev: ScrollEvent): void {
-    const {frame} = this.plot_view
-
-    const hr = frame.bbox.h_range
-    const vr = frame.bbox.v_range
-
     const {sx, sy} = ev
-    const dims = this.model.dimensions
 
-    // restrict to axis configured in tool's dimensions property and if
-    // zoom origin is inside of frame range/domain
-    const h_axis = (dims == "width" || dims == "both") && hr.start < sx && sx < hr.end
-    const v_axis = (dims == "height" || dims == "both") && vr.start < sy && sy < vr.end
-
-    if ((!h_axis || !v_axis) && !this.model.zoom_on_axis) {
+    const axis_view = this.plot_view.axis_views.find((view) => view.layout.bbox.contains(sx, sy))
+    if (axis_view != null && !this.model.zoom_on_axis) {
       return
     }
 
-    const factor = this.model.speed*ev.delta
+    const {frame} = this.plot_view
+    if (axis_view == null && !frame.bbox.contains(sx, sy)) {
+      return
+    }
 
-    const zoom_info = scale_range(frame, factor, h_axis, v_axis, {x: sx, y: sy})
+    // restrict to axis configured in tool's dimensions property and if
+    // zoom origin is inside of frame range/domain
+    const dims = this.model.dimensions
+    const x_axis = dims == "width" || dims == "both"
+    const y_axis = dims == "height" || dims == "both"
+
+    const {x_range, y_range} = frame.bbox
+    const {x_scales, y_scales, center} = (() => {
+      if (axis_view != null) {
+        const {x_range_name, y_range_name} = axis_view.model
+        const {x_scale, y_scale} = axis_view.coordinates
+        return {
+          x_scales: new Map([[x_range_name, x_scale]]),
+          y_scales: new Map([[y_range_name, y_scale]]),
+          center: {
+            x: axis_view.dimension == 0 ? sx : null,
+            y: axis_view.dimension == 1 ? sy : null,
+          },
+        }
+      } else {
+        const {x_scales, y_scales} = frame
+        return {x_scales, y_scales, center: {x: sx, y: sy}}
+      }
+    })()
+
+    const factor = this.model.speed*ev.delta
+    const zoom_info = scale_range(x_scales, y_scales, x_range, y_range, factor, x_axis, y_axis, center)
 
     this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
     const {maintain_focus} = this.model
     this.plot_view.update_range(zoom_info, {scrolling: true, maintain_focus})
 
-    this.model.document?.interactive_start(this.plot_view.model, () =>  this.plot_view.trigger_ranges_update_event())
+    this.model.document?.interactive_start(this.plot_view.model, () => this.plot_view.trigger_ranges_update_event())
   }
 }
 

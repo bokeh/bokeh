@@ -267,10 +267,10 @@ export class BBox implements Rect, Equatable {
   get x_range(): Interval { return {start: this.x0, end: this.x1} }
   get y_range(): Interval { return {start: this.y0, end: this.y1} }
 
-  get h_range(): Interval { return {start: this.x0, end: this.x1} }
-  get v_range(): Interval { return {start: this.y0, end: this.y1} }
+  get h_range(): Interval { return this.x_range }
+  get v_range(): Interval { return this.y_range }
 
-  get ranges(): [Interval, Interval] { return [this.h_range, this.v_range] }
+  get ranges(): [Interval, Interval] { return [this.x_range, this.y_range] }
 
   get aspect(): number { return this.width/this.height }
 
