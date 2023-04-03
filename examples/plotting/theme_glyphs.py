@@ -1,3 +1,12 @@
+'''This example shows how to to create and use your custom theme in a Bokeh plot with JSON.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.themes.Theme
+    :refs: :ref:`_ug_styling_using_themes_custom`
+    :keywords: Custom Theme, JSON
+
+'''
+
 import numpy as np
 
 from bokeh.io import curdoc, show
