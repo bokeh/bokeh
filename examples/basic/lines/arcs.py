@@ -1,4 +1,4 @@
-''' A arc graph using pre-defined data points. This example
+''' An arc graph using pre-defined data points. This example
 demonstrates the use of the ``arc`` method to make a graph
 by drawing three arcs of defined radius, defined start and
 end angles at defined point.
