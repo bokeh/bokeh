@@ -248,8 +248,6 @@ Non-monetary support can help with development, collaboration, infrastructure, s
 * [Amazon Web Services](https://aws.amazon.com/)
 * [GitGuardian](https://gitguardian.com/)
 * [GitHub](https://github.com/)
-* [makepath](https://makepath.com/)
-* [Pentest Tools](https://pentest-tools.com)
 * [Pingdom](https://www.pingdom.com/website-monitoring)
 * [Slack](https://slack.com)
 * [QuestionScout](https://www.questionscout.com/)
