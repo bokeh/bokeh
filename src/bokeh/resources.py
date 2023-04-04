@@ -45,6 +45,7 @@ from typing import (
     Dict,
     Literal,
     Protocol,
+    TypedDict,
     Union,
     cast,
     get_args,
@@ -81,6 +82,12 @@ BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
 DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
 ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
+
+Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
+
+class ComponentDefs(TypedDict):
+    js: list[Component]
+    css: list[Component]
 
 # __all__ defined at the bottom on the class module
 
@@ -312,32 +319,35 @@ class Resources:
 
     _log_level: LogLevel
 
-    _js_components: ClassVar[list[str]]
-    _css_components: ClassVar[list[str]]
+    components: list[Component]
+
+    _component_defs: ClassVar[ComponentDefs] = {
+        "js": ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"],
+        "css": [],
+    }
+
+    _default_components: ClassVar[list[Component]] = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
 
     def __init__(
         self,
         mode: ResourcesMode | None = None,
+        *,
         version: str | None = None,
         root_dir: PathLike | None = None,
+        dev: bool | None = None,
         minified: bool | None = None,
         log_level: LogLevel | None = None,
         root_url: str | None = None,
         path_versioner: PathVersioner | None = None,
-        components: list[str] | None = None,
+        components: list[Component] | None = None,
         base_dir: str | None = None, # TODO: PathLike
     ):
-        self._components = components
-
-        if hasattr(self, "_js_components"):
-            self.js_components = self._js_components
-        if hasattr(self, "_css_components"):
-            self.css_components = self._css_components
-
+        self.components = components if components is not None else list(self._default_components)
         mode = settings.resources(mode)
 
-        self.dev = mode.endswith("-dev")
-        self.mode = cast(BaseMode, mode[:-4] if self.dev else mode)
+        mode_dev = mode.endswith("-dev")
+        self.dev = dev if dev is not None else mode_dev
+        self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
 
         if self.mode not in get_args(BaseMode):
             raise ValueError(
@@ -379,7 +389,32 @@ class Resources:
             server = self._server_urls()
             self.messages.extend(server.messages)
 
-        self.base_dir = base_dir or bokehjsdir(self.dev)
+        self.base_dir = base_dir if base_dir is not None else bokehjsdir(self.dev)
+
+    def clone(self, *, components: list[Component] | None = None) -> Resources:
+        """ Make a clone of a resources instance allowing to override its components. """
+        return Resources(
+            mode=self.mode,
+            version=self.version,
+            root_dir=self.root_dir,
+            dev=self.dev,
+            minified=self.minified,
+            log_level=self.log_level,
+            root_url=self._root_url,
+            path_versioner=self.path_versioner,
+            components=components if components is not None else list(self.components),
+            base_dir=self.base_dir,
+        )
+
+    def __repr__(self) -> str:
+        args = [f"mode={self.mode!r}"]
+        if self.dev:
+            args.append("dev=True")
+        if self.components != self._default_components:
+            args.append(f"components={self.components!r}")
+        return f"Resources({', '.join(args)})"
+
+    __str__ = __repr__
 
     # Properties --------------------------------------------------------------
 
@@ -403,16 +438,13 @@ class Resources:
 
     # Public methods ----------------------------------------------------------
 
-    def components(self, kind: Kind) -> list[str]:
-        components = self.js_components if kind == "js" else self.css_components
-        if self._components is not None:
-            components = [c for c in components if c in self._components]
-        return components
+    def components_for(self, kind: Kind) -> list[Component]:
+        return [comp for comp in self.components if comp in self._component_defs[kind]]
 
     def _file_paths(self, kind: Kind) -> list[str]:
         minified = ".min" if not self.dev and self.minified else ""
 
-        files = [f"{component}{minified}.{kind}" for component in self.components(kind)]
+        files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
@@ -453,12 +485,12 @@ class Resources:
             files = list(paths)
         elif self.mode == "cdn":
             cdn = self._cdn_urls()
-            files = list(cdn.urls(self.components(kind), kind))
+            files = list(cdn.urls(self.components_for(kind), kind))
             if cdn.hashes:
-                hashes = cdn.hashes(self.components(kind), kind)
+                hashes = cdn.hashes(self.components_for(kind), kind)
         elif self.mode == "server":
             server = self._server_urls()
-            files = list(server.urls(self.components(kind), kind))
+            files = list(server.urls(self.components_for(kind), kind))
 
         return (files, raw, hashes)
 
@@ -470,9 +502,6 @@ class Resources:
             middle = f.read().decode("utf-8")
         end = f"/* END {filename} */"
         return f"{begin}\n{middle}\n{end}"
-
-    _js_components = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
-    _css_components = []
 
     @property
     def js_files(self) -> list[str]:

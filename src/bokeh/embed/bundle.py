@@ -177,18 +177,14 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
     css_files: list[str] = []
     css_raw: list[str] = []
 
-    from copy import deepcopy
-
     if resources is not None:
-        resources = deepcopy(resources)
-        if not use_widgets and "bokeh-widgets" in resources.js_components:
-            resources.js_components.remove("bokeh-widgets")
-        if not use_tables and "bokeh-tables" in resources.js_components:
-            resources.js_components.remove("bokeh-tables")
-        if not use_gl and "bokeh-gl" in resources.js_components:
-            resources.js_components.remove("bokeh-gl")
-        if not use_mathjax and "bokeh-mathjax" in resources.js_components:
-            resources.js_components.remove("bokeh-mathjax")
+        components = list(resources.components)
+        if not use_widgets: components.remove("bokeh-widgets")
+        if not use_tables:  components.remove("bokeh-tables")
+        if not use_gl:      components.remove("bokeh-gl")
+        if not use_mathjax: components.remove("bokeh-mathjax")
+
+        resources = resources.clone(components=components)
 
         js_files.extend(resources.js_files)
         js_raw.extend(resources.js_raw)
