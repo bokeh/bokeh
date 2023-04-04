@@ -120,3 +120,8 @@ pub fn quadratic_bezier_macro_object(x0: f64, y0: f64, cx: f64, cy: f64, x1: f64
 pub fn some(n: u32) -> f64 {
   bokeh_lib::ndarrays::some(n)
 }
+
+#[wasm_bindgen]
+pub fn spatial_index(n: u32) -> u32 {
+  bokeh_lib::hit_test::spatial_index(n as usize) as u32
+}

@@ -11,6 +11,7 @@ crate-type = ["lib"]
 
 [dependencies]
 ndarray = "0.15.6"
+static_aabb2d_index = "1.0.0"
 
 [dev-dependencies]
 approx = {version = "0.5.1"}
