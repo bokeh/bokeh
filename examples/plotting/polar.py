@@ -1,8 +1,9 @@
-'''This example shows how to use polar coordinates to generate a grid of polar plots of rose/rohdonea curves.
+'''This example shows hot to use polar coordinates to generate a
+grid of polar plots of rose/rohdonea curves.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.colors.named, bokeh.io.show, bokeh.models.ColumnDataSource, bokeh.models.Plot, bokeh.models.PolarTransform, bokeh.plotting.figure, bokeh.plotting.figure.line, bokeh.plotting.gridplot
-    :refs: :ref:`ug_topics_contour` > :ref:`ug_topics_contour_polar` 
+    :apis: bokeh.io.show, bokeh.models.ColumnDataSource, bokeh.models.PolarTransform, bokeh.plotting.figure, bokeh.plotting.figure.line, bokeh.plotting.gridplot
+    :refs: :ref:`ug_topics_contour` > :ref:`ug_topics_contour_polar`
     :keywords: polar coordinates, rose curves, rohdonea curves
 
 '''
