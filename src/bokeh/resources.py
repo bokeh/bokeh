@@ -346,7 +346,7 @@ class Resources:
         mode = settings.resources(mode)
 
         mode_dev = mode.endswith("-dev")
-        self.dev = dev if dev is not None else mode_dev
+        self.dev = dev if dev is not None else settings.dev or mode_dev
         self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
 
         if self.mode not in get_args(BaseMode):
