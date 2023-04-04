@@ -56,13 +56,13 @@ export class ReglWrapper {
       this._line_geometry = this._regl.buffer({
         usage: "static",
         type: "float",
-        data: [[-2, 0], [-1, -1], [1, -1], [2, 0], [1, 1], [-1,  1]],
+        data: [[-2, 0], [-1, -1], [1, -1], [1,  1], [-1, 1]],
       })
 
       this._line_triangles = this._regl.elements({
         usage: "static",
-        primitive: "triangles",
-        data: [[0, 1, 5], [1, 2, 5], [5, 2, 4], [2, 3, 4]],
+        primitive: "triangle fan",
+        data: [0, 1, 2, 3, 4],
       })
     } catch (err) {
       this._regl_available = false
@@ -143,15 +143,15 @@ export class ReglWrapper {
 
 // Mesh for line rendering (solid and dashed).
 //
-//   1       5-----4
-//          /|\    |\
-//         / | \   | \
-// y 0    0  |  \  |  3
-//         \ |   \ | /
-//          \|    \|/
+//   1       4-----3
+//          /      |
+//         /       |
+// y 0    0        |
+//         \       |
+//          \      |
 //  -1       1-----2
 //
-//       -2  -1    1  2
+//       -2  -1    1
 //              x
 function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elements): ReglRenderFunction {
   type Props = t.LineGlyphProps
