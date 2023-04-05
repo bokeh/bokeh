@@ -83,16 +83,18 @@ def install_js(packages: list[str]) -> None:
     if missing:
         die(BOKEHJS_INSTALL_FAIL.format(missing=", ".join(missing)))
 
-    if PKG_JS.exists():
-        rmtree(PKG_JS)
-    copytree(BUILD_JS, PKG_JS)
+    if not PKG_JS.is_symlink():
+        if PKG_JS.exists():
+            rmtree(PKG_JS)
+        copytree(BUILD_JS, PKG_JS)
 
-    if PKG_TSLIB.exists():
-        rmtree(PKG_TSLIB)
-    if BUILD_TSLIB.exists():
-        PKG_TSLIB.mkdir()
-        for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
-            copy(lib_file, PKG_TSLIB)
+    if not PKG_TSLIB.is_symlink():
+        if PKG_TSLIB.exists():
+            rmtree(PKG_TSLIB)
+        if BUILD_TSLIB.exists():
+            PKG_TSLIB.mkdir()
+            for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
+                copy(lib_file, PKG_TSLIB)
 
     new = set(
         ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
