@@ -83,7 +83,7 @@ DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
 ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
 
-Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
+Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
 
 class ComponentDefs(TypedDict):
     js: list[Component]
@@ -322,7 +322,7 @@ class Resources:
     components: list[Component]
 
     _component_defs: ClassVar[ComponentDefs] = {
-        "js": ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"],
+        "js": ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"],
         "css": [],
     }
 
