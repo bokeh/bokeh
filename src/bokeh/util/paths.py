@@ -57,7 +57,8 @@ def bokehjsdir(dev: bool = False) -> Path:
     """
     if dev:
         js_dir = ROOT_DIR.parent.parent / "bokehjs" / "build"
-        assert js_dir.is_dir(), f"{js_dir} doesn't exist"
+        if not js_dir.is_dir():
+            raise RuntimeError(f"bokehjs' build directory '{js_dir}' doesn't exist; required by 'settings.dev'")
         return js_dir
     else:
         return staticdir()
