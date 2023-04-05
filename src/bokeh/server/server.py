@@ -54,7 +54,7 @@ from ..core.properties import (
     Nullable,
     String,
 )
-from ..resources import DEFAULT_SERVER_PORT
+from ..resources import DEFAULT_SERVER_PORT, server_url
 from ..util.options import Options
 from .tornado import DEFAULT_WEBSOCKET_MAX_MESSAGE_SIZE_BYTES, BokehTornado
 from .util import bind_sockets, create_hosts_allowlist
@@ -433,9 +433,13 @@ class Server(BaseServer):
             self._address = opts.address
 
             extra_websocket_origins = create_hosts_allowlist(opts.allow_websocket_origin, self.port)
+
+        self._absolute_url = server_url(self._address, self._port, opts.ssl_certfile is not None)
+
         try:
             tornado_app = BokehTornado(applications,
                                        extra_websocket_origins=extra_websocket_origins,
+                                       absolute_url=self._absolute_url,
                                        prefix=opts.prefix,
                                        index=opts.index,
                                        websocket_max_message_size_bytes=opts.websocket_max_message_size,
