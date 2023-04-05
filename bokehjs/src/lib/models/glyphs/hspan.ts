@@ -1,11 +1,16 @@
+import {Glyph, GlyphView, GlyphData} from "./glyph"
+import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
+import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import {range} from "core/util/array"
 import * as p from "core/properties"
+
+const {abs} = Math
 
 export type HSpanData = GlyphData & p.UniformsOf<HSpan.Mixins> & {
   _y: FloatArray
@@ -51,6 +56,47 @@ export class HSpanView extends GlyphView {
 
       this.visuals.line.apply(ctx, i)
     }
+  }
+
+  protected _find_spans(fn: (sy: number) => boolean): number[] {
+    const {sy} = this
+    const n = this.data_size
+    const indices: number[] = []
+
+    for (let i = 0; i < n; i++) {
+      const sy_i = sy[i]
+      if (fn(sy_i)) {
+        indices.push(i)
+      }
+    }
+
+    return indices
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const {sy: gsy} = geometry
+    const indices = this._find_spans((sy) => abs(sy - gsy) < 2 /*px*/)
+    return new Selection({indices})
+  }
+
+  protected override _hit_span(geometry: SpanGeometry): Selection {
+    const indices = (() => {
+      if (geometry.direction == "v") {
+        return range(0, this.data_size)
+      } else {
+        const {sy: gsy} = geometry
+        return this._find_spans((sy) => abs(sy - gsy) < 2 /*px*/)
+      }
+    })()
+    return new Selection({indices})
+  }
+
+  protected override _hit_rect(geometry: RectGeometry): Selection {
+    const indices = (() => {
+      const {sy0: gsy0, sy1: gsy1} = geometry
+      return this._find_spans((sy) => gsy0 <= sy && sy <= gsy1)
+    })()
+    return new Selection({indices})
   }
 }
 

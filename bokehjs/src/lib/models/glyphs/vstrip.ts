@@ -1,12 +1,13 @@
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {PointGeometry/*, SpanGeometry, RectGeometry*/} from "core/geometry"
+import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
+import {range} from "core/util/array"
 import * as p from "core/properties"
 
 export type VStripData = GlyphData & p.UniformsOf<VStrip.Mixins> & {
@@ -105,14 +106,9 @@ export class VStripView extends GlyphView {
     }
   }
 
-  protected override _hit_point(geometry: PointGeometry): Selection {
-    const {sx} = geometry
-
+  protected _find_strips(fn: (sx0: number, sx1: number) => boolean): number[] {
     function contains(sx0: number, sx1: number) {
-      if (sx0 <= sx1)
-        return sx0 <= sx && sx <= sx1
-      else
-        return sx1 <= sx && sx <= sx0
+      return sx0 <= sx1 ? fn(sx0, sx1) : fn(sx1, sx0)
     }
 
     const {sx0, sx1} = this
@@ -127,6 +123,32 @@ export class VStripView extends GlyphView {
       }
     }
 
+    return indices
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const {sx} = geometry
+    const indices = this._find_strips((sx0, sx1) => sx0 <= sx && sx <= sx1)
+    return new Selection({indices})
+  }
+
+  protected override _hit_span(geometry: SpanGeometry): Selection {
+    const indices = (() => {
+      if (geometry.direction == "h") {
+        return range(0, this.data_size)
+      } else {
+        const {sx} = geometry
+        return this._find_strips((sx0, sx1) => sx0 <= sx && sx <= sx1)
+      }
+    })()
+    return new Selection({indices})
+  }
+
+  protected override _hit_rect(geometry: RectGeometry): Selection {
+    const indices = (() => {
+      const {sx0: gsx0, sx1: gsx1} = geometry
+      return this._find_strips((sx0, sx1) => gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1)
+    })()
     return new Selection({indices})
   }
 }

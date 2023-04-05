@@ -1,12 +1,13 @@
 import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {PointGeometry/*, SpanGeometry, RectGeometry*/} from "core/geometry"
+import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
+import {range} from "core/util/array"
 import * as p from "core/properties"
 
 export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
@@ -105,14 +106,9 @@ export class HStripView extends GlyphView {
     }
   }
 
-  protected override _hit_point(geometry: PointGeometry): Selection {
-    const {sy} = geometry
-
+  protected _find_strips(fn: (sy0: number, sy1: number) => boolean): number[] {
     function contains(sy0: number, sy1: number) {
-      if (sy0 <= sy1)
-        return sy0 <= sy && sy <= sy1
-      else
-        return sy1 <= sy && sy <= sy0
+      return sy0 <= sy1 ? fn(sy0, sy1) : fn(sy1, sy0)
     }
 
     const {sy0, sy1} = this
@@ -127,22 +123,34 @@ export class HStripView extends GlyphView {
       }
     }
 
+    return indices
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    const {sy} = geometry
+    const indices = this._find_strips((sy0, sy1) => sy0 <= sy && sy <= sy1)
     return new Selection({indices})
   }
 
-  /*
-  protected override _hit_span(_geometry: SpanGeometry): Selection {
-    //const {sy, direction} = geometry
-    const indices: number[] = []
+  protected override _hit_span(geometry: SpanGeometry): Selection {
+    const indices = (() => {
+      if (geometry.direction == "v") {
+        return range(0, this.data_size)
+      } else {
+        const {sy} = geometry
+        return this._find_strips((sy0, sy1) => sy0 <= sy && sy <= sy1)
+      }
+    })()
     return new Selection({indices})
   }
 
-  protected override _hit_rect(_geometry: RectGeometry): Selection {
-    //const {sy0, sy1} = geometry
-    const indices: number[] = []
+  protected override _hit_rect(geometry: RectGeometry): Selection {
+    const indices = (() => {
+      const {sy0: gsy0, sy1: gsy1} = geometry
+      return this._find_strips((sy0, sy1) => gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1)
+    })()
     return new Selection({indices})
   }
-  */
 }
 
 export namespace HStrip {
