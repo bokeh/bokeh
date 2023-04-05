@@ -24,6 +24,7 @@ runs:
       with:
         miniconda-version: 'latest'
         activate-environment: bk-test
+        run-post: ${{ runner.os != 'Windows' }}
 
     - name: Install libmamba solver
       shell: bash -l {0}
