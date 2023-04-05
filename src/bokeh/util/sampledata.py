@@ -57,31 +57,38 @@ def download(progress: bool = True) -> None:
     # HTTP requests are cheaper for us, and there is nothing private to protect
     s3 = 'http://sampledata.bokeh.org'
 
-    with (Path(__file__).parent / "sampledata.json").open("rb") as f:
-        files = json.load(f)
-
-    for filename, md5 in files:
-        real_name, ext = splitext(filename)
-        if ext == '.zip':
-            if not splitext(real_name)[1]:
-                real_name += ".csv"
-        else:
-            real_name += ext
-        real_path = data_dir /real_name
+    for file_name, md5 in metadata().items():
+        real_path = data_dir / real_name(file_name)
 
         if real_path.exists():
-            local_md5 = hashlib.md5(open(real_path, 'rb').read()).hexdigest()
+            with open(real_path, "rb") as file:
+                data = file.read()
+            local_md5 = hashlib.md5(data).hexdigest()
             if local_md5 == md5:
-                print(f"Skipping {filename!r} (checksum match)")
+                print(f"Skipping {file_name!r} (checksum match)")
                 continue
             else:
-                print(f"Re-fetching {filename!r} (checksum mismatch)")
+                print(f"Re-fetching {file_name!r} (checksum mismatch)")
 
-        _download_file(s3, filename, data_dir, progress=progress)
+        _download_file(s3, file_name, data_dir, progress=progress)
 
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
+
+def real_name(name: str) -> str:
+    real_name, ext = splitext(name)
+    if ext == ".zip":
+        if not splitext(real_name)[1]:
+            return f"{real_name}.csv"
+        else:
+            return real_name
+    else:
+        return name
+
+def metadata() -> dict[str, str]:
+    with (Path(__file__).parent / "sampledata.json").open("rb") as f:
+        return dict(json.load(f))
 
 def external_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
     '''
@@ -90,7 +97,7 @@ def external_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
     import pandas as pd
     return pd.read_csv(external_path(name), **kw)
 
-def external_data_dir(create: bool = False) -> Path:
+def external_data_dir(*, create: bool = False) -> Path:
     '''
 
     '''
@@ -122,12 +129,23 @@ def external_data_dir(create: bool = False) -> Path:
 
     return data_dir
 
-def external_path(filename: str | Path) -> Path:
+def external_path(file_name: str) -> Path:
     data_dir = external_data_dir()
-    fn = data_dir / filename
-    if not fn.exists() or not fn.is_file():
-        raise RuntimeError(f"Could not locate external data file {fn}. Please execute bokeh.sampledata.download()")
-    return fn
+    file_path = data_dir / file_name
+    if not file_path.exists() or not file_path.is_file():
+        raise RuntimeError(f"Could not locate external data file {file_path}. Please execute bokeh.sampledata.download()")
+    with open(file_path, "rb") as file:
+        meta = metadata()
+        known_md5 = meta.get(file_name) or \
+                    meta.get(f"{file_name}.zip") or \
+                    meta.get(f"{splitext(file_name)[0]}.zip")
+        if known_md5 is None:
+            raise RuntimeError(f"Unknown external data file {file_name}")
+
+        local_md5 = hashlib.md5(file.read()).hexdigest()
+        if known_md5 != local_md5:
+            raise RuntimeError(f"External data file {file_path} is outdated. Please execute bokeh.sampledata.download()")
+    return file_path
 
 def package_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
     '''
