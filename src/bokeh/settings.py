@@ -690,7 +690,7 @@ class Settings:
 
     """)
 
-    resources: PrioritizedSetting[ResourcesMode] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="absolute-dev", help="""
+    resources: PrioritizedSetting[ResourcesMode] = PrioritizedSetting("resources", "BOKEH_RESOURCES", default="cdn", dev_default="server", help="""
     What kind of BokehJS resources to configure, e.g ``inline`` or ``cdn``
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
