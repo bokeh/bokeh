@@ -6,3 +6,4 @@
 Bokeh Version ``3.2.0`` (?? April 2023) is a minor milestone of Bokeh project.
 
 * Official support for Python 3.8 was removed
+* Correctly resolve custom host and port with server resources (PR `#13041 <https://github.com/bokeh/bokeh/pull/13041>`_).
