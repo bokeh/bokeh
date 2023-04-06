@@ -50,7 +50,7 @@ This folder contains a collection of examples that demonstrate the usage and fun
 
 ### [`server`](server/)
 
-This folder contains a collection of examples that demonstrate how to create interactive web applications using Bokeh server
+This folder contains a collection of examples that demonstrate how to create interactive web applications using Bokeh server.
 
 ### [`styling`](styling/)
 
