@@ -155,6 +155,10 @@ import {radians} from "@bokehjs/core/util/math"
       await plot({axis_label: multiline_axis_label, axis_label_text_align: "right"}, {minor_size: 100})
     })
 
+    it("should support single line axis_label and axis_label_orientation=normal", async () => {
+      await plot({axis_label: multiline_axis_label, axis_label_orientation: "normal"}, {minor_size: 200})
+    })
+
     it("should support major_label_policy=AllLables with major_label_orientation=parallel", async () => {
       await plot({major_label_policy: new AllLabels(), major_label_orientation: "parallel"}, {num_ticks: 20})
     })

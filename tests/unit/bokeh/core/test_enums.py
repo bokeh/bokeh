@@ -55,6 +55,7 @@ ALL  = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
     'LegendLocation',
@@ -85,7 +86,6 @@ ALL  = (
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
-    'TickLabelOrientation',
     'ToolIcon',
     'TooltipAttachment',
     'TooltipFieldFormatter',
@@ -211,6 +211,9 @@ class Test_bce:
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
 
+    def test_LabelOrientation(self) -> None:
+        assert tuple(bce.LabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
+
     def test_LatLon(self) -> None:
         assert tuple(bce.LatLon) == ("lat", "lon")
 
@@ -307,9 +310,6 @@ class Test_bce:
     def test_TextureRepetition(self) -> None:
         assert tuple(bce.TextureRepetition) == ("repeat", "repeat_x", "repeat_y", "no_repeat")
 
-    def test_TickLabelOrientation(self) -> None:
-        assert tuple(bce.TickLabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
-
     def test_ToolIcon(self) -> None:
         assert tuple(bce.ToolIcon) == ("append_mode", "box_edit", "box_select", "box_zoom", "clear_selection",
             "copy", "crosshair", "freehand_draw", "help", "hover", "intersect_mode", "lasso_select",
@@ -356,6 +356,7 @@ def test_enums_contents() -> None:
         'HorizontalLocation',
         'ImageOrigin',
         'JitterRandomDistribution',
+        'LabelOrientation',
         'LatLon',
         'LegendClickPolicy',
         'LegendLocation',
@@ -386,7 +387,6 @@ def test_enums_contents() -> None:
         'TextAlign',
         'TextBaseline',
         'TextureRepetition',
-        'TickLabelOrientation',
         'ToolIcon',
         'TooltipAttachment',
         'TooltipFieldFormatter',
