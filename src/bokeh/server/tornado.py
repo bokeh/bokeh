@@ -253,6 +253,8 @@ class BokehTornado(TornadoApplication):
 
     def __init__(self,
                  applications: Mapping[str, Application | ModifyDoc] | Application | ModifyDoc,
+                 *,
+                 absolute_url: str | None = None,
                  prefix: str | None = None,
                  extra_websocket_origins: Sequence[str] | None = None,
                  extra_patterns: URLRoutes | None = None,
@@ -296,6 +298,8 @@ class BokehTornado(TornadoApplication):
                 applications[url] = app = Application(FunctionHandler(app))
             if all(not isinstance(handler, DocumentLifecycleHandler) for handler in app._handlers):
                 app.add(DocumentLifecycleHandler())
+
+        self._absolute_url = absolute_url
 
         if prefix is None:
             prefix = ""
@@ -614,8 +618,8 @@ class BokehTornado(TornadoApplication):
 
         '''
         mode = settings.resources(default="server")
-        if mode == "server":
-            root_url = urljoin(absolute_url, self._prefix) if absolute_url else self._prefix
+        if mode == "server" or mode == "server-dev":
+            root_url = urljoin(absolute_url or self._absolute_url or "", self._prefix)
             return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
         return Resources(mode=mode)
 

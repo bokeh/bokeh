@@ -237,8 +237,8 @@ describe("enums module", () => {
     expect([...enums.TextureRepetition]).to.be.equal(["repeat", "repeat_x", "repeat_y", "no_repeat"])
   })
 
-  it("should have TickLabelOrientation", () => {
-    expect([...enums.TickLabelOrientation]).to.be.equal(["vertical", "horizontal", "parallel", "normal"])
+  it("should have LabelOrientation", () => {
+    expect([...enums.LabelOrientation]).to.be.equal(["vertical", "horizontal", "parallel", "normal"])
   })
 
   it("should have TooltipAttachment", () => {

@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import TickLabelOrientation
+from ..core.enums import LabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -138,6 +138,11 @@ class Axis(GuideRenderer):
     from the tick labels.
     """)
 
+    axis_label_orientation = Either(Enum(LabelOrientation), Float)(default="parallel", help="""
+    What direction the asix label text should be oriented. If a number
+    is supplied, the angle of the text is measured from horizontal.
+    """)
+
     axis_label_props = Include(ScalarTextProps, prefix="axis_label", help="""
     The {prop} of the axis label.
     """)
@@ -151,9 +156,9 @@ class Axis(GuideRenderer):
     offset from the associated ticks.
     """)
 
-    major_label_orientation = Either(Enum("horizontal", "vertical"), Float, help="""
-    What direction the major label text should be oriented. If a
-    number is supplied, the angle of the text is measured from horizontal.
+    major_label_orientation = Either(Enum(LabelOrientation), Float)(default="horizontal", help="""
+    What direction the major label text should be oriented. If a number
+    is supplied, the angle of the text is measured from horizontal.
     """)
 
     major_label_overrides = Dict(Either(Float, String), TextLike, default={}, help="""
@@ -289,7 +294,7 @@ class CategoricalAxis(Axis):
     property has no effect.
     """)
 
-    group_label_orientation = Either(Enum(TickLabelOrientation), Float, default="parallel", help="""
+    group_label_orientation = Either(Enum(LabelOrientation), Float, default="parallel", help="""
     What direction the group label text should be oriented.
 
     If a number is supplied, the angle of the text is measured from horizontal.
@@ -311,7 +316,7 @@ class CategoricalAxis(Axis):
     then this property has no effect.
     """)
 
-    subgroup_label_orientation = Either(Enum(TickLabelOrientation), Float, default="parallel", help="""
+    subgroup_label_orientation = Either(Enum(LabelOrientation), Float, default="parallel", help="""
     What direction the subgroup label text should be oriented.
 
     If a number is supplied, the angle of the text is measured from horizontal.

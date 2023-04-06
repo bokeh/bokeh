@@ -31,7 +31,7 @@ plot.grid.grid_line_color = None
 graph_renderer = from_networkx(G, nx.spring_layout, scale=1, center=(0, 0))
 graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="lightblue")
 graph_renderer.edge_renderer.glyph = MultiLine(line_color="edge_color",
-                                               line_alpha=0.8, line_width=1.5)
+                                               line_alpha=1, line_width=2)
 plot.renderers.append(graph_renderer)
 
 show(plot)
