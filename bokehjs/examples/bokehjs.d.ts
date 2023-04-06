@@ -1,4 +1,4 @@
-declare module "*/bokeh.esm.js" {
+declare module "*/bokeh.mjs" {
   export * from "index"
   export * from "api"
 }

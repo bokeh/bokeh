@@ -53,7 +53,7 @@ def update_package(version):
         version not in current
     ), f"Version {version} already exists in the hash data file"
 
-    paths = (x for x in glob(join(TOP, "src/bokeh/server/static/js/bokeh*.js")) if ".esm" not in x)
+    paths = glob(join(TOP, "src/bokeh/server/static/js/bokeh*.js"))
     hashes = compute_hashes_for_paths(paths, version)
 
     new = {version: hashes}

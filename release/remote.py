@@ -63,9 +63,9 @@ def publish_bokehjs_to_cdn(config: Config, system: System) -> ActionReturn:
 
         content_type = "application/javascript"
         for name in ("bokeh", "bokeh-gl", "bokeh-api", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"):
-            for suffix in ("js", "min.js", "esm.js", "esm.min.js"):
-                local_path = f"bokehjs/build/js/{name}.{suffix}"
-                cdn_path = f"bokeh/{subdir}/{name}-{version}.{suffix}"
+            for ext in (".js", ".min.js", ".mjs", ".min.mjs"):
+                local_path = f"bokehjs/build/js/{name}{ext}"
+                cdn_path = f"bokeh/{subdir}/{name}-{version}{ext}"
                 for bucket in buckets:
                     _upload_file_to_cdn(local_path, cdn_path, content_type, bucket)
         return PASSED("Uploaded BokehJS to CDN")
