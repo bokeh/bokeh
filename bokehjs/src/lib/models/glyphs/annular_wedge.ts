@@ -32,6 +32,14 @@ export class AnnularWedgeView extends XYGlyphView {
   declare model: AnnularWedge
   declare visuals: AnnularWedge.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/annular_wedge").AnnularWedgeGL
+
+  override async load_glglyph() {
+    const {AnnularWedgeGL} = await import("./webgl/annular_wedge")
+    return AnnularWedgeGL
+  }
+
   protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
       this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)

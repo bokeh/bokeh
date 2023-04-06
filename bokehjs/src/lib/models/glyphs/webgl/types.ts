@@ -1,6 +1,9 @@
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
 
+import {MarkerType} from "core/enums"
+export type GLMarkerType = MarkerType | "hex_tile" | "rect" | "ellipse" | "annulus" | "wedge" | "annular_wedge"
+
 // Props are used to pass properties from GL glyph classes to ReGL functions.
 type CommonProps = {
   scissor: BoundingBox
@@ -10,14 +13,14 @@ type CommonProps = {
   antialias: number
 }
 
-type LineProps = {
+export type LineProps = {
   linewidth: Float32Buffer
   line_color: NormalizedUint8Buffer
   line_cap: Uint8Buffer
   line_join: Uint8Buffer
 }
 
-type FillProps = {
+export type FillProps = {
   fill_color: NormalizedUint8Buffer
 }
 
@@ -29,7 +32,7 @@ type DashProps = {
   dash_offset: number
 }
 
-type HatchProps = {
+export type HatchProps = {
   hatch_pattern: Uint8Buffer
   hatch_scale: Float32Buffer
   hatch_weight: Float32Buffer
@@ -55,6 +58,7 @@ export type MarkerGlyphProps = CommonProps & LineProps & FillProps & {
   width: Float32Buffer
   height: Float32Buffer
   angle: Float32Buffer
+  aux: Float32Buffer
   border_radius: Vec4
   size_hint: number
   show: Uint8Buffer
@@ -103,7 +107,7 @@ type FillAttributes = {
   a_fill_color: AttributeConfig
 }
 
-type HatchAttributes = {
+export type HatchAttributes = {
   a_hatch_pattern: AttributeConfig
   a_hatch_scale: AttributeConfig
   a_hatch_weight: AttributeConfig
@@ -132,6 +136,7 @@ export type MarkerGlyphAttributes = LineAttributes & FillAttributes & {
   a_width: AttributeConfig
   a_height: AttributeConfig
   a_angle: AttributeConfig
+  a_aux: AttributeConfig
 }
 
 export type MarkerHatchGlyphAttributes = MarkerGlyphAttributes & HatchAttributes

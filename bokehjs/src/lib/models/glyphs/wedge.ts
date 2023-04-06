@@ -27,6 +27,14 @@ export class WedgeView extends XYGlyphView {
   declare model: Wedge
   declare visuals: Wedge.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/wedge").WedgeGL
+
+  override async load_glglyph() {
+    const {WedgeGL} = await import("./webgl/wedge")
+    return WedgeGL
+  }
+
   protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
       this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)

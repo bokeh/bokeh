@@ -3,6 +3,7 @@ import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as visuals from "core/visuals"
 import * as geometry from "core/geometry"
+import {settings} from "core/settings"
 import {Context2d} from "core/util/canvas"
 import {View} from "core/view"
 import {Model} from "../../model"
@@ -21,6 +22,7 @@ import {Selection} from "../selections/selection"
 import {GlyphRendererView} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Decoration} from "../graphics/decoration"
+import {type BaseGLGlyph, type BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
 
@@ -39,7 +41,9 @@ export abstract class GlyphView extends View {
   }
 
   /** @internal */
-  glglyph?: import("./webgl/base").BaseGLGlyph
+  glglyph?: BaseGLGlyph
+
+  async load_glglyph?(): Promise<typeof BaseGLGlyph>
 
   get has_webgl(): boolean {
     return this.glglyph != null
@@ -82,6 +86,12 @@ export abstract class GlyphView extends View {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+
+    const {webgl} = this.canvas
+    if (webgl != null && this.load_glglyph != null) {
+      const cls = await this.load_glglyph() as BaseGLGlyphConstructor
+      this.glglyph = new cls(webgl.regl_wrapper, this)
+    }
   }
 
   request_render(): void {
@@ -97,6 +107,8 @@ export abstract class GlyphView extends View {
       this.renderer.needs_webgl_blit = this.glglyph.render(ctx, indices, this.base ?? this)
       if (this.renderer.needs_webgl_blit)
         return
+    } else if (this.canvas.webgl != null && settings.force_webgl) {
+      throw new Error(`${this} doesn't support webgl rendering`)
     }
 
     this._render(ctx, indices, data ?? this.base)
