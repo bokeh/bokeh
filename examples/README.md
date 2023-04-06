@@ -14,10 +14,6 @@ This folder contains examples of more advanced or complex Bokeh applications and
 
 Each example in the basic folder provides a clear and concise demonstration of how to create a specific type of visualization using Bokeh. These examples are intended for users who want to learn how to create basic visualizations using the library.
 
-### [`integration`](integration/)
-
-This directory includes examples that show how to embed Bokeh plots and widget in HTML documents.
-
 ### [`interaction`](interaction/)
 
 The examples in this directory are mini-tutorials that demonstrate and explain
