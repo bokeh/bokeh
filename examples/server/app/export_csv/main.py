@@ -32,7 +32,7 @@ button.js_on_event(
     "button_click",
     CustomJS(
         args=dict(source=source),
-        code=(Path(__file__).parent / "download.js").read_text(encoding="utf8")
+        code=(Path(__file__).parent / "download.js").read_text("utf8")
     )
 )
 
