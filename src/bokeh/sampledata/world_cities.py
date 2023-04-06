@@ -58,4 +58,4 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-data = external_csv('world_cities', 'world_cities.csv', keep_default_na=False)
+data = external_csv('world_cities', 'world_cities.csv', na_filter=False)
