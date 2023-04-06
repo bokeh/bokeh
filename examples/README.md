@@ -12,7 +12,7 @@ This folder contains examples of more advanced or complex Bokeh applications and
 
 ### [`basic`](basic/)
 
-Each example in the basic folder provides a clear and concise demonstration of how to create a specific type of visualization using Bokeh. These examples are intended for new users who are just getting started with Bokeh and want to learn how to create basic visualizations using the library.
+Each example in the basic folder provides a clear and concise demonstration of how to create a specific type of visualization using Bokeh. These examples are intended for users who want to learn how to create basic visualizations using the library.
 
 ### [`integration`](integration/)
 
