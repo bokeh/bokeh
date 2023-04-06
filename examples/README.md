@@ -54,7 +54,7 @@ This folder contains a collection of examples that demonstrate how to create int
 
 ### [`styling`](styling/)
 
-his folder contains a collection of examples that demonstrate various ways to style Bokeh plots using CSS styles and themes
+This folder contains a collection of examples that demonstrate various ways to style Bokeh plots using CSS styles and themes.
 
 ### [`topics`](topics/)
 
