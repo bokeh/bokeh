@@ -118,11 +118,15 @@ def html_page_for_render_items(
 
     bokeh_js, bokeh_css = bundle
 
-    json_id = make_id()
-    json = escape(serialize_json(docs_json), quote=False)
-    json = wrap_in_script_tag(json, "application/json", json_id)
+    docs_json_id = make_id()
+    docs_json_str = escape(serialize_json(docs_json), quote=False)
+    docs_json_tag = wrap_in_script_tag(docs_json_str, "application/json", docs_json_id)
 
-    script = wrap_in_script_tag(script_for_render_items(json_id, render_items))
+    render_items_id = make_id()
+    render_items_str = escape(serialize_json(render_items), quote=False)
+    render_items_tag = wrap_in_script_tag(render_items_str, "application/json", render_items_id)
+
+    script_tag = wrap_in_script_tag(script_for_render_items(docs_json_id, render_items_id))
 
     context = template_variables.copy()
 
@@ -130,7 +134,7 @@ def html_page_for_render_items(
         title = title,
         bokeh_js = bokeh_js,
         bokeh_css = bokeh_css,
-        plot_script = json + script,
+        plot_script = docs_json_tag + render_items_tag + script_tag,
         docs = render_items,
         base = FILE,
         macros = MACROS,
@@ -151,7 +155,7 @@ def html_page_for_render_items(
     html = template.render(context)
     return html
 
-def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_items: list[RenderItem],
+def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_items_or_id: ID | list[RenderItem],
                             app_path: str | None = None, absolute_url: str | None = None) -> str:
     ''' Render an script for Bokeh render items.
     Args:
@@ -168,22 +172,24 @@ def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_item
     Returns:
         str
     '''
-    if isinstance(docs_json_or_id, str):
-        docs_json = f"document.getElementById('{docs_json_or_id}').textContent"
-    else:
-        # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
-        # and encoding it would significantly increase size of generated files. Doing so
-        # is safe, because " in strings was already encoded by JSON, and the semi-encoded
-        # JSON string is included in JavaScript in single quotes.
-        docs_json = serialize_json(docs_json_or_id, pretty=False) # JSON string
-        docs_json = escape(docs_json, quote=False)                # make HTML-safe
-        docs_json = docs_json.replace("'", "&#x27;")              # remove single quotes
-        docs_json = docs_json.replace("\\", "\\\\")               # double encode escapes
-        docs_json =  "'" + docs_json + "'"                        # JS string
+    def encode(json_or_id: ID | Any) -> str:
+        if isinstance(json_or_id, str):
+            json_str = f"document.getElementById('{json_or_id}').textContent"
+        else:
+            # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
+            # and encoding it would significantly increase size of generated files. Doing so
+            # is safe, because " in strings was already encoded by JSON, and the semi-encoded
+            # JSON string is included in JavaScript in single quotes.
+            json_str = serialize_json(json_or_id)      # JSON string
+            json_str = escape(json_str, quote=False)   # make HTML-safe
+            json_str = json_str.replace("'", "&#x27;") # remove single quotes
+            json_str = json_str.replace("\\", "\\\\")  # double encode escapes
+            json_str = "'" + json_str + "'"            # JS string
+        return json_str
 
     js = DOC_JS.render(
-        docs_json=docs_json,
-        render_items=serialize_json([ item.to_json() for item in render_items ], pretty=False),
+        docs_json=encode(docs_json_or_id),
+        render_items=encode(render_items_or_id),
         app_path=app_path,
         absolute_url=absolute_url,
     )

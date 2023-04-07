@@ -182,11 +182,14 @@ class PayloadEncoder(JSONEncoder):
         self._threshold = threshold
 
     def default(self, obj: Any) -> Any:
+        from ..embed.util import RenderItem  # cyclic imports
         if isinstance(obj, Buffer):
             if obj.id in self._buffers: # TODO: and len(obj.data) > self._threshold:
                 return obj.ref
             else:
                 return obj.to_base64()
+        elif isinstance(obj, RenderItem):
+            return obj.to_json()
         else:
             return super().default(obj)
 
