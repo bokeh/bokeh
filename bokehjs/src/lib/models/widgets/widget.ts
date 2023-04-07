@@ -7,11 +7,6 @@ import type * as p from "core/properties"
 export abstract class WidgetView extends LayoutDOMView {
   declare model: Widget
 
-  override update_style(): void {
-    super.update_style()
-    this.style.append(":host", {margin: "5px"})
-  }
-
   get child_models(): LayoutDOM[] {
     return []
   }
@@ -76,5 +71,11 @@ export abstract class Widget extends LayoutDOM {
 
   constructor(attrs?: Partial<Widget.Attrs>) {
     super(attrs)
+  }
+
+  static {
+    this.override<Widget.Props>({
+      margin: 5,
+    })
   }
 }
