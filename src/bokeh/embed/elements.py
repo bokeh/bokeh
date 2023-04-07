@@ -176,15 +176,15 @@ def script_for_render_items(docs_json_or_id: ID | dict[ID, DocJson], render_item
         if isinstance(json_or_id, str):
             json_str = f"document.getElementById('{json_or_id}').textContent"
         else:
-            # XXX: encodes &, <, > and ', but not ". This is because " is used a lot in JSON,
-            # and encoding it would significantly increase size of generated files. Doing so
-            # is safe, because " in strings was already encoded by JSON, and the semi-encoded
-            # JSON string is included in JavaScript in single quotes.
+            # XXX: encodes &, <, > and `, but not " and '. This is because " is used a lot in
+            # JSON, and encoding it would significantly increase size of generated files. Doing
+            # so is safe, because " in strings was already encoded by JSON, and the semi-encoded
+            # JSON string is included in JavaScript in backtick quotes.
             json_str = serialize_json(json_or_id)      # JSON string
             json_str = escape(json_str, quote=False)   # make HTML-safe
-            json_str = json_str.replace("'", "&#x27;") # remove single quotes
+            json_str = json_str.replace("`", "&#x96;") # remove backticks
             json_str = json_str.replace("\\", "\\\\")  # double encode escapes
-            json_str = "'" + json_str + "'"            # JS string
+            json_str = "`" + json_str + "`"            # JS string
         return json_str
 
     js = DOC_JS.render(
