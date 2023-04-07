@@ -159,7 +159,8 @@ export class Bundle {
     const aliases_json = JSON.stringify(to_obj(aliases))
     const externals_json = JSON.stringify(to_obj(externals))
 
-    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});${postlude}`
+    sources += `${suffix}, ${safe_id(entry)}, ${aliases_json}, ${externals_json});`
+    sources += `\n${postlude}`
 
     const source_map = convert.fromBase64(sourcemap.base64()).toObject()
     return new Artifact(sources, minified ? null : source_map, aliases)
