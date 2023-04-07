@@ -251,8 +251,8 @@ def server_html_page_for_session(session: ServerSession, resources: Resources, t
         template_variables = {}
 
     bundle = bundle_for_objs_and_resources(None, resources)
-    html = html_page_for_render_items(bundle, {}, [render_item], title,
-        template=template, template_variables=template_variables)
+    html = html_page_for_render_items(bundle, {}, [render_item],
+        title=title, template=template, template_variables=template_variables, inline_json=True)
     return html
 
 #-----------------------------------------------------------------------------

@@ -87,7 +87,7 @@ def html_page_for_render_items(
     title: str | None = None,
     template: Template | str | None = None,
     template_variables: dict[str, Any] = {},
-    separate_json: bool = True,
+    inline_json: bool = False,
 ) -> str:
     ''' Render an HTML page from a template and Bokeh render items.
 
@@ -119,7 +119,9 @@ def html_page_for_render_items(
 
     bokeh_js, bokeh_css = bundle
 
-    if separate_json:
+    if inline_json:
+        scripts = wrap_in_script_tag(script_for_render_items(docs_json, render_items))
+    else:
         docs_json_id = make_id()
         docs_json_str = escape(serialize_json(docs_json), quote=False)
         docs_json_tag = wrap_in_script_tag(docs_json_str, "application/json", docs_json_id)
@@ -130,8 +132,6 @@ def html_page_for_render_items(
 
         script_tag = wrap_in_script_tag(script_for_render_items(docs_json_id, render_items_id))
         scripts = docs_json_tag + render_items_tag + script_tag
-    else:
-        scripts = wrap_in_script_tag(script_for_render_items(docs_json, render_items))
 
     context = template_variables.copy()
 
