@@ -341,6 +341,7 @@ class Resources:
         path_versioner: PathVersioner | None = None,
         components: list[Component] | None = None,
         base_dir: str | None = None, # TODO: PathLike
+        esm: bool = False,
     ):
         self.components = components if components is not None else list(self._default_components)
         mode = settings.resources(mode)
@@ -355,14 +356,17 @@ class Resources:
                 f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}"
             )
 
-        if root_dir and not self.mode.startswith("relative"):
+        if root_dir and not self.mode == "relative":
             raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
 
-        if version and not self.mode.startswith("cdn"):
+        if version and not self.mode == "cdn":
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
 
-        if root_url and not self.mode.startswith("server"):
+        if root_url and not self.mode == "server":
             raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
+        if esm and self.mode == "inline":
+            raise ValueError("settings 'esm' doesn't make sense when 'mode' is set to 'inline'")
 
         self.root_dir = settings.rootdir(root_dir)
         del root_dir
@@ -374,6 +378,8 @@ class Resources:
         del log_level
         self.path_versioner = path_versioner
         del path_versioner
+        self.esm = esm
+        del esm
 
         if root_url and not root_url.endswith("/"):
             # root_url should end with a /, adding one
@@ -404,6 +410,7 @@ class Resources:
             path_versioner=self.path_versioner,
             components=components if components is not None else list(self.components),
             base_dir=self.base_dir,
+            esm=self.esm,
         )
 
     def __repr__(self) -> str:
@@ -443,8 +450,9 @@ class Resources:
 
     def _file_paths(self, kind: Kind) -> list[str]:
         minified = ".min" if not self.dev and self.minified else ""
+        ext = ".mjs" if kind == "js" and self.esm else f".{kind}"
 
-        files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
+        files = [f"{component}{minified}{ext}" for component in self.components_for(kind)]
         paths = [join(self.base_dir, kind, file) for file in files]
         return paths
 
