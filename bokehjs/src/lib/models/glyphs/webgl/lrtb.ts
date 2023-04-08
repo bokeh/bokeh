@@ -1,12 +1,21 @@
 import {ReglWrapper} from "./regl_wrap"
-import {SingleMarkerGL} from "./single_marker"
+import {SingleMarkerGL, SingleMarkerGlyphView} from "./single_marker"
 import {GLMarkerType} from "./types"
-import type {LRTBView} from "../lrtb"
+import {Arrayable} from "core/types"
+import {Corners} from "core/util/bbox"
+
+type LRTBLikeView = SingleMarkerGlyphView & {
+  sleft: Arrayable<number>
+  sright: Arrayable<number>
+  stop: Arrayable<number>
+  sbottom: Arrayable<number>
+  border_radius?: Corners<number>
+}
 
 const {abs} = Math
 
 export class LRTBGL extends SingleMarkerGL {
-  constructor(regl_wrapper: ReglWrapper, override readonly glyph: LRTBView) {
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: LRTBLikeView) {
     super(regl_wrapper, glyph)
   }
 
@@ -49,7 +58,7 @@ export class LRTBGL extends SingleMarkerGL {
 
     this._angles.set_from_scalar(0)
 
-    if ("border_radius" in this.glyph) {
+    if (this.glyph.border_radius != null) {
       const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
       this._border_radius = [top_left, top_right, bottom_right, bottom_left]
     } else {
