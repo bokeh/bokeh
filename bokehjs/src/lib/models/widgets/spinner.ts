@@ -104,9 +104,9 @@ export class SpinnerView extends NumericInputView {
   }
 
   get precision(): number {
-    const {low, high, step} = this.model
+    const {low, high, step, value} = this.model
     const p = precision
-    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)))
+    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), p(abs(value ?? 0)))
   }
 
   override remove(): void {
