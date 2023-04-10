@@ -79,6 +79,33 @@ markers = [
     "sampledata: a test for bokeh.sampledata",
     "selenium: a test as requiring selenium",
 ]
+filterwarnings = [
+    "error",
+    '''ignore:Module already imported so cannot be rewritten. tests\.support\.plugins\.project:pytest.PytestAssertRewriteWarning''',
+    '''ignore:Properties {'name'} in class ModelThatOverridesName were previously declared on a parent class\. .*:RuntimeWarning''',
+    '''ignore:Jupyter is migrating its paths to use standard platformdirs.*:DeprecationWarning''',
+    '''ignore:'tile_providers module' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:There is no current event loop:DeprecationWarning''',
+    '''ignore:coroutine 'HTTPServer.close_all_connections' was never awaited:RuntimeWarning''',
+    '''ignore:coroutine 'WebSocketProtocol13\.write_message\.<locals>\.wrapper' was never awaited:RuntimeWarning''',
+    '''ignore:coroutine 'PeriodicCallback._run' was never awaited:RuntimeWarning''',
+    '''ignore:make_current is deprecated; start the event loop first:DeprecationWarning''',
+    '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
+    '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
+    '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
+    '''ignore:unclosed event loop <.*>:ResourceWarning''',
+    '''ignore:move_to_element_with_offset\(\) currently tries to use the top left corner of the element as the origin; in Selenium 4\.3 it will use the in-view center point of the element as the origin\.:DeprecationWarning''',
+    '''ignore:Using or importing the ABCs from 'collections' instead of from 'collections\.abc' is deprecated since Python 3\.3, and in 3\.10 it will stop working:DeprecationWarning:tornado''',
+    '''ignore:Unknown config option. asyncio_mode:pytest.PytestConfigWarning''',
+    '''ignore:zmq\.eventloop\.ioloop is deprecated in pyzmq 17\. pyzmq now works with default tornado and asyncio eventloops\.:DeprecationWarning:jupyter_client''',
+    '''ignore:the `interpolation=` argument to percentile was renamed to `method=`.*:DeprecationWarning:pandas''',
+    '''ignore:numpy\.ufunc size changed, may indicate binary incompatibility\. Expected 216 from C header, got 232 from PyObject:RuntimeWarning''',
+    '''ignore:elementwise comparison failed; this will raise an error in the future\.:DeprecationWarning''',
+    '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
+    '''ignore:Could not infer format, so each element will be parsed individually, falling back to `dateutil`\. To ensure parsing is consistent and as-expected, please specify a format\.:UserWarning''',
+]
 
 [tool.coverage.run]
 source = ["src/bokeh"]

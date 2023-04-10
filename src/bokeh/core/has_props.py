@@ -213,7 +213,7 @@ class MetaHasProps(type):
         redeclared = own_properties.keys() & base_properties.keys()
         if redeclared:
             warn(f"Properties {redeclared!r} in class {cls.__name__} were previously declared on a parent "
-                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on"
+                 "class. It never makes sense to do this. Redundant properties should be deleted here, or on "
                  "the parent class. Override() can be used to change a default value of a base class property.",
                  RuntimeWarning)
 

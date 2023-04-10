@@ -6,7 +6,7 @@ of Bokeh to transform images to have certain effects.
 
 '''
 import numpy as np
-import scipy.misc
+import scipy.datasets
 
 try:
     from numba import njit
@@ -21,7 +21,7 @@ from bokeh.models import ColumnDataSource, Slider
 from bokeh.palettes import gray
 from bokeh.plotting import figure
 
-image = scipy.misc.ascent().astype(np.int32)[::-1, :]
+image = scipy.datasets.ascent().astype(np.int32)[::-1, :]
 w, h = image.shape
 
 source = ColumnDataSource(data=dict(image=[image]))
