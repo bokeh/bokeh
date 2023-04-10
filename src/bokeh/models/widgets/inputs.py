@@ -242,7 +242,11 @@ class Spinner(NumericInput):
     value_throttled = Readonly(Either(Null, Float, Int), help="""
     Value reported at the end of interactions.
     """)
-
+    
+    initial_value_precision = Readonly(Either(Null, Int), help="""
+    Used to remember precision of the initial value.
+    """)
+    
     mode = Override(default="float")
 
     step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
@@ -258,6 +262,7 @@ class Spinner(NumericInput):
     Defines the debounce time in ms before updating `value_throttled` when the
     mouse wheel is used to change the input.
     """)
+    
 
 @abstract
 class ToggleInput(Widget):

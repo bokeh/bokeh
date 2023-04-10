@@ -5848,6 +5848,10 @@
     step: 1,
     page_step_multiplier: 10,
     wheel_wait: 100,
+    initial_value_precision: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   ToggleInput: {
     __extends__: "Widget",
