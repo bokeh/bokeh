@@ -33,14 +33,41 @@ const int hatch_criss_cross = 16;
 
 uniform float u_antialias;
 
-varying float v_linewidth;
+varying vec2 v_coords;
 varying vec2 v_size;
+
+#ifdef USE_ANNULAR_WEDGE
+varying float v_outer_radius;
+varying float v_inner_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_ANNULUS
+varying float v_outer_radius;
+varying float v_inner_radius;
+#endif
+
+#ifdef USE_WEDGE
+varying float v_radius;
+varying float v_start_angle;
+varying float v_end_angle;
+#endif
+
+#ifdef USE_CIRCLE
+varying float v_radius;
+#endif
+
+#ifdef USE_RECT
 varying vec4 v_border_radius;
+#endif
+
+varying float v_linewidth;
 varying vec4 v_line_color;
 varying vec4 v_fill_color;
 varying float v_line_cap;
 varying float v_line_join;
-varying vec2 v_coords;
+
 #ifdef HATCH
 varying float v_hatch_pattern;
 varying float v_hatch_scale;
@@ -212,6 +239,96 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
+#if defined(USE_ANNULUS) || defined(USE_WEDGE) || defined(USE_ANNULAR_WEDGE)
+float merge(in float d1, in float d2)
+{
+  return min(d1, d2);
+}
+
+float intersect(in float d1, in float d2)
+{
+  return max(d1, d2);
+}
+
+float subtract(in float d1, in float d2)
+{
+  return max(d1, -d2);
+}
+
+float circle(in vec2 p, in float radius)
+{
+  return length(p) - radius;
+}
+
+float segment_square(in vec2 p, in vec2 q) {
+  vec2 v = p - q*clamp(dot(p, q)/dot(q, q), 0.0, 1.0);
+  return dot(v, v);
+}
+
+vec2 xy(in float angle)
+{
+  return vec2(cos(angle), sin(angle));
+}
+
+float cross_z(in vec2 v0, in vec2 v1)
+{
+    return v0.x*v1.y - v0.y*v1.x;
+}
+
+// From https://www.shadertoy.com/view/wldXWB (MIT licensed)
+float wedge(in vec2 p, in float r, in float start_angle, in float end_angle)
+{
+    vec2 a = r*xy(start_angle);
+    vec2 b = r*xy(end_angle);
+
+    // distance
+    float d = sqrt(merge(segment_square(p, a), segment_square(p, b)));
+
+    // sign
+    float s;
+    if (cross_z(a, b) < 0.0) {
+        s =  sign(max(cross_z(a, p), cross_z(p, b)));
+    } else {
+        s = -sign(max(cross_z(p, a), cross_z(b, p)));
+    }
+
+    return s*d;
+}
+
+float annulus(in vec2 p, in float outer_radius, in float inner_radius)
+{
+  float outer = circle(p, outer_radius);
+  float inner = circle(p, inner_radius);
+
+  return subtract(outer, inner);
+}
+#endif
+
+#if defined(USE_ANNULUS)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  return annulus(p, v_outer_radius, v_inner_radius);
+}
+#endif
+
+#if defined(USE_WEDGE)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  return intersect(
+    circle(p, v_radius),
+    wedge(p, v_radius, v_start_angle, v_end_angle));
+}
+#endif
+
+#if defined(USE_ANNULAR_WEDGE)
+float marker_distance(in vec2 p, in int line_cap, in int line_join)
+{
+  return intersect(
+    annulus(p, v_outer_radius, v_inner_radius),
+    wedge(p, v_outer_radius, v_start_angle, v_end_angle));
+}
+#endif
+
 #if defined(USE_CIRCLE) || defined(USE_CIRCLE_CROSS) || defined(USE_CIRCLE_DOT) || \
     defined(USE_CIRCLE_X) || defined(USE_CIRCLE_Y)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
@@ -272,7 +389,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
-#if defined(USE_HEX) || defined(USE_HEX_DOT)
+#if defined(USE_HEX_TILE) || defined(USE_HEX) || defined(USE_HEX_DOT)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   // A regular hexagon has v_size.x == v.size_y = r where r is the length of

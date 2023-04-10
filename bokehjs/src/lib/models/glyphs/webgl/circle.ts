@@ -1,49 +1,36 @@
-import {Transform} from "./base"
-import {MarkerVisuals} from "./base_marker"
-import {Float32Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
-import {SingleMarkerGL} from "./single_marker"
+import {Float32Buffer} from "./buffer"
+import {SXSYGlyphGL} from "./sxsy"
+import {GLMarkerType} from "./types"
 import type {CircleView} from "../circle"
+import {mul} from "core/util/arrayable"
 
-export class CircleGL extends SingleMarkerGL {
+export class CircleGL extends SXSYGlyphGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: CircleView) {
     super(regl_wrapper, glyph)
   }
 
-  override draw(indices: number[], main_glyph: CircleView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, "circle")
+  get marker_type(): GLMarkerType {
+    return "circle"
   }
 
-  protected override _get_visuals(): MarkerVisuals {
-    return this.glyph.visuals
+  // TODO: should be 'radius'
+  get size(): Float32Buffer {
+    return this._widths
   }
 
   protected override _set_data(): void {
-    const nmarkers = this.nvertices
+    super._set_data()
 
-    if (this._centers == null) {
-      // Either all or none are set.
-      this._centers = new Float32Buffer(this.regl_wrapper)
-      this._widths = new Float32Buffer(this.regl_wrapper)
-      this._heights = this._widths
-      this._angles = new Float32Buffer(this.regl_wrapper)
-    }
+    // Ideally we wouldn't multiply here, but currently handling of
+    // circle glyph and scatter with circle marker is handled with
+    // a single code path.
+    this.size.set_from_array(mul(this.glyph.sradius, 2.0))
+  }
 
-    const centers_array = this._centers.get_sized_array(nmarkers*2)
-    const widths_array = this._widths!.get_sized_array(nmarkers)
-    for (let i = 0; i < nmarkers; i++) {
-      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
-        centers_array[2*i  ] = this.glyph.sx[i]
-        centers_array[2*i+1] = this.glyph.sy[i]
-      } else {
-        centers_array[2*i  ] = SingleMarkerGL.missing_point
-        centers_array[2*i+1] = SingleMarkerGL.missing_point
-      }
-      widths_array[i] = this.glyph.sradius[i]*2
-    }
-    this._centers.update()
-    this._widths!.update()
-
-    this._angles!.set_from_prop(this.glyph.angle)
+  protected override _set_once(): void {
+    super._set_once()
+    this._heights.set_from_scalar(0)
+    this._angles.set_from_scalar(0)
   }
 }

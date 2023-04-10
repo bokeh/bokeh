@@ -65,7 +65,7 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 
   // length_if_scalar is the number of vertices in the WebGL primitive used to
   // render the glyph; usually this is a rectangle with 4 vertices.
-  set_from_scalar(scalar: number, length_if_scalar = 4): void {
+  set_from_scalar(scalar: number, length_if_scalar: number = 4): void {
     this.get_sized_array(length_if_scalar).fill(scalar)
     this.update(true)
   }

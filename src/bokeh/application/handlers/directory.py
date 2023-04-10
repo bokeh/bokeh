@@ -123,7 +123,8 @@ class DirectoryHandler(Handler):
 
         init_py = join(src_path, '__init__.py')
         if exists(init_py):
-            self._package_runner = CodeRunner(open(init_py).read(), init_py, argv)
+            with open(init_py, encoding="utf8") as init_py_f:
+                self._package_runner = CodeRunner(init_py_f.read(), init_py, argv)
             self._package = self._package_runner.new_module()
             assert self._package is not None
             sys.modules[self._package.__name__] = self._package

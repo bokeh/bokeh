@@ -22,19 +22,6 @@ export class VBarView extends LRTBView {
   declare model: VBar
   declare visuals: VBar.Visuals
 
-  /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
-
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {LRTBGL} = await import("./webgl/lrtb")
-      this.glglyph = new LRTBGL(webgl.regl_wrapper, this)
-    }
-  }
-
   scenterxy(i: number): [number, number] {
     const scx = this.sx[i]
     const scy = (this.stop[i] + this.sbottom[i])/2
