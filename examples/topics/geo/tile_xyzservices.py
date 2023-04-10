@@ -1,5 +1,5 @@
 ''' A geographical plot that demonstrates how to use XYZ tile services to create an interactive map.
-The xyzservices provides map tiles, which are typically used to display maps visualizations 
+The xyzservices provides map tiles, which are typically used to display maps visualizations
 and geographical location in web applications. This example demonstrates how to create a plot in Bokeh
 with a map background using tile_providers. The chart shows a map of a specific geographical region, 
 which is defined by the range bounds supplied in web mercator coordinates.
