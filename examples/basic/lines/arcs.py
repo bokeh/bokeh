@@ -5,7 +5,7 @@ end angles at a specified point.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.arc
-    :refs: :ref:`ug_basic_lines_arcs
+    :refs: :ref:`ug_basic_lines_arcs`
     :keywords: arc, figure, glyph
 
 '''
