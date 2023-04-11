@@ -1,7 +1,7 @@
 ''' An arc graph using pre-defined data points. This example
 demonstrates the use of the ``arc`` method to make a graph
-by drawing three arcs of defined radius, start and
-end angles at a specified point.
+by drawing three arcs of defined radius, start and end angles
+at a specified point.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.arc
