@@ -7,6 +7,7 @@ and then the clear the choices as well.
     :apis: bokeh.io.show, bokeh.models.MultiChoice, Bokeh.models.Tooltip
     :refs: `ug_interaction_widgets_examples_multichoice`
     :keywords: tooltip, multichoice
+    
 '''
 from bokeh.io import show
 from bokeh.models import MultiChoice, Tooltip
