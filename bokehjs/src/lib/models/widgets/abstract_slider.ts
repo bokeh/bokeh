@@ -144,6 +144,9 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
         tooltip.style.display = show ? "block" : ""
       }
 
+      this._noUiSlider.on("start", () => this._toggle_user_select(false))
+      this._noUiSlider.on("end",   () => this._toggle_user_select(true))
+
       this._noUiSlider.on("start", (_, i) => toggle_tooltip(i, true))
       this._noUiSlider.on("end",   (_, i) => toggle_tooltip(i, false))
     } else {
@@ -167,6 +170,13 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
     this.shadow_el.appendChild(this.group_el)
     this._has_finished = true
+  }
+
+  protected _toggle_user_select(enable: boolean): void {
+    const {style} = document.body
+    const value = enable ? "" : "none"
+    style.userSelect = value
+    style.webkitUserSelect = value
   }
 
   protected _slide(values: number[]): void {
