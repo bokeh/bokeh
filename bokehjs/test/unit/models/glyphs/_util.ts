@@ -13,13 +13,19 @@ import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {ViewOf} from "@bokehjs/core/view"
+import * as p from "@bokehjs/core/properties"
+
+type FilteredKeys<T, U> = {[P in keyof T]: T[P] extends U ? P : never}[keyof T]
+
+type SpecsOf<P> = {[K in FilteredKeys<P, p.VectorSpec<any, any>>]: P[K] extends p.VectorSpec<infer T, any> ? Arrayable<T> : never}
+export type DataOf<G extends Glyph> = Partial<SpecsOf<G["properties"]>>
 
 export type Options = {axis_type?: AxisType, reversed?: boolean}
 
-export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<GlyphRendererView> {
+export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<GlyphRendererView> {
   const axis_type = options?.axis_type ?? "linear"
 
-  const data_source = new ColumnDataSource({data})
+  const data_source = new ColumnDataSource({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
   const [x_range, x_scale] = make_scale("x", axis_type)
@@ -35,11 +41,11 @@ export async function create_glyph_renderer_view(glyph: Glyph, data: {[key: stri
     renderers: [glyph_renderer],
   })
 
-  const {view: plot_view} = await display(plot)
-  return plot_view.renderer_view(glyph_renderer)!
+  const {view} = await display(plot)
+  return view.owner.get_one(glyph_renderer)
 }
 
-export async function create_glyph_view<G extends Glyph>(glyph: G, data: {[key: string]: Arrayable} = {}, options?: Options): Promise<ViewOf<G>> {
+export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<ViewOf<G>> {
   return (await create_glyph_renderer_view(glyph, data, options)).glyph
 }
 
