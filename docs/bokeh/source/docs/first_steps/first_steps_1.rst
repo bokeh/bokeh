@@ -29,6 +29,12 @@ find links to both those resources.
 
 .. _first_steps_1_line_chart:
 
+Working with this guide
+-----------------------
+
+Bokeh is a Python library that does not have a graphical user interface (GUI). For the purpose of this guide, you can use simple Python scripts that you 
+can run in a Python environment to create outputs that are visible in a web browser.
+
 Creating a simple line chart
 ----------------------------
 
@@ -54,13 +60,16 @@ right of the plot to explore:
 
 Follow these steps to recreate this simple line chart:
 
-1. Import the necessary functions from the |bokeh.plotting| module:
+1. Create a new Python file on your machine (e.g. simple_line_chart.py) and open it in a code editor of your choice (such as |Sublime Text|, 
+   |Visual StudioCode|, etc.).
+
+2. As the first line of your new Python script, import the necessary functions from the |bokeh.plotting| module:
 
     .. code-block:: python
 
         from bokeh.plotting import figure, show
 
-2. Define two lists containing the data for your line chart:
+3. Define two lists containing the data for your line chart:
 
     .. code-block:: python
 
@@ -68,7 +77,7 @@ Follow these steps to recreate this simple line chart:
         x = [1, 2, 3, 4, 5]
         y = [6, 7, 2, 4, 5]
 
-3. Use the |figure| function to create your plot. Pass the following arguments:
+4. Use the |figure| function to create your plot. Pass the following arguments:
 
    * ``title``: the title of your line chart (optional)
    * ``x_axis_label``: a text label to put on the chart's x-axis (optional)
@@ -79,7 +88,7 @@ Follow these steps to recreate this simple line chart:
         # create a new plot with a title and axis labels
         p = figure(title="Simple line example", x_axis_label='x', y_axis_label='y')
 
-4. Add a line graph to the plot you just created, using the
+5. Add a line graph to the plot you just created, using the
    :func:`~bokeh.plotting.figure.line` function. Pass the following arguments:
 
    * your lists ``x`` and ``y`` containing the data
@@ -91,13 +100,19 @@ Follow these steps to recreate this simple line chart:
         # add a line renderer with legend and line thickness to the plot
         p.line(x, y, legend_label="Temp.", line_width=2)
 
-5. Finally, use the |show| function to generate your graph and
+6. Finally, use the |show| function to generate your graph and
    open a web browser to display the generated HTML file.
 
     .. code-block:: python
 
         # show the results
         show(p)
+
+7. From the command line, run the Python script you just created. For example:
+
+    .. code-block:: python
+
+        python simple_line_chart.py
 
 When you execute these lines of code, Bokeh creates an output file
 ``"lines.html"``. Bokeh also opens a browser to display it.
