@@ -1,5 +1,5 @@
 ''' A manual hexbin plot using randomly selected points. This chart shows
-50,000 points points from a normal distribution binned into hexagonal tiles
+50,000 points from a normal distribution binned into hexagonal tiles
 using the ``hexbin`` utility function. The tiles are colormapped linearly
 according to their bin counts.
 
