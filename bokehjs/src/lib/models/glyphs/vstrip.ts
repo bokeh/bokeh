@@ -2,7 +2,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import {FloatArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -61,11 +61,20 @@ export class VStripView extends GlyphView {
     return sbottom
   }
 
-  override get _index_size(): number {
-    return 0
+  protected override _index_data(index: SpatialIndex): void {
+    const {_x0, _x1, data_size} = this
+
+    for (let i = 0; i < data_size; i++) {
+      const x0_i = _x0[i]
+      const x1_i = _x1[i]
+      index.add_rect(x0_i, 0, x1_i, 0)
+    }
   }
 
-  protected _index_data(_index: SpatialIndex): void {}
+  protected override _bounds(bounds: Rect): Rect {
+    const {x0, x1} = bounds
+    return {x0, x1, y0: NaN, y1: NaN}
+  }
 
   protected override _map_data(): void {
     super._map_data()

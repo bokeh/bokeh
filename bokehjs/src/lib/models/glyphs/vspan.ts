@@ -2,7 +2,7 @@ import {Glyph, GlyphView, GlyphData} from "./glyph"
 import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import {FloatArray, ScreenArray} from "core/types"
+import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as visuals from "core/visuals"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
@@ -23,11 +23,16 @@ export class VSpanView extends GlyphView {
   declare model: VSpan
   declare visuals: VSpan.Visuals
 
-  override get _index_size(): number {
-    return 0
+  protected override _index_data(index: SpatialIndex): void {
+    for (const x_i of this._x) {
+      index.add_point(x_i, 0)
+    }
   }
 
-  protected _index_data(_index: SpatialIndex): void {}
+  protected override _bounds(bounds: Rect): Rect {
+    const {x0, x1} = bounds
+    return {x0, x1, y0: NaN, y1: NaN}
+  }
 
   protected override _map_data(): void {
     super._map_data()
