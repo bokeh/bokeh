@@ -19,15 +19,17 @@ factors = [
     ("Q4", "oct"), ("Q4", "nov"), ("Q4", "dec"),
 ]
 
-p = figure(x_range=FactorRange(*factors), height=500,
-           toolbar_location=None, tools="")
+p = figure(x_range=FactorRange(*months), height=500, tools="",
+           background_fill_color="#fafafa", toolbar_location=None)
 
-orange, brown = TolYlOrBr4[1], TolYlOrBr4[3]
+monthly = [10, 13, 16, 9, 10, 8, 12, 13, 14, 14, 12, 16]
+p.vbar(x=months, top=monthly, width=0.8,
+       fill_color=fill_color, fill_alpha=0.8, line_color=line_color)
 
-x = [ 10, 12, 16, 9, 10, 8, 12, 13, 14, 14, 12, 16 ]
-p.vbar(x=factors, top=x, width=0.9, fill_color=orange, line_color="black", alpha=0.8)
-
-p.line(x=["Q1", "Q2", "Q3", "Q4"], y=[12, 9, 13, 14], color=brown, line_width=2)
+quarterly = [13, 9, 13, 14]
+p.line(x=quarters, y=quarterly, color=line_color, line_width=3)
+p.circle(x=quarters, y=quarterly, size=10,
+         line_color=line_color, fill_color="white", line_width=3)
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1
