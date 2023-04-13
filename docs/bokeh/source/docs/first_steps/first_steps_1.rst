@@ -60,7 +60,7 @@ right of the plot to explore:
 
 Follow these steps to recreate this simple line chart:
 
-1. Create a new Python file on your machine (e.g. simple_line_chart.py) and open it in a code editor of your choice (such as |Sublime Text|, 
+1. Create a new Python file on your machine (e.g. ``simple_line_chart.py``) and open it in a code editor of your choice (such as |Sublime Text|, 
    |Visual StudioCode|, etc.).
 
 2. As the first line of your new Python script, import the necessary functions from the |bokeh.plotting| module:
