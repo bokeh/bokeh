@@ -1,4 +1,4 @@
-'''This example shows hot to use polar coordinates to generate a
+'''This example shows how to use polar coordinates to generate a
 grid of polar plots of rose/rohdonea curves.
 
 .. bokeh-example-metadata::
