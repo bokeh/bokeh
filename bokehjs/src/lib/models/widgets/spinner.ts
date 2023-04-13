@@ -9,6 +9,13 @@ function precision(num: number): number { // get number of digits
   return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, "").split(".")[1].length : 0
 }
 
+function count_decimals(numStr: string): number {
+
+  const dotIndex=numStr.indexOf(".")
+
+  return dotIndex === -1 ? 0 : numStr.length - dotIndex - 1
+}
+
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
 
@@ -106,9 +113,9 @@ export class SpinnerView extends NumericInputView {
   }
 
   get precision(): number {
-    const {low, high, step, value} = this.model
+    const {low, high, step} = this.model
     const p = precision
-    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), p(abs(value ?? 0)))
+    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), count_decimals(this.format_value))
   }
 
   override remove(): void {

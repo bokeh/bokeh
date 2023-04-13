@@ -259,7 +259,6 @@ class Spinner(NumericInput):
     mouse wheel is used to change the input.
     """)
 
-
 @abstract
 class ToggleInput(Widget):
     """ Base class for toggleable (boolean) input widgets. """
