@@ -51,6 +51,7 @@ export class SpinnerView extends NumericInputView {
   }
   private _counter: number
   private _interval: number
+  private _max_precision: number
 
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
@@ -75,7 +76,7 @@ export class SpinnerView extends NumericInputView {
 
   override render(): void {
     super.render()
-    this.model.initial_value_precision = precision(this.model.value ?? 0)
+    this._max_precision = this.precision
     this.wrapper_el = div({class: "bk-spin-wrapper"})
     this.group_el.replaceChild(this.wrapper_el, this.input_el)
 
@@ -105,9 +106,9 @@ export class SpinnerView extends NumericInputView {
   }
 
   get precision(): number {
-    const {low, high, step, initial_value_precision} = this.model
+    const {low, high, step, value} = this.model
     const p = precision
-    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), initial_value_precision ?? 0)
+    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), p(abs(value ?? 0)))
   }
 
   override remove(): void {
@@ -191,7 +192,7 @@ export class SpinnerView extends NumericInputView {
   }
 
   adjust_to_precision(value: number): number {
-    return this.bound_value(Number(value.toFixed(this.precision)))
+    return this.bound_value(Number(value.toFixed(this._max_precision)))
   }
 
   increment(step: number): void {
@@ -208,7 +209,7 @@ export class SpinnerView extends NumericInputView {
   override change_input(): void {
     super.change_input()
     this.model.value_throttled = this.model.value
-    this.model.initial_value_precision = precision(this.model.value ?? 0)
+    this._max_precision = this.precision
   }
 }
 
@@ -220,7 +221,6 @@ export namespace Spinner {
     step: p.Property<number>
     page_step_multiplier: p.Property<number>
     wheel_wait: p.Property<number>
-    initial_value_precision: p.Property<number | null>
   }
 }
 
@@ -242,7 +242,6 @@ export class Spinner extends NumericInput {
       step:                 [ Number, 1 ],
       page_step_multiplier: [ Number, 10 ],
       wheel_wait:           [ Number, 100 ],
-      initial_value_precision: [ Nullable(Number), p.unset, {readonly: true} ],
     }))
 
     this.override<Spinner.Props>({
