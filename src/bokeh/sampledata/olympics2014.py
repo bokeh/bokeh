@@ -36,11 +36,8 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
-# Standard library imports
-import json
-
 # Bokeh imports
-from ..util.sampledata import package_path
+from ..util.sampledata import load_json, package_path
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -66,4 +63,4 @@ __all__ = (
 # Code
 #-----------------------------------------------------------------------------
 
-data = json.load(open(package_path('olympics2014.json')))
+data = load_json(package_path('olympics2014.json'))

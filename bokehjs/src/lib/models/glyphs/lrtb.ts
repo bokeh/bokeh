@@ -37,6 +37,14 @@ export abstract class LRTBView extends GlyphView {
   declare model: LRTB
   declare visuals: LRTB.Visuals
 
+  /** @internal */
+  declare glglyph?: import("./webgl/lrtb").LRTBGL
+
+  override async load_glglyph() {
+    const {LRTBGL} = await import("./webgl/lrtb")
+    return LRTBGL
+  }
+
   override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
     const left = Math.min(this.sleft[i], this.sright[i])
     const right = Math.max(this.sright[i], this.sleft[i])

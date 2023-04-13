@@ -37,6 +37,10 @@ Supported glyphs
 
 Bokeh's WebGL support covers the following fixed-shape glyphs:
 
+* :func:`~bokeh.plotting.figure.annular_wedge`
+
+* :func:`~bokeh.plotting.figure.annulus`
+
 * :func:`~bokeh.plotting.figure.block`
 
 * :func:`~bokeh.plotting.figure.circle`
@@ -52,6 +56,8 @@ Bokeh's WebGL support covers the following fixed-shape glyphs:
 * :func:`~bokeh.plotting.figure.scatter`
 
 * :func:`~bokeh.plotting.figure.vbar`
+
+* :func:`~bokeh.plotting.figure.wedge`
 
 WebGL support for these fixed-shape glyphs covers the following properties:
 

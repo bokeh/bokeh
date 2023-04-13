@@ -115,6 +115,7 @@ __all__ = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
     'LegendLocation',
@@ -145,7 +146,6 @@ __all__ = (
     'TextAlign',
     'TextBaseline',
     'TextureRepetition',
-    'TickLabelOrientation',
     'ToolIcon',
     'TooltipAttachment',
     'TooltipFieldFormatter',
@@ -374,6 +374,10 @@ ImageOrigin = enumeration("bottom_left", "top_left", "bottom_right", "top_right"
 JitterRandomDistributionType = Literal["uniform", "normal"]
 JitterRandomDistribution = enumeration(JitterRandomDistributionType)
 
+#: Specify how labels are oriented with respect to an axis
+LabelOrientationType = Literal["horizontal", "vertical", "parallel", "normal"]
+LabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
+
 #: Specify whether a dimension or coordinate is latitude or longitude
 LatLon = enumeration("lat", "lon")
 
@@ -475,9 +479,6 @@ TextBaseline = enumeration("top", "middle", "bottom", "alphabetic", "hanging", "
 
 #: Specify how textures used as canvas patterns should repeat
 TextureRepetition = enumeration("repeat", "repeat_x", "repeat_y", "no_repeat")
-
-#: Specify how axis tick labels are oriented with respect to the axis
-TickLabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
 
 #: Well known tool icon names
 ToolIcon = enumeration(

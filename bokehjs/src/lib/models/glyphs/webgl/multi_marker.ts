@@ -1,7 +1,7 @@
 import {Transform} from "./base"
 import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {Float32Buffer, Uint8Buffer} from "./buffer"
 import {ReglWrapper} from "./regl_wrap"
+import {interleave} from "./webgl_utils"
 import type {ScatterView} from "../scatter"
 import {MarkerType} from "core/enums"
 import {Uniform} from "core/uniforms"
@@ -21,7 +21,7 @@ export class MultiMarkerGL extends BaseMarkerGL {
     const main_gl_glyph = main_glyph.glglyph!
 
     if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
+      main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
     }
 
@@ -31,9 +31,6 @@ export class MultiMarkerGL extends BaseMarkerGL {
     }
 
     const nmarkers = main_gl_glyph.nvertices
-
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
 
     const ntypes = main_gl_glyph._unique_marker_types.length
     for (const marker_type of main_gl_glyph._unique_marker_types) {
@@ -77,29 +74,20 @@ export class MultiMarkerGL extends BaseMarkerGL {
   protected _set_data(): void {
     const nmarkers = this.nvertices
 
-    if (this._centers == null) {
-      // Either all or none are set.
-      this._centers = new Float32Buffer(this.regl_wrapper)
-      this._widths = new Float32Buffer(this.regl_wrapper)
-      this._heights = this._widths
-      this._angles = new Float32Buffer(this.regl_wrapper)
-    }
-
-    const centers_array = this._centers.get_sized_array(nmarkers*2)
-    for (let i = 0; i < nmarkers; i++) {
-      if (isFinite(this.glyph.sx[i]) && isFinite(this.glyph.sy[i])) {
-        centers_array[2*i  ] = this.glyph.sx[i]
-        centers_array[2*i+1] = this.glyph.sy[i]
-      } else {
-        centers_array[2*i  ] = BaseMarkerGL.missing_point
-        centers_array[2*i+1] = BaseMarkerGL.missing_point
-      }
-    }
+    const centers_array = this._centers.get_sized_array(2*nmarkers)
+    interleave(this.glyph.sx, this.glyph.sy, nmarkers, BaseMarkerGL.missing_point, centers_array)
     this._centers.update()
-    this._widths!.set_from_prop(this.glyph.size)
-    this._angles!.set_from_prop(this.glyph.angle)
+
+    this._widths.set_from_prop(this.glyph.size)
+    this._angles.set_from_prop(this.glyph.angle)
 
     this._marker_types = this.glyph.marker
     this._unique_marker_types = [...new Set(this._marker_types)]
+  }
+
+  protected override _set_once(): void {
+    super._set_once()
+    this._heights.set_from_scalar(0)
+    this._auxs.set_from_scalar(0)
   }
 }

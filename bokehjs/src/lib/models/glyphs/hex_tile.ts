@@ -41,14 +41,9 @@ export class HexTileView extends GlyphView {
   /** @internal */
   declare glglyph?: import("./webgl/hex_tile").HexTileGL
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {webgl} = this.renderer.plot_view.canvas_view
-    if (webgl != null && webgl.regl_wrapper.has_webgl) {
-      const {HexTileGL} = await import("./webgl/hex_tile")
-      this.glglyph = new HexTileGL(webgl.regl_wrapper, this)
-    }
+  override async load_glglyph() {
+    const {HexTileGL} = await import("./webgl/hex_tile")
+    return HexTileGL
   }
 
   scenterxy(i: number): [number, number] {

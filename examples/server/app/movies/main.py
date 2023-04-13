@@ -5,6 +5,7 @@ sorting options based on a given dataset.
 '''
 import sqlite3 as sql
 from os.path import dirname, join
+from pathlib import Path
 
 import numpy as np
 import pandas.io.sql as psql
@@ -16,7 +17,7 @@ from bokeh.plotting import figure
 from bokeh.sampledata.movies_data import movie_path
 
 conn = sql.connect(movie_path)
-query = open(join(dirname(__file__), 'query.sql')).read()
+query = (Path(__file__).parent / 'query.sql').read_text("utf8")
 movies = psql.read_sql(query, conn)
 
 movies["color"] = np.where(movies["Oscars"] > 0, "orange", "grey")
@@ -38,7 +39,7 @@ axis_map = {
     "Year": "Year",
 }
 
-desc = Div(text=open(join(dirname(__file__), "description.html")).read(), sizing_mode="stretch_width")
+desc = Div(text=(Path(__file__).parent / "description.html").read_text("utf8"), sizing_mode="stretch_width")
 
 # Create Input controls
 reviews = Slider(title="Minimum number of reviews", value=80, start=10, end=300, step=10)
@@ -47,7 +48,7 @@ max_year = Slider(title="End Year released", start=1940, end=2014, value=2014, s
 oscars = Slider(title="Minimum number of Oscar wins", start=0, end=4, value=0, step=1)
 boxoffice = Slider(title="Dollars at Box Office (millions)", start=0, end=800, value=0, step=1)
 genre = Select(title="Genre", value="All",
-               options=open(join(dirname(__file__), 'genres.txt')).read().split())
+               options=(Path(__file__).parent / 'genres.txt').read_text("utf8").split())
 director = TextInput(title="Director name contains")
 cast = TextInput(title="Cast names contains")
 x_axis = Select(title="X Axis", options=sorted(axis_map.keys()), value="Tomato Meter")

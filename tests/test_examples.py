@@ -289,25 +289,27 @@ with open(filename, 'rb') as example:
         signal.alarm(20 if not example.is_slow else 60)
 
     start = time.time()
-    proc = subprocess.Popen(cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    with subprocess.Popen(
+        cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    ) as proc:
 
-    status: ProcStatus
-    try:
-        status = proc.wait()
-    except Timeout:
-        proc.kill()
-        status = 'timeout'
-    finally:
-        if sys.platform != "win32":
-            signal.alarm(0)
+        status: ProcStatus
+        try:
+            status = proc.wait()
+        except Timeout:
+            proc.kill()
+            status = 'timeout'
+        finally:
+            if sys.platform != "win32":
+                signal.alarm(0)
 
-    end = time.time()
+        end = time.time()
 
-    assert proc.stdout is not None
-    assert proc.stderr is not None
+        assert proc.stdout is not None
+        assert proc.stderr is not None
 
-    out = proc.stdout.read().decode("utf-8")
-    err = proc.stderr.read().decode("utf-8")
+        out = proc.stdout.read().decode("utf-8")
+        err = proc.stderr.read().decode("utf-8")
 
     return (status, end - start, out, err)
 
