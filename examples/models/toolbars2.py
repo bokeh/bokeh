@@ -1,9 +1,9 @@
-''' This example shows multiple ways to place the toolbar with respect to a grid of up to four plots.
+''' This example shows multiple ways to place the toolbar with respect to a grid of plots.
 
 .. bokeh-example-metadata::
     :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.layouts.row, bokeh.plotting.figure, bokeh.plotting.show
     :refs: :ref:`ug_interaction_tools_toolbar`
-    :keywords: tools, toolbar, mkplot, mkgrid, layout
+    :keywords: tools, toolbar, layout
 
 '''
 import numpy as np
