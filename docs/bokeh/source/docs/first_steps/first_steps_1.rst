@@ -29,11 +29,11 @@ find links to both those resources.
 
 .. _first_steps_1_line_chart:
 
-Working with this guide
------------------------
+.. note::
 
-Bokeh is a Python library that does not have a graphical user interface (GUI). For the purpose of this guide, you can use simple Python scripts that you 
-can run in a Python environment to create outputs that are visible in a web browser.
+    Bokeh is a Python library that does not have a graphical user interface (GUI). 
+    All the code in "First Steps" sections can be be run as standard Python scripts.
+    When run, these scripts will create HTML outputs that are visible in a web browser.
 
 Creating a simple line chart
 ----------------------------
@@ -60,8 +60,11 @@ right of the plot to explore:
 
 Follow these steps to recreate this simple line chart:
 
-1. Create a new Python file on your machine (e.g. ``simple_line_chart.py``) and open it in a code editor of your choice (such as |Sublime Text|, 
-   |Visual StudioCode|, etc.).
+1. Create a new Python file on your machine (e.g. ``simple_line_chart.py``) and open it in a code editor of your choice (such as `Sublime Text`_, 
+   `Visual Studio Code`_ , etc.).
+
+.. _Sublime Text: https://www.sublimetext.com/
+.. _Visual Studio Code: https://code.visualstudio.com/
 
 2. As the first line of your new Python script, import the necessary functions from the |bokeh.plotting| module:
 
@@ -110,7 +113,7 @@ Follow these steps to recreate this simple line chart:
 
 7. From the command line, run the Python script you just created. For example:
 
-    .. code-block:: python
+    .. code-block:: sh
 
         python simple_line_chart.py
 
