@@ -31,7 +31,6 @@ find links to both those resources.
 
 .. note::
 
-    Bokeh is a Python library that does not have a graphical user interface (GUI). 
     All the code in "First Steps" sections can be be run as standard Python scripts.
     When run, these scripts will create HTML outputs that are visible in a web browser.
 
