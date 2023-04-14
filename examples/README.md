@@ -7,7 +7,6 @@ fast, it is important that you **ensure that the version of an example you're lo
 the version of Bokeh you are running**.
 
 ### [`advanced`](advanced/)
-
 This folder contains examples of more advanced or complex Bokeh applications and use 
 cases, beyond the basic plotting and visualization examples that are included in the 
 examples folder.
@@ -20,9 +19,9 @@ who want to learn how to create basic visualizations using the library.
 
 ### [`interaction`](interaction/)
 
-The examples in this directory are mini-tutorials that demonstrate and explain some 
-particular aspect of Bokeh capability (such as 
-[linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
+The examples in this directory are mini-tutorials that 
+demonstrate and explain some particular aspect of Bokeh capability 
+(such as [linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
 or walk through a particular example in additional detail.
 
 ### [`models`](models/)
