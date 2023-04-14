@@ -1,3 +1,12 @@
+'''This example shows how to use polar coordinates to generate a
+grid of polar plots of rose/rohdonea curves.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.io.show, bokeh.models.ColumnDataSource, bokeh.models.PolarTransform, bokeh.plotting.figure, bokeh.plotting.figure.line, bokeh.plotting.gridplot
+    :refs: :ref:`ug_topics_contour_polar`
+    :keywords: polar coordinates, rose curves, rohdonea curves
+
+'''
 from fractions import Fraction
 from math import pi
 
