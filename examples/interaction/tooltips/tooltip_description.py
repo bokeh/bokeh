@@ -1,7 +1,8 @@
 ''' A visualization of Multichoice tooltips in bokeh.models.
-This example demonstrates user input text box where
-the user can input from a list of various options of elements to choose one or more of them,
-and then clear the choices as well.
+
+This example demonstrates user input text box where the user can input from a
+list of various options of elements to choose one or more of them, and then
+clear the choices as well.
 
 .. bokeh-example-metadata::
     :apis: bokeh.io.show, bokeh.models.MultiChoice, Bokeh.models.Tooltip
