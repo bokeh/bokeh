@@ -29,6 +29,7 @@ import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
 import {TableDataProvider} from "@bokehjs/models/widgets/tables/data_table"
 import {TableColumn} from "@bokehjs/models/widgets/tables/table_column"
 import {DTINDEX_NAME} from "@bokehjs/models/widgets/tables/definitions"
+import {Spinner} from "@bokehjs/models/widgets"
 
 class QualifiedModelView extends UIElementView {
   declare model: QualifiedModel
@@ -680,6 +681,23 @@ describe("Bug", () => {
         {words: "méteo", [DTINDEX_NAME]: 3},
         {words: "met",   [DTINDEX_NAME]: 0},
       ])
+    })
+  })
+
+  describe("in issue #13064", () => {
+    it("doesn't allow spinner to follow the correct format when value's precision is higher than step's precision", async () => {
+      const obj = new Spinner({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
+      const {view} = await display(obj, [500, 400])
+      const button = view.shadow_el.querySelector(".bk-spin-btn-up")!
+      const input = view.shadow_el.querySelector(".bk-input") as HTMLInputElement
+
+      expect(input.value).to.be.equal("0.3")
+
+      const ev = new MouseEvent("mousedown")
+      const ev2 = new MouseEvent("mouseup")
+      button.dispatchEvent(ev)
+      button.dispatchEvent(ev2)
+      expect(input.value).to.be.equal("1.3")
     })
   })
 })

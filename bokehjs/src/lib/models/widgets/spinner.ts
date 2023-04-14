@@ -3,18 +3,7 @@ import {NumericInputView, NumericInput} from "./numeric_input"
 import * as p from "core/properties"
 import {button, div, toggle_attribute} from "core/dom"
 
-const {min, max, floor, abs} = Math
-
-function precision(num: number): number { // get number of digits
-  return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, "").split(".")[1].length : 0
-}
-
-function count_decimals(numStr: string): number {
-
-  const dotIndex=numStr.indexOf(".")
-
-  return dotIndex === -1 ? 0 : numStr.length - dotIndex - 1
-}
+const {min, max} = Math
 
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
@@ -58,7 +47,6 @@ export class SpinnerView extends NumericInputView {
   }
   private _counter: number
   private _interval: number
-  private _max_precision: number
 
   *buttons(): Generator<HTMLButtonElement> {
     yield this.btn_up_el
@@ -83,7 +71,6 @@ export class SpinnerView extends NumericInputView {
 
   override render(): void {
     super.render()
-    this._max_precision = this.precision
     this.wrapper_el = div({class: "bk-spin-wrapper"})
     this.group_el.replaceChild(this.wrapper_el, this.input_el)
 
@@ -110,12 +97,6 @@ export class SpinnerView extends NumericInputView {
     this.input_el.addEventListener("wheel", debounce(() => {
       this.model.value_throttled = this.model.value
     }, this.model.wheel_wait, false))
-  }
-
-  get precision(): number {
-    const {low, high, step} = this.model
-    const p = precision
-    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)), count_decimals(this.format_value))
   }
 
   override remove(): void {
@@ -198,10 +179,6 @@ export class SpinnerView extends NumericInputView {
     }
   }
 
-  adjust_to_precision(value: number): number {
-    return this.bound_value(Number(value.toFixed(this._max_precision)))
-  }
-
   increment(step: number): void {
     const {low, high} = this.model
     if (this.model.value == null) {
@@ -210,13 +187,12 @@ export class SpinnerView extends NumericInputView {
       else if (step < 0)
         this.model.value = (high!=null)? high : (low!=null)? max(low, 0) : 0
     } else
-      this.model.value = this.adjust_to_precision(this.model.value + step)
+      this.model.value = this.bound_value(this.model.value + step)
   }
 
   override change_input(): void {
     super.change_input()
     this.model.value_throttled = this.model.value
-    this._max_precision = this.precision
   }
 }
 

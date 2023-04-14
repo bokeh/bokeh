@@ -181,47 +181,6 @@ class Test_Spinner:
 
         assert page.has_no_console_errors()
 
-    def test_spinner_value_precision(self, bokeh_model_page: BokehModelPage) -> None:
-        spinner = Spinner(value=1.555, low=0, high=10, step=1.22)
-        spinner.js_on_change('value', CustomJS(code=RECORD("value", "cb_obj.value")))
-
-        page = bokeh_model_page(spinner)
-
-        input_el = find_element_for(page.driver, spinner, "input")
-        btn_up_el = find_element_for(page.driver, spinner, ".bk-spin-btn-up")
-        btn_down_el = find_element_for(page.driver, spinner, ".bk-spin-btn-down")
-
-        actions = ActionChains(page.driver)
-        actions.click(on_element=btn_up_el)
-        actions.perform()
-        results = page.results
-        assert results['value'] == 2.775
-
-        actions = ActionChains(page.driver)
-        actions.double_click(on_element=btn_down_el)
-        actions.perform()
-        results = page.results
-        assert results['value'] == 0.335
-
-        input_el.clear()
-        enter_text_in_element(page.driver, input_el, "1.3")
-        results = page.results
-        assert results['value'] == 1.3
-
-        actions = ActionChains(page.driver)
-        actions.click(on_element=btn_up_el)
-        actions.perform()
-        results = page.results
-        assert results['value'] == 2.52
-
-        actions = ActionChains(page.driver)
-        actions.double_click(on_element=btn_down_el)
-        actions.perform()
-        results = page.results
-        assert results['value'] == 0.08
-
-        assert page.has_no_console_errors()
-
     def test_server_on_change_round_trip(self, bokeh_server_page: BokehServerPage) -> None:
         spinner = Spinner(low=-1, high=10, step=0.1, value=4, format="0[.]0")
         page = bokeh_server_page(mk_modify_doc(spinner))
