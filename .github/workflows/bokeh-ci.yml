@@ -12,8 +12,8 @@ defaults:
     shell: bash -l {0}
 
 env:
-  CHROME_VER: "110.0.5481.100"
-  CHROME_REV: "chromium_2333"
+  CHROME_VER: '110.0.5481.100'
+  CHROME_REV: 'chromium_2333'
 
 jobs:
   build:
@@ -150,7 +150,7 @@ jobs:
       - name: Collect results
         if: always()
         env:
-          DST: "examples-report"
+          DST: 'examples-report'
         run: |
           mkdir -p ${DST}
           cp --parents examples-report.html $(cat .images-list) ${DST}
@@ -163,7 +163,7 @@ jobs:
           path: examples-report
 
   integration-tests:
-    if: ${{ false }}  # disable for now
+    if: ${{ false }} # disable for now
     needs: build
     runs-on: ubuntu-latest
 
@@ -192,7 +192,7 @@ jobs:
           verbose: true
 
   unit-test:
-    if: "startsWith(github.event.path, 'src/bokeh/')"
+    if: "startsWith(github.event.path, 'src/bokeh/') || startsWith(github.event.path, 'bokehjs')"
     needs: build
     runs-on: ${{ matrix.os }}
 
@@ -240,6 +240,7 @@ jobs:
           verbose: true
 
   minimal-deps:
+    if: "startsWith(github.event.path, 'src/bokeh/') || startsWith(github.event.path, 'bokehjs')"
     needs: build
     runs-on: ${{ matrix.os }}
 
@@ -305,6 +306,7 @@ jobs:
           path: docs/bokeh/docs-html.tgz
 
   downstream:
+    if: "startsWith(github.event.path, 'src/bokeh/')"
     needs: build
     runs-on: ubuntu-latest
 
@@ -330,7 +332,7 @@ jobs:
         run: bash scripts/ci/run_downstream_tests.sh
 
   docker_from_wheel:
-    if: ${{ false }}  # temporarily disable
+    if: ${{ false }} # temporarily disable
     needs: build
     runs-on: ubuntu-latest
     env:
