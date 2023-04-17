@@ -6,46 +6,65 @@ This directory contains many examples of different ways to use Bokeh. As Bokeh h
 fast, it is important that you **ensure that the version of an example you're looking at matches
 the version of Bokeh you are running**.
 
-### [`app`](app/)
+### [`advanced`](advanced/)
+This folder contains examples of more advanced or complex Bokeh applications and use
+cases, beyond the basic plotting and visualization examples that are included in the
+examples folder.
 
-This directory contains examples of Bokeh Apps, which are simple and easy to create web applications for data visualization or exploration.
+### [`basic`](basic/)
 
-### [`custom`](custom/)
+Each example in the basic folder provides a clear and concise demonstration of how to
+create a specific type of visualization using Bokeh. These examples are intended for users
+who want to learn how to create basic visualizations using the library.
 
-The content of this directory demonstrate how to add custom extensions to Bokeh. Check project's documentation [page](https://docs.bokeh.org/en/latest/docs/user_guide/extensions.html)
+### [`interaction`](interaction/)
 
-### [`embed`](embed/)
-
-This directory includes examples that show how to embed Bokeh plots and widget in HTML documents.
-
-### [`howto`](howto/)
-
-The examples in this directory are mini-tutorials that demonstrate and explain
-some  particular aspect of Bokeh capability (such as [linking and
-brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
+The examples in this directory are mini-tutorials that
+demonstrate and explain some particular aspect of Bokeh capability
+(such as [linking and brushing](http://www.infovis-wiki.net/index.php?title=Linking_and_Brushing)),
 or walk through a particular example in additional detail.
-
 
 ### [`models`](models/)
 
 This directory contains examples that use the lowest-level
 [`bokeh.models`](https://docs.bokeh.org/en/latest/docs/reference/models.html)
-interface. For more information about Bokeh models see [the concepts section of
-the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
+interface. For more information about Bokeh models see
+[the concepts section of the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
+
+
+### [`output`](output/)
+
+This folder contains examples of how to use Bokeh to generate various types of output,
+including static image files, standalone HTML files, and embedded Bokeh plots in Jupyter
+notebooks.
 
 ### [`plotting`](plotting/)
 
 This directory contains example using the
 [`bokeh.plotting`](https://docs.bokeh.org/en/latest/docs/reference/plotting.html)
-interface. For more information about Bokeh plotting see [the concepts section of
-the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
+interface. For more information about Bokeh plotting see
+[the concepts section of the user_guide](https://docs.bokeh.org/en/latest/docs/user_guide/concepts.html#interfaces)
 
-### [`webgl`](webgl/)
+### [`reference`](reference/)
 
-This directory contains examples that demonstrate the various glyphs that have
-support for WebGL rendering. Most of these examples have a testing purpose, e.g.
-to compare the appearance of the WebGL glyph with its regular appearance, or to
-test another aspect of WebGL (e.g. blending of transparent glyphs).
+This folder contains a collection of examples that demonstrate the usage and
+functionality of various Bokeh objects and properties, including Bokeh models, properties,
+and tools.
+
+### [`server`](server/)
+
+This folder contains a collection of examples that demonstrate
+how to create interactive web applications using Bokeh server.
+
+### [`styling`](styling/)
+
+This folder contains a collection of examples that demonstrate
+various ways to style Bokeh plots using CSS styles and themes.
+
+### [`topics`](topics/)
+
+This folder contains a collection of examples that cover a
+wide range of topics related to creating interactive visualizations with Bokeh.
 
 
 ## Other sources for examples
