@@ -67,9 +67,8 @@ def download(progress: bool = True) -> None:
             if local_md5 == md5:
                 print(f"Skipping {file_name!r} (checksum match)")
                 continue
-            else:
-                print(f"Re-fetching {file_name!r} (checksum mismatch)")
 
+        print(f"Fetching {file_name!r}")
         _download_file(s3, file_name, data_dir, progress=progress)
 
 #-----------------------------------------------------------------------------
