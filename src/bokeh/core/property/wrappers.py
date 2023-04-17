@@ -435,6 +435,15 @@ class PropertyValueColumnData(PropertyValueDict):
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result
+    
+    def _multi_stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any]) -> None:
+        old = self._saved_copy()
+
+        for k, v in new_data.items():
+            for i, arr in enumerate(v):
+                self[k][i].extend(arr)
+        from ...document.events import ColumnDataChangedEvent
+        self._notify_owners(old, hint=ColumnDataChangedEvent(doc, source, 'data', cols=list(new_data), ))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],

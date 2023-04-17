@@ -568,6 +568,42 @@ class ColumnDataSource(ColumnarDataSource):
 
         self.data._stream(self.document, self, new_data, rollover, setter)
 
+    def multi_stream(self, new_data: DataDict) -> None:
+        '''
+        cds = ColumnDataSource({
+            'x': [ [], [], [] ],
+            'y': [ [], [], [] ]
+        })
+
+        cds.multi_stream({
+            'x': [ [rand(), rand()], [rand()], [] ],
+            'y': [ [rand(), rand()], [rand()], [] ]
+        })
+        '''
+        # check columns?
+        # no extra columns
+        # can have missing columns
+
+        # check lengths are consistent at sub-indexes
+        # if len(new_data) == 0:
+        #     raise ValueError
+        # else:
+        #     column_length: int | None = None
+        #     lengths: list[set[int]] | None = None
+        #     for key, value in new_data.items():
+        #         if column_length is None:
+        #             column_length = len(self.data[key])
+        #             lengths = [set() for _ in range(column_length)]
+        #         else:
+        #             assert column_length == len(self.data[key])
+        #         assert column_length == len(value), 'Must provide an update for each sub-array'
+        #         for arr, l in zip(value, lengths):
+        #             l.add(len(arr))
+        #     assert column_length is not None and lengths is not None
+        #     assert all([len(l) == 1 for l in lengths]), 'Lengths of subarrays must be the same for identical indexes'
+        self.data._multi_stream(self.document, self, new_data)
+
+
     def patch(self, patches: Patches, setter: Setter | None = None) -> None:
         ''' Efficiently update data source columns at specific locations
 
