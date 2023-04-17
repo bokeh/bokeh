@@ -7,7 +7,6 @@ import * as nd from "@bokehjs/core/util/ndarray"
 import {isArrayable} from "@bokehjs/core/util/types"
 import type {Value, Vector} from "@bokehjs/core/vectorization"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import {settings} from "@bokehjs/core/settings"
 
 type ColorArg = Value<Color | null> | Arrayable<Color | null> | ColorNDArray
 type AlphaArg = Value<number> | Arrayable<number>
@@ -185,13 +184,6 @@ describe("Color support", () => {
       return p
     }
 
-    // TODO: MultiLine doesn't support webgl
-    const {force_webgl} = settings
-    settings.force_webgl = false
-    try {
-      await display(row([p("canvas"), p("svg"), p("webgl")]))
-    } finally {
-      settings.force_webgl = force_webgl
-    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 })
