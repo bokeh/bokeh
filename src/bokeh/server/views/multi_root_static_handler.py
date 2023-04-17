@@ -22,9 +22,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
+from pathlib import Path
 
 # External imports
 from tornado.web import HTTPError, StaticFileHandler
+
+# Bokeh imports
+from ...core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -44,12 +48,12 @@ __all__ = (
 
 class MultiRootStaticHandler(StaticFileHandler):
 
-    def initialize(self, root: dict[str, str]) -> None:
+    def initialize(self, root: dict[str, PathLike]) -> None:
         self.root = root
         self.default_filename = None
 
     @classmethod
-    def get_absolute_path(cls, root: dict[str, str], path: str) -> str:
+    def get_absolute_path(cls, root: dict[str, PathLike], path: str) -> str:
         try:
             name, artifact_path = path.split(os.sep, 1)
         except ValueError:
@@ -57,14 +61,14 @@ class MultiRootStaticHandler(StaticFileHandler):
 
         artifacts_dir = root.get(name, None)
         if artifacts_dir is not None:
-            return super().get_absolute_path(artifacts_dir, artifact_path)
+            return super().get_absolute_path(str(artifacts_dir), artifact_path)
         else:
             raise HTTPError(404)
 
-    def validate_absolute_path(self, root: str, absolute_path: str) -> str | None:
-        for name, artifacts_dir in root.items():
-            if absolute_path.startswith(artifacts_dir):
-                return super().validate_absolute_path(artifacts_dir, absolute_path)
+    def validate_absolute_path(self, root: dict[str, PathLike], absolute_path: str) -> str | None:
+        for artifacts_dir in root.values():
+            if Path(absolute_path).is_relative_to(artifacts_dir):
+                return super().validate_absolute_path(str(artifacts_dir), absolute_path)
 
         return None
 
