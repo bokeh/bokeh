@@ -1327,7 +1327,7 @@ class HoverTool(InspectTool):
     """)
 
 DEFAULT_HELP_TIP = "Click the question mark to learn more about Bokeh plot tools."
-DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"
+DEFAULT_HELP_URL = "https://docs.bokeh.org/en/latest/docs/user_guide/interaction/tools.html"
 
 class HelpTool(ActionTool):
     ''' A button tool to provide a "help" link to users.
