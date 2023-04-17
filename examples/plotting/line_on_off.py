@@ -4,7 +4,7 @@ the plotted lines to turn the lines on/off.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.layouts.row, bokeh.models.CustomJS
-    :refs: :ref:`ug_basic_lines_line_multi`,:ref:`_ug_interaction_widgets_examples_checkboxgroup`,:ref:`ug_interaction_js_callbacks`
+    :refs: :ref:`ug_basic_lines_multi`,:ref:`_ug_interaction_widgets_examples_checkboxgroup`,:ref:`ug_interaction_js_callbacks`
     :keywords: line, checkbox, CustomJS
 """
 
