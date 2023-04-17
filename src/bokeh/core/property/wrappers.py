@@ -435,7 +435,7 @@ class PropertyValueColumnData(PropertyValueDict):
             descriptor._notify_mutated(owner, old, hint=hint)
 
         return result
-    
+
     def _multi_stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any]) -> None:
         old = self._saved_copy()
 
