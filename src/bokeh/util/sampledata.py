@@ -90,16 +90,10 @@ def metadata() -> dict[str, str]:
         return dict(json.load(f))
 
 def external_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
-    '''
-
-    '''
     import pandas as pd
     return pd.read_csv(external_path(name), **kw)
 
 def external_data_dir(*, create: bool = False) -> Path:
-    '''
-
-    '''
     try:
         import yaml
     except ImportError:
@@ -147,22 +141,13 @@ def external_path(file_name: str) -> Path:
     return file_path
 
 def package_csv(module: str, name: str, **kw: Any) -> pd.DataFrame:
-    '''
-
-    '''
     import pandas as pd
     return pd.read_csv(package_path(name), **kw)
 
 def package_dir() -> Path:
-    '''
-
-    '''
     return Path(__file__).parents[1].joinpath("sampledata", "_data").resolve()
 
 def package_path(filename: str | Path) -> Path:
-    '''
-
-    '''
     return package_dir() / filename
 
 def load_json(filename: str | Path) -> Any:
@@ -170,9 +155,6 @@ def load_json(filename: str | Path) -> Any:
         return json.load(f)
 
 def open_csv(filename: str | Path) -> TextIO:
-    '''
-
-    '''
     return open(filename, newline='', encoding='utf8')
 
 #-----------------------------------------------------------------------------
@@ -194,9 +176,6 @@ def _bokeh_dir(create: bool = False) -> Path:
     return bokeh_dir
 
 def _download_file(base_url: str, filename: str, data_dir: Path, progress: bool = True) -> None:
-    '''
-
-    '''
     # These are actually somewhat expensive imports that added ~5% to overall
     # typical bokeh import times. Since downloading sampledata is not a common
     # action, we defer them to inside this function.
