@@ -17,46 +17,59 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import logging
+from pathlib import Path
+from typing import Any
 
 # External imports
-from tornado.websocket import WebSocketClosedError
+from tornado.httputil import HTTPConnection, HTTPServerRequest
 
 # Bokeh imports
-from bokeh.server.views.auth_request_handler import AuthRequestHandler
-from bokeh.util.logconfig import basicConfig
+from bokeh.application import Application
+from bokeh.util.paths import serverdir
+from tests.support.plugins.managed_server_loop import MSL
 
 # Module under test
-from bokeh.server.views.ws import WSHandler # isort:skip
+import bokeh.server.views.multi_root_static_handler as bsvm # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
 
-# needed for caplog tests to function
-basicConfig()
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
-    class ExcMessage:
-        def send(self, handler):
-            raise WebSocketClosedError()
-    # TODO: assert len(caplog.records) == 0
-    with caplog.at_level(logging.WARN):
-        # fake self not great but much easier than setting up a real view
-        ret = await WSHandler.send_message("self", ExcMessage())
-        assert ret is None
-        # TODO: assert len(caplog.records) == 1
-        # TODO: assert caplog.text.endswith("Failed sending message as connection was closed\n")
-        # XXX: caplog collects stray messages from previously unawaited async function calls,
-        # resulting in varing number of messages, depeding on the tests run and thier order
-        assert len([msg for msg in caplog.messages if "Failed sending message as connection was closed" in msg]) == 1
+def test_multi_root_static_handler(ManagedServerLoop: MSL) -> None:
+    application = Application()
 
-def test_uses_auth_request_handler() -> None:
-    assert issubclass(WSHandler, AuthRequestHandler)
+    static_path = Path(serverdir()) / "static" # TODO: PR #13042
+    js_path = static_path / "js"
+    lib_path = static_path / "lib"
+
+    assert isinstance(js_path, Path)
+    assert isinstance(lib_path, Path)
+
+    url_patterns = [
+        (r"/custom/static/(.*)", bsvm.MultiRootStaticHandler, dict(root=dict(js=js_path, lib=lib_path))),
+    ]
+
+    class MyHTTPConnection(HTTPConnection):
+        def set_close_callback(*args: Any, **kwargs: Any) -> Any:
+            pass
+
+    with ManagedServerLoop(application, extra_patterns=url_patterns) as server:
+        request = HTTPServerRequest(method="GET", uri="/custom/static/js/bokeh.min.js", connection=MyHTTPConnection())
+        dispatcher = server._tornado.find_handler(request)
+
+        cls = dispatcher.handler_class
+        assert issubclass(cls, bsvm.MultiRootStaticHandler)
+
+        handler = cls(dispatcher.application, dispatcher.request, **dispatcher.handler_kwargs)
+        absolute_path = handler.get_absolute_path(handler.root, str(Path("js") / "bokeh.min.js"))
+        absolute_path = handler.validate_absolute_path(handler.root, absolute_path)
+
+        assert absolute_path is not None
+        assert (static_path / "js" / "bokeh.min.js").samefile(absolute_path)
 
 #-----------------------------------------------------------------------------
 # Dev API
