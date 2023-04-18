@@ -1,5 +1,6 @@
 import {Indices, Arrayable} from "./types"
 import {equals, Equatable, Comparator} from "./util/eq"
+import * as arrayable from  "./util/arrayable"
 
 export abstract class Uniform<T = number> implements Equatable {
   abstract readonly is_scalar: boolean
@@ -84,4 +85,8 @@ export class ColorUniformVector extends UniformVector<number> {
     for (let i = 0; i < n; i++)
       yield this.get(i)
   }
+}
+
+export function max(u: Uniform<number>): number {
+  return u.is_Scalar() ? u.value : arrayable.max((u as UniformVector<number>).array)
 }

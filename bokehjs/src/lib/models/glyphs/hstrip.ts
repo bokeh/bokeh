@@ -4,6 +4,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as visuals from "core/visuals"
+import * as uniforms from "core/uniforms"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
@@ -16,6 +17,8 @@ export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
 
   sy0: ScreenArray
   sy1: ScreenArray
+
+  max_line_width: number
 }
 
 export interface HStripView extends HStripData {}
@@ -59,6 +62,11 @@ export class HStripView extends GlyphView {
 
   get sbottom(): ScreenArray {
     return this.sy1
+  }
+
+  override after_visuals(): void {
+    super.after_visuals()
+    this.max_line_width = uniforms.max(this.line_width)
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -115,16 +123,21 @@ export class HStripView extends GlyphView {
     }
   }
 
-  protected _find_strips(fn: (sy0: number, sy1: number) => boolean): number[] {
+  protected _get_candidates(sy0: number, sy1?: number): Iterable<number> {
+    const {max_line_width} = this
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0 - max_line_width, (sy1 ?? sy0) + max_line_width)
+    return this.index.indices({x0: 0, x1: 0, y0, y1})
+  }
+
+  protected _find_strips(candidates: Iterable<number>, fn: (sy0: number, sy1: number) => boolean): number[] {
     function contains(sy0: number, sy1: number) {
       return sy0 <= sy1 ? fn(sy0, sy1) : fn(sy1, sy0)
     }
 
     const {sy0, sy1} = this
-    const n = this.data_size
     const indices: number[] = []
 
-    for (let i = 0; i < n; i++) {
+    for (const i of candidates) {
       const sy0_i = sy0[i]
       const sy1_i = sy1[i]
       if (contains(sy0_i, sy1_i)) {
@@ -137,7 +150,8 @@ export class HStripView extends GlyphView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const {sy} = geometry
-    const indices = this._find_strips((sy0, sy1) => sy0 <= sy && sy <= sy1)
+    const candidates = this._get_candidates(sy)
+    const indices = this._find_strips(candidates, (sy0, sy1) => sy0 <= sy && sy <= sy1)
     return new Selection({indices})
   }
 
@@ -147,7 +161,8 @@ export class HStripView extends GlyphView {
         return range(0, this.data_size)
       } else {
         const {sy} = geometry
-        return this._find_strips((sy0, sy1) => sy0 <= sy && sy <= sy1)
+        const candidates = this._get_candidates(sy)
+        return this._find_strips(candidates, (sy0, sy1) => sy0 <= sy && sy <= sy1)
       }
     })()
     return new Selection({indices})
@@ -156,7 +171,8 @@ export class HStripView extends GlyphView {
   protected override _hit_rect(geometry: RectGeometry): Selection {
     const indices = (() => {
       const {sy0: gsy0, sy1: gsy1} = geometry
-      return this._find_strips((sy0, sy1) => gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1)
+      const candidates = this._get_candidates(gsy0, gsy1)
+      return this._find_strips(candidates, (sy0, sy1) => gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1)
     })()
     return new Selection({indices})
   }

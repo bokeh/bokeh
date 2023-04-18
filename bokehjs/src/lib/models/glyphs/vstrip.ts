@@ -4,6 +4,7 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as visuals from "core/visuals"
+import * as uniforms from "core/uniforms"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
@@ -16,6 +17,8 @@ export type VStripData = GlyphData & p.UniformsOf<VStrip.Mixins> & {
 
   sx0: ScreenArray
   sx1: ScreenArray
+
+  max_line_width: number
 }
 
 export interface VStripView extends VStripData {}
@@ -59,6 +62,11 @@ export class VStripView extends GlyphView {
     const sbottom = new ScreenArray(n)
     sbottom.fill(bottom)
     return sbottom
+  }
+
+  override after_visuals(): void {
+    super.after_visuals()
+    this.max_line_width = uniforms.max(this.line_width)
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -115,16 +123,21 @@ export class VStripView extends GlyphView {
     }
   }
 
-  protected _find_strips(fn: (sx0: number, sx1: number) => boolean): number[] {
+  protected _get_candidates(sx0: number, sx1?: number): Iterable<number> {
+    const {max_line_width} = this
+    const [x0, x1] = this.renderer.xscale.r_invert(sx0 - max_line_width, (sx1 ?? sx0) + max_line_width)
+    return this.index.indices({x0, x1, y0: 0, y1: 0})
+  }
+
+  protected _find_strips(candidates: Iterable<number>, fn: (sx0: number, sx1: number) => boolean): number[] {
     function contains(sx0: number, sx1: number) {
       return sx0 <= sx1 ? fn(sx0, sx1) : fn(sx1, sx0)
     }
 
     const {sx0, sx1} = this
-    const n = this.data_size
     const indices: number[] = []
 
-    for (let i = 0; i < n; i++) {
+    for (const i of candidates) {
       const sx0_i = sx0[i]
       const sx1_i = sx1[i]
       if (contains(sx0_i, sx1_i)) {
@@ -137,7 +150,8 @@ export class VStripView extends GlyphView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx} = geometry
-    const indices = this._find_strips((sx0, sx1) => sx0 <= sx && sx <= sx1)
+    const candidates = this._get_candidates(sx)
+    const indices = this._find_strips(candidates, (sx0, sx1) => sx0 <= sx && sx <= sx1)
     return new Selection({indices})
   }
 
@@ -147,7 +161,8 @@ export class VStripView extends GlyphView {
         return range(0, this.data_size)
       } else {
         const {sx} = geometry
-        return this._find_strips((sx0, sx1) => sx0 <= sx && sx <= sx1)
+        const candidates = this._get_candidates(sx)
+        return this._find_strips(candidates, (sx0, sx1) => sx0 <= sx && sx <= sx1)
       }
     })()
     return new Selection({indices})
@@ -156,7 +171,8 @@ export class VStripView extends GlyphView {
   protected override _hit_rect(geometry: RectGeometry): Selection {
     const indices = (() => {
       const {sx0: gsx0, sx1: gsx1} = geometry
-      return this._find_strips((sx0, sx1) => gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1)
+      const candidates = this._get_candidates(gsx0, gsx1)
+      return this._find_strips(candidates, (sx0, sx1) => gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1)
     })()
     return new Selection({indices})
   }

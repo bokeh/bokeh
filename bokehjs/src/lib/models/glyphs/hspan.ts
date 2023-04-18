@@ -4,17 +4,20 @@ import {LineVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {FloatArray, ScreenArray, Rect} from "core/types"
 import * as visuals from "core/visuals"
+import * as uniforms from "core/uniforms"
 import {Context2d} from "core/util/canvas"
 import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
 
-const {abs} = Math
+const {abs, max} = Math
 
 export type HSpanData = GlyphData & p.UniformsOf<HSpan.Mixins> & {
   _y: FloatArray
   sy: ScreenArray
+
+  max_line_width: number
 }
 
 export interface HSpanView extends HSpanData {}
@@ -22,6 +25,11 @@ export interface HSpanView extends HSpanData {}
 export class HSpanView extends GlyphView {
   declare model: HSpan
   declare visuals: HSpan.Visuals
+
+  override after_visuals(): void {
+    super.after_visuals()
+    this.max_line_width = uniforms.max(this.line_width)
+  }
 
   protected override _index_data(index: SpatialIndex): void {
     for (const y_i of this._y) {
@@ -63,14 +71,20 @@ export class HSpanView extends GlyphView {
     }
   }
 
-  protected _find_spans(fn: (sy: number) => boolean): number[] {
-    const {sy} = this
-    const n = this.data_size
+  protected _get_candidates(sy0: number, sy1?: number): Iterable<number> {
+    const {max_line_width} = this
+    const [y0, y1] = this.renderer.yscale.r_invert(sy0 - max_line_width, (sy1 ?? sy0) + max_line_width)
+    return this.index.indices({x0: 0, x1: 0, y0, y1})
+  }
+
+  protected _find_spans(candidates: Iterable<number>, fn: (sy: number, line_width: number) => boolean): number[] {
+    const {sy, line_width} = this
     const indices: number[] = []
 
-    for (let i = 0; i < n; i++) {
+    for (const i of candidates) {
       const sy_i = sy[i]
-      if (fn(sy_i)) {
+      const line_width_i = line_width.get(i)
+      if (fn(sy_i, line_width_i)) {
         indices.push(i)
       }
     }
@@ -80,7 +94,8 @@ export class HSpanView extends GlyphView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const {sy: gsy} = geometry
-    const indices = this._find_spans((sy) => abs(sy - gsy) < 2 /*px*/)
+    const candidates = this._get_candidates(gsy)
+    const indices = this._find_spans(candidates, (sy, line_width) => abs(sy - gsy) <= max(line_width/2, 2/*px*/))
     return new Selection({indices})
   }
 
@@ -90,7 +105,8 @@ export class HSpanView extends GlyphView {
         return range(0, this.data_size)
       } else {
         const {sy: gsy} = geometry
-        return this._find_spans((sy) => abs(sy - gsy) < 2 /*px*/)
+        const candidates = this._get_candidates(gsy)
+        return this._find_spans(candidates, (sy, line_width) => abs(sy - gsy) <= max(line_width/2, 2/*px*/))
       }
     })()
     return new Selection({indices})
@@ -99,7 +115,8 @@ export class HSpanView extends GlyphView {
   protected override _hit_rect(geometry: RectGeometry): Selection {
     const indices = (() => {
       const {sy0: gsy0, sy1: gsy1} = geometry
-      return this._find_spans((sy) => gsy0 <= sy && sy <= gsy1)
+      const candidates = this._get_candidates(gsy0, gsy1)
+      return this._find_spans(candidates, (sy, line_width) => gsy0 - line_width/2 <= sy && sy <= gsy1 + line_width/2)
     })()
     return new Selection({indices})
   }
