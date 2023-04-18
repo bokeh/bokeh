@@ -61,11 +61,11 @@ class GlyphAPI:
         self._coordinates = coordinates
 
     @glyph_method(glyphs.AnnularWedge)
-    def annular_wedge(self, **kwargs):
+    def annular_wedge(self, **kwargs: Any) -> GlyphRenderer:
         pass
 
     @glyph_method(glyphs.Annulus)
-    def annulus(self, **kwargs):
+    def annulus(self, **kwargs: Any) -> GlyphRenderer:
         """
 Examples:
 
@@ -355,6 +355,38 @@ Examples:
 
         plot = figure(width=300, height=300)
         plot.hbar(y=[1, 2, 3], height=0.5, left=0, right=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.HSpan)
+    def hspan(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300, x_range=(0, 1))
+        plot.hspan(y=[1, 2, 3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.HStrip)
+    def hstrip(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300, x_range=(0, 1))
+        plot.hstrip(y0=[1, 2, 5], y1=[3, 4, 8], color="#CAB2D6")
 
         show(plot)
 
@@ -897,6 +929,38 @@ Examples:
 
         plot = figure(width=300, height=300)
         plot.vbar(x=[1, 2, 3], width=0.5, bottom=0, top=[1,2,3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.VSpan)
+    def vspan(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300, y_range=(0, 1))
+        plot.vspan(x=[1, 2, 3], color="#CAB2D6")
+
+        show(plot)
+
+"""
+
+    @glyph_method(glyphs.VStrip)
+    def vstrip(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, output_file, show
+
+        plot = figure(width=300, height=300, y_range=(0, 1))
+        plot.vstrip(x0=[1, 2, 5], x1=[3, 4, 8], color="#CAB2D6")
 
         show(plot)
 
