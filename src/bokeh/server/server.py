@@ -181,7 +181,12 @@ class BaseServer:
 
         '''
         self._http.stop()
-        self.io_loop.add_callback(self._http.close_all_connections)
+
+        import asyncio
+        task = asyncio.create_task(self._http.close_all_connections())
+        def callback(_future: asyncio.Future[Any]) -> None:
+            log.debug("done with HTTPServer.close_all_connections()")
+        self.io_loop.add_future(task, callback)
 
     def run_until_shutdown(self) -> None:
         ''' Run the Bokeh Server until shutdown is requested by the user,
