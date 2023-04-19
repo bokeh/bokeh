@@ -47,7 +47,7 @@ logging.basicConfig(level=logging.DEBUG)
 # General API
 #-----------------------------------------------------------------------------
 
-def test_default_resources(ManagedServerLoop: MSL) -> None:
+async def test_default_resources(ManagedServerLoop: MSL) -> None:
     application = Application()
 
     with ManagedServerLoop(application) as server:
@@ -123,14 +123,14 @@ def test_default_resources(ManagedServerLoop: MSL) -> None:
         assert r.root_url == f"http://localhost:{server.port}/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
 
-def test_env_resources(ManagedServerLoop: MSL) -> None:
+async def test_env_resources(ManagedServerLoop: MSL) -> None:
     with envset(BOKEH_RESOURCES="cdn"):
         application = Application()
         with ManagedServerLoop(application) as server:
             r = server._tornado.resources()
             assert r.mode == "cdn"
 
-def test_dev_resources(ManagedServerLoop: MSL) -> None:
+async def test_dev_resources(ManagedServerLoop: MSL) -> None:
     with envset(BOKEH_DEV="yes"):
         application = Application()
         with ManagedServerLoop(application) as server:
@@ -138,7 +138,7 @@ def test_dev_resources(ManagedServerLoop: MSL) -> None:
             assert r.mode == "absolute"
             assert r.dev
 
-def test_index(ManagedServerLoop: MSL) -> None:
+async def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.index is None
@@ -146,7 +146,7 @@ def test_index(ManagedServerLoop: MSL) -> None:
     with ManagedServerLoop(application, index='foo') as server:
         assert server._tornado.index == "foo"
 
-def test_prefix(ManagedServerLoop: MSL) -> None:
+async def test_prefix(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server._tornado.prefix == ""
@@ -187,7 +187,7 @@ def test_websocket_compression_level() -> None:
     assert ws_rule.target_kwargs.get('compression_level') == 2
     assert ws_rule.target_kwargs.get('mem_level') == 3
 
-def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
+async def test_websocket_origins(ManagedServerLoop, unused_tcp_port) -> None:
     application = Application()
     with ManagedServerLoop(application, port=unused_tcp_port) as server:
         assert server._tornado.websocket_origins == {f"localhost:{unused_tcp_port}"}
@@ -218,7 +218,7 @@ def test_default_app_paths() -> None:
 # tried to use capsys to test what's actually logged and it wasn't
 # working, in the meantime at least this tests that log_stats
 # doesn't crash in various scenarios
-def test_log_stats(ManagedServerLoop: MSL) -> None:
+async def test_log_stats(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         server._tornado._log_stats()

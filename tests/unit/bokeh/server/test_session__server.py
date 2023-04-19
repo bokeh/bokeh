@@ -55,7 +55,7 @@ def test_subscribe() -> None:
     s.unsubscribe('connection2')
     assert s.connection_count == 0
 
-def test_destroy_calls() -> None:
+async def test_destroy_calls() -> None:
     d = Document()
     s = bss.ServerSession('some-id', d, 'ioloop')
     with mock.patch('bokeh.document.modules.DocumentModuleManager.destroy') as docdm:

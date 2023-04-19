@@ -146,7 +146,7 @@ class HookTestHandler(Handler):
 # General API
 #-----------------------------------------------------------------------------
 
-def test_prefix(ManagedServerLoop: MSL) -> None:
+async def test_prefix(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server.prefix == ""
@@ -154,7 +154,7 @@ def test_prefix(ManagedServerLoop: MSL) -> None:
     with ManagedServerLoop(application, prefix="foo") as server:
         assert server.prefix == "/foo"
 
-def test_index(ManagedServerLoop: MSL) -> None:
+async def test_index(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application) as server:
         assert server.index is None
@@ -240,12 +240,12 @@ def resource_files_requested(response, requested=True):
         else:
             assert file not in response
 
-def test_use_xheaders(ManagedServerLoop: MSL) -> None:
+async def test_use_xheaders(ManagedServerLoop: MSL) -> None:
     application = Application()
     with ManagedServerLoop(application, use_xheaders=True) as server:
         assert server._http.xheaders is True
 
-def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
+async def test_ssl_args_plumbing(ManagedServerLoop: MSL) -> None:
     with mock.patch.object(ssl, 'SSLContext'):
         with ManagedServerLoop({}, ssl_certfile="foo") as server:
             assert server._http.ssl_options.load_cert_chain.call_args[0] == ()
@@ -365,7 +365,7 @@ async def test__exclude_cookies(ManagedServerLoop: MSL) -> None:
 
 @pytest.mark.skipif(sys.platform == "win32",
                     reason="Lifecycle hooks order different on Windows (TODO open issue)")
-def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
+async def test__lifecycle_hooks(ManagedServerLoop: MSL) -> None:
     application = Application()
     handler = HookTestHandler()
     application.add(handler)
@@ -819,7 +819,7 @@ def test__server_multiple_processes() -> None:
             else mock.call(3),
         ]
 
-def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop) -> None:
+async def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop) -> None:
     application = Application()
     loop = IOLoop.current()
     with pytest.raises(RuntimeError):

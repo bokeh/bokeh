@@ -39,7 +39,7 @@ import bokeh.server.views.multi_root_static_handler as bsvm # isort:skip
 # General API
 #-----------------------------------------------------------------------------
 
-def test_multi_root_static_handler(ManagedServerLoop: MSL) -> None:
+async def test_multi_root_static_handler(ManagedServerLoop: MSL) -> None:
     application = Application()
 
     static_path = Path(serverdir()) / "static" # TODO: PR #13042
