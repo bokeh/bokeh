@@ -4,7 +4,6 @@ import {MarkerType} from "core/enums"
 import {Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
-import {max} from "core/util/arrayable"
 
 export type ScatterData = MarkerData & {
   readonly marker: p.Uniform<MarkerType | null>
@@ -21,17 +20,6 @@ export class ScatterView extends MarkerView {
   override async load_glglyph() {
     const {MultiMarkerGL} = await import("./webgl/multi_marker")
     return MultiMarkerGL
-  }
-
-  override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
-
-    const max_size = (() => {
-      const {size} = this
-      return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
-    })()
-
-    this._configure("max_size", {value: max_size})
   }
 
   protected override _render(ctx: Context2d, indices: number[], data?: ScatterData): void {

@@ -9,6 +9,7 @@ import * as p from "core/properties"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import {max} from "core/util/arrayable"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
   readonly size: p.Uniform<number>
@@ -125,6 +126,17 @@ export abstract class MarkerView extends XYGlyphView {
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
+  }
+
+  override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const max_size = (() => {
+      const {size} = this
+      return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
+    })()
+
+    this._configure("max_size", {value: max_size})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
