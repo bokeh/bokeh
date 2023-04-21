@@ -97,7 +97,6 @@ class BaseServer:
     ``http_server`` must have been previously created and initialized with the
     ``BokehTornado`` instance.
 
-    .. autoclasstoc::
 
     '''
 
@@ -348,7 +347,6 @@ class Server(BaseServer):
     at the same time. To do that, it is necessary to use ``BaseServer`` and
     coordinate the three components above explicitly.
 
-    .. autoclasstoc::
 
     '''
 

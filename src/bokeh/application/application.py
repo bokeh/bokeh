@@ -73,7 +73,6 @@ Callback: TypeAlias = Callable[[], None]
 class Application:
     ''' An Application is a factory for Document instances.
 
-    .. autoclasstoc::
 
     '''
 

@@ -57,7 +57,6 @@ class NotebookHandler(CodeHandler):
     ''' A Handler that uses code in a Jupyter notebook for modifying Bokeh
     Documents.
 
-    .. autoclasstoc::
 
     '''
 

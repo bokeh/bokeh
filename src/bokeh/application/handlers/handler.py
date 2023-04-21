@@ -77,7 +77,6 @@ class Handler:
     ''' Provide a mechanism for Bokeh applications to build up new Bokeh
     Documents.
 
-    .. autoclasstoc::
 
     '''
 

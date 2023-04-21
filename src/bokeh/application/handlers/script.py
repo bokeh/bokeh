@@ -71,7 +71,6 @@ __all__ = (
 class ScriptHandler(CodeHandler):
     ''' Modify Bokeh documents by executing code from Python scripts.
 
-    .. autoclasstoc::
 
     '''
 
