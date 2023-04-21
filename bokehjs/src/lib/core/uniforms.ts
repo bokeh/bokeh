@@ -87,6 +87,10 @@ export class ColorUniformVector extends UniformVector<number> {
   }
 }
 
+export function min(u: Uniform<number>): number {
+  return u.is_Scalar() ? u.value : arrayable.min((u as UniformVector<number>).array)
+}
+
 export function max(u: Uniform<number>): number {
   return u.is_Scalar() ? u.value : arrayable.max((u as UniformVector<number>).array)
 }
