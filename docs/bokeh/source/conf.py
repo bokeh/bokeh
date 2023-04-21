@@ -37,6 +37,7 @@ extensions = [
     "sphinxext.opengraph",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_favicon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.ifconfig",
@@ -184,36 +185,22 @@ html_theme_options = {
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"}
     ],
-    "switcher": {
-        "json_url": "https://docs.bokeh.org/switcher.json",
-        "version_match": version,
-    },
+    # "switcher": {
+    #     "json_url": "https://docs.bokeh.org/switcher.json",
+    #     "version_match": version,
+    # },
     "pygment_light_style": "xcode",
     "github_url": "https://github.com/bokeh/bokeh",
-    "google_analytics_id": "UA-27761864-7",
     "navbar_align": "left",
     "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
     "show_nav_level": 2,
     "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
-    "favicons": [
-        {
-            "rel": "icon",
-            "sizes": "16x16",
-            "href": "https://static.bokeh.org/favicon/favicon-16x16.png",
-        },
-        {
-            "rel": "icon",
-            "sizes": "32x32",
-            "href": "https://static.bokeh.org/favicon/favicon-32x32.png",
-        },
-        {
-            "rel": "apple-touch-icon",
-            "sizes": "180x180",
-            "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
-        },
-    ]
+}
+
+html_theme_options["analytics"] = {
+    "google_analytics_id": "UA-27761864-7",
 }
 
 html_sidebars = {
@@ -221,6 +208,24 @@ html_sidebars = {
   "docs/gallery": [],
   "index": [],
 }
+
+favicons = [
+    {
+        "rel": "icon",
+        "sizes": "16x16",
+        "href": "https://static.bokeh.org/favicon/favicon-16x16.png",
+    },
+    {
+        "rel": "icon",
+        "sizes": "32x32",
+        "href": "https://static.bokeh.org/favicon/favicon-32x32.png",
+    },
+    {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
+    },
+]
 
 templates_path = ["_templates"]
 
