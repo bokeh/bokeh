@@ -13,6 +13,8 @@ import * as p from "core/properties"
 
 const {abs, max} = Math
 
+const UNUSED = 0
+
 export type HSpanData = GlyphData & p.UniformsOf<HSpan.Mixins> & {
   _y: FloatArray
   sy: ScreenArray
@@ -33,7 +35,7 @@ export class HSpanView extends GlyphView {
 
   protected override _index_data(index: SpatialIndex): void {
     for (const y_i of this._y) {
-      index.add_point(0, y_i)
+      index.add_point(UNUSED, y_i)
     }
   }
 

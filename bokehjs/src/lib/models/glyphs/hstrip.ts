@@ -11,6 +11,8 @@ import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
 
+const UNUSED = 0
+
 export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
   _y0: FloatArray
   _y1: FloatArray
@@ -75,7 +77,7 @@ export class HStripView extends GlyphView {
     for (let i = 0; i < data_size; i++) {
       const y0_i = _y0[i]
       const y1_i = _y1[i]
-      index.add_rect(0, y0_i, 0, y1_i)
+      index.add_rect(UNUSED, y0_i, UNUSED, y1_i)
     }
   }
 

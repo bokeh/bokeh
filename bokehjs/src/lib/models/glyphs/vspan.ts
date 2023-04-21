@@ -13,6 +13,8 @@ import * as p from "core/properties"
 
 const {abs, max} = Math
 
+const UNUSED = 0
+
 export type VSpanData = GlyphData & p.UniformsOf<VSpan.Mixins> & {
   _x: FloatArray
   sx: ScreenArray
@@ -33,7 +35,7 @@ export class VSpanView extends GlyphView {
 
   protected override _index_data(index: SpatialIndex): void {
     for (const x_i of this._x) {
-      index.add_point(x_i, 0)
+      index.add_point(x_i, UNUSED)
     }
   }
 
