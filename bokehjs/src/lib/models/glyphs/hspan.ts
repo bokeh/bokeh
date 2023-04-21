@@ -95,7 +95,9 @@ export class HSpanView extends GlyphView {
   protected override _hit_point(geometry: PointGeometry): Selection {
     const {sy: gsy} = geometry
     const candidates = this._get_candidates(gsy)
-    const indices = this._find_spans(candidates, (sy, line_width) => abs(sy - gsy) <= max(line_width/2, 2/*px*/))
+    const indices = this._find_spans(candidates, (sy, line_width) => {
+      return abs(sy - gsy) <= max(line_width/2, 2/*px*/)
+    })
     return new Selection({indices})
   }
 
@@ -106,7 +108,9 @@ export class HSpanView extends GlyphView {
       } else {
         const {sy: gsy} = geometry
         const candidates = this._get_candidates(gsy)
-        return this._find_spans(candidates, (sy, line_width) => abs(sy - gsy) <= max(line_width/2, 2/*px*/))
+        return this._find_spans(candidates, (sy, line_width) => {
+          return abs(sy - gsy) <= max(line_width/2, 2/*px*/)
+        })
       }
     })()
     return new Selection({indices})
@@ -116,7 +120,9 @@ export class HSpanView extends GlyphView {
     const indices = (() => {
       const {sy0: gsy0, sy1: gsy1} = geometry
       const candidates = this._get_candidates(gsy0, gsy1)
-      return this._find_spans(candidates, (sy, line_width) => gsy0 - line_width/2 <= sy && sy <= gsy1 + line_width/2)
+      return this._find_spans(candidates, (sy, line_width) => {
+        return gsy0 - line_width/2 <= sy && sy <= gsy1 + line_width/2
+      })
     })()
     return new Selection({indices})
   }

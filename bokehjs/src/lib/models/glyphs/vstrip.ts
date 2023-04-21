@@ -172,7 +172,9 @@ export class VStripView extends GlyphView {
     const indices = (() => {
       const {sx0: gsx0, sx1: gsx1} = geometry
       const candidates = this._get_candidates(gsx0, gsx1)
-      return this._find_strips(candidates, (sx0, sx1) => gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1)
+      return this._find_strips(candidates, (sx0, sx1) => {
+        return gsx0 <= sx0 && sx0 <= gsx1 && gsx0 <= sx1 && sx1 <= gsx1
+      })
     })()
     return new Selection({indices})
   }

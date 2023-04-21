@@ -172,7 +172,9 @@ export class HStripView extends GlyphView {
     const indices = (() => {
       const {sy0: gsy0, sy1: gsy1} = geometry
       const candidates = this._get_candidates(gsy0, gsy1)
-      return this._find_strips(candidates, (sy0, sy1) => gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1)
+      return this._find_strips(candidates, (sy0, sy1) => {
+        return gsy0 <= sy0 && sy0 <= gsy1 && gsy0 <= sy1 && sy1 <= gsy1
+      })
     })()
     return new Selection({indices})
   }
