@@ -1,4 +1,5 @@
 import {Glyph, GlyphView, GlyphData} from "./glyph"
+import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
@@ -179,6 +180,10 @@ export class HStripView extends GlyphView {
       })
     })()
     return new Selection({indices})
+  }
+
+  override draw_legend_for_index(ctx: Context2d, bbox: Rect, index: number): void {
+    generic_area_vector_legend(this.visuals, ctx, bbox, index)
   }
 }
 
