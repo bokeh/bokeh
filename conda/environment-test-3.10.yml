@@ -71,7 +71,6 @@ dependencies:
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
-    - sphinx-favicon
     - sphinxext-opengraph
     # tests
     - pandas-stubs ==1.5.2.221213
