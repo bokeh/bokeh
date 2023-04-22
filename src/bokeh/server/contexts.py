@@ -146,6 +146,7 @@ class ApplicationContext:
         This holds data that's global to all sessions, while ``ServerSession`` holds
         data specific to an "instance" of the application.
 
+    .. .. autoclasstoc::
 
     '''
 

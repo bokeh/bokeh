@@ -47,6 +47,7 @@ __all__ = (
 class ServerConnection:
     ''' Wraps a websocket connection to a client.
 
+    .. .. autoclasstoc::
 
     '''
 

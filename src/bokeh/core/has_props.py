@@ -238,6 +238,7 @@ class NonQualified:
 class HasProps(Serializable, metaclass=MetaHasProps):
     ''' Base class for all class types that have Bokeh properties.
 
+    .. .. autoclasstoc::
 
     '''
     _initialized: bool = False

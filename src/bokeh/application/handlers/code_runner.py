@@ -53,6 +53,7 @@ __all__ = (
 class CodeRunner:
     ''' Compile and run Python source code.
 
+    .. .. autoclasstoc::
 
     '''
 

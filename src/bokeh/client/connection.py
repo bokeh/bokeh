@@ -76,6 +76,7 @@ __all__ = (
 class ClientConnection:
     ''' A low-level class used to connect to a Bokeh server.
 
+    .. .. autoclasstoc::
 
     '''
 

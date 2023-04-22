@@ -263,6 +263,7 @@ class ClientSession:
     If you do not use ``ClientSession`` in this way, it is up to you to ensure
     that ``mysession.close()`` is called.
 
+    .. .. autoclasstoc::
 
     '''
 

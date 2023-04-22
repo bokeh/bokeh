@@ -67,6 +67,7 @@ __all__ = (
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
+    .. .. autoclasstoc::
 
     '''
 
