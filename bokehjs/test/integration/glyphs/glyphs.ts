@@ -1,6 +1,6 @@
 import {display, fig, row, column} from "../_util"
 
-import {Range1d} from "@bokehjs/models"
+import {Range1d, HoverTool} from "@bokehjs/models"
 import {Direction, OutputBackend} from "@bokehjs/core/enums"
 import {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
@@ -672,6 +672,48 @@ describe("Glyph models", () => {
         start_angle: 23, start_angle_units: "deg",
         end_angle: 135, end_angle_units: "deg",
         fill_color, alpha: 0.6, hatch_pattern,
+      })
+      return p
+    }
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
+  })
+
+  it("should support HSpan and VSpan", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        x_range: [-5, 105], y_range: [-5, 105],
+        output_backend, title: output_backend,
+      })
+
+      p.add_tools(new HoverTool({mode: "vline"}))
+
+      p.hspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "red"})
+      p.vspan([0, 5, 15, 33], {line_width: [1, 2, 3, 4], line_color: "blue"})
+      return p
+    }
+    await display(row([p("canvas"), p("svg")]))
+  })
+
+  it("should support HStrip and VStrip", async () => {
+    function p(output_backend: OutputBackend) {
+      const p = fig([300, 300], {
+        x_range: [-5, 105], y_range: [-5, 105],
+        output_backend, title: output_backend,
+      })
+
+      p.add_tools(new HoverTool({mode: "vline"}))
+
+      p.hstrip({
+        y0: [40, 60, 80], y1: [50, 70, 90],
+        line_color: "pink",
+        fill_color: "purple",
+        hatch_pattern: "x", hatch_color: "yellow",
+      })
+      p.vstrip({
+        x0: [40, 60, 80], x1: [50, 70, 90],
+        line_color: "pink",
+        fill_color: "yellow",
+        hatch_pattern: "/", hatch_color: "purple",
       })
       return p
     }

@@ -9,10 +9,10 @@ import * as nd from "core/util/ndarray"
 import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep,
-  HBar, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine,
-  MultiPolygons, Patch, Patches, Quad, Quadratic, Ray, Rect,
-  Scatter, Segment, Spline, Step, Text, VArea, VAreaStep, VBar, Wedge,
+  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep, HBar, HSpan,
+  HStrip, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine, MultiPolygons,
+  Patch, Patches, Quad, Quadratic, Ray, Rect, Scatter, Segment, Spline, Step, Text, VArea,
+  VAreaStep, VBar, VSpan, VStrip, Wedge,
 } from "../models/glyphs"
 
 import {Marker} from "../models/glyphs/marker"
@@ -39,6 +39,17 @@ export type ColorAlpha = {
   nonselection_alpha: AlphaArg
   hover_alpha: AlphaArg
   muted_alpha: AlphaArg
+}
+
+export type AuxHatch = {
+  selection_hatch_color: ColorArg
+  selection_hatch_alpha: AlphaArg
+  nonselection_hatch_color: ColorArg
+  nonselection_hatch_alpha: AlphaArg
+  hover_hatch_color: ColorArg
+  hover_hatch_alpha: AlphaArg
+  muted_hatch_color: ColorArg
+  muted_hatch_alpha: AlphaArg
 }
 
 export type AuxFill = {
@@ -101,40 +112,44 @@ export type UnitsOf<P> = {
 
 export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 
-export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill
-export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill
+export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
+export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
-export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill
-export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill
-export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill
-export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill
-export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill
-export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill
-export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill
+export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
+export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill & AuxHatch
+export type EllipseArgs       = GlyphArgs<Ellipse.Props>       & AuxLine & AuxFill & AuxHatch
+export type HAreaArgs         = GlyphArgs<HArea.Props>                   & AuxFill & AuxHatch
+export type HAreaStepArgs     = GlyphArgs<HAreaStep.Props>               & AuxFill & AuxHatch
+export type HBarArgs          = GlyphArgs<HBar.Props>          & AuxLine & AuxFill & AuxHatch
+export type HSpanArgs         = GlyphArgs<HSpan.Props>         & AuxLine
+export type HStripArgs        = GlyphArgs<HStrip.Props>        & AuxLine & AuxFill & AuxHatch
+export type HexTileArgs       = GlyphArgs<HexTile.Props>       & AuxLine & AuxFill & AuxHatch
 export type ImageArgs         = GlyphArgs<Image.Props>
 export type ImageRGBAArgs     = GlyphArgs<ImageRGBA.Props>
 export type ImageStackArgs    = GlyphArgs<ImageStack.Props>
 export type ImageURLArgs      = GlyphArgs<ImageURL.Props>
 export type LineArgs          = GlyphArgs<Line.Props>          & AuxLine
-export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill
+export type MarkerArgs        = GlyphArgs<Marker.Props>        & AuxLine & AuxFill & AuxHatch
 export type MultiLineArgs     = GlyphArgs<MultiLine.Props>     & AuxLine
-export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill
-export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill
-export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill
-export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill
+export type MultiPolygonsArgs = GlyphArgs<MultiPolygons.Props> & AuxLine & AuxFill & AuxHatch
+export type PatchArgs         = GlyphArgs<Patch.Props>         & AuxLine & AuxFill & AuxHatch
+export type PatchesArgs       = GlyphArgs<Patches.Props>       & AuxLine & AuxFill & AuxHatch
+export type QuadArgs          = GlyphArgs<Quad.Props>          & AuxLine & AuxFill & AuxHatch
 export type QuadraticArgs     = GlyphArgs<Quadratic.Props>     & AuxLine
 export type RayArgs           = GlyphArgs<Ray.Props>           & AuxLine
-export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill
-export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill
+export type RectArgs          = GlyphArgs<Rect.Props>          & AuxLine & AuxFill & AuxHatch
+export type ScatterArgs       = GlyphArgs<Scatter.Props>       & AuxLine & AuxFill & AuxHatch
 export type SegmentArgs       = GlyphArgs<Segment.Props>       & AuxLine
 export type SplineArgs        = GlyphArgs<Spline.Props>        & AuxLine
 export type StepArgs          = GlyphArgs<Step.Props>          & AuxLine
-export type TextArgs          = GlyphArgs<Text.Props>                              & AuxText
-export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill
-export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill
-export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill
-export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill
+export type TextArgs          = GlyphArgs<Text.Props>                                          & AuxText
+export type VAreaArgs         = GlyphArgs<VArea.Props>                   & AuxFill & AuxHatch
+export type VAreaStepArgs     = GlyphArgs<VAreaStep.Props>               & AuxFill & AuxHatch
+export type VBarArgs          = GlyphArgs<VBar.Props>          & AuxLine & AuxFill & AuxHatch
+export type VSpanArgs         = GlyphArgs<VSpan.Props>         & AuxLine
+export type VStripArgs        = GlyphArgs<VStrip.Props>        & AuxLine & AuxFill & AuxHatch
+export type WedgeArgs         = GlyphArgs<Wedge.Props>         & AuxLine & AuxFill & AuxHatch
 
 export abstract class GlyphAPI {
   abstract _glyph<G extends Glyph>(cls: Class<G>, positional: NamesOf<G>, args: unknown[], overrides?: object): TypedGlyphRenderer<G>
@@ -251,6 +266,23 @@ export abstract class GlyphAPI {
     args?: Partial<HBarArgs>): TypedGlyphRenderer<HBar>
   hbar(...args: unknown[]): TypedGlyphRenderer<HBar> {
     return this._glyph(HBar, ["y", "height", "right", "left"], args)
+  }
+
+  hspan(args: Partial<HSpanArgs>): TypedGlyphRenderer<HSpan>
+  hspan(
+    y: HSpanArgs["y"],
+    args?: Partial<HSpanArgs>): TypedGlyphRenderer<HSpan>
+  hspan(...args: unknown[]): TypedGlyphRenderer<HSpan> {
+    return this._glyph(HSpan, ["y"], args)
+  }
+
+  hstrip(args: Partial<HStripArgs>): TypedGlyphRenderer<HStrip>
+  hstrip(
+    y0: HStripArgs["y0"],
+    y1: HStripArgs["y1"],
+    args?: Partial<HStripArgs>): TypedGlyphRenderer<HStrip>
+  hstrip(...args: unknown[]): TypedGlyphRenderer<HStrip> {
+    return this._glyph(HStrip, ["y0", "y1"], args)
   }
 
   hex_tile(args: Partial<HexTileArgs>): TypedGlyphRenderer<HexTile>
@@ -470,6 +502,23 @@ export abstract class GlyphAPI {
     args?: Partial<VBarArgs>): TypedGlyphRenderer<VBar>
   vbar(...args: unknown[]): TypedGlyphRenderer<VBar> {
     return this._glyph(VBar, ["x", "width", "top", "bottom"], args)
+  }
+
+  vspan(args: Partial<VSpanArgs>): TypedGlyphRenderer<VSpan>
+  vspan(
+    x: VSpanArgs["x"],
+    args?: Partial<VSpanArgs>): TypedGlyphRenderer<VSpan>
+  vspan(...args: unknown[]): TypedGlyphRenderer<VSpan> {
+    return this._glyph(VSpan, ["x"], args)
+  }
+
+  vstrip(args: Partial<VStripArgs>): TypedGlyphRenderer<VStrip>
+  vstrip(
+    x0: VStripArgs["x0"],
+    x1: VStripArgs["x1"],
+    args?: Partial<VStripArgs>): TypedGlyphRenderer<VStrip>
+  vstrip(...args: unknown[]): TypedGlyphRenderer<VStrip> {
+    return this._glyph(VStrip, ["x0", "x1"], args)
   }
 
   wedge(args: Partial<WedgeArgs>): TypedGlyphRenderer<Wedge>
