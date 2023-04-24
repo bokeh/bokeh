@@ -9,7 +9,6 @@ which is defined by the range bounds supplied in web mercator coordinates.
     :refs: :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: map plot, tiles, geo
 
-
 '''
 import xyzservices.providers as xyz
 
