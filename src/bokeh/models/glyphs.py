@@ -1729,6 +1729,8 @@ class HSpan(LineGlyph):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    __example__ = "examples/reference/models/HSpan.py"
+
     _args = ("y")
 
     y = NumberSpec(default=field("y"), help="""
@@ -1746,6 +1748,8 @@ class VSpan(LineGlyph):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    __example__ = "examples/reference/models/VSpan.py"
+
     _args = ("x")
 
     x = NumberSpec(default=field("x"), help="""
@@ -1762,6 +1766,8 @@ class HStrip(LineGlyph, FillGlyph, HatchGlyph):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/HStrip.py"
 
     _args = ("y0", "y1")
 
@@ -1791,6 +1797,8 @@ class VStrip(LineGlyph, FillGlyph, HatchGlyph):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    __example__ = "examples/reference/models/VStrip.py"
 
     _args = ("x0", "x1")
 
