@@ -15,6 +15,8 @@ method:
 .. bokeh-plot:: __REPO__/examples/basic/lines/line_single.py
     :source-position: above
 
+.. _ug_basic_lines_step:
+
 Step lines
 ----------
 
@@ -47,6 +49,8 @@ method as follows:
     ``ColumnDataSource`` consisting of a list of lists of point coordinates
     and a list of scalar values of matching length.
 
+.. _ug_basic_lines_missing_points:
+
 Missing points
 --------------
 
@@ -55,6 +59,8 @@ disjointed lines with gaps for ``NaN`` values.
 
 .. bokeh-plot:: __REPO__/examples/basic/lines/line_missing_points.py
     :source-position: above
+
+.. _ug_basic_lines_stacked:
 
 Stacked lines
 -------------
@@ -85,10 +91,10 @@ single |figure|.
 This principle applies to all |bokeh.plotting| glyph methods. You can add as
 many glyphs to a Bokeh plot as you want.
 
-.. _ug_basic_lines_segments:
-
 Specialized glyphs
 ------------------
+
+.. _ug_basic_lines_segments:
 
 Segments
 ~~~~~~~~
@@ -102,6 +108,8 @@ points ``x1`` and ``y1``. It renders segments between those points.
 .. bokeh-plot:: __REPO__/examples/basic/lines/segment.py
     :source-position: above
 
+.. _ug_basic_lines_rays:
+
 Rays
 ~~~~
 
@@ -114,6 +122,8 @@ edge of the plot, set ``length`` to ``0``.
 .. bokeh-plot:: __REPO__/examples/basic/lines/ray.py
     :source-position: above
 
+.. _ug_basic_lines_arcs:
+
 Arcs
 ~~~~
 
@@ -125,6 +135,8 @@ and end angles.
 
 .. bokeh-plot:: __REPO__/examples/basic/lines/arcs.py
     :source-position: above
+
+.. _ug_basic_lines_parameterized:
 
 Parameterized
 ~~~~~~~~~~~~~
