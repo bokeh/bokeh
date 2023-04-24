@@ -601,7 +601,7 @@ class ColumnDataSource(ColumnarDataSource):
         #             l.add(len(arr))
         #     assert column_length is not None and lengths is not None
         #     assert all([len(l) == 1 for l in lengths]), 'Lengths of subarrays must be the same for identical indexes'
-        
+
         self._multi_stream(new_data, rollovers)
 
     def _multi_stream(self, data: DataDict | pd.Series | pd.DataFrame, rollovers: TList[int | None] | None = None, setter: Setter | None = None) -> None:
