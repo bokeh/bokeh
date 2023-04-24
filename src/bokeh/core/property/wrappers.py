@@ -436,7 +436,14 @@ class PropertyValueColumnData(PropertyValueDict):
 
         return result
 
-    def _multi_stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any], rollovers: List[int | None] | None = None, setter: Setter | None = None) -> None:
+    def _multi_stream(
+            self,
+            doc: Document,
+            source: ColumnarDataSource,
+            new_data: dict[str, Any],
+            rollovers: List[int | None] | None = None,
+            setter: Setter | None = None
+        ) -> None:
         old = self._saved_copy()
 
         for k, v in new_data.items():
