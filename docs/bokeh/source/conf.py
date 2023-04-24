@@ -182,20 +182,19 @@ html_title = f"{project} {version} Documentation"
 
 html_theme_options = {
     "analytics": {"google_analytics_id": "UA-27761864-7"},
-    "check_switcher": False, # TBD: reenable
     "external_links": [
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"}
     ],
-    # "switcher": {  # TBD: reenable
-    #     "json_url": "https://docs.bokeh.org/switcher.json",
-    #     "version_match": version,
-    # },
+    "switcher": {
+        "json_url": "https://docs.bokeh.org/switcher.json",
+        "version_match": version,
+    },
     "pygment_light_style": "xcode",
     "github_url": "https://github.com/bokeh/bokeh",
     "navbar_align": "left",
     "navbar_start": ["navbar-logo"],
-    # "navbar_start": ["navbar-logo", "version-switcher"],  # TBD: reenable
+    "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
     "show_nav_level": 2,
     "show_toc_level": 1,
@@ -203,9 +202,9 @@ html_theme_options = {
 }
 
 html_sidebars = {
-  "docs/examples/**": [],
-  "docs/gallery": [],
-  "index": [],
+    "docs/examples/**": [],
+    "docs/gallery": [],
+    "index": [],
 }
 
 favicons = [
