@@ -573,7 +573,7 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
 class ColumnsMultiStreamedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently streaming new data
     to a :class:`~bokeh.models.sources.ColumnDataSource`
-    
+
     '''
 
     kind = "ColumnsMultiStreamed"
@@ -589,10 +589,10 @@ class ColumnsMultiStreamedEvent(DocumentPatchedEvent):
         import pandas as pd
         if isinstance(data, pd.DataFrame):
             data = data.to_dict(orient='series')
-        
+
         self.data = data
         self.rollovers = list(rollovers) if rollovers is not None else None
-    
+
     def dispatch(self, receiver: Any) -> None:
         super().dispatch(receiver)
         if hasattr(receiver, '_columns_multi_streamed'):
