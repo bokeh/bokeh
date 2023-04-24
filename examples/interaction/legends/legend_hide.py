@@ -9,7 +9,7 @@ the corresponding lines.
     :refs: :ref:`ug_basic_annotations_legends`
     :keywords: line, time series, legend
     
-    '''
+'''
 import pandas as pd
 
 from bokeh.palettes import Spectral4
