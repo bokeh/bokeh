@@ -70,9 +70,9 @@ from typing import (
 from ..core.serialization import Serializable, Serializer
 from .json import (
     ColumnDataChanged,
+    ColumnsMultiStreamed,
     ColumnsPatched,
     ColumnsStreamed,
-    ColumnsMultiStreamed,
     DocumentPatched,
     MessageSent,
     ModelChanged,
