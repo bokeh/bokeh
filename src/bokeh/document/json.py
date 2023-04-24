@@ -93,6 +93,13 @@ class ColumnsStreamed(TypedDict):
     data: DataDict
     rollover: int | None
 
+class ColumnsMultiStreamed(TypedDict):
+    kind: Literal["ColumnsMultiStreamed"]
+    model: Ref
+    attr: str
+    data: DataDict
+    rollovers: List[int | None] | None
+
 class ColumnsPatched(TypedDict):
     kind: Literal["ColumnsPatched"]
     model: Ref
@@ -104,6 +111,7 @@ DocumentPatched: TypeAlias = Union[
     ModelChanged,
     ColumnDataChanged,
     ColumnsStreamed,
+    ColumnsMultiStreamed,
     ColumnsPatched,
     TitleChanged,
     RootAdded,

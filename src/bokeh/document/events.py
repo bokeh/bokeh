@@ -72,6 +72,7 @@ from .json import (
     ColumnDataChanged,
     ColumnsPatched,
     ColumnsStreamed,
+    ColumnsMultiStreamed,
     DocumentPatched,
     MessageSent,
     ModelChanged,
@@ -136,6 +137,8 @@ class ColumnDataChangedMixin:
     def _column_data_changed(self, event: ColumnDataChangedEvent) -> None: ...
 class ColumnsStreamedMixin:
     def _columns_streamed(self, event: ColumnsStreamedEvent) -> None: ...
+class ColumnsMultiStreamedMixin:
+    def _columns_multi_streamed(self, event: ColumnsMultiStreamedEvent) -> None: ...
 class ColumnsPatchedMixin:
     def _columns_patched(self, event: ColumnsPatchedEvent) -> None: ...
 class SessionCallbackAddedMixin:
@@ -566,6 +569,52 @@ class ColumnsStreamedEvent(DocumentPatchedEvent):
         data = event.data
         rollover = event.rollover
         model._stream(data, rollover, event.setter)
+
+class ColumnsMultiStreamedEvent(DocumentPatchedEvent):
+    ''' A concrete event representing efficiently streaming new data
+    to a :class:`~bokeh.models.sources.ColumnDataSource`
+    
+    '''
+
+    kind = "ColumnsMultiStreamed"
+
+    data: DataDict
+
+    def __init__(self, document: Document, model: Model, attr: str, data: DataDict | pd.DataFrame,
+            rollovers: List[int | None] | None = None, setter: Setter | None = None, callback_invoker: Invoker | None = None):
+        super().__init__(document, setter, callback_invoker)
+        self.model = model
+        self.attr = attr
+
+        import pandas as pd
+        if isinstance(data, pd.DataFrame):
+            data = data.to_dict(orient='series')
+        
+        self.data = data
+        self.rollovers = list(rollovers) if rollovers is not None else None
+    
+    def dispatch(self, receiver: Any) -> None:
+        super().dispatch(receiver)
+        if hasattr(receiver, '_columns_multi_streamed'):
+            cast(ColumnsMultiStreamedMixin, receiver)._columns_multi_streamed(self)
+
+    def to_serializable(self, serializer: Serializer) -> ColumnsMultiStreamed:
+        return ColumnsMultiStreamed(
+            kind=self.kind,
+            model=self.model.ref,
+            attr=self.attr,
+            data=serializer.encode(self.data),
+            rollovers=self.rollovers,
+        )
+
+    @staticmethod
+    def _handle_event(doc: Document, event: ColumnsMultiStreamedEvent) -> None:
+        model = event.model
+        attr = event.attr
+        assert attr == "data"
+        data = event.data
+        rollovers = event.rollovers
+        model._multi_stream(data, rollovers, event.setter)
 
 class ColumnsPatchedEvent(DocumentPatchedEvent):
     ''' A concrete event representing efficiently applying data patches

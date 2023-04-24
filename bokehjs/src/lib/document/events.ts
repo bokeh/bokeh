@@ -50,6 +50,14 @@ export type ColumnsStreamed = {
   rollover?: number
 }
 
+export type ColumnsMultiStreamed = {
+  kind: "ColumnsMultiStreamed"
+  model: Ref
+  attr: string
+  data: unknown // AnyVal
+  rollovers?: Array<number | null>
+}
+
 export type ColumnsPatched = {
   kind: "ColumnsPatched"
   model: Ref
@@ -58,7 +66,7 @@ export type ColumnsPatched = {
 }
 
 export type DocumentChanged =
-  ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+  ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsMultiStreamed | ColumnsPatched
 
 export namespace Decoded {
   export type ModelChanged = {
@@ -249,6 +257,36 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
       attr: this.attr,
       data: serializer.encode(this.data),
       rollover: this.rollover,
+    }
+  }
+}
+
+export class ColumnsMultiStreamedEvent extends DocumentChangedEvent {
+  kind = "ColumnsMultiStreamed" as const
+
+  constructor(document: Document,
+      readonly model: HasProps,
+      readonly attr: string,
+      readonly data: Data,
+      readonly rollovers?: Array<number | null>) {
+    super(document)
+  }
+
+  override [equals](that: this, cmp: Comparator): boolean {
+    return super[equals](that, cmp) &&
+      cmp.eq(this.model, that.model) &&
+      cmp.eq(this.attr, that.attr) &&
+      cmp.eq(this.data, that.data) &&
+      cmp.eq(this.rollovers, that.rollovers)
+  }
+
+  [serialize](serializer: Serializer): ColumnsMultiStreamed {
+    return {
+      kind: this.kind,
+      model: this.model.ref(),
+      attr: this.attr,
+      data: serializer.encode(this.data),
+      rollovers: this.rollovers
     }
   }
 }

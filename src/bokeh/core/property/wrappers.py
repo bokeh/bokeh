@@ -436,14 +436,16 @@ class PropertyValueColumnData(PropertyValueDict):
 
         return result
 
-    def _multi_stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any]) -> None:
+    def _multi_stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any], rollovers: List[int | None] | None = None, setter: Setter | None = None) -> None:
         old = self._saved_copy()
 
         for k, v in new_data.items():
             for i, arr in enumerate(v):
                 self[k][i].extend(arr)
-        from ...document.events import ColumnDataChangedEvent
-        self._notify_owners(old, hint=ColumnDataChangedEvent(doc, source, 'data', cols=list(new_data), ))
+                if rollovers is not None and (rollover := rollovers[i]) is not None:
+                    self[k][i] = self[k][i][-rollover:]
+        from ...document.events import ColumnsMultiStreamedEvent
+        self._notify_owners(old, hint=ColumnsMultiStreamedEvent(doc, source, "data", new_data, rollovers, setter))
 
     # don't wrap with notify_owner --- notifies owners explicitly
     def _stream(self, doc: Document, source: ColumnarDataSource, new_data: dict[str, Any],
