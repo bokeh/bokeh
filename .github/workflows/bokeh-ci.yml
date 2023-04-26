@@ -286,7 +286,8 @@ jobs:
 
   documentation:
     needs: build
-    runs-on: ubuntu-latest
+    runs-on:
+      group: ubuntu-latest-4-cores
 
     steps:
       - uses: actions/checkout@v3

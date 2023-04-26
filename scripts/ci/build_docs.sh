@@ -4,7 +4,7 @@ set -x #echo on
 
 cd docs/bokeh
 export GOOGLE_API_KEY=${GOOGLE_API_KEY:-"unset"}
-make SPHINXOPTS=-v all
+make SPHINXOPTS="-v -j 4" all
 
 { set +x ;} 2> /dev/null #echo off
 
