@@ -369,6 +369,8 @@ export abstract class LayoutDOMView extends UIElementView {
     this._measure_layout()
   }
 
+  private _layout_computed: boolean = false
+
   compute_layout(): void {
     if (this.parent instanceof LayoutDOMView) { // TODO: this.is_managed
       this.parent.compute_layout()
@@ -378,6 +380,7 @@ export abstract class LayoutDOMView extends UIElementView {
       this._compute_layout()
       this.after_layout()
     }
+    this._layout_computed = true
   }
 
   protected _compute_layout(): void {
@@ -498,12 +501,18 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
+
+    if (this.is_layout_root && !this._layout_computed) {
+      return false
+    }
 
     for (const child_view of this.child_views) {
-      if (!child_view.has_finished())
+      if (!child_view.has_finished()) {
         return false
+      }
     }
 
     return true
