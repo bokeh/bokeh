@@ -5,7 +5,7 @@ import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
 import {remove, px, CSSOurStyles} from "core/dom"
 import {Display} from "core/css"
-import {isNumber, isArray} from "core/util/types"
+import {isNumber, isArray, isNotNull} from "core/util/types"
 import * as p from "core/properties"
 
 import {build_views, ViewStorage, IterViews} from "core/build_views"
@@ -117,7 +117,10 @@ export abstract class LayoutDOMView extends UIElementView {
   abstract get child_models(): UIElement[]
 
   get child_views(): UIElementView[] {
-    return this.child_models.map((child) => this._child_views.get(child)!)
+    // TODO In case of a race condition somewhere between layout, resize and children updates,
+    // child_models and _child_views may be temporarily inconsistent, resulting in undefined
+    // values. Eventually this shouldn't happen and undefined should be treated as a bug.
+    return this.child_models.map((child) => this._child_views.get(child)).filter(isNotNull)
   }
 
   get layoutable_views(): LayoutDOMView[] {
