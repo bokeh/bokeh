@@ -186,20 +186,20 @@ html_theme_options = {
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"}
     ],
+    "github_url": "https://github.com/bokeh/bokeh",
+    "navbar_align": "left",
+    "navbar_end": ["navbar-icon-links"],
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "pygment_light_style": "xcode",
+    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
+    "show_nav_level": 2,
+    "show_toc_level": 1,
     "switcher": {
         "json_url": "https://docs.bokeh.org/switcher.json",
         "version_match": version,
     },
-    "pygment_light_style": "xcode",
-    "github_url": "https://github.com/bokeh/bokeh",
-    "navbar_align": "left",
-    "navbar_start": ["navbar-logo", "version-switcher"],
-    "navbar_end": ["navbar-icon-links"],
-    "show_nav_level": 2,
-    "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
     "use_edit_page_button": False,
-    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
 }
 
 html_sidebars = {
