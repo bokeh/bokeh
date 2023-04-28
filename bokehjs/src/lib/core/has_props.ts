@@ -14,13 +14,13 @@ import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} f
 import {is_equal} from "./util/eq"
 import {serialize, Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
 import type {Document} from "../document/document"
-import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent} from "../document/events"
+import {DocumentEvent, DocumentEventBatch, ModelChangedEvent, ColumnsPatchedEvent, ColumnsStreamedEvent, ColumnsMultiStreamedEvent} from "../document/events"
 import {equals, Equatable, Comparator} from "./util/eq"
 import {pretty, Printable, Printer} from "./util/pretty"
 import {clone, Cloneable, Cloner} from "./util/cloneable"
 import * as kinds from "./kinds"
 import {Scalar, Vector, isExpr} from "./vectorization"
-import {stream_to_columns, patch_to_columns, PatchSet} from "./patching"
+import {stream_to_columns, multi_stream_to_columns, patch_to_columns, PatchSet} from "./patching"
 
 type AttrsLike = {[key: string]: unknown} | Map<string, unknown>
 
@@ -213,6 +213,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   readonly transformchange = new Signal0<this>(this, "transformchange")
   readonly exprchange      = new Signal0<this>(this, "exprchange")
   readonly streaming       = new Signal0<this>(this, "streaming")
+  readonly multistreaming = new Signal0<this>(this, "multistreaming")
   readonly patching        = new Signal<number[], this>(this, "patching")
 
   readonly properties: {[key: string]: Property} = {}
@@ -616,6 +617,18 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this.streaming.emit()
     if (this.document != null && (sync ?? true)) {
       const event = new ColumnsStreamedEvent(this.document, this, prop.attr, new_data, rollover)
+      this.document._trigger_on_change(event)
+    }
+  }
+
+  multi_stream_to(prop: Property<Data>, new_data: Data, rollovers?: Array<number | null>, {sync}: {sync?: boolean} = {}): void {
+    const data = prop.get_value()
+    multi_stream_to_columns(data, new_data, rollovers)
+    this._clear_watchers()
+    prop.set_value(data)
+    this.multistreaming.emit()
+    if (this.document != null && (sync ?? true)) {
+      const event = new ColumnsMultiStreamedEvent(this.document, this, prop.attr, new_data, rollovers)
       this.document._trigger_on_change(event)
     }
   }

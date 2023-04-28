@@ -533,6 +533,12 @@ export class Document implements Equatable {
           model.stream_to(prop, data, rollover, {sync: false})
           break
         }
+        case "ColumnsMultiStreamed": {
+          const {model, attr, data, rollovers} = event
+          const prop = model.property(attr) as Property<Data>
+          model.multi_stream_to(prop, data, rollovers, {sync: false})
+          break
+        }
         case "ColumnsPatched": {
           const {model, attr, patches} = event
           const prop = model.property(attr) as Property<Data>

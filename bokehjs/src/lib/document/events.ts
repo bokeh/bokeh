@@ -105,6 +105,14 @@ export namespace Decoded {
     cols?: string[]
   }
 
+  export type ColumnsMultiStreamed = {
+    kind: "ColumnsMultiStreamed"
+    model: HasProps
+    attr: string
+    data: Data
+    rollovers?: Array<number | null>
+  }
+
   export type ColumnsStreamed = {
     kind: "ColumnsStreamed"
     model: HasProps
@@ -121,7 +129,7 @@ export namespace Decoded {
   }
 
   export type DocumentChanged =
-    ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsPatched
+    ModelChanged | MessageSent | TitleChanged | RootAdded | RootRemoved | ColumnDataChanged | ColumnsStreamed | ColumnsMultiStreamed | ColumnsPatched
 }
 
 export abstract class DocumentEvent implements Equatable {

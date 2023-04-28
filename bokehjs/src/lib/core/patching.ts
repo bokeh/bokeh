@@ -153,6 +153,27 @@ export function stream_to_columns(data: Data, new_data: Data, rollover?: number)
   }
 }
 
+export function multi_stream_to_columns(data: Data, new_data: Data, rollovers?: Array<number | null>): void {
+  for (const [name, new_column] of entries(new_data)) {
+    for (let array_index = 0; array_index < new_column.length; array_index++) {
+      let rollover;
+      if (rollovers) {
+        rollover = rollovers[array_index] ?? undefined
+      } else {
+        rollover = undefined;
+      }
+      const col = data[name][array_index];
+      const new_col = new_column[array_index];
+      if (isArray(col) && isArray(new_col)) {
+        col
+        data[name][array_index] = stream_to_column(col, new_col, rollover)
+      } else {
+        throw new Error('Cannot multi_stream to 1D arrays')
+      }
+    }
+  }
+} 
+
 export function patch_to_columns(data: Data, patches: PatchSet<unknown>): Set<number> {
   let patched: Set<number> = new Set()
   for (const [column, patch] of entries(patches)) {
