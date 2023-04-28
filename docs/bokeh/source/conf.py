@@ -193,7 +193,6 @@ html_theme_options = {
     "pygment_light_style": "xcode",
     "github_url": "https://github.com/bokeh/bokeh",
     "navbar_align": "left",
-    "navbar_start": ["navbar-logo"],
     "navbar_start": ["navbar-logo", "version-switcher"],
     "navbar_end": ["navbar-icon-links"],
     "show_nav_level": 2,
