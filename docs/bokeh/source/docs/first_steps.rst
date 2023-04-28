@@ -1,3 +1,5 @@
+:html_theme.sidebar_secondary.remove:
+
 .. _first_steps:
 
 First steps
