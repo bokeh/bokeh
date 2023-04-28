@@ -10,6 +10,11 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
+/* make sure the article container uses all available space */
+.bd-article-container {
+  max-width: 100% !important;
+}
+
 /* customize display of inline pre elements */
 .literal .pre, span .pre {
   font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;

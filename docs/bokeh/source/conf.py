@@ -198,6 +198,8 @@ html_theme_options = {
     "show_nav_level": 2,
     "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
+    "use_edit_page_button": False,
+    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
 }
 
 html_sidebars = {
