@@ -394,11 +394,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
       const view = this.renderer_view(model)!
       view.panel = new Panel(side)
       view.update_layout?.()
-      return view.layout!
+      return view.layout
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -409,12 +409,14 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (isArray(panel)) {
           const items = panel.map((subpanel) => {
             const item = set_layout(side, subpanel)
+            if (item == null)
+              return undefined
             if (subpanel instanceof ToolbarPanel) {
               const dim = horizontal ? "width_policy" : "height_policy"
               item.set_sizing({...item.sizing, [dim]: "min"})
             }
             return item
-          })
+          }).filter((item): item is Layoutable => item != null)
 
           let layout: Row | Column
           if (horizontal) {
@@ -427,8 +429,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
           layout.absolute = true
           layouts.push(layout)
-        } else
-          layouts.push(set_layout(side, panel))
+        } else {
+          const layout = set_layout(side, panel)
+          if (layout != null)
+            layouts.push(layout)
+        }
       }
 
       return layouts

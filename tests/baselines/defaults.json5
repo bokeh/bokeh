@@ -3417,6 +3417,8 @@
   },
   Axis: {
     __extends__: "GuideRenderer",
+    dimension: "auto",
+    face: "auto",
     bounds: "auto",
     ticker: {
       type: "symbol",
@@ -3429,6 +3431,7 @@
     axis_label: null,
     axis_label_standoff: 5,
     axis_label_orientation: "parallel",
+    axis_label_align: "center",
     axis_label_text_color: "#444444",
     axis_label_text_outline_color: null,
     axis_label_text_alpha: 1.0,
@@ -3483,6 +3486,8 @@
     minor_tick_in: 0,
     minor_tick_out: 4,
     fixed_location: null,
+    background_fill_color: null,
+    background_fill_alpha: 1.0,
   },
   ContinuousAxis: {
     __extends__: "Axis",

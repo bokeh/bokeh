@@ -33,7 +33,7 @@ export class PanToolView extends GestureToolView {
   }
 
   override cursor(sx: number, sy: number): string | null {
-    const axis_view = this.plot_view.axis_views.find((view) => view.layout.bbox.contains(sx, sy))
+    const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
     if (axis_view != null) {
       switch (axis_view.dimension) {
         case 0: return "ew-resize"
