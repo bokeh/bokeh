@@ -428,7 +428,8 @@ export abstract class BaseColorBarView extends AnnotationView {
     const {_axis_view} = this
     _axis_view.panel = new Panel(side)
     _axis_view.update_layout()
-    stack.children.push(_axis_view.layout)
+    if (_axis_view.layout != null)
+      stack.children.push(_axis_view.layout)
 
     if (this.panel != null) {
       const outer = new Grid([{layout, row: 0, col: 0}])

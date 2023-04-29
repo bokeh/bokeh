@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ..core.enums import LabelOrientation
+from ..core.enums import Align, LabelOrientation
 from ..core.has_props import abstract
 from ..core.properties import (
     Auto,
@@ -44,7 +44,7 @@ from ..core.properties import (
     TextLike,
     Tuple,
 )
-from ..core.property_mixins import ScalarLineProps, ScalarTextProps
+from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
 from .formatters import (
     BasicTickFormatter,
     CategoricalTickFormatter,
@@ -92,6 +92,13 @@ class Axis(GuideRenderer):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    dimension = Either(Auto, Int, default="auto", help="""
+    """)
+
+    face = Either(Auto, Enum("front", "back"))(default="auto", help="""
+    The direction toward which the axis will face.
+    """)
 
     bounds = Either(Auto, Tuple(Float, Float), Tuple(Datetime, Datetime), help="""
     Bounds for the rendered axis. If unset, the axis will span the
@@ -141,6 +148,10 @@ class Axis(GuideRenderer):
     axis_label_orientation = Either(Enum(LabelOrientation), Float)(default="parallel", help="""
     What direction the asix label text should be oriented. If a number
     is supplied, the angle of the text is measured from horizontal.
+    """)
+
+    axis_label_align = Enum(Align, default="center", help="""
+    The alignment of axis label along the axis.
     """)
 
     axis_label_props = Include(ScalarTextProps, prefix="axis_label", help="""
@@ -221,6 +232,12 @@ class Axis(GuideRenderer):
         Axes labels are suppressed when axes are positioned at fixed locations
         inside the central plot area.
     """)
+
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} of the axis background.
+    """)
+
+    background_fill_color = Override(default=None)
 
 @abstract
 class ContinuousAxis(Axis):
