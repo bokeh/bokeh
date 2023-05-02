@@ -15,6 +15,11 @@ html[data-theme=light] {
   max-width: 100% !important;
 }
 
+/* disable this container to avoid unnecessary overflow */
+#rtd-footer-container {
+  display: none;
+}
+
 /* Tweak appearance of args in reference guide */
 .class .sig, .function .sig, .sig .property {
   font-weight: 400;
