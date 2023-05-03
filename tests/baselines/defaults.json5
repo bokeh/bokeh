@@ -5665,7 +5665,7 @@
   HelpTool: {
     __extends__: "ActionTool",
     description: "Click the question mark to learn more about Bokeh plot tools.",
-    redirect: "https://docs.bokeh.org/en/latest/docs/reference/models/tools.html",
+    redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/interaction/tools.html",
   },
   ExamineTool: {
     __extends__: "ActionTool",
