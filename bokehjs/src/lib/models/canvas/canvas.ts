@@ -173,9 +173,18 @@ export class CanvasView extends UIElementView {
     return changed
   }
 
+  override after_resize(): void {
+    if (this.plot_views.length != 0) {
+      // Canvas is being managed by a plot, thus it should not attempt
+      // self-resize, as it would result in inconsistent state and
+      // possibly invalid layout and/or lack of repaint of a plot.
+      return
+    } else {
+      super.after_resize()
+    }
+  }
+
   override _after_resize(): void {
-    if (this.plot_views.length != 0)
-      return // XXX temporary hack
     super._after_resize()
     const {width, height} = this.bbox
     this.primary.resize(width, height)
@@ -184,9 +193,7 @@ export class CanvasView extends UIElementView {
 
   resize(): void {
     this._update_bbox()
-    const {width, height} = this.bbox
-    this.primary.resize(width, height)
-    this.overlays.resize(width, height)
+    this._after_resize()
   }
 
   prepare_webgl(frame_box: FrameBox): void {

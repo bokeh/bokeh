@@ -118,7 +118,6 @@ function create_hatch_canvas(ctx: Context2d,
       ctx.moveTo(3*h4+0.5, h)
       ctx.lineTo(5*h4+0.5, 0)
       ctx.stroke()
-      ctx.stroke()
       break
     case "left_diagonal_line":
       ctx.moveTo(h4+0.5, h)
@@ -129,7 +128,6 @@ function create_hatch_canvas(ctx: Context2d,
       ctx.stroke()
       ctx.moveTo(5*h4+0.5, h)
       ctx.lineTo(3*h4+0.5, 0)
-      ctx.stroke()
       ctx.stroke()
       break
     case "diagonal_cross":

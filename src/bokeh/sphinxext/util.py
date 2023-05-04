@@ -68,7 +68,7 @@ def get_sphinx_resources(include_bokehjs_api=False):
         else:
             resources = Resources(mode="cdn", version=docs_cdn)
     if include_bokehjs_api:
-        resources.js_components.append("bokeh-api")
+        resources.components.append("bokeh-api")
     return resources
 
 # -----------------------------------------------------------------------------

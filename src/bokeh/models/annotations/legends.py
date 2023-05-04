@@ -344,7 +344,7 @@ class Legend(Annotation):
 
     location = Either(Enum(LegendLocation), Tuple(Float, Float), default="top_right", help="""
     The location where the legend should draw itself. It's either one of
-    ``bokeh.core.enums.LegendLocation``'s enumerated values, or a ``(x, y)``
+    :class:`~bokeh.core.enums.LegendLocation`'s enumerated values, or a ``(x, y)``
     tuple indicating an absolute location absolute location in screen
     coordinates (pixels from the bottom-left corner).
     """)

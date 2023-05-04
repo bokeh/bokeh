@@ -45,6 +45,7 @@ from typing import (
     Dict,
     Literal,
     Protocol,
+    TypedDict,
     Union,
     cast,
     get_args,
@@ -70,12 +71,23 @@ if TYPE_CHECKING:
 
 DEFAULT_SERVER_HOST = "localhost"
 DEFAULT_SERVER_PORT = 5006
-DEFAULT_SERVER_HTTP_URL = f"http://{DEFAULT_SERVER_HOST}:{DEFAULT_SERVER_PORT}/"
+
+def server_url(host: str | None = None, port: int | None = None, ssl: bool = False) -> str:
+    protocol = "https" if ssl else "http"
+    return f"{protocol}://{host or DEFAULT_SERVER_HOST}:{port or DEFAULT_SERVER_PORT}/"
+
+DEFAULT_SERVER_HTTP_URL = server_url()
 
 BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
 DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
 ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
+
+Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
+
+class ComponentDefs(TypedDict):
+    js: list[Component]
+    css: list[Component]
 
 # __all__ defined at the bottom on the class module
 
@@ -250,330 +262,9 @@ class Urls:
 
 ResourceAttr = Literal["__css__", "__javascript__"]
 
-class BaseResources:
-    _default_root_dir = "."
-    _default_root_url = DEFAULT_SERVER_HTTP_URL
-
-    mode: BaseMode
-    messages: list[RuntimeMessage]
-
-    _log_level: LogLevel
-
-    _js_components: ClassVar[list[str]]
-    _css_components: ClassVar[list[str]]
-
-    def __init__(
-        self,
-        mode: ResourcesMode | None = None,
-        version: str | None = None,
-        root_dir: PathLike | None = None,
-        minified: bool | None = None,
-        log_level: LogLevel | None = None,
-        root_url: str | None = None,
-        path_versioner: PathVersioner | None = None,
-        components: list[str] | None = None,
-        base_dir: str | None = None, # TODO: PathLike
-    ):
-        self._components = components
-
-        if hasattr(self, "_js_components"):
-            self.js_components = self._js_components
-        if hasattr(self, "_css_components"):
-            self.css_components = self._css_components
-
-        mode = settings.resources(mode)
-
-        self.dev = mode.endswith("-dev")
-        self.mode = cast(BaseMode, mode[:-4] if self.dev else mode)
-
-        if self.mode not in get_args(BaseMode):
-            raise ValueError(
-                "wrong value for 'mode' parameter, expected "
-                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}"
-            )
-
-        if root_dir and not self.mode.startswith("relative"):
-            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
-
-        if version and not self.mode.startswith("cdn"):
-            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
-
-        if root_url and not self.mode.startswith("server"):
-            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
-
-        self.root_dir = settings.rootdir(root_dir)
-        del root_dir
-        self.version = settings.cdn_version(version)
-        del version
-        self.minified = settings.minified(minified)
-        del minified
-        self.log_level = settings.log_level(log_level)
-        del log_level
-        self.path_versioner = path_versioner
-        del path_versioner
-
-        if root_url and not root_url.endswith("/"):
-            # root_url should end with a /, adding one
-            root_url = root_url + "/"
-        self._root_url = root_url
-
-        self.messages = []
-
-        if self.mode == "cdn":
-            cdn = self._cdn_urls()
-            self.messages.extend(cdn.messages)
-        elif self.mode == "server":
-            server = self._server_urls()
-            self.messages.extend(server.messages)
-
-        self.base_dir = base_dir or bokehjsdir(self.dev)
-
-    # Properties --------------------------------------------------------------
-
-    @property
-    def log_level(self) -> LogLevel:
-        return self._log_level
-
-    @log_level.setter
-    def log_level(self, level: LogLevel) -> None:
-        valid_levels = get_args(LogLevel)
-        if not (level is None or level in valid_levels):
-            raise ValueError(f"Unknown log level '{level}', valid levels are: {valid_levels}")
-        self._log_level = level
-
-    @property
-    def root_url(self) -> str:
-        if self._root_url is not None:
-            return self._root_url
-        else:
-            return self._default_root_url
-
-    # Public methods ----------------------------------------------------------
-
-    def components(self, kind: Kind) -> list[str]:
-        components = self.js_components if kind == "js" else self.css_components
-        if self._components is not None:
-            components = [c for c in components if c in self._components]
-        return components
-
-    def _file_paths(self, kind: Kind) -> list[str]:
-        minified = ".min" if not self.dev and self.minified else ""
-
-        files = [f"{component}{minified}.{kind}" for component in self.components(kind)]
-        paths = [join(self.base_dir, kind, file) for file in files]
-        return paths
-
-    def _collect_external_resources(self, resource_attr: ResourceAttr) -> list[str]:
-        """ Collect external resources set on resource_attr attribute of all models."""
-        external_resources: list[str] = []
-
-        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
-            external: list[str] | str | None = getattr(cls, resource_attr, None)
-
-            if isinstance(external, str):
-                if external not in external_resources:
-                    external_resources.append(external)
-            elif isinstance(external, list):
-                for e in external:
-                    if e not in external_resources:
-                        external_resources.append(e)
-
-        return external_resources
-
-    def _cdn_urls(self) -> Urls:
-        return _get_cdn_urls(self.version, self.minified)
-
-    def _server_urls(self) -> Urls:
-        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
-
-    def _resolve(self, kind: Kind) -> tuple[list[str], list[str], Hashes]:
-        paths = self._file_paths(kind)
-        files, raw = [], []
-        hashes = {}
-
-        if self.mode == "inline":
-            raw = [self._inline(path) for path in paths]
-        elif self.mode == "relative":
-            root_dir = self.root_dir or self._default_root_dir
-            files = [relpath(path, root_dir) for path in paths]
-        elif self.mode == "absolute":
-            files = list(paths)
-        elif self.mode == "cdn":
-            cdn = self._cdn_urls()
-            files = list(cdn.urls(self.components(kind), kind))
-            if cdn.hashes:
-                hashes = cdn.hashes(self.components(kind), kind)
-        elif self.mode == "server":
-            server = self._server_urls()
-            files = list(server.urls(self.components(kind), kind))
-
-        return (files, raw, hashes)
-
-    @staticmethod
-    def _inline(path: str) -> str:
-        filename = basename(path)
-        begin = f"/* BEGIN {filename} */"
-        with open(path, "rb") as f:
-            middle = f.read().decode("utf-8")
-        end = f"/* END {filename} */"
-        return f"{begin}\n{middle}\n{end}"
-
-
-class JSResources(BaseResources):
-    """ The Resources class encapsulates information relating to loading or embedding Bokeh Javascript.
-
-    Args:
-        mode (str) : How should Bokeh JS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh JS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading Bokeh JS assets
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether JavaScript should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from (default: None)
-
-            If ``None``, absolute URLs based on the default server configuration will
-            be generated.
-
-            ``root_url`` can also be the empty string, in which case relative URLs,
-            e.g., "static/js/bokeh.min.js", are generated.
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire Bokeh JS and CSS inline
-    * ``'cdn'`` configure to load Bokeh JS and CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified assets
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified assets
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified assets
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding
-    Bokeh plots.
-
+class Resources:
     """
-
-    _js_components = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
-
-    # Properties --------------------------------------------------------------
-
-    @property
-    def js_files(self) -> list[str]:
-        files, _, _ = self._resolve("js")
-        external_resources = self._collect_external_resources("__javascript__")
-        return external_resources + files
-
-    @property
-    def js_raw(self) -> list[str]:
-        _, raw, _ = self._resolve("js")
-
-        if self.log_level is not None:
-            raw.append(f'Bokeh.set_log_level("{self.log_level}");')
-
-        if self.dev:
-            raw.append("Bokeh.settings.dev = true")
-
-        return raw
-
-    @property
-    def hashes(self) -> Hashes:
-        _, _, hashes = self._resolve("js")
-        return hashes
-
-    # Public methods ----------------------------------------------------------
-
-    def render_js(self) -> str:
-        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
-
-
-class CSSResources(BaseResources):
-    """ The CSSResources class encapsulates information relating to loading or embedding Bokeh client-side CSS.
-
-    Args:
-        mode (str) : how should Bokeh CSS be included in output
-
-            See below for descriptions of available modes
-
-        version (str, optional) : what version of Bokeh CSS to load
-
-            Only valid with the ``'cdn'`` mode
-
-        root_dir (str, optional) : root directory for loading BokehJS resources
-
-            Only valid with ``'relative'`` and ``'relative-dev'`` modes
-
-        minified (bool, optional) : whether CSS should be minified or not (default: True)
-
-        root_url (str, optional) : URL and port of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-    The following **mode** values are available for configuring a Resource object:
-
-    * ``'inline'`` configure to provide entire BokehJS code and CSS inline
-    * ``'cdn'`` configure to load Bokeh CSS from ``https://cdn.bokeh.org``
-    * ``'server'`` configure to load from a Bokeh Server
-    * ``'server-dev'`` same as ``server`` but supports non-minified CSS
-    * ``'relative'`` configure to load relative to the given directory
-    * ``'relative-dev'`` same as ``relative`` but supports non-minified CSS
-    * ``'absolute'`` configure to load from the installed Bokeh library static directory
-    * ``'absolute-dev'`` same as ``absolute`` but supports non-minified CSS
-
-    Once configured, a Resource object exposes the following public attributes:
-
-    Attributes:
-        css_raw : any raw CSS that needs to be places inside ``<style>`` tags
-        css_files : URLs of any CSS files that need to be loaded by ``<link>`` tags
-        messages : any informational messages concerning this configuration
-
-    These attributes are often useful as template parameters when embedding Bokeh plots.
-
-    """
-
-    _css_components = []
-
-    # Properties --------------------------------------------------------------
-
-    @property
-    def css_files(self) -> list[str]:
-        files, _, _ = self._resolve("css")
-        external_resources = self._collect_external_resources("__css__")
-        return external_resources + files
-
-    @property
-    def css_raw(self) -> list[str]:
-        _, raw, _ = self._resolve("css")
-        return raw
-
-    @property
-    def css_raw_str(self) -> list[str]:
-        return [json.dumps(css) for css in self.css_raw]
-
-    # Public methods ----------------------------------------------------------
-
-    def render_css(self) -> str:
-        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
-
-
-class Resources(JSResources, CSSResources):
-    """ The Resources class encapsulates information relating to loading or
+    The Resources class encapsulates information relating to loading or
     embedding Bokeh Javascript and CSS.
 
     Args:
@@ -620,7 +311,242 @@ class Resources(JSResources, CSSResources):
 
     """
 
+    _default_root_dir = "."
+    _default_root_url = DEFAULT_SERVER_HTTP_URL
+
+    mode: BaseMode
+    messages: list[RuntimeMessage]
+
+    _log_level: LogLevel
+
+    components: list[Component]
+
+    _component_defs: ClassVar[ComponentDefs] = {
+        "js": ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"],
+        "css": [],
+    }
+
+    _default_components: ClassVar[list[Component]] = ["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax"]
+
+    def __init__(
+        self,
+        mode: ResourcesMode | None = None,
+        *,
+        version: str | None = None,
+        root_dir: PathLike | None = None,
+        dev: bool | None = None,
+        minified: bool | None = None,
+        log_level: LogLevel | None = None,
+        root_url: str | None = None,
+        path_versioner: PathVersioner | None = None,
+        components: list[Component] | None = None,
+        base_dir: str | None = None, # TODO: PathLike
+    ):
+        self.components = components if components is not None else list(self._default_components)
+        mode = settings.resources(mode)
+
+        mode_dev = mode.endswith("-dev")
+        self.dev = dev if dev is not None else settings.dev or mode_dev
+        self.mode = cast(BaseMode, mode[:-4] if mode_dev else mode)
+
+        if self.mode not in get_args(BaseMode):
+            raise ValueError(
+                "wrong value for 'mode' parameter, expected "
+                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}"
+            )
+
+        if root_dir and not self.mode.startswith("relative"):
+            raise ValueError("setting 'root_dir' makes sense only when 'mode' is set to 'relative'")
+
+        if version and not self.mode.startswith("cdn"):
+            raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
+
+        if root_url and not self.mode.startswith("server"):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+
+        self.root_dir = settings.rootdir(root_dir)
+        del root_dir
+        self.version = settings.cdn_version(version)
+        del version
+        self.minified = settings.minified(minified)
+        del minified
+        self.log_level = settings.log_level(log_level)
+        del log_level
+        self.path_versioner = path_versioner
+        del path_versioner
+
+        if root_url and not root_url.endswith("/"):
+            # root_url should end with a /, adding one
+            root_url = root_url + "/"
+        self._root_url = root_url
+
+        self.messages = []
+
+        if self.mode == "cdn":
+            cdn = self._cdn_urls()
+            self.messages.extend(cdn.messages)
+        elif self.mode == "server":
+            server = self._server_urls()
+            self.messages.extend(server.messages)
+
+        self.base_dir = base_dir if base_dir is not None else bokehjsdir(self.dev)
+
+    def clone(self, *, components: list[Component] | None = None) -> Resources:
+        """ Make a clone of a resources instance allowing to override its components. """
+        return Resources(
+            mode=self.mode,
+            version=self.version,
+            root_dir=self.root_dir,
+            dev=self.dev,
+            minified=self.minified,
+            log_level=self.log_level,
+            root_url=self._root_url,
+            path_versioner=self.path_versioner,
+            components=components if components is not None else list(self.components),
+            base_dir=self.base_dir,
+        )
+
+    def __repr__(self) -> str:
+        args = [f"mode={self.mode!r}"]
+        if self.dev:
+            args.append("dev=True")
+        if self.components != self._default_components:
+            args.append(f"components={self.components!r}")
+        return f"Resources({', '.join(args)})"
+
+    __str__ = __repr__
+
+    # Properties --------------------------------------------------------------
+
+    @property
+    def log_level(self) -> LogLevel:
+        return self._log_level
+
+    @log_level.setter
+    def log_level(self, level: LogLevel) -> None:
+        valid_levels = get_args(LogLevel)
+        if not (level is None or level in valid_levels):
+            raise ValueError(f"Unknown log level '{level}', valid levels are: {valid_levels}")
+        self._log_level = level
+
+    @property
+    def root_url(self) -> str:
+        if self._root_url is not None:
+            return self._root_url
+        else:
+            return self._default_root_url
+
     # Public methods ----------------------------------------------------------
+
+    def components_for(self, kind: Kind) -> list[Component]:
+        return [comp for comp in self.components if comp in self._component_defs[kind]]
+
+    def _file_paths(self, kind: Kind) -> list[str]:
+        minified = ".min" if not self.dev and self.minified else ""
+
+        files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
+        paths = [join(self.base_dir, kind, file) for file in files]
+        return paths
+
+    def _collect_external_resources(self, resource_attr: ResourceAttr) -> list[str]:
+        """ Collect external resources set on resource_attr attribute of all models."""
+        external_resources: list[str] = []
+
+        for _, cls in sorted(Model.model_class_reverse_map.items(), key=lambda arg: arg[0]):
+            external: list[str] | str | None = getattr(cls, resource_attr, None)
+
+            if isinstance(external, str):
+                if external not in external_resources:
+                    external_resources.append(external)
+            elif isinstance(external, list):
+                for e in external:
+                    if e not in external_resources:
+                        external_resources.append(e)
+
+        return external_resources
+
+    def _cdn_urls(self) -> Urls:
+        return _get_cdn_urls(self.version, self.minified)
+
+    def _server_urls(self) -> Urls:
+        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
+
+    def _resolve(self, kind: Kind) -> tuple[list[str], list[str], Hashes]:
+        paths = self._file_paths(kind)
+        files, raw = [], []
+        hashes = {}
+
+        if self.mode == "inline":
+            raw = [self._inline(path) for path in paths]
+        elif self.mode == "relative":
+            root_dir = self.root_dir or self._default_root_dir
+            files = [relpath(path, root_dir) for path in paths]
+        elif self.mode == "absolute":
+            files = list(paths)
+        elif self.mode == "cdn":
+            cdn = self._cdn_urls()
+            files = list(cdn.urls(self.components_for(kind), kind))
+            if cdn.hashes:
+                hashes = cdn.hashes(self.components_for(kind), kind)
+        elif self.mode == "server":
+            server = self._server_urls()
+            files = list(server.urls(self.components_for(kind), kind))
+
+        return (files, raw, hashes)
+
+    @staticmethod
+    def _inline(path: str) -> str:
+        filename = basename(path)
+        begin = f"/* BEGIN {filename} */"
+        with open(path, "rb") as f:
+            middle = f.read().decode("utf-8")
+        end = f"/* END {filename} */"
+        return f"{begin}\n{middle}\n{end}"
+
+    @property
+    def js_files(self) -> list[str]:
+        files, _, _ = self._resolve("js")
+        external_resources = self._collect_external_resources("__javascript__")
+        return external_resources + files
+
+    @property
+    def js_raw(self) -> list[str]:
+        _, raw, _ = self._resolve("js")
+
+        if self.log_level is not None:
+            raw.append(f'Bokeh.set_log_level("{self.log_level}");')
+
+        if self.dev:
+            raw.append("Bokeh.settings.dev = true")
+
+        return raw
+
+    @property
+    def hashes(self) -> Hashes:
+        _, _, hashes = self._resolve("js")
+        return hashes
+
+    def render_js(self) -> str:
+        return JS_RESOURCES.render(js_raw=self.js_raw, js_files=self.js_files, hashes=self.hashes)
+
+
+    @property
+    def css_files(self) -> list[str]:
+        files, _, _ = self._resolve("css")
+        external_resources = self._collect_external_resources("__css__")
+        return external_resources + files
+
+    @property
+    def css_raw(self) -> list[str]:
+        _, raw, _ = self._resolve("css")
+        return raw
+
+    @property
+    def css_raw_str(self) -> list[str]:
+        return [json.dumps(css) for css in self.css_raw]
+
+    def render_css(self) -> str:
+        return CSS_RESOURCES.render(css_raw=self.css_raw, css_files=self.css_files)
 
     def render(self) -> str:
         css, js = self.render_css(), self.render_js()
@@ -756,8 +682,6 @@ __all__ = (
     "CDN",
     "INLINE",
     "Resources",
-    "JSResources",
-    "CSSResources",
     "get_all_sri_hashes",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",

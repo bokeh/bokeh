@@ -1,5 +1,11 @@
-""" Example demonstrating turning lines on and off - with JS only
+""" Example demonstrating turning lines on and off - with JS only.
+It involves checking and unchecking the checkboxes representing
+the plotted lines to turn the lines on/off.
 
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.line, bokeh.layouts.row, bokeh.models.CustomJS
+    :refs: :ref:`ug_basic_lines_multi`,:ref:`_ug_interaction_widgets_examples_checkboxgroup`,:ref:`ug_interaction_js_callbacks`
+    :keywords: line, checkbox, CustomJS
 """
 
 import numpy as np
@@ -10,7 +16,7 @@ from bokeh.palettes import Viridis3
 from bokeh.plotting import figure, show
 
 p = figure()
-props = dict(line_width=4, line_alpha=0.7)
+props = {"line_width": 4, "line_alpha": 0.7}
 x = np.linspace(0, 4 * np.pi, 100)
 l0 = p.line(x, np.sin(x), color=Viridis3[0], legend_label="Line 0", **props)
 l1 = p.line(x, 4 * np.cos(x), color=Viridis3[1], legend_label="Line 1", **props)

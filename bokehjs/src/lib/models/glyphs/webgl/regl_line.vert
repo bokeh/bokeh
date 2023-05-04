@@ -30,12 +30,14 @@ uniform float u_miter_limit;
 
 varying float v_segment_length;
 varying vec2 v_coords;
-varying float v_flags;  // Booleans for start/end caps and miters too long.
-varying float v_cos_theta_turn_right_start;  // Sign gives turn_right, abs gives
-varying float v_cos_theta_turn_right_end;    //   cos(theta).
+varying float v_flags;  // Boolean flags
+varying float v_cos_turn_angle_start;
+varying float v_cos_turn_angle_end;
 #ifdef DASHED
 varying float v_length_so_far;
 #endif
+
+#define SMALL 1e-6
 
 float cross_z(in vec2 v0, in vec2 v1)
 {
@@ -47,18 +49,43 @@ vec2 right_vector(in vec2 v)
     return vec2(v.y, -v.x);
 }
 
-vec2 line_intersection(in vec2 point0, in vec2 dir0,
-                       in vec2 point1, in vec2 dir1)
+// Calculate cos/sin turn angle with adjacent segment, and unit normal vector to right
+float calc_turn_angle(in bool has_cap, in vec2 segment_right, in vec2 other_right, out vec2 point_right, out float sin_turn_angle)
 {
-    // Line-line intersection: point0 + lambda0 dir0 = point1 + lambda1 dir1.
-    // Not checking if lines are parallel!
-    float lambda0 = cross_z(point1 - point0, dir1) / cross_z(dir0, dir1);
-    return point0 + lambda0*dir0;
+    float cos_turn_angle;
+    vec2 diff = segment_right + other_right;
+    float len = length(diff);
+    if (has_cap || len < SMALL) {
+        point_right = segment_right;
+        cos_turn_angle = -1.0;  // Turns back on itself.
+        sin_turn_angle = 0.0;
+    }
+    else {
+        point_right = diff / len;
+        cos_turn_angle = dot(segment_right, other_right);   // cos zero at +/-pi/2, +ve angle is turn right
+        sin_turn_angle = cross_z(segment_right, other_right);
+    }
+    return cos_turn_angle;
 }
 
-float sign_no_zero(in float x)
+// If miter too large use bevel join instead
+bool miter_too_large(in int join_type, in float cos_turn_angle)
 {
-    return x >= 0.0 ? 1.0 : -1.0;
+    float cos_half_angle_sqr = 0.5*(1.0 + cos_turn_angle);  // Trig identity
+    return join_type == miter_join && cos_half_angle_sqr < 1.0 / (u_miter_limit*u_miter_limit);
+}
+
+vec2 normalize_check_len(in vec2 vec, in float len)
+{
+    if (abs(len) < SMALL)
+        return vec2(1.0, 0.0);
+    else
+        return vec / len;
+}
+
+vec2 normalize_check(in vec2 vec)
+{
+    return normalize_check_len(vec, length(vec));
 }
 
 void main()
@@ -69,61 +96,39 @@ void main()
         return;
     }
 
-    const float min_miter_factor_round_join_mesh = sqrt(2.0);
-
     int join_type = int(u_line_join + 0.5);
     int cap_type = int(u_line_cap + 0.5);
     float halfwidth = 0.5*(u_linewidth + u_antialias);
-    vec2 segment_along = normalize(a_point_end - a_point_start); // unit vector.
+
+    vec2 segment_along = a_point_end - a_point_start;
     v_segment_length = length(a_point_end - a_point_start);
+    segment_along = normalize_check_len(segment_along, v_segment_length); // unit vector.
     vec2 segment_right = right_vector(segment_along);  // unit vector.
     vec2 xy;
 
-    bool miter_too_large_start = false;
-    bool miter_too_large_end = false;
+    // in screen coords
+    vec2 prev_along = normalize_check(a_point_start - a_point_prev);
+    vec2 prev_right = right_vector(prev_along);
+    vec2 next_right = right_vector(normalize_check(a_point_next - a_point_end));
 
-    v_coords.y = a_position.y*halfwidth;  // Overwritten later for end points.
+    v_coords.y = a_position.y*halfwidth;  // Overwritten later for join points.
 
+    // Start and end cap properties
     bool has_start_cap = a_show_prev < 0.5;
     bool has_end_cap = a_show_next < 0.5;
 
-    vec2 point_normal_start;
-    float cos_theta_start;
-    float turn_right_start;
-    if (has_start_cap)
-        point_normal_start = segment_right;
-    else {
-        vec2 prev_right = right_vector(normalize(a_point_start - a_point_prev));
-        point_normal_start = normalize(segment_right + prev_right);
-        cos_theta_start = dot(segment_right, point_normal_start);  // Always +ve
-        turn_right_start = sign_no_zero(dot(segment_right, a_point_prev - a_point_start));
-    }
+    // Start and end join properties
+    vec2 point_right_start, point_right_end;
+    float sin_turn_angle_start, sin_turn_angle_end;
+    v_cos_turn_angle_start = calc_turn_angle(has_start_cap, segment_right, prev_right, point_right_start, sin_turn_angle_start);
+    v_cos_turn_angle_end = calc_turn_angle(has_end_cap, segment_right, next_right, point_right_end, sin_turn_angle_end);
+    float sign_turn_right_start = sin_turn_angle_start >= 0.0 ? 1.0 : -1.0;
 
-    vec2 point_normal_end;
-    float cos_theta_end;
-    float turn_right_end;
-    if (has_end_cap)
-        point_normal_end = segment_right;
-    else {
-        vec2 next_right = right_vector(normalize(a_point_next - a_point_end));
-        point_normal_end = normalize(segment_right + next_right);
-        cos_theta_end = dot(segment_right, point_normal_end);  // Always +ve
-        turn_right_end = sign_no_zero(dot(segment_right, a_point_next - a_point_end));
-    }
-
-    float miter_factor_start = 1.0 / dot(segment_right, point_normal_start);
-    float miter_factor_end = 1.0 / dot(segment_right, point_normal_end);
-    if (join_type == miter_join) {
-        // If miter too large, use bevel join instead.
-        miter_too_large_start = (miter_factor_start > u_miter_limit);
-        miter_too_large_end = (miter_factor_end > u_miter_limit);
-    }
+    bool miter_too_large_start = !has_start_cap && miter_too_large(join_type, v_cos_turn_angle_start);
+    bool miter_too_large_end = !has_end_cap && miter_too_large(join_type, v_cos_turn_angle_end);
 
     float sign_at_start = -sign(a_position.x);  // +ve at segment start, -ve end.
     vec2 point = sign_at_start > 0.0 ? a_point_start : a_point_end;
-    vec2 adjacent_point =
-        sign_at_start > 0.0 ? (has_start_cap ? a_point_start : a_point_prev)
-                            : (has_end_cap ? a_point_end : a_point_next);
 
     if ( (has_start_cap && sign_at_start > 0.0) ||
          (has_end_cap && sign_at_start < 0.0) ) {
@@ -134,67 +139,62 @@ void main()
         else
             xy -= sign_at_start*halfwidth*segment_along;
     }
-    else { // Join.
-        // +ve if turning to right, -ve if to left.
-        float turn_sign = sign_at_start > 0.0 ? turn_right_start : turn_right_end;
+    else if (sign_at_start > 0.0) {
+        vec2 inside_point = a_point_start + segment_right*(sign_turn_right_start*halfwidth);
+        vec2 prev_outside_point = a_point_start - prev_right*(sign_turn_right_start*halfwidth);
 
-        vec2 adjacent_right = sign_at_start*normalize(right_vector(point - adjacent_point));
-        vec2 point_right = normalize(segment_right + adjacent_right);
-        float miter_factor = sign_at_start > 0.0 ? miter_factor_start : miter_factor_end;
-        bool miter_too_large = sign_at_start > 0.0 ? miter_too_large_start : miter_too_large_end;
-
-        if (abs(a_position.x) > 1.5) {
-            // Outer point, meets prev/next segment.
-            float factor;  // multiplied by halfwidth...
-
-            if (join_type == bevel_join || (join_type == miter_join && miter_too_large))
-                factor = 1.0 / miter_factor;  // cos_theta.
-            else if (join_type == round_join &&
-                     miter_factor > min_miter_factor_round_join_mesh)
-                factor = 1.0;
-            else  // miter, or round (small angle only).
-                factor = miter_factor;
-
-            xy = point - point_right*(halfwidth*turn_sign*factor);
-            v_coords.y = turn_sign*halfwidth*factor / miter_factor;
-        }
-        else if (turn_sign*a_position.y < 0.0) {
-            // Inner point, meets prev/next segment.
-            float len = halfwidth*miter_factor;
-            float segment_len = v_segment_length;
-            float adjacent_len = distance(point, adjacent_point);
-
-            if (len <= min(segment_len, adjacent_len))
-                // Normal behaviour.
-                xy = point - point_right*(len*a_position.y);
-            else
-                // For short wide line segments the inner point using the above
-                // calculation can be outside of the line.  Here clipping it.
-                xy = point + segment_right*(halfwidth*turn_sign);
-        }
-        else {
-            // Point along outside edge.
-            xy = point - segment_right*(halfwidth*a_position.y);
-            if (join_type == round_join &&
-                miter_factor > min_miter_factor_round_join_mesh) {
-                xy = line_intersection(xy, segment_along,
-                                       point - turn_sign*point_right*halfwidth,
-                                       right_vector(point_right));
+        // join at start.
+        if (join_type == round_join || join_type == bevel_join || miter_too_large_start) {
+            if (v_cos_turn_angle_start <= 0.0) {  // |turn_angle| > 90 degrees
+                xy = a_point_start - segment_right*(halfwidth*a_position.y) - halfwidth*segment_along;
+            }
+            else {
+                if (a_position.x < -1.5) {
+                    xy = prev_outside_point;
+                    v_coords.y = -dot(xy - a_point_start, segment_right);
+                }
+                else if (a_position.y*sign_turn_right_start > 0.0) {  // outside corner of turn
+                    float d = halfwidth*abs(sin_turn_angle_start);
+                    xy = a_point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
+                }
+                else {  // inside corner of turn
+                    xy = inside_point;
+                }
             }
         }
+        else {  // miter join
+            if (a_position.x < -1.5) {
+                xy = prev_outside_point;
+                v_coords.y = -dot(xy - a_point_start, segment_right);
+            }
+            else if (a_position.y*sign_turn_right_start > 0.0) {  // outside corner of turn
+                float tan_half_turn_angle = (1.0-v_cos_turn_angle_start) / sin_turn_angle_start;  // Trig identity
+                float d = sign_turn_right_start*halfwidth*tan_half_turn_angle;
+                xy = a_point_start - segment_right*(halfwidth*a_position.y) - d*segment_along;
+            }
+            else {  // inside corner if turn
+                xy = inside_point;
+            }
+        }
+    }
+    else {
+        xy = point - segment_right*(halfwidth*a_position.y);
     }
 
     vec2 pos = xy + 0.5;  // Bokeh's offset.
     pos /= u_canvas_size / u_pixel_ratio;  // in 0..1
     gl_Position = vec4(2.0*pos.x - 1.0, 1.0 - 2.0*pos.y, 0.0, 1.0);
 
+    bool turn_right_start = sin_turn_angle_start >= 0.0;
+    bool turn_right_end = sin_turn_angle_end >= 0.0;
+
     v_coords.x = dot(xy - a_point_start, segment_along);
     v_flags = float(int(has_start_cap) +
                     2*int(has_end_cap) +
                     4*int(miter_too_large_start) +
-                    8*int(miter_too_large_end));
-    v_cos_theta_turn_right_start = cos_theta_start*turn_right_start;
-    v_cos_theta_turn_right_end = cos_theta_end*turn_right_end;
+                    8*int(miter_too_large_end) +
+                    16*int(turn_right_start) +
+                    32*int(turn_right_end));
 
 #ifdef DASHED
     v_length_so_far = a_length_so_far;

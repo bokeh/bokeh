@@ -83,16 +83,18 @@ def install_js(packages: list[str]) -> None:
     if missing:
         die(BOKEHJS_INSTALL_FAIL.format(missing=", ".join(missing)))
 
-    if PKG_JS.exists():
-        rmtree(PKG_JS)
-    copytree(BUILD_JS, PKG_JS)
+    if not PKG_JS.is_symlink():
+        if PKG_JS.exists():
+            rmtree(PKG_JS)
+        copytree(BUILD_JS, PKG_JS)
 
-    if PKG_TSLIB.exists():
-        rmtree(PKG_TSLIB)
-    if BUILD_TSLIB.exists():
-        PKG_TSLIB.mkdir()
-        for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
-            copy(lib_file, PKG_TSLIB)
+    if not PKG_TSLIB.is_symlink():
+        if PKG_TSLIB.exists():
+            rmtree(PKG_TSLIB)
+        if BUILD_TSLIB.exists():
+            PKG_TSLIB.mkdir()
+            for lib_file in BUILD_TSLIB.glob("lib.*.d.ts"):
+                copy(lib_file, PKG_TSLIB)
 
     new = set(
         ".".join([*Path(parent).relative_to(SRC_ROOT).parts, d])
@@ -118,10 +120,23 @@ def build_or_install_bokehjs(packages: list[str]) -> None:
         raise ValueError(f"Unrecognized action {action!r}")
     print(f"Used {bright(yellow(kind))} BokehJS from {loc}\n")
 
+def check_tags() -> None:
+    try:
+        tags = subprocess.check_output(("git", "tag", "-l")).split()
+        if len(tags) < 5: # arbitrary "too-low" cutoff, there will always be more than 5 tags, if there are any
+            die(bright(red(MISSING_TAGS)))
+    except Exception:
+        print(bright(yellow("!!! Could not check repo tags. Please ensure full tag history")))
+
 def die(x: str) -> NoReturn:
     print(f"{x}\n")
     sys.exit(1)
 
+MISSING_TAGS = """
+!!! This repository is missing git tags! Full tag history is required to build Bokeh.
+!!!
+!!! See https://docs.bokeh.org/en/latest/docs/dev_guide/setup.html#troubleshooting
+"""
 SUCCESS = f"{bright(green('Success!'))}\n"
 FAILED = f"{bright(red('Failed.'))}\n"
 BUILD_SUCCESS_MSG =f"{SUCCESS}\nBuild output:\n\n{{msg}}"
@@ -141,11 +156,13 @@ BUILD_FAIL_MSG = f"""{FAILED}\nERROR: 'node make build' returned the following
 
 class Build(build):  # type: ignore
     def run(self) -> None:
+        check_tags()
         build_or_install_bokehjs(self.distribution.packages)
         super().run()
 
 class EditableWheel(editable_wheel):  # type: ignore
     def run(self) -> None:
+        check_tags()
         build_or_install_bokehjs(self.distribution.packages)
         super().run()
 
