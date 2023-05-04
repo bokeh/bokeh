@@ -14,8 +14,6 @@ bokeh.model
         :show-inheritance:
         :inherited-members:
 
-        .. .. autoclasstoc::
-
         .. autodata:: model_class_reverse_map
             :annotation: = {}
 

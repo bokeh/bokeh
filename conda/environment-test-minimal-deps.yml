@@ -54,7 +54,6 @@ dependencies:
   - pip:
     - mypy >=0.990
     # docs
-    - autoclasstoc <=1.4
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
     - sphinx

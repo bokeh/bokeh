@@ -67,8 +67,6 @@ __all__ = (
 class CodeHandler(Handler):
     ''' Run source code which modifies a Document
 
-    .. .. autoclasstoc::
-
     '''
 
     # These functions, if present in the supplied code, will be monkey patched

@@ -74,8 +74,6 @@ __all__ = (
 class State:
     ''' Manage state related to controlling Bokeh output.
 
-    .. .. autoclasstoc::
-
     '''
 
     _file: FileConfig | None

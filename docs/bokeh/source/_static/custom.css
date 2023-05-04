@@ -55,12 +55,6 @@ img.image-border {
   font-variant-ligatures: none;
 }
 
-/* More compact autoclasstoc tables */
-.autoclasstoc td {
-  padding: 0.15rem;
-  line-height: normal;
-}
-
 /* make left sidebar title invisible */
 .bd-links__title {
   display: none;

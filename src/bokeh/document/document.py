@@ -113,8 +113,6 @@ class Document:
     models to JSON. Accordingly,  the ``Document`` is thus the smallest unit
     of serialization for Bokeh.
 
-    .. .. autoclasstoc::
-
     '''
 
     callbacks: DocumentCallbackManager

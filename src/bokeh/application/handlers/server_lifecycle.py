@@ -50,8 +50,6 @@ __all__ = (
 class ServerLifecycleHandler(LifecycleHandler):
     ''' Load a script which contains server lifecycle callbacks.
 
-    .. .. autoclasstoc::
-
     '''
 
     def __init__(self, *, filename: PathLike, argv: list[str] = [], package: ModuleType | None = None) -> None:
