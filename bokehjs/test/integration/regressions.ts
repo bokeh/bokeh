@@ -11,7 +11,7 @@ import {
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
-  Circle, Quad, MultiLine,
+  Circle, Quad, MultiLine, Text,
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
@@ -3264,6 +3264,32 @@ describe("Bug", () => {
       })
 
       await display(gp)
+    })
+  })
+
+  describe("in issue #13112", () => {
+    it("doesn't allow to render Text glyph when using selection indices", async () => {
+      const p = fig([200, 200])
+
+      const source = new ColumnDataSource({
+        data: {
+          x: [1, 2, 3],
+          y: [2, 5, 8],
+          color: ["blue", "orange", "green"],
+          text: ["A", "B", "C"],
+        },
+        selected: new Selection({indices: [0, 2]}),
+      })
+
+      const selected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "red"})
+      const nonselected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "white"})
+      p.add_glyph(nonselected_glyph, source, {selection_glyph: selected_glyph, nonselection_glyph: nonselected_glyph})
+
+      const selected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "red"})
+      const nonselected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "white"})
+      p.add_glyph(nonselected_labels, source, {selection_glyph: selected_labels, nonselection_glyph: nonselected_labels})
+
+      await display(p)
     })
   })
 })
