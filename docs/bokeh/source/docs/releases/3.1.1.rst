@@ -1,0 +1,20 @@
+.. _release-3-1-1:
+
+3.1.1
+=====
+
+Bokeh Version ``3.1.1`` (May 2023) is a patch release that fixes a number of
+minor bugs/regressions and build issues.
+
+Changes
+-------
+
+* Fix race conditions related to layout resize and updates (:bokeh-issue:`13104`)
+* Incorrect behaviour of Slider control on Safari (:bokeh-issue:`13081`)
+* Domain is not resolved correctly when using BOKEH_RESOURCES=server (:bokeh-issue:`12400`)
+* Artifacts on the signal when using WebGL to plot (:bokeh-issue:`12913`)
+* load_notebook() uses non-unique DOM element IDs (:bokeh-issue:`12905`)
+* Propagate Name attribute to js for all Models (:bokeh-issue:`11782`)
+* Division element id of components can be invalid for CSS (:bokeh-issue:`10547`)
+* Investigate duplicated ctx.stroke() in various hatch patterns (:bokeh-issue:`10408`)
+* accent are sorted last in sorted Tablecolumn (:bokeh-issue:`6683`)
