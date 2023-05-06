@@ -89,6 +89,7 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 .. image:: _images/bokeh-hero.png
     :width: 100%
     :alt: A collage of 36 thumbnails of Bokeh plots
+    :target: `gallery`_
 
 
 .. _Interactive tutorial notebooks: https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb
@@ -99,3 +100,4 @@ You can also find more information about Bokeh on `Twitter`_, `Medium`_, and
 .. _Twitter: https://twitter.com/bokeh
 .. _Medium: https://medium.com/bokeh
 .. _LinkedIn: https://www.linkedin.com/company/project-bokeh/
+.. _gallery: docs/gallery.html
