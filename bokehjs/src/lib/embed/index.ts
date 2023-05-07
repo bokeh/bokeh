@@ -1,4 +1,5 @@
 import {Document, DocJson} from "../document"
+import {settings} from "../core/settings"
 import {ID} from "../core/types"
 import {logger} from "../core/logging"
 import {unescape, uuid4} from "../core/util/string"
@@ -69,7 +70,10 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
         views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
       } catch (error) {
-        console.log("Error rendering Bokeh items:", error)
+        if (settings.dev)
+          throw error
+        else
+          console.error("Error rendering Bokeh items:", error)
       }
     } else
       throw new Error("Error rendering Bokeh items: either 'docid' or 'token' was expected.")

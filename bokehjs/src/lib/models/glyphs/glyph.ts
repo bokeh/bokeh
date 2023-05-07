@@ -64,11 +64,16 @@ export abstract class GlyphView extends View {
   }
 
   get data_size(): number {
-    const {_data_size} = this
-    if (_data_size != null)
-      return _data_size
-    else
-      throw new Error(`${this}.set_data() wasn't called`)
+    const {base} = this
+    if (base != null) {
+      return base.data_size
+    } else {
+      const {_data_size} = this
+      if (_data_size != null)
+        return _data_size
+      else
+        throw new Error(`${this}.set_data() wasn't called`)
+    }
   }
 
   override initialize(): void {
