@@ -172,6 +172,19 @@ corresponding label or color.
 .. bokeh-plot:: __REPO__/examples/basic/areas/multipolygons.py
     :source-position: above
 
+Strips
+~~~~~~
+
+To draw multiple horizontal or vertical strips (bars of inifinite width or
+height respectively), use the |hstrip| or |vstrip| glyph methods. These methods
+accept either ``y0`` and ``y1`` or ``x0`` and ``x1`` coordinate components
+respectively. Note that these glyphs can only compute bounds in one axis, thus
+may require explicit range specification in the orthogonal axis, e.g. if used
+alone.
+
+.. bokeh-plot:: __REPO__/examples/basic/areas/strips.py
+    :source-position: above
+
 Ellipses
 --------
 
@@ -185,6 +198,7 @@ ellipse shapes.
 .. |ellipse|           replace:: :func:`~bokeh.plotting.figure.ellipse`
 .. |harea|             replace:: :func:`~bokeh.plotting.figure.harea`
 .. |harea_stack|       replace:: :func:`~bokeh.plotting.figure.harea_stack`
+.. |hstrip|            replace:: :func:`~bokeh.plotting.figure.hstrip`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.multi_line`
 .. |multi_polygons|    replace:: :func:`~bokeh.plotting.figure.multi_polygons`
@@ -194,3 +208,4 @@ ellipse shapes.
 .. |rect|              replace:: :func:`~bokeh.plotting.figure.rect`
 .. |varea|             replace:: :func:`~bokeh.plotting.figure.varea`
 .. |varea_stack|       replace:: :func:`~bokeh.plotting.figure.varea_stack`
+.. |vstrip|            replace:: :func:`~bokeh.plotting.figure.vstrip`

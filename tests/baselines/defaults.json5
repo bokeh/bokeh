@@ -2701,6 +2701,224 @@
       type: "map",
     },
   },
+  HSpan: {
+    __extends__: "LineGlyph",
+    y: {
+      type: "field",
+      field: "y",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  VSpan: {
+    __extends__: "LineGlyph",
+    x: {
+      type: "field",
+      field: "x",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+  },
+  HStrip: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    y0: {
+      type: "field",
+      field: "y0",
+    },
+    y1: {
+      type: "field",
+      field: "y1",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  VStrip: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x0: {
+      type: "field",
+      field: "x0",
+    },
+    x1: {
+      type: "field",
+      field: "x1",
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
+      type: "value",
+      value: null,
+    },
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
+  },
   LabelingPolicy: {
     __extends__: "Model",
   },
@@ -5447,7 +5665,7 @@
   HelpTool: {
     __extends__: "ActionTool",
     description: "Click the question mark to learn more about Bokeh plot tools.",
-    redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html",
+    redirect: "https://docs.bokeh.org/en/latest/docs/user_guide/interaction/tools.html",
   },
   ExamineTool: {
     __extends__: "ActionTool",

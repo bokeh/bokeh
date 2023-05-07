@@ -32,7 +32,7 @@ export class HelpTool extends ActionTool {
     this.prototype.default_view = HelpToolView
 
     this.define<HelpTool.Props>(({String}) => ({
-      redirect: [ String, "https://docs.bokeh.org/en/latest/docs/user_guide/tools.html"],
+      redirect: [ String, "https://docs.bokeh.org/en/latest/docs/user_guide/interaction/tools.html"],
     }))
 
     this.override<HelpTool.Props>({

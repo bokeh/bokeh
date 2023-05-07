@@ -15,6 +15,8 @@ method:
 .. bokeh-plot:: __REPO__/examples/basic/lines/line_single.py
     :source-position: above
 
+.. _ug_basic_lines_step:
+
 Step lines
 ----------
 
@@ -47,6 +49,8 @@ method as follows:
     ``ColumnDataSource`` consisting of a list of lists of point coordinates
     and a list of scalar values of matching length.
 
+.. _ug_basic_lines_missing_points:
+
 Missing points
 --------------
 
@@ -55,6 +59,8 @@ disjointed lines with gaps for ``NaN`` values.
 
 .. bokeh-plot:: __REPO__/examples/basic/lines/line_missing_points.py
     :source-position: above
+
+.. _ug_basic_lines_stacked:
 
 Stacked lines
 -------------
@@ -85,10 +91,10 @@ single |figure|.
 This principle applies to all |bokeh.plotting| glyph methods. You can add as
 many glyphs to a Bokeh plot as you want.
 
-.. _ug_basic_lines_segments:
-
 Specialized glyphs
 ------------------
+
+.. _ug_basic_lines_segments:
 
 Segments
 ~~~~~~~~
@@ -102,6 +108,8 @@ points ``x1`` and ``y1``. It renders segments between those points.
 .. bokeh-plot:: __REPO__/examples/basic/lines/segment.py
     :source-position: above
 
+.. _ug_basic_lines_rays:
+
 Rays
 ~~~~
 
@@ -113,6 +121,22 @@ edge of the plot, set ``length`` to ``0``.
 
 .. bokeh-plot:: __REPO__/examples/basic/lines/ray.py
     :source-position: above
+
+.. _ug_basic_lines_spans:
+
+Spans
+~~~~~
+
+To draw multiple horizontal or vertical spans (lines of inifinite width or
+height respectively), use the |hspan| or |vspan| glyph methods. These methods
+accept either ``y`` or ``x`` coordinate components respectively. Note that
+these glyphs can only compute bounds in one axis, thus may require explicit
+range specification in the orthogonal axis, e.g. if used alone.
+
+.. bokeh-plot:: __REPO__/examples/basic/lines/spans.py
+    :source-position: above
+
+.. _ug_basic_lines_arcs:
 
 Arcs
 ~~~~
@@ -126,6 +150,8 @@ and end angles.
 .. bokeh-plot:: __REPO__/examples/basic/lines/arcs.py
     :source-position: above
 
+.. _ug_basic_lines_parameterized:
+
 Parameterized
 ~~~~~~~~~~~~~
 
@@ -136,6 +162,7 @@ To draw parameterized quadratic and cubic curves, use the |quadratic| and
 .. |arc|               replace:: :func:`~bokeh.plotting.figure.arc`
 .. |bezier|            replace:: :func:`~bokeh.plotting.figure.bezier`
 .. |hline_stack|       replace:: :func:`~bokeh.plotting.figure.hline_stack`
+.. |hspan|             replace:: :func:`~bokeh.plotting.figure.hspan`
 .. |line|              replace:: :func:`~bokeh.plotting.figure.line`
 .. |multi_line|        replace:: :func:`~bokeh.plotting.figure.multi_line`
 .. |step|              replace:: :func:`~bokeh.plotting.figure.step`
@@ -143,3 +170,4 @@ To draw parameterized quadratic and cubic curves, use the |quadratic| and
 .. |quadratic|         replace:: :func:`~bokeh.plotting.figure.quadratic`
 .. |ray|               replace:: :func:`~bokeh.plotting.figure.ray`
 .. |segment|           replace:: :func:`~bokeh.plotting.figure.segment`
+.. |vspan|             replace:: :func:`~bokeh.plotting.figure.vspan`
