@@ -53,7 +53,7 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-def create_firefox_webdriver() -> WebDriver:
+def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
     firefox = which("firefox")
     if firefox is None:
         raise RuntimeError("firefox is not installed or not present on PATH")
@@ -70,15 +70,16 @@ def create_firefox_webdriver() -> WebDriver:
 
     options = Options()
     options.add_argument("--headless")
+    options.set_preference('layout.css.devPixelsPerPx', f'{scale_factor}')
 
     return Firefox(service=service, options=options)
 
-def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriver:
+def create_chromium_webdriver(extra_options: list[str] | None = None, scale_factor: float = 1) -> WebDriver:
     from selenium.webdriver.chrome.options import Options
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
-    options.add_argument("--force-device-scale-factor=1")
+    options.add_argument(f"--force-device-scale-factor={scale_factor}")
     options.add_argument("--force-color-profile=srgb")
     if extra_options:
         for op in extra_options:
@@ -90,6 +91,20 @@ def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriv
     from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
     return Chrome(options=options)
 
+
+
+def scale_factor_less_than_web_driver_device_pixel_ratio(scale_factor: float, web_driver: WebDriver) -> bool:
+    device_pixel_ratio = get_web_driver_device_pixel_ratio(web_driver)
+    return device_pixel_ratio >= scale_factor
+
+
+def get_web_driver_device_pixel_ratio(web_driver: WebDriver) -> float:
+    calculate_web_driver_device_pixel_ratio = """\
+        return window.devicePixelRatio
+    """
+    device_pixel_ratio: float = web_driver.execute_script(calculate_web_driver_device_pixel_ratio)
+    return device_pixel_ratio
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
@@ -97,15 +112,15 @@ def create_chromium_webdriver(extra_options: list[str] | None = None) -> WebDriv
 def _is_executable(path: str) -> bool:
     return isfile(path) and os.access(path, os.X_OK)
 
-def _try_create_firefox_webdriver() -> WebDriver | None:
+def _try_create_firefox_webdriver(scale_factor: float = 1) -> WebDriver | None:
     try:
-        return create_firefox_webdriver()
+        return create_firefox_webdriver(scale_factor=scale_factor)
     except Exception:
         return None
 
-def _try_create_chromium_webdriver() -> WebDriver | None:
+def _try_create_chromium_webdriver(scale_factor: float = 1) -> WebDriver | None:
     try:
-        return create_chromium_webdriver()
+        return create_chromium_webdriver(scale_factor=scale_factor)
     except Exception:
         return None
 
@@ -132,27 +147,28 @@ class _WebdriverState:
             self.terminate(self.current)
             self.current = None
 
-    def get(self) -> WebDriver:
-        if not self.reuse or self.current is None:
+    def get(self, scale_factor: float = 1) -> WebDriver:
+        if not self.reuse or self.current is None or not scale_factor_less_than_web_driver_device_pixel_ratio(
+                scale_factor, self.current):
             self.reset()
-            self.current = self.create()
+            self.current = self.create(scale_factor=scale_factor)
         return self.current
 
-    def create(self, kind: DriverKind | None = None) -> WebDriver:
-        driver = self._create(kind)
+    def create(self, kind: DriverKind | None = None, scale_factor: float = 1) -> WebDriver:
+        driver = self._create(kind, scale_factor=scale_factor)
         self._drivers.add(driver)
         return driver
 
-    def _create(self, kind: DriverKind | None) -> WebDriver:
+    def _create(self, kind: DriverKind | None, scale_factor: float = 1) -> WebDriver:
         driver_kind = kind or self.kind
 
         if driver_kind is None:
-            driver = _try_create_chromium_webdriver()
+            driver = _try_create_chromium_webdriver(scale_factor=scale_factor)
             if driver is not None:
                 self.kind = "chromium"
                 return driver
 
-            driver = _try_create_firefox_webdriver()
+            driver = _try_create_firefox_webdriver(scale_factor=scale_factor)
             if driver is not None:
                 self.kind = "firefox"
                 return driver
@@ -161,9 +177,9 @@ class _WebdriverState:
                                "chromedriver are available on system PATH. You can install the former " \
                                "with 'conda install -c conda-forge firefox geckodriver'.")
         elif driver_kind == "chromium":
-            return create_chromium_webdriver()
+            return create_chromium_webdriver(scale_factor=scale_factor)
         elif driver_kind == "firefox":
-            return create_firefox_webdriver()
+            return create_firefox_webdriver(scale_factor=scale_factor)
         else:
             raise ValueError(f"'{driver_kind}' is not a recognized webdriver kind")
 
