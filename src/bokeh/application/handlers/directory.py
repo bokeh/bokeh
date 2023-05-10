@@ -95,9 +95,6 @@ __all__ = (
 
 class DirectoryHandler(Handler):
     ''' Load an application directory which modifies a Document.
-
-    .. autoclasstoc::
-
     '''
 
     _package_runner: CodeRunner | None

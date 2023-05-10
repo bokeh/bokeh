@@ -71,8 +71,6 @@ __all__ = (
 class ScriptHandler(CodeHandler):
     ''' Modify Bokeh documents by executing code from Python scripts.
 
-    .. autoclasstoc::
-
     '''
 
     _logger_text = "%s: call to %s() ignored when running scripts with the 'bokeh' command."

@@ -37,9 +37,9 @@ dependencies:
   - pip
   - pip:
     # docs
-    - autoclasstoc <=1.4
-    - pydata_sphinx_theme ==0.9
-    - sphinx ==5.3
+    - pydata_sphinx_theme
+    - sphinx
     - sphinx-copybutton
     - sphinx-design
+    - sphinx-favicon
     - sphinxext-opengraph

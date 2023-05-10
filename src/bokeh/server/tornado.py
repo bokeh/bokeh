@@ -236,8 +236,6 @@ class BokehTornado(TornadoApplication):
 
     Any additional keyword arguments are passed to ``tornado.web.Application``.
 
-    .. autoclasstoc::
-
     '''
 
     _loop: IOLoop

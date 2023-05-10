@@ -49,8 +49,6 @@ __all__ = (
 class RequestHandler(Handler):
     ''' Load a script which contains server request handler callbacks.
 
-    .. autoclasstoc::
-
     '''
 
     _process_request: Callable[[HTTPServerRequest], dict[str, Any]]

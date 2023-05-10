@@ -50,8 +50,6 @@ __all__ = (
 class ServerRequestHandler(RequestHandler):
     ''' Load a script which contains server request handler callbacks.
 
-    .. autoclasstoc::
-
     '''
 
     _module: ModuleType

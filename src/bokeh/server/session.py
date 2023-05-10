@@ -122,8 +122,6 @@ def current_time() -> float:
 class ServerSession:
     ''' Hosts an application "instance" (an instantiated Document) for one or more connections.
 
-    .. autoclasstoc::
-
     '''
 
     _subscribed_connections: set[ServerConnection]
