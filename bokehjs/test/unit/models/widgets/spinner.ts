@@ -82,7 +82,7 @@ describe("Spinner incrementing and decrementing", () => {
     expect(input.value).to.be.equal("3.724")
   })
 
-  it("values should be bound by high and low values", async () => {
+  it("values should not exceed high and low values", async () => {
     const obj = new Spinner({value: 2.36, step: 1, high: 5, low: 0.5, mode: "float", format: "0.00"})
     const {view} = await display(obj, [500, 400])
 
@@ -99,21 +99,21 @@ describe("Spinner incrementing and decrementing", () => {
     expect(input.value).to.be.equal("4.36")
 
     await mousedown_mouseup(increment_button)
-    expect(input.value).to.be.equal("5.00")
+    expect(input.value).to.be.equal("4.36")
+
+    await mousedown_mouseup(increment_button)
+    expect(input.value).to.be.equal("4.36")
 
     await mousedown_mouseup(decrement_button)
-    expect(input.value).to.be.equal("4.00")
+    expect(input.value).to.be.equal("3.36")
 
     await mousedown_mouseup(decrement_button)
-    expect(input.value).to.be.equal("3.00")
+    expect(input.value).to.be.equal("2.36")
 
     await mousedown_mouseup(decrement_button)
-    expect(input.value).to.be.equal("2.00")
+    expect(input.value).to.be.equal("1.36")
 
     await mousedown_mouseup(decrement_button)
-    expect(input.value).to.be.equal("1.00")
-
-    await mousedown_mouseup(decrement_button)
-    expect(input.value).to.be.equal("0.50")
+    expect(input.value).to.be.equal("1.36")
   })
 })

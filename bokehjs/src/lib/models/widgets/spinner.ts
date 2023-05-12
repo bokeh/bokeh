@@ -194,6 +194,14 @@ export class SpinnerView extends NumericInputView {
     super.change_input()
     this.model.value_throttled = this.model.value
   }
+
+  override bound_value(value: number): number {
+    let output = value
+    const {low, high} = this.model
+    if (low != null && output < low) output = this.model.value ?? 0
+    if (high != null && output > high) output = this.model.value ?? 0
+    return output
+  }
 }
 
 export namespace Spinner {
