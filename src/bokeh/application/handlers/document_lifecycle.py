@@ -39,9 +39,6 @@ __all__ = (
 
 class DocumentLifecycleHandler(LifecycleHandler):
     ''' Calls on_session_destroyed callbacks defined on the Document.
-
-    .. autoclasstoc::
-
     '''
 
     def __init__(self) -> None:

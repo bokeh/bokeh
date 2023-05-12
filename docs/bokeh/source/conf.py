@@ -33,10 +33,10 @@ add_module_names = False
 exclude_patterns = ["docs/releases/*"]
 
 extensions = [
-    "autoclasstoc",
     "sphinxext.opengraph",
     "sphinx_copybutton",
     "sphinx_design",
+    "sphinx_favicon",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.ifconfig",
@@ -69,11 +69,6 @@ needs_sphinx = "4.3.2"
 rst_epilog = open("rst_epilog.txt").read()
 
 # -- Extensions configuration --------------------------------------------------
-
-autoclasstoc_sections = [
-    "public-attrs",
-    "public-methods",
-]
 
 autodoc_member_order = "groupwise"
 
@@ -180,47 +175,50 @@ html_title = f"{project} {version} Documentation"
 # html_logo configured in navbar-logo.html
 
 html_theme_options = {
+    "analytics": {"google_analytics_id": "UA-27761864-7"},
     "external_links": [
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"}
     ],
+    "github_url": "https://github.com/bokeh/bokeh",
+    "navbar_align": "left",
+    "navbar_end": ["navbar-icon-links"],
+    "navbar_start": ["navbar-logo", "version-switcher"],
+    "pygment_light_style": "xcode",
+    "secondary_sidebar_items": ["page-toc", "edit-this-page"],
+    "show_nav_level": 2,
+    "show_toc_level": 1,
     "switcher": {
         "json_url": "https://docs.bokeh.org/switcher.json",
         "version_match": version,
     },
-    "pygment_light_style": "xcode",
-    "github_url": "https://github.com/bokeh/bokeh",
-    "google_analytics_id": "UA-27761864-7",
-    "navbar_align": "left",
-    "navbar_start": ["navbar-logo", "version-switcher"],
-    "navbar_end": ["navbar-icon-links"],
-    "show_nav_level": 2,
-    "show_toc_level": 1,
     "twitter_url": "https://twitter.com/bokeh",
-    "favicons": [
-        {
-            "rel": "icon",
-            "sizes": "16x16",
-            "href": "https://static.bokeh.org/favicon/favicon-16x16.png",
-        },
-        {
-            "rel": "icon",
-            "sizes": "32x32",
-            "href": "https://static.bokeh.org/favicon/favicon-32x32.png",
-        },
-        {
-            "rel": "apple-touch-icon",
-            "sizes": "180x180",
-            "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
-        },
-    ]
+    "use_edit_page_button": False,
 }
 
 html_sidebars = {
-  "docs/examples/**": [],
-  "docs/gallery": [],
-  "index": [],
+    "docs/examples/**": [],
+    "docs/gallery": [],
+    "index": [],
 }
+
+favicons = [
+    {
+        "rel": "icon",
+        "sizes": "16x16",
+        "href": "https://static.bokeh.org/favicon/favicon-16x16.png",
+    },
+    {
+        "rel": "icon",
+        "sizes": "32x32",
+        "href": "https://static.bokeh.org/favicon/favicon-32x32.png",
+    },
+    {
+        "rel": "apple-touch-icon",
+        "sizes": "180x180",
+        "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
+    },
+]
 
 templates_path = ["_templates"]
 

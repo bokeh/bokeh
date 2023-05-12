@@ -11,7 +11,7 @@ import {
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
-  Circle, Quad, MultiLine,
+  Circle, Quad, MultiLine, Text,
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
@@ -49,7 +49,7 @@ import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {paint} from "@bokehjs/core/util/defer"
+import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {MarkerArgs} from "@bokehjs/api/glyph_api"
@@ -59,6 +59,7 @@ import {XY, LRTB} from "@bokehjs/core/util/bbox"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {PlotView} from "@bokehjs/models/plots/plot"
+import {FigureView} from "@bokehjs/models/plots/figure"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
@@ -3224,6 +3225,71 @@ describe("Bug", () => {
       const p1 = make_plot("webgl")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #13104", () => {
+    it("results in a race condition in the layout if lazy_initialize() takes time", async () => {
+      class CustomFigureView extends FigureView {
+        declare model: CustomFigure
+
+        override async lazy_initialize(): Promise<void> {
+          await super.lazy_initialize()
+          await delay(5)
+        }
+      }
+
+      class CustomFigure extends Figure {
+        declare __view_type__: CustomFigureView
+
+        static {
+          this.prototype.default_view = CustomFigureView
+        }
+      }
+
+      const p00 = new CustomFigure()
+      p00.circle([1, 2, 3], [1, 2, 3], {fill_color: "red"})
+      const p01 = new CustomFigure()
+      p01.circle([1, 2, 3], [1, 2, 3], {fill_color: "green"})
+      const p10 = new CustomFigure()
+      p10.circle([1, 2, 3], [1, 2, 3], {fill_color: "blue"})
+      const p11 = new CustomFigure()
+      p11.circle([1, 2, 3], [1, 2, 3], {fill_color: "yellow"})
+
+      const gp = new GridBox({
+        children: [
+          [p00, 0, 0], [p01, 0, 1],
+          [p10, 1, 0], [p11, 1, 1],
+        ],
+      })
+
+      await display(gp)
+    })
+  })
+
+  describe("in issue #13112", () => {
+    it("doesn't allow to render Text glyph when using selection indices", async () => {
+      const p = fig([200, 200])
+
+      const source = new ColumnDataSource({
+        data: {
+          x: [1, 2, 3],
+          y: [2, 5, 8],
+          color: ["blue", "orange", "green"],
+          text: ["A", "B", "C"],
+        },
+        selected: new Selection({indices: [0, 2]}),
+      })
+
+      const selected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "red"})
+      const nonselected_glyph = new Circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, line_color: "white"})
+      p.add_glyph(nonselected_glyph, source, {selection_glyph: selected_glyph, nonselection_glyph: nonselected_glyph})
+
+      const selected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "red"})
+      const nonselected_labels = new Text({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, anchor: "center", text_color: "white"})
+      p.add_glyph(nonselected_labels, source, {selection_glyph: selected_labels, nonselection_glyph: nonselected_labels})
+
+      await display(p)
     })
   })
 })

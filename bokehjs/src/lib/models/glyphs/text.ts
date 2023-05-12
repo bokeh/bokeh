@@ -39,10 +39,11 @@ export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
 
-  protected override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
+  override after_visuals(): void {
+    super.after_visuals()
 
-    this.labels = Array.from(this.text, (value) => {
+    const {text} = this.base ?? this
+    this.labels = Array.from(text, (value) => {
       if (value == null) {
         return null
       } else {
@@ -50,13 +51,9 @@ export class TextView extends XYGlyphView {
         return new TextBox({text})
       }
     })
-  }
-
-  override after_visuals(): void {
-    super.after_visuals()
 
     const n = this.data_size
-    const {anchor} = this
+    const {anchor} = this.base ?? this
     const {padding, border_radius} = this.model
 
     const {text_align, text_baseline} = this.visuals.text
@@ -101,10 +98,10 @@ export class TextView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
-    const {sx, sy, x_offset, y_offset, angle, labels} = data ?? this
+    const {sx, sy, x_offset, y_offset, angle} = data ?? this
     const {text, background_fill, background_hatch, border_line} = this.visuals
     const {anchor_: anchor, border_radius, padding} = this
-    const {swidth, sheight} = this
+    const {labels, swidth, sheight} = this
 
     for (const i of indices) {
       const sx_i = sx[i] + x_offset.get(i)

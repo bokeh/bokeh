@@ -64,8 +64,6 @@ class AuthProvider:
     The properties ``logout_url`` and ``get_logout_handler`` are analogous to
     the corresponding login properties, and are optional.
 
-    .. autoclasstoc::
-
     '''
 
     def __init__(self) -> None:
@@ -208,8 +206,6 @@ class AuthModule(AuthProvider):
     The ``logout_handler`` property will return a ``LogoutHandler`` class from
     the module, or None otherwise.
 
-    .. autoclasstoc::
-
     '''
 
     def __init__(self, module_path: PathLike) -> None:
@@ -252,8 +248,6 @@ class NullAuth(AuthProvider):
     ''' A default no-auth AuthProvider.
 
     All of the properties of this provider return None.
-
-    .. autoclasstoc::
 
     '''
     @property

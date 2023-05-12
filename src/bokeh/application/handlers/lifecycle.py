@@ -44,8 +44,6 @@ __all__ = (
 class LifecycleHandler(Handler):
     ''' Load a script which contains server lifecycle callbacks.
 
-    .. autoclasstoc::
-
     '''
 
     _on_server_loaded: Callable[[ServerContext], None]

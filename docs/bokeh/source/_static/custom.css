@@ -10,49 +10,19 @@ html[data-theme=light] {
   --pst-color-inline-code: var(--pst-color-text-base);
 }
 
-/* customize display of inline pre elements */
-.literal .pre, span .pre {
-  font-family: SFMono-Regular,Menlo,Monaco,Consolas,Liberation Mono,Courier New,monospace;
-  padding: 2px 1px 0px 1px;
-  font-size: 100%;
+/* make sure the article container uses all available space */
+.bd-article-container {
+  max-width: 100% !important;
 }
 
-code {
-  background-color:#eef0f1;
-}
-
-/* Match color of RST :ref: to that of other clickable links */
-.xref .pre {
-  color: var(--pst-color-secondary);
+/* disable this container to avoid unnecessary overflow */
+#rtd-footer-container {
+  display: none;
 }
 
 /* Tweak appearance of args in reference guide */
 .class .sig, .function .sig, .sig .property {
   font-weight: 400;
-}
-
-/* Tweak search results appearance */
-#search-results .context {
-  padding-left: 1em;
-}
-#search-results li {
-  margin-bottom: 1em;
-}
-
-/* WAR for https://github.com/pydata/pydata-sphinx-theme/issues/464 */
-dl.py dl.field-list {
-  display: grid;
-  grid-template-columns: unset;
-}
-dl.py dt.field-odd, dl.py dt.field-even {
-  margin-top: 10px;
-  margin-bottom: 2px;
-  background-color: #eee;
-}
-
-/* Tweak harsh version switcher border */
-#version_switcher .btn-group-sm > .btn, .btn-sm {
-  border-radius: 0.5rem;
 }
 
 /* Tweak borders for images (e.g. screenshots) */
@@ -71,9 +41,6 @@ img.image-border {
 }
 
 /* Tweak sphinx-design cards */
-.sd-container-fluid div {
-  margin-bottom: 15px;
-}
 .bokeh-examples div {
   padding: 0px;
   margin: 0px;
@@ -83,32 +50,14 @@ img.image-border {
   height: 100%;
 }
 
-/* Light code block background */
-div.highlight pre {
-  background-color: #fafafa !important;
-}
-
-/* If no-sidebar is present, hide the div entirely to prevent taking space */
-.no-sidebar {
-  display: none;
-}
-
 /* Ligatures provide bad UX in some cases, just turn them off */
 * {
   font-variant-ligatures: none;
 }
 
-/* Customize search box */
-#search-input {
-  border: 1px solid var(--pst-color-borders);
-  border-radius: 1.5px;
-  color: var(--pst-color-text-base);
-}
-
-/* More compact autoclasstoc tables */
-.autoclasstoc td {
-  padding: 0.15rem;
-  line-height: normal;
+/* make left sidebar title invisible */
+.bd-links__title {
+  display: none;
 }
 
 /* CSS for our custom footer */
@@ -166,6 +115,7 @@ div.highlight pre {
   color: #ddd;
 }
 
+/* CSS for our custom gallery */
 div.bk-gallery {
     width: 100%;
     margin: 0px 0px 20px 0px;
@@ -228,35 +178,35 @@ img.gallery {
 }
 
 table.dataframe {
- border: none !important;
- border-collapse: collapse;
- border-spacing: 0;
- border-color: transparent;
- color: black;
- font-size: 12px;
- table-layout: fixed;
+  border: none !important;
+  border-collapse: collapse;
+  border-spacing: 0;
+  border-color: transparent;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
 }
 table.dataframe thead {
- border-bottom: 1px solid black;
- vertical-align: bottom;
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
 }
 table.dataframe tr,
 table.dataframe th,
 table.dataframe td {
- text-align: right;
- vertical-align: middle;
- padding: 0.5em 0.5em;
- line-height: normal;
- white-space: normal;
- max-width: none;
- border: none;
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
 }
 table.dataframe th {
- font-weight: bold;
+  font-weight: bold;
 }
 table.dataframe tbody tr:nth-child(odd) {
- background: #f5f5f5;
+  background: #f5f5f5;
 }
 table.dataframe tbody tr:hover {
- background: rgba(66, 165, 245, 0.2);
+  background: rgba(66, 165, 245, 0.2);
 }

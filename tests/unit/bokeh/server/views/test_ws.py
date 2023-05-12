@@ -44,13 +44,16 @@ async def test_send_message_raises(caplog: pytest.LogCaptureFixture) -> None:
     class ExcMessage:
         def send(self, handler):
             raise WebSocketClosedError()
-    assert len(caplog.records) == 0
+    # TODO: assert len(caplog.records) == 0
     with caplog.at_level(logging.WARN):
         # fake self not great but much easier than setting up a real view
         ret = await WSHandler.send_message("self", ExcMessage())
-        assert len(caplog.records) == 1
-        assert caplog.text.endswith("Failed sending message as connection was closed\n")
         assert ret is None
+        # TODO: assert len(caplog.records) == 1
+        # TODO: assert caplog.text.endswith("Failed sending message as connection was closed\n")
+        # XXX: caplog collects stray messages from previously unawaited async function calls,
+        # resulting in varing number of messages, depeding on the tests run and thier order
+        assert len([msg for msg in caplog.messages if "Failed sending message as connection was closed" in msg]) == 1
 
 def test_uses_auth_request_handler() -> None:
     assert issubclass(WSHandler, AuthRequestHandler)

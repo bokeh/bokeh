@@ -266,13 +266,22 @@ export class GlyphRendererView extends DataRendererView {
     const {all_indices} = this
 
     this.glyph.set_visuals(source, all_indices)
-    this.decimated_glyph.set_visuals(source, all_indices)
-    this.selection_glyph.set_visuals(source, all_indices)
-    this.nonselection_glyph.set_visuals(source, all_indices)
-    this.hover_glyph?.set_visuals(source, all_indices)
-    this.muted_glyph.set_visuals(source, all_indices)
-
     this.glyph.after_visuals()
+
+    this.decimated_glyph.set_visuals(source, all_indices)
+    this.decimated_glyph.after_visuals()
+
+    this.selection_glyph.set_visuals(source, all_indices)
+    this.selection_glyph.after_visuals()
+
+    this.nonselection_glyph.set_visuals(source, all_indices)
+    this.nonselection_glyph.after_visuals()
+
+    this.hover_glyph?.set_visuals(source, all_indices)
+    this.hover_glyph?.after_visuals()
+
+    this.muted_glyph.set_visuals(source, all_indices)
+    this.muted_glyph.after_visuals()
   }
 
   override get has_webgl(): boolean {
