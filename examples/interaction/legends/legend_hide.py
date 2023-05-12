@@ -8,7 +8,6 @@ the corresponding lines.
     :apis: bokeh.plotting.figure.line, bokeh.palettes.Spectral4
     :refs: :ref:`ug_basic_annotations_legends`
     :keywords: line, time series, legend
-    
 '''
 import pandas as pd
 
