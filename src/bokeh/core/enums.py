@@ -115,6 +115,7 @@ __all__ = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'KeyModifier',
     'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
@@ -373,6 +374,10 @@ ImageOrigin = enumeration("bottom_left", "top_left", "bottom_right", "top_right"
 #: Specify a distribution to use for the Jitter class
 JitterRandomDistributionType = Literal["uniform", "normal"]
 JitterRandomDistribution = enumeration(JitterRandomDistributionType)
+
+#:
+KeyModifier = Literal["shift", "ctrl", "alt"]
+KeyModifier = enumeration("shift", "ctrl", "alt")
 
 #: Specify how labels are oriented with respect to an axis
 LabelOrientationType = Literal["horizontal", "vertical", "parallel", "normal"]

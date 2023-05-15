@@ -1,6 +1,7 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import type {CallbackLike1} from "../../callbacks/callback"
 import type * as p from "core/properties"
+import {PartialStruct, Boolean} from "core/kinds"
 import type {TapEvent} from "core/ui_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
@@ -13,6 +14,13 @@ export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
   source: ColumnarDataSource
 }>
+
+type KeyModifiers = typeof KeyModifiers["__type__"]
+const KeyModifiers = PartialStruct({
+  shift: Boolean,
+  ctrl: Boolean,
+  alt: Boolean,
+})
 
 export class TapToolView extends SelectToolView {
   declare model: TapTool
@@ -28,6 +36,14 @@ export class TapToolView extends SelectToolView {
   }
 
   _handle_tap(ev: TapEvent): void {
+    const {modifiers} = this.model
+    if (modifiers.shift != null && modifiers.shift != ev.shift_key)
+      return
+    if (modifiers.ctrl != null && modifiers.ctrl != ev.ctrl_key)
+      return
+    if (modifiers.alt != null && modifiers.alt != ev.alt_key)
+      return
+
     const {sx, sy} = ev
     const {frame} = this.plot_view
     if (!frame.bbox.contains(sx, sy))
@@ -55,7 +71,10 @@ export class TapToolView extends SelectToolView {
         if (did_hit && callback != null) {
           const x = r_views[0].coordinates.x_scale.invert(geometry.sx)
           const y = r_views[0].coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source}
+          const data = {
+            geometries: {...geometry, x, y},
+            source: sm.source,
+          }
           callback.execute(this.model, data)
         }
       }
@@ -88,6 +107,7 @@ export namespace TapTool {
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
+    modifiers: p.Property<KeyModifiers>
     callback: p.Property<TapToolCallback | null>
   }
 }
@@ -106,9 +126,10 @@ export class TapTool extends SelectTool {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>(({Any, Nullable}) => ({
-      behavior: [ TapBehavior, "select" ],
-      gesture:  [ TapGesture, "tap"],
-      callback: [ Nullable(Any /*TODO*/), null ],
+      behavior:  [ TapBehavior, "select" ],
+      gesture:   [ TapGesture, "tap"],
+      modifiers: [ KeyModifiers, {} ],
+      callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))

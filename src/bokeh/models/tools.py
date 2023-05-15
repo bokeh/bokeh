@@ -49,6 +49,7 @@ from ..core.enums import (
     Anchor,
     Dimension,
     Dimensions,
+    KeyModifier,
     SelectionMode,
     ToolIcon,
     TooltipAttachment,
@@ -80,8 +81,10 @@ from ..core.properties import (
     Regex,
     Seq,
     String,
+    Struct,
     Tuple,
 )
+from ..core.property.struct import Optional
 from ..core.validation import error
 from ..core.validation.errors import (
     INCOMPATIBLE_BOX_EDIT_RENDERER,
@@ -675,6 +678,16 @@ class TapTool(Tap, SelectTool):
     Specifies which kind of gesture will be used to trigger the tool,
     either a single or double tap.
     """)
+
+    modifiers = Struct(shift=Optional(Bool), ctrl=Optional(Bool), alt=Optional(Bool), default={}, help="""
+    Allows to configure a combination of modifier keys, which need to
+    be pressed during the selected gesture for this tool to trigger.
+
+    .. note::
+        Configuring modifiers is a platform dependent feature and
+        can make this tool unsable for example on mobile devices.
+
+    """).accepts(Enum(KeyModifier), lambda key_mod: {key_mod: True})
 
     callback = Nullable(Instance(Callback), help="""
     A callback to execute *whenever a glyph is "hit"* by a mouse click
