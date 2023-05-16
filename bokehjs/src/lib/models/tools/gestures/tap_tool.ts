@@ -13,6 +13,9 @@ import {tool_icon_tap_select} from "styles/icons.css"
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
   source: ColumnarDataSource
+  event: {
+    modifiers?: KeyModifiers
+  }
 }>
 
 type KeyModifiers = typeof KeyModifiers["__type__"]
@@ -55,7 +58,12 @@ export class TapToolView extends SelectToolView {
     if (this.model.behavior == "select") {
       this._select(geometry, true, this._select_mode(ev))
     } else {
-      this._inspect(geometry)
+      const modifiers = {
+        shift: ev.shift_key,
+        ctrl: ev.ctrl_key,
+        alt: ev.alt_key,
+      }
+      this._inspect(geometry, modifiers)
     }
   }
 
@@ -78,7 +86,7 @@ export class TapToolView extends SelectToolView {
     this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
   }
 
-  protected _inspect(geometry: PointGeometry): void {
+  protected _inspect(geometry: PointGeometry, modifiers?: KeyModifiers): void {
     for (const r of this.computed_renderers) {
       const rv = this.plot_view.renderer_view(r)
       if (rv == null)
@@ -87,12 +95,12 @@ export class TapToolView extends SelectToolView {
       const sm = r.get_selection_manager()
       const did_hit = sm.inspect(rv, geometry)
       if (did_hit) {
-        this._emit_callback(rv, geometry, sm.source)
+        this._emit_callback(rv, geometry, sm.source, modifiers)
       }
     }
   }
 
-  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource): void {
+  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource, modifiers?: KeyModifiers): void {
     const {callback} = this.model
     if (callback != null) {
       const x = rv.coordinates.x_scale.invert(geometry.sx)
@@ -100,6 +108,7 @@ export class TapToolView extends SelectToolView {
       const data = {
         geometries: {...geometry, x, y},
         source,
+        event: {modifiers},
       }
       callback.execute(this.model, data)
     }
