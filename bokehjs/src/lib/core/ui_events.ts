@@ -658,48 +658,55 @@ export class UIEventBus implements EventListenerObject {
       const x = plot_view.frame.x_scale.invert(sx)
       const y = plot_view.frame.y_scale.invert(sy)
 
+      const modifiers = {
+        shift: e.shift_key,
+        ctrl: e.ctrl_key,
+        alt: e.alt_key,
+      }
+
       switch (e.type) {
         case "wheel":
-          return new events.MouseWheel(sx, sy, x, y, e.delta)
+          return new events.MouseWheel(sx, sy, x, y, e.delta, modifiers)
         case "mousemove":
-          return new events.MouseMove(sx, sy, x, y)
+          return new events.MouseMove(sx, sy, x, y, modifiers)
         case "mouseenter":
-          return new events.MouseEnter(sx, sy, x, y)
+          return new events.MouseEnter(sx, sy, x, y, modifiers)
         case "mouseleave":
-          return new events.MouseLeave(sx, sy, x, y)
+          return new events.MouseLeave(sx, sy, x, y, modifiers)
         case "tap":
-          return new events.Tap(sx, sy, x, y)
+          return new events.Tap(sx, sy, x, y, modifiers)
         case "doubletap":
-          return new events.DoubleTap(sx, sy, x, y)
+          return new events.DoubleTap(sx, sy, x, y, modifiers)
         case "press":
-          return new events.Press(sx, sy, x, y)
+          return new events.Press(sx, sy, x, y, modifiers)
         case "pressup":
-          return new events.PressUp(sx, sy, x, y)
+          return new events.PressUp(sx, sy, x, y, modifiers)
         case "pan":
-          return new events.Pan(sx, sy, x, y, e.dx, e.dy)
+          return new events.Pan(sx, sy, x, y, e.dx, e.dy, modifiers)
         case "panstart":
-          return new events.PanStart(sx, sy, x, y)
+          return new events.PanStart(sx, sy, x, y, modifiers)
         case "panend":
-          return new events.PanEnd(sx, sy, x, y)
+          return new events.PanEnd(sx, sy, x, y, modifiers)
         case "pinch":
-          return new events.Pinch(sx, sy, x, y, e.scale)
+          return new events.Pinch(sx, sy, x, y, e.scale, modifiers)
         case "pinchstart":
-          return new events.PinchStart(sx, sy, x, y)
+          return new events.PinchStart(sx, sy, x, y, modifiers)
         case "pinchend":
-          return new events.PinchEnd(sx, sy, x, y)
+          return new events.PinchEnd(sx, sy, x, y, modifiers)
         case "rotate":
-          return new events.Rotate(sx, sy, x, y, e.rotation)
+          return new events.Rotate(sx, sy, x, y, e.rotation, modifiers)
         case "rotatestart":
-          return new events.RotateStart(sx, sy, x, y)
+          return new events.RotateStart(sx, sy, x, y, modifiers)
         case "rotateend":
-          return new events.RotateEnd(sx, sy, x, y)
+          return new events.RotateEnd(sx, sy, x, y, modifiers)
         default:
           return undefined
       }
     })()
 
-    if (ev != null)
+    if (ev != null) {
       plot_view.model.trigger_event(ev)
+    }
   }
 
   /*private*/ _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {

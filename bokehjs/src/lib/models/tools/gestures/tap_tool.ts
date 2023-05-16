@@ -1,8 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import type {CallbackLike1} from "../../callbacks/callback"
 import type * as p from "core/properties"
-import {PartialStruct, Boolean} from "core/kinds"
 import type {TapEvent} from "core/ui_events"
+import {KeyModifiers} from "core/bokeh_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
@@ -17,13 +17,6 @@ export type TapToolCallback = CallbackLike1<TapTool, {
     modifiers?: KeyModifiers
   }
 }>
-
-type KeyModifiers = typeof KeyModifiers["__type__"]
-const KeyModifiers = PartialStruct({
-  shift: Boolean,
-  ctrl: Boolean,
-  alt: Boolean,
-})
 
 export class TapToolView extends SelectToolView {
   declare model: TapTool
