@@ -52,51 +52,56 @@ export class TapToolView extends SelectToolView {
     this._clear_other_overlays()
 
     const geometry: PointGeometry = {type: "point", sx, sy}
-    this._select(geometry, true, this._select_mode(ev))
+    if (this.model.behavior == "select") {
+      this._select(geometry, true, this._select_mode(ev))
+    } else {
+      this._inspect(geometry)
+    }
   }
 
-  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+  protected _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+    const renderers_by_source = this._computed_renderers_by_data_source()
+
+    for (const [, renderers] of renderers_by_source) {
+      const sm = renderers[0].get_selection_manager()
+      const r_views = renderers
+        .map((r) => this.plot_view.renderer_view(r))
+        .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
+      const did_hit = sm.select(r_views, geometry, final, mode)
+      if (did_hit) {
+        const [rv] = r_views
+        this._emit_callback(rv, geometry, sm.source)
+      }
+    }
+
+    this._emit_selection_event(geometry)
+    this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
+  }
+
+  protected _inspect(geometry: PointGeometry): void {
+    for (const r of this.computed_renderers) {
+      const rv = this.plot_view.renderer_view(r)
+      if (rv == null)
+        continue
+
+      const sm = r.get_selection_manager()
+      const did_hit = sm.inspect(rv, geometry)
+      if (did_hit) {
+        this._emit_callback(rv, geometry, sm.source)
+      }
+    }
+  }
+
+  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource): void {
     const {callback} = this.model
-
-    if (this.model.behavior == "select") {
-      const renderers_by_source = this._computed_renderers_by_data_source()
-
-      for (const [, renderers] of renderers_by_source) {
-        const sm = renderers[0].get_selection_manager()
-        const r_views = renderers
-          .map((r) => this.plot_view.renderer_view(r))
-          .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
-        const did_hit = sm.select(r_views, geometry, final, mode)
-
-        if (did_hit && callback != null) {
-          const x = r_views[0].coordinates.x_scale.invert(geometry.sx)
-          const y = r_views[0].coordinates.y_scale.invert(geometry.sy)
-          const data = {
-            geometries: {...geometry, x, y},
-            source: sm.source,
-          }
-          callback.execute(this.model, data)
-        }
+    if (callback != null) {
+      const x = rv.coordinates.x_scale.invert(geometry.sx)
+      const y = rv.coordinates.y_scale.invert(geometry.sy)
+      const data = {
+        geometries: {...geometry, x, y},
+        source,
       }
-
-      this._emit_selection_event(geometry)
-      this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
-    } else {
-      for (const r of this.computed_renderers) {
-        const rv = this.plot_view.renderer_view(r)
-        if (rv == null)
-          continue
-
-        const sm = r.get_selection_manager()
-        const did_hit = sm.inspect(rv, geometry)
-
-        if (did_hit && callback != null) {
-          const x = rv.coordinates.x_scale.invert(geometry.sx)
-          const y = rv.coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source}
-          callback.execute(this.model, data)
-        }
-      }
+      callback.execute(this.model, data)
     }
   }
 }

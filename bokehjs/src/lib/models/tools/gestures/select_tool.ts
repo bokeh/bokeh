@@ -92,7 +92,7 @@ export abstract class SelectToolView extends GestureToolView {
     this.plot_view.request_paint(renderer_views)
   }
 
-  abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
+  protected abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
 
   protected _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame
