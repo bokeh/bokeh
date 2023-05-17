@@ -294,7 +294,10 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 continue
             setattr(self, name, value)
 
-        for name in self.properties() - set(properties.keys()):
+        initialized = set(properties.keys())
+        for name in self.properties(_with_props=True): # avoid set[] for deterministic behavior
+            if name in initialized:
+                continue
             desc = self.lookup(name)
             if desc.has_unstable_default(self):
                 desc._get(self) # this fills-in `_unstable_*_values`
