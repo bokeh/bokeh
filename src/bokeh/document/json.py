@@ -30,7 +30,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
@@ -111,11 +111,11 @@ DocumentPatched: TypeAlias = Union[
 DocumentChanged = DocumentPatched
 
 class DocJson(TypedDict):
-    version: str | None
-    title: str | None
-    defs: list[ModelDef] | None
+    version: NotRequired[str]
+    title: NotRequired[str]
+    defs: NotRequired[list[ModelDef]]
     roots: list[ModelRep]
-    callbacks: dict[str, list[ModelRep]]
+    callbacks: NotRequired[dict[str, list[ModelRep]]]
 
 class PatchJson(TypedDict):
     events: list[DocumentChanged]
