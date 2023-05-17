@@ -738,10 +738,13 @@ class Document:
         doc_json = DocJson(
             version=__version__,
             title=self.title,
-            defs=defs,
             roots=roots,
-            callbacks=callbacks,
         )
+
+        if data_models:
+            doc_json["defs"] = defs
+        if self.callbacks._js_event_callbacks:
+            doc_json["callbacks"] = callbacks
 
         self.models.flush_synced()
         return doc_json
