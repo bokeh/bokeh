@@ -185,7 +185,7 @@ def factor_cmap(
 
         palette (seq[color]) : a list of colors to use for colormapping
 
-        factors (seq) : a sequences of categorical factors corresponding to
+        factors (seq) : a sequence of categorical factors corresponding to
             the palette
 
         start (int, optional) : a start slice index to apply when the column
