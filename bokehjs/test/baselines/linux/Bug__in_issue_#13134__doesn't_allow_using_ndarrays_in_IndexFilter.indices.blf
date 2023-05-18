@@ -1,0 +1,4 @@
+Plot bbox=[0, 0, 200, 200]
+  CartesianFrame bbox=[5, 5, 165, 190]
+  Title bbox=[5, 5, 165, 0]
+  ToolbarPanel bbox=[170, 5, 30, 190]

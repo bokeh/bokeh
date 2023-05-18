@@ -94,14 +94,8 @@
               },
               glyph: {
                 type: "object",
-                name: "Circle",
+                name: "Line",
                 id: "p1004",
-                attributes: {
-                  size: {
-                    type: "value",
-                    value: 10,
-                  },
-                },
               },
             },
           },

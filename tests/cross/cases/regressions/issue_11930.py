@@ -1,12 +1,11 @@
 # https://github.com/bokeh/bokeh/issues/11930
 
 # Bokeh imports
-from bokeh.core.properties import field
 from bokeh.models import (
-    Circle,
     ColumnDataSource,
     FixedTicker,
     GlyphRenderer,
+    Line,
     LinearAxis,
     Plot,
 )
@@ -15,7 +14,7 @@ x = [1, 2, 3]
 y = [4, 4.5, 6]
 
 data_source = ColumnDataSource(data=dict(x=x, y=y))
-glyph = Circle(x=field("x"), y=field("y"), size=10)
+glyph = Line()
 glyph_renderer = GlyphRenderer(glyph=glyph, data_source=data_source)
 
 plot = Plot(width=200, height=200, renderers=[glyph_renderer])

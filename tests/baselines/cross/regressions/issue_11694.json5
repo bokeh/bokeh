@@ -16,6 +16,8 @@
             ],
           },
         ],
+        width: 200,
+        height: 200,
         x_range: {
           type: "object",
           name: "DataRange1d",
