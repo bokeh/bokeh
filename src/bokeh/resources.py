@@ -415,6 +415,13 @@ class Resources:
 
     __str__ = __repr__
 
+    @classmethod
+    def build(cls, resources: ResourcesLike | None = None) -> Resources:
+        if isinstance(resources, Resources):
+            return resources
+        else:
+            return Resources(mode=settings.resources(resources))
+
     # Properties --------------------------------------------------------------
 
     @property
