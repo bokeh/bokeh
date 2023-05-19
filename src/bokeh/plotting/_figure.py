@@ -735,7 +735,7 @@ def markers():
     '''
     print("Available markers: \n\n - " + "\n - ".join(list(MarkerType)))
     print()
-    print("Shortcuts: \n\n" + "\n".join(" %r: %s" % item for item in _MARKER_SHORTCUTS.items()))
+    print("Shortcuts: \n\n" + "\n".join(f" {short!r}: {name}" for (short, name) in _MARKER_SHORTCUTS.items()))
 
 #-----------------------------------------------------------------------------
 # Dev API
