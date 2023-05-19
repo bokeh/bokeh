@@ -162,12 +162,12 @@ ignore = [
     'E741', # Ambiguous variable name: I
     'RUF001',
     'RUF005',
+    # keep-runtime-annotations
+    'UP006', # Non PEP585 annotations
+    'UP007', # Non PEP604 annotations
 ]
 line-length = 165
 target-version = "py38"
-
-[tool.ruff.pyupgrade]
-keep-runtime-typing = true
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
