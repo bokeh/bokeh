@@ -15,7 +15,7 @@ async function test(name: string) {
 
 describe("Bug", () => {
   describe("in issue #11694", () => {
-    it("doesn't allow 'id' key in mappings and confuses them with refs", async () => {
+    it.no_image("doesn't allow 'id' key in mappings and confuses them with refs", async () => {
       await test("regressions/issue_11694.json5")
     })
   })
@@ -27,7 +27,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13134", () => {
-    it("doesn't allow using ndarrays in IndexFilter.indices", async () => {
+    it.no_image("doesn't allow using ndarrays in IndexFilter.indices", async () => {
       await test("regressions/issue_13134.json5")
     })
   })

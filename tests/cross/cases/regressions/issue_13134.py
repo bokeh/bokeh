@@ -17,5 +17,5 @@ data_source = ColumnDataSource(data=dict(x=np.array([1, 2, 3, 4, 5]), y=np.array
 view = CDSView(filter=IndexFilter(indices=np.array([0, 2, 4])))
 glyph = Circle(size=10)
 glyph_renderer = GlyphRenderer(glyph=glyph, data_source=data_source, view=view)
-plot = Plot(width=200, height=200, renderers=[glyph_renderer])
+plot = Plot(renderers=[glyph_renderer])
 output = plot

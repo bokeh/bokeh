@@ -37,6 +37,7 @@ export type Test = Decl & {
   threshold?: number
   retries?: number
   dpr?: number
+  no_image?: boolean
 }
 
 export type Suite = {
@@ -66,10 +67,11 @@ type _It = ItFn & {
   skip: ItFn
   allowing: (settings: number | TestSettings) => ItFn
   dpr: (dpr: number) => ItFn
+  no_image: ItFn
 }
 
-function _it(description: string, fn: Func | AsyncFunc, skip: boolean): Test {
-  const test = {description, fn, skip, views: []}
+function _it(description: string, fn: Func | AsyncFunc, skip: boolean, no_image: boolean = false): Test {
+  const test: Test = {description, fn, skip, views: [], no_image}
   stack[0].tests.push(test)
   return test
 }
@@ -104,12 +106,17 @@ export function skip(description: string, fn: Func | AsyncFunc): Test {
   return _it(description, fn, true)
 }
 
+export function no_image(description: string, fn: Func | AsyncFunc): Test {
+  return _it(description, fn, false, true)
+}
+
 export const it: _It = ((description: string, fn: Func | AsyncFunc): Test => {
   return _it(description, fn, false)
 }) as _It
 it.skip = skip
 it.allowing = allowing
 it.dpr = dpr
+it.no_image = no_image
 
 export function before_each(fn: Func | AsyncFunc): void {
   stack[0].before_each.push({fn})

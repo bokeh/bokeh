@@ -3,5 +3,5 @@
 # Bokeh imports
 from bokeh.models import Plot
 
-plot = Plot(width=200, height=200, tags=[dict(id="1000")])
+plot = Plot(tags=[dict(id="1000")])
 output = plot
