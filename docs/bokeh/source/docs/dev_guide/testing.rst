@@ -192,6 +192,33 @@ Integration tests
     `Chrome`_ or `Chromium`_ and `Selenium`_ with the `ChromeDriver`_ web
     driver.
 
+Cross integration tests
+    This is a variant of integration tests where on Bokeh's side a Python
+    code sample (a test case) is run, which produces JSON output with the
+    serialized document. That JSON is then stored in the repository under
+    ``tests/baselines/cross``. When adding a new test case, run:
+
+    .. code-block:: sh
+
+        pytest tests/test_cross.py
+
+    and then commit any new baselines and re-run tests. Only commited
+    baselines are considered by the test runner.
+
+    Each test case must have a corresponding integration test in bokehjs,
+    under ``bokehjs/test/integration/cross.ts``. These are equivalent to
+    typical bokehjs' integration tests. However, it's recommended that
+    image diff is skipped for tests that don't require inspection of
+    visual aspectes of the output. Note that skipping image capture
+    doesn't disable generation of ``*.blf`` files.
+
+    Note that cross test cases must be carefully designed so that bokehjs
+    can run them producing consistent and repeatable output, especially
+    when capturing images. As with other kinds of tests, it's permitted
+    to use random data, because the test runner seeds Python's and numpy's
+    random number generators. Follow bokehjs' guidelines for creating
+    robust integration tests.
+
 Run all available tests
     You can run all available tests (Python and JavaScript unit tests, examples,
     and integration tests) by running the following command from the top-level
