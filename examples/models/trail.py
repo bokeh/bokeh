@@ -55,7 +55,7 @@ def prep_data(dataset):
     colors[np.where(slope == 2)] = "pink"
     colors[np.where(slope == 3)] = "orange"
     colors[np.where(slope == 4)] = "red"
-    df["colors"] = list(colors) + [None]              # NOTE: add [None] just make pandas happy
+    df["colors"] = [*colors, None] # NOTE: add None just make pandas happy
 
     return df
 

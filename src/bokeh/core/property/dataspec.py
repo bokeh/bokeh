@@ -461,7 +461,7 @@ class UnitsSpec(NumberSpec):
         """
         units_name = base_name + "_units"
         units_props = self._units_type.make_descriptors(units_name)
-        return units_props + [ UnitsSpecPropertyDescriptor(base_name, self, units_props[0]) ]
+        return [*units_props, UnitsSpecPropertyDescriptor(base_name, self, units_props[0])]
 
     def to_serializable(self, obj: HasProps, name: str, val: Any) -> Vectorized:
         val = super().to_serializable(obj, name, val)
@@ -504,7 +504,7 @@ class NullDistanceSpec(DistanceSpec):
     def __init__(self, default=None, units_default="data", *, help: str | None = None) -> None:
         super().__init__(default=default, units_default=units_default, help=help)
         self.value_type = Nullable(Float)
-        self._type_params = [Null()] + self._type_params
+        self._type_params = [Null(), *self._type_params]
 
     def prepare_value(self, cls, name, value):
         try:

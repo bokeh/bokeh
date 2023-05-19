@@ -152,7 +152,7 @@ def test_args() -> None:
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
-            choices = bcss.LOGLEVELS + ("None", ),
+            choices = (*bcss.LOGLEVELS, 'None'),
             help    = f"One of: {nice_join(bcss.LOGLEVELS)}",
         )),
 
@@ -426,7 +426,7 @@ def test_args() -> None:
 
 @contextlib.contextmanager
 def run_bokeh_serve(args):
-    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) as p:
         nbsr = NBSR(p.stdout)
         try:
@@ -472,7 +472,7 @@ def check_port(nbsr):
     return int(m.group(1))
 
 def check_error(args):
-    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     try:
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:

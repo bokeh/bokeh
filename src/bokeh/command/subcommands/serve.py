@@ -480,7 +480,7 @@ base_serve_args = (
         metavar = 'LOG-LEVEL',
         action  = 'store',
         default = None,
-        choices = LOGLEVELS + ("None", ),
+        choices = (*LOGLEVELS, 'None'),
         help    = "One of: %s" % nice_join(LOGLEVELS),
     )),
 
@@ -525,7 +525,9 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = base_serve_args + (
+    args = (
+        *base_serve_args,
+
         ('files', Argument(
             metavar = 'DIRECTORY-OR-SCRIPT',
             nargs   = '*',
@@ -900,7 +902,7 @@ class Serve(Subcommand):
             invalid_args = ['address', 'ssl_certfile', 'ssl_keyfile']
 
             if any(server_kwargs.get(x) for x in invalid_args):
-                die(f"{invalid_args + ['port']} args are not supported with a unix socket")
+                die(f"{[*invalid_args, 'port']} args are not supported with a unix socket")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
         if auth_module_path:

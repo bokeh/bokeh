@@ -436,7 +436,7 @@ def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
 def _run(app: str, argv: list[str], input: dict[str, Any] | None = None) -> str:
-    proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    proc = Popen([app, *argv], stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
     if proc.returncode != 0:
