@@ -21,6 +21,12 @@ export class TooltipView extends UIElementView {
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
 
+  protected _hover: {
+    target: Element   // save the target for cleanup
+    enter: () => void
+    leave: () => void
+  } | null = null
+
   private _target: Element
   get target(): Element {
     return this._target
@@ -73,6 +79,35 @@ export class TooltipView extends UIElementView {
     this.render()
   }
 
+  protected _register_hover(): void {
+    if (this.model.persistance != "hover") {
+      return
+    }
+
+    const {target} = this
+    this._hover = {
+      target,
+      enter: () => {
+        this.model.visible = true
+        this._reposition()
+      },
+      leave: () => {
+        this.model.visible = false
+        this._reposition()
+      },
+    }
+    target.addEventListener("mouseenter", this._hover.enter)
+    target.addEventListener("mouseleave", this._hover.leave)
+  }
+
+  protected _unregister_hover(): void {
+    if (this._hover != null) {
+      const {target, enter, leave} = this._hover
+      target.removeEventListener("mouseenter", enter)
+      target.removeEventListener("mouseleave", leave)
+    }
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
@@ -80,12 +115,15 @@ export class TooltipView extends UIElementView {
       this._reposition()
     })
     this._observer.observe(this.target)
+    this._register_hover()
 
     const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
     this.on_change(target, () => {
       this._init_target()
       this._observer.disconnect()
       this._observer.observe(this.target)
+      this._unregister_hover()
+      this._register_hover()
       this.render()
     })
     this.on_change([content, closable, interactive], () => this.render())
@@ -94,6 +132,7 @@ export class TooltipView extends UIElementView {
 
   override remove(): void {
     this._html?.remove()
+    this._unregister_hover()
     this._observer.disconnect()
     super.remove()
   }
@@ -275,6 +314,7 @@ export namespace Tooltip {
     show_arrow: p.Property<boolean>
     closable: p.Property<boolean>
     interactive: p.Property<boolean>
+    persistance: p.Property<"manual" | "hover">
   }
 }
 
@@ -291,7 +331,7 @@ export class Tooltip extends UIElement {
   static {
     this.prototype.default_view = TooltipView
 
-    this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
+    this.define<Tooltip.Props>(({Enum, Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
       target: [ Or(Ref(UIElement), Ref(Selector), Ref(Node), Auto), "auto" ],
       position: [ Nullable(Or(Anchor, Tuple(Number, Number))), null ],
       content: [ Or(String, Ref(HTML), Ref(Node)) ],
@@ -299,6 +339,7 @@ export class Tooltip extends UIElement {
       show_arrow: [ Boolean, true ],
       closable: [ Boolean, false ],
       interactive: [ Boolean, true ],
+      persistance: [ Enum("manual", "hover"), "manual" ],
     }))
 
     this.override<Tooltip.Props>({
