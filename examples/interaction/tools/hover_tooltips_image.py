@@ -21,7 +21,7 @@ TOOLTIPS = [
     ("x", "$x"),
     ("y", "$y"),
     ("value", "@image"),
-    ('squared', '@squared')
+    ('squared', '@squared'),
 ]
 
 p = figure(x_range=(0, 35), y_range=(0, 35), tools='hover,wheel_zoom', tooltips=TOOLTIPS)

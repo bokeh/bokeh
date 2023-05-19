@@ -9,8 +9,8 @@ source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"]
-    )
+        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"],
+    ),
 )
 
 plot = Plot()

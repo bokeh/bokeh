@@ -110,7 +110,7 @@ def altitude_profile(data):
     patches_source = ColumnDataSource(dict(
         xs=[[X[i], X[i+1], X[i+1], X[i]] for i in range(len(X[:-1])) ],
         ys=[[y0,   y0,     Y[i+1], Y[i]] for i in range(len(Y[:-1])) ],
-        color=data.colors[:-1]
+        color=data.colors[:-1],
     ))
     patches = Patches(xs="xs", ys="ys", fill_color="color", line_color="color")
     plot.add_glyph(patches_source, patches)

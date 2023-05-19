@@ -177,7 +177,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis",
         )
 
         p = figure()
@@ -188,7 +188,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid",
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 

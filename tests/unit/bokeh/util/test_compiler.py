@@ -69,7 +69,7 @@ exports.MyModel = MyModel;
             "identifier. Did you mean 'return'?\n"
             '\n'
             '\x1b[7m1\x1b[0m function f(a, b) { eturn a + b; };\n'
-            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n'
+            '\x1b[7m \x1b[0m \x1b[91m                   ~~~~~\x1b[0m\n',
         )
 
 def test_nodejs_compile_less() -> None:

@@ -200,9 +200,9 @@ class ColumnDataSource(ColumnarDataSource):
     objects. In these cases, the behaviour is identical to passing the objects
     to the ``ColumnDataSource`` initializer.
     """).accepts(
-        Object("pandas.DataFrame"), lambda x: ColumnDataSource._data_from_df(x)
+        Object("pandas.DataFrame"), lambda x: ColumnDataSource._data_from_df(x),
     ).accepts(
-        Object("pandas.core.groupby.GroupBy"), lambda x: ColumnDataSource._data_from_groupby(x)
+        Object("pandas.core.groupby.GroupBy"), lambda x: ColumnDataSource._data_from_groupby(x),
     ).asserts(lambda _, data: len({len(x) for x in data.values()}) <= 1,
                  lambda obj, name, data: warn(
                     "ColumnDataSource's columns must be of the same length. " +

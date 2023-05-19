@@ -37,7 +37,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'html_repr',
-    'process_example'
+    'process_example',
 )
 
 #-----------------------------------------------------------------------------

@@ -290,7 +290,7 @@ with open(filename, 'rb') as example:
 
     start = time.time()
     with subprocess.Popen(
-        cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     ) as proc:
 
         status: ProcStatus

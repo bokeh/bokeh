@@ -40,7 +40,7 @@ ALL = (
     'OSM',
     'ESRI_IMAGERY',
     'get_provider',
-    'Vendors'
+    'Vendors',
 )
 
 _CARTO_URLS = {
@@ -65,11 +65,11 @@ _STAMEN_ATTR = {
 }
 
 _OSM_URLS = {
-    'OSM':                     xyz.OpenStreetMap.Mapnik.build_url()
+    'OSM':                     xyz.OpenStreetMap.Mapnik.build_url(),
 }
 
 _ESRI_URLS = {
-    'ESRI_IMAGERY':            xyz.Esri.WorldImagery.build_url()
+    'ESRI_IMAGERY':            xyz.Esri.WorldImagery.build_url(),
 }
 
 #-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ _ESRI_URLS = {
 # XXX This is commented out until version 2.0 and literals are converted to enums
 # Test___all__ = verify_all(bt, ALL)
 
-@pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS',])
+@pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'])
 class Test_StamenProviders:
     def test_type(self, name) -> None:
         p = getattr(bt, name)
@@ -159,7 +159,7 @@ class Test_EsriProvider:
 class Test_GetProvider:
     @pytest.mark.parametrize('name', ['CARTODBPOSITRON', 'CARTODBPOSITRON_RETINA', 'STAMEN_TERRAIN',
                                       'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND',
-                                      'STAMEN_TONER_LABELS', 'OSM', 'ESRI_IMAGERY', ])
+                                      'STAMEN_TONER_LABELS', 'OSM', 'ESRI_IMAGERY' ])
     def test_get_provider(self, name) -> None:
         assert name in bt.Vendors
         enum_member = getattr(bt.Vendors, name)

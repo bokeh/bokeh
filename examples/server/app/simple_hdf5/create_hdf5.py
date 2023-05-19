@@ -15,7 +15,7 @@ def generate_data(path):
                      'Alpha': {'options': dict(a=3, loc=-0.5),
                                'name': 'alpha'},
                      'Beta': {'options': dict(a=3, b=2, loc=-0.5),
-                              'name': 'beta'}
+                              'name': 'beta'},
                      }
     x = np.linspace(-1, 1, num=1000)
     with h5py.File(join(path, 'demo_data.hdf5'), 'w') as f:

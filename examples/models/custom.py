@@ -94,8 +94,8 @@ source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"]
-    )
+        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"],
+    ),
 )
 
 plot = MyPlot(gradient_angle=45)

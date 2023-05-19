@@ -37,12 +37,12 @@ figure_opts = dict(width=450, height=300)
 hover_opts = dict(
     tooltips=[('MZ', '@MZ_tip'), ('Rel Intensity', '@Intensity_tip')],
     show_arrow=False,
-    line_policy='next'
+    line_policy='next',
 )
 line_opts = dict(
     line_width=5, line_color='color', line_alpha=0.6,
     hover_line_color='color', hover_line_alpha=1.0,
-    source=mass_spec
+    source=mass_spec,
 )
 
 rt_plot = figure(tools=[HoverTool(**hover_opts), TapTool()], **figure_opts)

@@ -160,7 +160,7 @@ def eqhist_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def factor_cmap(
@@ -204,7 +204,7 @@ def factor_cmap(
             start=start,
             end=end,
             nan_color=nan_color,
-        )
+        ),
     )
 
 def factor_hatch(
@@ -245,7 +245,7 @@ def factor_hatch(
             factors=factors,
             start=start,
             end=end,
-        )
+        ),
     )
 
 def factor_mark(
@@ -288,7 +288,7 @@ def factor_mark(
             factors=factors,
             start=start,
             end=end,
-        )
+        ),
     )
 
 def jitter(
@@ -326,7 +326,7 @@ def jitter(
             width=width,
             distribution=distribution,
             range=range,
-        )
+        ),
     )
 
 def linear_cmap(
@@ -373,7 +373,7 @@ def linear_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def log_cmap(
@@ -420,7 +420,7 @@ def log_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def stack(*fields: str) -> Expr:

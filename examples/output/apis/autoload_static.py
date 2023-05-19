@@ -62,7 +62,7 @@ if __name__ == '__main__':
 
     app = Application([
         (r"/", IndexHandler, dict(script=script)),
-        (r"/embed.js", JSHandler, dict(js=js))
+        (r"/embed.js", JSHandler, dict(js=js)),
     ])
     app.listen(8080)
 

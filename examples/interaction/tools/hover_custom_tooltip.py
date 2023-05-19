@@ -10,15 +10,15 @@ source = ColumnDataSource(data=dict(
         'https://docs.bokeh.org/static/snake2.png',
         'https://docs.bokeh.org/static/snake3D.png',
         'https://docs.bokeh.org/static/snake4_TheRevenge.png',
-        'https://docs.bokeh.org/static/snakebite.jpg'
+        'https://docs.bokeh.org/static/snakebite.jpg',
     ],
     fonts=[
         '<i>italics</i>',
         '<pre>pre</pre>',
         '<b>bold</b>',
         '<small>small</small>',
-        '<del>del</del>'
-    ]
+        '<del>del</del>',
+    ],
 ))
 
 TOOLTIPS = """

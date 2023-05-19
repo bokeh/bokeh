@@ -60,7 +60,7 @@ source = ColumnDataSource(data=dict(x=[], y=[], color=[], title=[], year=[], rev
 TOOLTIPS=[
     ("Title", "@title"),
     ("Year", "@year"),
-    ("$", "@revenue")
+    ("$", "@revenue"),
 ]
 
 p = figure(height=600, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="stretch_width")

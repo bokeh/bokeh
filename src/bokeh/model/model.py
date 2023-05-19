@@ -255,7 +255,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
                 name=arg,
                 kind=Parameter.POSITIONAL_OR_KEYWORD,
                 # For positional arg properties, default=None means no default.
-                default=Parameter.empty if no_more_defaults else default
+                default=Parameter.empty if no_more_defaults else default,
             )
             if default:
                 del default
@@ -283,7 +283,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             param = Parameter(
                 name=kw,
                 kind=Parameter.KEYWORD_ONLY,
-                default=default
+                default=default,
             )
             del default
             typ = type_link(descriptor.property)

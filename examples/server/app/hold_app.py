@@ -42,5 +42,5 @@ to see the result.</p>
 """, width=600)
 
 doc.add_root(row(
-    p, column(div, column(slider, combine, collect, unhold)))
+    p, column(div, column(slider, combine, collect, unhold))),
 )

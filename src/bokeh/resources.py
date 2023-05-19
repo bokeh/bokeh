@@ -351,7 +351,7 @@ class Resources:
         if self.mode not in get_args(BaseMode):
             raise ValueError(
                 "wrong value for 'mode' parameter, expected "
-                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}"
+                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}",
             )
 
         if root_dir and not self.mode.startswith("relative"):

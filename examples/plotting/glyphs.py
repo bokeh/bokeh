@@ -174,12 +174,12 @@ children.append(p)
 curdoc().theme = Theme(json={
     "attrs": {
         "Axis": {
-            "visible": False
+            "visible": False,
             },
         "Grid": {
-            "visible": False
-            }
-        }
+            "visible": False,
+            },
+        },
     })
 
 show(gridplot(children, ncols=4, width=200, height=200))  # open a browser

@@ -131,7 +131,7 @@ def test_args() -> None:
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
-            default = DEFAULT_SERVER_PORT
+            default = DEFAULT_SERVER_PORT,
         )),
 
         ('--address', Argument(
@@ -314,7 +314,7 @@ def test_args() -> None:
             default = False,
             help    = 'Whether to enable Tornado support for XSRF cookies. All '
                       'PUT, POST, or DELETE handlers must be properly instrumented '
-                      'when this setting is enabled.'
+                      'when this setting is enabled.',
         )),
 
         ('--exclude-headers', Argument(
@@ -322,7 +322,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request headers to exclude from the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--exclude-cookies', Argument(
@@ -330,7 +330,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request cookies to exclude from the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--include-headers', Argument(
@@ -338,7 +338,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request headers to make available in the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--include-cookies', Argument(
@@ -346,7 +346,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request cookies to make available in the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--cookie-secret', Argument(

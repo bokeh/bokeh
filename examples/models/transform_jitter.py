@@ -33,7 +33,7 @@ u2 = p.circle(x=field('xu', uniform), y='y', color='navy', source=source,
               size=5, alpha=0.5, visible=False)
 
 label_data = ColumnDataSource(data=dict(
-    x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform']
+    x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],
 ))
 label_set = LabelSet(x='x', y='y', text='t', y_offset=-4, source=label_data,
                      text_baseline="top", text_align='center')

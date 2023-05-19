@@ -1449,7 +1449,7 @@ brewer = {
 }
 
 bokeh = {
-    "Bokeh" : Bokeh
+    "Bokeh" : Bokeh,
 }
 
 d3 = {
@@ -1483,7 +1483,7 @@ tol = {
 }
 
 colorblind = {
-    "Colorblind" : Colorblind
+    "Colorblind" : Colorblind,
 }
 
 all_palettes = deepcopy(brewer)

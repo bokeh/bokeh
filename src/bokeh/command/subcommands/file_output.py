@@ -86,7 +86,7 @@ class FileOutputSubcommand(Subcommand):
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
             help=("The app directories or scripts to generate %s for" % (output_type_name)),
-            default=None
+            default=None,
         ))
 
     @classmethod
@@ -117,7 +117,7 @@ class FileOutputSubcommand(Subcommand):
                 metavar='FILENAME',
                 action='append',
                 type=str,
-                help="Name of the output file or - for standard output."
+                help="Name of the output file or - for standard output.",
             )),
 
             ('--args', Argument(

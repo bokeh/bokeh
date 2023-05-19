@@ -183,7 +183,7 @@ class TestResources:
             RuntimeMessage(
                 text="Requesting CDN BokehJS version '1.0' from local development version '1.0+1.abc'. This configuration is unsupported and may not work!",
                 type="warn",
-            )
+            ),
         ]
 
     def test_server_default(self) -> None:

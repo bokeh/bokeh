@@ -21,7 +21,7 @@ y = sin(x)
 y2 = linspace(0, 100, len(y))
 
 source = ColumnDataSource(
-    data=dict(x=x, y=y, y2=y2)
+    data=dict(x=x, y=y, y2=y2),
 )
 
 plot = Plot(x_range=Range1d(start=-6.5, end=6.5), y_range=Range1d(start=-1.1, end=1.1), min_border=80)

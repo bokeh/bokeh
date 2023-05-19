@@ -464,7 +464,7 @@ def _check_models_or_docs(models: ModelLike | ModelLikeCollection) -> ModelLikeC
 
     if not input_type_valid:
         raise ValueError(
-            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
+            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document',
         )
 
     return models

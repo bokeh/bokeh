@@ -296,7 +296,7 @@ class Plot(LayoutDOM):
         '''
         if place not in Place:
             raise ValueError(
-                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}"
+                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
 
         getattr(self, place).append(obj)

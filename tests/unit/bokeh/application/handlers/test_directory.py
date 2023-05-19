@@ -95,7 +95,7 @@ class Test_DirectoryHandler:
                 raise RuntimeError(handler.error)
 
         with_directory_contents({
-            'main.py' : "# This script does nothing"
+            'main.py' : "# This script does nothing",
         }, load)
 
         assert not doc.roots
@@ -116,7 +116,7 @@ class Test_DirectoryHandler:
             'main.py' : "from . import foo\n" + script_adds_two_roots('SomeModelInTestDirectory',
                                                                       'AnotherModelInTestDirectory'),
             "__init__.py": "",
-            "foo.py": " # this script does nothing"
+            "foo.py": " # this script does nothing",
 
         }, load)
 
@@ -133,7 +133,7 @@ class Test_DirectoryHandler:
 
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectory',
-                                              'AnotherModelInTestDirectory')
+                                              'AnotherModelInTestDirectory'),
         }, load)
 
         assert len(doc.roots) == 2
@@ -153,7 +153,7 @@ class Test_DirectoryHandler:
                 raise RuntimeError(handler.error)
 
         with_directory_contents({
-            'main.ipynb': nbformat.writes(source)
+            'main.ipynb': nbformat.writes(source),
         }, load)
 
         assert not doc.roots
@@ -176,7 +176,7 @@ class Test_DirectoryHandler:
                 raise RuntimeError(handler.error)
 
         with_directory_contents({
-            'main.ipynb': nbformat.writes(source)
+            'main.ipynb': nbformat.writes(source),
         }, load)
 
         assert len(doc.roots) == 2
@@ -234,7 +234,7 @@ attrs:
 some = next(m for m in curdoc().roots if isinstance(m, SomeModelInTestDirectoryTheme))
 some.foo = 57
             """,
-            'theme.yaml' : custom_theme
+            'theme.yaml' : custom_theme,
         }, load)
 
         assert len(doc.roots) == 2
@@ -263,7 +263,7 @@ some.foo = 57
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
                                               'AnotherModelInTestDirectoryWithLifecycle'),
-            'server_lifecycle.py' : script_has_lifecycle_handlers
+            'server_lifecycle.py' : script_has_lifecycle_handlers,
         }, load)
 
         assert len(doc.roots) == 2
@@ -288,7 +288,7 @@ some.foo = 57
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
                                               'AnotherModelInTestDirectoryWithLifecycle'),
-            'app_hooks.py' : script_has_lifecycle_and_request_handlers
+            'app_hooks.py' : script_has_lifecycle_and_request_handlers,
         }, load)
 
         assert len(doc.roots) == 2
@@ -310,7 +310,7 @@ some.foo = 57
             'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
                                               'AnotherModelInTestDirectoryWithLifecycle'),
             'app_hooks.py' : script_has_lifecycle_handlers,
-            'server_lifecycle.py': script_has_request_handler
+            'server_lifecycle.py': script_has_request_handler,
         }, load)
 
     async def test_directory_with_request_handler(self) -> None:
@@ -326,7 +326,7 @@ some.foo = 57
         with_directory_contents({
             'main.py' : script_adds_two_roots('SomeModelInTestDirectoryWithLifecycle',
                                               'AnotherModelInTestDirectoryWithLifecycle'),
-            'app_hooks.py' : script_has_request_handler
+            'app_hooks.py' : script_has_request_handler,
         }, load)
 
         assert len(doc.roots) == 2
@@ -347,7 +347,7 @@ some.foo = 57
 
         with_directory_contents({
             'main.py' : "# This script does nothing",
-            'static/js/foo.js' : "# some JS"
+            'static/js/foo.js' : "# some JS",
         }, load)
 
         assert not doc.roots
@@ -387,7 +387,7 @@ some.foo = 57
 
         with_directory_contents({
             'main.py' : "# This script does nothing",
-            'templates/index.html' : "<div>some HTML</div>"
+            'templates/index.html' : "<div>some HTML</div>",
         }, load)
 
         assert not doc.roots

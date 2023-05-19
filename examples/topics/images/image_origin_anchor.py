@@ -23,7 +23,7 @@ p = figure(
     title="Different anchors and origins for image placed at coordinates (0, 0)",
     tools="", toolbar_location=None,
     x_range=(-10, 10), y_range=(-10, 10),
-    background_fill_color="#efefef"
+    background_fill_color="#efefef",
 )
 r = p.image_rgba(image=[img], x=0, y=0, dw=8.5, dh=8.5)
 p.circle(0, 0, size=12, fill_color="black", line_color="white", line_width=3)

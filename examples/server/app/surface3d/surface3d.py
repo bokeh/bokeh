@@ -18,7 +18,7 @@ DEFAULTS = {
         'horizontal': -0.35,
         'vertical':    0.22,
         'distance':    1.8,
-    }
+    },
 }
 
 # This custom extension model will have a DOM view that should layout-able in

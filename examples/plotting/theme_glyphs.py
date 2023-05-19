@@ -26,7 +26,7 @@ theme_json = {
             "text_font": "Helvetica",
         },
         "Ellipse": {"fill_color": "green", "line_color": "yellow", "fill_alpha": 0.2},
-    }
+    },
 }
 
 curdoc().theme = Theme(json=theme_json)

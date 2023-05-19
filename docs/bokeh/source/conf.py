@@ -178,7 +178,7 @@ html_theme_options = {
     "analytics": {"google_analytics_id": "UA-27761864-7"},
     "external_links": [
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
-        {"name": "Community", "url": "https://discourse.bokeh.org"}
+        {"name": "Community", "url": "https://discourse.bokeh.org"},
     ],
     "github_url": "https://github.com/bokeh/bokeh",
     "navbar_align": "left",
@@ -216,7 +216,7 @@ favicons = [
     {
         "rel": "apple-touch-icon",
         "sizes": "180x180",
-        "href": "https://static.bokeh.org/favicon/apple-touch-icon.png"
+        "href": "https://static.bokeh.org/favicon/apple-touch-icon.png",
     },
 ]
 

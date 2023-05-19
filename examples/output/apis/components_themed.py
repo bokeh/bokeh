@@ -26,14 +26,14 @@ theme = Theme(json={
         'Plot': {
             'background_fill_color': '#3f3f3f',
             'border_fill_color': '#3f3f3f',
-            'outline_line_color': '#444444'
+            'outline_line_color': '#444444',
             },
         'Axis': {
             'axis_line_color': "white",
             'axis_label_text_color': "white",
             'major_label_text_color': "white",
             'major_tick_line_color': "white",
-            'minor_tick_line_color': "white"
+            'minor_tick_line_color': "white",
             },
         'Legend': {
             'background_fill_color': '#3f3f3f',
@@ -41,12 +41,12 @@ theme = Theme(json={
         },
         'Grid': {
             'grid_line_dash': [6, 4],
-            'grid_line_alpha': .3
+            'grid_line_alpha': .3,
             },
         'Title': {
-            'text_color': "white"
-            }
-        }
+            'text_color': "white",
+            },
+        },
     })
 
 script, div = components(p, theme=theme)

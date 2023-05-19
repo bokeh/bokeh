@@ -58,7 +58,7 @@ def get_default_color(plot=None):
         "#e377c2", "#f7b6d2",
         "#7f7f7f",
         "#bcbd22", "#dbdb8d",
-        "#17becf", "#9edae5"
+        "#17becf", "#9edae5",
     ]
     if plot:
         renderers = plot.renderers

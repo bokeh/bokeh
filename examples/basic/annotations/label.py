@@ -13,7 +13,7 @@ from bokeh.plotting import figure, show
 source = ColumnDataSource(data=dict(
     height=[66, 71, 72, 68, 58, 62],
     weight=[165, 189, 220, 141, 260, 174],
-    names=['Mark', 'Amir', 'Matt', 'Greg', 'Owen', 'Juan']
+    names=['Mark', 'Amir', 'Matt', 'Greg', 'Owen', 'Juan'],
 ))
 
 p = figure(title='Dist. of 10th Grade Students', x_range=(140, 275))

@@ -111,7 +111,7 @@ def _read_data() -> dict[tuple[State, County], CountyData]:
                 detailed_name = det_name,
                 state = state,
                 lats = lats,
-                lons = lons
+                lons = lons,
             )
 
     return data

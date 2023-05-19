@@ -141,7 +141,7 @@ exclude = [
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["B", "E", "F", "RUF", "UP", "W"]
+select = ["B", "COM", "E", "F", "RUF", "UP", "W"]
 ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults

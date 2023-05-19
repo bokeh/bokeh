@@ -598,7 +598,7 @@ def _create_grid(iterable: Iterable[UIElement | list[UIElement]], sizing_mode: S
         else:
             raise ValueError(
                 f"""Only LayoutDOM items can be inserted into a layout.
-                Tried to insert: {item} of type {type(item)}"""
+                Tried to insert: {item} of type {type(item)}""",
             )
     if layer % 2 == 0:
         return column(children=return_list, sizing_mode=sizing_mode, **kwargs)

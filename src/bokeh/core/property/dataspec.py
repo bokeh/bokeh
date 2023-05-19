@@ -195,7 +195,7 @@ class DataSpec(Either):
                 transform=Optional(Instance("bokeh.models.transforms.Transform")),
             ),
             default=default,
-            help=help
+            help=help,
         )
         self.value_type = self._validate_type_param(value_type)
         self.accepts(Instance("bokeh.models.expressions.Expression"), lambda obj: Expr(obj))
