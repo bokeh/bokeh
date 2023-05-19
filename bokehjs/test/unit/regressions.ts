@@ -682,4 +682,22 @@ describe("Bug", () => {
       ])
     })
   })
+
+  describe("in issue #13139", () => {
+    function make_plot(width: number, height: number) {
+      const p = fig([width, height], {output_backend: "webgl"})
+      p.line([0, 1], [0, 1])
+      return p
+    }
+
+    it("raises DOMException if webgl canvas width is zero", async () => {
+      await display(make_plot(0, 100))
+    })
+    it("raises DOMException if webgl canvas height is zero", async () => {
+      await display(make_plot(100, 0))
+    })
+    it("raises DOMException if webgl canvas area is zero", async () => {
+      await display(make_plot(0, 0))
+    })
+  })
 })

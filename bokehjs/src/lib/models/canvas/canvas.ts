@@ -217,7 +217,7 @@ export class CanvasView extends UIElementView {
   blit_webgl(ctx: Context2d): void {
     // This should be called when the ctx has no state except the HIDPI transform
     const {webgl} = this
-    if (webgl != null) {
+    if (webgl != null && webgl.canvas.width*webgl.canvas.height > 0) {
       // Blit gl canvas into the 2D canvas. To do 1-on-1 blitting, we need
       // to remove the hidpi transform, then blit, then restore.
       // ctx.globalCompositeOperation = "source-over"  -> OK; is the default
