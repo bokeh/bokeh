@@ -77,7 +77,7 @@ from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..client.websocket import WebSocketClientConnectionWrapper
 
@@ -97,13 +97,11 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class _Header(TypedDict):
+class Header(TypedDict):
     msgid: ID
     msgtype: str
-
-class Header(_Header, total=False):
-    reqid: ID
-    num_buffers: int
+    reqid: NotRequired[ID]
+    num_buffers: NotRequired[int]
 
 class BufferHeader(TypedDict):
     id: ID
