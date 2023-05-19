@@ -3,7 +3,6 @@ from bokeh.embed import file_html
 from bokeh.models import (BoxSelectTool, Circle, ColumnDataSource, GMapOptions,
                           GMapPlot, Label, LinearAxis, MercatorTicker,
                           MercatorTickFormatter, PanTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
@@ -58,6 +57,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Google Maps Example"))
+        f.write(file_html(doc, title="Google Maps Example"))
     print(f"Wrote {filename}")
     view(filename)

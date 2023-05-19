@@ -6,7 +6,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, DatetimeAxis,
                           PanTool, Plot, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 N = 200
@@ -35,6 +34,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "dateaxis.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Date Axis Example"))
+        f.write(file_html(doc, title="Date Axis Example"))
     print(f"Wrote {filename}")
     view(filename)

@@ -28,7 +28,6 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbo
                           TextInput, TimePicker, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
-from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
@@ -250,6 +249,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "widgets.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Widgets"))
+        f.write(file_html(doc, title="Widgets"))
     print(f"Wrote {filename}")
     view(filename)

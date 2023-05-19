@@ -3,7 +3,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Callback, Circle, ColumnDataSource, LinearAxis,
                           PanTool, Plot, TapTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
 
@@ -116,6 +115,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "custom.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Demonstration of user-defined models"))
+        f.write(file_html(doc, title="Demonstration of user-defined models"))
     print(f"Wrote {filename}")
     view(filename)
