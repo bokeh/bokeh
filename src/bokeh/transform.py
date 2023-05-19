@@ -22,11 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Sequence, Union
 
 # Bokeh imports
 from .core.property.vectorization import Expr, Field

@@ -25,11 +25,7 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import (
-    TYPE_CHECKING,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, TypeVar, Union
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer

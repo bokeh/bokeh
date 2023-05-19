@@ -55,11 +55,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Union
 
 # External imports
 from tornado.web import RequestHandler

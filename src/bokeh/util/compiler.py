@@ -35,11 +35,7 @@ from os.path import (
 )
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import (
-    Any,
-    Callable,
-    Sequence,
-)
+from typing import Any, Callable, Sequence
 
 # Bokeh imports
 from ..core.has_props import HasProps

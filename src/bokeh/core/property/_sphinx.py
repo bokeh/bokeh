@@ -21,11 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-)
+from typing import TYPE_CHECKING, Any, Callable
 
 #-----------------------------------------------------------------------------
 # Globals and constants
