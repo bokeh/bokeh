@@ -167,7 +167,7 @@ ignore = [
     'UP007', # Non PEP604 annotations
 ]
 line-length = 165
-target-version = "py38"
+target-version = "py39"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]
