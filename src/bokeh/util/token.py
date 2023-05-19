@@ -34,7 +34,7 @@ import hmac
 import json
 import time
 import zlib
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.types import ID
@@ -64,7 +64,7 @@ _TOKEN_ZLIB_KEY = "__bk__zlib_"
 # General API
 #-----------------------------------------------------------------------------
 
-TokenPayload: TypeAlias = Dict[str, Any]
+TokenPayload: TypeAlias = dict[str, Any]
 
 def generate_secret_key() -> str:
     ''' Generate a new securely-generated secret key appropriate for SHA-256

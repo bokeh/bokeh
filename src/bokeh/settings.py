@@ -126,7 +126,6 @@ from typing import (
     Generic,
     Literal,
     Sequence,
-    Type,
     TypeVar,
     Union,
     cast,
@@ -328,7 +327,7 @@ class _Unset: pass
 
 T = TypeVar("T")
 
-Unset: TypeAlias = Union[T, Type[_Unset]]
+Unset: TypeAlias = Union[T, type[_Unset]]
 
 def is_dev() -> bool:
     return convert_bool(os.environ.get("BOKEH_DEV", False))

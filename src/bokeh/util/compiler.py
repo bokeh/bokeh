@@ -38,7 +38,6 @@ from subprocess import PIPE, Popen
 from typing import (
     Any,
     Callable,
-    Dict,
     Sequence,
 )
 
@@ -75,7 +74,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AttrDict(Dict[str, Any]):
+class AttrDict(dict[str, Any]):
     ''' Provide a dict subclass that supports access by named attributes.
 
     '''

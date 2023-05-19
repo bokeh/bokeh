@@ -27,7 +27,6 @@ from math import sqrt
 from re import match
 from typing import (
     TYPE_CHECKING,
-    Tuple,
     TypeVar,
     Union,
 )
@@ -52,7 +51,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple = Union[Tuple[int, int, int], Tuple[int, int, int, float]]
+RGBTuple = Union[tuple[int, int, int], tuple[int, int, int, float]]
 
 ColorLike: TypeAlias = Union[str, "Color", RGBTuple]
 

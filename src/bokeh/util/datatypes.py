@@ -23,7 +23,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     Generic,
-    Set,
     TypeVar,
     cast,
 )
@@ -75,7 +74,7 @@ class MultiValuedDict(Generic[K, V]):
         if existing is None:
             self._dict[key] = value
         elif isinstance(existing, set):
-            cast(Set[V], existing).add(value) # XXX: V does not exclude `set[_]`
+            cast(set[V], existing).add(value) # XXX: V does not exclude `set[_]`
         else:
             self._dict[key] = {existing, value}
 
@@ -87,7 +86,7 @@ class MultiValuedDict(Generic[K, V]):
         if existing is None:
             return []
         elif isinstance(existing, set):
-            return list(cast(Set[V], existing))
+            return list(cast(set[V], existing))
         else:
             return [existing]
 
@@ -97,7 +96,7 @@ class MultiValuedDict(Generic[K, V]):
         '''
         existing = self._dict.get(k)
         if isinstance(existing, set):
-            existing = cast(Set[V], existing)
+            existing = cast(set[V], existing)
             if len(existing) == 1:
                 return next(iter(existing))
             else:
@@ -114,7 +113,7 @@ class MultiValuedDict(Generic[K, V]):
 
         existing = self._dict.get(key)
         if isinstance(existing, set):
-            existing = cast(Set[V], existing)
+            existing = cast(set[V], existing)
             existing.discard(value)
             if len(existing) == 0:
                 del self._dict[key]

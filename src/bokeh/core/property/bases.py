@@ -33,7 +33,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Type,
     TypeVar,
     Union,
 )
@@ -77,7 +76,7 @@ __all__ = (
 
 T = TypeVar("T")
 
-TypeOrInst: TypeAlias = Union[Type[T], T]
+TypeOrInst: TypeAlias = Union[type[T], T]
 
 Init: TypeAlias = Union[T, UndefinedType, IntrinsicType]
 

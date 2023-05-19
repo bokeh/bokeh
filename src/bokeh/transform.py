@@ -25,7 +25,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -73,7 +72,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Factors: TypeAlias = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
+    Factors: TypeAlias = Union[Sequence[str], Sequence[tuple[str, str]], Sequence[tuple[str, str, str]]]
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression

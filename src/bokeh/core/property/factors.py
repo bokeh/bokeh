@@ -48,8 +48,8 @@ L1Factor = String
 L2Factor = Tuple(String, String)
 L3Factor = Tuple(String, String, String)
 
-FactorType: TypeAlias = tp.Union[str, tp.Tuple[str, str], tp.Tuple[str, str]]
-FactorSeqType: TypeAlias = tp.Union[tp.Sequence[str], tp.Sequence[tp.Tuple[str, str]], tp.Sequence[tp.Tuple[str, str]]]
+FactorType: TypeAlias = tp.Union[str, tuple[str, str], tuple[str, str]]
+FactorSeqType: TypeAlias = tp.Union[tp.Sequence[str], tp.Sequence[tuple[str, str]], tp.Sequence[tuple[str, str]]]
 
 class Factor(SingleParameterizedProperty[FactorType]):
     """ Represents a single categorical factor. """

@@ -69,8 +69,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterable,
-    List,
-    Set,
     TypeVar,
 )
 
@@ -169,7 +167,7 @@ class PropertyValueContainer:
     def _saved_copy(self) -> Any:
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
-class PropertyValueList(PropertyValueContainer, List[T]):
+class PropertyValueList(PropertyValueContainer, list[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -265,7 +263,7 @@ class PropertyValueList(PropertyValueContainer, List[T]):
     def sort(self, **kwargs):
         return super().sort(**kwargs)
 
-class PropertyValueSet(PropertyValueContainer, Set[T]):
+class PropertyValueSet(PropertyValueContainer, set[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 

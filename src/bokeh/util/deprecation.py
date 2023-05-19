@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Tuple, overload
+from typing import TYPE_CHECKING, overload
 
 # Bokeh imports
 from .warnings import BokehDeprecationWarning, warn
@@ -34,7 +34,7 @@ __all__ = (
     'deprecated',
 )
 
-Version: TypeAlias = Tuple[int, int, int]
+Version: TypeAlias = tuple[int, int, int]
 
 #-----------------------------------------------------------------------------
 # General API

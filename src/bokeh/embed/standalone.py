@@ -24,10 +24,8 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Literal,
     Sequence,
-    Type,
     TypedDict,
     Union,
     cast,
@@ -77,13 +75,13 @@ __all__ = (
 )
 
 ModelLike: TypeAlias = Union[Model, Document]
-ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], Dict[str, ModelLike]]
+ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], dict[str, ModelLike]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike: TypeAlias = Union[None, Theme, Type[FromCurdoc]]
+ThemeLike: TypeAlias = Union[None, Theme, type[FromCurdoc]]
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed

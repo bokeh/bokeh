@@ -58,10 +58,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
-    Tuple,
-    Type,
     Union,
 )
 
@@ -98,12 +94,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-RouteContext: TypeAlias = Dict[str, Any]
+RouteContext: TypeAlias = dict[str, Any]
 
-URLRoutes: TypeAlias = List[
+URLRoutes: TypeAlias = list[
     Union[
-        Tuple[str, Type[RequestHandler]],
-        Tuple[str, Type[RequestHandler], RouteContext],
+        tuple[str, type[RequestHandler]],
+        tuple[str, type[RequestHandler], RouteContext],
     ],
 ]
 

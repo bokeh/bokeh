@@ -29,9 +29,7 @@ from typing import (
     Callable,
     Iterable,
     Iterator,
-    List,
     Sequence,
-    Type,
     TypeVar,
     Union,
     overload,
@@ -502,7 +500,7 @@ def grid(children: Any = [], sizing_mode: SizingModeType | None = None, nrows: i
 #-----------------------------------------------------------------------------
 
 T = TypeVar("T", bound=Tool)
-MergeFn: TypeAlias = Callable[[Type[T], List[T]], Union[Tool, ToolProxy, None]]
+MergeFn: TypeAlias = Callable[[type[T], list[T]], Union[Tool, ToolProxy, None]]
 
 def group_tools(tools: list[Tool | ToolProxy], *, merge: MergeFn[Tool] | None = None,
         ignore: set[str] | None = None) -> list[Tool | ToolProxy]:

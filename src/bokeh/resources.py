@@ -42,7 +42,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     ClassVar,
-    Dict,
     Literal,
     Protocol,
     TypedDict,
@@ -99,7 +98,7 @@ class ComponentDefs(TypedDict):
 # Dev API
 # -----------------------------------------------------------------------------
 
-Hashes: TypeAlias = Dict[str, str]
+Hashes: TypeAlias = dict[str, str]
 
 _SRI_HASHES: dict[str, Hashes] | None = None
 

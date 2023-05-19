@@ -21,10 +21,7 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any as TAny,
-    Dict as TDict,
-    List as TList,
     Sequence,
-    Tuple,
     Union,
     overload,
 )
@@ -87,11 +84,11 @@ __all__ = (
 if TYPE_CHECKING:
     import numpy.typing as npt
 
-    DataDict: TypeAlias = TDict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
+    DataDict: TypeAlias = dict[str, Union[Sequence[TAny], npt.NDArray[TAny], pd.Series, pd.Index]]
 
-    Index: TypeAlias = Union[int, slice, Tuple[Union[int, slice], ...]]
+    Index: TypeAlias = Union[int, slice, tuple[Union[int, slice], ...]]
 
-    Patches: TypeAlias = TDict[str, TList[Tuple[Index, Any]]]
+    Patches: TypeAlias = dict[str, list[tuple[Index, Any]]]
 
 @abstract
 class DataSource(Model):

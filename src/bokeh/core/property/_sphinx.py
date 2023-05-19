@@ -25,7 +25,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Type,
 )
 
 #-----------------------------------------------------------------------------
@@ -39,7 +38,7 @@ __all__ = (
     'type_link',
 )
 
-_type_links: dict[Type[Any], Callable[[Any], str]] = {}
+_type_links: dict[type[Any], Callable[[Any], str]] = {}
 
 #-----------------------------------------------------------------------------
 # General API
