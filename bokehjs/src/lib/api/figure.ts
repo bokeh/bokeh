@@ -1,9 +1,11 @@
-import {HasProps} from "../core/has_props"
-import {Data, Attrs} from "../core/types"
-import {Value, Field, Vector} from "../core/vectorization"
-import {VectorSpec, UnitsSpec, Property} from "../core/properties"
-import {Class, extend} from "../core/class"
-import {Location} from "../core/enums"
+import type {HasProps} from "../core/has_props"
+import type {Data, Attrs} from "../core/types"
+import type {Value, Field, Vector} from "../core/vectorization"
+import type {Property} from "../core/properties"
+import {VectorSpec, UnitsSpec} from "../core/properties"
+import type {Class} from "../core/class"
+import {extend} from "../core/class"
+import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
 import {includes, uniq} from "../core/util/array"
 import {clone, keys, entries, is_empty} from "../core/util/object"
@@ -11,22 +13,36 @@ import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
+import type {Glyph, Scale, Plot, Tool} from "./models"
 import {
-  Glyph, GlyphRenderer, Axis, Grid,
-  Range, Range1d, DataRange1d, FactorRange,
-  Scale, LinearScale, LogScale, CategoricalScale,
-  LinearAxis, LogAxis, CategoricalAxis, DatetimeAxis, MercatorAxis,
-  ColumnarDataSource, ColumnDataSource,
-  Plot, Tool, ContinuousTicker,
+  Axis,
+  CategoricalAxis,
+  CategoricalScale,
+  ColumnDataSource,
+  ColumnarDataSource,
+  ContinuousTicker,
   CoordinateMapping,
+  DataRange1d,
+  DatetimeAxis,
+  FactorRange,
+  GlyphRenderer,
+  Grid,
+  LinearAxis,
+  LinearScale,
+  LogAxis,
+  LogScale,
+  MercatorAxis,
+  Range,
+  Range1d,
 } from "./models"
 
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
-import {ToolAliases} from "../models/tools/tool"
+import type {ToolAliases} from "../models/tools/tool"
 import {Figure as BaseFigure} from "../models/plots/figure"
 
-import {TypedGlyphRenderer, NamesOf, GlyphAPI, AuxGlyph} from "./glyph_api"
+import type {TypedGlyphRenderer, NamesOf, AuxGlyph} from "./glyph_api"
+import {GlyphAPI} from "./glyph_api"
 
 const {hasOwnProperty} = Object.prototype
 

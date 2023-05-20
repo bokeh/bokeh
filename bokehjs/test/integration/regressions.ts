@@ -4,8 +4,9 @@ import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, xy, click, press} from "../interactive"
 
+import type {ArrowHead, Renderer, BasicTickFormatter} from "@bokehjs/models"
 import {
-  Arrow, ArrowHead, NormalHead, OpenHead,
+  Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
@@ -18,7 +19,6 @@ import {
   TeX,
   Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
   TileRenderer, WMTSTileSource,
-  Renderer,
   ImageURLTexture,
   Row, Column,
   Pane,
@@ -27,7 +27,6 @@ import {
   Jitter,
   ParkMillerLCG,
   GridPlot,
-  BasicTickFormatter,
 } from "@bokehjs/models"
 
 import {
@@ -37,11 +36,12 @@ import {
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
 
-import {Factor} from "@bokehjs/models/ranges/factor_range"
+import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Document} from "@bokehjs/document"
-import {Color, Arrayable} from "@bokehjs/core/types"
-import {Anchor, Location, OutputBackend, MarkerType} from "@bokehjs/core/enums"
+import type {Color, Arrayable} from "@bokehjs/core/types"
+import type {Location, OutputBackend} from "@bokehjs/core/enums"
+import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
 import {isArray} from "@bokehjs/core/util/types"
@@ -52,13 +52,13 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
-import {MarkerArgs} from "@bokehjs/api/glyph_api"
+import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
-import {XY, LRTB} from "@bokehjs/core/util/bbox"
+import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
-import {PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 import {FigureView} from "@bokehjs/models/plots/figure"
 
 import {gridplot} from "@bokehjs/api/gridplot"

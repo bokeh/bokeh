@@ -1,12 +1,14 @@
-import {Size} from "./types"
+import type {Size} from "./types"
 import {BBox} from "./util/bbox"
-import {Context2d} from "./util/canvas"
-import {font_metrics, FontMetrics, parse_css_font_size} from "./util/text"
+import type {Context2d} from "./util/canvas"
+import type {FontMetrics} from "./util/text"
+import {font_metrics, parse_css_font_size} from "./util/text"
 import {max, max_by, sum} from "./util/array"
 import {isNumber} from "./util/types"
-import {Rect, AffineTransform} from "./util/affine"
+import type {Rect} from "./util/affine"
+import {AffineTransform} from "./util/affine"
 import {color2css} from "./util/color"
-import * as visuals from "./visuals"
+import type * as visuals from "./visuals"
 
 export const text_width: (text: string, font: string) => number = (() => {
   const canvas = document.createElement("canvas")

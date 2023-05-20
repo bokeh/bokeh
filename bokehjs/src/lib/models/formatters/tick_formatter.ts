@@ -1,6 +1,7 @@
 import {Model} from "../../model"
-import {GraphicsBox, TextBox} from "core/graphics"
-import * as p from "core/properties"
+import type {GraphicsBox} from "core/graphics"
+import {TextBox} from "core/graphics"
+import type * as p from "core/properties"
 
 export namespace TickFormatter {
   export type Attrs = p.AttrsOf<Props>

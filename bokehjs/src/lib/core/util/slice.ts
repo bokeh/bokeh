@@ -1,4 +1,5 @@
-import {Serializable, Serializer, serialize, SliceRep} from "../serialization"
+import type {Serializable, Serializer, SliceRep} from "../serialization"
+import {serialize} from "../serialization"
 
 export class Slice implements Serializable {
   readonly start: number | null

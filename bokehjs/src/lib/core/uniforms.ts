@@ -1,5 +1,6 @@
-import {Indices, Arrayable} from "./types"
-import {equals, Equatable, Comparator} from "./util/eq"
+import type {Indices, Arrayable} from "./types"
+import type {Equatable, Comparator} from "./util/eq"
+import {equals} from "./util/eq"
 import * as arrayable from  "./util/arrayable"
 
 export abstract class Uniform<T = number> implements Equatable {

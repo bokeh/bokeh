@@ -1,7 +1,7 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
-import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import type * as p from "core/properties"
 
 export namespace FixedTicker {
   export type Attrs = p.AttrsOf<Props>

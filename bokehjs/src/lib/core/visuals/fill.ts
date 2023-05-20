@@ -1,9 +1,10 @@
-import {VisualProperties, VisualUniforms, ValuesOf} from "./visual"
-import {uint32} from "../types"
-import * as p from "../properties"
+import type {ValuesOf} from "./visual"
+import {VisualProperties, VisualUniforms} from "./visual"
+import type {uint32} from "../types"
+import type * as p from "../properties"
 import * as mixins from "../property_mixins"
 import {color2css} from "../util/color"
-import {Context2d} from "../util/canvas"
+import type {Context2d} from "../util/canvas"
 
 export interface Fill extends Readonly<mixins.Fill> {}
 export class Fill extends VisualProperties {

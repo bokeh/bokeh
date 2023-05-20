@@ -1,12 +1,12 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
-import {Selection} from "../selections/selection"
+import type * as p from "core/properties"
+import type {Selection} from "../selections/selection"
 import {View} from "core/view"
 import {Indices} from "core/types"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
-import {ColumnarDataSource} from "./columnar_data_source"
+import type {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
   declare model: CDSView

@@ -1,7 +1,7 @@
 import {Signal0} from "core/signaling"
 import type {PlotView} from "./plot_canvas"
 import type {RangeInfo} from "./range_manager"
-import {Selection} from "../selections/selection"
+import type {Selection} from "../selections/selection"
 import type {DataRenderer} from "../renderers/data_renderer"
 
 export type StateInfo = {

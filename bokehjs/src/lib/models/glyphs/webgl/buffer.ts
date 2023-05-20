@@ -1,11 +1,11 @@
-import {ReglWrapper} from "./regl_wrap"
+import type {ReglWrapper} from "./regl_wrap"
 import {cap_lookup, hatch_pattern_to_index, join_lookup} from "./webgl_utils"
-import {LineCap, LineJoin} from "core/enums"
-import {HatchPattern} from "core/property_mixins"
-import {uint32} from "core/types"
-import {Uniform} from "core/uniforms"
+import type {LineCap, LineJoin} from "core/enums"
+import type {HatchPattern} from "core/property_mixins"
+import type {uint32} from "core/types"
+import type {Uniform} from "core/uniforms"
 import {color2rgba} from "core/util/color"
-import {AttributeConfig, Buffer} from "regl"
+import type {AttributeConfig, Buffer} from "regl"
 
 type WrappedArrayType = Float32Array | Uint8Array
 

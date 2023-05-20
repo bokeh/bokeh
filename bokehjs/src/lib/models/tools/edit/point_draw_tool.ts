@@ -1,7 +1,8 @@
-import {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
-import * as p from "core/properties"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
+import type {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
+import type * as p from "core/properties"
+import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import type {HasXYGlyph} from "./edit_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_point_draw} from "styles/icons.css"
 
 export class PointDrawToolView extends EditToolView {

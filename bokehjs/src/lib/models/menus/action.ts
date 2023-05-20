@@ -2,7 +2,7 @@ import {MenuItem, MenuItemView} from "./menu_item"
 import {Menu} from "./menu"
 import {Icon} from "../ui/icons/icon"
 import {span} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 // import * as menus from "styles/menus.css"
 

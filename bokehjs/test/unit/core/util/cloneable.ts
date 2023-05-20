@@ -1,7 +1,9 @@
 import {expect} from "assertions"
 
-import {Cloner, clone, Cloneable, CloneableType} from "@bokehjs/core/util/cloneable"
-import {Comparator, equals, Equatable} from "@bokehjs/core/util/eq"
+import type {Cloneable, CloneableType} from "@bokehjs/core/util/cloneable"
+import {Cloner, clone} from "@bokehjs/core/util/cloneable"
+import type {Comparator, Equatable} from "@bokehjs/core/util/eq"
+import {equals} from "@bokehjs/core/util/eq"
 
 function copy<T extends CloneableType>(obj: T): T {
   const cloner = new Cloner()

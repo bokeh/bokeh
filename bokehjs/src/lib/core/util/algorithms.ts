@@ -1,4 +1,4 @@
-import {Rect} from "../types"
+import type {Rect} from "../types"
 import {minmax} from "./arrayable"
 
 const {abs, sqrt, min, max} = Math

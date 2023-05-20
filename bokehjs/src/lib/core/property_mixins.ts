@@ -1,8 +1,8 @@
 import * as p from "./properties"
-import {Color} from "./types"
+import type {Color} from "./types"
 import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
-import {Texture} from "models/textures/texture"
+import type {Texture} from "models/textures/texture"
 import {keys} from "./util/object"
 import type {HasProps} from "./has_props"
 

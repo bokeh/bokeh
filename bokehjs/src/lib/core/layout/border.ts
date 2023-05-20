@@ -1,6 +1,8 @@
-import {SizeHint, Size, Sizeable, Margin} from "./types"
+import type {SizeHint, Size, Margin} from "./types"
+import {Sizeable} from "./types"
 import {Layoutable} from "./layoutable"
-import {BBox, LRTB} from "../util/bbox"
+import type {LRTB} from "../util/bbox"
+import {BBox} from "../util/bbox"
 
 export class BorderLayout extends Layoutable {
   override *[Symbol.iterator]() {

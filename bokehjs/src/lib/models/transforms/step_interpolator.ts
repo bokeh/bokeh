@@ -1,6 +1,6 @@
 import {Interpolator} from "./interpolator"
 import {StepMode} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {map, min, find_index, find_last_index} from "core/util/array"
 
 export namespace StepInterpolator {

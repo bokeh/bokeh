@@ -1,8 +1,8 @@
 import {Model} from "../../model"
-import {PatternSource} from "core/visuals/patterns"
-import {Color} from "core/types"
+import type {PatternSource} from "core/visuals/patterns"
+import type {Color} from "core/types"
 import {TextureRepetition} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Texture {
   export type Attrs = p.AttrsOf<Props>

@@ -1,5 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {tool_icon_copy} from "styles/icons.css"
 
 export class CopyToolView extends ActionToolView {

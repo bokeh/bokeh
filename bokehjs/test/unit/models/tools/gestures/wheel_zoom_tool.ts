@@ -1,10 +1,12 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
 
-import {Tool} from "@bokehjs/models/tools/tool"
-import {WheelZoomTool, WheelZoomToolView} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
+import type {Tool} from "@bokehjs/models/tools/tool"
+import type {WheelZoomToolView} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
+import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 
 describe("WheelZoomTool", () => {
 

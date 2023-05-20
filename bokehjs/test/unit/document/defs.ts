@@ -1,11 +1,11 @@
 import {expect} from "assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
-import {ModelDef} from "@bokehjs/document/defs"
+import type {ModelDef} from "@bokehjs/document/defs"
 import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 import {assert} from "@bokehjs/core/util/assert"
 import {ColumnDataSource} from "@bokehjs/models"
 

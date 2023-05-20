@@ -4,7 +4,7 @@ import ts from "typescript"
 import {dirname, join, relative} from "path"
 
 import * as transforms from "./transforms"
-import {Path} from "./sys"
+import type {Path} from "./sys"
 import {BuildError} from "./error"
 
 export type CompileConfig = {

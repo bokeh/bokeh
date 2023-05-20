@@ -1,8 +1,10 @@
-import noUiSlider, {API} from "nouislider"
+import type {API} from "nouislider"
+import noUiSlider from "nouislider"
 
 import * as p from "core/properties"
-import {Color} from "core/types"
-import {div, span, empty, StyleSheetLike} from "core/dom"
+import type {Color} from "core/types"
+import type {StyleSheetLike} from "core/dom"
+import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 

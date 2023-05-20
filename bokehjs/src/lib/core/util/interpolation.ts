@@ -1,4 +1,5 @@
-import {FloatArray, infer_type} from "../types"
+import type {FloatArray} from "../types"
+import {infer_type} from "../types"
 import {assert} from "./assert"
 
 export function catmullrom_spline(x: FloatArray, y: FloatArray,

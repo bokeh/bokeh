@@ -1,7 +1,7 @@
 import {div, replaceWith, contains} from "../core/dom"
-import {ID} from "../core/types"
+import type {ID} from "../core/types"
 import {isString} from "../core/util/types"
-import {RenderItem} from "./json"
+import type {RenderItem} from "./json"
 
 export type EmbedTarget = HTMLElement | DocumentFragment
 

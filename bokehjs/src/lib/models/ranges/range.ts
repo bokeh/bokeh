@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import type {PlotView} from "../plots/plot"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Range {
   export type Attrs = p.AttrsOf<Props>

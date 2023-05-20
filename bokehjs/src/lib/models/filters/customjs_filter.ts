@@ -1,9 +1,9 @@
 import {Filter} from "./filter"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {Indices} from "core/types"
 import {keys, values} from "core/util/object"
 import {isArrayOf, isBoolean, isInteger} from "core/util/types"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSFilter {

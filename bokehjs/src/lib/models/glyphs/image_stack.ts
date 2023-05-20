@@ -1,7 +1,8 @@
-import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
+import type {ImageDataBase} from "./image_base"
+import {ImageBase, ImageBaseView} from "./image_base"
 import {StackColorMapper} from "../mappers/stack_color_mapper"
-import {NDArrayType} from "core/util/ndarray"
-import * as p from "core/properties"
+import type {NDArrayType} from "core/util/ndarray"
+import type * as p from "core/properties"
 
 export type ImageStackData = ImageDataBase
 

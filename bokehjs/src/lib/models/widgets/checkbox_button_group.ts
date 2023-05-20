@@ -1,6 +1,6 @@
 import {ToggleButtonGroup, ToggleButtonGroupView} from "./toggle_button_group"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import * as buttons from "styles/buttons.css"
 
 export class CheckboxButtonGroupView extends ToggleButtonGroupView {

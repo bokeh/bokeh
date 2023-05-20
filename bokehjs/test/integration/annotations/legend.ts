@@ -3,8 +3,9 @@ import {display, fig} from "../_util"
 import {Legend, LegendItem, LinearAxis} from "@bokehjs/models"
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
-import {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
-import {Orientation, Location} from "@bokehjs/core/enums"
+import type {CircleArgs, LineArgs} from "@bokehjs/api/glyph_api"
+import type {Orientation} from "@bokehjs/core/enums"
+import {Location} from "@bokehjs/core/enums"
 import {linspace} from "@bokehjs/core/util/array"
 
 describe("Legend annotation", () => {

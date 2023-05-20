@@ -1,8 +1,10 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {Tooltip, TooltipView} from "../ui/tooltip"
+import type {TooltipView} from "../ui/tooltip"
+import {Tooltip} from "../ui/tooltip"
 import {BuiltinIcon} from "../ui/icons/builtin_icon"
-import {build_view, IterViews} from "core/build_views"
-import * as p from "core/properties"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type * as p from "core/properties"
 
 export class HelpButtonView extends AbstractButtonView {
   declare model: HelpButton

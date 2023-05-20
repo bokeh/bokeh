@@ -1,6 +1,7 @@
 import {expect} from "assertions"
 
-import {Layoutable, Size, SizeHint} from "@bokehjs/core/layout"
+import type {Size, SizeHint} from "@bokehjs/core/layout"
+import {Layoutable} from "@bokehjs/core/layout"
 
 class SomeLayout extends Layoutable {
   _measure(_viewport: Size): SizeHint {

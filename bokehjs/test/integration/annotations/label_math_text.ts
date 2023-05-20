@@ -1,7 +1,7 @@
 import {display, fig, row} from "../_util"
 import {with_internal, with_delayed, with_none} from "../_util"
 
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 import {Label, TeX, Ascii, MathML} from "@bokehjs/models"
 import {tex, ascii, mathml} from "./_text_utils"
 

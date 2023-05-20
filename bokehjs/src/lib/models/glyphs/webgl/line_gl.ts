@@ -1,8 +1,9 @@
-import {Transform} from "./base"
-import {BaseLineGL, LineGLVisuals} from "./base_line"
+import type {Transform} from "./base"
+import type {LineGLVisuals} from "./base_line"
+import {BaseLineGL} from "./base_line"
 import {Float32Buffer, Uint8Buffer} from "./buffer"
-import {ReglWrapper} from "./regl_wrap"
-import {LineView} from "../line"
+import type {ReglWrapper} from "./regl_wrap"
+import type {LineView} from "../line"
 
 export class LineGL extends BaseLineGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: LineView) {

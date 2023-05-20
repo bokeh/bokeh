@@ -1,7 +1,8 @@
 import {WebDataSource} from "./web_data_source"
-import {UpdateMode, HTTPMethod} from "core/enums"
+import type {UpdateMode} from "core/enums"
+import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {entries} from "core/util/object"
 
 export namespace AjaxDataSource {

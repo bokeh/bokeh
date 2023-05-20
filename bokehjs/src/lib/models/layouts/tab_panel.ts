@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {UIElement} from "../ui/ui_element"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace TabPanel {
   export type Attrs = p.AttrsOf<Props>

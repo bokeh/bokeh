@@ -1,10 +1,11 @@
 import {Renderer, RendererView} from "./renderer"
-import {GlyphView} from "../glyphs/glyph"
-import {Scale} from "../scales/scale"
-import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
-import {SelectionManager} from "core/selection_manager"
-import * as p from "core/properties"
-import {Rect} from "core/types"
+import type {GlyphView} from "../glyphs/glyph"
+import type {Scale} from "../scales/scale"
+import type {AutoRanged} from "../ranges/data_range1d"
+import {auto_ranged} from "../ranges/data_range1d"
+import type {SelectionManager} from "core/selection_manager"
+import type * as p from "core/properties"
+import type {Rect} from "core/types"
 
 export abstract class DataRendererView extends RendererView implements AutoRanged {
   declare model: DataRenderer

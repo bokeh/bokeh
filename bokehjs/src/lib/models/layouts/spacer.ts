@@ -1,5 +1,5 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class SpacerView extends LayoutDOMView {
   declare model: Spacer

@@ -1,5 +1,5 @@
 import {AdaptiveTicker} from "./adaptive_ticker"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace BasicTicker {
   export type Attrs = p.AttrsOf<Props>

@@ -1,5 +1,5 @@
-import {Arrayable} from "./types"
-import {Selection} from "../models/selections/selection"
+import type {Arrayable} from "./types"
+import type {Selection} from "../models/selections/selection"
 
 export type HitTestResult = Selection | null
 

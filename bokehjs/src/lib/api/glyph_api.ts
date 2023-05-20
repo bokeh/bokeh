@@ -1,12 +1,12 @@
-import {HasProps} from "../core/has_props"
-import {Color, Arrayable} from "../core/types"
-import {Class} from "../core/class"
-import {Vector} from "../core/vectorization"
-import {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
-import {MarkerType, RenderLevel} from "../core/enums"
-import * as nd from "core/util/ndarray"
+import type {HasProps} from "../core/has_props"
+import type {Color, Arrayable} from "../core/types"
+import type {Class} from "../core/class"
+import type {Vector} from "../core/vectorization"
+import type {VectorSpec, ScalarSpec, ColorSpec, UnitsSpec, Property} from "../core/properties"
+import type {MarkerType, RenderLevel} from "../core/enums"
+import type * as nd from "core/util/ndarray"
 
-import {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
+import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
   AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep, HBar, HSpan,
@@ -15,7 +15,7 @@ import {
   VAreaStep, VBar, VSpan, VStrip, Wedge,
 } from "../models/glyphs"
 
-import {Marker} from "../models/glyphs/marker"
+import type {Marker} from "../models/glyphs/marker"
 
 export type NamesOf<T extends HasProps> = (keyof T["properties"])[]
 

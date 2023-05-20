@@ -1,6 +1,6 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
-import {SelectionMode} from "core/enums"
+import type * as p from "core/properties"
+import type {SelectionMode} from "core/enums"
 import {union, intersection, difference} from "core/util/array"
 import {merge, entries, to_object} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"

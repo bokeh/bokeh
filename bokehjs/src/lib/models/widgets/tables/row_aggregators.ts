@@ -1,7 +1,8 @@
-import {Data, GroupTotals} from "@bokeh/slickgrid"
+import type {GroupTotals} from "@bokeh/slickgrid"
+import {Data} from "@bokeh/slickgrid"
 const {Avg, Min, Max, Sum} = Data.Aggregators
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {Model} from "model"
 
 export namespace RowAggregator {

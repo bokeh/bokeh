@@ -2,7 +2,7 @@ import {Annotation, AnnotationView} from "./annotation"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ColumnDataSource} from "../sources/column_data_source"
 
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 

@@ -1,11 +1,12 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import {TextBox} from "core/graphics"
 import * as p from "core/properties"
-import {FloatArray, ScreenArray} from "core/types"
-import {Context2d} from "core/util/canvas"
+import type {FloatArray} from "core/types"
+import {ScreenArray} from "core/types"
+import type {Context2d} from "core/util/canvas"
 
 export class LabelSetView extends DataAnnotationView {
   declare model: LabelSet

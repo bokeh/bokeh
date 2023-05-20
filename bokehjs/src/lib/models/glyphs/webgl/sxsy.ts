@@ -1,7 +1,8 @@
-import {ReglWrapper} from "./regl_wrap"
-import {SingleMarkerGL, SingleMarkerGlyphView} from "./single_marker"
+import type {ReglWrapper} from "./regl_wrap"
+import type {SingleMarkerGlyphView} from "./single_marker"
+import {SingleMarkerGL} from "./single_marker"
 import {interleave} from "./webgl_utils"
-import {Arrayable} from "core/types"
+import type {Arrayable} from "core/types"
 
 // NOTE: this is not equivalent to XYGlyphView
 export type SXSYGlyphView = SingleMarkerGlyphView & {

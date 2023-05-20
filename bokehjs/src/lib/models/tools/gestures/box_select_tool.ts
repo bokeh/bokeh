@@ -1,11 +1,12 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {Scale} from "../../scales/scale"
-import * as p from "core/properties"
-import {Dimensions, BoxOrigin, SelectionMode, CoordinateUnits} from "core/enums"
-import {PanEvent, KeyEvent} from "core/ui_events"
-import {RectGeometry} from "core/geometry"
-import {CoordinateMapper, LRTB} from "core/util/bbox"
+import type {Scale} from "../../scales/scale"
+import type * as p from "core/properties"
+import type {SelectionMode, CoordinateUnits} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
+import type {PanEvent, KeyEvent} from "core/ui_events"
+import type {RectGeometry} from "core/geometry"
+import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends RegionSelectToolView {

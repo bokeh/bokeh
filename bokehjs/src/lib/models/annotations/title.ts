@@ -1,9 +1,9 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
-import {Size, Layoutable} from "core/layout"
-import {Panel} from "core/layout/side_panel"
-import * as p from "core/properties"
-import {Position} from "core/graphics"
+import type {Size, Layoutable} from "core/layout"
+import type {Panel} from "core/layout/side_panel"
+import type * as p from "core/properties"
+import type {Position} from "core/graphics"
 
 export class TitleView extends TextAnnotationView {
   declare model: Title

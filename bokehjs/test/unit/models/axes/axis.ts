@@ -9,7 +9,7 @@ import {FactorRange} from "@bokehjs/models/ranges/factor_range"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
-import {TextBox} from "@bokehjs/core/graphics"
+import type {TextBox} from "@bokehjs/core/graphics"
 import {TeXView, TeX} from "@bokehjs/models/text/math_text"
 
 describe("Axis", () => {

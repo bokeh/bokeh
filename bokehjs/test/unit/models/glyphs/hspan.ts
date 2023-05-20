@@ -1,8 +1,9 @@
 import {expect} from "assertions"
 
-import {create_glyph_view, DataOf} from "./_util"
+import type {DataOf} from "./_util"
+import {create_glyph_view} from "./_util"
 import {HSpan} from "@bokehjs/models/glyphs/hspan"
-import {Geometry} from "@bokehjs/core/geometry"
+import type {Geometry} from "@bokehjs/core/geometry"
 import {assert} from "@bokehjs/core/util/assert"
 
 describe("HSpan", () => {

@@ -1,9 +1,10 @@
-import {Marker, MarkerView, MarkerData} from "./marker"
+import type {MarkerData} from "./marker"
+import {Marker, MarkerView} from "./marker"
 import {marker_funcs} from "./defs"
-import {MarkerType} from "core/enums"
-import {Rect} from "core/types"
+import type {MarkerType} from "core/enums"
+import type {Rect} from "core/types"
 import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
 
 export type ScatterData = MarkerData & {

@@ -1,5 +1,5 @@
 import {MercatorTileSource} from "./mercator_tile_source"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace TMSTileSource {
   export type Attrs = p.AttrsOf<Props>

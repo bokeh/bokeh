@@ -1,9 +1,9 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {compute_angle} from "core/util/math"
 import {CoordinateUnits, AngleUnits} from "core/enums"
-import {Size} from "core/layout"
+import type {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class LabelView extends TextAnnotationView {
   declare model: Label

@@ -1,9 +1,10 @@
-import * as ts from "typescript"
+import type * as ts from "typescript"
 
 import * as cp from "child_process"
 import {join, dirname, basename, relative} from "path"
 
-import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file, Path} from "./sys"
+import type {Path} from "./sys"
+import {read, read_json, write, rename, file_exists, directory_exists, hash, hash_file} from "./sys"
 import {
   compile_files, read_tsconfig, parse_tsconfig, is_failed,
   default_transformers, compiler_host, report_diagnostics,

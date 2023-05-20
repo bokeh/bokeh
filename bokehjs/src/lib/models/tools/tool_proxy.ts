@@ -1,11 +1,12 @@
-import * as p from "core/properties"
-import {EventType} from "core/ui_events"
+import type * as p from "core/properties"
+import type {EventType} from "core/ui_events"
 import {Signal0} from "core/signaling"
 import {Model} from "../../model"
-import {Tool, ToolView, EventRole} from "./tool"
-import {ToolButton} from "./tool_button"
-import {type InspectTool} from "./inspectors/inspect_tool"
-import {MenuItem} from "core/util/menus"
+import type {ToolView, EventRole} from "./tool"
+import {Tool} from "./tool"
+import type {ToolButton} from "./tool_button"
+import type {InspectTool} from "./inspectors/inspect_tool"
+import type {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
 
 export type ToolLike<T extends Tool> = T | ToolProxy<T>

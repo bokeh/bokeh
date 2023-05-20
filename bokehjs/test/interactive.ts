@@ -1,4 +1,4 @@
-import {PlotView} from "@bokehjs/models/plots/plot_canvas"
+import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"

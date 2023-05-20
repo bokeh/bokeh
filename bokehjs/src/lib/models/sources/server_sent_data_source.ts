@@ -1,5 +1,5 @@
 import {WebDataSource} from "./web_data_source"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace ServerSentDataSource {
   export type Attrs = p.AttrsOf<Props>

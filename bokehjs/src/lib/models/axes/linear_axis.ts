@@ -1,8 +1,8 @@
 import {ContinuousAxis, ContinuousAxisView} from "./continuous_axis"
 import {BasicTickFormatter} from "../formatters/basic_tick_formatter"
 import {BasicTicker} from "../tickers/basic_ticker"
-import {ContinuousTicker} from "../tickers/continuous_ticker"
-import * as p from "core/properties"
+import type {ContinuousTicker} from "../tickers/continuous_ticker"
+import type * as p from "core/properties"
 
 export class LinearAxisView extends ContinuousAxisView {
   declare model: LinearAxis

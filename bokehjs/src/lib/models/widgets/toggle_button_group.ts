@@ -1,8 +1,9 @@
 import {OrientedControl, OrientedControlView} from "./oriented_control"
 import {ButtonClick} from "core/bokeh_events"
 import {ButtonType} from "core/enums"
-import {button, div, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {button, div} from "core/dom"
+import type * as p from "core/properties"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 

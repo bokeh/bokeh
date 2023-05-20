@@ -1,4 +1,4 @@
-import {type HasProps} from "./has_props"
+import type {HasProps} from "./has_props"
 
 export class ModelResolver {
   protected _known_models: Map<string, typeof HasProps> = new Map()

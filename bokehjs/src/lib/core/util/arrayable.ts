@@ -1,4 +1,4 @@
-import {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
+import type {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
 import {clamp} from "./math"
 
 export function is_empty(array: Arrayable): boolean {

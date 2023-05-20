@@ -1,7 +1,7 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class ZoomBaseToolView extends PlotActionToolView {
   declare model: ZoomBaseTool

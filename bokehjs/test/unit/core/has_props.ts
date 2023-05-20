@@ -7,7 +7,7 @@ import {Serializer} from "@bokehjs/core/serialization/serializer"
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {default_resolver} from "@bokehjs/base"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 import {keys} from "@bokehjs/core/util/object"
 
 class EmptyModel extends HasProps {}

@@ -1,9 +1,10 @@
-import {Range} from "../ranges/range"
-import {DataRange1d, Bounds} from "../ranges/data_range1d"
-import {CartesianFrame} from "../canvas/cartesian_frame"
-import {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {Range} from "../ranges/range"
+import type {Bounds} from "../ranges/data_range1d"
+import {DataRange1d} from "../ranges/data_range1d"
+import type {CartesianFrame} from "../canvas/cartesian_frame"
+import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
-import {Interval} from "core/types"
+import type {Interval} from "core/types"
 import {logger} from "core/logging"
 
 export type RangeInfo = {

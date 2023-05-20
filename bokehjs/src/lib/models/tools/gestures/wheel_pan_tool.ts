@@ -1,6 +1,6 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import * as p from "core/properties"
-import {ScrollEvent} from "core/ui_events"
+import type * as p from "core/properties"
+import type {ScrollEvent} from "core/ui_events"
 import {Dimension} from "core/enums"
 import {tool_icon_wheel_pan} from "styles/icons.css"
 import {update_ranges} from "./pan_tool"

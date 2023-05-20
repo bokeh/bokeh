@@ -1,5 +1,6 @@
-import {equals, Equatable, Comparator} from "./eq"
-import {Arrayable, ArrayableNew} from "../types"
+import type {Equatable, Comparator} from "./eq"
+import {equals} from "./eq"
+import type {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
 
 export class BitSet implements Equatable {

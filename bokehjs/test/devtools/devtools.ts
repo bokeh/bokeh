@@ -1,4 +1,4 @@
-import {Protocol} from "devtools-protocol"
+import type {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
 import fs from "fs"
@@ -8,7 +8,8 @@ import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
-import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
+import type {Box, State} from "./baselines"
+import {create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
 

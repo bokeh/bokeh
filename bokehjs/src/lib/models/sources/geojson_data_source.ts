@@ -1,12 +1,12 @@
-import {
+import type {
   FeatureCollection, GeometryCollection, Feature, Position,
   Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon,
 } from "geojson"
 
 import {ColumnarDataSource} from "./columnar_data_source"
 import {logger} from "core/logging"
-import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
 import {is_undefined} from "core/util/types"
 import {range} from "core/util/array"
 import {entries} from "core/util/object"

@@ -1,9 +1,11 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
-import {Dialog, DialogView} from "../../ui/dialog"
+import type {DialogView} from "../../ui/dialog"
+import {Dialog} from "../../ui/dialog"
 import {Examiner} from "../../ui/examiner"
-import {build_view, IterViews} from "core/build_views"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
 
 export class ExamineToolView extends ActionToolView {
   declare model: ExamineTool

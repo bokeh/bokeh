@@ -1,7 +1,7 @@
 import {Texture} from "./texture"
-import * as p from "core/properties"
-import {Color} from "core/types"
-import {PatternSource} from "core/visuals/patterns"
+import type * as p from "core/properties"
+import type {Color} from "core/types"
+import type {PatternSource} from "core/visuals/patterns"
 import {use_strict} from "core/util/string"
 
 export namespace CanvasTexture {

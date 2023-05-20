@@ -1,11 +1,14 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Toolbar, ToolbarView} from "../tools/toolbar"
-import {build_view, IterViews} from "core/build_views"
+import type {ToolbarView} from "../tools/toolbar"
+import {Toolbar} from "../tools/toolbar"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
-import {Size, Layoutable} from "core/layout"
-import {Panel, SideLayout} from "core/layout/side_panel"
+import type {Size, Layoutable} from "core/layout"
+import type {Panel} from "core/layout/side_panel"
+import {SideLayout} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ToolbarPanelView extends AnnotationView {
   declare model: ToolbarPanel

@@ -1,6 +1,6 @@
 import {display, fig} from "../_util"
 
-import {GlyphAPI} from "@bokehjs/api/glyph_api"
+import type {GlyphAPI} from "@bokehjs/api/glyph_api"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
@@ -11,7 +11,7 @@ import {brightness} from "@bokehjs/core/util/color"
 import {named_colors} from "@bokehjs/core/util/svg_colors"
 import {unreachable} from "@bokehjs/core/util/assert"
 
-import {Color} from "@bokehjs/core/types"
+import type {Color} from "@bokehjs/core/types"
 
 import {ColumnDataSource, Range1d, PolarTransform} from "@bokehjs/models"
 

@@ -1,6 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import {copy} from "core/util/array"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace CategoricalTickFormatter {
   export type Attrs = p.AttrsOf<Props>

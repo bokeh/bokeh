@@ -1,4 +1,4 @@
-import {SizeHint, Size} from "./types"
+import type {SizeHint, Size} from "./types"
 import {Layoutable} from "./layoutable"
 import {BBox} from "../util/bbox"
 

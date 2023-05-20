@@ -1,7 +1,8 @@
 import {Icon, IconView} from "./icon"
-import {span, InlineStyleSheet, ImportedStyleSheet, GlobalInlineStyleSheet, StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import {span, InlineStyleSheet, ImportedStyleSheet, GlobalInlineStyleSheet} from "core/dom"
 import {isNumber} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class TablerIconView extends IconView {
   declare model: TablerIcon

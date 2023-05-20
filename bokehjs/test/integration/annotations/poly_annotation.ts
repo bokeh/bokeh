@@ -1,7 +1,7 @@
 import {display, fig, row} from "../_util"
 
 import {PolyAnnotation} from "@bokehjs/models"
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("PolyAnnotation annotation", () => {
 

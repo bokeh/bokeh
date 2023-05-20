@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import {PlotView} from "../../plots/plot_canvas"
-import * as p from "core/properties"
+import type {PlotView} from "../../plots/plot_canvas"
+import type * as p from "core/properties"
 
 export abstract class PlotActionToolView extends ActionToolView {
   declare model: PlotActionTool

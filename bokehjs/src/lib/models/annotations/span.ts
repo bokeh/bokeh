@@ -1,13 +1,13 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
+import type {Scale} from "../scales/scale"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {CoordinateUnits, Dimension} from "core/enums"
-import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
+import type {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {dist_to_segment} from "core/hittest"
 import {Signal} from "core/signaling"
-import * as p from "core/properties"
-import {CoordinateMapper} from "core/util/bbox"
+import type * as p from "core/properties"
+import type {CoordinateMapper} from "core/util/bbox"
 import {assert} from "core/util/assert"
 
 const EDGE_TOLERANCE = 2.5

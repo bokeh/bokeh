@@ -1,6 +1,6 @@
 declare module "chrome-remote-interface" {
-  import {Protocol} from "devtools-protocol/types/protocol"
-  import {ProtocolProxyApi} from "devtools-protocol/types/protocol-proxy-api"
+  import type {Protocol} from "devtools-protocol/types/protocol"
+  import type {ProtocolProxyApi} from "devtools-protocol/types/protocol-proxy-api"
 
   type DevTools = ProtocolProxyApi.ProtocolApi & {
     close(): Promise<void>

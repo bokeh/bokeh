@@ -1,12 +1,12 @@
-import {EventRole} from "../tool"
+import type {EventRole} from "../tool"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {CartesianFrame} from "../../canvas/cartesian_frame"
-import * as p from "core/properties"
-import {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
+import type {CartesianFrame} from "../../canvas/cartesian_frame"
+import type * as p from "core/properties"
+import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
-import {Interval} from "core/types"
-import {MenuItem} from "core/util/menus"
+import type {Interval} from "core/types"
+import type {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
 
 type Point = [number, number]

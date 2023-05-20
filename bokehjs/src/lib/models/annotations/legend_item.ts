@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import {Legend} from "./legend"
+import type {Legend} from "./legend"
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import {isValue, isField} from "core/vectorization"

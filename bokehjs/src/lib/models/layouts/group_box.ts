@@ -1,7 +1,8 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {UIElement} from "../ui/ui_element"
-import {fieldset, legend, input, display, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {fieldset, legend, input, display} from "core/dom"
+import type * as p from "core/properties"
 import group_box_css from "styles/group_box.css"
 
 export class GroupBoxView extends LayoutDOMView {

@@ -1,6 +1,6 @@
-import {DocJson} from "../document"
-import {ID} from "core/types"
-import {type EmbedTarget} from "./dom"
+import type {DocJson} from "../document"
+import type {ID} from "core/types"
+import type {EmbedTarget} from "./dom"
 
 export type DocsJson = {[key: string]: DocJson}
 

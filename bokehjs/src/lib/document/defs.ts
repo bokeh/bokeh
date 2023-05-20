@@ -1,9 +1,9 @@
 import {Model} from "../model"
 import * as kinds from "../core/kinds"
-import {type HasProps} from "core/has_props"
-import {AnyVal} from "core/serialization"
-import {Deserializer} from "core/serialization/deserializer"
-import {Ref} from "core/util/refs"
+import type {HasProps} from "core/has_props"
+import type {AnyVal} from "core/serialization"
+import type {Deserializer} from "core/serialization/deserializer"
+import type {Ref} from "core/util/refs"
 import {isString} from "core/util/types"
 import {to_object} from "core/util/object"
 

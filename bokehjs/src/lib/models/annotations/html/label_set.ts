@@ -1,12 +1,13 @@
 import {DataAnnotation, DataAnnotationView} from "../data_annotation"
-import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
 import {div, display, remove} from "core/dom"
 import * as p from "core/properties"
-import {FloatArray, ScreenArray} from "core/types"
-import {Context2d} from "core/util/canvas"
+import type {FloatArray} from "core/types"
+import {ScreenArray} from "core/types"
+import type {Context2d} from "core/util/canvas"
 import {assert} from "core/util/assert"
 
 export class HTMLLabelSetView extends DataAnnotationView {

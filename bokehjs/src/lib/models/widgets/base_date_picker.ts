@@ -1,7 +1,7 @@
-import flatpickr from "flatpickr"
+import type flatpickr from "flatpickr"
 
 import {PickerBase, PickerBaseView} from "./picker_base"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {Or, Tuple, String, Number, Array, Ref, Struct} from "../../core/kinds"
 

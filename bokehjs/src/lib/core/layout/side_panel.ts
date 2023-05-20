@@ -1,7 +1,8 @@
-import {Size, Sizeable} from "./types"
+import type {Size} from "./types"
+import {Sizeable} from "./types"
 import {ContentLayoutable} from "./layoutable"
 
-import {Side, Orientation} from "../enums"
+import type {Side, Orientation} from "../enums"
 import {isString} from "../util/types"
 
 // This table lays out the rules for configuring the baseline, alignment, etc. of

@@ -1,7 +1,7 @@
 import {InputWidget, InputWidgetView} from "models/widgets/input_widget"
-import {Color} from "core/types"
+import type {Color} from "core/types"
 import {input} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {color2hexrgb} from "core/util/color"
 
 import * as inputs from "styles/widgets/inputs.css"

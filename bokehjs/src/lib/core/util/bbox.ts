@@ -1,6 +1,8 @@
-import {Arrayable, ScreenArray, Rect, Box, Interval, Size} from "../types"
-import {equals, Equatable, Comparator} from "./eq"
-import * as affine from "./affine"
+import type {Arrayable, Rect, Box, Interval, Size} from "../types"
+import {ScreenArray} from "../types"
+import type {Equatable, Comparator} from "./eq"
+import {equals} from "./eq"
+import type * as affine from "./affine"
 import {map} from "./arrayable"
 
 const {min, max, round} = Math

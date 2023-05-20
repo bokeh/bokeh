@@ -10,10 +10,11 @@ export {Text, TextScalar, TextVector}
 export {Hatch, HatchScalar, HatchVector}
 export {Image, ImageScalar, ImageVector}
 
-import {View} from "../view"
+import type {View} from "../view"
 import * as mixins from "../property_mixins"
 
-import {VisualProperties, VisualUniforms, Renderable} from "./visual"
+import type {Renderable} from "./visual"
+import {VisualProperties, VisualUniforms} from "./visual"
 export {VisualProperties, VisualUniforms, type Renderable}
 
 export class Visuals {

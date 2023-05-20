@@ -1,6 +1,6 @@
 import {BasicTickFormatter} from "./basic_tick_formatter"
 import {LatLon} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {wgs84_mercator} from "core/util/projections"
 
 export namespace MercatorTickFormatter {

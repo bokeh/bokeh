@@ -1,8 +1,10 @@
-import {Transform} from "./base"
-import {BaseLineGL, LineGLVisuals} from "./base_line"
-import {Float32Buffer, Uint8Buffer} from "./buffer"
-import {ReglWrapper} from "./regl_wrap"
-import {StepView} from "../step"
+import type {Transform} from "./base"
+import type {LineGLVisuals} from "./base_line"
+import {BaseLineGL} from "./base_line"
+import type {Uint8Buffer} from "./buffer"
+import {Float32Buffer} from "./buffer"
+import type {ReglWrapper} from "./regl_wrap"
+import type {StepView} from "../step"
 import {assert, unreachable} from "core/util/assert"
 
 export class StepGL extends BaseLineGL {

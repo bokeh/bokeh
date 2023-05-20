@@ -1,6 +1,7 @@
-import {Arrayable} from "../types"
-import {XY} from "./bbox"
-import {Equatable, Comparator, equals} from "./eq"
+import type {Arrayable} from "../types"
+import type {XY} from "./bbox"
+import type {Equatable, Comparator} from "./eq"
+import {equals} from "./eq"
 
 const {sin, cos} = Math
 

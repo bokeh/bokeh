@@ -1,8 +1,9 @@
 import {display, fig, row} from "./_util"
 
 import {Range1d} from "@bokehjs/models/ranges"
-import {Plot} from "@bokehjs/models/plots"
-import {TileRenderer, TileSource, WMTSTileSource} from "@bokehjs/models/tiles"
+import type {Plot} from "@bokehjs/models/plots"
+import type {TileSource} from "@bokehjs/models/tiles"
+import {TileRenderer, WMTSTileSource} from "@bokehjs/models/tiles"
 
 describe("TileRenderer", () => {
 

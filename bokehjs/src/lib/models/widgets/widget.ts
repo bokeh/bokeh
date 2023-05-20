@@ -1,7 +1,8 @@
 import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
-import {default_provider, MathJaxProvider} from "models/text/providers"
+import type {MathJaxProvider} from "models/text/providers"
+import {default_provider} from "models/text/providers"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class WidgetView extends LayoutDOMView {
   declare model: Widget

@@ -1,11 +1,12 @@
 import flatpickr from "flatpickr"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
-import {input, StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import {input} from "core/dom"
 import {CalendarPosition} from "core/enums"
 import {bounding_box} from "core/dom"
 import {assert} from "core/util/assert"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import flatpickr_css from "styles/widgets/flatpickr.css"
 import * as inputs from "styles/widgets/inputs.css"

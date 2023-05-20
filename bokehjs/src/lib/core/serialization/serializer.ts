@@ -1,12 +1,12 @@
-import {TypedArray} from "../types"
+import type {TypedArray} from "../types"
 import {assert} from "../util/assert"
 import {entries} from "../util/object"
-import {Ref} from "../util/refs"
+import type {Ref} from "../util/refs"
 import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
 import {map} from "../util/iterator"
 import {BYTE_ORDER} from "../util/platform"
 import {Buffer, Base64Buffer} from "./buffer"
-import {BytesRep, TypedArrayRep} from "./reps"
+import type {BytesRep, TypedArrayRep} from "./reps"
 
 export type SerializableType =
   | null

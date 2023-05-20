@@ -1,8 +1,8 @@
 import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {UIElement} from "../ui/ui_element"
 import {ScrollbarPolicy} from "core/enums"
-import {StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import type * as p from "core/properties"
 
 export class ScrollBoxView extends LayoutDOMView {
   declare model: ScrollBox

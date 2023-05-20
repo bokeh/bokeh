@@ -5,7 +5,7 @@ import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {Circle} from "@bokehjs/models/glyphs/circle"
-import {PaddingUnits} from "@bokehjs/core/enums"
+import type {PaddingUnits} from "@bokehjs/core/enums"
 import {build_view} from "@bokehjs/core/build_views"
 
 describe("datarange1d module", () => {

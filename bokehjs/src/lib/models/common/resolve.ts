@@ -1,7 +1,7 @@
-import {Anchor, TextAnchor, BorderRadius, Padding} from "./kinds"
-import {TextAlign, TextBaseline} from "core/enums"
+import type {Anchor, TextAnchor, BorderRadius, Padding} from "./kinds"
+import type {TextAlign, TextBaseline} from "core/enums"
 import {isString, isNumber, isPlainObject} from "core/util/types"
-import {XY, LRTB, Corners} from "core/util/bbox"
+import type {XY, LRTB, Corners} from "core/util/bbox"
 import {unreachable} from "core/util/assert"
 
 export function anchor(anchor: Anchor): XY<number> {

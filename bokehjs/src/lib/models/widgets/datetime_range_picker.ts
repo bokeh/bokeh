@@ -1,9 +1,9 @@
-import flatpickr from "flatpickr"
+import type flatpickr from "flatpickr"
 
 import {BaseDatetimePicker, BaseDatetimePickerView} from "./base_datetime_picker"
 import {DateLike} from "./base_date_picker"
 import {assert} from "core/util/assert"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class DatetimeRangePickerView extends BaseDatetimePickerView {
   declare model: DatetimeRangePicker

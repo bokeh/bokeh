@@ -6,10 +6,11 @@ import {dark_minimal} from "@bokehjs/api/themes"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
-import {Arrayable} from "@bokehjs/core/types"
+import type {Arrayable} from "@bokehjs/core/types"
 import {enumerate} from "@bokehjs/core/util/iterator"
 
-import {Theme, use_theme} from "@bokehjs/core/properties"
+import type {Theme} from "@bokehjs/core/properties"
+import {use_theme} from "@bokehjs/core/properties"
 
 import {TeX} from "@bokehjs/models"
 import {Div} from "@bokehjs/models/widgets"

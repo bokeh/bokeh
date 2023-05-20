@@ -1,6 +1,6 @@
 import {Plot, PlotView} from "./plot"
-import {SerializableState} from "core/view"
-import * as p from "core/properties"
+import type {SerializableState} from "core/view"
+import type * as p from "core/properties"
 
 export class FigureView extends PlotView {
   declare model: Figure

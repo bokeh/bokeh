@@ -1,8 +1,8 @@
-import {PlainObject, ID} from "../core/types"
+import type {PlainObject, ID} from "../core/types"
 import {Buffer} from "../core/serialization"
 import {unique_id} from "../core/util/string"
 import {assert} from "../core/util/assert"
-import {Ref} from "../core/util/refs"
+import type {Ref} from "../core/util/refs"
 
 export type Socket = {
   send(data: unknown): void

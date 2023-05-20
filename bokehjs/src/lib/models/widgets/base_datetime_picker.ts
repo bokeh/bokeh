@@ -1,8 +1,8 @@
-import flatpickr from "flatpickr"
+import type flatpickr from "flatpickr"
 
 import {BaseDatePicker, BaseDatePickerView} from "./base_date_picker"
 import {Clock} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class BaseDatetimePickerView extends BaseDatePickerView {
   declare model: BaseDatetimePicker

@@ -1,7 +1,8 @@
 import {display, fig, row} from "../_util"
 
-import {HatchPattern} from "@bokehjs/core/property_mixins"
-import {LineJoin, MarkerType, OutputBackend} from "@bokehjs/core/enums"
+import type {HatchPattern} from "@bokehjs/core/property_mixins"
+import type {LineJoin} from "@bokehjs/core/enums"
+import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"
 import {assert} from "@bokehjs/core/util/assert"
 
