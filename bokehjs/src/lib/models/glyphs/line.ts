@@ -8,6 +8,7 @@ import * as visuals from "core/visuals"
 import * as hittest from "core/hittest"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import type {LineGL} from "./webgl/line_gl"
 
 export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
 
@@ -18,7 +19,7 @@ export class LineView extends XYGlyphView {
   declare visuals: Line.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/line_gl").LineGL
+  declare glglyph?: LineGL
 
   override async load_glglyph() {
     const {LineGL} = await import("./webgl/line_gl")

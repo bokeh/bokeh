@@ -4,6 +4,7 @@ import {MarkerType} from "core/enums"
 import {Rect} from "core/types"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
+import type {MultiMarkerGL} from "./webgl/multi_marker"
 
 export type ScatterData = MarkerData & {
   readonly marker: p.Uniform<MarkerType | null>
@@ -15,7 +16,7 @@ export class ScatterView extends MarkerView {
   declare model: Scatter
 
   /** @internal */
-  declare glglyph?: import("./webgl/multi_marker").MultiMarkerGL
+  declare glglyph?: MultiMarkerGL
 
   override async load_glglyph() {
     const {MultiMarkerGL} = await import("./webgl/multi_marker")

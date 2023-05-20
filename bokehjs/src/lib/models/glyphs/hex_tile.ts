@@ -13,6 +13,7 @@ import {inplace} from "core/util/projections"
 
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
+import type {HexTileGL} from "./webgl/hex_tile"
 
 export type Vertices = [number, number, number, number, number, number]
 
@@ -39,7 +40,7 @@ export class HexTileView extends GlyphView {
   declare visuals: HexTile.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/hex_tile").HexTileGL
+  declare glglyph?: HexTileGL
 
   override async load_glglyph() {
     const {HexTileGL} = await import("./webgl/hex_tile")

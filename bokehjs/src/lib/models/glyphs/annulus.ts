@@ -6,6 +6,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import type {AnnulusGL} from "./webgl/annulus"
 
 export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
   readonly inner_radius: p.Uniform<number>
@@ -25,7 +26,7 @@ export class AnnulusView extends XYGlyphView {
   declare visuals: Annulus.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/annulus").AnnulusGL
+  declare glglyph?: AnnulusGL
 
   override async load_glglyph() {
     const {AnnulusGL} = await import("./webgl/annulus")

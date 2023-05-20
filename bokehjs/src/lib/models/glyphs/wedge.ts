@@ -10,6 +10,7 @@ import {angle_between} from "core/util/math"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
+import type {WedgeGL} from "./webgl/wedge"
 
 export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
   readonly radius: p.Uniform<number>
@@ -28,7 +29,7 @@ export class WedgeView extends XYGlyphView {
   declare visuals: Wedge.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/wedge").WedgeGL
+  declare glglyph?: WedgeGL
 
   override async load_glglyph() {
     const {WedgeGL} = await import("./webgl/wedge")

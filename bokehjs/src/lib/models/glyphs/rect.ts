@@ -13,6 +13,7 @@ import {rotate_around} from "core/util/affine"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import type {RectGL} from "./webgl/rect"
 
 const {abs, sqrt} = Math
 
@@ -32,7 +33,7 @@ export class RectView extends CenterRotatableView {
   declare visuals: Rect.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/rect").RectGL
+  declare glglyph?: RectGL
 
   override async load_glglyph() {
     const {RectGL} = await import("./webgl/rect")

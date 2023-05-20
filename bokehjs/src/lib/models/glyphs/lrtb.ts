@@ -13,6 +13,7 @@ import {BBox, Corners} from "core/util/bbox"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import type {LRTBGL} from "./webgl/lrtb"
 
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
@@ -38,7 +39,7 @@ export abstract class LRTBView extends GlyphView {
   declare visuals: LRTB.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: LRTBGL
 
   override async load_glglyph() {
     const {LRTBGL} = await import("./webgl/lrtb")

@@ -11,6 +11,7 @@ import {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
@@ -31,7 +32,7 @@ export class VStripView extends GlyphView {
   declare visuals: VStrip.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

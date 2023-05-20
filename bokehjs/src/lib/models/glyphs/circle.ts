@@ -12,6 +12,7 @@ import {map, minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
+import type {CircleGL} from "./webgl/circle"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   readonly angle: p.Uniform<number>
@@ -32,7 +33,7 @@ export class CircleView extends XYGlyphView {
   declare visuals: Circle.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/circle").CircleGL
+  declare glglyph?: CircleGL
 
   override async load_glglyph() {
     const {CircleGL} = await import("./webgl/circle")
