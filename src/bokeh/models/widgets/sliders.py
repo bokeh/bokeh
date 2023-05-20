@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
-from datetime import date, datetime
+from datetime import date, datetime, timezone
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -205,7 +205,7 @@ class DateSlider(AbstractSlider):
             return None
 
         if isinstance(self.value, numbers.Number):
-            return datetime.utcfromtimestamp(self.value / 1000)
+            return datetime.fromtimestamp(self.value / 1000, tz=timezone.utc)
 
         return self.value
 
@@ -219,7 +219,7 @@ class DateSlider(AbstractSlider):
             return None
 
         if isinstance(self.value, numbers.Number):
-            dt = datetime.utcfromtimestamp(self.value / 1000)
+            dt = datetime.fromtimestamp(self.value / 1000, tz=timezone.utc)
             return date(*dt.timetuple()[:3])
 
         return self.value
@@ -264,11 +264,11 @@ class DateRangeSlider(AbstractSlider):
             return None
         v1, v2 = self.value
         if isinstance(v1, numbers.Number):
-            d1 = datetime.utcfromtimestamp(v1 / 1000)
+            d1 = datetime.fromtimestamp(v1 / 1000, tz=timezone.utc)
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            d2 = datetime.utcfromtimestamp(v2 / 1000)
+            d2 = datetime.fromtimestamp(v2 / 1000, tz=timezone.utc)
         else:
             d2 = v2
         return d1, d2
@@ -284,12 +284,12 @@ class DateRangeSlider(AbstractSlider):
             return None
         v1, v2 = self.value
         if isinstance(v1, numbers.Number):
-            dt = datetime.utcfromtimestamp(v1 / 1000)
+            dt = datetime.fromtimestamp(v1 / 1000, tz=timezone.utc)
             d1 = date(*dt.timetuple()[:3])
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            dt = datetime.utcfromtimestamp(v2 / 1000)
+            dt = datetime.fromtimestamp(v2 / 1000, tz=timezone.utc)
             d2 = date(*dt.timetuple()[:3])
         else:
             d2 = v2
@@ -333,11 +333,11 @@ class DatetimeRangeSlider(AbstractSlider):
             return None
         v1, v2 = self.value
         if isinstance(v1, numbers.Number):
-            d1 = datetime.utcfromtimestamp(v1 / 1000)
+            d1 = datetime.fromtimestamp(v1 / 1000, tz=timezone.utc)
         else:
             d1 = v1
         if isinstance(v2, numbers.Number):
-            d2 = datetime.utcfromtimestamp(v2 / 1000)
+            d2 = datetime.fromtimestamp(v2 / 1000, tz=timezone.utc)
         else:
             d2 = v2
         return d1, d2
