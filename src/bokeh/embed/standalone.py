@@ -349,6 +349,8 @@ def file_html(models: Model | Document | Sequence[Model],
     if isinstance(models, Model):
         models_seq = [models]
     elif isinstance(models, Document):
+        if len(models.roots) == 0:
+            raise ValueError("Document has no root Models")
         models_seq = models.roots
     else:
         models_seq = models

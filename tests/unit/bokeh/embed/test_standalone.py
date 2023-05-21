@@ -342,6 +342,11 @@ class Test_file_html:
         # this is a very coarse test but it will do
         assert "bokeh-widgets" not in out
 
+    def test_empty_document(self) -> None:
+        doc = Document()
+        with pytest.raises(ValueError, match="Document has no root Models"):
+            bes.file_html(doc, CDN)
+
 JSON_ITEMS_KEYS = {"target_id", "root_id", "doc", "version"}
 
 class Test_json_item:

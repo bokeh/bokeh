@@ -132,7 +132,7 @@ def OutputDocumentFor(objs: Sequence[Model], apply_theme: Theme | type[FromCurdo
     # has models with the same IDs as they were started with
 
     if not isinstance(objs, Sequence) or len(objs) == 0 or not all(isinstance(x, Model) for x in objs):
-        raise ValueError("OutputDocumentFor expects a sequence of Models")
+        raise ValueError("OutputDocumentFor expects a non-empty sequence of Models")
 
     def finish() -> None:
         pass
