@@ -6,6 +6,7 @@ import * as visuals from "core/visuals"
 import {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import * as uniforms from "core/uniforms"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
@@ -125,6 +126,13 @@ export abstract class MarkerView extends XYGlyphView {
     const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
+  }
+
+  override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const max_size = uniforms.max(this.size)
+    this._configure("max_size", {value: max_size})
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
