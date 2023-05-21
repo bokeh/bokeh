@@ -6,10 +6,10 @@ import * as visuals from "core/visuals"
 import {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import * as uniforms from "core/uniforms"
 import {range} from "core/util/array"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import {max} from "core/util/arrayable"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
   readonly size: p.Uniform<number>
@@ -131,11 +131,7 @@ export abstract class MarkerView extends XYGlyphView {
   override _set_data(indices: number[] | null): void {
     super._set_data(indices)
 
-    const max_size = (() => {
-      const {size} = this
-      return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
-    })()
-
+    const max_size = uniforms.max(this.size)
     this._configure("max_size", {value: max_size})
   }
 

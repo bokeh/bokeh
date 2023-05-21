@@ -6,8 +6,9 @@ import {Rect, Indices, ScreenArray, to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
+import * as uniforms from "core/uniforms"
 import {SpatialIndex} from "core/util/spatial"
-import {map, max, minmax} from "core/util/arrayable"
+import {map, minmax} from "core/util/arrayable"
 import {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {Range1d} from "../ranges/range1d"
@@ -45,15 +46,7 @@ export class CircleView extends XYGlyphView {
   protected override _set_data(indices: number[] | null): void {
     super._set_data(indices)
 
-    const max_size = (() => {
-      if (this.use_radius)
-        return 2*this.max_radius
-      else {
-        const {size} = this
-        return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
-      }
-    })()
-
+    const max_size = this.use_radius ? 2*this.max_radius : uniforms.max(this.size)
     this._configure("max_size", {value: max_size})
   }
 
