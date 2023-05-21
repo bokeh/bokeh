@@ -52,18 +52,20 @@ BASELINE_DIR = BASE_DIR / "tests" / "baselines" / "cross"
 #-----------------------------------------------------------------------------
 
 def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
+    if "case_path" not in metafunc.fixturenames:
+        return
     config = metafunc.config
     params = [ pytest.param(str(path.relative_to(CASE_DIR)), config) for path in CASE_DIR.rglob("*.py") ]
-    metafunc.parametrize("path,config", params)
+    metafunc.parametrize("case_path,config", params)
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def test_cross(path: str, config: _pytest.config.Config) -> None:
-    status, _, out, err = _run_test_case(CASE_DIR / path)
+def test_cross(case_path: str, config: _pytest.config.Config) -> None:
+    status, _, out, err = _run_test_case(CASE_DIR / case_path)
     if status == 0:
-        baseline = (BASELINE_DIR / path).with_suffix(".json5")
+        baseline = (BASELINE_DIR / case_path).with_suffix(".json5")
 
         os.makedirs(baseline.parent, exist_ok=True)
         with baseline.open("w", encoding="utf-8") as file:
