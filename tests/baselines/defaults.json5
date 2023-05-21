@@ -6107,6 +6107,7 @@
     min_characters: 2,
     case_sensitive: true,
     restrict: true,
+    search_strategy: "starts_with",
   },
   Select: {
     __extends__: "InputWidget",

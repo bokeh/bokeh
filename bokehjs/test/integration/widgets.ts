@@ -1,5 +1,4 @@
 import {display, column} from "./_util"
-
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
