@@ -113,8 +113,8 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const [[left, right], [top, bottom]] = [sxlim, sylim]
     this.model.overlay.update(this._invert_lrtb({left, right, top, bottom}))
 
-    if (this._is_continuous(ev)) {
-      this._do_select(sxlim, sylim, false, this._select_mode(ev))
+    if (this._is_continuous(ev.modifiers)) {
+      this._do_select(sxlim, sylim, false, this._select_mode(ev.modifiers))
     }
   }
 
@@ -124,7 +124,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
 
     const {sx, sy} = ev
     const [sxlim, sylim] = this._compute_limits([sx, sy])
-    this._do_select(sxlim, sylim, true, this._select_mode(ev))
+    this._do_select(sxlim, sylim, true, this._select_mode(ev.modifiers))
 
     if (!this.model.persistent) {
       this._clear_overlay()

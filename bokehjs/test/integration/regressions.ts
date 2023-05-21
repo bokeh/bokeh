@@ -2902,7 +2902,7 @@ describe("Bug", () => {
         const sx = view.frame.x_scale.compute(xy.x)
         const sy = view.frame.y_scale.compute(xy.y)
         const poly_select_view = view.owner.get_one(poly_select)
-        poly_select_view._tap({type: "tap", sx, sy, ctrl_key: false, shift_key: false, alt_key: false})
+        poly_select_view._tap({type: "tap", sx, sy, modifiers: {ctrl: false, shift: false, alt: false}})
       }
 
       tap({x: 15, y: 15})

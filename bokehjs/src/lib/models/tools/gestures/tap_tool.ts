@@ -1,8 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import type {CallbackLike1} from "../../callbacks/callback"
 import type * as p from "core/properties"
-import type {TapEvent} from "core/ui_events"
-import {KeyModifiers} from "core/bokeh_events"
+import type {TapEvent, KeyModifiers} from "core/ui_events"
+import * as events from "core/bokeh_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
@@ -33,11 +33,11 @@ export class TapToolView extends SelectToolView {
 
   _handle_tap(ev: TapEvent): void {
     const {modifiers} = this.model
-    if (modifiers.shift != null && modifiers.shift != ev.shift_key)
+    if (modifiers.shift != null && modifiers.shift != ev.modifiers.shift)
       return
-    if (modifiers.ctrl != null && modifiers.ctrl != ev.ctrl_key)
+    if (modifiers.ctrl != null && modifiers.ctrl != ev.modifiers.ctrl)
       return
-    if (modifiers.alt != null && modifiers.alt != ev.alt_key)
+    if (modifiers.alt != null && modifiers.alt != ev.modifiers.alt)
       return
 
     const {sx, sy} = ev
@@ -49,14 +49,9 @@ export class TapToolView extends SelectToolView {
 
     const geometry: PointGeometry = {type: "point", sx, sy}
     if (this.model.behavior == "select") {
-      this._select(geometry, true, this._select_mode(ev))
+      this._select(geometry, true, this._select_mode(ev.modifiers))
     } else {
-      const modifiers = {
-        shift: ev.shift_key,
-        ctrl: ev.ctrl_key,
-        alt: ev.alt_key,
-      }
-      this._inspect(geometry, modifiers)
+      this._inspect(geometry, ev.modifiers)
     }
   }
 
@@ -114,7 +109,7 @@ export namespace TapTool {
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
-    modifiers: p.Property<KeyModifiers>
+    modifiers: p.Property<events.KeyModifiers>
     callback: p.Property<TapToolCallback | null>
   }
 }
@@ -135,7 +130,7 @@ export class TapTool extends SelectTool {
     this.define<TapTool.Props>(({Any, Nullable}) => ({
       behavior:  [ TapBehavior, "select" ],
       gesture:   [ TapGesture, "tap"],
-      modifiers: [ KeyModifiers, {} ],
+      modifiers: [ events.KeyModifiers, {} ],
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 

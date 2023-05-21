@@ -98,8 +98,8 @@ export class LassoSelectToolView extends RegionSelectToolView {
     const [xs, ys] = this._v_invert(sxs, sys)
     this.model.overlay.update({xs, ys})
 
-    if (this._is_continuous(ev)) {
-      this._do_select(sxs, sys, false, this._select_mode(ev))
+    if (this._is_continuous(ev.modifiers)) {
+      this._do_select(sxs, sys, false, this._select_mode(ev.modifiers))
     }
   }
 
@@ -109,7 +109,7 @@ export class LassoSelectToolView extends RegionSelectToolView {
 
     const {xs, ys} = this.model.overlay
     const [sxs, sys] = this._v_compute(xs, ys)
-    this._do_select(sxs, sys, true, this._select_mode(ev))
+    this._do_select(sxs, sys, true, this._select_mode(ev.modifiers))
     this.plot_view.state.push("lasso_select", {selection: this.plot_view.get_selection()})
 
     if (!this.model.persistent) {

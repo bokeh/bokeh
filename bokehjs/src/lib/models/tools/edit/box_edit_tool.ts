@@ -96,7 +96,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _pan_start(ev: PanEvent): void {
-    if (ev.shift_key) {
+    if (ev.modifiers.shift) {
       if (this._draw_basepoint != null)
         return
       this._draw_basepoint = [ev.sx, ev.sy]
@@ -110,7 +110,7 @@ export class BoxEditToolView extends EditToolView {
   }
 
   override _pan(ev: PanEvent, append: boolean = false, emit: boolean = false): void {
-    if (ev.shift_key) {
+    if (ev.modifiers.shift) {
       if (this._draw_basepoint == null)
         return
       this._update_box(ev, append, emit)
@@ -123,7 +123,7 @@ export class BoxEditToolView extends EditToolView {
 
   override _pan_end(ev: PanEvent): void {
     this._pan(ev, false, true)
-    if (ev.shift_key) {
+    if (ev.modifiers.shift) {
       this._draw_basepoint = null
     } else {
       this._basepoint = null

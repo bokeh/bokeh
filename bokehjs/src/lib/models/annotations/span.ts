@@ -125,7 +125,7 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
           line: this.line.clone(),
           target,
         }
-        this.model.pan.emit(["pan:start", ev])
+        this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
     }
@@ -168,12 +168,12 @@ export class SpanView extends AnnotationView implements Pannable, Moveable /*, A
     })()
 
     this.model.location = loc
-    this.model.pan.emit(["pan", ev])
+    this.model.pan.emit(["pan", ev.modifiers])
   }
 
   _pan_end(ev: PanEvent): void {
     this._pan_state = null
-    this.model.pan.emit(["pan:end", ev])
+    this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
   private get _has_hover(): boolean {
