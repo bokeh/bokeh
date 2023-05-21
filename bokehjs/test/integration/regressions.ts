@@ -27,6 +27,7 @@ import {
   Jitter,
   ParkMillerLCG,
   GridPlot,
+  Tooltip,
 } from "@bokehjs/models"
 
 import {
@@ -45,7 +46,7 @@ import type {Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
-import {isArray} from "@bokehjs/core/util/types"
+import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
@@ -3331,6 +3332,18 @@ describe("Bug", () => {
       } finally {
         settings.force_webgl = force_webgl
       }
+    })
+  })
+
+  describe("in issue #12951", () => {
+    it("doesn't allow usage of Tooltip in description context", async () => {
+      const tooltip = new Tooltip({content: "This does not work", position: "right"})
+      const widget = new Select({title: "A dropdown", value: "Test", options: ["Test"], description: tooltip})
+      const doc = new Document()
+      doc.add_root(widget)
+      await display(doc, [200, 100])
+      const doc_json = doc.to_json()
+      expect(isPlainObject(doc_json)).to.be.true
     })
   })
 })
