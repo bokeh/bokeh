@@ -62,6 +62,7 @@ def pytest_generate_tests(metafunc: _pytest.python.Metafunc) -> None:
 # General API
 #-----------------------------------------------------------------------------
 
+@pytest.mark.skipif(sys.platform == "win32", reason="not supported on windows")
 def test_cross(case_path: str, config: _pytest.config.Config) -> None:
     status, _, out, err = _run_test_case(CASE_DIR / case_path)
     if status == 0:
