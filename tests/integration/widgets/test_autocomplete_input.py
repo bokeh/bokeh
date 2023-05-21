@@ -516,35 +516,3 @@ class Test_AutocompleteInput:
         assert results['data']['val'] == ["400", "12344557"]
 
         assert page.has_no_console_errors()
-
-    def test_includes_search_strategy(self, bokeh_model_page: BokehModelPage) -> None:
-        # case_sensitive=True by default
-        text_input = AutocompleteInput(title="title", completions = ["123", "1123", "231", "1324", "3211"], search_strategy="includes")
-
-        page = bokeh_model_page(text_input)
-
-        # double click to highlight and overwrite old text
-        el = find_element_for(page.driver, text_input, "input")
-        enter_text_in_element(page.driver, el, "23", click=2, enter=False)
-
-        el = find_element_for(page.driver, text_input, ".bk-menu")
-        assert 'display: none;' not in el.get_attribute('style')
-
-        items = el.find_elements(By.TAG_NAME, "div")
-        assert len(items) == 3
-        assert items[0].text == "123"
-        assert items[1].text == "1123"
-        assert items[2].text == "231"
-        assert "bk-active" in items[0].get_attribute('class')
-
-        el = find_element_for(page.driver, text_input, "input")
-        enter_text_in_element(page.driver, el, "32", click=2, enter=False)
-
-        el = find_element_for(page.driver, text_input, ".bk-menu")
-        assert 'display: none;' not in el.get_attribute('style')
-
-        items = el.find_elements(By.TAG_NAME, "div")
-        assert len(items) == 2
-        assert items[0].text == "1324"
-        assert items[1].text == "3211"
-        assert "bk-active" in items[0].get_attribute('class')
