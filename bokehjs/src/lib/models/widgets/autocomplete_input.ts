@@ -4,8 +4,12 @@ import {empty, display, undisplay, div, StyleSheetLike} from "core/dom"
 import * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
+import {Enum} from "core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
+
+type SearchStrategy = typeof SearchStrategy["__type__"]
+const SearchStrategy = Enum("starts_with", "includes")
 
 export class AutocompleteInputView extends TextInputView {
   declare model: AutocompleteInput
@@ -60,6 +64,32 @@ export class AutocompleteInputView extends TextInputView {
     this.menu.firstElementChild?.classList.add(dropdown.active)
   }
 
+  compute_completions(value: string): string[] {
+    const norm_function: (t: string) => string = (() => {
+      const {case_sensitive} = this.model
+      return case_sensitive ? (t) => t : (t) => t.toLowerCase()
+    })()
+
+    const search_function: (t: string, v: string) => boolean = (() => {
+      switch (this.model.search_strategy) {
+        case "starts_with": return (t, v) => t.startsWith(v)
+        case "includes":    return (t, v) => t.includes(v)
+      }
+    })()
+
+    const normalized_value = norm_function(value)
+
+    const completions: string[] = []
+    for (const text of this.model.completions) {
+      const normalized_text = norm_function(text)
+      if (search_function(normalized_text, normalized_value)) {
+        completions.push(text)
+      }
+    }
+
+    return completions
+  }
+
   protected _toggle_menu(): void {
     const {value} = this.input_el
 
@@ -68,24 +98,7 @@ export class AutocompleteInputView extends TextInputView {
       return
     }
 
-    const acnorm = (() => {
-      const {case_sensitive} = this.model
-      return case_sensitive ? (t: string) => t : (t: string) => t.toLowerCase()
-    })()
-
-    const search_function = this.model.search_strategy === "starts_with"
-      ? (t: string, v: string) => t.startsWith(v)
-      : (t: string, v: string) => t.includes(v)
-
-    const completions: string[] = []
-    const normValue = acnorm(value)
-    for (const text of this.model.completions) {
-      const normText = acnorm(text)
-      if (search_function(normText, normValue)) {
-        completions.push(text)
-      }
-    }
-
+    const completions = this.compute_completions(value)
     this._update_completions(completions)
 
     if (completions.length == 0)
@@ -183,7 +196,7 @@ export namespace AutocompleteInput {
     max_completions: p.Property<number | null>
     case_sensitive: p.Property<boolean>
     restrict: p.Property<boolean>
-    search_strategy: p.Property<"starts_with" | "includes">
+    search_strategy: p.Property<SearchStrategy>
   }
 }
 
@@ -200,13 +213,13 @@ export class AutocompleteInput extends TextInput {
   static {
     this.prototype.default_view = AutocompleteInputView
 
-    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, Enum, NonNegative, Positive, Nullable}) => ({
+    this.define<AutocompleteInput.Props>(({Boolean, Int, String, Array, NonNegative, Positive, Nullable}) => ({
       completions:    [ Array(String), [] ],
       min_characters: [ NonNegative(Int), 2 ],
       max_completions: [ Nullable(Positive(Int)), null ],
       case_sensitive: [ Boolean, true ],
       restrict: [ Boolean, true ],
-      search_strategy: [ Enum("starts_with", "includes"), "starts_with" ],
+      search_strategy: [ SearchStrategy, "starts_with" ],
     }))
   }
 }
