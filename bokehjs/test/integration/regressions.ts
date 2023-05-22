@@ -39,6 +39,7 @@ import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tab
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import {Document} from "@bokehjs/document"
+import {settings} from "@bokehjs/core/settings"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
@@ -3290,6 +3291,46 @@ describe("Bug", () => {
       p.add_glyph(nonselected_labels, source, {selection_glyph: selected_labels, nonselection_glyph: nonselected_labels})
 
       await display(p)
+    })
+  })
+
+  describe("in issue #13150", () => {
+    it("doesn't allow correctly render GraphRenderer with output_backend='webgl'", async () => {
+      function plot(output_backend: OutputBackend) {
+        const layout_provider = new StaticLayoutProvider({
+          graph_layout: new Map([
+            [4, [2, 1]],
+            [5, [2, 2]],
+            [6, [3, 1]],
+            [7, [3, 2]],
+          ]),
+        })
+
+        const node_renderer = new GlyphRenderer({
+          glyph: new Circle({size: 10, fill_color: "red"}),
+          data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
+        })
+        const edge_renderer = new GlyphRenderer({
+          glyph: new MultiLine({line_width: 2, line_color: "gray"}),
+          data_source: new ColumnDataSource({data: {start: [4, 4, 5, 6], end: [5, 6, 6, 7]}}),
+        })
+
+        const graph = new GraphRenderer({layout_provider, node_renderer, edge_renderer})
+        return fig([200, 200], {output_backend, title: output_backend, renderers: [graph]})
+      }
+
+      const p0 = plot("canvas")
+      const p1 = plot("svg")
+      const p2 = plot("webgl")
+
+      // TODO: MultiLine doesn't support webgl
+      const {force_webgl} = settings
+      settings.force_webgl = false
+      try {
+        await display(row([p0, p1, p2]))
+      } finally {
+        settings.force_webgl = force_webgl
+      }
     })
   })
 })
