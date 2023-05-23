@@ -9,11 +9,13 @@ import chalk from "chalk"
 import * as combine from "combine-source-map"
 import * as convert from "convert-source-map"
 
-import {read, write, file_exists, directory_exists, rename, Path} from "./sys"
+import type {Path} from "./sys"
+import {read, write, file_exists, directory_exists, rename} from "./sys"
 import {report_diagnostics} from "./compiler"
 import * as transforms from "./transforms"
 import {BuildError} from "./error"
-import {Graph, detect_cycles} from "./graph"
+import type {Graph} from "./graph"
+import {detect_cycles} from "./graph"
 
 const root_path = process.cwd()
 

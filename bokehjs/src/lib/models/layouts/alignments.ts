@@ -1,7 +1,7 @@
-import {LayoutDOMView} from "./layout_dom"
-import {Container} from "core/layout/grid"
+import type {LayoutDOMView} from "./layout_dom"
+import type {Container} from "core/layout/grid"
 import {Layoutable} from "core/layout/layoutable"
-import {Sizeable, SizeHint, Size} from "core/layout"
+import type {Sizeable, SizeHint, Size} from "core/layout"
 import {BBox} from "core/util/bbox"
 import {assert} from "core/util/assert"
 

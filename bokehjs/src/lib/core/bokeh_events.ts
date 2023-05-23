@@ -1,9 +1,11 @@
-import {HasProps} from "./has_props"
-import {Attrs} from "./types"
-import {GeometryData} from "./geometry"
-import {Class} from "./class"
-import {serialize, Serializable, Serializer} from "./serialization"
-import {equals, Equatable, Comparator} from "./util/eq"
+import type {HasProps} from "./has_props"
+import type {Attrs} from "./types"
+import type {GeometryData} from "./geometry"
+import type {Class} from "./class"
+import type {Serializable, Serializer} from "./serialization"
+import {serialize} from "./serialization"
+import type {Equatable, Comparator} from "./util/eq"
+import {equals} from "./util/eq"
 
 export type BokehEventType =
   DocumentEventType |

@@ -4,7 +4,7 @@ import icons_css, * as icons from "@bokehjs/styles/icons.css"
 import {entries} from "@bokehjs/core/util/object"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {div} from "@bokehjs/core/dom"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 
 export class FlexDivView extends UIElementView {
   declare model: FlexDiv

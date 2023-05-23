@@ -1,10 +1,12 @@
-import {Document} from "../document"
-import {DocumentChangedEvent, RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "../document"
-import {HasProps} from "../core/has_props"
-import {View, ViewManager} from "../core/view"
+import type {Document} from "../document"
+import type {DocumentChangedEvent} from "../document"
+import {RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "../document"
+import type {HasProps} from "../core/has_props"
+import type {View} from "../core/view"
+import {ViewManager} from "../core/view"
 import {DOMView} from "../core/dom_view"
 import {build_view} from "../core/build_views"
-import {EmbedTarget} from "./dom"
+import type {EmbedTarget} from "./dom"
 
 // A map from the root model IDs to their views.
 export const index: {[key: string]: View} = {}

@@ -1,7 +1,7 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {tool_icon_save} from "styles/icons.css"
-import {MenuItem} from "core/util/menus"
+import type {MenuItem} from "core/util/menus"
 
 export class SaveToolView extends ActionToolView {
   declare model: SaveTool

@@ -22,6 +22,7 @@
     "module": "ES2022",
     "moduleResolution": "node",
     "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

@@ -1,9 +1,9 @@
 import {ColumnDataSource} from "./column_data_source"
 import {UpdateMode} from "core/enums"
-import {CallbackLike1} from "../callbacks/callback"
-import {Data} from "core/types"
-import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import type {CallbackLike1} from "../callbacks/callback"
+import type {Data} from "core/types"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
 
 export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>

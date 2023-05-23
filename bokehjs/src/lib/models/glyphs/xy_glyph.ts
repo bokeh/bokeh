@@ -1,8 +1,9 @@
-import {FloatArray, ScreenArray} from "core/types"
-import {SpatialIndex} from "core/util/spatial"
+import type {FloatArray, ScreenArray} from "core/types"
+import type {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import type {GlyphData} from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
 export type XYGlyphData = GlyphData & {
   _x: FloatArray

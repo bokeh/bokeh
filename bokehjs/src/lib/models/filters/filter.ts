@@ -1,7 +1,7 @@
 import {Model} from "../../model"
-import {DataSource} from "../sources/data_source"
-import {Indices} from "core/types"
-import * as p from "core/properties"
+import type {DataSource} from "../sources/data_source"
+import type {Indices} from "core/types"
+import type * as p from "core/properties"
 
 export namespace Filter {
   export type Attrs = p.AttrsOf<Props>

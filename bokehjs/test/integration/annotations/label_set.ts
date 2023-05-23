@@ -2,7 +2,7 @@ import {display, fig} from "../_util"
 
 import {LabelSet, HTMLLabelSet} from "@bokehjs/models/annotations"
 import {ColumnDataSource} from "@bokehjs/models/sources"
-import {Constructor} from "@bokehjs/core/class"
+import type {Constructor} from "@bokehjs/core/class"
 
 function deg(value: number) {
   return {value, units: "deg"}

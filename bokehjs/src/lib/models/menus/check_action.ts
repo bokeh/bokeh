@@ -1,5 +1,5 @@
 import {Action, ActionView} from "./action"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class CheckActionView extends ActionView {
   declare model: CheckAction

@@ -1,6 +1,6 @@
 import {Control, ControlView} from "./control"
 import {Orientation} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class OrientedControlView extends ControlView {
   declare model: OrientedControl

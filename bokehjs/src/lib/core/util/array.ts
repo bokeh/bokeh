@@ -3,7 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import {Arrayable} from "../types"
+import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
 import {isInteger} from "./types"

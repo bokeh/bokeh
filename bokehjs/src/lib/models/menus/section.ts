@@ -1,5 +1,5 @@
 import {MenuItem, MenuItemView} from "./menu_item"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class SectionView extends MenuItemView {
   declare model: Section

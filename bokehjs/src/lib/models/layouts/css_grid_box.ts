@@ -1,12 +1,15 @@
-import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
+import type {FullDisplay} from "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
-import {UIElement} from "../ui/ui_element"
-import {TracksSizing, TrackSizing, GridSpacing} from "../common/kinds"
-import {px, CSSOurStyles} from "core/dom"
+import type {UIElement} from "../ui/ui_element"
+import type {TracksSizing, TrackSizing} from "../common/kinds"
+import {GridSpacing} from "../common/kinds"
+import type {CSSOurStyles} from "core/dom"
+import {px} from "core/dom"
 import {Container} from "core/layout/grid"
 import {enumerate} from "core/util/iterator"
 import {isNumber, isString, isArray} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 const {max} = Math
 

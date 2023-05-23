@@ -1,6 +1,7 @@
-import {Constructor} from "../class"
-import {Arrayable, TypedArray} from "../types"
-import {equals, Equatable, Comparator} from "./eq"
+import type {Constructor} from "../class"
+import type {Arrayable, TypedArray} from "../types"
+import type {Equatable, Comparator} from "./eq"
+import {equals} from "./eq"
 import {assert} from "./assert"
 
 type OffsetArray = Uint8Array | Uint16Array | Uint32Array

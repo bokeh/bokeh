@@ -1,10 +1,11 @@
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {input, textarea, select, option} from "core/dom"
 import {isInteger, isString} from "core/util/types"
 
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../../model"
-import {DTINDEX_NAME, Item} from "./definitions"
+import type {Item} from "./definitions"
+import {DTINDEX_NAME} from "./definitions"
 
 import * as tables from "styles/widgets/tables.css"
 

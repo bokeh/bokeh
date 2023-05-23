@@ -1,8 +1,8 @@
 import {LayoutProvider} from "./layout_provider"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Arrayable} from "core/types"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Arrayable} from "core/types"
 import {Dict} from "core/util/object"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>

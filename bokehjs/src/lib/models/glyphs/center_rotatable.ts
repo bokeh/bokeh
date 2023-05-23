@@ -1,7 +1,8 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import * as visuals from "core/visuals"
-import {ScreenArray, Rect} from "core/types"
+import type * as visuals from "core/visuals"
+import type {ScreenArray, Rect} from "core/types"
 import * as p from "core/properties"
 
 export type CenterRotatableData = XYGlyphData & p.UniformsOf<CenterRotatable.Mixins> & {

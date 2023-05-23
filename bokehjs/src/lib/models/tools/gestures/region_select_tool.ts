@@ -1,11 +1,11 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import {BoxAnnotation} from "../../annotations/box_annotation"
-import {PolyAnnotation} from "../../annotations/poly_annotation"
-import {DataRendererView} from "../../renderers/data_renderer"
-import {SelectionMode} from "core/enums"
-import {Geometry} from "core/geometry"
-import {KeyModifiers} from "core/ui_events"
-import * as p from "core/properties"
+import type {BoxAnnotation} from "../../annotations/box_annotation"
+import type {PolyAnnotation} from "../../annotations/poly_annotation"
+import type {DataRendererView} from "../../renderers/data_renderer"
+import type {SelectionMode} from "core/enums"
+import type {Geometry} from "core/geometry"
+import type {KeyModifiers} from "core/ui_events"
+import type * as p from "core/properties"
 
 export abstract class RegionSelectToolView extends SelectToolView {
   declare model: RegionSelectTool

@@ -1,8 +1,8 @@
 import {CellFormatter, StringFormatter} from "./cell_formatters"
 import {CellEditor, StringEditor} from "./cell_editors"
-import {ColumnType} from "./definitions"
+import type {ColumnType} from "./definitions"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {unique_id} from "core/util/string"
 import {Sort} from "core/enums"
 import {Model} from "../../../model"

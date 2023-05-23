@@ -1,8 +1,8 @@
 import {Marking, MarkingView} from "../graphics/marking"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {LineVector, FillVector} from "core/property_mixins"
 import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 
 export abstract class ArrowHeadView extends MarkingView implements visuals.Renderable {
   // This method should not begin or close a path

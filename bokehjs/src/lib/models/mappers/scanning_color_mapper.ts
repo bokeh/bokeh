@@ -1,7 +1,7 @@
 import {ContinuousColorMapper} from "./continuous_color_mapper"
-import {Arrayable} from "core/types"
+import type {Arrayable} from "core/types"
 import {left_edge_index} from "core/util/arrayable"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export type ScanningScanData = {
   min: number

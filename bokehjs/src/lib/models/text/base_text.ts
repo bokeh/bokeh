@@ -1,8 +1,8 @@
 import {Model} from "../../model"
 import {View} from "core/view"
-import {GraphicsBox} from "core/graphics"
-import * as p from "core/properties"
-import {RendererView} from "models/renderers/renderer"
+import type {GraphicsBox} from "core/graphics"
+import type * as p from "core/properties"
+import type {RendererView} from "models/renderers/renderer"
 
 export abstract class BaseTextView extends View {
   declare model: BaseText

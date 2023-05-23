@@ -1,13 +1,14 @@
 import "./setup"
 
-import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
-import {View} from "@bokehjs/core/view"
+import type {UIElement} from "@bokehjs/models/ui/ui_element"
+import {UIElementView} from "@bokehjs/models/ui/ui_element"
+import type {View} from "@bokehjs/core/view"
 import {LayoutDOM} from "@bokehjs/models/layouts/layout_dom"
 import {show} from "@bokehjs/api/plotting"
 import {Document} from "@bokehjs/document"
-import {HasProps} from "@bokehjs/core/has_props"
+import type {HasProps} from "@bokehjs/core/has_props"
 import {div, empty, offset_bbox} from "@bokehjs/core/dom"
-import {ViewOf} from "@bokehjs/core/view"
+import type {ViewOf} from "@bokehjs/core/view"
 import {isNumber, isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {entries} from "@bokehjs/core/util/object"
 import {assert, unreachable} from "@bokehjs/core/util/assert"
@@ -401,7 +402,7 @@ export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void
 }
 
 import {sum} from "@bokehjs/core/util/array"
-import {Size} from "@bokehjs/core/layout"
+import type {Size} from "@bokehjs/core/layout"
 import {Row, Column, GridBox} from "@bokehjs/models/layouts"
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {GridPlot} from "@bokehjs/models/plots"
@@ -503,7 +504,8 @@ function _infer_layoutdom_viewport(obj: LayoutDOM): Size {
   return {width, height}
 }
 
-import {Figure, figure} from "@bokehjs/api/plotting"
+import type {Figure} from "@bokehjs/api/plotting"
+import {figure} from "@bokehjs/api/plotting"
 
 export function fig([width, height]: [number, number], attrs?: Partial<Figure.Attrs>): Figure {
   return figure({width, height, title: null, toolbar_location: null, ...attrs})

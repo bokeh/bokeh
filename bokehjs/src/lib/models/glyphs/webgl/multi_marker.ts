@@ -1,10 +1,11 @@
-import {Transform} from "./base"
-import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {ReglWrapper} from "./regl_wrap"
+import type {Transform} from "./base"
+import type {MarkerVisuals} from "./base_marker"
+import {BaseMarkerGL} from "./base_marker"
+import type {ReglWrapper} from "./regl_wrap"
 import {interleave} from "./webgl_utils"
 import type {ScatterView} from "../scatter"
-import {MarkerType} from "core/enums"
-import {Uniform} from "core/uniforms"
+import type {MarkerType} from "core/enums"
+import type {Uniform} from "core/uniforms"
 
 export class MultiMarkerGL extends BaseMarkerGL {
 

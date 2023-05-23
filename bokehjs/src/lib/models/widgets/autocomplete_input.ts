@@ -1,7 +1,8 @@
 import {TextInput, TextInputView} from "./text_input"
 
-import {empty, display, undisplay, div, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {empty, display, undisplay, div} from "core/dom"
+import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 import {Enum} from "core/kinds"

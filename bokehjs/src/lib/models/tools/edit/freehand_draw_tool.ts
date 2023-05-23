@@ -1,5 +1,5 @@
-import {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
-import * as p from "core/properties"
+import type {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
+import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_freehand_draw} from "styles/icons.css"

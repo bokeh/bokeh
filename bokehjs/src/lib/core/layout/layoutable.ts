@@ -1,5 +1,7 @@
-import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
-import {BBox, CoordinateMapper} from "../util/bbox"
+import type {Size, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
+import {Sizeable} from "./types"
+import type {CoordinateMapper} from "../util/bbox"
+import {BBox} from "../util/bbox"
 import {isNumber} from "../util/types"
 import {assert} from "../util/assert"
 

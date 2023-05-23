@@ -1,5 +1,5 @@
 import {Plot} from "./plot"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {MapType} from "core/enums"
 import {Model} from "../../model"
 import {Range1d} from "../ranges/range1d"

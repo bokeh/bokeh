@@ -1,4 +1,4 @@
-import {ByteOrder} from "../types"
+import type {ByteOrder} from "../types"
 
 export const is_mobile = (() => {
   return "ontouchstart" in globalThis || (typeof navigator !== "undefined" && navigator.maxTouchPoints > 0)

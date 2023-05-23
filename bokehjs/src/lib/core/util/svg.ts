@@ -4,7 +4,8 @@
 
 import {AffineTransform} from "./affine"
 import {isString, isNumber} from "./types"
-import {random, Random} from "./random"
+import type {Random} from "./random"
+import {random} from "./random"
 import {float32_epsilon} from "./math"
 import {empty} from "../dom"
 

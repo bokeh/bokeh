@@ -1,8 +1,8 @@
 import {Tool, ToolView} from "../tool"
 import {OnOffButton} from "../on_off_button"
-import {PlotView} from "../../plots/plot"
+import type {PlotView} from "../../plots/plot"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class InspectToolView extends ToolView {
   declare model: InspectTool

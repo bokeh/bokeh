@@ -1,7 +1,7 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
 import {LatLon} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {wgs84_mercator, clip_mercator, in_bounds} from "core/util/projections"
 
 export namespace MercatorTicker {

@@ -2,9 +2,9 @@ import {logger} from "core/logging"
 import {Signal0} from "core/signaling"
 import {div, remove} from "core/dom"
 import {wgs84_mercator} from "core/util/projections"
-import {GMapPlot} from "./gmap_plot"
+import type {GMapPlot} from "./gmap_plot"
 import {PlotView} from "./plot_canvas"
-import {RangeInfo, RangeOptions} from "./range_manager"
+import type {RangeInfo, RangeOptions} from "./range_manager"
 
 type GMapRangeInfo = RangeInfo & {
   sdx?: number

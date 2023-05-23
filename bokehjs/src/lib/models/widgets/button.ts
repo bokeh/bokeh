@@ -1,8 +1,8 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {ButtonClick} from "core/bokeh_events"
-import {EventCallbackLike} from "model"
+import type {EventCallbackLike} from "model"
 
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ButtonView extends AbstractButtonView {
   declare model: Button

@@ -1,8 +1,8 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
-import {BBox} from "core/util/bbox"
+import type {BBox} from "core/util/bbox"
 import {isIterable} from "core/util/types"
 import {Indices, GeneratorFunction} from "core/types"
 

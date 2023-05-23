@@ -1,5 +1,5 @@
 import {display, fig, row} from "../_util"
-import {OutputBackend, LineCap, LineJoin, LineDash} from "@bokehjs/core/enums"
+import type {OutputBackend, LineCap, LineJoin, LineDash} from "@bokehjs/core/enums"
 
 describe("Line glyph", () => {
   const linewidths = [15, 2, 5, 1]

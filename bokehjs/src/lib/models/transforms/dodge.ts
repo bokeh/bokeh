@@ -1,5 +1,5 @@
 import {RangeTransform} from "./range_transform"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Dodge {
   export type Attrs = p.AttrsOf<Props>

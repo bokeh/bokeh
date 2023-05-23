@@ -1,7 +1,7 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Index as DataIndex} from "core/util/templating"
-import * as p from "core/properties"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Index as DataIndex} from "core/util/templating"
+import type * as p from "core/properties"
 
 export abstract class PlaceholderView extends DOMNodeView {
   declare model: Placeholder

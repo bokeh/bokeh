@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import * as dom from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace StyleSheet {
   export type Attrs = p.AttrsOf<Props>

@@ -3,7 +3,11 @@ import {expect} from "assertions"
 import {
   Parser,
   LITERAL, IDENT, MEMBER, INDEX, CALL, UNARY, BINARY, FAILURE,
-  Expression, Literal, Identifier, MemberExpression, IndexExpression, CallExpression, UnaryExpression, BinaryExpression, Failure,
+} from "@bokehjs/api/parser"
+
+import type {
+  Expression, Literal, Identifier, MemberExpression, IndexExpression,
+  CallExpression, UnaryExpression, BinaryExpression, Failure,
 } from "@bokehjs/api/parser"
 
 function parse(expr: string) {

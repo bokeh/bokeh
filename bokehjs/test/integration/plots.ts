@@ -4,10 +4,10 @@ import {expect} from "../unit/assertions"
 import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
-import {Location} from "@bokehjs/core/enums"
+import type {Location} from "@bokehjs/core/enums"
 import {assert} from "@bokehjs/core/util/assert"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
-import {PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {

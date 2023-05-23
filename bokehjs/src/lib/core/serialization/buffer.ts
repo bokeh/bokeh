@@ -1,5 +1,6 @@
 import {buffer_to_base64} from "../util/buffer"
-import {Comparator, Equatable, equals} from "../util/eq"
+import type {Comparator, Equatable} from "../util/eq"
+import {equals} from "../util/eq"
 
 export class Buffer implements Equatable {
   constructor(readonly buffer: ArrayBuffer) {}

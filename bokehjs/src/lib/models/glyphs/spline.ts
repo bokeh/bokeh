@@ -1,9 +1,10 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import * as p from "core/properties"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
-import {FloatArray, ScreenArray} from "core/types"
-import {Context2d} from "core/util/canvas"
+import type * as visuals from "core/visuals"
+import type {FloatArray, ScreenArray} from "core/types"
+import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 
 export type SplineData = XYGlyphData & {

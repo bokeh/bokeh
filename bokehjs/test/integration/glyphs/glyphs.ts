@@ -1,12 +1,12 @@
 import {display, fig, row, column} from "../_util"
 
 import {Range1d, HoverTool} from "@bokehjs/models"
-import {Direction, OutputBackend} from "@bokehjs/core/enums"
-import {Color} from "@bokehjs/core/types"
+import type {Direction, OutputBackend} from "@bokehjs/core/enums"
+import type {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 import {zip} from "@bokehjs/core/util/array"
-import {HatchPattern} from "@bokehjs/core/property_mixins"
+import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import {np} from "@bokehjs/api/linalg"
 
 describe("Glyph models", () => {

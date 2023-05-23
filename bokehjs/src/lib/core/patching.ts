@@ -1,9 +1,9 @@
-import {Arrayable, Data} from "core/types"
+import type {Arrayable, Data} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
-import {NDArray} from "core/util/ndarray"
+import type {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
 import {union} from "core/util/set"
-import {Slice} from "core/util/slice"
+import type {Slice} from "core/util/slice"
 import * as typed_array from "core/util/typed_array"
 
 // exported for testing

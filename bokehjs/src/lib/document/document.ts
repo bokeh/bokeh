@@ -1,33 +1,31 @@
 import {default_resolver} from "../base"
 import {version as js_version} from "../version"
 import {logger} from "../core/logging"
-import {Class} from "core/class"
-import {HasProps} from "core/has_props"
-import {Property} from "core/properties"
+import type {Class} from "core/class"
+import type {HasProps} from "core/has_props"
+import type {Property} from "core/properties"
 import {ModelResolver} from "core/resolvers"
-import {Serializer, ModelRep} from "core/serialization"
+import type {ModelRep} from "core/serialization"
+import {Serializer} from "core/serialization"
 import {Deserializer} from "core/serialization/deserializer"
 import {pyify_version} from "core/util/version"
-import {Ref} from "core/util/refs"
-import {ID, Data} from "core/types"
+import type {Ref} from "core/util/refs"
+import type {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
 import {isString, isFunction} from "core/util/types"
-import {equals, Equatable, Comparator} from "core/util/eq"
+import type {Equatable, Comparator} from "core/util/eq"
+import {equals} from "core/util/eq"
 import {copy, includes} from "core/util/array"
 import {entries} from "core/util/object"
 import * as sets from "core/util/set"
-import {CallbackLike} from "models/callbacks/callback"
+import type {CallbackLike} from "models/callbacks/callback"
 import {Model} from "model"
-import {ModelDef, decode_def} from "./defs"
-import {
-  BokehEvent, BokehEventType, BokehEventMap, ModelEvent,
-  DocumentReady, LODStart, LODEnd,
-} from "core/bokeh_events"
-import {
-  DocumentEvent, DocumentEventBatch, DocumentChangedEvent,
-  RootRemovedEvent, TitleChangedEvent, MessageSentEvent,
-  Decoded, DocumentChanged, RootAddedEvent,
-} from "./events"
+import type {ModelDef} from "./defs"
+import {decode_def} from "./defs"
+import type {BokehEvent, BokehEventType, BokehEventMap, ModelEvent} from "core/bokeh_events"
+import {DocumentReady, LODStart, LODEnd} from "core/bokeh_events"
+import type {DocumentEvent, DocumentChangedEvent, Decoded, DocumentChanged} from "./events"
+import {DocumentEventBatch, RootRemovedEvent, TitleChangedEvent, MessageSentEvent, RootAddedEvent} from "./events"
 
 Deserializer.register("model", decode_def)
 

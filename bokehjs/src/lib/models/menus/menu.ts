@@ -1,10 +1,11 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {MenuItem} from "./menu_item"
-import {StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
 import {Orientation} from "core/enums"
-import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {reverse, map} from "core/util/iterator"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import menus_css, * as menus from "styles/menus.css"
 

@@ -14,9 +14,11 @@ import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
 //import {Legend} from "@bokehjs/models/annotations/legend"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {UIEventBus} from "@bokehjs/core/ui_events"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
 

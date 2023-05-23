@@ -1,5 +1,5 @@
 import {Scale} from "./scale"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace ContinuousScale {
   export type Attrs = p.AttrsOf<Props>

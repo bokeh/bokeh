@@ -1,8 +1,8 @@
 import {Model} from "../../model"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Index as DataIndex} from "core/util/templating"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Index as DataIndex} from "core/util/templating"
 import {View} from "core/view"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class ActionView extends View {
   declare model: Action

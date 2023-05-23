@@ -1,8 +1,9 @@
 import {TickFormatter} from "./tick_formatter"
 import {BasicTickFormatter, unicode_replace} from "./basic_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
-import {GraphicsBox, BaseExpo, TextBox} from "core/graphics"
-import * as p from "core/properties"
+import type {GraphicsBox} from "core/graphics"
+import {BaseExpo, TextBox} from "core/graphics"
+import type * as p from "core/properties"
 
 const {abs, log, round} = Math
 

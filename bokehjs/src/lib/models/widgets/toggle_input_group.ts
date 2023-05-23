@@ -1,6 +1,6 @@
 import {Control, ControlView} from "./control"
-import {StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import type * as p from "core/properties"
 import inputs_css from "styles/widgets/inputs.css"
 import checkbox_css from "styles/widgets/checkbox.css"
 

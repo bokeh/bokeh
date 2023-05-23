@@ -1,8 +1,8 @@
 import {logger} from "../logging"
-import {Context2d, CanvasLayer} from "../util/canvas"
+import type {Context2d, CanvasLayer} from "../util/canvas"
 import {color2css} from "../util/color"
-import {Color} from "../types"
-import {HatchPattern} from "../property_mixins"
+import type {Color} from "../types"
+import type {HatchPattern} from "../property_mixins"
 
 export type PatternSource = CanvasImageSource
 

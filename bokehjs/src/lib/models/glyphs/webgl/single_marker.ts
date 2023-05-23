@@ -1,8 +1,9 @@
-import {Transform} from "./base"
-import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {ReglWrapper} from "./regl_wrap"
-import {GLMarkerType} from "./types"
-import {type GlyphView} from "../glyph"
+import type {Transform} from "./base"
+import type {MarkerVisuals} from "./base_marker"
+import {BaseMarkerGL} from "./base_marker"
+import type {ReglWrapper} from "./regl_wrap"
+import type {GLMarkerType} from "./types"
+import type {GlyphView} from "../glyph"
 
 export type SingleMarkerGlyphView = GlyphView & {
   visuals: MarkerVisuals

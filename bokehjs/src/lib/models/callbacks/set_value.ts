@@ -1,7 +1,7 @@
 import {Callback} from "./callback"
 import {HasProps} from "core/has_props"
 import {logger} from "core/logging"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace SetValue {
   export type Attrs = p.AttrsOf<Props>

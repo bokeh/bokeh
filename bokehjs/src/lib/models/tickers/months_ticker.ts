@@ -1,7 +1,7 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {BaseSingleIntervalTicker} from "./single_interval_ticker"
 import {copy_date, last_year_no_later_than, ONE_MONTH} from "./util"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {concat} from "core/util/array"
 
 // Given a start and end time in millis, returns the shortest array of

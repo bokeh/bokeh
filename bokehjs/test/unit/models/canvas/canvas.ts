@@ -2,7 +2,7 @@ import {expect} from "assertions"
 import {display} from "../../_util"
 
 import {Canvas} from "@bokehjs/models/canvas/canvas"
-import {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
+import type {SVGRenderingContext2D} from "@bokehjs/core/util/svg"
 import {BBox} from "@bokehjs/core/util/bbox"
 
 describe("Canvas", () => {

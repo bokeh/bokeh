@@ -1,5 +1,5 @@
 import {ContinuousScale} from "./continuous_scale"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace LogScale {
   export type Attrs = p.AttrsOf<Props>

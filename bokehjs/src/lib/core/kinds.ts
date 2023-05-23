@@ -1,4 +1,4 @@
-import * as types from "./types"
+import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
 import {keys, entries} from "./util/object"

@@ -1,11 +1,14 @@
 import {Control, ControlView} from "./control"
-import {Tooltip, TooltipView} from "../ui/tooltip"
+import type {TooltipView} from "../ui/tooltip"
+import {Tooltip} from "../ui/tooltip"
 
 import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
-import {build_view, IterViews} from "core/build_views"
-import {div, label, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type {StyleSheetLike} from "core/dom"
+import {div, label} from "core/dom"
+import type * as p from "core/properties"
 
 import inputs_css, * as inputs from "styles/widgets/inputs.css"
 import icons_css from "styles/icons.css"

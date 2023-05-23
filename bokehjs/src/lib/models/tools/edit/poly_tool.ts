@@ -1,12 +1,13 @@
-import * as p from "core/properties"
-import {UIEvent} from "core/ui_events"
+import type * as p from "core/properties"
+import type {UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
 import {assert} from "core/util/assert"
-import {MultiLine} from "../../glyphs/multi_line"
-import {Patches} from "../../glyphs/patches"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import type {MultiLine} from "../../glyphs/multi_line"
+import type {Patches} from "../../glyphs/patches"
+import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 
-import {EditTool, EditToolView, HasXYGlyph} from "./edit_tool"
+import type {HasXYGlyph} from "./edit_tool"
+import {EditTool, EditToolView} from "./edit_tool"
 
 export interface HasPolyGlyph {
   glyph: MultiLine | Patches

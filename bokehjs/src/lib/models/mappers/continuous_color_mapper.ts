@@ -1,6 +1,6 @@
 import {ColorMapper} from "./color_mapper"
-import {Arrayable, Color} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable, Color} from "core/types"
+import type * as p from "core/properties"
 
 import {GlyphRenderer} from "../renderers/glyph_renderer"
 import {map, intersection, is_empty} from "core/util/array"

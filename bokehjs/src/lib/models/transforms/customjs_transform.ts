@@ -1,6 +1,6 @@
 import {Transform} from "./transform"
-import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 

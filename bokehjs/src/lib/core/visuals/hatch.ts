@@ -1,10 +1,10 @@
 import {VisualProperties, VisualUniforms} from "./visual"
 import {get_pattern} from "./patterns"
-import {Color, uint32} from "../types"
+import type {Color, uint32} from "../types"
 import * as p from "../properties"
 import * as mixins from "../property_mixins"
-import {HatchPattern} from "../property_mixins"
-import {Context2d, CanvasPatternRepetition} from "../util/canvas"
+import type {HatchPattern} from "../property_mixins"
+import type {Context2d, CanvasPatternRepetition} from "../util/canvas"
 
 export interface Hatch extends Readonly<mixins.Hatch> {}
 export class Hatch extends VisualProperties {

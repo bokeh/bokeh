@@ -1,5 +1,5 @@
 import {FlexBox, FlexBoxView} from "./flex_box"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ColumnView extends FlexBoxView {
   declare model: Column

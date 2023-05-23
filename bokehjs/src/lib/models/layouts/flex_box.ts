@@ -1,9 +1,10 @@
-import {LayoutDOM, LayoutDOMView, FullDisplay} from "./layout_dom"
+import type {FullDisplay} from "./layout_dom"
+import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {GridAlignmentLayout} from "./alignments"
 import {Container} from "core/layout/grid"
 import {UIElement} from "../ui/ui_element"
 import {px} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 type Direction = "row" | "column"
 

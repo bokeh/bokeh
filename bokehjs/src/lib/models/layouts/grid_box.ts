@@ -1,7 +1,7 @@
 import {CSSGridBox, CSSGridBoxView} from "./css_grid_box"
 import {TracksSizing, GridChild} from "../common/kinds"
 import {UIElement} from "../ui/ui_element"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class GridBoxView extends CSSGridBoxView {
   declare model: GridBox

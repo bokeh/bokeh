@@ -1,10 +1,10 @@
 import {Renderer, RendererView} from "../renderers/renderer"
 
-import {Panel} from "core/layout/side_panel"
-import {Size, Layoutable} from "core/layout"
-import {SerializableState} from "core/view"
-import {BBox} from "core/util/bbox"
-import * as p from "core/properties"
+import type {Panel} from "core/layout/side_panel"
+import type {Size, Layoutable} from "core/layout"
+import type {SerializableState} from "core/view"
+import type {BBox} from "core/util/bbox"
+import type * as p from "core/properties"
 
 export abstract class AnnotationView extends RendererView {
   declare model: Annotation

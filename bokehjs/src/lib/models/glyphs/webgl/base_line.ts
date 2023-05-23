@@ -1,13 +1,14 @@
-import {BaseGLGlyph, Transform} from "./base"
+import type {Transform} from "./base"
+import {BaseGLGlyph} from "./base"
 import {Float32Buffer, Uint8Buffer} from "./buffer"
-import {ReglWrapper} from "./regl_wrap"
-import {LineGlyphProps, LineDashGlyphProps} from "./types"
+import type {ReglWrapper} from "./regl_wrap"
+import type {LineGlyphProps, LineDashGlyphProps} from "./types"
 import {cap_lookup, join_lookup} from "./webgl_utils"
-import {GlyphView} from "../glyph"
+import type {GlyphView} from "../glyph"
 import {color2rgba} from "core/util/color"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {resolve_line_dash} from "core/visuals/line"
-import {Texture2D} from "regl"
+import type {Texture2D} from "regl"
 
 export type LineGLVisuals = {
   readonly line: visuals.LineScalar

@@ -1,7 +1,8 @@
-import {Color} from "core/types"
+import type {Color} from "core/types"
 import {linspace, range} from "core/util/array"
 import {interpolate} from "core/util/arrayable"
-import {byte, color2hex, color2rgba, RGBA} from "core/util/color"
+import type {RGBA} from "core/util/color"
+import {byte, color2hex, color2rgba} from "core/util/color"
 
 export const YlGn3       = [0x31a354ff, 0xaddd8eff, 0xf7fcb9ff]
 export const YlGn4       = [0x238443ff, 0x78c679ff, 0xc2e699ff, 0xffffccff]

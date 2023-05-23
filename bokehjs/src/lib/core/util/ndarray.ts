@@ -1,8 +1,10 @@
-import {NDDataType, Arrayable} from "../types"
+import type {NDDataType, Arrayable} from "../types"
 import {isObject, isNumber} from "./types"
 import {BYTE_ORDER} from "./platform"
-import {equals, Equatable, Comparator} from "./eq"
-import {serialize, Serializable, Serializer, ArrayRep, BytesRep, NDArrayRep} from "../serialization"
+import type {Equatable, Comparator} from "./eq"
+import {equals} from "./eq"
+import type {Serializable, Serializer, ArrayRep, BytesRep, NDArrayRep} from "../serialization"
+import {serialize} from "../serialization"
 
 const __ndarray__ = Symbol("__ndarray__")
 

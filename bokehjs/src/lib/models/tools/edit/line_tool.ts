@@ -1,7 +1,7 @@
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {isArray} from "core/util/types"
-import {Line} from "../../glyphs/line"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import type {Line} from "../../glyphs/line"
+import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 
 import {EditTool, EditToolView} from "./edit_tool"
 

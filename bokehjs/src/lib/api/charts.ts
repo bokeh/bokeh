@@ -1,22 +1,29 @@
-import {Palette} from "./palettes"
+import type {Palette} from "./palettes"
 import * as palettes from "./palettes"
-import {Color} from "core/types"
+import type {Color} from "core/types"
 import {is_dark, color2rgba} from "core/util/color"
 import {zip, unzip, sum, cumsum, copy, transpose} from "core/util/array"
 import {isArray} from "core/util/types"
 import {sprintf} from "core/util/templating"
-import {Anchor, TooltipAttachment} from "core/enums"
+import type {Anchor, TooltipAttachment} from "core/enums"
 
+import type {Range, Axis, Scale, TickFormatter} from "./models"
 import {
-  Plot,
+  AnnularWedge,
+  BasicTickFormatter,
+  CategoricalAxis,
+  CategoricalScale,
   ColumnDataSource,
+  DataRange1d,
+  FactorRange,
   GlyphRenderer,
   HoverTool,
-  AnnularWedge, Quad, Text,
-  Range, DataRange1d, FactorRange,
-  Axis, LinearAxis, CategoricalAxis,
-  Scale, LinearScale, CategoricalScale,
-  TickFormatter, BasicTickFormatter, NumeralTickFormatter,
+  LinearAxis,
+  LinearScale,
+  NumeralTickFormatter,
+  Plot,
+  Quad,
+  Text,
 } from "./models"
 
 function resolve_palette(palette: Palette | Color[] = "Spectral11"): Color[] {

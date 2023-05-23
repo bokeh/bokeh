@@ -1,7 +1,8 @@
 import {Transform} from "./transform"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import * as p from "core/properties"
-import {Arrayable, infer_type} from "core/types"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import {infer_type} from "core/types"
 import {includes} from "core/util/array"
 import {isString, isArray} from "core/util/types"
 

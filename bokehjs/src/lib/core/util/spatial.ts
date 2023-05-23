@@ -1,6 +1,7 @@
 import FlatBush from "flatbush"
 
-import {Indices, Rect} from "../types"
+import type {Rect} from "../types"
+import {Indices} from "../types"
 import {empty} from "./bbox"
 
 function upperBound(value: number, arr: ArrayLike<number>): number {

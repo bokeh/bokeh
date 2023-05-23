@@ -1,6 +1,6 @@
 import {display, fig, row} from "../_util"
 
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Spline glyph", () => {
   function spline(x: number[], y: number[], closed: boolean = false) {

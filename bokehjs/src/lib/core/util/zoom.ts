@@ -1,7 +1,7 @@
-import {Interval} from "../types"
+import type {Interval} from "../types"
 
-import {CartesianFrame} from "models/canvas/cartesian_frame"
-import {Scale} from "models/scales/scale"
+import type {CartesianFrame} from "models/canvas/cartesian_frame"
+import type {Scale} from "models/scales/scale"
 
 // Module for zoom-related functions
 

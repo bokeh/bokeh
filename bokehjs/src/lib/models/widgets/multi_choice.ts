@@ -1,9 +1,10 @@
 import Choices from "choices.js"
 
-import {select, StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import {select} from "core/dom"
 import {isString} from "core/util/types"
 import {is_equal} from "core/util/eq"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
 import choices_css from "styles/widgets/choices.css"

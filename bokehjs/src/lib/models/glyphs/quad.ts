@@ -1,5 +1,6 @@
-import {LRTB, LRTBView, LRTBData} from "./lrtb"
-import {FloatArray, ScreenArray} from "core/types"
+import type {LRTBData} from "./lrtb"
+import {LRTB, LRTBView} from "./lrtb"
+import type {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export type QuadData = LRTBData & {

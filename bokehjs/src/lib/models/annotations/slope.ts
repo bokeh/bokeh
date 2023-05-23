@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
-import * as p from "core/properties"
+import type * as visuals from "core/visuals"
+import type * as p from "core/properties"
 
 export class SlopeView extends AnnotationView {
   declare model: Slope

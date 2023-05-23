@@ -1,8 +1,10 @@
 import {Transform} from "./transform"
 import {Range} from "../ranges/range"
-import {Factor, FactorRange} from "../ranges/factor_range"
-import * as p from "core/properties"
-import {Arrayable, infer_type} from "core/types"
+import type {Factor} from "../ranges/factor_range"
+import {FactorRange} from "../ranges/factor_range"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import {infer_type} from "core/types"
 import {isNumber, isArrayableOf} from "core/util/types"
 import {unreachable} from "core/util/assert"
 

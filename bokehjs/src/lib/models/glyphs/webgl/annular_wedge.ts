@@ -1,7 +1,7 @@
-import {ReglWrapper} from "./regl_wrap"
-import {Float32Buffer} from "./buffer"
+import type {ReglWrapper} from "./regl_wrap"
+import type {Float32Buffer} from "./buffer"
 import {SXSYGlyphGL} from "./sxsy"
-import {GLMarkerType} from "./types"
+import type {GLMarkerType} from "./types"
 import type {AnnularWedgeView} from "../annular_wedge"
 
 export class AnnularWedgeGL extends SXSYGlyphGL {

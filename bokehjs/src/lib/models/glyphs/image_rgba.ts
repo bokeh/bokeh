@@ -1,7 +1,8 @@
-import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
-import {NDArrayType} from "core/util/ndarray"
+import type {ImageDataBase} from "./image_base"
+import {ImageBase, ImageBaseView} from "./image_base"
+import type {NDArrayType} from "core/util/ndarray"
 import {isTypedArray} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export type ImageRGBAData = ImageDataBase
 

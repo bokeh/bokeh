@@ -1,13 +1,14 @@
 import {display, fig, column} from "../_util"
 
+import type {Plot, Column,
+             ColorMapper} from "@bokehjs/models"
 import {
-  ColorBar, LinearAxis, Plot, Column,
-  ColorMapper, LinearColorMapper, LogColorMapper, EqHistColorMapper, CategoricalColorMapper,
+  ColorBar, LinearAxis, LinearColorMapper, LogColorMapper, EqHistColorMapper, CategoricalColorMapper,
 } from "@bokehjs/models"
 
 import {Random} from "@bokehjs/core/util/random"
 import {range} from "@bokehjs/core/util/array"
-import {Side} from "@bokehjs/core/enums"
+import type {Side} from "@bokehjs/core/enums"
 import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
 

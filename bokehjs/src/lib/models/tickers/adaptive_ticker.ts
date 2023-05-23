@@ -1,7 +1,7 @@
 import {ContinuousTicker} from "./continuous_ticker"
 import {argmin, nth} from "core/util/array"
 import {clamp, log} from "core/util/math"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 // This Ticker produces nice round ticks at any magnitude.
 // AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the

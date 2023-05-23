@@ -1,18 +1,21 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, FloatArray, ScreenArray} from "core/types"
-import {Anchor} from "core/enums"
-import * as visuals from "core/visuals"
-import {SpatialIndex} from "core/util/spatial"
-import {Context2d} from "core/util/canvas"
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Anchor} from "core/enums"
+import type * as visuals from "core/visuals"
+import type {SpatialIndex} from "core/util/spatial"
+import type {Context2d} from "core/util/canvas"
+import type {GlyphData} from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
-import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
+import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
-import * as p from "core/properties"
-import {BBox, Corners} from "core/util/bbox"
+import type * as p from "core/properties"
+import type {Corners} from "core/util/bbox"
+import {BBox} from "core/util/bbox"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import type {LRTBGL} from "./webgl/lrtb"
 
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
@@ -38,7 +41,7 @@ export abstract class LRTBView extends GlyphView {
   declare visuals: LRTB.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: LRTBGL
 
   override async load_glglyph() {
     const {LRTBGL} = await import("./webgl/lrtb")

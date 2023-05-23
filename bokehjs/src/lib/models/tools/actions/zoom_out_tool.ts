@@ -1,6 +1,6 @@
 import {ZoomBaseTool, ZoomBaseToolView} from "./zoom_base_tool"
 import {tool_icon_zoom_out} from "styles/icons.css"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
   declare model: ZoomBaseTool

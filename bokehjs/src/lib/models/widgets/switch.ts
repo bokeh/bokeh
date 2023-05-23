@@ -1,6 +1,7 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
-import {div, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {div} from "core/dom"
+import type * as p from "core/properties"
 import switch_css from "styles/widgets/switch.css"
 
 export class SwitchView extends ToggleInputView {

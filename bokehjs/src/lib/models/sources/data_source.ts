@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import {Selection} from "../selections/selection"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace DataSource {
   export type Attrs = p.AttrsOf<Props>

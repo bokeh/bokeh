@@ -1,8 +1,9 @@
-import {ImageBase, ImageBaseView, ImageDataBase} from "./image_base"
+import type {ImageDataBase} from "./image_base"
+import {ImageBase, ImageBaseView} from "./image_base"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
-import {NDArrayType} from "core/util/ndarray"
-import * as p from "core/properties"
+import type {NDArrayType} from "core/util/ndarray"
+import type * as p from "core/properties"
 
 export type ImageData = ImageDataBase
 

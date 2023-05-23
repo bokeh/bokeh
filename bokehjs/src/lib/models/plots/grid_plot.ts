@@ -1,13 +1,17 @@
-import {LayoutDOM, LayoutDOMView, FullDisplay} from "../layouts/layout_dom"
-import {GridBox, GridBoxView} from "../layouts/grid_box"
+import type {FullDisplay} from "../layouts/layout_dom"
+import {LayoutDOM, LayoutDOMView} from "../layouts/layout_dom"
+import type {GridBoxView} from "../layouts/grid_box"
+import {GridBox} from "../layouts/grid_box"
 import {TracksSizing, GridChild, GridSpacing} from "../common/kinds"
-import {Toolbar, ToolbarView} from "../tools/toolbar"
-import {UIElement} from "../ui/ui_element"
+import type {ToolbarView} from "../tools/toolbar"
+import {Toolbar} from "../tools/toolbar"
+import type {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
 import {CanvasLayer} from "core/util/canvas"
-import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {Location} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class GridPlotView extends LayoutDOMView {
   declare model: GridPlot

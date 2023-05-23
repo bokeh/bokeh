@@ -2,8 +2,8 @@ import {display, fig, row} from "../_util"
 import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"
-import {Constructor} from "@bokehjs/core/class"
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {Constructor} from "@bokehjs/core/class"
+import type {OutputBackend} from "@bokehjs/core/enums"
 
 const r = String.raw
 

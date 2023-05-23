@@ -25,7 +25,7 @@ import {
   SumAggregator, GroupingInfo,
 } from "@bokehjs/models/widgets/tables"
 
-import {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
 
 async function finished_animating(el: Element): Promise<void> {
   return new Promise((resolve, reject) => {

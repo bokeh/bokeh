@@ -1,8 +1,8 @@
-import {Document, DocumentEvent, DocumentEventBatch} from "document"
+import {DocumentEventBatch} from "document"
 import {ConnectionLost} from "core/bokeh_events"
-import type {Patch} from "document"
+import type {Patch, Document, DocumentEvent} from "document"
 import {Message} from "protocol/message"
-import {ClientConnection} from "./connection"
+import type {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
 export type OkMsg = Message<{}>

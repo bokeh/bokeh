@@ -1,4 +1,4 @@
-import {TypedArray} from "../types"
+import type {TypedArray} from "../types"
 
 export function concat<T extends TypedArray>(array0: T, ...arrays: ArrayLike<number>[]): T {
   let n = array0.length

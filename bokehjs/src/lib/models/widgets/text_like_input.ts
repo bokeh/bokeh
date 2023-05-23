@@ -1,5 +1,5 @@
 import {InputWidget, InputWidgetView} from "./input_widget"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class TextLikeInputView extends InputWidgetView {
   declare model: TextLikeInput

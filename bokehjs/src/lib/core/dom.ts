@@ -1,7 +1,7 @@
 import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
-import {Size, Box, Extents} from "./types"
+import type {Size, Box, Extents} from "./types"
 
 export type {CSSStyles, CSSStylesNative, CSSOurStyles} from "./css"
 
@@ -417,7 +417,7 @@ export enum MouseButton {
   Middle = Auxiliary,
 }
 
-import {CSSOurStyles} from "./css"
+import type {CSSOurStyles} from "./css"
 
 export abstract class StyleSheet {
   protected readonly el: HTMLStyleElement | HTMLLinkElement

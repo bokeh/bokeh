@@ -1,4 +1,4 @@
-import {AngleUnits, Direction} from "../enums"
+import type {AngleUnits, Direction} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
 

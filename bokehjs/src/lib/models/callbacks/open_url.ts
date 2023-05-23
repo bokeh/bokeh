@@ -1,8 +1,8 @@
 import {Callback} from "./callback"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {replace_placeholders} from "core/util/templating"
 import {isString} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace OpenURL {
   export type Attrs = p.AttrsOf<Props>

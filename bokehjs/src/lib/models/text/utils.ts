@@ -1,5 +1,5 @@
 import {TeX} from "./math_text"
-import {BaseText} from "./base_text"
+import type {BaseText} from "./base_text"
 import {PlainText} from "./plain_text"
 
 type Delimiter = {

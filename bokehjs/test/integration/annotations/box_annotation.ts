@@ -2,7 +2,7 @@ import {display, fig, row} from "../_util"
 import {PlotActions} from "../../interactive"
 
 import {BoxAnnotation} from "@bokehjs/models"
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 import {paint} from "@bokehjs/core/util/defer"
 
 describe("BoxAnnotation annotation", () => {

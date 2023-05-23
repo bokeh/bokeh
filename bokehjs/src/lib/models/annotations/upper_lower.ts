@@ -1,7 +1,9 @@
 import {DataAnnotation, DataAnnotationView} from "./data_annotation"
-import {Arrayable, ScreenArray} from "core/types"
-import {Dimension, CoordinateUnits} from "core/enums"
-import {Dimensional} from "core/vectorization"
+import type {Arrayable} from "core/types"
+import {ScreenArray} from "core/types"
+import type {CoordinateUnits} from "core/enums"
+import {Dimension} from "core/enums"
+import type {Dimensional} from "core/vectorization"
 import * as p from "core/properties"
 
 export abstract class UpperLowerView extends DataAnnotationView {

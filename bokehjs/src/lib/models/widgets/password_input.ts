@@ -1,6 +1,7 @@
 import {TextInput, TextInputView} from "./text_input"
-import {div, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {div} from "core/dom"
+import type * as p from "core/properties"
 import password_input_css from "styles/widgets/password_input.css"
 import icons_css from "styles/icons.css"
 

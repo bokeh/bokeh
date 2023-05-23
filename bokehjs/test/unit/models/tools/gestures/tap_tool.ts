@@ -1,14 +1,15 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
 
-import {Tool} from "@bokehjs/models/tools/tool"
+import type {Tool} from "@bokehjs/models/tools/tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Quad} from "@bokehjs/models/glyphs"
-import {TapEvent} from "@bokehjs/core/ui_events"
+import type {TapEvent} from "@bokehjs/core/ui_events"
 
 describe("TapTool", () => {
   async function test_case(tool: Tool): Promise<PlotView> {

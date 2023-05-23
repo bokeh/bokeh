@@ -1,9 +1,9 @@
-import * as v from "core/visuals"
-import {Context2d} from "core/util/canvas"
-import {Rect} from "core/types"
-import {PointGeometry, SpanGeometry} from "core/geometry"
+import type * as v from "core/visuals"
+import type {Context2d} from "core/util/canvas"
+import type {Rect} from "core/types"
+import type {PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
-import {GlyphRendererView} from "../renderers/glyph_renderer"
+import type {GlyphRendererView} from "../renderers/glyph_renderer"
 
 export function generic_line_scalar_legend(visuals: {line: v.LineScalar},
     ctx: Context2d, {x0, x1, y0, y1}: Rect): void {

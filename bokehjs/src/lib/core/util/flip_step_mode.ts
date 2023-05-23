@@ -1,4 +1,4 @@
-import {StepMode} from "core/enums"
+import type {StepMode} from "core/enums"
 
 export function flip_step_mode(mode: StepMode): StepMode {
   switch (mode) {

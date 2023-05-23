@@ -2,10 +2,10 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {compute_angle} from "core/util/math"
 import {CoordinateUnits, AngleUnits} from "core/enums"
 import {TextBox} from "core/graphics"
-import {Size} from "core/layout"
+import type {Size} from "core/layout"
 import {SideLayout} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class HTMLLabelView extends TextAnnotationView {
   declare model: HTMLLabel

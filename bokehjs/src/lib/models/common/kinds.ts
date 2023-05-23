@@ -1,8 +1,20 @@
+import type {Kind, Constructor} from "../../core/kinds"
 import {
-  Kind, Int, Percent, NonNegative, Or, Tuple, PartialStruct, Auto,
-  Enum, Array, String, Map, Opt, Ref, Constructor,
+  Array,
+  Auto,
+  Enum,
+  Int,
+  Map,
+  NonNegative,
+  Opt,
+  Or,
+  PartialStruct,
+  Percent,
+  Ref,
+  String,
+  Tuple,
 } from "../../core/kinds"
-import {type HasProps} from "core/has_props"
+import type {HasProps} from "core/has_props"
 import * as enums from "core/enums"
 
 export type Length = typeof Length["__type__"]

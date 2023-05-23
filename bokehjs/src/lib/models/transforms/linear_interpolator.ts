@@ -1,6 +1,6 @@
 import {find_last_index} from "core/util/array"
 import {Interpolator} from "./interpolator"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace LinearInterpolator {
   export type Attrs = p.AttrsOf<Props>

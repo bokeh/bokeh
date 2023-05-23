@@ -2,12 +2,14 @@ import {expect} from "assertions"
 import {display, fig} from "../../../_util"
 
 import {assert} from "@bokehjs/core/util/assert"
-import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
+import type {CircleView} from "@bokehjs/models/glyphs/circle"
+import {Circle} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {HoverTool, HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
+import type {HoverToolView, TooltipVars} from "@bokehjs/models/tools/inspectors/hover_tool"
+import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
 
 async function make_testcase(): Promise<{hover_view: HoverToolView, data_source: ColumnDataSource, glyph_view: CircleView}> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1]}

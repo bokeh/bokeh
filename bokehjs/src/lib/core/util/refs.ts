@@ -1,4 +1,4 @@
-import {Attrs} from "../types"
+import type {Attrs} from "../types"
 import {isPlainObject} from "./types"
 
 export type Struct = {

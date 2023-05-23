@@ -1,10 +1,11 @@
 import {DOMElement, DOMElementView} from "./dom_element"
 import {Action} from "./action"
 import {PlaceholderView} from "./placeholder"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Index as DataIndex} from "core/util/templating"
-import {ViewStorage, build_views, remove_views, IterViews} from "core/build_views"
-import * as p from "core/properties"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Index as DataIndex} from "core/util/templating"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
+import type * as p from "core/properties"
 
 export class TemplateView extends DOMElementView {
   declare model: Template

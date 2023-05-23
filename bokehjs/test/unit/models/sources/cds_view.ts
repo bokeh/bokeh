@@ -1,13 +1,14 @@
 import {expect} from "assertions"
 
-import {CDSView, CDSViewView} from "@bokehjs/models/sources/cds_view"
+import type {CDSViewView} from "@bokehjs/models/sources/cds_view"
+import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {IntersectionFilter} from "@bokehjs/models/filters/intersection_filter"
 import {build_view} from "@bokehjs/core/build_views"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 import {View} from "@bokehjs/core/view"
 import {Model} from "@bokehjs/model"
 

@@ -1,7 +1,7 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {range} from "core/util/array"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace LogTicker {
   export type Attrs = p.AttrsOf<Props>

@@ -1,10 +1,10 @@
 import {Tool, ToolView} from "../tool"
 import {OnOffButton} from "../on_off_button"
-import {type PlotView} from "../../plots/plot"
+import type {PlotView} from "../../plots/plot"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range1d} from "../../ranges/range1d"
 import {logger} from "core/logging"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {tool_icon_range} from "styles/icons.css"
 
 export class RangeToolView extends ToolView {

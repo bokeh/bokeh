@@ -1,18 +1,20 @@
 import {logger} from "../logging"
-import {type HasProps} from "../has_props"
-import {type ModelResolver} from "../resolvers"
-import {ID, Attrs, PlainObject, TypedArray} from "../types"
-import {Ref, is_ref} from "../util/refs"
-import {ndarray, NDArray} from "../util/ndarray"
+import type {HasProps} from "../has_props"
+import type {ModelResolver} from "../resolvers"
+import type {ID, Attrs, PlainObject, TypedArray} from "../types"
+import type {Ref} from "../util/refs"
+import {is_ref} from "../util/refs"
+import type {NDArray} from "../util/ndarray"
+import {ndarray} from "../util/ndarray"
 import {entries, Dict} from "../util/object"
 import {map, every} from "../util/array"
 import {BYTE_ORDER} from "../util/platform"
 import {base64_to_buffer, swap} from "../util/buffer"
 import {isArray, isPlainObject, isString, isNumber} from "../util/types"
 import {Slice} from "../util/slice"
-import {Value, Field, Expr} from "../vectorization"
+import type {Value, Field, Expr} from "../vectorization"
 
-import {
+import type {
   SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
   TypedArrayRep, NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"

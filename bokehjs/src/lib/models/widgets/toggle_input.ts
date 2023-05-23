@@ -1,5 +1,5 @@
 import {Widget, WidgetView} from "./widget"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class ToggleInputView extends WidgetView {
   declare model: ToggleInput

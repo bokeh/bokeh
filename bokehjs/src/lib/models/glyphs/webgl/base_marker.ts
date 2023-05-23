@@ -1,9 +1,10 @@
-import {Vec4} from "regl"
-import {BaseGLGlyph, Transform} from "./base"
+import type {Vec4} from "regl"
+import type {Transform} from "./base"
+import {BaseGLGlyph} from "./base"
 import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
-import {LineProps, FillProps, HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
+import type {LineProps, FillProps, HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
 import {marker_type_to_size_hint} from "./webgl_utils"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 
 export type MarkerVisuals = {
   readonly line: visuals.LineVector

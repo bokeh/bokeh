@@ -1,5 +1,5 @@
-import {Context2d} from "core/util/canvas"
-import {BBox, Corners} from "core/util/bbox"
+import type {Context2d} from "core/util/canvas"
+import type {BBox, Corners} from "core/util/bbox"
 
 export function round_rect(ctx: Context2d, bbox: BBox, border_radius: Corners<number>): void {
   /**

@@ -1,5 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
 const request_fullscreen = (() => {

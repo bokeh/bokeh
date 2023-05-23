@@ -1,6 +1,7 @@
 import {ToggleInput, ToggleInputView} from "./toggle_input"
-import {input, span, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {input, span} from "core/dom"
+import type * as p from "core/properties"
 import checkbox_css from "styles/widgets/checkbox.css"
 
 export class CheckboxView extends ToggleInputView {

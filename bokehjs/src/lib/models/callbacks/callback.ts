@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export type CallbackFn<Obj, Args extends any[], Ret = void> = (obj: Obj, ...args: Args) => Ret
 

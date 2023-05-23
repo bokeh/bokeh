@@ -1,10 +1,10 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
-import * as p from "core/properties"
-import {PanEvent} from "core/ui_events"
+import type * as p from "core/properties"
+import type {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {Interval} from "core/types"
-import {MenuItem} from "core/util/menus"
-import {Scale} from "models/scales/scale"
+import type {Interval} from "core/types"
+import type {MenuItem} from "core/util/menus"
+import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
 
 export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): Map<string, Interval> {

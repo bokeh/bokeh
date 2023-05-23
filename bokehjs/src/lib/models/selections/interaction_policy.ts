@@ -1,9 +1,9 @@
 import {Model} from "../../model"
-import {Geometry} from "core/geometry"
-import {HitTestResult} from "core/hittest"
-import {SelectionMode} from "core/enums"
-import {GlyphRendererView} from "../renderers/glyph_renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Geometry} from "core/geometry"
+import type {HitTestResult} from "core/hittest"
+import type {SelectionMode} from "core/enums"
+import type {GlyphRendererView} from "../renderers/glyph_renderer"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class SelectionPolicy extends Model {
 

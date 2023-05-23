@@ -1,4 +1,4 @@
-import {uint32} from "../types"
+import type {uint32} from "../types"
 
 const _named_colors = {
   aliceblue:            0xf0f8ffff,

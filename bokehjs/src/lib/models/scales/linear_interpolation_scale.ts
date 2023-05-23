@@ -1,8 +1,8 @@
 import {Scale} from "./scale"
 import {LinearScale} from "./linear_scale"
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
+import type {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map, left_edge_index} from "core/util/arrayable"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace LinearInterpolationScale {
   export type Attrs = p.AttrsOf<Props>

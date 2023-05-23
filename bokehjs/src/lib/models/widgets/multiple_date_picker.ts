@@ -1,7 +1,7 @@
-import flatpickr from "flatpickr"
+import type flatpickr from "flatpickr"
 
 import {BaseDatePicker, BaseDatePickerView, DateLike} from "./base_date_picker"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class MultipleDatePickerView extends BaseDatePickerView {
   declare model: MultipleDatePicker

@@ -1,6 +1,6 @@
-import {ReglWrapper} from "./regl_wrap"
+import type {ReglWrapper} from "./regl_wrap"
 import {SXSYGlyphGL} from "./sxsy"
-import {GLMarkerType} from "./types"
+import type {GLMarkerType} from "./types"
 import type {RectView} from "../rect"
 
 export class RectGL extends SXSYGlyphGL {

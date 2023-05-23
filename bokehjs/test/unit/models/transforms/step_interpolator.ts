@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {StepInterpolator} from "@bokehjs/models/transforms/step_interpolator"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {StepMode} from "@bokehjs/core/enums"
+import type {StepMode} from "@bokehjs/core/enums"
 
 describe("step_interpolator_transform module", () => {
 

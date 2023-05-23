@@ -7,7 +7,7 @@ import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
 import {Circle, MultiLine} from "@bokehjs/models/glyphs"
 import {Plot} from "@bokehjs/models/plots"
-import {Document} from "@bokehjs/document"
+import type {Document} from "@bokehjs/document"
 import {SerializationError} from "@bokehjs/core/serialization"
 
 type GraphComponents = {

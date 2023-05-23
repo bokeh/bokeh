@@ -1,6 +1,7 @@
-import {Ticker, TickSpec} from "./ticker"
-import {FactorRange, Factor} from "../ranges/factor_range"
-import * as p from "core/properties"
+import type {TickSpec} from "./ticker"
+import {Ticker} from "./ticker"
+import type {FactorRange, Factor} from "../ranges/factor_range"
+import type * as p from "core/properties"
 
 export type FactorTickSpec = TickSpec<Factor> & {
   tops: Factor[]

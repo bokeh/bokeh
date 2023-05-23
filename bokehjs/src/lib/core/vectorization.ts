@@ -1,8 +1,8 @@
 import {isPlainObject} from "./util/types"
-import {Arrayable} from "./types"
-import {HasProps} from "./has_props"
-import {Signal0} from "./signaling"
-import {ColumnarDataSource} from "../models/sources/columnar_data_source"
+import type {Arrayable} from "./types"
+import type {HasProps} from "./has_props"
+import type {Signal0} from "./signaling"
+import type {ColumnarDataSource} from "../models/sources/columnar_data_source"
 
 export type Transform<In, Out> = {
   compute(x: In): Out
@@ -22,7 +22,7 @@ export type VectorExpression<Out> = {
 
 export type Expression<T> = ScalarExpression<T> | VectorExpression<T>
 
-import {Serializable} from "./serialization"
+import type {Serializable} from "./serialization"
 
 export type Value<T> = Partial<Serializable> & {
   value: T

@@ -1,6 +1,7 @@
-import {Ticker, TickSpec} from "./ticker"
-import {Range} from "../ranges/range"
-import * as p from "core/properties"
+import type {TickSpec} from "./ticker"
+import {Ticker} from "./ticker"
+import type {Range} from "../ranges/range"
+import type * as p from "core/properties"
 import {range} from "core/util/array"
 
 // The base class for all Ticker objects.  It needs to be subclassed before

@@ -1,5 +1,5 @@
 import {isBoolean, isNumber, isString, isSymbol, isArray, isIterable, isObject, isPlainObject} from "./types"
-import {PlainObject} from "../types"
+import type {PlainObject} from "../types"
 import {entries} from "./object"
 
 export const pretty = Symbol("pretty")

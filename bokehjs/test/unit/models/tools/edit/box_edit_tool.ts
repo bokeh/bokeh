@@ -5,13 +5,15 @@ import {display} from "../../../_util"
 
 import {build_view} from "@bokehjs/core/build_views"
 
-import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
+import type {RectView} from "@bokehjs/models/glyphs/rect"
+import {Rect} from "@bokehjs/models/glyphs/rect"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {BoxEditTool, BoxEditToolView} from "@bokehjs/models/tools/edit/box_edit_tool"
+import type {BoxEditToolView} from "@bokehjs/models/tools/edit/box_edit_tool"
+import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"
 
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 

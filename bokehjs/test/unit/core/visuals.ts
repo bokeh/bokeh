@@ -1,17 +1,19 @@
 import {expect} from "assertions"
 import {create_glyph_renderer_view} from "../models/glyphs/_util"
 
-import {Context2d, CanvasLayer} from "@bokehjs/core/util/canvas"
+import type {Context2d} from "@bokehjs/core/util/canvas"
+import {CanvasLayer} from "@bokehjs/core/util/canvas"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
-import {Circle, CircleView} from "@bokehjs/models/glyphs/circle"
+import type {CircleView} from "@bokehjs/models/glyphs/circle"
+import {Circle} from "@bokehjs/models/glyphs/circle"
 
 import {Model} from "@bokehjs/model"
 import {View} from "@bokehjs/core/view"
 import {build_view} from "@bokehjs/core/build_views"
 import * as visuals from "@bokehjs/core/visuals"
 import * as mixins from "@bokehjs/core/property_mixins"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 
 class SomeModelView extends View implements visuals.Renderable {
   declare model: SomeModel

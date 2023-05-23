@@ -1,10 +1,10 @@
-import {ClientSession} from "../client/session"
+import type {ClientSession} from "../client/session"
 import {parse_token, pull_session} from "../client/connection"
 import {logger} from "../core/logging"
-import {ViewManager} from "../core/view"
+import type {ViewManager} from "../core/view"
 
 import {add_document_standalone} from "./standalone"
-import {EmbedTarget} from "./dom"
+import type {EmbedTarget} from "./dom"
 
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {

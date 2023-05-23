@@ -1,8 +1,8 @@
 import {Model} from "../../model"
 //import {DOMElement} from "../dom"
-import {Extent, Bounds} from "./tile_utils"
+import type {Extent, Bounds} from "./tile_utils"
 import {entries} from "core/util/object"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export type Tile = {
   tile_coords: [number, number, number]

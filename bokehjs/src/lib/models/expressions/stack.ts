@@ -1,8 +1,8 @@
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Expression} from "./expression"
 import {dict} from "core/util/object"
-import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import type * as p from "core/properties"
 
 export namespace Stack {
   export type Attrs = p.AttrsOf<Props>

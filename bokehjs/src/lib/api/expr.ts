@@ -1,14 +1,13 @@
-import {Arrayable} from "core/types"
+import type {Arrayable} from "core/types"
 import {isFunction} from "core/util/types"
-import {NDArrayType} from "core/util/ndarray"
-
+import type {NDArrayType} from "core/util/ndarray"
+import type {Expression} from "./parser"
 import {
   Parser,
-  Expression,
   COMPOUND, LITERAL, IDENT, MEMBER, INDEX, CALL, UNARY, BINARY, SEQUENCE, ARRAY, FAILURE,
 } from "./parser"
-
-import {np, Numerical, is_Numerical} from "./linalg"
+import type {Numerical} from "./linalg"
+import {np, is_Numerical} from "./linalg"
 
 function evaluate(ast: Expression, refs: unknown[]): unknown {
 

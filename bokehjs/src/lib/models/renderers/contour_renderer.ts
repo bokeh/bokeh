@@ -1,10 +1,12 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
-import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
-import {Renderer} from "./renderer"
-import {GlyphView} from "../glyphs/glyph"
-import * as p from "core/properties"
-import {build_view, IterViews} from "core/build_views"
-import {SelectionManager} from "core/selection_manager"
+import type {GlyphRendererView} from "./glyph_renderer"
+import {GlyphRenderer} from "./glyph_renderer"
+import type {Renderer} from "./renderer"
+import type {GlyphView} from "../glyphs/glyph"
+import type * as p from "core/properties"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type {SelectionManager} from "core/selection_manager"
 
 export class ContourRendererView extends DataRendererView {
   declare model: ContourRenderer

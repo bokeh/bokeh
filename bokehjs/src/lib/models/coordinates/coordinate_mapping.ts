@@ -1,4 +1,4 @@
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
+import type {Arrayable, ScreenArray, FloatArray} from "core/types"
 import {map} from "core/util/arrayable"
 import {Model} from "../../model"
 import {Scale} from "../scales/scale"
@@ -8,8 +8,8 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import {type CartesianFrame} from "../canvas/cartesian_frame"
-import * as p from "core/properties"
+import type {CartesianFrame} from "../canvas/cartesian_frame"
+import type * as p from "core/properties"
 
 export class CoordinateTransform {
   readonly x_scale: Scale

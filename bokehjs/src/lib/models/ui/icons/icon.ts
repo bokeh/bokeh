@@ -1,6 +1,6 @@
 import {Model} from "model"
 import {DOMComponentView} from "core/dom_view"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class IconView extends DOMComponentView {
   declare model: Icon

@@ -1,7 +1,7 @@
 import {display, fig, row, column} from "../_util"
 
 import {Arrow, NormalHead, OpenHead, TeeHead, VeeHead, Range1d} from "@bokehjs/models"
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("Arrow annotation", () => {
   const make_arrow_heads = (size: number) => [

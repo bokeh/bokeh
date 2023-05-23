@@ -1,5 +1,5 @@
 import {Axis, AxisView} from "./axis"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class ContinuousAxisView extends AxisView {
   declare model: ContinuousAxis

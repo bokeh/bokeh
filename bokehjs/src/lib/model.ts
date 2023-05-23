@@ -1,12 +1,13 @@
 import {HasProps} from "./core/has_props"
-import {Class} from "./core/class"
-import {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
-import * as p from "./core/properties"
+import type {Class} from "./core/class"
+import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
+import type * as p from "./core/properties"
 import {isString, isPlainObject, isFunction} from "./core/util/types"
 import {dict} from "./core/util/object"
-import {equals, Comparator} from "core/util/eq"
+import type {Comparator} from "core/util/eq"
+import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
-import {CallbackLike0} from "./models/callbacks/callback"
+import type {CallbackLike0} from "./models/callbacks/callback"
 
 export type ModelSelector<T> = Class<T> | string | {type: string}
 

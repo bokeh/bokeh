@@ -1,5 +1,5 @@
 import {display, fig} from "../_util"
-import {TextAlign, TextBaseline} from "@bokehjs/core/enums"
+import type {TextAlign, TextBaseline} from "@bokehjs/core/enums"
 
 describe("Text glyph", () => {
   it("should allow to paint text with embedded scripts", async () => {
