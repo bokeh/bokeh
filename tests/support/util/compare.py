@@ -24,7 +24,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Sequence,
     Union,
 )
@@ -49,7 +48,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 Num: TypeAlias = Union[int, float]
-Data: TypeAlias = Dict[str,
+Data: TypeAlias = dict[str,
     Union[
         Sequence[Num],
         Sequence[Sequence[Num]],

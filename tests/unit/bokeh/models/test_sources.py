@@ -401,7 +401,7 @@ Lime,Green,99,$0.39
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
-            data=np.cumsum(np.random.standard_normal(30), axis=0)
+            data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
         ds = bms.ColumnDataSource(data=df)
         ds._document = "doc"
@@ -415,7 +415,7 @@ Lime,Green,99,$0.39
         new_df = pd.DataFrame(
             index=df.index + pd.to_timedelta('30m'),
             columns=df.columns,
-            data=np.random.standard_normal(30)
+            data=np.random.standard_normal(30),
         )
         ds._stream(new_df, "foo", mock_setter)
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
@@ -425,7 +425,7 @@ Lime,Green,99,$0.39
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
-            data=np.cumsum(np.random.standard_normal(30), axis=0)
+            data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
         ds = bms.ColumnDataSource(data=df)
         ds._document = "doc"
@@ -439,7 +439,7 @@ Lime,Green,99,$0.39
         new_df = pd.DataFrame(
             index=df.index + pd.to_timedelta('30m'),
             columns=df.columns,
-            data=np.random.standard_normal(30)
+            data=np.random.standard_normal(30),
         )
         ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
         assert np.array_equal(stuff['args'][2]['index'], new_df.index.values)
@@ -449,7 +449,7 @@ Lime,Green,99,$0.39
         df = pd.DataFrame(
             index=pd.date_range('now', periods=30, freq='T'),
             columns=['A'],
-            data=np.cumsum(np.random.standard_normal(30), axis=0)
+            data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
         ds = bms.ColumnDataSource(data={'index': convert_datetime_array(df.index.values),
                                     'A': df.A})
@@ -464,7 +464,7 @@ Lime,Green,99,$0.39
         new_df = pd.DataFrame(
             index=df.index + pd.to_timedelta('30m'),
             columns=df.columns,
-            data=np.random.standard_normal(30)
+            data=np.random.standard_normal(30),
         )
         ds._stream({'index': new_df.index, 'A': new_df.A}, "foo", mock_setter)
         assert np.array_equal(stuff['args'][2]['index'], convert_datetime_array(new_df.index.values))

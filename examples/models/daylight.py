@@ -32,14 +32,14 @@ source = ColumnDataSource(dict(
 
 patch1_source = ColumnDataSource(dict(
     dates = np.concatenate((df.Date, df.Date[::-1])),
-    times = np.concatenate((df.Sunrise, df.Sunset[::-1]))
+    times = np.concatenate((df.Sunrise, df.Sunset[::-1])),
 ))
 
 summer = df[df.Summer == 1]
 
 patch2_source = ColumnDataSource(dict(
     dates = np.concatenate((summer.Date, summer.Date[::-1])),
-    times = np.concatenate((summer.Sunrise, summer.Sunset[::-1]))
+    times = np.concatenate((summer.Sunrise, summer.Sunset[::-1])),
 ))
 
 summer_start = df.Summer.tolist().index(1)
@@ -84,7 +84,7 @@ xformatter = DatetimeTickFormatter(months="%b %d %Y")
 min_time = dt.datetime.min.time()
 xticker = FixedTicker(ticks=[
     mktime(dt.datetime.combine(summer_start, min_time).timetuple()) * 1000,
-    mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000
+    mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000,
 ])
 xaxis = DatetimeAxis(formatter=xformatter, ticker=xticker)
 plot.add_layout(xaxis, 'below')

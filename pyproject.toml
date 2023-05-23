@@ -141,7 +141,7 @@ exclude = [
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["B", "E", "F", "RUF", "UP", "W"]
+select = ["B", "COM", "E", "F", "RUF", "UP", "W"]
 ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -151,8 +151,10 @@ ignore = [
     'B010', # Do not call setattr(x, 'attr', val), instead use normal property access: x.attr = val
     'B011', # Do not call assert False since python -O removes these calls
     'B015', # Pointless comparison. This comparison does nothing but waste CPU instructions
+    'B018', # Found useless expression. Either assign it to a variable or remove it
     'B020', # Loop control variable overrides iterable it iterates
     'B023', # Functions defined inside a loop must not use variables redefined in the loop
+    'B028', # No explicit `stacklevel` keyword argument found
     'B904', # Within an except clause, raise exceptions with raise ... from err or raise ... from None to distinguish them from errors in exception handling
     'E401', # Multiple imports on one line
     'E402', # Module level import not at top of file
@@ -160,14 +162,11 @@ ignore = [
     'E702', # Multiple statements on one line (semicolon)
     'E731', # Do not assign a lambda expression, use a def
     'E741', # Ambiguous variable name: I
-    'RUF001',
-    'RUF005',
-    # keep-runtime-annotations
-    'UP006', # Non PEP585 annotations
-    'UP007', # Non PEP604 annotations
+    'UP035',  # Import from `collections.abc` instead: `Iterator`
+    'RUF001', # String contains ambiguous unicode character `σ` (did you mean `o`?)
 ]
 line-length = 165
-target-version = "py38"
+target-version = "py39"
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

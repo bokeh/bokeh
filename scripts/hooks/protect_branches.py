@@ -19,7 +19,7 @@ You were about to push to `{current_branch}`, which is disallowed by default.
 If that's really what you intend, run the following command:
 
         SKIP={hookid} git push
-"""
+""",
             )
             sys.exit(1)  # push will not execute
 

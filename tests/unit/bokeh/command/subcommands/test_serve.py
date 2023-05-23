@@ -131,7 +131,7 @@ def test_args() -> None:
             metavar = 'PORT',
             type    = int,
             help    = "Port to listen on",
-            default = DEFAULT_SERVER_PORT
+            default = DEFAULT_SERVER_PORT,
         )),
 
         ('--address', Argument(
@@ -152,7 +152,7 @@ def test_args() -> None:
             metavar = 'LOG-LEVEL',
             action  = 'store',
             default = None,
-            choices = bcss.LOGLEVELS + ("None", ),
+            choices = (*bcss.LOGLEVELS, 'None'),
             help    = f"One of: {nice_join(bcss.LOGLEVELS)}",
         )),
 
@@ -314,7 +314,7 @@ def test_args() -> None:
             default = False,
             help    = 'Whether to enable Tornado support for XSRF cookies. All '
                       'PUT, POST, or DELETE handlers must be properly instrumented '
-                      'when this setting is enabled.'
+                      'when this setting is enabled.',
         )),
 
         ('--exclude-headers', Argument(
@@ -322,7 +322,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request headers to exclude from the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--exclude-cookies', Argument(
@@ -330,7 +330,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request cookies to exclude from the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--include-headers', Argument(
@@ -338,7 +338,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request headers to make available in the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--include-cookies', Argument(
@@ -346,7 +346,7 @@ def test_args() -> None:
             default = None,
             nargs='+',
             help    = 'A list of request cookies to make available in the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--cookie-secret', Argument(
@@ -426,7 +426,7 @@ def test_args() -> None:
 
 @contextlib.contextmanager
 def run_bokeh_serve(args):
-    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=False) as p:
         nbsr = NBSR(p.stdout)
         try:
@@ -472,7 +472,7 @@ def check_port(nbsr):
     return int(m.group(1))
 
 def check_error(args):
-    cmd = [sys.executable, "-m", "bokeh", "serve"] + args
+    cmd = [sys.executable, '-m', 'bokeh', 'serve', *args]
     try:
         subprocess.check_output(cmd, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:

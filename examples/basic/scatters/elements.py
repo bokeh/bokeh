@@ -46,7 +46,7 @@ p.hover.tooltips = [
     ("symbol:", "@symbol"),
     ("density", "@density"),
     ("atomic weight", "@{atomic mass}"),
-    ("melting point", "@{melting point}")
+    ("melting point", "@{melting point}"),
 ]
 
 source = ColumnDataSource(elements)

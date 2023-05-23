@@ -39,7 +39,7 @@ DEFAULT_TOOLS = "pan,wheel_zoom,reset,help"
 __all__ = (
     'GMap',
     'GMapFigureOptions',
-    'gmap'
+    'gmap',
 )
 
 #-----------------------------------------------------------------------------

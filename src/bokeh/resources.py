@@ -42,7 +42,6 @@ from typing import (
     TYPE_CHECKING,
     Callable,
     ClassVar,
-    Dict,
     Literal,
     Protocol,
     TypedDict,
@@ -99,7 +98,7 @@ class ComponentDefs(TypedDict):
 # Dev API
 # -----------------------------------------------------------------------------
 
-Hashes: TypeAlias = Dict[str, str]
+Hashes: TypeAlias = dict[str, str]
 
 _SRI_HASHES: dict[str, Hashes] | None = None
 
@@ -352,7 +351,7 @@ class Resources:
         if self.mode not in get_args(BaseMode):
             raise ValueError(
                 "wrong value for 'mode' parameter, expected "
-                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}"
+                f"'inline', 'cdn', 'server(-dev)', 'relative(-dev)' or 'absolute(-dev)', got {mode}",
             )
 
         if root_dir and not self.mode.startswith("relative"):

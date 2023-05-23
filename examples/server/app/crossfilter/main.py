@@ -83,10 +83,10 @@ x.on_change('value', update)
 y = Select(title='Y-Axis', value='hp', options=columns)
 y.on_change('value', update)
 
-size = Select(title='Size', value='None', options=['None'] + continuous)
+size = Select(title='Size', value='None', options=['None', *continuous])
 size.on_change('value', update)
 
-color = Select(title='Color', value='None', options=['None'] + continuous)
+color = Select(title='Color', value='None', options=['None', *continuous])
 color.on_change('value', update)
 
 controls = column(x, y, color, size, width=200)

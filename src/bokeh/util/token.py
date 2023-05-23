@@ -34,7 +34,7 @@ import hmac
 import json
 import time
 import zlib
-from typing import TYPE_CHECKING, Any, Dict
+from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..core.types import ID
@@ -64,7 +64,7 @@ _TOKEN_ZLIB_KEY = "__bk__zlib_"
 # General API
 #-----------------------------------------------------------------------------
 
-TokenPayload: TypeAlias = Dict[str, Any]
+TokenPayload: TypeAlias = dict[str, Any]
 
 def generate_secret_key() -> str:
     ''' Generate a new securely-generated secret key appropriate for SHA-256
@@ -195,7 +195,7 @@ def check_token_signature(token: str,
         # hmac.compare_digest() uses a string compare algorithm that doesn't
         # short-circuit so we don't allow timing analysis
         token_valid = hmac.compare_digest(
-            expected_token_signature, provided_token_signature
+            expected_token_signature, provided_token_signature,
         )
         session_id = get_session_id(token)
         session_id_valid = check_session_id_signature(session_id, secret_key, signed)
@@ -219,7 +219,7 @@ def check_session_id_signature(session_id: str,
         provided_id_signature = id_pieces[1]
         expected_id_signature = _signature(id_pieces[0], secret_key)
         return hmac.compare_digest(
-            expected_id_signature, provided_id_signature
+            expected_id_signature, provided_id_signature,
         )
     return True
 

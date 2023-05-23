@@ -12,7 +12,7 @@ source = ColumnDataSource(dict(
         top=y,
         right=x-x**3/10 + 0.3,
         bottom=y-x**2/10 + 0.5,
-    )
+    ),
 )
 
 plot = Plot(

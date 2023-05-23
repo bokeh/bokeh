@@ -327,7 +327,7 @@ def _replace_google_api_key(source: str, env) -> str:
             return source.replace("GOOGLE_API_KEY", "MISSING_API_KEY")
         raise SphinxError(
             "The GOOGLE_API_KEY environment variable is not set. Set GOOGLE_API_KEY to a valid API key, "
-            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)"
+            "or set bokeh_missing_google_api_key_ok=True in conf.py to build anyway (with broken GMaps)",
         )
 
     return source.replace("GOOGLE_API_KEY", GOOGLE_API_KEY)

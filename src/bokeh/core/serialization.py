@@ -30,7 +30,6 @@ from typing import (
     Callable,
     ClassVar,
     Generic,
-    List,
     Literal,
     NoReturn,
     Sequence,
@@ -110,7 +109,7 @@ class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
-ArrayRepLike: TypeAlias = Union[ArrayRep, List[AnyRep]]
+ArrayRepLike: TypeAlias = Union[ArrayRep, list[AnyRep]]
 
 class SetRep(TypedDict):
     type: Literal["set"]

@@ -259,7 +259,7 @@ _mod.__all__ = (
     'OSM',
     'ESRI_IMAGERY',
     'get_provider',
-    'Vendors'
+    'Vendors',
 )
 sys.modules['bokeh.tile_providers'] = _mod
 del _mod, sys, types

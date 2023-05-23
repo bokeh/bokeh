@@ -797,8 +797,8 @@ class Image(ImageBase):
     _extra_kws = {
         'palette': (
             'str or list[color value]',
-            'a palette to construct a value for the color mapper property from'
-        )
+            'a palette to construct a value for the color mapper property from',
+        ),
     }
 
     image = NumberSpec(default=field("image"), help="""

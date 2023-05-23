@@ -67,7 +67,7 @@ class Test_cartesian_to_axial:
         q, r = buh.cartesian_to_axial(x, y, 1, "pointytop")
 
         assert list(zip(q, r)) == [
-            (0,0), (-1, 0), (1,0), (0,-1), (-1, 1), (1, -1), (0,1)
+            (0,0), (-1, 0), (1,0), (0,-1), (-1, 1), (1, -1), (0,1),
         ]
 
     def test_default_aspect_flattop(self) -> None:
@@ -77,7 +77,7 @@ class Test_cartesian_to_axial:
         q, r = buh.cartesian_to_axial(x, y, 1, "flattop")
 
         assert list(zip(q, r)) == [
-            (0,0), (0,1), (0,-1), (1, 0), (-1, 1), (1, -1), (-1,0)
+            (0,0), (0,1), (0,-1), (1, 0), (-1, 1), (1, -1), (-1,0),
         ]
 
 

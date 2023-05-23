@@ -80,7 +80,7 @@ def update():
 
     step_source.stream({
         't': [(dt.now() - t0).total_seconds() * 1000],
-        'n': [len(faces)]
+        'n': [len(faces)],
     }, rollover=200)
 
 curdoc().add_root(img_plot)

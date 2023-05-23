@@ -107,7 +107,8 @@ def test_Legend() -> None:
     check_text_properties(legend, "label_", "13px", "middle", scalar=True)
     check_fill_properties(legend, "background_", "#ffffff", 0.95)
     check_fill_properties(legend, "item_background_", "#f1f1f1", 0.8)
-    check_properties_existence(legend, ANNOTATION + [
+    check_properties_existence(legend, [
+        *ANNOTATION,
         "location",
         "orientation",
         "ncols",
@@ -172,7 +173,8 @@ def test_ColorBar() -> None:
     check_line_properties(color_bar, "bar_", None)
     check_line_properties(color_bar, "border_", None)
     check_fill_properties(color_bar, "background_", "#ffffff", 0.95)
-    check_properties_existence(color_bar, ANNOTATION + [
+    check_properties_existence(color_bar, [
+        *ANNOTATION,
         "location",
         "orientation",
         "height",
@@ -219,7 +221,8 @@ def test_Arrow() -> None:
     assert arrow.x_range_name == "default"
     assert arrow.y_range_name == "default"
     check_line_properties(arrow)
-    check_properties_existence(arrow, ANNOTATION + [
+    check_properties_existence(arrow, [
+        *ANNOTATION,
         "x_start",
         "y_start",
         "start_units",
@@ -252,7 +255,8 @@ def test_BoxAnnotation() -> None:
     check_line_properties(box, "hover_", None, 1, 0.3)
     check_fill_properties(box, "hover_", None, 0.4)
     check_hatch_properties(box, "hover_")
-    check_properties_existence(box, ANNOTATION + [
+    check_properties_existence(box, [
+        *ANNOTATION,
         "left",
         "left_units",
         "right",
@@ -298,7 +302,8 @@ def test_Band() -> None:
     assert band.y_range_name == 'default'
     check_line_properties(band, "", "#cccccc", 1.0, 0.3)
     check_fill_properties(band, "", "#fff9ba", 0.4)
-    check_properties_existence(band, ANNOTATION + [
+    check_properties_existence(band, [
+        *ANNOTATION,
         "lower",
         "lower_units",
         "upper",
@@ -327,7 +332,8 @@ def test_Label() -> None:
     check_text_properties(label, scalar=True)
     check_fill_properties(label, "background_", None, 1.0)
     check_line_properties(label, "border_", None, 1.0, 1.0)
-    check_properties_existence(label, ANNOTATION + [
+    check_properties_existence(label, [
+        *ANNOTATION,
         "x",
         "y",
         "x_units",
@@ -346,7 +352,7 @@ def test_Label() -> None:
 def test_Label_accepts_datetime_xy() -> None:
     obj = Label(
         x = datetime(2018,8,7,0,0),
-        y = datetime(2018,8,7,0,0)
+        y = datetime(2018,8,7,0,0),
     )
     assert isinstance(obj.x, datetime)
     assert isinstance(obj.y, datetime)
@@ -372,7 +378,8 @@ def test_LabelSet() -> None:
     check_text_properties(label_set)
     check_fill_properties(label_set, "background_", None, 1.0)
     check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, ANNOTATION + [
+    check_properties_existence(label_set, [
+        *ANNOTATION,
         "x",
         "y",
         "x_units",
@@ -406,7 +413,8 @@ def test_PolyAnnotation() -> None:
     check_line_properties(poly, "hover_", None, 1, 0.3)
     check_fill_properties(poly, "hover_", None, 0.4)
     check_hatch_properties(poly, "hover_")
-    check_properties_existence(poly, ANNOTATION + [
+    check_properties_existence(poly, [
+        *ANNOTATION,
         "xs",
         "xs_units",
         "ys",
@@ -417,7 +425,7 @@ def test_PolyAnnotation() -> None:
 def test_PolyAnnotation_accepts_datetime_xs_ys() -> None:
     obj = PolyAnnotation(
         xs = [datetime(2018,8,7,0,0),1],
-        ys = [datetime(2018,8,7,0,0),1]
+        ys = [datetime(2018,8,7,0,0),1],
     )
     assert isinstance(obj.xs[0], datetime)
     assert isinstance(obj.xs[1], int)
@@ -434,7 +442,8 @@ def test_Slope() -> None:
     assert slope.y_range_name == 'default'
     assert slope.level == 'annotation'
     check_line_properties(slope, "", 'black', 1.0)
-    check_properties_existence(slope, ANNOTATION + [
+    check_properties_existence(slope, [
+        *ANNOTATION,
         "gradient",
         "y_intercept",
     ], LINE, ABOVE_FILL, ABOVE_HATCH, BELOW_FILL, BELOW_HATCH)
@@ -450,7 +459,8 @@ def test_Span() -> None:
     assert line.level == 'annotation'
     assert line.editable is False
     check_line_properties(line, "", 'black', 1.0)
-    check_properties_existence(line, ANNOTATION + [
+    check_properties_existence(line, [
+        *ANNOTATION,
         "location",
         "location_units",
         "dimension",
@@ -459,7 +469,7 @@ def test_Span() -> None:
 
 def test_Span_accepts_datetime_location() -> None:
     obj = Span(
-        location = datetime(2018,8,7,0,0)
+        location = datetime(2018,8,7,0,0),
     )
     assert isinstance(obj.location, datetime)
     assert convert_datetime_type(obj.location) == 1533600000000.0
@@ -479,7 +489,8 @@ def test_Title() -> None:
     assert title.text_line_height == 1.0
     check_fill_properties(title, "background_", None, 1.0)
     check_line_properties(title, "border_", None, 1.0, 1.0)
-    check_properties_existence(title, ANNOTATION + [
+    check_properties_existence(title, [
+        *ANNOTATION,
         "text",
         "vertical_align",
         "align",
@@ -490,7 +501,6 @@ def test_Title() -> None:
         prefix("border_", LINE),
         prefix("background_", FILL),
     )
-
 
 def test_Whisker() -> None:
     whisker = Whisker()
@@ -509,7 +519,8 @@ def test_Whisker() -> None:
     assert whisker.x_range_name == 'default'
     assert whisker.y_range_name == 'default'
     check_line_properties(whisker, "")
-    check_properties_existence(whisker, ANNOTATION + [
+    check_properties_existence(whisker, [
+        *ANNOTATION,
         "lower",
         "lower_units",
         "lower_head",

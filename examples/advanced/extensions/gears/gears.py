@@ -44,7 +44,7 @@ def classical_gear(module, large_teeth, small_teeth):
     glyph = Gear(
         x=-radius, y=0,
         module=module, teeth=large_teeth, angle=angle,
-        fill_color=fill_color[0], line_color=line_color
+        fill_color=fill_color[0], line_color=line_color,
     )
     plot.add_glyph(glyph)
 
@@ -53,7 +53,7 @@ def classical_gear(module, large_teeth, small_teeth):
     glyph = Gear(
         x=radius, y=0,
         module=module, teeth=small_teeth, angle=angle,
-        fill_color=fill_color[1], line_color=line_color
+        fill_color=fill_color[1], line_color=line_color,
     )
     plot.add_glyph(glyph)
 
@@ -72,14 +72,14 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
     glyph = Gear(
         x=0, y=0,
         module=module, teeth=annulus_teeth, angle=0,
-        fill_color=fill_color[0], line_color=line_color, internal=True
+        fill_color=fill_color[0], line_color=line_color, internal=True,
     )
     plot.add_glyph(glyph)
 
     glyph = Gear(
         x=0, y=0,
         module=module, teeth=sun_teeth, angle=0,
-        fill_color=fill_color[2], line_color=line_color
+        fill_color=fill_color[2], line_color=line_color,
     )
     plot.add_glyph(glyph)
 
@@ -93,7 +93,7 @@ def epicyclic_gear(module, sun_teeth, planet_teeth):
         glyph = Gear(
             x=radius*i, y=radius*j,
             module=module, teeth=planet_teeth, angle=angle,
-            fill_color=fill_color[1], line_color=line_color
+            fill_color=fill_color[1], line_color=line_color,
         )
         plot.add_glyph(glyph)
 

@@ -38,7 +38,7 @@ providers = [
     "Stamen Toner Background",
     "Stamen Toner Labels",
     "OpenStreetMap Mapnik",
-    "Esri World Imagery"
+    "Esri World Imagery",
 ]
 
 plots = []

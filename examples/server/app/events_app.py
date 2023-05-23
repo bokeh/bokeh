@@ -68,9 +68,9 @@ layout = column(button, row(p, div))
 
 
 point_attributes = ['x','y','sx','sy']
-pan_attributes = point_attributes + ['delta_x', 'delta_y']
-pinch_attributes = point_attributes + ['scale']
-wheel_attributes = point_attributes+['delta']
+pan_attributes = [*point_attributes, 'delta_x', 'delta_y']
+pinch_attributes = [*point_attributes, 'scale']
+wheel_attributes = [*point_attributes, 'delta']
 
 ## Register Javascript event callbacks
 

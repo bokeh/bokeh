@@ -26,7 +26,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    List,
     Literal,
     Protocol,
     TypedDict,
@@ -328,7 +327,7 @@ def push_notebook(*, document: Document | None = None, state: State | None = Non
         return
 
     handle.doc.callbacks._held_events = []
-    msg = BokehProtocol().create("PATCH-DOC", cast(List["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
+    msg = BokehProtocol().create("PATCH-DOC", cast(list["DocumentPatchedEvent"], events)) # XXX: either fix types or filter events
 
     handle.comms.send(msg.header_json)
     handle.comms.send(msg.metadata_json)
@@ -565,9 +564,9 @@ def show_app(app: Application, state: State, notebook_url: str | Callable[[int |
 
     publish_display_data({
         HTML_MIME_TYPE: script,
-        EXEC_MIME_TYPE: ""
+        EXEC_MIME_TYPE: "",
     }, metadata={
-        EXEC_MIME_TYPE: {"server_id": server_id}
+        EXEC_MIME_TYPE: {"server_id": server_id},
     })
 
 @overload
@@ -619,7 +618,7 @@ def _loading_js(bundle: Bundle, element_id: ID | None, load_timeout: int = 5000,
         elementid = element_id,
         force     = True,
         timeout   = load_timeout,
-        register_mime = register_mime
+        register_mime = register_mime,
     )
 
 def _origin_url(url: str) -> str:

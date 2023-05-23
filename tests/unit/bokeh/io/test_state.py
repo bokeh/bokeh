@@ -83,10 +83,10 @@ class Test_State:
 
     def test_output_invalid_notebook(self) -> None:
         s = bis.State()
-        with pytest.raises(Exception):
-            s.notebook_type=None
-        with pytest.raises(Exception):
-            s.notebook_type=10
+        with pytest.raises(ValueError):
+            s.notebook_type = None
+        with pytest.raises(ValueError):
+            s.notebook_type = 10
 
     def test_reset(self) -> None:
         s = bis.State()

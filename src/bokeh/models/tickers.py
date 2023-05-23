@@ -326,21 +326,21 @@ class DatetimeTicker(CompositeTicker):
             base=10,
             min_interval=0,
             max_interval=500*ONE_MILLI,
-            num_minor_ticks=0
+            num_minor_ticks=0,
         ),
         AdaptiveTicker(
             mantissas=[1, 2, 5, 10, 15, 20, 30],
             base=60,
             min_interval=ONE_SECOND,
             max_interval=30*ONE_MINUTE,
-            num_minor_ticks=0
+            num_minor_ticks=0,
         ),
         AdaptiveTicker(
             mantissas=[1, 2, 4, 6, 8, 12],
             base=24,
             min_interval=ONE_HOUR,
             max_interval=12*ONE_HOUR,
-            num_minor_ticks=0
+            num_minor_ticks=0,
         ),
         DaysTicker(days=list(range(1, 32))),
         DaysTicker(days=list(range(1, 31, 3))),

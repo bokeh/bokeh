@@ -7,7 +7,7 @@ x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
 
 source = ColumnDataSource(
-    data=dict(x=x, y=y)
+    data=dict(x=x, y=y),
 )
 
 plot = Plot(min_border=80)

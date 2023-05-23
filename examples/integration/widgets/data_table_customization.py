@@ -20,7 +20,7 @@ columns = [
     TableColumn(field='name', title='Name',
                 formatter=HTMLTemplateFormatter(template=html_font_template)),
     TableColumn(field='name_lower', title='Image',
-                formatter=HTMLTemplateFormatter(template=html_image_template))
+                formatter=HTMLTemplateFormatter(template=html_image_template)),
 ]
 data_table = DataTable(source=source, columns=columns, editable=False, row_height=45)
 

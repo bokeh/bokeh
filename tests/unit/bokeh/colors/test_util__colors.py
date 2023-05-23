@@ -140,7 +140,7 @@ class Test_ColorGroup:
         with pytest.raises(ValueError):
             _TestGroup[(1,)]
         with pytest.raises(ValueError):
-            _TestGroup[[1,]]
+            _TestGroup[[1]]
 
 #-----------------------------------------------------------------------------
 # Private API

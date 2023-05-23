@@ -213,7 +213,8 @@ class MinMaxBounds(Either):
             Tuple(TimeDelta, Nullable(TimeDelta)),
         )
         if accept_datetime:
-            types = types + (
+            types = (
+                *types,
                 Tuple(Datetime, Datetime),
                 Tuple(Nullable(Datetime), Datetime),
                 Tuple(Datetime, Nullable(Datetime)),

@@ -28,8 +28,8 @@ source = ColumnDataSource(
     data=dict(
         lat=[30.2861, 30.2855, 30.2869],
         lon=[-97.7394, -97.7390, -97.7405],
-        fill=['orange', 'blue', 'green']
-    )
+        fill=['orange', 'blue', 'green'],
+    ),
 )
 
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")

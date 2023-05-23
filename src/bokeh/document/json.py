@@ -24,8 +24,6 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     TypedDict,
     Union,
@@ -54,7 +52,7 @@ __all__ = ()
 
 Patch: TypeAlias = Any # TODO
 
-Patches: TypeAlias = Dict[str, List[Patch]]
+Patches: TypeAlias = dict[str, list[Patch]]
 
 class ModelChanged(TypedDict):
     kind: Literal["ModelChanged"]

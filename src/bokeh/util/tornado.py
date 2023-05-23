@@ -30,9 +30,6 @@ from typing import (
     Any,
     Awaitable,
     Callable,
-    Dict,
-    List,
-    Set,
     Union,
 )
 
@@ -82,13 +79,13 @@ CallbackSync: TypeAlias = Callable[[], None]
 CallbackAsync: TypeAlias = Callable[[], Awaitable[None]]
 Callback: TypeAlias = Union[CallbackSync, CallbackAsync]
 
-InvokeResult: TypeAlias = Union[Awaitable[None], Awaitable[List[Any]], Awaitable[Dict[Any, Any]]]
+InvokeResult: TypeAlias = Union[Awaitable[None], Awaitable[list[Any]], Awaitable[dict[Any, Any]]]
 
 Remover: TypeAlias = Callable[[], None]
 
-Removers: TypeAlias = Dict[ID, Remover]
+Removers: TypeAlias = dict[ID, Remover]
 
-RemoversByCallable: TypeAlias = Dict[Callback, Set[ID]]
+RemoversByCallable: TypeAlias = dict[Callback, set[ID]]
 
 class _AsyncPeriodic:
     ''' Like ioloop.PeriodicCallback except the 'func' can be async and return

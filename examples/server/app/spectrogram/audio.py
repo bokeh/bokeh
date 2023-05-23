@@ -23,7 +23,7 @@ try:
             channels=1,
             rate=int(SAMPLING_RATE),
             input=True,
-            frames_per_buffer=NUM_SAMPLES
+            frames_per_buffer=NUM_SAMPLES,
         )
 
         while True:

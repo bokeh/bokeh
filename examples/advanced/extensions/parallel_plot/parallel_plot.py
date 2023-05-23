@@ -88,7 +88,7 @@ def parallel_plot(df, color=None, palette=None):
     p.y_range.end = p.y_range.bounds[1]
 
     rect_source = ColumnDataSource({
-        'x': [], 'y': [], 'width': [], 'height': []
+        'x': [], 'y': [], 'width': [], 'height': [],
     })
 
     # add rectangle selections

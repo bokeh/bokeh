@@ -82,17 +82,17 @@ class JSON(FileOutputSubcommand):
     help = "Create JSON files for one or more applications"
 
     args = (
-
         FileOutputSubcommand.files_arg("JSON"),
 
         ('--indent', Argument(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",
-            default=None
+            default=None,
         )),
 
-    ) + FileOutputSubcommand.other_args()
+        *FileOutputSubcommand.other_args(),
+    )
 
     def file_contents(self, args: Namespace, doc: Document) -> str:
         '''

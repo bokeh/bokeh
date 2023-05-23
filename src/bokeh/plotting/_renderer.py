@@ -58,7 +58,7 @@ def get_default_color(plot=None):
         "#e377c2", "#f7b6d2",
         "#7f7f7f",
         "#bcbd22", "#dbdb8d",
-        "#17becf", "#9edae5"
+        "#17becf", "#9edae5",
     ]
     if plot:
         renderers = plot.renderers
@@ -304,7 +304,7 @@ def _process_sequence_literals(glyphclass, kwargs, source, is_user_source):
 def _split_feature_trait(ft):
     """Feature is up to first '_'. Ex. 'line_color' => ['line', 'color']"""
     ft = ft.split('_', 1)
-    return ft if len(ft)==2 else ft+[None]
+    return ft if len(ft)==2 else [*ft, None]
 
 def _is_visual(ft):
     """Whether a feature trait name is visual"""

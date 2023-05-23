@@ -188,7 +188,7 @@ class _BokehStructureGraph:
             T[m.id] = {y.id for y in m.references()}
 
         K.add_nodes_from(
-            [(x, {"model": M.select_one({"id": x}).__class__.__name__}) for x in T]
+            [(x, {"model": M.select_one({"id": x}).__class__.__name__}) for x in T],
         )
         E = [(y, x) for x, y in permutations(T, 2) if T[x] <= T[y]]
         K.add_edges_from(E)
@@ -234,7 +234,7 @@ class _BokehStructureGraph:
         models = [self._graph.nodes[x]["model"] for x in nodes]
         node_id = list(nodes.keys())
         node_source = ColumnDataSource(
-            {"x": node_x, "y": node_y, "index": node_id, "model": models}
+            {"x": node_x, "y": node_y, "index": node_id, "model": models},
         )
         edge_x_coords = []
         edge_y_coords = []
@@ -247,10 +247,10 @@ class _BokehStructureGraph:
         xinterval = max(max(node_x) - min(node_x), 200)
         yinterval = max(max(node_y) - min(node_y), 200)
         p2.x_range = Range1d(
-            start=min(node_x) - 0.15 * xinterval, end=max(node_x) + 0.15 * xinterval
+            start=min(node_x) - 0.15 * xinterval, end=max(node_x) + 0.15 * xinterval,
         )
         p2.y_range = Range1d(
-            start=min(node_y) - 0.15 * yinterval, end=max(node_y) + 0.15 * yinterval
+            start=min(node_y) - 0.15 * yinterval, end=max(node_y) + 0.15 * yinterval,
         )
 
         node_renderer = GlyphRenderer(
@@ -261,7 +261,7 @@ class _BokehStructureGraph:
         )
 
         edge_renderer = GlyphRenderer(
-            data_source=edge_source, glyph=MultiLine(xs="xs", ys="ys")
+            data_source=edge_source, glyph=MultiLine(xs="xs", ys="ys"),
         )
 
         node_hover_tool = HoverTool(tooltips=[("id", "@index"), ("model", "@model")])
@@ -293,7 +293,7 @@ class _BokehStructureGraph:
         p2.add_layout(edge_renderer)
         p2.add_layout(node_renderer)
         p2.tools.extend(
-            [node_hover_tool, tap_tool, BoxZoomTool(), ResetTool(), PanTool()]
+            [node_hover_tool, tap_tool, BoxZoomTool(), ResetTool(), PanTool()],
         )
         p2.renderers.append(labels)
         self._node_source = node_source

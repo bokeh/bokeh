@@ -8,7 +8,7 @@ from bokeh.plotting import figure
 
 x=[3,4,6,12,10,1,5,6,3,8]
 y=[7,1,3,4,1,6,10,4,10,3]
-label=['Red', 'Orange', 'Red', 'Orange','Red', 'Orange','Red', 'Orange','Red', 'Orange',]
+label=['Red', 'Orange', 'Red', 'Orange','Red', 'Orange','Red', 'Orange','Red', 'Orange']
 
 df=pd.DataFrame({'x':x,'y':y,'label':label})
 

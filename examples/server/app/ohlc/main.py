@@ -16,7 +16,7 @@ MA12, MA26, EMA12, EMA26 = '12-tick Moving Avg', '26-tick Moving Avg', '12-tick 
 
 source = ColumnDataSource(dict(
     time=[], average=[], low=[], high=[], open=[], close=[],
-    ma=[], macd=[], macd9=[], macdh=[], color=[]
+    ma=[], macd=[], macd9=[], macdh=[], color=[],
 ))
 
 p = figure(height=500, tools="xpan,xwheel_zoom,xbox_zoom,reset", x_axis_type=None, y_axis_location="right")

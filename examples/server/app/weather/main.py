@@ -79,7 +79,7 @@ cities = {
     'Seattle': {
         'airport': 'SEA',
         'title': 'Seattle, WA',
-    }
+    },
 }
 
 city_select = Select(value=city, title='City', options=sorted(cities.keys()))

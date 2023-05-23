@@ -26,9 +26,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Dict,
     Iterable,
-    Type,
     Union,
 )
 
@@ -57,7 +55,7 @@ __all__ = (
     'is_single_string_selector',
 )
 
-SelectorType: TypeAlias = Dict[Union[str, Type["_Operator"]], Any]
+SelectorType: TypeAlias = dict[Union[str, type["_Operator"]], Any]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -351,7 +349,7 @@ class NEQ(_Operator):
 #-----------------------------------------------------------------------------
 
 # realizations of the abstract predicate operators
-_operators: dict[Type[_Operator], Callable[[Any, Any], Any]] = {
+_operators: dict[type[_Operator], Callable[[Any, Any], Any]] = {
    IN:  lambda x, y: x in y,
    GT:  lambda x, y: x > y,
    LT:  lambda x, y: x < y,

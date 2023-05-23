@@ -49,7 +49,7 @@ def _collect() -> list[type[Subcommand]]:
     from os.path import dirname
 
     # reference type by module as fully
-    results = []
+    results: list[type[Subcommand]] = []
 
     for file in listdir(dirname(__file__)):
 
@@ -61,9 +61,14 @@ def _collect() -> list[type[Subcommand]]:
 
         for name in dir(mod):
             attr = getattr(mod, name)
-            if isinstance(attr, type) and issubclass(attr, Subcommand):
-                if not getattr(attr, 'name', None): continue  # instance attribute not defined on abstract base class
-                results.append(attr)
+            try:
+                if isinstance(attr, type) and issubclass(attr, Subcommand):
+                    if not getattr(attr, "name", None):
+                        continue # instance attribute not defined on abstract base class
+                    results.append(attr)
+            except TypeError:
+                # TypeAlias definition can raise in issubclass()
+                pass
 
     results = sorted(results, key=lambda attr: attr.name)
 

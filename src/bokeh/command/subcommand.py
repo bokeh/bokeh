@@ -30,7 +30,6 @@ from typing import (
     ClassVar,
     Literal,
     Sequence,
-    Tuple,
     Union,
 )
 
@@ -73,8 +72,8 @@ class Argument:
     help: NotRequired[str] = Unspecified
     metavar: NotRequired[str] = Unspecified
 
-Arg: TypeAlias = Tuple[Union[str, Tuple[str, ...]], Argument]
-Args: TypeAlias = Tuple[Arg, ...]
+Arg: TypeAlias = tuple[Union[str, tuple[str, ...]], Argument]
+Args: TypeAlias = tuple[Arg, ...]
 
 class Subcommand(metaclass=ABCMeta):
     ''' Abstract base class for subcommands

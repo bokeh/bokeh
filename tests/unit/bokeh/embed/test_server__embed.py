@@ -54,7 +54,8 @@ class TestServerDocument:
         assert 'resources=none' in r
 
     def test_general(self) -> None:
-        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
+        url = "http://localhost:8081/foo/bar/sliders"
+        r = bes.server_document(url=url)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
@@ -64,11 +65,11 @@ class TestServerDocument:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
-              ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url={url}\", true);"
         assert request in script.string
 
     def test_script_attrs_arguments_provided(self) -> None:
+        url = "http://localhost:5006"
         r = bes.server_document(arguments=dict(foo=10))
         assert 'foo=10' in r
         html = bs4.BeautifulSoup(r, "html.parser")
@@ -78,12 +79,12 @@ class TestServerDocument:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s&foo=10\", true);" % \
-              ("http://localhost:5006", divid, "http://localhost:5006")
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}&foo=10\", true);"
         assert request in script.string
 
     def test_script_attrs_url_provided_absolute_resources(self) -> None:
-        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders")
+        url = "http://localhost:8081/foo/bar/sliders"
+        r = bes.server_document(url=url)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         assert 'bokeh-absolute-url=http://localhost:8081/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
@@ -93,12 +94,12 @@ class TestServerDocument:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url=%s\", true);" % \
-              ("http://localhost:8081/foo/bar/sliders", divid, "http://localhost:8081/foo/bar/sliders")
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders&bokeh-absolute-url={url}\", true);"
         assert request in script.string
 
     def test_script_attrs_url_provided(self) -> None:
-        r = bes.server_document(url="http://localhost:8081/foo/bar/sliders", relative_urls=True)
+        url = "http://localhost:8081/foo/bar/sliders"
+        r = bes.server_document(url=url, relative_urls=True)
         assert 'bokeh-app-path=/foo/bar/sliders' in r
         html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
@@ -107,8 +108,7 @@ class TestServerDocument:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-app-path=/foo/bar/sliders\", true);" % \
-              ("http://localhost:8081/foo/bar/sliders", divid)
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-app-path=/foo/bar/sliders\", true);"
         assert request in script.string
 
 
@@ -118,6 +118,7 @@ class TestServerSession:
         assert isinstance(r, str)
 
     def test_script_attrs_session_id_provided(self, test_plot) -> None:
+        url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
@@ -126,8 +127,7 @@ class TestServerSession:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
-              ("http://localhost:5006", divid, "http://localhost:5006")
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}\", true);"
         assert request in script.string
         assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
@@ -146,6 +146,7 @@ class TestServerSession:
         assert 'resources=none' in r
 
     def test_model_none(self) -> None:
+        url = "http://localhost:5006"
         r = bes.server_session(None, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
@@ -154,12 +155,12 @@ class TestServerSession:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s" % \
-              ("http://localhost:5006", divid, "http://localhost:5006")
+        request = f"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}"
         assert request in script.string
         assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 
     def test_general(self, test_plot) -> None:
+        url = "http://localhost:5006"
         r = bes.server_session(test_plot, session_id='fakesession')
         html = bs4.BeautifulSoup(r, "html.parser")
         scripts = html.findAll(name='script')
@@ -168,8 +169,7 @@ class TestServerSession:
         attrs = script.attrs
         assert list(attrs) == ['id']
         divid = attrs['id']
-        request = "xhr.open('GET', \"%s/autoload.js?bokeh-autoload-element=%s&bokeh-absolute-url=%s\", true);" % \
-              ("http://localhost:5006", divid, "http://localhost:5006")
+        request = f"xhr.open('GET', \"{url}/autoload.js?bokeh-autoload-element={divid}&bokeh-absolute-url={url}\", true);"
         assert request in script.string
         assert 'xhr.setRequestHeader("Bokeh-Session-Id", "fakesession")' in script.string
 

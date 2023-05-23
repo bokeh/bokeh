@@ -28,7 +28,7 @@ json = {
             "axis_label_text_color": "#5B5B5B",
             "axis_label_text_font": "Calibri Light",
             "axis_label_text_font_size": "1.15em",
-            "axis_label_text_font_style": "bold"
+            "axis_label_text_font_style": "bold",
         },
 
         "Legend": {
@@ -42,7 +42,7 @@ json = {
             "label_text_font_style": "bold",
 
             "border_line_alpha": 0,
-            "background_fill_alpha": 0.25
+            "background_fill_alpha": 0.25,
         },
 
         "BaseColorBar": {
@@ -57,7 +57,7 @@ json = {
             "major_label_text_font_style": "bold",
 
             "major_tick_line_alpha": 0,
-            "bar_line_alpha": 0
+            "bar_line_alpha": 0,
         },
 
         "Title": {
@@ -65,6 +65,6 @@ json = {
             "text_font": "Calibri Light",
             "text_font_size": "1.25em",
             "text_font_style": "bold",
-        }
-    }
+        },
+    },
 }

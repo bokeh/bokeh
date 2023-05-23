@@ -24,13 +24,13 @@ links = {
     2: [0, 5],
     3: [1, 4],
     4: [1, 3],
-    5: [2, 3, 4]
+    5: [2, 3, 4],
 }
 
 p = figure(width=400, height=400, tools="", toolbar_location=None, title='Hover over points')
 
 source = ColumnDataSource({'x0': [], 'y0': [], 'x1': [], 'y1': []})
-sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source, )
+sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source )
 cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hover_alpha=1.0)
 
 # add a hover tool that sets the link data for a hovered circle

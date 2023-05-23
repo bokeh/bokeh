@@ -7,7 +7,7 @@ N = 9
 y = np.linspace(-2, 2, N)
 x = y**2
 
-source = ColumnDataSource(dict(y=y, right=x,))
+source = ColumnDataSource(dict(y=y, right=x))
 
 plot = Plot(
     title=None, width=300, height=300,

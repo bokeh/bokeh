@@ -22,12 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Sequence, Union
 
 # Bokeh imports
 from .core.property.vectorization import Expr, Field
@@ -73,7 +68,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Factors: TypeAlias = Union[Sequence[str], Sequence[Tuple[str, str]], Sequence[Tuple[str, str, str]]]
+    Factors: TypeAlias = Union[Sequence[str], Sequence[tuple[str, str]], Sequence[tuple[str, str, str]]]
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression
@@ -165,7 +160,7 @@ def eqhist_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def factor_cmap(
@@ -209,7 +204,7 @@ def factor_cmap(
             start=start,
             end=end,
             nan_color=nan_color,
-        )
+        ),
     )
 
 def factor_hatch(
@@ -250,7 +245,7 @@ def factor_hatch(
             factors=factors,
             start=start,
             end=end,
-        )
+        ),
     )
 
 def factor_mark(
@@ -293,7 +288,7 @@ def factor_mark(
             factors=factors,
             start=start,
             end=end,
-        )
+        ),
     )
 
 def jitter(
@@ -331,7 +326,7 @@ def jitter(
             width=width,
             distribution=distribution,
             range=range,
-        )
+        ),
     )
 
 def linear_cmap(
@@ -378,7 +373,7 @@ def linear_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def log_cmap(
@@ -425,7 +420,7 @@ def log_cmap(
             nan_color=nan_color,
             low_color=low_color,
             high_color=high_color,
-        )
+        ),
     )
 
 def stack(*fields: str) -> Expr:

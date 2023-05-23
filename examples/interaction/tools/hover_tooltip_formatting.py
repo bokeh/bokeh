@@ -38,7 +38,7 @@ p.add_tools(HoverTool(
     },
 
     # display a tooltip whenever the cursor is vertically in line with a glyph
-    mode='vline'
+    mode='vline',
 ))
 
 show(p)

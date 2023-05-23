@@ -66,7 +66,7 @@ def test_version_mismatch_rc_no_given(monkeypatch: pytest.MonkeyPatch) -> None:
     bup.validate()
 
 @patch('bokeh.resources.verify_sri_hashes')
-def test_version_mismatch_full_no_given(mock_vsrih: MagicMock, monkeypatch: pytest.MonkeyPatch,) -> None:
+def test_version_mismatch_full_no_given(mock_vsrih: MagicMock, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(bup, '__version__', "0.1.2")
     bup.validate()
     assert mock_vsrih.called

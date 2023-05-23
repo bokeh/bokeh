@@ -25,12 +25,7 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import (
-    TYPE_CHECKING,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, TypeVar, Union
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
@@ -52,7 +47,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple = Union[Tuple[int, int, int], Tuple[int, int, int, float]]
+RGBTuple = Union[tuple[int, int, int], tuple[int, int, int, float]]
 
 ColorLike: TypeAlias = Union[str, "Color", RGBTuple]
 

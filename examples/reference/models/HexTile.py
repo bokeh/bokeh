@@ -4,7 +4,7 @@ from bokeh.models import ColumnDataSource, Grid, HexTile, LinearAxis, Plot
 source = ColumnDataSource(dict(
         q=[0,  0, -1, -1,  1, 1, 0],
         r=[0, -1,  0,  1, -1, 0, 1],
-    )
+    ),
 )
 
 plot = Plot(

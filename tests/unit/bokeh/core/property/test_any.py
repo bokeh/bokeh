@@ -30,7 +30,7 @@ import bokeh.core.property.any as bcpa # isort:skip
 
 ALL = (
     'Any',
-    'AnyRef'
+    'AnyRef',
 )
 
 #-----------------------------------------------------------------------------

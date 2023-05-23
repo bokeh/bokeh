@@ -13,7 +13,7 @@ source = ColumnDataSource(dict(
         xp02=x+0.4,
         xp01=x+0.1,
         yp01=y+0.2,
-    )
+    ),
 )
 
 plot = Plot(

@@ -220,7 +220,7 @@ class CodeRunner:
         _sys_path = list(sys.path)
         _sys_argv = list(sys.argv)
         sys.path.insert(0, os.path.dirname(self._path))
-        sys.argv = [os.path.basename(self._path)] + self._argv
+        sys.argv = [os.path.basename(self._path), *self._argv]
 
         # XXX: self._code shouldn't be None at this point but types don't reflect this
         assert self._code is not None

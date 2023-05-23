@@ -965,7 +965,7 @@ DEFAULT_POLY_OVERLAY = InstanceDefault(PolyAnnotation,
     line_color="black",
     line_alpha=1.0,
     line_width=2,
-    line_dash=[4, 4]
+    line_dash=[4, 4],
 )
 
 class LassoSelectTool(Drag, RegionSelectTool):

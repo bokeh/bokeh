@@ -37,7 +37,6 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
-    Type,
     TypedDict,
     TypeVar,
     Union,
@@ -97,7 +96,7 @@ __all__ = (
 if TYPE_CHECKING:
     Setter: TypeAlias = Union[ClientSession, ServerSession]
 
-C = TypeVar("C", bound=Type["HasProps"])
+C = TypeVar("C", bound=type["HasProps"])
 
 def abstract(cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.

@@ -27,7 +27,7 @@ colors = {
     "Safari": "orchid",
     "Opera": "firebrick",
     "IE": "skyblue",
-    "Other": "lightgray"
+    "Other": "lightgray",
 }
 
 aggregated = df.groupby("Browser").sum(numeric_only=True)

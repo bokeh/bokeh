@@ -30,7 +30,7 @@ except (ValueError, TypeError):
 func = {
     1 : np.cos,
     2 : np.sin,
-    3 : np.tan
+    3 : np.tan,
 }[batchid]
 
 # Set up data

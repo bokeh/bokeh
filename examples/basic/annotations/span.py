@@ -6,7 +6,7 @@ from bokeh.sampledata.daylight import daylight_warsaw_2013
 
 p = figure(height=350, x_axis_type="datetime", y_axis_type="datetime",
            title="2013 Sunrise and Sunset in Warsaw with DST dates marked",
-           y_axis_label="Time of Day", background_fill_color="#fafafa",)
+           y_axis_label="Time of Day", background_fill_color="#fafafa")
 p.y_range.start = 0
 p.y_range.end = 24 * 60 * 60 * 1000
 
