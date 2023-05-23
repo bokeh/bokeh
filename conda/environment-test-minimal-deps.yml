@@ -41,6 +41,7 @@ dependencies:
   - pytest-xdist
   - pytest-timeout
   - requests >=1.2.3
+  - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - selenium 4.2
 
   # examples
