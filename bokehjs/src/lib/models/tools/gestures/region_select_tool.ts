@@ -14,8 +14,8 @@ export abstract class RegionSelectToolView extends SelectToolView {
     return [...super.overlays, this.model.overlay]
   }
 
-  protected _is_continuous(ev: KeyModifiers): boolean {
-    return this.model.continuous != ev.alt_key
+  protected _is_continuous(modifiers: KeyModifiers): boolean {
+    return this.model.continuous != modifiers.alt
   }
 
   _select(geometry: Geometry, final: boolean, mode: SelectionMode): void {

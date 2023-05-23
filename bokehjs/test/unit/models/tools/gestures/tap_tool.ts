@@ -2,6 +2,7 @@ import {expect} from "assertions"
 import {display} from "../../../_util"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
+import type {TapToolCallback} from "@bokehjs/models/tools/gestures/tap_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -9,7 +10,7 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {GlyphRenderer} from "@bokehjs/models/renderers"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 import {Quad} from "@bokehjs/models/glyphs"
-import type {TapEvent} from "@bokehjs/core/ui_events"
+import type {TapEvent, KeyModifiers} from "@bokehjs/core/ui_events"
 
 describe("TapTool", () => {
   async function test_case(tool: Tool): Promise<PlotView> {
@@ -31,14 +32,16 @@ describe("TapTool", () => {
     return view
   }
 
-  function tap(plot_view: PlotView, sx: number, sy: number) {
-    const event: TapEvent = {type: "tap", sx, sy, ctrl_key: false, shift_key: false, alt_key: false}
+  function tap(plot_view: PlotView, sx: number, sy: number,
+      modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
+    const event: TapEvent = {type: "tap", sx, sy, modifiers}
     const {ui_event_bus} = plot_view.canvas_view
     ui_event_bus._trigger(ui_event_bus.tap, event, new Event("mousemove"))
   }
 
-  function doubletap(plot_view: PlotView, sx: number, sy: number) {
-    const event: TapEvent = {type: "tap", sx, sy, ctrl_key: false, shift_key: false, alt_key: false}
+  function doubletap(plot_view: PlotView, sx: number, sy: number,
+      modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
+    const event: TapEvent = {type: "tap", sx, sy, modifiers}
     const {ui_event_bus} = plot_view.canvas_view
     ui_event_bus._trigger(ui_event_bus.doubletap, event, new Event("mousemove"))
   }
@@ -46,7 +49,7 @@ describe("TapTool", () => {
   describe("should support 'tap' gesture", () => {
     it("and trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
@@ -56,7 +59,7 @@ describe("TapTool", () => {
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
@@ -66,19 +69,48 @@ describe("TapTool", () => {
 
     it("and not trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
       doubletap(plot_view, 50, 50)
       expect(called).to.be.false
     })
+
+    it("and allow setting key modifiers", async () => {
+      let called = false
+      const callback: TapToolCallback = {execute() { called = true }}
+      const tool = new TapTool({behavior: "inspect", gesture: "tap", modifiers: {shift: true, alt: true}, callback})
+      const plot_view = await test_case(tool)
+
+      tap(plot_view, 50, 50)
+      expect(called).to.be.false
+
+      tap(plot_view, 50, 50, {shift: true, ctrl: false, alt: true})
+      expect(called).to.be.true
+    })
+
+    it("and report key modifiers in a callback", async () => {
+      let modifiers: Partial<KeyModifiers> | undefined
+      const callback: TapToolCallback = {execute(_, {event}) { modifiers = event.modifiers }}
+      const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
+      const plot_view = await test_case(tool)
+
+      tap(plot_view, 50, 50)
+      expect(modifiers).to.be.equal({shift: false, ctrl: false, alt: false})
+
+      tap(plot_view, 50, 50, {shift: true, ctrl: false, alt: false})
+      expect(modifiers).to.be.equal({shift: true, ctrl: false, alt: false})
+
+      tap(plot_view, 50, 50, {shift: true, ctrl: false, alt: true})
+      expect(modifiers).to.be.equal({shift: true, ctrl: false, alt: true})
+    })
   })
 
   describe("should support 'doubletap' gesture", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
@@ -88,7 +120,7 @@ describe("TapTool", () => {
 
     it("and trigger on 'doubletap' event", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
@@ -98,7 +130,7 @@ describe("TapTool", () => {
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback = {execute() { called = true }}
+      const callback: TapToolCallback = {execute() { called = true }}
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 

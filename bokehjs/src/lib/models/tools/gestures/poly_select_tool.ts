@@ -92,8 +92,8 @@ export class PolySelectToolView extends RegionSelectToolView {
     const [xs, ys] = this._v_invert(sxs, sys)
     this.model.overlay.update({xs, ys})
 
-    if (this._is_continuous(ev)) {
-      this._do_select(sxs, sys, true, this._select_mode(ev))
+    if (this._is_continuous(ev.modifiers)) {
+      this._do_select(sxs, sys, true, this._select_mode(ev.modifiers))
     }
   }
 
@@ -110,7 +110,7 @@ export class PolySelectToolView extends RegionSelectToolView {
   }
 
   override _doubletap(ev: TapEvent): void {
-    this._finish_selection(ev)
+    this._finish_selection(ev.modifiers)
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -118,7 +118,7 @@ export class PolySelectToolView extends RegionSelectToolView {
       return
 
     if (ev.key == "Enter") {
-      this._finish_selection(ev)
+      this._finish_selection(ev.modifiers)
       return
     }
 

@@ -21,15 +21,15 @@ export abstract class EditToolView extends GestureToolView {
   _mouse_in_frame: boolean = true
 
   protected _select_mode(ev: UIEvent): SelectionMode {
-    const {shift_key, ctrl_key} = ev
+    const {shift, ctrl} = ev.modifiers
 
-    if (!shift_key && !ctrl_key)
+    if (!shift && !ctrl)
       return "replace"
-    else if (shift_key && !ctrl_key)
+    else if (shift && !ctrl)
       return "append"
-    else if (!shift_key && ctrl_key)
+    else if (!shift && ctrl)
       return "intersect"
-    else if (shift_key && ctrl_key)
+    else if (shift && ctrl)
       return "subtract"
     else
       unreachable()

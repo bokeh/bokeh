@@ -1,7 +1,8 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import type {CallbackLike1} from "../../callbacks/callback"
 import type * as p from "core/properties"
-import type {TapEvent} from "core/ui_events"
+import type {TapEvent, KeyModifiers} from "core/ui_events"
+import * as events from "core/bokeh_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
@@ -12,6 +13,9 @@ import {tool_icon_tap_select} from "styles/icons.css"
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
   source: ColumnarDataSource
+  event: {
+    modifiers?: KeyModifiers
+  }
 }>
 
 export class TapToolView extends SelectToolView {
@@ -28,6 +32,14 @@ export class TapToolView extends SelectToolView {
   }
 
   _handle_tap(ev: TapEvent): void {
+    const {modifiers} = this.model
+    if (modifiers.shift != null && modifiers.shift != ev.modifiers.shift)
+      return
+    if (modifiers.ctrl != null && modifiers.ctrl != ev.modifiers.ctrl)
+      return
+    if (modifiers.alt != null && modifiers.alt != ev.modifiers.alt)
+      return
+
     const {sx, sy} = ev
     const {frame} = this.plot_view
     if (!frame.bbox.contains(sx, sy))
@@ -36,48 +48,57 @@ export class TapToolView extends SelectToolView {
     this._clear_other_overlays()
 
     const geometry: PointGeometry = {type: "point", sx, sy}
-    this._select(geometry, true, this._select_mode(ev))
+    if (this.model.behavior == "select") {
+      this._select(geometry, true, this._select_mode(ev.modifiers))
+    } else {
+      this._inspect(geometry, ev.modifiers)
+    }
   }
 
-  _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+  protected _select(geometry: PointGeometry, final: boolean, mode: SelectionMode): void {
+    const renderers_by_source = this._computed_renderers_by_data_source()
+
+    for (const [, renderers] of renderers_by_source) {
+      const sm = renderers[0].get_selection_manager()
+      const r_views = renderers
+        .map((r) => this.plot_view.renderer_view(r))
+        .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
+      const did_hit = sm.select(r_views, geometry, final, mode)
+      if (did_hit) {
+        const [rv] = r_views
+        this._emit_callback(rv, geometry, sm.source)
+      }
+    }
+
+    this._emit_selection_event(geometry)
+    this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
+  }
+
+  protected _inspect(geometry: PointGeometry, modifiers?: KeyModifiers): void {
+    for (const r of this.computed_renderers) {
+      const rv = this.plot_view.renderer_view(r)
+      if (rv == null)
+        continue
+
+      const sm = r.get_selection_manager()
+      const did_hit = sm.inspect(rv, geometry)
+      if (did_hit) {
+        this._emit_callback(rv, geometry, sm.source, modifiers)
+      }
+    }
+  }
+
+  protected _emit_callback(rv: DataRendererView, geometry: PointGeometry, source: ColumnarDataSource, modifiers?: KeyModifiers): void {
     const {callback} = this.model
-
-    if (this.model.behavior == "select") {
-      const renderers_by_source = this._computed_renderers_by_data_source()
-
-      for (const [, renderers] of renderers_by_source) {
-        const sm = renderers[0].get_selection_manager()
-        const r_views = renderers
-          .map((r) => this.plot_view.renderer_view(r))
-          .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
-        const did_hit = sm.select(r_views, geometry, final, mode)
-
-        if (did_hit && callback != null) {
-          const x = r_views[0].coordinates.x_scale.invert(geometry.sx)
-          const y = r_views[0].coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source}
-          callback.execute(this.model, data)
-        }
+    if (callback != null) {
+      const x = rv.coordinates.x_scale.invert(geometry.sx)
+      const y = rv.coordinates.y_scale.invert(geometry.sy)
+      const data = {
+        geometries: {...geometry, x, y},
+        source,
+        event: {modifiers},
       }
-
-      this._emit_selection_event(geometry)
-      this.plot_view.state.push("tap", {selection: this.plot_view.get_selection()})
-    } else {
-      for (const r of this.computed_renderers) {
-        const rv = this.plot_view.renderer_view(r)
-        if (rv == null)
-          continue
-
-        const sm = r.get_selection_manager()
-        const did_hit = sm.inspect(rv, geometry)
-
-        if (did_hit && callback != null) {
-          const x = rv.coordinates.x_scale.invert(geometry.sx)
-          const y = rv.coordinates.y_scale.invert(geometry.sy)
-          const data = {geometries: {...geometry, x, y}, source: sm.source}
-          callback.execute(this.model, data)
-        }
-      }
+      callback.execute(this.model, data)
     }
   }
 }
@@ -88,6 +109,7 @@ export namespace TapTool {
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
+    modifiers: p.Property<events.KeyModifiers>
     callback: p.Property<TapToolCallback | null>
   }
 }
@@ -106,9 +128,10 @@ export class TapTool extends SelectTool {
     this.prototype.default_view = TapToolView
 
     this.define<TapTool.Props>(({Any, Nullable}) => ({
-      behavior: [ TapBehavior, "select" ],
-      gesture:  [ TapGesture, "tap"],
-      callback: [ Nullable(Any /*TODO*/), null ],
+      behavior:  [ TapBehavior, "select" ],
+      gesture:   [ TapGesture, "tap"],
+      modifiers: [ events.KeyModifiers, {} ],
+      callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))

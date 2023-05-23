@@ -55,6 +55,7 @@ ALL  = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'KeyModifier',
     'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
@@ -211,6 +212,9 @@ class Test_bce:
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
 
+    def test_KeyModifier(self) -> None:
+        assert tuple(bce.KeyModifier) == ("shift", "ctrl", "alt")
+
     def test_LabelOrientation(self) -> None:
         assert tuple(bce.LabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
 
@@ -356,6 +360,7 @@ def test_enums_contents() -> None:
         'HorizontalLocation',
         'ImageOrigin',
         'JitterRandomDistribution',
+        'KeyModifier',
         'LabelOrientation',
         'LatLon',
         'LegendClickPolicy',

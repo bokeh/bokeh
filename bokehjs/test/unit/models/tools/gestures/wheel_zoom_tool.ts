@@ -53,7 +53,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -72,7 +72,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom out
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: -100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: -100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -91,7 +91,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -110,7 +110,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 0, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 0, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -129,7 +129,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -148,7 +148,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 0, sy: 300, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 0, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -167,7 +167,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 100, sy: 100, delta: 100, ctrl_key: false, shift_key: false, alt_key: false}
+      const zoom_event = {type: "wheel" as "wheel", sx: 100, sy: 100, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)

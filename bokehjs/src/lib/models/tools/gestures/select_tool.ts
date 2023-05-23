@@ -60,16 +60,16 @@ export abstract class SelectToolView extends GestureToolView {
     this._clear()
   }
 
-  protected _select_mode(ev: KeyModifiers): SelectionMode {
-    const {shift_key, ctrl_key} = ev
+  protected _select_mode(modifiers: KeyModifiers): SelectionMode {
+    const {shift, ctrl} = modifiers
 
-    if (!shift_key && !ctrl_key)
+    if (!shift && !ctrl)
       return this.model.mode
-    else if (shift_key && !ctrl_key)
+    else if (shift && !ctrl)
       return "append"
-    else if (!shift_key && ctrl_key)
+    else if (!shift && ctrl)
       return "intersect"
-    else if (shift_key && ctrl_key)
+    else if (shift && ctrl)
       return "subtract"
     else
       unreachable()
@@ -92,7 +92,7 @@ export abstract class SelectToolView extends GestureToolView {
     this.plot_view.request_paint(renderer_views)
   }
 
-  abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
+  protected abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
 
   protected _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame

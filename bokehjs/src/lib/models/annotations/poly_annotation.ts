@@ -237,7 +237,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
           poly: this.poly.clone(),
           target,
         }
-        this.model.pan.emit(["pan:start", ev])
+        this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
     }
@@ -271,12 +271,12 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     const ys = y.v_invert(spoly.ys)
 
     this.model.update({xs, ys})
-    this.model.pan.emit(["pan", ev])
+    this.model.pan.emit(["pan", ev.modifiers])
   }
 
   _pan_end(ev: PanEvent): void {
     this._pan_state = null
-    this.model.pan.emit(["pan:end", ev])
+    this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
   private get _has_hover(): boolean {

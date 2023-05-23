@@ -5495,6 +5495,9 @@
     ],
     behavior: "select",
     gesture: "tap",
+    modifiers: {
+      type: "map",
+    },
     callback: null,
   },
   CrosshairTool: {
