@@ -2,7 +2,8 @@ import {display} from "./_util"
 
 import json5 from "json5"
 
-import {Document, DocJson} from "@bokehjs/document"
+import type {DocJson} from "@bokehjs/document"
+import {Document} from "@bokehjs/document"
 
 async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
