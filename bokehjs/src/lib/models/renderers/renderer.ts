@@ -37,8 +37,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   declare readonly parent: PlotView
 
-  needs_webgl_blit: boolean
-
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
@@ -51,7 +49,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
-    this.needs_webgl_blit = false
   }
 
   override connect_signals(): void {

@@ -83,6 +83,10 @@ export class GraphRendererView extends DataRendererView {
     this.node_view.render()
   }
 
+  override get has_webgl(): boolean {
+    return this.edge_view.has_webgl || this.node_view.has_webgl
+  }
+
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     if (renderer instanceof GlyphRenderer) {
       if (renderer == this.edge_view.model)

@@ -921,7 +921,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       renderer_view.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
+      if (renderer_view.has_webgl) {
         this.canvas_view.blit_webgl(ctx)
       }
     }

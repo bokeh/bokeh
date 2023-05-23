@@ -29,9 +29,9 @@ export abstract class BaseGLGlyph {
     this.visuals_changed = true
   }
 
-  render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): boolean {
+  render(_ctx: Context2d, indices: number[], mainglyph: GlyphView): void {
     if (indices.length == 0) {
-      return true
+      return
     }
     const {width, height} = this.glyph.renderer.plot_view.canvas_view.webgl!.canvas
     const trans = {
@@ -40,7 +40,6 @@ export abstract class BaseGLGlyph {
       height,
     }
     this.draw(indices, mainglyph, trans)
-    return true
   }
 
   abstract draw(indices: number[], mainglyph: GlyphView, trans: Transform): void
