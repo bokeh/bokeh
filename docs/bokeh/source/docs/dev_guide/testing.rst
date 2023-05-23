@@ -202,21 +202,21 @@ Cross integration tests
 
         pytest tests/test_cross.py
 
-    and then commit any new baselines and re-run tests. Only commited
+    and then commit any new baselines and re-run tests. Only committed
     baselines are considered by the test runner.
 
-    Each test case must have a corresponding integration test in bokehjs,
+    Each test case must have a corresponding integration test in BokehJS,
     under ``bokehjs/test/integration/cross.ts``. These are equivalent to
-    typical bokehjs' integration tests. However, it's recommended that
+    typical BokehJS' integration tests. However, it's recommended that
     image diff is skipped for tests that don't require inspection of
-    visual aspectes of the output. Note that skipping image capture
+    visual aspects of the output. Note that skipping image capture
     doesn't disable generation of ``*.blf`` files.
 
-    Note that cross test cases must be carefully designed so that bokehjs
+    Note that cross test cases must be carefully designed so that BokehJS
     can run them producing consistent and repeatable output, especially
     when capturing images. As with other kinds of tests, it's permitted
     to use random data, because the test runner seeds Python's and numpy's
-    random number generators. Follow bokehjs' guidelines for creating
+    random number generators. Follow BokehJS' guidelines for creating
     robust integration tests.
 
 Run all available tests
