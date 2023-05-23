@@ -470,6 +470,12 @@ class Serializer:
 class DeserializationError(ValueError):
     pass
 
+class UnknownReferenceError(DeserializationError):
+
+    def __init__(self, id: ID) -> None:
+        super().__init__(f"can't resolve reference '{id}'")
+        self.id = id
+
 class Deserializer:
     """ Convert from serializable representations to built-in and custom types. """
 
@@ -565,7 +571,7 @@ class Deserializer:
         if instance is not None:
             return instance
         else:
-            self.error(f"can't resolve reference '{id}'")
+            self.error(UnknownReferenceError(id))
 
     def _decode_symbol(self, obj: SymbolRep) -> float:
         name = obj["name"]
@@ -712,8 +718,11 @@ class Deserializer:
             else:
                 self.error(f"can't resolve type '{type}'")
 
-    def error(self, message: str) -> NoReturn:
-        raise DeserializationError(message)
+    def error(self, error: str | DeserializationError) -> NoReturn:
+        if isinstance(error, str):
+            raise DeserializationError(error)
+        else:
+            raise error
 
 #-----------------------------------------------------------------------------
 # Dev API

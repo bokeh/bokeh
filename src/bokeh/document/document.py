@@ -46,7 +46,12 @@ from jinja2 import Template
 from ..core.enums import HoldPolicyType
 from ..core.has_props import is_DataModel
 from ..core.query import find, is_single_string_selector
-from ..core.serialization import Deserializer, Serialized, Serializer
+from ..core.serialization import (
+    Deserializer,
+    Serialized,
+    Serializer,
+    UnknownReferenceError,
+)
 from ..core.templates import FILE
 from ..core.types import ID
 from ..core.validation import check_integrity, process_validation_issues
@@ -364,7 +369,19 @@ class Document:
 
         '''
         deserializer = Deserializer(list(self.models), setter=setter)
-        patch: PatchJson = deserializer.deserialize(patch_json)
+
+        try:
+            patch: PatchJson = deserializer.deserialize(patch_json)
+        except UnknownReferenceError as error:
+            if self.models.seen(error.id):
+                logging.warning(f"""\
+Dropping a patch because it contains a previously known reference (id={error.id!r}). \
+Most of the time this is harmless and usually a result of updating a model on one \
+side of a communications channel while it was being removed on the other end.\
+""")
+                return
+            else:
+                raise
 
         events = patch["events"]
         assert isinstance(events, list) # list[DocumentPatched]
