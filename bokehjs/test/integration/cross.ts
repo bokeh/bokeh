@@ -10,8 +10,7 @@ async function test(name: string) {
   const text = await response.text()
   const doc_json = json5.parse<DocJson>(text)
   const doc = Document.from_json(doc_json)
-  const result = await display(doc)
-  return {doc, ...result}
+  return await display(doc)
 }
 
 describe("Bug", () => {
