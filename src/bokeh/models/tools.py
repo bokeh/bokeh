@@ -865,7 +865,20 @@ class BoxZoomTool(Drag):
     (top-left or bottom-right depending on direction) or the center of the box.
     """)
 
-class ZoomInTool(PlotActionTool):
+@abstract
+class ZoomBaseTool(PlotActionTool):
+    """ Abstract base class for zoom action tools. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
+    Restrict zoom to ranges used by the provided data renderers. If ``"auto"``
+    then all ranges provided by the cartesian frame will be used.
+    """)
+
+class ZoomInTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
     The zoom-in tool allows users to click a button to zoom in
@@ -893,7 +906,7 @@ class ZoomInTool(PlotActionTool):
     Percentage to zoom for each click of the zoom-in tool.
     """)
 
-class ZoomOutTool(PlotActionTool):
+class ZoomOutTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_out_icon|
 
     The zoom-out tool allows users to click a button to zoom out

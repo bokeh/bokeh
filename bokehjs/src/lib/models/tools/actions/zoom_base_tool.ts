@@ -1,4 +1,5 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
+import {DataRenderer} from "../../renderers/data_renderer"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
@@ -16,7 +17,29 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
 
     const {frame} = this.plot_view
     const {x_range, y_range} = frame.bbox
-    const {x_scales, y_scales} = frame
+
+    const x_scales = new Map(frame.x_scales)
+    const y_scales = new Map(frame.y_scales)
+
+    const {renderers} = this.model
+    if (renderers != "auto") {
+      const x_range_names = new Set<string>()
+      const y_range_names = new Set<string>()
+
+      for (const renderer of renderers) {
+        x_range_names.add(renderer.x_range_name)
+        y_range_names.add(renderer.y_range_name)
+      }
+
+      for (const name of x_scales.keys()) {
+        if (!x_range_names.has(name))
+          x_scales.delete(name)
+      }
+      for (const name of y_scales.keys()) {
+        if (!y_range_names.has(name))
+          y_scales.delete(name)
+      }
+    }
 
     const zoom_info = scale_range(x_scales, y_scales, x_range, y_range, this.factor, x_axis, y_axis)
 
@@ -35,6 +58,7 @@ export namespace ZoomBaseTool {
   export type Props = PlotActionTool.Props & {
     factor: p.Property<number>
     dimensions: p.Property<Dimensions>
+    renderers: p.Property<DataRenderer[] | "auto">
   }
 }
 
@@ -49,9 +73,10 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   }
 
   static {
-    this.define<ZoomBaseTool.Props>(({Percent}) => ({
+    this.define<ZoomBaseTool.Props>(({Percent, Or, Array, Ref, Auto}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],
+      renderers:  [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
     }))
   }
 

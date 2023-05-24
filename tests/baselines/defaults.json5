@@ -5543,13 +5543,17 @@
     match_aspect: false,
     origin: "corner",
   },
-  ZoomInTool: {
+  ZoomBaseTool: {
     __extends__: "PlotActionTool",
+    renderers: "auto",
+  },
+  ZoomInTool: {
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
   },
   ZoomOutTool: {
-    __extends__: "PlotActionTool",
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
     maintain_focus: true,
