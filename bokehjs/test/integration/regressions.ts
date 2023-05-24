@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, click, press} from "../interactive"
+import {PlotActions, xy, click, press, mouseenter} from "../interactive"
 
 import type {ArrowHead, Renderer, BasicTickFormatter} from "@bokehjs/models"
 import {
@@ -3337,13 +3337,16 @@ describe("Bug", () => {
 
   describe("in issue #12951", () => {
     it("doesn't allow usage of Tooltip in description context", async () => {
-      const tooltip = new Tooltip({content: "This does not work", position: "right"})
+      const tooltip = new Tooltip({content: "Select widget description.", position: "right"})
       const widget = new Select({title: "A dropdown", value: "Test", options: ["Test"], description: tooltip})
-      const doc = new Document()
-      doc.add_root(widget)
-      await display(doc, [200, 100])
+      const {doc, view} = await display(widget, [300, 100])
+
       const doc_json = doc.to_json()
       expect(isPlainObject(doc_json)).to.be.true
+
+      const {desc_el} = view.owner.get_one(widget)
+      assert(desc_el != null)
+      await mouseenter(desc_el)
     })
   })
 })

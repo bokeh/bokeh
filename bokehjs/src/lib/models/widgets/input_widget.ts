@@ -22,7 +22,7 @@ export abstract class InputWidgetView extends ControlView {
 
   protected input_el: HTMLInputElementLike
   protected label_el: HTMLLabelElement
-  protected desc_el: HTMLElement | null = null
+  desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
   public *controls() {

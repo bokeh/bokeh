@@ -9,15 +9,37 @@ export function xy(x: number, y: number): Point {
   return {x, y}
 }
 
-const common: Partial<PointerEventInit> = {
+const _event_common: Partial<UIEventInit> = {
   bubbles: true,
   composed: true,
+  view: window,
+}
+
+const _mouse_common: Partial<MouseEventInit> = {
+  ..._event_common,
+  shiftKey: false,
+  ctrlKey: false,
+  altKey: false,
+}
+
+export async function mouseenter(el: Element): Promise<void> {
+  const ev0 = new PointerEvent("mouseenter", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev0)
+}
+
+export async function mousleave(el: Element): Promise<void> {
+  const ev0 = new PointerEvent("mousleave", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev0)
+}
+
+const _pointer_common: Partial<PointerEventInit> = {
+  ..._event_common,
   isPrimary: true,
   pointerType: "mouse",
   pointerId: 1,
-  ctrlKey: false,
   shiftKey: false,
-  view: window,
+  ctrlKey: false,
+  altKey: false,
 }
 
 const MOVE_PRESSURE = 0.0
@@ -157,27 +179,27 @@ export class PlotActions {
 
   protected *_hover(path: Path): Iterable<MouseEvent> {
     for (const [x, y] of this._compute(path)) {
-      yield new MouseEvent("mousemove", {...common, ...this.screen({x, y})})
+      yield new MouseEvent("mousemove", {..._pointer_common, ...this.screen({x, y})})
     }
   }
 
   protected *_move(path: Path, pressure: number = MOVE_PRESSURE): Iterable<PointerEvent> {
     for (const [x, y] of this._compute(path)) {
-      yield new PointerEvent("pointermove", {...common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left})
+      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left})
     }
   }
 
   protected *_pan(path: Path): Iterable<PointerEvent> {
     const [xy0, xy1] = this._bounds(path)
-    yield new PointerEvent("pointerdown", {...common, ...this.screen(xy0), pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
+    yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
     yield* this._move(path, HOLD_PRESSURE)
-    yield new PointerEvent("pointerup",   {...common, ...this.screen(xy1), pressure: MOVE_PRESSURE})
+    yield new PointerEvent("pointerup",   {..._pointer_common, ...this.screen(xy1), pressure: MOVE_PRESSURE})
   }
 
   protected *_tap(xy: Point): Iterable<PointerEvent> {
     const sxy = this.screen(xy)
-    yield new PointerEvent("pointerdown", {...common, ...sxy, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
-    yield new PointerEvent("pointerup",   {...common, ...sxy, pressure: MOVE_PRESSURE})
+    yield new PointerEvent("pointerdown", {..._pointer_common, ...sxy, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
+    yield new PointerEvent("pointerup",   {..._pointer_common, ...sxy, pressure: MOVE_PRESSURE})
   }
 
   protected *_double_tap(xy: Point): Iterable<PointerEvent> {
