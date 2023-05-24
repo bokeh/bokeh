@@ -12,6 +12,8 @@ import type {Side} from "@bokehjs/core/enums"
 import {np} from "@bokehjs/api/linalg"
 import {Spectral11} from "@bokehjs/api/palettes"
 
+const r = String.raw
+
 describe("ColorBar annotation", () => {
   it("should support various combinations of locations and orientations", async () => {
     const random = new Random(1)
@@ -223,7 +225,9 @@ describe("ColorBar annotation", () => {
     })()
     p.circle({x, y, radius: r, fill_color: {field: "values", transform: color_mapper}, source: {values: v}})
 
-    color_bar.title = "Unspecified title"
+    if (color_bar.title == null)
+      color_bar.title = "Unspecified title"
+
     color_bar.border_line_color = "black"
 
     p.add_layout(color_bar, side)
@@ -311,6 +315,14 @@ describe("ColorBar annotation", () => {
     const color_mapper = new LinearColorMapper({palette: Spectral11})
     const color_bar = new ColorBar({color_mapper, orientation: "horizontal", width: 100, height: 200})
     const p = make_plot(color_mapper, color_bar, "right")
+    await display(p)
+  })
+
+  it("should support TeX title", async () => {
+    const color_mapper = new LinearColorMapper({palette: Spectral11})
+    const title = r`$$\text{Right: } x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$$`
+    const color_bar = new ColorBar({color_mapper, title, orientation: "horizontal"})
+    const p = make_plot(color_mapper, color_bar, "above")
     await display(p)
   })
 

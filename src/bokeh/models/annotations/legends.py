@@ -116,7 +116,7 @@ class BaseColorBar(Annotation):
     The alpha with which to render the color scale.
     """)
 
-    title = Nullable(String, help="""
+    title = Nullable(TextLike, help="""
     The title text to render.
     """)
 
