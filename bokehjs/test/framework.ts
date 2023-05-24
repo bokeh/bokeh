@@ -326,11 +326,14 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
   return {error, time}
 }
 
-export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<{views: ViewOf<HasProps>[], el: HTMLElement}>
-export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<{view: ViewOf<T>, el: HTMLElement}>
+type DisplayMultiple = {views: ViewOf<HasProps>[], doc: Document, el: HTMLElement}
+type DisplaySingle<T extends UIElement> = {view: ViewOf<T>, doc: Document, el: HTMLElement}
+
+export async function display(obj: Document, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<DisplayMultiple>
+export async function display<T extends UIElement>(obj: T, viewport?: [number, number] | "auto" | null, el?: HTMLElement | null): Promise<DisplaySingle<T>>
 
 export async function display(obj: Document | UIElement, viewport: [number, number] | "auto" | null = "auto",
-    el?: HTMLElement | null): Promise<{view: ViewOf<HasProps>, el: HTMLElement} | {views: ViewOf<HasProps>[], el: HTMLElement}> {
+    el?: HTMLElement | null): Promise<DisplaySingle<UIElement> | DisplayMultiple> {
   const test = current_test
   assert(test != null, "display() must be called in it(...) or before*() blocks")
 
@@ -380,9 +383,9 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   test.el = viewport_el
   test.viewport = size ?? undefined
   if (obj instanceof Document)
-    return {views: test.views, el: viewport_el}
+    return {views: test.views, doc, el: viewport_el}
   else
-    return {view: test.views[0], el: viewport_el}
+    return {view: test.views[0] as UIElementView, doc, el: viewport_el}
 }
 
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {

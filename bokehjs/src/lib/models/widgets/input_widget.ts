@@ -22,7 +22,7 @@ export abstract class InputWidgetView extends ControlView {
 
   protected input_el: HTMLInputElementLike
   protected label_el: HTMLLabelElement
-  protected desc_el: HTMLElement | null = null
+  desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
   public *controls() {
@@ -78,7 +78,9 @@ export abstract class InputWidgetView extends ControlView {
         assert(description != null)
 
         const {desc_el} = this
-        description.model.target = desc_el
+        if (description.model.target == "auto") {
+          description.target = desc_el
+        }
 
         let persistent = false
 

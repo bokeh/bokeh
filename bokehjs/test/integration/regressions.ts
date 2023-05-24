@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, click, press} from "../interactive"
+import {PlotActions, xy, click, press, mouseenter} from "../interactive"
 
 import type {ArrowHead, Renderer, BasicTickFormatter} from "@bokehjs/models"
 import {
@@ -27,6 +27,7 @@ import {
   Jitter,
   ParkMillerLCG,
   GridPlot,
+  Tooltip,
 } from "@bokehjs/models"
 
 import {
@@ -45,7 +46,7 @@ import type {Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
-import {isArray} from "@bokehjs/core/util/types"
+import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {Random} from "@bokehjs/core/util/random"
@@ -3331,6 +3332,21 @@ describe("Bug", () => {
       } finally {
         settings.force_webgl = force_webgl
       }
+    })
+  })
+
+  describe("in issue #12951", () => {
+    it("doesn't allow usage of Tooltip in description context", async () => {
+      const tooltip = new Tooltip({content: "Select widget description.", position: "right"})
+      const widget = new Select({title: "A dropdown", value: "Test", options: ["Test"], description: tooltip})
+      const {doc, view} = await display(widget, [300, 100])
+
+      const doc_json = doc.to_json()
+      expect(isPlainObject(doc_json)).to.be.true
+
+      const {desc_el} = view.owner.get_one(widget)
+      assert(desc_el != null)
+      await mouseenter(desc_el)
     })
   })
 })
