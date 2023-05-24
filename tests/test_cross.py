@@ -185,7 +185,7 @@ def git(*args: str) -> tuple[int, str, str]:
     return (proc.returncode, out, err)
 
 def load_baseline(baseline_path: Path, ref: str = "HEAD") -> str | None:
-    status, out, _ = git("show", f"{ref}:./{str(baseline_path)}")
+    status, out, _ = git("show", f"{ref}:./{baseline_path!s}")
     return out if status == 0 else None
 
 def diff_baseline(baseline_path: Path, ref: str = "HEAD") -> tuple[int, str, str]:
