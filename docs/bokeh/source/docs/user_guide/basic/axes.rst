@@ -90,11 +90,6 @@ For information on how to set your own ranges, see
 .. bokeh-plot:: __REPO__/examples/basic/axes/log_scale_axis.py
     :source-position: above
 
-Mercator axes
-~~~~~~~~~~~~~
-
-.. TODO (bv) comments
-
 .. _ug_basic_axes_twin:
 
 Twin axes

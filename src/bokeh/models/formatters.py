@@ -403,7 +403,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     ``DatetimeTickFormatter`` has the following properties (listed together
     with their default values) that can be used to control the formatting
-    of axis ticks at different scales scales:
+    of axis ticks at different scales:
 
     .. code-block:: python
 
