@@ -683,7 +683,7 @@ class TapTool(Tap, SelectTool):
     Allows to configure a combination of modifier keys, which need to
     be pressed during the selected gesture for this tool to trigger.
 
-    .. warn::
+    .. warning::
         Configuring modifiers is a platform dependent feature and
         can make this tool unsable for example on mobile devices.
 
