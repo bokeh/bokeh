@@ -47,7 +47,7 @@ jobs:
       - name: Install sampledata
         run: python src/bokeh/util/sampledata.py
 
-      - name: Post install status
+      - name: List installed software
         run: |
           echo "node $(node --version)"
           echo "npm $(npm --version)"
