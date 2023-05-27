@@ -34,7 +34,7 @@ Follow these steps to create a ``ColumnDataSource`` directly:
 
 .. code-block:: python
 
-    from bokeh.plotting import figure
+    from bokeh.plotting import figure, show
     from bokeh.models import ColumnDataSource
 
     # create dict as basis for ColumnDataSource
@@ -47,6 +47,7 @@ Follow these steps to create a ``ColumnDataSource`` directly:
     # create a plot and renderer with ColumnDataSource data
     p = figure()
     p.circle(x='x_values', y='y_values', source=source)
+    show(p)
 
 .. seealso::
    For more information on Bokeh's ``ColumnDataSource``, see
