@@ -45,8 +45,8 @@ Follow these steps to create a ``ColumnDataSource`` directly:
     source = ColumnDataSource(data=data)
 
     # create a plot and renderer with ColumnDataSource data
-    p = figure()
-    p.circle(x='x_values', y='y_values', source=source)
+    p = figure(height=250)
+    p.circle(x='x_values', y='y_values', size=20, source=source)
     show(p)
 
 .. seealso::
