@@ -75,7 +75,7 @@ Image URLs
 
 It is also possible to make scatter plots using arbitrary images for markers
 using the |image_url| glyph method. The example below demonstrates using a
-single image, but it is possible to pass a column of differnet URLs for every
+single image, but it is possible to pass a column of different URLs for every
 point.
 
 .. note::

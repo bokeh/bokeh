@@ -226,15 +226,12 @@ For example: If a ``DataFrame`` has the columns ``'year'`` and ``'mpg'``,
 passing ``df.groupby('year')`` to a ColumnDataSource will result in columns such
 as ``'mpg_mean'``.
 
-.. note::
-    Adapting ``GroupBy`` objects requires pandas version 0.20.0 or above.
-
 .. _ug_basic_data_cds_streaming:
 
 Appending data to a ColumnDataSource
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-|ColumnDataSource| streaming is an efficient way to append new data to a
+ColumnDataSource streaming is an efficient way to append new data to a
 ColumnDataSource. When you use the
 :func:`~bokeh.models.sources.ColumnDataSource.stream` method, Bokeh only sends
 new data to the browser instead of sending the entire dataset.
@@ -403,8 +400,9 @@ transformed values:
     plot.line(x='aapl_date', y=transform('aapl_close', normalize), line_width=2,
               color='#cf3c4d', alpha=0.6,legend="Apple", source=aapl_source)
 
-The code in this example converts raw price data into a sequence of normalized
-returns that are relative to the first data point:
+See the full example at :bokeh-tree:`examples/basic/data/transform_customjs.py` that
+converts raw price data into a sequence of normalized returns that are relative to
+the first data point:
 
 .. bokeh-plot:: __REPO__/examples/basic/data/transform_customjs.py
     :source-position: none
@@ -426,9 +424,9 @@ A |CDSView| has one property, ``filter``:
 
 * ``filter`` is an instance of |Filter| model, listed and described below.
 
-In this example, you create a |CDSView| called ``view``. ``view`` uses the
-ColumnDataSource ``source`` and an intersection of two filters, ``filter1``
-and ``filter2``. ``view`` is then passed to a :func:`~bokeh.plotting.figure.circle`
+In this example, you create a ColumnDataSource ``source`` and a |CDSView| called ``view``
+that uses intersection of two filters, ``filter1`` and ``filter2``.
+The ``source`` and ``view`` are then passed to a :func:`~bokeh.plotting.figure.circle`
 renderer function:
 
 .. code-block:: python
@@ -483,7 +481,7 @@ In the example below, the data set ``flowers`` contains a categorical variable
 called ``species``. All data belongs to one of the three species categories
 ``setosa``, ``versicolor``, or ``virginica``. The second plot in this example
 uses a |GroupFilter| to only display data points that are a member of the
-category ``setosa``:
+category ``versicolor``:
 
 .. bokeh-plot:: __REPO__/examples/basic/data/filter_group.py
     :source-position: above
@@ -537,7 +535,7 @@ interval. It then uses the data from the endpoint to update the data locally.
 Updating data locally can happen in two ways: either by replacing the existing
 local data entirely or by appending the new data to the existing data (up to a
 configurable ``max_size``). Replacing local data is the default setting. Pass
-either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
+either ``"replace"`` or ``"append"`` as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` should return a

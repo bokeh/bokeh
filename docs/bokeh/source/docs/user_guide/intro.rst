@@ -322,7 +322,7 @@ For example, to create and configure a |Rect| glyph object:
 .. code-block:: python
 
     # configure attributes when initializing a model object
-    glyph = Rect(x="x", y="y2", w=10, h=20, line_color=None)
+    glyph = Rect(x="x", y="y2", width=10, height=20, line_color=None)
 
     # assign values to attributes to an existing model object
     glyph.fill_alpha = 0.5

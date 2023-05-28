@@ -13,7 +13,7 @@ Rectangles
 Bars
 ~~~~
 
-.. TODO: refs to bars
+See :ref:`ug_basic_bars`
 
 Quads
 ~~~~~
@@ -34,8 +34,8 @@ glyph function:
 .. bokeh-plot:: __REPO__/examples/basic/areas/block.py
     :source-position: above
 
-Rotatable
-~~~~~~~~~
+Rectangles
+~~~~~~~~~~
 
 To draw arbitrary rectangles by specifying center coordinates, ``width``,
 ``height``, and ``angle``, use the |rect| glyph function:

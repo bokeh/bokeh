@@ -101,8 +101,8 @@ Twin axes
 ---------
 
 You can add multiple axes representing different ranges to a single plot. To do
-this, configure the plot with "extra" named ranges in the ``extra_x_range`` and
-``extra_y_range`` properties. You can then refer to these named ranges when
+this, configure the plot with "extra" named ranges in the ``extra_x_ranges`` and
+``extra_y_ranges`` properties. You can then refer to these named ranges when
 adding new glyph methods as well as when adding new axis objects with the
 ``add_layout`` method of the |plot|. Here's an example:
 
