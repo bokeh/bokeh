@@ -69,10 +69,6 @@ these parameters.
 .. bokeh-plot:: __REPO__/examples/basic/axes/datetime_axis.py
     :source-position: above
 
-.. note::
-    Future versions of Bokeh will attempt to auto-detect situations when
-    datetime axes are appropriate and add them automatically.
-
 Log scale axes
 ~~~~~~~~~~~~~~
 
