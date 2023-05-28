@@ -90,6 +90,16 @@ For information on how to set your own ranges, see
 .. bokeh-plot:: __REPO__/examples/basic/axes/log_scale_axis.py
     :source-position: above
 
+Mercator axes
+~~~~~~~~~~~~~
+
+Mercator axes are useful for tile sources. You can use the same |figure| arguments, ``x_axis_type`` and ``y_axis_type``,
+to set one or both of the axes to ``"mercator"``.
+
+.. bokeh-plot:: __REPO__/examples/topics/geo/tile_source.py
+   :source-position: above
+
+
 .. _ug_basic_axes_twin:
 
 Twin axes
