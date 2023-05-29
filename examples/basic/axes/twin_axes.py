@@ -9,7 +9,7 @@ for the label values.
 '''
 from numpy import arange, linspace, pi, sin
 
-from bokeh.models import LinearAxis, Range1d, ZoomInTool, ZoomOutTool
+from bokeh.models import LinearAxis, Range1d, WheelZoomTool, ZoomInTool, ZoomOutTool
 from bokeh.palettes import Sunset6
 from bokeh.plotting import figure, show
 
@@ -19,7 +19,7 @@ y2 = linspace(0, 100, len(x))
 
 blue, red = Sunset6[2], Sunset6[5]
 
-p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1))
+p = figure(x_range=(-2*pi, 2*pi), y_range=(-1, 1), tools="pan,box_zoom,save,reset")
 p.background_fill_color = "#fafafa"
 
 blue_circles = p.scatter(x, y, line_color="black", fill_color=blue, size=12)
@@ -49,11 +49,15 @@ ax3 = LinearAxis(
 ax3.axis_label_text_color = red
 p.add_layout(ax3, 'below')
 
+wheel_zoom = WheelZoomTool(zoom_on_axis="individual")
+p.add_tools(wheel_zoom)
+
 zoom_in_blue = ZoomInTool(renderers=[blue_circles], description="Zoom in blue circles")
 zoom_out_blue = ZoomOutTool(renderers=[blue_circles], description="Zoom out blue circles")
+p.add_tools(zoom_in_blue, zoom_out_blue)
+
 zoom_in_red = ZoomInTool(renderers=[red_circles], description="Zoom in red circles")
 zoom_out_red = ZoomOutTool(renderers=[red_circles], description="Zoom out red circles")
-p.add_tools(zoom_in_blue, zoom_out_blue)
 p.add_tools(zoom_in_red, zoom_out_red)
 
 show(p)
