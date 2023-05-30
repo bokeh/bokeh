@@ -7,6 +7,9 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot} from "@bokehjs/models/plots/plot"
+//import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
+
+const modifiers = {ctrl: false, shift: false, alt: false}
 
 describe("WheelZoomTool", () => {
 
@@ -34,14 +37,20 @@ describe("WheelZoomTool", () => {
   })
 
   describe("View", () => {
-    // Note default plot dimensions is 600 x 600 (height x width)
+    // Note default plot dimensions is 600 x 600 (width x height)
     // This is why zooming at {sx: 300, sy: 300} causes the x/y ranges to zoom equally
     async function mkplot(tool: Tool): Promise<PlotView> {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
+        toolbar_location: null,
+        min_border: 0,
+        inner_width: 600 - 2*5,
+        inner_height: 600 - 2*5,
       })
       plot.add_tools(tool)
+      //plot.add_layout(new LinearAxis(), "below")
+      //plot.add_layout(new LinearAxis(), "right")
       const {view} = await display(plot)
       return view
     }
@@ -53,13 +62,13 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
+      expect([hr.start, hr.end]).to.be.similar([-0.833333, 0.833333])
 
       const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
@@ -72,13 +81,13 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom out
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: -100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: -100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-1.174041, 1.159292])
+      expect([hr.start, hr.end]).to.be.similar([-1.166666, 1.166666])
 
       const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.166666, 1.166666])
@@ -91,13 +100,13 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
+      expect([hr.start, hr.end]).to.be.similar([-0.833333, 0.833333])
 
       const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
@@ -110,13 +119,13 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 0, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 0, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-0.825958, 0.840707])
+      expect([hr.start, hr.end]).to.be.similar([-0.833333, 0.833333])
 
       const vr = plot_view.frame.y_range
       expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
@@ -129,7 +138,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 300, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -148,7 +157,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 0, sy: 300, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 0, sy: 300, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
@@ -167,16 +176,21 @@ describe("WheelZoomTool", () => {
       const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
 
       // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 100, sy: 100, delta: 100, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event = {type: "wheel" as "wheel", sx: 100, sy: 100, delta: 100, modifiers}
 
       // perform the tool action
       wheel_zoom_view._scroll(zoom_event)
 
       const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-0.943952, 0.722713])
-
       const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.similar([-0.720338, 0.946327])
+
+      expect({
+        x_axis: [hr.start, hr.end],
+        y_axis: [vr.start, vr.end],
+      }).to.be.similar({
+        x_axis: [-0.944444, 0.722222],
+        y_axis: [-0.722222, 0.944444],
+      })
     })
   })
 })
