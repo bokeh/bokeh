@@ -51,6 +51,8 @@ from ..util.compiler import bundle_models
 from .util import contains_tex_string, is_tex_string
 
 if TYPE_CHECKING:
+    from typing_extensions import NotRequired
+
     from ..resources import Hashes
 
 #-----------------------------------------------------------------------------
@@ -246,11 +248,11 @@ class ExtensionEmbed:
     server_url: str
     cdn_url: str | None = None
 
-class Pkg(TypedDict, total=False):
-    name: str
-    version: str
-    module: str
-    main: str
+class Pkg(TypedDict):
+    name: NotRequired[str]
+    version: NotRequired[str]
+    module: NotRequired[str]
+    main: NotRequired[str]
 
 extension_dirs: dict[str, Path] = {}
 

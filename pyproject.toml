@@ -256,6 +256,7 @@ module = [
     "tests.codebase.*",
     "tests.support.defaults",
     "tests.test_bokehjs",
+    "tests.test_cross",
     "tests.test_defaults",
     "tests.test_examples",
     "tests.unit.bokeh.document.test_callbacks__document",

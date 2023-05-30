@@ -236,6 +236,9 @@ jobs:
       - name: Test defaults
         run: pytest tests/test_defaults.py
 
+      - name: Test cross
+        run: pytest tests/test_cross.py
+
       - name: Run tests
         if: success() || failure()
         run: pytest --cov=bokeh --cov-report=xml --color=yes tests/unit

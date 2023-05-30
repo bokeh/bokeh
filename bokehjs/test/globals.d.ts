@@ -13,6 +13,7 @@ declare type It = Decl & {
   skip: Decl
   allowing: (settings: number | TestSettings) => Decl
   dpr: (dpr: number) => Decl
+  no_image: Decl
 }
 
 declare const describe: Decl

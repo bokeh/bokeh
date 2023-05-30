@@ -66,7 +66,7 @@ from .serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..client.session import ClientSession
     from ..server.session import ServerSession
@@ -294,7 +294,10 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 continue
             setattr(self, name, value)
 
-        for name in self.properties() - set(properties.keys()):
+        initialized = set(properties.keys())
+        for name in self.properties(_with_props=True): # avoid set[] for deterministic behavior
+            if name in initialized:
+                continue
             desc = self.lookup(name)
             if desc.has_unstable_default(self):
                 desc._get(self) # this fills-in `_unstable_*_values`
@@ -745,23 +748,21 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
 KindRef = Any # TODO
 
-class _PropertyDef(TypedDict):
+class PropertyDef(TypedDict):
     name: str
     kind: KindRef
-class PropertyDef(_PropertyDef, total=False):
-    default: Any
+    default: NotRequired[Any]
 
 class OverrideDef(TypedDict):
     name: str
     default: Any
 
-class _ModelDef(TypedDict):
+class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-class ModelDef(_ModelDef, total=False):
-    extends: Ref | None
-    properties: list[PropertyDef]
-    overrides: list[OverrideDef]
+    extends: NotRequired[Ref | None]
+    properties: NotRequired[list[PropertyDef]]
+    overrides: NotRequired[list[OverrideDef]]
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model
