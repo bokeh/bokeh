@@ -43,7 +43,7 @@
     }],
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
-    "@typescript-eslint/no-unnecessary-condition": ["warn", {"allowConstantLoopConditions": true}],
+    "@typescript-eslint/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
     "@typescript-eslint/strict-boolean-expressions": ["error", {
       "allowAny": true,
       "allowString": false,
