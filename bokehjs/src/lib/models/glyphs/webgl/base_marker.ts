@@ -5,6 +5,8 @@ import {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
 import type {LineProps, FillProps, HatchProps, MarkerGlyphProps, GLMarkerType} from "./types"
 import {marker_type_to_size_hint} from "./webgl_utils"
 import type * as visuals from "core/visuals"
+import type * as p from "core/properties"
+import type {HatchPattern} from "core/property_mixins"
 
 export type MarkerVisuals = {
   readonly line: visuals.LineVector
@@ -138,7 +140,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
     this._have_hatch = hatch.doit
     if (this._have_hatch) {
-      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern)
+      this._hatch_patterns.set_from_hatch_pattern(hatch.hatch_pattern as p.Uniform<HatchPattern>)
       this._hatch_scales.set_from_prop(hatch.hatch_scale)
       this._hatch_weights.set_from_prop(hatch.hatch_weight)
       this._hatch_rgba.set_from_color(hatch.hatch_color, hatch.hatch_alpha)

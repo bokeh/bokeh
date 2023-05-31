@@ -23,7 +23,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   protected _color: number[]
   protected _linewidth: number
-  protected _line_dash: number[]
+  protected _line_dash: number[] | null = null
   protected _is_closed: boolean
 
   // Only needed if line has dashes.
