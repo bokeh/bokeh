@@ -89,7 +89,7 @@ Some guidelines and tips to keep in mind when working on BokehJS:
 Always lint your BokehJS code with ESLint_: From the :bokeh-tree:`bokehjs`
 directory, run ``node make lint`` to check your code. Run
 ``node make lint --fix`` to have ESLint fix some problems automatically. For
-more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
+more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.js`.
 
 .. tip::
   If you use VSCode, you can use the following configuration for your workspace
@@ -104,7 +104,7 @@ more details, see the rules defined in :bokeh-tree:`bokehjs/eslint.json`.
         "eslint.options": {
           "cache": true,
           "extensions": [".ts"],
-          "overrideConfigFile": "./eslint.json"
+          "overrideConfigFile": "./eslint.js"
         },
         "eslint.workingDirectories": [
           "./bokehjs"
