@@ -22,8 +22,8 @@ export class ServerSentDataSource extends WebDataSource {
     if (!this.initialized) {
       this.initialized = true
       const source = new EventSource(this.data_url)
-      source.onmessage = (event) => {
-        this.load_data(JSON.parse(event.data), this.mode, this.max_size ?? undefined)
+      source.onmessage = async (event) => {
+        await this.load_data(JSON.parse(event.data), this.mode, this.max_size ?? undefined)
       }
     }
   }

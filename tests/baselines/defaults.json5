@@ -170,12 +170,19 @@
     url: "http://",
     same_tab: false,
   },
-  CustomJS: {
+  CustomCode: {
     __extends__: "Callback",
+  },
+  CustomJS: {
+    __extends__: "CustomCode",
     args: {
       type: "map",
     },
-    code: "",
+    code: {
+      type: "symbol",
+      name: "unset",
+    },
+    module: "auto",
   },
   SetValue: {
     __extends__: "Callback",

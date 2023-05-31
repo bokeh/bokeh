@@ -80,10 +80,10 @@ export class AjaxDataSource extends WebDataSource {
     return xhr
   }
 
-  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): void {
-    if (xhr.status === 200) {
+  async do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): Promise<void> {
+    if (xhr.status == 200) {
       const raw_data = JSON.parse(xhr.responseText)
-      this.load_data(raw_data, mode, max_size)
+      await this.load_data(raw_data, mode, max_size)
     }
   }
 

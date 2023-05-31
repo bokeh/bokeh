@@ -43,7 +43,7 @@ if TYPE_CHECKING:
     from ..core.query import SelectorType
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
-    from ..models.callbacks import Callback as JSEventCallback
+    from ..models.callbacks import Callback as JSEventCallback, CustomCode as JSChangeCallback
     from ..util.callback_manager import PropertyCallback
 
 #-----------------------------------------------------------------------------
@@ -398,7 +398,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         self.js_on_change(attr, cb)
 
-    def js_on_change(self, event: str, *callbacks: JSEventCallback) -> None:
+    def js_on_change(self, event: str, *callbacks: JSChangeCallback) -> None:
         ''' Attach a :class:`~bokeh.models.CustomJS` callback to an arbitrary
         BokehJS model event.
 
@@ -427,9 +427,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             raise ValueError("js_on_change takes an event name and one or more callbacks, got only one parameter")
 
         # handle any CustomJS callbacks here
-        from bokeh.models import CustomJS
-        if not all(isinstance(x, CustomJS) for x in callbacks):
-            raise ValueError("not all callback values are CustomJS instances")
+        from bokeh.models.callbacks import CustomCode
+        if not all(isinstance(x, CustomCode) for x in callbacks):
+            raise ValueError("not all callback values are CustomCode instances")
 
         descriptor = self.lookup(event, raises=False)
         if descriptor is not None:

@@ -67,9 +67,13 @@ export function unzip<A, B, C>(ABCs: [A, B, C][]): [A[], B[], C[]]
 export function unzip<T>(arrays: T[][]): T[][]
 export function unzip(array: unknown[][]): unknown[][] {
   const n = array.length
-  const k = min(array.map((a) => a.length))
+  if (n == 0) {
+    return []
+  }
 
+  const k = min(array.map((a) => a.length))
   const results: unknown[][] = Array(k)
+
   for (let j = 0; j < k; j++)
     results[j] = new Array(n)
 

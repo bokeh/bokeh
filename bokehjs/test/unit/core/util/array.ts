@@ -63,6 +63,8 @@ describe("core/util/array module", () => {
   })
 
   it("unzip should use generate two arrays in a list", () => {
+    expect(array.unzip<unknown>([])).to.be.equal([])
+
     const a = [0, 1, 2]
     const b = [1, 5, 2]
     expect(array.unzip([[0, 1], [1, 5], [2, 2]])).to.be.equal([a, b])

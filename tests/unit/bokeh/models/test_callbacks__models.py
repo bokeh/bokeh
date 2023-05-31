@@ -16,6 +16,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from pathlib import Path
+from unittest.mock import mock_open, patch
+
 # External imports
 from pytest import raises
 
@@ -46,6 +50,26 @@ def test_js_callback() -> None:
 
     with raises(AttributeError):  # kwargs not supported
         CustomJS(code="foo();", x=slider)
+
+def test_CustomJS_from_code_mjs() -> None:
+    slider = Slider()
+    with patch("builtins.open", mock_open(read_data="export default () => 'ESM'")):
+        cb = CustomJS.from_file(Path("some/module.mjs"), some="something", slider=slider)
+    assert cb.module is True
+    assert cb.code == "export default () => 'ESM'"
+    assert cb.args == dict(some="something", slider=slider)
+
+def test_CustomJS_from_code_js() -> None:
+    slider = Slider()
+    with patch("builtins.open", mock_open(read_data="return 'function'")):
+        cb = CustomJS.from_file(Path("some/module.js"), some="something", slider=slider)
+    assert cb.module is False
+    assert cb.code == "return 'function'"
+    assert cb.args == dict(some="something", slider=slider)
+
+def test_CustomJS_from_code_bad_file_type() -> None:
+    with pytest.raises(RuntimeError):
+        CustomJS.from_file(Path("some/module.css"))
 
 #-----------------------------------------------------------------------------
 # Dev API
