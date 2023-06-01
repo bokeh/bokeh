@@ -6,7 +6,6 @@
     :keywords: theme
 
 '''
-
 import numpy as np
 
 from bokeh.io import curdoc, show
