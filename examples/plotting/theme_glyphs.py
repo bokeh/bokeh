@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :apis: bokeh.themes.Theme
     :refs: :ref:`ug_styling_using_themes_custom`
-    :keywords: Custom Theme, JSON
+    :keywords: theme
 
 '''
 
