@@ -1,4 +1,4 @@
-'''This example shows how to to create and use your custom theme in a Bokeh plot with JSON.
+'''This example shows how to create and use your custom theme in a Bokeh plot with JSON.
 
 .. bokeh-example-metadata::
     :apis: bokeh.themes.Theme
