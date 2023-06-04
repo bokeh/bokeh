@@ -438,6 +438,9 @@ class PrioritizedSetting(Generic[T]):
     def __set__(self, instance: Any, value: str | T) -> None:
         self.set_value(value)
 
+    def __delete__(self, instance: Any) -> None:
+        self.unset_value()
+
     def set_value(self, value: str | T) -> None:
         ''' Specify a value for this setting programmatically.
 
