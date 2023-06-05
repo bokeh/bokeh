@@ -115,13 +115,15 @@ def test__get_save_args_missing_title(mock_warn: MagicMock) -> None:
 @patch("bokeh.embed.file_html")
 def test__save_helper(mock_file_html: MagicMock, mock_open: MagicMock) -> None:
     obj = Plot()
+
     filename, resources, title = bis._get_save_args(curstate(), "filename", "inline", "title")
+    mock_open.reset_mock() # remove this entry: call('/usr/share/zoneinfo/UTC', 'rb')
 
     bis._save_helper(obj, filename, resources, title, None)
 
     assert mock_file_html.call_count == 1
-    assert mock_file_html.call_args[0] == (obj, resources)
-    assert mock_file_html.call_args[1] == dict(title="title", template=FILE, theme=None)
+    assert mock_file_html.call_args[0] == (obj,)
+    assert mock_file_html.call_args[1] == dict(resources=resources, title="title", template=FILE, theme=None)
 
     assert mock_open.call_count == 1
     assert mock_open.call_args[0] == (filename,)
