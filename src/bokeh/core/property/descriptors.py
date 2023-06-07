@@ -535,6 +535,8 @@ class PropertyDescriptor(Generic[T]):
         if self.name in unstable_dict:
             return unstable_dict[self.name]
 
+        # Ensure we do not look up the default until after we check if it already present
+        # in the unstable_dict because it is a very expensive operation
         default = self.instance_default(obj)
 
         if self.has_unstable_default(obj):
