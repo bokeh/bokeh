@@ -5960,6 +5960,7 @@
   },
   Widget: {
     __extends__: "LayoutDOM",
+    margin: 5,
   },
   ButtonLike: {
     button_type: "default",
