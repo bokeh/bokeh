@@ -23,7 +23,7 @@ export class ImageStackView extends ImageBaseView {
 
   protected _update_image(): void {
     // Only reset image_data if already initialized
-    if (this.image_data != null) {
+    if (this._image_data != null) {
       this._set_data(null)
       this.renderer.request_render()
     }

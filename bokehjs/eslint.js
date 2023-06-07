@@ -1,4 +1,4 @@
-{
+module.exports = {
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": [
@@ -11,10 +11,10 @@
       "./test/integration/tsconfig.json",
       "./test/codebase/tsconfig.json",
       "./test/devtools/tsconfig.json",
-      "./examples/tsconfig.json"
+      "./examples/tsconfig.json",
     ],
     "tsconfigRootDir": ".",
-    "sourceType": "module"
+    "sourceType": "module",
   },
   "plugins": ["@typescript-eslint"],
   "extends": [],
@@ -23,27 +23,27 @@
       "types": {
         "Function": false,
         "object": false,
-        "{}": false
+        "{}": false,
       }
     }],
     "@typescript-eslint/consistent-type-assertions": "error",
     "@typescript-eslint/consistent-type-imports": ["error", {
       "prefer": "type-imports",
-      "fixStyle": "separate-type-imports"
+      "fixStyle": "separate-type-imports",
     }],
     "@typescript-eslint/member-delimiter-style": ["error", {
       "multiline": {
         "delimiter": "none",
-        "requireLast": true
+        "requireLast": true,
       },
       "singleline": {
         "delimiter": "comma",
-        "requireLast": false
+        "requireLast": false,
       }
     }],
     "@typescript-eslint/semi": ["error", "never"],
     "@typescript-eslint/type-annotation-spacing": ["error"],
-    "@typescript-eslint/no-unnecessary-condition": ["warn", {"allowConstantLoopConditions": true}],
+    "@typescript-eslint/no-unnecessary-condition": ["error", {"allowConstantLoopConditions": true}],
     "@typescript-eslint/strict-boolean-expressions": ["error", {
       "allowAny": true,
       "allowString": false,
@@ -51,7 +51,7 @@
       "allowNullableObject": false,
       "allowNullableBoolean": false,
       "allowNullableString": false,
-      "allowNullableNumber": false
+      "allowNullableNumber": false,
     }],
     "@typescript-eslint/no-unnecessary-type-assertion": ["error"],
     "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
@@ -67,7 +67,7 @@
       "functions": "always-multiline",
       "enums": "always-multiline",
       "generics": "always-multiline",
-      "tuples": "always-multiline"
+      "tuples": "always-multiline",
     }],
     "comma-spacing": ["error", {"before": false, "after": true}],
     "dot-notation": "error",
@@ -83,7 +83,7 @@
       "CallExpression": {"arguments": 1},
       "FunctionDeclaration": {"body": 1, "parameters": "off"},
       "FunctionExpression": {"body": 1, "parameters": "off"},
-      "ignoredNodes": ["ConditionalExpression"]
+      "ignoredNodes": ["ConditionalExpression"],
     }],
     "no-debugger": "error",
     "no-floating-decimal": ["error"],
@@ -102,7 +102,7 @@
     "space-before-function-paren": ["error", {
       "anonymous": "never",
       "named": "never",
-      "asyncArrow": "always"
+      "asyncArrow": "always",
     }],
     "space-in-parens": ["error", "never"],
     "keyword-spacing": ["error", {"before": true, "after": true}],
@@ -112,12 +112,12 @@
     "key-spacing": ["error", {
       "beforeColon": false,
       "afterColon": true,
-      "mode": "minimum"
+      "mode": "minimum",
     }],
     "space-unary-ops": ["error", {
       "words": true,
       "nonwords": false,
-      "overrides": {}
+      "overrides": {},
     }],
     "guard-for-in": ["error"],
     "quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": false}],
@@ -126,7 +126,7 @@
       "before": false,
       "after": true,
       "anonymous": {"before": false, "after": true},
-      "method": {"before": true, "after": false}
+      "method": {"before": true, "after": false},
     }],
     "yield-star-spacing": ["error", {"before": false, "after": true}]
   }

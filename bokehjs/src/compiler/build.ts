@@ -351,7 +351,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       return false
   }
 
-  const lint_config = join(base_dir, "eslint.json")
+  const lint_config = join(base_dir, "eslint.js")
   if (file_exists(lint_config)) {
     print("Linting sources")
     lint(lint_config, files)

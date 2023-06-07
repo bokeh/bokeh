@@ -100,7 +100,7 @@ export class HatchScalar extends VisualUniforms {
   declare readonly hatch_color: p.UniformScalar<uint32>
   declare readonly hatch_alpha: p.UniformScalar<number>
   declare readonly hatch_scale: p.UniformScalar<number>
-  declare readonly hatch_pattern: p.UniformScalar<string>
+  declare readonly hatch_pattern: p.UniformScalar<string | null>
   declare readonly hatch_weight: p.UniformScalar<number>
   declare readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
@@ -113,7 +113,7 @@ export class HatchScalar extends VisualUniforms {
     const alpha = this.hatch_alpha.value
     const pattern = this.hatch_pattern.value
 
-    return !(color == null || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
+    return !(color == 0 || alpha == 0 || pattern == " " || pattern == "blank" || pattern == null)
   }
 
   protected _update_iteration: number = 0
@@ -131,7 +131,7 @@ export class HatchScalar extends VisualUniforms {
     const color = this.hatch_color.value
     const alpha = this.hatch_alpha.value
     const scale = this.hatch_scale.value
-    const pattern = this.hatch_pattern.value
+    const pattern = this.hatch_pattern.value!
     const weight = this.hatch_weight.value
 
     const finalize = (image: CanvasImageSource) => {
@@ -187,17 +187,18 @@ export class HatchScalar extends VisualUniforms {
 
   repetition(): CanvasPatternRepetition {
     const pattern = this.hatch_pattern.value
-    const texture = this.hatch_extra.value[pattern]
-    if (texture == null)
-      return "repeat"
-    else {
-      switch (texture.repetition) {
-        case "repeat":    return "repeat"
-        case "repeat_x":  return "repeat-x"
-        case "repeat_y":  return "repeat-y"
-        case "no_repeat": return "no-repeat"
+    if (pattern != null) {
+      const texture = this.hatch_extra.value[pattern]
+      if (texture != null) {
+        switch (texture.repetition) {
+          case "repeat":    return "repeat"
+          case "repeat_x":  return "repeat-x"
+          case "repeat_y":  return "repeat-y"
+          case "no_repeat": return "no-repeat"
+        }
       }
     }
+    return "repeat"
   }
 }
 
@@ -205,7 +206,7 @@ export class HatchVector extends VisualUniforms {
   declare readonly hatch_color: p.Uniform<uint32>
   declare readonly hatch_alpha: p.Uniform<number>
   declare readonly hatch_scale: p.Uniform<number>
-  declare readonly hatch_pattern: p.Uniform<string>
+  declare readonly hatch_pattern: p.Uniform<string | null>
   declare readonly hatch_weight: p.Uniform<number>
   declare readonly hatch_extra: p.UniformScalar<mixins.HatchExtra>
 
@@ -274,7 +275,7 @@ export class HatchVector extends VisualUniforms {
       const color = this.hatch_color.value
       const alpha = this.hatch_alpha.value
       const scale = this.hatch_scale.value
-      const pattern = this.hatch_pattern.value
+      const pattern = this.hatch_pattern.value!
       const weight = this.hatch_weight.value
 
       resolve_image(pattern, color, alpha, scale, weight, (image) => {
@@ -290,7 +291,7 @@ export class HatchVector extends VisualUniforms {
         const color = this.hatch_color.get(i)
         const alpha = this.hatch_alpha.get(i)
         const scale = this.hatch_scale.get(i)
-        const pattern = this.hatch_pattern.get(i)
+        const pattern = this.hatch_pattern.get(i)!
         const weight = this.hatch_weight.get(i)
 
         resolve_image(pattern, color, alpha, scale, weight, (image) => {
@@ -340,17 +341,18 @@ export class HatchVector extends VisualUniforms {
 
   repetition(i: number): CanvasPatternRepetition {
     const pattern = this.hatch_pattern.get(i)
-    const texture = this.hatch_extra.value[pattern]
-    if (texture == null)
-      return "repeat"
-    else {
-      switch (texture.repetition) {
-        case "repeat":    return "repeat"
-        case "repeat_x":  return "repeat-x"
-        case "repeat_y":  return "repeat-y"
-        case "no_repeat": return "no-repeat"
+    if (pattern != null) {
+      const texture = this.hatch_extra.value[pattern]
+      if (texture != null) {
+        switch (texture.repetition) {
+          case "repeat":    return "repeat"
+          case "repeat_x":  return "repeat-x"
+          case "repeat_y":  return "repeat-y"
+          case "no_repeat": return "no-repeat"
+        }
       }
     }
+    return "repeat"
   }
 }
 
