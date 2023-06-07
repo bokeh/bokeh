@@ -530,12 +530,15 @@ class PropertyDescriptor(Generic[T]):
         themed_values = obj.themed_values()
         is_themed = themed_values is not None and self.name in themed_values
 
-        default = self.instance_default(obj)
-
         unstable_dict = obj._unstable_themed_values if is_themed else obj._unstable_default_values
 
         if self.name in unstable_dict:
             return unstable_dict[self.name]
+
+        # Ensure we do not look up the default until after we check if it already present
+        # in the unstable_dict because it is a very expensive operation
+        # Ref: https://github.com/bokeh/bokeh/pull/13174
+        default = self.instance_default(obj)
 
         if self.has_unstable_default(obj):
             if isinstance(default, PropertyValueContainer):
