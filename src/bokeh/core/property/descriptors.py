@@ -537,6 +537,7 @@ class PropertyDescriptor(Generic[T]):
 
         # Ensure we do not look up the default until after we check if it already present
         # in the unstable_dict because it is a very expensive operation
+        # Ref: https://github.com/bokeh/bokeh/pull/13174
         default = self.instance_default(obj)
 
         if self.has_unstable_default(obj):
