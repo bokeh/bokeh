@@ -87,11 +87,7 @@ export class LegendView extends AnnotationView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const rerender = () => {
-      this.update_geometry()
-      this.request_render()
-    }
-
+    const rerender = () => this.request_render()
     this.connect(this.model.change, rerender)
     this.connect(this.model.item_change, rerender)
   }
@@ -330,6 +326,10 @@ export class LegendView extends AnnotationView {
   }
 
   protected _render(): void {
+    // It would be better to update geometry (the internal layout) only when
+    // necessary, but conditions for that are not clear, so for now update
+    // at every render.
+    this.update_geometry()
     this.compute_geometry()
 
     if (this.model.items.length == 0)
