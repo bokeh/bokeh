@@ -557,13 +557,4 @@ export class Legend extends Annotation {
       title_text_font_style: "italic",
     })
   }
-
-  get_legend_names(): string[] {
-    const legend_names: string[] = []
-    for (const item of this.items) {
-      const labels = item.get_labels_list_from_label_prop()
-      legend_names.push(...labels)
-    }
-    return legend_names
-  }
 }
