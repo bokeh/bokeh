@@ -7,9 +7,37 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot} from "@bokehjs/models/plots/plot"
-//import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
+import {LinearAxis} from "@bokehjs/models/axes/linear_axis"
+import type {ViewOf} from "@bokehjs/core/view"
 
 const modifiers = {ctrl: false, shift: false, alt: false}
+
+function xy_axis(plot_view: PlotView) {
+  const hr = plot_view.frame.x_range
+  const vr = plot_view.frame.y_range
+  return {
+    x: [hr.start, hr.end],
+    y: [vr.start, vr.end],
+  }
+}
+
+async function make_plot<T extends Tool>(tool: T): Promise<{view: PlotView, tool_view: ViewOf<T>}> {
+  const plot = new Plot({
+    x_range: new Range1d({start: -1, end: 1}),
+    y_range: new Range1d({start: -1, end: 1}),
+    toolbar_location: null,
+    min_border: 0,
+    frame_width: 300,
+    frame_height: 300,
+  })
+  plot.add_tools(tool)
+  plot.toolbar.active_scroll = tool
+  plot.add_layout(new LinearAxis(), "below")
+  plot.add_layout(new LinearAxis(), "right")
+  const {view} = await display(plot)
+  const tool_view = view.owner.get_one(tool)
+  return {view, tool_view}
+}
 
 describe("WheelZoomTool", () => {
 
@@ -112,25 +140,6 @@ describe("WheelZoomTool", () => {
       expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
     })
 
-    it("should zoom the x-axis only because sy is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
-      const plot_view = await mkplot(wheel_zoom)
-
-      const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
-
-      // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 300, sy: 0, delta: 100, modifiers}
-
-      // perform the tool action
-      wheel_zoom_view._scroll(zoom_event)
-
-      const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-0.833333, 0.833333])
-
-      const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.similar([-1.0, 1.0])
-    })
-
     it("should zoom the y-axis only because dimensions arg is set", async () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "height"})
       const plot_view = await mkplot(wheel_zoom)
@@ -150,23 +159,30 @@ describe("WheelZoomTool", () => {
       expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
     })
 
+    it("should zoom the x-axis only because sy is off frame", async () => {
+      const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
+      const {view, tool_view} = await make_plot(wheel_zoom)
+
+      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 301, delta: 100, modifiers}
+      tool_view._scroll(zoom_event)
+
+      expect(xy_axis(view)).to.be.similar({
+        x: [-0.833333, 0.833333],
+        y: [-1.0, 1.0],
+      })
+    })
+
     it("should zoom the y-axis only because sx is off frame", async () => {
-      const wheel_zoom = new WheelZoomTool({dimensions: "both"})
-      const plot_view = await mkplot(wheel_zoom)
+      const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
+      const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const wheel_zoom_view = plot_view.tool_views.get(wheel_zoom)! as WheelZoomToolView
+      const zoom_event = {type: "wheel" as "wheel", sx: 301, sy: 150, delta: 100, modifiers}
+      tool_view._scroll(zoom_event)
 
-      // positive delta will zoom in
-      const zoom_event = {type: "wheel" as "wheel", sx: 0, sy: 300, delta: 100, modifiers}
-
-      // perform the tool action
-      wheel_zoom_view._scroll(zoom_event)
-
-      const hr = plot_view.frame.x_range
-      expect([hr.start, hr.end]).to.be.similar([-1.0, 1.0])
-
-      const vr = plot_view.frame.y_range
-      expect([vr.start, vr.end]).to.be.similar([-0.833333, 0.833333])
+      expect(xy_axis(view)).to.be.similar({
+        x: [-1.0, 1.0],
+        y: [-0.833333, 0.833333],
+      })
     })
 
     it("should zoom centered around the zoom point", async () => {
