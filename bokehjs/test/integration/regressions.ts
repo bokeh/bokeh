@@ -3382,4 +3382,36 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #12718", () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by CDSView", async () => {
+      const data = {
+        values: [0, 1, 2],
+        type: [0, 1, 2],
+        color: ["red", "blue", "green"],
+      }
+
+      const source = new ColumnDataSource({data})
+      const cds_view = new CDSView()
+
+      const p = fig([200, 200])
+      p.circle({
+        x: {field: "values"},
+        y: {value: 1},
+        fill_color: {field: "color"},
+        size: 20,
+        source,
+        view: cds_view,
+        legend_group: "type",
+      })
+
+      p.legend.orientation = "horizontal"
+      p.legend.location = "top"
+
+      const {view} = await display(p)
+
+      cds_view.filter = new IndexFilter({indices: [1, 2]})
+      await view.ready
+    })
+  })
 })
