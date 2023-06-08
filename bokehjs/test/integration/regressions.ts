@@ -3350,4 +3350,36 @@ describe("Bug", () => {
       await open_picker(view)
     })
   })
+
+  describe("in issue #13182", () => {
+    it("doesn't allow update of legend when data changes", async () => {
+      const orange = "#ef8a62"
+      const blue = "#67a9cf"
+
+      const data = {
+        x: [1, 2, 3, 4, 5, 6],
+        y: [2, 1, 2, 1, 2, 1],
+        color: [orange, blue, orange, blue, orange, blue],
+        label: ["hi", "lo", "hi", "lo", "hi", "lo"],
+      }
+
+      const data_hi = {
+        x: [1, 3, 5],
+        y: [2, 2, 2],
+        color: [orange, orange, orange],
+        label: ["hi", "hi", "hi"],
+      }
+
+      const source = new ColumnDataSource({data})
+
+      const p = fig([200, 200], {x_range: [0, 7], y_range: [0, 3]})
+      p.circle({field: "x"}, {field: "y"}, {radius: 0.5, color: {field: "color"}, legend_field: "label", source})
+      p.legend.location = "bottom_right"
+
+      const {view} = await display(p)
+
+      source.data = data_hi
+      await view.ready
+    })
+  })
 })
