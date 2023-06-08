@@ -5,6 +5,7 @@ import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
 import {Enum} from "../kinds"
+import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
 export const FormatterType = Enum("numeral", "printf", "datetime")
@@ -98,6 +99,9 @@ export function _get_column_value(name: string, data_source: ColumnarDataSource,
     if (isArray(data[0])) {
       const row: any = data[ind.j]
       return row[ind.i]
+    } else if (is_NDArray(data) && data.dimension == 3) {
+      // For 3d array return whole of 3rd axis
+      return data.slice(ind.flat_index*data.shape[2], (ind.flat_index + 1)*data.shape[2])
     } else
       return data[ind.flat_index] // inspect flat array
   } else
