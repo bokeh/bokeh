@@ -66,6 +66,8 @@ import {gridplot} from "@bokehjs/api/gridplot"
 import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
+import {open_picker} from "./widgets"
+
 const n_marker_types = [...MarkerType].length
 
 function svg_data_url(svg: string): string {
@@ -3336,6 +3338,16 @@ describe("Bug", () => {
       const {desc_el} = view.owner.get_one(widget)
       assert(desc_el != null)
       await mouseenter(desc_el)
+    })
+  })
+
+  describe("in issue #13192", () => {
+    it("doesn't to clear DatePicker.enabled_dates", async () => {
+      const dp = new DatePicker({enabled_dates: ["2023-06-08"], min_date: "2023-06-01", max_date: "2023-06-30"})
+      const {view} = await display(dp, [500, 400])
+      dp.enabled_dates = null
+      await view.ready
+      await open_picker(view)
     })
   })
 })

@@ -34,7 +34,7 @@ async function finished_animating(el: Element): Promise<void> {
   })
 }
 
-async function open_picker(view: PickerBaseView): Promise<void> {
+export async function open_picker(view: PickerBaseView): Promise<void> {
   view.picker._input.dispatchEvent(new MouseEvent("click"))
   await view.ready
 
