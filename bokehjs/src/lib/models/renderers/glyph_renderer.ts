@@ -450,11 +450,20 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
-    if (this.glyph.data_size == 0)
+    if (this.glyph.data_size == 0) {
       return
-    if (index == null)
-      index = this.get_reference_point(field, label)
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
+    }
+    const subset_index = (() => {
+      if (index == null)
+        return this.get_reference_point(field, label)
+      else {
+        const {indices_map} = this.model.view
+        return index in indices_map ? indices_map[index] : null
+      }
+    })()
+    if (subset_index != null) {
+      this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    }
   }
 
   hit_test(geometry: Geometry): HitTestResult {
