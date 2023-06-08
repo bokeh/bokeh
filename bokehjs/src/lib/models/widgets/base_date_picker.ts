@@ -35,11 +35,18 @@ export abstract class BaseDatePickerView extends PickerBaseView {
     this.connect(max_date.change, () => this.picker.set("maxDate", this.model.max_date))
     this.connect(disabled_dates.change, () => {
       const {disabled_dates} = this.model
-      this.picker.set("disable", disabled_dates != null ? this._convert_date_list(disabled_dates) : undefined)
+      this.picker.set("disable", disabled_dates != null ? this._convert_date_list(disabled_dates) : [])
     })
     this.connect(enabled_dates.change, () => {
       const {enabled_dates} = this.model
-      this.picker.set("enable", enabled_dates != null ? this._convert_date_list(enabled_dates) : undefined)
+      if (enabled_dates != null) {
+        this.picker.set("enable", this._convert_date_list(enabled_dates))
+      } else {
+        // this reimplements `set()` for the `undefined` case
+        this.picker.config._enable = undefined
+        this.picker.redraw()
+        this.picker.updateValue(true)
+      }
     })
     this.connect(date_format.change, () => this.picker.set("altFormat", this.model.date_format))
   }
