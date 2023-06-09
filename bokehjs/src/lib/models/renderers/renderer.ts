@@ -4,6 +4,7 @@ import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
+import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
@@ -73,8 +74,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
       return coordinates.get_transform(frame)
     } else {
       const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)!
-      const y_scale = frame.y_scales.get(y_range_name)!
+      const x_scale = frame.x_scales.get(x_range_name)
+      const y_scale = frame.y_scales.get(y_range_name)
+      assert(x_scale != null, `missing '${x_range_name}' range`)
+      assert(y_scale != null, `missing '${y_range_name}' range`)
       return new CoordinateTransform(x_scale, y_scale)
     }
   }

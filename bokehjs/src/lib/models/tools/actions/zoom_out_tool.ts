@@ -4,6 +4,11 @@ import type * as p from "core/properties"
 
 export class ZoomOutToolView extends ZoomBaseToolView {
   declare model: ZoomBaseTool
+
+  get factor(): number {
+    const {factor} = this.model
+    return -factor / (1 - factor)
+  }
 }
 
 export namespace ZoomOutTool {
@@ -36,10 +41,6 @@ export class ZoomOutTool extends ZoomBaseTool {
     this.register_alias("zoom_out", () => new ZoomOutTool({dimensions: "both"}))
     this.register_alias("xzoom_out", () => new ZoomOutTool({dimensions: "width"}))
     this.register_alias("yzoom_out", () => new ZoomOutTool({dimensions: "height"}))
-  }
-
-  get_factor(): number {
-    return -this.factor / (1 - this.factor)
   }
 
   override tool_name = "Zoom Out"

@@ -3,6 +3,10 @@ import {tool_icon_zoom_in} from "styles/icons.css"
 
 export class ZoomInToolView extends ZoomBaseToolView {
   declare model: ZoomBaseTool
+
+  get factor(): number {
+    return this.model.factor
+  }
 }
 
 export interface ZoomInTool extends ZoomBaseTool.Attrs {}
@@ -23,10 +27,6 @@ export class ZoomInTool extends ZoomBaseTool {
     this.register_alias("zoom_in", () => new ZoomInTool({dimensions: "both"}))
     this.register_alias("xzoom_in", () => new ZoomInTool({dimensions: "width"}))
     this.register_alias("yzoom_in", () => new ZoomInTool({dimensions: "height"}))
-  }
-
-  get_factor(): number {
-    return this.factor
   }
 
   override tool_name = "Zoom In"

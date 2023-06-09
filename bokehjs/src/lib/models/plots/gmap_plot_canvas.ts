@@ -100,7 +100,7 @@ export class GMapPlotView extends PlotView {
     if (range_info == null) {
       this.map.setCenter({lat: this.initial_lat, lng: this.initial_lng})
       this.map.setOptions({zoom: this.initial_zoom})
-      super.update_range(null, options)
+      super.reset_range()
 
     // PAN ----------------------------
     } else if (range_info.sdx != null || range_info.sdy != null) {

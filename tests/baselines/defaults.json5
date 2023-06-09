@@ -5478,6 +5478,7 @@
     dimensions: "both",
     maintain_focus: true,
     zoom_on_axis: true,
+    zoom_together: "all",
     speed: 0.0016666666666666668,
   },
   CustomAction: {
@@ -5543,13 +5544,17 @@
     match_aspect: false,
     origin: "corner",
   },
-  ZoomInTool: {
+  ZoomBaseTool: {
     __extends__: "PlotActionTool",
+    renderers: "auto",
+  },
+  ZoomInTool: {
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
   },
   ZoomOutTool: {
-    __extends__: "PlotActionTool",
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
     maintain_focus: true,
