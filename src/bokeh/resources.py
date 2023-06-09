@@ -422,7 +422,7 @@ class Resources:
         return [comp for comp in self.components if comp in self._component_defs[kind]]
 
     def _file_paths(self, kind: Kind) -> list[Path]:
-        minified = ".min" if not self.dev and self.minified else ""
+        minified = ".min" if self.minified else ""
 
         files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
         paths = [self.base_dir / kind / file for file in files]
@@ -449,7 +449,7 @@ class Resources:
         return _get_cdn_urls(self.version, self.minified)
 
     def _server_urls(self) -> Urls:
-        return _get_server_urls(self.root_url, False if self.dev else self.minified, self.path_versioner)
+        return _get_server_urls(self.root_url, self.minified, self.path_versioner)
 
     def _resolve(self, kind: Kind) -> tuple[list[str], list[str], Hashes]:
         paths = self._file_paths(kind)
