@@ -9,7 +9,9 @@ for the label values.
 '''
 from numpy import arange, linspace, pi, sin
 
-from bokeh.models import LinearAxis, Range1d, WheelZoomTool, ZoomInTool, ZoomOutTool
+from bokeh.layouts import column
+from bokeh.models import (CustomJS, LinearAxis, Range1d, Select,
+                          WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Sunset6
 from bokeh.plotting import figure, show
 
@@ -49,8 +51,10 @@ ax3 = LinearAxis(
 ax3.axis_label_text_color = red
 p.add_layout(ax3, 'below')
 
-wheel_zoom = WheelZoomTool(zoom_on_axis="individual")
+wheel_zoom = WheelZoomTool()
 p.add_tools(wheel_zoom)
+
+p.toolbar.active_scroll = wheel_zoom
 
 zoom_in_blue = ZoomInTool(renderers=[blue_circles], description="Zoom in blue circles")
 zoom_out_blue = ZoomOutTool(renderers=[blue_circles], description="Zoom out blue circles")
@@ -60,4 +64,13 @@ zoom_in_red = ZoomInTool(renderers=[red_circles], description="Zoom in red circl
 zoom_out_red = ZoomOutTool(renderers=[red_circles], description="Zoom out red circles")
 p.add_tools(zoom_in_red, zoom_out_red)
 
-show(p)
+select = Select(title="Zoom together:", options=["none", "cross", "all"], value=wheel_zoom.zoom_together)
+select.js_on_change("value", CustomJS(
+    args=dict(select=select, wheel_zoom=wheel_zoom),
+    code="""\
+export default ({select, wheel_zoom}) => {
+  wheel_zoom.zoom_together = select.value
+}
+""",
+))
+show(column(select, p))
