@@ -3343,7 +3343,7 @@ describe("Bug", () => {
 
   describe("in issue #13192", () => {
     it("doesn't to clear DatePicker.enabled_dates", async () => {
-      const dp = new DatePicker({enabled_dates: ["2023-06-08"], min_date: "2023-06-01", max_date: "2023-06-30"})
+      const dp = new DatePicker({enabled_dates: ["2023-05-08"], min_date: "2023-05-01", max_date: "2023-05-31"})
       const {view} = await display(dp, [500, 400])
       dp.enabled_dates = null
       await view.ready
