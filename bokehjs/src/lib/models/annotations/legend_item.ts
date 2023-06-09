@@ -90,8 +90,15 @@ export class LegendItem extends Model {
   }
 
   get_labels_list_from_label_prop(): string[] {
-    if (!this.visible)
+    if (!this.visible) {
       return []
+    }
+
+    const {index} = this
+    if (index != null && this.renderers.every((r) => !(index in r.view.indices_map))) {
+      // this index points to nowhere, so skip this item altogether from its legend
+      return []
+    }
 
     if (isValue<string | null>(this.label)) {
       const {value} = this.label

@@ -3343,7 +3343,7 @@ describe("Bug", () => {
 
   describe("in issue #13192", () => {
     it("doesn't to clear DatePicker.enabled_dates", async () => {
-      const dp = new DatePicker({enabled_dates: ["2023-06-08"], min_date: "2023-06-01", max_date: "2023-06-30"})
+      const dp = new DatePicker({enabled_dates: ["2023-05-08"], min_date: "2023-05-01", max_date: "2023-05-31"})
       const {view} = await display(dp, [500, 400])
       dp.enabled_dates = null
       await view.ready
@@ -3379,6 +3379,38 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       source.data = data_hi
+      await view.ready
+    })
+  })
+
+  describe("in issue #12718", () => {
+    it("doesn't render Legend correctly when LegendItem.index is filtered out by CDSView", async () => {
+      const data = {
+        values: [0, 1, 2],
+        type: [0, 1, 2],
+        color: ["red", "blue", "green"],
+      }
+
+      const source = new ColumnDataSource({data})
+      const cds_view = new CDSView()
+
+      const p = fig([200, 200])
+      p.circle({
+        x: {field: "values"},
+        y: {value: 1},
+        fill_color: {field: "color"},
+        size: 20,
+        source,
+        view: cds_view,
+        legend_group: "type",
+      })
+
+      p.legend.orientation = "horizontal"
+      p.legend.location = "top"
+
+      const {view} = await display(p)
+
+      cds_view.filter = new IndexFilter({indices: [1, 2]})
       await view.ready
     })
   })
