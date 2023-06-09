@@ -546,11 +546,22 @@ class WheelZoomTool(Scroll):
     that causes overall focus or aspect ratio to change.
     """)
 
-    zoom_on_axis = Either(Bool, Enum("individual", "individual_linked"))(default=True, help="""
+    zoom_on_axis = Bool(default=True, help="""
     Whether scrolling on an axis (outside the central plot area) should zoom
-    that dimension. If set to ``"individual"``, then only the range associated
-    with the pointed axis will be affected. If set to ``"individual_linked"``,
-    then also the cross range will be affected.
+    that dimension. If enabled, the behavior of this feature can be configured
+    with ``zoom_together`` property.
+    """)
+
+    zoom_together = Enum("none", "cross", "all", default="all", help="""
+    Defines the behavior of the tool when zooming on an axis:
+
+    - ``"none"`` - zoom only the axis that's being interacted with. Any cross
+    axes, nor any other axes in the dimension of this axis will be affected.
+    - ``"cross"`` - zoom the axis that's being interactd with and its cross
+    axis, if configured. No other axes in this or cross dimension will be
+    affected.
+    - ``"all"`` - zoom all axes in the dimension of the axis that's being
+    interacted with. All cross axes will be unaffected.
     """)
 
     speed = Float(default=1/600, help="""

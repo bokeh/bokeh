@@ -3,9 +3,12 @@ import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {unreachable} from "core/util/assert"
 import {is_mobile} from "core/util/platform"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
+import {Enum} from "core/kinds"
+
+const ZoomTogether = Enum("none", "cross", "all")
+type ZoomTogether = typeof ZoomTogether["__type__"]
 
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
@@ -27,7 +30,7 @@ export class WheelZoomToolView extends GestureToolView {
     const {sx, sy} = ev
 
     const axis_view = this.plot_view.axis_views.find((view) => view.layout.bbox.contains(sx, sy))
-    if (axis_view != null && this.model.zoom_on_axis === false) {
+    if (axis_view != null && !this.model.zoom_on_axis) {
       return
     }
 
@@ -47,7 +50,8 @@ export class WheelZoomToolView extends GestureToolView {
       if (axis_view != null) {
         const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
 
-        if (this.model.zoom_on_axis === true) {
+        const {zoom_together} = this.model
+        if (zoom_together == "all") {
           const {x_scales, y_scales} = frame
           if (axis_view.dimension == 0)
             return {x_scales, y_scales: new Map(), center}
@@ -60,18 +64,16 @@ export class WheelZoomToolView extends GestureToolView {
           const x_scales = new Map([[x_range_name, x_scale]])
           const y_scales = new Map([[y_range_name, y_scale]])
 
-          switch (this.model.zoom_on_axis) {
-            case "individual_linked": {
+          switch (zoom_together) {
+            case "cross": {
               return {x_scales, y_scales, center}
             }
-            case "individual": {
+            case "none": {
               if (axis_view.dimension == 0)
                 return {x_scales, y_scales: new Map(), center}
               else
                 return {x_scales: new Map(), y_scales, center}
             }
-            default:
-              unreachable()
           }
         }
       } else {
@@ -98,7 +100,8 @@ export namespace WheelZoomTool {
   export type Props = GestureTool.Props & {
     dimensions: p.Property<Dimensions>
     maintain_focus: p.Property<boolean>
-    zoom_on_axis: p.Property<boolean | "individual" | "individual_linked">
+    zoom_on_axis: p.Property<boolean>
+    zoom_together: p.Property<ZoomTogether>
     speed: p.Property<number>
   }
 }
@@ -116,10 +119,11 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Boolean, Number, Or, Enum}) => ({
+    this.define<WheelZoomTool.Props>(({Boolean, Number}) => ({
       dimensions:     [ Dimensions, "both" ],
       maintain_focus: [ Boolean, true ],
-      zoom_on_axis:   [ Or(Boolean, Enum("individual", "individual_linked")), true ],
+      zoom_on_axis:   [ Boolean, true ],
+      zoom_together:  [ ZoomTogether, "all" ],
       speed:          [ Number, 1/600 ],
     }))
 

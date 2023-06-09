@@ -5478,6 +5478,7 @@
     dimensions: "both",
     maintain_focus: true,
     zoom_on_axis: true,
+    zoom_together: "all",
     speed: 0.0016666666666666668,
   },
   CustomAction: {
