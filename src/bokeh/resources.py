@@ -38,12 +38,7 @@ log = logging.getLogger(__name__)
 import json
 import re
 from glob import glob
-from os.path import (
-    basename,
-    join,
-    relpath,
-    splitext,
-)
+from pathlib import Path
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -115,8 +110,8 @@ def get_all_sri_versions() -> tuple[str, ...]:
         tuple
 
     """
-    files = glob(join(ROOT_DIR, "_sri", "*.json"))
-    return set(splitext(basename(x))[0] for x in files)
+    files = (ROOT_DIR / "_sri").glob("*.json")
+    return set(file.stem for file in files)
 
 
 def get_sri_hashes_for_version(version: str) -> Hashes:
@@ -162,7 +157,7 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
     """
     if version not in _ALL_SRI_HASHES:
         try:
-            with open(join(ROOT_DIR, "_sri", f"{version}.json")) as f:
+            with open(ROOT_DIR / "_sri" / f"{version}.json") as f:
                 _ALL_SRI_HASHES[version] = json.load(f)
         except Exception as e:
             raise ValueError(f"Missing SRI hash for version {version}") from e
@@ -193,7 +188,7 @@ def verify_sri_hashes() -> None:
         raise ValueError("verify_sri_hashes() can only be used with full releases")
 
     from glob import glob
-    paths = glob(join(bokehjsdir(), "js/bokeh*.js"))
+    paths = [ Path(p) for p in glob(bokehjsdir() / "js" / "bokeh*.js") ]
 
     hashes = get_sri_hashes_for_version(__version__)
 
@@ -203,9 +198,9 @@ def verify_sri_hashes() -> None:
     if len(hashes) > len(paths):
         raise RuntimeError("There are 'bokeh*.js' files missing in the package")
 
-    bad: list[str] = []
+    bad: list[Path] = []
     for path in paths:
-        name, suffix = basename(path).split(".", 1)
+        name, suffix = str(path.name).split(".", 1)
         filename = f"{name}-{__version__}.{suffix}"
         sri_hash = _compute_single_hash(path)
         if hashes[filename] != sri_hash:
@@ -289,7 +284,7 @@ class Resources:
 
     """
 
-    _default_root_dir = "."
+    _default_root_dir = Path(".").resolve()
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     mode: BaseMode
@@ -318,7 +313,7 @@ class Resources:
         root_url: str | None = None,
         path_versioner: PathVersioner | None = None,
         components: list[Component] | None = None,
-        base_dir: str | None = None, # TODO: PathLike
+        base_dir: PathLike | None = None,
     ):
         self.components = components if components is not None else list(self._default_components)
         mode = settings.resources(mode)
@@ -367,7 +362,7 @@ class Resources:
             server = self._server_urls()
             self.messages.extend(server.messages)
 
-        self.base_dir = base_dir if base_dir is not None else bokehjsdir(self.dev)
+        self.base_dir = Path(base_dir) if base_dir is not None else bokehjsdir(self.dev)
 
     def clone(self, *, components: list[Component] | None = None) -> Resources:
         """ Make a clone of a resources instance allowing to override its components. """
@@ -426,11 +421,11 @@ class Resources:
     def components_for(self, kind: Kind) -> list[Component]:
         return [comp for comp in self.components if comp in self._component_defs[kind]]
 
-    def _file_paths(self, kind: Kind) -> list[str]:
+    def _file_paths(self, kind: Kind) -> list[Path]:
         minified = ".min" if not self.dev and self.minified else ""
 
         files = [f"{component}{minified}.{kind}" for component in self.components_for(kind)]
-        paths = [join(self.base_dir, kind, file) for file in files]
+        paths = [self.base_dir / kind / file for file in files]
         return paths
 
     def _collect_external_resources(self, resource_attr: ResourceAttr) -> list[str]:
@@ -465,9 +460,9 @@ class Resources:
             raw = [self._inline(path) for path in paths]
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
-            files = [relpath(path, root_dir) for path in paths]
+            files = [str(path.relative_to(root_dir)) for path in paths]
         elif self.mode == "absolute":
-            files = list(paths)
+            files = list(map(str, paths))
         elif self.mode == "cdn":
             cdn = self._cdn_urls()
             files = list(cdn.urls(self.components_for(kind), kind))
@@ -480,8 +475,8 @@ class Resources:
         return (files, raw, hashes)
 
     @staticmethod
-    def _inline(path: str) -> str:
-        filename = basename(path)
+    def _inline(path: Path) -> str:
+        filename = path.name
         begin = f"/* BEGIN {filename} */"
         with open(path, "rb") as f:
             middle = f.read().decode("utf-8")
@@ -642,8 +637,8 @@ def _get_server_urls(
     return Urls(urls=lambda components, kind: [mk_url(component, kind) for component in components])
 
 
-def _compute_single_hash(path: str) -> str:
-    assert path.endswith(".js")
+def _compute_single_hash(path: Path) -> str:
+    assert path.suffix == ".js"
 
     from subprocess import PIPE, Popen
 
