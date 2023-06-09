@@ -161,7 +161,7 @@ def _save_helper(obj: UIElement | Sequence[UIElement], filename: PathLike, resou
 
     '''
     from ..embed import file_html
-    html = file_html(obj, resources, title=title, template=template or FILE, theme=theme)
+    html = file_html(obj, resources=resources, title=title, template=template or FILE, theme=theme)
 
     with open(filename, mode="w", encoding="utf-8") as f:
         f.write(html)

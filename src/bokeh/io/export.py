@@ -318,7 +318,15 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
     """
 
     def html() -> str:
-        return file_html(obj, resources, title="", template=template, theme=theme, suppress_callback_warning=True, _always_new=True)
+        return file_html(
+            obj,
+            resources=resources,
+            title="",
+            template=template,
+            theme=theme,
+            suppress_callback_warning=True,
+            _always_new=True,
+        )
 
     if width is not None or height is not None:
         # Defer this import, it is expensive

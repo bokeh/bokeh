@@ -5,7 +5,6 @@ from bokeh.document import Document
 from bokeh.models import (CDSView, Circle, ColumnDataSource, DataRange1d,
                           Grid, HoverTool, IndexFilter, LinearAxis, Plot,
                           Range1d, SingleIntervalTicker, Text)
-from bokeh.resources import INLINE
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme
 
@@ -121,6 +120,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "file_html.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, plot.title.text))
+        f.write(file_html(doc, title=plot.title.text))
     print(f"Wrote {filename}")
     view(filename)

@@ -14,7 +14,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, LinearAxis,
                           PanTool, Plot, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -41,6 +40,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "basic_plot.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Basic Glyph Plot"))
+        f.write(file_html(doc, title="Basic Glyph Plot"))
     print(f"Wrote {filename}")
     view(filename)

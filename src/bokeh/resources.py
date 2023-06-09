@@ -415,6 +415,13 @@ class Resources:
 
     __str__ = __repr__
 
+    @classmethod
+    def build(cls, resources: ResourcesLike | None = None) -> Resources:
+        if isinstance(resources, Resources):
+            return resources
+        else:
+            return Resources(mode=settings.resources(resources))
+
     # Properties --------------------------------------------------------------
 
     @property
@@ -640,8 +647,11 @@ def _get_cdn_urls(version: str | None = None, minified: bool = True) -> Urls:
     return result
 
 
-def _get_server_urls(root_url: str, minified: bool = True,
-        path_versioner: PathVersioner | None = None) -> Urls:
+def _get_server_urls(
+    root_url: str = DEFAULT_SERVER_HTTP_URL,
+    minified: bool = True,
+    path_versioner: PathVersioner | None = None,
+) -> Urls:
     _minified = ".min" if minified else ""
 
     def mk_url(comp: str, kind: Kind) -> str:

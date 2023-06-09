@@ -37,7 +37,13 @@ from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.resources import CDN
+from bokeh.resources import (
+    CDN,
+    Resources,
+    _get_cdn_urls,
+    _get_server_urls,
+)
+from bokeh.settings import settings
 from bokeh.themes import Theme
 
 # Module under test
@@ -346,6 +352,46 @@ class Test_file_html:
         doc = Document()
         with pytest.raises(ValueError, match="Document has no root Models"):
             bes.file_html(doc, CDN)
+
+    def test_resources(self, test_plot: figure) -> None:
+        [cdn_url] = _get_cdn_urls(minified=True).urls(["bokeh"], "js")
+        [server_url] = _get_server_urls(minified=False).urls(["bokeh"], "js")
+
+        html0 = bes.file_html(test_plot, resources=None)
+        assert cdn_url in html0
+
+        html1 = bes.file_html(test_plot, resources=CDN)
+        assert cdn_url in html1
+
+        html2 = bes.file_html(test_plot, resources="cdn")
+        assert cdn_url in html2
+
+        html3 = bes.file_html(test_plot, resources=Resources(mode="server-dev"))
+        assert server_url in html3
+
+        html4 = bes.file_html(test_plot, resources="server-dev")
+        assert server_url in html4
+
+        settings.resources = "server-dev"
+        try:
+            html5 = bes.file_html(test_plot, resources=None)
+            assert server_url in html5
+        finally:
+            del settings.resources
+
+        settings.resources = "server-dev"
+        try:
+            html6 = bes.file_html(test_plot, resources=CDN)
+            assert cdn_url in html6 and server_url not in html6
+        finally:
+            del settings.resources
+
+        settings.resources = "server-dev"
+        try:
+            html7 = bes.file_html(test_plot, resources="cdn")
+            assert cdn_url in html7 and server_url not in html7
+        finally:
+            del settings.resources
 
 JSON_ITEMS_KEYS = {"target_id", "root_id", "doc", "version"}
 

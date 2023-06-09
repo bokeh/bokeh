@@ -31,7 +31,7 @@ import bokeh.util.version as buv
 from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import RuntimeMessage, _get_cdn_urls
-from bokeh.settings import LogLevel
+from bokeh.settings import LogLevel, settings
 
 # Module under test
 import bokeh.resources as resources  # isort:skip
@@ -127,6 +127,31 @@ class TestResources:
 
         r3 = resources.Resources(mode="server-dev", components=["bokeh", "bokeh-gl"])
         assert str(r3) == "Resources(mode='server', dev=True, components=['bokeh', 'bokeh-gl'])"
+
+    def test_build(self) -> None:
+        r0 = resources.Resources(mode="cdn")
+        settings.resources = "inline"
+        try:
+            r = resources.Resources.build(r0)
+            assert r is r0
+        finally:
+            del settings.resources
+
+        r1 = "cdn"
+        settings.resources = "inline"
+        try:
+            r = resources.Resources.build(r1)
+            assert r.mode == "cdn"
+        finally:
+            del settings.resources
+
+        r2 = None
+        settings.resources = "inline"
+        try:
+            r = resources.Resources.build(r2)
+            assert r.mode == "inline"
+        finally:
+            del settings.resources
 
     def test_log_level(self) -> None:
         r = resources.Resources()

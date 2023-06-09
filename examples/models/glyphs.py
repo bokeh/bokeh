@@ -8,7 +8,6 @@ from bokeh.models import (AnnularWedge, Annulus, Arc, Bezier, Circle, Column,
                           Line, LinearAxis, MultiLine, MultiPolygons, Paragraph,
                           Patch, Patches, Plot, Quad, Quadratic, Ray, Rect,
                           Scatter, Segment, TabPanel, Tabs, Text, Wedge)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 N = 9
@@ -114,6 +113,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "glyphs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Glyphs"))
+        f.write(file_html(doc, title="Glyphs"))
     print(f"Wrote {filename}")
     view(filename)

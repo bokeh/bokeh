@@ -18,7 +18,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (ColumnDataSource, DatetimeAxis, DatetimeTickFormatter,
                           FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text)
-from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
 
@@ -106,6 +105,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "daylight.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Daylight Plot"))
+        f.write(file_html(doc, title="Daylight Plot"))
     print(f"Wrote {filename}")
     view(filename)

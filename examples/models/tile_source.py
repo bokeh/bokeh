@@ -11,7 +11,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (BoxZoomTool, PanTool, Plot, Range1d,
                           WheelZoomTool, WMTSTileSource)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 # set to roughly full extent of web mercator projection
@@ -37,6 +36,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "tile_source.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Tile Source Example"))
+        f.write(file_html(doc, title="Tile Source Example"))
     print(f"Wrote {filename}")
     view(filename)

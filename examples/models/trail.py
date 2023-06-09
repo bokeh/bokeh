@@ -8,7 +8,6 @@ from bokeh.embed import file_html
 from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot,
                           Grid, Label, Line, LinearAxis, PanTool, Patches,
                           Plot, Range1d, ResetTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 from bokeh.util.browser import view
 
@@ -136,6 +135,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Trail map and altitude profile"))
+        f.write(file_html(doc, title="Trail map and altitude profile"))
     print(f"Wrote {filename}")
     view(filename)

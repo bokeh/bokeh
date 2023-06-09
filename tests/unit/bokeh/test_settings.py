@@ -326,6 +326,8 @@ class TestPrioritizedSetting:
         assert s.bar() == 10
         s.bar = 20
         assert s.bar() == 20
+        del s.bar
+        assert s.bar() == 10
 
 class TestDefaults:
 

@@ -13,7 +13,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Column, CustomJS, DateRangeSlider,
                           DateSlider, Div, RangeSlider, Row, Slider)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 slider = Slider(title="Numerical", value=50, start=0, end=96, step=5)
@@ -73,6 +72,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "sliders.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "sliders"))
+        f.write(file_html(doc, title="sliders"))
     print(f"Wrote {filename}")
     view(filename)
