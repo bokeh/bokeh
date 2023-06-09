@@ -37,7 +37,12 @@ from bokeh.document import Document
 from bokeh.embed.util import RenderRoot, standalone_docs_json
 from bokeh.io import curdoc
 from bokeh.plotting import figure
-from bokeh.resources import CDN, Resources
+from bokeh.resources import (
+    CDN,
+    Resources,
+    _get_cdn_urls,
+    _get_server_urls,
+)
 from bokeh.settings import settings
 from bokeh.themes import Theme
 
@@ -349,8 +354,8 @@ class Test_file_html:
             bes.file_html(doc, CDN)
 
     def test_resources(self, test_plot: figure) -> None:
-        cdn_url = "https://cdn.bokeh.org/bokeh/"
-        server_url = "http://localhost:5006/static/js/bokeh.js"
+        [cdn_url] = _get_cdn_urls(minified=True).urls(["bokeh"], "js")
+        [server_url] = _get_server_urls(minified=False).urls(["bokeh"], "js")
 
         html0 = bes.file_html(test_plot, resources=None)
         assert cdn_url in html0
