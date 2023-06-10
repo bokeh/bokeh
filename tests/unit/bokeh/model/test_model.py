@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from bokeh.core.has_props import is_abstract
 from bokeh.core.properties import Int, List, String
 from bokeh.core.types import ID
 from bokeh.models import *  # noqa: F403
@@ -217,6 +218,8 @@ class Test_js_link:
 def test_all_builtin_models_default_constructible() -> None:
     bad = []
     for name, cls in Model.model_class_reverse_map.items():
+        if is_abstract(cls):
+            continue
         try:
             cls()
         except Exception:
