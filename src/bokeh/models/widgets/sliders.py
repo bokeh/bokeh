@@ -42,6 +42,8 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ...core.property.descriptors import UnsetValueError
+from ...core.property.singletons import Undefined
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..formatters import TickFormatter
@@ -72,11 +74,13 @@ class AbstractSlider(Widget):
         if 'start' in kwargs and 'end' in kwargs:
             if kwargs['start'] == kwargs['end']:
                 raise ValueError("Slider 'start' and 'end' cannot be equal.")
-
-        if "value" in kwargs and "value_throttled" not in kwargs:
-            kwargs["value_throttled"] = kwargs["value"]
-
         super().__init__(*args, **kwargs)
+
+        try:
+            # synchronize the value of a readonly property `value_throttled`
+            self.lookup("value_throttled")._set(self, Undefined, self.value)
+        except UnsetValueError:
+            pass
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
