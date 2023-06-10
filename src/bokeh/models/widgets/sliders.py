@@ -78,6 +78,20 @@ class AbstractSlider(Widget):
             self.lookup("value_throttled")._set(self, Undefined, self.value)
         except UnsetValueError:
             pass
+        except AttributeError:
+            # TODO Remove this when proper support for property overrides is
+            # implemented. For now this is required to make defaults' tests
+            # work, because we depend there on model instances to provide
+            # "default" values.
+            pass
+
+    # TODO value = Required(GenericType, help="""
+    # Initial or selected range.
+    # """)
+
+    # TODO value_throttled = Readonly(GenericType, help="""
+    # Initial or selected value, throttled according to report only on mouseup.
+    # """)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.
