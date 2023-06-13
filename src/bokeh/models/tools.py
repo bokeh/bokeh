@@ -111,6 +111,7 @@ from .dom import Template
 from .glyphs import (
     Line,
     LineGlyph,
+    LRTBGlyph,
     MultiLine,
     Patches,
     Rect,
@@ -1608,7 +1609,7 @@ class BoxEditTool(EditTool, Drag, Tap):
     def _check_compatible_renderers(self):
         incompatible_renderers = []
         for renderer in self.renderers:
-            if not isinstance(renderer.glyph, Rect):
+            if not isinstance(renderer.glyph, (Rect, LRTBGlyph)):
                 incompatible_renderers.append(renderer)
         if incompatible_renderers:
             glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)

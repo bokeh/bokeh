@@ -21,6 +21,18 @@ import pytest ; pytest
 from bokeh.models.tools import Tool, Toolbar # isort:skip
 import bokeh.models.tools as t # isort:skip
 
+# Bokeh imports
+from bokeh.core.validation.check import ValidationIssues, check_integrity
+from bokeh.models import (
+    Block,
+    ColumnDataSource,
+    GlyphRenderer,
+    HBar,
+    Quad,
+    Rect,
+    VBar,
+)
+
 #-----------------------------------------------------------------------------
 # Setup
 #-----------------------------------------------------------------------------
@@ -86,6 +98,23 @@ def test_Toolbar_with_autohide() -> None:
     assert tb.active_scroll == 'auto'
     assert tb.active_tap == 'auto'
     assert tb.autohide is True
+
+
+def test_BoxEditTool_renderers() -> None:
+    t0 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=Block(), data_source=ColumnDataSource())])
+    assert check_integrity([t0]) == ValidationIssues(error=[], warning=[])
+
+    t1 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=HBar(), data_source=ColumnDataSource())])
+    assert check_integrity([t1]) == ValidationIssues(error=[], warning=[])
+
+    t2 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=Quad(), data_source=ColumnDataSource())])
+    assert check_integrity([t2]) == ValidationIssues(error=[], warning=[])
+
+    t3 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=Rect(), data_source=ColumnDataSource())])
+    assert check_integrity([t3]) == ValidationIssues(error=[], warning=[])
+
+    t4 = t.BoxEditTool(renderers=[GlyphRenderer(glyph=VBar(), data_source=ColumnDataSource())])
+    assert check_integrity([t4]) == ValidationIssues(error=[], warning=[])
 
 #-----------------------------------------------------------------------------
 # Dev API
