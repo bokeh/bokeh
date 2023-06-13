@@ -119,21 +119,22 @@ class Theme:
         .. code-block:: python
 
             {
-            'attrs' : {
-                'Plot': {
-                    'background_fill_color': '#2F2F2F',
-                    'border_fill_color': '#2F2F2F',
-                    'outline_line_color': '#444444',
-                },
-                'Axis': {
-                    'axis_line_color': null,
-                },
-                'Grid': {
-                    'grid_line_dash': [6, 4]',
-                    'grid_line_alpha': .3,
-                },
-                'Title': {
-                    'text_color': 'white'
+                'attrs' : {
+                    'Plot': {
+                        'background_fill_color': '#2F2F2F',
+                        'border_fill_color': '#2F2F2F',
+                        'outline_line_color': '#444444',
+                    },
+                    'Axis': {
+                        'axis_line_color': None,
+                    },
+                    'Grid': {
+                        'grid_line_dash': [6, 4],
+                        'grid_line_alpha': .3,
+                    },
+                    'Title': {
+                        'text_color': 'white'
+                    }
                 }
             }
 
