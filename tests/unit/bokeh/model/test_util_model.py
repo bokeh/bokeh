@@ -16,8 +16,22 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from dataclasses import dataclass
+
 # Bokeh imports
+from bokeh.core.has_props import Local
+from bokeh.core.properties import (
+    Dict,
+    Instance,
+    Int,
+    List,
+    Nullable,
+    Object,
+    Tuple,
+)
 from bokeh.document import Document
+from bokeh.model import Model
 from bokeh.models import LayoutDOM, Row
 
 # Module under test
@@ -61,15 +75,53 @@ class TestHasDocumentRef:
 # TODO (bev) test collect_filtered_models
 
 def test_collect_models() -> None:
-    r1 = LayoutDOM()
-    r2 = LayoutDOM()
-    r3 = LayoutDOM()
-    row1 = Row(children=[r1, r2])
-    row2 = Row(children=[r2, r3])
+    @dataclass(frozen=True)
+    class DT:
+        f0: int = 0
+        f1: Model | None = None
+        f2: DT | None = None
 
-    models = bmu.collect_models(row1, row2)
-    assert len(models) == 5
-    assert set(models) == { r1, r2, r3, row1, row2 }
+    class Test(Model, Local):
+        p0 = Int()
+
+        p1 = Nullable(Instance(Model))
+        p2 = List(Instance(Model))
+        p3 = Dict(Instance(Model), Instance(Model))
+        p4 = Nullable(Tuple(Instance(Model), Instance(Model), Instance(Model)))
+
+        q1 = Nullable(Object(DT))
+        q2 = List(Object(DT))
+        q3 = Dict(Object(DT), Object(DT))
+        q4 = Nullable(Tuple(Object(DT), Object(DT), Object(DT)))
+
+    t00 = Test()
+
+    d00 = DT()
+    d01 = DT(f1=t00)
+    d02 = DT(f2=d00)
+    d03 = DT()
+    d04 = DT()
+    d05 = DT()
+    d06 = DT()
+    d07 = DT()
+    d08 = DT()
+
+    t01 = Test()
+    t02 = Test()
+    t03 = Test()
+    t04 = Test()
+    t05 = Test()
+    t06 = Test()
+    t07 = Test()
+    t08 = Test()
+    t09 = Test(
+        p1=t01, p2=[t02, t03], p3={t04: t05}, p4=(t06, t07, t08),
+        q1=d01, q2=[d02, d03], q3={d04: d05}, q4=(d06, d07, d08),
+    )
+    t10 = Test()
+
+    models = bmu.collect_models(t09, t10)
+    assert set(models) == {t00, t01, t02, t03, t04, t05, t06, t07, t08, t09, t10}
 
 def test_get_class() -> None:
     from bokeh.models import Plot, Range1d

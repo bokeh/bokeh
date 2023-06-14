@@ -25,6 +25,7 @@ from typing import TYPE_CHECKING, Any, Callable
 
 # Bokeh imports
 from ..core.has_props import HasProps, Qualified
+from ..util.dataclasses import entries, is_dataclass
 
 if TYPE_CHECKING:
     from ..core.types import ID
@@ -216,6 +217,9 @@ def visit_value_and_its_immediate_references(obj: Any, visitor: Callable[[Model]
         else:
             # this isn't a Model, so recurse into it
             visit_immediate_value_references(obj, visitor)
+    elif is_dataclass(obj):
+        for _, value in entries(obj):
+            visit_value_and_its_immediate_references(value, visitor)
 
 #-----------------------------------------------------------------------------
 # Private API
