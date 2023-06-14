@@ -84,19 +84,11 @@ from ..core.properties import (
     String,
     Struct,
     Tuple,
+    TypeOfAttr,
 )
 from ..core.property.struct import Optional
 from ..core.validation import error
-from ..core.validation.errors import (
-    INCOMPATIBLE_BOX_EDIT_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_RENDERER,
-    INCOMPATIBLE_POINT_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
-    NO_RANGE_TOOL_RANGES,
-)
+from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
@@ -171,6 +163,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+def GlyphRendererOf(*types: type[Model]):
+    """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """
+    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(tp) for tp in types)))
+
 @abstract
 class Tool(Model):
     ''' A base class for all interactive tool types.
@@ -180,6 +176,7 @@ class Tool(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
     #Image has to be first! see #12775, temporary fix
     icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^\.")), help="""
     An icon to display in the toolbar.
@@ -296,7 +293,7 @@ class SelectTool(GestureTool):
         super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
+    A list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
 
@@ -1267,7 +1264,7 @@ class HoverTool(InspectTool):
         super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
+    A list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
 
@@ -1516,15 +1513,7 @@ class EditTool(GestureTool):
     the color column will be filled with the defined empty value.
     """)
 
-    renderers = List(Instance(GlyphRenderer), help="""
-    An explicit list of renderers corresponding to glyphs that may be edited.
-
-    .. note::
-        The kind of renderer will typically depend on the specific type of the
-        edit tool subclass. For instance, ``PointDrawTool`` expects renderers
-        for ``Scatter`` glyphs, while ``BoxEditTool`` expects renderers for
-        ``Rect`` glyphs, etc.
-    """)
+    # TODO abstract renderers = List(Instance(GlyphRenderer & ...))
 
 @abstract
 class PolyTool(EditTool):
@@ -1534,17 +1523,9 @@ class PolyTool(EditTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    vertex_renderer = Nullable(Instance(GlyphRenderer), help="""
+    vertex_renderer = Nullable(GlyphRendererOf(XYGlyph), help="""
     The renderer used to render the vertices of a selected line or polygon.
     """)
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        if self.vertex_renderer is None:
-            return
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
@@ -1590,6 +1571,10 @@ class BoxEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(Rect, LRTBGlyph), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box drawing is to be free in. By default, users may
     freely draw boxes with any dimensions. If only "width" is set, the box will
@@ -1604,16 +1589,6 @@ class BoxEditTool(EditTool, Drag, Tap):
     is no limit on the number of objects, but if enabled the oldest drawn box
     will be dropped to make space for the new box being added.
     """)
-
-    @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (Rect, LRTBGlyph)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
@@ -1656,6 +1631,10 @@ class PointDrawTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(XYGlyph), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     add = Bool(default=True, help="""
     Enables adding of new points on tap events.
     """)
@@ -1669,16 +1648,6 @@ class PointDrawTool(EditTool, Drag, Tap):
     is no limit on the number of objects, but if enabled the oldest drawn point
     will be dropped to make space for the new point.
     """)
-
-    @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, XYGlyph):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class PolyDrawTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
@@ -1720,6 +1689,10 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     drag = Bool(default=True, help="""
     Enables dragging of existing patches and multi-lines on pan events.
     """)
@@ -1730,16 +1703,6 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     oldest drawn patch or multi-line will be dropped to make space for the new
     patch or multi-line.
     """)
-
-    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
@@ -1769,22 +1732,16 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     num_objects = Int(default=0, help="""
     Defines a limit on the number of patches or multi-lines that can be drawn.
     By default there is no limit on the number of objects, but if enabled the
     oldest drawn patch or multi-line will be overwritten when the limit is
     reached.
     """)
-
-    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class PolyEditTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
@@ -1823,17 +1780,9 @@ class PolyEditTool(PolyTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__
-                                    for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
-
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
 
 class LineEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |line_edit_icon|
@@ -1865,7 +1814,11 @@ class LineEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    intersection_renderer = Instance(GlyphRenderer, help="""
+    renderers = List(GlyphRendererOf(Line), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
+    intersection_renderer = GlyphRendererOf(LineGlyph)(help="""
     The renderer used to render the intersections of a selected line
     """)
 
@@ -1876,24 +1829,6 @@ class LineEditTool(EditTool, Drag, Tap):
     plot, or vertical across the height of the plot.
     """)
 
-    @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
-    def _check_compatible_intersection_renderer(self):
-        glyph = self.intersection_renderer.glyph
-        if not isinstance(glyph, LineGlyph):
-            return "glyph type %s found." % type(glyph).__name__
-
-    @error(INCOMPATIBLE_LINE_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (Line,)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__
-                                    for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
-
-#
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

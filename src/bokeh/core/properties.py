@@ -157,6 +157,7 @@ Special Properties
 .. autoclass:: Object
 .. autoclass:: Override
 .. autoclass:: Required
+.. autoclass:: TypeOfAttr
 
 Validation-only Properties
 --------------------------
@@ -286,6 +287,7 @@ __all__ = (
     'TextBaselineSpec',
     'TextLike',
     'Tuple',
+    'TypeOfAttr',
     'UnitsSpec',
     'UnsetValueError',
     'expr',
@@ -312,6 +314,8 @@ from .property.color import Alpha
 from .property.color import Color
 from .property.color import RGB
 from .property.color import ColorHex
+
+from .property.constraints import TypeOfAttr
 
 from .property.container import Array
 from .property.container import ColumnData

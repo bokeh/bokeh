@@ -5897,7 +5897,6 @@
   EditTool: {
     __extends__: "GestureTool",
     empty_value: 0,
-    renderers: [],
   },
   PolyTool: {
     __extends__: "EditTool",
@@ -5909,6 +5908,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
     dimensions: "both",
     num_objects: 0,
   },
@@ -5918,6 +5918,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
     add: true,
     drag: true,
     num_objects: 0,
@@ -5928,6 +5929,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
     drag: true,
     num_objects: 0,
   },
@@ -5937,6 +5939,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
     num_objects: 0,
   },
   PolyEditTool: {
@@ -5945,6 +5948,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
   },
   LineEditTool: {
     __extends__: [
@@ -5952,6 +5956,7 @@
       "Drag",
       "Tap",
     ],
+    renderers: [],
     intersection_renderer: {
       type: "symbol",
       name: "unset",
