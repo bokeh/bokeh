@@ -116,6 +116,11 @@ def create_renderer(glyphclass, plot, **kwargs):
     hover_glyph = make_glyph(glyphclass, kwargs, hover_visuals)
     muted_glyph = make_glyph(glyphclass, kwargs, muted_visuals)
 
+    # Check if glyph has a specific _validate_with_data_source method, and if so call it.
+    for g in (glyph, nonselection_glyph, selection_glyph, hover_glyph, muted_glyph):
+        if callable(getattr(g, "_validate_with_data_source", None)):
+            g._validate_with_data_source(source)
+
     glyph_renderer = GlyphRenderer(
         glyph=glyph,
         nonselection_glyph=nonselection_glyph or "auto",

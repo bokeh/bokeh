@@ -92,7 +92,8 @@ from .glyph import (
     TextGlyph,
     XYGlyph,
 )
-from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
+from .mappers import ColorMapper, LinearColorMapper, StackColorMapper, WeightedStackColorMapper
+from .sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -858,6 +859,27 @@ class ImageStack(ImageBase):
     .. note::
         The color mapping step happens on the client.
     """)
+
+    def _validate_with_data_source(self, source: ColumnDataSource):
+        class_name = self.__class__.__name__
+
+        if not isinstance(self.color_mapper, WeightedStackColorMapper):
+            raise ValueError(f"{class_name}.color_mapper should be a WeightedStackColorMapper not a {self.color_mapper.__class__.__name__}")
+        n_colors = len(self.color_mapper.palette)
+        if n_colors < 1:
+            # This check should really be in ColorMapper.
+            raise ValueError(f"{class_name}.color_mapper.palette does not contain any colors")
+
+        image = source.data[self.image] if isinstance(self.image, str) else self.image
+        for i, arr in enumerate(image):
+            if not arr.ndim == 3:
+                raise ValueError(f"{class_name} image {i} should have 3 dimensions not {arr.ndim}")
+
+            if arr.shape[0] < 1 or arr.shape[1] < 1:
+                raise ValueError(f"First two dimensions of {class_name} image {i} should be at least 1")
+
+            if arr.shape[2] != n_colors:
+                raise ValueError(f"Last dimension of {class_name} image {i} should be {n_colors} not {arr.shape[2]}")
 
 class ImageURL(XYGlyph):
     ''' Render images loaded from given URLs.
