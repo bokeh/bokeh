@@ -10,23 +10,33 @@ type Delimiter = {
 
 const delimiters: Delimiter[] = [
   {start: "$$", end: "$$", inline: false},
-  {start: "\\[", end: "\\]", inline: false},
-  {start: "\\(", end: "\\)", inline: true},
+  {start: "\\\[", end: "\\\]", inline: false},
+  {start: "\\\(", end: "\\\)", inline: true},
 ]
 
-export function parse_delimited_string(text: string): BaseText {
-  for (const delim of delimiters) {
-    const n0 = text.indexOf(delim.start)
-    const m0 = n0 + delim.start.length
-    if (n0 == 0) {
-      const n1 = text.indexOf(delim.end, m0)
-      const m1 = n1
-      if (n1 == text.length - delim.end.length)
-        return new TeX({text: text.slice(m0, m1), inline: delim.inline})
-      else
-        break
-    }
-  }
+function add_backslash(m: string): string {
+  return m.split("").map(s => `\\${s}`).join("");
+}
 
-  return new PlainText({text})
+export function parse_delimited_string(text: string): BaseText {
+  let matches = Array<RegExpMatchArray>()
+  for (const delim of delimiters) {
+    const r = RegExp(`${add_backslash(delim.start)}(.*?)${add_backslash(delim.end)}`, "g")
+    matches = matches.concat([...text.matchAll(r)]);
+  }
+  if (0 < matches.length) {
+    let tex_string = ""
+    let _end = 0
+    for (const m of matches.sort((a, b) => a.index!- b.index!)) {
+      const start = m.index!
+      if (_end <= start) {
+        tex_string += start != 0 ? `\\text{${text.slice(_end, start)}}${m[1]}` : `${m[1]}`
+        _end = start + m[0].length
+      }
+    }
+    tex_string +=  _end < text.length ? `\\text{${text.slice(_end)}}` : ""
+    return new TeX({text: tex_string, inline: false})
+  }
+  else
+    return new PlainText({text})
 }
