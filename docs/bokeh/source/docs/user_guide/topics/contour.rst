@@ -60,14 +60,15 @@ All visual properties can be scalar or vector of the correct length. Color
 visual properties ``line_color``, ``fill_color`` and ``hatch_color`` support a
 few extra options for how they can be specified:
 
-* A sequence of colors that is longer than required will be resampled using
-  :func:`~bokeh.palettes.linear_palette`. The length 256 palettes such as
-  ``Cividis256`` are useful here.
+* A sequence of colors that is longer or shorter than required will be
+  resampled using :func:`~bokeh.palettes.interp_palette`. The length 256
+  palettes such as ``Cividis256`` are useful here.
 
-* A dictionary that maps from palette length (number of colors) to palette may
-  be used, in which case a lookup into the dictionary is performed to return a
-  palette of the correct length. The example here uses the palette collection
-  ``Cividis``.
+* A palette collection such as ``Cividis`` may be used, which is a dictionary
+  that maps from palette length (number of colors) to palette. If the
+  collection contains a palette of the correct length then that is used.
+  If the required length is outside of those available in the collection then
+  the palette with the nearest length is used, linearly interpolated.
 
 :func:`~bokeh.models.ContourRenderer.construct_color_bar` accepts other
 keyword arguments that are passed to the
