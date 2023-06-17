@@ -21,7 +21,7 @@ p = figure(
     title=(
         r"Bessel functions of the first kind: $$J_\alpha(x) = \sum_{m=0}^{\infty}"
         r"\frac{(-1)^m}{m!\:\Gamma(m+\alpha+1)} \left(\frac{x}{2}\right)^{2m+\alpha}$$"
-    )
+    ),
 )
 p.x_range.range_padding = 0
 p.xaxis.axis_label = "$$x$$"

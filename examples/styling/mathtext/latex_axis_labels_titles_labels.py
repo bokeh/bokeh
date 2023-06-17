@@ -1,6 +1,6 @@
 ''' This example demonstrates the use of inline mathtext on titles and ``Label`` annotations.
-This example makes use of all the three LaTeX delimiters pairs ``$$...$$``, ``\[...\]`` and
-``\(...\)``.
+This example makes use of all the three LaTeX delimiters pairs ``$$...$$``, ``\\[...\\]`` and
+``\\(...\\)``.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.line, bokeh.models.annotations.Label

@@ -15,14 +15,14 @@ const delimiters: Delimiter[] = [
 ]
 
 function add_backslash(m: string): string {
-  return m.split("").map(s => `\\${s}`).join("");
+  return m.split("").map(s => `\\${s}`).join("")
 }
 
 export function parse_delimited_string(text: string): BaseText {
   let matches = Array<RegExpMatchArray>()
   for (const delim of delimiters) {
     const r = RegExp(`${add_backslash(delim.start)}(.*?)${add_backslash(delim.end)}`, "g")
-    matches = matches.concat([...text.matchAll(r)]);
+    matches = matches.concat([...text.matchAll(r)])
   }
   if (0 < matches.length) {
     let tex_string = ""
@@ -36,7 +36,6 @@ export function parse_delimited_string(text: string): BaseText {
     }
     tex_string +=  _end < text.length ? `\\text{${text.slice(_end)}}` : ""
     return new TeX({text: tex_string, inline: false})
-  }
-  else
+  } else
     return new PlainText({text})
 }
