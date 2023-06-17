@@ -23,10 +23,10 @@ p.xgrid.visible = False
 p.ygrid.visible = False
 
 title = [
-    r"$$\text{Wavefunction } \psi_v(q) \text{ of first 8 mode solutions of Schrodinger's equation }" +
-        r" -\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi$$",
-    r"$$\text{Each wavefunction is labelled with its quantum number } v \text{ and energy } E_v$$",
-    r"$$\text{in a potential } V(q) = \frac{q^2}{2} \text{ shown by the dashed line.}$$",
+    r"Wave function $$\psi_v(q)$$ of first 8 mode solutions of Schrodinger's equation " +
+    r"$$-\frac{1}{2}\frac{d^2\psi}{dq^2} + \frac{1}{2}q^2\psi = \frac{E}{\hbar\omega}\psi$$",
+    r"Each wave function is labelled with its quantum number $$v$$ and energy $$E_v$$",
+    r"in a potential $$V(q) = \frac{q^2}{2}$$ shown by the dashed line.",
 ]
 for text in reversed(title):
     p.add_layout(Title(text=text, text_font_style="normal"), "above")
@@ -49,8 +49,8 @@ for v in range(number_of_modes):
     p.varea(q, ylower, E_v, fill_color= "#E66100")
     p.line(q, y, color="red", line_width=2)
 
-    p.add_layout(Label(x=-5.8, y=E_v, y_offset=-21, text=r"$$v = " + str(v) + r"$$"))
-    p.add_layout(Label(x=3.9, y=E_v, y_offset=-25, text=r"$$E_" + str(v) + r" = (" + str(2*v+1) + r"/2) \hbar\omega$$"))
+    p.add_layout(Label(x=-5.8, y=E_v, y_offset=-21, text=rf"$$v = {v}$$"))
+    p.add_layout(Label(x=3.9, y=E_v, y_offset=-25, text=rf"$$E_{v} = ({2*v+1}/2) \hbar\omega$$"))
 
 V = q**2 / 2
 p.line(q, V, line_color="black", line_width=2, line_dash="dashed")

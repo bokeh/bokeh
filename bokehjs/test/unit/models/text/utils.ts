@@ -39,44 +39,44 @@ describe("models/text/utils module", () => {
 
     const s9 = parse_delimited_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!")
     ;(s9 as any).id = wildcard
-    expect(s9).to.be.equal(new PlainText({text: "HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!"}))
+    expect(s9).to.be.equal(new TeX({text: "\\text{HTML <b>text</b> }\\sin(x)\\text{ and }x\\cdot\\pi\\]\\text{!}"}))
     const s10 = parse_delimited_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!")
     ;(s10 as any).id = wildcard
-    expect(s10).to.be.equal(new PlainText({text: "HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!"}))
+    expect(s10).to.be.equal(new TeX({text: "\\text{HTML <b>text</b> }sin(x)\\text{ and [xcdotpi]!}"}))
 
     const s11 = parse_delimited_string("$$test\\]")
     ;(s11 as any).id = wildcard
     expect(s11).to.be.equal(new PlainText({text: "$$test\\]"}))
     const s12 = parse_delimited_string("$$test $$ end $$")
     ;(s12 as any).id = wildcard
-    expect(s12).to.be.equal(new PlainText({text: "$$test $$ end $$"}))
+    expect(s12).to.be.equal(new TeX({text: "test\\text{ end $$}"}))
     const s13 = parse_delimited_string("$$ \\[test end\\]")
     ;(s13 as any).id = wildcard
     expect(s13).to.be.equal(new PlainText({text: "$$ \\[test end\\]"}))
     const s14 = parse_delimited_string("text \\[text $$latex$$")
     ;(s14 as any).id = wildcard
-    expect(s14).to.be.equal(new PlainText({text: "text \\[text $$latex$$"}))
+    expect(s14).to.be.equal(new TeX({text: "\\text{text \\[text }latex"}))
     const s15 = parse_delimited_string("$$ tex [ tex ] tex $$")
     ;(s15 as any).id = wildcard
     expect(s15).to.be.equal(new TeX({text: " tex [ tex ] tex "}))
     const s16 = parse_delimited_string("$$tex$$text$$tex$$")
     ;(s16 as any).id = wildcard
-    expect(s16).to.be.equal(new PlainText({text: "$$tex$$text$$tex$$"}))
+    expect(s16).to.be.equal(new TeX({text: "tex\\text{text}tex"}))
     const s17 = parse_delimited_string("part0$$part1\\[part2\\(part3$$")
     ;(s17 as any).id = wildcard
-    expect(s17).to.be.equal(new PlainText({text: "part0$$part1\\[part2\\(part3$$"}))
+    expect(s17).to.be.equal(new TeX({text: "\\text{part0}part1\\[part2\\(part3"}))
     const s18 = parse_delimited_string("part0$$part1\\[part2\\(part3\\]")
     ;(s18 as any).id = wildcard
-    expect(s18).to.be.equal(new PlainText({text: "part0$$part1\\[part2\\(part3\\]"}))
+    expect(s18).to.be.equal(new TeX({text: "\\text{part0$$part1}part2\\(part3"}))
     const s19 = parse_delimited_string("part0$$part1\\[part2\\(part3\\)")
     ;(s19 as any).id = wildcard
-    expect(s19).to.be.equal(new PlainText({text: "part0$$part1\\[part2\\(part3\\)"}))
+    expect(s19).to.be.equal(new TeX({text: "\\text{part0$$part1\\[part2}part3"}))
 
     const s20 = parse_delimited_string("$$\ncos(x)\n$$")
     ;(s20 as any).id = wildcard
     expect(s20).to.be.equal(new TeX({text: "\ncos(x)\n"}))
     const s21 = parse_delimited_string("$$\ncos(x)$$\n")
     ;(s21 as any).id = wildcard
-    expect(s21).to.be.equal(new PlainText({text: "$$\ncos(x)$$\n"}))
+    expect(s21).to.be.equal(new TeX({text: "\ncos(x)\\text{\n}"}))
   })
 })
