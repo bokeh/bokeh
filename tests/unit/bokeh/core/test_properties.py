@@ -391,6 +391,15 @@ class TestBasic:
             o.y
         assert o.z == 'xyz'
 
+        with pytest.raises(RuntimeError, match="ReadonlyModel.x is a readonly property"):
+            ReadonlyModel(x=20)
+
+        with pytest.raises(RuntimeError, match="ReadonlyModel.y is a readonly property"):
+            ReadonlyModel(y=30)
+
+        with pytest.raises(RuntimeError, match="ReadonlyModel.x is a readonly property"):
+            ReadonlyModel(x=20, y=30)
+
     def test_include_defaults(self) -> None:
         class IncludeDefaultsTest(HasProps):
             x = Int(12)

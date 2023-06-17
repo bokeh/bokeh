@@ -42,6 +42,7 @@ from typing import (
     Union,
     overload,
 )
+from weakref import WeakSet
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
@@ -98,14 +99,20 @@ if TYPE_CHECKING:
 
 C = TypeVar("C", bound=type["HasProps"])
 
+_abstract_classes: WeakSet[type[HasProps]] = WeakSet()
+
 def abstract(cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
 
     '''
     if not issubclass(cls, HasProps):
         raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
+    _abstract_classes.add(cls)
     cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
+
+def is_abstract(cls: type[HasProps]) -> bool:
+    return cls in _abstract_classes
 
 def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
