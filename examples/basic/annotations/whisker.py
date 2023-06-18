@@ -33,6 +33,6 @@ p.add_layout(error)
 
 p.circle(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
          alpha=0.5, size=13, line_color="white",
-         color=factor_cmap("class", "Light6", classes))
+         color=factor_cmap("class", "Light7", classes))
 
 show(p)
