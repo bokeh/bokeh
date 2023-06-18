@@ -4,7 +4,7 @@ time which allows the user to click on the legend entries to hide or show
 the corresponding lines.
 
 .. bokeh-example-metadata::
-    :sampledata: bokeh.sampledata.stocks
+    :sampledata: stocks
     :apis: bokeh.plotting.figure.line, bokeh.palettes.Spectral4
     :refs: :ref:`ug_basic_annotations_legends`
     :keywords: line, time series, legend
