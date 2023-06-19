@@ -48,7 +48,7 @@ p = figure(
     min_border=0, outline_line_color="black", background_fill_color="#f0e1d2",
 )
 
-# large wedges wedges for bacteria
+# large wedges for bacteria
 br = p.annular_wedge(0, 0, micmax, micmin, "start", "end", fill_color="colors", line_color="#f0e1d2", source=source)
 
 # circular axes and labels
