@@ -10,7 +10,7 @@ p = figure(height=250, title=r"\[\sin(x)\text{ for }x\text{ between }-2\pi\text{
 p.circle(x, y, alpha=0.6, size=7)
 
 label = Label(
-    text=r"$$y = \sin(x)\$$",
+    text=r"$$y = \sin(x)$$",
     x=150, y=130,
     x_units="screen", y_units="screen",
 )
