@@ -72,7 +72,9 @@ export class CustomJS extends Callback {
     const [names=[], values=[]] = unzip(entries(this.args))
     const code = use_strict(this.code)
     const func = new Function(...names, "cb_obj", "cb_data", code)
-    return func.bind(undefined, ...values)
+    return function(...args: unknown[]) {
+      return func.call(this, ...values, ...args)
+    }
   }
 
   protected _is_es_module(code: string): boolean {
