@@ -43,7 +43,8 @@ describe("CustomJS", () => {
       const cb = new CustomJS({code: "return 10"})
       const {func, module} = await cb.state()
       expect(func).to.be.instanceof(Function)
-      expect(func.toString()).to.be.equal("function () { [native code] }") // due to bind()
+      const repr = func.toString().replaceAll(/\s*\n\s*/g, " ") // representation depends on bundling, etc.
+      expect(repr).to.be.equal("function (...args) { return func.call(this, ...values, ...args); }")
       expect(module).to.be.equal(false)
     })
 
