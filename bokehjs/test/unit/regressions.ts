@@ -5,10 +5,28 @@ import {display, fig} from "./_util"
 import {PlotActions, xy, click} from "../interactive"
 
 import {
-  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper, Row,
-  Toolbar, Plot, Scatter,
+  BooleanFilter,
+  BoxAnnotation,
+  BoxSelectTool,
+  CDSView,
+  Circle,
+  ColumnDataSource,
+  CopyTool,
+  CustomJS,
+  GlyphRenderer,
+  HoverTool,
+  Legend,
+  LegendItem,
+  Line,
+  LinearColorMapper,
+  Plot,
+  Rect,
+  Row,
+  Scatter,
+  Title,
+  Toolbar,
 } from "@bokehjs/models"
+
 import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
@@ -773,6 +791,15 @@ describe("Bug", () => {
       const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
       assert(result9 != null)
       expect(result9.indices).to.be.equal([2])
+    })
+  })
+
+  describe("in issue #13217", () => {
+    it("doesn't allow to bind this in non-module CustomJS", async () => {
+      const obj = new Plot()
+      const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
+      const result = await cb.execute(obj, {data0: 123})
+      expect(result).to.be.equal([obj, "abc", obj, 123])
     })
   })
 })
