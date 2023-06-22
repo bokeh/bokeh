@@ -92,6 +92,49 @@
     - #13220 [component: examples] remove text duplicate in burtin.py
     - #13221 [component: examples] Remove unneeded backslash in LaTeX [skip ci]
 
+2023-05-05    3.1.1:
+--------------------
+  * bugfixes:
+    - #10547 [BUG] Division element id of components can be invalid for CSS
+    - #12400 [component: server] [BUG] Domain is not resolved correctly when using BOKEH_RESOURCES=server
+    - #12905 `load_notebook()` uses non-unique DOM element IDs
+    - #12913 [component: bokehjs] [BUG] Artifacts on the signal when using WebGL to plot
+    - #12926 [component: build] bokehjs' build fails on Windows 10 due to creating symlinks
+    - #13056 [component: examples] `autocompleteinput.py` example doesn't work with pandas 2.0
+    - #13060 [component: docs] `README.md` in `examples/` doesn't reflect the contents of the directory
+    - #13081 [component: bokehjs] [BUG] Incorrect behaviour of Slider control on Safari (macOS)
+    - #13104 [component: bokehjs] Heavy `lazy_initialize()` can result in a race condition
+    - #13108 [BUG] Fix broken link to tools guide
+    - #13062 Fix bokeh.sphinxext.util after PR #13041
+    - #13070 [component: server] Fix `MultiRootStaticHandler` after PR #13041
+    - #13086 [component: docs] fix broken docs refs
+    - #13100 [component: bokehjs] Fix race conditions related to layout resize and updates
+
+  * tasks:
+    - #6683 [component: bokehjs] accent are sorted last in sorted Tablecolumn
+    - #10408 [component: bokehjs] Investigate duplicated `ctx.stroke()` in various hatch patterns
+    - #11335 [component: build] Display a list of installed dependencies and related software in CI
+    - #11782 [component: bokehjs] [FEATURE] Propagate Name attribute to js for all Models
+    - #12729 [component: docs] [BUG] [docs] Serializer cannot serialize decimal.Decimal
+    - #12790 [component: tests] Complete unit tests for BokehJS mathematical array functions
+    - #12814 [component: build] Check for existence of git tags early on in build process
+    - #12909 [component: docs] dev guide has incorrect links to executables in the github
+    - #12914 Disable miniconda-setup Post step on Windows
+    - #12954 Prune latest docs properly 
+    - #13001 [component: docs] Carriage returns error on Windows systems. [BUG] 
+    - #13053 [FEATURE] Set `Cross-Origin-Resource-Policy: cross-origin`
+    - #12939 [component: docs] add ref
+    - #12963 [component: tests] Temporarily disable docker_from_wheel test in CI
+    - #12973 [component: docs] Fix tiny error in doc code-block
+    - #13003 [component: docs] Added metadata to line_on_off.py
+    - #13009 [component: docs] Add dropdowns to contributor docs troubleshooting
+    - #13026 [component: docs] Tile source metadata
+    - #13035 Increase the number of iterations in CSS safe ID generator
+    - #13054 [component: docs] Update In-kind sponsors list
+    - #13065 [component: build] Allow `static/` symlinks in `BOKEHJS_ACTION=install pip install -e .`
+    - #13084 [component: docs] Update first_steps_1.rst
+    - #13103 Backports for 3.1.1
+
 2023-03-09      3.1:
 --------------------
   * bugfixes:
