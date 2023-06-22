@@ -175,8 +175,10 @@ html_title = f"{project} {version} Documentation"
 # html_logo configured in navbar-logo.html
 
 html_theme_options = {
-    "plausible_analytics_domain": "docs.bokeh.org",
-    "plausible_analytics_url": "https://plausible.io/js/script.js",
+    "analytics": {
+        "plausible_analytics_domain": "docs.bokeh.org",
+        "plausible_analytics_url": "https://plausible.io/js/script.js",
+    },
     "external_links": [
         {"name": "Tutorial",  "url": "https://mybinder.org/v2/gh/bokeh/bokeh-notebooks/HEAD?labpath=index.ipynb"},
         {"name": "Community", "url": "https://discourse.bokeh.org"},
@@ -201,6 +203,7 @@ html_sidebars = {
     "docs/examples/**": [],
     "docs/gallery": [],
     "index": [],
+    "**": ["search-field.html", "sidebar-nav-bs.html"],
 }
 
 favicons = [

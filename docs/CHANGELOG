@@ -1,3 +1,140 @@
+2023-06-21      3.2:
+--------------------
+  * bugfixes:
+    - #11852 [BUG] DataRange.renderers.append fails silently
+    - #12078 [component: bokehjs] [BUG] Non-circle hover glyphs permanently rendered with vline/hline mode
+    - #12718 [component: bokehjs] [BUG] Changing view's filter with group based legend causes redraw in canvas to be shifted
+    - #12951 [component: bokehjs] [BUG] bokeh.models.Tooltip causes rendering error
+    - #12956 [component: bokehjs] [BUG] DataTable requires custom scaling in Bokeh 3.1.0
+    - #13015 [BUG] select(CategoricalColorMapper) returns an empty array
+    - #13112 [component: bokehjs] [BUG] Setting source.selected.indices fails on glyphs that contain text
+    - #13134 [component: bokehjs] [BUG] IndexFilter indices no longer accepts numpy.ndarray
+    - #13150 [component: bokehjs] [BUG] Nodes of networkx graph not rendered using webgl backend
+    - #13152 [component: tests] Tests fail due to `requests` and `urllib3` 2.x incompatibility
+    - #13159 [component: docs] [BUG] Small typos in the docs
+    - #13182 [component: bokehjs] [BUG] legend_field labels no longer update with CDS in Bokeh 3
+    - #13187 [component: docs] [BUG] Missing import in minimal example in dom.rst
+    - #13192 [component: bokehjs] [BUG] Cannot reset enabled_dates in DatePicker
+    - #13197 Release deploy fails with `AccessDenied` when publishing documentation
+    - #13217 [component: bokehjs] js_link is broken
+    - #13222 [component: docs] Search bar is missing from dev docs
+    - #13135 [component: docs] Fix typo
+    - #13202 [component: docs] Update theme.py
+
+  * features:
+    - #7093 [component: bokehjs] A ColorBar needs a label, as a plot needs a ColorBar
+    - #12062 [component: bokehjs] [FEATURE] Support varea with step lines
+    - #12532 [FEATURE] Access to know whether user ctrl-clicks, shift-clicks, or command-clicks in CustomJS callback
+    - #12829 [FEATURE] Independent extra ranges in a single figure
+    - #13036 Ability to rotate axis labels by adding 'axis_label_orientation'
+    - #12677 Add support for `HSpan`, `VSpan`, `HStrip` and `VStrip`
+    - #12704 Add webgl support to `Annulus`, `Wedge` and `AnnularWedge`
+    - #12812 Add support for ES module (`import`/`export` syntax) callbacks
+
+  * tasks:
+    - #7156 [component: build] Standalone mode: images referenced in CSS files are missing
+    - #12278 [component: tests] Add a method for generating bokehjs' JSON tests assests
+    - #12872 [BUG] ResourceWarning: unclosed file
+    - #12936 [FEATURE] Update ruff to include W291 (trailing whitespace)
+    - #13058 Check if sample data files are outdated before loading them
+    - #13114 [BUG] bokeh.embed.file_html produces unhelpful error message if passing a Document with no root models
+    - #13116 [component: examples] Burtin example has a bad tick format 
+    - #13117 Update AWS CI role for docs deploy
+    - #13122 [component: build] sdist builds require git tags
+    - #13143 [BUG] Ruff pyupgrade keep-runtime-annotations is obsolete.
+    - #12720 Drop support for Python 3.8
+    - #12920 [component: docs] Added metadata to legends.py
+    - #12922 [component: examples] Updated colors of Band Plots
+    - #12923 [component: docs] added accessible color palette
+    - #12944 Forward ports from 3.1
+    - #12950 added metadata to twin_axis.py
+    - #12953 [component: examples] Update to Bokeh example plot: accessible palette with new images
+    - #12959 [component: examples] Increased alpha of the circle plot 
+    - #12967 [component: docs] 11765 add metadata to plots
+    - #12970 Added Images for new Band Plots
+    - #12975 [component: docs] added metadata to legends_item_visibility.py
+    - #12977 [component: build] Upgrade to TypeScript 5.0
+    - #12979 [component: docs] Add metadata to plots (#11765)
+    - #12982 [component: docs] Update example metadata
+    - #12983 [component: examples] Improve color contrast for accessibility
+    - #12984 [component: docs] Added reference for server.py file
+    - #12990 [component: docs] Update text.py with metadata
+    - #12991 [component: docs] Added metadata to setvalue.py
+    - #12992 [component: docs] Update metadata to legend_hide and tile_xyzservices
+    - #12993 [component: docs] Added metadata to label.py and whisker.py
+    - #12995 [component: docs] Updated server.py reference
+    - #12998 [component: docs] Added metadata to band.py for Band Plots
+    - #12999 [component: examples] Updated colors of Twin Axes Plots
+    - #13006 [component: docs] Add metadata to image alpha
+    - #13012 [component: docs] Added metadata to examples/plotting/aspect.py
+    - #13013 [component: examples] Updated colors of Slope Plots
+    - #13018 [component: examples] Updating nested_colormapped with new accessible palettes
+    - #13022 [component: docs] Line select metadata
+    - #13023 [component: docs] 11765 maps cities
+    - #13024 [component: examples] changed span example lines from solid to dashed
+    - #13031 Updated colors of Mixed Plots
+    - #13043 [component: docs] added metadata to tooltip_content.py, arc.py 
+    - #13047 [component: docs] Added metadata to theme_glyphs
+    - #13050 [component: docs] added metadata to examples/plotting/polar.py
+    - #13051 [component: docs] Added metadata for examples/models/toolbars2.py
+    - #13069 [component: examples] Disable `na_filter` instead of ignoring incorrectly parsed NaNs
+    - #13094 [component: docs] Update docs infrastructure
+    - #13140 [component: bokehjs] Do not blit webgl canvas if width or height are zero
+    - #13142 Improve handling of resources in lower level embed APIs
+    - #13145 Upgrade to ruff 0.0.269 and further modernize bokeh's codebase
+    - #13146 [component: bokehjs] Separate type imports from value/mixed imports in bokehjs
+    - #13153 [component: server] Allow to recover from deserialization of a previously seen ref
+    - #13169 [component: docs] Don't turn warnings into errors in sphinx-build
+    - #13173 [component: bokehjs] Clean up the rest of eslint warnings and refactor its config
+    - #13174 Do not resolve default descriptor value if already present in unstable defaults
+    - #13178 [component: docs] Add ColorBar to LaTeX docs
+    - #13208 [component: docs] Update bokeh 3.2.0 release notes
+    - #13220 [component: examples] remove text duplicate in burtin.py
+    - #13221 [component: examples] Remove unneeded backslash in LaTeX [skip ci]
+
+2023-05-05    3.1.1:
+--------------------
+  * bugfixes:
+    - #10547 [BUG] Division element id of components can be invalid for CSS
+    - #12400 [component: server] [BUG] Domain is not resolved correctly when using BOKEH_RESOURCES=server
+    - #12905 `load_notebook()` uses non-unique DOM element IDs
+    - #12913 [component: bokehjs] [BUG] Artifacts on the signal when using WebGL to plot
+    - #12926 [component: build] bokehjs' build fails on Windows 10 due to creating symlinks
+    - #13056 [component: examples] `autocompleteinput.py` example doesn't work with pandas 2.0
+    - #13060 [component: docs] `README.md` in `examples/` doesn't reflect the contents of the directory
+    - #13081 [component: bokehjs] [BUG] Incorrect behaviour of Slider control on Safari (macOS)
+    - #13104 [component: bokehjs] Heavy `lazy_initialize()` can result in a race condition
+    - #13108 [BUG] Fix broken link to tools guide
+    - #13062 Fix bokeh.sphinxext.util after PR #13041
+    - #13070 [component: server] Fix `MultiRootStaticHandler` after PR #13041
+    - #13086 [component: docs] fix broken docs refs
+    - #13100 [component: bokehjs] Fix race conditions related to layout resize and updates
+
+  * tasks:
+    - #6683 [component: bokehjs] accent are sorted last in sorted Tablecolumn
+    - #10408 [component: bokehjs] Investigate duplicated `ctx.stroke()` in various hatch patterns
+    - #11335 [component: build] Display a list of installed dependencies and related software in CI
+    - #11782 [component: bokehjs] [FEATURE] Propagate Name attribute to js for all Models
+    - #12729 [component: docs] [BUG] [docs] Serializer cannot serialize decimal.Decimal
+    - #12790 [component: tests] Complete unit tests for BokehJS mathematical array functions
+    - #12814 [component: build] Check for existence of git tags early on in build process
+    - #12909 [component: docs] dev guide has incorrect links to executables in the github
+    - #12914 Disable miniconda-setup Post step on Windows
+    - #12954 Prune latest docs properly 
+    - #13001 [component: docs] Carriage returns error on Windows systems. [BUG] 
+    - #13053 [FEATURE] Set `Cross-Origin-Resource-Policy: cross-origin`
+    - #12939 [component: docs] add ref
+    - #12963 [component: tests] Temporarily disable docker_from_wheel test in CI
+    - #12973 [component: docs] Fix tiny error in doc code-block
+    - #13003 [component: docs] Added metadata to line_on_off.py
+    - #13009 [component: docs] Add dropdowns to contributor docs troubleshooting
+    - #13026 [component: docs] Tile source metadata
+    - #13035 Increase the number of iterations in CSS safe ID generator
+    - #13054 [component: docs] Update In-kind sponsors list
+    - #13065 [component: build] Allow `static/` symlinks in `BOKEHJS_ACTION=install pip install -e .`
+    - #13084 [component: docs] Update first_steps_1.rst
+    - #13103 Backports for 3.1.1
+
 2023-03-09      3.1:
 --------------------
   * bugfixes:

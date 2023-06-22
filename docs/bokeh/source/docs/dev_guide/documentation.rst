@@ -126,7 +126,7 @@ root level of your *source checkout* directory to update ``bkdev``:
 
 .. code-block:: sh
 
-    conda env update --name bkdev -file <environment file> --prune
+    conda env update --name bkdev --file <environment file> --prune
 
 using the environment file you originally used to create ``bkdev``.
 
