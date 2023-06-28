@@ -21,9 +21,10 @@ export class MultiMarkerGL extends BaseMarkerGL {
     // The main glyph has the data, this glyph has the visuals.
     const main_gl_glyph = main_glyph.glglyph!
 
-    if (main_gl_glyph.data_changed) {
+    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
       main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
+      main_gl_glyph.data_mapped = false
     }
 
     if (this.visuals_changed) {

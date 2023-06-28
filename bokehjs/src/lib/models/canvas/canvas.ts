@@ -36,7 +36,9 @@ async function init_webgl(): Promise<WebGLState | null> {
   // We use a global invisible canvas and gl context. By having a global context,
   // we avoid the limitation of max 16 contexts that most browsers have.
   const canvas = document.createElement("canvas")
-  const gl = canvas.getContext("webgl", {premultipliedAlpha: true})
+  const gl = canvas.getContext(
+    "webgl", {alpha: true, antialias: false, depth: false, premultipliedAlpha: true},
+  )
 
   // If WebGL is available, we store a reference to the ReGL wrapper on
   // the ctx object, because that's what gets passed everywhere.
