@@ -33,7 +33,9 @@ from bokeh.plotting.contour import (
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
-    # This is to make the fixture typing simpler
+    # The following type annotation is to make the fixture typing simpler.
+    # The X, Y, Z and Levels are simple valid data passed to the contouring
+    # functions to allow testing of visual properties.
     XYZ_Levels: TypeAlias = tuple[list[float], list[float], list[list[float]], list[float]]
 
 #-----------------------------------------------------------------------------
