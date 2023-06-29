@@ -48,9 +48,10 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       this.visuals_changed = false
     }
 
-    if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
+    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
+      main_gl_glyph._set_data(main_gl_glyph.data_changed)
       main_gl_glyph.data_changed = false
+      main_gl_glyph.data_mapped = false
     }
 
     const line_visuals = this._get_visuals().line
@@ -98,35 +99,42 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     return this._line_dash != null && this._line_dash.length > 0
   }
 
-  protected _set_data(): void {
+  protected _set_data(data_changed: boolean): void {
+    // If data_changed is false the underlying glyph data has not changed but has been mapped to
+    // different canvas coordinates e.g. via pan or zoom. If data_changed is true the data itself
+    // has changed, which also implies it has been mapped.
     const points_array = this._set_data_points()
 
-    // Points array includes extra points at each end
-    const npoints = points_array.length/2 - 2
+    if (data_changed) {
+      // Points array includes extra points at each end
+      const npoints = points_array.length/2 - 2
 
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
-    const show_array = this._show.get_sized_array(npoints+1)
+      if (this._show == null)
+        this._show = new Uint8Buffer(this.regl_wrapper)
+      const show_array = this._show.get_sized_array(npoints+1)
 
-    let start_finite = isFinite(points_array[2]) && isFinite(points_array[3])
-    for (let i = 1; i < npoints; i++) {
-      const end_finite = isFinite(points_array[2*i+2]) && isFinite(points_array[2*i+3])
-      show_array[i] = (start_finite && end_finite) ? 1 : 0
-      start_finite = end_finite
+      let start_finite = isFinite(points_array[2]) && isFinite(points_array[3])
+      for (let i = 1; i < npoints; i++) {
+        const end_finite = isFinite(points_array[2*i+2]) && isFinite(points_array[2*i+3])
+        show_array[i] = (start_finite && end_finite) ? 1 : 0
+        start_finite = end_finite
+      }
+
+      if (this._is_closed) {
+        show_array[0] = show_array[npoints-1]
+        show_array[npoints] = show_array[1]
+      } else {
+        show_array[0] = 0
+        show_array[npoints] = 0
+      }
+
+      this._show.update()
     }
-
-    if (this._is_closed) {
-      show_array[0] = show_array[npoints-1]
-      show_array[npoints] = show_array[1]
-    } else {
-      show_array[0] = 0
-      show_array[npoints] = 0
-    }
-
-    this._show.update()
 
     if (this._is_dashed()) {
+      const npoints = points_array.length/2 - 2
       const nsegments = npoints-1
+      const show_array = this._show!.get_sized_array(npoints+1)
 
       if (this._length_so_far == null)
         this._length_so_far = new Float32Buffer(this.regl_wrapper)
