@@ -20,18 +20,22 @@ export class MultiLineGL extends BaseLineGL {
     }
 
     const main_gl_glyph = main_glyph.glglyph!
-    if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
-    }
+    const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
 
-    if ((main_gl_glyph.data_changed && main_gl_glyph._is_dashed) || this._is_dashed) {
+    if (data_changed_or_mapped)
+      main_gl_glyph._set_data(main_gl_glyph.data_changed)
+
+    if ((data_changed_or_mapped && main_gl_glyph._is_dashed) || this._is_dashed) {
       // length_so_far is a data property as it depends on point positions in canvas coordinates
       // but is only needed for dashed lines so it also depends on visual properties.
       // Care needed if base glyph is solid but e.g. nonselection glyph is dashed.
       main_gl_glyph._set_length()
     }
 
-    main_gl_glyph.data_changed = false
+    if (data_changed_or_mapped) {
+      this.data_changed = false
+      this.data_mapped = false
+    }
 
     const {data_size} = this.glyph  // Number of lines
     let framebuffer: Framebuffer2D | null = null
@@ -77,7 +81,11 @@ export class MultiLineGL extends BaseLineGL {
     return this.glyph.visuals.line
   }
 
-  protected _set_data(): void {
+  protected _set_data(data_changed: boolean): void {
+    // If data_changed is false the underlying glyph data has not changed but has been mapped to
+    // different canvas coordinates e.g. via pan or zoom. If data_changed is true the data itself
+    // has changed, which also implies it has been mapped.
+
     // Set data properties which are points and show flags for data
     // (taking into account NaNs but not selected indices)
     const line_count = this.glyph.data_size
@@ -87,12 +95,7 @@ export class MultiLineGL extends BaseLineGL {
       this._points = new Float32Buffer(this.regl_wrapper)
     const points_array = this._points.get_sized_array((total_point_count + 2*line_count)*2)
 
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
-    const show_array = this._show.get_sized_array(total_point_count + line_count)
-
     let point_offset = 0
-    let show_offset = 0
     for (let i = 0; i < line_count; i++) {
       // Process a single line at a time.
       const sx = this.glyph.sxs.get(i)
@@ -102,15 +105,34 @@ export class MultiLineGL extends BaseLineGL {
       const points = points_array.subarray(point_offset, point_offset + (npoints+2)*2)
       this._set_points_single(points, sx, sy)
 
-      const show = show_array.subarray(show_offset, show_offset + npoints+1)
-      this._set_show_single(show, points)
-
       point_offset += (npoints + 2)*2
-      show_offset += npoints + 1
     }
 
     this._points.update()
-    this._show.update()
+
+    if (data_changed) {
+      if (this._show == null)
+        this._show = new Uint8Buffer(this.regl_wrapper)
+      const show_array = this._show.get_sized_array(total_point_count + line_count)
+
+      let point_offset = 0
+      let show_offset = 0
+      for (let i = 0; i < line_count; i++) {
+        // Process a single line at a time.
+        const sx = this.glyph.sxs.get(i)
+        const npoints = sx.length
+
+        const points = points_array.subarray(point_offset, point_offset + (npoints+2)*2)
+
+        const show = show_array.subarray(show_offset, show_offset + npoints+1)
+        this._set_show_single(show, points)
+
+        point_offset += (npoints + 2)*2
+        show_offset += npoints + 1
+      }
+
+      this._show.update()
+    }
   }
 
   protected _set_length(): void {

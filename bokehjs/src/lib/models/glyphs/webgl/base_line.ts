@@ -76,7 +76,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   protected abstract _get_visuals(): BaseLineVisuals
 
-  protected abstract _set_data(): void
+  protected abstract _set_data(data_changed: boolean): void
 
   protected _set_length_single(length_so_far: Float32Array, points: Float32Array, show: Uint8Array): void {
     // Set length so far for a single line from the points and show flags for that line.

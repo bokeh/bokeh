@@ -17,18 +17,22 @@ export abstract class SingleLineGL extends BaseLineGL {
       this.visuals_changed = false
     }
 
-    if (main_gl_glyph.data_changed) {
-      main_gl_glyph._set_data()
-    }
+    const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
 
-    if ((main_gl_glyph.data_changed && main_gl_glyph._is_dashed) || this._is_dashed) {
+    if (data_changed_or_mapped)
+      main_gl_glyph._set_data(main_gl_glyph.data_changed)
+
+    if ((data_changed_or_mapped && main_gl_glyph._is_dashed) || this._is_dashed) {
       // length_so_far is a data property as it depends on point positions in canvas coordinates
       // but is only needed for dashed lines so it also depends on visual properties.
       // Care needed if base glyph is solid but e.g. nonselection glyph is dashed.
       main_gl_glyph._set_length()
     }
 
-    main_gl_glyph.data_changed = false
+    if (data_changed_or_mapped) {
+      this.data_changed = false
+      this.data_mapped = false
+    }
 
     // Get show buffer to account for selected indices.
     const show = this._get_show_buffer(indices, main_gl_glyph)
@@ -40,19 +44,23 @@ export abstract class SingleLineGL extends BaseLineGL {
 
   protected abstract _get_show_buffer(indices: number[], main_gl_glyph: BaseLineGL): Uint8Buffer
 
-  protected _set_data(): void {
-    // Set data properties which are points and show flags for data
-    // (taking into account NaNs but not selected indices)
+  protected _set_data(data_changed: boolean): void {
+    // If data_changed is false the underlying glyph data has not changed but has been mapped to
+    // different canvas coordinates e.g. via pan or zoom. If data_changed is true the data itself
+    // has changed, which also implies it has been mapped.
     const points_array = this._set_data_points()
 
-    // Points array includes extra points at each end
-    const npoints = points_array.length/2 - 2
+    if (data_changed) {
+      // show flags for data, taking into account NaNs but not selected indices
+      // Points array includes extra points at each end
+      const npoints = points_array.length/2 - 2
 
-    if (this._show == null)
-      this._show = new Uint8Buffer(this.regl_wrapper)
-    const show_array = this._show.get_sized_array(npoints+1)
-    this._set_show_single(show_array, points_array)
-    this._show.update()
+      if (this._show == null)
+        this._show = new Uint8Buffer(this.regl_wrapper)
+      const show_array = this._show.get_sized_array(npoints+1)
+      this._set_show_single(show_array, points_array)
+      this._show.update()
+    }
   }
 
   protected abstract _set_data_points(): Float32Array
