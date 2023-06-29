@@ -392,7 +392,7 @@ export abstract class GlyphView extends View {
     }
 
     this._map_data()
-    this.glglyph?.set_data_changed()
+    this.glglyph?.set_data_mapped()
   }
 
   // This is where specs not included in coords are computed, e.g. radius.
