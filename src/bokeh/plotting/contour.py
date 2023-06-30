@@ -28,12 +28,12 @@ from ..core.property_mixins import FillProps, HatchProps, LineProps
 from ..models.glyphs import MultiLine, MultiPolygons
 from ..models.renderers import ContourRenderer, GlyphRenderer
 from ..models.sources import ColumnDataSource
-from ..palettes import linear_palette
+from ..palettes import interp_palette
 from ..plotting._renderer import _process_sequence_literals
 from ..util.dataclasses import dataclass, entries
 
 if TYPE_CHECKING:
-    from numpy.typing import ArrayLike
+    from numpy.typing import ArrayLike, NDArray
     from typing_extensions import TypeAlias
 
     from ..palettes import Palette, PaletteCollection
@@ -221,8 +221,10 @@ def from_contour(
 
     want_fill = visuals.get("fill_color", None) is not None
     if want_fill:
-        # Handle possible callback or interpolation for fill_color.
+        # Handle possible callback or interpolation for fill_color and hatch_color.
         visuals["fill_color"] = _color(visuals["fill_color"], nlevels-1)
+        if "hatch_color" in visuals:
+            visuals["hatch_color"] = _color(visuals["hatch_color"], nlevels-1)
 
         fill_cds = ColumnDataSource()
         _process_sequence_literals(MultiPolygons, visuals, fill_cds, False)
@@ -294,15 +296,10 @@ class SingleLineCoords:
 def _color(color: ContourColorOrPalette, n: int) -> ContourColor:
     # Dict to sequence of colors such as palettes.cividis
     if isinstance(color, dict):
-        color = color.get(n, None)
-        if not color or len(color) != n:
-            raise ValueError(f"Dict of colors does not contain a key of {n}")
+        return _palette_from_collection(color, n)
 
-    if isinstance(color, Sequence) and not isinstance(color, (bytes, str)):
-        if len(color) < n:
-            raise ValueError("Insufficient number of colors")
-        elif len(color) > n:
-            color = linear_palette(color, n)
+    if isinstance(color, Sequence) and not isinstance(color, (bytes, str)) and len(color) != n:
+        return interp_palette(color, n)
 
     return color
 
@@ -387,7 +384,30 @@ def _lines_to_coords(lines) -> SingleLineCoords:
         ys[start+i:end+i] = points[start:end, 1]
     return SingleLineCoords(xs, ys)
 
-def _validate_levels(levels: ArrayLike | None):
+def _palette_from_collection(collection: PaletteCollection, n: int) -> Palette:
+    # Return palette of length n from the specified palette collection, which
+    # is a dict[int, Palette]. If the required length palette is in the
+    # collection then return that. If the required length is bigger than the
+    # longest palette then interpolate that. If the required length is smaller
+    # than the shortest palette then interpolate that.
+    if len(collection) < 1:
+        raise ValueError("PaletteCollection is empty")
+
+    palette = collection.get(n, None)
+    if palette is not None:
+        return palette
+
+    max_key = max(collection.keys())
+    if isinstance(max_key, int) and n > max_key:
+        return interp_palette(collection[max_key], n)
+
+    min_key = min(collection.keys())
+    if isinstance(min_key, int) and n < min_key:
+        return interp_palette(collection[min_key], n)
+
+    raise ValueError(f"Unable to extract or interpolate palette of length {n} from PaletteCollection")
+
+def _validate_levels(levels: ArrayLike | None) -> NDArray[float]:
     levels = np.asarray(levels)
     if levels.ndim == 0 or len(levels) == 0:
         raise ValueError("No contour levels specified")
