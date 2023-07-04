@@ -496,7 +496,7 @@ instead of pushing every commit individually. This will help you be considerate
 of others who require access to these limited resources.
 
 .. _ESLint: https://eslint.org/
-.. _Ruff: https://github.com/charliermarsh/ruff
+.. _Ruff: https://github.com/astral-sh/ruff
 .. _pytest: https://pytest.org/
 .. _pytest-xdist: https://github.com/pytest-dev/pytest-xdist
 .. _Selenium: https://www.selenium.dev/documentation/en/
