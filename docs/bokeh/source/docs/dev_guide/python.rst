@@ -206,7 +206,7 @@ To type check your code locally, run ``mypy bokeh``.
 
 .. _PEP8: https://www.python.org/dev/peps/pep-0008/
 .. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html#383-functions-and-methods
-.. _Ruff: https://github.com/charliermarsh/ruff
+.. _Ruff: https://github.com/astral-sh/ruff
 .. _isort: https://pycqa.github.io/isort/
 .. _mypy: https://mypy.readthedocs.io
 .. _stub files: https://www.python.org/dev/peps/pep-0484/#stub-files
