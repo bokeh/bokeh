@@ -13,6 +13,7 @@ import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
+import type {MultiLineGL} from "./webgl/multi_line"
 
 export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
   _xs: RaggedArray<FloatArray>
@@ -27,6 +28,14 @@ export interface MultiLineView extends MultiLineData {}
 export class MultiLineView extends GlyphView {
   declare model: MultiLine
   declare visuals: MultiLine.Visuals
+
+  /** @internal */
+  declare glglyph?: MultiLineGL
+
+  override async load_glglyph() {
+    const {MultiLineGL} = await import("./webgl/multi_line")
+    return MultiLineGL
+  }
 
   protected override _project_data(): void {
     inplace.project_xy(this._xs.array, this._ys.array)

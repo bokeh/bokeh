@@ -4,6 +4,7 @@ import type {LineCap, LineJoin} from "core/enums"
 import type {HatchPattern} from "core/property_mixins"
 import type {uint32} from "core/types"
 import type {Uniform} from "core/uniforms"
+import {assert} from "core/util/assert"
 import {color2rgba} from "core/util/color"
 import type {AttributeConfig, Buffer} from "regl"
 
@@ -20,6 +21,12 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   constructor(regl_wrapper: ReglWrapper) {
     this.regl_wrapper = regl_wrapper
     this.is_scalar = true
+  }
+
+  // Return array if already know it exists and is the correct length.
+  get_array(): ArrayType {
+    assert(this.array != null, "WrappedBuffer not yet initialised")
+    return this.array
   }
 
   // Return array of correct size, creating it if necessary.
@@ -83,6 +90,15 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
       divisor: this.is_scalar ? 0 : 1,
       normalized: this.is_normalized(),
       offset,
+    }
+  }
+
+  to_attribute_config_divisor(offset: number = 0, divisor: number = 1): AttributeConfig {
+    return {
+      buffer: this.buffer,
+      divisor,
+      normalized: this.is_normalized(),
+      offset: this.is_scalar ? 0 : offset,
     }
   }
 

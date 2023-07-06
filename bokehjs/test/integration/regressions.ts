@@ -4,7 +4,7 @@ import {expect} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, xy, click, press, mouseenter} from "../interactive"
 
-import type {ArrowHead, Renderer, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Line, Renderer, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
@@ -39,9 +39,8 @@ import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tab
 
 import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
-import {settings} from "@bokehjs/core/settings"
 import type {Color, Arrayable} from "@bokehjs/core/types"
-import type {Location, OutputBackend} from "@bokehjs/core/enums"
+import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {assert} from "@bokehjs/core/util/assert"
@@ -441,30 +440,32 @@ describe("Bug", () => {
   describe("in issue #10305", () => {
     it("disallows to render lines with NaNs using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const p = fig([300, 200], {output_backend})
+        const p = fig([200, 200], {output_backend, title: output_backend})
         const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
-        p.line({x: range(y.length), y})
+        p.line({x: range(y.length), y, line_width: 5, line_dash: "dashed"})
         return p
       }
 
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
+      const p2 = make_plot("webgl")
 
-      await display(row([p0, p1]))
+      await display(row([p0, p1, p2]))
     })
 
     it("disallows to render multi-lines with NaNs using SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
-        const p = fig([300, 200], {output_backend})
+        const p = fig([200, 200], {output_backend, title: output_backend})
         const y = [NaN, 0, 1, 4, NaN, NaN, NaN, 3, 4, NaN, NaN, 5, 6, 9, 10]
-        p.multi_line({xs: [range(y.length)], ys: [y]})
+        p.multi_line({xs: [range(y.length)], ys: [y], line_width: 5, line_dash: "dashed"})
         return p
       }
 
       const p0 = make_plot("canvas")
       const p1 = make_plot("svg")
+      const p2 = make_plot("webgl")
 
-      await display(row([p0, p1]))
+      await display(row([p0, p1, p2]))
     })
   })
 
@@ -930,10 +931,17 @@ describe("Bug", () => {
       const filter = new IndexFilter({indices: [0, 2]})
       const view = new CDSView({filter})
 
-      const p = fig([200, 200])
-      p.multi_line({field: "xs"}, {field: "ys"}, {view, source})
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        p.multi_line({field: "xs"}, {field: "ys"}, {view, source, line_width: 8, line_cap: "round"})
+        return p
+      }
 
-      await display(p)
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("svg")
+      const p2 = make_plot("webgl")
+
+      await display(row([p0, p1, p2]))
     })
   })
 
@@ -3315,14 +3323,7 @@ describe("Bug", () => {
       const p1 = plot("svg")
       const p2 = plot("webgl")
 
-      // TODO: MultiLine doesn't support webgl
-      const {force_webgl} = settings
-      settings.force_webgl = false
-      try {
-        await display(row([p0, p1, p2]))
-      } finally {
-        settings.force_webgl = force_webgl
-      }
+      await display(row([p0, p1, p2]))
     })
   })
 
@@ -3412,6 +3413,48 @@ describe("Bug", () => {
 
       cds_view.filter = new IndexFilter({indices: [1, 2]})
       await view.ready
+    })
+  })
+
+  describe("in issue #13195", () => {
+    describe("doesn't render line dashes in derived glyphs", () => {
+      const x = [0, 1, 2, 3, 4]
+      const y = [1.5, 2.5, 1.5, 2.5, 1.5]
+      const selected = new Selection({indices: [0, 1, 3, 4]})
+      const source = new ColumnDataSource({data: {x, y}, selected})
+
+      const x2 = [[0, 1, 2], [2, 3, 4]]
+      const y2 = [[0, 1, 0], [1, 0, 1]]
+      const selected2 = new Selection({indices: [1]})
+      const source2 = new ColumnDataSource({data: {x: x2, y: y2}, selected: selected2})
+
+      function single_plot(line_dash: LineDash, nonselection_line_dash: LineDash, output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        const r = p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 10, line_dash})
+        const glyph = r.nonselection_glyph as Line
+        glyph.line_dash = nonselection_line_dash
+
+        const r2 = p.multi_line({xs: {field: "x"}, ys: {field: "y"}, source: source2, line_width: 10, line_color: "red", line_dash})
+        const glyph2 = r2.nonselection_glyph as MultiLine
+        glyph2.line_dash = nonselection_line_dash
+
+        return p
+      }
+
+      function multi_plot(line_dash: LineDash, nonselection_line_dash: LineDash) {
+        const p0 = single_plot(line_dash, nonselection_line_dash, "canvas")
+        const p1 = single_plot(line_dash, nonselection_line_dash, "svg")
+        const p2 = single_plot(line_dash, nonselection_line_dash, "webgl")
+        return row([p0, p1, p2])
+      }
+
+      it("solid to dashed", async () => {
+        await display(multi_plot("solid", "dashed"))
+      })
+
+      it("dashed to dashdot", async () => {
+        await display(multi_plot("dashed", "dashdot"))
+      })
     })
   })
 })

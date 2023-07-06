@@ -67,8 +67,8 @@ WebGL support for these fixed-shape glyphs covers the following properties:
 * all :ref:`hatch properties <ug_styling_hatch_properties>` except for
   hatch images using the ``hatch_extra`` property (which will be ignored).
 
-There is also full WebGL support for :func:`~bokeh.plotting.figure.line`
-and :func:`~bokeh.plotting.figure.step`
+There is also full WebGL support for :func:`~bokeh.plotting.figure.line`,
+:func:`~bokeh.plotting.figure.multi_line` and :func:`~bokeh.plotting.figure.step`
 glyphs, although the appearance of dashed lines with round and square end caps
 may differ slightly from the default HTML canvas rendering.
 

@@ -1,10 +1,16 @@
 import type {Float32Buffer, NormalizedUint8Buffer, Uint8Buffer} from "./buffer"
-import type {AttributeConfig, BoundingBox, Texture2D, Vec2, Vec4} from "regl"
+import type {AttributeConfig, BoundingBox, Framebuffer2D, Texture2D, Vec2, Vec4} from "regl"
 
 import type {MarkerType} from "core/enums"
 export type GLMarkerType = MarkerType | "hex_tile" | "rect" | "ellipse" | "annulus" | "wedge" | "annular_wedge"
 
 // Props are used to pass properties from GL glyph classes to ReGL functions.
+export type AccumulateProps = {
+  scissor: BoundingBox
+  viewport: BoundingBox
+  framebuffer_tex: Texture2D
+}
+
 type CommonProps = {
   scissor: BoundingBox
   viewport: BoundingBox
@@ -27,9 +33,9 @@ export type FillProps = {
 type DashProps = {
   length_so_far: Float32Buffer
   dash_tex: Texture2D
-  dash_tex_info: number[]
-  dash_scale: number
-  dash_offset: number
+  dash_tex_info: Float32Buffer
+  dash_scale: Float32Buffer
+  dash_offset: Float32Buffer
 }
 
 export type HatchProps = {
@@ -39,15 +45,14 @@ export type HatchProps = {
   hatch_color: NormalizedUint8Buffer
 }
 
-export type LineGlyphProps = CommonProps & {
-  line_color: number[]
-  linewidth: number
+export type LineGlyphProps = CommonProps & LineProps & {
   miter_limit: number
   points: Float32Buffer
   show: Uint8Buffer
   nsegments: number
-  line_cap: number
-  line_join: number
+  framebuffer: Framebuffer2D | null  // null means using WebGL drawing buffer
+  point_offset: number
+  line_offset: number
 }
 
 export type LineDashGlyphProps = LineGlyphProps & DashProps
@@ -67,6 +72,10 @@ export type MarkerGlyphProps = CommonProps & LineProps & FillProps & {
 export type MarkerHatchGlyphProps = MarkerGlyphProps & HatchProps
 
 // Uniforms are used to pass GLSL uniform values from ReGL functions to shaders.
+export type AccumulateUniforms = {
+  u_framebuffer_tex: Texture2D
+}
+
 export type CommonUniforms = {
   u_canvas_size: Vec2
   u_pixel_ratio: number
@@ -75,17 +84,10 @@ export type CommonUniforms = {
 
 export type DashUniforms = {
   u_dash_tex: Texture2D
-  u_dash_tex_info: Vec4
-  u_dash_scale: number
-  u_dash_offset: number
 }
 
 export type LineGlyphUniforms = CommonUniforms & {
-  u_line_color: Vec4
-  u_linewidth: number
   u_miter_limit: number
-  u_line_join: number
-  u_line_cap: number
 }
 
 export type LineDashGlyphUniforms = LineGlyphUniforms & DashUniforms
@@ -96,6 +98,10 @@ export type MarkerGlyphUniforms = CommonUniforms & {
 }
 
 // Attributes are used to pass GLSL attribute values from ReGL functions to shaders.
+export type AccumulateAttributes = {
+  a_position: AttributeConfig
+}
+
 type LineAttributes = {
   a_linewidth: AttributeConfig
   a_line_color: AttributeConfig
@@ -114,7 +120,7 @@ export type HatchAttributes = {
   a_hatch_color: AttributeConfig
 }
 
-export type LineGlyphAttributes = {
+export type LineGlyphAttributes = LineAttributes & {
   a_position: AttributeConfig
   a_point_prev: AttributeConfig
   a_point_start: AttributeConfig
@@ -126,6 +132,9 @@ export type LineGlyphAttributes = {
 }
 
 export type LineDashGlyphAttributes = LineGlyphAttributes & {
+  a_dash_tex_info: AttributeConfig
+  a_dash_scale: AttributeConfig
+  a_dash_offset: AttributeConfig
   a_length_so_far: AttributeConfig
 }
 

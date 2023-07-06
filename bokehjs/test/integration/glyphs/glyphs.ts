@@ -244,12 +244,15 @@ describe("Glyph models", () => {
   })
 
   it("should support MultiLine", async () => {
+    const xs = [[1, 2, 3], [1, 2, 3]]
+    const ys = [[1, 3, 2], [2, 1, 3]]
+
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.multi_line({xs: [x], ys: [y]})
+      const p = fig([150, 200], {output_backend, title: output_backend})
+      p.multi_line({xs, ys, line_color: ["red", "blue"], line_width: [5, 10], line_alpha: 0.5, line_dash: ["solid", "dashed"]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support MultiPolygon", async () => {
