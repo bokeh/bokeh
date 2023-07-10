@@ -1,5 +1,5 @@
-''' A plot showing LaTeX ``Label`` objects in many different locations,
-inside and outside the figure.
+''' A plot showing LaTeX ``Label`` objects in many different point,
+inside and outside the graph.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.annotation.Label
@@ -10,7 +10,7 @@ inside and outside the figure.
 from bokeh.models import Label
 from bokeh.plotting import figure, show
 
-p = figure(width=600, height=600, x_range=(0, 10), y_range=(0, 10))
+p = figure(width=600, height=600, x_range=(0, 20), y_range=(0, 20))
 
 def get_text(prefix=''):
     if prefix:
