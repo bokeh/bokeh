@@ -190,6 +190,10 @@ export class MercatorTileSource extends TileSource {
   }
 
   get_tiles_by_extent(extent: Extent, level: number, tile_border: number = 1): [number, number, number, Bounds][] {
+    // skip calculation if any axis has undefined extent
+    if (extent.filter(value => isNaN(value)).length)
+      return []
+
     // unpack extent and convert to tile coordinates
     const [xmin, ymin, xmax, ymax] = extent
     let [txmin, tymin] = this.meters_to_tile(xmin, ymin, level)
