@@ -10,7 +10,7 @@ inside and outside the graph.
 from bokeh.models import Label
 from bokeh.plotting import figure, show
 
-p = figure(width=600, height=600, x_range=(0, 20), y_range=(0, 20))
+p = figure(width=600, height=600, x_range=(0, 10), y_range=(0, 10))
 
 def get_text(prefix=''):
     if prefix:
