@@ -1,4 +1,4 @@
-''' A plot showing LaTeX ``Label`` objects in many different point,
+''' A plot showing LaTeX ``Label`` objects in many different points,
 inside and outside the graph.
 
 .. bokeh-example-metadata::
