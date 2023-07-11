@@ -42,6 +42,10 @@ export class View implements ISignalable {
 
   protected _has_finished: boolean
 
+  mark_finished(): void {
+    this._has_finished = true
+  }
+
   /** @internal */
   protected _slots = new WeakMap<Slot<any, any>, Slot<any, any>>()
 
