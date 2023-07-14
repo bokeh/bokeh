@@ -298,6 +298,15 @@ export class BBox implements Rect, Equatable {
     return new BBox({x: tx + x, y: ty + y, width, height})
   }
 
+  scale(factor: number): BBox {
+    return new BBox({
+      x0: this.x0*factor,
+      x1: this.x1*factor,
+      y0: this.y0*factor,
+      y1: this.y1*factor,
+    })
+  }
+
   relativize(x: number, y: number): [number, number] {
     return [x - this.x, y - this.y]
   }

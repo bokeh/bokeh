@@ -607,7 +607,7 @@ export abstract class LayoutDOMView extends UIElementView {
 
     for (const view of this.child_views) {
       const region = view.export(type, hidpi)
-      const {x, y} = view.bbox
+      const {x, y} = view.bbox.scale(composite.pixel_ratio)
       composite.ctx.drawImage(region.canvas, x, y)
     }
 
