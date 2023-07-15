@@ -34,7 +34,7 @@ totality_path = shp.Reader(join(ROOT, "eclipse_data/upath17")).shapes()[0]
 
 p = figure(
     width=1000, height=600, background_fill_color="#333344",
-    tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None
+    tools="", toolbar_location=None, x_axis_location=None, y_axis_location=None,
 )
 
 p.grid.grid_line_color = None
@@ -53,7 +53,7 @@ source = ColumnDataSource(data=dict(
 us = p.patches(
     "state_xs", "state_ys", source=source,
     fill_color=linear_cmap("trend", palette="TolYlOrBr5", low=0, high=100),
-    line_color="#333344", line_width=1
+    line_color="#333344", line_width=1,
 )
 
 p.x_range.renderers = p.y_range.renderers = [us]
@@ -61,13 +61,13 @@ p.x_range.renderers = p.y_range.renderers = [us]
 totality_x, totality_y = zip(*totality_path.points)
 p.patch(
     totality_x, totality_y,
-    fill_color="black", fill_alpha=0.7, line_color=None
+    fill_color="black", fill_alpha=0.7, line_color=None,
 )
 
 p.add_layout(Label(
     text="Solar eclipse path of totality",
     x=-76.3, y=31.4, angle=-36.5, angle_units="deg",
-    text_baseline="middle", text_font_size="11px", text_color="silver"
+    text_baseline="middle", text_font_size="11px", text_color="silver",
 ))
 
 p.add_layout(us.construct_color_bar(
@@ -75,7 +75,7 @@ p.add_layout(us.construct_color_bar(
     location="bottom_left", orientation="horizontal",
     title_text_font_size="16px", title_text_font_style="bold",
     title_text_color="lightgrey", major_label_text_color="lightgrey",
-    background_fill_alpha=0.0
+    background_fill_alpha=0.0,
 ))
 
 p.add_layout(Label(

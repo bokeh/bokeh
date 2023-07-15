@@ -1,7 +1,8 @@
-import {VisualProperties, VisualUniforms, ValuesOf} from "./visual"
-import * as p from "../properties"
+import type {ValuesOf} from "./visual"
+import {VisualProperties, VisualUniforms} from "./visual"
+import type * as p from "../properties"
 import * as mixins from "../property_mixins"
-import {Context2d} from "../util/canvas"
+import type {Context2d} from "../util/canvas"
 
 export interface Image extends Readonly<mixins.Image> {}
 export class Image extends VisualProperties {

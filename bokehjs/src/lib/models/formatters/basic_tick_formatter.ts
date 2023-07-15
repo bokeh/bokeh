@@ -1,6 +1,6 @@
 import {TickFormatter} from "./tick_formatter"
 import {to_fixed} from "core/util/string"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export function unicode_replace(input: string): string {
   let output = ""

@@ -81,6 +81,11 @@ AutocompleteInput
 The AutocompleteInput widget is a general-purpose text input widget that uses
 a list of possible inputs to provide autocomplete while typing.
 
+The default value for ``search_strategy`` property is ``"starts_with"``, which
+will match against the start of the possible inputs. Changing ``search_strategy``
+to ``"includes"`` means that matches against any substring of the possible inputs
+will be shown:
+
 .. bokeh-plot:: __REPO__/examples/interaction/widgets/autocompleteinput.py
     :source-position: below
 

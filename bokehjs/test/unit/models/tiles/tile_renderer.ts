@@ -8,7 +8,7 @@ import {WMTSTileSource} from "@bokehjs/models/tiles/wmts_tile_source"
 import {QUADKEYTileSource} from "@bokehjs/models/tiles/quadkey_tile_source"
 import {BBoxTileSource} from "@bokehjs/models/tiles/bbox_tile_source"
 import * as tile_utils from "@bokehjs/models/tiles/tile_utils"
-import {Extent} from "@bokehjs/models/tiles/tile_utils"
+import type {Extent} from "@bokehjs/models/tiles/tile_utils"
 
 describe("projection utilities", () => {
 

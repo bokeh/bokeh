@@ -1,4 +1,4 @@
-import {NDDataType} from "../types"
+import type {NDDataType} from "../types"
 
 export function buffer_to_base64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)

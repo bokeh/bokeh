@@ -1,6 +1,6 @@
 import {Range} from "./range"
 import type {DataRenderer} from "../renderers/data_renderer"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace DataRange {
   export type Attrs = p.AttrsOf<Props>

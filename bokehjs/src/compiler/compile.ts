@@ -2,8 +2,10 @@ import {join, basename, dirname} from "path"
 import ts from "typescript"
 import lesscss from "less"
 
-import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics, TSOutput, Inputs, Outputs} from "./compiler"
-import {rename, Path} from "./sys"
+import type {TSOutput, Inputs, Outputs} from "./compiler"
+import {compiler_host, parse_tsconfig, default_transformers, compile_files, report_diagnostics} from "./compiler"
+import type {Path} from "./sys"
+import {rename} from "./sys"
 import * as transforms from "./transforms"
 
 import * as tsconfig_json from "./tsconfig.ext.json"

@@ -1,8 +1,8 @@
 import * as numbro from "@bokeh/numbro"
 
 import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
-import {TickFormatter} from "../formatters/tick_formatter"
-import * as p from "core/properties"
+import type {TickFormatter} from "../formatters/tick_formatter"
+import type * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class RangeSliderView extends AbstractRangeSliderView {

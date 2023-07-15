@@ -1,5 +1,5 @@
 import {Model} from "../../../model"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 

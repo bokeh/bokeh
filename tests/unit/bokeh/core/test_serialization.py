@@ -41,6 +41,7 @@ from bokeh.core.property.descriptors import UnsetValueError
 from bokeh.core.serialization import (
     Buffer,
     BytesRep,
+    DeserializationError,
     Deserializer,
     MapRep,
     NDArrayRep,
@@ -829,6 +830,11 @@ class TestDeserializer:
             ret = decoder.deserialize(rep)
 
         assert ret == val
+
+    def test_unknown_type(self) -> None:
+        decoder = Deserializer()
+        with pytest.raises(DeserializationError):
+            decoder.deserialize(dict(type="foo"))
 
 """
     def test_set_data_from_json_list(self) -> None:

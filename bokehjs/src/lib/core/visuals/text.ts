@@ -1,10 +1,11 @@
-import {VisualProperties, VisualUniforms, ValuesOf, Renderable} from "./visual"
-import {uint32} from "../types"
-import * as p from "../properties"
+import type {ValuesOf, Renderable} from "./visual"
+import {VisualProperties, VisualUniforms} from "./visual"
+import type {uint32} from "../types"
+import type * as p from "../properties"
 import * as mixins from "../property_mixins"
-import {FontStyle, TextAlign, TextBaseline} from "../enums"
+import type {FontStyle, TextAlign, TextBaseline} from "../enums"
 import {color2css} from "../util/color"
-import {Context2d} from "../util/canvas"
+import type {Context2d} from "../util/canvas"
 
 const _font_cache: Map<string, WeakSet<Renderable>> = new Map()
 

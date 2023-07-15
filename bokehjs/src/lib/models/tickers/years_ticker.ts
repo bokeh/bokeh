@@ -1,8 +1,8 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {BasicTicker} from "./basic_ticker"
 import {BaseSingleIntervalTicker} from "./single_interval_ticker"
 import {last_year_no_later_than, ONE_YEAR} from "./util"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace YearsTicker {
   export type Attrs = p.AttrsOf<Props>

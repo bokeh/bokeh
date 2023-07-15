@@ -1,11 +1,13 @@
 import {Mapper} from "./mapper"
-import {Factor} from "../ranges/factor_range"
-import * as p from "core/properties"
+import type {Factor} from "../ranges/factor_range"
+import type * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Arrayable, ArrayableOf, Color, uint32, ColorArray, RGBAArray} from "core/types"
+import type {Arrayable, ArrayableOf, Color, uint32, RGBAArray} from "core/types"
+import {ColorArray} from "core/types"
 import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
-import {NDArrayType, is_NDArray} from "core/util/ndarray"
+import type {NDArrayType} from "core/util/ndarray"
+import {is_NDArray} from "core/util/ndarray"
 
 export interface RGBAMapper {
   v_compute(xs: Arrayable<number> | NDArrayType<number> | Arrayable<Factor> | NDArrayType<Factor>): RGBAArray

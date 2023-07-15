@@ -42,6 +42,8 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ...core.property.descriptors import UnsetValueError
+from ...core.property.singletons import Undefined
 from ...core.validation import error
 from ...core.validation.errors import EQUAL_SLIDER_START_END
 from ..formatters import TickFormatter
@@ -69,14 +71,27 @@ class AbstractSlider(Widget):
     """ """
 
     def __init__(self, *args, **kwargs) -> None:
-        if 'start' in kwargs and 'end' in kwargs:
-            if kwargs['start'] == kwargs['end']:
-                raise ValueError("Slider 'start' and 'end' cannot be equal.")
-
-        if "value" in kwargs and "value_throttled" not in kwargs:
-            kwargs["value_throttled"] = kwargs["value"]
-
         super().__init__(*args, **kwargs)
+
+        try:
+            # synchronize the value of a readonly property `value_throttled`
+            self.lookup("value_throttled")._set(self, Undefined, self.value)
+        except UnsetValueError:
+            pass
+        except AttributeError:
+            # TODO Remove this when proper support for property overrides is
+            # implemented. For now this is required to make defaults' tests
+            # work, because we depend there on model instances to provide
+            # "default" values.
+            pass
+
+    # TODO value = Required(GenericType, help="""
+    # Initial or selected range.
+    # """)
+
+    # TODO value_throttled = Readonly(GenericType, help="""
+    # Initial or selected value, throttled according to report only on mouseup.
+    # """)
 
     orientation = Enum("horizontal", "vertical", help="""
     Orient the slider either horizontally (default) or vertically.

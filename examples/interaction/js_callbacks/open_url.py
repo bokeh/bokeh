@@ -7,7 +7,7 @@ p = figure(width=400, height=400,
 source = ColumnDataSource(data=dict(
     x=[1, 2, 3, 4, 5],
     y=[2, 5, 8, 2, 7],
-    color=["navy", "orange", "olive", "firebrick", "gold"]
+    color=["navy", "orange", "olive", "firebrick", "gold"],
     ))
 
 p.circle('x', 'y', color='color', size=20, source=source)

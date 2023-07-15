@@ -5,23 +5,27 @@ import {HAreaStepView} from "../glyphs/harea_step"
 import {HAreaView} from "../glyphs/harea"
 import {VAreaStepView} from "../glyphs/varea_step"
 import {VAreaView} from "../glyphs/varea"
-import {Glyph, GlyphView} from "../glyphs/glyph"
+import type {GlyphView} from "../glyphs/glyph"
+import {Glyph} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {CDSView, CDSViewView} from "../sources/cds_view"
-import {Color, Indices} from "core/types"
-import * as p from "core/properties"
+import type {CDSViewView} from "../sources/cds_view"
+import {CDSView} from "../sources/cds_view"
+import type {Color} from "core/types"
+import {Indices} from "core/types"
+import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
 import {extend, clone, entries} from "core/util/object"
-import {HitTestResult} from "core/hittest"
-import {Geometry} from "core/geometry"
-import {SelectionManager} from "core/selection_manager"
-import {build_view, IterViews} from "core/build_views"
-import {Context2d} from "core/util/canvas"
+import type {HitTestResult} from "core/hittest"
+import type {Geometry} from "core/geometry"
+import type {SelectionManager} from "core/selection_manager"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
 import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
-import {Marking} from "../graphics/marking"
-import {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import type {Marking} from "../graphics/marking"
+import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -446,11 +450,20 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   draw_legend(ctx: Context2d, x0: number, x1: number, y0: number, y1: number, field: string | null, label: unknown, index: number | null): void {
-    if (this.glyph.data_size == 0)
+    if (this.glyph.data_size == 0) {
       return
-    if (index == null)
-      index = this.get_reference_point(field, label)
-    this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, index)
+    }
+    const subset_index = (() => {
+      if (index == null)
+        return this.get_reference_point(field, label)
+      else {
+        const {indices_map} = this.model.view
+        return index in indices_map ? indices_map[index] : null
+      }
+    })()
+    if (subset_index != null) {
+      this.glyph.draw_legend_for_index(ctx, {x0, x1, y0, y1}, subset_index)
+    }
   }
 
   hit_test(geometry: Geometry): HitTestResult {

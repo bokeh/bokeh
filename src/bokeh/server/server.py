@@ -398,7 +398,7 @@ class Server(BaseServer):
 
         if opts.num_procs > 1 and io_loop is not None:
             raise RuntimeError(
-                "Setting both num_procs and io_loop in Server is incompatible. Use BaseServer to coordinate an explicit IOLoop and multi-process HTTPServer"
+                "Setting both num_procs and io_loop in Server is incompatible. Use BaseServer to coordinate an explicit IOLoop and multi-process HTTPServer",
             )
 
         if opts.num_procs > 1 and sys.platform == "win32":

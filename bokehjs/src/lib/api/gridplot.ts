@@ -1,16 +1,17 @@
 import {GridPlot, Plot} from "../models/plots"
-import {Tool} from "../models/tools/tool"
-import {ToolLike, ToolProxy} from "../models/tools/tool_proxy"
+import type {Tool} from "../models/tools/tool"
+import type {ToolLike} from "../models/tools/tool_proxy"
+import {ToolProxy} from "../models/tools/tool_proxy"
 import {SaveTool} from "../models/tools/actions/save_tool"
 import {CopyTool} from "../models/tools/actions/copy_tool"
 import {ExamineTool} from "../models/tools/actions/examine_tool"
 import {FullscreenTool} from "../models/tools/actions/fullscreen_tool"
 import {Toolbar} from "../models/tools/toolbar"
-import {LayoutDOM} from "../models/layouts/layout_dom"
-import {SizingMode, Location} from "../core/enums"
+import type {LayoutDOM} from "../models/layouts/layout_dom"
+import type {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {is_equal} from "../core/util/eq"
-import {Attrs} from "../core/types"
+import type {Attrs} from "../core/types"
 
 export type GridPlotOpts = {
   toolbar_location?: Location | null

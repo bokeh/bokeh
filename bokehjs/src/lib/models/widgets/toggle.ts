@@ -1,6 +1,6 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {ButtonClick} from "core/bokeh_events"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import * as buttons from "styles/buttons.css"
 

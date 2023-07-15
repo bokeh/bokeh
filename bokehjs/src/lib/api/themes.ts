@@ -1,5 +1,5 @@
 import {HasProps} from "core/has_props"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {entries} from "core/util/object"
 
 class ThemedAttrs<T extends typeof HasProps> {

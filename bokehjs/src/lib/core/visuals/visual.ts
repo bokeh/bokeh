@@ -1,6 +1,6 @@
-import {View} from "../view"
-import {CanvasLayer} from "../util/canvas"
-import * as p from "../properties"
+import type {View} from "../view"
+import type {CanvasLayer} from "../util/canvas"
+import type * as p from "../properties"
 
 export type NameOf<Key extends string> = Key extends `text_${infer Name}` ? Name : never
 export type ValuesOf<T> = {[Key in keyof T & string as NameOf<Key>]: T[Key] extends p.Property<infer V> ? V : never}

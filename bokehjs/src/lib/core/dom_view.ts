@@ -1,5 +1,6 @@
 import {View} from "./view"
-import {createElement, remove, empty, StyleSheet, InlineStyleSheet, StyleSheetLike, ClassList} from "./dom"
+import type {StyleSheet, StyleSheetLike} from "./dom"
+import {createElement, remove, empty, InlineStyleSheet, ClassList} from "./dom"
 import {isString} from "./util/types"
 import base_css from "styles/base.css"
 

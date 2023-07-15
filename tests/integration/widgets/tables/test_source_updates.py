@@ -75,7 +75,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y")
+            TableColumn(field="y"),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -128,7 +128,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y")
+            TableColumn(field="y"),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -181,7 +181,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y")
+            TableColumn(field="y"),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -233,7 +233,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y", editor=NumberEditor())
+            TableColumn(field="y", editor=NumberEditor()),
         ], source=source, editable=True)
 
         def modify_doc(doc):
@@ -281,7 +281,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y")
+            TableColumn(field="y"),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -329,7 +329,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x"),
-            TableColumn(field="y")
+            TableColumn(field="y"),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -381,7 +381,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True)
+            TableColumn(field="y", title="y", sortable=True),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -436,7 +436,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True)
+            TableColumn(field="y", title="y", sortable=True),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -491,7 +491,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True)
+            TableColumn(field="y", title="y", sortable=True),
         ], source=source, editable=False)
 
         def modify_doc(doc):
@@ -544,7 +544,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor()),
         ], source=source, editable=True)
 
         def modify_doc(doc):
@@ -594,7 +594,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor()),
         ], source=source, editable=True)
 
         def modify_doc(doc):
@@ -634,7 +634,7 @@ class Test_DataTableSource:
 
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor()),
         ], source=source, editable=True)
 
         result = []
@@ -667,7 +667,7 @@ class Test_DataTableSource:
         source = ColumnDataSource(data)
         table = DataTable(columns=[
             TableColumn(field="x", title="x", sortable=True),
-            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor())
+            TableColumn(field="y", title="y", sortable=True, editor=NumberEditor()),
         ], source=source, editable=True)
 
         plot.add_glyph(source, Rect(x='x', y='y', width=1.5, height=1))

@@ -170,7 +170,7 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
             '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
                 '<defs/>'
                 f'<image width="20" height="20" preserveAspectRatio="none" href="data:image/png;base64,{data}"/>'
-            '</svg>'
+            '</svg>',
         ]
 
     chrome_data = (

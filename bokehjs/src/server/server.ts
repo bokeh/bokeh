@@ -9,7 +9,7 @@ declare global {
   const navigator: any
 }
 
-import {IncomingMessage} from "http"
+import type {IncomingMessage} from "http"
 import WebSocket from "ws"
 import {argv} from "yargs"
 

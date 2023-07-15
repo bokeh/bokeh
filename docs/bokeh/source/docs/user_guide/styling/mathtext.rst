@@ -11,6 +11,7 @@ and MathML notations with the following elements:
 * Tick labels using :func:`~bokeh.models.Axis.major_label_overrides`
 * :ref:`ug_basic_annotations_titles`
 * :ref:`ug_basic_annotations_labels`
+* :ref:`ug_basic_annotations_color_bars`
 * :ref:`RangeSlider widgets <ug_interaction_widgets_range_slider>`
 * :ref:`Slider widgets <ug_interaction_widgets_slider>`
 * :ref:`Div widgets <ug_interaction_widgets_div>`

@@ -1,6 +1,6 @@
-import {ReglWrapper} from "./regl_wrap"
+import type {ReglWrapper} from "./regl_wrap"
 import {SXSYGlyphGL} from "./sxsy"
-import {GLMarkerType} from "./types"
+import type {GLMarkerType} from "./types"
 import type {HexTileView} from "../hex_tile"
 
 export class HexTileGL extends SXSYGlyphGL {

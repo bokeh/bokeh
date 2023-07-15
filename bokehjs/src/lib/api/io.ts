@@ -1,13 +1,13 @@
 import {Document} from "../document"
 import {add_document_standalone} from "../embed/standalone"
-import {EmbedTarget} from "../embed/dom"
+import type {EmbedTarget} from "../embed/dom"
 
-import {ViewOf} from "core/view"
-import {HasProps} from "core/has_props"
+import type {ViewOf} from "core/view"
+import type {HasProps} from "core/has_props"
 import {dom_ready, contains} from "core/dom"
 import {isString, isArray} from "core/util/types"
 
-import {UIElement} from "models/ui/ui_element"
+import type {UIElement} from "models/ui/ui_element"
 
 declare type Jq = any
 declare const $: Jq

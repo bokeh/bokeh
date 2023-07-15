@@ -420,7 +420,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import math
 from copy import deepcopy
-from typing import TYPE_CHECKING, Dict, Tuple
+from typing import TYPE_CHECKING
 
 # External imports
 import numpy as np
@@ -442,9 +442,9 @@ if TYPE_CHECKING:
 # General API
 #-----------------------------------------------------------------------------
 
-Palette: TypeAlias = Tuple[str, ...]
-PaletteCollection: TypeAlias = Dict[int, Palette]
-PaletteMap: TypeAlias = Dict[str, PaletteCollection]
+Palette: TypeAlias = tuple[str, ...]
+PaletteCollection: TypeAlias = dict[int, Palette]
+PaletteMap: TypeAlias = dict[str, PaletteCollection]
 
 YlGn3 = ("#31a354", "#addd8e", "#f7fcb9")
 YlGn4 = ("#238443", "#78c679", "#c2e699", "#ffffcc")
@@ -1449,7 +1449,7 @@ brewer = {
 }
 
 bokeh = {
-    "Bokeh" : Bokeh
+    "Bokeh" : Bokeh,
 }
 
 d3 = {
@@ -1483,7 +1483,7 @@ tol = {
 }
 
 colorblind = {
-    "Colorblind" : Colorblind
+    "Colorblind" : Colorblind,
 }
 
 all_palettes = deepcopy(brewer)

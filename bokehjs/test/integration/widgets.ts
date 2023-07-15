@@ -1,5 +1,4 @@
 import {display, column} from "./_util"
-
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
 
@@ -26,7 +25,7 @@ import {
   SumAggregator, GroupingInfo,
 } from "@bokehjs/models/widgets/tables"
 
-import {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
 
 async function finished_animating(el: Element): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -35,7 +34,7 @@ async function finished_animating(el: Element): Promise<void> {
   })
 }
 
-async function open_picker(view: PickerBaseView): Promise<void> {
+export async function open_picker(view: PickerBaseView): Promise<void> {
   view.picker._input.dispatchEvent(new MouseEvent("click"))
   await view.ready
 

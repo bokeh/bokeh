@@ -1,9 +1,9 @@
-import {Mapper} from "./mapper"
-import {FactorSeq, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
-import {Arrayable, ArrayableOf} from "core/types"
+import type {Mapper} from "./mapper"
+import type {FactorSeq, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
+import type {Arrayable, ArrayableOf} from "core/types"
 import {index_of, find_index} from "core/util/arrayable"
 import {isString} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
   if (a.length != b.length)

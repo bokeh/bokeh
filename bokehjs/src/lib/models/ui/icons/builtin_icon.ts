@@ -1,9 +1,10 @@
 import {Icon, IconView} from "./icon"
-import {Color} from "core/types"
-import {InlineStyleSheet, StyleSheetLike} from "core/dom"
+import type {Color} from "core/types"
+import type {StyleSheetLike} from "core/dom"
+import {InlineStyleSheet} from "core/dom"
 import {color2css} from "core/util/color"
 import {isNumber} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import icons_css from "styles/icons.css"
 

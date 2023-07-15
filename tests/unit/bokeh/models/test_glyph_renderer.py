@@ -151,7 +151,7 @@ class TestGlyphRenderer_check_bad_column_name:
             code=1001,
             name='BAD_COLUMN_NAME',
             text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
-            extra=f"x='xx' [closest match: 'x'], y='yy' [closest match: 'y'] {{renderer: {renderer}}}"
+            extra=f"x='xx' [closest match: 'x'], y='yy' [closest match: 'y'] {{renderer: {renderer}}}",
         )
 
     def test_bad_with_no_matches(self):
@@ -165,7 +165,7 @@ class TestGlyphRenderer_check_bad_column_name:
             code=1001,
             name='BAD_COLUMN_NAME',
             text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
-            extra=f"x='foo' [no close matches], y='bar' [no close matches] {{renderer: {renderer}}}"
+            extra=f"x='foo' [no close matches], y='bar' [no close matches] {{renderer: {renderer}}}",
         )
 
     def test_bad_with_mixed_matches(self):
@@ -179,7 +179,7 @@ class TestGlyphRenderer_check_bad_column_name:
             code=1001,
             name='BAD_COLUMN_NAME',
             text='Glyph refers to nonexistent column name. This could either be due to a misspelling or typo, or due to an expected column being missing. ',
-            extra=f"x='xx' [closest match: 'x'], y='bar' [no close matches] {{renderer: {renderer}}}"
+            extra=f"x='xx' [closest match: 'x'], y='bar' [no close matches] {{renderer: {renderer}}}",
         )
 
 @pytest.mark.parametrize('glyph', (Line, Patch))
@@ -196,7 +196,7 @@ def test_check_cdsview_filters_with_connected_error(glyph) -> None:
         code=1024,
         name='CDSVIEW_FILTERS_WITH_CONNECTED',
         text='CDSView filters are not compatible with glyphs with connected topology such as Line or Patch',
-        extra=str(renderer)
+        extra=str(renderer),
     )
 
 #-----------------------------------------------------------------------------

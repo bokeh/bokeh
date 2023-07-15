@@ -6,7 +6,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Arc, Circle, ColumnDataSource, Plot,
                           PolarTransform, Range1d, Ray, Text)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 xdr = Range1d(start=-1.25, end=1.25)
@@ -109,6 +108,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "gauges.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Gauges"))
+        f.write(file_html(doc, title="Gauges"))
     print(f"Wrote {filename}")
     view(filename)

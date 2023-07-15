@@ -1,10 +1,13 @@
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {ButtonType} from "core/enums"
-import {prepend, nbsp, text, button, div, StyleSheetLike} from "core/dom"
-import {build_view, IterViews} from "core/build_views"
+import type {StyleSheetLike} from "core/dom"
+import {prepend, nbsp, text, button, div} from "core/dom"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
 
 import {Control, ControlView} from "./control"
-import {Icon, IconView} from "../ui/icons/icon"
+import type {IconView} from "../ui/icons/icon"
+import {Icon} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
 

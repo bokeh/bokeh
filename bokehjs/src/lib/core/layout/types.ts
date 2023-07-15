@@ -1,10 +1,10 @@
-import {Align} from "../enums"
+import type {Align} from "../enums"
 import {Enum} from "../kinds"
 
-import {Size, Extents} from "../types"
+import type {Size, Extents} from "../types"
 export {type Size}
 
-import {LRTB} from "../util/bbox"
+import type {LRTB} from "../util/bbox"
 
 const {min, max} = Math
 

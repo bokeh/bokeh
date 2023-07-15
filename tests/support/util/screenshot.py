@@ -87,7 +87,7 @@ def _run_in_browser(engine: list[str], url: str, local_wait: int | None = None, 
     """
     wait is in milliseconds
     """
-    cmd = engine + [url]
+    cmd = [*engine, url]
     if local_wait is not None:
         cmd += [str(local_wait)]
     if global_wait is not None:

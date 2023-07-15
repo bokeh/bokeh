@@ -13,7 +13,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, LinearAxis,
                           PanTool, Plot, Range1d, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -21,7 +20,7 @@ y = sin(x)
 y2 = linspace(0, 100, len(y))
 
 source = ColumnDataSource(
-    data=dict(x=x, y=y, y2=y2)
+    data=dict(x=x, y=y, y2=y2),
 )
 
 plot = Plot(x_range=Range1d(start=-6.5, end=6.5), y_range=Range1d(start=-1.1, end=1.1), min_border=80)
@@ -56,6 +55,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "twin_axis.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Twin Axis Plot"))
+        f.write(file_html(doc, title="Twin Axis Plot"))
     print(f"Wrote {filename}")
     view(filename)

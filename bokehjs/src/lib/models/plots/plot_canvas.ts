@@ -1,41 +1,52 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Canvas, CanvasView, FrameBox} from "../canvas/canvas"
-import {Renderer, RendererView} from "../renderers/renderer"
-import {DataRenderer} from "../renderers/data_renderer"
-import {Tool} from "../tools/tool"
+import type {CanvasView, FrameBox} from "../canvas/canvas"
+import {Canvas} from "../canvas/canvas"
+import type {Renderer, RendererView} from "../renderers/renderer"
+import type {DataRenderer} from "../renderers/data_renderer"
+import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
-import {Selection} from "../selections/selection"
-import {LayoutDOM, LayoutDOMView, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
-import {Plot} from "./plot"
+import type {Selection} from "../selections/selection"
+import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
+import {LayoutDOMView} from "../layouts/layout_dom"
+import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import {Axis, AxisView} from "../axes/axis"
-import {ToolbarPanel, ToolbarPanelView} from "../annotations/toolbar_panel"
-import {AutoRanged, is_auto_ranged} from "../ranges/data_range1d"
+import type {Axis} from "../axes/axis"
+import {AxisView} from "../axes/axis"
+import type {ToolbarPanelView} from "../annotations/toolbar_panel"
+import {ToolbarPanel} from "../annotations/toolbar_panel"
+import type {AutoRanged} from "../ranges/data_range1d"
+import {is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
-import {ViewStorage, IterViews, build_view, build_views, remove_views} from "core/build_views"
-import {Visuals, Renderable} from "core/visuals"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_view, build_views, remove_views} from "core/build_views"
+import type {Renderable} from "core/visuals"
+import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
-import {Side, RenderLevel} from "core/enums"
-import {SerializableState} from "core/view"
+import type {Side, RenderLevel} from "core/enums"
+import type {SerializableState} from "core/view"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
-import {Context2d, CanvasLayer} from "core/util/canvas"
-import {Layoutable} from "core/layout"
+import type {Context2d} from "core/util/canvas"
+import {CanvasLayer} from "core/util/canvas"
+import type {Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {parse_css_font_size} from "core/util/text"
-import {RangeInfo, RangeOptions, RangeManager} from "./range_manager"
-import {StateInfo, StateManager} from "./state_manager"
+import type {RangeInfo, RangeOptions} from "./range_manager"
+import {RangeManager} from "./range_manager"
+import type {StateInfo} from "./state_manager"
+import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import {InlineStyleSheet, StyleSheetLike, px} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import {InlineStyleSheet, px} from "core/dom"
 
 import plots_css from "styles/plots.css"
 
@@ -544,14 +555,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return views
   }
 
-  update_range(range_info: RangeInfo | null, options?: RangeOptions): void {
+  update_range(range_info: RangeInfo, options?: RangeOptions): void {
     this.pause()
     this._range_manager.update(range_info, options)
     this.unpause()
   }
 
   reset_range(): void {
-    this.update_range(null)
+    this.pause()
+    this._range_manager.reset()
+    this.unpause()
     this.trigger_ranges_update_event()
   }
 
@@ -910,7 +923,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       renderer_view.render()
       ctx.restore()
 
-      if (renderer_view.has_webgl && renderer_view.needs_webgl_blit) {
+      if (renderer_view.has_webgl) {
         this.canvas_view.blit_webgl(ctx)
       }
     }

@@ -1,5 +1,5 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class TextView extends DOMNodeView {
   declare model: Text

@@ -56,7 +56,7 @@ p.add_layout(r.construct_color_bar(
     formatter=PrintfTickFormatter(format="%d%%"),
     label_standoff=6,
     border_line_color=None,
-    padding=5
+    padding=5,
 ), 'right')
 
 show(p)

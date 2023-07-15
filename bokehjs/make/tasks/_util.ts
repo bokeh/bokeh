@@ -1,6 +1,6 @@
 import assert from "assert"
 import os from "os"
-import {ChildProcess} from "child_process"
+import type {ChildProcess} from "child_process"
 import {Socket} from "net"
 
 import {BuildError} from "../task"

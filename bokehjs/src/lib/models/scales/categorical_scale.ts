@@ -1,7 +1,7 @@
 import {Scale} from "./scale"
 import {LinearScale} from "./linear_scale"
-import {FactorRange, FactorLike} from "../ranges/factor_range"
-import * as p from "core/properties"
+import type {FactorRange, FactorLike} from "../ranges/factor_range"
+import type * as p from "core/properties"
 
 const {_linear_compute_state} = LinearScale.prototype
 

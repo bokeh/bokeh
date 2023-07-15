@@ -1,9 +1,10 @@
 import {View} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {Model} from "../../model"
-import {CanvasLayer} from "core/util/canvas"
+import type {CanvasLayer} from "core/util/canvas"
+import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
@@ -37,8 +38,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   declare readonly parent: PlotView
 
-  needs_webgl_blit: boolean
-
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
@@ -51,7 +50,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
-    this.needs_webgl_blit = false
   }
 
   override connect_signals(): void {
@@ -76,8 +74,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
       return coordinates.get_transform(frame)
     } else {
       const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)!
-      const y_scale = frame.y_scales.get(y_range_name)!
+      const x_scale = frame.x_scales.get(x_range_name)
+      const y_scale = frame.y_scales.get(y_range_name)
+      assert(x_scale != null, `missing '${x_range_name}' range`)
+      assert(y_scale != null, `missing '${y_range_name}' range`)
       return new CoordinateTransform(x_scale, y_scale)
     }
   }

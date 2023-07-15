@@ -1,8 +1,9 @@
 import {Transform} from "../transforms/transform"
 import {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
-import {Arrayable, ScreenArray, FloatArray} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable, FloatArray} from "core/types"
+import {ScreenArray} from "core/types"
+import type * as p from "core/properties"
 
 export namespace Scale {
   export type Attrs = p.AttrsOf<Props>

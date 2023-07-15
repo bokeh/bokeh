@@ -1,10 +1,11 @@
 import {DOMNode, DOMNodeView} from "./dom_node"
 import {UIElement} from "../ui/ui_element"
-import {build_views, remove_views, ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import {empty} from "core/dom"
 import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class HTMLView extends DOMNodeView {
   declare model: HTML

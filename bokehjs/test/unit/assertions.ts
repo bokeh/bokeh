@@ -1,7 +1,7 @@
 import {isNumber, isString, isArray, isTypedArray, isPlainObject, isFunction, isIterable} from "@bokehjs/core/util/types"
 import {is_equal, is_structurally_equal, is_similar} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
-import {Class} from "@bokehjs/core/class"
+import type {Class} from "@bokehjs/core/class"
 
 type Constructor<T> = Function & {prototype: T}
 

@@ -1,3 +1,14 @@
+''' The legend_hide feature is use to hide corresponding lines on a plot.
+This examples demonstrates an interactive line chart for stock prices over
+time which allows the user to click on the legend entries to hide or show
+the corresponding lines.
+
+.. bokeh-example-metadata::
+    :sampledata: stocks
+    :apis: bokeh.plotting.figure.line, bokeh.palettes.Spectral4
+    :refs: :ref:`ug_basic_annotations_legends`
+    :keywords: line, time series, legend
+'''
 import pandas as pd
 
 from bokeh.palettes import Spectral4

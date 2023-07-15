@@ -525,7 +525,7 @@ def test_Segment() -> None:
         "x0",
         "y0",
         "x1",
-        "y1"
+        "y1",
     ], LINE, GLYPH)
 
 

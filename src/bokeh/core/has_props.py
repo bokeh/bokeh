@@ -37,12 +37,12 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
-    Type,
     TypedDict,
     TypeVar,
     Union,
     overload,
 )
+from weakref import WeakSet
 
 if TYPE_CHECKING:
     F = TypeVar("F", bound=Callable[..., Any])
@@ -67,7 +67,7 @@ from .serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..client.session import ClientSession
     from ..server.session import ServerSession
@@ -97,7 +97,9 @@ __all__ = (
 if TYPE_CHECKING:
     Setter: TypeAlias = Union[ClientSession, ServerSession]
 
-C = TypeVar("C", bound=Type["HasProps"])
+C = TypeVar("C", bound=type["HasProps"])
+
+_abstract_classes: WeakSet[type[HasProps]] = WeakSet()
 
 def abstract(cls: C) -> C:
     ''' A decorator to mark abstract base classes derived from |HasProps|.
@@ -105,8 +107,12 @@ def abstract(cls: C) -> C:
     '''
     if not issubclass(cls, HasProps):
         raise TypeError(f"{cls.__name__} is not a subclass of HasProps")
+    _abstract_classes.add(cls)
     cls.__doc__ = append_docstring(cls.__doc__, _ABSTRACT_ADMONITION)
     return cls
+
+def is_abstract(cls: type[HasProps]) -> bool:
+    return cls in _abstract_classes
 
 def is_DataModel(cls: type[HasProps]) -> bool:
     from ..model import DataModel
@@ -295,7 +301,10 @@ class HasProps(Serializable, metaclass=MetaHasProps):
                 continue
             setattr(self, name, value)
 
-        for name in self.properties() - set(properties.keys()):
+        initialized = set(properties.keys())
+        for name in self.properties(_with_props=True): # avoid set[] for deterministic behavior
+            if name in initialized:
+                continue
             desc = self.lookup(name)
             if desc.has_unstable_default(self):
                 desc._get(self) # this fills-in `_unstable_*_values`
@@ -746,23 +755,21 @@ class HasProps(Serializable, metaclass=MetaHasProps):
 
 KindRef = Any # TODO
 
-class _PropertyDef(TypedDict):
+class PropertyDef(TypedDict):
     name: str
     kind: KindRef
-class PropertyDef(_PropertyDef, total=False):
-    default: Any
+    default: NotRequired[Any]
 
 class OverrideDef(TypedDict):
     name: str
     default: Any
 
-class _ModelDef(TypedDict):
+class ModelDef(TypedDict):
     type: Literal["model"]
     name: str
-class ModelDef(_ModelDef, total=False):
-    extends: Ref | None
-    properties: list[PropertyDef]
-    overrides: list[OverrideDef]
+    extends: NotRequired[Ref | None]
+    properties: NotRequired[list[PropertyDef]]
+    overrides: NotRequired[list[OverrideDef]]
 
 def _HasProps_to_serializable(cls: type[HasProps], serializer: Serializer) -> Ref | ModelDef:
     from ..model import DataModel, Model

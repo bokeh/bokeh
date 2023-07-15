@@ -2,7 +2,7 @@ import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 import {input, label, div, span} from "core/dom"
 import {unique_id} from "core/util/string"
 import {enumerate} from "core/util/iterator"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class RadioGroupView extends ToggleInputGroupView {

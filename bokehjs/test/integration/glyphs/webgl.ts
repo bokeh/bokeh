@@ -1,5 +1,5 @@
 import {display, fig, row} from "../_util"
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 
 describe("webgl", () => {
   it("should support nan in line", async () => {

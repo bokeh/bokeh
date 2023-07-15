@@ -3,7 +3,7 @@ import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Model} from "@bokehjs/model"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 
 namespace Some0Model {
   export type Attrs = p.AttrsOf<Props>

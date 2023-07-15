@@ -39,7 +39,7 @@ def test_deprecated_FuncTickFormatter() -> None:
 def test_custom_js_tick_formatter() -> None:
     source = ColumnDataSource({
         'fruits': ['apples', 'bananas', 'pears'],
-        'counts': [6, 7, 3]
+        'counts': [6, 7, 3],
     })
 
     toggle = Toggle(label='Uppercase Ticks')

@@ -1,8 +1,8 @@
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {ScalarExpression} from "./expression"
 import {dict} from "core/util/object"
 import {max} from "core/util/array"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Maximum {
   export type Attrs = p.AttrsOf<Props>

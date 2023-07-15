@@ -1,7 +1,7 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import {Arrayable, Data} from "core/types"
-import {PatchSet} from "core/patching"
-import * as p from "core/properties"
+import type {Arrayable, Data} from "core/types"
+import type {PatchSet} from "core/patching"
+import type * as p from "core/properties"
 
 // Data source where the data is defined column-wise, i.e. each key in the
 // the data attribute is a column name, and its value is an array of scalars.

@@ -5,10 +5,28 @@ import {display, fig} from "./_util"
 import {PlotActions, xy, click} from "../interactive"
 
 import {
-  HoverTool, BoxAnnotation, ColumnDataSource, CDSView, BooleanFilter, GlyphRenderer, Circle,
-  Legend, LegendItem, Line, Rect, Title, CopyTool, BoxSelectTool, LinearColorMapper, Row,
+  BooleanFilter,
+  BoxAnnotation,
+  BoxSelectTool,
+  CDSView,
+  Circle,
+  ColumnDataSource,
+  CopyTool,
+  CustomJS,
+  GlyphRenderer,
+  HoverTool,
+  Legend,
+  LegendItem,
+  Line,
+  LinearColorMapper,
+  Plot,
+  Rect,
+  Row,
+  Scatter,
+  Title,
   Toolbar,
 } from "@bokehjs/models"
+
 import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
@@ -16,8 +34,9 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import {offset_bbox} from "@bokehjs/core/dom"
-import {Color, Arrayable} from "@bokehjs/core/types"
-import {Document, DocJson, DocumentEvent, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
+import type {Color, Arrayable} from "@bokehjs/core/types"
+import type {DocJson, DocumentEvent} from "@bokehjs/document"
+import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
@@ -684,6 +703,107 @@ describe("Bug", () => {
     })
   })
 
+  describe("in issue #13139", () => {
+    function make_plot(width: number, height: number) {
+      const p = fig([width, height], {output_backend: "webgl"})
+      p.line([0, 1], [0, 1])
+      return p
+    }
+
+    it("raises DOMException if webgl canvas width is zero", async () => {
+      await display(make_plot(0, 100))
+    })
+    it("raises DOMException if webgl canvas height is zero", async () => {
+      await display(make_plot(100, 0))
+    })
+    it("raises DOMException if webgl canvas area is zero", async () => {
+      await display(make_plot(0, 0))
+    })
+  })
+
+  describe("in issue #12078", () => {
+    it("doesn't allow to correctly hit test Marker and Scatter glyphs", async () => {
+      const p = new Plot()
+      const source = new ColumnDataSource({
+        data: {
+          x: [0, 1, 3, 4],
+          y: [0, 1, 3, 4],
+        },
+      })
+      const glyph = new Scatter({marker: "circle", size: 20})
+      const r = p.add_glyph(glyph, source)
+      const {view: pv} = await display(p)
+      const rv = pv.owner.get_one(r)
+
+      function at(x: number, y: number) {
+        const sx = pv.frame.x_scale.compute(x)
+        const sy = pv.frame.y_scale.compute(y)
+        return {sx, sy}
+      }
+
+      function rect(x0: number, y0: number, x1: number, y1: number) {
+        const {sx: sx0, sy: sy0} = at(x0, y0)
+        const {sx: sx1, sy: sy1} = at(x1, y1)
+        return {sx0, sy0, sx1, sy1}
+      }
+
+      function poly(x0: number, y0: number, x1: number, y1: number) {
+        const {sx: sx0, sy: sy0} = at(x0, y0)
+        const {sx: sx1, sy: sy1} = at(x1, y1)
+        return {sx: [sx0, sx1, sx1, sx0], sy: [sy0, sy0, sy1, sy1]}
+      }
+
+      const result0 = rv.hit_test({type: "point", ...at(2, 2)})
+      assert(result0 != null)
+      expect(result0.indices).to.be.equal([])
+
+      const result1 = rv.hit_test({type: "point", ...at(3, 3)})
+      assert(result1 != null)
+      expect(result1.indices).to.be.equal([2])
+
+      const result2 = rv.hit_test({type: "span", direction: "h", ...at(2, 2)})
+      assert(result2 != null)
+      expect(result2.indices).to.be.equal([])
+
+      const result3 = rv.hit_test({type: "span", direction: "h", ...at(3, 3)})
+      assert(result3 != null)
+      expect(result3.indices).to.be.equal([2])
+
+      const result4 = rv.hit_test({type: "span", direction: "v", ...at(2, 2)})
+      assert(result4 != null)
+      expect(result4.indices).to.be.equal([])
+
+      const result5 = rv.hit_test({type: "span", direction: "v", ...at(3, 3)})
+      assert(result5 != null)
+      expect(result5.indices).to.be.equal([2])
+
+      const result6 = rv.hit_test({type: "rect", ...rect(1.5, 1.5, 2.5, 2.5)})
+      assert(result6 != null)
+      expect(result6.indices).to.be.equal([])
+
+      const result7 = rv.hit_test({type: "rect", ...rect(2.5, 2.5, 3.5, 3.5)})
+      assert(result7 != null)
+      expect(result7.indices).to.be.equal([2])
+
+      const result8 = rv.hit_test({type: "poly", ...poly(1.5, 1.5, 2.5, 2.5)})
+      assert(result8 != null)
+      expect(result8.indices).to.be.equal([])
+
+      const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
+      assert(result9 != null)
+      expect(result9.indices).to.be.equal([2])
+    })
+  })
+
+  describe("in issue #13217", () => {
+    it("doesn't allow to bind this in non-module CustomJS", async () => {
+      const obj = new Plot()
+      const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
+      const result = await cb.execute(obj, {data0: 123})
+      expect(result).to.be.equal([obj, "abc", obj, 123])
+    })
+  })
+  
   describe("in issue #13064", () => {
     it("doesn't allow spinner to follow the correct format when value's precision is higher than step's precision", async () => {
       const obj = new Spinner({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})

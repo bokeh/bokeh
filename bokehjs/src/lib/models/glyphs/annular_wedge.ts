@@ -1,15 +1,18 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
-import {PointGeometry} from "core/geometry"
+import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, ScreenArray, to_screen} from "core/types"
-import * as visuals from "core/visuals"
+import type {Rect, ScreenArray} from "core/types"
+import {to_screen} from "core/types"
+import type * as visuals from "core/visuals"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import {angle_between} from "core/util/math"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
+import type {AnnularWedgeGL} from "./webgl/annular_wedge"
 
 export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
   readonly inner_radius: p.Uniform<number>
@@ -33,7 +36,7 @@ export class AnnularWedgeView extends XYGlyphView {
   declare visuals: AnnularWedge.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/annular_wedge").AnnularWedgeGL
+  declare glglyph?: AnnularWedgeGL
 
   override async load_glglyph() {
     const {AnnularWedgeGL} = await import("./webgl/annular_wedge")

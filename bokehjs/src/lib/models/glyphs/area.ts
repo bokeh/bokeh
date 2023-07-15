@@ -1,9 +1,10 @@
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import type {GlyphData} from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import {generic_area_scalar_legend} from "./utils"
-import * as visuals from "core/visuals"
-import {Rect} from "core/types"
-import {Context2d} from "core/util/canvas"
-import * as p from "core/properties"
+import type * as visuals from "core/visuals"
+import type {Rect} from "core/types"
+import type {Context2d} from "core/util/canvas"
+import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 
 export type AreaData = GlyphData & p.UniformsOf<Area.Mixins>

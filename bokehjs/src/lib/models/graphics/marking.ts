@@ -1,11 +1,11 @@
 import {Model} from "../../model"
 import {View} from "core/view"
-import {Indices} from "core/types"
-import {Context2d} from "core/util/canvas"
+import type {Indices} from "core/types"
+import type {Context2d} from "core/util/canvas"
 import * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {RendererView} from "../renderers/renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {RendererView} from "../renderers/renderer"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export abstract class MarkingView extends View implements visuals.Renderable {
   declare model: Marking

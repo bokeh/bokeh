@@ -5,14 +5,14 @@ xs_dict = [
     [ {'exterior': [1, 1, 2, 2],  'holes': [                              ]} ],
     [ {'exterior': [1, 1, 3],     'holes': [ [1.5, 1.5, 2]                ]} ],
     [ {'exterior': [2, 2, 4, 4],  'holes': [ [2.5, 2.5, 3], [3.5, 3, 3]   ]},
-      {'exterior': [3.5, 3.5, 4], 'holes': [                              ]} ]
+      {'exterior': [3.5, 3.5, 4], 'holes': [                              ]} ],
 ]
 
 ys_dict = [
     [ {'exterior': [4, 3, 3, 4],  'holes': [                              ]} ],
     [ {'exterior': [1, 3, 1],     'holes': [ [1.5, 2, 1.5]                ]} ],
     [ {'exterior': [2, 4, 4, 2],  'holes': [ [3, 3.5, 3.5], [2.5, 2.5, 3] ]},
-      {'exterior': [1, 1.5, 1.5], 'holes': [                              ]} ]
+      {'exterior': [1, 1.5, 1.5], 'holes': [                              ]} ],
 ]
 
 xs = [[[p['exterior'], *p['holes']] for p in mp] for mp in xs_dict]

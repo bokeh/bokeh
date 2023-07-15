@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 __all__ = (
     'AuthModule',
     'AuthProvider',
-    'NullAuth'
+    'NullAuth',
 )
 
 #-----------------------------------------------------------------------------

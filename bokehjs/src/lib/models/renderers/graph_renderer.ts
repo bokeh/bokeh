@@ -1,12 +1,14 @@
 import {DataRenderer, DataRendererView} from "./data_renderer"
-import {GlyphRenderer, GlyphRendererView} from "./glyph_renderer"
-import {Renderer} from "./renderer"
-import {GlyphView} from "../glyphs/glyph"
+import type {GlyphRendererView} from "./glyph_renderer"
+import {GlyphRenderer} from "./glyph_renderer"
+import type {Renderer} from "./renderer"
+import type {GlyphView} from "../glyphs/glyph"
 import {LayoutProvider} from "../graphs/layout_provider"
 import {GraphHitTestPolicy, NodesOnly} from "../graphs/graph_hit_test_policy"
-import * as p from "core/properties"
-import {build_view, IterViews} from "core/build_views"
-import {SelectionManager} from "core/selection_manager"
+import type * as p from "core/properties"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type {SelectionManager} from "core/selection_manager"
 import {XYGlyph} from "../glyphs/xy_glyph"
 import {MultiLine} from "../glyphs/multi_line"
 import {Patches} from "../glyphs/patches"
@@ -79,6 +81,10 @@ export class GraphRendererView extends DataRendererView {
   protected _render(): void {
     this.edge_view.render()
     this.node_view.render()
+  }
+
+  override get has_webgl(): boolean {
+    return this.edge_view.has_webgl || this.node_view.has_webgl
   }
 
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {

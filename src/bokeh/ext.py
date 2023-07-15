@@ -114,7 +114,7 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
 
     cmd.extend(args)
 
-    proc = Popen([_nodejs_path()] + cmd)
+    proc = Popen([_nodejs_path(), *cmd])
     proc.communicate()
     return proc
 

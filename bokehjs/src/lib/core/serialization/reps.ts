@@ -1,6 +1,6 @@
-import {ByteOrder, DataType, NDDataType} from "../types"
-import {Ref} from "../util/refs"
-import {Buffer} from "./buffer"
+import type {ByteOrder, DataType, NDDataType} from "../types"
+import type {Ref} from "../util/refs"
+import type {Buffer} from "./buffer"
 
 export type AnyVal = null | boolean | number | string | Date | Ref | AnyRep | AnyVal[] | {[key: string]: AnyVal}
 export type AnyRep = SymbolRep | NumberRep | ArrayRep | SetRep | MapRep | BytesRep | TypedArrayRep | NDArrayRep | ObjectRep | ObjectRefRep

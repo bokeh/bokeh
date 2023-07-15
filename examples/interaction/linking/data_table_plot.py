@@ -48,8 +48,8 @@ tooltips = [
     ("Drive", "@drv"),
     ("Class", "@class"),
 ]
-cty_hover_tool = HoverTool(renderers=[cty], tooltips=tooltips + [("City MPG", "@cty")])
-hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=tooltips + [("Highway MPG", "@hwy")])
+cty_hover_tool = HoverTool(renderers=[cty], tooltips=[*tooltips, ("City MPG", "@cty")])
+hwy_hover_tool = HoverTool(renderers=[hwy], tooltips=[*tooltips, ("Highway MPG", "@hwy")])
 
 p.add_tools(cty_hover_tool, hwy_hover_tool)
 

@@ -1,11 +1,11 @@
 import {Axis} from "../axes"
 import {GuideRenderer, GuideRendererView} from "../renderers/guide_renderer"
-import {Range} from "../ranges/range"
+import type {Range} from "../ranges/range"
 import {Ticker} from "../tickers/ticker"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
+import type * as p from "core/properties"
+import type {Context2d} from "core/util/canvas"
 import {isArray} from "core/util/types"
 
 export class GridView extends GuideRendererView {

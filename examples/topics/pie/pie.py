@@ -27,7 +27,7 @@ x = {
     'Brazil': 32,
     'France': 31,
     'Taiwan': 31,
-    'Spain': 29
+    'Spain': 29,
 }
 
 data = pd.Series(x).reset_index(name='value').rename(columns={'index': 'country'})

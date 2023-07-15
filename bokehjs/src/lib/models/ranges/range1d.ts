@@ -1,5 +1,5 @@
 import {Range} from "./range"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Range1d {
   export type Attrs = p.AttrsOf<Props>

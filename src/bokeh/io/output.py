@@ -85,7 +85,7 @@ def output_file(filename: PathLike, title: str = "Bokeh Plot",
         filename,
         title=title,
         mode=mode,
-        root_dir=root_dir
+        root_dir=root_dir,
     )
 
 def output_notebook(resources: Resources | None = None, verbose: bool = False,

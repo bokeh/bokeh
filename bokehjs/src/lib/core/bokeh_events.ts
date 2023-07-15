@@ -1,9 +1,19 @@
-import {HasProps} from "./has_props"
-import {Attrs} from "./types"
-import {GeometryData} from "./geometry"
-import {Class} from "./class"
-import {serialize, Serializable, Serializer} from "./serialization"
-import {equals, Equatable, Comparator} from "./util/eq"
+import type {HasProps} from "./has_props"
+import type {Attrs} from "./types"
+import type {GeometryData} from "./geometry"
+import type {Class} from "./class"
+import type {Serializable, Serializer} from "./serialization"
+import {serialize} from "./serialization"
+import type {Equatable, Comparator} from "./util/eq"
+import {equals} from "./util/eq"
+import {PartialStruct, Boolean} from "./kinds"
+
+export type KeyModifiers = typeof KeyModifiers["__type__"]
+export const KeyModifiers = PartialStruct({
+  shift: Boolean,
+  ctrl: Boolean,
+  alt: Boolean,
+})
 
 export type BokehEventType =
   DocumentEventType |
@@ -215,14 +225,17 @@ export class Reset extends UIEvent {}
 
 export abstract class PointEvent extends UIEvent {
 
-  constructor(readonly sx: number, readonly sy: number,
-              readonly x: number, readonly y: number) {
+  constructor(
+    readonly sx: number, readonly sy: number,
+    readonly x: number, readonly y: number,
+    readonly modifiers: KeyModifiers,
+  ) {
     super()
   }
 
   protected override get event_values(): Attrs {
-    const {sx, sy, x, y} = this
-    return {...super.event_values, sx, sy, x, y}
+    const {sx, sy, x, y, modifiers} = this
+    return {...super.event_values, sx, sy, x, y, modifiers}
   }
 }
 
@@ -230,10 +243,13 @@ export abstract class PointEvent extends UIEvent {
 export class Pan extends PointEvent {
 
   /* TODO: direction: -1 | 1 */
-  constructor(sx: number, sy: number,
-              x: number, y: number,
-              readonly delta_x: number, readonly delta_y: number) {
-    super(sx, sy, x, y)
+  constructor(
+    sx: number, sy: number,
+    x: number, y: number,
+    readonly delta_x: number, readonly delta_y: number,
+    modifiers: KeyModifiers,
+  ) {
+    super(sx, sy, x, y, modifiers)
   }
 
   protected override get event_values(): Attrs {
@@ -245,10 +261,13 @@ export class Pan extends PointEvent {
 @event("pinch")
 export class Pinch extends PointEvent {
 
-  constructor(sx: number, sy: number,
-              x: number, y: number,
-              readonly scale: number) {
-    super(sx, sy, x, y)
+  constructor(
+    sx: number, sy: number,
+    x: number, y: number,
+    readonly scale: number,
+    modifiers: KeyModifiers,
+  ) {
+    super(sx, sy, x, y, modifiers)
   }
 
   protected override get event_values(): Attrs {
@@ -260,10 +279,13 @@ export class Pinch extends PointEvent {
 @event("rotate")
 export class Rotate extends PointEvent {
 
-  constructor(sx: number, sy: number,
-              x: number, y: number,
-              readonly rotation: number) {
-    super(sx, sy, x, y)
+  constructor(
+    sx: number, sy: number,
+    x: number, y: number,
+    readonly rotation: number,
+    modifiers: KeyModifiers,
+  ) {
+    super(sx, sy, x, y, modifiers)
   }
 
   protected override get event_values(): Attrs {
@@ -275,10 +297,13 @@ export class Rotate extends PointEvent {
 @event("wheel")
 export class MouseWheel extends PointEvent {
 
-  constructor(sx: number, sy: number,
-              x: number, y: number,
-              readonly delta: number) {
-    super(sx, sy, x, y)
+  constructor(
+    sx: number, sy: number,
+    x: number, y: number,
+    readonly delta: number,
+    modifiers: KeyModifiers,
+  ) {
+    super(sx, sy, x, y, modifiers)
   }
 
   protected override get event_values(): Attrs {

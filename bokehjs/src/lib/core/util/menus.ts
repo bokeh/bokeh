@@ -1,5 +1,6 @@
-import {div, empty, remove, InlineStyleSheet, StyleSheetLike, ClassList} from "../dom"
-import {Orientation} from "../enums"
+import type {StyleSheetLike} from "../dom"
+import {div, empty, remove, InlineStyleSheet, ClassList} from "../dom"
+import type {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isString} from "./types"
 

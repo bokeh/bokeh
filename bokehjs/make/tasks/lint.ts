@@ -14,7 +14,7 @@ async function eslint(dir: string): Promise<void> {
   const eslint = new ESLint({
     cache: true,
     extensions: [".ts"],
-    overrideConfigFile: "./eslint.json",
+    overrideConfigFile: "./eslint.js",
     fix,
   })
 

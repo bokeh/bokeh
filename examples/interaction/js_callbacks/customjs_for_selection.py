@@ -37,7 +37,7 @@ s1.selected.js_on_change('indices', CustomJS(args=dict(s1=s1, s2=s2), code="""
         const x = Array.from(inds, (i) => d1.x[i])
         const y = Array.from(inds, (i) => d1.y[i])
         s2.data = { x, y }
-    """)
+    """),
 )
 
 layout = row(p1, p2)

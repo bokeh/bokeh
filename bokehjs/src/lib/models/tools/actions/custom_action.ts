@@ -1,6 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import {CallbackLike0} from "../../callbacks/callback"
-import * as p from "core/properties"
+import type {CallbackLike0} from "../../callbacks/callback"
+import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
 export class CustomActionView extends ActionToolView {

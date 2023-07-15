@@ -1,5 +1,5 @@
 import {Renderer, RendererView} from "./renderer"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class GuideRendererView extends RendererView {
   declare model: GuideRenderer

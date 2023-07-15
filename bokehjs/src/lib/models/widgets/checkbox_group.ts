@@ -2,7 +2,7 @@ import {ToggleInputGroup, ToggleInputGroupView} from "./toggle_input_group"
 import {input, label, div, span} from "core/dom"
 import {includes} from "core/util/array"
 import {enumerate} from "core/util/iterator"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import * as inputs from "styles/widgets/inputs.css"
 
 export class CheckboxGroupView extends ToggleInputGroupView {

@@ -1,7 +1,7 @@
 import {display, fig, row} from "../_util"
 import {tex} from "./_text_utils"
 
-import {OutputBackend} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 import {Title} from "@bokehjs/models"
 
 const r = String.raw

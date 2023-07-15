@@ -1,4 +1,4 @@
-import {Protocol} from "devtools-protocol"
+import type {Protocol} from "devtools-protocol"
 import CDP = require("chrome-remote-interface")
 
 import fs from "fs"
@@ -8,7 +8,8 @@ import {argv} from "yargs"
 import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
-import {Box, State, create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
+import type {Box, State} from "./baselines"
+import {create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
@@ -109,7 +110,7 @@ function encode(s: string): string {
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
-type Test = {description: string, skip: boolean, threshold?: number, retries?: number, dpr?: number}
+type Test = {description: string, skip: boolean, threshold?: number, retries?: number, dpr?: number, no_image?: boolean}
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
@@ -571,53 +572,55 @@ async function run_tests(): Promise<boolean> {
                       }
                     }
 
-                    await (async () => {
-                      const {bbox} = result
-                      if (bbox != null) {
-                        const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
-                        const current = Buffer.from(image.data, "base64")
-                        status.image = current
+                    if (!(test.no_image ?? false)) {
+                      await (async () => {
+                        const {bbox} = result
+                        if (bbox != null) {
+                          const image = await Page.captureScreenshot({format: "png", clip: {...bbox, scale: 1}})
+                          const current = Buffer.from(image.data, "base64")
+                          status.image = current
 
-                        const image_file = `${baseline_path}.png`
-                        const write_image = async () => fs.promises.writeFile(image_file, current)
-                        const existing = load_baseline_image(image_file, ref)
+                          const image_file = `${baseline_path}.png`
+                          const write_image = async () => fs.promises.writeFile(image_file, current)
+                          const existing = load_baseline_image(image_file, ref)
 
-                        switch (argv.screenshot) {
-                          case undefined:
-                          case "test":
-                            if (existing == null) {
-                              status.failure = true
-                              status.errors.push("missing baseline image")
-                              await write_image()
-                            } else {
-                              status.reference = existing
+                          switch (argv.screenshot) {
+                            case undefined:
+                            case "test":
+                              if (existing == null) {
+                                status.failure = true
+                                status.errors.push("missing baseline image")
+                                await write_image()
+                              } else {
+                                status.reference = existing
 
-                              if (!existing.equals(current)) {
-                                const diff_result = diff_image(existing, current)
-                                if (diff_result != null) {
-                                  may_retry = true
-                                  const {diff, pixels, percent} = diff_result
-                                  const threshold = test.threshold ?? 0
-                                  if (pixels > threshold) {
-                                    await write_image()
-                                    status.failure = true
-                                    status.image_diff = diff
-                                    status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${attempt != null ? ` (attempt=${attempt})` : ""}`)
+                                if (!existing.equals(current)) {
+                                  const diff_result = diff_image(existing, current)
+                                  if (diff_result != null) {
+                                    may_retry = true
+                                    const {diff, pixels, percent} = diff_result
+                                    const threshold = test.threshold ?? 0
+                                    if (pixels > threshold) {
+                                      await write_image()
+                                      status.failure = true
+                                      status.image_diff = diff
+                                      status.errors.push(`images differ by ${pixels}px (${percent.toFixed(2)}%)${attempt != null ? ` (attempt=${attempt})` : ""}`)
+                                    }
                                   }
                                 }
                               }
-                            }
-                            break
-                          case "save":
-                            await write_image()
-                            break
-                          case "skip":
-                            break
-                          default:
-                            throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                              break
+                            case "save":
+                              await write_image()
+                              break
+                            case "skip":
+                              break
+                            default:
+                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                          }
                         }
-                      }
-                    })()
+                      })()
+                    }
                   }
                 }
               } finally {

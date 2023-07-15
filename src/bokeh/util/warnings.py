@@ -27,7 +27,6 @@ log = logging.getLogger(__name__)
 import inspect
 import os
 import warnings  # lgtm [py/import-and-import-from]
-from typing import Type
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -58,7 +57,7 @@ class BokehUserWarning(UserWarning):
 
     '''
 
-def warn(message: str, category: Type[Warning] | None = None, stacklevel: int | None = None) -> None:
+def warn(message: str, category: type[Warning] | None = None, stacklevel: int | None = None) -> None:
     if stacklevel is None:
         stacklevel = find_stack_level()
 

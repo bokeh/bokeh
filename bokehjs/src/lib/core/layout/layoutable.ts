@@ -1,5 +1,7 @@
-import {Size, Sizeable, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
-import {BBox, CoordinateMapper} from "../util/bbox"
+import type {Size, SizeHint, BoxSizing, SizingPolicy, Percent} from "./types"
+import {Sizeable} from "./types"
+import type {CoordinateMapper} from "../util/bbox"
+import {BBox} from "../util/bbox"
 import {isNumber} from "../util/types"
 import {assert} from "../util/assert"
 
@@ -35,6 +37,12 @@ export abstract class Layoutable {
   }
 
   private _dirty: boolean = false
+  set dirty(dirty: boolean) {
+    this._dirty = dirty
+  }
+  get dirty(): boolean {
+    return this._dirty
+  }
 
   get visible(): boolean {
     return this.sizing.visible

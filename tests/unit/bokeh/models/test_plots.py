@@ -177,7 +177,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [LinearAxis",
         )
 
         p = figure()
@@ -188,7 +188,7 @@ class TestPlotValidation:
             process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
         assert mock_logger.error.call_args[0][0].startswith(
-            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid"
+            "E-1020 (BAD_EXTRA_RANGE_NAME): An extra range name is configured with a name that does not correspond to any range: x_range_name='junk' [Grid",
         )
         assert mock_logger.error.call_args[0][0].count("Grid") == 2
 
@@ -483,13 +483,13 @@ class Test_list_attr_splat:
         obj = bmp._list_attr_splat([LinearAxis(), FactorRange()])
         with pytest.raises(AttributeError) as e:
             obj.formatter.power_limit_low == 10
-        assert str(e.value).endswith("list items have no %r attribute" % "formatter")
+        assert str(e.value).endswith(f"list items have no {'formatter'!r} attribute")
 
     def test_get_empty(self) -> None:
         obj = bmp._list_attr_splat([])
         with pytest.raises(AttributeError) as e:
             obj.start
-        assert str(e.value).endswith("Trying to access %r attribute on an empty 'splattable' list" % "start")
+        assert str(e.value).endswith(f"Trying to access {'start'!r} attribute on an empty 'splattable' list")
 
     def test_get_index(self) -> None:
         obj = bmp._list_attr_splat([1, 2, 3])

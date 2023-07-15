@@ -1,6 +1,6 @@
 import {ToolButton, ToolButtonView} from "./tool_button"
 import * as tools from "styles/tool_button.css"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class OnOffButtonView extends ToolButtonView {
   declare model: OnOffButton

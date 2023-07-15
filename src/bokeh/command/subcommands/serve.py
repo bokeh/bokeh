@@ -459,7 +459,7 @@ base_serve_args = (
         metavar = 'PORT',
         type    = int,
         help    = "Port to listen on",
-        default = DEFAULT_SERVER_PORT
+        default = DEFAULT_SERVER_PORT,
     )),
 
     ('--address', Argument(
@@ -480,7 +480,7 @@ base_serve_args = (
         metavar = 'LOG-LEVEL',
         action  = 'store',
         default = None,
-        choices = LOGLEVELS + ("None", ),
+        choices = (*LOGLEVELS, 'None'),
         help    = "One of: %s" % nice_join(LOGLEVELS),
     )),
 
@@ -525,7 +525,9 @@ class Serve(Subcommand):
 
     help = "Run a Bokeh server hosting one or more applications"
 
-    args = base_serve_args + (
+    args = (
+        *base_serve_args,
+
         ('files', Argument(
             metavar = 'DIRECTORY-OR-SCRIPT',
             nargs   = '*',
@@ -663,7 +665,7 @@ class Serve(Subcommand):
             default = False,
             help    = 'Whether to enable Tornado support for XSRF cookies. All '
                       'PUT, POST, or DELETE handlers must be properly instrumented '
-                      'when this setting is enabled.'
+                      'when this setting is enabled.',
         )),
 
         ('--exclude-headers', Argument(
@@ -671,7 +673,7 @@ class Serve(Subcommand):
             default = None,
             nargs='+',
             help    = 'A list of request headers to exclude from the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--exclude-cookies', Argument(
@@ -679,7 +681,7 @@ class Serve(Subcommand):
             default = None,
             nargs='+',
             help    = 'A list of request cookies to exclude from the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--include-headers', Argument(
@@ -687,7 +689,7 @@ class Serve(Subcommand):
             default = None,
             nargs='+',
             help    = 'A list of request headers to make available in the session '
-                      'context (by default all headers are included).'
+                      'context (by default all headers are included).',
         )),
 
         ('--include-cookies', Argument(
@@ -695,7 +697,7 @@ class Serve(Subcommand):
             default = None,
             nargs='+',
             help    = 'A list of request cookies to make available in the session '
-                      'context (by default all cookies are included).'
+                      'context (by default all cookies are included).',
         )),
 
         ('--cookie-secret', Argument(
@@ -900,7 +902,7 @@ class Serve(Subcommand):
             invalid_args = ['address', 'ssl_certfile', 'ssl_keyfile']
 
             if any(server_kwargs.get(x) for x in invalid_args):
-                die(f"{invalid_args + ['port']} args are not supported with a unix socket")
+                die(f"{[*invalid_args, 'port']} args are not supported with a unix socket")
 
         auth_module_path = settings.auth_module(getattr(args, 'auth_module', None))
         if auth_module_path:

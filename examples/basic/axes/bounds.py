@@ -50,17 +50,17 @@ fruits = {
     'fruit': [
         'apples', 'apples', 'apples', 'apples', 'apples',
         'pears', 'pears', 'pears', 'pears', 'pears',
-        'bananas', 'bananas', 'bananas', 'bananas', 'bananas'
+        'bananas', 'bananas', 'bananas', 'bananas', 'bananas',
     ],
     'fruit_count': [
         4, 5, 8, 12, 4,
         6, 5, 4, 8, 7,
-        1, 2, 4, 8, 12
+        1, 2, 4, 8, 12,
     ],
     'year': [
         '2009', '2010', '2011', '2012', '2013',
         '2009', '2010', '2011', '2012', '2013',
-        '2009', '2010', '2011', '2012', '2013']
+        '2009', '2010', '2011', '2012', '2013'],
 }
 
 # Plot with multiple ranges that are bounded

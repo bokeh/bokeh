@@ -1,8 +1,8 @@
 import {Tool, ToolView} from "../tool"
 import {ClickButton} from "../click_button"
-import {LayoutDOMView} from "../../layouts/layout_dom"
+import type {LayoutDOMView} from "../../layouts/layout_dom"
 import {Signal} from "core/signaling"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class ActionToolView extends ToolView {
   declare model: ActionTool

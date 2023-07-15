@@ -28,7 +28,6 @@ from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbo
                           TextInput, TimePicker, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
-from bokeh.resources import INLINE
 from bokeh.sampledata.autompg2 import autompg2 as mpg
 from bokeh.sampledata.iris import flowers
 from bokeh.util.browser import view
@@ -75,6 +74,8 @@ text_input_units = TextInput(title="Initial temperature:", placeholder="Enter te
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
 autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
+
+autocomplete_input_includes = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions, search_strategy="includes")
 
 text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 
@@ -214,7 +215,7 @@ widgets = Column(children=[
             Row(children=[checkbox_button_group_vertical, radio_button_group_vertical]),
         ]),
         Column(children=[
-            password_input, text_input, text_input_units, autocomplete_input, text_area,
+            password_input, text_input, text_input_units, autocomplete_input, autocomplete_input_includes, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
             spinner, color_picker,
@@ -248,6 +249,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "widgets.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Widgets"))
+        f.write(file_html(doc, title="Widgets"))
     print(f"Wrote {filename}")
     view(filename)

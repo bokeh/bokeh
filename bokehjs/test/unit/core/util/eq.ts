@@ -1,8 +1,10 @@
 import {expect} from "assertions"
 
-import {is_equal, equals, Equatable, Comparator} from "@bokehjs/core/util/eq"
+import type {Comparator} from "@bokehjs/core/util/eq"
+import type {Equatable} from "@bokehjs/core/util/eq"
+import {is_equal, equals} from "@bokehjs/core/util/eq"
 import {HasProps} from "@bokehjs/core/has_props"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 
 namespace SomeHasProps {
   export type Attrs = p.AttrsOf<Props>

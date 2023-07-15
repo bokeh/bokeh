@@ -19,7 +19,6 @@ from bokeh.embed import file_html
 from bokeh.layouts import gridplot
 from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
                           FactorRange, HoverTool, Plot, Rect, Text)
-from bokeh.resources import INLINE
 from bokeh.sampledata.us_holidays import us_holidays
 from bokeh.util.browser import view
 
@@ -103,6 +102,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "calendars.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Calendar 2014"))
+        f.write(file_html(doc, title="Calendar 2014"))
     print(f"Wrote {filename}")
     view(filename)

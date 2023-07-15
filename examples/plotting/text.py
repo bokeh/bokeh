@@ -30,7 +30,7 @@ texts = [
     "one",
     "two\nlines",
     "lines\nhere:\n3",
-    "here\nare\n4\nlines"
+    "here\nare\n4\nlines",
 ]
 
 def xs(cat):

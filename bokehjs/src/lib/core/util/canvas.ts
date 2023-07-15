@@ -1,7 +1,7 @@
 import {SVGRenderingContext2D} from "./svg"
 import {BBox} from "./bbox"
 import {div, canvas} from "../dom"
-import {OutputBackend} from "../enums"
+import type {OutputBackend} from "../enums"
 
 export type CanvasPatternRepetition = "repeat" | "repeat-x" | "repeat-y" | "no-repeat"
 

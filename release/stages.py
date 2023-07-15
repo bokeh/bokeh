@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING
 
 # Bokeh imports
 from .build import (
@@ -82,7 +82,7 @@ __all__ = (
     "DEPLOY_STEPS",
 )
 
-StepListType: TypeAlias = Tuple[StepType, ...]
+StepListType: TypeAlias = tuple[StepType, ...]
 
 BUILD_CHECKS: StepListType = (
     check_aws_present,

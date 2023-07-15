@@ -1,8 +1,10 @@
 import {logger} from "core/logging"
-import {Document, DocJson, DocumentEvent} from "document"
+import type {DocJson, DocumentEvent} from "document"
+import {Document} from "document"
 import {Message} from "protocol/message"
 import {Receiver} from "protocol/receiver"
-import {ClientSession, ErrorMsg} from "./session"
+import type {ErrorMsg} from "./session"
+import {ClientSession} from "./session"
 
 export const DEFAULT_SERVER_WEBSOCKET_URL = "ws://localhost:5006/ws"
 export const DEFAULT_TOKEN = "eyJzZXNzaW9uX2lkIjogImRlZmF1bHQifQ"

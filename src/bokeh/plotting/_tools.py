@@ -26,7 +26,6 @@ from typing import (
     Any,
     Callable,
     Iterator,
-    List,
     Literal,
     Sequence,
     Union,
@@ -72,7 +71,7 @@ __all__ = (
 # TODO: str should be literal union of e.g. pan | xpan | ypan
 Auto: TypeAlias = Literal["auto"]
 ActiveDrag: TypeAlias = Union[Drag, Auto, str, None]
-ActiveInspect: TypeAlias = Union[List[InspectTool], InspectTool, Auto, str, None]
+ActiveInspect: TypeAlias = Union[list[InspectTool], InspectTool, Auto, str, None]
 ActiveScroll: TypeAlias = Union[Scroll, Auto, str, None]
 ActiveTap: TypeAlias = Union[Tap, Auto, str, None]
 ActiveMulti: TypeAlias = Union[GestureTool, Auto, str, None]

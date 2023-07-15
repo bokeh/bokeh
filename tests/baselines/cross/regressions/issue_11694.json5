@@ -1,0 +1,52 @@
+{
+  roots: [
+    {
+      type: "object",
+      name: "Plot",
+      id: "p1001",
+      attributes: {
+        tags: [
+          {
+            type: "map",
+            entries: [
+              [
+                "id",
+                "1000",
+              ],
+            ],
+          },
+        ],
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1002",
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1003",
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1004",
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1005",
+        },
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1006",
+        },
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1007",
+        },
+      },
+    },
+  ],
+}

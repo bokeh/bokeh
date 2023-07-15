@@ -5,7 +5,7 @@ import {Serializer} from "@bokehjs/core/serialization"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {Document} from "@bokehjs/document/document"
 import * as events from "@bokehjs/document/events"
-import * as p from "@bokehjs/core/properties"
+import type * as p from "@bokehjs/core/properties"
 import {ColumnDataSource} from "@bokehjs/models/sources"
 
 const EVENTS = [

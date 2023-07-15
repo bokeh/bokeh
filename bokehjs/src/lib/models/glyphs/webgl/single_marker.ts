@@ -1,8 +1,9 @@
-import {Transform} from "./base"
-import {BaseMarkerGL, MarkerVisuals} from "./base_marker"
-import {ReglWrapper} from "./regl_wrap"
-import {GLMarkerType} from "./types"
-import {type GlyphView} from "../glyph"
+import type {Transform} from "./base"
+import type {MarkerVisuals} from "./base_marker"
+import {BaseMarkerGL} from "./base_marker"
+import type {ReglWrapper} from "./regl_wrap"
+import type {GLMarkerType} from "./types"
+import type {GlyphView} from "../glyph"
 
 export type SingleMarkerGlyphView = GlyphView & {
   visuals: MarkerVisuals
@@ -26,9 +27,10 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
   }
 
   protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: GLMarkerType): void {
-    if (main_gl_glyph.data_changed) {
+    if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
       main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
+      main_gl_glyph.data_mapped = false
     }
 
     if (this.visuals_changed) {

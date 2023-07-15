@@ -1,9 +1,9 @@
 import {Annotation, AnnotationView} from "../annotation"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import {div, display, undisplay, remove} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 
 export abstract class TextAnnotationView extends AnnotationView {
   declare model: TextAnnotation

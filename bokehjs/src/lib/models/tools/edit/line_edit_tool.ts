@@ -1,10 +1,10 @@
-import {PanEvent, TapEvent} from "core/ui_events"
+import type {PanEvent, TapEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {tool_icon_line_edit} from "styles/icons.css"
-import {Line} from "models/glyphs/line"
+import type {Line} from "models/glyphs/line"
 
 export interface HasLineGlyph {
   glyph: Line

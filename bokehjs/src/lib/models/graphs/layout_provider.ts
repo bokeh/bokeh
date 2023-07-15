@@ -1,8 +1,8 @@
 import {Model} from "../../model"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {CoordinateTransform} from "models/expressions/coordinate_transform"
-import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import type * as p from "core/properties"
 
 export namespace LayoutProvider {
   export type Attrs = p.AttrsOf<Props>

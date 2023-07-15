@@ -4,7 +4,8 @@ import {Anchor, ImageOrigin} from "@bokehjs/core/enums"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {load_image} from "@bokehjs/core/util/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
-import {DataRange1d, ImageRGBA} from "@bokehjs/models"
+import type {ImageRGBA} from "@bokehjs/models"
+import {DataRange1d} from "@bokehjs/models"
 
 function get_image_data(image: HTMLImageElement): ImageData {
   const {width, height} = image

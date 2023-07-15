@@ -1,5 +1,5 @@
 import {ColorMapper, _convert_palette, _convert_color} from "./color_mapper"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace StackColorMapper {
   export type Attrs = p.AttrsOf<Props>

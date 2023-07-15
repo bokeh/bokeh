@@ -27,7 +27,7 @@ p.circle(x, y, color="white", size=1)
 
 p.add_tools(HoverTool(
     tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],
-    mode="mouse", point_policy="follow_mouse", renderers=[r]
+    mode="mouse", point_policy="follow_mouse", renderers=[r],
 ))
 
 show(p)

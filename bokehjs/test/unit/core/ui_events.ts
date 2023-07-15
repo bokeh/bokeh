@@ -14,9 +14,11 @@ import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
 //import {Legend} from "@bokehjs/models/annotations/legend"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {UIEventBus, UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import {UIEventBus} from "@bokehjs/core/ui_events"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
 
@@ -62,7 +64,7 @@ describe("ui_event_bus module", () => {
       let spy_cursor: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "mousemove", sx: 0, sy: 0, ctrl_key: false, shift_key: false, alt_key: false}
+        e = {type: "mousemove", sx: 0, sy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
         spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
@@ -165,7 +167,7 @@ describe("ui_event_bus module", () => {
     describe("base_type=tap", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "tap", sx: 10, sy: 15, ctrl_key: false, shift_key: false, alt_key: false}
+        e = {type: "tap", sx: 10, sy: 15, modifiers: {ctrl: false, shift: false, alt: false}}
       })
 
       it("should not trigger tap event if no active tap tool", () => {
@@ -209,7 +211,7 @@ describe("ui_event_bus module", () => {
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1, ctrl_key: false, shift_key: false, alt_key: false}
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, modifiers: {ctrl: false, shift: false, alt: false}}
         srcEvent = new Event("scroll")
 
         preventDefault = sinon.spy(srcEvent, "preventDefault")
@@ -253,7 +255,7 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, ctrl_key: false, shift_key: false, alt_key: false}
+        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
       })
 
       it("should not trigger event if no active tool", () => {

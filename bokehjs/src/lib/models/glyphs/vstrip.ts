@@ -1,16 +1,19 @@
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import type {GlyphData} from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import {FloatArray, ScreenArray, Rect} from "core/types"
-import * as visuals from "core/visuals"
+import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
+import type {FloatArray, Rect} from "core/types"
+import {ScreenArray} from "core/types"
+import type * as visuals from "core/visuals"
 import * as uniforms from "core/uniforms"
-import {Context2d} from "core/util/canvas"
-import {SpatialIndex} from "core/util/spatial"
+import type {Context2d} from "core/util/canvas"
+import type {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
 import {range} from "core/util/array"
 import * as p from "core/properties"
+import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
@@ -31,7 +34,7 @@ export class VStripView extends GlyphView {
   declare visuals: VStrip.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/lrtb").LRTBGL
+  declare glglyph?: LRTBGL
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()

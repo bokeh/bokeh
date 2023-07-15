@@ -1,7 +1,7 @@
 import {gcd, is_pow_2} from "./utils/math"
 import {concat} from "core/util/array"
 import {map} from "core/util/arrayable"
-import {Regl, Texture2D} from "regl"
+import type {Regl, Texture2D} from "regl"
 
 export type DashReturn = [[number, number, number, number], Texture2D, number]
 type TextureReturn = [[number, number, number, number], Texture2D]

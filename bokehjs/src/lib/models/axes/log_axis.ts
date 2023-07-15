@@ -1,7 +1,7 @@
 import {ContinuousAxis, ContinuousAxisView} from "./continuous_axis"
 import {LogTickFormatter} from "../formatters/log_tick_formatter"
 import {LogTicker} from "../tickers/log_ticker"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class LogAxisView extends ContinuousAxisView {
   declare model: LogAxis

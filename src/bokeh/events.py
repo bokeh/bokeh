@@ -134,6 +134,11 @@ _CONCRETE_EVENT_CLASSES: dict[str, type[Event]] = {}
 # General API
 #-----------------------------------------------------------------------------
 
+class KeyModifiers(TypedDict):
+    shift: bool
+    ctrl: bool
+    alt: bool
+
 class EventRep(TypedDict):
     type: Literal["event"]
     name: str
@@ -398,12 +403,20 @@ class PointEvent(PlotEvent):
     the HTML canvas.
 
     '''
-    def __init__(self, model: Plot | None, sx: float | None = None, sy:
-            float | None = None, x: float | None = None, y: float | None = None):
+    def __init__(
+        self,
+        model: Plot | None,
+        sx: float | None = None,
+        sy: float | None = None,
+        x: float | None = None,
+        y: float | None = None,
+        modifiers: KeyModifiers | None = None,
+    ):
         self.sx = sx
         self.sy = sy
         self.x = x
         self.y = y
+        self.modifiers = modifiers
         super().__init__(model=model)
 
 class Tap(PointEvent):
@@ -528,9 +541,10 @@ class MouseWheel(PointEvent):
             sx: float | None = None,
             sy: float | None = None,
             x: float | None = None,
-            y: float | None = None):
+            y: float | None = None,
+            modifiers: KeyModifiers | None = None):
         self.delta = delta
-        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y, modifiers=modifiers)
 
 class Pan(PointEvent):
     ''' Announce a pan event on a Bokeh plot.
@@ -556,11 +570,12 @@ class Pan(PointEvent):
             sx: float | None = None,
             sy: float | None = None,
             x: float | None = None,
-            y: float | None = None):
+            y: float | None = None,
+            modifiers: KeyModifiers | None = None):
         self.delta_x = delta_x
         self.delta_y = delta_y
         self.direction = direction
-        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y, modifiers=modifiers)
 
 class PanEnd(PointEvent):
     ''' Announce the end of a pan event on a Bokeh plot.
@@ -609,9 +624,10 @@ class Pinch(PointEvent):
             sx: float | None = None,
             sy: float | None = None,
             x: float | None = None,
-            y: float | None = None):
+            y: float | None = None,
+            modifiers: KeyModifiers | None = None):
         self.scale = scale
-        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y, modifiers=modifiers)
 
 class PinchEnd(PointEvent):
     ''' Announce the end of a pinch event on a Bokeh plot.
@@ -666,9 +682,10 @@ class Rotate(PointEvent):
             sx: float | None = None,
             sy: float | None = None,
             x: float | None = None,
-            y: float | None = None):
+            y: float | None = None,
+            modifiers: KeyModifiers | None = None):
         self.rotation = rotation
-        super().__init__(model, sx=sx, sy=sy, x=x, y=y)
+        super().__init__(model, sx=sx, sy=sy, x=x, y=y, modifiers=modifiers)
 
 class RotateEnd(PointEvent):
     ''' Announce the end of a rotate event on a Bokeh plot.

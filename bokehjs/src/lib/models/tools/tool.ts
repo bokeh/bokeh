@@ -1,14 +1,15 @@
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {View} from "core/view"
-import {Class} from "core/class"
-import {Dimensions, ToolIcon} from "core/enums"
+import type {Class} from "core/class"
+import type {Dimensions} from "core/enums"
+import {ToolIcon} from "core/enums"
 import {min, max} from "core/util/array"
-import {MenuItem} from "core/util/menus"
+import type {MenuItem} from "core/util/menus"
 import {isString} from "core/util/types"
 import {Model} from "../../model"
-import {Renderer} from "../renderers/renderer"
-import {CartesianFrame} from "../canvas/cartesian_frame"
-import {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
+import type {Renderer} from "../renderers/renderer"
+import type {CartesianFrame} from "../canvas/cartesian_frame"
+import type {EventType, PanEvent, PinchEvent, RotateEvent, ScrollEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type {ToolButton} from "./tool_button"
 
 import type {PanTool} from "./gestures/pan_tool"
@@ -29,7 +30,7 @@ import type {RedoTool} from "./actions/redo_tool"
 import type {ResetTool} from "./actions/reset_tool"
 import type {HelpTool} from "./actions/help_tool"
 
-import {ToolButtonView} from "./tool_button"
+import type {ToolButtonView} from "./tool_button"
 
 export type ToolAliases = {
   pan:          PanTool

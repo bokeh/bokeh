@@ -1,16 +1,23 @@
 import {display, row, with_internal} from "./_util"
 
+import type {Axis} from "@bokehjs/models"
 import {
-  Axis, LinearAxis, LogAxis, CategoricalAxis,
-  LinearScale, LogScale, CategoricalScale,
-  Range1d, FactorRange,
-  AllLabels, NoOverlap,
+  AllLabels,
+  CategoricalAxis,
+  CategoricalScale,
+  FactorRange,
+  LinearAxis,
+  LinearScale,
+  LogAxis,
+  LogScale,
+  NoOverlap,
   Plot,
+  Range1d,
   TeX,
 } from "@bokehjs/models"
 
-import {Factor} from "@bokehjs/models/ranges/factor_range"
-import {OutputBackend, Side} from "@bokehjs/core/enums"
+import type {Factor} from "@bokehjs/models/ranges/factor_range"
+import type {OutputBackend, Side} from "@bokehjs/core/enums"
 import {radians} from "@bokehjs/core/util/math"
 
 (() => {

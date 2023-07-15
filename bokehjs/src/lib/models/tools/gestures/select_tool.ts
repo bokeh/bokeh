@@ -2,15 +2,15 @@ import {GestureTool, GestureToolView} from "./gesture_tool"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
 import {DataRenderer} from "../../renderers/data_renderer"
-import {DataSource} from "../../sources/data_source"
+import type {DataSource} from "../../sources/data_source"
 import {compute_renderers} from "../../util"
-import * as p from "core/properties"
-import {KeyEvent, KeyModifiers} from "core/ui_events"
+import type * as p from "core/properties"
+import type {KeyEvent, KeyModifiers} from "core/ui_events"
 import {SelectionMode} from "core/enums"
 import {SelectionGeometry} from "core/bokeh_events"
-import {Geometry} from "core/geometry"
+import type {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
-import {MenuItem} from "core/util/menus"
+import type {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
 
 export abstract class SelectToolView extends GestureToolView {
@@ -60,16 +60,16 @@ export abstract class SelectToolView extends GestureToolView {
     this._clear()
   }
 
-  protected _select_mode(ev: KeyModifiers): SelectionMode {
-    const {shift_key, ctrl_key} = ev
+  protected _select_mode(modifiers: KeyModifiers): SelectionMode {
+    const {shift, ctrl} = modifiers
 
-    if (!shift_key && !ctrl_key)
+    if (!shift && !ctrl)
       return this.model.mode
-    else if (shift_key && !ctrl_key)
+    else if (shift && !ctrl)
       return "append"
-    else if (!shift_key && ctrl_key)
+    else if (!shift && ctrl)
       return "intersect"
-    else if (shift_key && ctrl_key)
+    else if (shift && ctrl)
       return "subtract"
     else
       unreachable()
@@ -92,7 +92,7 @@ export abstract class SelectToolView extends GestureToolView {
     this.plot_view.request_paint(renderer_views)
   }
 
-  abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
+  protected abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
 
   protected _emit_selection_event(geometry: Geometry, final: boolean = true): void {
     const {x_scale, y_scale} = this.plot_view.frame

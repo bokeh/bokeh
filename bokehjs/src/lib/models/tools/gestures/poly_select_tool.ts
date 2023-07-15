@@ -1,12 +1,12 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {PolyAnnotation} from "../../annotations/poly_annotation"
-import {Scale} from "../../scales/scale"
-import {SelectionMode, CoordinateUnits} from "core/enums"
-import {PolyGeometry} from "core/geometry"
-import {Arrayable} from "core/types"
-import {TapEvent, KeyEvent, KeyModifiers} from "core/ui_events"
-import {CoordinateMapper} from "core/util/bbox"
-import * as p from "core/properties"
+import type {Scale} from "../../scales/scale"
+import type {SelectionMode, CoordinateUnits} from "core/enums"
+import type {PolyGeometry} from "core/geometry"
+import type {Arrayable} from "core/types"
+import type {TapEvent, KeyEvent, KeyModifiers} from "core/ui_events"
+import type {CoordinateMapper} from "core/util/bbox"
+import type * as p from "core/properties"
 import {tool_icon_polygon_select} from "styles/icons.css"
 
 type NumArray = Arrayable<number>
@@ -92,8 +92,8 @@ export class PolySelectToolView extends RegionSelectToolView {
     const [xs, ys] = this._v_invert(sxs, sys)
     this.model.overlay.update({xs, ys})
 
-    if (this._is_continuous(ev)) {
-      this._do_select(sxs, sys, true, this._select_mode(ev))
+    if (this._is_continuous(ev.modifiers)) {
+      this._do_select(sxs, sys, true, this._select_mode(ev.modifiers))
     }
   }
 
@@ -110,7 +110,7 @@ export class PolySelectToolView extends RegionSelectToolView {
   }
 
   override _doubletap(ev: TapEvent): void {
-    this._finish_selection(ev)
+    this._finish_selection(ev.modifiers)
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -118,7 +118,7 @@ export class PolySelectToolView extends RegionSelectToolView {
       return
 
     if (ev.key == "Enter") {
-      this._finish_selection(ev)
+      this._finish_selection(ev.modifiers)
       return
     }
 

@@ -1,18 +1,20 @@
-import {Glyph, GlyphView, GlyphData} from "./glyph"
+import type {GlyphData} from "./glyph"
+import {Glyph, GlyphView} from "./glyph"
 
-import {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
+import type {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import {Rect, FloatArray, ScreenArray} from "core/types"
-import {Context2d} from "core/util/canvas"
-import {SpatialIndex} from "core/util/spatial"
-import * as visuals from "core/visuals"
+import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Context2d} from "core/util/canvas"
+import type {SpatialIndex} from "core/util/spatial"
+import type * as visuals from "core/visuals"
 import {HexTileOrientation} from "core/enums"
 import {inplace} from "core/util/projections"
 
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
+import type {HexTileGL} from "./webgl/hex_tile"
 
 export type Vertices = [number, number, number, number, number, number]
 
@@ -39,7 +41,7 @@ export class HexTileView extends GlyphView {
   declare visuals: HexTile.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/hex_tile").HexTileGL
+  declare glglyph?: HexTileGL
 
   override async load_glglyph() {
     const {HexTileGL} = await import("./webgl/hex_tile")
@@ -109,7 +111,7 @@ export class HexTileView extends GlyphView {
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
 
     // From overridden GlyphView.map_data()
-    this.glglyph?.set_data_changed()
+    this.glglyph?.set_data_mapped()
   }
 
   protected _get_unscaled_vertices(): [[number, number, number, number, number, number], [number, number, number, number, number, number]] {

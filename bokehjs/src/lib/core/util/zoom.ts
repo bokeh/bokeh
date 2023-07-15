@@ -1,20 +1,26 @@
-import {Interval} from "../types"
+import type {Interval} from "../types"
+import type {Scale} from "models/scales/scale"
 
-import {CartesianFrame} from "models/canvas/cartesian_frame"
-import {Scale} from "models/scales/scale"
+type Bounds = [number, number]
+type Scales = Map<string, Scale>
+type Intervals = Map<string, Interval>
 
-// Module for zoom-related functions
+export type ScaleRanges = {
+  xrs: Intervals
+  yrs: Intervals
+  factor: number
+}
 
-export function scale_highlow(range: Interval, factor: number, center?: number): [number, number] {
+export function scale_highlow(range: Interval, factor: number, center?: number | null): Bounds {
   const [low, high] = [range.start, range.end]
-  const x = center != null ? center : (high + low) / 2.0
+  const x = center ?? (high + low) / 2.0
   const x0 = low - (low - x) * factor
   const x1 = high - (high - x) * factor
   return [x0, x1]
 }
 
-export function get_info(scales: Map<string, Scale>, [sxy0, sxy1]: [number, number]): Map<string, Interval> {
-  const info: Map<string, Interval> = new Map()
+export function get_info(scales: Scales, [sxy0, sxy1]: Bounds): Intervals {
+  const info: Intervals = new Map()
   for (const [name, scale] of scales) {
     const [start, end] = scale.r_invert(sxy0, sxy1)
     info.set(name, {start, end})
@@ -22,39 +28,19 @@ export function get_info(scales: Map<string, Scale>, [sxy0, sxy1]: [number, numb
   return info
 }
 
-export type ScaleRange = {
-  xrs: Map<string, Interval>
-  yrs: Map<string, Interval>
-  factor: number
-}
-
-export function scale_range(frame: CartesianFrame, factor: number,
-    h_axis: boolean = true, v_axis: boolean = true, center?: {x: number, y: number}): ScaleRange {
+export function scale_range(x_scales: Scales, y_scales: Scales, x_range: Interval, y_range: Interval, factor: number,
+    x_axis: boolean = true, y_axis: boolean = true, center?: {x?: number | null, y?: number | null} | null): ScaleRanges {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object
-   * of the form required by ``PlotView.update_range``
-   *
-   * Parameters:
-   *   frame : CartesianFrame
-   *   factor : Number
-   *   h_axis : Boolean, optional
-   *     whether to zoom the horizontal axis (default = true)
-   *   v_axis : Boolean, optional
-   *     whether to zoom the horizontal axis (default = true)
-   *   center : object, optional
-   *     of form {'x': Number, 'y', Number}
-   *
-   * Returns:
-   *   ScaleRange
+   * of the form required by `PlotView.update_range`.
    */
+  const x_factor = x_axis ? factor : 0
+  const [sx0, sx1] = scale_highlow(x_range, x_factor, center?.x)
+  const xrs = get_info(x_scales, [sx0, sx1])
 
-  const hfactor = h_axis ? factor : 0
-  const [sx0, sx1] = scale_highlow(frame.bbox.h_range, hfactor, center != null ? center.x : undefined)
-  const xrs = get_info(frame.x_scales, [sx0, sx1])
-
-  const vfactor = v_axis ? factor : 0
-  const [sy0, sy1] = scale_highlow(frame.bbox.v_range, vfactor, center != null ? center.y : undefined)
-  const yrs = get_info(frame.y_scales, [sy0, sy1])
+  const y_factor = y_axis ? factor : 0
+  const [sy0, sy1] = scale_highlow(y_range, y_factor, center?.y)
+  const yrs = get_info(y_scales, [sy0, sy1])
 
   // OK this sucks we can't set factor independently in each direction. It is used
   // for GMap plots, and GMap plots always preserve aspect, so effective the value

@@ -3,7 +3,7 @@
 //     (c) 2009-2015 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
 //     Underscore may be freely distributed under the MIT license.
 
-import {Arrayable} from "../types"
+import type {Arrayable} from "../types"
 import {randomIn} from "./math"
 import {assert} from "./assert"
 import {isInteger} from "./types"
@@ -67,9 +67,13 @@ export function unzip<A, B, C>(ABCs: [A, B, C][]): [A[], B[], C[]]
 export function unzip<T>(arrays: T[][]): T[][]
 export function unzip(array: unknown[][]): unknown[][] {
   const n = array.length
-  const k = min(array.map((a) => a.length))
+  if (n == 0) {
+    return []
+  }
 
+  const k = min(array.map((a) => a.length))
   const results: unknown[][] = Array(k)
+
   for (let j = 0; j < k; j++)
     results[j] = new Array(n)
 

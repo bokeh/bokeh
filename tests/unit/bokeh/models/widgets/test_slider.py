@@ -64,12 +64,6 @@ class TestRangeSlider:
         assert s1.value == (4, 6)
         assert s1.value_throttled == (4, 6)
 
-    def test_rangeslider_equal_start_end_exception(self) -> None:
-        start = 0
-        end = 0
-        with pytest.raises(ValueError):
-            mws.RangeSlider(start=start, end=end)
-
     def test_rangeslider_equal_start_end_validation(self, caplog: pytest.LogCaptureFixture) -> None:
         start = 0
         end = 10

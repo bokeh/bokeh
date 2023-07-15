@@ -69,7 +69,7 @@ class Test_CheckboxGroup:
             plot.add_glyph(source, Circle(x='x', y='y', size=20))
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(attr, old, new):
-                source.data['val'] = (group.active + [0, 0])[:2] # keep col length at 2, padded with zero
+                source.data['val'] = ([*group.active, 0, 0])[:2] # keep col length at 2, padded with zero
             group.on_change('active', cb)
             doc.add_root(column(group, plot))
 

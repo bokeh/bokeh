@@ -1,18 +1,20 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
-import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
+import type {Scale} from "../scales/scale"
+import type {AutoRanged} from "../ranges/data_range1d"
+import {auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
-import {SerializableState} from "core/view"
+import type * as visuals from "core/visuals"
+import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
-import {Arrayable, Rect} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import {point_in_poly, dist_to_segment} from "core/hittest"
 import {Signal} from "core/signaling"
-import {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
-import {BBox, CoordinateMapper, empty} from "core/util/bbox"
+import type {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
+import type {CoordinateMapper} from "core/util/bbox"
+import {BBox, empty} from "core/util/bbox"
 import {minmax} from "core/util/arrayable"
 import {assert} from "core/util/assert"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export type Node = {
   type: "node"
@@ -235,7 +237,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
           poly: this.poly.clone(),
           target,
         }
-        this.model.pan.emit(["pan:start", ev])
+        this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
     }
@@ -269,12 +271,12 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     const ys = y.v_invert(spoly.ys)
 
     this.model.update({xs, ys})
-    this.model.pan.emit(["pan", ev])
+    this.model.pan.emit(["pan", ev.modifiers])
   }
 
   _pan_end(ev: PanEvent): void {
     this._pan_state = null
-    this.model.pan.emit(["pan:end", ev])
+    this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
   private get _has_hover(): boolean {

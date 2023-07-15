@@ -1,8 +1,9 @@
-import {ScanningColorMapper, ScanningScanData} from "./scanning_color_mapper"
-import {Arrayable} from "core/types"
+import type {ScanningScanData} from "./scanning_color_mapper"
+import {ScanningColorMapper} from "./scanning_color_mapper"
+import type {Arrayable} from "core/types"
 import {min, max, bin_counts, interpolate, sorted_index} from "core/util/arrayable"
 import {linspace, cumsum} from "core/util/array"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace EqHistColorMapper {
   export type Attrs = p.AttrsOf<Props>

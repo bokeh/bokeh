@@ -5,8 +5,8 @@
 default_stages: [push]
 
 repos:
-  - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.252
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.0.269
     hooks:
       - id: ruff
         stages: [commit]

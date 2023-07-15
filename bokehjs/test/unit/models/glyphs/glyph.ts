@@ -2,9 +2,9 @@ import {expect} from "assertions"
 
 import {Glyph, GlyphView} from "@bokehjs/models/glyphs/glyph"
 import {Selection} from "@bokehjs/models/selections"
-import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "@bokehjs/core/geometry"
-import {SpatialIndex} from "@bokehjs/core/util/spatial"
-import {Context2d} from "@bokehjs/core/util/canvas"
+import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "@bokehjs/core/geometry"
+import type {SpatialIndex} from "@bokehjs/core/util/spatial"
+import type {Context2d} from "@bokehjs/core/util/canvas"
 import {with_log_level} from "@bokehjs/core/logging"
 
 import {create_glyph_view} from "./_util"

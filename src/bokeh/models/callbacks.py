@@ -21,15 +21,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any as any
+import pathlib
+from typing import TYPE_CHECKING, Any as any
 
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Any,
     AnyRef,
+    Auto,
     Bool,
     Dict,
+    Either,
     Instance,
     Required,
     String,
@@ -39,6 +42,9 @@ from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
+
+if TYPE_CHECKING:
+    from ..core.types import PathLike
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -65,7 +71,6 @@ class Callback(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-
 class OpenURL(Callback):
     ''' Open a URL in a new or current tab or window.
 
@@ -86,7 +91,14 @@ class OpenURL(Callback):
     dependent.
     """)
 
-class CustomJS(Callback):
+class CustomCode(Callback):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class CustomJS(CustomCode):
     ''' Execute a JavaScript function.
 
     .. warning::
@@ -101,20 +113,78 @@ class CustomJS(Callback):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    args = Dict(String, AnyRef, help="""
+    args = Dict(String, AnyRef)(default={}, help="""
     A mapping of names to Python objects. In particular those can be bokeh's models.
     These objects are made available to the callback's code snippet as the values of
     named parameters to the callback.
     """)
 
-    code = String(default="", help="""
-    A snippet of JavaScript code to execute in the browser. The
-    code is made into the body of a function, and all of of the named objects in
+    code = Required(String)(help="""
+    A snippet of JavaScript code to execute in the browser.
+
+    This can be interpreted either as a JavaScript function or a module, depending
+    on the ``module`` property:
+
+    1. A JS function.
+
+    The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
     and an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
+
+    2. An ES module.
+
+    A JavaScript module (ESM) exporting a default function with the following
+    signature:
+
+    .. code-block: javascript
+
+        export default function(args, obj, data) {
+            // program logic
+        }
+
+    where ``args`` is a key-value mapping of user-provided parameters, ``obj``
+    refers to the object that triggered the callback, and ``data`` is a key-value
+    mapping of optional parameters provided by the caller.
+
+    This function can be an asynchronous function (``async function``).
     """)
+
+    module = Either(Auto, Bool, default="auto", help="""
+    Whether to interpret the code as a JS function or ES module. If set to
+    ``"auto"``, the this will be inferred from the code.
+    """)
+
+    @classmethod
+    def from_file(cls, path: PathLike, **args: any) -> CustomJS:
+        """
+        Construct a ``CustomJS`` instance from a ``*.js`` or ``*.mjs`` file.
+
+        For example, if we want to construct a ``CustomJS`` instance from
+        a JavaScript module ``my_module.mjs``, that takes a single argument
+        ``source``, then we would use:
+
+        .. code-block: python
+
+            from bokeh.models import ColumnDataSrouce, CustomJS
+            source = ColumnDataSource(data=dict(x=[1, 2, 3]))
+            CustomJS.from_file("./my_module.mjs", source=source)
+
+        """
+        path = pathlib.Path(path)
+
+        if path.suffix == ".js":
+            module = False
+        elif path.suffix == ".mjs":
+            module = True
+        else:
+            raise RuntimeError(f"expected a *.js or *.mjs file, got {path}")
+
+        with open(path, encoding="utf-8") as file:
+            code = file.read()
+
+        return CustomJS(code=code, args=args, module=module)
 
 class SetValue(Callback):
     """ Allows to update a property of an object. """

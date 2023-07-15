@@ -7,7 +7,7 @@ dependencies:
   # runtime
   - contourpy >=1
   - jinja2 >=2.7
-  - numpy >=1.16
+  - numpy <1.25
   - packaging >=16.8
   - pandas 1.2
   - pillow >=4.0
@@ -41,6 +41,7 @@ dependencies:
   - pytest-xdist
   - pytest-timeout
   - requests >=1.2.3
+  - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - selenium 4.2
 
   # examples
@@ -62,7 +63,7 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph
     # tests
-    - ruff ==0.0.252
+    - ruff ==0.0.269
     - types-boto
     - types-colorama
     - types-mock

@@ -1,14 +1,18 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {Selector} from "../selectors/selector"
-import {HTML, HTMLView} from "../dom/html"
-import {Anchor, VAlign, HAlign, TooltipAttachment} from "core/enums"
-import {div, bounding_box, StyleSheetLike} from "core/dom"
+import type {HTMLView} from "../dom/html"
+import {HTML} from "../dom/html"
+import type {VAlign, HAlign} from "core/enums"
+import {Anchor, TooltipAttachment} from "core/enums"
+import type {StyleSheetLike} from "core/dom"
+import {div, bounding_box} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
 import {logger} from "core/logging"
-import {build_view, IterViews} from "core/build_views"
-import * as p from "core/properties"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
+import type * as p from "core/properties"
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 import icons_css from "styles/icons.css"
@@ -24,6 +28,9 @@ export class TooltipView extends UIElementView {
   private _target: Element
   get target(): Element {
     return this._target
+  }
+  set target(el: Element) {
+    this._target = el
   }
 
   protected _init_target(): void {

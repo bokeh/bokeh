@@ -6,7 +6,7 @@ import {TickFormatter} from "../formatters/tick_formatter"
 import {input} from "core/dom"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
 

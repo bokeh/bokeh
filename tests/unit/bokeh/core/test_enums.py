@@ -55,6 +55,7 @@ ALL  = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'KeyModifier',
     'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
@@ -193,7 +194,7 @@ class Test_bce:
         assert tuple(bce.HatchPattern) == (
             "blank", "dot", "ring", "horizontal_line", "vertical_line", "cross", "horizontal_dash", "vertical_dash",
             "spiral", "right_diagonal_line", "left_diagonal_line", "diagonal_cross", "right_diagonal_dash",
-            "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross"
+            "left_diagonal_dash", "horizontal_wave", "vertical_wave", "criss_cross",
         )
 
     def test_HatchPatternAbbreviation(self) -> None:
@@ -210,6 +211,9 @@ class Test_bce:
 
     def test_JitterRandomDistribution(self) -> None:
         assert tuple(bce.JitterRandomDistribution) == ("uniform", "normal")
+
+    def test_KeyModifier(self) -> None:
+        assert tuple(bce.KeyModifier) == ("shift", "ctrl", "alt")
 
     def test_LabelOrientation(self) -> None:
         assert tuple(bce.LabelOrientation) == ("horizontal", "vertical", "parallel", "normal")
@@ -356,6 +360,7 @@ def test_enums_contents() -> None:
         'HorizontalLocation',
         'ImageOrigin',
         'JitterRandomDistribution',
+        'KeyModifier',
         'LabelOrientation',
         'LatLon',
         'LegendClickPolicy',

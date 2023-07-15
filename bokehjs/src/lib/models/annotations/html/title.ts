@@ -1,10 +1,10 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import {TextBox} from "core/graphics"
-import {Size, Layoutable} from "core/layout"
-import {Panel} from "core/layout/side_panel"
+import type {Size, Layoutable} from "core/layout"
+import type {Panel} from "core/layout/side_panel"
 import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class HTMLTitleView extends TextAnnotationView {
   declare model: HTMLTitle

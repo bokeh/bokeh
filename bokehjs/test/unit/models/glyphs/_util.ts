@@ -1,19 +1,20 @@
 import {display} from "../../_util"
 
-import {Arrayable} from "@bokehjs/core/types"
+import type {Arrayable} from "@bokehjs/core/types"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
-import {Glyph} from "@bokehjs/models/glyphs/glyph"
-import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import type {Glyph} from "@bokehjs/models/glyphs/glyph"
+import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
+import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Scale} from "@bokehjs/models/scales/scale"
-import {Range} from "@bokehjs/models/ranges/range"
+import type {Scale} from "@bokehjs/models/scales/scale"
+import type {Range} from "@bokehjs/models/ranges/range"
 import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 import {LogScale} from "@bokehjs/models/scales/log_scale"
 import {CategoricalScale} from "@bokehjs/models/scales/categorical_scale"
 import {FactorRange} from "@bokehjs/models/ranges/factor_range"
-import {ViewOf} from "@bokehjs/core/view"
-import * as p from "@bokehjs/core/properties"
+import type {ViewOf} from "@bokehjs/core/view"
+import type * as p from "@bokehjs/core/properties"
 
 type FilteredKeys<T, U> = {[P in keyof T]: T[P] extends U ? P : never}[keyof T]
 

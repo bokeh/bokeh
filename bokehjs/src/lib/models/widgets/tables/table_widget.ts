@@ -1,7 +1,7 @@
 import {Widget} from "../widget"
 import {ColumnDataSource} from "../../sources/column_data_source"
 import {CDSView} from "../../sources/cds_view"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace TableWidget {
   export type Attrs = p.AttrsOf<Props>

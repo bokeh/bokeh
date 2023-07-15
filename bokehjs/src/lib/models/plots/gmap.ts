@@ -1,6 +1,6 @@
 import {GMapPlot, GMapPlotView} from "./gmap_plot"
-import {SerializableState} from "core/view"
-import * as p from "core/properties"
+import type {SerializableState} from "core/view"
+import type * as p from "core/properties"
 
 export class GMapView extends GMapPlotView {
   declare model: GMap

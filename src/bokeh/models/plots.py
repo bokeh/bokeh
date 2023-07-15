@@ -296,7 +296,7 @@ class Plot(LayoutDOM):
         '''
         if place not in Place:
             raise ValueError(
-                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}"
+                f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
 
         getattr(self, place).append(obj)
@@ -493,7 +493,7 @@ class Plot(LayoutDOM):
             f'{axis}_name': {'default', *getattr(self, f"extra_{axis}s")}
             for axis in ("x_range", "y_range")
         }
-        for place in list(Place) + ['renderers']:
+        for place in [*list(Place), 'renderers']:
             for ref in getattr(self, place):
                 bad = ', '.join(
                     f"{axis}='{getattr(ref, axis)}'"

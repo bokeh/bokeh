@@ -2,15 +2,14 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Circle, ColumnDataSource, CustomJS, LinearAxis,
                           PanTool, Plot, TapTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"]
-    )
+        color = ["red", "green", "blue", "#2c7fb8", "grey", "#2c7fb8", "lightgrey"],
+    ),
 )
 
 plot = Plot()
@@ -37,6 +36,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "customjs.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Demonstration of custom callback written in TypeScript"))
+        f.write(file_html(doc, title="Demonstration of custom callback written in TypeScript"))
     print(f"Wrote {filename}")
     view(filename)

@@ -1,5 +1,5 @@
 import {DOMElement, DOMElementView} from "./dom_element"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class SpanView extends DOMElementView {
   declare model: Span

@@ -816,7 +816,7 @@ def test__server_multiple_processes() -> None:
         assert tornado_fp.mock_calls == [
             mock.call(3, None)
             if tornado.version_info >= (6,)
-            else mock.call(3)
+            else mock.call(3),
         ]
 
 def test__existing_ioloop_with_multiple_processes_exception(ManagedServerLoop, event_loop) -> None:

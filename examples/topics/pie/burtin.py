@@ -1,5 +1,5 @@
 ''' A reproduction of `Will Burtin's historical visualization`_ of antibiotic
-efficacies.
+efficacies with some minimal changes to improve readibility.
 
 .. note::
     This chart is reproduced as a demonstration of Bokeh's versatile graphics
@@ -14,94 +14,84 @@ efficacies.
 .. _Will Burtin's historical visualization: https://mbostock.github.io/protovis/ex/antibiotics-burtin.html
 
 '''
-from math import log, sqrt
+from numpy import arange, array, cos, log, pi, sin, sqrt
 
-import numpy as np
-
+from bokeh.models import ColumnDataSource, Legend, LegendItem
 from bokeh.plotting import figure, show
 from bokeh.sampledata.antibiotics import data as df
 
-drug_color = dict([
-    ("Penicillin",   "#0d3362"),
-    ("Streptomycin", "#c64737"),
-    ("Neomycin",     "black"  ),
-])
-
-gram_color = dict([
+DRUGS = ("penicillin", "streptomycin", "neomycin")
+COLORS = ("#0d3362", "#c64737", "#000000")
+GRAM = dict([
     ("negative", "#e69584"),
     ("positive", "#aeaeb8"),
 ])
 
-width = 800
-height = 800
-inner_radius = 90
-outer_radius = 300 - 10
+big_angle = 2 * pi / (len(df) + 1)
+angles = pi/2 - 3*big_angle/2 - array(df.index) * big_angle
 
-minr = sqrt(log(.001 * 1E4))
-maxr = sqrt(log(1000 * 1E4))
-a = (outer_radius - inner_radius) / (minr - maxr)
-b = inner_radius - a * maxr
+df["start"] = angles
+df["end"] = angles + big_angle
+df["colors"] = [GRAM[gram] for gram in df.gram]
 
-def rad(mic):
-    return a * np.sqrt(np.log(mic * 1E4)) + b
+source = ColumnDataSource(df)
 
-big_angle = 2.0 * np.pi / (len(df) + 1)
-small_angle = big_angle / 7
+# Burtin's unusual inverted radial sqrt-log scale
+micmin = sqrt(log(.001*1E4))
+micmax = sqrt(log(1000*1E4))
+def scale(mic):
+    return - sqrt(log(mic * 1E4)) + (micmin + micmax)
 
-p = figure(width=width, height=height, title="",
-    x_axis_type=None, y_axis_type=None,
-    x_range=(-420, 420), y_range=(-420, 420),
-    min_border=0, outline_line_color="black",
-    background_fill_color="#f0e1d2")
-
-p.xgrid.grid_line_color = None
-p.ygrid.grid_line_color = None
-
-# annular wedges
-angles = np.pi/2 - big_angle/2 - df.index.to_series()*big_angle
-colors = [gram_color[gram] for gram in df.gram]
-p.annular_wedge(
-    0, 0, inner_radius, outer_radius, -big_angle+angles, angles, color=colors,
+p = figure(
+    width=800, height=800, title=None, tools="", toolbar_location=None,
+    x_axis_type=None, y_axis_type=None, match_aspect=True,
+    min_border=0, outline_line_color="black", background_fill_color="#f0e1d2",
 )
 
-# small wedges
-p.annular_wedge(0, 0, inner_radius, rad(df.penicillin),
-                -big_angle+angles+5*small_angle, -big_angle+angles+6*small_angle,
-                color=drug_color['Penicillin'])
-p.annular_wedge(0, 0, inner_radius, rad(df.streptomycin),
-                -big_angle+angles+3*small_angle, -big_angle+angles+4*small_angle,
-                color=drug_color['Streptomycin'])
-p.annular_wedge(0, 0, inner_radius, rad(df.neomycin),
-                -big_angle+angles+1*small_angle, -big_angle+angles+2*small_angle,
-                color=drug_color['Neomycin'])
+# large wedges for bacteria
+br = p.annular_wedge(0, 0, micmax, micmin, "start", "end", fill_color="colors", line_color="#f0e1d2", source=source)
 
-# circular axes and lables
-labels = np.power(10.0, np.arange(-3, 4))
-radii = a * np.sqrt(np.log(labels * 1E4)) + b
-p.circle(0, 0, radius=radii, fill_color=None, line_color="white")
-p.text(0, radii[:-1], [str(r) for r in labels[:-1]],
-       text_font_size="11px", text_align="center", text_baseline="middle")
+# circular axes and labels
+radii = scale(10.0 ** arange(-3, 4))
+p.circle(0, 0, radius=radii, fill_color=None, line_color="#f0e1d2")
+p.text(
+    0, radii, ["0.001", "0.01", "0.1", "1", "10", "100", "1000"],
+    text_font_size="12px", anchor="center",
+)
 
-# radial axes
-p.annular_wedge(0, 0, inner_radius-10, outer_radius+10,
-                -big_angle+angles, -big_angle+angles, color="black")
+# small wedges for drugs
+small_angle = big_angle / 7
+for i, drug in enumerate(DRUGS):
+    start = angles+(5-2*i)*small_angle
+    end = angles+(6-2*i)*small_angle
+    p.annular_wedge(
+        0, 0, micmin, scale(df[drug]), start, end,
+        color=COLORS[i], line_color=None, legend_label=drug,
+    )
 
 # bacteria labels
-xr = radii[0]*np.cos(np.array(-big_angle/2 + angles))
-yr = radii[0]*np.sin(np.array(-big_angle/2 + angles))
-label_angle=np.array(-big_angle/2+angles)
-label_angle[label_angle < -np.pi/2] += np.pi # easier to read labels on the left side
-p.text(xr, yr, df.bacteria, angle=label_angle,
-       text_font_size="12px", text_align="center", text_baseline="middle")
+r = radii[0] * 1.1
+xr = r * cos(angles + big_angle/2)
+yr = r * sin(angles + big_angle/2)
+p.text(
+    xr, yr, ["\n".join(x.split()) for x in df.bacteria],
+    text_font_size="13px", anchor="center",
+)
 
-# OK, these hand drawn legends are pretty clunky, will be improved in future release
-p.circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
-p.text([-30, -30], [-370, -390], text=["Gram-" + gr for gr in gram_color.keys()],
-       text_font_size="9px", text_align="left", text_baseline="middle")
+p.legend.location = "center"
+p.legend.background_fill_alpha = 0
+p.legend.glyph_width = 45
+p.legend.glyph_height = 20
 
-p.rect([-40, -40, -40], [18, 0, -18], width=30, height=13,
-       color=list(drug_color.values()))
-p.text([-15, -15, -15], [18, 0, -18], text=list(drug_color),
-       text_font_size="12px", text_align="left", text_baseline="middle")
+p.x_range.range_padding = 0.2
+p.y_range.range_padding = 0.2
+
+p.grid.grid_line_color = None
+
+legend = Legend(items=[
+    LegendItem(label="Gram-positive", renderers=[br], index=10),
+    LegendItem(label="Gram-negative", renderers=[br], index=0),
+], location="bottom", orientation="horizontal", background_fill_alpha=0)
+p.add_layout(legend, 'center')
 
 show(p)

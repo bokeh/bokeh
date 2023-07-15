@@ -1,8 +1,9 @@
 import {UIElement, UIElementView} from "./ui_element"
-import {ViewStorage, build_views, remove_views, IterViews} from "core/build_views"
-import {SerializableState} from "core/view"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
+import type {SerializableState} from "core/view"
 import {isString} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class PaneView extends UIElementView {
   declare model: Pane

@@ -47,7 +47,7 @@ layout = layout(
         [div, spinner],
         [range_slider],
         [p],
-    ]
+    ],
 )
 
 # show result

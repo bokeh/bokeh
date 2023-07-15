@@ -115,6 +115,7 @@ __all__ = (
     'HorizontalLocation',
     'ImageOrigin',
     'JitterRandomDistribution',
+    'KeyModifier',
     'LabelOrientation',
     'LatLon',
     'LegendClickPolicy',
@@ -374,6 +375,10 @@ ImageOrigin = enumeration("bottom_left", "top_left", "bottom_right", "top_right"
 JitterRandomDistributionType = Literal["uniform", "normal"]
 JitterRandomDistribution = enumeration(JitterRandomDistributionType)
 
+#:
+KeyModifier = Literal["shift", "ctrl", "alt"]
+KeyModifier = enumeration("shift", "ctrl", "alt")
+
 #: Specify how labels are oriented with respect to an axis
 LabelOrientationType = Literal["horizontal", "vertical", "parallel", "normal"]
 LabelOrientation = enumeration("horizontal", "vertical", "parallel", "normal")
@@ -409,7 +414,7 @@ MarkerType = enumeration(
     "circle_y", "cross", "dash", "diamond", "diamond_cross", "diamond_dot",
     "dot", "hex", "hex_dot", "inverted_triangle", "plus", "square",
     "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
-    "triangle", "triangle_dot", "triangle_pin", "x", "y"
+    "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
 
 #: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)

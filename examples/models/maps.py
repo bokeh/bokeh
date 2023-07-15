@@ -3,7 +3,6 @@ from bokeh.embed import file_html
 from bokeh.models import (BoxSelectTool, Circle, ColumnDataSource, GMapOptions,
                           GMapPlot, Label, LinearAxis, MercatorTicker,
                           MercatorTickFormatter, PanTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
@@ -28,8 +27,8 @@ source = ColumnDataSource(
     data=dict(
         lat=[30.2861, 30.2855, 30.2869],
         lon=[-97.7394, -97.7390, -97.7405],
-        fill=['orange', 'blue', 'green']
-    )
+        fill=['orange', 'blue', 'green'],
+    ),
 )
 
 circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
@@ -58,6 +57,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "maps.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Google Maps Example"))
+        f.write(file_html(doc, title="Google Maps Example"))
     print(f"Wrote {filename}")
     view(filename)

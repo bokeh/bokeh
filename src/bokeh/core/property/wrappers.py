@@ -69,8 +69,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterable,
-    List,
-    Set,
     TypeVar,
 )
 
@@ -169,7 +167,7 @@ class PropertyValueContainer:
     def _saved_copy(self) -> Any:
         raise RuntimeError("Subtypes must implement this to make a backup copy")
 
-class PropertyValueList(PropertyValueContainer, List[T]):
+class PropertyValueList(PropertyValueContainer, list[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -265,7 +263,7 @@ class PropertyValueList(PropertyValueContainer, List[T]):
     def sort(self, **kwargs):
         return super().sort(**kwargs)
 
-class PropertyValueSet(PropertyValueContainer, Set[T]):
+class PropertyValueSet(PropertyValueContainer, set[T]):
     """ A list property value container that supports change notifications on
     mutating operations.
 
@@ -469,18 +467,18 @@ class PropertyValueColumnData(PropertyValueDict):
         # For arrays is reports the actual old value. For lists, the old value
         # is actually the already updated value. This is because the method
         # self._saved_copy() makes a shallow copy.
-        for k, v in new_data.items():
+        for k in new_data:
             if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
-                if rollover and len(data) > rollover:
-                    data = data[-rollover:]
+                if rollover is not None and len(data) > rollover:
+                    data = data[len(data) - rollover:]
                 # call dict.__setitem__ directly, bypass wrapped version on base class
                 dict.__setitem__(self, k, data)
             else:
                 L = self[k]
                 L.extend(new_data[k])
                 if rollover is not None:
-                    del L[:-rollover]
+                    del L[:len(L) - rollover]
 
         from ...document.events import ColumnsStreamedEvent
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))

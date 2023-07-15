@@ -27,6 +27,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.has_props import abstract
+from ...core.properties import Override
 from ..layouts import LayoutDOM
 
 #-----------------------------------------------------------------------------
@@ -54,6 +55,8 @@ class Widget(LayoutDOM):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    margin = Override(default=5)
 
 #-----------------------------------------------------------------------------
 # Private API

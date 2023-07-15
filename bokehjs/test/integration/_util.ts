@@ -3,7 +3,8 @@ import sinon from "sinon"
 export {describe, it, display, fig} from "../framework"
 
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {LayoutDOM, Row, Column, GridBox} from "@bokehjs/models/layouts/index"
+import type {LayoutDOM} from "@bokehjs/models/layouts/index"
+import {Row, Column, GridBox} from "@bokehjs/models/layouts/index"
 
 import {delay} from "@bokehjs/core/util/defer"
 import {tex2svg, mathml2svg} from "@bokehjs/models/text/mathjax"

@@ -406,6 +406,13 @@ class AutocompleteInput(TextInput):
     Set to False in order to allow users to enter text that is not present in the list of completion strings.
     """)
 
+    search_strategy = Enum("starts_with", "includes", help="""
+    Define how to search the list of completion strings. The default option
+    ``"starts_with"`` means that the user's text must match the start of a
+    completion string. Using ``"includes"`` means that the user's text can
+    match any substring of a completion string.
+    """)
+
 
 class Select(InputWidget):
     ''' Single-select widget.

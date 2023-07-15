@@ -18,7 +18,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (ColumnDataSource, DatetimeAxis, DatetimeTickFormatter,
                           FixedTicker, Legend, LegendItem, Line, Patch, Plot, Text)
-from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 from bokeh.util.browser import view
 
@@ -32,14 +31,14 @@ source = ColumnDataSource(dict(
 
 patch1_source = ColumnDataSource(dict(
     dates = np.concatenate((df.Date, df.Date[::-1])),
-    times = np.concatenate((df.Sunrise, df.Sunset[::-1]))
+    times = np.concatenate((df.Sunrise, df.Sunset[::-1])),
 ))
 
 summer = df[df.Summer == 1]
 
 patch2_source = ColumnDataSource(dict(
     dates = np.concatenate((summer.Date, summer.Date[::-1])),
-    times = np.concatenate((summer.Sunrise, summer.Sunset[::-1]))
+    times = np.concatenate((summer.Sunrise, summer.Sunset[::-1])),
 ))
 
 summer_start = df.Summer.tolist().index(1)
@@ -84,7 +83,7 @@ xformatter = DatetimeTickFormatter(months="%b %d %Y")
 min_time = dt.datetime.min.time()
 xticker = FixedTicker(ticks=[
     mktime(dt.datetime.combine(summer_start, min_time).timetuple()) * 1000,
-    mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000
+    mktime(dt.datetime.combine(summer_end, min_time).timetuple()) * 1000,
 ])
 xaxis = DatetimeAxis(formatter=xformatter, ticker=xticker)
 plot.add_layout(xaxis, 'below')
@@ -106,6 +105,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "daylight.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Daylight Plot"))
+        f.write(file_html(doc, title="Daylight Plot"))
     print(f"Wrote {filename}")
     view(filename)

@@ -6,7 +6,7 @@ import {display} from "../../../framework"
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {BBox} from "@bokehjs/core/util/bbox"
 import {paint} from "@bokehjs/core/util/defer"
-import {StyleSheetLike} from "@bokehjs/core/dom"
+import type {StyleSheetLike} from "@bokehjs/core/dom"
 import base_css from "@bokehjs/styles/base.css"
 
 class UIView extends UIElementView {

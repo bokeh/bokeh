@@ -1,0 +1,201 @@
+{
+  roots: [
+    {
+      type: "object",
+      name: "Plot",
+      id: "p1008",
+      attributes: {
+        width: 200,
+        height: 200,
+        x_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1009",
+        },
+        y_range: {
+          type: "object",
+          name: "DataRange1d",
+          id: "p1010",
+        },
+        x_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1011",
+        },
+        y_scale: {
+          type: "object",
+          name: "LinearScale",
+          id: "p1012",
+        },
+        title: {
+          type: "object",
+          name: "Title",
+          id: "p1013",
+        },
+        renderers: [
+          {
+            type: "object",
+            name: "GlyphRenderer",
+            id: "p1005",
+            attributes: {
+              data_source: {
+                type: "object",
+                name: "ColumnDataSource",
+                id: "p1001",
+                attributes: {
+                  selected: {
+                    type: "object",
+                    name: "Selection",
+                    id: "p1002",
+                    attributes: {
+                      indices: [],
+                      line_indices: [],
+                    },
+                  },
+                  selection_policy: {
+                    type: "object",
+                    name: "UnionRenderers",
+                    id: "p1003",
+                  },
+                  data: {
+                    type: "map",
+                    entries: [
+                      [
+                        "x",
+                        [
+                          1,
+                          2,
+                          3,
+                        ],
+                      ],
+                      [
+                        "y",
+                        [
+                          4,
+                          4.5,
+                          6,
+                        ],
+                      ],
+                    ],
+                  },
+                },
+              },
+              view: {
+                type: "object",
+                name: "CDSView",
+                id: "p1006",
+                attributes: {
+                  filter: {
+                    type: "object",
+                    name: "AllIndices",
+                    id: "p1007",
+                  },
+                },
+              },
+              glyph: {
+                type: "object",
+                name: "Line",
+                id: "p1004",
+              },
+            },
+          },
+        ],
+        toolbar: {
+          type: "object",
+          name: "Toolbar",
+          id: "p1014",
+        },
+        below: [
+          {
+            type: "object",
+            name: "LinearAxis",
+            id: "p1016",
+            attributes: {
+              ticker: {
+                type: "object",
+                name: "FixedTicker",
+                id: "p1015",
+                attributes: {
+                  ticks: [
+                    1,
+                    2,
+                    3,
+                  ],
+                  minor_ticks: [],
+                },
+              },
+              formatter: {
+                type: "object",
+                name: "BasicTickFormatter",
+                id: "p1018",
+              },
+              axis_label: "int overrides",
+              major_label_overrides: {
+                type: "map",
+                entries: [
+                  [
+                    1,
+                    "A",
+                  ],
+                  [
+                    3,
+                    "C",
+                  ],
+                ],
+              },
+              major_label_policy: {
+                type: "object",
+                name: "AllLabels",
+                id: "p1019",
+              },
+            },
+          },
+          {
+            type: "object",
+            name: "LinearAxis",
+            id: "p1021",
+            attributes: {
+              ticker: {
+                type: "object",
+                name: "FixedTicker",
+                id: "p1020",
+                attributes: {
+                  ticks: [
+                    1,
+                    2,
+                    3,
+                  ],
+                  minor_ticks: [],
+                },
+              },
+              formatter: {
+                type: "object",
+                name: "BasicTickFormatter",
+                id: "p1023",
+              },
+              axis_label: "float overrides",
+              major_label_overrides: {
+                type: "map",
+                entries: [
+                  [
+                    1.0,
+                    "A",
+                  ],
+                  [
+                    3.0,
+                    "C",
+                  ],
+                ],
+              },
+              major_label_policy: {
+                type: "object",
+                name: "AllLabels",
+                id: "p1024",
+              },
+            },
+          },
+        ],
+      },
+    },
+  ],
+}

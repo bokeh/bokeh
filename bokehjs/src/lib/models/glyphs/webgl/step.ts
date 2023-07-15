@@ -1,11 +1,13 @@
-import {Transform} from "./base"
-import {BaseLineGL, LineGLVisuals} from "./base_line"
-import {Float32Buffer, Uint8Buffer} from "./buffer"
-import {ReglWrapper} from "./regl_wrap"
-import {StepView} from "../step"
+import type {Transform} from "./base"
+import type {BaseLineVisuals} from "./base_line"
+import type {Uint8Buffer} from "./buffer"
+import {Float32Buffer} from "./buffer"
+import type {ReglWrapper} from "./regl_wrap"
+import {SingleLineGL} from "./single_line"
+import type {StepView} from "../step"
 import {assert, unreachable} from "core/util/assert"
 
-export class StepGL extends BaseLineGL {
+export class StepGL extends SingleLineGL {
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: StepView) {
     super(regl_wrapper, glyph)
   }
@@ -19,8 +21,8 @@ export class StepGL extends BaseLineGL {
     return main_gl_glyph._show!
   }
 
-  protected override _get_visuals(): LineGLVisuals {
-    return this.glyph.visuals
+  protected override _get_visuals(): BaseLineVisuals {
+    return this.glyph.visuals.line
   }
 
   protected override _set_data_points(): Float32Array {
@@ -30,7 +32,7 @@ export class StepGL extends BaseLineGL {
 
     let npoints = sx.length
 
-    this._is_closed = (npoints > 2 && sx[0] == sx[npoints-1] && sy[0] == sy[npoints-1] &&
+    const is_closed = (npoints > 2 && sx[0] == sx[npoints-1] && sy[0] == sy[npoints-1] &&
                        isFinite(sx[0]) && isFinite(sy[0]))
 
     const nstep_points = mode == "center" ? 2*npoints : 2*npoints-1
@@ -91,7 +93,7 @@ export class StepGL extends BaseLineGL {
 
     npoints = nstep_points
 
-    if (this._is_closed) {
+    if (is_closed) {
       points_array[0] = points_array[2*npoints-2]  // Last but one point.
       points_array[1] = points_array[2*npoints-1]
       points_array[2*npoints+2] = points_array[4]  // Second point.

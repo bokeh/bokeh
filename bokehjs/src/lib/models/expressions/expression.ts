@@ -1,7 +1,7 @@
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Model} from "../../model"
-import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import type {Arrayable} from "core/types"
+import type * as p from "core/properties"
 
 export namespace Expression {
   export type Attrs = p.AttrsOf<Props>

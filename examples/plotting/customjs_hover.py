@@ -36,7 +36,7 @@ p.add_tools(HoverTool(
     formatters={
         '$x' : CustomJSHover(code=code % 0),
         '$y' : CustomJSHover(code=code % 1),
-    }
+    },
 ))
 
 show(p)

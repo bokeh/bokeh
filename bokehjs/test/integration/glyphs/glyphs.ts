@@ -1,12 +1,12 @@
 import {display, fig, row, column} from "../_util"
 
 import {Range1d, HoverTool} from "@bokehjs/models"
-import {Direction, OutputBackend} from "@bokehjs/core/enums"
-import {Color} from "@bokehjs/core/types"
+import type {Direction, OutputBackend} from "@bokehjs/core/enums"
+import type {Color} from "@bokehjs/core/types"
 import {hatch_aliases} from "@bokehjs/core/visuals/patterns"
 import {entries} from "@bokehjs/core/util/object"
 import {zip} from "@bokehjs/core/util/array"
-import {HatchPattern} from "@bokehjs/core/property_mixins"
+import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import {np} from "@bokehjs/api/linalg"
 
 describe("Glyph models", () => {
@@ -244,12 +244,15 @@ describe("Glyph models", () => {
   })
 
   it("should support MultiLine", async () => {
+    const xs = [[1, 2, 3], [1, 2, 3]]
+    const ys = [[1, 3, 2], [2, 1, 3]]
+
     function p(output_backend: OutputBackend) {
-      const p = fig([200, 300], {output_backend, title: output_backend})
-      p.multi_line({xs: [x], ys: [y]})
+      const p = fig([150, 200], {output_backend, title: output_backend})
+      p.multi_line({xs, ys, line_color: ["red", "blue"], line_width: [5, 10], line_alpha: 0.5, line_dash: ["solid", "dashed"]})
       return p
     }
-    await display(row([p("canvas"), p("svg")]))
+    await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
   it("should support MultiPolygon", async () => {

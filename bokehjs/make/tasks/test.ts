@@ -1,4 +1,5 @@
-import {spawn, ChildProcess} from "child_process"
+import type {ChildProcess} from "child_process"
+import {spawn} from "child_process"
 import {argv} from "yargs"
 import {join, delimiter, basename, extname, dirname} from "path"
 import chalk from "chalk"

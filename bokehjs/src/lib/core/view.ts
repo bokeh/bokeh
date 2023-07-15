@@ -1,8 +1,9 @@
 import type {HasProps} from "./has_props"
-import {Property} from "./properties"
-import {Signal0, Signal, Slot, ISignalable} from "./signaling"
+import type {Property} from "./properties"
+import type {Slot, ISignalable} from "./signaling"
+import {Signal0, Signal} from "./signaling"
 import {isArray} from "./util/types"
-import {BBox} from "./util/bbox"
+import type {BBox} from "./util/bbox"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 

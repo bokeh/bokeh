@@ -1,6 +1,6 @@
 // Based on Underscore.js 1.8.3 (http://underscorejs.org)
 
-import {PlainObject} from "../types"
+import type {PlainObject} from "../types"
 import {isObject} from "./types"
 
 const {hasOwnProperty} = Object.prototype

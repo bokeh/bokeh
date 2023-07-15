@@ -199,72 +199,72 @@ def test_in() -> None:
 def test_disjuction() -> None:
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(type=Grid)]})
+        {q.OR: [dict(type=Axis), dict(type=Grid)]}),
     )
     assert len(res) == 5
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(name="mycircle")]})
+        {q.OR: [dict(type=Axis), dict(name="mycircle")]}),
     )
     assert len(res) == 4
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]})
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]}),
     )
     assert len(res) == 6
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]})
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]}),
     )
     assert len(res) == 6
 
 def test_conjuction() -> None:
     res = list(
-        q.find(plot.references(), dict(type=Axis, tags="foo"))
+        q.find(plot.references(), dict(type=Axis, tags="foo")),
     )
     assert len(res) == 0
 
     res = list(
-        q.find(plot.references(), dict(type=Range1d, tags="foo"))
+        q.find(plot.references(), dict(type=Range1d, tags="foo")),
     )
     assert len(res) == 2
 
     res = list(
-        q.find(plot.references(), dict(type=GlyphRenderer, name="mycircle"))
+        q.find(plot.references(), dict(type=GlyphRenderer, name="mycircle")),
     )
     assert len(res) == 1
 
 def test_ops() -> None:
     res = list(
-        q.find(plot.references(), {'size': {q.EQ: 5}})
+        q.find(plot.references(), {'size': {q.EQ: 5}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.NEQ: 5}})
+        q.find(plot.references(), {'size': {q.NEQ: 5}}),
     )
     assert len(res) == 0
 
     res = list(
-        q.find(plot.references(), {'size': {q.GEQ: 5}})
+        q.find(plot.references(), {'size': {q.GEQ: 5}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.LEQ: 5}})
+        q.find(plot.references(), {'size': {q.LEQ: 5}}),
     )
     assert len(res) == 1
 
     res = list(
-        q.find(plot.references(), {'size': {q.GT: 5}})
+        q.find(plot.references(), {'size': {q.GT: 5}}),
     )
     assert len(res) == 0
 
     res = list(
-        q.find(plot.references(), {'size': {q.LT: 5}})
+        q.find(plot.references(), {'size': {q.LT: 5}}),
     )
     assert len(res) == 0
 

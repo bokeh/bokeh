@@ -1,5 +1,5 @@
 import {ContextWhich, Location} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {enumerate} from "core/util/iterator"
 import {sprintf} from "core/util/templating"
 import {isString, is_undefined} from "core/util/types"

@@ -1,16 +1,20 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import * as visuals from "core/visuals"
-import {Rect, Indices, ScreenArray, to_screen} from "core/types"
+import type * as visuals from "core/visuals"
+import type {Rect, Indices} from "core/types"
+import {ScreenArray, to_screen} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import {SpatialIndex} from "core/util/spatial"
-import {map, max, minmax} from "core/util/arrayable"
-import {Context2d} from "core/util/canvas"
+import * as uniforms from "core/uniforms"
+import type {SpatialIndex} from "core/util/spatial"
+import {map, minmax} from "core/util/arrayable"
+import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import {Range1d} from "../ranges/range1d"
+import type {Range1d} from "../ranges/range1d"
+import type {CircleGL} from "./webgl/circle"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   readonly angle: p.Uniform<number>
@@ -31,7 +35,7 @@ export class CircleView extends XYGlyphView {
   declare visuals: Circle.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/circle").CircleGL
+  declare glglyph?: CircleGL
 
   override async load_glglyph() {
     const {CircleGL} = await import("./webgl/circle")
@@ -45,15 +49,7 @@ export class CircleView extends XYGlyphView {
   protected override _set_data(indices: number[] | null): void {
     super._set_data(indices)
 
-    const max_size = (() => {
-      if (this.use_radius)
-        return 2*this.max_radius
-      else {
-        const {size} = this
-        return size.is_Scalar() ? size.value : max((size as p.UniformVector<number>).array)
-      }
-    })()
-
+    const max_size = this.use_radius ? 2*this.max_radius : uniforms.max(this.size)
     this._configure("max_size", {value: max_size})
   }
 

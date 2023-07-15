@@ -3,7 +3,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Callback, Circle, ColumnDataSource, LinearAxis,
                           PanTool, Plot, TapTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 from bokeh.util.compiler import TypeScript
 
@@ -94,8 +93,8 @@ source = ColumnDataSource(
     data = dict(
         x = [1, 2, 3, 4, 4,   5, 5],
         y = [5, 4, 3, 2, 2.1, 1, 1.1],
-        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"]
-    )
+        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "#2c7fb8", "rgba(120, 230, 150, 0.5)", "rgba(120, 230, 150, 0.5)"],
+    ),
 )
 
 plot = MyPlot(gradient_angle=45)
@@ -116,6 +115,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "custom.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Demonstration of user-defined models"))
+        f.write(file_html(doc, title="Demonstration of user-defined models"))
     print(f"Wrote {filename}")
     view(filename)

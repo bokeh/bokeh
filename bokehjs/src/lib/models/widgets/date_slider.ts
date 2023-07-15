@@ -1,8 +1,9 @@
 import tz from "timezone"
 
-import {AbstractSlider, AbstractSliderView, SliderSpec} from "./abstract_slider"
-import {TickFormatter} from "../formatters/tick_formatter"
-import * as p from "core/properties"
+import type {SliderSpec} from "./abstract_slider"
+import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
+import type {TickFormatter} from "../formatters/tick_formatter"
+import type * as p from "core/properties"
 import {isString} from "core/util/types"
 
 export class DateSliderView extends AbstractSliderView {

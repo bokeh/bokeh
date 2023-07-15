@@ -22,6 +22,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "isolatedModules": true,
+    "verbatimModuleSyntax": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "skipLibCheck": true,

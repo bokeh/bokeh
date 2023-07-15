@@ -1,18 +1,18 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {LegendItem} from "./legend_item"
-import {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {AlternationPolicy, Orientation, LegendLocation, LegendClickPolicy, Location} from "core/enums"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Size} from "core/layout"
+import type {Size} from "core/layout"
 import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Column, Row, Grid, ContentLayoutable, Sizeable} from "core/layout"
 
@@ -87,11 +87,7 @@ export class LegendView extends AnnotationView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const rerender = () => {
-      this.update_geometry()
-      this.request_render()
-    }
-
+    const rerender = () => this.request_render()
     this.connect(this.model.change, rerender)
     this.connect(this.model.item_change, rerender)
   }
@@ -330,6 +326,10 @@ export class LegendView extends AnnotationView {
   }
 
   protected _render(): void {
+    // It would be better to update geometry (the internal layout) only when
+    // necessary, but conditions for that are not clear, so for now update
+    // at every render.
+    this.update_geometry()
     this.compute_geometry()
 
     if (this.model.items.length == 0)
@@ -556,14 +556,5 @@ export class Legend extends Annotation {
       title_text_font_size: "13px",
       title_text_font_style: "italic",
     })
-  }
-
-  get_legend_names(): string[] {
-    const legend_names: string[] = []
-    for (const item of this.items) {
-      const labels = item.get_labels_list_from_label_prop()
-      legend_names.push(...labels)
-    }
-    return legend_names
   }
 }

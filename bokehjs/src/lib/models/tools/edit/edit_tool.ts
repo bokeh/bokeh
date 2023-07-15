@@ -1,12 +1,12 @@
-import * as p from "core/properties"
-import {PointGeometry} from "core/geometry"
-import {UIEvent, MoveEvent} from "core/ui_events"
-import {Dimensions, SelectionMode} from "core/enums"
+import type * as p from "core/properties"
+import type {PointGeometry} from "core/geometry"
+import type {UIEvent, MoveEvent} from "core/ui_events"
+import type {Dimensions, SelectionMode} from "core/enums"
 import {includes} from "core/util/array"
 import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
-import {XYGlyph} from "../../glyphs/xy_glyph"
-import {ColumnarDataSource} from "../../sources/columnar_data_source"
+import type {XYGlyph} from "../../glyphs/xy_glyph"
+import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
@@ -21,15 +21,15 @@ export abstract class EditToolView extends GestureToolView {
   _mouse_in_frame: boolean = true
 
   protected _select_mode(ev: UIEvent): SelectionMode {
-    const {shift_key, ctrl_key} = ev
+    const {shift, ctrl} = ev.modifiers
 
-    if (!shift_key && !ctrl_key)
+    if (!shift && !ctrl)
       return "replace"
-    else if (shift_key && !ctrl_key)
+    else if (shift && !ctrl)
       return "append"
-    else if (!shift_key && ctrl_key)
+    else if (!shift && ctrl)
       return "intersect"
-    else if (shift_key && ctrl_key)
+    else if (shift && ctrl)
       return "subtract"
     else
       unreachable()

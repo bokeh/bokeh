@@ -1,5 +1,5 @@
 import {CoordinateTransform} from "../expressions/coordinate_transform"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 

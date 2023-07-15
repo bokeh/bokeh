@@ -8,7 +8,7 @@ import {
 import {entries, values} from "@bokehjs/core/util/object"
 import {max, range, zip, reversed} from "@bokehjs/core/util/array"
 import {Matrix} from "@bokehjs/core/util/matrix"
-import {Color} from "@bokehjs/core/types"
+import type {Color} from "@bokehjs/core/types"
 
 function plot(name: string, palettes: Color[][]) {
   const n = max(palettes.map((palette) => palette.length).filter((n) => n != 256))

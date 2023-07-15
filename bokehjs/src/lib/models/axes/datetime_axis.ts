@@ -1,7 +1,7 @@
 import {ContinuousAxis, ContinuousAxisView} from "./continuous_axis"
 import {DatetimeTickFormatter} from "../formatters/datetime_tick_formatter"
 import {DatetimeTicker} from "../tickers/datetime_ticker"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class DatetimeAxisView extends ContinuousAxisView {
   declare model: DatetimeAxis

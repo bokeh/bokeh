@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import logging
 import weakref
 from typing import Any
 from unittest.mock import patch
@@ -37,6 +38,7 @@ from bokeh.core.serialization import (
     MapRep,
     ObjectRefRep,
     Ref,
+    UnknownReferenceError,
 )
 from bokeh.core.types import ID
 from bokeh.document.events import (
@@ -966,6 +968,62 @@ class TestDocument:
         assert m2.child == m1
         doc.apply_json_patch(patch)
         assert m2.child == m0
+
+    def test_patch_a_previously_known_reference(self, caplog: pytest.LogCaptureFixture) -> None:
+        m0 = SomeModelInTestDocument(foo=0)
+        m1 = SomeModelInTestDocument(foo=1, child=m0)
+
+        doc = document.Document()
+        doc.add_root(m1)
+
+        m1.child = None
+
+        patch = PatchJson(
+            events=[
+                ModelChanged(
+                    kind="ModelChanged",
+                    model=m0.ref,
+                    attr="foo",
+                    new=10,
+                ),
+            ],
+            references=[],
+        )
+
+        with caplog.at_level(logging.WARNING):
+            assert len(caplog.records) == 0
+            doc.apply_json_patch(patch)
+            assert len(caplog.records) == 1
+            [msg0] = caplog.messages
+            assert m0.ref["id"] in msg0
+
+        assert m0.foo == 0
+
+    def test_patch_an_unknown_reference(self) -> None:
+        m0 = SomeModelInTestDocument(foo=0)
+        m1 = SomeModelInTestDocument(foo=1, child=None)
+
+        doc = document.Document()
+        doc.add_root(m1)
+
+        m1.child = None
+
+        patch = PatchJson(
+            events=[
+                ModelChanged(
+                    kind="ModelChanged",
+                    model=m0.ref,
+                    attr="foo",
+                    new=10,
+                ),
+            ],
+            references=[],
+        )
+
+        with pytest.raises(UnknownReferenceError):
+            doc.apply_json_patch(patch)
+
+        assert m0.foo == 0
 
     # a more realistic set of models instead of fake models
     def test_scatter(self) -> None:

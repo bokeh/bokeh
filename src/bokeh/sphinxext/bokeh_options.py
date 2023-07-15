@@ -125,7 +125,7 @@ class BokehOptionsDirective(BokehDirective):
                     type=type_link(descriptor.property),
                     default=repr(descriptor.instance_default(options_obj)),
                     doc="" if descriptor.__doc__ is None else textwrap.dedent(descriptor.__doc__.rstrip()),
-                )
+                ),
             )
 
         rst_text = OPTIONS_DETAIL.render(opts=opts)

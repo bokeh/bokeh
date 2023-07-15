@@ -1,13 +1,14 @@
 import {Filter} from "./filter"
-import * as p from "core/properties"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
 import {Indices} from "core/types"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace IndexFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    indices: p.Property<number[] | null>
+    indices: p.Property<Arrayable<number> | null>
   }
 }
 
@@ -21,8 +22,8 @@ export class IndexFilter extends Filter {
   }
 
   static {
-    this.define<IndexFilter.Props>(({Int, Array, Nullable}) => ({
-      indices: [ Nullable(Array(Int)), null ],
+    this.define<IndexFilter.Props>(({Int, Arrayable, Nullable}) => ({
+      indices: [ Nullable(Arrayable(Int)), null ],
     }))
   }
 

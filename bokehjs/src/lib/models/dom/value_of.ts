@@ -2,7 +2,7 @@ import {DOMNode, DOMNodeView} from "./dom_node"
 import {HasProps} from "core/has_props"
 import {empty} from "core/dom"
 import {to_string} from "core/util/pretty"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ValueOfView extends DOMNodeView {
   declare model: ValueOf

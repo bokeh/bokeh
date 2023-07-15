@@ -1,4 +1,4 @@
-import {uint8, uint32, Color} from "../types"
+import type {uint8, uint32, Color} from "../types"
 import {named_colors, is_named_color} from "./svg_colors"
 import {clamp} from "./math"
 import {isInteger, isString, isArray} from "./types"

@@ -55,15 +55,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    List,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Union
 
 # External imports
 from tornado.web import RequestHandler
@@ -98,12 +90,12 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-RouteContext: TypeAlias = Dict[str, Any]
+RouteContext: TypeAlias = dict[str, Any]
 
-URLRoutes: TypeAlias = List[
+URLRoutes: TypeAlias = list[
     Union[
-        Tuple[str, Type[RequestHandler]],
-        Tuple[str, Type[RequestHandler], RouteContext],
+        tuple[str, type[RequestHandler]],
+        tuple[str, type[RequestHandler], RouteContext],
     ],
 ]
 

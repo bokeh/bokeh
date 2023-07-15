@@ -1,8 +1,8 @@
-import {Geometry} from "./geometry"
-import {SelectionMode} from "core/enums"
+import type {Geometry} from "./geometry"
+import type {SelectionMode} from "core/enums"
 import {Selection} from "models/selections/selection"
 import type {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
+import type {DataRenderer, DataRendererView} from "models/renderers/data_renderer"
 import type {GlyphRendererView} from "models/renderers/glyph_renderer"
 import type {GraphRendererView} from "models/renderers/graph_renderer"
 

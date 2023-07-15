@@ -1,7 +1,7 @@
 import {Expression} from "../expressions/expression"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Arrayable} from "core/types"
-import * as p from "core/properties"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Arrayable} from "core/types"
+import type * as p from "core/properties"
 
 export namespace CoordinateTransform {
   export type Attrs = p.AttrsOf<Props>

@@ -121,14 +121,14 @@ clustering_algorithms= [
     'Ward',
     'AgglomerativeClustering',
     'DBSCAN',
-    'Birch'
+    'Birch',
 ]
 
 datasets_names = [
     'Noisy Circles',
     'Noisy Moons',
     'Blobs',
-    'No Structure'
+    'No Structure',
 ]
 
 algorithm_select = Select(value='MiniBatchKMeans',

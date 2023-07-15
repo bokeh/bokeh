@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {create_glyph_view} from "./_util"
 import {Ray} from "@bokehjs/models/glyphs/ray"
-import {SpatialUnits} from "@bokehjs/core/enums"
+import type {SpatialUnits} from "@bokehjs/core/enums"
 import {ScreenArray} from "@bokehjs/core/types"
 
 describe("Ray", () => {

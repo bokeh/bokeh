@@ -5,13 +5,15 @@ import {display} from "../../../_util"
 
 import {build_view} from "@bokehjs/core/build_views"
 
-import {Patches, PatchesView} from "@bokehjs/models/glyphs/patches"
+import type {PatchesView} from "@bokehjs/models/glyphs/patches"
+import {Patches} from "@bokehjs/models/glyphs/patches"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {PolyDrawTool, PolyDrawToolView} from "@bokehjs/models/tools/edit/poly_draw_tool"
+import type {PolyDrawToolView} from "@bokehjs/models/tools/edit/poly_draw_tool"
+import {PolyDrawTool} from "@bokehjs/models/tools/edit/poly_draw_tool"
 
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 

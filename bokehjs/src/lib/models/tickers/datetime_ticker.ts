@@ -1,5 +1,5 @@
 import {range} from "core/util/array"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import {AdaptiveTicker} from "./adaptive_ticker"
 import {CompositeTicker} from "./composite_ticker"

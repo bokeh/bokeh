@@ -30,7 +30,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Iterator,
-    List,
     cast,
 )
 
@@ -276,7 +275,7 @@ def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeo
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
-        svgs = cast(List[str], web_driver.execute_script(_SVG_SCRIPT))
+        svgs = cast(list[str], web_driver.execute_script(_SVG_SCRIPT))
 
     return svgs
 
@@ -293,7 +292,7 @@ def get_svgs(obj: UIElement | Document, *, driver: WebDriver | None = None, time
         web_driver = driver if driver is not None else webdriver_control.get()
         web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
-        svgs = cast(List[str], web_driver.execute_script(_SVGS_SCRIPT))
+        svgs = cast(list[str], web_driver.execute_script(_SVGS_SCRIPT))
 
     return svgs
 
@@ -319,7 +318,15 @@ def get_layout_html(obj: UIElement | Document, *, resources: Resources = INLINE,
     """
 
     def html() -> str:
-        return file_html(obj, resources, title="", template=template, theme=theme, suppress_callback_warning=True, _always_new=True)
+        return file_html(
+            obj,
+            resources=resources,
+            title="",
+            template=template,
+            theme=theme,
+            suppress_callback_warning=True,
+            _always_new=True,
+        )
 
     if width is not None or height is not None:
         # Defer this import, it is expensive

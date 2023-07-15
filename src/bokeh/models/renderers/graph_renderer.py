@@ -45,11 +45,11 @@ __all__ = (
 # values are also model instances and that is too complicated for now.
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
-    glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[]))
+    glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[])),
 )
 
 _DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(
-    glyph=MultiLine(), data_source=ColumnDataSource(data=dict(start=[], end=[]))
+    glyph=MultiLine(), data_source=ColumnDataSource(data=dict(start=[], end=[])),
 )
 
 class GraphRenderer(DataRenderer):

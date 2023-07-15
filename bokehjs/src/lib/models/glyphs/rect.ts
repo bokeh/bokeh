@@ -1,18 +1,22 @@
-import {CenterRotatable, CenterRotatableView, CenterRotatableData} from "./center_rotatable"
+import type {CenterRotatableData} from "./center_rotatable"
+import {CenterRotatable, CenterRotatableView} from "./center_rotatable"
 import {generic_area_vector_legend} from "./utils"
-import {PointGeometry, RectGeometry} from "core/geometry"
-import {Arrayable, FloatArray, ScreenArray, to_screen, infer_type} from "core/types"
-import * as types from "core/types"
-import * as p from "core/properties"
+import type {PointGeometry, RectGeometry} from "core/geometry"
+import type {Arrayable, FloatArray} from "core/types"
+import {ScreenArray, to_screen, infer_type} from "core/types"
+import type * as types from "core/types"
+import type * as p from "core/properties"
 import {max} from "core/util/arrayable"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
-import {Scale} from "../scales/scale"
-import {BBox, Corners} from "core/util/bbox"
+import type {Scale} from "../scales/scale"
+import type {Corners} from "core/util/bbox"
+import {BBox} from "core/util/bbox"
 import {rotate_around} from "core/util/affine"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import type {RectGL} from "./webgl/rect"
 
 const {abs, sqrt} = Math
 
@@ -32,7 +36,7 @@ export class RectView extends CenterRotatableView {
   declare visuals: Rect.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/rect").RectGL
+  declare glglyph?: RectGL
 
   override async load_glglyph() {
     const {RectGL} = await import("./webgl/rect")

@@ -1,7 +1,7 @@
 import {select, option, optgroup, empty, append} from "core/dom"
 import {isString, isArray} from "core/util/types"
 import {entries} from "core/util/object"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"

@@ -1,11 +1,14 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {Rect, ScreenArray, to_screen} from "core/types"
-import {PointGeometry} from "core/geometry"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import type {Rect, ScreenArray} from "core/types"
+import {to_screen} from "core/types"
+import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
+import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
+import type {AnnulusGL} from "./webgl/annulus"
 
 export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
   readonly inner_radius: p.Uniform<number>
@@ -25,7 +28,7 @@ export class AnnulusView extends XYGlyphView {
   declare visuals: Annulus.Visuals
 
   /** @internal */
-  declare glglyph?: import("./webgl/annulus").AnnulusGL
+  declare glglyph?: AnnulusGL
 
   override async load_glglyph() {
     const {AnnulusGL} = await import("./webgl/annulus")

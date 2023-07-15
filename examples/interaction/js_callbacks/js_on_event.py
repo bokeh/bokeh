@@ -76,7 +76,7 @@ p.js_on_event(events.Press,     display_event(div, attributes=point_attributes))
 p.js_on_event(events.PressUp,   display_event(div, attributes=point_attributes))
 
 # Mouse wheel event
-p.js_on_event(events.MouseWheel, display_event(div,attributes=point_attributes+['delta']))
+p.js_on_event(events.MouseWheel, display_event(div,attributes=[*point_attributes, 'delta']))
 
 # Mouse move, enter and leave
 # p.js_on_event(events.MouseMove,  display_event(div, attributes=point_attributes))
@@ -84,13 +84,13 @@ p.js_on_event(events.MouseEnter, display_event(div, attributes=point_attributes)
 p.js_on_event(events.MouseLeave, display_event(div, attributes=point_attributes))
 
 # Pan events
-pan_attributes = point_attributes + ['delta_x', 'delta_y']
+pan_attributes = [*point_attributes, 'delta_x', 'delta_y']
 p.js_on_event(events.Pan,      display_event(div, attributes=pan_attributes))
 p.js_on_event(events.PanStart, display_event(div, attributes=point_attributes))
 p.js_on_event(events.PanEnd,   display_event(div, attributes=point_attributes))
 
 # Pinch events
-pinch_attributes = point_attributes + ['scale']
+pinch_attributes = [*point_attributes, 'scale']
 p.js_on_event(events.Pinch,      display_event(div, attributes=pinch_attributes))
 p.js_on_event(events.PinchStart, display_event(div, attributes=point_attributes))
 p.js_on_event(events.PinchEnd,   display_event(div, attributes=point_attributes))

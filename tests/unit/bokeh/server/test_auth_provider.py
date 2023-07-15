@@ -36,7 +36,7 @@ import bokeh.server.auth_provider as bsa # isort:skip
 ALL = (
     'AuthModule',
     'AuthProvider',
-    'NullAuth'
+    'NullAuth',
 )
 
 @pytest.fixture

@@ -1,4 +1,4 @@
-import {Arrayable} from "./types"
+import type {Arrayable} from "./types"
 
 export type PointGeometry = {
   type: "point"

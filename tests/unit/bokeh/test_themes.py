@@ -125,9 +125,9 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
-                }
-            }
+                    'string' : 'w00t',
+                },
+            },
         })
         obj = ThemedModel()
         changes = dict(calls=[])
@@ -143,9 +143,9 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
-                }
-            }
+                    'string' : 'w00t',
+                },
+            },
         })
         obj = SubOfThemedModel()
         changes = dict(calls=[])
@@ -161,12 +161,12 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
+                    'string' : 'w00t',
                 },
                 'SubOfThemedModel' : {
-                    'string' : 'bar'
-                }
-            }
+                    'string' : 'bar',
+                },
+            },
         })
         obj = SubOfThemedModel()
         assert 'hello' == obj.string
@@ -182,9 +182,9 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
-                }
-            }
+                    'string' : 'w00t',
+                },
+            },
         })
         obj = ThemedModel()
         doc = Document()
@@ -205,9 +205,9 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
-                }
-            }
+                    'string' : 'w00t',
+                },
+            },
         })
         obj = ThemedModel()
         doc = Document()
@@ -228,9 +228,9 @@ class TestThemes:
         theme = Theme(json={
             'attrs' : {
                 'ThemedModel' : {
-                    'string' : 'w00t'
-                }
-            }
+                    'string' : 'w00t',
+                },
+            },
         })
         obj = ThemedModel()
         doc = Document()

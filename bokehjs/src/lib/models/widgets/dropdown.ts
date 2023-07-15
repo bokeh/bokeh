@@ -1,9 +1,10 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import {CallbackLike1} from "../callbacks/callback"
+import type {CallbackLike1} from "../callbacks/callback"
 
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
-import {div, display, undisplay, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {div, display, undisplay} from "core/dom"
+import type * as p from "core/properties"
 import {isString} from "core/util/types"
 
 import * as buttons from "styles/buttons.css"

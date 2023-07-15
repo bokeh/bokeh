@@ -1,6 +1,7 @@
 import {BaseText, BaseTextView} from "./base_text"
-import {GraphicsBox, TextBox} from "core/graphics"
-import * as p from "core/properties"
+import type {GraphicsBox} from "core/graphics"
+import {TextBox} from "core/graphics"
+import type * as p from "core/properties"
 
 export class PlainTextView extends BaseTextView {
   declare model: PlainText

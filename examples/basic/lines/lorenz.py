@@ -36,7 +36,7 @@ y = solution[:, 1]
 z = solution[:, 2]
 xprime = np.cos(theta) * x - np.sin(theta) * y
 
-colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B",]
+colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B"]
 
 p = figure(title="Lorenz attractor example", background_fill_color="#fafafa")
 

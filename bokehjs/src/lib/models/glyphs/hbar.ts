@@ -1,5 +1,7 @@
-import {LRTB, LRTBView, LRTBData} from "./lrtb"
-import {FloatArray, ScreenArray} from "core/types"
+import type {LRTBData} from "./lrtb"
+import {LRTB, LRTBView} from "./lrtb"
+import type {FloatArray} from "core/types"
+import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
 export type HBarData = LRTBData & {

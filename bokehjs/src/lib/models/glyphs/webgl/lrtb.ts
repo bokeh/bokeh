@@ -1,8 +1,9 @@
-import {ReglWrapper} from "./regl_wrap"
-import {SingleMarkerGL, SingleMarkerGlyphView} from "./single_marker"
-import {GLMarkerType} from "./types"
-import {Arrayable} from "core/types"
-import {Corners} from "core/util/bbox"
+import type {ReglWrapper} from "./regl_wrap"
+import type {SingleMarkerGlyphView} from "./single_marker"
+import {SingleMarkerGL} from "./single_marker"
+import type {GLMarkerType} from "./types"
+import type {Arrayable} from "core/types"
+import type {Corners} from "core/util/bbox"
 
 type LRTBLikeView = SingleMarkerGlyphView & {
   sleft: Arrayable<number>

@@ -35,12 +35,7 @@ from os.path import (
 )
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Sequence,
-)
+from typing import Any, Callable, Sequence
 
 # Bokeh imports
 from ..core.has_props import HasProps
@@ -75,7 +70,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class AttrDict(Dict[str, Any]):
+class AttrDict(dict[str, Any]):
     ''' Provide a dict subclass that supports access by named attributes.
 
     '''
@@ -437,7 +432,7 @@ def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
 def _run(app: str, argv: list[str], input: dict[str, Any] | None = None) -> str:
-    proc = Popen([app] + argv, stdout=PIPE, stderr=PIPE, stdin=PIPE)
+    proc = Popen([app, *argv], stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 
     if proc.returncode != 0:

@@ -13,7 +13,7 @@ ypts = np.array([-.1,   .02, .1, .02, -.1])
 source = ColumnDataSource(dict(
         xs=[xpts*(1+i/10.0)+xx for i, xx in enumerate(x)],
         ys=[ypts*(1+i/10.0)+yy for i, yy in enumerate(y)],
-    )
+    ),
 )
 
 plot = Plot(

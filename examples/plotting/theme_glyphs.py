@@ -1,3 +1,11 @@
+'''This example shows how to create and use your custom theme in a Bokeh plot with JSON.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.themes.Theme
+    :refs: :ref:`ug_styling_using_themes_custom`
+    :keywords: theme
+
+'''
 import numpy as np
 
 from bokeh.io import curdoc, show
@@ -26,7 +34,7 @@ theme_json = {
             "text_font": "Helvetica",
         },
         "Ellipse": {"fill_color": "green", "line_color": "yellow", "fill_alpha": 0.2},
-    }
+    },
 }
 
 curdoc().theme = Theme(json=theme_json)

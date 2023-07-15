@@ -2,7 +2,7 @@ import * as Numbro from "@bokeh/numbro"
 
 import {TickFormatter} from "./tick_formatter"
 import {RoundingFunction} from "core/enums"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace NumeralTickFormatter {
   export type Attrs = p.AttrsOf<Props>

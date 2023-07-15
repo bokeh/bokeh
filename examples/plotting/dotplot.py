@@ -14,7 +14,7 @@ x =  [50, 40, 65, 10, 25, 37, 80, 60]
 p = figure(title="Categorical Dot Plot", tools="", toolbar_location=None,
            y_range=factors, x_range=[0,100])
 
-p.segment(0, factors, x, factors, line_width=2, line_color="green", )
-p.circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3, )
+p.segment(0, factors, x, factors, line_width=2, line_color="green" )
+p.circle(x, factors, size=15, fill_color="orange", line_color="green", line_width=3 )
 
 show(p)

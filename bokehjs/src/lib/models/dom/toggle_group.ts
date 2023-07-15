@@ -1,9 +1,9 @@
 import {Action, ActionView} from "./action"
 import {RendererGroup} from "../renderers/renderer"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
-import {Index as DataIndex} from "core/util/templating"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {Index as DataIndex} from "core/util/templating"
 import {enumerate} from "core/util/iterator"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ToggleGroupView extends ActionView {
   declare model: ToggleGroup

@@ -1,7 +1,8 @@
 import {expect} from "assertions"
 
 import {DataAnnotation, DataAnnotationView} from "@bokehjs/models/annotations/data_annotation"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {build_view} from "@bokehjs/core/build_views"

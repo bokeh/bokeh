@@ -50,7 +50,7 @@ For example:
 
 .. code-block:: python
 
-    from bokeh.models import InlineStyleSheet
+    from bokeh.models import InlineStyleSheet, Slider
 
     stylesheet = InlineStyleSheet(css=".bk-slider-title { background-color: lightgray; }")
 

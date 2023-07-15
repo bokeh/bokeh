@@ -17,7 +17,7 @@ plot_figure.scatter('x', 'y', source=source, size=10)
 
 columns = [
     TableColumn(field="x", title="x"),
-    TableColumn(field="y", title="y")
+    TableColumn(field="y", title="y"),
 ]
 data_table = DataTable(
     source=source,

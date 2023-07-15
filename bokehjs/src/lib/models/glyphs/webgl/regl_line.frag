@@ -8,18 +8,15 @@ const int miter_join = 0;
 const int round_join = 1;
 const int bevel_join = 2;
 
-uniform float u_linewidth;
 uniform float u_antialias;
-uniform float u_line_join;
-uniform float u_line_cap;
-uniform vec4 u_line_color;
 #ifdef DASHED
 uniform sampler2D u_dash_tex;
-uniform vec4 u_dash_tex_info;
-uniform float u_dash_scale;
-uniform float u_dash_offset;
 #endif
 
+varying float v_linewidth;
+varying vec4 v_line_color;
+varying float v_line_cap;
+varying float v_line_join;
 varying float v_segment_length;
 varying vec2 v_coords;
 varying float v_flags;
@@ -27,6 +24,9 @@ varying float v_cos_turn_angle_start;
 varying float v_cos_turn_angle_end;
 #ifdef DASHED
 varying float v_length_so_far;
+varying vec4 v_dash_tex_info;
+varying float v_dash_scale;
+varying float v_dash_offset;
 #endif
 
 #define ONE_MINUS_SMALL (1.0 - 1e-6)
@@ -44,7 +44,7 @@ vec2 right_vector(in vec2 v)
 float bevel_join_distance(in vec2 coords, in vec2 other_right, in float sign_turn_right)
 {
     // other_right is unit vector facing right of the other (previous or next) segment, in coord reference frame
-    float hw = 0.5*u_linewidth;  // Not including antialiasing
+    float hw = 0.5*v_linewidth;  // Not including antialiasing
     if (other_right.y >= ONE_MINUS_SMALL) {  // other_right.y is -cos(turn_angle)
         // 180 degree turn.
         return abs(hw - v_coords.x);
@@ -63,7 +63,7 @@ float cap(in int cap_type, in float x, in float y)
     // x is distance along segment in direction away from end of segment,
     // y is distance across segment.
     if (cap_type == butt_cap)
-        return max(0.5*u_linewidth - x, abs(y));
+        return max(0.5*v_linewidth - x, abs(y));
     else if (cap_type == square_cap)
         return max(-x, abs(y));
     else  // cap_type == round_cap
@@ -72,8 +72,8 @@ float cap(in int cap_type, in float x, in float y)
 
 float distance_to_alpha(in float dist)
 {
-    return 1.0 - smoothstep(0.5*(u_linewidth - u_antialias),
-                            0.5*(u_linewidth + u_antialias), dist);
+    return 1.0 - smoothstep(0.5*(v_linewidth - u_antialias),
+                            0.5*(v_linewidth + u_antialias), dist);
 }
 
 vec2 turn_angle_to_right_vector(in float cos_turn_angle, in float sign_turn_right)
@@ -86,22 +86,22 @@ vec2 turn_angle_to_right_vector(in float cos_turn_angle, in float sign_turn_righ
 float dash_distance(in float x)
 {
     // x is in direction of v_coords.x, i.e. along segment.
-    float tex_length = u_dash_tex_info.x;
-    float tex_offset = u_dash_tex_info.y;
-    float tex_dist_min = u_dash_tex_info.z;
-    float tex_dist_max = u_dash_tex_info.w;
+    float tex_length = v_dash_tex_info.x;
+    float tex_offset = v_dash_tex_info.y;
+    float tex_dist_min = v_dash_tex_info.z;
+    float tex_dist_max = v_dash_tex_info.w;
 
     // Apply offset.
-    x += v_length_so_far - u_dash_scale*tex_offset + u_dash_offset;
+    x += v_length_so_far - v_dash_scale*tex_offset + v_dash_offset;
 
     // Interpolate within texture to obtain distance to dash.
     float dist = texture2D(u_dash_tex,
-                           vec2(x / (tex_length*u_dash_scale), 0.0)).a;
+                           vec2(x / (tex_length*v_dash_scale), 0.0)).a;
 
     // Scale distance within min and max limits.
     dist = tex_dist_min + dist*(tex_dist_max - tex_dist_min);
 
-    return u_dash_scale*dist;
+    return v_dash_scale*dist;
 }
 
 mat2 rotation_matrix(in vec2 other_right)
@@ -114,9 +114,9 @@ mat2 rotation_matrix(in vec2 other_right)
 
 void main()
 {
-    int join_type = int(u_line_join + 0.5);
-    int cap_type = int(u_line_cap + 0.5);
-    float halfwidth = 0.5*(u_linewidth + u_antialias);
+    int join_type = int(v_line_join + 0.5);
+    int cap_type = int(v_line_cap + 0.5);
+    float halfwidth = 0.5*(v_linewidth + u_antialias);
     float half_antialias = 0.5*u_antialias;
 
     // Extract flags.
@@ -173,7 +173,7 @@ void main()
     float alpha = distance_to_alpha(abs(dist));
 
 #ifdef DASHED
-    if (u_dash_tex_info.x >= 0.0) {
+    if (v_dash_tex_info.x >= 0.0) {
         // Dashes in straight segments (outside of joins) are easily calculated.
         dist = dash_distance(v_coords.x);
 
@@ -207,7 +207,7 @@ void main()
                     // Antialias from end of previous segment into join
                     float prev_dist = min(0.0, dash_distance(-half_antialias) - half_antialias) - prev_coords.x;
                     // Consider width of previous segment
-                    prev_dist = min(prev_dist, 0.5*u_linewidth - abs(prev_coords.y));
+                    prev_dist = min(prev_dist, 0.5*v_linewidth - abs(prev_coords.y));
                     dist = max(dist, prev_dist);
                 }
             }
@@ -229,6 +229,6 @@ void main()
     }
 #endif
 
-    alpha = u_line_color.a*alpha;
-    gl_FragColor = vec4(u_line_color.rgb*alpha, alpha);  // Premultiplied alpha.
+    alpha = v_line_color.a*alpha;
+    gl_FragColor = vec4(v_line_color.rgb*alpha, alpha);  // Premultiplied alpha.
 }

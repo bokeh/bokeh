@@ -1,7 +1,8 @@
 import {TileSource} from "./tile_source"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {range} from "core/util/array"
-import {Extent, Bounds, meters_extent_to_geographic} from "./tile_utils"
+import type {Extent, Bounds} from "./tile_utils"
+import {meters_extent_to_geographic} from "./tile_utils"
 
 export namespace MercatorTileSource {
   export type Attrs = p.AttrsOf<Props>

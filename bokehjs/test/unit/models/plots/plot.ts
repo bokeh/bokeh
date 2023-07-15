@@ -4,7 +4,7 @@ import {expect} from "assertions"
 import {display} from "../../_util"
 
 import {Plot} from "@bokehjs/models/plots/plot"
-import {PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {DataRange1d} from "@bokehjs/models/ranges/data_range1d"
 import {Row} from "@bokehjs/models/layouts/row"

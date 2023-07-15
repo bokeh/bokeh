@@ -1,11 +1,12 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
 
-import {Tool} from "@bokehjs/models/tools/tool"
+import type {Tool} from "@bokehjs/models/tools/tool"
 import {ZoomOutTool} from "@bokehjs/models/tools/actions/zoom_out_tool"
-import {ZoomBaseToolView} from "@bokehjs/models/tools/actions/zoom_base_tool"
+import type {ZoomBaseToolView} from "@bokehjs/models/tools/actions/zoom_base_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Plot, PlotView} from "@bokehjs/models/plots/plot"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import {Plot} from "@bokehjs/models/plots/plot"
 
 describe("ZoomOutTool", () => {
 

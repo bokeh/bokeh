@@ -1,12 +1,14 @@
 import {UpperLower, UpperLowerView} from "./upper_lower"
-import {ArrowHead, ArrowHeadView, TeeHead} from "./arrow_head"
-import {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {ArrowHeadView} from "./arrow_head"
+import {ArrowHead, TeeHead} from "./arrow_head"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Indices} from "core/types"
-import {Context2d} from "core/util/canvas"
-import {build_view, IterViews} from "core/build_views"
+import type {Context2d} from "core/util/canvas"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
 import {LineVector} from "core/property_mixins"
-import * as visuals from "core/visuals"
-import * as p from "core/properties"
+import type * as visuals from "core/visuals"
+import type * as p from "core/properties"
 
 export class WhiskerView extends UpperLowerView {
   declare model: Whisker

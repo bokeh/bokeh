@@ -25,19 +25,14 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import (
-    TYPE_CHECKING,
-    Tuple,
-    TypeVar,
-    Union,
-)
+from typing import TYPE_CHECKING, Union
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import Self, TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -52,11 +47,9 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-RGBTuple = Union[Tuple[int, int, int], Tuple[int, int, int, float]]
+RGBTuple = Union[tuple[int, int, int], tuple[int, int, int, float]]
 
 ColorLike: TypeAlias = Union[str, "Color", RGBTuple]
-
-Self = TypeVar("Self", bound="Color")
 
 class Color(Serializable, metaclass=ABCMeta):
     ''' A base class for representing color objects.
@@ -94,7 +87,7 @@ class Color(Serializable, metaclass=ABCMeta):
             return value
 
     @abstractmethod
-    def copy(self: Self) -> Self:
+    def copy(self) -> Self:
         ''' Copy this color.
 
         *Subclasses must implement this method.*
@@ -102,7 +95,7 @@ class Color(Serializable, metaclass=ABCMeta):
         '''
         raise NotImplementedError
 
-    def darken(self: Self, amount: float) -> Self:
+    def darken(self, amount: float) -> Self:
         ''' Darken (reduce the luminance) of this color.
 
         *Subclasses must implement this method.*
@@ -119,7 +112,7 @@ class Color(Serializable, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_hsl(cls: type[Self], value: HSL) -> Self:
+    def from_hsl(cls, value: HSL) -> Self:
         ''' Create a new color by converting from an HSL color.
 
         *Subclasses must implement this method.*
@@ -136,7 +129,7 @@ class Color(Serializable, metaclass=ABCMeta):
 
     @classmethod
     @abstractmethod
-    def from_rgb(cls: type[Self], value: RGB) -> Self:
+    def from_rgb(cls, value: RGB) -> Self:
         ''' Create a new color by converting from an RGB color.
 
         *Subclasses must implement this method.*
@@ -151,7 +144,7 @@ class Color(Serializable, metaclass=ABCMeta):
         '''
         raise NotImplementedError
 
-    def lighten(self: Self, amount: float) -> Self:
+    def lighten(self, amount: float) -> Self:
         ''' Lighten (increase the luminance) of this color.
 
         *Subclasses must implement this method.*

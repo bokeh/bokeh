@@ -1,7 +1,7 @@
 import {expect} from "assertions"
 
 import {Interpolator} from "@bokehjs/models/transforms/interpolator"
-import {Arrayable} from "@bokehjs/core/types"
+import type {Arrayable} from "@bokehjs/core/types"
 
 describe("Interpolator model", () => {
   let x_sorted: Arrayable<number>

@@ -6,7 +6,7 @@ p = figure(x_range=(0, 10), y_range=(0, 10), tools=[],
 p.background_fill_color = 'lightgrey'
 
 source = ColumnDataSource({
-    'x': [1, 5, 9], 'y': [1, 5, 9], 'color': ['red', 'green', 'yellow']
+    'x': [1, 5, 9], 'y': [1, 5, 9], 'color': ['red', 'green', 'yellow'],
 })
 
 r = p.scatter(x='x', y='y', source=source, color='color', size=10)

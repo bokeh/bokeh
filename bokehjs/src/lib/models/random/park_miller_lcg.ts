@@ -1,6 +1,7 @@
 import {RandomGenerator} from "./random_generator"
-import {AbstractRandom, LCGRandom} from "core/util/random"
-import * as p from "core/properties"
+import type {AbstractRandom} from "core/util/random"
+import {LCGRandom} from "core/util/random"
+import type * as p from "core/properties"
 
 export namespace ParkMillerLCG {
   export type Attrs = p.AttrsOf<Props>

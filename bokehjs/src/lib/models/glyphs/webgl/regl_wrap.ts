@@ -1,9 +1,12 @@
 import createRegl from "regl"
-import {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
-import {Attributes, MaybeDynamicAttributes, DefaultContext} from "regl"
-import * as t from "./types"
-import {GLMarkerType} from "./types"
-import {DashCache, DashReturn} from "./dash_cache"
+import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
+import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D} from "regl"
+import type * as t from "./types"
+import type {GLMarkerType} from "./types"
+import type {DashReturn} from "./dash_cache"
+import {DashCache} from "./dash_cache"
+import accumulate_vertex_shader from "./accumulate.vert"
+import accumulate_fragment_shader from "./accumulate.frag"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./marker.vert"
@@ -29,6 +32,7 @@ export class ReglWrapper {
   private _dash_cache?: DashCache
 
   // Drawing functions.
+  private _accumulate?: ReglRenderFunction
   private _solid_line?: ReglRenderFunction
   private _dashed_line?: ReglRenderFunction
   private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
@@ -37,10 +41,16 @@ export class ReglWrapper {
   // Static Buffers/Elements
   private _line_geometry: Buffer
   private _line_triangles: Elements
+  private _rect_geometry: Buffer
+  private _rect_triangles: Elements
 
   // WebGL state variables.
   private _scissor: BoundingBox
   private _viewport: BoundingBox
+
+  // WebGL framebuffer used to accumulate glyph rendering before single blit to Canvas.
+  private _framebuffer?: Framebuffer2D
+  private _framebuffer_texture?: Texture2D
 
   constructor(gl: WebGLRenderingContext) {
     try {
@@ -65,6 +75,18 @@ export class ReglWrapper {
         primitive: "triangle fan",
         data: [0, 1, 2, 3, 4],
       })
+
+      this._rect_geometry = this._regl.buffer({
+        usage: "static",
+        type: "float",
+        data: [[-1, -1], [1, -1], [1,  1], [-1, 1]],
+      })
+
+      this._rect_triangles = this._regl.elements({
+        usage: "static",
+        primitive: "triangle fan",
+        data: [0, 1, 2, 3],
+      })
     } catch (err) {
       this._regl_available = false
     }
@@ -78,6 +100,37 @@ export class ReglWrapper {
   clear(width: number, height: number): void {
     this._viewport = {x: 0, y: 0, width, height}
     this._regl.clear({color: [0, 0, 0, 0]})
+  }
+
+  clear_framebuffer(framebuffer: Framebuffer2D): void {
+    this._regl.clear({color: [0, 0, 0, 0], framebuffer})
+  }
+
+  get framebuffer_and_texture(): [Framebuffer2D, Texture2D] {
+    const {_regl} = this
+    const {_gl} = _regl
+    const size = {
+      height: _gl.drawingBufferHeight,
+      width: _gl.drawingBufferWidth,
+    }
+
+    if (this._framebuffer_texture == null) {
+      this._framebuffer_texture = _regl.texture(size)
+    } else {
+      // Resize texture, no-op if no change.
+      this._framebuffer_texture(size)
+    }
+
+    if (this._framebuffer == null) {
+      this._framebuffer = _regl.framebuffer({
+        // Auto-sizes to size of texture.
+        color: this._framebuffer_texture,
+        depth: false,
+        stencil: false,
+      })
+    }
+
+    return [this._framebuffer, this._framebuffer_texture]
   }
 
   get has_webgl(): boolean {
@@ -94,6 +147,12 @@ export class ReglWrapper {
 
   get viewport(): BoundingBox {
     return this._viewport
+  }
+
+  public accumulate(): ReglRenderFunction {
+    if (this._accumulate == null)
+      this._accumulate = regl_accumulate(this._regl, this._rect_geometry, this._rect_triangles)
+    return this._accumulate
   }
 
   public dashed_line(): ReglRenderFunction {
@@ -133,6 +192,48 @@ export class ReglWrapper {
   }
 }
 
+function regl_accumulate(regl: Regl, geometry: Buffer, triangles: Elements): ReglRenderFunction {
+  type Props = t.AccumulateProps
+  type Uniforms = t.AccumulateUniforms
+  type Attributes = t.AccumulateAttributes
+
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: accumulate_vertex_shader,
+    frag: accumulate_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: geometry,
+        divisor: 0,
+      },
+    },
+
+    uniforms: {
+      u_framebuffer_tex: regl.prop<Props, "framebuffer_tex">("framebuffer_tex"),
+    },
+
+    elements: triangles,
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
+      },
+    },
+    depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, "scissor">("scissor"),
+    },
+    viewport: regl.prop<Props, "viewport">("viewport"),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
+}
+
 // Regl rendering functions are here as some will be reused, e.g. lines may also
 // be used around polygons or for bezier curves.
 
@@ -163,25 +264,38 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return props.points.to_attribute_config()
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*props.point_offset)
       },
       a_point_start(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*2)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 2))
       },
       a_point_end(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*4)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 4))
       },
       a_point_next(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 6))
       },
       a_show_prev(_, props) {
-        return props.show.to_attribute_config()
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset))
       },
       a_show_curr(_, props) {
-        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 1))
       },
       a_show_next(_, props) {
-        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 2))
+      },
+      a_linewidth(_, props) {
+        return props.linewidth.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+      },
+      a_line_color(_, props) {
+        // Factor of 4 for offset as 4 uint8 per color.
+        return props.line_color.to_attribute_config_divisor(4*props.line_offset, props.nsegments + 3)
+      },
+      a_line_cap(_, props) {
+        return props.line_cap.to_attribute_config_divisor(props.line_offset, props.nsegments + 3)
+      },
+      a_line_join(_, props) {
+        return props.line_join.to_attribute_config_divisor(props.line_offset, props.nsegments + 3)
       },
     },
 
@@ -189,11 +303,7 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
-      u_line_color: regl.prop<Props, "line_color">("line_color"),
-      u_linewidth: regl.prop<Props, "linewidth">("linewidth"),
       u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
-      u_line_join: regl.prop<Props, "line_join">("line_join"),
-      u_line_cap: regl.prop<Props, "line_cap">("line_cap"),
     },
 
     elements: line_triangles,
@@ -210,6 +320,7 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
       },
     },
     depth: {enable: false},
+    framebuffer: regl.prop<Props, "framebuffer">("framebuffer"),
     scissor: {
       enable: true,
       box: regl.prop<Props, "scissor">("scissor"),
@@ -241,28 +352,50 @@ ${line_fragment_shader}
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return props.points.to_attribute_config()
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*props.point_offset)
       },
       a_point_start(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*2)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 2))
       },
       a_point_end(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*4)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 4))
       },
       a_point_next(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*6)
+        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 6))
       },
       a_show_prev(_, props) {
-        return props.show.to_attribute_config()
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset))
       },
       a_show_curr(_, props) {
-        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT)
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 1))
       },
       a_show_next(_, props) {
-        return props.show.to_attribute_config(Uint8Array.BYTES_PER_ELEMENT*2)
+        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 2))
+      },
+      a_linewidth(_, props) {
+        return props.linewidth.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+      },
+      a_line_color(_, props) {
+        // Factor of 4 for offset as 4 uint8 per color.
+        return props.line_color.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset*4, props.nsegments + 3)
+      },
+      a_line_cap(_, props) {
+        return props.line_cap.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+      },
+      a_line_join(_, props) {
+        return props.line_join.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
       },
       a_length_so_far(_, props) {
-        return props.length_so_far.to_attribute_config()
+        return props.length_so_far.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*(props.point_offset/2 - 3*props.line_offset))
+      },
+      a_dash_tex_info(_, props) {
+        return props.dash_tex_info.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset*4, 4*props.nsegments)
+      },
+      a_dash_scale(_, props) {
+        return props.dash_scale.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments)
+      },
+      a_dash_offset(_, props) {
+        return props.dash_offset.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments)
       },
     },
 
@@ -270,15 +403,8 @@ ${line_fragment_shader}
       u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
       u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
       u_antialias: regl.prop<Props, "antialias">("antialias"),
-      u_line_color: regl.prop<Props, "line_color">("line_color"),
-      u_linewidth: regl.prop<Props, "linewidth">("linewidth"),
       u_miter_limit: regl.prop<Props, "miter_limit">("miter_limit"),
-      u_line_join: regl.prop<Props, "line_join">("line_join"),
-      u_line_cap: regl.prop<Props, "line_cap">("line_cap"),
       u_dash_tex: regl.prop<Props, "dash_tex">("dash_tex"),
-      u_dash_tex_info: regl.prop<Props, "dash_tex_info">("dash_tex_info"),
-      u_dash_scale: regl.prop<Props, "dash_scale">("dash_scale"),
-      u_dash_offset: regl.prop<Props, "dash_offset">("dash_offset"),
     },
 
     elements: line_triangles,
@@ -295,6 +421,7 @@ ${line_fragment_shader}
       },
     },
     depth: {enable: false},
+    framebuffer: regl.prop<Props, "framebuffer">("framebuffer"),
     scissor: {
       enable: true,
       box: regl.prop<Props, "scissor">("scissor"),

@@ -1,5 +1,5 @@
 import {Model} from "../../model"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export namespace Styles {
   export type Attrs = p.AttrsOf<Props>

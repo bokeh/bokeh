@@ -2,16 +2,19 @@ import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
 import {logger} from "./logging"
-import {offset_bbox, Keys} from "./dom"
+import type {Keys} from "./dom"
+import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
 import {isObject} from "./util/types"
 import {is_mobile} from "./util/platform"
-import {PlotView} from "../models/plots/plot"
-import {ToolView} from "../models/tools/tool"
-import {RendererView} from "../models/renderers/renderer"
+import type {PlotView} from "../models/plots/plot"
+import type {ToolView} from "../models/tools/tool"
+import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
+
+type NativeUIEvent = TouchEvent | MouseEvent | PointerEvent
 
 export interface Moveable {
   _move_start(ev: MoveEvent): boolean
@@ -91,15 +94,15 @@ type HammerEvent = {
   deltaY: number
   scale: number
   rotation: number
-  srcEvent: TouchEvent | MouseEvent | PointerEvent
+  srcEvent: NativeUIEvent
 }
 
 export type ScreenCoord = {sx: number, sy: number}
 
 export type KeyModifiers = {
-  shift_key: boolean
-  ctrl_key: boolean
-  alt_key: boolean
+  shift: boolean
+  ctrl: boolean
+  alt: boolean
 }
 
 export type PanEvent = {
@@ -108,21 +111,24 @@ export type PanEvent = {
   sy: number
   dx: number
   dy: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type PinchEvent = {
   type: "pinch" | "pinchstart" | "pinchend"
   sx: number
   sy: number
   scale: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type RotateEvent = {
   type: "rotate" | "rotatestart" | "rotateend"
   sx: number
   sy: number
   rotation: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
@@ -130,27 +136,31 @@ export type TapEvent = {
   type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
   sx: number
   sy: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type MoveEvent = {
   type: "mousemove" | "mouseenter" | "mouseleave"
   sx: number
   sy: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type ScrollEvent = {
   type: "wheel"
   sx: number
   sy: number
   delta: number
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
 
 export type KeyEvent = {
   type: "keyup" | "keydown"
   key: Keys
-} & KeyModifiers
+  modifiers: KeyModifiers
+}
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
 
@@ -449,12 +459,12 @@ export class UIEventBus implements EventListenerObject {
 
       if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(prev_view)
-        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, shift_key: false, ctrl_key: false, alt_key: false}, srcEvent)
+        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
       }
 
       if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(curr_view)
-        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, shift_key: false, ctrl_key: false, alt_key: false}, srcEvent)
+        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
       }
 
       if (curr_view != null && e.type == "mousemove") {
@@ -653,60 +663,69 @@ export class UIEventBus implements EventListenerObject {
 
   /*protected*/ _trigger_bokeh_event(plot_view: PlotView, e: UIEvent): void {
     const ev = (() => {
-      const {sx, sy} = e
+      const {sx, sy, modifiers} = e
       const x = plot_view.frame.x_scale.invert(sx)
       const y = plot_view.frame.y_scale.invert(sy)
 
       switch (e.type) {
         case "wheel":
-          return new events.MouseWheel(sx, sy, x, y, e.delta)
+          return new events.MouseWheel(sx, sy, x, y, e.delta, modifiers)
         case "mousemove":
-          return new events.MouseMove(sx, sy, x, y)
+          return new events.MouseMove(sx, sy, x, y, modifiers)
         case "mouseenter":
-          return new events.MouseEnter(sx, sy, x, y)
+          return new events.MouseEnter(sx, sy, x, y, modifiers)
         case "mouseleave":
-          return new events.MouseLeave(sx, sy, x, y)
+          return new events.MouseLeave(sx, sy, x, y, modifiers)
         case "tap":
-          return new events.Tap(sx, sy, x, y)
+          return new events.Tap(sx, sy, x, y, modifiers)
         case "doubletap":
-          return new events.DoubleTap(sx, sy, x, y)
+          return new events.DoubleTap(sx, sy, x, y, modifiers)
         case "press":
-          return new events.Press(sx, sy, x, y)
+          return new events.Press(sx, sy, x, y, modifiers)
         case "pressup":
-          return new events.PressUp(sx, sy, x, y)
+          return new events.PressUp(sx, sy, x, y, modifiers)
         case "pan":
-          return new events.Pan(sx, sy, x, y, e.dx, e.dy)
+          return new events.Pan(sx, sy, x, y, e.dx, e.dy, modifiers)
         case "panstart":
-          return new events.PanStart(sx, sy, x, y)
+          return new events.PanStart(sx, sy, x, y, modifiers)
         case "panend":
-          return new events.PanEnd(sx, sy, x, y)
+          return new events.PanEnd(sx, sy, x, y, modifiers)
         case "pinch":
-          return new events.Pinch(sx, sy, x, y, e.scale)
+          return new events.Pinch(sx, sy, x, y, e.scale, modifiers)
         case "pinchstart":
-          return new events.PinchStart(sx, sy, x, y)
+          return new events.PinchStart(sx, sy, x, y, modifiers)
         case "pinchend":
-          return new events.PinchEnd(sx, sy, x, y)
+          return new events.PinchEnd(sx, sy, x, y, modifiers)
         case "rotate":
-          return new events.Rotate(sx, sy, x, y, e.rotation)
+          return new events.Rotate(sx, sy, x, y, e.rotation, modifiers)
         case "rotatestart":
-          return new events.RotateStart(sx, sy, x, y)
+          return new events.RotateStart(sx, sy, x, y, modifiers)
         case "rotateend":
-          return new events.RotateEnd(sx, sy, x, y)
+          return new events.RotateEnd(sx, sy, x, y, modifiers)
         default:
           return undefined
       }
     })()
 
-    if (ev != null)
+    if (ev != null) {
       plot_view.model.trigger_event(ev)
+    }
   }
 
-  /*private*/ _get_sxy(event: TouchEvent | MouseEvent | PointerEvent): ScreenCoord {
+  /*private*/ _get_sxy(event: NativeUIEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset_bbox(this.hit_area)
     return {
       sx: pageX - left,
       sy: pageY - top,
+    }
+  }
+
+  protected _get_modifiers(event: NativeUIEvent | KeyboardEvent): KeyModifiers {
+    return {
+      shift: event.shiftKey,
+      ctrl: event.ctrlKey,
+      alt: event.altKey,
     }
   }
 
@@ -716,9 +735,7 @@ export class UIEventBus implements EventListenerObject {
       ...this._get_sxy(e.srcEvent),
       dx: e.deltaX,
       dy: e.deltaY,
-      shift_key: e.srcEvent.shiftKey,
-      ctrl_key: e.srcEvent.ctrlKey,
-      alt_key: e.srcEvent.altKey,
+      modifiers: this._get_modifiers(e.srcEvent),
     }
   }
 
@@ -727,9 +744,7 @@ export class UIEventBus implements EventListenerObject {
       type: e.type as PinchEvent["type"],
       ...this._get_sxy(e.srcEvent),
       scale: e.scale,
-      shift_key: e.srcEvent.shiftKey,
-      ctrl_key: e.srcEvent.ctrlKey,
-      alt_key: e.srcEvent.altKey,
+      modifiers: this._get_modifiers(e.srcEvent),
     }
   }
 
@@ -738,9 +753,7 @@ export class UIEventBus implements EventListenerObject {
       type: e.type as RotateEvent["type"],
       ...this._get_sxy(e.srcEvent),
       rotation: e.rotation,
-      shift_key: e.srcEvent.shiftKey,
-      ctrl_key: e.srcEvent.ctrlKey,
-      alt_key: e.srcEvent.altKey,
+      modifiers: this._get_modifiers(e.srcEvent),
     }
   }
 
@@ -748,9 +761,7 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as TapEvent["type"],
       ...this._get_sxy(e.srcEvent),
-      shift_key: e.srcEvent.shiftKey,
-      ctrl_key: e.srcEvent.ctrlKey,
-      alt_key: e.srcEvent.altKey,
+      modifiers: this._get_modifiers(e.srcEvent),
     }
   }
 
@@ -758,9 +769,7 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as MoveEvent["type"],
       ...this._get_sxy(e),
-      shift_key: e.shiftKey,
-      ctrl_key: e.ctrlKey,
-      alt_key: e.altKey,
+      modifiers: this._get_modifiers(e),
     }
   }
 
@@ -769,9 +778,7 @@ export class UIEventBus implements EventListenerObject {
       type: e.type as ScrollEvent["type"],
       ...this._get_sxy(e),
       delta: getDeltaY(e),
-      shift_key: e.shiftKey,
-      ctrl_key: e.ctrlKey,
-      alt_key: e.altKey,
+      modifiers: this._get_modifiers(e),
     }
   }
 
@@ -779,9 +786,7 @@ export class UIEventBus implements EventListenerObject {
     return {
       type: e.type as KeyEvent["type"],
       key: e.key as Keys,
-      shift_key: e.shiftKey,
-      ctrl_key: e.ctrlKey,
-      alt_key: e.altKey,
+      modifiers: this._get_modifiers(e),
     }
   }
 

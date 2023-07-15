@@ -170,12 +170,19 @@
     url: "http://",
     same_tab: false,
   },
-  CustomJS: {
+  CustomCode: {
     __extends__: "Callback",
+  },
+  CustomJS: {
+    __extends__: "CustomCode",
     args: {
       type: "map",
     },
-    code: "",
+    code: {
+      type: "symbol",
+      name: "unset",
+    },
+    module: "auto",
   },
   SetValue: {
     __extends__: "Callback",
@@ -5471,6 +5478,7 @@
     dimensions: "both",
     maintain_focus: true,
     zoom_on_axis: true,
+    zoom_together: "all",
     speed: 0.0016666666666666668,
   },
   CustomAction: {
@@ -5495,6 +5503,9 @@
     ],
     behavior: "select",
     gesture: "tap",
+    modifiers: {
+      type: "map",
+    },
     callback: null,
   },
   CrosshairTool: {
@@ -5533,13 +5544,17 @@
     match_aspect: false,
     origin: "corner",
   },
-  ZoomInTool: {
+  ZoomBaseTool: {
     __extends__: "PlotActionTool",
+    renderers: "auto",
+  },
+  ZoomInTool: {
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
   },
   ZoomOutTool: {
-    __extends__: "PlotActionTool",
+    __extends__: "ZoomBaseTool",
     dimensions: "both",
     factor: 0.1,
     maintain_focus: true,
@@ -5950,6 +5965,7 @@
   },
   Widget: {
     __extends__: "LayoutDOM",
+    margin: 5,
   },
   ButtonLike: {
     button_type: "default",
@@ -6107,6 +6123,7 @@
     min_characters: 2,
     case_sensitive: true,
     restrict: true,
+    search_strategy: "starts_with",
   },
   Select: {
     __extends__: "InputWidget",

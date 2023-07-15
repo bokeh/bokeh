@@ -1,9 +1,9 @@
 import {ColumnDataSource} from "./column_data_source"
 import {UpdateMode} from "core/enums"
-import {CallbackLike1} from "../callbacks/callback"
-import {Data} from "core/types"
-import * as p from "core/properties"
-import {Arrayable} from "core/types"
+import type {CallbackLike1} from "../callbacks/callback"
+import type {Data} from "core/types"
+import type * as p from "core/properties"
+import type {Arrayable} from "core/types"
 
 export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -41,11 +41,11 @@ export abstract class WebDataSource extends ColumnDataSource {
     this.setup()
   }
 
-  load_data(raw_data: any, mode: UpdateMode, max_size?: number): void {
+  async load_data(raw_data: any, mode: UpdateMode, max_size?: number): Promise<void> {
     const {adapter} = this
     let data: Data
     if (adapter != null)
-      data = adapter.execute(this, {response: raw_data})
+      data = await adapter.execute(this, {response: raw_data})
     else
       data = raw_data
 

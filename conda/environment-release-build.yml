@@ -38,7 +38,7 @@ dependencies:
   - pip:
     # docs
     - pydata_sphinx_theme
-    - sphinx
+    - sphinx < 7
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon

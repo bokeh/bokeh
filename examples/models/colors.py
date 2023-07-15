@@ -20,7 +20,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (CategoricalAxis, CategoricalScale, ColumnDataSource,
                           FactorRange, HoverTool, OpenURL, Plot, Rect, TapTool)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 data = []
@@ -68,6 +67,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "colors.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "CSS3 Color Names"))
+        f.write(file_html(doc, title="CSS3 Color Names"))
     print(f"Wrote {filename}")
     view(filename)

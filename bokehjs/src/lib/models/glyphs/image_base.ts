@@ -1,21 +1,26 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "./xy_glyph"
-import {ScreenArray, to_screen} from "core/types"
+import type {XYGlyphData} from "./xy_glyph"
+import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import type {ScreenArray} from "core/types"
+import {to_screen} from "core/types"
 import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
-import {Context2d} from "core/util/canvas"
-import {Selection, ImageIndex} from "../selections/selection"
-import {PointGeometry} from "core/geometry"
-import {SpatialIndex} from "core/util/spatial"
-import {NDArrayType} from "core/util/ndarray"
+import type {Context2d} from "core/util/canvas"
+import type {ImageIndex} from "../selections/selection"
+import {Selection} from "../selections/selection"
+import type {PointGeometry} from "core/geometry"
+import type {SpatialIndex} from "core/util/spatial"
+import type {NDArrayType} from "core/util/ndarray"
 import {assert} from "core/util/assert"
-import {XY} from "core/util/bbox"
+import type {XY} from "core/util/bbox"
 import {Anchor} from "../common/kinds"
 import {anchor} from "../common/resolve"
 
+type ImageData = HTMLCanvasElement | null
+
 export type ImageDataBase = XYGlyphData & {
-  image_data: HTMLCanvasElement[]
+  readonly image_data: ImageData[]
 
   readonly image: p.Uniform<NDArrayType<number>>
   readonly dw: p.Uniform<number>
@@ -30,6 +35,13 @@ export interface ImageBaseView extends ImageDataBase {}
 export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
   declare visuals: ImageBase.Visuals
+
+  protected _image_data: ImageData[] | null = null
+
+  get image_data(): ImageData[] {
+    assert(this._image_data != null, "data not set")
+    return this._image_data
+  }
 
   protected _width: Uint32Array
   protected _height: Uint32Array
@@ -111,19 +123,26 @@ export abstract class ImageBaseView extends XYGlyphView {
   protected abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
-    this._set_width_height_data()
+    const n = this.data_size
+
+    if (this._image_data == null || this._image_data.length != n) {
+      this._image_data = new Array(n).fill(null)
+      this._width = new Uint32Array(n)
+      this._height = new Uint32Array(n)
+    }
 
     const {image_dimension} = this
 
-    for (let i = 0, end = this.image.length; i < end; i++) {
-      if (indices != null && indices.indexOf(i) < 0)
+    for (let i = 0; i < n; i++) {
+      if (indices != null && !indices.includes(i))
         continue
 
       const img = this.image.get(i)
       assert(img.dimension == image_dimension, `expected a ${image_dimension}D array, not ${img.dimension}D`)
 
-      this._height[i] = img.shape[0]
-      this._width[i] = img.shape[1]
+      const [width, height] = img.shape
+      this._height[i] = width
+      this._width[i] = height
 
       const buf8 = this._flat_img_to_buf8(img)
       this._set_image_data_from_buffer(i, buf8)
@@ -156,22 +175,11 @@ export abstract class ImageBaseView extends XYGlyphView {
     return [l, r, t, b]
   }
 
-  protected _set_width_height_data(): void {
-    if (this.image_data == null || this.image_data.length != this.image.length)
-      this.image_data = new Array(this.image.length)
-
-    if (this._width == null || this._width.length != this.image.length)
-      this._width = new Uint32Array(this.image.length)
-
-    if (this._height == null || this._height.length != this.image.length)
-      this._height = new Uint32Array(this.image.length)
-  }
-
   protected _get_or_create_canvas(i: number): HTMLCanvasElement {
-    const _image_data = this.image_data[i]
-    if (_image_data != null && _image_data.width == this._width[i] &&
-                               _image_data.height == this._height[i])
-      return _image_data
+    const image_data_i = this.image_data[i]
+    if (image_data_i != null && image_data_i.width  == this._width[i]
+                             && image_data_i.height == this._height[i])
+      return image_data_i
     else {
       const canvas = document.createElement("canvas")
       canvas.width = this._width[i]

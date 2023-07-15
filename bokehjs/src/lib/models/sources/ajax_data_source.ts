@@ -1,7 +1,8 @@
 import {WebDataSource} from "./web_data_source"
-import {UpdateMode, HTTPMethod} from "core/enums"
+import type {UpdateMode} from "core/enums"
+import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {entries} from "core/util/object"
 
 export namespace AjaxDataSource {
@@ -79,10 +80,10 @@ export class AjaxDataSource extends WebDataSource {
     return xhr
   }
 
-  do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): void {
-    if (xhr.status === 200) {
+  async do_load(xhr: XMLHttpRequest, mode: UpdateMode, max_size?: number): Promise<void> {
+    if (xhr.status == 200) {
       const raw_data = JSON.parse(xhr.responseText)
-      this.load_data(raw_data, mode, max_size)
+      await this.load_data(raw_data, mode, max_size)
     }
   }
 

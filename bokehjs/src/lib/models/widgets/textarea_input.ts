@@ -1,7 +1,7 @@
 import {TextLikeInput, TextLikeInputView} from "./text_like_input"
 
 import {textarea} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 import * as inputs from "styles/widgets/inputs.css"
 

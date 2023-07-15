@@ -8,7 +8,6 @@ from bokeh.embed import file_html
 from bokeh.models import (Column, ColumnDataSource, GMapOptions, GMapPlot,
                           Grid, Label, Line, LinearAxis, PanTool, Patches,
                           Plot, Range1d, ResetTool, WheelZoomTool)
-from bokeh.resources import INLINE
 from bokeh.sampledata.mtb import obiszow_mtb_xcm
 from bokeh.util.browser import view
 
@@ -55,7 +54,7 @@ def prep_data(dataset):
     colors[np.where(slope == 2)] = "pink"
     colors[np.where(slope == 3)] = "orange"
     colors[np.where(slope == 4)] = "red"
-    df["colors"] = list(colors) + [None]              # NOTE: add [None] just make pandas happy
+    df["colors"] = [*colors, None] # NOTE: add None just make pandas happy
 
     return df
 
@@ -110,7 +109,7 @@ def altitude_profile(data):
     patches_source = ColumnDataSource(dict(
         xs=[[X[i], X[i+1], X[i+1], X[i]] for i in range(len(X[:-1])) ],
         ys=[[y0,   y0,     Y[i+1], Y[i]] for i in range(len(Y[:-1])) ],
-        color=data.colors[:-1]
+        color=data.colors[:-1],
     ))
     patches = Patches(xs="xs", ys="ys", fill_color="color", line_color="color")
     plot.add_glyph(patches_source, patches)
@@ -136,6 +135,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "trail.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Trail map and altitude profile"))
+        f.write(file_html(doc, title="Trail map and altitude profile"))
     print(f"Wrote {filename}")
     view(filename)

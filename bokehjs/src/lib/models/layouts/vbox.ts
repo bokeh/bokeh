@@ -2,7 +2,7 @@ import {CSSGridBox, CSSGridBoxView} from "./css_grid_box"
 import {TracksSizing, Index, Span} from "../common/kinds"
 import {UIElement} from "../ui/ui_element"
 import {Struct, Ref, Opt} from "../../core/kinds"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 type VBoxChild = {child: UIElement, row?: number, span?: number} // XXX: can't infere ?
 const VBoxChild = Struct<VBoxChild>({child: Ref(UIElement), row: Opt(Index), span: Opt(Span)})

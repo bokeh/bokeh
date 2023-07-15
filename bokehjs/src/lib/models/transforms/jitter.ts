@@ -1,11 +1,13 @@
 import {RangeTransform} from "./range_transform"
-import {Factor, FactorRange} from "../ranges/factor_range"
+import type {Factor} from "../ranges/factor_range"
+import {FactorRange} from "../ranges/factor_range"
 import {RandomGenerator} from "../random/random_generator"
 import {Distribution} from "core/enums"
-import {Arrayable} from "core/types"
+import type {Arrayable} from "core/types"
 import {map} from "core/util/arrayable"
-import * as p from "core/properties"
-import {AbstractRandom, SystemRandom} from "core/util/random"
+import type * as p from "core/properties"
+import type {AbstractRandom} from "core/util/random"
+import {SystemRandom} from "core/util/random"
 
 export namespace Jitter {
   export type Attrs = p.AttrsOf<Props>

@@ -1,6 +1,6 @@
 import {DOMView} from "core/dom_view"
 import {Model} from "../../model"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export abstract class DOMNodeView extends DOMView {
   declare model: DOMNode

@@ -1,6 +1,6 @@
-import {TickSpec} from "./ticker"
+import type {TickSpec} from "./ticker"
 import {ContinuousTicker} from "./continuous_ticker"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {argmin, sorted_index, is_empty} from "core/util/array"
 
 // This Ticker takes a collection of Tickers and picks the one most appropriate

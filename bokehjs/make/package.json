@@ -1,6 +1,6 @@
 {
   "name": "@bokeh/make",
-  "version": "3.2.0-dev.2",
+  "version": "3.3.0-dev.1",
   "private": true,
   "description": "Internal package for bokehjs' build system",
   "license": "BSD-3-Clause",
@@ -20,7 +20,7 @@
     "semver": "^7.3.8",
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.1.2",
-    "typescript": "~5.0.2",
+    "typescript": "~5.0.4",
     "which": "^3.0.0",
     "yargs": "^17.6.2"
   }

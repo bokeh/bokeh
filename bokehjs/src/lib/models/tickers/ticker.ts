@@ -1,6 +1,6 @@
 import {Model} from "../../model"
-import {Range} from "../ranges/range"
-import * as p from "core/properties"
+import type {Range} from "../ranges/range"
+import type * as p from "core/properties"
 
 export type TickSpec<T> = {
   major: T[]

@@ -1,6 +1,6 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
-import {StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import type * as p from "core/properties"
 
 import menus_css from "styles/menus.css"
 import icons_css from "styles/icons.css"

@@ -1,4 +1,4 @@
-import {PlainObject, Arrayable} from "../types"
+import type {PlainObject, Arrayable} from "../types"
 import {concat, union} from "./array"
 
 const {hasOwnProperty} = Object.prototype

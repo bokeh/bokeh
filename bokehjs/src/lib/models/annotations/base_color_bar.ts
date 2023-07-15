@@ -1,29 +1,34 @@
 import {Annotation, AnnotationView} from "./annotation"
 import {Title} from "./title"
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import {Axis, LinearAxis} from "../axes"
+import type {Axis} from "../axes"
+import {LinearAxis} from "../axes"
 import {Ticker} from "../tickers/ticker"
 import {BasicTicker} from "../tickers"
 import {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter} from "../formatters"
 import {LabelingPolicy, NoOverlap} from "../policies/labeling"
-import {Scale, LinearScale} from "../scales"
-import {Range, Range1d} from "../ranges"
+import type {Scale} from "../scales"
+import {LinearScale} from "../scales"
+import type {Range} from "../ranges"
+import {Range1d} from "../ranges"
 import {BaseText} from "../text/base_text"
 import {Anchor, Orientation} from "core/enums"
-import * as visuals from "core/visuals"
+import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
-import * as p from "core/properties"
-import {Context2d} from "core/util/canvas"
-import {Grid, Layoutable, SizingPolicy, Percent} from "core/layout"
+import type * as p from "core/properties"
+import type {Context2d} from "core/util/canvas"
+import type {Layoutable, SizingPolicy, Percent} from "core/layout"
+import {Grid} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Panel} from "core/layout/side_panel"
-import {build_view, IterViews} from "core/build_views"
+import type {IterViews} from "core/build_views"
+import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
 import {isString, isPlainObject} from "core/util/types"
 import {Dict} from "core/util/object"
-import {SerializableState} from "core/view"
+import type {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
 const MAJOR_DIM_MIN_SCALAR = 0.3
@@ -105,6 +110,9 @@ export abstract class BaseColorBarView extends AnnotationView {
         return self.parent.canvas_view
       },
       request_layout() {
+        // force re-layout; not ideal but ColorBar's layout doesn't fully
+        // participate in has_size_changed to detect if layout is needed
+        self.layout.dirty = true
         self.parent.request_layout()
       },
       request_paint() {
@@ -112,6 +120,9 @@ export abstract class BaseColorBarView extends AnnotationView {
       },
       request_render() {
         self.request_paint()
+      },
+      notify_finished_after_paint() {
+        self.parent.notify_finished_after_paint()
       },
     }
 
@@ -513,7 +524,7 @@ export namespace BaseColorBar {
   export type Props = Annotation.Props & {
     location: p.Property<Anchor | [number, number]>
     orientation: p.Property<Orientation | "auto">
-    title: p.Property<string | null>
+    title: p.Property<string | BaseText | null>
     title_standoff: p.Property<number>
     width: p.Property<number | "auto">
     height: p.Property<number | "auto">
@@ -575,7 +586,7 @@ export class BaseColorBar extends Annotation {
     this.define<BaseColorBar.Props>(({Alpha, Number, String, Tuple, Map, Or, Ref, Auto, Nullable}) => ({
       location:              [ Or(Anchor, Tuple(Number, Number)), "top_right" ],
       orientation:           [ Or(Orientation, Auto), "auto" ],
-      title:                 [ Nullable(String), null ],
+      title:                 [ Nullable(Or(String, Ref(BaseText))), null ],
       title_standoff:        [ Number, 2 ],
       width:                 [ Or(Number, Auto), "auto" ],
       height:                [ Or(Number, Auto), "auto" ],

@@ -34,16 +34,16 @@ def pytest_addoption(parser: _pytest.config.argparsing.Parser) -> None:
 
     # plugins/bokeh_server
     parser.addoption(
-        "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides"
+        "--bokeh-port", dest="bokeh_port", type=int, default=5006, help="port on which Bokeh server resides",
     )
 
     # plugins/jupyter_notebook
     parser.addoption(
-        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides"
+        "--notebook-port", type=int, default=6007, help="port on which Jupyter Notebook server resides",
     )
 
     parser.addoption(
-        "--examples-log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log"
+        "--examples-log-file", dest="log_file", metavar="path", action="store", default='examples.log', help="where to write the complete log",
     )
     parser.addoption(
         "--no-js", action="store_true", default=False,

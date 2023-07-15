@@ -112,7 +112,7 @@ class Test_FromCurdoc:
     def test_type(self) -> None:
         assert isinstance(beu.FromCurdoc, type)
 
-_ODFERR = "OutputDocumentFor expects a sequence of Models"
+_ODFERR = "OutputDocumentFor expects a non-empty sequence of Models"
 
 
 class Test_OutputDocumentFor_general:

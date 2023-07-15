@@ -1,16 +1,18 @@
 import {Annotation, AnnotationView} from "./annotation"
-import {Scale} from "../scales/scale"
-import {AutoRanged, auto_ranged} from "../ranges/data_range1d"
+import type {Scale} from "../scales/scale"
+import type {AutoRanged} from "../ranges/data_range1d"
+import {auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
-import * as visuals from "core/visuals"
-import {SerializableState} from "core/view"
+import type * as visuals from "core/visuals"
+import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
-import * as p from "core/properties"
-import {BBox, LRTB, Corners, CoordinateMapper, empty} from "core/util/bbox"
-import {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
+import type * as p from "core/properties"
+import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
+import {BBox, empty} from "core/util/bbox"
+import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Enum} from "../../core/kinds"
 import {Signal} from "core/signaling"
-import {Rect} from "core/types"
+import type {Rect} from "core/types"
 import {assert} from "core/util/assert"
 import {BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
@@ -243,7 +245,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
           bbox: this.bbox.clone(),
           target,
         }
-        this.model.pan.emit(["pan:start", ev])
+        this.model.pan.emit(["pan:start", ev.modifiers])
         return true
       }
     }
@@ -308,12 +310,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     this.model.update(ltrb)
-    this.model.pan.emit(["pan", ev])
+    this.model.pan.emit(["pan", ev.modifiers])
   }
 
   _pan_end(ev: PanEvent): void {
     this._pan_state = null
-    this.model.pan.emit(["pan:end", ev])
+    this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
   private _pinch_state: {bbox: BBox} | null = null
@@ -325,7 +327,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
         this._pinch_state = {
           bbox: this.bbox.clone(),
         }
-        this.model.pan.emit(["pan:start", ev]) // TODO: pinch signal
+        this.model.pan.emit(["pan:start", ev.modifiers]) // TODO: pinch signal
         return true
       }
     }
@@ -367,12 +369,12 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     }
 
     this.model.update(ltrb)
-    this.model.pan.emit(["pan", ev])
+    this.model.pan.emit(["pan", ev.modifiers])
   }
 
   _pinch_end(ev: PinchEvent): void {
     this._pinch_state = null
-    this.model.pan.emit(["pan:end", ev])
+    this.model.pan.emit(["pan:end", ev.modifiers])
   }
 
   private get _has_hover(): boolean {

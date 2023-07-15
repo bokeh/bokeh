@@ -1,6 +1,6 @@
-import {MarkerType} from "core/enums"
-import {LineVector, FillVector, HatchVector} from "core/visuals"
-import {Context2d} from "core/util/canvas"
+import type {MarkerType} from "core/enums"
+import type {LineVector, FillVector, HatchVector} from "core/visuals"
+import type {Context2d} from "core/util/canvas"
 
 const SQ3 = Math.sqrt(3)
 const SQ5 = Math.sqrt(5)

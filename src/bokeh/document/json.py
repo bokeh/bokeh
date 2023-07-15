@@ -24,15 +24,13 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
-    List,
     Literal,
     TypedDict,
     Union,
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..core.has_props import ModelDef
     from ..core.serialization import ModelRep, Ref
@@ -54,7 +52,7 @@ __all__ = ()
 
 Patch: TypeAlias = Any # TODO
 
-Patches: TypeAlias = Dict[str, List[Patch]]
+Patches: TypeAlias = dict[str, list[Patch]]
 
 class ModelChanged(TypedDict):
     kind: Literal["ModelChanged"]
@@ -113,11 +111,11 @@ DocumentPatched: TypeAlias = Union[
 DocumentChanged = DocumentPatched
 
 class DocJson(TypedDict):
-    version: str | None
-    title: str | None
-    defs: list[ModelDef] | None
+    version: NotRequired[str]
+    title: NotRequired[str]
+    defs: NotRequired[list[ModelDef]]
     roots: list[ModelRep]
-    callbacks: dict[str, list[ModelRep]]
+    callbacks: NotRequired[dict[str, list[ModelRep]]]
 
 class PatchJson(TypedDict):
     events: list[DocumentChanged]

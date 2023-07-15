@@ -17,7 +17,6 @@ from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (Button, CheckboxButtonGroup, CheckboxGroup, Column,
                           CustomJS, Dropdown, RadioButtonGroup, RadioGroup, Toggle)
-from bokeh.resources import INLINE
 from bokeh.util.browser import view
 
 button = Button(label="Button (enabled) - has click event", button_type="primary")
@@ -74,6 +73,6 @@ if __name__ == "__main__":
     doc.validate()
     filename = "buttons.html"
     with open(filename, "w") as f:
-        f.write(file_html(doc, INLINE, "Button widgets"))
+        f.write(file_html(doc, title="Button widgets"))
     print(f"Wrote {filename}")
     view(filename)

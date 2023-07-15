@@ -1,5 +1,6 @@
-import {div, StyleSheetLike} from "core/dom"
-import * as p from "core/properties"
+import type {StyleSheetLike} from "core/dom"
+import {div} from "core/dom"
+import type * as p from "core/properties"
 import {Widget, WidgetView} from "./widget"
 
 import clearfix_css, {clearfix} from "styles/clearfix.css"

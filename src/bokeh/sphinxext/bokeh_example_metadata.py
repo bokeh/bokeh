@@ -70,7 +70,7 @@ class BokehExampleMetadataDirective(BokehDirective):
         "sampledata": unchanged,
         "apis": unchanged,
         "refs": unchanged,
-        "keywords": unchanged
+        "keywords": unchanged,
     }
 
     def run(self):

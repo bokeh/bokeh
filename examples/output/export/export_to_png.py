@@ -15,7 +15,7 @@ p = figure(width=800, height=300, title="Mean MPG by # Cylinders and Manufacture
            x_range=group, toolbar_location=None, tooltips=[("MPG", "@mpg_mean"), ("Cyl, Mfr", "@cyl_mfr")])
 
 p.vbar(x='cyl_mfr', top='mpg_mean', width=1, source=group,
-       line_color="white", fill_color=index_cmap, )
+       line_color="white", fill_color=index_cmap )
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.05

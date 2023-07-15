@@ -62,9 +62,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
-    Dict,
     Generic,
-    Tuple,
     TypedDict,
     TypeVar,
 )
@@ -79,7 +77,7 @@ from ..core.types import ID
 from .exceptions import MessageError, ProtocolError
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+    from typing_extensions import NotRequired, TypeAlias
 
     from ..client.websocket import WebSocketClientConnectionWrapper
 
@@ -99,22 +97,20 @@ __all__ = (
 # Dev API
 #-----------------------------------------------------------------------------
 
-class _Header(TypedDict):
+class Header(TypedDict):
     msgid: ID
     msgtype: str
-
-class Header(_Header, total=False):
-    reqid: ID
-    num_buffers: int
+    reqid: NotRequired[ID]
+    num_buffers: NotRequired[int]
 
 class BufferHeader(TypedDict):
     id: ID
 
 Content = TypeVar("Content")
 
-Metadata: TypeAlias = Dict[str, Any]
+Metadata: TypeAlias = dict[str, Any]
 
-BufferRef: TypeAlias = Tuple[BufferHeader, bytes]
+BufferRef: TypeAlias = tuple[BufferHeader, bytes]
 
 class Empty(TypedDict):
     pass

@@ -2,7 +2,7 @@ import {expect} from "assertions"
 
 import {create_glyph_renderer_view} from "./_util"
 import {AnnularWedge} from "@bokehjs/models/glyphs/annular_wedge"
-import {Geometry} from "@bokehjs/core/geometry"
+import type {Geometry} from "@bokehjs/core/geometry"
 
 describe("Glyph (using AnnularWedge as a concrete Glyph)", () => {
 

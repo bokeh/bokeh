@@ -63,8 +63,8 @@ curdoc().theme = Theme(json={
             "major_label_text_color": None,
             "major_tick_line_color": None,
             "minor_tick_line_color": None,
-        }
-    }
+        },
+    },
 })
 
 show(column(red, green, blue, p))

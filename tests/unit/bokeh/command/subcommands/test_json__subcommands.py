@@ -63,21 +63,21 @@ def test_args() -> None:
             metavar='DIRECTORY-OR-SCRIPT',
             nargs='+',
             help="The app directories or scripts to generate JSON for",
-            default=None
+            default=None,
         )),
 
         ('--indent', Argument(
             metavar='LEVEL',
             type=int,
             help="indentation to use when printing",
-            default=None
+            default=None,
         )),
 
         (('-o', '--output'), Argument(
                 metavar='FILENAME',
                 action='append',
                 type=str,
-                help="Name of the output file or - for standard output."
+                help="Name of the output file or - for standard output.",
         )),
 
         ('--args', Argument(

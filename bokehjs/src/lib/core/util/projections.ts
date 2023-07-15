@@ -1,8 +1,9 @@
 import proj4 from "proj4/lib/core"
 import Projection from "proj4/lib/Proj"
 
-import {LatLon} from "../enums"
-import {Arrayable, infer_type} from "../types"
+import type {LatLon} from "../enums"
+import type {Arrayable} from "../types"
+import {infer_type} from "../types"
 
 const mercator = new Projection("GOOGLE")
 const wgs84    = new Projection("WGS84")

@@ -1,7 +1,8 @@
 import {Icon, IconView} from "./icon"
-import {InlineStyleSheet, StyleSheetLike} from "core/dom"
+import type {StyleSheetLike} from "core/dom"
+import {InlineStyleSheet} from "core/dom"
 import {isNumber} from "core/util/types"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class SVGIconView extends IconView {
   declare model: SVGIcon

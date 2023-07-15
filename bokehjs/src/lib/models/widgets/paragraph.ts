@@ -1,6 +1,6 @@
 import {Markup, MarkupView} from "./markup"
 import {p as paragraph} from "core/dom"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 
 export class ParagraphView extends MarkupView {
   declare model: Paragraph

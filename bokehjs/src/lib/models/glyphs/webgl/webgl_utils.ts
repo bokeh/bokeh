@@ -1,7 +1,7 @@
-import {Arrayable} from "core/types"
-import {HatchPattern} from "core/property_mixins"
+import type {Arrayable} from "core/types"
+import type {HatchPattern} from "core/property_mixins"
 import {hatch_aliases} from "core/visuals/patterns"
-import {GLMarkerType} from "./types"
+import type {GLMarkerType} from "./types"
 
 export function interleave(arr0: Arrayable<number>, arr1: Arrayable<number>, n: number, alt: number, out: Float32Array): void {
   for (let i = 0; i < n; i++) {

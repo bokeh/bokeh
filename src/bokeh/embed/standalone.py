@@ -24,10 +24,8 @@ log = logging.getLogger(__name__)
 from typing import (
     TYPE_CHECKING,
     Any,
-    Dict,
     Literal,
     Sequence,
-    Type,
     TypedDict,
     Union,
     cast,
@@ -45,7 +43,7 @@ from ..core.templates import (
 )
 from ..document.document import DEFAULT_TITLE, Document
 from ..model import Model
-from ..resources import Resources
+from ..resources import Resources, ResourcesLike
 from ..themes import Theme
 from .bundle import Script, bundle_for_objs_and_resources
 from .elements import html_page_for_render_items, script_for_render_items
@@ -77,13 +75,13 @@ __all__ = (
 )
 
 ModelLike: TypeAlias = Union[Model, Document]
-ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], Dict[str, ModelLike]]
+ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], dict[str, ModelLike]]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike: TypeAlias = Union[None, Theme, Type[FromCurdoc]]
+ThemeLike: TypeAlias = Union[None, Theme, type[FromCurdoc]]
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed
@@ -294,8 +292,9 @@ def components(models: Model | Sequence[Model] | dict[str, Model], wrap_script: 
     return script, result
 
 def file_html(models: Model | Document | Sequence[Model],
-              resources: Resources | None,
+              resources: ResourcesLike | None = None,
               title: str | None = None,
+              *,
               template: Template | str = FILE,
               template_variables: dict[str, Any] = {},
               theme: ThemeLike = None,
@@ -311,8 +310,8 @@ def file_html(models: Model | Document | Sequence[Model],
         models (Model or Document or seq[Model]) : Bokeh object or objects to render
             typically a Model or Document
 
-        resources (Resources) :
-            A resource configuration for Bokeh JS & CSS assets.
+        resources (ResourcesLike) :
+            A resources configuration for Bokeh JS & CSS assets.
 
         title (str, optional) :
             A title for the HTML document ``<title>`` tags or None. (default: None)
@@ -344,14 +343,17 @@ def file_html(models: Model | Document | Sequence[Model],
         UTF-8 encoded HTML
 
     '''
-
     models_seq: Sequence[Model] = []
     if isinstance(models, Model):
         models_seq = [models]
     elif isinstance(models, Document):
+        if len(models.roots) == 0:
+            raise ValueError("Document has no root Models")
         models_seq = models.roots
     else:
         models_seq = models
+
+    resources = Resources.build(resources)
 
     with OutputDocumentFor(models_seq, apply_theme=theme, always_new=_always_new) as doc:
         (docs_json, render_items) = standalone_docs_json_and_render_items(models_seq, suppress_callback_warning=suppress_callback_warning)
@@ -466,7 +468,7 @@ def _check_models_or_docs(models: ModelLike | ModelLikeCollection) -> ModelLikeC
 
     if not input_type_valid:
         raise ValueError(
-            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document'
+            'Input must be a Model, a Document, a Sequence of Models and Document, or a dictionary from string to Model and Document',
         )
 
     return models

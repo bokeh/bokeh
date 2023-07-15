@@ -38,7 +38,7 @@ data=dict(
     atomic_mass = pd.to_numeric(elements['atomic mass'], errors="coerce"),
     density=elements['density'],
     metal=[x.title() for x in elements["metal"]],
-    type_color=[colormap[x] for x in elements["metal"]]
+    type_color=[colormap[x] for x in elements["metal"]],
 )
 
 TOOLTIPS = """

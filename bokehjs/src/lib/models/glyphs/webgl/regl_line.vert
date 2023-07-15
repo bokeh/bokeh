@@ -16,18 +16,26 @@ attribute vec2 a_point_next;
 attribute float a_show_prev;
 attribute float a_show_curr;
 attribute float a_show_next;
+attribute float a_linewidth;
+attribute vec4 a_line_color;
+attribute float a_line_cap;
+attribute float a_line_join;
 #ifdef DASHED
 attribute float a_length_so_far;
+attribute vec4 a_dash_tex_info;
+attribute float a_dash_scale;
+attribute float a_dash_offset;
 #endif
 
 uniform float u_pixel_ratio;
 uniform vec2 u_canvas_size;
-uniform float u_linewidth;
 uniform float u_antialias;
-uniform float u_line_join;
-uniform float u_line_cap;
 uniform float u_miter_limit;
 
+varying float v_linewidth;
+varying vec4 v_line_color;
+varying float v_line_cap;
+varying float v_line_join;
 varying float v_segment_length;
 varying vec2 v_coords;
 varying float v_flags;  // Boolean flags
@@ -35,6 +43,9 @@ varying float v_cos_turn_angle_start;
 varying float v_cos_turn_angle_end;
 #ifdef DASHED
 varying float v_length_so_far;
+varying vec4 v_dash_tex_info;
+varying float v_dash_scale;
+varying float v_dash_offset;
 #endif
 
 #define SMALL 1e-6
@@ -96,9 +107,18 @@ void main()
         return;
     }
 
-    int join_type = int(u_line_join + 0.5);
-    int cap_type = int(u_line_cap + 0.5);
-    float halfwidth = 0.5*(u_linewidth + u_antialias);
+    int join_type = int(a_line_join + 0.5);
+    int cap_type = int(a_line_cap + 0.5);
+
+    v_linewidth = a_linewidth;
+    v_line_color = a_line_color;
+    if (v_linewidth < 1.0) {
+        // Linewidth less than 1 is implemented as 1 but with reduced alpha.
+        v_line_color.a *= v_linewidth;
+        v_linewidth = 1.0;
+    }
+
+    float halfwidth = 0.5*(v_linewidth + u_antialias);
 
     vec2 segment_along = a_point_end - a_point_start;
     v_segment_length = length(a_point_end - a_point_start);
@@ -196,7 +216,13 @@ void main()
                     16*int(turn_right_start) +
                     32*int(turn_right_end));
 
+    v_line_cap = a_line_cap;
+    v_line_join = a_line_join;
+
 #ifdef DASHED
     v_length_so_far = a_length_so_far;
+    v_dash_tex_info = a_dash_tex_info;
+    v_dash_scale = a_dash_scale;
+    v_dash_offset = a_dash_offset;
 #endif
 }

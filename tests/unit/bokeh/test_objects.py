@@ -91,7 +91,7 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
         tools = [pan, zoom_in, zoom_out, wheel_zoom, box_zoom, box_select, save, reset]
         plot.add_tools(*tools)
         col.children.append(plot)
-        objects |= set([
+        objects |= {
             xdr, ydr,
             xaxis, xaxis.major_label_policy, yaxis, yaxis.major_label_policy,
             xgrid, ygrid,
@@ -99,7 +99,9 @@ def large_plot(n: int) -> tuple[Model, set[Model]]:
             source, source.selected, source.selection_policy,
             plot, plot.x_scale, plot.y_scale, plot.toolbar, plot.title,
             box_zoom.overlay, box_select.overlay,
-        ] + tickers + tools)
+            *tickers,
+            *tools,
+        }
 
     return col, objects
 

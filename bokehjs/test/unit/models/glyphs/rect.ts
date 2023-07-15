@@ -5,7 +5,7 @@ import {create_glyph_view} from "./_util"
 import {Rect, RectView} from "@bokehjs/models/glyphs/rect"
 //import {LinearScale} from "@bokehjs/models/scales/linear_scale"
 //import {Range1d} from "@bokehjs/models/ranges/range1d"
-import {Geometry} from "@bokehjs/core/geometry"
+import type {Geometry} from "@bokehjs/core/geometry"
 import {ScreenArray} from "@bokehjs/core/types"
 
 describe("Glyph (using Rect as a concrete Glyph)", () => {

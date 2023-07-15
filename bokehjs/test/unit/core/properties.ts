@@ -5,7 +5,7 @@ import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 
-import {Color} from  "@bokehjs/core/types"
+import type {Color} from  "@bokehjs/core/types"
 import {HasProps} from  "@bokehjs/core/has_props"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {named_colors} from  "@bokehjs/core/util/svg_colors"

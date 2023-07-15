@@ -1,7 +1,7 @@
 import {Transform} from "../transforms/transform"
-import {Factor} from "../ranges/factor_range"
-import {Arrayable, ArrayableOf} from "core/types"
-import * as p from "core/properties"
+import type {Factor} from "../ranges/factor_range"
+import type {Arrayable, ArrayableOf} from "core/types"
+import type * as p from "core/properties"
 
 export namespace Mapper {
   export type Attrs = p.AttrsOf<Props>

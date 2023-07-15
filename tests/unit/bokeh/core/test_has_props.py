@@ -642,6 +642,17 @@ def test_HasProps_descriptors() -> None:
     assert d2[3].name == "f3"
     assert d2[4].name == "f4"
 
+def test_HasProps_abstract() -> None:
+    @hp.abstract
+    class Base(hp.HasProps, hp.Local):
+        pass
+
+    class Derived(Base):
+        pass
+
+    assert hp.is_abstract(Base) is True
+    assert hp.is_abstract(Derived) is False
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

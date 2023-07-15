@@ -1,11 +1,12 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {Scale} from "../../scales/scale"
-import * as p from "core/properties"
-import {Dimensions, BoxOrigin, SelectionMode, CoordinateUnits} from "core/enums"
-import {PanEvent, KeyEvent} from "core/ui_events"
-import {RectGeometry} from "core/geometry"
-import {CoordinateMapper, LRTB} from "core/util/bbox"
+import type {Scale} from "../../scales/scale"
+import type * as p from "core/properties"
+import type {SelectionMode, CoordinateUnits} from "core/enums"
+import {Dimensions, BoxOrigin} from "core/enums"
+import type {PanEvent, KeyEvent} from "core/ui_events"
+import type {RectGeometry} from "core/geometry"
+import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
 export class BoxSelectToolView extends RegionSelectToolView {
@@ -112,8 +113,8 @@ export class BoxSelectToolView extends RegionSelectToolView {
     const [[left, right], [top, bottom]] = [sxlim, sylim]
     this.model.overlay.update(this._invert_lrtb({left, right, top, bottom}))
 
-    if (this._is_continuous(ev)) {
-      this._do_select(sxlim, sylim, false, this._select_mode(ev))
+    if (this._is_continuous(ev.modifiers)) {
+      this._do_select(sxlim, sylim, false, this._select_mode(ev.modifiers))
     }
   }
 
@@ -123,7 +124,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
 
     const {sx, sy} = ev
     const [sxlim, sylim] = this._compute_limits([sx, sy])
-    this._do_select(sxlim, sylim, true, this._select_mode(ev))
+    this._do_select(sxlim, sylim, true, this._select_mode(ev.modifiers))
 
     if (!this.model.persistent) {
       this._clear_overlay()
