@@ -803,7 +803,7 @@ describe("Bug", () => {
       expect(result).to.be.equal([obj, "abc", obj, 123])
     })
   })
-  
+
   describe("in issue #13064", () => {
     it("doesn't allow spinner to follow the correct format when value's precision is higher than step's precision", async () => {
       const obj = new Spinner({value: 0.3, low: 0, mode: "float", step: 1, format: "0.0"})
