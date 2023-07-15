@@ -32,7 +32,6 @@ from typing import Any
 import PIL.Image
 
 # Bokeh imports
-from ...util.deprecation import deprecated
 from ...util.serialization import convert_datetime_type
 from .. import enums
 from .auto import Auto
@@ -170,12 +169,8 @@ class Image(Property):
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 
-        if isinstance(value, str) and value.startswith("data:image/"):
-            return value
-
         if isinstance(value, str):
-            deprecated((2, 4, 0), "raw string path", "pathlib.Path")
-            value = Path(value)
+            return value
 
         if isinstance(value, Path):
             value = PIL.Image.open(value)
