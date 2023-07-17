@@ -16,7 +16,7 @@ import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
 import {Column, Row, Grid, ContentLayoutable, Sizeable} from "core/layout"
 
-const {max, floor} = Math
+const {max, ceil} = Math
 
 type HitTarget = {type: "entry", entry: LegendEntry}
 
@@ -143,14 +143,14 @@ export class LegendView extends AnnotationView {
       if (vertical) {
         if (nrows != "auto") {
         } else if (ncols != "auto")
-          nrows = floor(n / ncols)
+          nrows = ceil(n / ncols)
         else
           nrows = Infinity
         ncols = Infinity
       } else {
         if (ncols != "auto") {
         } else if (nrows != "auto")
-          ncols = floor(n / nrows)
+          ncols = ceil(n / nrows)
         else
           ncols = Infinity
         nrows = Infinity
