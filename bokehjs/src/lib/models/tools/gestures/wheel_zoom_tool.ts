@@ -5,7 +5,7 @@ import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {is_mobile} from "core/util/platform"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum} from "core/kinds"
+import {Enum} from "../../../core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]

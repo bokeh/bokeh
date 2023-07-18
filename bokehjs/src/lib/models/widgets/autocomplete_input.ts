@@ -5,7 +5,7 @@ import {empty, display, undisplay, div} from "core/dom"
 import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
-import {Enum} from "core/kinds"
+import {Enum} from "../../core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
