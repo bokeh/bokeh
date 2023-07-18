@@ -20,6 +20,10 @@ export abstract class PickerBaseView extends InputWidgetView {
     return this._picker
   }
 
+  public override *controls() {
+    yield this.picker.altInput ?? this.input_el
+  }
+
   override remove(): void {
     this._picker?.destroy()
     super.remove()

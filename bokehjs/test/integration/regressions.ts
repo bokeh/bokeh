@@ -3453,4 +3453,13 @@ describe("Bug", () => {
       })
     })
   })
+
+  describe("in issue #13255", () => {
+    it("doesn't allow to disable DatePicker after display", async () => {
+      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+      const {view} = await display(date_picker, [150, 100])
+      date_picker.disabled = true
+      await view.ready
+    })
+  })
 })
