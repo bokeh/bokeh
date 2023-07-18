@@ -192,7 +192,7 @@ widgets on the left to change the sine wave on the right:
     </div>
 
 Find the source code for this Bokeh server app at
-:bokeh-tree:`examples/server/app/slider.py`
+:bokeh-tree:`examples/server/app/slider.py`.
 For more examples of Bokeh server applications, see the
 :ref:`gallery`.
 
