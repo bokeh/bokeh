@@ -1,2 +1,6 @@
+from typing import Union
+
+
 class Options:
     def add_argument(self, argument: str) -> None: ...
+    def set_preference(self, name: str, value: Union[str, int, bool]) -> None: ...
