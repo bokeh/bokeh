@@ -96,8 +96,8 @@ class Theme:
         value in YAML, use `!!null`. To give 'None' as a value in json,
         use `null`.
 
-       Here is an example theme in YAML format that sets various visual
-       properties for all figures, grids, and titles:
+        Here is an example theme in YAML format that sets various visual
+        properties for all figures, grids, and titles:
 
         .. code-block:: yaml
 
