@@ -105,6 +105,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   computed_renderers: Renderer[]
 
+  get computed_renderer_views(): RendererView[] {
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+  }
+
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     const view = this.renderer_views.get(renderer)
     if (view == null) {
@@ -816,9 +820,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (this.is_paused)
       return
 
-    if (this.model.visible) {
+    if (this.is_displayed) {
       logger.trace(`${this.toString()}.paint()`)
       this._actual_paint()
+    } else {
+      // This is possibly the first render cycle, but plot isn't displayed,
+      // so all renderers have to be manually marked as finished, because
+      // their `render()` method didn't run.
+      for (const renderer_view of this.computed_renderer_views) {
+        renderer_view.mark_finished()
+      }
     }
 
     if (this._needs_notify) {
