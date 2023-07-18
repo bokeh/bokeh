@@ -3457,4 +3457,43 @@ describe("Bug", () => {
       })
     })
   })
+
+  describe("in issue #13252", () => {
+    describe("doesn't allow to correctly export GridPlot", () => {
+      function plot(color: Color) {
+        const p = fig([200, 200])
+        const x = range(10)
+        const y = range(10)
+        p.scatter(x, y, {marker: "circle", color})
+        return p
+      }
+
+      function gridplot() {
+        return new GridPlot({
+          children: [
+            [plot("red"),    0, 0],
+            [plot("green"),  0, 1],
+            [plot("blue"),   1, 0],
+            [plot("purple"), 1, 1],
+          ],
+        })
+      }
+
+      // TODO Allow to generate additional baselines for image diff.
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+    })
+  })
 })
