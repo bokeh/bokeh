@@ -170,6 +170,20 @@ either ``True`` or ``False``.
     and set the visibility of a ``legend_field`` item to ``False``, the entire
     group will be invisible.
 
+.. _ug_basic_annotations_legends_two_dimensions:
+
+Two dimensional legends
+~~~~~~~~~~~~~~~~~~~~~~~
+
+To get a legend with more than one column or row, it is possible to set the
+``nrows`` or ``ncols`` property of the |Legend| with a position integer.
+This can be useful if there is not enough space for all legend items in one line
+and can avoid a truncated legend.
+The definition of the rows and columns depends on the ``orientation`` of the legend.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/legend_two_dimensions.py
+    :source-position: above
+
 .. _ug_basic_annotations_legends_manual:
 
 Manual legends
@@ -178,7 +192,11 @@ Manual legends
 To build a legend by hand, don't use any of the ``legend`` arguments and instead
 assign values to the various properties of a |Legend| object directly.
 
-See :bokeh-tree:`examples/models/legends.py` for an example.
+.. bokeh-plot:: __REPO__/examples/models/legends.py
+    :source-position: none
+
+To see the source code which creates the figure above please visit the complete
+:doc:`legend example</docs/examples/models/legends>` single page.
 
 Explicit index
 ~~~~~~~~~~~~~~
