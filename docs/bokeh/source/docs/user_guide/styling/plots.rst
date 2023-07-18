@@ -711,7 +711,7 @@ The default orientation is ``"vertical"``.
 Two dimensional layout
 ~~~~~~~~~~~~~~~~~~~~~~
 
-It is possible to activate a two dimensional layout for the legend by setting a positiv
+It is possible to activate a two dimensional layout for the legend by setting a positive
 integer to the properties ``nrows`` or ``ncols``. This enables the opportunity to avoid
 truncated legends.
 

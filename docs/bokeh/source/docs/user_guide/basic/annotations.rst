@@ -176,7 +176,7 @@ Two dimensional legends
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 To get a legend with more than one column or row, it is possible to set the
-``nrows`` or ``ncols`` property of the |Legend| with a position integer.
+``nrows`` or ``ncols`` property of the |Legend| with a positive integer.
 This can be useful if there is not enough space for all legend items in one line
 and can avoid a truncated legend.
 The definition of the rows and columns depends on the ``orientation`` of the legend.

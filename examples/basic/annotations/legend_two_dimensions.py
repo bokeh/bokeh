@@ -1,4 +1,4 @@
-'''Demonstrats how to modify a ``Legend`` to have multiple columns or rows by setting an
+'''Demonstrates how to modify a ``Legend`` to have multiple columns or rows by setting an
 explicit value for ``ncols`` and ``nrows``.
 
 .. bokeh-example-metadata::
