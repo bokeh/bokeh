@@ -11,6 +11,7 @@ import type {LayoutDOM} from "../models/layouts/layout_dom"
 import type {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {is_equal} from "../core/util/eq"
+import {last} from "../core/util/array"
 import type {Attrs} from "../core/types"
 
 export type GridPlotOpts = {
@@ -91,7 +92,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const matrix = Matrix.from(children)
 
   const items: [LayoutDOM, number, number][] = []
-  const tools: ToolLike<Tool>[] = []
+  const toolbars: Toolbar[] = []
 
   for (const [item, row, col] of matrix) {
     if (item == null)
@@ -99,7 +100,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
 
     if (item instanceof Plot) {
       if (merge_tools) {
-        tools.push(...item.toolbar.tools)
+        toolbars.push(item.toolbar)
         item.toolbar_location = null
       }
     }
@@ -126,6 +127,57 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       return null
   }
 
-  const toolbar = new Toolbar({tools: !merge_tools ? tools : group_tools(tools, merge)})
-  return new GridPlot({children: items, toolbar, toolbar_location, sizing_mode})
+  const tools = (() => {
+    const tools: ToolLike<Tool>[] = []
+
+    for (const toolbar of toolbars) {
+      tools.push(...toolbar.tools)
+    }
+
+    if (merge_tools)
+      return group_tools(tools, merge)
+    else
+      return tools
+  })()
+
+  const logos = toolbars.map((toolbar) => toolbar.logo)
+  const active_drags = toolbars.map((toolbar) => toolbar.active_drag)
+  const active_inspects = toolbars.map((toolbar) => toolbar.active_inspect)
+  const active_scrolls = toolbars.map((toolbar) => toolbar.active_scroll)
+  const active_taps = toolbars.map((toolbar) => toolbar.active_tap)
+  const active_multis = toolbars.map((toolbar) => toolbar.active_multi)
+
+  function assert_unique<T>(values: T[], name: string): T {
+    if (new Set(values).size >= 2) {
+      console.warn(`found multiple competing values for 'toolbar.${name}' property; using the latest value`)
+    }
+    return last(values)
+  }
+
+  const logo = assert_unique(logos, "logo")
+  const active_drag = assert_unique(active_drags, "active_drag")
+  const active_inspect = assert_unique(active_inspects, "active_inspect")
+  const active_scroll = assert_unique(active_scrolls, "active_scroll")
+  const active_tap = assert_unique(active_taps, "active_tap")
+  const active_multi = assert_unique(active_multis, "active_multi")
+
+  const toolbar = new Toolbar({
+    tools,
+    logo,
+    active_drag,
+    active_inspect,
+    active_scroll,
+    active_tap,
+    active_multi,
+    // TODO ...toolbar_options,
+  })
+
+  const gp = new GridPlot({
+    children: items,
+    toolbar,
+    toolbar_location,
+    sizing_mode,
+  })
+
+  return gp
 }
