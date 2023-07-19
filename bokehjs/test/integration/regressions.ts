@@ -56,6 +56,7 @@ import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
+import {sprintf} from "@bokehjs/core/util/templating"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -3503,6 +3504,35 @@ describe("Bug", () => {
       const {view} = await display(date_picker, [150, 100])
       date_picker.disabled = true
       await view.ready
+    })
+  })
+
+  describe("in issue #13262", () => {
+    describe("doesn't allow to correctly compute grid layout in Legend with uneven number of items", () => {
+      function plot() {
+        const x = np.linspace(0, 4*np.pi, 100)
+        const y = np.sin(x)
+
+        const p = fig([450, 200])
+        for (const i of range(7)) {
+          p.line(x, f`${1 + i/20}*${y}`, {legend_label: `${sprintf("%.2f", 1 + i/20)}*sin(x)`})
+        }
+        return p
+      }
+
+      it("in vertical orientation and ncols", async () => {
+        const p = plot()
+        p.legend.orientation = "vertical"
+        p.legend.ncols = 2
+        await display(p)
+      })
+
+      it("in horizontal orientation and nrows", async () => {
+        const p = plot()
+        p.legend.orientation = "horizontal"
+        p.legend.nrows = 2
+        await display(p)
+      })
     })
   })
 })
