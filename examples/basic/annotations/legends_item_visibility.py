@@ -16,7 +16,7 @@ y = np.cos(x)
 p = figure(height=300)
 
 # create two renderers with legend labels
-p.circle(x, y, legend_label="cox(x")
+p.circle(x, y, legend_label="cox(x)")
 p.line(x, 2*y, legend_label="2*cos(x)",
        line_dash=[4, 4], line_color="orange", line_width=2)
 
