@@ -333,8 +333,8 @@ class FactorRange(Range):
     .. code-block:: python
 
         FactorRange(factors=[
-            ["2016", "sales'], ["2016", "marketing'], ["2016", "engineering"],
-            ["2017", "sales'], ["2017", "marketing'], ["2017", "engineering"],
+            ["2016", "sales"], ["2016", "marketing"], ["2016", "engineering"],
+            ["2017", "sales"], ["2017", "marketing"], ["2017", "engineering"],
         ])
 
     defines a range with six 2-level factors that might represent the three
@@ -375,10 +375,10 @@ class FactorRange(Range):
 
     .. code-block:: python
 
-        FactorRange(factors=[["foo", "1'], ["foo", "2'], ["bar", "1"]])
+        FactorRange(factors=[["foo", "1"], ["foo", "2"], ["bar", "1"]])
 
     The top level groups correspond to ``"foo"` and ``"bar"``, and the
-    group padding will be applied between the factors ``["foo", "2']`` and
+    group padding will be applied between the factors ``["foo", "2"]`` and
     ``["bar", "1"]``
     """)
 
