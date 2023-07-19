@@ -1,0 +1,21 @@
+.. _release-3-2-1:
+
+3.2.1
+=====
+
+Bokeh version ``3.2.1`` (July 2023) is a patch release that fixes a number of
+minor bugs/regressions and build issues.
+
+Changes
+-------
+
+* Fixed unterminated string literals in an example code (:bokeh-pull:`13274`)
+* Updated documentation of ``Legend`` annotation (:bokeh-pull:`13273`)
+* Fixed docstring syntax in ``bokeh/theme.py`` (:bokeh-pull:`13270`)
+* Fixed a broken link in bokeh's "First steps" documentation (:bokeh-pull:`13266`)
+* Fixed ``Legend`` annotation's grid layout for uneven number of items (:bokeh-pull:`13263`)
+* Fixed handling of changes to ``DatePicker.disabled`` property (:bokeh-pull:`13256`)
+* Resolved compilation issues with generated ``*.d.ts`` files (:bokeh-pull:`13254`)
+* Resolved issues with high DPI ``GridPlot`` exports (:bokeh-pull:`13253`)
+* Improved handling of undisplayed plots (:bokeh-pull:`13250`)
+* Implemented missing cloneable interface in bokehjs' ndarrays (:bokeh-pull:`13232`)
