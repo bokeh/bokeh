@@ -885,7 +885,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _actual_paint(): void {
 
     //////////////// NEW CODE
-    console.log("PlotView._actual_paint", this._render_count, "start")
+    console.log("PlotView._actual_paint", this.model.id, this._render_count, "start")
 
     const {document} = this.model
     if (document != null) {
@@ -966,7 +966,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.repainted.emit()
 
     //////////////// NEW CODE
-    console.log("PlotView._actual_paint", this._render_count, "end")
+    console.log("PlotView._actual_paint", this.model.id, this._render_count, "end")
     this._render_count++
   }
 
