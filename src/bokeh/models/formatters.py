@@ -367,15 +367,14 @@ class CustomJSTickFormatter(TickFormatter):
 
     Additionally available variables are:
 
-      * ``ticks``, an array of all axis ticks as positioned by the ticker,
-      * ``index``, the position of ``tick`` within ``ticks``, and
-      * the keys of ``args`` mapping, if any.
+    * ``ticks``, an array of all axis ticks as positioned by the ticker,
+    * ``index``, the position of ``tick`` within ``ticks``, and
+    * the keys of ``args`` mapping, if any.
 
     Finding yourself needing to cache an expensive ``ticks``-dependent
     computation, you can store it on the ``this`` variable.
 
     Example:
-
         .. code-block:: javascript
 
             code = '''
