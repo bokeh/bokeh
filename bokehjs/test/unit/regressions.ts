@@ -23,8 +23,10 @@ import {
   Rect,
   Row,
   Scatter,
+  TileRenderer,
   Title,
   Toolbar,
+  WMTSTileSource,
 } from "@bokehjs/models"
 
 import {assert} from "@bokehjs/core/util/assert"
@@ -33,7 +35,7 @@ import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
-import {offset_bbox} from "@bokehjs/core/dom"
+import {div, offset_bbox} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
@@ -800,6 +802,38 @@ describe("Bug", () => {
       const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
+    })
+  })
+
+  describe("in issue #13248", () => {
+    it("doesn't allow to render an invisible plot with a tile renderer", async () => {
+      function box(width: number, height: number): HTMLElement {
+        return div({style: {width: `${width}px`, height: `${height}px`, display: "none"}})
+      }
+
+      const osm_source = new WMTSTileSource({
+        // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+        url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+        attribution: "&copy; (0) OSM source attribution",
+      })
+
+      const osm = new TileRenderer({tile_source: osm_source})
+
+      const p = fig([200, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm],
+      })
+
+      const spy = sinon.spy(osm_source, "get_tiles_by_extent")
+      try {
+        await display(p, [250, 250], box(200, 200))
+        expect(spy.called).to.be.false
+      } finally {
+        spy.restore()
+      }
     })
   })
 })

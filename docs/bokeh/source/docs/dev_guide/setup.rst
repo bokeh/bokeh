@@ -692,7 +692,7 @@ Slack`_.
 .. _npm: https://www.npmjs.com/
 .. _pre-commit: https://pre-commit.com/
 .. _Git hooks: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks
-.. _Ruff: https://github.com/charliermarsh/ruff
+.. _Ruff: https://github.com/astral-sh/ruff
 .. _ESLint: https://eslint.org/
 .. _isort: https://pycqa.github.io/isort/
 .. _Bokeh's protected branches: https://github.com/bokeh/bokeh/wiki/BEP-6:-Branching-Strategy

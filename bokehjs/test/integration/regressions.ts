@@ -57,6 +57,7 @@ import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
+import {sprintf} from "@bokehjs/core/util/templating"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -3412,6 +3413,83 @@ describe("Bug", () => {
 
       cds_view.filter = new IndexFilter({indices: [1, 2]})
       await view.ready
+    })
+  })
+
+  describe("in issue #13252", () => {
+    describe("doesn't allow to correctly export GridPlot", () => {
+      function plot(color: Color) {
+        const p = fig([200, 200])
+        const x = range(10)
+        const y = range(10)
+        p.scatter(x, y, {marker: "circle", color})
+        return p
+      }
+
+      function gridplot() {
+        return new GridPlot({
+          children: [
+            [plot("red"),    0, 0],
+            [plot("green"),  0, 1],
+            [plot("blue"),   1, 0],
+            [plot("purple"), 1, 1],
+          ],
+        })
+      }
+
+      // TODO Allow to generate additional baselines for image diff.
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+    })
+  })
+
+  describe("in issue #13255", () => {
+    it("doesn't allow to disable DatePicker after display", async () => {
+      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+      const {view} = await display(date_picker, [150, 100])
+      date_picker.disabled = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #13262", () => {
+    describe("doesn't allow to correctly compute grid layout in Legend with uneven number of items", () => {
+      function plot() {
+        const x = np.linspace(0, 4*np.pi, 100)
+        const y = np.sin(x)
+
+        const p = fig([450, 200])
+        for (const i of range(7)) {
+          p.line(x, f`${1 + i/20}*${y}`, {legend_label: `${sprintf("%.2f", 1 + i/20)}*sin(x)`})
+        }
+        return p
+      }
+
+      it("in vertical orientation and ncols", async () => {
+        const p = plot()
+        p.legend.orientation = "vertical"
+        p.legend.ncols = 2
+        await display(p)
+      })
+
+      it("in horizontal orientation and nrows", async () => {
+        const p = plot()
+        p.legend.orientation = "horizontal"
+        p.legend.nrows = 2
+        await display(p)
+      })
     })
   })
 })

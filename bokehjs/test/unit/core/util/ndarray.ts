@@ -9,6 +9,8 @@ import {
   ObjectNDArray,
 } from "@bokehjs/core/util/ndarray"
 
+import {Cloner} from "@bokehjs/core/util/cloneable"
+
 describe("core/util/ndarray module", () => {
 
   it("should support is_NDArray predicate", () => {
@@ -81,6 +83,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("uint8")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("uint8")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Uint16NDArray", () => {
@@ -115,6 +125,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("uint16")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("uint16")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Uint32NDArray", () => {
@@ -149,6 +167,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("uint32")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("uint32")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Int8NDArray", () => {
@@ -183,6 +209,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("int8")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("int8")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Int16NDArray", () => {
@@ -217,6 +251,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("int16")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("int16")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Int32NDArray", () => {
@@ -251,6 +293,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("int32")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("int32")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Float32NDArray", () => {
@@ -285,6 +335,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("float32")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("float32")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support Float64NDArray", () => {
@@ -319,6 +377,14 @@ describe("core/util/ndarray module", () => {
     expect(nd4.dtype).to.be.equal("float64")
     expect(nd4.shape).to.be.equal([2, 3])
     expect(nd4.length).to.be.equal(6)
+
+    const nd5 = new Cloner().clone(nd4)
+    expect(is_NDArray(nd5)).to.be.true
+    expect(nd5.dtype).to.be.equal("float64")
+    expect(nd5.shape).to.be.equal([2, 3])
+    expect(nd5.length).to.be.equal(6)
+    expect(nd5.buffer).to.not.be.identical(nd4.buffer)
+    expect(nd5.shape).to.not.be.identical(nd4.shape)
   })
 
   it("should support ObjectNDArray", () => {
@@ -334,7 +400,22 @@ describe("core/util/ndarray module", () => {
     expect(nd1.dtype).to.be.equal("object")
     expect(nd1.shape).to.be.equal([9])
     expect(nd1.length).to.be.equal(9)
-    expect(nd0.dimension).to.be.equal(1)
+    expect(nd1.dimension).to.be.equal(1)
+
+    const nd2 = new ObjectNDArray([false, 0, "a", true, 1, "b"], [2, 3])
+    expect(is_NDArray(nd2)).to.be.true
+    expect(nd2.dtype).to.be.equal("object")
+    expect(nd2.shape).to.be.equal([2, 3])
+    expect(nd2.length).to.be.equal(6)
+    expect(nd2.dimension).to.be.equal(2)
+
+    const nd3 = new Cloner().clone(nd2)
+    expect(is_NDArray(nd3)).to.be.true
+    expect(nd3.dtype).to.be.equal("object")
+    expect(nd3.shape).to.be.equal([2, 3])
+    expect(nd3.length).to.be.equal(6)
+    expect(nd3).to.not.be.identical(nd2)
+    expect(nd3.shape).to.not.be.identical(nd2.shape)
   })
 
   it("should support ndarray() function widthout dtype", () => {

@@ -11,6 +11,7 @@ export abstract class BaseGLGlyph {
   protected nvertices: number = 0
   protected size_changed: boolean = false
   protected data_changed: boolean = false
+  protected data_mapped: boolean = false
   protected visuals_changed: boolean = false
 
   constructor(protected readonly regl_wrapper: ReglWrapper, readonly glyph: GlyphView) {}
@@ -23,6 +24,10 @@ export abstract class BaseGLGlyph {
     }
 
     this.data_changed = true
+  }
+
+  set_data_mapped(): void {
+    this.data_mapped = true
   }
 
   set_visuals_changed(): void {

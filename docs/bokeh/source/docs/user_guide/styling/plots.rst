@@ -708,6 +708,20 @@ The default orientation is ``"vertical"``.
 .. bokeh-plot:: __REPO__/examples/styling/plots/legend_orientation.py
     :source-position: above
 
+Two dimensional layout
+~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to activate a two dimensional layout for the legend by setting a positive
+integer to the properties ``nrows`` or ``ncols``. This enables the opportunity to avoid
+truncated legends.
+
+The default for ``nrows`` and ``ncols`` is ``"auto"``, which leads to one column if
+the ``orientation`` property is ``"vertical"`` and one row if the ``orientation`` property
+is ``"horizontal"``.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/legend_two_dimensions.py
+    :source-position: above
+
 Label text
 ~~~~~~~~~~
 

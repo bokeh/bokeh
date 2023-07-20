@@ -111,7 +111,7 @@ export class HexTileView extends GlyphView {
     ;[this.svx, this.svy] = this._get_unscaled_vertices()
 
     // From overridden GlyphView.map_data()
-    this.glglyph?.set_data_changed()
+    this.glglyph?.set_data_mapped()
   }
 
   protected _get_unscaled_vertices(): [[number, number, number, number, number, number], [number, number, number, number, number, number]] {

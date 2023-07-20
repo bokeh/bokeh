@@ -190,6 +190,7 @@ def test_PropertyValueColumnData__stream_list_to_list(mock_notify: MagicMock) ->
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover is None
+    assert event.data == {'foo': [20]}
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -> None:
@@ -209,6 +210,7 @@ def test_PropertyValueColumnData__stream_list_to_array(mock_notify: MagicMock) -
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover is None
+    assert event.data == {'foo': [20]}
 
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
@@ -227,6 +229,25 @@ def test_PropertyValueColumnData__stream_list_with_rollover(mock_notify: MagicMo
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover == 3
+    assert event.data == {'foo': [40]}
+
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__stream_list_with_rollover_equals_zero(mock_notify: MagicMock) -> None:
+    from bokeh.document.events import ColumnsStreamedEvent
+
+    source = ColumnDataSource(data=dict(foo=[10, 20, 30]))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._stream("doc", source, dict(foo=[40]), rollover=0, setter="setter")
+    assert mock_notify.call_count == 1
+    assert mock_notify.call_args[0] == ({'foo': []},) # streaming to list, "old" is actually updated value
+    assert 'hint' in mock_notify.call_args[1]
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == 0
+    assert event.data == {'foo': [40]}
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) -> None:
@@ -248,6 +269,7 @@ def test_PropertyValueColumnData__stream_array_to_array(mock_notify: MagicMock) 
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover is None
+    assert event.data == {'foo': [20]}
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -> None:
@@ -267,6 +289,7 @@ def test_PropertyValueColumnData__stream_array_to_list(mock_notify: MagicMock) -
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover is None
+    assert event.data == {'foo': [20]}
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicMock) -> None:
@@ -288,6 +311,29 @@ def test_PropertyValueColumnData__stream_array_with_rollover(mock_notify: MagicM
     assert isinstance(event, ColumnsStreamedEvent)
     assert event.setter == 'setter'
     assert event.rollover == 3
+    assert event.data == {'foo': [40]}
+
+@patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
+def test_PropertyValueColumnData__stream_array_with_rollover_equals_zero(mock_notify: MagicMock) -> None:
+    import numpy as np
+
+    from bokeh.document.events import ColumnsStreamedEvent
+
+    source = ColumnDataSource(data=dict(foo=np.array([10, 20, 30])))
+    pvcd = bcpw.PropertyValueColumnData(source.data)
+
+    mock_notify.reset_mock()
+    pvcd._stream("doc", source, dict(foo=[40]), rollover=0, setter="setter")
+    assert mock_notify.call_count == 1
+    assert len(mock_notify.call_args[0]) == 1
+    assert 'foo' in mock_notify.call_args[0][0]
+    assert (mock_notify.call_args[0][0]['foo'] == np.array([10, 20, 30])).all()
+    assert 'hint' in mock_notify.call_args[1]
+    event = mock_notify.call_args[1]['hint']
+    assert isinstance(event, ColumnsStreamedEvent)
+    assert event.setter == 'setter'
+    assert event.rollover == 0
+    assert event.data == {'foo': [40]}
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_simple_indices(mock_notify: MagicMock) -> None:
@@ -320,7 +366,6 @@ def test_PropertyValueColumnData__patch_with_repeated_simple_indices(mock_notify
     event = mock_notify.call_args[1]['hint']
     assert isinstance(event, ColumnsPatchedEvent)
     assert event.setter == 'setter'
-
 
 @patch('bokeh.core.property.wrappers.PropertyValueContainer._notify_owners')
 def test_PropertyValueColumnData__patch_with_slice_indices(mock_notify: MagicMock) -> None:
