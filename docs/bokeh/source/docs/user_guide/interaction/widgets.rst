@@ -327,7 +327,7 @@ clicked.
 Similar to the :ref:`ug_interaction_widgets_examples_button` widget, the
 dropdown button can also use an :class:`~bokeh.models.Icon` (such as
 :class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
-:class:`~bokeh.models.TablerIcon`).`
+:class:`~bokeh.models.TablerIcon`).
 
 More information can be found in the reference guide entry for |Dropdown|.
 
@@ -561,7 +561,7 @@ The toggle button holds an on/off state:
 Like with a standard :ref:`ug_interaction_widgets_examples_button`
 widget, the toggle button can also use an :class:`~bokeh.models.Icon` (such as
 :class:`~bokeh.models.BuiltinIcon`, :class:`~bokeh.models.SVGIcon`, or
-:class:`~bokeh.models.TablerIcon`).`
+:class:`~bokeh.models.TablerIcon`).
 
 More information can be found in the reference guide entry for |Toggle|.
 
