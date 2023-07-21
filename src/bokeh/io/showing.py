@@ -53,10 +53,10 @@ __all__ = (
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
         notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
-    ''' Immediately display a Bokeh object or application.
+    '''Immediately display a Bokeh object or application.
 
-        :func:`show` may be called multiple times in a single Jupyter notebook
-        cell to display multiple objects. The objects are displayed in order.
+    :func:`show` may be called multiple times in a single Jupyter notebook
+    cell to display multiple objects. The objects are displayed in order.
 
     Args:
         obj (UIElement or Application or callable) :
