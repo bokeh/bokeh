@@ -135,8 +135,8 @@ sequences can be either lists or tuples.
 To use one of those pre-defined palettes, import it from the ``bokeh.palettes``
 module.
 
-When you import "Spectral6", for example, Bokeh gives you access to a list that
-contains six RGB(A) hex strings from the Brewer "Spectral" color map:
+When you import ``"Spectral6"``, for example, Bokeh gives you access to a list that
+contains six RGB(A) hex strings from the Brewer ``"Spectral"`` color map:
 
 .. code-block:: python
 
