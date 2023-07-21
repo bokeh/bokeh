@@ -29,6 +29,13 @@ export type PolyGeometry = {
 
 export type Geometry = PointGeometry | SpanGeometry | RectGeometry | PolyGeometry
 
+export type HitTestPoint = PointGeometry
+export type HitTestSpan = SpanGeometry
+export type HitTestRect = RectGeometry & {greedy?: boolean}
+export type HitTestPoly = PolyGeometry & {greedy?: boolean}
+
+export type HitTestGeometry = HitTestPoint | HitTestSpan | HitTestRect | HitTestPoly
+
 export type PointGeometryData = PointGeometry & {
   x: number
   y: number
