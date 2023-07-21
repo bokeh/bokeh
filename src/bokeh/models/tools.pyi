@@ -20,6 +20,7 @@ from typing import (
 # Bokeh imports
 from .._types import (
     Alpha,
+    Angle,
     Color,
     Date,
     Datetime,
@@ -28,9 +29,11 @@ from .._types import (
 )
 from ..core.enums import (
     AnchorType as Anchor,
+    AngleUnitsType as AngleUnits,
     AutoType as Auto,
     DimensionsType as Dimensions,
     DimensionType as Dimension,
+    DirectionType as Direction,
     PanDirectionType as PanDirection,
     RegionSelectionModeType as RegionSelectionMode,
     SelectionModeType as SelectionMode,
@@ -453,3 +456,27 @@ class LineEditTool(EditTool, Drag, Tap):
     intersection_renderer: GlyphRenderer[Line] = ...
 
     dimensions: Dimensions = ...
+
+@abstract
+@dataclass(init=False)
+class MeasurementTool(GestureTool):
+    pass
+
+@dataclass
+class AngleTool(MeasurementTool):
+
+    angle_offset: Angle = ...
+
+    angle_units: AngleUnits = ...
+
+    direction: Direction = ...
+
+    precision: NonNegative[int] = ...
+
+    distance: bool = ...
+
+    persistent: bool = ...
+
+@dataclass
+class DistanceTool(MeasurementTool):
+    pass

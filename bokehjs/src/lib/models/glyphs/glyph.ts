@@ -121,7 +121,7 @@ export abstract class GlyphView extends DOMComponentView {
   }
 
   get canvas() {
-    return this.renderer.parent.canvas_view
+    return this.renderer.plot_view.canvas_view
   }
 
   paint(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {

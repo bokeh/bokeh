@@ -18,12 +18,14 @@ import {RendererGroup} from "./renderer_group"
 import {InlineStyleSheet} from "core/dom"
 import type {SidePanel} from "core/layout/side_panel"
 import type {Layoutable} from "core/layout"
+import {LinearScale} from "../scales/linear_scale"
+import {Range1d} from "../ranges/range1d"
 
 export abstract class RendererView extends StyledElementView implements visuals.Paintable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView
+  declare readonly parent: PlotView | RendererView
 
   layout?: Layoutable
 
@@ -103,9 +105,16 @@ export abstract class RendererView extends StyledElementView implements visuals.
       return this._custom_coordinates
     }
     const {coordinates} = this.model
-    const {frame} = this.plot_view
-    if (coordinates != null) {
+    const {frame, canvas} = this.plot_view
+    if (coordinates instanceof CoordinateMapping) {
       return coordinates.get_transform(frame)
+    } else if (coordinates == "screen") {
+      // TODO no-op scale
+      const x_range = new Range1d(canvas.bbox.x_range)
+      const y_range = new Range1d(canvas.bbox.y_range)
+      const x_scale = new LinearScale({source_range: x_range, target_range: x_range})
+      const y_scale = new LinearScale({source_range: y_range, target_range: y_range})
+      return new CoordinateTransform(x_scale, y_scale)
     } else {
       const {x_range_name, y_range_name} = this.model
       const x_scale = frame.x_scales.get(x_range_name)
@@ -117,11 +126,16 @@ export abstract class RendererView extends StyledElementView implements visuals.
   }
 
   get plot_view(): PlotView {
-    return this.parent
+    const {parent} = this
+    if (parent instanceof RendererView) {
+      return parent.plot_view
+    } else {
+      return parent
+    }
   }
 
   get plot_model(): Plot {
-    return this.parent.model
+    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {
@@ -286,7 +300,7 @@ export namespace Renderer {
     visible: p.Property<boolean>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-    coordinates: p.Property<CoordinateMapping | null>
+    coordinates: p.Property<CoordinateMapping | "screen" | null>
     propagate_hover: p.Property<boolean>
     context_menu: p.Property<Menu | null>
   }
@@ -305,13 +319,13 @@ export abstract class Renderer extends StyledElement {
   }
 
   static {
-    this.define<Renderer.Props>(({Bool, Str, Ref, Nullable}) => ({
+    this.define<Renderer.Props>(({Bool, Str, Ref, Nullable, Or, Enum}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],
       visible:      [ Bool, true ],
       x_range_name: [ Str, "default" ],
       y_range_name: [ Str, "default" ],
-      coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
+      coordinates:  [ Nullable(Or(Ref(CoordinateMapping), Enum("screen"))), null ],
       propagate_hover: [ Bool, false ],
       context_menu: [ Nullable(Ref(Menu)), null ],
     }))

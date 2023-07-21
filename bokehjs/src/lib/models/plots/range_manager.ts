@@ -2,7 +2,7 @@ import type {Range} from "../ranges/range"
 import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
-import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
@@ -60,7 +60,7 @@ export class RangeManager {
     }
     for (const renderer of this.parent.model.data_renderers) {
       const {coordinates} = renderer
-      if (coordinates != null) {
+      if (coordinates instanceof CoordinateMapping) {
         x_ranges.add(coordinates.x_source)
         y_ranges.add(coordinates.y_source)
       }
@@ -164,7 +164,7 @@ export class RangeManager {
 
     for (const renderer of this.parent.auto_ranged_renderers) {
       const {coordinates} = renderer.model
-      if (coordinates != null) {
+      if (coordinates instanceof CoordinateMapping) {
         this._update_dataranges(coordinates)
       }
     }

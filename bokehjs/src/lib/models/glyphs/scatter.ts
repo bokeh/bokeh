@@ -1,7 +1,7 @@
 import {Marker, MarkerView} from "./marker"
 import {MarkerType} from "core/enums"
-import {marker_funcs} from "./defs"
 import type {VectorVisuals} from "./defs"
+import {v_marker_funcs} from "./defs"
 import type {Rect, KeyVal} from "core/types"
 import * as p from "core/properties"
 import * as u from "core/uniforms"
@@ -78,7 +78,7 @@ export class ScatterView extends MarkerView {
       const r = size_i/2
 
       if (is_MarkerType(marker_i)) {
-        marker_funcs[marker_i](ctx, i, r, visuals)
+        v_marker_funcs[marker_i](ctx, i, r, visuals)
       } else {
         const fn = defs.get(marker_i)
         if (fn != null) {

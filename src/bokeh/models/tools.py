@@ -47,8 +47,10 @@ from typing import Any, Callable, ClassVar
 # Bokeh imports
 from ..core.enums import (
     Anchor,
+    AngleUnits,
     Dimension,
     Dimensions,
+    Direction,
     KeyModifierType,
     PanDirection,
     RegionSelectionMode,
@@ -60,6 +62,7 @@ from ..core.enums import (
 from ..core.has_props import abstract
 from ..core.properties import (
     Alpha,
+    Angle,
     AnyRef,
     Auto,
     Bool,
@@ -119,6 +122,7 @@ from .ui import Menu, UIElement
 
 __all__ = (
     'ActionTool',
+    'AngleTool',
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
@@ -2092,6 +2096,40 @@ class LineEditTool(EditTool, Drag, Tap):
     plot, or vertical across the height of the plot.
     """)
 
+@abstract
+class MeasurementTool(GestureTool):
+    """ Base class for various measurement tools. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class AngleTool(MeasurementTool):
+    """ Measure the angle between two lines. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    angle_offset = Angle(default=0)
+
+    angle_units = Enum(AngleUnits, default="deg")
+
+    direction = Enum(Direction, default="anticlock")
+
+    precision = NonNegative(Int, default=2)
+
+    distance = Bool(default=True)
+
+    persistent = Bool(default=True)
+
+class DistanceTool(MeasurementTool):
+    """ Measure the distance between multiple consecutive points. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -2163,3 +2201,4 @@ Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("data (x, y)", "($x, $y)"),
     ("screen (x, y)", "($sx, $sy)"),
 ]))
+Tool.register_alias("angle", lambda: AngleTool())

@@ -1,8 +1,27 @@
 import type {MarkerType} from "core/enums"
-import type {LineVector, FillVector, HatchVector} from "core/visuals"
 import type {Context2d} from "core/util/canvas"
 
-export type VectorVisuals = {line: LineVector, fill: FillVector, hatch: HatchVector}
+export type ScalarVisual = {
+  apply(ctx: Context2d): void
+  set_value(ctx: Context2d): void
+}
+
+export type ScalarVisuals = {
+  line: ScalarVisual
+  fill: ScalarVisual
+  hatch: ScalarVisual
+}
+
+export type VectorVisual = {
+  apply(ctx: Context2d, i: number): void
+  set_vectorize(ctx: Context2d, i: number): void
+}
+
+export type VectorVisuals = {
+  line: VectorVisual
+  fill: VectorVisual
+  hatch: VectorVisual
+}
 
 const SQ3 = Math.sqrt(3)
 const SQ5 = Math.sqrt(5)
@@ -340,9 +359,10 @@ function y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   visuals.line.apply(ctx, i)
 }
 
-export type RenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
+export type RenderOne = (ctx: Context2d, r: number, visuals: VectorVisuals) => void
+export type VectorRenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
 
-export const marker_funcs = {
+export const v_marker_funcs = {
   asterisk,
   circle,
   circle_cross,
@@ -371,4 +391,4 @@ export const marker_funcs = {
   dash,
   x,
   y,
-} satisfies {[key in MarkerType]: RenderOne}
+} satisfies {[key in MarkerType]: VectorRenderOne}
