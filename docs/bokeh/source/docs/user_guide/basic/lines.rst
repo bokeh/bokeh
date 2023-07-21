@@ -73,7 +73,7 @@ and |hline_stack| convenience methods.
     :source-position: above
 
 .. note::
-    This and other examples in this chapter rely on ```ColumnDataSource`` for
+    This and other examples in this chapter rely on ``ColumnDataSource`` for
     data structuring. For information on how to work with this data structure,
     see :ref:`ug_basic_data`.
 
