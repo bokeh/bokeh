@@ -39,8 +39,8 @@ The following code snippet
 .. code-block:: python
 
     import math
-    from bokeh.plotting import figure
-    from bokeh.models import GraphRenderer, Ellipse
+    from bokeh.plotting import figure, show, output_file
+    from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
     from bokeh.palettes import Spectral8
 
     # list the nodes and initialize a plot
