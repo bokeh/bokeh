@@ -19,28 +19,28 @@ This section contains more details about some of the most common properties.
 Line properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/line_props.txt
+.. include:: ../../includes/line_props.rst
 
 .. _ug_styling_fill_properties:
 
 Fill properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/fill_props.txt
+.. include:: ../../includes/fill_props.rst
 
 .. _ug_styling_hatch_properties:
 
 Hatch properties
 ~~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/hatch_props.txt
+.. include:: ../../includes/hatch_props.rst
 
 .. _ug_styling_text_properties:
 
 Text properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/text_props.txt
+.. include:: ../../includes/text_props.rst
 
 .. _ug_styling_visible_property:
 
