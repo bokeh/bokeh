@@ -1,6 +1,27 @@
 import type {MarkerType} from "core/enums"
-import type {LineVector, FillVector, HatchVector} from "core/visuals"
 import type {Context2d} from "core/util/canvas"
+
+export type ScalarVisual = {
+  apply(ctx: Context2d): void
+  set_value(ctx: Context2d): void
+}
+
+export type ScalarVisuals = {
+  line: ScalarVisual
+  fill: ScalarVisual
+  hatch: ScalarVisual
+}
+
+export type VectorVisual = {
+  apply(ctx: Context2d, i: number): void
+  set_vectorize(ctx: Context2d, i: number): void
+}
+
+export type VectorVisuals = {
+  line: VectorVisual
+  fill: VectorVisual
+  hatch: VectorVisual
+}
 
 const SQ3 = Math.sqrt(3)
 const SQ5 = Math.sqrt(5)
@@ -90,8 +111,6 @@ function _one_tri(ctx: Context2d, r: number): void {
   ctx.lineTo(0, a-h)
   ctx.closePath()
 }
-
-type VectorVisuals = {line: LineVector, fill: FillVector, hatch: HatchVector}
 
 function asterisk(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   _one_cross(ctx, r)
@@ -340,9 +359,10 @@ function y(ctx: Context2d, i: number, r: number, visuals: VectorVisuals): void {
   visuals.line.apply(ctx, i)
 }
 
-export type RenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
+export type RenderOne = (ctx: Context2d, r: number, visuals: VectorVisuals) => void
+export type VectorRenderOne = (ctx: Context2d, i: number, r: number, visuals: VectorVisuals) => void
 
-export const marker_funcs: {[key in MarkerType]: RenderOne} = {
+export const v_marker_funcs: {[key in MarkerType]: VectorRenderOne} = {
   asterisk,
   circle,
   circle_cross,

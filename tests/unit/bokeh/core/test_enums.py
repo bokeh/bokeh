@@ -72,6 +72,7 @@ ALL = (
     'PaddingUnits',
     'Palette',
     'Place',
+    'RadiusDimension',
     'RenderLevel',
     'ResetPolicy',
     'Resizable',
@@ -281,6 +282,9 @@ class Test_bce:
 
     def test_Palette(self) -> None:
         assert tuple(bce.Palette) == tuple(__palettes__)
+
+    def test_RadiusDimension(self) -> None:
+        assert tuple(bce.RadiusDimension) == ("x", "y", "max", "min")
 
     def test_RenderLevel(self) -> None:
         assert tuple(bce.RenderLevel) == ("image", "underlay", "glyph", "guide", "annotation", "overlay")
