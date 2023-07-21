@@ -5435,6 +5435,7 @@
     __extends__: "SelectTool",
     continuous: false,
     persistent: false,
+    greedy: true,
   },
   InspectTool: {
     __extends__: "GestureTool",

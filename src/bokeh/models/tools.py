@@ -321,6 +321,12 @@ class RegionSelectTool(SelectTool):
     the annotation, to allow to modify the selection.
     """)
 
+    greedy = Bool(default=True, help="""
+    Defines whether a hit against a glyph requires full enclosure within
+    the selection region or only an intersection (i.e. at least one point
+    within the region).
+    """)
+
 @abstract
 class InspectTool(GestureTool):
     ''' A base class for tools that perform "inspections", e.g. ``HoverTool``.
