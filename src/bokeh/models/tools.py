@@ -1195,7 +1195,7 @@ class HoverTool(InspectTool):
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
-            ("total", "@total{$0,0.00}"
+            ("total", "@total{$0,0.00}"),
         ]
 
     You can also supply a ``Callback`` to the ``HoverTool``, to build custom
@@ -1588,7 +1588,7 @@ class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like glyphs
-    (i.e subclasses of``XYGlyph``) on one or more renderers by editing the
+    (i.e subclasses of ``XYGlyph``) on one or more renderers by editing the
     underlying ``ColumnDataSource`` data. Like other drawing tools, the
     renderers that are to be edited must be supplied explicitly as a list. Any
     newly added points will be inserted on the ``ColumnDataSource`` of the
@@ -1765,7 +1765,7 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     The tool will modify the columns on the data source corresponding to the
     ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
-    source will be padded with the declared``empty_value``, when adding a new
+    source will be padded with the declared ``empty_value``, when adding a new
     point.
 
     The supported actions include:
@@ -1814,7 +1814,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     The tool will modify the columns on the data source corresponding to the
     ``x`` and ``y`` values of the glyph. Any additional columns in the data
-    source will be padded with the declared``empty_value``, when adding a new
+    source will be padded with the declared ``empty_value``, when adding a new
     point.
 
     The supported actions include:
