@@ -130,9 +130,9 @@ Other Parameters:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in the browser <ug_basic_annotations_legends_legend_field>`.
         The value of this parameter is the name of a column in the data source
-        that should be used or the grouping.
+        that should be used for the grouping.
 
-        The grouping is performed *in JavaScript*, at the time time the Bokeh
+        The grouping is performed *in JavaScript*, at the same time the Bokeh
         content is rendered in the browser. If the data is subsequently updated,
         the legend will automatically re-group.
 
@@ -144,7 +144,7 @@ Other Parameters:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in Python <ug_basic_annotations_legends_legend_group>`.
         The value of this parameter is the name of a column in the data source
-        that should be used or the grouping.
+        that should be used for the grouping.
 
         The grouping is performed in Python, before the Bokeh output is sent to
         a browser. If the date is subsequently updated, the legend will *not*
