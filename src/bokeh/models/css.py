@@ -88,7 +88,7 @@ class ImportedStyleSheet(StyleSheet):
 class GlobalInlineStyleSheet(InlineStyleSheet):
     """ An inline stylesheet that's appended to the ``<head>`` element.
 
-    ..note::
+    .. note::
         A stylesheet will be appended only once, regardless of how
         many times it's being used in other models.
     """
@@ -100,7 +100,7 @@ class GlobalInlineStyleSheet(InlineStyleSheet):
 class GlobalImportedStyleSheet(ImportedStyleSheet):
     """ An imported stylesheet that's appended to the ``<head>`` element.
 
-    ..note::
+    .. note::
         A stylesheet will be appended only once, regardless of how
         many times it's being used in other models.
     """
