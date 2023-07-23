@@ -108,13 +108,13 @@ class CustomJSTransform(Transform):
     present in the function namespace at render time. The snippet will be
     into the body of a function and therefore requires a return statement.
 
-    Example:
+    **Example**
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            func = '''
-            return Math.floor(x) + 0.5
-            '''
+        func = '''
+        return Math.floor(x) + 0.5
+        '''
     """)
 
     v_func = String(default="", help="""
@@ -123,17 +123,17 @@ class CustomJSTransform(Transform):
     present in the function namespace at render time. The snippet will be
     into the body of a function and therefore requires a return statement.
 
-    Example:
+    **Example**
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            v_func = '''
-            const new_xs = new Array(xs.length)
-            for(let i = 0; i < xs.length; i++) {
-                new_xs[i] = xs[i] + 0.5
-            }
-            return new_xs
-            '''
+        v_func = '''
+        const new_xs = new Array(xs.length)
+        for(let i = 0; i < xs.length; i++) {
+            new_xs[i] = xs[i] + 0.5
+        }
+        return new_xs
+        '''
 
     .. warning::
         The vectorized function, ``v_func``, must return an array of the
