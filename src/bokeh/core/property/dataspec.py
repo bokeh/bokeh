@@ -277,7 +277,8 @@ class NumberSpec(DataSpec):
 class AlphaSpec(NumberSpec):
 
     _default_help = """
-    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    Acceptable values are floating-point numbers between 0 and 1 (0 being
+    transparent and 1 being opaque).
     """
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
