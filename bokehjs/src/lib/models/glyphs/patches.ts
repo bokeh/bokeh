@@ -88,7 +88,7 @@ export class PatchesView extends GlyphView {
   }
 
   protected override _hit_poly(geometry: HitTestPoly): Selection {
-    const {sx: sxs, sy: sys, greedy=true} = geometry
+    const {sx: sxs, sy: sys, greedy=false} = geometry
     const xs = this.renderer.xscale.v_invert(sxs)
     const ys = this.renderer.yscale.v_invert(sys)
 
@@ -99,17 +99,21 @@ export class PatchesView extends GlyphView {
     for (const i of candidates) {
       const sxs_i = this.sxs.get(i)
       const sys_i = this.sys.get(i)
-      let hit = greedy
-      for (let j = 0, n = sxs_i.length; j < n; j++) {
+      const n = sxs_i.length
+      if (n == 0) {
+        continue
+      }
+      let hit = !greedy
+      for (let j = 0; j < n; j++) {
         const sx = sxs_i[j]
         const sy = sys_i[j]
         if (!hittest.point_in_poly(sx, sy, sxs, sys)) {
-          if (greedy) {
+          if (!greedy) {
             hit = false
             break
           }
         } else {
-          if (!greedy) {
+          if (greedy) {
             hit = true
             break
           }

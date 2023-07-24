@@ -69,7 +69,7 @@ export abstract class RegionSelectTool extends SelectTool {
     this.define<RegionSelectTool.Props>(({Boolean}) => ({
       continuous: [ Boolean, false ],
       persistent: [ Boolean, false ],
-      greedy: [ Boolean, true ],
+      greedy: [ Boolean, false ],
     }))
   }
 }

@@ -321,10 +321,10 @@ class RegionSelectTool(SelectTool):
     the annotation, to allow to modify the selection.
     """)
 
-    greedy = Bool(default=True, help="""
+    greedy = Bool(default=False, help="""
     Defines whether a hit against a glyph requires full enclosure within
-    the selection region or only an intersection (i.e. at least one point
-    within the region).
+    the selection region (non-greedy) or only an intersection (greedy)
+    (i.e. at least one point within the region).
     """)
 
 @abstract
