@@ -8,8 +8,8 @@ import type {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as uniforms from "core/uniforms"
-import {range} from "core/util/array"
 import type {Context2d} from "core/util/canvas"
+import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
@@ -129,28 +129,32 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
+  protected override _hit_poly(geometry: PolyGeometry): Selection {
+    const {sx: sxs, sy: sys} = geometry
+
+    const candidates = (() => {
+      const xs = this.renderer.xscale.v_invert(sxs)
+      const ys = this.renderer.yscale.v_invert(sys)
+
+      const [x0, x1, y0, y1] = minmax2(xs, ys)
+      return this.index.indices({x0, x1, y0, y1})
+    })()
+
+    const indices = []
+    for (const i of candidates) {
+      if (hittest.point_in_poly(this.sx[i], this.sy[i], sxs, sys)) {
+        indices.push(i)
+      }
+    }
+
+    return new Selection({indices})
+  }
+
   override _set_data(indices: number[] | null): void {
     super._set_data(indices)
 
     const max_size = uniforms.max(this.size)
     this._configure("max_size", {value: max_size})
-  }
-
-  protected override _hit_poly(geometry: PolyGeometry): Selection {
-    const {sx, sy} = geometry
-
-    // TODO (bev) use spatial index to pare candidate list
-    const candidates = range(0, this.sx.length)
-
-    const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
-      if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
-        indices.push(index)
-      }
-    }
-
-    return new Selection({indices})
   }
 
   _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
