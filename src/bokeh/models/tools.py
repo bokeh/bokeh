@@ -557,9 +557,9 @@ class WheelZoomTool(Scroll):
 
     - ``"none"``
         zoom only the axis that's being interacted with. Any cross
-        axes, nor any other axes in the dimension of this axis will be affected.
+        axes nor any other axes in the dimension of this axis will be affected.
     - ``"cross"``
-        zoom the axis that's being interactd with and its cross
+        zoom the axis that's being interacted with and its cross
         axis, if configured. No other axes in this or cross dimension will be
         affected.
     - ``"all"``
