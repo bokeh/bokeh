@@ -8,11 +8,11 @@
 
 The ``bokeh-example-metadata`` directive can be used by supplying:
 
-    .. bokeh-example-metadata::
-        :sampledata: `sampledata_iris`
-        :apis: `~bokeh.plotting.figure.vbar`, :func:`~bokeh.transform.factor_cmap`
-        :refs: `ug_basic_bars`
-        :words: bar, vbar, legend, factor_cmap, palette
+.. bokeh-example-metadata::
+    :sampledata: `sampledata_iris`
+    :apis: `~bokeh.plotting.figure.vbar`, :func:`~bokeh.transform.factor_cmap`
+    :refs: `ug_basic_bars`
+    :words: bar, vbar, legend, factor_cmap, palette
 
 
 

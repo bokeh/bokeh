@@ -32,8 +32,8 @@ For the following definition of ``bokeh.sphinxext.sample.Foo``:
 
 usage yields the output:
 
-    .. bokeh-model:: Foo
-        :module: bokeh.sphinxext.sample
+.. bokeh-model:: Foo
+    :module: bokeh.sphinxext.sample
 
 The ``bokeh-model`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.

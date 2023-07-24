@@ -17,7 +17,7 @@ For example:
 
 Will generate the output:
 
-    :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
 """
 

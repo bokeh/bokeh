@@ -25,10 +25,10 @@ Examples
 
 The directive above will generate the following output:
 
-    .. bokeh-enum:: baz
-        :module: bokeh.sphinxext.sample
+.. bokeh-enum:: baz
+    :module: bokeh.sphinxext.sample
 
-        Specify a baz style
+    Specify a baz style
 
 Although ``bokeh-enum`` may be used explicitly, it is more often convenient in
 conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension. Together,
@@ -36,7 +36,7 @@ the same output above will be generated directly from the following code:
 
 .. code-block:: python
 
-    #: Specify a baz style
+    # Specify a baz style
     baz = enumeration("a", "b", "c")
 
 """

@@ -17,8 +17,8 @@ Any template parameters will be displayed and the template source code will
 be rendered in a collapsible code block. For example, the usage above will
 generate the following output:
 
-    .. bokeh-jinja:: bokeh.core.templates.FILE
-        :noindex:
+.. bokeh-jinja:: bokeh.core.templates.FILE
+    :noindex:
 
 """
 

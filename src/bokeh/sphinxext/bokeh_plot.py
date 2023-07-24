@@ -11,7 +11,9 @@ be generated.
 
 The ``bokeh-plot`` directive can be used by either supplying:
 
-**A path to a source file** as the argument to the directive::
+**A path to a source file** as the argument to the directive:
+
+.. code-block:: rest
 
     .. bokeh-plot:: path/to/plot.py
 

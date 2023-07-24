@@ -14,7 +14,7 @@ The ``bokeh-color`` directive accepts a named color as its argument:
 
 and generates a labeled color swatch as output.
 
-    .. bokeh-color:: aliceblue
+.. bokeh-color:: aliceblue
 
 The ``bokeh-color`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.

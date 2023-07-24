@@ -31,8 +31,8 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``:
 
 the above usage yields the output:
 
-    .. bokeh-prop:: Bar.thing
-        :module: bokeh.sphinxext.sample
+.. bokeh-prop:: Bar.thing
+    :module: bokeh.sphinxext.sample
 
 
 The ``bokeh-prop`` direction may be used explicitly, but it can also be used

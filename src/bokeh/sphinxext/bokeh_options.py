@@ -7,7 +7,7 @@
 """ Thoroughly document Bokeh options classes.
 
 The ``bokeh-options`` directive will automatically document all the properties
-of a Bokeh Options class under a heading of "Keyword Args".
+of a Bokeh Options class under a heading of "Keyword Arguments".
 
 This directive takes the name of a Bokeh Options subclass as the argument, and
 its module as an option:
@@ -32,8 +32,8 @@ For the following definition of ``bokeh.sphinxext.sample.Opts``:
 
 the above usage yields the output:
 
-    .. bokeh-options:: Opts
-        :module: bokeh.sphinxext.sample
+.. bokeh-options:: Opts
+    :module: bokeh.sphinxext.sample
 
 """
 

@@ -15,23 +15,25 @@ following:
 
 * An explicit list of colors: ``['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']``
 
-The following usage of the the directive:
+The following shows the usage of the directive:
+
+* by name which results in :bokeh-palette:`Spectral9`
 
 .. code-block:: rest
 
-    * by name: :bokeh-palette:`Spectral9`
+     :bokeh-palette:`Spectral9`
 
-    * by function: :bokeh-palette:`viridis(12)`
+* by function which results in :bokeh-palette:`viridis(12)`
 
-    * by list: :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+.. code-block:: rest
 
-Generates the output:
+    :bokeh-palette:`viridis(12)`
 
-    * by name: :bokeh-palette:`Spectral9`
+* by list which results in :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
 
-    * by function: :bokeh-palette:`viridis(12)`
+.. code-block:: rest
 
-    * by list: :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+    :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
 
 Palette swatches are 20 pixels in height. For palettes short than 20 colors,
 the default width for the swatches is 20 pixels. If larger palettes are given,
@@ -44,7 +46,7 @@ pixel. For instance displaying the full Viridis palette with the expression
 
 Will generate the output:
 
-    :bokeh-palette:`viridis(256)`
+:bokeh-palette:`viridis(256)`
 
 """
 
