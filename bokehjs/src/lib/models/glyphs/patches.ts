@@ -89,11 +89,15 @@ export class PatchesView extends GlyphView {
 
   protected override _hit_poly(geometry: HitTestPoly): Selection {
     const {sx: sxs, sy: sys, greedy=false} = geometry
-    const xs = this.renderer.xscale.v_invert(sxs)
-    const ys = this.renderer.yscale.v_invert(sys)
 
-    const [x0, x1, y0, y1] = minmax2(xs, ys)
-    const candidates = this.index.indices({x0, x1, y0, y1})
+    const candidates = (() => {
+      const xs = this.renderer.xscale.v_invert(sxs)
+      const ys = this.renderer.yscale.v_invert(sys)
+
+      const [x0, x1, y0, y1] = minmax2(xs, ys)
+      return this.index.indices({x0, x1, y0, y1})
+    })()
+
     const indices: number[] = []
 
     for (const i of candidates) {

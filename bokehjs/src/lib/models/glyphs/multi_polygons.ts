@@ -2,7 +2,7 @@ import {SpatialIndex} from "core/util/spatial"
 import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
 import type {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
 import type {PointGeometry, RectGeometry} from "core/geometry"
@@ -57,8 +57,7 @@ export class MultiPolygonsView extends GlyphView {
         const ysij = ysi[j][0] // do not use holes
 
         if (xsij.length != 0 && ysij.length != 0) {
-          const [xij0, xij1] = minmax(xsij)
-          const [yij0, yij1] = minmax(ysij)
+          const [xij0, xij1, yij0, yij1] = minmax2(xsij, ysij)
           xi0 = min(xi0, xij0)
           xi1 = max(xi1, xij1)
           yi0 = min(yi0, yij0)
@@ -98,8 +97,7 @@ export class MultiPolygonsView extends GlyphView {
 
         if (xsij.length > 1 && ysij.length > 1) {
           for (let k = 1, endk = xsij.length; k < endk; k++) {
-            const [xij0, xij1] = minmax(xsij[k])
-            const [yij0, yij1] = minmax(ysij[k])
+            const [xij0, xij1, yij0, yij1] = minmax2(xsij[k], ysij[k])
             xi0 = min(xi0, xij0)
             xi1 = max(xi1, xij1)
             yi0 = min(yi0, yij0)

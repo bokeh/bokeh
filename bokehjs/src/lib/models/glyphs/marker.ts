@@ -100,22 +100,23 @@ export abstract class MarkerView extends XYGlyphView {
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const bounds = this.bounds()
-    const ms = this.max_size/2
+    const half_size = this.max_size/2
 
-    let x0, x1, y0, y1
-    if (geometry.direction == "h") {
-      y0 = bounds.y0
-      y1 = bounds.y1
-      const sx0 = sx - ms
-      const sx1 = sx + ms
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    } else {
-      x0 = bounds.x0
-      x1 = bounds.x1
-      const sy0 = sy - ms
-      const sy1 = sy + ms
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    }
+    const [x0, x1, y0, y1] = (() => {
+      if (geometry.direction == "h") {
+        const {y0, y1} = bounds
+        const sx0 = sx - half_size
+        const sx1 = sx + half_size
+        const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        return [x0, x1, y0, y1]
+      } else {
+        const {x0, x1} = bounds
+        const sy0 = sy - half_size
+        const sy1 = sy + half_size
+        const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        return [x0, x1, y0, y1]
+      }
+    })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
