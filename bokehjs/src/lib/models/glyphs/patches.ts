@@ -124,40 +124,10 @@ export class PatchesView extends GlyphView {
   }
 
   protected override _hit_rect(geometry: HitTestRect): Selection {
-    const {sx0, sx1, sy0, sy1, greedy=true} = geometry
-    const xs = [sx0, sx1, sx1, sx0]
-    const ys = [sy0, sy0, sy1, sy1]
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-
-    const candidates = this.index.indices({x0, x1, y0, y1})
-    const indices = []
-
-    for (const index of candidates) {
-      const sxss = this.sxs.get(index)
-      const syss = this.sys.get(index)
-      let hit = greedy
-      for (let j = 0, endj = sxss.length; j < endj; j++) {
-        const sx = sxss[j]
-        const sy = syss[j]
-        if (!hittest.point_in_poly(sx, sy, xs, ys)) {
-          if (greedy) {
-            hit = false
-            break
-          }
-        } else {
-          if (!greedy) {
-            hit = true
-            break
-          }
-        }
-      }
-      if (hit) {
-        indices.push(index)
-      }
-    }
-
-    return new Selection({indices})
+    const {sx0, sx1, sy0, sy1, greedy} = geometry
+    const sxs = [sx0, sx1, sx1, sx0]
+    const sys = [sy0, sy0, sy1, sy1]
+    return this._hit_poly({type: "poly", sx: sxs, sy: sys, greedy})
   }
 
   protected override _hit_point(geometry: HitTestPoint): Selection {
