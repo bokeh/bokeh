@@ -283,7 +283,6 @@ class AlphaSpec(NumberSpec):
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{dedent(self._default_help)}"
-        print(help)
         super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
