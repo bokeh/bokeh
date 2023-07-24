@@ -27,19 +27,19 @@ get_provider
     Raises:
         ValueError, if the specified provider can not be found
 
-    Example:
+    **Example:**
 
-        .. code-block:: python
+    .. code-block:: python
 
-                >>> from bokeh.tile_providers import get_provider, Vendors
-                >>> get_provider(Vendors.CARTODBPOSITRON)
-                <class 'bokeh.models.tiles.WMTSTileSource'>
-                >>> get_provider('CARTODBPOSITRON')
-                <class 'bokeh.models.tiles.WMTSTileSource'>
+        >>> from bokeh.tile_providers import get_provider, Vendors
+        >>> get_provider(Vendors.CARTODBPOSITRON)
+        <class 'bokeh.models.tiles.WMTSTileSource'>
+        >>> get_provider('CARTODBPOSITRON')
+        <class 'bokeh.models.tiles.WMTSTileSource'>
 
-                >>> import xyzservices.providers as xyz
-                >>> get_provider(xyz.CartoDB.Positron)
-                <class 'bokeh.models.tiles.WMTSTileSource'>
+        >>> import xyzservices.providers as xyz
+        >>> get_provider(xyz.CartoDB.Positron)
+        <class 'bokeh.models.tiles.WMTSTileSource'>
 
 The available built-in tile providers are listed in the ``Vendors`` enum:
 
