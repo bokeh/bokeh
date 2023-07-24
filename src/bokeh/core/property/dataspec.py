@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
@@ -253,7 +254,7 @@ class NumberSpec(DataSpec):
     values by passing ``accept_datetime=False``.
 
     By default, timedelta values are immediately converted to absolute
-    milliseconds.  It is possible to disable processing of timedelta
+    milliseconds. It is possible to disable processing of timedelta
     values by passing ``accept_timedelta=False``
 
     Timedelta values are interpreted as absolute milliseconds.
@@ -275,12 +276,13 @@ class NumberSpec(DataSpec):
 
 class AlphaSpec(NumberSpec):
 
-    _default_help = """\
+    _default_help = """
     Acceptable values are numbers in 0..1 range (transparent..opaque).
     """
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{dedent(self._default_help)}"
+        print(help)
         super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
@@ -554,7 +556,7 @@ class ColorSpec(DataSpec):
 
     """
 
-    _default_help = """\
+    _default_help = """
     Acceptable values are:
 
     - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
@@ -567,7 +569,7 @@ class ColorSpec(DataSpec):
     """
 
     def __init__(self, default, *, help: str | None = None) -> None:
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{dedent(self._default_help)}"
         super().__init__(Nullable(Color), default=default, help=help)
 
     @classmethod
