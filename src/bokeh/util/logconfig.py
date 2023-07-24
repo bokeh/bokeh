@@ -12,12 +12,12 @@ logging arbitrarily during when developing Bokeh. This can be accomplished
 by setting the environment variable ``BOKEH_PY_LOG_LEVEL``. Valid values are,
 in order of increasing severity:
 
-  - ``debug``
-  - ``info``
-  - ``warn``
-  - ``error``
-  - ``fatal``
-  - ``none``
+- ``debug``
+- ``info``
+- ``warn``
+- ``error``
+- ``fatal``
+- ``none``
 
 The default logging level is ``none``.
 """
