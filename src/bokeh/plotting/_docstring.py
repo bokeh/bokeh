@@ -185,9 +185,9 @@ Other Parameters:
         ``ColumnDataSource`` with default column names from the coordinates and
         other arguments that were passed-in as literal list or array values.
 
-        If supplied, Bokeh will use the supplied data source to drive the glyph.
+        If supplied, Bokeh will use the supplied data source to derive the glyph.
         In this case, literal list or arrays may not be used for coordinates or
-        other arguments. Only singular fixed valued (e.g. ``x=10``) or column
+        other arguments. Only singular fixed values (e.g. ``x=10``) or column
         names in the data source (e.g. ``x="time"``) are permitted.
 
     view (CDSView, optional) :
