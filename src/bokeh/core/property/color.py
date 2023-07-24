@@ -132,7 +132,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{dedent(self._default_help)}"
         super().__init__(*types, default=default, help=help)
 
     def __str__(self) -> str:
