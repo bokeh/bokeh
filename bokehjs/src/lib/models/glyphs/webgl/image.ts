@@ -1,0 +1,96 @@
+import type {Transform} from "./base"
+import {BaseGLGlyph} from "./base"
+import {Float32Buffer} from "./buffer"
+import type {ReglWrapper} from "./regl_wrap"
+import type {ImageProps} from "./types"
+import type {ImageBaseView} from "../image_base"
+import type {Texture2D, Texture2DOptions} from "regl"
+
+export class ImageGL extends BaseGLGlyph {
+  protected _tex: Array<Texture2D | null>
+  protected _bounds: Array<Float32Buffer | null>
+
+  constructor(regl_wrapper: ReglWrapper, override readonly glyph: ImageBaseView) {
+    super(regl_wrapper, glyph)
+  }
+
+  override draw(indices: number[], main_glyph: ImageBaseView, transform: Transform): void {
+    const main_gl_glyph = main_glyph.glglyph! as ImageGL
+
+    // The only visual property that can change is global_alpha and that is read on every render.
+
+    if (main_gl_glyph.data_changed) {
+      main_gl_glyph._set_data()
+      main_gl_glyph.data_changed = false
+    }
+
+    for (const i in indices) {
+      if (this._tex[i] == null)
+        continue
+
+      const global_alpha = 1.0
+
+      const props: ImageProps = {
+        scissor: this.regl_wrapper.scissor,
+        viewport: this.regl_wrapper.viewport,
+        canvas_size: [transform.width, transform.height],
+        pixel_ratio: transform.pixel_ratio,
+        bounds: this._bounds[i]!,
+        tex: main_gl_glyph._tex[i]!,
+        global_alpha,
+      }
+      this.regl_wrapper.image()(props)
+    }
+  }
+
+  protected _set_data(): void {
+    // TODO: Cache textures rather than changing them each call.
+    const {image} = this.glyph
+    const nimage = image.length
+
+    if (this._tex == null || this._tex.length != nimage)
+      this._tex = Array(nimage).fill(null)
+
+    if (this._bounds == null || this._bounds.length != nimage)
+      this._bounds = Array(nimage).fill(null)
+
+    for (let i = 0; i < nimage; i++) {
+      const {sx, sy, sw, sh, xy_anchor, xy_scale} = this.glyph
+      const sx_i = sx[i]
+      const sy_i = sy[i]
+      const sw_i = sw[i]
+      const sh_i = sh[i]
+      const image_i = image.get(i)
+
+      if (image_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i)) {
+        this._tex[i] = null
+        this._bounds[i] = null
+        continue
+      }
+
+      const tex_options: Texture2DOptions = {
+        width: image_i.shape[0],
+        height: image_i.shape[1],
+        data: this.glyph._flat_img_to_buf8(image_i),
+        format: "rgba",
+        type: "uint8",
+      }
+
+      if (this._tex[i] == null)
+        this._tex[i] = this.regl_wrapper.texture(tex_options)
+      else
+        this._tex[i]!(tex_options)  // Reuse existing WebGL texture
+
+      if (this._bounds[i] == null)
+        this._bounds[i] = new Float32Buffer(this.regl_wrapper)
+      const bounds_array = this._bounds[i]!.get_sized_array(4)
+
+      bounds_array[0] = sx[i] + sw[i]*(0.5*(1 - xy_scale.x) - xy_anchor.x)
+      bounds_array[1] = sy[i] + sh[i]*(0.5*(1 - xy_scale.y) - xy_anchor.y)
+      bounds_array[2] = bounds_array[0] + sw[i]*xy_scale.x
+      bounds_array[3] = bounds_array[1] + sh[i]*xy_scale.y
+
+      this._bounds[i]!.update()
+    }
+  }
+}

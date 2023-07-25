@@ -4,6 +4,7 @@ import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
+import type {ImageGL} from "./webgl/image"
 
 export type ImageData = ImageDataBase
 
@@ -12,6 +13,14 @@ export interface ImageView extends ImageData {}
 export class ImageView extends ImageBaseView {
   declare model: Image
   declare visuals: Image.Visuals
+
+  /** @internal */
+  declare glglyph?: ImageGL
+
+  override async load_glglyph() {
+    const {ImageGL} = await import("./webgl/image")
+    return ImageGL
+  }
 
   override connect_signals(): void {
     super.connect_signals()
@@ -26,7 +35,8 @@ export class ImageView extends ImageBaseView {
     }
   }
 
-  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
+  // public so can be called by ImageGL class.
+  public _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
     return cmap.v_compute(img)
   }
