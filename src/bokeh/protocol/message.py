@@ -15,11 +15,11 @@ Python JSON-like data, messages have the general form:
         # these are required
         b'{header}',        # serialized header dict
         b'{metadata}',      # serialized metadata dict
-        b'{content}',        # serialized content dict
+        b'{content}',       # serialized content dict
 
         # these are optional, and come in pairs; header contains num_buffers
         b'{buf_header}',    # serialized buffer header dict
-        b'array'            # raw buffer payload data
+        b'array',           # raw buffer payload data
         ...
     ]
 
@@ -29,11 +29,11 @@ The ``header`` fragment will have the form:
 
     header = {
         # these are required
-        'msgid'       : <str> # a unique id for the message
-        'msgtype'     : <str> # a message type, e.g. 'ACK', 'PATCH-DOC', etc
+        'msgid'       : <str>, # a unique id for the message
+        'msgtype'     : <str>, # a message type, e.g. 'ACK', 'PATCH-DOC', etc
 
         # these are optional
-        'num_buffers' : <int> # the number of additional buffers, if any
+        'num_buffers' : <int>, # the number of additional buffers, if any
     }
 
 The ``metadata`` fragment may contain any arbitrary information. It is not
