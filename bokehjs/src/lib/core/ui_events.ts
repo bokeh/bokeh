@@ -13,6 +13,10 @@ import type {PlotView} from "../models/plots/plot"
 import type {ToolView} from "../models/tools/tool"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
+import {LayoutableRendererView} from "../models/renderers/layoutable_renderer"
+import {PlotRendererView} from "../models/plots/plot_renderer"
+
+type PlotLikeView = PlotView | PlotRendererView
 
 type NativeUIEvent = TouchEvent | MouseEvent | PointerEvent
 
@@ -352,7 +356,7 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  protected _hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
+  protected _hit_test_renderers(plot_view: PlotLikeView, sx: number, sy: number): RendererView | null {
     const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
@@ -367,11 +371,29 @@ export class UIEventBus implements EventListenerObject {
     this.hit_area.style.cursor = cursor
   }
 
-  protected _hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
+  protected _hit_test_frame(plot_view: PlotLikeView, sx: number, sy: number): boolean {
     return plot_view.frame.bbox.contains(sx, sy)
   }
 
-  protected _hit_test_plot(sx: number, sy: number): PlotView | null {
+  protected _hit_test_plot(sx: number, sy: number): PlotLikeView | null {
+    function* hit_test(renderer_views: RendererView[]): Iterable<PlotRendererView> {
+      for (const renderer_view of renderer_views) {
+        if (renderer_view instanceof LayoutableRendererView && renderer_view.bbox.contains(sx, sy)) {
+          yield* hit_test(renderer_view.layoutable_views)
+
+          if (renderer_view instanceof PlotRendererView) {
+            yield renderer_view
+          }
+        }
+      }
+    }
+
+    const hits = [...hit_test(this.canvas_view.renderer_views)]
+    if (hits.length != 0) {
+      const [first] = hits
+      return first
+    }
+
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
       if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy))
@@ -381,11 +403,11 @@ export class UIEventBus implements EventListenerObject {
     return null
   }
 
-  protected _prev_move: {sx: number, sy: number, plot_view: PlotView | null} | null = null
+  protected _prev_move: {sx: number, sy: number, plot_view: PlotLikeView | null} | null = null
 
-  protected _curr_pan: {plot_view: PlotView} | null = null
-  protected _curr_pinch: {plot_view: PlotView} | null = null
-  protected _curr_rotate: {plot_view: PlotView} | null = null
+  protected _curr_pan: {plot_view: PlotLikeView} | null = null
+  protected _curr_pinch: {plot_view: PlotLikeView} | null = null
+  protected _curr_rotate: {plot_view: PlotLikeView} | null = null
 
   _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
     if (!this.hit_area.isConnected)
@@ -395,13 +417,13 @@ export class UIEventBus implements EventListenerObject {
     const plot_view = this._hit_test_plot(sx, sy)
     const curr_view = plot_view
 
-    const relativize_event = (_plot_view: PlotView): E => {
+    const relativize_event = (_plot_view: PlotLikeView): E => {
       const [rel_sx, rel_sy] = [sx, sy] // plot_view.layout.bbox.relativize(sx, sy)
       return {...e, sx: rel_sx, sy: rel_sy} as E
     }
 
     if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
-      let pan_view: PlotView | null
+      let pan_view: PlotLikeView | null
       if (e.type == "panstart" && curr_view != null) {
         this._curr_pan = {plot_view: curr_view}
         pan_view = curr_view
@@ -419,7 +441,7 @@ export class UIEventBus implements EventListenerObject {
         this.__trigger(pan_view, signal, event, srcEvent)
       }
     } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
-      let pinch_view: PlotView | null
+      let pinch_view: PlotLikeView | null
       if (e.type == "pinchstart" && curr_view != null) {
         this._curr_pinch = {plot_view: curr_view}
         pinch_view = curr_view
@@ -437,7 +459,7 @@ export class UIEventBus implements EventListenerObject {
         this.__trigger(pinch_view, signal, event, srcEvent)
       }
     } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
-      let rotate_view: PlotView | null
+      let rotate_view: PlotLikeView | null
       if (e.type == "rotatestart" && curr_view != null) {
         this._curr_rotate = {plot_view: curr_view}
         rotate_view = curr_view
@@ -486,7 +508,7 @@ export class UIEventBus implements EventListenerObject {
   private _current_rotate_view: (RendererView & Rotatable) | null = null
   private _current_move_view: (RendererView & Moveable) | null = null
 
-  __trigger<E extends UIEvent>(plot_view: PlotView, signal: UISignal<E>, e: E, srcEvent: Event): void {
+  __trigger<E extends UIEvent>(plot_view: PlotLikeView, signal: UISignal<E>, e: E, srcEvent: Event): void {
     const gestures = plot_view.model.toolbar.gestures
     type BaseType = keyof typeof gestures
 
@@ -661,7 +683,7 @@ export class UIEventBus implements EventListenerObject {
     signal.emit({id, e})
   }
 
-  /*protected*/ _trigger_bokeh_event(plot_view: PlotView, e: UIEvent): void {
+  /*protected*/ _trigger_bokeh_event(plot_view: PlotLikeView, e: UIEvent): void {
     const ev = (() => {
       const {sx, sy, modifiers} = e
       const x = plot_view.frame.x_scale.invert(sx)

@@ -3338,6 +3338,28 @@
       attributes: {},
     },
   },
+  LayoutableRenderer: {
+    __extends__: "Renderer",
+  },
+  GridRenderer: {
+    __extends__: "LayoutableRenderer",
+    items: [],
+  },
+  PlotRenderer: {
+    __extends__: "LayoutableRenderer",
+    renderers: [],
+    left: [],
+    right: [],
+    above: [],
+    below: [],
+    center: [],
+    frame_width: null,
+    frame_height: null,
+    toolbar: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   TileSource: {
     __extends__: "Model",
     url: "",
@@ -4310,6 +4332,7 @@
   },
   Canvas: {
     __extends__: "UIElement",
+    renderers: [],
     hidpi: true,
     output_backend: "canvas",
   },
@@ -4436,6 +4459,14 @@
     },
     horizontal_scrollbar: "auto",
     vertical_scrollbar: "auto",
+  },
+  CanvasBox: {
+    __extends__: "LayoutDOM",
+    canvas: {
+      type: "object",
+      name: "Canvas",
+      attributes: {},
+    },
   },
   Annotation: {
     __extends__: "Renderer",
@@ -5428,17 +5459,6 @@
     __extends__: "GestureTool",
     toggleable: true,
   },
-  Toolbar: {
-    __extends__: "UIElement",
-    logo: "normal",
-    autohide: false,
-    tools: [],
-    active_drag: "auto",
-    active_inspect: "auto",
-    active_scroll: "auto",
-    active_tap: "auto",
-    active_multi: "auto",
-  },
   PanTool: {
     __extends__: "Drag",
     dimensions: "both",
@@ -5757,6 +5777,17 @@
       name: "unset",
     },
     dimensions: "both",
+  },
+  Toolbar: {
+    __extends__: "UIElement",
+    logo: "normal",
+    autohide: false,
+    tools: [],
+    active_drag: "auto",
+    active_inspect: "auto",
+    active_scroll: "auto",
+    active_tap: "auto",
+    active_multi: "auto",
   },
   Plot: {
     __extends__: "LayoutDOM",

@@ -62,12 +62,14 @@ from ..core.validation.warnings import (
 from ..model import Model
 from .ui.menus import Menu
 from .ui.ui_element import UIElement
+from .canvas import Canvas
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    'CanvasBox',
     'Column',
     'FlexBox',
     'GridBox',
@@ -637,6 +639,15 @@ class ScrollBox(LayoutDOM):
     vertical_scrollbar = Enum(ScrollbarPolicy, default="auto", help="""
     The visibility of the vertical scrollbar.
     """)
+
+class CanvasBox(LayoutDOM):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    canvas = Instance(Canvas, default=lambda: Canvas())
 
 #-----------------------------------------------------------------------------
 # Dev API

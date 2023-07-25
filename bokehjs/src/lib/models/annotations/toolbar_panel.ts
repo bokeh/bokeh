@@ -39,12 +39,14 @@ export class ToolbarPanelView extends AnnotationView {
 
   override connect_signals(): void {
     super.connect_signals()
+    /*
     this.plot_view.mouseenter.connect(() => {
       this.toolbar_view.set_visibility(true)
     })
     this.plot_view.mouseleave.connect(() => {
       this.toolbar_view.set_visibility(false)
     })
+    */
   }
 
   override remove(): void {

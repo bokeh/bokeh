@@ -1,5 +1,6 @@
 import {Signal0} from "core/signaling"
 import type {PlotView} from "./plot_canvas"
+import type {PlotRendererView} from "./plot_renderer"
 import type {RangeInfo} from "./range_manager"
 import type {Selection} from "../selections/selection"
 import type {DataRenderer} from "../renderers/data_renderer"
@@ -19,7 +20,7 @@ type StateEntry = {type: StateType, state: StateInfo}
 export class StateManager {
   readonly changed: Signal0<this["parent"]>
 
-  constructor(readonly parent: PlotView, readonly initial_state: StateInfo) {
+  constructor(readonly parent: PlotView | PlotRendererView, readonly initial_state: StateInfo) {
     this.changed = new Signal0(this.parent, "state_changed")
   }
 

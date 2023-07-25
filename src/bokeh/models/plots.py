@@ -94,7 +94,8 @@ from .scales import (
 )
 from .sources import ColumnarDataSource, ColumnDataSource, DataSource
 from .tiles import TileSource, WMTSTileSource
-from .tools import HoverTool, Tool, Toolbar
+from .toolbars import Toolbar
+from .tools import HoverTool, Tool
 
 #-----------------------------------------------------------------------------
 # Globals and constants

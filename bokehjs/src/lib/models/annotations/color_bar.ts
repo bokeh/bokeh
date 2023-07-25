@@ -36,7 +36,7 @@ export class ColorBarView extends BaseColorBarView {
       this._axis_view.remove()
       this.initialize()
       await this.lazy_initialize()
-      this.plot_view.invalidate_layout()
+      this.canvas.request_layout()
     })
     this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())

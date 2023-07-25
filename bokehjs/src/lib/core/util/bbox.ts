@@ -259,6 +259,11 @@ export class BBox implements Rect, Equatable {
     return {x, y, width, height}
   }
 
+  get cbox(): [number, number, number, number] {
+    const {x, y, width, height} = this
+    return [x, y, width, height]
+  }
+
   get lrtb(): LRTB {
     const {left, right, top, bottom} = this
     return {left, right, top, bottom}

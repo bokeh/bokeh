@@ -1,5 +1,6 @@
 import {Model} from "../../model"
 import type {PlotView} from "../plots/plot"
+import type {PlotRendererView} from "../plots/plot_renderer"
 import type * as p from "core/properties"
 
 export namespace Range {
@@ -52,5 +53,5 @@ export abstract class Range extends Model {
   }
 
   /** internal */
-  readonly plots = new Set<PlotView>()
+  readonly plots = new Set<PlotView | PlotRendererView>()
 }

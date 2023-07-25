@@ -13,6 +13,14 @@ import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
 import canvas_css from "styles/canvas.css"
+import {Renderer} from "../renderers/renderer"
+import type {RendererView} from "../renderers/renderer"
+import {LayoutableRendererView} from "../renderers/layoutable_renderer"
+import type {ViewStorage, IterViews} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
+import {parse_css_font_size} from "core/util/text"
+import {isNotNull, isArray} from "core/util/types"
+import {throttle} from "core/util/throttle"
 
 export type FrameBox = [number, number, number, number]
 
@@ -30,6 +38,11 @@ export type FrameBox = [number, number, number, number]
 export type WebGLState = {
   readonly canvas: HTMLCanvasElement
   readonly regl_wrapper: ReglWrapper
+}
+
+type RepaintLayers = {
+  do_primary: boolean
+  do_overlays: boolean
 }
 
 async function init_webgl(): Promise<WebGLState | null> {
@@ -108,6 +121,17 @@ export class CanvasView extends UIElementView {
     ]
   }
 
+  override *children(): IterViews {
+    yield* super.children()
+    yield* this._renderer_views.values()
+  }
+
+  protected readonly _renderer_views: ViewStorage<Renderer> = new Map()
+
+  get renderer_views(): RendererView[] {
+    return this.model.renderers.map((renderer) => this._renderer_views.get(renderer)).filter(isNotNull)
+  }
+
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
@@ -116,11 +140,22 @@ export class CanvasView extends UIElementView {
       if (settings.force_webgl && this.webgl == null)
         throw new Error("webgl is not available")
     }
+
+    await build_views(this._renderer_views, this.model.renderers, {parent: this})
   }
 
   override remove(): void {
+    remove_views(this._renderer_views)
     this.ui_event_bus.destroy()
     super.remove()
+  }
+
+  get canvas(): CanvasView {
+    return this
+  }
+
+  get canvas_view(): CanvasView {
+    return this
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -190,9 +225,13 @@ export class CanvasView extends UIElementView {
 
   override _after_resize(): void {
     super._after_resize()
+
     const {width, height} = this.bbox
     this.primary.resize(width, height)
     this.overlays.resize(width, height)
+
+    this._invalidate_all = true
+    this.repaint()
   }
 
   resize(): void {
@@ -266,18 +305,148 @@ export class CanvasView extends UIElementView {
     return this.compose().to_blob()
   }
 
-  plot_views: PlotView[] = []
-  /*
-  get plot_views(): PlotView[] {
-    return [] // XXX
+  plot_views: PlotView[] = [] // XXX remove this
+
+  get base_font_size(): number | null {
+    const font_size = getComputedStyle(this.el).fontSize
+    const result = parse_css_font_size(font_size)
+
+    if (result != null) {
+      const {value, unit} = result
+      if (unit == "px")
+        return value
+    }
+
+    return null
   }
-  */
+
+  protected readonly throttled_paint = throttle(() => this.repaint(), 1000/60)
+
+  protected readonly _invalidated_painters: Set<RendererView> = new Set()
+  protected _invalidate_all: boolean = true
+
+  repaint_what() {
+    let do_primary = false
+    let do_overlays = false
+
+    if (this._invalidate_all) {
+      do_primary = true
+      do_overlays = true
+    } else {
+      for (const painter of this._invalidated_painters) {
+        const {level} = painter.model
+        if (level != "overlay")
+          do_primary = true
+        else
+          do_overlays = true
+        if (do_primary && do_overlays)
+          break
+      }
+    }
+
+    this._invalidated_painters.clear()
+    this._invalidate_all = false
+
+    return {
+      do_primary,
+      do_overlays,
+    }
+  }
+
+  private _painting: RepaintLayers | null = null
+  get painting(): RepaintLayers {
+    if (this._painting == null)
+      throw Error("not painting")
+    else
+      return this._painting
+  }
+
+  repaint(): void {
+    if (!this.is_displayed) {
+      return
+    }
+
+    const {size} = this.bbox
+    const {do_primary, do_overlays} = this._painting = this.repaint_what()
+
+    const {primary, overlays} = this
+
+    if (do_primary) {
+      primary.prepare()
+    }
+
+    if (do_overlays) {
+      overlays.prepare()
+    }
+
+    for (const rv of this.renderer_views) {
+      if (rv instanceof LayoutableRendererView) {
+        rv.update_layout()
+        rv.layout.compute(size)
+        rv.after_layout()
+        rv.render()
+      }
+    }
+
+    if (do_primary) {
+      primary.finish()
+    }
+
+    if (do_overlays) {
+      overlays.finish()
+    }
+
+    this._painting = null
+
+    if (this._needs_notify) {
+      this._needs_notify = false
+      this.notify_finished()
+    }
+  }
+
+  private _needs_notify: boolean = false
+  notify_finished_after_paint(): void {
+    this._needs_notify = true
+  }
+
+  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    this.invalidate_painters(to_invalidate)
+    this.schedule_paint()
+  }
+
+  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
+    if (to_invalidate == "everything") {
+      this._invalidate_all = true
+    } else if (isArray(to_invalidate)) {
+      for (const renderer_view of to_invalidate) {
+        this._invalidated_painters.add(renderer_view)
+      }
+    } else {
+      this._invalidated_painters.add(to_invalidate)
+    }
+  }
+
+  get is_paused(): boolean {
+    return false
+  }
+
+  schedule_paint(): void {
+    if (!this.is_paused) {
+      const promise = this.throttled_paint()
+      this._ready = this._ready.then(() => promise)
+    }
+  }
+
+  request_layout(): void {
+    this.request_paint("everything")
+  }
 }
 
 export namespace Canvas {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
+    renderers: p.Property<Renderer[]>
     hidpi: p.Property<boolean>
     output_backend: p.Property<OutputBackend>
   }
@@ -296,8 +465,9 @@ export class Canvas extends UIElement {
   static {
     this.prototype.default_view = CanvasView
 
-    this.define<Canvas.Props>(({Boolean}) => ({
-      hidpi:          [ Boolean, true ],
+    this.define<Canvas.Props>(({Boolean, Ref, Array}) => ({
+      renderers: [ Array(Ref(Renderer)), [] ],
+      hidpi: [ Boolean, true ],
       output_backend: [ OutputBackend, "canvas" ],
     }))
   }

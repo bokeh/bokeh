@@ -211,10 +211,7 @@ export class AxisView extends GuideRendererView {
 
     axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic(orient)
-
-    if (isNumber(this.plot_view.base_font_size)) {
-      axis_label_graphics.base_font_size = this.plot_view.base_font_size
-    }
+    axis_label_graphics.base_font_size = this.canvas_view.base_font_size
 
     const size = axis_label_graphics.size()
     const extent = this.dimension == 0 ? size.height : size.width
@@ -253,10 +250,7 @@ export class AxisView extends GuideRendererView {
 
     axis_label_graphics.visuals = this.visuals.axis_label_text.values()
     axis_label_graphics.angle = this.panel.get_label_angle_heuristic(orient)
-
-    if (this.plot_view.base_font_size != null) {
-      axis_label_graphics.base_font_size = this.plot_view.base_font_size
-    }
+    axis_label_graphics.base_font_size = this.canvas_view.base_font_size
 
     axis_label_graphics.position = position
     axis_label_graphics.align = align
@@ -309,7 +303,7 @@ export class AxisView extends GuideRendererView {
 
     labels.visuals = visuals.values()
     labels.angle = angle
-    labels.base_font_size = this.plot_view.base_font_size
+    labels.base_font_size = this.canvas_view.base_font_size
 
     for (let i = 0; i < labels.length; i++) {
       const label = labels.items[i]
@@ -425,7 +419,7 @@ export class AxisView extends GuideRendererView {
     const angle = this.panel.get_label_angle_heuristic(orient)
     labels.visuals = visuals.values()
     labels.angle = angle
-    labels.base_font_size = this.plot_view.base_font_size
+    labels.base_font_size = this.canvas_view.base_font_size
 
     const size = labels.max_size()
     const extent = this.dimension == 0 ? size.height : size.width

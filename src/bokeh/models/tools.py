@@ -42,7 +42,6 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
-from typing import Literal
 
 # Bokeh imports
 from ..core.enums import (
@@ -79,7 +78,6 @@ from ..core.properties import (
     Override,
     Percent,
     Regex,
-    Seq,
     String,
     Struct,
     Tuple,
@@ -111,7 +109,6 @@ from .glyphs import (
 )
 from .ranges import Range1d
 from .renderers import DataRenderer, GlyphRenderer
-from .ui import UIElement
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -151,7 +148,6 @@ __all__ = (
     'TapTool',
     'Tool',
     'ToolProxy',
-    'Toolbar',
     'UndoTool',
     'WheelPanTool',
     'WheelZoomTool',
@@ -335,57 +331,6 @@ class InspectTool(GestureTool):
     Whether an on/off toggle button should appear in the toolbar for this
     inspection tool. If ``False``, the viewers of a plot will not be able to
     toggle the inspector on or off using the toolbar.
-    """)
-
-class Toolbar(UIElement):
-    ''' Collect tools to display for a single plot.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    logo = Nullable(Enum("normal", "grey"), default="normal", help="""
-    What version of the Bokeh logo to display on the toolbar. If
-    set to None, no logo will be displayed.
-    """)
-
-    autohide = Bool(default=False, help="""
-    Whether the toolbar will be hidden by default. Default: False.
-    If True, hides toolbar when cursor is not in canvas.
-    """)
-
-    tools = List(Either(Instance(Tool), Instance(ToolProxy)), help="""
-    A list of tools to add to the plot.
-    """)
-
-    active_drag: Literal["auto"] | Drag | None = Either(Null, Auto, Instance(Drag), default="auto", help="""
-    Specify a drag tool to be active when the plot is displayed.
-    """)
-
-    active_inspect: Literal["auto"] | InspectTool | tp.Sequence[InspectTool] | None = \
-        Either(Null, Auto, Instance(InspectTool), Seq(Instance(InspectTool)), default="auto", help="""
-    Specify an inspection tool or sequence of inspection tools to be active when
-    the plot is displayed.
-    """)
-
-    active_scroll: Literal["auto"] | Scroll | None = Either(Null, Auto, Instance(Scroll), default="auto", help="""
-    Specify a scroll/pinch tool to be active when the plot is displayed.
-    """)
-
-    active_tap: Literal["auto"] | Tap | None = Either(Null, Auto, Instance(Tap), default="auto", help="""
-    Specify a tap/click tool to be active when the plot is displayed.
-    """)
-
-    active_multi: Literal["auto"] | GestureTool | None = Either(Null, Auto, Instance(GestureTool), default="auto", help="""
-    Specify an active multi-gesture tool, for instance an edit tool or a range
-    tool.
-
-    Note that activating a multi-gesture tool will deactivate any other gesture
-    tools as appropriate. For example, if a pan tool is set as the active drag,
-    and this property is set to a ``BoxEditTool`` instance, the pan tool will
-    be deactivated (i.e. the multi-gesture tool will take precedence).
     """)
 
 class PanTool(Drag):

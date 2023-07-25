@@ -19,8 +19,14 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..core.enums import OutputBackend
-from ..core.properties import Bool, Enum
+from ..core.properties import (
+    Bool,
+    Enum,
+    Instance,
+    List,
+)
 from .ui import UIElement
+from .renderers import LayoutableRenderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -40,6 +46,8 @@ class Canvas(UIElement):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+    renderers = List(Instance(LayoutableRenderer), default=[])
 
     hidpi = Bool(default=True, help="""
     Whether to use HiDPI mode when available.

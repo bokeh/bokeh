@@ -3,7 +3,6 @@ import type {Extent, Bounds} from "./tile_utils"
 import {TileSource} from "./tile_source"
 import {WMTSTileSource} from "./wmts_tile_source"
 import {Renderer, RendererView} from "../renderers/renderer"
-import type {Plot} from "../plots/plot"
 import type {CartesianFrame} from "../canvas/cartesian_frame"
 import type {Range} from "../ranges/range"
 import {Range1d} from "../ranges/range1d"
@@ -73,11 +72,7 @@ export class TileRendererView extends RendererView {
     return [x_start, y_start, x_end, y_end]
   }
 
-  private get map_plot(): Plot {
-    return this.plot_model
-  }
-
-  private get map_canvas(): Context2d {
+  private get map_context(): Context2d {
     return this.layer.ctx
   }
 
@@ -86,11 +81,11 @@ export class TileRendererView extends RendererView {
   }
 
   private get x_range(): Range {
-    return this.map_plot.x_range
+    return this.map_frame.x_range
   }
 
   private get y_range(): Range {
-    return this.map_plot.y_range
+    return this.map_frame.y_range
   }
 
   protected _set_data(): void {
@@ -255,10 +250,10 @@ export class TileRendererView extends RendererView {
       const sh = symax - symin
       const sx = sxmin
       const sy = symin
-      const old_smoothing = this.map_canvas.imageSmoothingEnabled
-      this.map_canvas.imageSmoothingEnabled = this.model.smoothing
-      this.map_canvas.drawImage(tile_data.img, sx, sy, sw, sh)
-      this.map_canvas.imageSmoothingEnabled = old_smoothing
+      const old_smoothing = this.map_context.imageSmoothingEnabled
+      this.map_context.imageSmoothingEnabled = this.model.smoothing
+      this.map_context.drawImage(tile_data.img, sx, sy, sw, sh)
+      this.map_context.imageSmoothingEnabled = old_smoothing
       tile_data.finished = true
     }
   }
@@ -269,18 +264,18 @@ export class TileRendererView extends RendererView {
     const t = this.map_frame.bbox.top + (outline_width/2)
     const w = this.map_frame.bbox.width - outline_width
     const h = this.map_frame.bbox.height - outline_width
-    this.map_canvas.rect(l, t, w, h)
-    this.map_canvas.clip()
+    this.map_context.rect(l, t, w, h)
+    this.map_context.clip()
   }
 
   protected _render_tiles(tile_keys: string[]): void {
-    this.map_canvas.save()
+    this.map_context.save()
     this._set_rect()
-    this.map_canvas.globalAlpha = this.model.alpha
+    this.map_context.globalAlpha = this.model.alpha
     for (const tile_key of tile_keys) {
       this._draw_tile(tile_key)
     }
-    this.map_canvas.restore()
+    this.map_context.restore()
   }
 
   protected _prefetch_tiles(): void {

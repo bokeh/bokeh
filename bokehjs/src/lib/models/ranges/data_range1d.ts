@@ -7,6 +7,7 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import type {PlotView} from "../plots/plot"
+import type {PlotRendererView} from "../plots/plot_renderer"
 import {compute_renderers} from "../util"
 
 export const auto_ranged = Symbol("auto_ranged")
@@ -77,7 +78,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<PlotView, Rect>
+  protected _plot_bounds: Map<PlotView | PlotRendererView, Rect>
 
   override have_updated_interactively: boolean = false
 
@@ -149,7 +150,7 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Iterable<[PlotView, Rect]>, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(plot_bounds: Iterable<[PlotView | PlotRendererView, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
     for (const [plot, rect] of plot_bounds) {
       if (plot.model.visible)
@@ -242,7 +243,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, plot: PlotView, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, plot: PlotView | PlotRendererView, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 

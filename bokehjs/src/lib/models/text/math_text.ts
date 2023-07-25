@@ -397,7 +397,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
     if (!this._has_finished && (this.provider.status == "failed" || this.svg_image != null)) {
       this._has_finished = true
-      this.parent.notify_finished_after_paint()
+      this.parent.canvas.notify_finished_after_paint()
     }
   }
 }
@@ -460,7 +460,7 @@ export class AsciiView extends MathTextView {
 
     ctx.restore()
     this._has_finished = true
-    this.parent.notify_finished_after_paint()
+    this.parent.canvas.notify_finished_after_paint()
   }
 }
 

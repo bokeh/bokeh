@@ -4,6 +4,7 @@ import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrame} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {PlotView} from "./plot_canvas"
+import type {PlotRendererView} from "./plot_renderer"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
 
@@ -19,7 +20,7 @@ export type RangeOptions = {
 }
 
 export class RangeManager {
-  constructor(readonly parent: PlotView) {}
+  constructor(readonly parent: PlotView | PlotRendererView) {}
 
   get frame(): CartesianFrame {
     return this.parent.frame

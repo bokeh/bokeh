@@ -6,6 +6,7 @@ import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
+import type {PlotRenderer, PlotRendererView} from "../plots/plot_renderer"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 
@@ -36,7 +37,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView
+  declare readonly parent: PlotView | CanvasView | RendererView
 
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
@@ -64,7 +65,9 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => delete this._coordinates)
-    this.connect(this.plot_view.frame.change, () => delete this._coordinates)
+    if ("frame" in this.plot_view) {
+      this.connect(this.plot_view.frame.change, () => delete this._coordinates)
+    }
   }
 
   protected _initialize_coordinates(): CoordinateTransform {
@@ -82,12 +85,14 @@ export abstract class RendererView extends View implements visuals.Renderable {
     }
   }
 
-  get plot_view(): PlotView {
-    return this.parent
+  get plot_view(): PlotView | PlotRendererView {
+    const {parent} = this
+    assert(parent.model.type != "Canvas") // XXX avoid cyclic dependency
+    return parent as PlotView | PlotRendererView
   }
 
-  get plot_model(): Plot {
-    return this.parent.model
+  get plot_model(): Plot | PlotRenderer {
+    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {
@@ -96,27 +101,27 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   get canvas(): CanvasView {
-    return this.plot_view.canvas_view
+    return this.parent.canvas_view
+  }
+
+  get canvas_view(): CanvasView {
+    return this.canvas
   }
 
   request_render(): void {
     this.request_paint()
   }
 
-  request_paint(): void {
-    this.plot_view.request_paint(this)
+  request_paint(to_invalidate: RendererView[] | RendererView = this): void {
+    this.canvas_view.request_paint(to_invalidate)
   }
 
   request_layout(): void {
-    this.plot_view.request_layout()
+    this.canvas_view.request_layout()
   }
 
   override notify_finished(): void {
     this.plot_view.notify_finished()
-  }
-
-  notify_finished_after_paint(): void {
-    this.plot_view.notify_finished_after_paint()
   }
 
   interactive_hit?(sx: number, sy: number): boolean

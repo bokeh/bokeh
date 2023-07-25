@@ -58,6 +58,7 @@ from . import (
     textures,
     tickers,
     tiles,
+    toolbars,
     tools,
     transforms,
     ui,
@@ -90,6 +91,7 @@ from .text import *
 from .textures import *
 from .tickers import *
 from .tiles import *
+from .toolbars import *
 from .tools import *
 from .transforms import *
 from .ui import *
@@ -128,6 +130,7 @@ __all__ = (
     *textures.__all__,
     *tickers.__all__,
     *tiles.__all__,
+    *toolbars.__all__,
     *tools.__all__,
     *transforms.__all__,
     *ui.__all__,

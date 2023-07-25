@@ -122,7 +122,7 @@ export abstract class BaseColorBarView extends AnnotationView {
         self.request_paint()
       },
       notify_finished_after_paint() {
-        self.parent.notify_finished_after_paint()
+        self.canvas_view.notify_finished_after_paint()
       },
     }
 

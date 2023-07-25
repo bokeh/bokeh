@@ -1,17 +1,15 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
-import type {CanvasView, FrameBox} from "../canvas/canvas"
-import {Canvas} from "../canvas/canvas"
-import type {Renderer, RendererView} from "../renderers/renderer"
-import type {DataRenderer} from "../renderers/data_renderer"
-import type {Tool} from "../tools/tool"
+import type {FrameBox} from "../canvas/canvas"
+import {Renderer} from "../renderers/renderer"
+import type {RendererView} from "../renderers/renderer"
+import {LayoutableRenderer, LayoutableRendererView} from "../renderers/layoutable_renderer"
+import {DataRenderer} from "../renderers/data_renderer"
+import {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import type {Selection} from "../selections/selection"
-import type {LayoutDOM, DOMBoxSizing, FullDisplay} from "../layouts/layout_dom"
-import {LayoutDOMView} from "../layouts/layout_dom"
-import type {Plot} from "./plot"
 import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
-import type {Axis} from "../axes/axis"
+import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -20,19 +18,15 @@ import {is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews} from "core/build_views"
-import {build_view, build_views, remove_views} from "core/build_views"
-import type {Renderable} from "core/visuals"
-import {Visuals} from "core/visuals"
+import {build_views, remove_views} from "core/build_views"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState} from "core/view"
-import {throttle} from "core/util/throttle"
 import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
-import {CanvasLayer} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
@@ -44,30 +38,42 @@ import {RangeManager} from "./range_manager"
 import type {StateInfo} from "./state_manager"
 import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
-import type {StyleSheetLike} from "core/dom"
-import {InlineStyleSheet, px} from "core/dom"
 
-import plots_css from "styles/plots.css"
+import * as mixins from "core/property_mixins"
+import type * as visuals from "core/visuals"
+import * as p from "core/properties"
+import {Signal0} from "core/signaling"
+import type {Place} from "core/enums"
+import {Location, ResetPolicy} from "core/enums"
+import {concat, remove_by} from "core/util/array"
+import {difference} from "core/util/set"
+import {isString} from "core/util/types"
+import type {LRTB} from "core/util/bbox"
 
-const {max} = Math
+import {Grid} from "../grids/grid"
+import type {GuideRenderer} from "../renderers/guide_renderer"
+import {LinearScale} from "../scales/linear_scale"
+import {Toolbar} from "../tools/toolbar"
 
-export class PlotView extends LayoutDOMView implements Renderable {
-  declare model: Plot
-  visuals: Plot.Visuals
+import {Range} from "../ranges/range"
+import {Scale} from "../scales/scale"
+import type {Glyph} from "../glyphs/glyph"
+import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import {ColumnDataSource} from "../sources/column_data_source"
+import {GlyphRenderer} from "../renderers/glyph_renderer"
+import type {ToolAliases} from "../tools/tool"
+import {DataRange1d} from "../ranges/data_range1d"
+
+export class PlotRendererView extends LayoutableRendererView {
+  declare model: PlotRenderer
+  declare visuals: PlotRenderer.Visuals
 
   declare layout: BorderLayout
 
   frame: CartesianFrame
 
-  canvas_view: CanvasView
-  get canvas(): CanvasView {
-    return this.canvas_view
-  }
-
-  protected _computed_style = new InlineStyleSheet()
-
-  override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), plots_css, this._computed_style]
+  get layoutables(): LayoutableRenderer[] {
+    return []
   }
 
   protected _title?: Title
@@ -80,7 +86,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
-  protected _invalidated_painters: Set<RendererView> = new Set()
   protected _invalidate_all: boolean = true
 
   protected _state_manager: StateManager
@@ -94,13 +99,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager.invalidate_dataranges = value
   }
 
-  protected _is_paused?: number
-
   protected lod_started: boolean
 
   protected _initial_state: StateInfo
-
-  protected throttled_paint: () => void
 
   computed_renderers: Renderer[]
 
@@ -108,7 +109,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
   }
 
-  renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
+  override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     const view = this.renderer_views.get(renderer)
     if (view == null) {
       for (const [, renderer_view] of this.renderer_views) {
@@ -131,15 +132,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
     yield* super.children()
     yield* this.renderer_views.values()
     yield* this.tool_views.values()
-    yield this.canvas
   }
 
+  private _is_paused?: number
   get is_paused(): boolean {
     return this._is_paused != null && this._is_paused !== 0
-  }
-
-  get child_models(): LayoutDOM[] {
-    return []
   }
 
   pause(): void {
@@ -155,43 +152,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this._is_paused = Math.max(this._is_paused - 1, 0)
     if (this._is_paused == 0 && !no_render)
-      this.request_paint("everything")
-  }
-
-  private _needs_notify: boolean = false
-  notify_finished_after_paint(): void {
-    this._needs_notify = true
-  }
-
-  // TODO: this needs to be removed
-  request_render(): void {
-    this.request_paint("everything")
-  }
-
-  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
-    this.invalidate_painters(to_invalidate)
-    this.schedule_paint()
-  }
-
-  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
-    if (to_invalidate == "everything")
-      this._invalidate_all = true
-    else if (isArray(to_invalidate)) {
-      for (const renderer_view of to_invalidate)
-        this._invalidated_painters.add(renderer_view)
-    } else
-      this._invalidated_painters.add(to_invalidate)
-  }
-
-  schedule_paint(): void {
-    if (!this.is_paused) {
-      const promise = this.throttled_paint()
-      this._ready = this._ready.then(() => promise)
-    }
-  }
-
-  request_layout(): void {
-    this.request_paint("everything")
+      this.request_paint()
   }
 
   reset(): void {
@@ -211,15 +172,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
 
-    this.canvas_view.remove()
     super.remove()
-  }
-
-  override render(): void {
-    super.render()
-
-    this.shadow_el.appendChild(this.canvas_view.el)
-    this.canvas_view.render()
   }
 
   override initialize(): void {
@@ -228,10 +181,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     super.initialize()
 
     this.lod_started = false
-    this.visuals = new Visuals(this) as Plot.Visuals
 
     this._initial_state = {
-      selection: new Map(),               // XXX: initial selection?
+      selection: new Map(), // XXX: initial selection?
     }
 
     this.frame = new CartesianFrame(
@@ -252,8 +204,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
 
-    this.throttled_paint = throttle(() => { if (!this._removed) this.repaint() }, 1000/60)
-
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
       this._title = title instanceof Title ? title : new Title({text: title})
@@ -270,35 +220,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const {hidpi, output_backend} = this.model
-    const canvas = new Canvas({hidpi, output_backend})
-    this.canvas_view = await build_view(canvas, {parent: this})
-    this.canvas_view.plot_views = [this]
-
     await this.build_tool_views()
     await this.build_renderer_views()
 
     this._range_manager.update_dataranges()
   }
 
-  override box_sizing(): DOMBoxSizing {
-    const {width_policy, height_policy, ...sizing} = super.box_sizing()
-    const {frame_width, frame_height} = this.model
-
-    return {
-      ...sizing,
-      width_policy: frame_width != null && width_policy == "auto" ? "fit" : width_policy,
-      height_policy: frame_height != null && height_policy == "auto" ? "fit" : height_policy,
-    }
-  }
-
-  protected override _intrinsic_display(): FullDisplay {
-    return {inner: this.model.flow_mode, outer: "grid"}
-  }
-
   override _update_layout(): void {
-    super._update_layout()
-
     // TODO: invalidating all should imply "needs paint"
     this._invalidate_all = true
     this._needs_paint = true
@@ -508,34 +436,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.layout = layout
   }
 
-  protected override _measure_layout(): void {
-    const {frame_width, frame_height} = this.model
-
-    const frame = {
-      width: frame_width == null ? "1fr" : px(frame_width),
-      height: frame_height == null ? "1fr" : px(frame_height),
-    }
-
-    const {layout} = this
-
-    const top = layout.top_panel.measure({width: Infinity, height: Infinity})
-    const bottom = layout.bottom_panel.measure({width: Infinity, height: Infinity})
-    const left = layout.left_panel.measure({width: Infinity, height: Infinity})
-    const right = layout.right_panel.measure({width: Infinity, height: Infinity})
-
-    const top_height = max(top.height, layout.min_border.top)
-    const bottom_height = max(bottom.height, layout.min_border.bottom)
-    const left_width = max(left.width, layout.min_border.left)
-    const right_width = max(right.width, layout.min_border.right)
-
-    this._computed_style.replace(`
-      :host {
-        grid-template-rows: ${top_height}px ${frame.height} ${bottom_height}px;
-        grid-template-columns: ${left_width}px ${frame.width} ${right_width}px;
-      }
-    `)
-  }
-
   get axis_views(): AxisView[] {
     const views = []
     for (const [, renderer_view] of this.renderer_views) {
@@ -599,7 +499,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       for (const panel of this.model.side_panels) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout?.has_size_changed() ?? false) {
-          this.invalidate_painters(view)
+          //this.invalidate_painters(view)
           return true
         }
       }
@@ -607,7 +507,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     })()
 
     if (needs_layout) {
-      this.compute_layout()
+      //this.compute_layout()
     }
   }
 
@@ -670,7 +570,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     })
     this.on_change(panels, async () => {
       await this.build_renderer_views()
-      this.invalidate_layout()
+      this.canvas_view.request_layout()
     })
 
     this.connect(this.model.toolbar.properties.tools.change, async () => {
@@ -680,13 +580,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint() })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this.request_paint("everything") })
+      this.connect(range.change, () => { this.request_paint() })
     }
 
-    this.connect(this.model.change, () => this.request_paint("everything"))
+    this.connect(this.model.change, () => this.request_paint())
     this.connect(this.model.reset, () => this.reset())
 
     const {toolbar_location} = this.model.properties
@@ -708,7 +608,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
           await this.build_renderer_views()
         }
       }
-      this.invalidate_layout()
+      this.canvas_view.request_layout()
     })
 
     const {hold_render} = this.model.properties
@@ -730,33 +630,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override _after_layout(): void {
-    super._after_layout()
     this.unpause(true)
-
-    const left = this.layout.left_panel.bbox
-    const right = this.layout.right_panel.bbox
-    const center = this.layout.center_panel.bbox
-    const top = this.layout.top_panel.bbox
-    const bottom = this.layout.bottom_panel.bbox
-    const {bbox} = this
-
-    const top_height = top.bottom
-    const bottom_height = bbox.height - bottom.top
-    const left_width = left.right
-    const right_width = bbox.width - right.left
-
-    // TODO: don't replace here; inject stylesheet?
-    this.canvas.style.replace(`
-      .bk-layer.bk-events {
-        display: grid;
-        grid-template-areas:
-          ".    above  .    "
-          "left center right"
-          ".    below  .    ";
-        grid-template-rows: ${px(top_height)} ${px(center.height)} ${px(bottom_height)};
-        grid-template-columns: ${px(left_width)} ${px(center.width)} ${px(right_width)};
-      }
-    `)
 
     for (const [, child_view] of this.renderer_views) {
       if (child_view instanceof AnnotationView)
@@ -777,7 +651,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     if (!this._outer_bbox.equals(this.bbox)) {
-      this.canvas_view.resize() // XXX temporary hack
       this._outer_bbox = this.bbox
       this._invalidate_all = true
       this._needs_paint = true
@@ -789,24 +662,32 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this._needs_paint = true
     }
 
+    /*
     if (this._needs_paint) {
       // XXX: can't be this.request_paint(), because it would trigger back-and-forth
       // layout recomputing feedback loop between plots. Plots are also much more
       // responsive this way, especially in interactive mode.
       this.paint()
     }
+    */
   }
 
+  /*
   repaint(): void {
     this._invalidate_layout_if_needed()
     this.paint()
   }
+  */
 
-  paint(): void {
+  protected _render(): void {
+    this._paint()
+  }
+
+  _paint(): void {
     if (this.is_paused)
       return
 
-    if (this.is_displayed) {
+    if (this.canvas.is_displayed && this.model.visible) {
       logger.trace(`${this.toString()}.paint()`)
       this._actual_paint()
     } else {
@@ -816,11 +697,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       for (const renderer_view of this.computed_renderer_views) {
         renderer_view.mark_finished()
       }
-    }
-
-    if (this._needs_notify) {
-      this._needs_notify = false
-      this.notify_finished()
     }
   }
 
@@ -833,7 +709,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
           if (document.interactive_duration() > this.model.lod_timeout) {
             document.interactive_stop()
           }
-          this.request_paint("everything") // TODO: this.schedule_paint()
+          this.request_paint() // TODO: this.schedule_paint()
         }, this.model.lod_timeout)
       } else
         document.interactive_stop()
@@ -844,26 +720,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this._invalidate_layout_if_needed()
     }
 
-    let do_primary = false
-    let do_overlays = false
-
-    if (this._invalidate_all) {
-      do_primary = true
-      do_overlays = true
-    } else {
-      for (const painter of this._invalidated_painters) {
-        const {level} = painter.model
-        if (level != "overlay")
-          do_primary = true
-        else
-          do_overlays = true
-        if (do_primary && do_overlays)
-          break
-      }
-    }
-    this._invalidated_painters.clear()
-    this._invalidate_all = false
-
     const frame_box: FrameBox = [
       this.frame.bbox.left,
       this.frame.bbox.top,
@@ -872,9 +728,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     ]
 
     const {primary, overlays} = this.canvas_view
+    const {do_primary, do_overlays} = this.canvas_view.painting
 
     if (do_primary) {
-      primary.prepare()
       this.canvas_view.prepare_webgl(frame_box)
 
       this._paint_empty(primary.ctx, frame_box)
@@ -885,15 +741,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this._paint_levels(primary.ctx, "glyph", frame_box, true)
       this._paint_levels(primary.ctx, "guide", frame_box, false)
       this._paint_levels(primary.ctx, "annotation", frame_box, false)
-      primary.finish()
     }
 
     if (do_overlays || settings.wireframe) {
-      overlays.prepare()
       this._paint_levels(overlays.ctx, "overlay", frame_box, false)
-      if (settings.wireframe)
+      if (settings.wireframe) {
         this._paint_layout(overlays.ctx, this.layout)
-      overlays.finish()
+      }
     }
 
     if (this._initial_state.range == null) {
@@ -939,9 +793,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  protected _paint_empty(ctx: Context2d, frame_box: FrameBox): void {
-    const [cx, cy, cw, ch] = [0, 0, this.bbox.width, this.bbox.height]
-    const [fx, fy, fw, fh] = frame_box
+  protected _paint_empty(ctx: Context2d, frame_bbox: FrameBox): void {
+    const {bbox} = this
+
+    const [cx, cy, cw, ch] = [bbox.x, bbox.y, bbox.width, bbox.height]
+    const [fx, fy, fw, fh] = frame_bbox
 
     if (this.visuals.border_fill.doit) {
       this.visuals.border_fill.set_value(ctx)
@@ -973,28 +829,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
-    const output_backend = (() => {
-      switch (type) {
-        case "auto": return this.canvas_view.model.output_backend
-        case "png":  return "canvas"
-        case "svg":  return "svg"
-      }
-    })()
-
-    const composite = new CanvasLayer(output_backend, hidpi)
-
-    const {width, height} = this.bbox
-    composite.resize(width, height)
-
-    if (width != 0 && height != 0) {
-      const {canvas} = this.canvas_view.compose()
-      composite.ctx.drawImage(canvas, 0, 0)
-    }
-
-    return composite
-  }
-
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
     const renderers = this.get_renderer_views()
@@ -1012,5 +846,229 @@ export class PlotView extends LayoutDOMView implements Renderable {
     } else {
       this.unpause()
     }
+  }
+}
+
+export namespace PlotRenderer {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Renderer.Props & {
+    toolbar: p.Property<Toolbar>
+    toolbar_location: p.Property<Location | null>
+    toolbar_sticky: p.Property<boolean>
+    toolbar_inner: p.Property<boolean>
+
+    frame_width: p.Property<number | null>
+    frame_height: p.Property<number | null>
+    frame_align: p.Property<boolean | Partial<LRTB<boolean>>>
+
+    title: p.Property<Title | string | null>
+    title_location: p.Property<Location | null>
+
+    above: p.Property<(Annotation | Axis)[]>
+    below: p.Property<(Annotation | Axis)[]>
+    left: p.Property<(Annotation | Axis)[]>
+    right: p.Property<(Annotation | Axis)[]>
+    center: p.Property<(Annotation | Grid)[]>
+
+    /// frame
+    renderers: p.Property<Renderer[]>
+
+    x_range: p.Property<Range>
+    y_range: p.Property<Range>
+
+    x_scale: p.Property<Scale>
+    y_scale: p.Property<Scale>
+
+    extra_x_ranges: p.Property<{[key: string]: Range}>
+    extra_y_ranges: p.Property<{[key: string]: Range}>
+
+    extra_x_scales: p.Property<{[key: string]: Scale}>
+    extra_y_scales: p.Property<{[key: string]: Scale}>
+
+    match_aspect: p.Property<boolean>
+    aspect_scale: p.Property<number>
+    ///
+
+    lod_factor: p.Property<number>
+    lod_interval: p.Property<number>
+    lod_threshold: p.Property<number | null>
+    lod_timeout: p.Property<number>
+
+    ///
+    min_border: p.Property<number | null>
+    min_border_top: p.Property<number | null>
+    min_border_left: p.Property<number | null>
+    min_border_bottom: p.Property<number | null>
+    min_border_right: p.Property<number | null>
+    ///
+
+    inner_width: p.Property<number>
+    inner_height: p.Property<number>
+    outer_width: p.Property<number>
+    outer_height: p.Property<number>
+
+    reset_policy: p.Property<ResetPolicy>
+
+    hold_render: p.Property<boolean>
+  } & Mixins
+
+  export type Mixins =
+    mixins.OutlineLine    &
+    mixins.BackgroundFill &
+    mixins.BorderFill
+
+  export type Visuals = Renderer.Visuals & {
+    outline_line: visuals.Line
+    background_fill: visuals.Fill
+    border_fill: visuals.Fill
+  }
+}
+
+export interface PlotRenderer extends PlotRenderer.Attrs {}
+
+export class PlotRenderer extends LayoutableRenderer {
+  declare properties: PlotRenderer.Props
+  declare __view_type__: PlotRendererView
+
+  readonly use_map: boolean = false
+
+  readonly reset = new Signal0(this, "reset")
+
+  constructor(attrs?: Partial<PlotRenderer.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.prototype.default_view = PlotRendererView
+
+    this.mixins<PlotRenderer.Mixins>([
+      ["outline_",    mixins.Line],
+      ["background_", mixins.Fill],
+      ["border_",     mixins.Fill],
+    ])
+
+    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
+      toolbar_location:  [ Nullable(Location), "right" ],
+      toolbar_sticky:    [ Boolean, true ],
+      toolbar_inner:     [ Boolean, false ],
+
+      frame_width:       [ Nullable(Number), null ],
+      frame_height:      [ Nullable(Number), null ],
+      frame_align:       [ Or(Boolean, Struct({left: Opt(Boolean), right: Opt(Boolean), top: Opt(Boolean), bottom: Opt(Boolean)})), true ],
+
+      // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
+      title:             [ Or(Ref(Title), String, Null), "", {
+        convert: (title) => isString(title) ? new Title({text: title}) : title,
+      }],
+      title_location:    [ Nullable(Location), "above" ],
+
+      above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
+      center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
+
+      /// frame
+      renderers:         [ Array(Ref(Renderer)), [] ],
+
+      x_range:           [ Ref(Range), () => new DataRange1d() ],
+      y_range:           [ Ref(Range), () => new DataRange1d() ],
+
+      x_scale:           [ Ref(Scale), () => new LinearScale() ],
+      y_scale:           [ Ref(Scale), () => new LinearScale() ],
+
+      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
+      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
+
+      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
+      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
+
+      match_aspect:      [ Boolean, false ],
+      aspect_scale:      [ Number, 1 ],
+      ///
+
+      lod_factor:        [ Number, 10 ],
+      lod_interval:      [ Number, 300 ],
+      lod_threshold:     [ Nullable(Number), 2000 ],
+      lod_timeout:       [ Number, 500 ],
+
+      ///
+      min_border:        [ Nullable(Number), 5 ],
+      min_border_top:    [ Nullable(Number), null ],
+      min_border_left:   [ Nullable(Number), null ],
+      min_border_bottom: [ Nullable(Number), null ],
+      min_border_right:  [ Nullable(Number), null ],
+      ///
+
+      inner_width:       [ Number, p.unset, {readonly: true} ],
+      inner_height:      [ Number, p.unset, {readonly: true} ],
+      outer_width:       [ Number, p.unset, {readonly: true} ],
+      outer_height:      [ Number, p.unset, {readonly: true} ],
+
+      reset_policy:      [ ResetPolicy, "standard" ],
+
+      hold_render:       [ Boolean, false ],
+    }))
+
+    this.override<PlotRenderer.Props>({
+      //width: 600,
+      //height: 600,
+      outline_line_color: "#e5e5e5",
+      border_fill_color: "#ffffff",
+      background_fill_color: "#ffffff",
+    })
+  }
+
+  add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
+    const renderers = this.properties[side].get_value()
+    this.setv({[side]: [...renderers, renderer]})
+  }
+
+  remove_layout(renderer: Annotation | GuideRenderer): void {
+
+    const del = (items: (Annotation | GuideRenderer)[]): void => {
+      remove_by(items, (item) => item == renderer)
+    }
+
+    del(this.left)
+    del(this.right)
+    del(this.above)
+    del(this.below)
+    del(this.center)
+  }
+
+  get data_renderers(): DataRenderer[] {
+    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
+  }
+
+  add_renderers(...renderers: Renderer[]): void {
+    this.renderers = [...this.renderers, ...renderers]
+  }
+
+  add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
+      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
+    const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
+    this.add_renderers(renderer)
+    return renderer
+  }
+
+  add_tools(...tools: (Tool | keyof ToolAliases)[]): void {
+    const computed_tools = tools.map((tool) => tool instanceof Tool ? tool : Tool.from_string(tool))
+    this.toolbar.tools = [...this.toolbar.tools, ...computed_tools]
+  }
+
+  remove_tools(...tools: Tool[]): void {
+    this.toolbar.tools = [...difference(new Set(this.toolbar.tools), new Set(tools))]
+  }
+
+  get panels(): (Annotation | Axis | Grid)[] {
+    return [...this.side_panels, ...this.center]
+  }
+
+  get side_panels(): (Annotation | Axis)[] {
+    const {above, below, left, right} = this
+    return concat([above, below, left, right])
   }
 }
