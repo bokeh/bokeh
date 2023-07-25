@@ -200,6 +200,8 @@ html_theme_options = {
 }
 
 html_sidebars = {
+    "docs/examples/**": [],
+    "docs/gallery": [],
     "index": [],
     "**": ["search-field.html", "sidebar-nav-bs.html"],
 }
