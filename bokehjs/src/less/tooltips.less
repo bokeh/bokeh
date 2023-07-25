@@ -16,7 +16,7 @@
   // TODO: contain: layout style paint;
   width: max-content;
   font-weight: 300;
-  font-size: var(calc(--font-size - 1px), 12px);
+  font-size: calc(var(--font-size, 12px) - 1px);
   position: fixed;
   padding: 5px;
   border: 1px solid var(--tooltip-border);
@@ -91,7 +91,7 @@
 }
 
 .bk-tooltip-row-value {
-  /* XXX: 'default' is not a color
+/* XXX: 'default' is not a color
   color: default; // seems to be necessary for notebook
 */
   color: none;
