@@ -454,7 +454,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
         Returns:
             None
 
-        Example:
+        Examples:
 
             .. code-block:: python
 
