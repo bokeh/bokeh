@@ -17,7 +17,7 @@ colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
 plot_default = figure(tools='pan, box_zoom, wheel_zoom, reset',
                       title="Cannot pan outside data (bounds='auto')",
                       lod_threshold=None)
-plot_default.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+plot_default.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 plot_default.x_range.bounds = 'auto'
 plot_default.y_range.bounds = 'auto'
 

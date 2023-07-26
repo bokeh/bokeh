@@ -4,7 +4,7 @@ a customized tile source configured for OpenStreetMap.
 
 .. bokeh-example-metadata::
     :sampledata: airports
-    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.circle
+    :apis: bokeh.plotting.figure.add_tile, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_topics_geo_geojson_data`, :ref:`ug_topics_geo_tile_provider_maps`
     :keywords: tile, map, field, elevation, geo
 
@@ -29,7 +29,7 @@ def plot(tile_source: TileSource):
     p.add_tile(tile_source)
 
     # create point glyphs
-    p.circle(x='x', y='y', size=10, fill_color="#F46B42", line_color="white", line_width=2, source=airports)
+    p.scatter(x='x', y='y', size=10, fill_color="#F46B42", line_color="white", line_width=2, source=airports)
     return p
 
 # create a tile source

@@ -44,6 +44,6 @@ for comb in combinations:
     options = fill_options.copy()
     options.update(line_options)
 
-    p.circle([cats[x]], [cats[y]], line_width=7, size=50, **options)
+    p.scatter([cats[x]], [cats[y]], line_width=7, size=50, **options)
 
 show(p)

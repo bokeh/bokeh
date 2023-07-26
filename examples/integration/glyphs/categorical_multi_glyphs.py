@@ -14,12 +14,12 @@ for x, y, yerr in zip(x_range, y_values, y_errors):
     err_ys.append((y - yerr, y + yerr))
 
 p1 = figure(x_range=x_range, title="multi_line", width=300, height=300)
-p1.square(x_range, y_values, size=7, line_alpha=0)
+p1.scatter(x_range, y_values, size=7, marker="square", line_alpha=0)
 
 p1.multi_line(err_xs, err_ys)
 
 p2 = figure(x_range=x_range, title="line", width=300, height=300)
-p2.square(x_range, y_values, size=7, line_alpha=0)
+p2.scatter(x_range, y_values, size=7, marker="square", line_alpha=0)
 for i in range(len(err_xs)):
     p2.line(err_xs[i], err_ys[i])
 

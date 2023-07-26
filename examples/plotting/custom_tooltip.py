@@ -53,8 +53,8 @@ TOOLTIPS = """
 p = figure(width=900, height=450, tooltips=TOOLTIPS, title='Densities by Atomic Mass')
 p.background_fill_color = "#fafafa"
 
-p.circle('atomic_mass', 'density', size=12, source=data, color='type_color',
-         line_color="black", legend_field='metal', alpha=0.9)
+p.scatter('atomic_mass', 'density', size=12, source=data, color='type_color',
+          line_color="black", legend_field='metal', alpha=0.9)
 
 p.legend.glyph_width = 30
 p.legend.glyph_height = 30

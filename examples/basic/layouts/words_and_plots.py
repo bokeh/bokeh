@@ -31,8 +31,8 @@ def scatter():
     s = figure(title = "Iris Morphology")
     s.xaxis.axis_label = 'Petal Length'
     s.yaxis.axis_label = 'Petal Width'
-    s.circle("petal_length", "petal_width", color="colors", source=source,
-             fill_alpha=0.2, size=10, legend_group="species")
+    s.scatter("petal_length", "petal_width", color="colors", source=source,
+              fill_alpha=0.2, size=10, legend_group="species")
     # Lets move the legend off-canvas!
     legend = s.legend[0]
     legend.border_line_color = None
@@ -45,15 +45,11 @@ def scatter():
 def hover_plot():
     x = data.loc['2010-10-06'].index.to_series()
     y = data.loc['2010-10-06']['glucose']
-    p = figure(
-        width=800, height=400, x_axis_type="datetime",
-        tools="", toolbar_location=None, title='Hover over points',
-    )
+    p = figure(width=800, height=400, x_axis_type="datetime",
+               tools="", toolbar_location=None, title='Hover over points')
     p.line(x, y, line_dash="4 4", line_width=1, color='gray')
-    cr = p.circle(
-        x, y, size=20, fill_color="grey", alpha=0.1, line_color=None,
-        hover_fill_color="firebrick", hover_alpha=0.5, hover_line_color=None,
-    )
+    cr = p.scatter(x, y, size=20, fill_color="grey", alpha=0.1, line_color=None,
+                   hover_fill_color="firebrick", hover_alpha=0.5, hover_line_color=None)
     p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
     return p
 
@@ -72,15 +68,11 @@ def intro():
         use of <code>bokeh.embed</code>.</h4>
     """)
 
-
-l = layout(
-    [
+show(
+    layout([
         [intro()],
         [text(), scatter()],
         [text()],
         [hover_plot(), text()],
-    ],
-    sizing_mode='scale_width',
+    ], sizing_mode='scale_width'),
 )
-
-show(l)

@@ -10,7 +10,7 @@ y = np.random.random(size=200)
 plot = figure(width=400, height=400, title='Select and Zoom',
               tools="box_select,box_zoom,lasso_select,reset")
 
-plot.circle(x, y, size=5)
+plot.scatter(x, y, size=5)
 
 select_overlay = plot.select_one(BoxSelectTool).overlay
 

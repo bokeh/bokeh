@@ -7,6 +7,6 @@ p = figure(width=400, height=400)
 
 # add both a line and circles on the same plot
 p.line(x, y, line_width=2)
-p.circle(x, y, fill_color="white", size=8)
+p.scatter(x, y, fill_color="white", size=8)
 
 show(p)

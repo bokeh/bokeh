@@ -22,7 +22,7 @@ TOOLS="hover,crosshair,pan,reset,box_select"
 
 def mkplot(toolbar, xaxis, yaxis):
     p = figure(width=300, height=300, tools=TOOLS, toolbar_location=toolbar, x_axis_location=xaxis, y_axis_location=yaxis)
-    p.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+    p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
     return p
 
 p_lbl = mkplot(toolbar="left",  xaxis="below", yaxis="left")

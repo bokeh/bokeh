@@ -98,8 +98,8 @@ p = figure(title="segment")
 p.segment(x, y, x-0.1, y-0.1, color="#F4A582", line_width=3)
 children.append(p)
 
-p = figure(title="square")
-p.square(x, y, size=sizes, color="#74ADD1")
+p = figure(title="Marker: square")
+p.scatter(x, y, size=sizes, marker="square", color="#74ADD1")
 children.append(p)
 
 p = figure(title="Vbar")

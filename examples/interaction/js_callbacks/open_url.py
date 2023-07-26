@@ -10,7 +10,7 @@ source = ColumnDataSource(data=dict(
     color=["navy", "orange", "olive", "firebrick", "gold"],
     ))
 
-p.circle('x', 'y', color='color', size=20, source=source)
+p.scatter('x', 'y', color='color', size=20, source=source)
 
 # use the "color" column of the CDS to complete the URL
 # e.g. if the glyph at index 10 is selected, then @color

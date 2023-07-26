@@ -15,7 +15,7 @@ y = 1 / x
 
 plot = figure(height=200)
 plot.title = "Current over Resistance at a static voltage of 1 volt"
-plot.circle(x, y, fill_color="blue", size=5)
+plot.scatter(x, y, fill_color="blue", size=5)
 plot.line(x, y, color="darkgrey")
 
 plot.xaxis.axis_label = "Resistance"

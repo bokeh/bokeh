@@ -2,9 +2,9 @@ import yaml
 
 from bokeh.core.properties import value
 from bokeh.document import Document
-from bokeh.models import (CDSView, Circle, ColumnDataSource, DataRange1d,
-                          Grid, HoverTool, IndexFilter, LinearAxis, Plot,
-                          Range1d, SingleIntervalTicker, Text)
+from bokeh.models import (CDSView, ColumnDataSource, DataRange1d, Grid,
+                          HoverTool, IndexFilter, LinearAxis, Plot,
+                          Range1d, Scatter, SingleIntervalTicker, Text)
 from bokeh.sampledata.sprint import sprint
 from bokeh.themes import Theme
 
@@ -68,7 +68,7 @@ yticker = SingleIntervalTicker(interval=12, num_minor_ticks=0)
 yaxis = LinearAxis(ticker=yticker, major_tick_in=-5, major_tick_out=10)
 plot.add_layout(yaxis, "right")
 
-medal = Circle(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
+medal = Scatter(x="MetersBack", y="Year", size=10, fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
 medal_renderer = plot.add_glyph(source, medal)
 
 #sprint[sprint.Medal=="gold" * sprint.Year in [1988, 1968, 1936, 1896]]

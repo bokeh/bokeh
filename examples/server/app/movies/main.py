@@ -64,7 +64,7 @@ TOOLTIPS=[
 ]
 
 p = figure(height=600, title="", toolbar_location=None, tooltips=TOOLTIPS, sizing_mode="stretch_width")
-p.circle(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
+p.scatter(x="x", y="y", source=source, size=7, color="color", line_color=None, fill_alpha="alpha")
 
 
 def select_movies():

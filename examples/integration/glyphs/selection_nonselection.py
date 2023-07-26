@@ -4,7 +4,7 @@ from bokeh.plotting import figure
 p = figure(x_range=(0, 6), y_range=(0, 7), width=600, height=600, toolbar_location=None)
 
 def mkglyph(x, y, selection):
-    r = p.circle(
+    r = p.scatter(
         x, y,
         color='green',
         size=40,

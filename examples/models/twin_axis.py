@@ -1,9 +1,9 @@
 ''' This example demonstrates how to create a plot with two y-axes.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.models.sources.ColumnDataSource, bokeh.models.markers.Circle
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Scatter
     :refs: :ref:`ug_basic_scatters`, :ref:`ug_basic_axes_twin`
-    :keywords: twin axis, circle
+    :keywords: twin axis, scatter
 
 '''
 
@@ -11,8 +11,8 @@ from numpy import arange, linspace, pi, sin
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (Circle, ColumnDataSource, LinearAxis,
-                          PanTool, Plot, Range1d, WheelZoomTool)
+from bokeh.models import (ColumnDataSource, LinearAxis, PanTool,
+                          Plot, Range1d, Scatter, WheelZoomTool)
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -40,11 +40,11 @@ plot.add_layout(LinearAxis(axis_label="foo range", y_range_name="foo"), 'left')
 plot.add_layout(LinearAxis(axis_label="default range"), 'right')
 plot.add_layout(LinearAxis(axis_label="foo range", y_range_name="foo"), 'right')
 
-circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-plot.add_glyph(source, circle)
+scatter1 = Scatter(x="x", y="y", fill_color="red", size=5, line_color="black")
+plot.add_glyph(source, scatter1)
 
-circle2 = Circle(x="x", y="y2", fill_color="blue", size=5, line_color="black")
-plot.add_glyph(source, circle2, y_range_name="foo")
+scatter2 = Scatter(x="x", y="y2", fill_color="blue", size=5, line_color="black")
+plot.add_glyph(source, scatter2, y_range_name="foo")
 
 plot.add_tools(PanTool(), WheelZoomTool())
 

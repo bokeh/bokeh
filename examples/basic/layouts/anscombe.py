@@ -3,7 +3,7 @@ API that also includes HTML content in a ``Div``.
 
 .. bokeh-example-metadata::
     :sampledata: anscombe
-    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis
+    :apis: bokeh.layouts.column, bokeh.layouts.gridplot, bokeh.models.Plot, bokeh.models.LinearAxis
     :refs: :ref:`ug_basic_layouts_gridplot`
     :keywords: column, gridplot
 
@@ -14,8 +14,8 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.layouts import column, gridplot
-from bokeh.models import (Circle, ColumnDataSource, Div, Grid,
-                          Line, LinearAxis, Plot, Range1d)
+from bokeh.models import (ColumnDataSource, Div, Grid, Line,
+                          LinearAxis, Plot, Range1d, Scatter)
 from bokeh.sampledata.anscombe import data as df
 
 circle_source = ColumnDataSource(data=df)
@@ -43,8 +43,8 @@ def make_plot(title, xname, yname):
     line = Line(x='x', y='y', line_color="#666699", line_width=2)
     plot.add_glyph(line_source, line)
 
-    circle = Circle(x=xname, y=yname, size=12, line_color="#cc6633",
-                    fill_color="#cc6633",  fill_alpha=0.5)
+    circle = Scatter(x=xname, y=yname, size=12, line_color="#cc6633",
+                     fill_color="#cc6633",  fill_alpha=0.5)
     plot.add_glyph(circle_source, circle)
 
     return plot

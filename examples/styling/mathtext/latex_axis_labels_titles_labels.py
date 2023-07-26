@@ -16,7 +16,7 @@ x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
 
 p = figure(height=250, title=r"$$\sin(x)$$ for \[x\] between \(-2\pi\) and $$2\pi$$")
-p.circle(x, y, alpha=0.6, size=7)
+p.scatter(x, y, alpha=0.6, size=7)
 
 label = Label(
     text=r"$$y = \sin(x)$$",

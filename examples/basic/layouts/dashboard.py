@@ -68,13 +68,13 @@ def linked_panning():
     y3 = np.sin(x) + np.cos(x)
 
     s1 = figure(tools='pan')
-    s1.circle(x, y1, color="navy", size=8, alpha=0.5)
+    s1.scatter(x, y1, color="navy", size=8, alpha=0.5)
 
     s2 = figure(tools='pan', x_range=s1.x_range, y_range=s1.y_range)
-    s2.circle(x, y2, color="firebrick", size=8, alpha=0.5)
+    s2.scatter(x, y2, color="firebrick", size=8, alpha=0.5)
 
     s3 = figure(tools='pan, box_select', x_range=s1.x_range)
-    s3.circle(x, y3, color="olive", size=8, alpha=0.5)
+    s3.scatter(x, y3, color="olive", size=8, alpha=0.5)
 
     return [s1, s2, s3]
 

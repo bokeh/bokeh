@@ -3,7 +3,7 @@ sample data. This example demonstrates the use of whiskers to display quantile r
 
 .. bokeh-example-metadata::
     :sampledata: autompg2
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.Whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.circle
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.Whisker, bokeh.transform.factor_cmap, bokeh.transform.jitter, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_annotations_whiskers`
     :keywords: whisker, jitter, scatter, error
 
@@ -31,8 +31,8 @@ error.upper_head.size=20
 error.lower_head.size=20
 p.add_layout(error)
 
-p.circle(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
-         alpha=0.5, size=13, line_color="white",
-         color=factor_cmap("class", "Light7", classes))
+p.scatter(jitter("class", 0.3, range=p.x_range), "hwy", source=df,
+          alpha=0.5, size=13, line_color="white",
+          color=factor_cmap("class", "Light7", classes))
 
 show(p)

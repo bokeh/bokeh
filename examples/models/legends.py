@@ -11,8 +11,8 @@ from numpy import cos, linspace, pi, sin
 
 from bokeh.core.enums import LegendLocation
 from bokeh.io import show
-from bokeh.models import (Circle, ColumnDataSource, DataRange1d, Legend, Line,
-                          LinearAxis, PanTool, Plot, SaveTool, WheelZoomTool)
+from bokeh.models import (ColumnDataSource, DataRange1d, Legend, Line, LinearAxis,
+                          PanTool, Plot, SaveTool, Scatter, WheelZoomTool)
 
 x = linspace(-2*pi, 2*pi, 400)
 y = sin(x)
@@ -34,7 +34,7 @@ plot = Plot(
 
 line_glyph = Line(x="x", y="y", line_color="navy", line_width=2, line_dash="dashed")
 line = plot.add_glyph(source, line_glyph)
-circle = Circle(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
+circle = Scatter(x="x", y="y2", size=6, line_color="red", fill_color="orange", fill_alpha=0.6)
 circle = plot.add_glyph(source, circle)
 
 pan = PanTool()

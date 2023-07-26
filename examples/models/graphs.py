@@ -11,9 +11,9 @@ Journal of Anthropological Research, 33, 452-473.
 import networkx as nx
 
 from bokeh.io import show
-from bokeh.models import (BoxSelectTool, Circle, Column, EdgesAndLinkedNodes,
-                          HoverTool, MultiLine, NodesAndAdjacentNodes,
-                          NodesAndLinkedEdges, Plot, Range1d, Row, TapTool)
+from bokeh.models import (BoxSelectTool, Column, EdgesAndLinkedNodes, HoverTool,
+                          MultiLine, NodesAndAdjacentNodes, NodesAndLinkedEdges,
+                          Plot, Range1d, Row, Scatter, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx
 
@@ -25,9 +25,9 @@ def create_graph(layout_func, inspection_policy=None, selection_policy=None, **k
                 x_range=Range1d(-1.1,1.1), y_range=Range1d(-1.1,1.1))
     graph_renderer = from_networkx(G, layout_func, **kwargs)
 
-    graph_renderer.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
-    graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color=Spectral4[2])
-    graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color=Spectral4[1])
+    graph_renderer.node_renderer.glyph = Scatter(size=15, fill_color=Spectral4[0])
+    graph_renderer.node_renderer.selection_glyph = Scatter(size=15, fill_color=Spectral4[2])
+    graph_renderer.node_renderer.hover_glyph = Scatter(size=15, fill_color=Spectral4[1])
 
     graph_renderer.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
     graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=5)
