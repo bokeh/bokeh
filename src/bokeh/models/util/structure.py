@@ -44,7 +44,6 @@ from bokeh.layouts import column
 from bokeh.models import (
     BoxZoomTool,
     CDSView,
-    Circle,
     ColumnDataSource,
     CustomJS,
     DataTable,
@@ -58,6 +57,7 @@ from bokeh.models import (
     Plot,
     Range1d,
     ResetTool,
+    Scatter,
     TableColumn,
     TapTool,
 )
@@ -255,9 +255,9 @@ class _BokehStructureGraph:
 
         node_renderer = GlyphRenderer(
             data_source=node_source,
-            glyph=Circle(x="x", y="y", size=15, fill_color="lightblue"),
-            nonselection_glyph=Circle(x="x", y="y", size=15, fill_color="lightblue"),
-            selection_glyph=Circle(x="x", y="y", size=15, fill_color="green"),
+            glyph=Scatter(x="x", y="y", size=15, fill_color="lightblue"),
+            nonselection_glyph=Scatter(x="x", y="y", size=15, fill_color="lightblue"),
+            selection_glyph=Scatter(x="x", y="y", size=15, fill_color="green"),
         )
 
         edge_renderer = GlyphRenderer(

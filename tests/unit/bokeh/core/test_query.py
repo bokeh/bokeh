@@ -20,7 +20,6 @@ import pytest ; pytest
 from bokeh.models import (
     Axis,
     BoxZoomTool,
-    Circle,
     ColumnDataSource,
     DatetimeAxis,
     Glyph,
@@ -35,6 +34,7 @@ from bokeh.models import (
     Rect,
     ResetTool,
     SaveTool,
+    Scatter,
     Tool,
     WheelZoomTool,
 )
@@ -91,8 +91,8 @@ def large_plot():
     ydr2 = Range1d(start=0, end=100)
     plot.extra_y_ranges = {"liny": ydr2}
 
-    circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-    plot.add_glyph(source, circle, name="mycircle")
+    scatter = Scatter(x="x", y="y", fill_color="red", size=5, line_color="black")
+    plot.add_glyph(source, scatter, name="myscatter")
 
     line = Line(x="x", y="y")
     plot.add_glyph(source, line, name="myline")
@@ -158,7 +158,7 @@ def test_tags_with_seq() -> None:
 def test_name() -> None:
     cases = {
         "myline": Line,
-        "mycircle": Circle,
+        "myscatter": Scatter,
         "myrect": Rect,
     }
 
@@ -171,13 +171,13 @@ def test_in() -> None:
     res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'b']})))
     assert len(res) == 0
 
-    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle']})))
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'myscatter']})))
     assert len(res) == 1
 
-    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle', 'myline']})))
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'myscatter', 'myline']})))
     assert len(res) == 2
 
-    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'mycircle', 'myline', 'myrect']})))
+    res = list(q.find(plot.references(), dict(name={q.IN: ['a', 'myscatter', 'myline', 'myrect']})))
     assert len(res) == 3
 
     for typ, count in typcases.items():
@@ -205,19 +205,19 @@ def test_disjuction() -> None:
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(name="mycircle")]}),
+        {q.OR: [dict(type=Axis), dict(name="myscatter")]}),
     )
     assert len(res) == 4
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle")]}),
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="myscatter")]}),
     )
     assert len(res) == 6
 
     res = list(
         q.find(plot.references(),
-        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="mycircle"), dict(name="bad")]}),
+        {q.OR: [dict(type=Axis), dict(tags="foo"), dict(name="myscatter"), dict(name="bad")]}),
     )
     assert len(res) == 6
 
@@ -233,7 +233,7 @@ def test_conjunction() -> None:
     assert len(res) == 2
 
     res = list(
-        q.find(plot.references(), dict(type=GlyphRenderer, name="mycircle")),
+        q.find(plot.references(), dict(type=GlyphRenderer, name="myscatter")),
     )
     assert len(res) == 1
 

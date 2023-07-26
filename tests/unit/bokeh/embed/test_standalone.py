@@ -65,7 +65,7 @@ def stable_id() -> ID:
 def test_plot() -> figure:
     from bokeh.plotting import figure
     test_plot = figure(title="'foo'")
-    test_plot.circle(np.array([1, 2]), np.array([2, 3]))
+    test_plot.scatter(np.array([1, 2]), np.array([2, 3]))
     return test_plot
 
 PAGE = Template("""
@@ -197,9 +197,9 @@ class Test_autoload_static:
 class Test_components:
     def test_return_type(self) -> None:
         plot1 = figure()
-        plot1.circle([], [])
+        plot1.scatter([], [])
         plot2 = figure()
-        plot2.circle([], [])
+        plot2.scatter([], [])
         # This is a testing artefact, users don't have to do this in practice
         curdoc().add_root(plot1)
         curdoc().add_root(plot2)
@@ -227,11 +227,11 @@ class Test_components:
     def test_plot_dict_returned_when_wrap_plot_info_is_false(self, mock_make_css_safe_id: MagicMock, mock_make_id: MagicMock) -> None:
         doc = Document()
         plot1 = figure()
-        plot1.circle([], [])
+        plot1.scatter([], [])
         doc.add_root(plot1)
 
         plot2 = figure()
-        plot2.circle([], [])
+        plot2.scatter([], [])
         doc.add_root(plot2)
 
         expected_plotdict_1 = RenderRoot(elementid=ID("ID"), id=ID("ID"))
@@ -336,7 +336,7 @@ class Test_file_html:
         from bokeh.models.widgets import Button
 
         fig = figure()
-        fig.x([0], [0])
+        fig.scatter(marker="x", x=[0], y=[0])
 
         button = Button(label="Button")
 

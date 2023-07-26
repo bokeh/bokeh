@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 from ...core.properties import Instance, InstanceDefault
 from ...core.validation import error
 from ...core.validation.errors import MALFORMED_GRAPH_SOURCE
-from ..glyphs import Circle, MultiLine
+from ..glyphs import MultiLine, Scatter
 from ..graphs import GraphHitTestPolicy, LayoutProvider, NodesOnly
 from ..sources import ColumnDataSource
 from .glyph_renderer import GlyphRenderer
@@ -45,7 +45,7 @@ __all__ = (
 # values are also model instances and that is too complicated for now.
 
 _DEFAULT_NODE_RENDERER = lambda: GlyphRenderer(
-    glyph=Circle(), data_source=ColumnDataSource(data=dict(index=[])),
+    glyph=Scatter(), data_source=ColumnDataSource(data=dict(index=[])),
 )
 
 _DEFAULT_EDGE_RENDERER = lambda: GlyphRenderer(

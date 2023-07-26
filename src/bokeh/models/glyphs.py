@@ -444,7 +444,7 @@ class Block(LRTBGlyph):
     The {prop} values for the blocks.
     """)
 
-class Circle(Marker):
+class Circle(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     ''' Render circle markers. '''
 
     # explicit __init__ to support Init signatures
@@ -453,15 +453,18 @@ class Circle(Marker):
 
     __example__ = "examples/reference/models/Circle.py"
 
-    _args = ('x', 'y')
+    _args = ('x', 'y', 'radius')
 
-    radius = NullDistanceSpec(help="""
+    x = NumberSpec(default=field("x"), help="""
+    The x-coordinates of the center of the annuli.
+    """)
+
+    y = NumberSpec(default=field("y"), help="""
+    The y-coordinates of the center of the annuli.
+    """)
+
+    radius = DistanceSpec(default=field("radius"), help="""
     The radius values for circle markers (in |data units|, by default).
-
-    .. note::
-        Circle markers are slightly unusual in that they support specifying
-        a radius in addition to a size. Only one of ``radius`` or ``size``
-        should be given.
 
     .. warning::
         Note that ``Circle`` glyphs are always drawn as circles on the screen,
@@ -483,6 +486,18 @@ class Circle(Marker):
 
     Setting this dimension to 'max' will calculate the radius on both the x
     and y dimensions and use the maximum of the two, 'min' selects the minimum.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the markers.
+    """)
+
+    fill_props = Include(FillProps, help="""
+    The {prop} values for the markers.
+    """)
+
+    hatch_props = Include(HatchProps, help="""
+    The {prop} values for the markers.
     """)
 
 class Ellipse(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):

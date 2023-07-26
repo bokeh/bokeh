@@ -19,7 +19,6 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.core.validation.check import ValidationIssue
 from bokeh.models import (
-    Circle,
     ColorBar,
     ColumnDataSource,
     GeoJSONDataSource,
@@ -30,6 +29,7 @@ from bokeh.models import (
     Line,
     MultiLine,
     Patch,
+    Scatter,
     Text,
     WebDataSource,
     WeightedStackColorMapper,
@@ -53,7 +53,7 @@ class TestGlyphRenderer_construct_color_bar:
     @pytest.mark.parametrize("mapper", (linear_cmap, log_cmap))
     def test_fill_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
+        renderer.glyph = Scatter(fill_color=linear_cmap("foo", "Viridis256", 0, 100))
         cb = renderer.construct_color_bar(title="Title")
         assert isinstance(cb, ColorBar)
         assert cb.color_mapper is renderer.glyph.fill_color.transform
@@ -61,7 +61,7 @@ class TestGlyphRenderer_construct_color_bar:
 
     def test_fill_missing_transform(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle()
+        renderer.glyph = Scatter()
 
         msg = "expected fill_color to be a field with a ColorMapper transform"
         with pytest.raises(ValueError, match=msg):
@@ -140,19 +140,19 @@ class TestGlyphRenderer_check_bad_column_name:
 
     def test_empty(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
-        renderer.glyph = Circle()
+        renderer.glyph = Scatter()
 
         assert renderer._check_bad_column_name() == []
 
     def test_good(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
-        renderer.glyph = Circle(x="x", y="y")
+        renderer.glyph = Scatter(x="x", y="y")
 
         assert renderer._check_bad_column_name() ==  []
 
     def test_bad_with_matches(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
-        renderer.glyph = Circle(x="xx", y="yy")
+        renderer.glyph = Scatter(x="xx", y="yy")
 
         check = renderer._check_bad_column_name()
 
@@ -166,7 +166,7 @@ class TestGlyphRenderer_check_bad_column_name:
 
     def test_bad_with_no_matches(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
-        renderer.glyph = Circle(x="foo", y="bar")
+        renderer.glyph = Scatter(x="foo", y="bar")
 
         check = renderer._check_bad_column_name()
 
@@ -180,7 +180,7 @@ class TestGlyphRenderer_check_bad_column_name:
 
     def test_bad_with_mixed_matches(self):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource(data=dict(x=[], y=[])))
-        renderer.glyph = Circle(x="xx", y="bar")
+        renderer.glyph = Scatter(x="xx", y="bar")
 
         check = renderer._check_bad_column_name()
 

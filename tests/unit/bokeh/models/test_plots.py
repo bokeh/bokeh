@@ -71,7 +71,7 @@ class TestPlotLegendProperty:
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 0
-        plot.circle([1,2], [3,4], legend_label="foo")
+        plot.scatter([1,2], [3,4], legend_label="foo")
         x = plot.legend
         assert isinstance(x, bmp._list_attr_splat)
         assert len(x) == 1
@@ -87,7 +87,7 @@ class TestPlotLegendProperty:
 class TestPlotSelect:
     def setup_method(self):
         self._plot = figure(tools='pan')
-        self._plot.circle([1,2,3], [3,2,1], name='foo')
+        self._plot.scatter([1,2,3], [3,2,1], name='foo')
 
     @patch('bokeh.models.plots.find')
     def test_string_arg(self, mock_find: MagicMock) -> None:

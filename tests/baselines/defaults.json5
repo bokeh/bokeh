@@ -1283,12 +1283,84 @@
     },
   },
   Circle: {
-    __extends__: "Marker",
+    __extends__: [
+      "XYGlyph",
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    x: {
+      type: "field",
+      field: "x",
+    },
+    y: {
+      type: "field",
+      field: "y",
+    },
     radius: {
+      type: "field",
+      field: "radius",
+    },
+    radius_dimension: "x",
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
+    },
+    fill_color: {
+      type: "value",
+      value: "gray",
+    },
+    fill_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_color: {
+      type: "value",
+      value: "black",
+    },
+    hatch_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_scale: {
+      type: "value",
+      value: 12.0,
+    },
+    hatch_pattern: {
       type: "value",
       value: null,
     },
-    radius_dimension: "x",
+    hatch_weight: {
+      type: "value",
+      value: 1.0,
+    },
+    hatch_extra: {
+      type: "map",
+    },
   },
   Ellipse: {
     __extends__: [
@@ -3294,7 +3366,7 @@
         },
         glyph: {
           type: "object",
-          name: "Circle",
+          name: "Scatter",
           attributes: {},
         },
       },

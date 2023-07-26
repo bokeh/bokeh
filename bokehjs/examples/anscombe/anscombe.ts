@@ -58,7 +58,7 @@ export namespace Anscombe {
     plot.add_layout(ygrid)
     const line = new Bokeh.Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
     plot.add_glyph(line, lines)
-    const circle = new Bokeh.Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+    const circle = new Bokeh.Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
     plot.add_glyph(circle, circles)
 
     return plot

@@ -45,12 +45,10 @@ from _util_models import (
     GLYPH,
     HATCH,
     LINE,
-    MARKER,
     TEXT,
     check_fill_properties,
     check_hatch_properties,
     check_line_properties,
-    check_marker_properties,
     check_properties_existence,
     check_text_properties,
 )
@@ -642,17 +640,20 @@ def test_Wedge() -> None:
 
 
 def test_Circle() -> None:
-    marker = Circle()
-    check_marker_properties(marker)
-    assert marker.radius is None
-    check_line_properties(marker)
-    check_fill_properties(marker)
-    check_hatch_properties(marker)
-    check_properties_existence(marker, [
+    glyph = Circle()
+    assert glyph.x == field("x")
+    assert glyph.y == field("y")
+    assert glyph.radius == field("radius")
+    check_line_properties(glyph)
+    check_fill_properties(glyph)
+    check_hatch_properties(glyph)
+    check_properties_existence(glyph, [
+        "x",
+        "y",
         "radius",
         "radius_units",
         "radius_dimension",
-    ], MARKER, LINE, FILL, HATCH, GLYPH)
+    ], LINE, FILL, HATCH, GLYPH)
 
 #-----------------------------------------------------------------------------
 # Dev API

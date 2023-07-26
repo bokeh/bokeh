@@ -22,6 +22,7 @@ from functools import wraps
 from inspect import Parameter, Signature
 
 # Bokeh imports
+from ..util.deprecation import deprecated
 from ._docstring import generate_docstring
 from ._renderer import create_renderer
 
@@ -59,6 +60,7 @@ def marker_method():
             for arg, param in zip(args, sigparams[1:]):
                 kwargs[param.name] = arg
             kwargs["marker"] = marker_type
+            deprecated((3, 3, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
             return create_renderer(Scatter, self, **kwargs)
 
         wrapped.__signature__ = Signature(parameters=sigparams)

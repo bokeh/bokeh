@@ -38,6 +38,7 @@ from bokeh.models import (
     Scatter,
     Title,
 )
+from bokeh.util.warnings import BokehDeprecationWarning
 
 # Module under test
 # different import pattern due to figure function shadowing figure.py module
@@ -250,9 +251,10 @@ class Test_figure:
         assert m is not None
         assert set(m.groups()) == {"fill_color", "hatch_color", "line_color"}
 
+NONCIRCLE_MARKERS = set(MarkerType) - {"circle"}
 
 class TestMarkers:
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     def test_mixed_inputs(self, marker) -> None:
         p = bpf.figure()
         rgb = (100, 0, 0)
@@ -263,27 +265,30 @@ class TestMarkers:
         func = getattr(p, marker)
 
         # color/line_color
-        r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], color=rgb, line_color=rgb_other)
         assert r.glyph.fill_color == rgb
         assert r.glyph.line_color == rgb_other
 
         # color/fill_color
-        r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], color=rgb, fill_color=rgb_other)
         assert r.glyph.line_color == rgb
         assert r.glyph.fill_color == rgb_other
 
         # alpha/line_alpha
-        r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1,
-                 line_alpha=alpha2)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], color=rgb, alpha=alpha1, line_alpha=alpha2)
         assert r.glyph.line_alpha == alpha2
         assert r.glyph.fill_alpha == alpha1
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        r = func([1, 2, 3], [1, 2, 3], color=color)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], color=color)
         assert r.glyph.line_color == color
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
@@ -292,40 +297,43 @@ class TestMarkers:
         for v in r.glyph.fill_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (100, 100, 100), (50, 100, 50, 0.5)])
     def test_line_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        r = func([1, 2, 3], [1, 2, 3], line_color=color)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], line_color=color)
         assert r.glyph.line_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.line_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     @pytest.mark.parametrize('color',  [(100., 100., 100.), (50., 100., 50., 0.5), (50, 100, 50, 0.5)])
     def test_fill_color_input(self, color, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        r = func([1, 2, 3], [1, 2, 3], fill_color=color)
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], fill_color=color)
         assert r.glyph.fill_color == color
         # rgb should always be an integer by the time it is added to property
         for v in r.glyph.fill_color[0:3]:
             assert isinstance(v, int)
 
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     def test_render_level(self, marker) -> None:
         p = bpf.figure()
         func = getattr(p, marker)
-        r = func([1, 2, 3], [1, 2, 3], level="underlay")
+        with pytest.warns(BokehDeprecationWarning):
+            r = func([1, 2, 3], [1, 2, 3], level="underlay")
         assert r.level == "underlay"
         with pytest.raises(ValueError):
             p.circle([1, 2, 3], [1, 2, 3], level="bad_input")
 
 
 class Test_scatter:
-    @pytest.mark.parametrize('marker', list(MarkerType))
+    @pytest.mark.parametrize('marker', NONCIRCLE_MARKERS)
     def test_marker_value(self, marker) -> None:
         p = bpf.figure()
         r = p.scatter([1, 2, 3], [1, 2, 3], marker=marker)
@@ -341,7 +349,8 @@ class Test_scatter:
 
     def test_circle_with_radius(self) -> None:
         p = bpf.figure()
-        r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
+        with pytest.warns(BokehDeprecationWarning):
+            r = p.scatter([1, 2, 3], [1, 2, 3], marker="circle", radius=0.2)
         assert isinstance(r.glyph, Circle)
         assert r.glyph.radius == 0.2
 
