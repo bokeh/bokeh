@@ -7,8 +7,8 @@ import type {ImageBaseView} from "../image_base"
 import type {Texture2D, Texture2DOptions} from "regl"
 
 export class ImageGL extends BaseGLGlyph {
-  protected _tex: Array<Texture2D | null>
-  protected _bounds: Array<Float32Buffer | null>
+  protected _tex: Array<Texture2D | null> = []
+  protected _bounds: Array<Float32Buffer | null> = []
 
   // image_changed is separate from data_changed as it can occur through changed colormapping.
   protected _image_changed: boolean = false
@@ -68,7 +68,7 @@ export class ImageGL extends BaseGLGlyph {
     const {image} = this.glyph
     const nimage = image.length
 
-    if (this._bounds == null || this._bounds.length != nimage)
+    if (this._bounds.length != nimage)
       this._bounds = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
@@ -77,9 +77,8 @@ export class ImageGL extends BaseGLGlyph {
       const sy_i = sy[i]
       const sw_i = sw[i]
       const sh_i = sh[i]
-      const image_i = image.get(i)
 
-      if (image_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i)) {
+      if (!isFinite(sx_i + sy_i + sw_i + sh_i)) {
         this._bounds[i] = null
         continue
       }
@@ -101,13 +100,13 @@ export class ImageGL extends BaseGLGlyph {
     const {image} = this.glyph
     const nimage = image.length
 
-    if (this._tex == null || this._tex.length != nimage)
+    if (this._tex.length != nimage)
       this._tex = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
       const image_i = image.get(i)
 
-      if (image_i == null) {
+      if (image_i.dimension != 2 || image_i.shape[0] < 1 || image_i.shape[1] < 1) {
         this._tex[i] = null
         continue
       }
