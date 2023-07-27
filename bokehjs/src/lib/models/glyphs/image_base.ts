@@ -124,11 +124,6 @@ export abstract class ImageBaseView extends XYGlyphView {
   public abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
-    if (this.glglyph != null) {
-      // Avoid unnecessary canvas-specific data manipulation if rendering using WebGL.
-      return
-    }
-
     const n = this.data_size
 
     if (this._image_data == null || this._image_data.length != n) {

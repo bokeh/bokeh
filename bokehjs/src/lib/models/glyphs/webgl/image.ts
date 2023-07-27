@@ -10,22 +10,39 @@ export class ImageGL extends BaseGLGlyph {
   protected _tex: Array<Texture2D | null>
   protected _bounds: Array<Float32Buffer | null>
 
+  // image_changed is separate from data_changed as it can occur through changed colormapping.
+  protected _image_changed: boolean = false
+
   constructor(regl_wrapper: ReglWrapper, override readonly glyph: ImageBaseView) {
     super(regl_wrapper, glyph)
   }
 
   override draw(indices: number[], main_glyph: ImageBaseView, transform: Transform): void {
     const main_gl_glyph = main_glyph.glglyph! as ImageGL
+    // The only visual property that can change is global_alpha and that is read on every render,
+    // so ignore this.visuals_changed
 
-    // The only visual property that can change is global_alpha and that is read on every render.
+    const data_changed_or_mapped = main_gl_glyph.data_changed || main_gl_glyph.data_mapped
 
-    if (main_gl_glyph.data_changed) {
+    if (data_changed_or_mapped) {
+      // Handle change of location or bounds.
       main_gl_glyph._set_data()
-      main_gl_glyph.data_changed = false
     }
 
+    if (main_gl_glyph._image_changed || main_gl_glyph.data_changed) {
+      // Handle change of image itself. If _image_changed then image has definitely changed such as
+      // from a change of colormapping. If data_changed then image may have changed so update just
+      // in case. If we could identify what in the CDS has changed (e.g. image or x) then we would
+      // know whether to call _set_image or not.
+      main_gl_glyph._set_image()
+    }
+
+    main_gl_glyph.data_changed = false
+    main_gl_glyph.data_mapped = false
+    main_gl_glyph._image_changed = false
+
     for (const i in indices) {
-      if (this._tex[i] == null)
+      if (this._tex[i] == null || this._bounds[i] == null)
         continue
 
       const global_alpha = 1.0
@@ -43,13 +60,13 @@ export class ImageGL extends BaseGLGlyph {
     }
   }
 
+  set_image_changed(): void {
+    this._image_changed = true
+  }
+
   protected _set_data(): void {
-    // TODO: Cache textures rather than changing them each call.
     const {image} = this.glyph
     const nimage = image.length
-
-    if (this._tex == null || this._tex.length != nimage)
-      this._tex = Array(nimage).fill(null)
 
     if (this._bounds == null || this._bounds.length != nimage)
       this._bounds = Array(nimage).fill(null)
@@ -63,23 +80,9 @@ export class ImageGL extends BaseGLGlyph {
       const image_i = image.get(i)
 
       if (image_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i)) {
-        this._tex[i] = null
         this._bounds[i] = null
         continue
       }
-
-      const tex_options: Texture2DOptions = {
-        width: image_i.shape[0],
-        height: image_i.shape[1],
-        data: this.glyph._flat_img_to_buf8(image_i),
-        format: "rgba",
-        type: "uint8",
-      }
-
-      if (this._tex[i] == null)
-        this._tex[i] = this.regl_wrapper.texture(tex_options)
-      else
-        this._tex[i]!(tex_options)  // Reuse existing WebGL texture
 
       if (this._bounds[i] == null)
         this._bounds[i] = new Float32Buffer(this.regl_wrapper)
@@ -91,6 +94,36 @@ export class ImageGL extends BaseGLGlyph {
       bounds_array[3] = bounds_array[1] + sh[i]*xy_scale.y
 
       this._bounds[i]!.update()
+    }
+  }
+
+  protected _set_image(): void {
+    const {image} = this.glyph
+    const nimage = image.length
+
+    if (this._tex == null || this._tex.length != nimage)
+      this._tex = Array(nimage).fill(null)
+
+    for (let i = 0; i < nimage; i++) {
+      const image_i = image.get(i)
+
+      if (image_i == null) {
+        this._tex[i] = null
+        continue
+      }
+
+      const tex_options: Texture2DOptions = {
+        width: image_i.shape[0],
+        height: image_i.shape[1],
+        data: this.glyph.image_data[i],
+        format: "rgba",
+        type: "uint8",
+      }
+
+      if (this._tex[i] == null)
+        this._tex[i] = this.regl_wrapper.texture(tex_options)
+      else
+        this._tex[i]!(tex_options)  // Reuse existing WebGL texture
     }
   }
 }

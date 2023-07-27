@@ -31,6 +31,10 @@ export class ImageStackView extends ImageBaseView {
   }
 
   protected _update_image(): void {
+    if (this.glglyph != null) {
+      this.glglyph.set_image_changed()
+    }
+
     // Only reset image_data if already initialized
     if (this._image_data != null) {
       this._set_data(null)
