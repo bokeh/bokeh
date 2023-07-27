@@ -72,7 +72,7 @@ export class ImageGL extends BaseGLGlyph {
       this._bounds = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
-      const {sx, sy, sw, sh, xy_anchor, xy_scale} = this.glyph
+      const {sx, sy, sw, sh, xy_anchor, xy_scale, xy_sign} = this.glyph
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sw_i = sw[i]
@@ -87,10 +87,10 @@ export class ImageGL extends BaseGLGlyph {
         this._bounds[i] = new Float32Buffer(this.regl_wrapper)
       const bounds_array = this._bounds[i]!.get_sized_array(4)
 
-      bounds_array[0] = sx[i] + sw[i]*(0.5*(1 - xy_scale.x) - xy_anchor.x)
-      bounds_array[1] = sy[i] + sh[i]*(0.5*(1 - xy_scale.y) - xy_anchor.y)
-      bounds_array[2] = bounds_array[0] + sw[i]*xy_scale.x
-      bounds_array[3] = bounds_array[1] + sh[i]*xy_scale.y
+      bounds_array[0] = sx[i] + sw[i]*(0.5*(1 - xy_scale.x) - xy_anchor.x)*xy_sign.x
+      bounds_array[1] = sy[i] + sh[i]*(0.5*(1 - xy_scale.y) - xy_anchor.y)*xy_sign.y
+      bounds_array[2] = bounds_array[0] + sw[i]*xy_scale.x*xy_sign.x
+      bounds_array[3] = bounds_array[1] + sh[i]*xy_scale.y*xy_sign.y
 
       this._bounds[i]!.update()
     }
@@ -104,17 +104,17 @@ export class ImageGL extends BaseGLGlyph {
       this._tex = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
-      const image_i = image.get(i)
+      const image_data = this.glyph.image_data[i]
 
-      if (image_i.dimension != 2 || image_i.shape[0] < 1 || image_i.shape[1] < 1) {
+      if (image_data == null) {
         this._tex[i] = null
         continue
       }
 
       const tex_options: Texture2DOptions = {
-        width: image_i.shape[0],
-        height: image_i.shape[1],
-        data: this.glyph.image_data[i],
+        width: image_data.width,
+        height: image_data.height,
+        data: image_data,
         format: "rgba",
         type: "uint8",
       }
