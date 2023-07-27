@@ -30,8 +30,8 @@ export abstract class SingleLineGL extends BaseLineGL {
     }
 
     if (data_changed_or_mapped) {
-      this.data_changed = false
-      this.data_mapped = false
+      main_gl_glyph.data_changed = false
+      main_gl_glyph.data_mapped = false
     }
 
     // Get show buffer to account for selected indices.
