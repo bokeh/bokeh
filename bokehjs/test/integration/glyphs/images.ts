@@ -83,11 +83,17 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
       return ndarray(d, {shape: [N, N]})
     }
 
-    const p = fig([350, 150])
-    p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
-    p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
-    p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([350, 150], {output_backend, title: output_backend})
+      p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
+      p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
+      p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
+      return p
+    }
 
-    await display(p)
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("webgl")
+
+    await display(column([p0, p1]))
   })
 })
