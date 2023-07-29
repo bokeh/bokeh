@@ -83,29 +83,30 @@ export class VAreaStepView extends AreaView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     const {sx, sy1, sy2} = this
+    const step_mode = this.model.step_mode
 
-    for (let i = 0; i < this.data_size - 1; i++) {
+    for (let i = 0; i < this.data_size; i++) {
       let px: number[]
-      let py: number[]
 
-      switch (this.model.step_mode) {
-        case "before": {
-          px = [sx[i], sx[i+1], sx[i+1], sx[i]]
-          py = [sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1]]
-          break
+      if (step_mode == "before" && i != 0) {
+        px = [sx[i-1], sx[i], sx[i], sx[i-1]]
+      } else if (step_mode == "after" && i != this.data_size - 1) {
+        px = [sx[i], sx[i+1], sx[i+1], sx[i]]
+      } else if (step_mode == "center") {
+        const mid_prev_x = (sx[i-1] + sx[i]) / 2
+        const mid_next_x = (sx[i] + sx[i + 1]) / 2
+        if (i == 0) {
+          px = [sx[i], mid_next_x, mid_next_x, sx[i]]
+        } else if (i == this.data_size - 1) {
+          px = [mid_prev_x, sx[i], sx[i], mid_prev_x]
+        } else {
+          px = [mid_prev_x, mid_next_x, mid_next_x, mid_prev_x]
         }
-        case "after": {
-          px = [sx[i], sx[i+1], sx[i+1], sx[i]]
-          py = [sy1[i], sy1[i], sy2[i], sy2[i]]
-          break
-        }
-        case "center": {
-          const mid_x = (sx[i] + sx[i+1]) / 2
-          px = [sx[i], mid_x, mid_x, sx[i+1], sx[i+1], mid_x, mid_x, sx[i]]
-          py = [sy1[i], sy1[i], sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1], sy2[i], sy2[i]]
-          break
-        }
+      } else {
+        continue
       }
+
+      const py = [sy1[i], sy1[i], sy2[i], sy2[i]]
 
       if (hittest.point_in_poly(geometry.sx, geometry.sy, px, py)) {
         const result = new Selection()
