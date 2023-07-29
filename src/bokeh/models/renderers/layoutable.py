@@ -75,9 +75,7 @@ class PlotRenderer(LayoutableRenderer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    renderers = List(Instance(Renderer), help="""
-    A list of all glyph renderers for this plot.
-    """)
+    frame = Instance("bokeh.models.canvas.CartesianFrame")
 
     left = List(Instance(Renderer), help="""
     A list of renderers to occupy the area to the left of the plot.

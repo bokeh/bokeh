@@ -41,25 +41,11 @@ import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import type {Place} from "core/enums"
 import {Location, ResetPolicy} from "core/enums"
-import {concat, remove_by} from "core/util/array"
-import {difference} from "core/util/set"
 import {isString} from "core/util/types"
 
 import {Grid} from "../grids/grid"
-import type {GuideRenderer} from "../renderers/guide_renderer"
-import {LinearScale} from "../scales/linear_scale"
 import {Toolbar} from "../tools/toolbar"
-
-import {Range} from "../ranges/range"
-import {Scale} from "../scales/scale"
-import type {Glyph} from "../glyphs/glyph"
-import type {ColumnarDataSource} from "../sources/columnar_data_source"
-import {ColumnDataSource} from "../sources/column_data_source"
-import {GlyphRenderer} from "../renderers/glyph_renderer"
-import type {ToolAliases} from "../tools/tool"
-import {DataRange1d} from "../ranges/data_range1d"
 
 import {Boolean, Number, Null, Or} from "../../core/kinds"
 import {LRTB} from "../common/kinds"
@@ -76,7 +62,6 @@ export class PlotRendererView extends LayoutableRendererView {
 
   declare layout: BorderLayout
 
-  private _frame: CartesianFrame
   frame_view: CartesianFrameView
 
   // XXX avoid renaming everywhere for now
@@ -85,7 +70,7 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   get layoutables(): LayoutableRenderer[] {
-    return [this._frame]
+    return [this.model.frame]
   }
 
   protected _title?: Title
@@ -188,18 +173,6 @@ export class PlotRendererView extends LayoutableRendererView {
       selection: new Map(), // XXX: initial selection?
     }
 
-    this._frame = new CartesianFrame({
-      x_scale: this.model.x_scale,
-      y_scale: this.model.y_scale,
-      x_range: this.model.x_range,
-      y_range: this.model.y_range,
-      extra_x_ranges: this.model.extra_x_ranges,
-      extra_y_ranges: this.model.extra_y_ranges,
-      extra_x_scales: this.model.extra_x_scales,
-      extra_y_scales: this.model.extra_y_scales,
-      renderers: this.model.renderers,
-    })
-
     this._state_manager = new StateManager(this, this._initial_state)
 
     const {title_location, title} = this.model
@@ -219,7 +192,7 @@ export class PlotRendererView extends LayoutableRendererView {
     await super.lazy_initialize()
 
     //this.frame_view = await build_view(this._frame, {parent: this})
-    this.frame_view = this._renderer_views.get(this._frame)! as CartesianFrameView
+    this.frame_view = this._renderer_views.get(this.model.frame)! as CartesianFrameView
     this._range_manager = new RangeManager(this.frame_view)
 
     await this.build_tool_views()
@@ -460,7 +433,7 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   trigger_ranges_update_event(): void {
-    const {x_range, y_range} = this.model
+    const {x_range, y_range} = this.frame_view
     const linked_plots = new Set([...x_range.frames, ...y_range.frames])
 
     for (const plot_view of linked_plots) {
@@ -497,7 +470,8 @@ export class PlotRendererView extends LayoutableRendererView {
 
   protected _invalidate_layout_if_needed(): void {
     const needs_layout = (() => {
-      for (const panel of this.model.side_panels) {
+      const {above, below, left, right} = this.model
+      for (const panel of [...above, ...below, ...left, ...right]) {
         const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout?.has_size_changed() ?? false) {
           //this.invalidate_painters(view)
@@ -517,7 +491,8 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
-    const {above, below, left, right, center, renderers} = this.model
+    const {above, below, left, right, center} = this.model
+    const {renderers} = this.model.frame
 
     yield* renderers
     yield* above
@@ -551,26 +526,13 @@ export class PlotRendererView extends LayoutableRendererView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
-    this.on_change([extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
-      this.frame_view.model.setv({
-        x_range: this.model.x_range,
-        y_range: this.model.y_range,
-        x_scale: this.model.x_scale,
-        y_scale: this.model.y_scale,
-        extra_x_ranges: this.model.extra_x_ranges,
-        extra_y_ranges: this.model.extra_y_ranges,
-        extra_x_scales: this.model.extra_x_scales,
-        extra_y_scales: this.model.extra_y_scales,
-        renderers: this.model.renderers,
-      })
-    })
-
-    const {above, below, left, right, center, renderers} = this.model.properties
-    const panels = [above, below, left, right, center]
+    const {renderers} = this.model.frame.properties
     this.on_change(renderers, async () => {
       await this.build_renderer_views()
     })
+
+    const {above, below, left, right, center} = this.model.properties
+    const panels = [above, below, left, right, center]
     this.on_change(panels, async () => {
       await this.build_renderer_views()
       this.canvas_view.request_layout()
@@ -647,7 +609,7 @@ export class PlotRendererView extends LayoutableRendererView {
       outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
 
-    if (this.model.match_aspect) {
+    if (this.model.frame.match_aspect) {
       this.pause()
       this._range_manager.update_dataranges()
       this.unpause(true)
@@ -853,6 +815,8 @@ export namespace PlotRenderer {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Renderer.Props & {
+    frame: p.Property<CartesianFrame>
+
     toolbar: p.Property<Toolbar>
     toolbar_location: p.Property<Location | null>
     toolbar_sticky: p.Property<boolean>
@@ -870,25 +834,6 @@ export namespace PlotRenderer {
     left: p.Property<(Annotation | Axis)[]>
     right: p.Property<(Annotation | Axis)[]>
     center: p.Property<(Annotation | Grid)[]>
-
-    /// frame
-    renderers: p.Property<Renderer[]>
-
-    x_range: p.Property<Range>
-    y_range: p.Property<Range>
-
-    x_scale: p.Property<Scale>
-    y_scale: p.Property<Scale>
-
-    extra_x_ranges: p.Property<{[key: string]: Range}>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
-
-    extra_x_scales: p.Property<{[key: string]: Scale}>
-    extra_y_scales: p.Property<{[key: string]: Scale}>
-
-    match_aspect: p.Property<boolean>
-    aspect_scale: p.Property<number>
-    ///
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -946,7 +891,9 @@ export class PlotRenderer extends LayoutableRenderer {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
+    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Or, Ref, Null, Nullable}) => ({
+      frame:             [ Ref(CartesianFrame) ],
+
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
@@ -967,25 +914,6 @@ export class PlotRenderer extends LayoutableRenderer {
       left:              [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
       right:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
       center:            [ Array(Or(Ref(Annotation), Ref(Grid))), [] ],
-
-      /// frame
-      renderers:         [ Array(Ref(Renderer)), [] ],
-
-      x_range:           [ Ref(Range), () => new DataRange1d() ],
-      y_range:           [ Ref(Range), () => new DataRange1d() ],
-
-      x_scale:           [ Ref(Scale), () => new LinearScale() ],
-      y_scale:           [ Ref(Scale), () => new LinearScale() ],
-
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
-
-      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
-      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
-
-      match_aspect:      [ Boolean, false ],
-      aspect_scale:      [ Number, 1 ],
-      ///
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],
@@ -1017,54 +945,7 @@ export class PlotRenderer extends LayoutableRenderer {
     })
   }
 
-  add_layout(renderer: Annotation | GuideRenderer, side: Place = "center"): void {
-    const renderers = this.properties[side].get_value()
-    this.setv({[side]: [...renderers, renderer]})
-  }
-
-  remove_layout(renderer: Annotation | GuideRenderer): void {
-
-    const del = (items: (Annotation | GuideRenderer)[]): void => {
-      remove_by(items, (item) => item == renderer)
-    }
-
-    del(this.left)
-    del(this.right)
-    del(this.above)
-    del(this.below)
-    del(this.center)
-  }
-
   get data_renderers(): DataRenderer[] {
-    return this.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
-  }
-
-  add_renderers(...renderers: Renderer[]): void {
-    this.renderers = [...this.renderers, ...renderers]
-  }
-
-  add_glyph(glyph: Glyph, source: ColumnarDataSource = new ColumnDataSource(),
-      attrs: Partial<GlyphRenderer.Attrs> = {}): GlyphRenderer {
-    const renderer = new GlyphRenderer({...attrs, data_source: source, glyph})
-    this.add_renderers(renderer)
-    return renderer
-  }
-
-  add_tools(...tools: (Tool | keyof ToolAliases)[]): void {
-    const computed_tools = tools.map((tool) => tool instanceof Tool ? tool : Tool.from_string(tool))
-    this.toolbar.tools = [...this.toolbar.tools, ...computed_tools]
-  }
-
-  remove_tools(...tools: Tool[]): void {
-    this.toolbar.tools = [...difference(new Set(this.toolbar.tools), new Set(tools))]
-  }
-
-  get panels(): (Annotation | Axis | Grid)[] {
-    return [...this.side_panels, ...this.center]
-  }
-
-  get side_panels(): (Annotation | Axis)[] {
-    const {above, below, left, right} = this
-    return concat([above, below, left, right])
+    return this.frame.renderers.filter((r): r is DataRenderer => r instanceof DataRenderer)
   }
 }
