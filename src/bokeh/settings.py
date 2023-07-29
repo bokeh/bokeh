@@ -685,6 +685,14 @@ class Settings:
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
+    default_server_host: PrioritizedSetting[str] = PrioritizedSetting("default_server_host", "BOKEH_DEFAULT_SERVER_HOST", default="localhost", help="""
+    Allows to define the default host used by Bokeh's server and resources.
+    """)
+
+    default_server_port: PrioritizedSetting[int] = PrioritizedSetting("default_server_port", "BOKEH_DEFAULT_SERVER_PORT", default=5006, help="""
+    Allows to define the default port used by Bokeh's server and resources.
+    """)
+
     secret_key: PrioritizedSetting[str | None] = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""
     A long, cryptographically-random secret unique to a Bokeh deployment.
     """)
