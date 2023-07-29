@@ -1,10 +1,8 @@
 import type {Range} from "../ranges/range"
 import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
-import type {CartesianFrame} from "../canvas/cartesian_frame"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
-import type {PlotView} from "./plot_canvas"
-import type {PlotRendererView} from "./plot_renderer"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
 
@@ -20,16 +18,12 @@ export type RangeOptions = {
 }
 
 export class RangeManager {
-  constructor(readonly parent: PlotView | PlotRendererView) {}
-
-  get frame(): CartesianFrame {
-    return this.parent.frame
-  }
+  constructor(readonly frame_view: CartesianFrameView) {}
 
   invalidate_dataranges: boolean = true
 
   update(range_info: RangeInfo, options: RangeOptions = {}): void {
-    const {x_ranges, y_ranges} = this.frame
+    const {x_ranges, y_ranges} = this.frame_view
     const range_info_iter: [Range, Interval][] = []
     for (const [name, interval] of range_info.xrs) {
       range_info_iter.push([x_ranges.get(name)!, interval])
@@ -44,7 +38,7 @@ export class RangeManager {
   }
 
   reset(): void {
-    const {x_ranges, y_ranges} = this.frame
+    const {x_ranges, y_ranges} = this.frame_view
     for (const range of x_ranges.values()) {
       range.reset()
     }
@@ -54,7 +48,7 @@ export class RangeManager {
     this.update_dataranges()
   }
 
-  protected _update_dataranges(frame: CartesianFrame | CoordinateMapping): void {
+  protected _update_dataranges(frame: CartesianFrameView | CoordinateMapping): void {
     // Update any DataRange1ds here
     const bounds: Bounds = new Map()
     const log_bounds: Bounds = new Map()
@@ -69,7 +63,7 @@ export class RangeManager {
         calculate_log_bounds = true
     }
 
-    for (const renderer of this.parent.auto_ranged_renderers) {
+    for (const renderer of this.frame_view.auto_ranged_renderers) {
       const bds = renderer.bounds()
       bounds.set(renderer.model, bds)
 
@@ -87,13 +81,13 @@ export class RangeManager {
     const height = frame.y_target.span
 
     let r: number | undefined
-    if (this.parent.model.match_aspect !== false && width != 0 && height != 0)
-      r = (1/this.parent.model.aspect_scale)*(width/height)
+    if (this.frame_view.model.match_aspect !== false && width != 0 && height != 0)
+      r = (1/this.frame_view.model.aspect_scale)*(width/height)
 
     for (const [, xr] of frame.x_ranges) {
       if (xr instanceof DataRange1d) {
         const bounds_to_use = xr.scale_hint == "log" ? log_bounds : bounds
-        xr.update(bounds_to_use, 0, this.parent, r)
+        xr.update(bounds_to_use, 0, this.frame_view, r)
         if (xr.follow != null) {
           follow_enabled = true
         }
@@ -105,7 +99,7 @@ export class RangeManager {
     for (const [, yr] of frame.y_ranges) {
       if (yr instanceof DataRange1d) {
         const bounds_to_use = yr.scale_hint == "log" ? log_bounds : bounds
-        yr.update(bounds_to_use, 1, this.parent, r)
+        yr.update(bounds_to_use, 1, this.frame_view, r)
         if (yr.follow != null) {
           follow_enabled = true
         }
@@ -126,9 +120,9 @@ export class RangeManager {
   }
 
   update_dataranges(): void {
-    this._update_dataranges(this.frame)
+    this._update_dataranges(this.frame_view)
 
-    for (const renderer of this.parent.auto_ranged_renderers) {
+    for (const renderer of this.frame_view.auto_ranged_renderers) {
       const {coordinates} = renderer.model
       if (coordinates != null)
         this._update_dataranges(coordinates)
@@ -141,7 +135,7 @@ export class RangeManager {
   compute_initial(): RangeInfo | null {
     // check for good values for ranges before setting initial range
     let good_vals = true
-    const {x_ranges, y_ranges} = this.frame
+    const {x_ranges, y_ranges} = this.frame_view
     const xrs: Map<string, Interval> = new Map()
     const yrs: Map<string, Interval> = new Map()
     for (const [name, range] of x_ranges) {

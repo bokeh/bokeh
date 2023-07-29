@@ -20,9 +20,9 @@ import * as enums from "core/enums"
 export type Length = typeof Length["__type__"]
 export const Length = NonNegative(Int)
 
-const XY = <T>(type: Kind<T>) => PartialStruct({x: type, y: type})
+export const XY = <T>(type: Kind<T>) => PartialStruct({x: type, y: type})
 
-const LRTB = <T>(type: Kind<T>) => PartialStruct({left: type, right: type, top: type, bottom: type})
+export const LRTB = <T>(type: Kind<T>) => PartialStruct({left: type, right: type, top: type, bottom: type})
 
 export type Anchor = typeof Anchor["__type__"]
 export const Anchor = (

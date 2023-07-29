@@ -1,7 +1,7 @@
 import {Model} from "../../model"
-import type {PlotView} from "../plots/plot"
-import type {PlotRendererView} from "../plots/plot_renderer"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type * as p from "core/properties"
+import {OurSet} from "core/util/std"
 
 export namespace Range {
   export type Attrs = p.AttrsOf<Props>
@@ -53,5 +53,5 @@ export abstract class Range extends Model {
   }
 
   /** internal */
-  readonly plots = new Set<PlotView | PlotRendererView>()
+  readonly frames = new OurSet<CartesianFrameView>()
 }

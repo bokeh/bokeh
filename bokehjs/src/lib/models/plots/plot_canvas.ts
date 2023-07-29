@@ -1,4 +1,4 @@
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrame, CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CanvasView, FrameBox} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
 import type {Renderer, RendererView} from "../renderers/renderer"
@@ -15,8 +15,6 @@ import type {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -57,7 +55,13 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   declare layout: BorderLayout
 
-  frame: CartesianFrame
+  private _frame: CartesianFrame
+  frame_view: CartesianFrameView
+
+  // XXX avoid renaming everywhere for now
+  get frame(): CartesianFrameView {
+    return this.frame_view
+  }
 
   canvas_view: CanvasView
   get canvas(): CanvasView {
@@ -118,10 +122,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
     return view
-  }
-
-  get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
   }
 
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
@@ -204,13 +204,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   }
 
   override remove(): void {
-    for (const r of this.frame.ranges.values()) {
-      r.plots.delete(this)
-    }
-
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
 
+    this.frame_view.remove()
     this.canvas_view.remove()
     super.remove()
   }
@@ -234,22 +231,18 @@ export class PlotView extends LayoutDOMView implements Renderable {
       selection: new Map(),               // XXX: initial selection?
     }
 
-    this.frame = new CartesianFrame(
-      this.model.x_scale,
-      this.model.y_scale,
-      this.model.x_range,
-      this.model.y_range,
-      this.model.extra_x_ranges,
-      this.model.extra_y_ranges,
-      this.model.extra_x_scales,
-      this.model.extra_y_scales,
-    )
+    this._frame = new CartesianFrame({
+      x_scale: this.model.x_scale,
+      y_scale: this.model.y_scale,
+      x_range: this.model.x_range,
+      y_range: this.model.y_range,
+      extra_x_ranges: this.model.extra_x_ranges,
+      extra_y_ranges: this.model.extra_y_ranges,
+      extra_x_scales: this.model.extra_x_scales,
+      extra_y_scales: this.model.extra_y_scales,
+    })
 
-    for (const r of this.frame.ranges.values()) {
-      r.plots.add(this)
-    }
-
-    this._range_manager = new RangeManager(this)
+    this._range_manager = new RangeManager(this.frame_view)
     this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => { if (!this._removed) this.repaint() }, 1000/60)
@@ -274,6 +267,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const canvas = new Canvas({hidpi, output_backend})
     this.canvas_view = await build_view(canvas, {parent: this})
     this.canvas_view.plot_views = [this]
+
+    this.frame_view = await build_view(this._frame, {parent: this})
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -467,7 +462,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
 
     })
-    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
+    center_panel.on_resize((bbox) => this.frame.layout.set_geometry(bbox))
 
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
@@ -560,7 +555,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   trigger_ranges_update_event(): void {
     const {x_range, y_range} = this.model
-    const linked_plots = new Set([...x_range.plots, ...y_range.plots])
+    const linked_plots = new Set([...x_range.frames, ...y_range.frames])
 
     for (const plot_view of linked_plots) {
       const {x_range, y_range} = plot_view.model
@@ -652,15 +647,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
     this.on_change([extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
-      this.frame.x_range = this.model.x_range
-      this.frame.y_range = this.model.y_range
-      this.frame.in_x_scale = this.model.x_scale
-      this.frame.in_y_scale = this.model.y_scale
-      this.frame.extra_x_ranges = this.model.extra_x_ranges
-      this.frame.extra_y_ranges = this.model.extra_y_ranges
-      this.frame.extra_x_scales = this.model.extra_x_scales
-      this.frame.extra_y_scales = this.model.extra_y_scales
-      this.frame.configure_scales()
+      this.frame_view.model.setv({
+        x_range: this.model.x_range,
+        y_range: this.model.y_range,
+        in_x_scale: this.model.x_scale,
+        in_y_scale: this.model.y_scale,
+        extra_x_ranges: this.model.extra_x_ranges,
+        extra_y_ranges: this.model.extra_y_ranges,
+        extra_x_scales: this.model.extra_x_scales,
+        extra_y_scales: this.model.extra_y_scales,
+      })
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties

@@ -4336,6 +4336,44 @@
     hidpi: true,
     output_backend: "canvas",
   },
+  CartesianFrame: {
+    __extends__: "LayoutableRenderer",
+    x_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    y_range: {
+      type: "object",
+      name: "DataRange1d",
+      attributes: {},
+    },
+    x_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    y_scale: {
+      type: "object",
+      name: "LinearScale",
+      attributes: {},
+    },
+    extra_x_ranges: {
+      type: "map",
+    },
+    extra_y_ranges: {
+      type: "map",
+    },
+    extra_x_scales: {
+      type: "map",
+    },
+    extra_y_scales: {
+      type: "map",
+    },
+    renderers: [],
+    match_aspect: false,
+    aspect_scale: 1,
+  },
   Grid: {
     __extends__: "GuideRenderer",
     level: "underlay",

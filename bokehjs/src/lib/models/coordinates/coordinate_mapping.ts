@@ -8,7 +8,7 @@ import {CategoricalScale} from "../scales/categorical_scale"
 import {Range} from "../ranges/range"
 import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
-import type {CartesianFrame} from "../canvas/cartesian_frame"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type * as p from "core/properties"
 
 export class CoordinateTransform {
@@ -100,7 +100,7 @@ export class CoordinateMapping extends Model {
     return derived_scale
   }
 
-  get_transform(frame: CartesianFrame): CoordinateTransform {
+  get_transform(frame: CartesianFrameView): CoordinateTransform {
     const {x_source, x_scale, x_target} = this
     const x_source_scale = this._get_scale(x_source, x_scale, x_target)
 

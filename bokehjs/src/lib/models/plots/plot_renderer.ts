@@ -1,4 +1,4 @@
-import {CartesianFrame} from "../canvas/cartesian_frame"
+import {CartesianFrame, CartesianFrameView} from "../canvas/cartesian_frame"
 import type {FrameBox} from "../canvas/canvas"
 import {Renderer} from "../renderers/renderer"
 import type {RendererView} from "../renderers/renderer"
@@ -13,8 +13,6 @@ import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {is_auto_ranged} from "../ranges/data_range1d"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -23,7 +21,7 @@ import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState} from "core/view"
-import {isBoolean, isArray} from "core/util/types"
+import {isBoolean, isNumber, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
@@ -48,7 +46,6 @@ import {Location, ResetPolicy} from "core/enums"
 import {concat, remove_by} from "core/util/array"
 import {difference} from "core/util/set"
 import {isString} from "core/util/types"
-import type {LRTB} from "core/util/bbox"
 
 import {Grid} from "../grids/grid"
 import type {GuideRenderer} from "../renderers/guide_renderer"
@@ -64,16 +61,31 @@ import {GlyphRenderer} from "../renderers/glyph_renderer"
 import type {ToolAliases} from "../tools/tool"
 import {DataRange1d} from "../ranges/data_range1d"
 
+import {Boolean, Number, Null, Or} from "../../core/kinds"
+import {LRTB} from "../common/kinds"
+
+const FrameAlign = Or(Boolean, LRTB(Boolean))
+type FrameAlign = typeof FrameAlign["__type__"]
+
+const MinBorder = Or(Number, LRTB(Number), Null)
+type MinBorder = typeof MinBorder["__type__"]
+
 export class PlotRendererView extends LayoutableRendererView {
   declare model: PlotRenderer
   declare visuals: PlotRenderer.Visuals
 
   declare layout: BorderLayout
 
-  frame: CartesianFrame
+  private _frame: CartesianFrame
+  frame_view: CartesianFrameView
+
+  // XXX avoid renaming everywhere for now
+  get frame(): CartesianFrameView {
+    return this.frame_view
+  }
 
   get layoutables(): LayoutableRenderer[] {
-    return []
+    return [this._frame]
   }
 
   protected _title?: Title
@@ -86,7 +98,6 @@ export class PlotRendererView extends LayoutableRendererView {
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
   protected _needs_paint: boolean = true
-  protected _invalidate_all: boolean = true
 
   protected _state_manager: StateManager
   protected _range_manager: RangeManager
@@ -119,10 +130,6 @@ export class PlotRendererView extends LayoutableRendererView {
       }
     }
     return view
-  }
-
-  get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.model.renderers.map((r) => this.renderer_view(r)!).filter(is_auto_ranged)
   }
 
   /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
@@ -165,13 +172,8 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   override remove(): void {
-    for (const r of this.frame.ranges.values()) {
-      r.plots.delete(this)
-    }
-
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
-
     super.remove()
   }
 
@@ -186,22 +188,18 @@ export class PlotRendererView extends LayoutableRendererView {
       selection: new Map(), // XXX: initial selection?
     }
 
-    this.frame = new CartesianFrame(
-      this.model.x_scale,
-      this.model.y_scale,
-      this.model.x_range,
-      this.model.y_range,
-      this.model.extra_x_ranges,
-      this.model.extra_y_ranges,
-      this.model.extra_x_scales,
-      this.model.extra_y_scales,
-    )
+    this._frame = new CartesianFrame({
+      x_scale: this.model.x_scale,
+      y_scale: this.model.y_scale,
+      x_range: this.model.x_range,
+      y_range: this.model.y_range,
+      extra_x_ranges: this.model.extra_x_ranges,
+      extra_y_ranges: this.model.extra_y_ranges,
+      extra_x_scales: this.model.extra_x_scales,
+      extra_y_scales: this.model.extra_y_scales,
+      renderers: this.model.renderers,
+    })
 
-    for (const r of this.frame.ranges.values()) {
-      r.plots.add(this)
-    }
-
-    this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
 
     const {title_location, title} = this.model
@@ -220,15 +218,16 @@ export class PlotRendererView extends LayoutableRendererView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
+    //this.frame_view = await build_view(this._frame, {parent: this})
+    this.frame_view = this._renderer_views.get(this._frame)! as CartesianFrameView
+    this._range_manager = new RangeManager(this.frame_view)
+
     await this.build_tool_views()
     await this.build_renderer_views()
-
-    this._range_manager.update_dataranges()
   }
 
   override _update_layout(): void {
     // TODO: invalidating all should imply "needs paint"
-    this._invalidate_all = true
     this._needs_paint = true
 
     const layout = new BorderLayout()
@@ -347,10 +346,10 @@ export class PlotRendererView extends LayoutableRendererView {
 
     const min_border = this.model.min_border ?? 0
     layout.min_border = {
-      left:   this.model.min_border_left   ?? min_border,
-      top:    this.model.min_border_top    ?? min_border,
-      right:  this.model.min_border_right  ?? min_border,
-      bottom: this.model.min_border_bottom ?? min_border,
+      left:   this.model.min_border_left ?? (isNumber(min_border) ? min_border : min_border.left ?? 0),
+      right:  this.model.min_border_right ?? (isNumber(min_border) ? min_border : min_border.right ?? 0),
+      top:    this.model.min_border_top ?? (isNumber(min_border) ? min_border : min_border.top ?? 0),
+      bottom: this.model.min_border_bottom ?? (isNumber(min_border) ? min_border : min_border.bottom ?? 0),
     }
 
     const center_panel = new NodeLayout()
@@ -395,7 +394,9 @@ export class PlotRendererView extends LayoutableRendererView {
       ...(frame_height != null ? {height_policy: "fixed", height: frame_height} : {height_policy: "fit"}),
 
     })
-    center_panel.on_resize((bbox) => this.frame.set_geometry(bbox))
+    center_panel.on_resize((bbox) => {
+      this.frame.layout.set_geometry(bbox)
+    })
 
     top_panel.children    = reversed(set_layouts("above", outer_above))
     bottom_panel.children =          set_layouts("below", outer_below)
@@ -460,7 +461,7 @@ export class PlotRendererView extends LayoutableRendererView {
 
   trigger_ranges_update_event(): void {
     const {x_range, y_range} = this.model
-    const linked_plots = new Set([...x_range.plots, ...y_range.plots])
+    const linked_plots = new Set([...x_range.frames, ...y_range.frames])
 
     for (const plot_view of linked_plots) {
       const {x_range, y_range} = plot_view.model
@@ -552,15 +553,17 @@ export class PlotRendererView extends LayoutableRendererView {
 
     const {extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales} = this.model.properties
     this.on_change([extra_x_ranges, extra_y_ranges, extra_x_scales, extra_y_scales], () => {
-      this.frame.x_range = this.model.x_range
-      this.frame.y_range = this.model.y_range
-      this.frame.in_x_scale = this.model.x_scale
-      this.frame.in_y_scale = this.model.y_scale
-      this.frame.extra_x_ranges = this.model.extra_x_ranges
-      this.frame.extra_y_ranges = this.model.extra_y_ranges
-      this.frame.extra_x_scales = this.model.extra_x_scales
-      this.frame.extra_y_scales = this.model.extra_y_scales
-      this.frame.configure_scales()
+      this.frame_view.model.setv({
+        x_range: this.model.x_range,
+        y_range: this.model.y_range,
+        x_scale: this.model.x_scale,
+        y_scale: this.model.y_scale,
+        extra_x_ranges: this.model.extra_x_ranges,
+        extra_y_ranges: this.model.extra_y_ranges,
+        extra_x_scales: this.model.extra_x_scales,
+        extra_y_scales: this.model.extra_y_scales,
+        renderers: this.model.renderers,
+      })
     })
 
     const {above, below, left, right, center, renderers} = this.model.properties
@@ -578,7 +581,7 @@ export class PlotRendererView extends LayoutableRendererView {
       await this.build_renderer_views()
     })
 
-    const {x_ranges, y_ranges} = this.frame
+    const {x_ranges, y_ranges} = this.frame_view
     for (const [, range] of x_ranges) {
       this.connect(range.change, () => { this.request_paint() })
     }
@@ -638,8 +641,8 @@ export class PlotRendererView extends LayoutableRendererView {
     }
 
     this.model.setv({
-      inner_width: Math.round(this.frame.bbox.width),
-      inner_height: Math.round(this.frame.bbox.height),
+      inner_width: Math.round(this.frame_view.bbox.width),
+      inner_height: Math.round(this.frame_view.bbox.height),
       outer_width: Math.round(this.bbox.width),
       outer_height: Math.round(this.bbox.height),
     }, {no_change: true})
@@ -652,7 +655,6 @@ export class PlotRendererView extends LayoutableRendererView {
 
     if (!this._outer_bbox.equals(this.bbox)) {
       this._outer_bbox = this.bbox
-      this._invalidate_all = true
       this._needs_paint = true
     }
 
@@ -721,10 +723,10 @@ export class PlotRendererView extends LayoutableRendererView {
     }
 
     const frame_box: FrameBox = [
-      this.frame.bbox.left,
-      this.frame.bbox.top,
-      this.frame.bbox.width,
-      this.frame.bbox.height,
+      this.frame_view.bbox.left,
+      this.frame_view.bbox.top,
+      this.frame_view.bbox.width,
+      this.frame_view.bbox.height,
     ]
 
     const {primary, overlays} = this.canvas_view
@@ -831,13 +833,11 @@ export class PlotRendererView extends LayoutableRendererView {
 
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
-    const renderers = this.get_renderer_views()
+    const views = [this.frame_view, ...this.get_renderer_views()]
       .filter((view) => view.model.syncable) // filters out computed renderers
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)
-    // TODO: remove this when frame is generalized
-    const frame = {type: "CartesianFrame", bbox: this.frame.bbox}
-    return {...state, children: [...children ?? [], frame, ...renderers]}
+    return {...state, children: [...children ?? [], ...views]}
   }
 
   protected _hold_render_changed(): void {
@@ -860,7 +860,7 @@ export namespace PlotRenderer {
 
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
-    frame_align: p.Property<boolean | Partial<LRTB<boolean>>>
+    frame_align: p.Property<FrameAlign>
 
     title: p.Property<Title | string | null>
     title_location: p.Property<Location | null>
@@ -895,13 +895,11 @@ export namespace PlotRenderer {
     lod_threshold: p.Property<number | null>
     lod_timeout: p.Property<number>
 
-    ///
-    min_border: p.Property<number | null>
-    min_border_top: p.Property<number | null>
+    min_border: p.Property<MinBorder>
     min_border_left: p.Property<number | null>
-    min_border_bottom: p.Property<number | null>
+    min_border_top: p.Property<number | null>
     min_border_right: p.Property<number | null>
-    ///
+    min_border_bottom: p.Property<number | null>
 
     inner_width: p.Property<number>
     inner_height: p.Property<number>
@@ -948,7 +946,7 @@ export class PlotRenderer extends LayoutableRenderer {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable, Struct, Opt}) => ({
+    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Dict, Or, Ref, Null, Nullable}) => ({
       toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
       toolbar_location:  [ Nullable(Location), "right" ],
       toolbar_sticky:    [ Boolean, true ],
@@ -956,7 +954,7 @@ export class PlotRenderer extends LayoutableRenderer {
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
-      frame_align:       [ Or(Boolean, Struct({left: Opt(Boolean), right: Opt(Boolean), top: Opt(Boolean), bottom: Opt(Boolean)})), true ],
+      frame_align:       [ FrameAlign, true ],
 
       // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
       title:             [ Or(Ref(Title), String, Null), "", {
@@ -994,13 +992,11 @@ export class PlotRenderer extends LayoutableRenderer {
       lod_threshold:     [ Nullable(Number), 2000 ],
       lod_timeout:       [ Number, 500 ],
 
-      ///
-      min_border:        [ Nullable(Number), 5 ],
-      min_border_top:    [ Nullable(Number), null ],
+      min_border:        [ MinBorder, 5 ],
       min_border_left:   [ Nullable(Number), null ],
-      min_border_bottom: [ Nullable(Number), null ],
       min_border_right:  [ Nullable(Number), null ],
-      ///
+      min_border_top:    [ Nullable(Number), null ],
+      min_border_bottom: [ Nullable(Number), null ],
 
       inner_width:       [ Number, p.unset, {readonly: true} ],
       inner_height:      [ Number, p.unset, {readonly: true} ],

@@ -3,6 +3,7 @@ import type * as p from "core/properties"
 import type {Layoutable} from "core/layout"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
+import type {SerializableState} from "core/view"
 import {isNotNull} from "core/util/types"
 import type {BBox} from "core/util/bbox"
 
@@ -54,6 +55,11 @@ export abstract class LayoutableRendererView extends RendererView {
     }
 
     this._after_layout()
+  }
+
+  override serializable_state(): SerializableState {
+    const {bbox} = this
+    return {...super.serializable_state(), bbox}
   }
 }
 

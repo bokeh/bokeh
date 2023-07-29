@@ -6,8 +6,7 @@ import {flat_map} from "core/util/iterator"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import * as bbox from "core/util/bbox"
-import type {PlotView} from "../plots/plot"
-import type {PlotRendererView} from "../plots/plot_renderer"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import {compute_renderers} from "../util"
 
 export const auto_ranged = Symbol("auto_ranged")
@@ -78,7 +77,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<PlotView | PlotRendererView, Rect>
+  protected _frame_bounds: Map<CartesianFrameView, Rect>
 
   override have_updated_interactively: boolean = false
 
@@ -93,7 +92,7 @@ export class DataRange1d extends DataRange {
     this._initial_follow_interval = this.follow_interval
     this._initial_default_span = this.default_span
 
-    this._plot_bounds = new Map()
+    this._frame_bounds = new Map()
   }
 
   get min(): number {
@@ -107,7 +106,7 @@ export class DataRange1d extends DataRange {
   computed_renderers(): Renderer[] {
     // TODO (bev) check that renderers actually configured with this range
     const {renderers} = this
-    const all_renderers = flat_map(this.plots, (plot) => plot.auto_ranged_renderers.map((r) => r.model))
+    const all_renderers = flat_map(this.frames, (frame) => frame.auto_ranged_renderers.map((r) => r.model))
     return compute_renderers(renderers.length == 0 ? "auto" : renderers, [...all_renderers])
   }
 
@@ -150,11 +149,12 @@ export class DataRange1d extends DataRange {
     return result
   }
 
-  /*protected*/ _compute_min_max(plot_bounds: Iterable<[PlotView | PlotRendererView, Rect]>, dimension: Dim): [number, number] {
+  /*protected*/ _compute_min_max(frame_bounds: Iterable<[CartesianFrameView, Rect]>, dimension: Dim): [number, number] {
     let overall = bbox.empty()
-    for (const [plot, rect] of plot_bounds) {
-      if (plot.model.visible)
+    for (const [frame, rect] of frame_bounds) {
+      if (frame.model.visible) {
         overall = bbox.union(overall, rect)
+      }
     }
 
     let min, max: number
@@ -243,7 +243,7 @@ export class DataRange1d extends DataRange {
     return [start, end]
   }
 
-  update(bounds: Bounds, dimension: Dim, plot: PlotView | PlotRendererView, ratio?: number): void {
+  update(bounds: Bounds, dimension: Dim, frame: CartesianFrameView, ratio?: number): void {
     if (this.have_updated_interactively)
       return
 
@@ -255,10 +255,10 @@ export class DataRange1d extends DataRange {
     if (ratio != null)
       total_bounds = this.adjust_bounds_for_aspect(total_bounds, ratio)
 
-    this._plot_bounds.set(plot, total_bounds)
+    this._frame_bounds.set(frame, total_bounds)
 
     // compute the min/mix for our specified dimension
-    const [min, max] = this._compute_min_max(this._plot_bounds.entries(), dimension)
+    const [min, max] = this._compute_min_max(this._frame_bounds.entries(), dimension)
 
     // derive start, end from bounds and data range config
     let [start, end] = this._compute_range(min, max)

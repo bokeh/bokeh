@@ -65,20 +65,23 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
     const {x_range_name, y_range_name} = this.model.properties
     this.on_change([x_range_name, y_range_name], () => delete this._coordinates)
-    if ("frame" in this.plot_view) {
-      this.connect(this.plot_view.frame.change, () => delete this._coordinates)
+    if (this.model.type != "CartesianFrame") {
+      const {type} = this.parent.model
+      if (type == "PlotView" || type == "PlotRenderer") {
+        this.connect(this.plot_view.frame.model.change, () => delete this._coordinates)
+      }
     }
   }
 
   protected _initialize_coordinates(): CoordinateTransform {
     const {coordinates} = this.model
-    const {frame} = this.plot_view
+    const {frame_view} = this.plot_view
     if (coordinates != null) {
-      return coordinates.get_transform(frame)
+      return coordinates.get_transform(frame_view)
     } else {
       const {x_range_name, y_range_name} = this.model
-      const x_scale = frame.x_scales.get(x_range_name)
-      const y_scale = frame.y_scales.get(y_range_name)
+      const x_scale = frame_view.x_scales.get(x_range_name)
+      const y_scale = frame_view.y_scales.get(y_range_name)
       assert(x_scale != null, `missing '${x_range_name}' range`)
       assert(y_scale != null, `missing '${y_range_name}' range`)
       return new CoordinateTransform(x_scale, y_scale)
