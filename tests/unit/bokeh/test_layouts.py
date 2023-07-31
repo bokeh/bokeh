@@ -82,6 +82,25 @@ def test_gridplot_merge_tools_nested() -> None:
     for p in p1, p2, p3, p4, p5, p6, p7:
         assert p.toolbar_location is None
 
+def test_gridplot_merge_toolbar_properties__issue_13265() -> None:
+    p1 = figure(active_inspect=None)
+    p2 = figure(active_inspect=None)
+    p3 = figure(active_inspect=None)
+
+    gp0 = gridplot([[p1, p2, p3]], merge_tools=True)
+    assert gp0.toolbar.active_inspect is None
+
+    gp1 = gridplot([[p1, p2, p3]], merge_tools=False)
+    assert gp1.toolbar.active_inspect == "auto"
+
+    p4 = figure(active_inspect=None)
+    p5 = figure(active_inspect=None)
+    p6 = figure(active_inspect="auto")
+
+    with pytest.warns(UserWarning, match="found multiple competing values for 'toolbar.active_inspect' property; using the latest value"):
+        gp2 = gridplot([[p4, p5, p6]], merge_tools=True)
+    assert gp2.toolbar.active_inspect == "auto"
+
 def test_gridplot_None() -> None:
     def p():
         p = figure()
