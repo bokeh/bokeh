@@ -114,7 +114,11 @@ type Test = {description: string, skip: boolean, threshold?: number, retries?: n
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
-async function run_tests(): Promise<boolean> {
+type TestRunContext = {
+  chromium_version: number
+}
+
+async function run_tests(ctx: TestRunContext): Promise<boolean> {
   let client
   let failure = false
   try {
@@ -481,11 +485,12 @@ async function run_tests(): Promise<boolean> {
             async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
+              const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
                 if (test.dpr != null)
                   override_metrics(test.dpr)
                 try {
-                  return await evaluate<Result>(`Tests.run(${seq})`)
+                  return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
                   if (test.dpr != null)
                     override_metrics()
@@ -730,9 +735,13 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
 
 const chromium_min_version = 110
 
-async function check_version(version: string): Promise<boolean> {
+async function get_version_number(version: string): Promise<number> {
   const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
   const major = parseInt(match?.groups?.major ?? "0")
+  return major
+}
+
+async function check_version(version: string, major: number): Promise<boolean> {
   const ok = chromium_min_version <= major
   if (!ok)
     console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chromium_min_version)}`)
@@ -742,8 +751,9 @@ async function check_version(version: string): Promise<boolean> {
 async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
-  const ok0 = await check_version(browser)
-  const ok1 = !argv.info ? await run_tests() : true
+  const major = await get_version_number(browser)
+  const ok0 = await check_version(browser, major)
+  const ok1 = !argv.info ? await run_tests({chromium_version: major}) : true
   process.exit(ok0 && ok1 ? 0 : 1)
 }
 

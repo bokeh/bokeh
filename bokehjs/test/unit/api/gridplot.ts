@@ -5,7 +5,8 @@ import {
   ToolProxy, BoxAnnotation, GlyphRenderer,
 } from "@bokehjs/models"
 
-import {group_tools} from "@bokehjs/api/gridplot"
+import {gridplot, group_tools} from "@bokehjs/api/gridplot"
+import {figure} from "@bokehjs/api/figure"
 import {assert} from "@bokehjs/core/util/assert"
 
 describe("api/gridplot module", () => {
@@ -57,5 +58,26 @@ describe("api/gridplot module", () => {
     expect(t5.filename).to.be.equal(null)
     expect(t6.tools).to.be.equal([select0, select1, select2])
     expect(t7.tools).to.be.equal([hover0, hover1, hover2])
+  })
+
+  describe("implements gridplot() function", () => {
+    it("that allows to merge toolbars' active_* and other properties (issue #13265)", () => {
+      const p1 = figure({active_inspect: null})
+      const p2 = figure({active_inspect: null})
+      const p3 = figure({active_inspect: null})
+
+      const gp0 = gridplot([[p1, p2, p3]], {merge_tools: true})
+      expect(gp0.toolbar.active_inspect).to.be.null
+
+      const gp1 = gridplot([[p1, p2, p3]], {merge_tools: false})
+      expect(gp1.toolbar.active_inspect).to.be.equal("auto")
+
+      const p4 = figure({active_inspect: null})
+      const p5 = figure({active_inspect: null})
+      const p6 = figure({active_inspect: "auto"})
+
+      const gp2 = gridplot([[p4, p5, p6]], {merge_tools: true})
+      expect(gp2.toolbar.active_inspect).to.be.equal("auto")
+    })
   })
 })

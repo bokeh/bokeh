@@ -25,7 +25,7 @@ describe("FileInputView", () => {
     expect(model.mime_type).to.be.equal("text/plain")
   })
 
-  it("should allow reading empty files from a FileList", async () => {
+  it("should allow reading empty files from a FileList", async (ctx) => {
     const model = new FileInput({accept: ".csv,.json.,.txt", multiple: false})
     const {view} = await display(model, null)
 
@@ -36,7 +36,11 @@ describe("FileInputView", () => {
 
     expect(model.value).to.be.equal("")
     expect(model.filename).to.be.equal("foo.txt")
-    expect(model.mime_type).to.be.equal("") // XXX: why not "text/plain"?
+    if (ctx.chromium_version >= 115) {
+      expect(model.mime_type).to.be.equal("text/plain")
+    } else {
+      expect(model.mime_type).to.be.equal("") // bug in chromium
+    }
   })
 
   it("should allow reading multiple files from a FileList", async () => {
@@ -59,5 +63,4 @@ describe("FileInputView", () => {
     expect(model.filename).to.be.equal(["foo.txt", "bar.txt", "baz.txt"])
     expect(model.mime_type).to.be.equal(["text/plain", "text/plain", "text/plain"])
   })
-
 })

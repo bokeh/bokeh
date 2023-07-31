@@ -20,15 +20,23 @@ export function set_ready(fn: () => Promise<void>): void {
   ready = fn
 }
 
+type TestRunContext = {
+  chromium_version: number
+}
+
 export type Func = () => void
 export type AsyncFunc = () => Promise<void>
+
+export type ItFunc = (ctx: TestRunContext) => void
+export type ItAsyncFunc = (ctx: TestRunContext) => Promise<void>
 
 export type Decl = {
   fn: Func | AsyncFunc
   description?: string
 }
 
-export type Test = Decl & {
+export type Test = {
+  fn: ItFunc | ItAsyncFunc
   description: string
   skip: boolean
   views: View[]
@@ -62,7 +70,7 @@ export function describe(description: string, fn: Func/* | AsyncFunc*/): void {
   }
 }
 
-type ItFn = (description: string, fn: Func | AsyncFunc) => Test
+type ItFn = (description: string, fn: ItFunc | ItAsyncFunc) => Test
 type _It = ItFn & {
   skip: ItFn
   allowing: (settings: number | TestSettings) => ItFn
@@ -70,7 +78,7 @@ type _It = ItFn & {
   no_image: ItFn
 }
 
-function _it(description: string, fn: Func | AsyncFunc, skip: boolean, no_image: boolean = false): Test {
+function _it(description: string, fn: ItFunc | ItAsyncFunc, skip: boolean, no_image: boolean = false): Test {
   const test: Test = {description, fn, skip, views: [], no_image}
   stack[0].tests.push(test)
   return test
@@ -82,7 +90,7 @@ export type TestSettings = {
 }
 
 export function allowing(settings: number | TestSettings): ItFn {
-  return (description: string, fn: Func | AsyncFunc): Test => {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
     const test = it(description, fn)
     if (isNumber(settings)) {
       test.threshold = settings
@@ -95,22 +103,22 @@ export function allowing(settings: number | TestSettings): ItFn {
 }
 
 export function dpr(dpr: number): ItFn {
-  return (description: string, fn: Func | AsyncFunc): Test => {
+  return (description: string, fn: ItFunc | ItAsyncFunc): Test => {
     const test = it(description, fn)
     test.dpr = dpr
     return test
   }
 }
 
-export function skip(description: string, fn: Func | AsyncFunc): Test {
+export function skip(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, true)
 }
 
-export function no_image(description: string, fn: Func | AsyncFunc): Test {
+export function no_image(description: string, fn: ItFunc | ItAsyncFunc): Test {
   return _it(description, fn, false, true)
 }
 
-export const it: _It = ((description: string, fn: Func | AsyncFunc): Test => {
+export const it: _It = ((description: string, fn: ItFunc | ItAsyncFunc): Test => {
   return _it(description, fn, false)
 }) as _It
 it.skip = skip
@@ -182,7 +190,7 @@ export async function* yield_all(query?: string | string[] | RegExp): AsyncGener
       continue
     }
 
-    yield await _run_test(parents, test)
+    yield await _run_test(parents, test, {chromium_version: 0}) // XXX chromium_version
   }
 }
 
@@ -216,9 +224,9 @@ function _handle_error(err: Error | null): {str: string, stack?: string} | null 
   return err == null ? null : {str: err.toString(), stack: err.stack}
 }
 
-export async function run(seq: TestSeq): Promise<Result> {
+export async function run(seq: TestSeq, ctx: TestRunContext): Promise<Result> {
   const [suites, test] = from_seq(seq)
-  const result = await _run_test(suites, test)
+  const result = await _run_test(suites, test, ctx)
   return {...result, error: _handle_error(result.error)}
 }
 
@@ -277,7 +285,7 @@ function _resolve_bbox(val: unknown): unknown {
   }
 }
 
-async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
+async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Promise<PartialResult> {
   const {fn} = test
   const start = Date.now()
   let error: Error | null = null
@@ -294,7 +302,7 @@ async function _run_test(suites: Suite[], test: Test): Promise<PartialResult> {
     }
 
     try {
-      await fn()
+      await fn(ctx)
       await ready()
     } catch (err) {
       error = err instanceof Error ? err : new Error(`${err}`)
