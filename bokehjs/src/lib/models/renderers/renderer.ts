@@ -5,8 +5,8 @@ import type * as p from "core/properties"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
-import type {Plot, PlotView} from "../plots/plot"
-import type {PlotRenderer, PlotRendererView} from "../plots/plot_renderer"
+import type {PlotView} from "../plots/plot"
+import type {PlotRendererView} from "../plots/plot_renderer"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 
@@ -92,10 +92,6 @@ export abstract class RendererView extends View implements visuals.Renderable {
     const {parent} = this
     assert(parent.model.type != "Canvas") // XXX avoid cyclic dependency
     return parent as PlotView | PlotRendererView
-  }
-
-  get plot_model(): Plot | PlotRenderer {
-    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {

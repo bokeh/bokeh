@@ -40,7 +40,7 @@ export abstract class DataAnnotationView extends AnnotationView {
       }
     }
 
-    if (this.plot_model.use_map) {
+    if (this.plot_view.model.use_map) {
       if (self._x != null)
         inplace.project_xy(self._x, self._y)
       if (self._xs != null)
