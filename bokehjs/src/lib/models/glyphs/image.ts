@@ -39,8 +39,7 @@ export class ImageView extends ImageBaseView {
     }
   }
 
-  // public so can be called by ImageGL class.
-  public _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
+  protected _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray {
     const cmap = this.model.color_mapper.rgba_mapper
     return cmap.v_compute(img)
   }

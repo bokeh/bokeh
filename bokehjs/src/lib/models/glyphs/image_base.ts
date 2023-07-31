@@ -120,8 +120,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     ctx.restore()
   }
 
-  // public so can be called by ImageGL class.
-  public abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
+  protected abstract _flat_img_to_buf8(img: NDArrayType<number>): Uint8ClampedArray
 
   protected override _set_data(indices: number[] | null): void {
     const n = this.data_size
