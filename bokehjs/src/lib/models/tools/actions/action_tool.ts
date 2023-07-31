@@ -1,12 +1,13 @@
 import {Tool, ToolView} from "../tool"
 import {ClickButton} from "../click_button"
-import type {LayoutDOMView} from "../../layouts/layout_dom"
+import type {UIElementView} from "../../ui/ui_element"
+import type {LayoutableRendererView} from "../../renderers/layoutable_renderer"
 import {Signal} from "core/signaling"
 import type * as p from "core/properties"
 
 export abstract class ActionToolView extends ToolView {
   declare model: ActionTool
-  declare readonly parent: LayoutDOMView
+  declare readonly parent: UIElementView | LayoutableRendererView
 
   override connect_signals(): void {
     super.connect_signals()

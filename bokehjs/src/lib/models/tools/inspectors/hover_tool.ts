@@ -129,7 +129,7 @@ export class HoverToolView extends InspectToolView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const plot_renderers = this.plot_view.model.properties.renderers
+    const plot_renderers = this.plot_view.model.frame.properties.renderers
     const {renderers, tooltips} = this.model.properties
     this.on_change(tooltips, () => delete this._template_el)
     this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
@@ -163,7 +163,7 @@ export class HoverToolView extends InspectToolView {
       }
     }
 
-    await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view})
+    await build_views(this._ttviews, [...ttmodels.values()], {parent: this.plot_view.canvas_view})
 
     const glyph_renderers = [...(function* () {
       for (const r of computed_renderers) {

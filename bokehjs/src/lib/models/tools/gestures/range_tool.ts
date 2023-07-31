@@ -1,6 +1,6 @@
 import {Tool, ToolView} from "../tool"
 import {OnOffButton} from "../on_off_button"
-import type {PlotView} from "../../plots/plot"
+import type {PlotRendererView} from "../../plots/plot_renderer"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import {Range1d} from "../../ranges/range1d"
 import {logger} from "core/logging"
@@ -9,7 +9,7 @@ import {tool_icon_range} from "styles/icons.css"
 
 export class RangeToolView extends ToolView {
   declare model: RangeTool
-  declare readonly parent: PlotView
+  declare readonly parent: PlotRendererView
 
   override get overlays() {
     return [...super.overlays, this.model.overlay]

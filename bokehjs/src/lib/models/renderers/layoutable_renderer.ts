@@ -6,6 +6,7 @@ import {build_views, remove_views} from "core/build_views"
 import type {SerializableState} from "core/view"
 import {isNotNull} from "core/util/types"
 import type {BBox} from "core/util/bbox"
+import {CanvasLayer} from "core/util/canvas"
 
 export abstract class LayoutableRendererView extends RendererView {
   declare model: LayoutableRenderer
@@ -60,6 +61,16 @@ export abstract class LayoutableRendererView extends RendererView {
   override serializable_state(): SerializableState {
     const {bbox} = this
     return {...super.serializable_state(), bbox}
+  }
+
+  export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
+    const output_backend = type == "auto" || type == "png" ? "canvas" : "svg"
+    const canvas = new CanvasLayer(output_backend, hidpi)
+    const {x, y, width, height} = this.bbox
+    canvas.resize(width, height)
+    const composite = this.canvas_view.compose()
+    canvas.ctx.drawImage(composite.canvas, x, y, width, height, 0, 0, width, height)
+    return canvas
   }
 }
 

@@ -4,6 +4,7 @@ import * as icons from "styles/icons.css"
 import type {DialogView} from "../../ui/dialog"
 import {Dialog} from "../../ui/dialog"
 import {Examiner} from "../../ui/examiner"
+import {LayoutableRendererView} from "../../renderers/layoutable_renderer"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 
@@ -21,11 +22,21 @@ export class ExamineToolView extends ActionToolView {
     await super.lazy_initialize()
 
     const dialog = new Dialog({
-      content: new Examiner({target: this.parent.model}),
+      content: new Examiner({target: this.parent?.model}),
       closable: true,
       visible: false,
     })
-    this._dialog = await build_view(dialog, {parent: this.parent})
+
+    const parent = (() => {
+      const {parent} = this
+      if (parent instanceof LayoutableRendererView) {
+        return parent.canvas_view
+      } else {
+        return parent
+      }
+    })()
+
+    this._dialog = await build_view(dialog, {parent})
   }
 
   doit(): void {

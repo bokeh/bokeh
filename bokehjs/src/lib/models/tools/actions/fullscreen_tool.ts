@@ -1,4 +1,5 @@
 import {ActionTool, ActionToolView} from "./action_tool"
+import {LayoutableRendererView} from "../../renderers/layoutable_renderer"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
@@ -18,7 +19,16 @@ export class FullscreenToolView extends ActionToolView {
       document.exitFullscreen()
     } else {
       (async () => {
-        await request_fullscreen(this.parent.el)
+        const parent = (() => {
+          const {parent} = this
+          if (parent instanceof LayoutableRendererView) {
+            return parent.canvas_view
+          } else {
+            return parent
+          }
+        })()
+
+        await request_fullscreen(parent.el)
       })()
     }
   }
