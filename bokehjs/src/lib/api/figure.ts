@@ -13,7 +13,7 @@ import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
 
-import type {Glyph, Scale, Plot, Tool} from "./models"
+import type {Glyph, Scale, Plot, Toolbar} from "./models"
 import {
   Axis,
   CategoricalAxis,
@@ -34,12 +34,14 @@ import {
   MercatorAxis,
   Range,
   Range1d,
+  Tool,
 } from "./models"
 
 import {Legend} from "../models/annotations/legend"
 import {LegendItem} from "../models/annotations/legend_item"
 import type {ToolAliases} from "../models/tools/tool"
 import {Figure as BaseFigure} from "../models/plots/figure"
+import {GestureTool} from "../models/tools/gestures/gesture_tool"
 
 import type {TypedGlyphRenderer, NamesOf, AuxGlyph} from "./glyph_api"
 import {GlyphAPI} from "./glyph_api"
@@ -72,6 +74,11 @@ export namespace Figure {
     x_minor_ticks: number | "auto"
     y_minor_ticks: number | "auto"
     tools: (Tool | ToolName)[] | string
+    active_drag: Toolbar.Attrs["active_drag"] | string
+    active_inspect: Toolbar.Attrs["active_inspect"] | string
+    active_scroll: Toolbar.Attrs["active_scroll"] | string
+    active_tap: Toolbar.Attrs["active_tap"] | string
+    active_multi: Toolbar.Attrs["active_multi"] | string
   }
 }
 
@@ -212,23 +219,6 @@ export class Figure extends BaseFigure {
   constructor(attrs: Partial<Figure.Attrs> = {}) {
     attrs = {...attrs}
 
-    const tools = (() => {
-      const {tools, toolbar} = attrs
-      if (tools != null) {
-        if (toolbar != null)
-          throw new Error("'tools' and 'toolbar' can't be used together")
-        else {
-          delete attrs.tools
-
-          if (isString(tools)) {
-            return tools.split(",").map((s) => s.trim()).filter((s) => s.length > 0) as (keyof ToolAliases)[]
-          } else
-            return tools
-        }
-      } else
-        return toolbar != null ? null : _default_tools
-    })()
-
     const x_axis_type = attrs.x_axis_type === undefined ? "auto" : attrs.x_axis_type
     const y_axis_type = attrs.y_axis_type === undefined ? "auto" : attrs.y_axis_type
     delete attrs.x_axis_type
@@ -259,14 +249,90 @@ export class Figure extends BaseFigure {
     delete attrs.x_scale
     delete attrs.y_scale
 
+    const {
+      active_drag,
+      active_inspect,
+      active_scroll,
+      active_tap,
+      active_multi,
+    } = attrs
+
+    delete attrs.active_drag
+    delete attrs.active_inspect
+    delete attrs.active_scroll
+    delete attrs.active_tap
+    delete attrs.active_multi
+
+    const tools = (() => {
+      const {tools, toolbar} = attrs
+      if (tools != null) {
+        if (toolbar != null)
+          throw new Error("'tools' and 'toolbar' can't be used together")
+        else {
+          delete attrs.tools
+
+          if (isString(tools)) {
+            return tools.split(",").map((s) => s.trim()).filter((s) => s.length > 0) as (keyof ToolAliases)[]
+          } else
+            return tools
+        }
+      } else
+        return toolbar != null ? null : _default_tools
+    })()
+
     super({...attrs, x_range, y_range, x_scale, y_scale})
 
     this._process_axis_and_grid(x_axis_type, x_axis_location, x_minor_ticks, x_axis_label, x_range, 0)
     this._process_axis_and_grid(y_axis_type, y_axis_location, y_minor_ticks, y_axis_label, y_range, 1)
 
+    const tool_map = new Map<string, Tool>()
     if (tools != null) {
-      this.add_tools(...tools)
+      const resolved_tools = tools.map((tool) => {
+        if (tool instanceof Tool) {
+          return tool
+        } else {
+          const resolved_tool = Tool.from_string(tool)
+          tool_map.set(tool, resolved_tool)
+          return resolved_tool
+        }
+      })
+      this.add_tools(...resolved_tools)
     }
+
+    if (isString(active_drag) && active_drag != "auto") {
+      const tool = tool_map.get(active_drag)
+      if (tool != null)
+        this.toolbar.active_drag = tool
+    } else if (active_drag !== undefined)
+      this.toolbar.active_drag = active_drag
+
+    if (isString(active_inspect) && active_inspect != "auto") {
+      const tool = tool_map.get(active_inspect)
+      if (tool != null)
+        this.toolbar.active_inspect = tool
+    } else if (active_inspect !== undefined)
+      this.toolbar.active_inspect = active_inspect
+
+    if (isString(active_scroll) && active_scroll != "auto") {
+      const tool = tool_map.get(active_scroll)
+      if (tool != null)
+        this.toolbar.active_scroll = tool
+    } else if (active_scroll !== undefined)
+      this.toolbar.active_scroll = active_scroll
+
+    if (isString(active_tap) && active_tap != "auto") {
+      const tool = tool_map.get(active_tap)
+      if (tool != null)
+        this.toolbar.active_tap = tool
+    } else if (active_tap !== undefined)
+      this.toolbar.active_tap = active_tap
+
+    if (isString(active_multi) && active_multi != "auto") {
+      const tool = tool_map.get(active_multi)
+      if (tool instanceof GestureTool)
+        this.toolbar.active_multi = tool
+    } else if (active_multi !== undefined)
+      this.toolbar.active_multi = active_multi
   }
 
   get coordinates(): CoordinateMapping | null {
