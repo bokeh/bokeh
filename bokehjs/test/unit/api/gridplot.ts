@@ -69,12 +69,15 @@ describe("api/gridplot module", () => {
       const gp0 = gridplot([[p1, p2, p3]], {merge_tools: true})
       expect(gp0.toolbar.active_inspect).to.be.null
 
+      const gp1 = gridplot([[p1, p2, p3]], {merge_tools: false})
+      expect(gp1.toolbar.active_inspect).to.be.equal("auto")
+
       const p4 = figure({active_inspect: null})
       const p5 = figure({active_inspect: null})
       const p6 = figure({active_inspect: "auto"})
 
-      const gp1 = gridplot([[p4, p5, p6]], {merge_tools: true})
-      expect(gp1.toolbar.active_inspect).to.be.equal("auto")
+      const gp2 = gridplot([[p4, p5, p6]], {merge_tools: true})
+      expect(gp2.toolbar.active_inspect).to.be.equal("auto")
     })
   })
 })

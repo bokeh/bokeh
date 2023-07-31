@@ -37,6 +37,7 @@ from typing import (
 
 # Bokeh imports
 from .core.enums import Location, LocationType, SizingModeType
+from .core.property.singletons import Undefined, UndefinedType
 from .models import (
     Column,
     CopyTool,
@@ -314,8 +315,11 @@ def gridplot(
     active_multis = [ toolbar.active_multi for toolbar in toolbars ]
 
     T = TypeVar("T")
-    def assert_unique(values: list[T], name: str) -> T:
-        if len(set(values)) >= 2:
+    def assert_unique(values: list[T], name: str) -> T | UndefinedType:
+        n = len(set(values))
+        if n == 0:
+            return Undefined
+        elif n > 1:
             warn(f"found multiple competing values for 'toolbar.{name}' property; using the latest value")
         return values[-1]
 

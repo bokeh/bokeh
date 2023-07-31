@@ -147,8 +147,11 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const active_taps = toolbars.map((toolbar) => toolbar.active_tap)
   const active_multis = toolbars.map((toolbar) => toolbar.active_multi)
 
-  function assert_unique<T>(values: T[], name: string): T {
-    if (new Set(values).size >= 2) {
+  function assert_unique<T>(values: T[], name: string): T | undefined {
+    const n = new Set(values).size
+    if (n == 0) {
+      return undefined
+    } else if (n > 1) {
       console.warn(`found multiple competing values for 'toolbar.${name}' property; using the latest value`)
     }
     return last(values)
