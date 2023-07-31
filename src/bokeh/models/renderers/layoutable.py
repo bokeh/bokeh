@@ -29,7 +29,6 @@ from ...core.properties import (
     Nullable,
     Tuple,
 )
-#from ..toolbars import Toolbar
 from .renderer import Renderer
 
 #-----------------------------------------------------------------------------
@@ -106,8 +105,6 @@ class PlotRenderer(LayoutableRenderer):
     The height of a plot frame or the inner height of a plot, excluding any
     axes, titles, border padding, etc.
     """)
-
-    toolbar = Instance("bokeh.models.toolbars.Toolbar")#, default=lambda: Toolbar())
 
 #-----------------------------------------------------------------------------
 # Private API

@@ -11,8 +11,8 @@ import {Annotation, AnnotationView} from "../annotations/annotation"
 import {Title} from "../annotations/title"
 import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
-import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
+import {Toolbar} from "../tools/toolbar"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews} from "core/build_views"
@@ -45,7 +45,6 @@ import {Location, ResetPolicy} from "core/enums"
 import {isString} from "core/util/types"
 
 import {Grid} from "../grids/grid"
-import {Toolbar} from "../tools/toolbar"
 
 import {Boolean, Number, Null, Or} from "../../core/kinds"
 import {LRTB} from "../common/kinds"
@@ -74,11 +73,6 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   protected _title?: Title
-  protected _toolbar?: ToolbarPanel
-
-  get toolbar_panel(): ToolbarPanelView | undefined {
-    return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
-  }
 
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
@@ -179,13 +173,6 @@ export class PlotRendererView extends LayoutableRendererView {
     if (title_location != null && title != null) {
       this._title = title instanceof Title ? title : new Title({text: title})
     }
-
-    const {toolbar_location, toolbar_inner, toolbar} = this.model
-    if (toolbar_location != null) {
-      this._toolbar = new ToolbarPanel({toolbar})
-      toolbar.location = toolbar_location
-      toolbar.inner = toolbar_inner
-    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -194,6 +181,8 @@ export class PlotRendererView extends LayoutableRendererView {
     //this.frame_view = await build_view(this._frame, {parent: this})
     this.frame_view = this._renderer_views.get(this.model.frame)! as CartesianFrameView
     this._range_manager = new RangeManager(this.frame_view)
+
+    this._init_toolbar()
 
     await this.build_tool_views()
     await this.build_renderer_views()
@@ -246,35 +235,6 @@ export class PlotRendererView extends LayoutableRendererView {
     const {title_location} = this.model
     if (title_location != null && this._title != null) {
       get_side(title_location).push(this._title)
-    }
-
-    if (this._toolbar != null) {
-      const {location} = this._toolbar.toolbar
-
-      if (!this.model.toolbar_inner) {
-        const panels = get_side(location)
-        let push_toolbar = true
-
-        if (this.model.toolbar_sticky) {
-          for (let i = 0; i < panels.length; i++) {
-            const panel = panels[i]
-            if (panel instanceof Title) {
-              if (location == "above" || location == "below")
-                panels[i] = [panel, this._toolbar]
-              else
-                panels[i] = [this._toolbar, panel]
-              push_toolbar = false
-              break
-            }
-          }
-        }
-
-        if (push_toolbar)
-          panels.push(this._toolbar)
-      } else {
-        const panels = get_side(location, true)
-        panels.push(this._toolbar)
-      }
     }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
@@ -504,9 +464,6 @@ export class PlotRendererView extends LayoutableRendererView {
     if (this._title != null)
       yield this._title
 
-    if (this._toolbar != null)
-      yield this._toolbar
-
     for (const [, view] of this.tool_views) {
       yield* view.overlays
     }
@@ -518,9 +475,47 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   async build_tool_views(): Promise<void> {
-    const tool_models = flat_map(this.model.toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
-    const {created} = await build_views(this.tool_views, [...tool_models], {parent: this})
+    const tool_models = flat_map(this._toolbar.tools, (item) => item instanceof ToolProxy ? item.tools : [item])
+    const {/*removed, */created} = await build_views(this.tool_views, [...tool_models], {parent: this})
+    //removed.map((tool_view) => this.canvas_view.ui_event_bus.unregister_tool(tool_view))
     created.map((tool_view) => this.canvas_view.ui_event_bus.register_tool(tool_view))
+  }
+
+  async rebuild_tool_views(): Promise<void> {
+    await this.build_tool_views()
+    await this.build_renderer_views()
+  }
+
+  // TODO introduce a tool manager
+  protected _collect_toolbars(): Toolbar[] {
+    const {above, below, left, right, center} = this.model
+    const annotations = [...above, ...below, ...left, ...right, ...center]
+    const toolbars = []
+    for (const annotation of annotations) {
+      if (annotation instanceof ToolbarPanel) {
+        toolbars.push(annotation.toolbar)
+      }
+    }
+    return toolbars
+  }
+
+  private _toolbar: Toolbar
+  get toolbar(): Toolbar {
+    return this._toolbar
+  }
+
+  protected _init_toolbar(): void {
+    const toolbars = this._collect_toolbars()
+    switch (toolbars.length) {
+      case 0:
+        this._toolbar = new Toolbar()
+        break
+      case 1:
+        this._toolbar = toolbars[0]
+        break
+      default:
+        throw new Error("not supported yet")
+    }
   }
 
   override connect_signals(): void {
@@ -534,14 +529,16 @@ export class PlotRendererView extends LayoutableRendererView {
     const {above, below, left, right, center} = this.model.properties
     const panels = [above, below, left, right, center]
     this.on_change(panels, async () => {
+      this._init_toolbar()
       await this.build_renderer_views()
       this.canvas_view.request_layout()
     })
 
+    /*
     this.connect(this.model.toolbar.properties.tools.change, async () => {
-      await this.build_tool_views()
-      await this.build_renderer_views()
+      await this.rebuild_tool_views()
     })
+    */
 
     const {x_ranges, y_ranges} = this.frame_view
     for (const [, range] of x_ranges) {
@@ -553,28 +550,6 @@ export class PlotRendererView extends LayoutableRendererView {
 
     this.connect(this.model.change, () => this.request_paint())
     this.connect(this.model.reset, () => this.reset())
-
-    const {toolbar_location} = this.model.properties
-    this.on_change(toolbar_location, async () => {
-      const {toolbar_location} = this.model
-      if (this._toolbar != null) {
-        if (toolbar_location != null) {
-          this._toolbar.toolbar.location = toolbar_location
-        } else {
-          this._toolbar = undefined
-          await this.build_renderer_views()
-        }
-      } else {
-        if (toolbar_location != null) {
-          const {toolbar, toolbar_inner} = this.model
-          this._toolbar = new ToolbarPanel({toolbar})
-          toolbar.location = toolbar_location
-          toolbar.inner = toolbar_inner
-          await this.build_renderer_views()
-        }
-      }
-      this.canvas_view.request_layout()
-    })
 
     const {hold_render} = this.model.properties
     this.on_change(hold_render, () => this._hold_render_changed())
@@ -817,11 +792,6 @@ export namespace PlotRenderer {
   export type Props = Renderer.Props & {
     frame: p.Property<CartesianFrame>
 
-    toolbar: p.Property<Toolbar>
-    toolbar_location: p.Property<Location | null>
-    toolbar_sticky: p.Property<boolean>
-    toolbar_inner: p.Property<boolean>
-
     frame_width: p.Property<number | null>
     frame_height: p.Property<number | null>
     frame_align: p.Property<FrameAlign>
@@ -893,11 +863,6 @@ export class PlotRenderer extends LayoutableRenderer {
 
     this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Or, Ref, Null, Nullable}) => ({
       frame:             [ Ref(CartesianFrame) ],
-
-      toolbar:           [ Ref(Toolbar), () => new Toolbar() ],
-      toolbar_location:  [ Nullable(Location), "right" ],
-      toolbar_sticky:    [ Boolean, true ],
-      toolbar_inner:     [ Boolean, false ],
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],

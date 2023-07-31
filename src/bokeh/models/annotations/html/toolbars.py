@@ -41,7 +41,7 @@ class ToolbarPanel(HTMLAnnotation): # TODO: this shouldn't be an annotation
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    toolbar = Instance(".models.tools.Toolbar", help="""
+    toolbar = Instance(".models.toolbars.Toolbar", help="""
     A toolbar to display.
     """)
 
