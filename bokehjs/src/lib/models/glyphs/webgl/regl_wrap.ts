@@ -1,12 +1,14 @@
 import createRegl from "regl"
 import type {Regl, DrawConfig, BoundingBox, Buffer, BufferOptions, Elements} from "regl"
-import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D} from "regl"
+import type {Attributes, MaybeDynamicAttributes, DefaultContext, Framebuffer2D, Texture2D, Texture2DOptions} from "regl"
 import type * as t from "./types"
 import type {GLMarkerType} from "./types"
 import type {DashReturn} from "./dash_cache"
 import {DashCache} from "./dash_cache"
 import accumulate_vertex_shader from "./accumulate.vert"
 import accumulate_fragment_shader from "./accumulate.frag"
+import image_vertex_shader from "./image.vert"
+import image_fragment_shader from "./image.frag"
 import line_vertex_shader from "./regl_line.vert"
 import line_fragment_shader from "./regl_line.frag"
 import marker_vertex_shader from "./marker.vert"
@@ -33,6 +35,7 @@ export class ReglWrapper {
 
   // Drawing functions.
   private _accumulate?: ReglRenderFunction
+  private _image?: ReglRenderFunction
   private _solid_line?: ReglRenderFunction
   private _dashed_line?: ReglRenderFunction
   private _marker_no_hatch_map: Map<GLMarkerType, ReglRenderFunction<t.MarkerGlyphProps>> = new Map()
@@ -145,6 +148,10 @@ export class ReglWrapper {
     this._scissor = {x, y, width, height}
   }
 
+  texture(options: Texture2DOptions): Texture2D {
+    return this._regl.texture(options)
+  }
+
   get viewport(): BoundingBox {
     return this._viewport
   }
@@ -165,6 +172,12 @@ export class ReglWrapper {
     if (this._dash_cache == null)
       this._dash_cache = new DashCache(this._regl)
     return this._dash_cache.get(line_dash)
+  }
+
+  public image(): ReglRenderFunction {
+    if (this._image == null)
+      this._image = regl_image(this._regl, this._rect_geometry, this._rect_triangles)
+    return this._image
   }
 
   public marker_no_hatch(marker_type: GLMarkerType): ReglRenderFunction<t.MarkerGlyphProps> {
@@ -236,6 +249,54 @@ function regl_accumulate(regl: Regl, geometry: Buffer, triangles: Elements): Reg
 
 // Regl rendering functions are here as some will be reused, e.g. lines may also
 // be used around polygons or for bezier curves.
+
+function regl_image(regl: Regl, geometry: Buffer, triangles: Elements): ReglRenderFunction {
+  type Props = t.ImageProps
+  type Uniforms = t.ImageUniforms
+  type Attributes = t.ImageAttributes
+
+  const config: DrawConfig<Uniforms, Attributes, Props> = {
+    vert: image_vertex_shader,
+    frag: image_fragment_shader,
+
+    attributes: {
+      a_position: {
+        buffer: geometry,
+        divisor: 0,
+      },
+      a_bounds(_, props) {
+        return props.bounds.to_attribute_config()
+      },
+    },
+
+    uniforms: {
+      u_canvas_size: regl.prop<Props, "canvas_size">("canvas_size"),
+      u_pixel_ratio: regl.prop<Props, "pixel_ratio">("pixel_ratio"),
+      u_tex: regl.prop<Props, "tex">("tex"),
+      u_global_alpha: regl.prop<Props, "global_alpha">("global_alpha"),
+    },
+
+    elements: triangles,
+
+    blend: {
+      enable: true,
+      func: {
+        srcRGB:   "one",
+        srcAlpha: "one",
+        dstRGB:   "one minus src alpha",
+        dstAlpha: "one minus src alpha",
+      },
+    },
+    depth: {enable: false},
+    scissor: {
+      enable: true,
+      box: regl.prop<Props, "scissor">("scissor"),
+    },
+    viewport: regl.prop<Props, "viewport">("viewport"),
+  }
+
+  return regl<Uniforms, Attributes, Props>(config)
+}
 
 // Mesh for line rendering (solid and dashed).
 //

@@ -1,6 +1,7 @@
-import {display, fig, row} from "../_util"
+import {display, fig, column, row} from "../_util"
 
 import {Anchor, ImageOrigin} from "@bokehjs/core/enums"
+import type {OutputBackend} from "@bokehjs/core/enums"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {load_image} from "@bokehjs/core/util/image"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -20,19 +21,24 @@ function get_image_data(image: HTMLImageElement): ImageData {
 async function plot(anchor: ImageRGBA["anchor"], x_flipped: boolean = false, y_flipped: boolean = false, global_alpha: number = 1.0) {
   const {data, width, height} = get_image_data(await load_image("/assets/images/logo.svg"))
   const image = ndarray(data.buffer, {dtype: "uint32", shape: [width, height]})
+  const output_backends: OutputBackend[] = ["canvas", "webgl"]
 
   const plots = []
-  for (const origin of ImageOrigin) {
-    const x_range = new DataRange1d({flipped: x_flipped})
-    const y_range = new DataRange1d({flipped: y_flipped})
+  for (const output_backend of output_backends) {
+    const onerow = []
+    for (const origin of ImageOrigin) {
+      const x_range = new DataRange1d({flipped: x_flipped})
+      const y_range = new DataRange1d({flipped: y_flipped})
 
-    const p = fig([200, 200], {title: `Origin: ${origin}`, x_range, y_range})
-    p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor, global_alpha})
+      const p = fig([200, 200], {title: `${output_backend} origin: ${origin}`, x_range, y_range, output_backend})
+      p.image_rgba({image: {value: image}, x: 0, y: 0, dw: 10, dh: 10, origin, anchor, global_alpha})
 
-    plots.push(p)
+      onerow.push(p)
+    }
+    plots.push(row(onerow))
   }
 
-  await display(row(plots))
+  await display(column(plots))
 }
 
 describe("ImageRGBA glyph", () => { // TODO: async describe
@@ -77,11 +83,17 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
       return ndarray(d, {shape: [N, N]})
     }
 
-    const p = fig([350, 150])
-    p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
-    p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
-    p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
+    function make_plot(output_backend: OutputBackend) {
+      const p = fig([350, 150], {output_backend, title: output_backend})
+      p.image_rgba({image: {value: rgba_image()}, x: 0, y: 0, dw: 1, dh: 1, global_alpha: 1.0})
+      p.image_rgba({image: {value: rgba_image()}, x: 1, y: 0, dw: 1, dh: 1, global_alpha: 0.66})
+      p.image_rgba({image: {value: rgba_image()}, x: 2, y: 0, dw: 1, dh: 1, global_alpha: 0.33})
+      return p
+    }
 
-    await display(p)
+    const p0 = make_plot("canvas")
+    const p1 = make_plot("webgl")
+
+    await display(column([p0, p1]))
   })
 })
