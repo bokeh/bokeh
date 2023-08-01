@@ -8,7 +8,6 @@ import {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import type {Selection} from "../selections/selection"
 import {Annotation, AnnotationView} from "../annotations/annotation"
-import {Title} from "../annotations/title"
 import {Axis} from "../axes/axis"
 import {AxisView} from "../axes/axis"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
@@ -41,8 +40,7 @@ import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import {Location, ResetPolicy} from "core/enums"
-import {isString} from "core/util/types"
+import {ResetPolicy} from "core/enums"
 
 import {Grid} from "../grids/grid"
 
@@ -71,8 +69,6 @@ export class PlotRendererView extends LayoutableRendererView {
   get layoutables(): LayoutableRenderer[] {
     return [this.model.frame]
   }
-
-  protected _title?: Title
 
   protected _outer_bbox: BBox = new BBox()
   protected _inner_bbox: BBox = new BBox()
@@ -168,11 +164,6 @@ export class PlotRendererView extends LayoutableRendererView {
     }
 
     this._state_manager = new StateManager(this, this._initial_state)
-
-    const {title_location, title} = this.model
-    if (title_location != null && title != null) {
-      this._title = title instanceof Title ? title : new Title({text: title})
-    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -222,20 +213,6 @@ export class PlotRendererView extends LayoutableRendererView {
     const inner_below: Panels = []
     const inner_left:  Panels = []
     const inner_right: Panels = []
-
-    const get_side = (side: Side, inner: boolean = false): Panels => {
-      switch (side) {
-        case "above": return inner ? inner_above : outer_above
-        case "below": return inner ? inner_below : outer_below
-        case "left":  return inner ? inner_left  : outer_left
-        case "right": return inner ? inner_right : outer_right
-      }
-    }
-
-    const {title_location} = this.model
-    if (title_location != null && this._title != null) {
-      get_side(title_location).push(this._title)
-    }
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
       const view = this.renderer_view(model)!
@@ -460,9 +437,6 @@ export class PlotRendererView extends LayoutableRendererView {
     yield* left
     yield* right
     yield* center
-
-    if (this._title != null)
-      yield this._title
 
     for (const [, view] of this.tool_views) {
       yield* view.overlays
@@ -796,9 +770,6 @@ export namespace PlotRenderer {
     frame_height: p.Property<number | null>
     frame_align: p.Property<FrameAlign>
 
-    title: p.Property<Title | string | null>
-    title_location: p.Property<Location | null>
-
     above: p.Property<(Annotation | Axis)[]>
     below: p.Property<(Annotation | Axis)[]>
     left: p.Property<(Annotation | Axis)[]>
@@ -861,18 +832,12 @@ export class PlotRenderer extends LayoutableRenderer {
       ["border_",     mixins.Fill],
     ])
 
-    this.define<PlotRenderer.Props>(({Boolean, Number, String, Array, Or, Ref, Null, Nullable}) => ({
+    this.define<PlotRenderer.Props>(({Boolean, Number, Array, Or, Ref, Nullable}) => ({
       frame:             [ Ref(CartesianFrame) ],
 
       frame_width:       [ Nullable(Number), null ],
       frame_height:      [ Nullable(Number), null ],
       frame_align:       [ FrameAlign, true ],
-
-      // revise this when https://github.com/microsoft/TypeScript/pull/42425 is merged
-      title:             [ Or(Ref(Title), String, Null), "", {
-        convert: (title) => isString(title) ? new Title({text: title}) : title,
-      }],
-      title_location:    [ Nullable(Location), "above" ],
 
       above:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
       below:             [ Array(Or(Ref(Annotation), Ref(Axis))), [] ],
