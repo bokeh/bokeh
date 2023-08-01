@@ -9,6 +9,7 @@ import type {PlotView} from "../plots/plot"
 import type {PlotRendererView} from "../plots/plot_renderer"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {CartesianFrameView} from "../canvas/cartesian_frame"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -75,23 +76,34 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   protected _initialize_coordinates(): CoordinateTransform {
     const {coordinates} = this.model
-    const {frame_view} = this.plot_view
-    if (coordinates != null) {
-      return coordinates.get_transform(frame_view)
-    } else {
-      const {x_range_name, y_range_name} = this.model
-      const x_scale = frame_view.x_scales.get(x_range_name)
-      const y_scale = frame_view.y_scales.get(y_range_name)
-      assert(x_scale != null, `missing '${x_range_name}' range`)
-      assert(y_scale != null, `missing '${y_range_name}' range`)
-      return new CoordinateTransform(x_scale, y_scale)
+    if ("frame_view" in this.parent) {
+      const {frame_view} = this.parent
+      if (coordinates != null) {
+        return coordinates.get_transform(frame_view)
+      } else {
+        const {x_range_name, y_range_name} = this.model
+        const x_scale = frame_view.x_scales.get(x_range_name)
+        const y_scale = frame_view.y_scales.get(y_range_name)
+        assert(x_scale != null, `missing '${x_range_name}' range`)
+        assert(y_scale != null, `missing '${y_range_name}' range`)
+        return new CoordinateTransform(x_scale, y_scale)
+      }
     }
+    throw new Error("nope")
   }
 
-  get plot_view(): PlotView | PlotRendererView {
-    const {parent} = this
-    assert(parent.model.type != "Canvas") // XXX avoid cyclic dependency
-    return parent as PlotView | PlotRendererView
+  get frame_view(): CartesianFrameView {
+    if ("frame_view" in this.parent)
+      return this.parent.frame_view as CartesianFrameView
+    else
+      throw new Error("frame_view: nope")
+  }
+
+  get plot_view(): PlotRendererView {
+    return (this.parent as any).plot_view
+    //const {parent} = this
+    //assert(parent.model.type != "Canvas") // XXX avoid cyclic dependency
+    //return parent as PlotView | PlotRendererView
   }
 
   get layer(): CanvasLayer {

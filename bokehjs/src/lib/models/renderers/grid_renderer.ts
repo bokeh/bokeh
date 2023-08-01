@@ -1,16 +1,21 @@
 import {LayoutableRenderer, LayoutableRendererView} from "./layoutable_renderer"
 import type {RowsSizing, ColsSizing} from "core/layout/grid"
 import {Grid} from "core/layout/grid"
-import {assert} from "core/util/assert"
+import {zip} from "core/util/iterator"
 import type * as p from "core/properties"
 
 export class GridRendererView extends LayoutableRendererView {
   declare model: GridRenderer
   declare layout: Grid
 
-  get layoutables(): LayoutableRenderer[] {
-    return this.model.items.map(([r]) => r)
+  get renderers(): LayoutableRenderer[] {
+    return this.model.items.map(([renderer]) => renderer)
   }
+
+  get layoutables(): LayoutableRenderer[] {
+    return this.renderers
+  }
+
   /*
   override connect_signals(): void {
     super.connect_signals()
@@ -27,10 +32,8 @@ export class GridRendererView extends LayoutableRendererView {
     this.layout.cols = this.model.cols
     this.layout.spacing = this.model.spacing
 
-    for (const [renderer, row, col, row_span, col_span] of this.model.items) {
-      const renderer_view = this._renderer_views.get(renderer)
-      assert(renderer_view != null)
-      this.layout.items.push({layout: renderer_view.layout, row, col, row_span, col_span})
+    for (const [[, row, col, row_span, col_span], rv] of zip(this.model.items, this.layoutable_views)) {
+      this.layout.items.push({layout: rv.layout, row, col, row_span, col_span})
     }
 
     this.layout.set_sizing()

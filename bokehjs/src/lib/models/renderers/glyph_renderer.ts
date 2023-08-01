@@ -22,7 +22,7 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type {Context2d} from "core/util/canvas"
 import {is_equal} from "core/util/eq"
-import {FactorRange} from "../ranges/factor_range"
+//import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
 import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
@@ -141,8 +141,6 @@ export class GlyphRendererView extends DataRendererView {
     this.hover_glyph?.set_base(this.glyph)
     this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
-
-    this.set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -214,6 +212,7 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
+    /*
     const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const [, range] of x_ranges) {
@@ -227,6 +226,7 @@ export class GlyphRendererView extends DataRendererView {
         this.connect(range.invalidate_synthetic, update)
       }
     }
+    */
 
     const {transformchange, exprchange} = this.model.glyph
     this.connect(transformchange, update)

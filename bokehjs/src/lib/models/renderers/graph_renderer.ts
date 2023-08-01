@@ -96,6 +96,11 @@ export class GraphRendererView extends DataRendererView {
     }
     return super.renderer_view(renderer)
   }
+
+  set_data(indices?: number[]): void {
+    this.edge_view.set_data(indices)
+    this.node_view.set_data(indices)
+  }
 }
 
 export namespace GraphRenderer {

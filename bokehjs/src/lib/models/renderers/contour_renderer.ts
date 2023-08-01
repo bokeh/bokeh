@@ -55,6 +55,11 @@ export class ContourRendererView extends DataRendererView {
     }
     return super.renderer_view(renderer)
   }
+
+  set_data(indices?: number[]): void {
+    this.fill_view.set_data(indices)
+    this.line_view.set_data(indices)
+  }
 }
 
 export namespace ContourRenderer {

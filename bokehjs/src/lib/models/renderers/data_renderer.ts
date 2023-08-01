@@ -30,6 +30,16 @@ export abstract class DataRendererView extends RendererView implements AutoRange
   log_bounds(): Rect {
     return this.glyph_view.log_bounds()
   }
+
+  private _is_set_data: boolean = false
+  initial_set_data(): void {
+    if (!this._is_set_data) {
+      this._is_set_data = true
+      this.set_data()
+    }
+  }
+
+  abstract set_data(indices?: number[]): void
 }
 
 export namespace DataRenderer {

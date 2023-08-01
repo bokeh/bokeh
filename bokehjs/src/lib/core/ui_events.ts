@@ -354,7 +354,7 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test_renderers(plot_view: PlotRendererView, sx: number, sy: number): RendererView | null {
-    const views = plot_view.get_renderer_views()
+    const views = plot_view.computed_renderer_views
 
     for (const view of reversed(views)) {
       if (view.interactive_hit?.(sx, sy) ?? false)
@@ -369,7 +369,7 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _hit_test_frame(plot_view: PlotRendererView, sx: number, sy: number): boolean {
-    return plot_view.frame.bbox.contains(sx, sy)
+    return plot_view.frame_view.bbox.contains(sx, sy)
   }
 
   protected _hit_test_plot(sx: number, sy: number): PlotRendererView | null {
@@ -677,8 +677,8 @@ export class UIEventBus implements EventListenerObject {
   /*protected*/ _trigger_bokeh_event(plot_view: PlotRendererView, e: UIEvent): void {
     const ev = (() => {
       const {sx, sy, modifiers} = e
-      const x = plot_view.frame.x_scale.invert(sx)
-      const y = plot_view.frame.y_scale.invert(sy)
+      const x = plot_view.frame_view.x_scale.invert(sx)
+      const y = plot_view.frame_view.y_scale.invert(sy)
 
       switch (e.type) {
         case "wheel":

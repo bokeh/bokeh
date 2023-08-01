@@ -13,6 +13,7 @@ import type * as p from "core/properties"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import {NodeLayout} from "core/layout/alignments"
+import type {PlotRendererView} from "../plots/plot_renderer"
 
 type Ranges = {[key: string]: Range}
 type Scales = {[key: string]: Scale}
@@ -20,9 +21,30 @@ type Scales = {[key: string]: Scale}
 export class CartesianFrameView extends LayoutableRendererView {
   declare model: CartesianFrame
 
+  override get plot_view(): PlotRendererView {
+    return this.parent as PlotRendererView
+  }
+
+  get frame(): CartesianFrameView {
+    return this
+  }
+
+  override get frame_view(): CartesianFrameView {
+    return this
+  }
+
+  override layout = new NodeLayout() // TODO this shouldn't be necessary
+
+  override get renderers(): Renderer[] {
+    return this.model.renderers
+  }
+
+  override get layoutables(): LayoutableRenderer[] {
+    return []
+  }
+
   override initialize(): void {
     super.initialize()
-    this.layout = new NodeLayout()
     this._configure_scales()
   }
 
@@ -40,7 +62,7 @@ export class CartesianFrameView extends LayoutableRendererView {
   }
 
   get auto_ranged_renderers(): (RendererView & AutoRanged)[] {
-    return this.model.renderers.map((r) => this.parent.renderer_view(r)!).filter(is_auto_ranged)
+    return this.renderer_views.filter(is_auto_ranged)
   }
 
   protected _x_target: Range1d
@@ -190,14 +212,11 @@ export class CartesianFrameView extends LayoutableRendererView {
 
   override _update_layout(): void {
     this.layout = new NodeLayout()
+    this.layout.set_sizing()
   }
 
   override _after_layout(): void {
     this._update_scales()
-  }
-
-  override get layoutables(): LayoutableRenderer[] {
-    return []
   }
 }
 

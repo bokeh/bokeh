@@ -3,7 +3,7 @@ import type {FrameBox} from "../canvas/canvas"
 import {Renderer} from "../renderers/renderer"
 import type {RendererView} from "../renderers/renderer"
 import {LayoutableRenderer, LayoutableRendererView} from "../renderers/layoutable_renderer"
-import {DataRenderer} from "../renderers/data_renderer"
+import {DataRenderer, DataRendererView} from "../renderers/data_renderer"
 import {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
 import type {Selection} from "../selections/selection"
@@ -59,11 +59,22 @@ export class PlotRendererView extends LayoutableRendererView {
 
   declare layout: BorderLayout
 
-  frame_view: CartesianFrameView
+  override get plot_view(): PlotRendererView {
+    return this
+  }
+
+  private _frame_view: CartesianFrameView
+  override get frame_view(): CartesianFrameView {
+    return this._frame_view
+  }
 
   // XXX avoid renaming everywhere for now
   get frame(): CartesianFrameView {
     return this.frame_view
+  }
+
+  get renderers(): LayoutableRenderer[] {
+    return [this.model.frame]
   }
 
   get layoutables(): LayoutableRenderer[] {
@@ -89,16 +100,23 @@ export class PlotRendererView extends LayoutableRendererView {
 
   protected _initial_state: StateInfo
 
-  computed_renderers: Renderer[]
+  protected _computed_renderers: Renderer[]
+  get computed_renderers(): Renderer[] {
+    return this._computed_renderers
+  }
 
   get computed_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+    return this.computed_renderers.map((r) => this._computed_renderer_views.get(r)!)
+  }
+
+  get all_renderer_views(): RendererView[] {
+    return [this.frame_view, ...this.frame_view.renderer_views, ...this.computed_renderer_views]
   }
 
   override renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
-    const view = this.renderer_views.get(renderer)
+    const view = this._computed_renderer_views.get(renderer)
     if (view == null) {
-      for (const [, renderer_view] of this.renderer_views) {
+      for (const renderer_view of this.all_renderer_views) {
         const view = renderer_view.renderer_view(renderer)
         if (view != null)
           return view
@@ -107,12 +125,12 @@ export class PlotRendererView extends LayoutableRendererView {
     return view
   }
 
-  /*protected*/ readonly renderer_views: ViewStorage<Renderer> = new Map()
+  /*protected*/ readonly _computed_renderer_views: ViewStorage<Renderer> = new Map()
   /*protected*/ readonly tool_views: ViewStorage<Tool> = new Map()
 
   override *children(): IterViews {
     yield* super.children()
-    yield* this.renderer_views.values()
+    yield* this._computed_renderer_views.values()
     yield* this.tool_views.values()
   }
 
@@ -147,7 +165,7 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   override remove(): void {
-    remove_views(this.renderer_views)
+    remove_views(this._computed_renderer_views)
     remove_views(this.tool_views)
     super.remove()
   }
@@ -170,7 +188,7 @@ export class PlotRendererView extends LayoutableRendererView {
     await super.lazy_initialize()
 
     //this.frame_view = await build_view(this._frame, {parent: this})
-    this.frame_view = this._renderer_views.get(this.model.frame)! as CartesianFrameView
+    this._frame_view = this._renderer_views.get(this.model.frame)! as CartesianFrameView
     this._range_manager = new RangeManager(this.frame_view)
 
     this._init_toolbar()
@@ -349,7 +367,7 @@ export class PlotRendererView extends LayoutableRendererView {
 
   get axis_views(): AxisView[] {
     const views = []
-    for (const [, renderer_view] of this.renderer_views) {
+    for (const [, renderer_view] of this._computed_renderer_views) {
       if (renderer_view instanceof AxisView)
         views.push(renderer_view)
     }
@@ -409,7 +427,7 @@ export class PlotRendererView extends LayoutableRendererView {
     const needs_layout = (() => {
       const {above, below, left, right} = this.model
       for (const panel of [...above, ...below, ...left, ...right]) {
-        const view = this.renderer_views.get(panel)! as AnnotationView | AxisView
+        const view = this._computed_renderer_views.get(panel)! as AnnotationView | AxisView
         if (view.layout?.has_size_changed() ?? false) {
           //this.invalidate_painters(view)
           return true
@@ -423,15 +441,9 @@ export class PlotRendererView extends LayoutableRendererView {
     }
   }
 
-  get_renderer_views(): RendererView[] {
-    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
-  }
-
   protected *_compute_renderers(): Generator<Renderer, void, undefined> {
     const {above, below, left, right, center} = this.model
-    const {renderers} = this.model.frame
 
-    yield* renderers
     yield* above
     yield* below
     yield* left
@@ -444,8 +456,8 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   async build_renderer_views(): Promise<void> {
-    this.computed_renderers = [...this._compute_renderers()]
-    await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    this._computed_renderers = [...this._compute_renderers()]
+    await build_views(this._computed_renderer_views, this.computed_renderers, {parent: this})
   }
 
   async build_tool_views(): Promise<void> {
@@ -534,7 +546,7 @@ export class PlotRendererView extends LayoutableRendererView {
       return false
 
     if (this.model.visible) {
-      for (const [, renderer_view] of this.renderer_views) {
+      for (const [, renderer_view] of this._computed_renderer_views) {
         if (!renderer_view.has_finished())
           return false
       }
@@ -546,7 +558,7 @@ export class PlotRendererView extends LayoutableRendererView {
   override _after_layout(): void {
     this.unpause(true)
 
-    for (const [, child_view] of this.renderer_views) {
+    for (const [, child_view] of this._computed_renderer_views) {
       if (child_view instanceof AnnotationView)
         child_view.after_layout?.()
     }
@@ -628,6 +640,12 @@ export class PlotRendererView extends LayoutableRendererView {
         document.interactive_stop()
     }
 
+    for (const rv of this.all_renderer_views) {
+      if (rv instanceof DataRendererView) {
+        rv.initial_set_data()
+      }
+    }
+
     if (this._range_manager.invalidate_dataranges) {
       this._range_manager.update_dataranges()
       this._invalidate_layout_if_needed()
@@ -671,11 +689,9 @@ export class PlotRendererView extends LayoutableRendererView {
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
-    for (const renderer of this.computed_renderers) {
-      if (renderer.level != level)
+    for (const renderer_view of this.all_renderer_views) {
+      if (renderer_view.model.level != level)
         continue
-
-      const renderer_view = this.renderer_views.get(renderer)!
 
       ctx.save()
       if (global_clip || renderer_view.needs_clip) {
@@ -744,7 +760,7 @@ export class PlotRendererView extends LayoutableRendererView {
 
   override serializable_state(): SerializableState {
     const {children, ...state} = super.serializable_state()
-    const views = [this.frame_view, ...this.get_renderer_views()]
+    const views = [this.frame_view, ...this.computed_renderer_views]
       .filter((view) => view.model.syncable) // filters out computed renderers
       .map((view) => view.serializable_state())
       .filter((item) => item.bbox != null)

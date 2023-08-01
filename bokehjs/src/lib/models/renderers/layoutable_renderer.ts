@@ -1,14 +1,11 @@
-import {Renderer, RendererView} from "../renderers/renderer"
+import {CompositeRenderer, CompositeRendererView} from "../renderers/composite_renderer"
 import type * as p from "core/properties"
 import type {Layoutable} from "core/layout"
-import type {ViewStorage, IterViews} from "core/build_views"
-import {build_views, remove_views} from "core/build_views"
 import type {SerializableState} from "core/view"
-import {isNotNull} from "core/util/types"
 import type {BBox} from "core/util/bbox"
 import {CanvasLayer} from "core/util/canvas"
 
-export abstract class LayoutableRendererView extends RendererView {
+export abstract class LayoutableRendererView extends CompositeRendererView {
   declare model: LayoutableRenderer
   declare layout: Layoutable
 
@@ -19,24 +16,9 @@ export abstract class LayoutableRendererView extends RendererView {
   abstract get layoutables(): LayoutableRenderer[]
 
   get layoutable_views(): LayoutableRendererView[] {
-    return this.layoutables.map((renderer) => this._renderer_views.get(renderer)).filter(isNotNull)
-  }
-
-  override *children(): IterViews {
-    yield* super.children()
-    yield* this.layoutable_views
-  }
-
-  protected readonly _renderer_views: ViewStorage<LayoutableRenderer> = new Map()
-
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-    await build_views(this._renderer_views, this.layoutables, {parent: this})
-  }
-
-  override remove(): void {
-    remove_views(this._renderer_views)
-    super.remove()
+    return this.layoutables
+      .map((r) => this._renderer_views.get(r))
+      .filter((rv): rv is LayoutableRendererView => rv instanceof LayoutableRendererView)
   }
 
   abstract _update_layout(): void
@@ -76,25 +58,17 @@ export abstract class LayoutableRendererView extends RendererView {
 
 export namespace LayoutableRenderer {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = Renderer.Props & {
-  }
-
-  export type Visuals = Renderer.Visuals
+  export type Props = CompositeRenderer.Props
+  export type Visuals = CompositeRenderer.Visuals
 }
 
 export interface LayoutableRenderer extends LayoutableRenderer.Attrs {}
 
-export abstract class LayoutableRenderer extends Renderer {
+export abstract class LayoutableRenderer extends CompositeRenderer {
   declare properties: LayoutableRenderer.Props
   declare __view_type__: LayoutableRendererView
 
   constructor(attrs?: Partial<LayoutableRenderer.Attrs>) {
     super(attrs)
-  }
-
-  static {
-    this.define<LayoutableRenderer.Props>(({}) => ({
-    }))
   }
 }
