@@ -445,8 +445,9 @@ def _use_gl(all_objs: set[Model]) -> bool:
         bool
 
     '''
+    from ..models.canvas import Canvas
     from ..models.plots import Plot
-    return _any(all_objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
+    return _any(all_objs, lambda obj: isinstance(obj, (Canvas, Plot)) and obj.output_backend == "webgl")
 
 def _ext_use_tables(all_objs: set[Model]) -> bool:
     from ..models.widgets import TableWidget
