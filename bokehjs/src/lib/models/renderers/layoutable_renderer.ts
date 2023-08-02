@@ -9,7 +9,7 @@ export abstract class LayoutableRendererView extends CompositeRendererView {
   declare model: LayoutableRenderer
   declare layout: Layoutable
 
-  get bbox(): BBox {
+  override get bbox(): BBox {
     return this.layout.bbox
   }
 

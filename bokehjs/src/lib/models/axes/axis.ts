@@ -53,7 +53,7 @@ export class AxisView extends GuideRendererView {
   panel: Panel
   layout: Layoutable
 
-  get bbox(): BBox {
+  override get bbox(): BBox {
     return this.layout.bbox
   }
 

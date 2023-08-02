@@ -5,11 +5,13 @@ import type * as p from "core/properties"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
-import type {PlotView} from "../plots/plot"
 import type {PlotRendererView} from "../plots/plot_renderer"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
+import {LinearScale} from "../scales/linear_scale"
+import {Range1d} from "../ranges/range1d"
+import {BBox} from "core/util/bbox"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -38,7 +40,12 @@ export abstract class RendererView extends View implements visuals.Renderable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView | CanvasView | RendererView
+  // TODO make this abstract
+  get bbox(): BBox {
+    return new BBox()
+  }
+
+  declare readonly parent: CanvasView | RendererView
 
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
@@ -88,8 +95,19 @@ export abstract class RendererView extends View implements visuals.Renderable {
         assert(y_scale != null, `missing '${y_range_name}' range`)
         return new CoordinateTransform(x_scale, y_scale)
       }
+    } else {
+      if (coordinates != null) {
+        throw new Error("nope")
+        //return coordinates.get_transform(frame_view)
+      } else {
+        const {bbox} = this.canvas_view
+        const xr = new Range1d(bbox.x_range)
+        const yr = new Range1d(bbox.y_range)
+        const x_scale = new LinearScale({source_range: xr, target_range: xr})
+        const y_scale = new LinearScale({source_range: yr, target_range: yr})
+        return new CoordinateTransform(x_scale, y_scale)
+      }
     }
-    throw new Error("nope")
   }
 
   get frame_view(): CartesianFrameView {

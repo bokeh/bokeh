@@ -4,7 +4,6 @@ import type {AutoRanged} from "../ranges/data_range1d"
 import {auto_ranged} from "../ranges/data_range1d"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
@@ -36,10 +35,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   declare model: BoxAnnotation
   declare visuals: BoxAnnotation.Visuals
 
-  override bbox: BBox = new BBox()
-
-  override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round ealier
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
   }
 
   override connect_signals(): void {
@@ -102,8 +100,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const overlay = this.model
     const {x_scale, y_scale} = this.coordinates
-    const {x_view, y_view} = this.plot_view.frame.bbox
-    const {x_screen, y_screen} = this.plot_view.canvas.bbox
+    const {x_view, y_view} = this.parent.bbox
+    const {x_screen, y_screen} = this.canvas_view.bbox
 
     const lrtb = {
       left:   mapper(overlay.left_units,   x_scale, x_view, x_screen),
@@ -116,19 +114,19 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   protected _render(): void {
-    function compute(value: number | null, mapper: CoordinateMapper, frame_extrema: number): number {
-      return value == null ? frame_extrema : mapper.compute(value)
+    function compute(value: number | null, mapper: CoordinateMapper, parent_extrema: number): number {
+      return value == null ? parent_extrema : mapper.compute(value)
     }
 
     const {left, right, top, bottom} = this.model
-    const {frame} = this.plot_view
+    const {bbox} = this.parent
     const {mappers} = this
 
-    this.bbox = BBox.from_lrtb({
-      left:   compute(left,   mappers.left,   frame.bbox.left),
-      right:  compute(right,  mappers.right,  frame.bbox.right),
-      top:    compute(top,    mappers.top,    frame.bbox.top),
-      bottom: compute(bottom, mappers.bottom, frame.bbox.bottom),
+    this._bbox = BBox.from_lrtb({
+      left:   compute(left,   mappers.left,   bbox.left),
+      right:  compute(right,  mappers.right,  bbox.right),
+      top:    compute(top,    mappers.top,    bbox.top),
+      bottom: compute(bottom, mappers.bottom, bbox.bottom),
     })
 
     if (this.bbox.is_valid) {

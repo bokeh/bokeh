@@ -55,7 +55,7 @@ class Canvas(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    renderers = List(Instance(LayoutableRenderer), default=[])
+    renderers = List(Instance(Renderer), default=[])
 
     hidpi = Bool(default=True, help="""
     Whether to use high pixel density mode when available.

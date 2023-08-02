@@ -92,7 +92,11 @@ export class LegendView extends AnnotationView {
     this.connect(this.model.item_change, rerender)
   }
 
-  override bbox: BBox = new BBox()
+  protected _bbox: BBox = new BBox()
+  override get bbox(): BBox {
+    return this._bbox
+  }
+
   protected grid: Grid<LegendEntry>
   protected border_box: Column | Row
   protected title_panel: TextLayout
@@ -212,7 +216,7 @@ export class LegendView extends AnnotationView {
     const height = padding + border_box.bbox.height + padding
 
     // Position will be filled-in in `compute_geometry()`.
-    this.bbox = new BBox({left: 0, top: 0, width, height})
+    this._bbox = new BBox({left: 0, top: 0, width, height})
   }
 
   override compute_geometry(): void {
@@ -275,7 +279,7 @@ export class LegendView extends AnnotationView {
       sy = panel.bbox.yview.compute(vy) - height
     }
 
-    this.bbox = new BBox({left: sx, top: sy, width, height})
+    this._bbox = new BBox({left: sx, top: sy, width, height})
   }
 
   override interactive_hit(sx: number, sy: number): boolean {

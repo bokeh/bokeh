@@ -385,6 +385,10 @@ export class CanvasView extends UIElementView {
         rv.layout.compute(size)
         rv.after_layout()
         rv.render()
+      } else {
+        if (do_primary || (do_overlays && rv.model.level == "overlay")) {
+          rv.render()
+        }
       }
     }
 
