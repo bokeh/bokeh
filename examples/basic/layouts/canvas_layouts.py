@@ -1,7 +1,26 @@
 import numpy as np
 
-from bokeh.plotting import figure, show
-from bokeh.models import GridBox, CanvasBox, Canvas, PlotRenderer, GridRenderer, ColorBar, Legend
+from bokeh.plotting import show
+from bokeh.models import (
+    BoxAnnotation,
+    Canvas,
+    CanvasBox,
+    CartesianFrame,
+    Circle,
+    #ColorBar,
+    ColumnDataSource,
+    GlyphRenderer,
+    Grid,
+    GridRenderer,
+    #Legend,
+    LinearAxis,
+    PlotRenderer,
+    Title,
+    Toolbar,
+    ToolbarPanel,
+)
+from bokeh.models import tools
+from bokeh.core.properties import field
 
 def plot(b: int):
     N = 2000
@@ -9,9 +28,6 @@ def plot(b: int):
     y = np.random.random(size=N) * 100
     radii = np.random.random(size=N) * 1.5
     colors = np.array([(r, g, b) for r, g in zip(50 + 2*x, 30 + 2*y)], dtype="uint8")
-
-    from bokeh.models import GlyphRenderer, Circle, ColumnDataSource, LinearAxis, Grid, Toolbar, PanTool, CrosshairTool
-    from bokeh.core.properties import field
 
     data_source = ColumnDataSource(data=dict(
         x=x,
@@ -35,16 +51,57 @@ def plot(b: int):
     gy = Grid(axis=ay, dimension=1)
 
     gr = GlyphRenderer(glyph=glyph, data_source=data_source)
-    tb = Toolbar(tools=[PanTool(), CrosshairTool()])
 
-    pr = PlotRenderer(renderers=[gx, gy, gr], below=[ax], left=[ay], toolbar=tb)
+    cf = CartesianFrame(renderers=[gx, gy, gr])
+    #return cf
 
+    tl = Title(text=f"b = {b}")
+
+    tb = Toolbar(tools=[
+        tools.BoxSelectTool(persistent=True),
+        tools.BoxZoomTool(),
+        tools.CopyTool(),
+        tools.CrosshairTool(),
+        tools.FreehandDrawTool(),
+        tools.FullscreenTool(),
+        tools.HoverTool(),
+        tools.LassoSelectTool(persistent=True),
+        tools.PanTool(),
+        tools.PointDrawTool(),
+        tools.PolyDrawTool(),
+        tools.PolySelectTool(persistent=True),
+        tools.RedoTool(),
+        tools.ResetTool(),
+        tools.SaveTool(),
+        tools.ExamineTool(),
+        tools.TapTool(),
+        tools.UndoTool(),
+        tools.WheelPanTool(),
+        tools.WheelZoomTool(),
+        tools.ZoomInTool(),
+        tools.ZoomOutTool(),
+    ])
+
+    tp = ToolbarPanel(toolbar=tb)
+
+    pr = PlotRenderer(frame=cf, above=[tl], below=[ax], left=[ay], right=[tp])
     return pr
 
 pr00 = plot(100)
 pr01 = plot(150)
 pr10 = plot(200)
 pr11 = plot(250)
+
+box = BoxAnnotation(
+    left=100,
+    right=500,
+    top=100,
+    bottom=500,
+    left_units="screen",
+    right_units="screen",
+    top_units="screen",
+    bottom_units="screen",
+)
 
 #cb0 = ColorBar()
 
@@ -59,7 +116,8 @@ gr = GridRenderer(items=[
 #    (cb0, 0, 2, 2, 1),
 ])
 
-canvas = Canvas(renderers=[gr])
+#canvas = Canvas(renderers=[pr00])
+canvas = Canvas(renderers=[gr, box])#, output_backend="webgl")
 canvas_box = CanvasBox(width=600, height=600, canvas=canvas)
 
 show(canvas_box)
