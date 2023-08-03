@@ -36,7 +36,7 @@ the same output above will be generated directly from the following code:
 
 .. code-block:: python
 
-    # Specify a baz style
+    #: Specify a baz style
     baz = enumeration("a", "b", "c")
 
 """
