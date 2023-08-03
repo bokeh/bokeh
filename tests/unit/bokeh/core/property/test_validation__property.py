@@ -175,7 +175,25 @@ class TestValidateDetailDefault:
         p = Dict(String, Float)
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected an element of Dict\(String, Float\), got 'junk'")
+        assert matches(str(e.value), r"expected a dict of type Dict\(String, Float\), got a value of type <class 'str'>")
+
+    def test_Dict_Invalid_Key(self) -> None:
+        d = Dict(String, String)
+        with pytest.raises(ValueError) as err:
+            d.validate({"Foo": "Bar", 1: "Baz"})
+            assert("invalid keys: 1" in err.value.args[0])
+
+    def test_Dict_Invalid_Value(self) -> None:
+        d = Dict(String, String)
+        with pytest.raises(ValueError) as err:
+            d.validate({"Foo": "Bar", "Baz": 1})
+            assert("values for keys: Baz" in err.value.args[0])
+
+    def test_Dict_Valid(self) -> None:
+        d = Dict(String, String)
+        d.validate({"Foo": "Bar"})
+        assert True
+
     def test_Tuple(self) -> None:
         p = Tuple(Int, Int)
         with pytest.raises(ValueError) as e:
@@ -192,7 +210,7 @@ class TestValidateDetailDefault:
         p = ColumnData(String, Seq(Float))
         with pytest.raises(ValueError) as e:
             p.validate("junk")
-        assert matches(str(e.value), r"expected an element of ColumnData\(String, Seq\(Float\)\), got 'junk'")
+        assert matches(str(e.value), r"expected a dict of type ColumnData\(String, Seq\(Float\)\), got a value of type <class 'str'>")
     def test_Datetime(self) -> None:
         p = Datetime()
         with pytest.raises(ValueError) as e:
