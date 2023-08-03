@@ -202,11 +202,14 @@ class Dict(ContainerProperty[Any]):
 
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
-        if isinstance(value, dict) and all(key_is_valid(key) and value_is_valid(val) for key, val in value.items()):
-            return
+        expected = f"expected a dict of type {self}"
+        if not isinstance(value, dict):
+            raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
+        if any(bad_keys := [str(k) for k in value if not key_is_valid(k)]):
+            raise ValueError(f"{expected}, got a dict with invalid keys: {','.join(bad_keys)}" if detail else "")
 
-        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        if any(bad_value_keys := [str(k) for (k, v) in value.items() if not value_is_valid(v)]):
+            raise ValueError(f"{expected}, got a dict with invalid values for keys: {','.join(bad_value_keys)}" if detail else "")
 
     def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.
