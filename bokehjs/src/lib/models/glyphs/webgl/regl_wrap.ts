@@ -325,38 +325,37 @@ function regl_solid_line(regl: Regl, line_geometry: Buffer, line_triangles: Elem
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*props.point_offset)
+        return props.points.to_attribute_config(props.point_offset)
       },
       a_point_start(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 2))
+        return props.points.to_attribute_config(props.point_offset + 2)
       },
       a_point_end(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 4))
+        return props.points.to_attribute_config(props.point_offset + 4)
       },
       a_point_next(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 6))
+        return props.points.to_attribute_config(props.point_offset + 6)
       },
       a_show_prev(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset)
       },
       a_show_curr(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 1))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset + 1)
       },
       a_show_next(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 2))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset + 2)
       },
       a_linewidth(_, props) {
-        return props.linewidth.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+        return props.linewidth.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_color(_, props) {
-        // Factor of 4 for offset as 4 uint8 per color.
-        return props.line_color.to_attribute_config_divisor(4*props.line_offset, props.nsegments + 3)
+        return props.line_color.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_cap(_, props) {
-        return props.line_cap.to_attribute_config_divisor(props.line_offset, props.nsegments + 3)
+        return props.line_cap.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_join(_, props) {
-        return props.line_join.to_attribute_config_divisor(props.line_offset, props.nsegments + 3)
+        return props.line_join.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
     },
 
@@ -413,50 +412,49 @@ ${line_fragment_shader}
         divisor: 0,
       },
       a_point_prev(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*props.point_offset)
+        return props.points.to_attribute_config(props.point_offset)
       },
       a_point_start(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 2))
+        return props.points.to_attribute_config(props.point_offset + 2)
       },
       a_point_end(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 4))
+        return props.points.to_attribute_config(props.point_offset + 4)
       },
       a_point_next(_, props) {
-        return props.points.to_attribute_config(Float32Array.BYTES_PER_ELEMENT*(props.point_offset + 6))
+        return props.points.to_attribute_config(props.point_offset + 6)
       },
       a_show_prev(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset)
       },
       a_show_curr(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 1))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset + 1)
       },
       a_show_next(_, props) {
-        return props.show.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*(props.point_offset/2 - props.line_offset + 2))
+        return props.show.to_attribute_config(props.point_offset/2 - props.line_offset + 2)
       },
       a_linewidth(_, props) {
-        return props.linewidth.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+        return props.linewidth.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_color(_, props) {
-        // Factor of 4 for offset as 4 uint8 per color.
-        return props.line_color.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset*4, props.nsegments + 3)
+        return props.line_color.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_cap(_, props) {
-        return props.line_cap.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+        return props.line_cap.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_line_join(_, props) {
-        return props.line_join.to_attribute_config_divisor(Uint8Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments + 3)
+        return props.line_join.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_length_so_far(_, props) {
-        return props.length_so_far.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*(props.point_offset/2 - 3*props.line_offset))
+        return props.length_so_far.to_attribute_config(props.point_offset/2 - 3*props.line_offset)
       },
       a_dash_tex_info(_, props) {
-        return props.dash_tex_info.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset*4, 4*props.nsegments)
+        return props.dash_tex_info.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_dash_scale(_, props) {
-        return props.dash_scale.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments)
+        return props.dash_scale.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
       a_dash_offset(_, props) {
-        return props.dash_offset.to_attribute_config_divisor(Float32Array.BYTES_PER_ELEMENT*props.line_offset, props.nsegments)
+        return props.dash_offset.to_attribute_config_nested(props.line_offset, props.nsegments + 3)
       },
     },
 
@@ -527,37 +525,37 @@ ${marker_fragment_shader}
         divisor: 0,
       },
       a_center(_, props) {
-        return props.center.to_attribute_config()
+        return props.center.to_attribute_config(0, props.nmarkers)
       },
       a_width(_, props) {
-        return props.width.to_attribute_config()
+        return props.width.to_attribute_config(0, props.nmarkers)
       },
       a_height(_, props) {
-        return props.height.to_attribute_config()
+        return props.height.to_attribute_config(0, props.nmarkers)
       },
       a_angle(_, props) {
-        return props.angle.to_attribute_config()
+        return props.angle.to_attribute_config(0, props.nmarkers)
       },
       a_aux(_, props) {
-        return props.aux.to_attribute_config()
+        return props.aux.to_attribute_config(0, props.nmarkers)
       },
       a_linewidth(_, props) {
-        return props.linewidth.to_attribute_config()
+        return props.linewidth.to_attribute_config(0, props.nmarkers)
       },
       a_line_color(_, props) {
-        return props.line_color.to_attribute_config()
+        return props.line_color.to_attribute_config(0, props.nmarkers)
       },
       a_fill_color(_, props) {
-        return props.fill_color.to_attribute_config()
+        return props.fill_color.to_attribute_config(0, props.nmarkers)
       },
       a_line_cap(_, props) {
-        return props.line_cap.to_attribute_config()
+        return props.line_cap.to_attribute_config(0, props.nmarkers)
       },
       a_line_join(_, props) {
-        return props.line_join.to_attribute_config()
+        return props.line_join.to_attribute_config(0, props.nmarkers)
       },
       a_show(_, props) {
-        return props.show.to_attribute_config()
+        return props.show.to_attribute_config(0, props.nmarkers)
       },
       ...attributes,
     },
@@ -596,18 +594,18 @@ ${marker_fragment_shader}
 
 function regl_marker_hatch(regl: Regl, marker_type: GLMarkerType): ReglRenderFunction {
 
-  const hatch_attributes: MaybeDynamicAttributes<t.HatchAttributes, DefaultContext, t.HatchProps> = {
+  const hatch_attributes: MaybeDynamicAttributes<t.HatchAttributes, DefaultContext, t.MarkerHatchGlyphProps> = {
     a_hatch_pattern(_, props) {
-      return props.hatch_pattern.to_attribute_config()
+      return props.hatch_pattern.to_attribute_config(0, props.nmarkers)
     },
     a_hatch_scale(_, props) {
-      return props.hatch_scale.to_attribute_config()
+      return props.hatch_scale.to_attribute_config(0, props.nmarkers)
     },
     a_hatch_weight(_, props) {
-      return props.hatch_weight.to_attribute_config()
+      return props.hatch_weight.to_attribute_config(0, props.nmarkers)
     },
     a_hatch_color(_, props) {
-      return props.hatch_color.to_attribute_config()
+      return props.hatch_color.to_attribute_config(0, props.nmarkers)
     },
   }
 

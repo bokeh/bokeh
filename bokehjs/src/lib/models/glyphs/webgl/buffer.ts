@@ -18,10 +18,17 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
   protected array?: ArrayType
   protected is_scalar: boolean
 
-  constructor(regl_wrapper: ReglWrapper) {
+  // Number of buffer elements per rendered primitive, e.g. for RGBA buffers this is 4
+  // as a single color is 4 x uint8 = 32-bit in total.
+  protected elements_per_primitive: number
+
+  constructor(regl_wrapper: ReglWrapper, elements_per_primitive: number = 1) {
     this.regl_wrapper = regl_wrapper
     this.is_scalar = true
+    this.elements_per_primitive = elements_per_primitive
   }
+
+  protected abstract bytes_per_element(): number
 
   // Return array if already know it exists and is the correct length.
   get_array(): ArrayType {
@@ -58,10 +65,8 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     this.update()
   }
 
-  // length_if_scalar is the number of vertices in the WebGL primitive used to
-  // render the glyph; usually this is a rectangle with 4 vertices.
-  set_from_prop(prop: Uniform<number>, length_if_scalar = 4): void {
-    const len = prop.is_Scalar() ? length_if_scalar : prop.length
+  set_from_prop(prop: Uniform<number>): void {
+    const len = prop.is_Scalar() ? 1 : prop.length
     const array = this.get_sized_array(len)
 
     for (let i = 0; i < len; i++)
@@ -70,35 +75,43 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
     this.update(prop.is_Scalar())
   }
 
-  // length_if_scalar is the number of vertices in the WebGL primitive used to
-  // render the glyph; usually this is a rectangle with 4 vertices.
-  set_from_scalar(scalar: number, length_if_scalar: number = 4): void {
-    this.get_sized_array(length_if_scalar).fill(scalar)
+  set_from_scalar(scalar: number): void {
+    this.get_sized_array(1).fill(scalar)
     this.update(true)
   }
 
   // Return a ReGL AttributeConfig that corresponds to one value for each glyph
-  // or the same value for all glyphs.  Instanced rendering supports the former
-  // using 'divisor = 1', but does not support the latter directly.  We have to
-  // either repeat the attribute once for each glyph, which is wasteful for a
-  // large number of glyphs, or the solution used here which is to use
-  // 'divisor = 0' and repeat the value once for each of the instanced vertices
-  // which is usually 4.  See also set_from_prop() above.
-  to_attribute_config(offset: number = 0): AttributeConfig {
+  // or the same value for a number of glyphs.  A buffer passed to ReGL for
+  // instanced rendering can be used for multiple rendering calls and the
+  // important attributes for this are the offset (in bytes) into the buffer
+  // and the divisor, which is the number of instances rendered before the
+  // offset is advanced to the next buffer element.
+
+  // to_attribute_config() is used for the common case of a single render call
+  // per buffer with visual properties that are either scalar or vector.
+  // Visual properties of scatter markers are an good example, and scalar_divisor
+  // would be the number of markers rendered.
+  to_attribute_config(offset: number = 0, scalar_divisor: number = 1): AttributeConfig {
     return {
       buffer: this.buffer,
-      divisor: this.is_scalar ? 0 : 1,
+      divisor: this.is_scalar ? scalar_divisor : 1,
       normalized: this.is_normalized(),
-      offset,
+      offset: offset*this.bytes_per_element(),
     }
   }
 
-  to_attribute_config_divisor(offset: number = 0, divisor: number = 1): AttributeConfig {
+  // to_attribute_config_nested() is used for the more complicated case in
+  // which the vectorisation is nested, such as rendering multi_lines where
+  // each visual property has a single buffer that is used multiple times, once
+  // for each of the constituent lines.  Vector properties are therefore
+  // constant for each constituent line (composed of multiple rendered
+  // instances) but change between lines.
+  to_attribute_config_nested(offset_vector: number = 0, divisor: number = 1): AttributeConfig {
     return {
       buffer: this.buffer,
-      divisor,
+      divisor: divisor*this.elements_per_primitive,
       normalized: this.is_normalized(),
-      offset: this.is_scalar ? 0 : offset,
+      offset: this.is_scalar ? 0 : offset_vector*this.bytes_per_element()*this.elements_per_primitive,
     }
   }
 
@@ -122,19 +135,27 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 }
 
 export class Float32Buffer extends WrappedBuffer<Float32Array> {
+  protected bytes_per_element(): number {
+    return Float32Array.BYTES_PER_ELEMENT
+  }
+
   protected new_array(len: number): Float32Array {
     return new Float32Array(len)
   }
 }
 
 export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
+  protected bytes_per_element(): number {
+    return Uint8Array.BYTES_PER_ELEMENT
+  }
+
   protected new_array(len: number): Uint8Array {
     return new Uint8Array(len)
   }
 
-  set_from_color(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>, length_if_scalar = 4): void {
+  set_from_color(color_prop: Uniform<uint32>, alpha_prop: Uniform<number>): void {
     const is_scalar = color_prop.is_Scalar() && alpha_prop.is_Scalar()
-    const ncolors = is_scalar ? length_if_scalar : color_prop.length
+    const ncolors = is_scalar ? 1 : color_prop.length
     const array = this.get_sized_array(4*ncolors)
 
     for (let i = 0; i < ncolors; i++) {
@@ -148,8 +169,8 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     this.update(is_scalar)
   }
 
-  set_from_hatch_pattern(hatch_pattern_prop: Uniform<HatchPattern>, length_if_scalar = 4): void {
-    const len = hatch_pattern_prop.is_Scalar() ? length_if_scalar : hatch_pattern_prop.length
+  set_from_hatch_pattern(hatch_pattern_prop: Uniform<HatchPattern>): void {
+    const len = hatch_pattern_prop.is_Scalar() ? 1 : hatch_pattern_prop.length
     const array = this.get_sized_array(len)
 
     for (let i = 0; i < len; i++)
@@ -158,8 +179,8 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     this.update(hatch_pattern_prop.is_Scalar())
   }
 
-  set_from_line_cap(line_cap_prop: Uniform<LineCap>, length_if_scalar = 4): void {
-    const len = line_cap_prop.is_Scalar() ? length_if_scalar : line_cap_prop.length
+  set_from_line_cap(line_cap_prop: Uniform<LineCap>): void {
+    const len = line_cap_prop.is_Scalar() ? 1 : line_cap_prop.length
     const array = this.get_sized_array(len)
 
     for (let i = 0; i < len; i++)
@@ -168,8 +189,8 @@ export class Uint8Buffer extends WrappedBuffer<Uint8Array> {
     this.update(line_cap_prop.is_Scalar())
   }
 
-  set_from_line_join(line_join_prop: Uniform<LineJoin>, length_if_scalar = 4): void {
-    const len = line_join_prop.is_Scalar() ? length_if_scalar : line_join_prop.length
+  set_from_line_join(line_join_prop: Uniform<LineJoin>): void {
+    const len = line_join_prop.is_Scalar() ? 1 : line_join_prop.length
     const array = this.get_sized_array(len)
 
     for (let i = 0; i < len; i++)
