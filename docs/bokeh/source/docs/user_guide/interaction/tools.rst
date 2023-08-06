@@ -140,21 +140,21 @@ You can pass:
 
 1. A well known icon name
 
-.. code-block:: python
+   .. code-block:: python
 
-    plot.add_tools(BoxSelectTool(icon="box_zoom"))
+       plot.add_tools(BoxSelectTool(icon="box_zoom"))
 
 2. A CSS selector
 
-.. code-block:: python
+   .. code-block:: python
 
-    plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
+       plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
 
 3. An image path
 
-.. code-block:: python
+   .. code-block:: python
 
-    plot.add_tools(BoxSelectTool(icon="path/to/icon"))
+       plot.add_tools(BoxSelectTool(icon="path/to/icon"))
 
 .. _ug_interaction_tools_setting_active_tools:
 
