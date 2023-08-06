@@ -540,10 +540,13 @@ class ColorMap(InputWidget):
     items = Required(Seq(Tuple(String, Seq(Color))), help="""
     """)
 
-    swatch_width = Int(100, help="""
+    swatch_width = NonNegative(Int, default=100, help="""
     """)
 
-    swatch_height = Int(20, help="""
+    swatch_height = NonNegative(Int, default=20, help="""
+    """)
+
+    ncols = Positive(Int, default=1, help="""
     """)
 
 #-----------------------------------------------------------------------------

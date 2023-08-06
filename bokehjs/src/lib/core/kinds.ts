@@ -273,7 +273,7 @@ export namespace Kinds {
       super()
     }
 
-    valid(value: unknown): value is types.Arrayable {
+    valid(value: unknown): value is types.Arrayable<ItemType> {
       return tp.isArray(value) || tp.isTypedArray(value) // TODO: too specific
     }
 

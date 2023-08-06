@@ -86,6 +86,14 @@ export function clamp(val: number, min: number, max: number): number {
   return val < min ? min : (val > max ? max : val)
 }
 
+export function cycle(val: number, min: number, max: number): number {
+  if (val > max)
+    return min
+  if (val < min)
+    return max
+  return val
+}
+
 export function log(x: number, base: number = Math.E): number {
   return Math.log(x)/Math.log(base)
 }

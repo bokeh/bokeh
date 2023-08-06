@@ -1,51 +1,58 @@
+import type {Keys} from "core/dom"
 import {div, canvas} from "core/dom"
-import type {Arrayable, Color} from "core/types"
 import type {StyleSheetLike} from "core/dom"
-import type {MenuItem} from "core/util/menus"
-import {ContextMenu} from "core/util/menus"
+import {DropPane} from "core/util/panes"
 import type * as p from "core/properties"
 import {enumerate} from "core/util/iterator"
 import {color2css} from "core/util/color"
+import {cycle} from "core/util/math"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
+import color_map_css, * as color_map from "styles/widgets/color_map.css"
 import icons_css, * as icons from "styles/icons.css"
 
-const colormap_css = `
-.bk-value-input {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 1em;
-  cursor: pointer;
-}
-.bk-value {
-  flex-grow: 1;
-}
-.bk-chevron {
-  width: 16px;
-  height: 16px;
+import {Tuple, String, Arrayable, Color} from "../../core/kinds"
 
-  mask-size: 100% 100%;
-  mask-position: center center;
-  mask-repeat: no-repeat;
-  -webkit-mask-size: 100% 100%;
-  -webkit-mask-position: center center;
-  -webkit-mask-repeat: no-repeat;
-}
-`
+const Item = Tuple(String, Arrayable(Color))
+type Item = typeof Item["__type__"]
 
-const entry_css = `
-:host {
-  padding: 5px;
-}
+const item_css = `
 .bk-entry {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   align-items: center;
   gap: 0.5em;
+}
+.bk-item {
+  --active-tool-highlight: #26aae1;
+
+  border: 1px solid transparent;
+
+  &.bk-active {
+    border-color: var(--active-tool-highlight);
+  }
+  &:hover {
+    background-color: #f9f9f9;
+  }
+  &:focus, &:focus-visible {
+    outline: 1px dotted var(--active-tool-highlight);
+    outline-offset: -1px;
+  }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}
+`
+
+const pane_css = `
+:host {
+  --number-of-columns: 1;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  gap: 0.25em;
 }
 `
 
@@ -54,8 +61,10 @@ export class ColorMapView extends InputWidgetView {
 
   declare input_el: HTMLSelectElement
 
+  protected _pane: DropPane
+
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), icons_css, colormap_css, entry_css]
+    return [...super.stylesheets(), icons_css, color_map_css, item_css]
   }
 
   override connect_signals(): void {
@@ -64,7 +73,8 @@ export class ColorMapView extends InputWidgetView {
     this.on_change([value, items, swatch_width, swatch_height], () => this.render())
   }
 
-  protected _render_entry(name: string, colors: Arrayable<Color>) {
+  protected _render_item(item: Item) {
+    const [name, colors] = item
     const {swatch_width, swatch_height} = this.model
 
     const img = canvas({width: `${swatch_width}`, height: `${swatch_height}`})
@@ -91,49 +101,145 @@ export class ColorMapView extends InputWidgetView {
       const {value, items} = this.model
       const entry = items.find(([name]) => name == value)
       if (entry != null) {
-        const [name, colors] = entry
-        return this._render_entry(name, colors)
+        return this._render_item(entry)
       } else {
         return null
       }
     })()
 
-    const value = div({class: ["bk-value", "bk-entry"]}, content)
-    const chevron = div({class: ["bk-chevron", icons.tool_icon_chevron_down]})
+    const value = div({class: [color_map.value, "bk-entry"]}, content)
+    const chevron = div({class: [color_map.chevron, icons.tool_icon_chevron_down]})
 
-    const input_el = div({class: [inputs.input, "bk-value-input"]}, value, chevron)
-    this.group_el.appendChild(input_el)
+    const input_el = div({class: [inputs.input, color_map.value_input]}, value, chevron)
 
     if (this.model.disabled) {
       input_el.classList.add(inputs.disabled)
+    } else {
+      input_el.tabIndex = 0
     }
 
-    const items: MenuItem[] = []
+    this.input_el = input_el as any // XXX
+    this.group_el.appendChild(input_el)
 
-    for (const [name, colors] of this.model.items) {
-      const entry = this._render_entry(name, colors)
-      items.push({content: entry})
+    const item_els: HTMLElement[] = []
+
+    const {ncols} = this.model
+    for (const [item, i] of enumerate(this.model.items)) {
+      const entry_el = this._render_item(item)
+      const item_el = div({class: "bk-item", tabIndex: 0}, entry_el)
+
+      item_el.addEventListener("pointerup", () => {
+        this.select(item)
+      })
+      item_el.addEventListener("keyup", (event) => {
+        switch (event.key as Keys) {
+          case "Enter": {
+            this.select(item)
+            break
+          }
+          case "Escape": {
+            this.hide()
+            break
+          }
+          default:
+        }
+      })
+      const move_focus = (offset: number): void => {
+        const {items} = this.model
+        const j = cycle(i + offset, 0, items.length - 1)
+        item_els[j].focus()
+      }
+      item_el.addEventListener("keydown", (event) => {
+        switch (event.key as Keys) {
+          case "ArrowUp": {
+            move_focus(-ncols)
+            break
+          }
+          case "ArrowDown": {
+            move_focus(+ncols)
+            break
+          }
+          case "ArrowLeft": {
+            move_focus(-1)
+            break
+          }
+          case "ArrowRight": {
+            move_focus(+1)
+            break
+          }
+          default:
+        }
+      })
+
+      item_els.push(item_el)
     }
 
-    const menu = new ContextMenu(items, {
-      target: this.root.el,
-      orientation: "vertical",
-      extra_styles: [entry_css],
-      prevent_hide: (event) => {
-        return event.composedPath().includes(input_el)
-      },
-      entry_handler: (_entry, i) => {
-        const [name] = this.model.items[i]
-        this.model.value = name
-        super.change_input()
-      },
+    this._pane = new DropPane(item_els, {
+      target: this.group_el,
+      prevent_hide: this.input_el,
+      extra_stylesheets: [item_css, pane_css],
     })
 
-    input_el.addEventListener("pointerup", (e) => {
-      if (e.composedPath().includes(input_el)) {
-        menu.toggle({below: input_el})
+    this._pane.el.style.setProperty("--number-of-columns", `${ncols}`)
+
+    input_el.addEventListener("pointerup", () => {
+      this.toggle()
+    })
+
+    input_el.addEventListener("keyup", (event) => {
+      switch (event.key as Keys) {
+        case "Enter": {
+          this.toggle()
+          break
+        }
+        case "Escape": {
+          this.hide()
+          break
+        }
+        default:
       }
     })
+    input_el.addEventListener("keydown", (event) => {
+      switch (event.key as Keys) {
+        case "ArrowUp": {
+          const {items, value} = this.model
+          const i = items.findIndex(([name]) => value == name)
+          if (i != -1) {
+            const j = cycle(i - 1, 0, items.length - 1)
+            this.select(items[j])
+          }
+          break
+        }
+        case "ArrowDown": {
+          const {items, value} = this.model
+          const i = items.findIndex(([name]) => value == name)
+          if (i != -1) {
+            const j = cycle(i + 1, 0, items.length - 1)
+            this.select(items[j])
+          }
+          break
+        }
+        default:
+      }
+    })
+  }
+
+  select(item: Item): void {
+    this.hide()
+    const [name] = item
+    this.model.value = name
+    super.change_input()
+    this.input_el.focus()
+  }
+
+  toggle(): void {
+    if (!this.model.disabled) {
+      this._pane.toggle()
+    }
+  }
+
+  hide(): void {
+    this._pane.hide()
   }
 }
 
@@ -142,9 +248,10 @@ export namespace ColorMap {
 
   export type Props = InputWidget.Props & {
     value: p.Property<string>
-    items: p.Property<[string, Arrayable<Color>][]>
+    items: p.Property<Item[]>
     swatch_width: p.Property<number>
     swatch_height: p.Property<number>
+    ncols: p.Property<number>
   }
 }
 
@@ -161,13 +268,13 @@ export class ColorMap extends InputWidget {
   static {
     this.prototype.default_view = ColorMapView
 
-    this.define<ColorMap.Props>(({Int, String, Arrayable, Color, Tuple, Array}) => {
-      const Item = Tuple(String, Arrayable(Color))
+    this.define<ColorMap.Props>(({Int, String, Array, NonNegative, Positive}) => {
       return {
         value: [ String ],
         items: [ Array(Item) ],
-        swatch_width: [ Int, 100 ],
-        swatch_height: [ Int, 20 ],
+        swatch_width: [ NonNegative(Int), 100 ],
+        swatch_height: [ NonNegative(Int), 20 ],
+        ncols: [ Positive(Int), 1 ],
       }
     })
   }
