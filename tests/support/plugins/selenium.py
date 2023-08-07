@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Define a Pytest plugin for a log file fixture
+''' Define a Pytest plugin for a selenium webdriver
 
 '''
 
