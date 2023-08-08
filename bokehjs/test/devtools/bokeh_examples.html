@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Listing of {{ directory }}</title>
+    <style>
+      html, body {
+        box-sizing: border-box;
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <ul>
+      {% for dir in dirs %}
+        <li><b><a href="{{ dir }}/">{{ dir }}/</a></b></li>
+      {% endfor %}
+    </ul>
+    <ul>
+      {% for file in files %}
+        <li><a href="{{ file }}">{{ file }}.py</a></li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>

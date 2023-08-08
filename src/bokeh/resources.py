@@ -68,8 +68,8 @@ if TYPE_CHECKING:
 # Globals and constants
 # -----------------------------------------------------------------------------
 
-DEFAULT_SERVER_HOST = "localhost"
-DEFAULT_SERVER_PORT = 5006
+DEFAULT_SERVER_HOST = settings.default_server_host()
+DEFAULT_SERVER_PORT = settings.default_server_port()
 
 def server_url(host: str | None = None, port: int | None = None, ssl: bool = False) -> str:
     protocol = "https" if ssl else "http"
