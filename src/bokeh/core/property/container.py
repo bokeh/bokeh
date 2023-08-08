@@ -203,8 +203,10 @@ class Dict(ContainerProperty[Any]):
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
         expected = f"expected a dict of type {self}"
+
         if not isinstance(value, dict):
             raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
+
         if any(bad_keys := [str(k) for k in value if not key_is_valid(k)]):
             raise ValueError(f"{expected}, got a dict with invalid keys: {','.join(bad_keys)}" if detail else "")
 

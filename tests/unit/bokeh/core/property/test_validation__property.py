@@ -181,18 +181,20 @@ class TestValidateDetailDefault:
         d = Dict(String, String)
         with pytest.raises(ValueError) as err:
             d.validate({"Foo": "Bar", 1: "Baz"})
-            assert("invalid keys: 1" in err.value.args[0])
+        assert "invalid keys: 1" in str(err.value)
 
     def test_Dict_Invalid_Value(self) -> None:
         d = Dict(String, String)
         with pytest.raises(ValueError) as err:
             d.validate({"Foo": "Bar", "Baz": 1})
-            assert("values for keys: Baz" in err.value.args[0])
+        assert "values for keys: Baz" in str(err.value)
 
     def test_Dict_Valid(self) -> None:
         d = Dict(String, String)
-        d.validate({"Foo": "Bar"})
-        assert True
+        try:
+            d.validate({"Foo": "Bar"})
+        except ValueError:
+            pytest.fail("Value error should not be raised on validating a correct dictionary")
 
     def test_Tuple(self) -> None:
         p = Tuple(Int, Int)

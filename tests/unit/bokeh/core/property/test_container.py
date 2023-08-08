@@ -144,29 +144,6 @@ class Test_Dict:
         with pytest.raises(TypeError):
             bcpc.Dict()
 
-    def test_validate_invalid_key(self) -> None:
-        d = bcpc.Dict(String, String)
-        with pytest.raises(ValueError) as err:
-            d.validate({"Foo": "Bar", 1: "Baz"})
-            assert("invalid keys: 1" in err.value.args[0])
-
-    def test_validate_invalid_value(self) -> None:
-        d = bcpc.Dict(String, String)
-        with pytest.raises(ValueError) as err:
-            d.validate({"Foo": "Bar", "Baz": 1})
-            assert("values for keys: Baz" in err.value.args[0])
-
-    def test_validate_invalid_arg(self) -> None:
-        d = bcpc.Dict(String, String)
-        with pytest.raises(ValueError) as err:
-            d.validate([])
-            assert("got a value of type list" in err.value.args[0])
-
-    def test_validate_valid(self) -> None:
-        d = bcpc.Dict(String, String)
-        d.validate({"Foo": "Bar"})
-        assert True
-
     def test_valid(self) -> None:
         prop = bcpc.Dict(String, bcpc.List(Int))
 
