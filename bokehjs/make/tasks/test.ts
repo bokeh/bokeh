@@ -65,8 +65,10 @@ function sys_path(): string {
   return path.join(delimiter)
 }
 
+const supported_chromium_revision = "r2333" // 110.0.5481.100
+
 function chrome(): string {
-  const names = ["chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
+  const names = [`chromium_${supported_chromium_revision}`, "chromium", "chromium-browser", "chrome", "google-chrome", "Google Chrome"]
   const path = sys_path()
 
   for (const name of names) {
