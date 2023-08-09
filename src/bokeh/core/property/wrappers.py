@@ -471,14 +471,14 @@ class PropertyValueColumnData(PropertyValueDict):
             if isinstance(self[k], np.ndarray) or isinstance(new_data[k], np.ndarray):
                 data = np.append(self[k], new_data[k])
                 if rollover is not None and len(data) > rollover:
-                    data = data[max(len(data) - rollover, 0):]
+                    data = data[len(data) - rollover:]
                 # call dict.__setitem__ directly, bypass wrapped version on base class
                 dict.__setitem__(self, k, data)
             else:
                 L = self[k]
                 L.extend(new_data[k])
-                if rollover is not None:
-                    del L[:max(len(L) - rollover, 0)]
+                if rollover is not None and len(L) > rollover:
+                    del L[:len(L) - rollover]
 
         from ...document.events import ColumnsStreamedEvent
         self._notify_owners(old, hint=ColumnsStreamedEvent(doc, source, "data", new_data, rollover, setter))
