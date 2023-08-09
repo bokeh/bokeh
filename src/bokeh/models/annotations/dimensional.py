@@ -4,9 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Renderers for various kinds of annotations that can be added to plots.
+'''
 
 '''
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -19,41 +20,50 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from . import (
-    annotation,
-    arrows,
-    dimensional,
-    geometry,
-    html,
-    labels,
-    legends,
-)
-from .annotation import *
-from .arrows import *
-from .dimensional import *
-from .geometry import *
-from .html import *
-from .labels import *
-from .legends import *
+from ...core.has_props import abstract
+from ...model import Model
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    *annotation.__all__,
-    *arrows.__all__,
-    *dimensional.__all__,
-    *geometry.__all__,
-    *html.__all__,
-    *labels.__all__,
-    *legends.__all__,
+    "MetricLength",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+@abstract
+class Dimensional(Model):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+@abstract
+class Metric(Dimensional):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+class MetricLength(Metric):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

@@ -215,4 +215,23 @@ describe("core/util/arrayable module", () => {
     expect(arrayable.every([1, 2, 3, 4], (num) => num > 0)).to.be.true
     expect(arrayable.every([-2, 1, 2, 3, 4], (num) => num > 0)).to.be.false
   })
+
+  it("should support bisect_left() function", () => {
+    expect(arrayable.bisect_left([], 20)).to.be.equal(0)
+    expect(arrayable.bisect_left([10, 20, 30, 40], 20)).to.be.equal(1)
+  })
+
+  it("should support bisect_right() function", () => {
+    expect(arrayable.bisect_right([], 20)).to.be.equal(0)
+    expect(arrayable.bisect_right([10, 20, 30, 40], 20)).to.be.equal(2)
+  })
+
+  it("should support binary_search() function", () => {
+    expect(arrayable.binary_search([], 20)).to.be.equal(null)
+    expect(arrayable.binary_search([10, 20, 30, 40], 10)).to.be.equal(0)
+    expect(arrayable.binary_search([10, 20, 30, 40], 20)).to.be.equal(1)
+    expect(arrayable.binary_search([10, 20, 30, 40], 30)).to.be.equal(2)
+    expect(arrayable.binary_search([10, 20, 30, 40], 40)).to.be.equal(3)
+    expect(arrayable.binary_search([10, 20, 30, 40], 50)).to.be.equal(null)
+  })
 })

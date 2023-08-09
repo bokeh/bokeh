@@ -269,6 +269,7 @@ export type BelowHatch = Prefixed<"below", Hatch>
 export type AxisLabelText = Prefixed<"axis_label", Text>
 export type AxisLine = Prefixed<"axis", Line>
 export type BackgroundFill = Prefixed<"background", Fill>
+export type BackgroundHatch = Prefixed<"background", Hatch>
 export type BackgroundFillVector = Prefixed<"background", FillVector>
 export type BackgroundHatchVector = Prefixed<"background", HatchVector>
 export type ItemBackgroundFill = Prefixed<"item_background", Fill>

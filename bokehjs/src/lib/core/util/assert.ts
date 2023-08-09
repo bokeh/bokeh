@@ -7,6 +7,14 @@ export function assert(condition: boolean | (() => boolean), message?: string): 
   throw new AssertionError(message ?? "Assertion failed")
 }
 
+declare const DEBUG: boolean | undefined
+
+export function assert_debug(condition: boolean | (() => boolean), message?: string): asserts condition {
+  if (typeof DEBUG !== "undefined" && DEBUG) {
+    assert(condition, message)
+  }
+}
+
 export function unreachable(): never {
   throw new Error("unreachable code")
 }

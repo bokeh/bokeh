@@ -20,8 +20,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import (
+    Align,
     AlternationPolicy,
     Anchor,
     LegendClickPolicy,
@@ -45,7 +49,9 @@ from ...core.properties import (
     Nullable,
     NullStringSpec,
     Override,
+    Percent,
     Positive,
+    Required,
     Seq,
     String,
     TextLike,
@@ -53,16 +59,23 @@ from ...core.properties import (
     value,
 )
 from ...core.property.vectorization import Field
-from ...core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
+from ...core.property_mixins import (
+    ScalarFillProps,
+    ScalarHatchProps,
+    ScalarLineProps,
+    ScalarTextProps,
+)
 from ...core.validation import error
 from ...core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
 from ...model import Model
 from ..formatters import TickFormatter
 from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
+from ..ranges import Range
 from ..renderers import GlyphRenderer
 from ..tickers import Ticker
 from .annotation import Annotation
+from .dimensional import Dimensional, MetricLength
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -73,6 +86,7 @@ __all__ = (
     "ContourColorBar",
     "Legend",
     "LegendItem",
+    "ScaleBar",
 )
 
 #-----------------------------------------------------------------------------
@@ -500,6 +514,104 @@ class Legend(Annotation):
 
     """).accepts(List(Tuple(String, List(Instance(GlyphRenderer)))),
         lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
+
+class ScaleBar(Annotation):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    range = Required(Instance(Range), help="""
+    """)
+
+    unit = String(default="m", help="""
+    """)
+
+    dimensional = Instance(Dimensional, default=InstanceDefault(MetricLength), help="""
+    """)
+
+    orientation = Enum(Orientation, help="""
+    """)
+
+    location = Enum(Anchor, default="top_right", help="""
+    """)
+
+    bar_length = Percent(default=0.2, help="""
+    """)
+
+    bar_style = Include(ScalarLineProps, prefix="bar", help="""
+    The {prop} values for the bar line.
+    """)
+
+    #decoration = Nullable(Instance(Decoration))
+
+    margin = Int(default=10, help="""
+    Amount of margin (in pixels) around the outside of the scale bar.
+    """)
+
+    padding = Int(default=10, help="""
+    Amount of padding (in pixels) between the contents of the scale bar
+    and its border.
+    """)
+
+    label_style = Include(ScalarTextProps, prefix="label", help="""
+    The {prop} values for the label text.
+    """)
+
+    label_align = Enum(Align, default="center", help="""
+    """)
+
+    label_location = Enum(Location, default="below", help="""
+    Specifies on which side of the legend the label will be located.
+    """)
+
+    label_standoff = Int(default=5, help="""
+    The distance (in pixels) to separate the label from the scale bar.
+    """)
+
+    title = String(default="", help="""
+    The title text to render.
+    """)
+
+    title_style = Include(ScalarTextProps, prefix="title", help="""
+    The {prop} values for the title text.
+    """)
+
+    title_align = Enum(Align, default="center", help="""
+    """)
+
+    title_location = Enum(Location, default="above", help="""
+    Specifies on which side of the legend the title will be located.
+    """)
+
+    title_standoff = Int(default=5, help="""
+    The distance (in pixels) to separate the title from the scale bar.
+    """)
+
+    border_style = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the scale bar border style.
+    """)
+
+    background_fill = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} for the scale bar background style.
+    """)
+
+    background_hatch = Include(ScalarHatchProps, prefix="background", help="""
+    The {prop} for the scale bar background style.
+    """)
+
+    bar_line_width = Override(default=2)
+    border_line_color = Override(default="#e5e5e5")
+    border_line_alpha = Override(default=0.5)
+    border_line_width = Override(default=1)
+    background_fill_color = Override(default="#ffffff")
+    background_fill_alpha = Override(default=0.95)
+    label_text_font_size = Override(default="13px")
+    label_text_baseline = Override(default="middle")
+    title_text_font_size = Override(default="13px")
+    title_text_font_style = Override(default="italic")
 
 #-----------------------------------------------------------------------------
 # Dev API
