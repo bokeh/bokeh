@@ -4,7 +4,7 @@ import {CategoricalAxis, LinearAxis, LogAxis} from "../axes"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import {BasicTickFormatter, LogTickFormatter, CategoricalTickFormatter} from "../formatters"
 import {ColorMapper} from "../mappers/color_mapper"
-import {LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper, WeightedStackColorMapper} from "../mappers"
+import {IndexedStackColorMapper, LinearColorMapper, LogColorMapper, ScanningColorMapper, CategoricalColorMapper, ContinuousColorMapper, WeightedStackColorMapper} from "../mappers"
 import type {Range} from "../ranges"
 import {Range1d, FactorRange} from "../ranges"
 import type {Scale} from "../scales"
@@ -41,6 +41,10 @@ export class ColorBarView extends BaseColorBarView {
     this.connect(this.model.color_mapper.metrics_change, () => this._metrics_changed())
     this.connect(this.model.properties.display_low.change, () => this._metrics_changed())
     this.connect(this.model.properties.display_high.change, () => this._metrics_changed())
+
+    if (this.model.color_mapper instanceof IndexedStackColorMapper) {
+      this.connect(this.model.color_mapper.single_color_mapper.metrics_change, () => this._metrics_changed())
+    }
   }
 
   get color_mapper(): ColorMapper {
@@ -48,6 +52,8 @@ export class ColorBarView extends BaseColorBarView {
     let mapper = this.model.color_mapper
     if (mapper instanceof WeightedStackColorMapper)
       mapper = mapper.alpha_mapper
+    else if (mapper instanceof IndexedStackColorMapper)
+      mapper = mapper.single_color_mapper
     return mapper
   }
 

@@ -59,6 +59,7 @@ __all__ = (
     'CategoricalMarkerMapper',
     'CategoricalPatternMapper',
     'ContinuousColorMapper',
+    'IndexedStackColorMapper',
     'LinearColorMapper',
     'LogColorMapper',
     'EqHistColorMapper',
@@ -331,6 +332,37 @@ class StackColorMapper(ColorMapper):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
+class IndexedStackColorMapper(StackColorMapper):
+    ''' Color maps a single 2D array from a 3D data array of shape
+    ``(ny, nx, nstack)`` in an ``ImageStack`` glyph to an RGBA image.
+
+    The mapped 2D array is determined by the ``index`` attribute and in terms
+    of the ``ImageStack`` data is ``data[:, :, index]``.
+
+    If ``map_all`` is ``False`` the color map limits and properties are
+    determined from just the 2D array displayed. If ``map_all`` is ``True``
+    they are determined from the whole 3D array.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    single_color_mapper = Instance(ContinuousColorMapper, help="""
+    Color mapper used to calculate the colors of the 2D array displayed.
+    """)
+
+    index = Int(default=0, help="""
+    Final dimension of the ``ImageStack`` 3D data array that is color mapped.
+    """)
+
+    map_all = Bool(default=False, help="""
+    Whether to calculate the color mapping limits and properties based on all
+    of the 3D data array or just the 2D array that is displayed.
+    """)
+
 
 class WeightedStackColorMapper(StackColorMapper):
     ''' Maps 3D data arrays of shape ``(ny, nx, nstack)`` to 2D RGBA images
