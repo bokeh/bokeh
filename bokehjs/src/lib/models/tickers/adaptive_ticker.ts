@@ -44,9 +44,6 @@ export class AdaptiveTicker extends ContinuousTicker {
     return this.max_interval ?? Infinity
   }
 
-  /*protected*/ extended_mantissas: number[]
-  /*protected*/ base_factor: number
-
   // These arguments control the range of possible intervals. The interval I
   // returned by get_interval() will be the one that most closely matches the
   // desired number of ticks, subject to the following constraints:
@@ -55,14 +52,14 @@ export class AdaptiveTicker extends ContinuousTicker {
   // B is base,
   // and N is an integer;
   // and min_interval <= I <= max_interval.
-  override initialize(): void {
-    super.initialize()
-
+  get extended_mantissas(): number[] {
     const prefix_mantissa = nth(this.mantissas, -1) / this.base
     const suffix_mantissa = nth(this.mantissas,  0) * this.base
-    this.extended_mantissas = [prefix_mantissa, ...this.mantissas, suffix_mantissa]
+    return [prefix_mantissa, ...this.mantissas, suffix_mantissa]
+  }
 
-    this.base_factor = this.get_min_interval() === 0.0 ? 1.0 : this.get_min_interval()
+  get base_factor(): number {
+    return this.get_min_interval() == 0.0 ? 1.0 : this.get_min_interval()
   }
 
   get_interval(data_low: number, data_high: number, desired_n_ticks: number): number {
