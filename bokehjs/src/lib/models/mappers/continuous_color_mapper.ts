@@ -111,9 +111,9 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected _scan_data: {min: number, max: number} | null = null
+  public _scan_data: {min: number, max: number} | null = null
 
-  protected abstract scan(data: Arrayable<number>, n: number): {min: number, max: number}
+  public abstract scan(data: Arrayable<number>, n: number): {min: number, max: number}
 
   public _v_compute(data: Arrayable<number>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32, low_color?: uint32, high_color?: uint32}): void {
@@ -151,7 +151,7 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     }
   }
 
-  protected cmap<T>(value: number, palette: Arrayable<T>, low_color: T, high_color: T): T {
+  public cmap<T>(value: number, palette: Arrayable<T>, low_color: T, high_color: T): T {
     const index = this.value_to_index(value, palette.length)
     if (index < 0) {
       return low_color

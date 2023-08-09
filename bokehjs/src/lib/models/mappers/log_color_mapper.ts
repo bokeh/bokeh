@@ -23,7 +23,7 @@ export interface LogColorMapper extends LogColorMapper.Attrs {}
 export class LogColorMapper extends ContinuousColorMapper {
   declare properties: LogColorMapper.Props
 
-  protected scan(data: Arrayable<number>, n: number): LogScanData {
+  public scan(data: Arrayable<number>, n: number): LogScanData {
     const low = this.low != null ? this.low : min(data)
     if (low <= 0) {
       logger.warn(`LogColorMapper detects invalid value "${low}" for parameter "low".`)
