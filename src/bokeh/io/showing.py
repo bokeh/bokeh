@@ -53,10 +53,10 @@ __all__ = (
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
         notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
-    ''' Immediately display a Bokeh object or application.
+    '''Immediately display a Bokeh object or application.
 
-        :func:`show` may be called multiple times in a single Jupyter notebook
-        cell to display multiple objects. The objects are displayed in order.
+    :func:`show` may be called multiple times in a single Jupyter notebook
+    cell to display multiple objects. The objects are displayed in order.
 
     Args:
         obj (UIElement or Application or callable) :
@@ -64,7 +64,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
 
             Bokeh plots, widgets, layouts (i.e. rows and columns) may be
             passed to ``show`` in order to display them. If |output_file|
-            has been called, the output will be to an HTML file, which is also
+            has been called, the output will be saved to an HTML file, which is also
             opened in a new browser window or tab. If |output_notebook|
             has been called in a Jupyter notebook, the output will be inline
             in the associated notebook output cell.

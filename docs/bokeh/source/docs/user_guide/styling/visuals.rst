@@ -19,28 +19,28 @@ This section contains more details about some of the most common properties.
 Line properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/line_props.txt
+.. include:: ../../includes/line_props.rst
 
 .. _ug_styling_fill_properties:
 
 Fill properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/fill_props.txt
+.. include:: ../../includes/fill_props.rst
 
 .. _ug_styling_hatch_properties:
 
 Hatch properties
 ~~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/hatch_props.txt
+.. include:: ../../includes/hatch_props.rst
 
 .. _ug_styling_text_properties:
 
 Text properties
 ~~~~~~~~~~~~~~~
 
-.. include:: ../../includes/text_props.txt
+.. include:: ../../includes/text_props.rst
 
 .. _ug_styling_visible_property:
 
@@ -135,8 +135,8 @@ sequences can be either lists or tuples.
 To use one of those pre-defined palettes, import it from the ``bokeh.palettes``
 module.
 
-When you import "Spectral6", for example, Bokeh gives you access to a list that
-contains six RGB(A) hex strings from the Brewer "Spectral" color map:
+When you import ``"Spectral6"``, for example, Bokeh gives you access to a list that
+contains six RGB(A) hex strings from the Brewer ``"Spectral"`` color map:
 
 .. code-block:: python
 

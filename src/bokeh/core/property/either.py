@@ -54,7 +54,7 @@ T = TypeVar("T")
 class Either(ParameterizedProperty[Any]):
     """ Accept values according to a sequence of other property types.
 
-        Example:
+    Example:
 
         .. code-block:: python
 

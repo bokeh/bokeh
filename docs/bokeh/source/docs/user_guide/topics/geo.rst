@@ -20,7 +20,7 @@ any name xyzservices may recognize. The ``retina`` keyword can control the resol
 
 If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
 than with default settings. However, this functionality needs to be supported by the tile provider.
-Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'` as part of the tile
+Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'`` as part of the tile
 provider name string, e.g. ``'CartoDB Positron retina'``, which will work as ``retina=True``.
 
 Notice that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``

@@ -37,11 +37,11 @@ to DOM objects in Bokeh output:
 
 * :class:`~bokeh.models.css.GlobalInlineStyleSheet`
 
-    Analogous to ``InlineStyleSheet`` but appended to the ``<head>`` element.
+  Analogous to ``InlineStyleSheet`` but appended to the ``<head>`` element.
 
 * :class:`~bokeh.models.css.GlobalImportedStyleSheet`
 
-    Analogous to ``ImportedStyleSheet`` but appended to the ``<head>`` element.
+  Analogous to ``ImportedStyleSheet`` but appended to the ``<head>`` element.
 
 The global variants are appended to ``<head>`` only once, so that the same
 stylesheet model can be shared between various UI components efficiently.
