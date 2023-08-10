@@ -154,10 +154,6 @@ export class RangeTool extends Tool {
     }
   }
 
-
-
-
-
   update_overlay_from_ranges(): void {
     const {x_range, y_range} = this
     const has_x = x_range != null
