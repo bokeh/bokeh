@@ -5645,6 +5645,15 @@
     bins: 65536,
     rescale_discrete_levels: false,
   },
+  IndexedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    single_color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    index: 0,
+    map_all: false,
+  },
   LinearColorMapper: {
     __extends__: "ContinuousColorMapper",
   },
