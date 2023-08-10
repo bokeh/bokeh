@@ -30,7 +30,7 @@
     - ``'dotdash'``
     - ``'dashdot'``
     - an array of integer pixel distances that describe the on-off pattern of dashing to use
-    - a string of spaced integers matching the regular expression '^(\\d+(\\s+\\d+)*)?$'
+    - a string of spaced integers matching the regular expression ``'^(\\d+(\\s+\\d+)*)?$'``
       that describe the on-off pattern of dashing to use
 
 ``line_dash_offset``

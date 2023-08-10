@@ -130,9 +130,9 @@ Other Parameters:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in the browser <ug_basic_annotations_legends_legend_field>`.
         The value of this parameter is the name of a column in the data source
-        that should be used or the grouping.
+        that should be used for the grouping.
 
-        The grouping is performed *in JavaScript*, at the time time the Bokeh
+        The grouping is performed *in JavaScript*, at the same time the Bokeh
         content is rendered in the browser. If the data is subsequently updated,
         the legend will automatically re-group.
 
@@ -144,7 +144,7 @@ Other Parameters:
         Specify that the glyph should produce multiple legend entries by
         :ref:`grouping them in Python <ug_basic_annotations_legends_legend_group>`.
         The value of this parameter is the name of a column in the data source
-        that should be used or the grouping.
+        that should be used for the grouping.
 
         The grouping is performed in Python, before the Bokeh output is sent to
         a browser. If the date is subsequently updated, the legend will *not*
@@ -185,9 +185,9 @@ Other Parameters:
         ``ColumnDataSource`` with default column names from the coordinates and
         other arguments that were passed-in as literal list or array values.
 
-        If supplied, Bokeh will use the supplied data source to drive the glyph.
+        If supplied, Bokeh will use the supplied data source to derive the glyph.
         In this case, literal list or arrays may not be used for coordinates or
-        other arguments. Only singular fixed valued (e.g. ``x=10``) or column
+        other arguments. Only singular fixed values (e.g. ``x=10``) or column
         names in the data source (e.g. ``x="time"``) are permitted.
 
     view (CDSView, optional) :

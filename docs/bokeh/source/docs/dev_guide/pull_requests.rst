@@ -98,7 +98,7 @@ Pull request workflow
     Next, enter a description. Include some background about what your pull
     request does and why you decided to write things the way you did. Also, link
     to the issue your pull request is based on. To do so, use a keyword such as
-    "fixes," followed by the number of the issue. For example "Fixes #11479".
+    "fixes" followed by the number of the issue. For example "Fixes #11479".
     See `Linking a pull request to an issue using a keyword`_ in the
     `GitHub documentation`_ for more information. Your description should also
     include information about :ref:`tests <contributor_guide_writing_tests>` and

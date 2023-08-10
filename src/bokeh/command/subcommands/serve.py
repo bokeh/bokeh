@@ -399,7 +399,7 @@ Bokeh can also optionally log process memory usage. This feature requires
 the optional ``psutil`` package to be installed. To enable memory logging
 set the ``--mem-log-frequency`` option:
 
-. code-block:: sh
+.. code-block:: sh
 
     bokeh serve app_script.py --mem-log-frequency 30000
 

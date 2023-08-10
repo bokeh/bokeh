@@ -56,7 +56,7 @@ def axial_to_cartesian(q: Any, r: Any, size: float, orientation: str, aspect_sca
 
     This function was adapted from:
 
-        https://www.redblobgames.com/grids/hexagons/#hex-to-pixel
+    https://www.redblobgames.com/grids/hexagons/#hex-to-pixel
 
     Args:
         q (array[float]) :
@@ -104,7 +104,7 @@ def cartesian_to_axial(x: Any, y: Any, size: float, orientation: str, aspect_sca
 
     This function was adapted from:
 
-        https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
+    https://www.redblobgames.com/grids/hexagons/#pixel-to-hex
 
     Args:
         x (array[float]) :

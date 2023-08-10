@@ -57,7 +57,7 @@ class Options(HasProps, Local):
     Then a ``ConnectOpts`` can be created by passing a dictionary
     containing keys and values corresponding to the configuration options,
     as well as any additional keys and values. The items corresponding
-    to the properties on ``ConnectOpts`` will be ***removed*** from the
+    to the properties on ``ConnectOpts`` will be **removed** from the
     dictionary. This can be useful for functions that accept their own
     set of config keyword arguments in addition to some set of Bokeh model
     properties.
