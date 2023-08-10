@@ -457,6 +457,15 @@
   StackColorMapper: {
     __extends__: "ColorMapper",
   },
+  IndexedStackColorMapper: {
+    __extends__: "StackColorMapper",
+    single_color_mapper: {
+      type: "symbol",
+      name: "unset",
+    },
+    index: 0,
+    map_all: false,
+  },
   WeightedStackColorMapper: {
     __extends__: "StackColorMapper",
     alpha_mapper: {

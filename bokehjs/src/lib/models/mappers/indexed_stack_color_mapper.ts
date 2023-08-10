@@ -27,7 +27,7 @@ export class IndexedStackColorMapper extends StackColorMapper {
     this.define<IndexedStackColorMapper.Props>(({Boolean, Number, Ref}) => ({
       single_color_mapper: [ Ref(ContinuousColorMapper) ],
       index:               [ Number, 0 ],
-      map_all:             [ Boolean, false ]
+      map_all:             [ Boolean, false ],
     }))
   }
 
