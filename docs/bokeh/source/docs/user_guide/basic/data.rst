@@ -537,7 +537,7 @@ interval. It then uses the data from the endpoint to update the data locally.
 Updating data locally can happen in two ways: either by replacing the existing
 local data entirely or by appending the new data to the existing data (up to a
 configurable ``max_size``). Replacing local data is the default setting. Pass
-either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
+either ``"replace"`` or ``"append"`` as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` should return a
