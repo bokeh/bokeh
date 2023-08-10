@@ -28,8 +28,6 @@ export namespace DataRange1d {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataRange.Props & {
-    start: p.Property<number>
-    end: p.Property<number>
     range_padding: p.Property<number>
     range_padding_units: p.Property<PaddingUnits>
     flipped: p.Property<boolean>
@@ -53,8 +51,6 @@ export class DataRange1d extends DataRange {
 
   static {
     this.define<DataRange1d.Props>(({Boolean, Number, Nullable}) => ({
-      start:               [ Number, NaN ],
-      end:                 [ Number, NaN ],
       range_padding:       [ Number, 0.1 ],
       range_padding_units: [ PaddingUnits, "percent" ],
       flipped:             [ Boolean, false ],
@@ -279,7 +275,7 @@ export class DataRange1d extends DataRange {
 
     let needs_emit = false
     if (this.bounds == "auto") {
-      this.setv({bounds: [start, end]}, {silent: true})
+      this._computed_bounds = [start, end]
       needs_emit = true
     }
 
@@ -295,8 +291,9 @@ export class DataRange1d extends DataRange {
       needs_emit = false
     }
 
-    if (needs_emit)
+    if (needs_emit) {
       this.change.emit()
+    }
   }
 
   reset(): void {
