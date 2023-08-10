@@ -15,7 +15,7 @@ Python JSON-like data, messages have the general form:
         # these are required
         b'{header}',        # serialized header dict
         b'{metadata}',      # serialized metadata dict
-        b'{content}',        # serialized content dict
+        b'{content}',       # serialized content dict
 
         # these are optional, and come in pairs; header contains num_buffers
         b'{buf_header}',    # serialized buffer header dict
