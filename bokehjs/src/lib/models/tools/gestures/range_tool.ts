@@ -121,12 +121,42 @@ export class RangeTool extends Tool {
   }
 
   update_ranges_from_overlay(): void {
-    const {left, right, top, bottom} = this.overlay
-    if (this.x_range != null && this.x_interaction)
-      this.x_range.setv({start: left, end: right})
-    if (this.y_range != null && this.y_interaction)
-      this.y_range.setv({start: bottom, end: top})
+    const {left, right, top, bottom} = this.overlay;
+
+    function adjustRange(value1: number | null, value2: number | null, bounds: "auto" | [number | null, number | null] | null): [number | null, number | null] {
+      let resolvedValue1 = value1;
+      let resolvedValue2 = value2;
+  
+      if (bounds !== "auto" && bounds) {
+          const [bound1, bound2] = bounds;
+  
+          if (typeof value1 === 'number' && typeof bound1 === 'number') {
+              resolvedValue1 = Math.max(value1, bound1);
+          }
+  
+          if (typeof value2 === 'number' && typeof bound2 === 'number') {
+              resolvedValue2 = Math.min(value2, bound2);
+          }
+      }
+  
+      return [resolvedValue1, resolvedValue2];
+    }
+  
+
+    if (this.x_range && this.x_interaction) {
+        const [resolved_left, resolved_right] = adjustRange(left, right, this.x_range.bounds);
+        this.x_range.setv({start: resolved_left, end: resolved_right});
+    }
+
+    if (this.y_range && this.y_interaction) {
+        const [resolved_bottom, resolved_top] = adjustRange(bottom, top, this.y_range.bounds);
+        this.y_range.setv({start: resolved_bottom, end: resolved_top});
+    }
   }
+
+
+
+
 
   update_overlay_from_ranges(): void {
     const {x_range, y_range} = this
