@@ -151,12 +151,14 @@ def test_get_screenshot_as_png_with_scale_factor_equal_to_dpr__issue_8807(
     png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=2.5)
     assert png.width == 250
 
+@pytest.mark.selenium
 def test_get_screenshot_as_png_with_scale_factor_less_than_dpr__issue_8807(
         webdriver_with_scale_factor: WebDriver) -> None:
     div = Div(text="Something", styles=dict(width="100px", height="100px"))
     png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=1.5)
     assert png.width == 150
 
+@pytest.mark.selenium
 def test_get_screenshot_as_png_with_scale_factor_greater_than_dpr__issue_8807(
         webdriver_with_scale_factor: WebDriver) -> None:
     div = Div(text="Something", styles=dict(width="100px", height="100px"))
