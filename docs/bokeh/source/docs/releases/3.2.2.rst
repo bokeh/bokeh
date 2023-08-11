@@ -1,0 +1,14 @@
+.. _release-3-2-2:
+
+3.2.2
+=====
+
+Bokeh version ``3.2.2`` (Aug 2023) is a patch release that fixes a number of
+minor bugs/regressions and docs issues.
+
+Changes
+-------
+
+* Allow to merge Toolbar.active_* and other properties (:bokeh-pull:`13318`)
+* Missing construct_color_bar for ImageStack glyph (:bokeh-pull:`13289`)
+* Fix PropertyValueColumnData._stream() to handle large rollover (:bokeh-pull:`13318`)
