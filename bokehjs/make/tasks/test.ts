@@ -78,6 +78,10 @@ function chrome(): string {
   throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
 }
 
+function chromium_executable(): string {
+  return argv.e as string | undefined ?? chrome()
+}
+
 const devtools_host = argv.host as string | undefined ?? "127.0.0.1"
 
 async function headless(devtools_port: number): Promise<ChildProcess> {
@@ -100,12 +104,12 @@ async function headless(devtools_port: number): Promise<ChildProcess> {
   if (bokeh_in_docker == "1") {
     args.push("--no-sandbox")
   }
-  const executable = chrome()
-  const proc = spawn(executable, args, {stdio: "pipe"})
+  const exec = chromium_executable()
+  const proc = spawn(exec, args, {stdio: "pipe"})
 
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new BuildError("headless", `timeout starting ${executable}`))
+      reject(new BuildError("headless", `timeout starting ${exec}`))
     }, 30000)
     proc.on("error", reject)
     let buffer = ""

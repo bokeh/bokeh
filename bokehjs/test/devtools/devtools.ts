@@ -114,7 +114,11 @@ type Test = {description: string, skip: boolean, threshold?: number, retries?: n
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
-async function run_tests(): Promise<boolean> {
+type TestRunContext = {
+  chromium_version: number
+}
+
+async function run_tests(ctx: TestRunContext): Promise<boolean> {
   let client
   let failure = false
   try {
@@ -481,11 +485,12 @@ async function run_tests(): Promise<boolean> {
             async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
+              const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
                 if (test.dpr != null)
                   override_metrics(test.dpr)
                 try {
-                  return await evaluate<Result>(`Tests.run(${seq})`)
+                  return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
                   if (test.dpr != null)
                     override_metrics()
@@ -728,23 +733,48 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 110
+type Version = [number, number, number, number]
+const supported_chromium_version: Version = [110, 0, 5481, 100]
 
-async function check_version(version: string): Promise<boolean> {
-  const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
-  const major = parseInt(match?.groups?.major ?? "0")
-  const ok = chromium_min_version <= major
-  if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chromium_min_version)}`)
-  return ok
+function get_version_tuple(version: string): Version | null {
+  const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)
+  if (match != null) {
+    const [, a, b, c, d] = match.values()
+    return [
+      Number(a),
+      Number(b),
+      Number(c),
+      Number(d),
+    ]
+  }
+  return null
+}
+
+function check_version(current_chromium_version: Version | null): void {
+  if (current_chromium_version == null) {
+    const supported_str = supported_chromium_version.join(".")
+    console.error(`${chalk.yellow("warning:")} unable to determine chromium version; officially supported version is ${supported_str}`)
+    return
+  }
+
+  const [a, b, c, d] = supported_chromium_version
+  const [A, B, C, D] = current_chromium_version
+
+  if (a != A || b != B || c != C || d != D) {
+    const supported_str = chalk.magenta(supported_chromium_version.join("."))
+    const current_str = chalk.magenta(current_chromium_version.join("."))
+    console.error(`${chalk.yellow("warning:")} ${current_str} is not supported; officially supported version is ${supported_str}`)
+  }
 }
 
 async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
-  const ok0 = await check_version(browser)
-  const ok1 = !argv.info ? await run_tests() : true
-  process.exit(ok0 && ok1 ? 0 : 1)
+  const version = get_version_tuple(browser)
+  check_version(version)
+  const major = version != null ? version[0] : 0
+  const ok = !argv.info ? await run_tests({chromium_version: major}) : true
+  process.exit(ok ? 0 : 1)
 }
 
 async function main(): Promise<void> {

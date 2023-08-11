@@ -39,15 +39,15 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
   protected readonly _linewidths = new Float32Buffer(this.regl_wrapper)
   protected readonly _line_caps = new Uint8Buffer(this.regl_wrapper)
   protected readonly _line_joins = new Uint8Buffer(this.regl_wrapper)
-  protected readonly _line_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
-  protected readonly _fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+  protected readonly _line_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
+  protected readonly _fill_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
 
   // Only needed if have hatch pattern, either all or none of the buffers are set.
   protected _have_hatch: boolean = false
   protected readonly _hatch_patterns = new Uint8Buffer(this.regl_wrapper)
   protected readonly _hatch_scales = new Float32Buffer(this.regl_wrapper)
   protected readonly _hatch_weights = new Float32Buffer(this.regl_wrapper)
-  protected readonly _hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper)
+  protected readonly _hatch_rgba = new NormalizedUint8Buffer(this.regl_wrapper, 4)
 
   // Avoiding use of nan or inf to represent missing data in webgl as shaders may
   // have reduced floating point precision. So here using a large-ish negative

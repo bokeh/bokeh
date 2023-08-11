@@ -48,6 +48,8 @@ _expected_settings = (
     'browser',
     'cdn_version',
     'cookie_secret',
+    'default_server_host',
+    'default_server_port',
     'docs_cdn',
     'docs_version',
     'ico_path',

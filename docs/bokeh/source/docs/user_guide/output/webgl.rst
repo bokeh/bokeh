@@ -30,10 +30,19 @@ The WebGL output backend only supports a :ref:`subset of Bokeh's glyphs
 that WebGL rendering is used if available. Glyphs that are not available in the
 WebGL output backend are rendered with the default canvas backend.
 
+If you enable Bokeh's WebGL output backend, WebGL will be used whenever
+supported by a browser. This includes output in :ref:`Jupyter notebooks or
+Jupyter lab <ug_output_jupyter>` and when :ref:`exporting Bokeh plots to PNG
+<ug_output_export>` if the underlying browser (including headless browsers)
+supports WebGL.
+
 .. _ug_output_webgl_supported_glyphs:
 
 Supported glyphs
 ----------------
+
+Scatter and other fixed-shape glyphs
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Bokeh's WebGL support covers the following fixed-shape glyphs:
 
@@ -67,17 +76,20 @@ WebGL support for these fixed-shape glyphs covers the following properties:
 * all :ref:`hatch properties <ug_styling_hatch_properties>` except for
   hatch images using the ``hatch_extra`` property (which will be ignored).
 
-There is also full WebGL support for :func:`~bokeh.plotting.figure.line`,
+Line glyphs
+^^^^^^^^^^^
+
+There is full WebGL support for :func:`~bokeh.plotting.figure.line`,
 :func:`~bokeh.plotting.figure.multi_line` and :func:`~bokeh.plotting.figure.step`
 glyphs, although the appearance of dashed lines with round and square end caps
 may differ slightly from the default HTML canvas rendering.
 
-If you enable Bokeh's webGL output backend, WebGL will be used whenever
-supported by a browser. This includes output in :ref:`Jupyter notebooks or
-Jupyter lab <ug_output_jupyter>` and when :ref:`exporting Bokeh plots to PNG
-<ug_output_export>` if the underlying browser (including headless browsers)
-supports WebGL. In case a browser does not support WebGL, Bokeh automatically
-falls back to the standard canvas output backend.
+Image glyphs
+^^^^^^^^^^^^
+
+Bokeh also supports WebGL :func:`~bokeh.plotting.figure.image`,
+:func:`~bokeh.plotting.figure.image_rgba` and :func:`~bokeh.plotting.figure.image_stack`
+glyphs, but not :func:`~bokeh.plotting.figure.image_url`.
 
 
 When to use WebGL

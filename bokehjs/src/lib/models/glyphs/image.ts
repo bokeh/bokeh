@@ -4,6 +4,7 @@ import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
+import type {ImageGL} from "./webgl/image"
 
 export type ImageData = ImageDataBase
 
@@ -13,12 +14,24 @@ export class ImageView extends ImageBaseView {
   declare model: Image
   declare visuals: Image.Visuals
 
+  /** @internal */
+  declare glglyph?: ImageGL
+
+  override async load_glglyph() {
+    const {ImageGL} = await import("./webgl/image")
+    return ImageGL
+  }
+
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.color_mapper.change, () => this._update_image())
   }
 
   protected _update_image(): void {
+    if (this.glglyph != null) {
+      this.glglyph.set_image_changed()
+    }
+
     // Only reset image_data if already initialized
     if (this._image_data != null) {
       this._set_data(null)

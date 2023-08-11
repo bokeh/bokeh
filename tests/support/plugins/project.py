@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Define a Pytest plugin for a Bokeh-specific testing tools
+''' Define a Pytest plugin for a Bokeh-specific testing tools.
 
 '''
 
