@@ -462,6 +462,10 @@ class Serializer:
             elif obj is pd.NA:
                 return None
 
+        # handle array libraries that support conversion to a numpy array (e.g. polars, PyTorch)
+        if hasattr(obj, "__array__") and isinstance(arr := obj.__array__(), np.ndarray):
+            return self._encode_ndarray(arr)
+
         self.error(f"can't serialize {type(obj)}")
 
     def error(self, message: str) -> NoReturn:
