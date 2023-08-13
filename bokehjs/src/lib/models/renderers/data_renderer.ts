@@ -11,12 +11,22 @@ export abstract class DataRendererView extends RendererView implements AutoRange
   declare model: DataRenderer
   declare visuals: DataRenderer.Visuals
 
-  get xscale(): Scale {
+  get x_scale(): Scale {
     return this.coordinates.x_scale
   }
 
-  get yscale(): Scale {
+  get y_scale(): Scale {
     return this.coordinates.y_scale
+  }
+
+  // TODO remove this
+  get xscale(): Scale {
+    return this.x_scale
+  }
+
+  // TODO remove this
+  get yscale(): Scale {
+    return this.y_scale
   }
 
   protected abstract get glyph_view(): GlyphView
