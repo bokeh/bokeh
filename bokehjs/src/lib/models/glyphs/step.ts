@@ -5,6 +5,7 @@ import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type * as p from "core/properties"
 import type {Rect} from "core/types"
+import {Indices} from "core/types"
 import {StepMode} from "core/enums"
 import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
@@ -24,6 +25,11 @@ export class StepView extends XYGlyphView {
   override async load_glglyph() {
     const {StepGL} = await import("./webgl/step")
     return StepGL
+  }
+
+  override mask_data(): Indices {
+    // TODO _render() doesn't like non-NaN holes in data
+    return Indices.all_set(this.data_size)
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: StepData): void {

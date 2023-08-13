@@ -4,7 +4,7 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import type {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, FloatArray, ScreenArray} from "core/types"
 import type {PointGeometry, RectGeometry} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -113,14 +113,6 @@ export class MultiPolygonsView extends GlyphView {
 
     index.finish()
     return index
-  }
-
-  protected override _mask_data(): Indices {
-    const {x_range, y_range} = this.renderer.plot_view.frame
-    return this.index.indices({
-      x0: x_range.min, x1: x_range.max,
-      y0: y_range.min, y1: y_range.max,
-    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {

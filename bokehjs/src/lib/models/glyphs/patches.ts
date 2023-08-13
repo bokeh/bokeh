@@ -3,7 +3,7 @@ import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2, sum} from "core/util/arrayable"
-import type {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import type {PointGeometry, RectGeometry} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -42,14 +42,6 @@ export class PatchesView extends GlyphView {
       const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)
     }
-  }
-
-  protected override _mask_data(): Indices {
-    const {x_range, y_range} = this.renderer.plot_view.frame
-    return this.index.indices({
-      x0: x_range.min, x1: x_range.max,
-      y0: y_range.min, y1: y_range.max,
-    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {

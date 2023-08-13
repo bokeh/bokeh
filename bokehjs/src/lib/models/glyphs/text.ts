@@ -17,6 +17,8 @@ import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import {max} from "core/util/arrayable"
+import type {Indices} from "core/types"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
 
@@ -32,6 +34,9 @@ export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
   swidth: Float32Array
   sheight: Float32Array
 
+  max_swidth: number
+  max_sheight: number
+
   anchor_: p.Uniform<XY<number>> // can't resolve in v_materialize() due to dependency on other properties
   padding: LRTB<number>
   border_radius: Corners<number>
@@ -42,6 +47,21 @@ export interface TextView extends TextData {}
 export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
+
+  override mask_data(): Indices {
+    const {frame} = this.renderer.plot_view
+
+    const sxr = frame.x_target
+    const syr = frame.y_target
+
+    const xr = sxr.widen(this.max_swidth).map((x) => this.renderer.xscale.invert(x))
+    const yr = syr.widen(this.max_sheight).map((y) => this.renderer.yscale.invert(y))
+
+    return this.index.indices({
+      x0: xr.start, x1: xr.end,
+      y0: yr.start, y1: yr.end,
+    })
+  }
 
   override after_visuals(): void {
     super.after_visuals()
@@ -99,6 +119,10 @@ export class TextView extends XYGlyphView {
       this.swidth[i] = width
       this.sheight[i] = height
     }
+
+    // TODO consider rotation
+    this.max_swidth = max(this.swidth)
+    this.max_sheight = max(this.sheight)
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
