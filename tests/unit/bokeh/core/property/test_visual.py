@@ -275,13 +275,12 @@ class Test_Image:
         assert prop.transform(image) == image
 
     def test_transform_path(self) -> None:
-        temp_dir = Path(tempfile.gettempdir())
         with tempfile.NamedTemporaryFile() as file:
-            location = temp_dir / file.name
-        image = PIL.Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
-        image.save(location, 'png')
-        prop = bcpv.Image()
-        assert prop.transform(location).startswith("data:image/png")
+            path = Path(file.name)
+            image = PIL.Image.new('RGBA', size=(50, 50), color=(155, 0, 0))
+            image.save(file, 'png')
+            prop = bcpv.Image()
+            assert prop.transform(path).startswith("data:image/png")
 
     def test_transform_string(self) -> None:
         prop = bcpv.Image()
