@@ -64,7 +64,7 @@ export namespace CDSView {
     filter: p.Property<Filter>
     // internal
     indices: p.Property<Indices>
-    indices_map: p.Property<{[key: string]: number}>
+    indices_map: p.Property<Map<number, number>>
     masked: p.Property<Indices | null>
   }
 }
@@ -86,9 +86,9 @@ export class CDSView extends Model {
       filter: [ Ref(Filter), () => new AllIndices() ],
     }))
 
-    this.internal<CDSView.Props>(({Int, Dict, Ref, Nullable}) => ({
+    this.internal<CDSView.Props>(({Int, Map, Ref, Nullable}) => ({
       indices:     [ Ref(Indices) ],
-      indices_map: [ Dict(Int), {} ],
+      indices_map: [ Map(Int, Int), new globalThis.Map() ],
       masked:      [ Nullable(Ref(Indices)), null ],
     }))
   }
@@ -97,9 +97,11 @@ export class CDSView extends Model {
 
   _indices_map_to_subset(): void {
     this._indices = [...this.indices]
-    this.indices_map = {}
-    for (let i = 0; i < this._indices.length; i++) {
-      this.indices_map[this._indices[i]] = i
+    this.indices_map = new Map()
+    const n = this._indices.length
+    for (let subset_i = 0; subset_i < n; subset_i++) {
+      const fullset_i = this._indices[subset_i]
+      this.indices_map.set(fullset_i, subset_i)
     }
   }
 
@@ -108,7 +110,7 @@ export class CDSView extends Model {
   }
 
   convert_selection_to_subset(selection_full: Selection): Selection {
-    return selection_full.map((i) => this.indices_map[i])
+    return selection_full.map((i) => this.indices_map.get(i)!)
   }
 
   convert_indices_from_subset(indices: number[]): number[] {
