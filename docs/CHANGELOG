@@ -1,3 +1,16 @@
+2023-08-13    3.2.2:
+--------------------
+  * bugfixes:
+    - #13265 [BUG] Merging tools in `gridplot` leads to wrong active state next to tool icon
+    - #13288 [BUG] construct_color_bar does not support ImageStack glyph
+    - #13307 [component: tests] Incorrect file docstrings in tests/support/plugins directory
+    - #13314 [BUG] CDS stream broken for larger rollover
+
+  * tasks:
+    - #13126 [component: examples] [BUG] Mismatch in GroupFilter documentation example between text and code
+    - #13305 [component: docs] 13276 easy fixes in documentation
+    - #13326 Backports for 3.2.2
+
 2023-07-20    3.2.1:
 --------------------
   * bugfixes:
