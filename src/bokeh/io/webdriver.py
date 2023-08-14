@@ -68,7 +68,7 @@ def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
     from selenium.webdriver.firefox.service import Service
     from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
 
-    if Version(selenium.__version__) >= Version("4.11"):
+    if Version(selenium.__version__) >= Version("4.11"):  # type: ignore[attr-defined]
         # Selenium 4.11 defaults to null output:
         # https://github.com/SeleniumHQ/selenium/pull/12103
         service = Service()
