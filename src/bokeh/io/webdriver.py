@@ -33,6 +33,7 @@ from shutil import which
 from typing import Literal
 
 # External imports
+from packaging.version import Version
 from selenium.webdriver.remote.webdriver import WebDriver
 
 #-----------------------------------------------------------------------------
@@ -62,11 +63,17 @@ def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
     if geckodriver is None:
         raise RuntimeError("geckodriver is not installed or not present on PATH")
 
+    import selenium
     from selenium.webdriver.firefox.options import Options
     from selenium.webdriver.firefox.service import Service
     from selenium.webdriver.firefox.webdriver import WebDriver as Firefox
 
-    service = Service(log_path=devnull)
+    if Version(selenium.__version__) >= Version("4.11"):
+        # Selenium 4.11 defaults to null output:
+        # https://github.com/SeleniumHQ/selenium/pull/12103
+        service = Service()
+    else:
+        service = Service(log_path=devnull)
 
     options = Options()
     options.add_argument("--headless")
