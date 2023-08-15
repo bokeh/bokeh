@@ -2,6 +2,7 @@ import {expect} from "assertions"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {range} from "@bokehjs/core/util/array"
 import {is_equal} from "@bokehjs/core/util/eq"
+import {may_have_refs} from "@bokehjs/core/util/refs"
 
 describe("core/util/bitset module", () => {
 
@@ -164,6 +165,10 @@ describe("core/util/bitset module", () => {
       const bs2 = BitSet.from_indices(159, [])
       const bs3 = BitSet.from_indices(159, [158])
       expect(is_equal(bs2, bs3)).to.be.equal(false)
+    })
+
+    it("doesn't have refs", () => {
+      expect(may_have_refs(new BitSet(10))).to.be.equal(false)
     })
   })
 })

@@ -1,7 +1,8 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, entries} from "./util/object"
+import {keys, typed_values, typed_entries} from "./util/object"
+import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
 const ESMap = globalThis.Map
@@ -15,12 +16,20 @@ export abstract class Kind<T> {
   __type__: T
 
   abstract valid(value: unknown): value is this["__type__"]
+
+  abstract may_have_refs(): boolean
 }
 
 export type Constructor<T> = Function & {prototype: T}
 
 export namespace Kinds {
-  export class Any extends Kind<any> {
+  export abstract class Primitive<T> extends Kind<T> {
+    may_have_refs(): boolean {
+      return false
+    }
+  }
+
+  export class Any extends Primitive<any> {
     valid(value: unknown): value is any {
       return value !== undefined
     }
@@ -28,9 +37,13 @@ export namespace Kinds {
     override toString(): string {
       return "Any"
     }
+
+    override may_have_refs(): boolean {
+      return true
+    }
   }
 
-  export class Unknown extends Kind<unknown> {
+  export class Unknown extends Primitive<unknown> {
     valid(value: unknown): value is unknown {
       return value !== undefined
     }
@@ -38,9 +51,13 @@ export namespace Kinds {
     override toString(): string {
       return "Unknown"
     }
+
+    override may_have_refs(): boolean {
+      return true
+    }
   }
 
-  export class Boolean extends Kind<boolean> {
+  export class Boolean extends Primitive<boolean> {
     valid(value: unknown): value is boolean {
       return tp.isBoolean(value)
     }
@@ -65,6 +82,11 @@ export namespace Kinds {
       const name = (tp as any).__name__ ?? tp.toString()
       return `Ref(${name})`
     }
+
+    may_have_refs(): boolean {
+      const {obj_type} = this
+      return has_refs in obj_type ? obj_type[has_refs] as boolean : true
+    }
   }
 
   export class AnyRef<ObjType extends object> extends Kind<ObjType> {
@@ -75,9 +97,13 @@ export namespace Kinds {
     override toString(): string {
       return "AnyRef"
     }
+
+    may_have_refs(): boolean {
+      return true
+    }
   }
 
-  export class Number extends Kind<number> {
+  export class Number extends Primitive<number> {
     valid(value: unknown): value is number {
       return tp.isNumber(value)
     }
@@ -124,6 +150,10 @@ export namespace Kinds {
     override toString(): string {
       return `Or(${this.types.map((type) => type.toString()).join(", ")})`
     }
+
+    may_have_refs(): boolean {
+      return this.types.some((type) => type.may_have_refs())
+    }
   }
 
   export class Tuple<T extends [unknown, ...unknown[]]> extends Kind<T> {
@@ -148,6 +178,10 @@ export namespace Kinds {
 
     override toString(): string {
       return `Tuple(${this.types.map((type) => type.toString()).join(", ")})`
+    }
+
+    may_have_refs(): boolean {
+      return this.types.some((type) => type.may_have_refs())
     }
   }
 
@@ -182,8 +216,12 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      const items = entries(this.struct_type).map(([key, kind]) => `${key}: ${kind}`).join(", ")
+      const items = typed_entries(this.struct_type).map(([key, kind]) => `${key.toString()}: ${kind}`).join(", ")
       return `Struct({${items}})`
+    }
+
+    may_have_refs(): boolean {
+      return typed_values(this.struct_type).some((kind) => kind.may_have_refs())
     }
   }
 
@@ -221,8 +259,12 @@ export namespace Kinds {
     }
 
     override toString(): string {
-      const items = entries(this.struct_type).map(([key, kind]) => `${key}?: ${kind}`).join(", ")
+      const items = typed_entries(this.struct_type).map(([key, kind]) => `${key.toString()}?: ${kind}`).join(", ")
       return `Struct({${items}})`
+    }
+
+    may_have_refs(): boolean {
+      return typed_values(this.struct_type).some((kind) => kind.may_have_refs())
     }
   }
 
@@ -238,6 +280,10 @@ export namespace Kinds {
     override toString(): string {
       return `Arrayable(${this.item_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.item_type.may_have_refs()
+    }
   }
 
   export class Array<ItemType> extends Kind<ItemType[]> {
@@ -252,9 +298,13 @@ export namespace Kinds {
     override toString(): string {
       return `Array(${this.item_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.item_type.may_have_refs()
+    }
   }
 
-  export class Null extends Kind<null> {
+  export class Null extends Primitive<null> {
     valid(value: unknown): value is null {
       return value === null
     }
@@ -276,6 +326,10 @@ export namespace Kinds {
     override toString(): string {
       return `Nullable(${this.base_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.base_type.may_have_refs()
+    }
   }
 
   export class Opt<BaseType> extends Kind<BaseType | undefined> {
@@ -290,6 +344,10 @@ export namespace Kinds {
     override toString(): string {
       return `Opt(${this.base_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.base_type.may_have_refs()
+    }
   }
 
   export class Bytes extends Kind<ArrayBuffer> {
@@ -300,9 +358,13 @@ export namespace Kinds {
     override toString(): string {
       return "Bytes"
     }
+
+    may_have_refs(): boolean {
+      return false
+    }
   }
 
-  export class String extends Kind<string> {
+  export class String extends Primitive<string> {
     valid(value: unknown): value is string {
       return tp.isString(value)
     }
@@ -326,7 +388,7 @@ export namespace Kinds {
     }
   }
 
-  export class Enum<T extends string | number> extends Kind<T> {
+  export class Enum<T extends string | number> extends Primitive<T> {
     readonly values: ESSet<T>
 
     constructor(values: Iterable<T>) {
@@ -371,6 +433,10 @@ export namespace Kinds {
     override toString(): string {
       return `Dict(${this.item_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.item_type.may_have_refs()
+    }
   }
 
   export class Map<KeyType, ItemType> extends Kind<ESMap<KeyType, ItemType>> {
@@ -393,6 +459,10 @@ export namespace Kinds {
 
     override toString(): string {
       return `Map(${this.key_type.toString()}, ${this.item_type.toString()})`
+    }
+
+    may_have_refs(): boolean {
+      return this.key_type.may_have_refs() || this.item_type.may_have_refs()
     }
   }
 
@@ -417,6 +487,10 @@ export namespace Kinds {
     override toString(): string {
       return `Set(${this.item_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.item_type.may_have_refs()
+    }
   }
 
   export class Color extends Kind<types.Color> {
@@ -426,6 +500,10 @@ export namespace Kinds {
 
     override toString(): string {
       return "Color"
+    }
+
+    may_have_refs(): boolean {
+      return false
     }
   }
 
@@ -449,6 +527,10 @@ export namespace Kinds {
     override toString(): string {
       return "Function(...)"
     }
+
+    may_have_refs(): boolean {
+      return false
+    }
   }
 
   export class NonNegative<BaseType extends number> extends Kind<BaseType> {
@@ -462,6 +544,10 @@ export namespace Kinds {
 
     override toString(): string {
       return `NonNegative(${this.base_type.toString()})`
+    }
+
+    may_have_refs(): boolean {
+      return this.base_type.may_have_refs()
     }
   }
 
@@ -477,6 +563,10 @@ export namespace Kinds {
     override toString(): string {
       return `Positive(${this.base_type.toString()})`
     }
+
+    may_have_refs(): boolean {
+      return this.base_type.may_have_refs()
+    }
   }
 
   export class DOMNode extends Kind<Node> {
@@ -486,6 +576,10 @@ export namespace Kinds {
 
     override toString(): string {
       return "DOMNode"
+    }
+
+    may_have_refs(): boolean {
+      return false
     }
   }
 }

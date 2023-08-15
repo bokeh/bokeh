@@ -5,6 +5,7 @@ import type {Attrs, Data} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
+import {may_have_refs} from "core/util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import type {Property} from "./properties"
@@ -481,8 +482,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           changed.push([prop, value, prop.get_value()])
       }
 
-      for (const [, old_value, new_value] of changed) {
-        if (this._needs_invalidate(old_value, new_value)) {
+      for (const [prop, old_value, new_value] of changed) {
+        if (prop.may_have_refs && this._needs_invalidate(old_value, new_value)) {
           document._invalidate_all_models()
           break
         }
@@ -511,15 +512,16 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
-    const {recursive} = options
-    if (!isObject(v))
+  static _value_record_references(value: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+    if (!isObject(value) || !may_have_refs(value)) {
       return
-    if (v instanceof HasProps) {
-      if (!refs.has(v)) {
-        refs.add(v)
+    }
+    const {recursive} = options
+    if (value instanceof HasProps) {
+      if (!refs.has(value)) {
+        refs.add(value)
         if (recursive) {
-          for (const prop of v.syncable_properties()) {
+          for (const prop of value.syncable_properties()) {
             if (!prop.is_unset) {
               const value = prop.get_value()
               HasProps._value_record_references(value, refs, {recursive})
@@ -527,12 +529,12 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           }
         }
       }
-    } else if (isIterable(v)) {
-      for (const elem of v) {
+    } else if (isIterable(value)) {
+      for (const elem of value) {
         HasProps._value_record_references(elem, refs, {recursive})
       }
-    } else if (isPlainObject(v)) {
-      for (const elem of values(v)) {
+    } else if (isPlainObject(value)) {
+      for (const elem of values(value)) {
         HasProps._value_record_references(elem, refs, {recursive})
       }
     }

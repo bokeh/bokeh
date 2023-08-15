@@ -173,6 +173,8 @@ export abstract class Property<T = unknown> {
     return this._dirty
   }
 
+  readonly may_have_refs: boolean
+
   readonly change: Signal0<HasProps>
 
   /*readonly*/ internal: boolean
@@ -191,6 +193,7 @@ export abstract class Property<T = unknown> {
     this.readonly = options.readonly ?? false
     this.convert = options.convert
     this.on_update = options.on_update
+    this.may_have_refs = kind.may_have_refs()
   }
 
   //protected abstract _update(attr_value: T): void
