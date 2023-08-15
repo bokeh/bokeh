@@ -208,10 +208,10 @@ class Dict(ContainerProperty[Any]):
             raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
 
         if any(bad_keys := [str(k) for k in value if not key_is_valid(k)]):
-            raise ValueError(f"{expected}, got a dict with invalid keys: {','.join(bad_keys)}" if detail else "")
+            raise ValueError(f"{expected}, got a dict with invalid keys: {', '.join(bad_keys)}" if detail else "")
 
         if any(bad_value_keys := [str(k) for (k, v) in value.items() if not value_is_valid(v)]):
-            raise ValueError(f"{expected}, got a dict with invalid values for keys: {','.join(bad_value_keys)}" if detail else "")
+            raise ValueError(f"{expected}, got a dict with invalid values for keys: {', '.join(bad_value_keys)}" if detail else "")
 
     def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.

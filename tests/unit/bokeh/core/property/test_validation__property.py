@@ -80,6 +80,9 @@ SPECS = (
     StringSpec,
 )
 
+KEYS = ((String, "Foo"), (Int, 10))
+VALS = ((String, "Bar"), (Int, 20), (Float, 1.23), (List[Float], [1.23, 3.45]))
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -187,14 +190,31 @@ class TestValidateDetailDefault:
         d = Dict(String, String)
         with pytest.raises(ValueError) as err:
             d.validate({"Foo": "Bar", "Baz": 1})
-        assert "values for keys: Baz" in str(err.value)
+        assert "invalid values for keys: Baz" in str(err.value)
 
-    def test_Dict_Valid(self) -> None:
-        d = Dict(String, String)
+    @pytest.mark.parametrize("key_type,key", KEYS)
+    @pytest.mark.parametrize("val_type,val", VALS)
+    def test_Dict_Valid(self, key_type, key, val_type, val) -> None:
+        d = Dict(key_type, val_type)
         try:
-            d.validate({"Foo": "Bar"})
+            d.validate({key: val})
         except ValueError:
-            pytest.fail("Value error should not be raised on validating a correct dictionary")
+            pytest.fail("ValueError should not be raised on validating a correct dictionary")
+
+    def test_Dict_Multiple_Invalid_Keys(self) -> None:
+        d = Dict(String, String)
+        with pytest.raises(ValueError) as err:
+            d.validate({"Foo": "Bar", 1: "Baz", None: "Bosh", 4.5: "Bump"})
+        assert "invalid keys: 1, None, 4.5" in str(err.value)
+
+    def test_Dict_Multiple_Invalid_Values(self) -> None:
+        d = Dict(String, String)
+        with pytest.raises(ValueError) as err:
+            d.validate({"Foo": "Bar", "Baz": 1, "Bosh": 3.2, "Bump": None})
+        assert "invalid values for keys: Baz, Bosh, Bump" in str(err.value)
+
+    def test_Dict_Multiple_Invalid_Keys_And_Values(self) -> None:
+        assert False
 
     def test_Tuple(self) -> None:
         p = Tuple(Int, Int)
