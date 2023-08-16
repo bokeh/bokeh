@@ -1,6 +1,6 @@
 import type {PanEvent, TapEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import type * as p from "core/properties"
 import {tool_icon_line_edit} from "styles/icons.css"
@@ -132,6 +132,7 @@ export namespace LineEditTool {
 
   export type Props = LineTool.Props & {
     dimensions: p.Property<Dimensions>
+    renderers: p.Property<(GlyphRenderer & HasLineGlyph)[]>
   }
 }
 
@@ -141,16 +142,15 @@ export class LineEditTool extends LineTool {
   declare properties: LineEditTool.Props
   declare __view_type__: LineEditToolView
 
-  declare renderers: (GlyphRenderer & HasLineGlyph)[]
-
   constructor(attrs?: Partial<LineEditTool.Attrs>) {
     super(attrs)
   }
 
   static {
     this.prototype.default_view = LineEditToolView
-    this.define<LineEditTool.Props>(() => ({
+    this.define<LineEditTool.Props>(({Array, Ref}) => ({
       dimensions: [ Dimensions, "both" ],
+      renderers:  [ Array(Ref<GlyphRenderer & HasLineGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

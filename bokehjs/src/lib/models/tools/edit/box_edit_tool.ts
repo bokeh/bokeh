@@ -8,7 +8,7 @@ import {Block} from "../../glyphs/block"
 import {Quad} from "../../glyphs/quad"
 import {HBar} from "../../glyphs/hbar"
 import {VBar} from "../../glyphs/vbar"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import type {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_box_edit} from "styles/icons.css"
@@ -285,8 +285,6 @@ export class BoxEditTool extends EditTool {
   declare properties: BoxEditTool.Props
   declare __view_type__: BoxEditToolView
 
-  override renderers: (GlyphRenderer & HasLRTBLikeCDS)[]
-
   constructor(attrs?: Partial<BoxEditTool.Attrs>) {
     super(attrs)
   }
@@ -294,9 +292,10 @@ export class BoxEditTool extends EditTool {
   static {
     this.prototype.default_view = BoxEditToolView
 
-    this.define<BoxEditTool.Props>(({Int}) => ({
+    this.define<BoxEditTool.Props>(({Int, Array, Ref}) => ({
       dimensions:  [ Dimensions, "both" ],
       num_objects: [ Int, 0 ],
+      renderers:   [ Array(Ref<GlyphRenderer & HasLRTBLikeCDS>(GlyphRenderer as any)), [] ],
     }))
   }
 

@@ -3,7 +3,7 @@ import type * as p from "core/properties"
 import {isArray} from "core/util/types"
 import type {MultiLine} from "../../glyphs/multi_line"
 import type {Patches} from "../../glyphs/patches"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import {tool_icon_poly_draw} from "styles/icons.css"
 
@@ -243,6 +243,7 @@ export namespace PolyDrawTool {
   export type Props = PolyTool.Props & {
     drag: p.Property<boolean>
     num_objects: p.Property<number>
+    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
   }
 }
 
@@ -252,8 +253,6 @@ export class PolyDrawTool extends PolyTool {
   declare properties: PolyDrawTool.Props
   declare __view_type__: PolyDrawToolView
 
-  declare renderers: (GlyphRenderer & HasPolyGlyph)[]
-
   constructor(attrs?: Partial<PolyDrawTool.Attrs>) {
     super(attrs)
   }
@@ -261,9 +260,10 @@ export class PolyDrawTool extends PolyTool {
   static {
     this.prototype.default_view = PolyDrawToolView
 
-    this.define<PolyDrawTool.Props>(({Boolean, Int}) => ({
+    this.define<PolyDrawTool.Props>(({Boolean, Int, Array, Ref}) => ({
       drag:        [ Boolean, true ],
       num_objects: [ Int, 0 ],
+      renderers:   [ Array(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

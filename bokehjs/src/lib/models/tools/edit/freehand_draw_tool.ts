@@ -1,7 +1,9 @@
 import type {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
 import {isArray} from "core/util/types"
+import type {HasXYGlyph} from "./edit_tool"
 import {EditTool, EditToolView} from "./edit_tool"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {tool_icon_freehand_draw} from "styles/icons.css"
 
 export class FreehandDrawToolView extends EditToolView {
@@ -82,6 +84,7 @@ export namespace FreehandDrawTool {
 
   export type Props = EditTool.Props & {
     num_objects: p.Property<number>
+    renderers: p.Property<(GlyphRenderer & HasXYGlyph)[]>
   }
 }
 
@@ -98,12 +101,14 @@ export class FreehandDrawTool extends EditTool {
   static {
     this.prototype.default_view = FreehandDrawToolView
 
-    this.define<FreehandDrawTool.Props>(({Int}) => ({
+    this.define<FreehandDrawTool.Props>(({Int, Array, Ref}) => ({
       num_objects: [ Int, 0 ],
+      renderers:   [ Array(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
     }))
 
     this.register_alias("freehand_draw", () => new FreehandDrawTool())
   }
+
   override tool_name = "Freehand Draw Tool"
   override tool_icon = tool_icon_freehand_draw
   override event_type = ["pan" as "pan", "tap" as "tap"]

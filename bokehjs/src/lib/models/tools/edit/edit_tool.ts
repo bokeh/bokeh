@@ -7,7 +7,7 @@ import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 import type {XYGlyph} from "../../glyphs/xy_glyph"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
-import {GlyphRenderer} from "../../renderers/glyph_renderer"
+import type {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GestureTool, GestureToolView} from "../gestures/gesture_tool"
 
 export type HasXYGlyph = {
@@ -170,7 +170,6 @@ export namespace EditTool {
 
   export type Props = GestureTool.Props & {
     empty_value: p.Property<unknown>
-    renderers: p.Property<GlyphRenderer[]>
   }
 }
 
@@ -185,9 +184,8 @@ export abstract class EditTool extends GestureTool {
   }
 
   static {
-    this.define<EditTool.Props>(({Unknown, Array, Ref}) => ({
+    this.define<EditTool.Props>(({Unknown}) => ({
       empty_value: [ Unknown, 0 ],
-      renderers:   [ Array(Ref(GlyphRenderer)), [] ],
     }))
   }
 }

@@ -40,7 +40,6 @@ export namespace LineTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = EditTool.Props & {
-    renderers: p.Property<(GlyphRenderer & HasLineGlyph)[]>
     intersection_renderer: p.Property<(GlyphRenderer & HasLineGlyph)>
   }
 }
@@ -50,8 +49,6 @@ export interface LineTool extends LineTool.Attrs { }
 export abstract class LineTool extends EditTool {
   declare properties: LineTool.Props
   declare __view_type__: LineToolView
-
-  override renderers: (GlyphRenderer & HasLineGlyph)[]
 
   constructor(attrs?: Partial<LineTool.Attrs>) {
     super(attrs)
