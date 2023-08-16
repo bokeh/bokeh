@@ -81,7 +81,7 @@ SPECS = (
 )
 
 KEYS = ((String, "Foo"), (Int, 10))
-VALS = ((String, "Bar"), (Int, 20), (Float, 1.23), (List[Float], [1.23, 3.45]))
+VALS = ((String, "Bar"), (Int, 20), (Float, 1.23), (List(Float), [1.23, 3.45]))
 
 #-----------------------------------------------------------------------------
 # General API
@@ -214,7 +214,10 @@ class TestValidateDetailDefault:
         assert "invalid values for keys: Baz, Bosh, Bump" in str(err.value)
 
     def test_Dict_Multiple_Invalid_Keys_And_Values(self) -> None:
-        assert False
+        d = Dict(String, String)
+        with pytest.raises(ValueError) as err:
+            d.validate({"Foo": 2, 1: "Baz", None: None, 4.5: "Bump", "Fow": 3.2})
+        assert "invalid keys: 1, None, 4.5 and invalid values for keys: Foo, None, Fow" in str(err.value)
 
     def test_Tuple(self) -> None:
         p = Tuple(Int, Int)
