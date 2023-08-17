@@ -522,7 +522,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         refs.add(value)
         if (recursive) {
           for (const prop of value.syncable_properties()) {
-            if (!prop.is_unset) {
+            if (!prop.is_unset && prop.may_have_refs) {
               const value = prop.get_value()
               HasProps._value_record_references(value, refs, {recursive})
             }
