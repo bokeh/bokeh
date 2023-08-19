@@ -211,14 +211,14 @@ class Dict(ContainerProperty[Any]):
         bad_value_keys = [str(k) for (k, v) in value.items() if not value_is_valid(v)]
         exception_header = f"{expected}, got a dict with"
         bad_keys_str = f"invalid keys: {', '.join(bad_keys)}"
-        bad_key_values_str = f"invalid values for keys: {', '.join(bad_value_keys)}"
+        bad_value_keys_str = f"invalid values for keys: {', '.join(bad_value_keys)}"
         err = None
         if (has_bad_keys := any(bad_keys)) & (has_bad_key_values := any(bad_value_keys)):
-            err = ValueError(f"{exception_header} {bad_keys_str} and {bad_key_values_str}")
+            err = ValueError(f"{exception_header} {bad_keys_str} and {bad_value_keys_str}")
         elif has_bad_keys:
             err = ValueError(f"{exception_header} {bad_keys_str}")
         elif has_bad_key_values:
-            err = ValueError(f"{exception_header} {bad_key_values_str}")
+            err = ValueError(f"{exception_header} {bad_value_keys_str}")
         if err:
             raise err if detail else ValueError("")
 
