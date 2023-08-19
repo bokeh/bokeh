@@ -9,7 +9,7 @@ import {Logo, Location} from "core/enums"
 import type {EventType} from "core/ui_events"
 import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
 import {join} from "core/util/iterator"
-import {fields, values, entries} from "core/util/object"
+import {typed_keys, values, entries} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {EventRole} from "./tool"
 import {Tool} from "./tool"
@@ -416,7 +416,7 @@ export class Toolbar extends UIElement {
         new_gestures[tool.event_role].tools.push(tool)
       }
     }
-    for (const et of fields(new_gestures)) {
+    for (const et of typed_keys(new_gestures)) {
       const gesture = this.gestures[et]
       gesture.tools = sort_by(new_gestures[et].tools, (tool) => tool.default_order)
 

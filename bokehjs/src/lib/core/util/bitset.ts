@@ -2,9 +2,13 @@ import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
 import type {Arrayable, ArrayableNew} from "../types"
 import {assert} from "./assert"
+import {has_refs} from "core/util/refs"
 
 export class BitSet implements Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
+
+  static readonly [has_refs] = false
+
   private static readonly _word_length = 32
 
   private readonly _array: Uint32Array

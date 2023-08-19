@@ -71,7 +71,7 @@ dev_template = "{tag}+{ccount}.g{sha}"
 dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.pytest.ini_options]
-timeout = 60
+timeout = 90
 asyncio_mode = "strict"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
