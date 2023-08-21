@@ -1,4 +1,4 @@
 Plot bbox=[0, 0, 400, 200]
-  CartesianFrame bbox=[29, 5, 366, 131]
-  CategoricalAxis bbox=[29, 136, 366, 64]
-  LinearAxis bbox=[0, 5, 29, 131]
+  CartesianFrame bbox=[36, 5, 359, 131]
+  CategoricalAxis bbox=[36, 136, 359, 64]
+  LinearAxis bbox=[0, 5, 36, 131]

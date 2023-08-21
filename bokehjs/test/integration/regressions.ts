@@ -352,12 +352,12 @@ describe("Bug", () => {
       const lower = y.map((yi) => yi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "height", base: {field: "x"}})
+      const whisker = new Whisker({dimension: "height", base: {field: "x"}})
 
       const x_range = new FactorRange({factors})
       const p = fig([400, 200], {x_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.add_glyph(whisker, source)
 
       await display(p)
     })
@@ -371,12 +371,12 @@ describe("Bug", () => {
       const lower = x.map((xi) => xi - random.float())
 
       const source = new ColumnDataSource({data: {x, y, lower, upper}})
-      const whisker = new Whisker({source, dimension: "width", base: {field: "y"}})
+      const whisker = new Whisker({dimension: "width", base: {field: "y"}})
 
       const y_range = new FactorRange({factors})
       const p = fig([200, 400], {y_range})
       p.scatter({source})
-      p.add_layout(whisker)
+      p.add_glyph(whisker, source)
 
       await display(p)
     })
