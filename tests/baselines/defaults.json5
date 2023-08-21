@@ -828,71 +828,6 @@
     hover_line_dash: [],
     hover_line_dash_offset: 0,
   },
-  Whisker: {
-    __extends__: "DataAnnotation",
-    level: "underlay",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    lower_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    upper_head: {
-      type: "object",
-      name: "TeeHead",
-      attributes: {
-        size: {
-          type: "value",
-          value: 10,
-        },
-      },
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: {
-      type: "value",
-      value: "black",
-    },
-    line_alpha: {
-      type: "value",
-      value: 1.0,
-    },
-    line_width: {
-      type: "value",
-      value: 1,
-    },
-    line_join: {
-      type: "value",
-      value: "bevel",
-    },
-    line_cap: {
-      type: "value",
-      value: "butt",
-    },
-    line_dash: {
-      type: "value",
-      value: [],
-    },
-    line_dash_offset: {
-      type: "value",
-      value: 0,
-    },
-  },
   HTMLAnnotation: {
     __extends__: "Annotation",
   },
@@ -4858,6 +4793,70 @@
     },
     hatch_extra: {
       type: "map",
+    },
+  },
+  Whisker: {
+    __extends__: "LineGlyph",
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    lower_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    upper_head: {
+      type: "object",
+      name: "TeeHead",
+      attributes: {
+        size: {
+          type: "value",
+          value: 10,
+        },
+      },
+    },
+    line_color: {
+      type: "value",
+      value: "black",
+    },
+    line_alpha: {
+      type: "value",
+      value: 1.0,
+    },
+    line_width: {
+      type: "value",
+      value: 1,
+    },
+    line_join: {
+      type: "value",
+      value: "bevel",
+    },
+    line_cap: {
+      type: "value",
+      value: "butt",
+    },
+    line_dash: {
+      type: "value",
+      value: [],
+    },
+    line_dash_offset: {
+      type: "value",
+      value: 0,
     },
   },
   Decoration: {

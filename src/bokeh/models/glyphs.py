@@ -34,8 +34,12 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING
+
 # Bokeh imports
 from ..core.enums import (
+    Dimension,
     Direction,
     ImageOrigin,
     OutlineShapeName,
@@ -58,9 +62,11 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     MarkerSpec,
+    Nullable,
     NullDistanceSpec,
     NumberSpec,
     Override,
+    Required,
     Size,
     SizeSpec,
     String,
@@ -96,6 +102,9 @@ from .glyph import (
     XYGlyph,
 )
 from .mappers import ColorMapper, LinearColorMapper, StackColorMapper
+
+if TYPE_CHECKING:
+    from .annotations.arrows import ArrowHead
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -145,6 +154,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
+    'Whisker',
     'XYGlyph',
 )
 
@@ -1999,6 +2009,48 @@ class VStrip(LineGlyph, FillGlyph, HatchGlyph):
 
     hatch_props = Include(HatchProps, help="""
     The {prop} values for the strips.
+    """)
+
+def DEFAULT_HEAD() -> ArrowHead:
+    from .annotations import TeeHead  # avoid circular imports
+    return TeeHead(size=10)
+
+class Whisker(LineGlyph):
+    """ Render whiskers along a dimension.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the whisker can be specified by setting this property
+    to "height" (``y`` direction) or "width" (``x`` direction).
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower end of the whiskers.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper end of the whiskers.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    lower_head = Nullable(Instance(".models.annotations.ArrowHead"), default=DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    upper_head = Nullable(Instance(".models.annotations.ArrowHead"), default=DEFAULT_HEAD, help="""
+    Instance of ``ArrowHead``.
+    """)
+
+    line_props = Include(LineProps, help="""
+    The {prop} values for the whisker body.
     """)
 
 #-----------------------------------------------------------------------------
