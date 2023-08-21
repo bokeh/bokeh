@@ -45,7 +45,6 @@ from bokeh.models import (
     Slope,
     Span,
     Title,
-    Whisker,
 )
 from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
@@ -631,42 +630,7 @@ def test_Title() -> None:
         prefix('background_', HATCH),
     )
 
-def test_Whisker() -> None:
-    whisker = Whisker()
-    assert whisker.level == 'underlay'
-    assert whisker.lower == field("lower")
-    assert whisker.lower_units == 'data'
-    assert isinstance(whisker.lower_head, ArrowHead)
-    assert whisker.lower_head.size == 10
-    assert whisker.upper == field("upper")
-    assert whisker.upper_units == 'data'
-    assert isinstance(whisker.upper_head, ArrowHead)
-    assert whisker.upper_head.size == 10
-    assert whisker.base == field("base")
-    assert whisker.dimension == 'height'
-    assert isinstance(whisker.source, ColumnDataSource)
-    assert whisker.x_range_name == 'default'
-    assert whisker.y_range_name == 'default'
-    check_line_properties(whisker, "")
-    check_properties_existence(whisker, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "lower_head",
-        "upper",
-        "upper_units",
-        "upper_head",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE)
-
-def test_Whisker_and_Band_accept_negative_values() -> None:
-    whisker = Whisker(base=-1., lower=-1.5, upper=-0.5)
-    assert whisker.base == -1.
-    assert whisker.lower == -1.5
-    assert whisker.upper == -0.5
+def test_Band_accept_negative_values() -> None:
     band = Band(base=-1., lower=-1.5, upper=-0.5)
     assert band.base == -1.
     assert band.lower == -1.5

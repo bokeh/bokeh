@@ -238,6 +238,12 @@ def test_wedge() -> None:
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Wedge)
 
+def test_whisker() -> None:
+    p = figure()
+    gr = p.whisker()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.Whisker)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

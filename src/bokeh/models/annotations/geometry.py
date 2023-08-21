@@ -37,7 +37,6 @@ from ...core.properties import (
     Float,
     Include,
     Instance,
-    InstanceDefault,
     NonNegative,
     Null,
     Nullable,
@@ -49,17 +48,11 @@ from ...core.properties import (
     field,
 )
 from ...core.property_aliases import BorderRadius
-from ...core.property_mixins import (
-    LineProps,
-    ScalarFillProps,
-    ScalarHatchProps,
-    ScalarLineProps,
-)
+from ...core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ...model import Model
 from ..common.properties import Coordinate
 from ..nodes import BoxNodes, Node
 from .annotation import Annotation, DataAnnotation
-from .arrows import ArrowHead, TeeHead
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -72,7 +65,6 @@ __all__ = (
     "PolyAnnotation",
     "Slope",
     "Span",
-    "Whisker",
 )
 
 #-----------------------------------------------------------------------------
@@ -542,48 +534,6 @@ class Span(Annotation):
 
     hover_line_color = Override(default=None)
     hover_line_alpha = Override(default=0.3)
-
-class Whisker(DataAnnotation):
-    ''' Render a whisker along a dimension.
-
-    See :ref:`ug_basic_annotations_whiskers` for information on plotting whiskers.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    lower = UnitsSpec(default=field("lower"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the lower end of the whiskers.
-    """)
-
-    lower_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    upper = UnitsSpec(default=field("upper"), units_enum=CoordinateUnits, units_default="data", help="""
-    The coordinates of the upper end of the whiskers.
-    """)
-
-    upper_head = Nullable(Instance(ArrowHead), default=InstanceDefault(TeeHead, size=10), help="""
-    Instance of ``ArrowHead``.
-    """)
-
-    base = UnitsSpec(default=field("base"), units_enum=CoordinateUnits, units_default="data", help="""
-    The orthogonal coordinates of the upper and lower values.
-    """)
-
-    dimension = Enum(Dimension, default='height', help="""
-    The direction of the whisker can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
-    """)
-
-    line_props = Include(LineProps, help="""
-    The {prop} values for the whisker body.
-    """)
-
-    level = Override(default="underlay")
 
 #-----------------------------------------------------------------------------
 # Dev API
