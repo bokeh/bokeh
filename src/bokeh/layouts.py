@@ -314,8 +314,8 @@ def gridplot(
     active_taps = [ toolbar.active_tap for toolbar in toolbars ]
     active_multis = [ toolbar.active_multi for toolbar in toolbars ]
 
-    T = TypeVar("T")
-    def assert_unique(values: list[T], name: str) -> T | UndefinedType:
+    V = TypeVar("V")
+    def assert_unique(values: list[V], name: str) -> V | UndefinedType:
         n = len(set(values))
         if n == 0:
             return Undefined
