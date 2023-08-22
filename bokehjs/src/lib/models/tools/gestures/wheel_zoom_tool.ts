@@ -45,7 +45,7 @@ export class WheelZoomToolView extends GestureToolView {
     const x_axis = dims == "width" || dims == "both"
     const y_axis = dims == "height" || dims == "both"
 
-    const {x_range, y_range} = frame.bbox
+    const {x_target, y_target} = frame
     const {x_scales, y_scales, center} = (() => {
       if (axis_view != null) {
         const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
@@ -82,8 +82,11 @@ export class WheelZoomToolView extends GestureToolView {
       }
     })()
 
+    const x_scales_ = [...x_scales.values()]
+    const y_scales_ = [...y_scales.values()]
+
     const factor = this.model.speed*ev.delta
-    const zoom_info = scale_range(x_scales, y_scales, x_range, y_range, factor, x_axis, y_axis, center)
+    const zoom_info = scale_range(x_scales_, y_scales_, x_target, y_target, factor, x_axis, y_axis, center)
 
     this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
