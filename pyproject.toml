@@ -164,6 +164,7 @@ ignore = [
     'E741', # Ambiguous variable name: I
     'UP035',  # Import from `collections.abc` instead: `Iterator`
     'RUF001', # String contains ambiguous unicode character `σ` (did you mean `o`?)
+    'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
 line-length = 165
 target-version = "py39"
