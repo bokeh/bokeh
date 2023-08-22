@@ -122,7 +122,7 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
     bundle = bundle_for_objs_and_resources(None, resources)
     bundle.add(Script(script_for_render_items(docs_json, [render_item])))
 
-    (_, elementid) = list(render_item.roots.to_json().items())[0]
+    (_, elementid) = next(iter(render_item.roots.to_json().items()))
 
     js = wrap_in_onload(AUTOLOAD_JS.render(bundle=bundle, elementid=elementid))
 

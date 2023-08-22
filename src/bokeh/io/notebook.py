@@ -107,7 +107,7 @@ class CommsHandle:
             assert ip is not None
             hm = ip.history_manager
             assert hm is not None
-            p_prompt = list(hm.get_tail(1, include_latest=True))[0][1]
+            p_prompt = next(iter(hm.get_tail(1, include_latest=True)))[1]
             self._cellno = p_prompt
         except Exception as e:
             log.debug("Could not get Notebook cell number, reason: %s", e)

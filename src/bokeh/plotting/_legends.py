@@ -52,7 +52,7 @@ def pop_legend_kwarg(kwargs):
 
 def update_legend(plot, legend_kwarg, glyph_renderer):
     legend = _get_or_create_legend(plot)
-    kwarg, value = list(legend_kwarg.items())[0]
+    kwarg, value = next(iter(legend_kwarg.items()))
 
     _LEGEND_KWARG_HANDLERS[kwarg](value, legend, glyph_renderer)
 

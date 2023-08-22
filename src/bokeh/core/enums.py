@@ -359,7 +359,7 @@ HatchPattern = enumeration(*list(zip(*_hatch_patterns))[1])
 #:     "v"  :  horizontal_wave
 #:     ">"  :  vertical_wave
 #:     "*"  :  criss_cross
-HatchPatternAbbreviation = enumeration(*list(zip(*_hatch_patterns))[0], quote=True)
+HatchPatternAbbreviation = enumeration(*next(iter(zip(*_hatch_patterns))), quote=True)
 
 #: Specify whether events should be combined or collected as-is when a Document hold is in effect
 HoldPolicyType = Literal["combine", "collect"]
