@@ -111,6 +111,22 @@ app.get("/examples/:name", async (req, res) => {
 })
 
 async function build_example(path: string): Promise<string | null> {
+  const code = `\
+__file__ = "${path}"
+
+import random
+random.seed(1)
+
+import numpy as np
+np.random.seed(1)
+
+import warnings
+warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
+
+with open(__file__, "rb") as example:
+    exec(compile(example.read(), __file__, "exec"))
+`
+
   const env = {
     ...process.env,
     BOKEH_DEV: "true",
@@ -122,7 +138,7 @@ async function build_example(path: string): Promise<string | null> {
   const cwd = dirname(path)
 
   console.log(`Building ${path}`)
-  const proc = spawn("python", [path], {stdio: "pipe", env, cwd, timeout: 5000})
+  const proc = spawn("python", ["-c", code], {stdio: "pipe", env, cwd, timeout: 5000})
 
   let output = ""
   proc.stdout.on("data", (data) => {
@@ -136,6 +152,9 @@ async function build_example(path: string): Promise<string | null> {
     proc.on("error", reject)
     proc.on("exit", (code, signal) => {
       if (code === 0 && signal == null) {
+        if (output.trim().length != 0) {
+          console.log(output)
+        }
         resolve(null)
       } else {
         let text = `Process exited with code ${code ?? 0}`
