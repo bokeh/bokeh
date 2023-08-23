@@ -18,18 +18,27 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, TypeVar, Union
+
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
+
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
+__all__ = (
+    "Intrinsic",
+    "Optional",
+    "Undefined",
+)
+
+T = TypeVar("T")
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-__all__ = (
-    "Intrinsic",
-    "Undefined",
-)
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -48,6 +57,8 @@ class UndefinedType:
         return "Undefined"
 
 Undefined = UndefinedType()
+
+Optional: TypeAlias = Union[T, UndefinedType]
 
 class IntrinsicType:
     """ Indicates usage of the intrinsic default value of a property. """
