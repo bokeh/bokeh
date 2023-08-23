@@ -1,6 +1,5 @@
 import {Transform} from "../transforms/transform"
 import {Range} from "../ranges/range"
-import {Range1d} from "../ranges/range1d"
 import type {Arrayable, FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import type * as p from "core/properties"
@@ -10,7 +9,7 @@ export namespace Scale {
 
   export type Props = Transform.Props & {
     source_range: p.Property<Range>
-    target_range: p.Property<Range1d>
+    target_range: p.Property<Range>
   }
 }
 
@@ -26,7 +25,7 @@ export abstract class Scale<T = number> extends Transform<T, number> {
   static {
     this.internal<Scale.Props>(({Ref}) => ({
       source_range: [ Ref(Range) ],
-      target_range: [ Ref(Range1d) ],
+      target_range: [ Ref(Range) ],
     }))
   }
 
