@@ -197,6 +197,7 @@ html_theme_options = {
     },
     "twitter_url": "https://twitter.com/bokeh",
     "use_edit_page_button": False,
+    "header_links_before_dropdown": 8
 }
 
 html_sidebars = {
