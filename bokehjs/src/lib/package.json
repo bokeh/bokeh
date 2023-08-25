@@ -27,7 +27,7 @@
     "regl": "^2.1.0",
     "sprintf-js": "^1.1.2",
     "timezone": "^1.0.23",
-    "tslib": "^2.5.0",
+    "tslib": "^2.6.2",
     "underscore.template": "^0.1.7"
   }
 }
