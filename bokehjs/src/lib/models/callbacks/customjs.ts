@@ -7,11 +7,14 @@ import {use_strict} from "core/util/string"
 import type {Model} from "../../model"
 import {logger} from "core/logging"
 import {isFunction} from "core/util/types"
+import type {ViewManager} from "core/view"
+import {index} from "embed/standalone"
 
 type KV = {[key: string]: unknown}
+type Meta = {index: ViewManager}
 
-type ESFunc = (args: KV, obj: Model, data: KV) => Promise<unknown> | unknown
-type JSFunc = (this: Model, obj: Model, data: KV) => Promise<unknown> | unknown
+type ESFunc = (args: KV, obj: Model, data: KV, meta: Meta) => Promise<unknown> | unknown
+type JSFunc = (this: Model, obj: Model, data: KV, meta: Meta) => Promise<unknown> | unknown
 
 type ESState = {func: ESFunc, module: true}
 type JSState = {func: JSFunc, module: false}
@@ -71,7 +74,7 @@ export class CustomJS extends Callback {
   protected async _compile_function(): Promise<JSFunc> {
     const [names=[], values=[]] = unzip(entries(this.args))
     const code = use_strict(this.code)
-    const func = new Function(...names, "cb_obj", "cb_data", code)
+    const func = new Function(...names, "cb_obj", "cb_data", "cb_meta", code)
     return function(...args: unknown[]) {
       return func.call(this, ...values, ...args)
     }
@@ -107,10 +110,11 @@ export class CustomJS extends Callback {
 
   async execute(obj: Model, data: KV = {}): Promise<unknown> {
     const {func, module} = await this.state()
+    const meta = {index}
     if (module) {
-      return func(this.args, obj, data)
+      return func(this.args, obj, data, meta)
     } else {
-      return func.call(obj, obj, data)
+      return func.call(obj, obj, data, meta)
     }
   }
 }
