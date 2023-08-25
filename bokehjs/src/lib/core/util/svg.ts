@@ -189,6 +189,18 @@ const STYLES: StyleState = {
   },
 }
 
+function width_height(image: CanvasImageSource): [number, number] {
+  if (image instanceof VideoFrame) {
+    return [image.codedWidth, image.codedHeight] // TODO not sure if this makes any sense
+  } else {
+    function to_number(val: number | SVGAnimatedLength): number {
+      return isNumber(val) ? val : val.baseVal.value
+    }
+    const {width, height} = image
+    return [to_number(width), to_number(height)]
+  }
+}
+
 class CanvasGradient implements globalThis.CanvasGradient {
   __root: SVGElement
   __ctx: SVGRenderingContext2D
@@ -363,8 +375,7 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       this.__ctx = this.__canvas.getContext("2d")!
     }
 
-    this.__setDefaultStyles()
-    this.__stack = []
+    this.reset()
 
     // the root svg element
     this.__root = this.__document.createElementNS("http://www.w3.org/2000/svg", "svg")
@@ -559,6 +570,11 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     this._transform = transform
     this._clip_path = clip_path
     this.__applyStyleState(attributes)
+  }
+
+  reset(): void {
+    this.__setDefaultStyles()
+    this.__stack = []
   }
 
   private _apply_transform(element: Element, transform: AffineTransform = this._transform) {
@@ -1151,24 +1167,25 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     let dw: number, dh: number
     let sx: number, sy: number
     let sw: number, sh: number
+
     if (args.length == 2) {
       [dx, dy] = args
       if (!isFinite(dx + dy))
         return
       sx = 0
       sy = 0
-      sw = image.width as number
-      sh = image.height as number
-      dw = sw
-      dh = sh
+      const [w, h] = width_height(image)
+      dw = sw = w
+      dh = sh = h
     } else if (args.length == 4) {
       [dx, dy, dw, dh] = args
       if (!isFinite(dx + dy + dw + dh))
         return
       sx = 0
       sy = 0
-      sw = image.width as number
-      sh = image.height as number
+      const [w, h] = width_height(image)
+      sw = w
+      sh = h
     } else if (args.length === 8) {
       [sx, sy, sw, sh, dx, dy, dw, dh] = args
       if (!isFinite(sx + sy + sw + sh + dx + dy + dw + dh))
@@ -1275,9 +1292,10 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   createPattern(image: CanvasImageSource, _repetition: string | null): CanvasPattern | null {
     const pattern = this.__document.createElementNS("http://www.w3.org/2000/svg", "pattern")
     const id = this._random_string()
+    const [width, height] = width_height(image)
     pattern.setAttribute("id", id)
-    pattern.setAttribute("width", `${this._to_number(image.width)}`)
-    pattern.setAttribute("height", `${this._to_number(image.height)}`)
+    pattern.setAttribute("width", `${width}`)
+    pattern.setAttribute("height", `${height}`)
     pattern.setAttribute("patternUnits", "userSpaceOnUse")
     if (image instanceof HTMLCanvasElement || image instanceof HTMLImageElement || image instanceof SVGImageElement) {
       const img = this.__document.createElementNS("http://www.w3.org/2000/svg", "image")
@@ -1322,10 +1340,6 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
       this.lineDash = segments.join(",")
     else
       this.lineDash = null
-  }
-
-  private _to_number(val: number | SVGAnimatedLength): number {
-    return isNumber(val) ? val : val.baseVal.value
   }
 
   getTransform(): DOMMatrix {
