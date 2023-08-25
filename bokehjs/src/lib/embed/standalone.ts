@@ -6,10 +6,21 @@ import type {View} from "../core/view"
 import {ViewManager} from "../core/view"
 import {DOMView} from "../core/dom_view"
 import {build_view} from "../core/build_views"
+import {isString} from "../core/util/types"
 import type {EmbedTarget} from "./dom"
 
 // A map from the root model IDs to their views.
-export const index: {[key: string]: View} = {}
+export const index = new Proxy(new ViewManager(), {
+  get(manager: ViewManager, property: PropertyKey) {
+    if (isString(property)) {
+      const view = manager.get_by_id(property)
+      if (view != null) {
+        return view
+      }
+    }
+    return Reflect.get(manager, property)
+  },
+}) as ViewManager & {readonly [key: string]: View}
 
 export async function add_document_standalone(document: Document, element: EmbedTarget,
     roots: (EmbedTarget | null)[] = [], use_for_title: boolean = false): Promise<ViewManager> {
@@ -27,7 +38,7 @@ export async function add_document_standalone(document: Document, element: Embed
     }
 
     views.add(view)
-    index[model.id] = view
+    index.add(view)
   }
 
   async function render_model(model: HasProps): Promise<void> {
@@ -42,7 +53,7 @@ export async function add_document_standalone(document: Document, element: Embed
     if (view != null) {
       view.remove()
       views.delete(view)
-      delete index[model.id]
+      index.delete(view)
     }
   }
 

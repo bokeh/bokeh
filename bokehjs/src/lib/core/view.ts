@@ -77,7 +77,7 @@ export class View implements ISignalable {
 
     if (parent == null) {
       this.root = this
-      this.owner = owner ?? new ViewManager([this])
+      this.owner = owner ?? new ViewManager(this)
     } else {
       this.root = parent.root
       this.owner = this.root.owner
@@ -151,44 +151,65 @@ export class View implements ISignalable {
 }
 
 export class ViewManager {
-  readonly roots: Set<View>
+  protected readonly _roots: Set<View>
 
-  constructor(roots: View[] = []) {
-    this.roots = new Set(roots)
+  constructor(...roots: View[]) {
+    this._roots = new Set(roots)
+  }
+
+  toString(): string {
+    const views = [...this._roots].map((view) => `${view}`).join(", ")
+    return `ViewManager(${views})`
   }
 
   get<T extends HasProps>(model: T): ViewOf<T> | null {
-    for (const view of this.roots) {
+    for (const view of this._roots) {
       if (view.model == model)
         return view
     }
     return null
   }
 
+  get_by_id(id: string): ViewOf<HasProps> | null {
+    for (const view of this._roots) {
+      if (view.model.id == id)
+        return view
+    }
+    return null
+  }
+
   add(view: View): void {
-    this.roots.add(view)
+    this._roots.add(view)
   }
 
   delete(view: View): void {
-    this.roots.delete(view)
+    this._roots.delete(view)
+  }
+
+  get roots(): View[] {
+    return [...this._roots]
   }
 
   *[Symbol.iterator](): IterViews {
-    yield* this.roots
+    yield* this._roots
+  }
+
+  *views(): IterViews {
+    yield* this.query(() => true)
   }
 
   *query(fn: (view: View) => boolean): IterViews {
     function* descend(view: View): IterViews {
       if (fn(view)) {
         yield view
-      } else {
-        for (const child of view.children()) {
-          yield* descend(child)
-        }
+      }
+
+      for (const child of view.children()) {
+        yield* descend(child)
       }
     }
 
-    for (const root of this.roots) {
+    for (const root of this._roots) {
       yield* descend(root)
     }
   }
