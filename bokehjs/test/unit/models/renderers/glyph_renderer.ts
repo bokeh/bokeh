@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
 import {expect} from "assertions"
-import {display} from "../../_util"
+import {display, restorable} from "../../_util"
 import {PlotActions, xy} from "../../../interactive"
 
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
@@ -107,17 +107,12 @@ describe("GlyphRendererView", () => {
     const bare = {toolbar_location: null, title: null, min_border: 0}
     const p = new Plot({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
 
-    // TODO experiment with TS 5.2 'using' declarations
-    const spy = sinon.spy(GlyphRendererView.prototype, "set_data")
-    try {
-      const {view} = await display(p)
+    using spy = restorable(sinon.spy(GlyphRendererView.prototype, "set_data"))
+    const {view} = await display(p)
 
-      const actions = new PlotActions(view, {units: "screen"})
-      await actions.pan(xy(100, 100), xy(200, 200))
+    const actions = new PlotActions(view, {units: "screen"})
+    await actions.pan(xy(100, 100), xy(200, 200))
 
-      expect(spy.callCount).to.be.equal(1) // only initial set_data()
-    } finally {
-      spy.restore()
-    }
+    expect(spy.callCount).to.be.equal(1) // only initial set_data()
   })
 })

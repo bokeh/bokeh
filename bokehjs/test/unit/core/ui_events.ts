@@ -1,7 +1,7 @@
 import * as sinon from "sinon"
 
 import {expect} from "assertions"
-import {display} from "../_util"
+import {display, restorable} from "../_util"
 
 import * as dom from "@bokehjs/core/dom"
 import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
@@ -105,13 +105,12 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(false) // XXX: protected
+        using stub = restorable(sinon.stub(ui_event_bus, "hit_test_frame"))
+        stub.returns(false)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_cursor.calledTwice).to.be.true
         expect(spy_cursor.calledWith("default")).to.be.true
-
-        ss.restore()
       })
 
       it("should change cursor if active inspector is present and over frame", async () => {
@@ -119,13 +118,12 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_frame").returns(true) // XXX: protected
+        using stub = restorable(sinon.stub(ui_event_bus, "hit_test_frame"))
+        stub.returns(true)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_cursor.calledTwice).to.be.true
         expect(spy_cursor.calledWith("crosshair")).to.be.true
-
-        ss.restore()
       })
 
       /*
@@ -133,7 +131,7 @@ describe("ui_event_bus module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus, "hit_test_renderers").returns(legend_view)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_cursor.calledTwice).to.be.true
@@ -150,7 +148,7 @@ describe("ui_event_bus module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus, "hit_test_renderers").returns(legend_view)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_trigger.calledTwice).to.be.true
@@ -191,7 +189,7 @@ describe("ui_event_bus module", () => {
         const legend = new Legend({click_policy: "mute"})
         const legend_view = await build_view(legend, {parent: plot_view})
 
-        const ss = sinon.stub(ui_event_bus as any, "_hit_test_renderers").returns(legend_view) // XXX: protected
+        const ss = sinon.stub(ui_event_bus, "hit_test_renderers").returns(legend_view)
         const on_hit = sinon.stub(legend_view, "on_hit")
 
         ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
