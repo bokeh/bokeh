@@ -567,6 +567,13 @@ class Settings:
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
+    chromedriver_path: PrioritizedSetting[str | None] = PrioritizedSetting("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
+    The name of or full path to chromedriver's executable.
+
+    This is used to allow ``bokeh.io.export`` to work on systems that use a different name
+    for ``chromedriver``, like ``chromedriver-binary`` or ``chromium.chromedriver`` (Snap).
+    """)
+
     cookie_secret: PrioritizedSetting[str | None] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
