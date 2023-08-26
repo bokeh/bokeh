@@ -110,7 +110,7 @@ CDP(async function(client) {
     const expr0 = `JSON.stringify(getComputedStyle(document.body))`
     const result0 = await evaluate(expr0)
 
-    const expr1 = "JSON.stringify(Object.keys(Bokeh.index).map((key) => Bokeh.index[key].el.getBoundingClientRect()))"
+    const expr1 = "JSON.stringify(Bokeh.index.roots.map((view) => view.el.getBoundingClientRect()))"
     const result1 = await evaluate(expr1)
 
     if (result0 != null && result1 != null) {

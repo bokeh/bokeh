@@ -226,8 +226,8 @@ class _CanvasMixin(_ElementMixin):
     def get_toolbar_buttons(self, plot: Plot) -> list[WebElement]:
         script = """
             const toolbar_id = arguments[0]
-            const toolbar_view = [...Object.values(Bokeh.index)[0].owner.query((view) => view.model.id == toolbar_id)][0]
-            return toolbar_view.model.tools.map((tool) => [...toolbar_view.owner.query((btn) => btn.model.tool == tool)][0].el)
+            const toolbar_view = Bokeh.index.get_one_by_id(toolbar_id)
+            return toolbar_view.model.tools.map((tool) => toolbar_view.owner.query_one((btn) => btn.model.tool == tool).el)
         """
         buttons = self._driver.execute_script(script, plot.toolbar.id)
         return buttons
@@ -324,7 +324,7 @@ def await_ready(driver: WebDriver, root: Model) -> None:
     script = """
     const [root_id, done] = [...arguments];
     (async function() {
-        const view = Bokeh.index[root_id]
+        const view = Bokeh.index.get_by_id(root_id)
         if (view == null)
             done(false)
         else {
@@ -340,7 +340,7 @@ def await_all_ready(driver: WebDriver) -> None:
     script = """
     const [done] = [...arguments];
     (async function() {
-        const views = [...Object.values(Bokeh.index)]
+        const views = Bokeh.index.roots
         if (views.length == 0)
             done(false)
         else {

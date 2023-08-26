@@ -199,7 +199,15 @@ export class ViewManager {
   }
 
   *query(fn: (view: View) => boolean): IterViews {
+    const visited = new Set<View>()
+
     function* descend(view: View): IterViews {
+      if (visited.has(view)) {
+        return
+      }
+
+      visited.add(view)
+
       if (fn(view)) {
         yield view
       }
@@ -214,8 +222,33 @@ export class ViewManager {
     }
   }
 
+  query_one(fn: (view: View) => boolean): View | null {
+    for (const view of this.query(fn)) {
+      return view
+    }
+    return null
+  }
+
   *find<T extends HasProps>(model: T): IterViews<ViewOf<T>> {
     yield* this.query((view) => view.model == model)
+  }
+
+  *find_by_id(id: string): IterViews {
+    yield* this.query((view) => view.model.id == id)
+  }
+
+  find_one<T extends HasProps>(model: T): ViewOf<T> | null {
+    for (const view of this.find(model)) {
+      return view
+    }
+    return null
+  }
+
+  find_one_by_id(id: string): View | null {
+    for (const view of this.find_by_id(id)) {
+      return view
+    }
+    return null
   }
 
   get_one<T extends HasProps>(model: T): ViewOf<T> {
@@ -226,14 +259,19 @@ export class ViewManager {
       throw new Error(`cannot find a view for ${model}`)
   }
 
-  find_one<T extends HasProps>(model: T): ViewOf<T> | null {
-    for (const view of this.find(model)) {
+  get_one_by_id(id: string): View {
+    const view = this.find_one_by_id(id)
+    if (view != null)
       return view
-    }
-    return null
+    else
+      throw new Error(`cannot find a view for a model with '${id}' identity`)
   }
 
   find_all<T extends HasProps>(model: T): ViewOf<T>[] {
     return [...this.find(model)]
+  }
+
+  find_all_by_id(id: string): View[] {
+    return [...this.find_by_id(id)]
   }
 }
