@@ -253,7 +253,7 @@ class NumberSpec(DataSpec):
     values by passing ``accept_datetime=False``.
 
     By default, timedelta values are immediately converted to absolute
-    milliseconds.  It is possible to disable processing of timedelta
+    milliseconds. It is possible to disable processing of timedelta
     values by passing ``accept_timedelta=False``
 
     Timedelta values are interpreted as absolute milliseconds.
@@ -276,7 +276,8 @@ class NumberSpec(DataSpec):
 class AlphaSpec(NumberSpec):
 
     _default_help = """\
-    Acceptable values are numbers in 0..1 range (transparent..opaque).
+    Acceptable values are floating-point numbers between 0 and 1 (0 being
+    transparent and 1 being opaque).
     """
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
