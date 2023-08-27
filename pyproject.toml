@@ -91,7 +91,7 @@ filterwarnings = [
     '''ignore:coroutine 'PeriodicCallback._run' was never awaited:RuntimeWarning''',
     '''ignore:make_current is deprecated; start the event loop first:DeprecationWarning''',
     '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
-    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:bokeh.util.warnings.BokehDeprecationWarning''',
     '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
     '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
