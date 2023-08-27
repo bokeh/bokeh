@@ -39,8 +39,8 @@ The following code snippet
 .. code-block:: python
 
     import math
-    from bokeh.plotting import figure
-    from bokeh.models import GraphRenderer, Ellipse
+    from bokeh.plotting import figure, show
+    from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
     from bokeh.palettes import Spectral8
 
     # list the nodes and initialize a plot
@@ -92,9 +92,6 @@ plot based on the setup above.
 
     # render the graph
     plot.renderers.append(graph)
-
-    # specify the name of the output file
-    output_file('graph.html')
 
     # display the plot
     show(plot)
