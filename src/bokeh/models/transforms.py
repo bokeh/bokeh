@@ -108,13 +108,13 @@ class CustomJSTransform(Transform):
     present in the function namespace at render time. The snippet will be
     into the body of a function and therefore requires a return statement.
 
-    Example:
+    Example
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            func = '''
-            return Math.floor(x) + 0.5
-            '''
+        func = '''
+        return Math.floor(x) + 0.5
+        '''
     """)
 
     v_func = String(default="", help="""
