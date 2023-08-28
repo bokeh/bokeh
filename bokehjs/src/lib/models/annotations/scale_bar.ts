@@ -13,7 +13,7 @@ import {BBox} from "core/util/bbox"
 import {assert} from "core/util/assert"
 import type {Context2d} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
-import {Column, /*Row,*/ ContentLayoutable, Sizeable} from "core/layout"
+import {Column, Row, ContentLayoutable, Sizeable} from "core/layout"
 import {bisect_right, bisect_right_by, sort_by} from "core/util/arrayable"
 import type {ContinuousAxis, ContinuousAxisView} from "../axes/continuous_axis"
 import {LinearAxis} from "../axes/linear_axis"
@@ -104,7 +104,6 @@ export class ScaleBarView extends AnnotationView {
   protected bar_layout: FixedLayout
   protected box_layout: Layoutable
 
-  protected ticker: AdaptiveTicker
   protected axis: ContinuousAxis
   protected axis_view: ContinuousAxisView
 
@@ -122,8 +121,8 @@ export class ScaleBarView extends AnnotationView {
 
   override initialize(): void {
     super.initialize()
-    this.ticker = new AdaptiveTicker({desired_num_ticks: 5})
-    this.axis = new LinearAxis({ticker: this.ticker})
+    const ticker = new AdaptiveTicker({desired_num_ticks: 2})
+    this.axis = new LinearAxis({ticker})
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -297,19 +296,32 @@ export class ScaleBarView extends AnnotationView {
       children.push(title_layout)
     }
 
-    const box_layout = new Column(children)
+    const box_layout = (() => {
+      if (orientation == "horizontal") {
+        return new Column(children)
+      } else {
+        return new Row(children)
+      }
+    })()
     box_layout.position = {left, top}
     box_layout.spacing = this.model.label_standoff
     box_layout.set_sizing()
     box_layout.compute()
     this.box_layout = box_layout
-    console.log(`${this.bar_layout.bbox}`, bar_length_px)
 
+    const [axis_range, cross_range] = (() => {
+      const {x_range, y_range} = this.axis_view.bbox
+      if (orientation == "horizontal") {
+        return [x_range, y_range]
+      } else {
+        return [y_range, x_range]
+      }
+    })()
     this.axis_scale.source_range.end = preferred_value
-    this.axis_scale.target_range.setv(this.axis_view.bbox.x_range)
+    this.axis_scale.target_range.setv(axis_range)
 
     this.cross_scale.source_range.end = 1.0
-    this.cross_scale.target_range.setv(this.axis_view.bbox.y_range)
+    this.cross_scale.target_range.setv(cross_range)
 
     const width  = border_width + padding + box_layout.bbox.width  + padding + border_width
     const height = border_width + padding + box_layout.bbox.height + padding + border_width
