@@ -11,10 +11,10 @@ import type {ViewManager} from "core/view"
 import {index} from "embed/standalone"
 
 type KV = {[key: string]: unknown}
-type Meta = {index: ViewManager}
+type Context = {index: ViewManager}
 
-type ESFunc = (args: KV, obj: Model, data: KV, meta: Meta) => Promise<unknown> | unknown
-type JSFunc = (this: Model, obj: Model, data: KV, meta: Meta) => Promise<unknown> | unknown
+type ESFunc = (args: KV, obj: Model, data: KV, context: Context) => Promise<unknown> | unknown
+type JSFunc = (this: Model, obj: Model, data: KV, context: Context) => Promise<unknown> | unknown
 
 type ESState = {func: ESFunc, module: true}
 type JSState = {func: JSFunc, module: false}
@@ -74,7 +74,7 @@ export class CustomJS extends Callback {
   protected async _compile_function(): Promise<JSFunc> {
     const [names=[], values=[]] = unzip(entries(this.args))
     const code = use_strict(this.code)
-    const func = new Function(...names, "cb_obj", "cb_data", "cb_meta", code)
+    const func = new Function(...names, "cb_obj", "cb_data", "cb_context", code)
     return function(...args: unknown[]) {
       return func.call(this, ...values, ...args)
     }
@@ -110,11 +110,11 @@ export class CustomJS extends Callback {
 
   async execute(obj: Model, data: KV = {}): Promise<unknown> {
     const {func, module} = await this.state()
-    const meta = {index}
+    const context = {index}
     if (module) {
-      return func(this.args, obj, data, meta)
+      return func(this.args, obj, data, context)
     } else {
-      return func.call(obj, obj, data, meta)
+      return func.call(obj, obj, data, context)
     }
   }
 }

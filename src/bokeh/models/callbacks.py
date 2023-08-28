@@ -132,7 +132,7 @@ class CustomJS(CustomCode):
     a ``cb_obj`` parameter contains the object that triggered the callback
     an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``)
-    an additional metadata in ``cb_meta`` argument.
+    an additional context in ``cb_context`` argument.
 
     2. An ES module.
 
@@ -141,18 +141,18 @@ class CustomJS(CustomCode):
 
     .. code-block: javascript
 
-        export default function(args, obj, data, meta) {
+        export default function(args, obj, data, context) {
             // program logic
         }
 
     where ``args`` is a key-value mapping of user-provided parameters, ``obj``
     refers to the object that triggered the callback, ``data`` is a key-value
-    mapping of optional parameters provided by the caller, and ``meta`` is
-    additional metadata.
+    mapping of optional parameters provided by the caller, and ``context`` is
+    additional context.
 
     This function can be an asynchronous function (``async function``).
 
-    The addtional metadata is composed of the following members:
+    The addtional context is composed of the following members:
 
     * ``index``: The view manager governing all views in the current
       instance of ``Bokeh``. If only one instance of ``Bokeh`` is
