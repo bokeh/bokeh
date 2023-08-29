@@ -221,7 +221,7 @@ def test_disjuction() -> None:
     )
     assert len(res) == 6
 
-def test_conjuction() -> None:
+def test_conjunction() -> None:
     res = list(
         q.find(plot.references(), dict(type=Axis, tags="foo")),
     )
