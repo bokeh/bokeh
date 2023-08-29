@@ -14,7 +14,6 @@ import {assert} from "core/util/assert"
 import type {Context2d} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
 import {Column, Row, ContentLayoutable, Sizeable} from "core/layout"
-import {bisect_right, bisect_right_by, sort_by} from "core/util/arrayable"
 import type {ContinuousAxis, ContinuousAxisView} from "../axes/continuous_axis"
 import {LinearAxis} from "../axes/linear_axis"
 import {AdaptiveTicker} from "../tickers/adaptive_ticker"
@@ -23,7 +22,7 @@ import {LinearScale} from "../scales/linear_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 
-const {min, round} = Math
+const {round} = Math
 
 class TextLayout extends ContentLayoutable {
 
@@ -46,52 +45,6 @@ class FixedLayout extends ContentLayoutable {
     return new Sizeable(this.size)
   }
 }
-
-const metric_ticks = [1, 2, 5, 10, 15, 20, 25, 50, 75, 100, 125, 150, 200, 250, 500, 750]
-const metric_basis = [
-  ["Q", 1e30,  "quetta"],
-  ["R", 1e27,  "ronna"],
-  ["Y", 1e24,  "yotta"],
-  ["Z", 1e21,  "zetta"],
-  ["E", 1e18,  "exa"],
-  ["P", 1e15,  "peta"],
-  ["T", 1e12,  "tera"],
-  ["G", 1e9,   "giga"],
-  ["M", 1e6,   "mega"],
-  ["k", 1e3,   "kilo"],
-  //["h", 1e2,   "hecto"],
-  ["",  1e0,   ""],
-  //["d", 1e-1,  "deci"],
-  ["c", 1e-2,  "centi"],
-  ["m", 1e-3,  "milli"],
-  ["u", 1e-6,  "micro"],
-  ["n", 1e-9,  "nano"],
-  ["p", 1e-12, "pico"],
-  ["f", 1e-15, "femto"],
-  ["a", 1e-18, "atto"],
-  ["z", 1e-21, "zepto"],
-  ["y", 1e-24, "yocto"],
-  ["r", 1e-27, "ronto"],
-  ["q", 1e-30, "quecto"],
-] as const
-const metric_length = (() => {
-  const short_name = "m"
-  const long_name = "meter"
-  return metric_basis.map(([short_prefix, factor, long_prefix]) => [`${short_prefix}${short_name}`, factor, `${long_prefix}${long_name}`] as const)
-})()
-
-/*
-const imperial_ticks = [1, 3, 6, 12, 60]
-const imperial_length = ([
-  ["in",   1/12, "inch"   ],
-  ["ft",      1, "foot"   ],
-  ["yd",      3, "yard"   ],
-  ["ch",     66, "chain"  ],
-  ["fur",   660, "furlong"],
-  ["mi",   5280, "mile"   ],
-  ["lea", 15840, "league" ],
-] as const).map((item) => item)
-*/
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
@@ -187,54 +140,22 @@ export class ScaleBarView extends AnnotationView {
     const bar_width = bar_line.line_width.get_value()
     const border_width = border_line.line_width.get_value()
 
-    const {range, unit} = this.model
-
-    const ticks = metric_ticks
-    const dimensional = sort_by(metric_length, ([, factor]) => factor)
-
-    const found_unit = dimensional.find(([short_name]) => short_name == unit)
-    assert(found_unit != null)
-    const [, unit_factor] = found_unit
-
-    const value = range.span*bar_length
-    const value_in_unit = value*unit_factor
-
-    const [new_unit, new_value] = (() => {
-      const index = bisect_right_by(dimensional, value_in_unit, ([, factor]) => factor)
-      if (index > 0) {
-        const [new_unit, factor] = dimensional[index - 1]
-        const new_value = value_in_unit/factor
-        return [new_unit, new_value]
-      } else {
-        return [unit, value_in_unit]
-      }
-    })()
-
-    const exact = ticks.length == 0
-
-    const preferred_value = (() => {
-      if (exact) {
-        return new_value
-      } else {
-        const index = bisect_right(ticks, new_value)
-        return ticks[min(index, ticks.length-1)]
-      }
+    const {new_value, new_unit, scale_factor, exact} = (() => {
+      const {range, unit, dimensional} = this.model
+      const value = range.span*bar_length
+      return dimensional.compute(value, unit)
     })()
 
     const {frame} = this.parent
-
     const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
-    //const range_span = range.span
     assert(0 < bar_length && bar_length <= 1)
 
-    const preferred_value_raw = preferred_value*(value_in_unit/new_value)
-    const scale_factor = (preferred_value_raw/value)/unit_factor
     const init_bar_length_px = frame_span*bar_length
     const bar_length_px = round(init_bar_length_px*scale_factor)
 
-    console.log(value, value_in_unit, unit, new_value, new_unit, preferred_value, preferred_value_raw, init_bar_length_px, scale_factor, bar_length_px)
+    //console.log(value, value_in_unit, unit, new_value, new_unit, preferred_value, preferred_value_raw, init_bar_length_px, scale_factor, bar_length_px)
 
-    const label = `${exact ? preferred_value.toFixed(2) : preferred_value} ${new_unit}`
+    const label = `${exact ? new_value.toFixed(2) : new_value} ${new_unit}`
     const label_box = new TextBox({text: label})
     label_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
     label_box.visuals = this.visuals.label_text.values()
@@ -317,7 +238,7 @@ export class ScaleBarView extends AnnotationView {
         return [y_range, x_range]
       }
     })()
-    this.axis_scale.source_range.end = preferred_value
+    this.axis_scale.source_range.end = new_value
     this.axis_scale.target_range.setv(axis_range)
 
     this.cross_scale.source_range.end = 1.0

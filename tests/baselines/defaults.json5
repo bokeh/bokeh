@@ -4699,12 +4699,37 @@
   },
   Dimensional: {
     __extends__: "Model",
+    ticks: [],
+    include: null,
+    exclude: [],
   },
   Metric: {
     __extends__: "Dimensional",
+    ticks: [
+      1,
+      2,
+      5,
+      10,
+      15,
+      20,
+      25,
+      50,
+      75,
+      100,
+      125,
+      150,
+      200,
+      250,
+      500,
+      750,
+    ],
   },
   MetricLength: {
     __extends__: "Metric",
+    exclude: [
+      "dm",
+      "hm",
+    ],
   },
   BoxAnnotation: {
     __extends__: "Annotation",
@@ -5449,7 +5474,9 @@
     dimensional: {
       type: "object",
       name: "MetricLength",
-      attributes: {},
+      attributes: {
+        include: null,
+      },
     },
     orientation: "horizontal",
     location: "top_right",
