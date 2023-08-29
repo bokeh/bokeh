@@ -77,7 +77,7 @@ export class View implements ISignalable {
 
     if (parent == null) {
       this.root = this
-      this.owner = owner ?? new ViewManager(this)
+      this.owner = owner ?? new ViewManager([this])
     } else {
       this.root = parent.root
       this.owner = this.root.owner
@@ -153,7 +153,7 @@ export class View implements ISignalable {
 export class ViewManager {
   protected readonly _roots: Set<View>
 
-  constructor(...roots: View[]) {
+  constructor(roots: Iterable<View> = [], protected drop?: (view: View) => void) {
     this._roots = new Set(roots)
   }
 
@@ -185,6 +185,19 @@ export class ViewManager {
   delete(view: View): void {
     this._roots.delete(view)
   }
+
+  clear(): void {
+    const drop = this.drop ?? ((view: View) => this.delete(view))
+    for (const view of this) {
+      drop(view)
+    }
+  }
+
+  /* TODO (TS 5.2)
+  [Symbol.dispose](): void {
+    this.clear()
+  }
+  */
 
   get roots(): View[] {
     return [...this._roots]
