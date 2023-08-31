@@ -13,6 +13,10 @@ import * as paths from "../paths"
 
 import pkg from "../../package.json"
 
+function prefix(str: string, prefix: string) {
+  return str.split("\n").map((line) => `${prefix}${line}`.trimEnd()).join("\n")
+}
+
 task("scripts:version", async () => {
   const js = `export const version = "${pkg.version}";\n`
   const dts = "export declare const version: string;\n"
@@ -28,6 +32,64 @@ task("scripts:styles", ["styles:compile"], async () => {
   const dts_internal_dir = join(paths.build_dir.all, "dts")
 
   wrap_css_modules(css_dir, js_dir, dts_dir, dts_internal_dir)
+})
+
+task("scripts:wasm", async () => {
+  const wasm_base = paths.build_dir.wasm
+
+  const lib_dir = paths.build_dir.lib
+  const dts_internal_base = join(paths.build_dir.all, "dts")
+
+  const wasm_dir = join(lib_dir, "wasm")
+  if (!fs.existsSync(wasm_dir)) {
+    await fs.promises.mkdir(wasm_dir)
+  }
+
+  const snippets_dir = join(wasm_base, "snippets")
+  if (fs.existsSync(snippets_dir)) {
+    await fs.promises.cp(snippets_dir, join(wasm_dir, "snippets"), {recursive: true, force: true})
+  }
+
+  for (const wasm_path of scan(wasm_base, [".wasm"])) {
+    const sub_path = relative(wasm_base, wasm_path)
+
+    if (sub_path.endsWith("_bg.wasm")) {
+      const rename = (path: string, ending: string) => {
+        return path.replace(/_bg\.wasm$/, ending)
+      }
+      await fs.promises.copyFile(rename(wasm_path, ".js"), join(wasm_dir, rename(sub_path, ".js")))
+      await fs.promises.copyFile(rename(wasm_path, ".d.ts"), join(wasm_dir, rename(sub_path, ".d.ts")))
+
+      const dts = await fs.promises.readFile(rename(wasm_path, ".d.ts"), {encoding: "utf-8"})
+      const dts_internal = `\
+declare module "wasm/${rename(sub_path, "").replace(/\\/g, "/")}" {
+${prefix(dts.trim(), "  ")}
+}
+`
+      write(`${join(dts_internal_base, "wasm", rename(sub_path, ".d.ts"))}`, dts_internal)
+    }
+
+    const buffer = await fs.promises.readFile(wasm_path)
+    const js = `\
+const wasm = "${buffer.toString("base64")}";
+export default wasm;
+`
+    const dts = `\
+declare const wasm: string;
+export default wasm;
+`
+
+    const dts_internal = `\
+declare module "wasm/${sub_path.replace(/\\/g, "/")}" {
+  declare const wasm: string
+  export default wasm
+}
+`
+
+    write(`${join(wasm_dir, sub_path)}.js`, js)
+    write(`${join(wasm_dir, sub_path)}.d.ts`, dts)
+    write(`${join(dts_internal_base, "wasm", sub_path)}.d.ts`, dts_internal)
+  }
 })
 
 task("scripts:glsl", async () => {
@@ -53,7 +115,7 @@ export default shader;
   }
 })
 
-task("scripts:compile", ["scripts:styles", "scripts:glsl", "scripts:version"], async () => {
+task("scripts:compile", ["scripts:styles", "scripts:wasm", "scripts:glsl", "scripts:version"], async () => {
   compile_typescript(join(paths.src_dir.lib, "tsconfig.json"))
 })
 
