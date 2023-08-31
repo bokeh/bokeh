@@ -37,9 +37,9 @@ describe("models/text/utils module", () => {
     ;(s8 as any).id = wildcard
     expect(s8).to.be.equal(new PlainText({text: "\\(test"}))
 
-    const s9 = parse_delimited_string("HTML <b>text</b> $$\\sin(x) and \\[x\\cdot\\pi\\]!")
+    const s9 = parse_delimited_string("HTML <b>text</b> $$\\sin(x)$$ and \\[x\\cdot\\pi\\]!")
     ;(s9 as any).id = wildcard
-    expect(s9).to.be.equal(new TeX({text: "\\text{HTML <b>text</b> }\\sin(x)\\text{ and }x\\cdot\\pi\\]\\text{!}"}))
+    expect(s9).to.be.equal(new TeX({text: "\\text{HTML <b>text</b> }\\sin(x)\\text{ and }x\\cdot\\pi\\text{!}"}))
     const s10 = parse_delimited_string("HTML <b>text</b> $$sin(x)$$ and [xcdotpi]!")
     ;(s10 as any).id = wildcard
     expect(s10).to.be.equal(new TeX({text: "\\text{HTML <b>text</b> }sin(x)\\text{ and [xcdotpi]!}"}))
@@ -52,7 +52,7 @@ describe("models/text/utils module", () => {
     expect(s12).to.be.equal(new TeX({text: "test \\text{ end $$}"}))
     const s13 = parse_delimited_string("$$ \\[test end\\]")
     ;(s13 as any).id = wildcard
-    expect(s13).to.be.equal(new PlainText({text: "$$ \\[test end\\]"}))
+    expect(s13).to.be.equal(new TeX({text: "\\text{$$ }test end"}))
     const s14 = parse_delimited_string("text \\[text $$latex$$")
     ;(s14 as any).id = wildcard
     expect(s14).to.be.equal(new TeX({text: "\\text{text \\[text }latex"}))
