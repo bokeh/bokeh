@@ -1,6 +1,7 @@
 import {TeX} from "./math_text"
 import type {BaseText} from "./base_text"
 import {PlainText} from "./plain_text"
+import {sort_by} from "core/util/array"
 
 type Delimiter = {
   start: string
@@ -19,23 +20,44 @@ function add_backslash(m: string): string {
 }
 
 export function parse_delimited_string(text: string): BaseText {
-  let matches = Array<RegExpMatchArray>()
+  type Match = {index: number, outer: string, inner: string, delim: Delimiter}
+  const matches: Match[] = []
   for (const delim of delimiters) {
-    const r = RegExp(`${add_backslash(delim.start)}(.*?)${add_backslash(delim.end)}`, "g")
-    matches = matches.concat([...text.matchAll(r)])
-  }
-  if (0 < matches.length) {
-    let tex_string = ""
-    let _end = 0
-    for (const m of matches.sort((a, b) => a.index!- b.index!)) {
-      const start = m.index!
-      if (_end <= start) {
-        tex_string += start != 0 ? `\\text{${text.slice(_end, start)}}${m[1]}` : `${m[1]}`
-        _end = start + m[0].length
+    const start = add_backslash(delim.start)
+    const end = add_backslash(delim.end)
+
+    const re = new RegExp(`${start}([^]*?)${end}`, "gm")
+    for (const match of text.matchAll(re)) {
+      const {index} = match
+      if (index != null) {
+        const [outer, inner] = match
+        matches.push({index, outer, inner, delim})
       }
     }
-    tex_string +=  _end < text.length ? `\\text{${text.slice(_end)}}` : ""
+  }
+  if (matches.length > 0) {
+    if (matches.length == 1) {
+      const [match] = matches
+      const start = match.index
+      const end = match.outer.length
+      if (start == 0 && end == text.length) {
+        const tex_string = match.inner
+        return new TeX({text: tex_string, inline: match.delim.inline})
+      }
+    }
+
+    let tex_string = ""
+    let end = 0
+    for (const match of sort_by(matches, (match) => match.index)) {
+      const start = match.index
+      if (end <= start) {
+        tex_string += start != 0 ? `\\text{${text.slice(end, start)}}${match.inner}` : `${match.inner}`
+        end = start + match.outer.length
+      }
+    }
+    tex_string += end < text.length ? `\\text{${text.slice(end)}}` : ""
     return new TeX({text: tex_string, inline: false})
-  } else
+  } else {
     return new PlainText({text})
+  }
 }
