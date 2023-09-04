@@ -31,8 +31,7 @@
 }
 
 .bk-arrow {
-  display: none;
-  position: absolute;
+  position: fixed;
   width: 0;
   height: 0;
   content: " ";
@@ -40,46 +39,42 @@
   border-color: transparent;
 }
 
-:host(.bk-show-arrow) .bk-arrow {
-  display: block;
+:host(:not(.bk-show-arrow)) .bk-arrow {
+  display: none;
 }
 
 :host(.bk-left), :host(.bk-right) {
   .bk-arrow {
-    margin: calc(-1*var(--tooltip-arrow-half-height)) 0 0 0;
-    top: 50%;
     border-width: var(--tooltip-arrow-half-height) 0 var(--tooltip-arrow-half-height) 0;
   }
 }
 
 :host(.bk-above), :host(.bk-below) {
   .bk-arrow {
-    margin: 0 0 0 calc(-1*var(--tooltip-arrow-half-width));
-    left: 50%;
     border-width: 0 var(--tooltip-arrow-half-width) 0 var(--tooltip-arrow-half-width);
   }
 }
 
 :host(.bk-left) .bk-arrow {
-  left: calc(-1*var(--tooltip-arrow-width));
+  transform: translate(0%, -50%);
   border-right-width: var(--tooltip-arrow-width);
   border-right-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-right) .bk-arrow {
-  right: calc(-1*var(--tooltip-arrow-width));
+  transform: translate(-100%, -50%);
   border-left-width: var(--tooltip-arrow-width);
   border-left-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-above) .bk-arrow {
-  top: calc(-1*var(--tooltip-arrow-height));
+  transform: translate(-50%, 0%);
   border-bottom-width: var(--tooltip-arrow-height);
   border-bottom-color: var(--tooltip-arrow-color);
 }
 
 :host(.bk-below) .bk-arrow {
-  bottom: calc(-1*var(--tooltip-arrow-height));
+  transform: translate(-50%, -100%);
   border-top-width: var(--tooltip-arrow-height);
   border-top-color: var(--tooltip-arrow-color);
 }

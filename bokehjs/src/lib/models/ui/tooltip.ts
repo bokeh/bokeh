@@ -253,6 +253,9 @@ export class TooltipView extends UIElementView {
       }
     })())
 
+    this.arrow_el.style.left = `${sx}px`
+    this.arrow_el.style.top = `${sy}px`
+
     const arrow_size = (() => {
       const {width, height} = getComputedStyle(this.arrow_el)
       return {
