@@ -7,7 +7,7 @@ p = figure(x_range=fruits, height=250, title="Fruit counts",
 
 offsets = [-0.5, -0.2, 0.0, 0.3, 0.1, 0.3]
 
-# This results in [ ['Apples', -02], ['Pears', -0.1], ... ]
+# This results in [['Apples', -0.2], ['Pears', -0.1], ...]
 x = list(zip(fruits, offsets))
 
 p.vbar(x=x, top=[5, 3, 4, 2, 4, 6], width=0.5)
