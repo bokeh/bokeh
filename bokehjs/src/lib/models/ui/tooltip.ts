@@ -207,6 +207,13 @@ export class TooltipView extends UIElementView {
       }
     })()
 
+    const viewport = new BBox({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    })
+
     const side = (() => {
       const attachment = (() => {
         const {attachment} = this.model
@@ -225,13 +232,6 @@ export class TooltipView extends UIElementView {
           return attachment
         }
       })()
-
-      const viewport = new BBox({
-        x: 0,
-        y: 0,
-        width: window.innerWidth,
-        height: window.innerHeight,
-      })
 
       switch (attachment) {
         case "horizontal": return sx < viewport.hcenter ? "right" : "left"
@@ -266,28 +266,49 @@ export class TooltipView extends UIElementView {
 
     const {left, top} = (() => {
       const {width, height} = bounding_box(this.el)
+
+      function adjust_top(top: number) {
+        if (top < viewport.top) {
+          return viewport.top
+        } else if (top + height > viewport.bottom) {
+          return viewport.bottom - height
+        } else {
+          return top
+        }
+      }
+
+      function adjust_left(left: number) {
+        if (left < viewport.left) {
+          return viewport.left
+        } else if (left + width > viewport.right) {
+          return viewport.right - width
+        } else {
+          return left
+        }
+      }
+
       switch (side) {
         case "left": {
           return {
             left: sx - width - arrow_size.width,
-            top: sy - height/2,
+            top: adjust_top(sy - height/2),
           }
         }
         case "right": {
           return {
             left: sx + arrow_size.width,
-            top: sy - height/2,
+            top: adjust_top(sy - height/2),
           }
         }
         case "above": {
           return {
-            left: sx - width/2,
+            left: adjust_left(sx - width/2),
             top: sy - height - arrow_size.height,
           }
         }
         case "below": {
           return {
-            left: sx - width/2,
+            left: adjust_left(sx - width/2),
             top: sy + arrow_size.height,
           }
         }
