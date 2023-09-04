@@ -37,7 +37,7 @@ cats = list(reversed(probly.keys()))
 
 palette = [cc.rainbow[i*15] for i in range(17)]
 
-x = linspace(-20,110, 500)
+x = linspace(-20, 110, 500)
 
 source = ColumnDataSource(data=dict(x=x))
 
