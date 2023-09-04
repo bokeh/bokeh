@@ -1,0 +1,8 @@
+.. _release-3-3-0:
+
+3.3.0
+=====
+
+Bokeh version ``3.3.0`` (September 2023) is a minor milestone of Bokeh project.
+
+* Added support for inline math text expressions (:bokeh-pull:`13214`)

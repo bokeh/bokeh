@@ -1,3 +1,11 @@
+''' This example demonstrates the use of mathtext on tick labels through overwriting the labels
+by adding a dictionary with pairs of position and mathtext.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle
+    :refs: :ref:`ug_styling_mathtext`
+    :keywords: mathtext, latex
+'''
 from numpy import arange
 
 from bokeh.plotting import figure, show
