@@ -3535,4 +3535,37 @@ describe("Bug", () => {
       })
     })
   })
+
+  describe("in issue #13315", () => {
+    it("doesn't allow Range.start and Range.end updates to respect bounds", async () => {
+      const random = new Random(1)
+      const [a, b, n] = [1, 4, 100]
+
+      const x_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
+      const y_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
+
+      const p = fig([300, 300], {x_range, y_range, tools: ["pan", "wheel_zoom"]})
+
+      const x = linspace(a, b, n)
+      const y = random.floats(n, a, b)
+
+      p.line(x, y)
+
+      const {view} = await display(p)
+
+      x_range.start = a - 1
+      x_range.end = b + 1
+
+      y_range.start = a - 1
+      y_range.end = b + 1
+
+      await view.ready
+
+      expect(x_range.start).to.be.equal(a)
+      expect(x_range.end).to.be.equal(b)
+
+      expect(y_range.start).to.be.equal(a)
+      expect(y_range.end).to.be.equal(b)
+    })
+  })
 })
