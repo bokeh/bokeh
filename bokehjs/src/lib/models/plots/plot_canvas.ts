@@ -974,9 +974,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
-      this.visuals.border_fill.set_value(ctx)
-      ctx.fillRect(cx, cy, cw, ch)
-      ctx.clearRect(fx, fy, fw, fh)
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(cx, cy, cw, ch)
+      ctx.rect(fx, fy, fw, fh)
+      ctx.clip("evenodd")
+
+      ctx.beginPath()
+      ctx.rect(cx, cy, cw, ch)
+      this.visuals.border_fill.apply(ctx)
+      ctx.restore()
     }
 
     if (this.visuals.background_fill.doit) {
