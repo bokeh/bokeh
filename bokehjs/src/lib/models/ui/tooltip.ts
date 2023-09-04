@@ -18,11 +18,10 @@ import type * as p from "core/properties"
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 import icons_css from "styles/icons.css"
 
-const arrow_size = 10  // XXX: keep in sync with less
-
 export class TooltipView extends UIElementView {
   declare model: Tooltip
 
+  protected arrow_el: HTMLElement
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
 
@@ -125,8 +124,9 @@ export class TooltipView extends UIElementView {
     super.render()
 
     this._html?.render()
+    this.arrow_el = div({class: [tooltips.arrow]})
     this.content_el = div({class: tooltips.tooltip_content}, this.content)
-    this.shadow_el.appendChild(this.content_el)
+    this.shadow_el.append(this.arrow_el, this.content_el)
 
     if (this.model.closable) {
       const close_el = div({class: tooltips.close})
@@ -136,7 +136,7 @@ export class TooltipView extends UIElementView {
       this.shadow_el.appendChild(close_el)
     }
 
-    this.el.classList.toggle(tooltips.tooltip_arrow, this.model.show_arrow)
+    this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
 
     this._reposition()
@@ -253,31 +253,39 @@ export class TooltipView extends UIElementView {
       }
     })())
 
+    const arrow_size = (() => {
+      const {width, height} = getComputedStyle(this.arrow_el)
+      return {
+        width: parseFloat(width),
+        height: parseFloat(height),
+      }
+    })()
+
     const {left, top} = (() => {
       const {width, height} = bounding_box(this.el)
       switch (side) {
         case "left": {
           return {
-            left: sx - width - arrow_size,
+            left: sx - width - arrow_size.width,
             top: sy - height/2,
           }
         }
         case "right": {
           return {
-            left: sx + arrow_size,
+            left: sx + arrow_size.width,
             top: sy - height/2,
           }
         }
         case "above": {
           return {
             left: sx - width/2,
-            top: sy - height - arrow_size,
+            top: sy - height - arrow_size.height,
           }
         }
         case "below": {
           return {
             left: sx - width/2,
-            top: sy + arrow_size,
+            top: sy + arrow_size.height,
           }
         }
       }
