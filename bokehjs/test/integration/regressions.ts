@@ -32,6 +32,10 @@ import {
 } from "@bokehjs/models"
 
 import {
+  InlineStyleSheet,
+} from "@bokehjs/models/dom"
+
+import {
   Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
   Div, TextInput, DatePicker,
 } from "@bokehjs/models/widgets"
@@ -3665,6 +3669,30 @@ describe("Bug", () => {
       const p1 = make_plot("webgl")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #13362", () => {
+    it("doesn't correctly apply background and border visuals in SVG backend", async () => {
+      const stylesheet = new InlineStyleSheet({css: ":host { background-color: lightgreen; }"})
+
+      function plot(backend: OutputBackend) {
+        const p = fig([200, 200], {
+          title: backend,
+          output_backend: backend,
+          stylesheets: [stylesheet],
+          background_fill_alpha: 0.25,
+          background_fill_color: "red",
+          border_fill_alpha: 0.25,
+          border_fill_color: "blue",
+        })
+
+        p.line({x: [0, 1], y: [0, 1], line_color: "black", line_width: 8})
+        return p
+      }
+
+      const layout = row([plot("canvas"), plot("svg"), plot("webgl")])
+      await display(layout)
     })
   })
 })
