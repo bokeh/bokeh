@@ -352,7 +352,7 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  protected _hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
+  hit_test_renderers(plot_view: PlotView, sx: number, sy: number): RendererView | null {
     const views = plot_view.get_renderer_views()
 
     for (const view of reversed(views)) {
@@ -367,11 +367,11 @@ export class UIEventBus implements EventListenerObject {
     this.hit_area.style.cursor = cursor
   }
 
-  protected _hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
+  hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
     return plot_view.frame.bbox.contains(sx, sy)
   }
 
-  protected _hit_test_plot(sx: number, sy: number): PlotView | null {
+  hit_test_plot(sx: number, sy: number): PlotView | null {
     // TODO: z-index
     for (const plot_view of this.canvas_view.plot_views) {
       if (plot_view.bbox.relative()/*XXX*/.contains(sx, sy))
@@ -392,7 +392,7 @@ export class UIEventBus implements EventListenerObject {
       return
 
     const {sx, sy} = e
-    const plot_view = this._hit_test_plot(sx, sy)
+    const plot_view = this.hit_test_plot(sx, sy)
     const curr_view = plot_view
 
     const relativize_event = (_plot_view: PlotView): E => {
@@ -492,7 +492,7 @@ export class UIEventBus implements EventListenerObject {
 
     const event_type = signal.name
     const base_type = event_type.split(":")[0] as BaseType
-    const view = this._hit_test_renderers(plot_view, e.sx, e.sy)
+    const view = this.hit_test_renderers(plot_view, e.sx, e.sy)
 
     if (base_type == "pan") {
       if (this._current_pan_view == null) {
@@ -591,7 +591,7 @@ export class UIEventBus implements EventListenerObject {
           }
 
         // the event happened on the plot frame but off a renderer
-        } else if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+        } else if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           if (!is_empty(active_inspectors)) {
             cursor = "crosshair"
           }
@@ -610,7 +610,7 @@ export class UIEventBus implements EventListenerObject {
 
         view?.on_hit?.(e.sx, e.sy)
 
-        if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+        if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.tap.active
           if (active_gesture != null)
             this.trigger(signal, e, active_gesture.id)
@@ -618,7 +618,7 @@ export class UIEventBus implements EventListenerObject {
         break
       }
       case "doubletap": {
-        if (this._hit_test_frame(plot_view, e.sx, e.sy)) {
+        if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.doubletap.active ?? gestures.tap.active
           if (active_gesture != null)
             this.trigger(signal, e, active_gesture.id)

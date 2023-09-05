@@ -18,11 +18,6 @@ import * as tsconfig_json from "./tsconfig.ext.json"
 import chalk from "chalk"
 const {cyan, magenta, red} = chalk
 
-import {ESLint} from "eslint"
-
-import "@typescript-eslint/eslint-plugin"
-import "@typescript-eslint/parser"
-
 import * as readline from "readline"
 
 type Package = {
@@ -90,28 +85,6 @@ function needs_install(base_dir: Path, metadata: Metadata): string | null {
     return "package-lock.json has changed."
   else
     return null
-}
-
-async function lint(config_file: Path, paths: Path[]): Promise<boolean> {
-  const eslint = new ESLint({
-    extensions: [".ts", ".js"],
-    overrideConfigFile: config_file,
-  })
-
-  const results = await eslint.lintFiles(paths)
-
-  const errors = results.some(result => result.errorCount != 0)
-  const warnings = results.some(result => result.warningCount != 0)
-
-  if (errors || warnings) {
-    const formatter = await eslint.loadFormatter("stylish")
-    const output = await formatter.format(results)
-
-    for (const line of output.trim().split("\n"))
-      print(line)
-  }
-
-  return !errors
 }
 
 export type InitOptions = {
@@ -349,12 +322,6 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
     if (options.noEmitOnError ?? false)
       return false
-  }
-
-  const lint_config = join(base_dir, "eslint.js")
-  if (file_exists(lint_config)) {
-    print("Linting sources")
-    lint(lint_config, files)
   }
 
   const artifact = basename(base_dir)
