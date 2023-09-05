@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 # Bokeh imports
-from ..util.sampledata import package_csv
+#from ..util.sampledata import package_csv
 
 if TYPE_CHECKING:
     import pandas as pd
