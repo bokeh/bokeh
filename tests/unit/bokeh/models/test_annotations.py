@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from datetime import datetime
+from math import isnan
 from unittest import mock
 
 # Bokeh imports
@@ -237,14 +238,18 @@ def test_Arrow() -> None:
 
 def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
-    assert box.left is None
+    assert isnan(box.left)
     assert box.left_units == "data"
-    assert box.right is None
+    assert box.left_limit is None
+    assert isnan(box.right)
     assert box.right_units == "data"
-    assert box.bottom is None
+    assert box.right_limit is None
+    assert isnan(box.bottom)
     assert box.bottom_units == "data"
-    assert box.top is None
+    assert box.bottom_limit is None
+    assert isnan(box.top)
     assert box.top_units == "data"
+    assert box.top_limit is None
     assert box.x_range_name == "default"
     assert box.y_range_name == "default"
     assert box.level == "annotation"
@@ -259,12 +264,16 @@ def test_BoxAnnotation() -> None:
         *ANNOTATION,
         "left",
         "left_units",
+        "left_limit",
         "right",
         "right_units",
+        "right_limit",
         "bottom",
         "bottom_units",
+        "bottom_limit",
         "top",
         "top_units",
+        "top_limit",
         "border_radius",
         "editable",
         "resizable",

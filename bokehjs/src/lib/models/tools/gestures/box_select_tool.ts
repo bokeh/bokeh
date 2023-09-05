@@ -1,5 +1,6 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
+import {Node} from "../../coordinates/node"
 import type {Scale} from "../../scales/scale"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
@@ -19,7 +20,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this.connect(pan, ([phase, ev]) => {
       if ((phase == "pan" && this._is_continuous(ev)) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
-        if (left != null && top != null && right != null && bottom != null) {
+        if (!(left instanceof Node) && !(top instanceof Node) && !(right instanceof Node) && !(bottom instanceof Node)) {
           const screen = this._compute_lrtb({left, right, top, bottom})
           this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this._select_mode(ev))
         }

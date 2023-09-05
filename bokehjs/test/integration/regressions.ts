@@ -28,6 +28,7 @@ import {
   ParkMillerLCG,
   GridPlot,
   Tooltip,
+  Node,
 } from "@bokehjs/models"
 
 import {
@@ -3150,8 +3151,11 @@ describe("Bug", () => {
   describe("in issue #12880", () => {
     it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
       async function box() {
+        const frame_top = new Node({target: "frame", term: "top"})
+        const frame_bottom = new Node({target: "frame", term: "bottom"})
+
         const box = new BoxAnnotation({
-          left: 1, right: 3, top: null /*frame top*/, bottom: null /*frame bottom*/,
+          left: 1, right: 3, top: frame_top, bottom: frame_bottom,
           editable: true,
           line_color: "blue",
         })
@@ -3173,7 +3177,7 @@ describe("Bug", () => {
 
   describe("in issue #12917", () => {
     it("doesn't allow BoxAnnotation to participate in auto-ranging when its edges are bound to the frame", async () => {
-      function plot(lrtb: LRTB<number | null>) {
+      function plot(lrtb: LRTB<number | Node>) {
         const box = new BoxAnnotation({...lrtb, line_color: "blue"})
         const p = fig([200, 200], {
           renderers: [box],
@@ -3184,17 +3188,22 @@ describe("Bug", () => {
         return p
       }
 
-      const p00 = plot({left: null, right: null, top: null, bottom: null})
-      const p01 = plot({left: -2, right: null, top: null, bottom: null})
-      const p02 = plot({left: null, right: 2, top: null, bottom: null})
-      const p03 = plot({left: -2, right: 2, top: null, bottom: null})
-      const p10 = plot({left: null, right: null, top: 2, bottom: null})
-      const p11 = plot({left: null, right: null, top: null, bottom: -2})
-      const p12 = plot({left: null, right: null, top: 2, bottom: -2})
-      const p13 = plot({left: -2, right: null, top: null, bottom: -2})
-      const p20 = plot({left: null, right: 2, top: 2, bottom: null})
-      const p21 = plot({left: -2, right: null, top: 2, bottom: null})
-      const p22 = plot({left: null, right: 2, top: null, bottom: -2})
+      const left = new Node({target: "frame", term: "left"})
+      const right = new Node({target: "frame", term: "right"})
+      const top = new Node({target: "frame", term: "top"})
+      const bottom = new Node({target: "frame", term: "bottom"})
+
+      const p00 = plot({left, right, top, bottom})
+      const p01 = plot({left: -2, right, top, bottom})
+      const p02 = plot({left, right: 2, top, bottom})
+      const p03 = plot({left: -2, right: 2, top, bottom})
+      const p10 = plot({left, right, top: 2, bottom})
+      const p11 = plot({left, right, top, bottom: -2})
+      const p12 = plot({left, right, top: 2, bottom: -2})
+      const p13 = plot({left: -2, right, top, bottom: -2})
+      const p20 = plot({left, right: 2, top: 2, bottom})
+      const p21 = plot({left: -2, right, top: 2, bottom})
+      const p22 = plot({left, right: 2, top, bottom: -2})
       const p23 = plot({left: -2, right: 2, top: 2, bottom: -2})
 
       const gp = gridplot([
