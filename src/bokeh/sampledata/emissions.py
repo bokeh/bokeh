@@ -60,7 +60,7 @@ __all__ = (
 
 def _read_data() -> pd.DataFrame:
     df = pd.read_csv('_data/emissions.csv')
-    
+
     countries = [
     "Trinidad and Tobago",
     "Qatar",
@@ -76,12 +76,12 @@ def _read_data() -> pd.DataFrame:
 
     df = df[df["country"].isin(countries)].reset_index(drop=True)
     years = (df["year"] == 2000.0) | (df["year"] == 2010.0)
-    
+
     df = df[years].reset_index(drop=True)
     df["year"] = df.year.astype(int)
     df["year"] = df.year.astype(str)
-    
-    
+
+
     # create new columns for the different years
     a = df[df["year"] == "2000"]
     b = df[df["year"] == "2010"]
