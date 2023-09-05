@@ -24,9 +24,10 @@ log = logging.getLogger(__name__)
 import base64
 import datetime  # lgtm [py/import-and-import-from]
 import re
+import tempfile
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 # External imports
 import PIL.Image
@@ -172,7 +173,8 @@ class Image(Property):
         if isinstance(value, str):
             return value
 
-        if isinstance(value, Path):
+        # tempfile doesn't implement IO interface (https://bugs.python.org/issue33762)
+        if isinstance(value, (Path, BinaryIO, tempfile._TemporaryFileWrapper)):
             value = PIL.Image.open(value)
 
         if isinstance(value, PIL.Image.Image):
