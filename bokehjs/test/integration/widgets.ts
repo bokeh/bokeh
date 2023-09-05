@@ -1,6 +1,9 @@
 import {display, column} from "./_util"
+import {click} from "../interactive"
+
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
+import type {Color} from "@bokehjs/core/types"
 
 import {ColumnDataSource, Row} from "@bokehjs/models"
 
@@ -9,6 +12,7 @@ import {
   Checkbox, Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
+  ColorMap,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
@@ -26,6 +30,8 @@ import {
 } from "@bokehjs/models/widgets/tables"
 
 import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
+
+import * as palettes from "@bokehjs/api/palettes"
 
 async function finished_animating(el: Element): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -100,6 +106,48 @@ describe("Widgets", () => {
     toggle.dispatchEvent(ev)
 
     await view.ready
+  })
+
+  describe("should support ColorMap", () => {
+    const items: [string, Color[]][] = [
+      ["RdBu", palettes.RdBu11],
+      ["RdGy", palettes.RdGy11],
+      ["RdYlBu", palettes.RdYlBu11],
+      ["Spectral", palettes.Spectral11],
+      ["RdYlGn", palettes.RdYlGn11],
+      ["Accent", palettes.Accent8],
+      ["Paired", palettes.Paired12],
+      ["Magma", palettes.Magma256],
+      ["Inferno", palettes.Inferno256],
+      ["Plasma", palettes.Plasma256],
+      ["Viridis", palettes.Viridis256],
+      ["Cividis", palettes.Cividis256],
+      ["Turbo", palettes.Turbo256],
+    ]
+
+    it("with default settings", async () => {
+      const obj = new ColorMap({value: "RdBu", items})
+      const {view} = await display(obj, [250, 400])
+
+      click(view.input_el)
+      await view.ready
+    })
+
+    it("with ncols=3", async () => {
+      const obj = new ColorMap({value: "Magma", items, ncols: 3})
+      const {view} = await display(obj, [500, 200])
+
+      click(view.input_el)
+      await view.ready
+    })
+
+    it("with disabled=true", async () => {
+      const obj = new ColorMap({value: "Accent", items, disabled: true})
+      const {view} = await display(obj, [250, 50])
+
+      click(view.input_el)
+      await view.ready
+    })
   })
 
   it("should allow Checkbox with active=false", async () => {
