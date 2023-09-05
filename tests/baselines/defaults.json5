@@ -6162,6 +6162,20 @@
     __extends__: "InputWidget",
     color: "#000000",
   },
+  ColorMap: {
+    __extends__: "InputWidget",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    items: {
+      type: "symbol",
+      name: "unset",
+    },
+    swatch_width: 100,
+    swatch_height: 20,
+    ncols: 1,
+  },
   Markup: {
     __extends__: "Widget",
     text: "",

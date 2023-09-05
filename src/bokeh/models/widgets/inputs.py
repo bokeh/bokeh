@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Color,
     ColorHex,
     Dict,
     Either,
@@ -39,6 +40,8 @@ from ...core.properties import (
     Override,
     Positive,
     Readonly,
+    Required,
+    Seq,
     String,
     Tuple,
 )
@@ -53,6 +56,7 @@ from .widget import Widget
 __all__ = (
     'AutocompleteInput',
     'Checkbox',
+    'ColorMap',
     'ColorPicker',
     'FileInput',
     'InputWidget',
@@ -519,6 +523,30 @@ class ColorPicker(InputWidget):
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
+    """)
+
+class ColorMap(InputWidget):
+    ''' Color map picker widget.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Required(String, help="""
+    """)
+
+    items = Required(Seq(Tuple(String, Seq(Color))), help="""
+    """)
+
+    swatch_width = NonNegative(Int, default=100, help="""
+    """)
+
+    swatch_height = NonNegative(Int, default=20, help="""
+    """)
+
+    ncols = Positive(Int, default=1, help="""
     """)
 
 #-----------------------------------------------------------------------------

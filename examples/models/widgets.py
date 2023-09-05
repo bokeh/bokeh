@@ -14,16 +14,16 @@ from datetime import date, datetime, time
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
-                          CheckboxButtonGroup, CheckboxGroup, ColorPicker, Column,
-                          ColumnDataSource, DataTable, DatePicker, DateRangePicker,
-                          DateRangeSlider, DateSlider, DatetimePicker,
-                          DatetimeRangePicker, Dialog, Div, Dropdown, Examiner,
-                          GroupBox, HelpButton, IntEditor, Menu, MultiChoice,
-                          MultipleDatePicker, MultipleDatetimePicker, MultiSelect,
-                          NumberEditor, NumberFormatter, Paragraph, PasswordInput,
-                          PreText, RadioButtonGroup, RadioGroup, RangeSlider, Row,
-                          Select, SelectEditor, SetValue, Slider, Spinner,
-                          StringEditor, StringFormatter, SVGIcon, Switch,
+                          CheckboxButtonGroup, CheckboxGroup, ColorMap, ColorPicker,
+                          Column, ColumnDataSource, DataTable, DatePicker,
+                          DateRangePicker, DateRangeSlider, DateSlider,
+                          DatetimePicker, DatetimeRangePicker, Dialog, Div,
+                          Dropdown, Examiner, GroupBox, HelpButton, IntEditor, Menu,
+                          MultiChoice, MultipleDatePicker, MultipleDatetimePicker,
+                          MultiSelect, NumberEditor, NumberFormatter, Paragraph,
+                          PasswordInput, PreText, RadioButtonGroup, RadioGroup,
+                          RangeSlider, Row, Select, SelectEditor, SetValue, Slider,
+                          Spinner, StringEditor, StringFormatter, SVGIcon, Switch,
                           TableColumn, TablerIcon, TabPanel, Tabs, TextAreaInput,
                           TextInput, TimePicker, Toggle, Tooltip)
 from bokeh.models.dom import HTML, ValueOf
@@ -109,6 +109,54 @@ Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.
 """), position="right")
 
 color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
+
+from bokeh import palettes
+
+items = [
+    ("YlGn", palettes.YlGn[9]),
+    ("YlGnBu", palettes.YlGnBu[9]),
+    ("GnBu", palettes.GnBu[9]),
+    ("BuGn", palettes.BuGn[9]),
+    ("PuBuGn", palettes.PuBuGn[9]),
+    ("PuBu", palettes.PuBu[9]),
+    ("BuPu", palettes.BuPu[9]),
+    ("RdPu", palettes.RdPu[9]),
+    ("PuRd", palettes.PuRd[9]),
+    ("OrRd", palettes.OrRd[9]),
+    ("YlOrRd", palettes.YlOrRd[9]),
+    ("YlOrBr", palettes.YlOrBr[9]),
+    ("Purples", palettes.Purples[256]),
+    ("Blues", palettes.Blues[256]),
+    ("Greens", palettes.Greens[256]),
+    ("Oranges", palettes.Oranges[256]),
+    ("Reds", palettes.Reds[256]),
+    ("Greys", palettes.Greys[256]),
+    ("PuOr", palettes.PuOr[11]),
+    ("BrBG", palettes.BrBG[11]),
+    ("PRGn", palettes.PRGn[11]),
+    ("PiYG", palettes.PiYG[11]),
+    ("RdBu", palettes.RdBu[11]),
+    ("RdGy", palettes.RdGy[11]),
+    ("RdYlBu", palettes.RdYlBu[11]),
+    ("Spectral", palettes.Spectral[11]),
+    ("RdYlGn", palettes.RdYlGn[11]),
+    ("Accent", palettes.Accent[8]),
+    ("Dark2", palettes.Dark2[8]),
+    ("Paired", palettes.Paired[12]),
+    ("Pastel1", palettes.Pastel1[9]),
+    ("Pastel2", palettes.Pastel2[8]),
+    ("Set1", palettes.Set1[9]),
+    ("Set2", palettes.Set2[8]),
+    ("Set3", palettes.Set3[12]),
+    ("Magma", palettes.Magma[256]),
+    ("Inferno", palettes.Inferno[256]),
+    ("Plasma", palettes.Plasma[256]),
+    ("Viridis", palettes.Viridis[256]),
+    ("Cividis", palettes.Cividis[256]),
+    ("Turbo", palettes.Turbo[256]),
+]
+
+color_map = ColorMap(title="Choose pallete:", value="PuBu", items=items)
 
 time_picker = TimePicker(title="Time:", seconds=True, second_increment=5)
 
@@ -218,7 +266,7 @@ widgets = Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, autocomplete_input_includes, text_area,
             select, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider,
-            spinner, color_picker,
+            spinner, color_picker, color_map,
             time_picker, time_picker_with_a_value,
             date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,
             datetime_picker, datetime_picker_with_a_value, datetime_range_picker, multiple_datetime_picker,

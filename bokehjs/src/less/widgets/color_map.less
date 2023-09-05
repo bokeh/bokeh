@@ -1,0 +1,23 @@
+@import "../_mixins.less";
+
+.bk-value-input {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 1em;
+  cursor: pointer;
+}
+
+.bk-value {
+  flex-grow: 1;
+}
+
+.bk-chevron {
+  width: 16px;
+  height: 16px;
+
+  .mask-size(100% 100%);
+  .mask-position(center center);
+  .mask-repeat(no-repeat);
+}

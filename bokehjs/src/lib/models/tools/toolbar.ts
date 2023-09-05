@@ -225,7 +225,7 @@ export class ToolbarView extends UIElementView {
     for (const el of this._items) {
       if (overflowed) {
         this.shadow_el.removeChild(el)
-        this._overflow_menu.items.push({content: el, class: overflow_cls})
+        this._overflow_menu.items.push({custom: el, class: overflow_cls})
       } else {
         const {width, height} = el.getBoundingClientRect()
         size += horizontal ? width : height
@@ -233,7 +233,7 @@ export class ToolbarView extends UIElementView {
         if (overflowed) {
           this.shadow_el.removeChild(el)
           this.shadow_el.appendChild(this._overflow_el)
-          this._overflow_menu.items.push({content: el, class: overflow_cls})
+          this._overflow_menu.items.push({custom: el, class: overflow_cls})
         }
       }
     }
