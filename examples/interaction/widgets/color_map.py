@@ -3,7 +3,16 @@ from bokeh.io import show
 from bokeh.layouts import column
 from bokeh.models import ColorMap
 
-items = [
+items0 = [
+    ("Magma", palettes.Magma[256]),
+    ("Inferno", palettes.Inferno[256]),
+    ("Plasma", palettes.Plasma[256]),
+    ("Viridis", palettes.Viridis[256]),
+    ("Cividis", palettes.Cividis[256]),
+    ("Turbo", palettes.Turbo[256]),
+]
+
+items1 = [
     ("YlGn", palettes.YlGn[9]),
     ("YlGnBu", palettes.YlGnBu[9]),
     ("GnBu", palettes.GnBu[9]),
@@ -39,16 +48,11 @@ items = [
     ("Set1", palettes.Set1[9]),
     ("Set2", palettes.Set2[8]),
     ("Set3", palettes.Set3[12]),
-    ("Magma", palettes.Magma[256]),
-    ("Inferno", palettes.Inferno[256]),
-    ("Plasma", palettes.Plasma[256]),
-    ("Viridis", palettes.Viridis[256]),
-    ("Cividis", palettes.Cividis[256]),
-    ("Turbo", palettes.Turbo[256]),
 ]
 
-color_map0 = ColorMap(title="Choose pallete:", value="PuBu", items=items, ncols=3)
-color_map1 = ColorMap(title="Choose pallete:", value="PuBu", items=items, ncols=3, disabled=True)
+color_map0 = ColorMap(title="Choose palette:", value="Turbo", items=items0)
+color_map1 = ColorMap(title="Choose palette (grid):", value="PuBu", items=items1, ncols=3)
+color_map2 = ColorMap(title="Choose palette (disabled):", value="PuBu", items=items1, disabled=True)
 
-layout = column(color_map0, color_map1)
+layout = column(color_map0, color_map1, color_map2)
 show(layout)
