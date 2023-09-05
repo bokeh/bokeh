@@ -10,51 +10,14 @@ import {cycle} from "core/util/math"
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 import color_map_css, * as color_map from "styles/widgets/color_map.css"
+import item_css, * as color_map_item from "styles/widgets/color_map_item.css"
+import pane_css from "styles/widgets/color_map_pane.css"
 import icons_css, * as icons from "styles/icons.css"
 
 import {Tuple, String, Arrayable, Color} from "../../core/kinds"
 
 const Item = Tuple(String, Arrayable(Color))
 type Item = typeof Item["__type__"]
-
-const item_css = `
-.bk-entry {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-items: center;
-  gap: 0.5em;
-}
-.bk-item {
-  --active-tool-highlight: #26aae1;
-
-  border: 1px solid transparent;
-
-  &.bk-active {
-    border-color: var(--active-tool-highlight);
-  }
-  &:hover {
-    background-color: #f9f9f9;
-  }
-  &:focus, &:focus-visible {
-    outline: 1px dotted var(--active-tool-highlight);
-    outline-offset: -1px;
-  }
-  &::-moz-focus-inner {
-    border: 0;
-  }
-}
-`
-
-const pane_css = `
-:host {
-  --number-of-columns: 1;
-  padding: 5px;
-  display: grid;
-  grid-template-columns: repeat(var(--number-of-columns), 1fr);
-  gap: 0.25em;
-}
-`
 
 export class ColorMapView extends InputWidgetView {
   declare model: ColorMap
@@ -90,7 +53,7 @@ export class ColorMapView extends InputWidgetView {
       ctx.fill()
     }
 
-    const entry = div({class: "bk-entry"}, img, name)
+    const entry = div({class: color_map_item.entry}, img, name)
     return entry
   }
 
@@ -107,7 +70,7 @@ export class ColorMapView extends InputWidgetView {
       }
     })()
 
-    const value = div({class: [color_map.value, "bk-entry"]}, content)
+    const value = div({class: [color_map.value, color_map_item.entry]}, content)
     const chevron = div({class: [color_map.chevron, icons.tool_icon_chevron_down]})
 
     const input_el = div({class: [inputs.input, color_map.value_input]}, value, chevron)
@@ -126,7 +89,7 @@ export class ColorMapView extends InputWidgetView {
     const {ncols} = this.model
     for (const [item, i] of enumerate(this.model.items)) {
       const entry_el = this._render_item(item)
-      const item_el = div({class: "bk-item", tabIndex: 0}, entry_el)
+      const item_el = div({class: color_map_item.item, tabIndex: 0}, entry_el)
 
       item_el.addEventListener("pointerup", () => {
         this.select(item)
