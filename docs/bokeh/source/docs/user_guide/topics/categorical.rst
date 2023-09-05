@@ -106,3 +106,21 @@ in this chapter:
 
 .. bokeh-plot:: __REPO__/examples/topics/categorical/periodic.py
     :source-position: below
+
+Slopegraphs
+-----------
+
+Sometimes, we may want to demonstrate the association between two or more variables
+or the change over time of the same variable. For example, you can track changes 
+in CO2 emissions per person in different countries over a period of years or decades. 
+You can visualize such data using a slopegraph.
+
+In a slopegraph, we draw individual measurements as dots arranged into two columns 
+and indicate pairings by connecting the paired dots with a line. 
+The slope of each line highlights the magnitude and direction of change.
+
+This example uses the ``segment`` glyph to draw the line connecting the paired dots.
+A ``LabelSet`` object is also used to label each dots with the country it represents:
+
+.. bokeh-plot:: __REPO__/examples/topics/categorical/slope_graph.py
+    :source-position: above
