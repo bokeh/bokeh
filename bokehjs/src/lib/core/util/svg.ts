@@ -189,8 +189,12 @@ const STYLES: StyleState = {
   },
 }
 
+function is_VideoFrame(image: CanvasImageSource): image is VideoFrame {
+  return typeof VideoFrame !== "undefined" && image instanceof VideoFrame
+}
+
 function width_height(image: CanvasImageSource): [number, number] {
-  if (image instanceof VideoFrame) {
+  if (is_VideoFrame(image)) {
     return [image.codedWidth, image.codedHeight] // TODO not sure if this makes any sense
   } else {
     function to_number(val: number | SVGAnimatedLength): number {
