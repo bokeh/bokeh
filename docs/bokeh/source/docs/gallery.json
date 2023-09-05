@@ -281,6 +281,10 @@
       "alt": "Thumbnail link to the examples/topics/categorical/les_mis.py example shows a reproduction of D3’s Les Misérables Co-occurrence chart that illustrates which characters were in scenes together with a shaded square in the matrix plot."
     },
     {
+      "name": "slope_graph.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/slope_graph.py example shows a slope graph of the CO2 emmisions of selected countries in the years 2000 and 2010."
+    },
+    {
       "name": "heatmap_unemployment.py",
       "alt": "Thumbnail link to the examples/topics/categorical/heatmap_unemployment.py example shows a categorical heatmap of monthly US unemployment data from 1948 to 2016. The x-axis is years and the y-axis is month of the year."
     },
