@@ -2946,8 +2946,19 @@
   Range: {
     __extends__: "Model",
   },
-  Range1d: {
+  NumericalRange: {
     __extends__: "Range",
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Range1d: {
+    __extends__: "NumericalRange",
     start: 0,
     end: 1,
     reset_start: null,
@@ -2957,13 +2968,7 @@
     max_interval: null,
   },
   DataRange: {
-    __extends__: "Range",
-    renderers: [],
-  },
-  DataRange1d: {
-    __extends__: "DataRange",
-    range_padding: 0.1,
-    range_padding_units: "percent",
+    __extends__: "NumericalRange",
     start: {
       type: "number",
       value: "nan",
@@ -2972,6 +2977,12 @@
       type: "number",
       value: "nan",
     },
+    renderers: [],
+  },
+  DataRange1d: {
+    __extends__: "DataRange",
+    range_padding: 0.1,
+    range_padding_units: "percent",
     bounds: null,
     min_interval: null,
     max_interval: null,

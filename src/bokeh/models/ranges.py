@@ -41,7 +41,9 @@ from ..core.properties import (
     MinMaxBounds,
     Null,
     Nullable,
+    Override,
     Readonly,
+    Required,
     TimeDelta,
 )
 from ..core.validation import error
@@ -74,8 +76,25 @@ class Range(Model):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+@abstract
+class NumericalRange(Range):
+    ''' A base class for numerical ranges.
 
-class Range1d(Range):
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    start = Required(Either(Float, Datetime, TimeDelta), help="""
+    The start of the range.
+    """)
+
+    end = Required(Either(Float, Datetime, TimeDelta), help="""
+    The end of the range.
+    """)
+
+class Range1d(NumericalRange):
     ''' A fixed, closed range [start, end] in a continuous scalar
     dimension.
 
@@ -98,14 +117,6 @@ class Range1d(Range):
             kwargs['end'] = args[1]
 
         super().__init__(**kwargs)
-
-    start = Either(Float, Datetime, TimeDelta, default=0, help="""
-    The start of the range.
-    """)
-
-    end = Either(Float, Datetime, TimeDelta, default=1, help="""
-    The end of the range.
-    """)
 
     reset_start = Either(Null, Float, Datetime, TimeDelta, help="""
     The start of the range to apply after reset. If set to ``None`` defaults
@@ -149,9 +160,12 @@ class Range1d(Range):
     maximum visible interval. Can be a ``TimeDelta``. Note that ``bounds`` can
     impose an implicit constraint on the maximum interval as well. """)
 
+    start = Override(default=0)
+
+    end = Override(default=1)
 
 @abstract
-class DataRange(Range):
+class DataRange(NumericalRange):
     ''' A base class for all data range types.
 
     '''
@@ -165,6 +179,9 @@ class DataRange(Range):
     defaults to all renderers on a plot.
     """)
 
+    start = Override(default=float("nan"))
+
+    end = Override(default=float("nan"))
 
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
@@ -192,16 +209,6 @@ class DataRange1d(DataRange):
     range_padding_units = Enum(PaddingUnits, default="percent", help="""
     Whether the ``range_padding`` should be interpreted as a percentage, or
     as an absolute quantity. (default: ``"percent"``)
-    """)
-
-    start = Either(Float, Datetime, TimeDelta, default=float("nan"), help="""
-    An explicitly supplied range start. If provided, will override
-    automatically computed start value.
-    """)
-
-    end = Either(Float, Datetime, TimeDelta, default=float("nan"), help="""
-    An explicitly supplied range end. If provided, will override
-    automatically computed end value.
     """)
 
     bounds = Nullable(MinMaxBounds(accept_datetime=True), help="""
@@ -274,7 +281,6 @@ class DataRange1d(DataRange):
     If True, renderers that that are not visible will be excluded from automatic
     bounds computations.
     """)
-
 
 class FactorRange(Range):
     ''' A Range of values for a categorical dimension.

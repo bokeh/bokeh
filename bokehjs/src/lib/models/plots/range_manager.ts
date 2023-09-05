@@ -203,46 +203,38 @@ export class RangeManager {
 
       // Prevent range from going outside limits
       // Also ensure that range keeps the same delta when panning/scrolling
-      if (rng.bounds != null && rng.bounds != "auto") { // check `auto` for type-checking purpose
-        const [min, max] = rng.bounds
+      if (rng.bounds != null) {
+        const [min, max] = rng.computed_bounds
         const new_interval = Math.abs(range_info.end - range_info.start)
 
         if (rng.is_reversed) {
-          if (min != null) {
-            if (min > range_info.end) {
-              hit_bound = true
-              range_info.end = min
-              if (panning || scrolling) {
-                range_info.start = min + new_interval
-              }
+          if (min > range_info.end) {
+            hit_bound = true
+            range_info.end = min
+            if (panning || scrolling) {
+              range_info.start = min + new_interval
             }
           }
-          if (max != null) {
-            if (max < range_info.start) {
-              hit_bound = true
-              range_info.start = max
-              if (panning || scrolling) {
-                range_info.end = max - new_interval
-              }
+          if (max < range_info.start) {
+            hit_bound = true
+            range_info.start = max
+            if (panning || scrolling) {
+              range_info.end = max - new_interval
             }
           }
         } else {
-          if (min != null) {
-            if (min > range_info.start) {
-              hit_bound = true
-              range_info.start = min
-              if (panning || scrolling) {
-                range_info.end = min + new_interval
-              }
+          if (min > range_info.start) {
+            hit_bound = true
+            range_info.start = min
+            if (panning || scrolling) {
+              range_info.end = min + new_interval
             }
           }
-          if (max != null) {
-            if (max < range_info.end) {
-              hit_bound = true
-              range_info.end = max
-              if (panning || scrolling) {
-                range_info.start = max - new_interval
-              }
+          if (max < range_info.end) {
+            hit_bound = true
+            range_info.end = max
+            if (panning || scrolling) {
+              range_info.start = max - new_interval
             }
           }
         }

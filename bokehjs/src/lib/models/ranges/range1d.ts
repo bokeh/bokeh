@@ -1,12 +1,10 @@
-import {Range} from "./range"
+import {NumericalRange} from "./numerical_range"
 import type * as p from "core/properties"
 
 export namespace Range1d {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Range.Props & {
-    start: p.Property<number>
-    end: p.Property<number>
+  export type Props = NumericalRange.Props & {
     reset_start: p.Property<number | null>
     reset_end: p.Property<number | null>
   }
@@ -14,7 +12,7 @@ export namespace Range1d {
 
 export interface Range1d extends Range1d.Attrs {}
 
-export class Range1d extends Range {
+export class Range1d extends NumericalRange {
   declare properties: Range1d.Props
 
   constructor(attrs?: Partial<Range1d.Attrs>) {
@@ -23,8 +21,6 @@ export class Range1d extends Range {
 
   static {
     this.define<Range1d.Props>(({Number, Nullable}) => ({
-      start:       [ Number, 0 ],
-      end:         [ Number, 1 ],
       reset_start: [ Nullable(Number), null, {
         on_update(reset_start, self: Range1d) {
           self._reset_start = reset_start ?? self.start
@@ -36,13 +32,18 @@ export class Range1d extends Range {
         },
       }],
     }))
+
+    this.override<Range1d.Props>({
+      start: 0,
+      end:   1,
+    })
   }
 
   protected _set_auto_bounds(): void {
     if (this.bounds == "auto") {
       const min = Math.min(this._reset_start, this._reset_end)
       const max = Math.max(this._reset_start, this._reset_end)
-      this.setv({bounds: [min, max]}, {silent: true})
+      this._computed_bounds = [min, max]
     }
   }
 
