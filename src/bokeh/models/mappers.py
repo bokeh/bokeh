@@ -43,7 +43,8 @@ from ..core.properties import (
     String,
     Tuple,
 )
-from ..core.validation import warning
+from ..core.validation import error, warning
+from ..core.validation.errors import WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH
 from ..core.validation.warnings import PALETTE_LENGTH_FACTORS_MISMATCH
 from .transforms import Transform
 
@@ -363,6 +364,26 @@ class WeightedStackColorMapper(StackColorMapper):
     evenly weighted average of the colors corresponding to all such values,
     to avoid the color being undefined.
     """)
+
+    label = Nullable(Seq(String), help="""
+    An optional sequence of strings to use as labels for the palette colors.
+    If set, the number of labels should match the number of colors.
+
+    The labels are used in hover tooltips for ``ImageStack`` glyphs that use a
+    ``WeightedStackColorMapper`` as their color mapper.
+    """)
+
+    @error(WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH)
+    def _check_label_length(self):
+        if self.label is not None:
+            nlabel = len(self.label)
+            npalette = len(self.palette)
+            if nlabel > npalette:
+                self.label = self.label[:npalette]
+                return f"{nlabel} != {npalette}, removing unwanted labels"
+            elif nlabel < npalette:
+                self.label = list(self.label) + [""]*(npalette - nlabel)
+                return f"{nlabel} != {npalette}, padding with empty strings"
 
 #-----------------------------------------------------------------------------
 # Dev API
