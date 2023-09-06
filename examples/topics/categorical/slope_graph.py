@@ -12,7 +12,32 @@ from bokeh.models import ColumnDataSource, LabelSet
 from bokeh.plotting import figure, show
 from bokeh.sampledata.emissions import data
 
-source = ColumnDataSource(data)
+countries = [
+    "Trinidad and Tobago",
+    "Qatar",
+    "United Arab Emirates",
+    "Oman",
+    "Bahrain",
+    "Singapore",
+    "Netherlands Antilles",
+    "Kazakhstan",
+    "Equatorial Guinea",
+    "Kuwait",
+    ]
+
+df = data[data["country"].isin(countries)].reset_index(drop=True)
+years = (df["year"] == 2000.0) | (df["year"] == 2010.0)
+
+df = df[years].reset_index(drop=True)
+df["year"] = df.year.astype(int)
+df["year"] = df.year.astype(str)
+
+# create separate columns for the different years
+a = df[df["year"] == "2000"]
+b = df[df["year"] == "2010"]
+new_df = a.merge(b, on="country")
+
+source = ColumnDataSource(new_df)
 
 p = figure(x_range=("2000", "2010"), y_range=(0, 60), x_axis_location="above", y_axis_label="CO2 emissions (tons / person)")
 

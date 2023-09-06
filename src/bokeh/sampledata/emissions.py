@@ -59,33 +59,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def _read_data() -> pd.DataFrame:
-    df = package_csv('emissions','emissions.csv')
-
-    countries = [
-    "Trinidad and Tobago",
-    "Qatar",
-    "United Arab Emirates",
-    "Oman",
-    "Bahrain",
-    "Singapore",
-    "Netherlands Antilles",
-    "Kazakhstan",
-    "Equatorial Guinea",
-    "Kuwait",
-    ]
-
-    df = df[df["country"].isin(countries)].reset_index(drop=True)
-    years = (df["year"] == 2000.0) | (df["year"] == 2010.0)
-
-    df = df[years].reset_index(drop=True)
-    df["year"] = df.year.astype(int)
-    df["year"] = df.year.astype(str)
-
-
-    # create new columns for the different years
-    a = df[df["year"] == "2000"]
-    b = df[df["year"] == "2010"]
-    data = a.merge(b, on="country")
+    data = package_csv('emissions','emissions.csv')
 
     return data
 
