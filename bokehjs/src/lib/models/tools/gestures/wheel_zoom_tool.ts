@@ -1,14 +1,22 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {DataRenderer} from "../../renderers/data_renderer"
+import type {Scale} from "../../scales/scale"
+import {CompositeScale} from "../../scales/composite_scale"
 import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
+import {logger} from "core/logging"
 import {is_mobile} from "core/util/platform"
+import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum} from "../../../core/kinds"
+import {Enum, Array, Ref, Or, Auto} from "../../../core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]
+
+const Renderers = Or(Array(Ref(DataRenderer)), Auto)
+type Renderers = typeof Renderers["__type__"]
 
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
@@ -46,47 +54,91 @@ export class WheelZoomToolView extends GestureToolView {
     const y_axis = dims == "height" || dims == "both"
 
     const {x_target, y_target} = frame
-    const {x_scales, y_scales, center} = (() => {
-      if (axis_view != null) {
-        const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
 
-        const {zoom_together} = this.model
-        if (zoom_together == "all") {
-          const {x_scales, y_scales} = frame
-          if (axis_view.dimension == 0)
-            return {x_scales, y_scales: new Map(), center}
-          else
-            return {x_scales: new Map(), y_scales, center}
-        } else {
-          const {x_range_name, y_range_name} = axis_view.model
-          const {x_scale, y_scale} = axis_view.coordinates
+    const {renderers} = this.model
 
-          const x_scales = new Map([[x_range_name, x_scale]])
-          const y_scales = new Map([[y_range_name, y_scale]])
+    const {x_frame_scales, y_frame_scales, center} = (() => {
+      const {x_scales, y_scales, center} = (() => {
+        if (axis_view != null) {
+          const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
 
-          switch (zoom_together) {
-            case "cross": {
-              return {x_scales, y_scales, center}
-            }
-            case "none": {
-              if (axis_view.dimension == 0)
-                return {x_scales, y_scales: new Map(), center}
-              else
-                return {x_scales: new Map(), y_scales, center}
+          const {zoom_together} = this.model
+          if (zoom_together == "all") {
+            const {x_scales, y_scales} = frame
+            if (axis_view.dimension == 0)
+              return {x_scales, y_scales: new Map(), center}
+            else
+              return {x_scales: new Map(), y_scales, center}
+          } else {
+            const {x_range_name, y_range_name} = axis_view.model
+            const {x_scale, y_scale} = axis_view.coordinates
+
+            const x_scales = new Map([[x_range_name, x_scale]])
+            const y_scales = new Map([[y_range_name, y_scale]])
+
+            switch (zoom_together) {
+              case "cross": {
+                return {x_scales, y_scales, center}
+              }
+              case "none": {
+                if (axis_view.dimension == 0)
+                  return {x_scales, y_scales: new Map(), center}
+                else
+                  return {x_scales: new Map(), y_scales, center}
+              }
             }
           }
+        } else {
+          const {x_scales, y_scales} = frame
+          return {x_scales, y_scales, center: {x: sx, y: sy}}
         }
-      } else {
-        const {x_scales, y_scales} = frame
-        return {x_scales, y_scales, center: {x: sx, y: sy}}
+      })()
+
+      return {
+        x_frame_scales: [...x_scales.values()],
+        y_frame_scales: [...y_scales.values()],
+        center,
       }
     })()
 
-    const x_scales_ = [...x_scales.values()]
-    const y_scales_ = [...y_scales.values()]
+    const x_scales = [...x_frame_scales.values()]
+    const y_scales = [...y_frame_scales.values()]
+
+    const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+
+    for (const renderer of data_renderers) {
+      if (renderer.coordinates == null) {
+        continue
+      }
+
+      const rv = this.plot_view.renderer_view(renderer)
+      assert(rv != null)
+
+      const process = (scale: Scale) => {
+        const {level} = this.model
+        for (let i = 0; i < level; i++) {
+          if (scale instanceof CompositeScale) {
+            scale = scale.source_scale
+          } else {
+            logger.warn(`can't reach sub-coordinate level ${level} for ${scale}; stopped at ${i}`)
+            break
+          }
+        }
+
+        if (scale instanceof CompositeScale) {
+          return scale.target_scale
+        } else {
+          return scale
+        }
+      }
+
+      const {x_scale, y_scale} = rv.coordinates
+      x_scales.push(process(x_scale))
+      y_scales.push(process(y_scale))
+    }
 
     const factor = this.model.speed*ev.delta
-    const zoom_info = scale_range(x_scales_, y_scales_, x_target, y_target, factor, x_axis, y_axis, center)
+    const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, factor, x_axis, y_axis, center)
 
     this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
@@ -102,6 +154,8 @@ export namespace WheelZoomTool {
 
   export type Props = GestureTool.Props & {
     dimensions: p.Property<Dimensions>
+    renderers: p.Property<Renderers>
+    level: p.Property<number>
     maintain_focus: p.Property<boolean>
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
@@ -122,8 +176,10 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Boolean, Number}) => ({
+    this.define<WheelZoomTool.Props>(({Boolean, Number, NonNegative, Int}) => ({
       dimensions:     [ Dimensions, "both" ],
+      renderers:      [ Renderers, "auto" ],
+      level:          [ NonNegative(Int), 0 ],
       maintain_focus: [ Boolean, true ],
       zoom_on_axis:   [ Boolean, true ],
       zoom_together:  [ ZoomTogether, "all" ],

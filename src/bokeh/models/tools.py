@@ -551,12 +551,25 @@ class WheelZoomTool(Scroll):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # ZoomBaseTool common {
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By default
     the wheel zoom tool will zoom in any dimension, but can be configured to
     only zoom horizontally across the width of the plot, or vertically across
     the height of the plot.
     """)
+
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
+    Restrict zoom to ranges used by the provided data renderers. If ``"auto"``
+    then all ranges provided by the cartesian frame will be used.
+    """)
+
+    level = NonNegative(Int, default=0, help="""
+    When working with composite scales (sub-coordinates), this property
+    allows to configure which set of ranges to scale. The default is to
+    scale top-level (frame) ranges.
+    """)
+    # }
 
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all

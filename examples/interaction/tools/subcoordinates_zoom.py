@@ -43,7 +43,7 @@ for i, channel in enumerate(channels):
 
 level = 1
 
-wheel_zoom = WheelZoomTool(renderers=renderers)#, level=level)
+wheel_zoom = WheelZoomTool(renderers=renderers, level=level)
 zoom_in = ZoomInTool(renderers=renderers, level=level)
 zoom_out = ZoomOutTool(renderers=renderers, level=level)
 
