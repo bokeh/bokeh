@@ -138,7 +138,7 @@ with open(__file__, "rb") as example:
   const cwd = dirname(path)
 
   console.log(`Building ${path}`)
-  const proc = spawn("python", ["-c", code], {stdio: "pipe", env, cwd, timeout: 5000})
+  const proc = spawn("python", ["-c", code], {stdio: "pipe", env, cwd, timeout: 10000})
 
   let output = ""
   proc.stdout.on("data", (data) => {
