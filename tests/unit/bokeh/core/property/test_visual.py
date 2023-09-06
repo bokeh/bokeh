@@ -19,6 +19,7 @@ import pytest ; pytest
 # Standard library imports
 import base64
 import datetime
+import tempfile
 from io import BytesIO
 from pathlib import Path
 from typing import Literal
@@ -28,7 +29,7 @@ import numpy as np
 import PIL.Image
 
 # Bokeh imports
-from bokeh.core.enums import MarkerType
+from bokeh.core.enums import MarkerType, ToolIcon
 from bokeh.core.has_props import HasProps
 from tests.support.util.api import verify_all
 
@@ -271,6 +272,26 @@ class Test_Image:
     def test_transform_data_url(self) -> None:
         prop = bcpv.Image()
         image = "data:image/png;base64,"
+        assert prop.transform(image) == image
+
+    def test_transform_path(self) -> None:
+        with tempfile.TemporaryDirectory() as dir:
+            path = Path(dir) / "image.png"
+            image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
+            image.save(path, "png")
+            prop = bcpv.Image()
+            assert prop.transform(path).startswith("data:image/png")
+
+    def test_transform_file(self) -> None:
+        with tempfile.NamedTemporaryFile() as file:
+            image = PIL.Image.new("RGBA", size=(50, 50), color=(155, 0, 0))
+            image.save(file, "png")
+            prop = bcpv.Image()
+            assert prop.transform(file).startswith("data:image/png")
+
+    def test_transform_string(self) -> None:
+        prop = bcpv.Image()
+        image = ToolIcon.zoom_in
         assert prop.transform(image) == image
 
     def test_transform_numpy(self) -> None:
