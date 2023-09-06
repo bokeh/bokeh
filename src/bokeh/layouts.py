@@ -29,6 +29,7 @@ from typing import (
     Callable,
     Iterable,
     Iterator,
+    Literal,
     Sequence,
     TypeVar,
     Union,
@@ -74,6 +75,9 @@ __all__ = (
     'row',
     'Spacer',
 )
+
+if TYPE_CHECKING:
+    ToolbarOptions = Literal["logo", "autohide", "active_drag", "active_inspect", "active_scroll", "active_tap", "active_multi"]
 
 #-----------------------------------------------------------------------------
 # General API
@@ -193,7 +197,7 @@ def gridplot(
         ncols: int | None = None,
         width: int | None = None,
         height: int | None = None,
-        toolbar_options: Any = None, # TODO
+        toolbar_options: dict[ToolbarOptions, Any] | None = None,
         merge_tools: bool = True) -> GridPlot:
     ''' Create a grid of plots rendered on separate canvases.
 
@@ -308,6 +312,7 @@ def gridplot(
         tools = group_tools(tools, merge=merge)
 
     logos = [ toolbar.logo for toolbar in toolbars ]
+    autohides = [ toolbar.autohide for toolbar in toolbars ]
     active_drags = [ toolbar.active_drag for toolbar in toolbars ]
     active_inspects = [ toolbar.active_inspect for toolbar in toolbars ]
     active_scrolls = [ toolbar.active_scroll for toolbar in toolbars ]
@@ -315,7 +320,9 @@ def gridplot(
     active_multis = [ toolbar.active_multi for toolbar in toolbars ]
 
     V = TypeVar("V")
-    def assert_unique(values: list[V], name: str) -> V | UndefinedType:
+    def assert_unique(values: list[V], name: ToolbarOptions) -> V | UndefinedType:
+        if name in toolbar_options:
+            return toolbar_options[name]
         n = len(set(values))
         if n == 0:
             return Undefined
@@ -324,6 +331,7 @@ def gridplot(
         return values[-1]
 
     logo = assert_unique(logos, "logo")
+    autohide = assert_unique(autohides, "autohide")
     active_drag = assert_unique(active_drags, "active_drag")
     active_inspect = assert_unique(active_inspects, "active_inspect")
     active_scroll = assert_unique(active_scrolls, "active_scroll")
@@ -333,12 +341,12 @@ def gridplot(
     toolbar = Toolbar(
         tools=tools,
         logo=logo,
+        autohide=autohide,
         active_drag=active_drag,
         active_inspect=active_inspect,
         active_scroll=active_scroll,
         active_tap=active_tap,
         active_multi=active_multi,
-        **toolbar_options,
     )
 
     gp = GridPlot(
