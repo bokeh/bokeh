@@ -141,6 +141,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   })()
 
   const logos = toolbars.map((toolbar) => toolbar.logo)
+  const autohides = toolbars.map((toolbar) => toolbar.autohide)
   const active_drags = toolbars.map((toolbar) => toolbar.active_drag)
   const active_inspects = toolbars.map((toolbar) => toolbar.active_inspect)
   const active_scrolls = toolbars.map((toolbar) => toolbar.active_scroll)
@@ -158,6 +159,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   }
 
   const logo = assert_unique(logos, "logo")
+  const autohide = assert_unique(autohides, "autohide")
   const active_drag = assert_unique(active_drags, "active_drag")
   const active_inspect = assert_unique(active_inspects, "active_inspect")
   const active_scroll = assert_unique(active_scrolls, "active_scroll")
@@ -167,6 +169,7 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const toolbar = new Toolbar({
     tools,
     logo,
+    autohide,
     active_drag,
     active_inspect,
     active_scroll,

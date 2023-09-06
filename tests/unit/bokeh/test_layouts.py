@@ -101,6 +101,27 @@ def test_gridplot_merge_toolbar_properties__issue_13265() -> None:
         gp2 = gridplot([[p4, p5, p6]], merge_tools=True)
     assert gp2.toolbar.active_inspect == "auto"
 
+def test_gridplot_toolbar_options__issue_13369() -> None:
+    p1 = figure()
+    p2 = figure()
+    p3 = figure()
+
+    gp0 = gridplot([[p1, p2, p3]], merge_tools=True, toolbar_options=dict(logo="grey", autohide=True))
+    assert gp0.toolbar.logo == "grey"
+    assert gp0.toolbar.autohide is True
+
+    gp1 = gridplot([[p1, p2, p3]], merge_tools=False, toolbar_options=dict(logo="grey", autohide=True))
+    assert gp1.toolbar.logo == "grey"
+    assert gp1.toolbar.autohide is True
+
+    gp2 = gridplot([[p1, p2, p3]], merge_tools=True)
+    assert gp2.toolbar.logo == "normal"
+    assert gp2.toolbar.autohide is False
+
+    gp3 = gridplot([[p1, p2, p3]], merge_tools=False)
+    assert gp3.toolbar.logo == "normal"
+    assert gp3.toolbar.autohide is False
+
 def test_gridplot_None() -> None:
     def p():
         p = figure()
