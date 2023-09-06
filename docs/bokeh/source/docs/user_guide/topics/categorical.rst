@@ -119,8 +119,7 @@ In a slopegraph, we draw individual measurements as dots arranged into two colum
 and indicate pairings by connecting the paired dots with a line.
 The slope of each line highlights the magnitude and direction of change.
 
-This example uses the ``segment`` glyph to draw the line connecting the paired dots.
-A ``LabelSet`` object is also used to label each dots with the country it represents:
+This example uses the ``segment`` glyph to draw the line connecting the paired dots:
 
 .. bokeh-plot:: __REPO__/examples/topics/categorical/slope_graph.py
     :source-position: above

@@ -8,7 +8,7 @@ demonstrates using the `segment` glyph.
     :keywords: segment, scatter
 
 '''
-from bokeh.models import ColumnDataSource, LabelSet
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.emissions import data
 
@@ -23,7 +23,7 @@ countries = [
     "Kazakhstan",
     "Equatorial Guinea",
     "Kuwait",
-    ]
+]
 
 df = data[data["country"].isin(countries)].reset_index(drop=True)
 years = (df["year"] == 2000.0) | (df["year"] == 2010.0)
@@ -47,9 +47,7 @@ p.scatter(x="year_y", y="emissions_y", source=source, size=7)
 
 p.segment(x0="year_x", y0="emissions_x", x1="year_y", y1="emissions_y", source=source, color="black")
 
-label = LabelSet(x="year_y", y="emissions_y", text="country", source=source, text_font_size="11px", x_offset=8, y_offset=-7)
-
-p.add_layout(label)
+p.text(x="year_y", y="emissions_y", text="country", source=source, x_offset=7, y_offset=8, text_font_size="12px")
 
 p.xaxis.major_tick_line_color = None
 p.xaxis.major_tick_out = 0
