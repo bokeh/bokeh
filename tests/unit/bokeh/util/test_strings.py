@@ -92,16 +92,16 @@ class Test_nice_join:
         assert bus.nice_join(["one", "two", "three", "four"]) == "one, two, three or four"
 
     def test_string_conjunction(self) -> None:
-        assert bus.nice_join(["one"], conjuction="and") == "one"
-        assert bus.nice_join(["one", "two"], conjuction="and") == "one and two"
-        assert bus.nice_join(["one", "two", "three"], conjuction="and") == "one, two and three"
-        assert bus.nice_join(["one", "two", "three", "four"], conjuction="and") == "one, two, three and four"
+        assert bus.nice_join(["one"], conjunction="and") == "one"
+        assert bus.nice_join(["one", "two"], conjunction="and") == "one and two"
+        assert bus.nice_join(["one", "two", "three"], conjunction="and") == "one, two and three"
+        assert bus.nice_join(["one", "two", "three", "four"], conjunction="and") == "one, two, three and four"
 
     def test_None_conjunction(self) -> None:
-        assert bus.nice_join(["one"], conjuction=None) == "one"
-        assert bus.nice_join(["one", "two"], conjuction=None) == "one, two"
-        assert bus.nice_join(["one", "two", "three"], conjuction=None) == "one, two, three"
-        assert bus.nice_join(["one", "two", "three", "four"], conjuction=None) == "one, two, three, four"
+        assert bus.nice_join(["one"], conjunction=None) == "one"
+        assert bus.nice_join(["one", "two"], conjunction=None) == "one, two"
+        assert bus.nice_join(["one", "two", "three"], conjunction=None) == "one, two, three"
+        assert bus.nice_join(["one", "two", "three", "four"], conjunction=None) == "one, two, three, four"
 
     def test_sep(self) -> None:
         assert bus.nice_join(["one"], sep='; ') == "one"

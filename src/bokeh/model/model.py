@@ -456,9 +456,9 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
         Examples:
 
-        .. code-block:: python
+            .. code-block:: python
 
-            widget.on_change('value', callback1, callback2, ..., callback_n)
+                widget.on_change('value', callback1, callback2, ..., callback_n)
 
         '''
         descriptor = self.lookup(attr)
