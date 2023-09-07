@@ -108,7 +108,7 @@ class CustomJSTransform(Transform):
     present in the function namespace at render time. The snippet will be
     into the body of a function and therefore requires a return statement.
 
-    Example
+    **Example**
 
     .. code-block:: javascript
 
@@ -123,7 +123,7 @@ class CustomJSTransform(Transform):
     present in the function namespace at render time. The snippet will be
     into the body of a function and therefore requires a return statement.
 
-    Example
+    **Example**
 
     .. code-block:: javascript
 

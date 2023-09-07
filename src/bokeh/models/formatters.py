@@ -374,7 +374,7 @@ class CustomJSTickFormatter(TickFormatter):
     Finding yourself needing to cache an expensive ``ticks``-dependent
     computation, you can store it on the ``this`` variable.
 
-    Example
+    **Example**
 
     .. code-block:: javascript
 
