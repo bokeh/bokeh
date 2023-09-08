@@ -464,7 +464,7 @@
       name: "unset",
     },
     color_baseline: null,
-    label: null,
+    stack_labels: null,
   },
   Ticker: {
     __extends__: "Model",

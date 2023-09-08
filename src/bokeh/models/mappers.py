@@ -365,9 +365,10 @@ class WeightedStackColorMapper(StackColorMapper):
     to avoid the color being undefined.
     """)
 
-    label = Nullable(Seq(String), help="""
-    An optional sequence of strings to use as labels for the palette colors.
-    If set, the number of labels should match the number of colors.
+    stack_labels = Nullable(Seq(String), help="""
+    An optional sequence of strings to use as labels for the ``nstack`` stacks.
+    If set, the number of labels should match the number of stacks and hence
+    also the number of palette colors.
 
     The labels are used in hover tooltips for ``ImageStack`` glyphs that use a
     ``WeightedStackColorMapper`` as their color mapper.
@@ -375,14 +376,14 @@ class WeightedStackColorMapper(StackColorMapper):
 
     @error(WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH)
     def _check_label_length(self):
-        if self.label is not None:
-            nlabel = len(self.label)
+        if self.stack_labels is not None:
+            nlabel = len(self.stack_labels)
             npalette = len(self.palette)
             if nlabel > npalette:
-                self.label = self.label[:npalette]
-                return f"{nlabel} != {npalette}, removing unwanted labels"
+                self.stack_labels = self.stack_labels[:npalette]
+                return f"{nlabel} != {npalette}, removing unwanted stack_labels"
             elif nlabel < npalette:
-                self.label = list(self.label) + [""]*(npalette - nlabel)
+                self.stack_labels = list(self.stack_labels) + [""]*(npalette - nlabel)
                 return f"{nlabel} != {npalette}, padding with empty strings"
 
 #-----------------------------------------------------------------------------

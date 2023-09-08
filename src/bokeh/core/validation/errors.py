@@ -233,7 +233,7 @@ INVALID_PROPERTY_VALUE = Error(
 WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH = Error(
     1030,
     "WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH",
-    "Number of labels does not match palette length")
+    "Number of stack labels does not match palette length")
 EXT = Error(
     9999,
     "EXT",

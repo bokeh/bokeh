@@ -145,28 +145,28 @@ class Test_WeightedStackColorMapper:
             "nan_color",
             "alpha_mapper",
             "color_baseline",
-            "label"],
+            "stack_labels"],
         )
 
     @patch("bokeh.core.validation.check.log.error")
     @patch("bokeh.core.validation.check.log.warning")
-    def test_label_too_many(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
-        mapper = bmm.WeightedStackColorMapper(palette=["red", "green"], label=["one", "two", "three"])
+    def test_too_many_labels(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
+        mapper = bmm.WeightedStackColorMapper(palette=["red", "green"], stack_labels=["one", "two", "three"])
         issues = check_integrity([mapper])
         process_validation_issues(issues)
         assert mock_error.called
         assert not mock_warn.called
-        assert mapper.label == ["one", "two"]
+        assert mapper.stack_labels == ["one", "two"]
 
     @patch("bokeh.core.validation.check.log.error")
     @patch("bokeh.core.validation.check.log.warning")
-    def test_label_too_few(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
-        mapper = bmm.WeightedStackColorMapper(palette=["red", "green"], label=["one"])
+    def test_too_few_labels(self, mock_warn: MagicMock, mock_error: MagicMock) -> None:
+        mapper = bmm.WeightedStackColorMapper(palette=["red", "green"], stack_labels=["one"])
         issues = check_integrity([mapper])
         process_validation_issues(issues)
         assert mock_error.called
         assert not mock_warn.called
-        assert mapper.label == ["one", ""]
+        assert mapper.stack_labels == ["one", ""]
 
 
 #-----------------------------------------------------------------------------

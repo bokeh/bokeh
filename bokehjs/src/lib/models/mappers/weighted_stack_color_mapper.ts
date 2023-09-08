@@ -14,7 +14,7 @@ export namespace WeightedStackColorMapper {
   export type Props = StackColorMapper.Props & {
     alpha_mapper: p.Property<ContinuousColorMapper>
     color_baseline: p.Property<number | null>
-    label: p.Property<string[] | null>
+    stack_labels: p.Property<string[] | null>
   }
 }
 
@@ -31,7 +31,7 @@ export class WeightedStackColorMapper extends StackColorMapper {
     this.define<WeightedStackColorMapper.Props>(({Array, Nullable, Number, Ref, String}) => ({
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],
       color_baseline: [ Nullable(Number), null ],
-      label:          [ Nullable(Array(String)), null ],
+      stack_labels:   [ Nullable(Array(String)), null ],
     }))
   }
 
