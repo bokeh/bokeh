@@ -24,8 +24,8 @@ EXCLUDED = ("ak", "hi", "pr", "gu", "vi", "mp", "as")
 state_xs = [states[code]["lons"] for code in states]
 state_ys = [states[code]["lats"] for code in states]
 
-county_xs=[counties[code]["lons"] for code in counties if counties[code]["state"] not in EXCLUDED]
-county_ys=[counties[code]["lats"] for code in counties if counties[code]["state"] not in EXCLUDED]
+county_xs = [counties[code]["lons"] for code in counties if counties[code]["state"] not in EXCLUDED]
+county_ys = [counties[code]["lats"] for code in counties if counties[code]["state"] not in EXCLUDED]
 
 county_colors = []
 for county_id in counties:
