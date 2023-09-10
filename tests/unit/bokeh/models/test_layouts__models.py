@@ -19,9 +19,10 @@ import pytest ; pytest
 # Bokeh imports
 from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure
+from bokeh.models.ui import Tooltip
 
 # Module under test
-from bokeh.models.layouts import Row, Column, LayoutDOM # isort:skip
+from bokeh.models.layouts import Row, Column, LayoutDOM, TabPanel # isort:skip
 
 #-----------------------------------------------------------------------------
 # Setup
@@ -87,6 +88,20 @@ def test_LayoutDOM_backgroud() -> None:
     assert "background-color" not in obj.styles
     obj.background = "#aabbccff"
     assert obj.styles["background-color"] == "#aabbccff"
+
+
+def test_TabPanel_no_tooltip() -> None:
+    p1 = figure(width=300, height=300)
+    panel = TabPanel(child=p1, title="test panel")
+    assert panel.title == "test panel"
+    assert panel.child is not None
+    assert panel.tooltip is None
+
+
+def test_TabPanel_tooltip() -> None:
+    p1 = figure(width=300, height=300)
+    panel = TabPanel(child=p1, title="test panel", tooltip=Tooltip(content="test tooltip"))
+    assert panel.tooltip is not None
 
 #-----------------------------------------------------------------------------
 # Dev API
