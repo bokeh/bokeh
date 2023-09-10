@@ -33,6 +33,8 @@ export class TooltipView extends UIElementView {
     this._target = el
   }
 
+  useRelativeBoundingBox: boolean = true
+
   protected _init_target(): void {
     const {target} = this.model
     const el = (() => {
@@ -352,6 +354,7 @@ export class TooltipView extends UIElementView {
       }
     })()
 
+    this.el.style.position = this.useRelativeBoundingBox ? 'absolute' : 'fixed'
     this.el.style.top = `${top}px`
     this.el.style.left = `${left}px`
   }

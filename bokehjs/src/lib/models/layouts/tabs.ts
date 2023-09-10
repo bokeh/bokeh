@@ -1,3 +1,4 @@
+import {build_view} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {div, show, hide, empty} from "core/dom"
 import {remove_at} from "core/util/array"
@@ -10,13 +11,16 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
 import {GridAlignmentLayout} from "./alignments"
 import type {UIElement} from "../ui/ui_element"
+import type {TooltipView} from "../ui/tooltip"
 
 import tabs_css, * as tabs from "styles/tabs.css"
 import icons_css from "styles/icons.css"
 
+
 export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
+  protected tooltips: (TooltipView | null)[]
   protected header_el: HTMLElement
   protected header_els: HTMLElement[]
 
@@ -30,6 +34,12 @@ export class TabsView extends LayoutDOMView {
     this.on_change(active, () => {
       this.update_active()
     })
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {tabs} = this.model
+    this.tooltips = await Promise.all(tabs.map(tab => tab.tooltip ? build_view(tab.tooltip, {parent: this}) : Promise.resolve(null)))
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -102,6 +112,24 @@ export class TabsView extends LayoutDOMView {
         if (event.target == event.currentTarget)
           this.change_active(i)
       })
+      const tooltip = this.tooltips[i]
+      if (tooltip) {
+        tooltip.useRelativeBoundingBox = false
+        tooltip?.model.setv({
+          target: el,
+        })
+        const toggleTooltip = (visible: boolean) => {
+          tooltip.model.setv({
+            visible,
+          })
+        }
+        el.addEventListener("mouseenter", () => {
+          toggleTooltip(true)
+        })
+        el.addEventListener("mouseleave", () => {
+          toggleTooltip(false)
+        })
+      }
       if (tab.closable) {
         const close_el = div({class: tabs.close})
         close_el.addEventListener("click", (event) => {
