@@ -5,7 +5,7 @@ import {HTML} from "../dom/html"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
-import {div, bounding_box} from "core/dom"
+import {div, bounding_box, box_size} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
@@ -183,6 +183,7 @@ export class TooltipView extends UIElementView {
     target_el.appendChild(this.el)
 
     const bbox = bounding_box(this.target)
+
     const [sx, sy] = (() => {
       if (isString(position)) {
         const [valign, halign] = this._anchor_to_align(position)
@@ -214,6 +215,8 @@ export class TooltipView extends UIElementView {
       height: window.innerHeight,
     })
 
+    const arrow_size = box_size(this.arrow_el)
+
     const side = (() => {
       const attachment = (() => {
         const {attachment} = this.model
@@ -233,9 +236,26 @@ export class TooltipView extends UIElementView {
         }
       })()
 
+      const el_size = box_size(this.el)
+
+      const width = el_size.width + arrow_size.width
+      const height = el_size.height + arrow_size.height
+
       switch (attachment) {
-        case "horizontal": return sx < viewport.hcenter ? "right" : "left"
-        case "vertical":   return sy < viewport.vcenter ? "below" : "above"
+        case "horizontal": {
+          if (sx < bbox.hcenter) {
+            return sx + width <= viewport.right ? "right" : "left"
+          } else {
+            return sx - width >= viewport.left ? "left" : "right"
+          }
+        }
+        case "vertical": {
+          if (sy < bbox.vcenter) {
+            return sy + height <= viewport.bottom ? "below" : "above"
+          } else {
+            return sy - height >= viewport.top ? "above" : "below"
+          }
+        }
         default:
           return attachment
       }
@@ -256,16 +276,8 @@ export class TooltipView extends UIElementView {
     this.arrow_el.style.left = `${sx}px`
     this.arrow_el.style.top = `${sy}px`
 
-    const arrow_size = (() => {
-      const {width, height} = getComputedStyle(this.arrow_el)
-      return {
-        width: parseFloat(width),
-        height: parseFloat(height),
-      }
-    })()
-
     const {left, top} = (() => {
-      const {width, height} = bounding_box(this.el)
+      const {width, height} = box_size(this.el)
 
       function adjust_top(top: number) {
         if (top < viewport.top) {
