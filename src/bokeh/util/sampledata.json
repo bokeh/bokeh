@@ -19,5 +19,6 @@
     ["airports.csv",                                "adb72c88d638dd6f6e39f32e37378bd6"],
     ["routes.csv",                                  "e69f7519769c29498f058cd34b16495d"],
     ["haarcascade_frontalface_default.xml",         "a03f92a797e309e76e6a034ab9e02616"],
-    ["SampleSuperstore.csv.zip",                    "4c92bac7f4e66e7fa1ac0b9aae648f30"]
+    ["SampleSuperstore.csv.zip",                    "4c92bac7f4e66e7fa1ac0b9aae648f30"],
+    ["emissions.csv",                               "21fec3cc1a98b477dd98c396eb3f0ad6"]
 ]
