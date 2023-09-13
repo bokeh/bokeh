@@ -5,10 +5,11 @@ import {HTML} from "../dom/html"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
-import {div, bounding_box} from "core/dom"
+import {div, bounding_box, box_size} from "core/dom"
 import {DOMElementView} from "core/dom_view"
 import {isString} from "core/util/types"
 import {assert} from "core/util/assert"
+import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -17,11 +18,10 @@ import type * as p from "core/properties"
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 import icons_css from "styles/icons.css"
 
-const arrow_size = 10  // XXX: keep in sync with less
-
 export class TooltipView extends UIElementView {
   declare model: Tooltip
 
+  protected arrow_el: HTMLElement
   protected content_el: HTMLElement
   protected _observer: ResizeObserver
 
@@ -124,8 +124,9 @@ export class TooltipView extends UIElementView {
     super.render()
 
     this._html?.render()
+    this.arrow_el = div({class: [tooltips.arrow]})
     this.content_el = div({class: tooltips.tooltip_content}, this.content)
-    this.shadow_el.appendChild(this.content_el)
+    this.shadow_el.append(this.arrow_el, this.content_el)
 
     if (this.model.closable) {
       const close_el = div({class: tooltips.close})
@@ -135,7 +136,7 @@ export class TooltipView extends UIElementView {
       this.shadow_el.appendChild(close_el)
     }
 
-    this.el.classList.toggle(tooltips.tooltip_arrow, this.model.show_arrow)
+    this.el.classList.toggle(tooltips.show_arrow, this.model.show_arrow)
     this.el.classList.toggle(tooltips.non_interactive, !this.model.interactive)
 
     this._reposition()
@@ -181,7 +182,8 @@ export class TooltipView extends UIElementView {
     const target_el = this.target.shadowRoot ?? this.target
     target_el.appendChild(this.el)
 
-    const bbox = bounding_box(this.target).relative()
+    const bbox = bounding_box(this.target)
+
     const [sx, sy] = (() => {
       if (isString(position)) {
         const [valign, halign] = this._anchor_to_align(position)
@@ -200,9 +202,20 @@ export class TooltipView extends UIElementView {
           }
         })()
         return [sx, sy]
-      } else
-        return position
+      } else {
+        const [x, y] = position
+        return [bbox.left + x, bbox.top + y]
+      }
     })()
+
+    const viewport = new BBox({
+      x: 0,
+      y: 0,
+      width: window.innerWidth,
+      height: window.innerHeight,
+    })
+
+    const arrow_size = box_size(this.arrow_el)
 
     const side = (() => {
       const attachment = (() => {
@@ -210,64 +223,112 @@ export class TooltipView extends UIElementView {
         if (attachment == "auto") {
           if (isString(position)) {
             const [valign, halign] = this._anchor_to_align(position)
-            if (halign != "center")
+            if (halign != "center") {
               return halign == "left" ? "left" : "right"
-            if (valign != "center")
+            }
+            if (valign != "center") {
               return valign == "top" ? "above" : "below"
+            }
           }
           return "horizontal"
-        } else
+        } else {
           return attachment
+        }
       })()
 
+      const el_size = box_size(this.el)
+
+      const width = el_size.width + arrow_size.width
+      const height = el_size.height + arrow_size.height
+
       switch (attachment) {
-        case "horizontal":
-          return sx < bbox.hcenter ? "right" : "left"
-        case "vertical":
-          return sy < bbox.vcenter ? "below" : "above"
+        case "horizontal": {
+          if (sx < bbox.hcenter) {
+            return sx + width <= viewport.right ? "right" : "left"
+          } else {
+            return sx - width >= viewport.left ? "left" : "right"
+          }
+        }
+        case "vertical": {
+          if (sy < bbox.vcenter) {
+            return sy + height <= viewport.bottom ? "below" : "above"
+          } else {
+            return sy - height >= viewport.top ? "above" : "below"
+          }
+        }
         default:
           return attachment
       }
     })()
 
-    this.el.classList.remove(tooltips.right)
-    this.el.classList.remove(tooltips.left)
-    this.el.classList.remove(tooltips.above)
-    this.el.classList.remove(tooltips.below)
-
     // slightly confusing: side "left" (for example) is relative to point that
     // is being annotated but CS class ".bk-left" is relative to the tooltip itself
-    let top: number
-    let left: number | null = null
-    let right: number | null = null
+    this.class_list.remove(tooltips.right, tooltips.left, tooltips.above, tooltips.below)
+    this.class_list.add((() => {
+      switch (side) {
+        case "left":  return tooltips.right
+        case "right": return tooltips.left
+        case "above": return tooltips.below
+        case "below": return tooltips.above
+      }
+    })())
 
-    const {width, height} = bounding_box(this.el)
-    switch (side) {
-      case "right":
-        this.el.classList.add(tooltips.left)
-        left = sx + (width - this.el.clientWidth) + arrow_size
-        top = sy - height/2
-        break
-      case "left":
-        this.el.classList.add(tooltips.right)
-        right = (bbox.width - sx) + arrow_size
-        top = sy - height/2
-        break
-      case "below":
-        this.el.classList.add(tooltips.above)
-        top = sy + (height - this.el.clientHeight) + arrow_size
-        left = Math.round(sx - width/2)
-        break
-      case "above":
-        this.el.classList.add(tooltips.below)
-        top = sy - height - arrow_size
-        left = Math.round(sx - width/2)
-        break
-    }
+    this.arrow_el.style.left = `${sx}px`
+    this.arrow_el.style.top = `${sy}px`
+
+    const {left, top} = (() => {
+      const {width, height} = box_size(this.el)
+
+      function adjust_top(top: number) {
+        if (top < viewport.top) {
+          return viewport.top
+        } else if (top + height > viewport.bottom) {
+          return viewport.bottom - height
+        } else {
+          return top
+        }
+      }
+
+      function adjust_left(left: number) {
+        if (left < viewport.left) {
+          return viewport.left
+        } else if (left + width > viewport.right) {
+          return viewport.right - width
+        } else {
+          return left
+        }
+      }
+
+      switch (side) {
+        case "left": {
+          return {
+            left: sx - width - arrow_size.width,
+            top: adjust_top(sy - height/2),
+          }
+        }
+        case "right": {
+          return {
+            left: sx + arrow_size.width,
+            top: adjust_top(sy - height/2),
+          }
+        }
+        case "above": {
+          return {
+            left: adjust_left(sx - width/2),
+            top: sy - height - arrow_size.height,
+          }
+        }
+        case "below": {
+          return {
+            left: adjust_left(sx - width/2),
+            top: sy + arrow_size.height,
+          }
+        }
+      }
+    })()
 
     this.el.style.top = `${top}px`
-    this.el.style.left = left != null ? `${left}px` : ""
-    this.el.style.right = right != null ? `${right}px` : ""
+    this.el.style.left = `${left}px`
   }
 }
 
