@@ -29,6 +29,9 @@ import {
   WMTSTileSource,
 } from "@bokehjs/models"
 
+import {version} from "@bokehjs/version"
+import {Model} from "@bokehjs/model"
+import * as p from "@bokehjs/core/properties"
 import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
@@ -59,6 +62,30 @@ class QualifiedModel extends UIElement {
   static override __module__ = "some.external.provider"
   static {
     this.prototype.default_view = QualifiedModelView
+  }
+}
+
+namespace ModelWithUnsetReadonly {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    p0: p.Property<number>
+  }
+}
+
+interface ModelWithUnsetReadonly extends ModelWithUnsetReadonly.Attrs {}
+
+class ModelWithUnsetReadonly extends Model {
+  declare properties: ModelWithUnsetReadonly.Props
+
+  constructor(attrs?: Partial<ModelWithUnsetReadonly.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.define<ModelWithUnsetReadonly.Props>(({Int}) => ({
+      p0: [ Int, p.unset, {readonly: true} ],
+    }))
   }
 }
 
@@ -834,6 +861,31 @@ describe("Bug", () => {
       } finally {
         spy.restore()
       }
+    })
+  })
+
+  describe("in issue #13377", () => {
+    it("doesn't allow serialization of unset readonly properties", async () => {
+      const obj = new ModelWithUnsetReadonly()
+      const doc = new Document()
+      doc.add_root(obj)
+      expect(doc.to_json()).to.be.equal({
+        version,
+        title: "Bokeh Application",
+        roots: [{
+          type: "object",
+          name: "ModelWithUnsetReadonly",
+          id: obj.id,
+          attributes: {
+            tags: [],
+            name: null,
+            js_property_callbacks: {type: "map"},
+            js_event_callbacks: {type: "map"},
+            subscribed_events: {type: "set"},
+            syncable: true,
+          },
+        }],
+      })
     })
   })
 })
