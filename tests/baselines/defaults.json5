@@ -5515,6 +5515,14 @@
     title_align: "center",
     title_location: "above",
     title_standoff: 5,
+    ticker: {
+      type: "object",
+      name: "FixedTicker",
+      attributes: {
+        ticks: [],
+        minor_ticks: [],
+      },
+    },
     border_line_color: "#e5e5e5",
     border_line_alpha: 0.5,
     border_line_width: 1,

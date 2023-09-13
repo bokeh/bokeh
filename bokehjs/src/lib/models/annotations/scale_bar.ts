@@ -16,7 +16,8 @@ import type {Layoutable} from "core/layout"
 import {Column, Row, ContentLayoutable, Sizeable} from "core/layout"
 import type {ContinuousAxis, ContinuousAxisView} from "../axes/continuous_axis"
 import {LinearAxis} from "../axes/linear_axis"
-import {AdaptiveTicker} from "../tickers/adaptive_ticker"
+import {Ticker} from "../tickers/ticker"
+import {FixedTicker} from "../tickers/fixed_ticker"
 import type {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
@@ -35,6 +36,7 @@ class TextLayout extends ContentLayoutable {
   }
 }
 
+/*
 class FixedLayout extends ContentLayoutable {
 
   constructor(readonly size: Size) {
@@ -45,6 +47,7 @@ class FixedLayout extends ContentLayoutable {
     return new Sizeable(this.size)
   }
 }
+*/
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
@@ -54,7 +57,7 @@ export class ScaleBarView extends AnnotationView {
 
   protected label_layout: TextLayout
   protected title_layout: TextLayout
-  protected bar_layout: FixedLayout
+  //protected bar_layout: FixedLayout
   protected box_layout: Layoutable
 
   protected axis: ContinuousAxis
@@ -74,8 +77,11 @@ export class ScaleBarView extends AnnotationView {
 
   override initialize(): void {
     super.initialize()
-    const ticker = new AdaptiveTicker({desired_num_ticks: 2})
-    this.axis = new LinearAxis({ticker})
+    const {ticker} = this.model
+    this.axis = new LinearAxis({
+      ticker,
+      ...mixins.attrs_of(this.model, "bar_", mixins.Line, "axis_"),
+    })
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -184,9 +190,11 @@ export class ScaleBarView extends AnnotationView {
         return {width: bar_width, height: bar_length_px}
       }
     })()
+    /*
     const bar_layout = new FixedLayout(bar_size)
     bar_layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
     this.bar_layout = bar_layout
+    */
 
     const axis_layout = this.axis_view.layout!
 
@@ -208,7 +216,7 @@ export class ScaleBarView extends AnnotationView {
     if (label_location == "above") {
       children.push(label_layout)
     }
-    children.push(bar_layout)
+    //children.push(bar_layout)
     children.push(axis_layout)
     if (label_location == "below") {
       children.push(label_layout)
@@ -317,9 +325,9 @@ export class ScaleBarView extends AnnotationView {
     this.visuals.border_line.apply(ctx)
   }
 
+  /*
   protected _draw_bar(ctx: Context2d): void {
     ctx.beginPath()
-    //console.log(this.bar_layout.toString())
     if (this.model.orientation == "horizontal") {
       const {left, right, vcenter} = this.bar_layout.bbox
       ctx.moveTo(left, vcenter)
@@ -331,6 +339,7 @@ export class ScaleBarView extends AnnotationView {
     }
     this.visuals.bar_line.apply(ctx)
   }
+  */
 
   protected _draw_axis(_ctx: Context2d): void {
     this.axis_view.render()
@@ -363,9 +372,11 @@ export class ScaleBarView extends AnnotationView {
     if (this.box_layout.visible) {
       this._draw_box(ctx)
     }
+    /*
     if (this.bar_layout.visible) {
       this._draw_bar(ctx)
     }
+    */
     if (this.axis_view.layout!.visible) {
       this._draw_axis(ctx)
     }
@@ -398,6 +409,7 @@ export namespace ScaleBar {
     title_standoff: p.Property<number>
     margin: p.Property<number>
     padding: p.Property<number>
+    ticker: p.Property<Ticker>
   } & Mixins
 
   export type Mixins =
@@ -456,6 +468,7 @@ export class ScaleBar extends Annotation {
       title_standoff: [ Number, 5 ],
       margin:         [ Number, 10 ],
       padding:        [ Number, 10 ],
+      ticker:         [ Ref(Ticker), () => new FixedTicker({ticks: []}) ],
     }))
 
     this.override<ScaleBar.Props>({

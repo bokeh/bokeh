@@ -73,7 +73,7 @@ from ..labeling import LabelingPolicy, NoOverlap
 from ..mappers import ColorMapper
 from ..ranges import Range
 from ..renderers import GlyphRenderer
-from ..tickers import Ticker
+from ..tickers import FixedTicker, Ticker
 from .annotation import Annotation
 from .dimensional import Dimensional, MetricLength
 
@@ -588,6 +588,14 @@ class ScaleBar(Annotation):
 
     title_standoff = Int(default=5, help="""
     The distance (in pixels) to separate the title from the scale bar.
+    """)
+
+    ticker = Instance(Ticker, default=InstanceDefault(FixedTicker, ticks=[]), help="""
+    A ticker to use for computing locations of axis components.
+
+    Note that using the default fixed ticker with no predefined ticks,
+    then the appearance of the scale bar with be just a solid bar with
+    no additonal markings.
     """)
 
     border_style = Include(ScalarLineProps, prefix="border", help="""

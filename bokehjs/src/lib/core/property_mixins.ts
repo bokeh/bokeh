@@ -4,6 +4,7 @@ import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, Tex
 import * as k from "./kinds"
 import type {Texture} from "models/textures/texture"
 import {keys} from "./util/object"
+import {isString} from "./util/types"
 import type {HasProps} from "./has_props"
 
 export type HatchPattern = HatchPatternType | string
@@ -295,12 +296,21 @@ export type TitleText = Prefixed<"title", Text>
 type Mixins = Text | Line | Fill | Hatch | Image
 
 export function attrs_of<P extends string, T extends Mixins>(
-    model: HasProps, prefix: P, mixin: p.DefineOf<T>, prefixed: boolean = false): {[key: string]: unknown} {
+    model: HasProps, prefix: P, mixin: p.DefineOf<T>, new_prefix: string | boolean = false): {[key: string]: unknown} {
   const attrs: {[key: string]: unknown} = {}
   for (const attr of keys(mixin)) {
     const prefixed_attr = `${prefix}${attr}` as const
     const value = (model as any)[prefixed_attr]
-    attrs[prefixed ? prefixed_attr : attr] = value
+    const new_attr = (() => {
+      if (isString(new_prefix)) {
+        return `${new_prefix}${attr}`
+      } else if (new_prefix) {
+        return prefixed_attr
+      } else {
+        return attr
+      }
+    })()
+    attrs[new_attr] = value
   }
   return attrs
 }
