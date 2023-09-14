@@ -166,20 +166,22 @@ export class ScaleBarView extends AnnotationView {
     label_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
     label_box.visuals = this.visuals.label_text.values()
     const label_panel = new Panel(this.model.label_location)
-    label_box.angle = label_panel.get_label_angle_heuristic("parallel")
+    label_box.angle = label_panel.get_label_angle_heuristic(orientation)
 
     const {title} = this.model
     const title_box = new TextBox({text: title})
     title_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
     title_box.visuals = this.visuals.title_text.values()
     const title_panel = new Panel(this.model.title_location)
-    title_box.angle = title_panel.get_label_angle_heuristic("parallel")
+    title_box.angle = title_panel.get_label_angle_heuristic(orientation)
 
     const label_layout = new TextLayout(label_box)
+    label_layout.absolute = true
     label_layout.set_sizing({visible: label != "" && this.visuals.label_text.doit})
     this.label_layout = label_layout
 
     const title_layout = new TextLayout(title_box)
+    title_layout.absolute = true
     title_layout.set_sizing({visible: title != "" && this.visuals.title_text.doit})
     this.title_layout = title_layout
 
@@ -197,11 +199,12 @@ export class ScaleBarView extends AnnotationView {
     */
 
     const axis_layout = this.axis_view.layout!
+    axis_layout.absolute = true
 
     if (orientation == "horizontal") {
-      axis_layout.set_sizing({width_policy: "fixed", width: bar_size.width})
+      axis_layout.set_sizing({width_policy: "fixed", width: bar_size.width, valign: "center"})
     } else {
-      axis_layout.set_sizing({height_policy: "fixed", height: bar_size.height})
+      axis_layout.set_sizing({height_policy: "fixed", height: bar_size.height, halign: "center"})
     }
 
     const left = padding
@@ -209,34 +212,38 @@ export class ScaleBarView extends AnnotationView {
 
     const {title_location, label_location} = this.model
 
-    const children = []
-    if (title_location == "above") {
-      children.push(title_layout)
-    }
-    if (label_location == "above") {
-      children.push(label_layout)
-    }
-    //children.push(bar_layout)
-    children.push(axis_layout)
-    if (label_location == "below") {
-      children.push(label_layout)
-    }
-    if (title_location == "below") {
-      children.push(title_layout)
-    }
-
-    const box_layout = (() => {
-      if (orientation == "horizontal") {
-        return new Column(children)
-      } else {
-        return new Row(children)
+    const inner_layout = (() => {
+      switch (label_location) {
+        case "above": return new Column([label_layout, axis_layout])
+        case "below": return new Column([axis_layout, label_layout])
+        case "left":  return new Row([label_layout, axis_layout])
+        case "right": return new Row([axis_layout, label_layout])
       }
     })()
-    box_layout.position = {left, top}
-    box_layout.spacing = this.model.label_standoff
-    box_layout.set_sizing()
-    box_layout.compute()
+
+    //inner_layout.rows = {"*": {policy: "auto", align: "center"}}
+    //inner_layout.cols = {"*": {policy: "auto", align: "center"}}
+    inner_layout.spacing = this.model.label_standoff
+    inner_layout.absolute = true
+    inner_layout.set_sizing()
+
+    const outer_layout = (() => {
+      switch (title_location) {
+        case "above": return new Column([title_layout, inner_layout])
+        case "below": return new Column([inner_layout, title_layout])
+        case "left":  return new Row([title_layout, inner_layout])
+        case "right": return new Row([inner_layout, title_layout])
+      }
+    })()
+
+    outer_layout.spacing = this.model.title_standoff
+    outer_layout.absolute = true
+    outer_layout.position = {left, top}
+    outer_layout.set_sizing()
+
+    const box_layout = outer_layout
     this.box_layout = box_layout
+    box_layout.compute()
 
     const [axis_range, cross_range] = (() => {
       const {x_range, y_range} = this.axis_view.bbox
