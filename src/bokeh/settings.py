@@ -570,8 +570,10 @@ class Settings:
     chromedriver_path: PrioritizedSetting[str | None] = PrioritizedSetting("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
     The name of or full path to chromedriver's executable.
 
-    This is used to allow ``bokeh.io.export`` to work on systems that use a different name
-    for ``chromedriver``, like ``chromedriver-binary`` or ``chromium.chromedriver`` (Snap).
+    This is used to allow ``bokeh.io.export`` to work on systems that use a
+    different name for ``chromedriver``, like ``chromedriver-binary`` or
+    ``chromium.chromedriver`` (or its variant, which is used for example
+    by Snap package manager; see https://snapcraft.io/).
     """)
 
     cookie_secret: PrioritizedSetting[str | None] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
