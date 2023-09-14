@@ -113,7 +113,7 @@ export class Document implements Equatable {
     this._interactive_timestamp = null
     this._interactive_plot = null
     if (options.roots != null) {
-      this._add_root(...options.roots)
+      this._add_roots(...options.roots)
     }
   }
 
@@ -251,7 +251,7 @@ export class Document implements Equatable {
     return this._roots
   }
 
-  protected _add_root(...models: HasProps[]): boolean {
+  protected _add_roots(...models: HasProps[]): boolean {
     models = models.filter((model) => !this._roots.includes(model))
     if (models.length == 0) {
       return false
@@ -290,7 +290,7 @@ export class Document implements Equatable {
   }
 
   add_root(model: HasProps): void {
-    if (this._add_root(model))
+    if (this._add_roots(model))
       this._trigger_on_change(new RootAddedEvent(this, model))
   }
 
@@ -543,7 +543,7 @@ export class Document implements Equatable {
           break
         }
         case "RootAdded": {
-          this._add_root(event.model)
+          this._add_roots(event.model)
           break
         }
         case "RootRemoved": {
