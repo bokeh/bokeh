@@ -132,7 +132,7 @@ class CustomJS(CustomCode):
     a ``cb_obj`` parameter contains the object that triggered the callback
     an optional ``cb_data`` parameter that contains any tool-specific data
     (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``)
-    an additional context in ``cb_context`` argument.
+    and additional document context in ``cb_context`` argument.
 
     2. An ES module.
 
@@ -148,15 +148,22 @@ class CustomJS(CustomCode):
     where ``args`` is a key-value mapping of user-provided parameters, ``obj``
     refers to the object that triggered the callback, ``data`` is a key-value
     mapping of optional parameters provided by the caller, and ``context`` is
-    additional context.
+    an additional document context.
 
-    This function can be an asynchronous function (``async function``).
-
-    The addtional context is composed of the following members:
+    The additional document context is composed of the following members:
 
     * ``index``: The view manager governing all views in the current
       instance of ``Bokeh``. If only one instance of ``Bokeh`` is
       loaded, then this is equivalent to using ``Bokeh.index``.
+
+    This function can be an asynchronous function (``async function () {}`` or
+    ``async () => {}``) if for example external resources are needed, which
+    would require usage of one of the asynchronous Web APIs, for example:
+
+    .. code-block: javascript
+
+        const response = await fetch("/assets/data.csv")
+        const data = await response.text()
 
     """)
 
@@ -176,7 +183,7 @@ class CustomJS(CustomCode):
 
         .. code-block: python
 
-            from bokeh.models import ColumnDataSrouce, CustomJS
+            from bokeh.models import ColumnDataSource, CustomJS
             source = ColumnDataSource(data=dict(x=[1, 2, 3]))
             CustomJS.from_file("./my_module.mjs", source=source)
 
