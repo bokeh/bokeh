@@ -16,7 +16,6 @@ import type {TooltipView} from "../ui/tooltip"
 import tabs_css, * as tabs from "styles/tabs.css"
 import icons_css from "styles/icons.css"
 
-
 export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
