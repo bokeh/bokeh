@@ -313,20 +313,36 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
 
       const {bbox} = this._pan_state
-      let {left, right, top, bottom} = BBox.from_lrtb({
-        left: bbox.left + dl,
-        right: bbox.right + dr,
-        top: bbox.top + dt,
-        bottom: bbox.bottom + db,
-      })
+      let {left, right, left_sign, right_sign} = (() => {
+        const left = bbox.left + dl
+        const right = bbox.right + dr
+        const left_sign = sgn(dl)
+        const right_sign = sgn(dr)
+        if (left <= right) {
+          return {left, right, left_sign, right_sign}
+        } else {
+          return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
+        }
+      })()
+      let {top, bottom, top_sign, bottom_sign} = (() => {
+        const top = bbox.top + dt
+        const bottom = bbox.bottom + db
+        const top_sign = sgn(dt)
+        const bottom_sign = sgn(db)
+        if (top <= bottom) {
+          return {top, bottom, top_sign, bottom_sign}
+        } else {
+          return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
+        }
+      })()
 
       const Dl = left - slimits.left
       const Dr = slimits.right - right
 
       const Dh = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
       if (isFinite(Dh) && Dh < 0) {
-        left += -sgn(dl)*(-Dh)
-        right += -sgn(dr)*(-Dh)
+        left += -left_sign*(-Dh)
+        right += -right_sign*(-Dh)
       }
 
       const Dt = top - slimits.top
@@ -334,8 +350,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
       const Dv = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
       if (isFinite(Dv) && Dv < 0) {
-        top += -sgn(dt)*(-Dv)
-        bottom += -sgn(db)*(-Dv)
+        top += -top_sign*(-Dv)
+        bottom += -bottom_sign*(-Dv)
       }
 
       return BBox.from_lrtb({left, right, top, bottom})
