@@ -101,12 +101,14 @@ from .coordinates import (
 )
 from .dom import Template
 from .glyphs import (
+    HStrip,
     Line,
     LineGlyph,
     LRTBGlyph,
     MultiLine,
     Patches,
     Rect,
+    VStrip,
     XYGlyph,
 )
 from .ranges import Range1d
@@ -1571,7 +1573,7 @@ class BoxEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    renderers = List(GlyphRendererOf(Rect, LRTBGlyph), help="""
+    renderers = List(GlyphRendererOf(Rect, LRTBGlyph, HStrip, VStrip), help="""
     A list of renderers corresponding to glyphs that may be edited.
     """)
 

@@ -8,6 +8,8 @@ import {Block} from "../../glyphs/block"
 import {Quad} from "../../glyphs/quad"
 import {HBar} from "../../glyphs/hbar"
 import {VBar} from "../../glyphs/vbar"
+import {HStrip} from "../../glyphs/hstrip"
+import {VStrip} from "../../glyphs/vstrip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import type {ColumnDataSource} from "../../sources/column_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
@@ -103,6 +105,22 @@ export class BoxEditToolView extends EditToolView {
             [bottom.field]: y0,
             [width.field]:  x1 - x0,
             [top.field]:    y1,
+          }
+        }
+      } else if (glyph instanceof HStrip) {
+        const {y0, y1} = glyph
+        if (isField(y0) && isField(y1)) {
+          return {
+            [y0.field]: y0,
+            [y1.field]: y1,
+          }
+        }
+      } else if (glyph instanceof VStrip) {
+        const {x0, x1} = glyph
+        if (isField(x0) && isField(x1)) {
+          return {
+            [x0.field]: x0,
+            [x1.field]: x1,
           }
         }
       } else {
@@ -241,6 +259,18 @@ export class BoxEditToolView extends EditToolView {
         if (isField(top) && isField(bottom)) {
           fields[top.field]    = dy
           fields[bottom.field] = dy
+        }
+      } else if (glyph instanceof HStrip) {
+        const {y0, y1} = glyph
+        if (isField(y0) && isField(y1)) {
+          fields[y0.field] = dy
+          fields[y1.field] = dy
+        }
+      } else if (glyph instanceof VStrip) {
+        const {x0, x1} = glyph
+        if (isField(x0) && isField(x1)) {
+          fields[x0.field] = dx
+          fields[x1.field] = dx
         }
       } else {
         unreachable(`'${glyph.type}' is not supported"`)
