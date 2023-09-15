@@ -2,6 +2,7 @@ import type {PanEvent, TapEvent, KeyEvent, UIEvent, MoveEvent} from "core/ui_eve
 import {Dimensions} from "core/enums"
 import type * as p from "core/properties"
 import {isField} from "core/vectorization"
+import {XYGlyph} from "../../glyphs/xy_glyph"
 import {Rect} from "../../glyphs/rect"
 import type {LRTB} from "../../glyphs/lrtb"
 import {Block} from "../../glyphs/block"
@@ -224,7 +225,7 @@ export class BoxEditToolView extends EditToolView {
       const cds = renderer.data_source
 
       const fields: {[key: string]: number} = {}
-      if (glyph instanceof Rect) {
+      if (glyph instanceof XYGlyph) {
         const {x, y} = glyph
         if (isField(x)) fields[x.field] = dx
         if (isField(y)) fields[y.field] = dy
