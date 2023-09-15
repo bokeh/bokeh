@@ -73,7 +73,7 @@ export class DataRange1d extends DataRange {
   protected _initial_follow_interval: number | null
   protected _initial_default_span: number
 
-  protected _plot_bounds: Map<PlotView, Rect>
+  protected readonly _plot_bounds: Map<PlotView, Rect> = new Map()
 
   override have_updated_interactively: boolean = false
 
@@ -87,8 +87,6 @@ export class DataRange1d extends DataRange {
     this._initial_follow = this.follow
     this._initial_follow_interval = this.follow_interval
     this._initial_default_span = this.default_span
-
-    this._plot_bounds = new Map()
   }
 
   get min(): number {

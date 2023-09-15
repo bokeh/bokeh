@@ -103,7 +103,7 @@ export class CircleView extends XYGlyphView {
     }
   }
 
-  protected override _mask_data(): Indices {
+  override mask_data(): Indices {
     const {frame} = this.renderer.plot_view
 
     const shr = frame.x_target

@@ -11,8 +11,8 @@ import type {Anchor} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
-import type {Arrayable, Rect, FloatArray} from "core/types"
-import {ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, FloatArray, Indices} from "core/types"
+import {ScreenArray} from "core/types"
 import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map, max} from "core/util/arrayable"
@@ -365,13 +365,14 @@ export abstract class GlyphView extends View {
 
   mask_data(): Indices {
     /** Returns subset indices in the viewport. */
-    if (this._mask_data == null)
-      return Indices.all_set(this.data_size)
-    else
-      return this._mask_data()
-  }
+    const {frame} = this.renderer.plot_view
+    const [xr, yr] = frame.bbox.ranges
 
-  protected _mask_data?(): Indices
+    const [x0, x1] = this.renderer.x_scale.r_invert(xr.start, xr.end)
+    const [y0, y1] = this.renderer.y_scale.r_invert(yr.start, yr.end)
+
+    return this.index.indices({x0, x1, y0, y1})
+  }
 
   map_data(): void {
     const self = this as any

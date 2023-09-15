@@ -30,8 +30,6 @@ export type ImageURLData = XYGlyphData & {
 
   image: (CanvasImage | undefined)[]
   rendered: Indices
-
-  anchor: XY<number>
 }
 
 export interface ImageURLView extends ImageURLData {}
@@ -51,9 +49,31 @@ export class ImageURLView extends XYGlyphView {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      // TODO: add a proper implementation (same as ImageBase?)
-      index.add_empty()
+      const [l, r, t, b] = this._lrtb(i)
+      index.add_rect(l, b, r, t)
     }
+  }
+
+  _lrtb(i: number): [number, number, number, number] {
+    const dw_i = this.w.get(i)
+    const dh_i = this.h.get(i)
+
+    const x_i = this._x[i]
+    const y_i = this._y[i]
+
+    const {xy_anchor} = this
+
+    const [x0, x1] = [x_i - xy_anchor.x*dw_i, x_i + (1 - xy_anchor.x)*dw_i]
+    const [y0, y1] = [y_i + xy_anchor.y*dh_i, y_i - (1 - xy_anchor.y)*dh_i]
+
+    const [l, r] = x0 <= x1 ? [x0, x1] : [x1, x0]
+    const [b, t] = y0 <= y1 ? [y0, y1] : [y1, y0]
+    return [l, r, t, b]
+  }
+
+  private _xy_anchor: XY<number>
+  get xy_anchor(): XY<number> {
+    return this._xy_anchor
   }
 
   private _set_data_iteration: number = 0
@@ -99,15 +119,15 @@ export class ImageURLView extends XYGlyphView {
     const xs = new ScreenArray(w_data ? 2*n : n)
     const ys = new ScreenArray(h_data ? 2*n : n)
 
-    this.anchor = resolve.anchor(this.model.anchor)
-    const {x: x_anchor, y: y_anchor} = this.anchor
+    this._xy_anchor = resolve.anchor(this.model.anchor)
+    const {xy_anchor} = this
 
     function x0x1(x: number, w: number) {
-      const x0 = x - x_anchor*w
+      const x0 = x - xy_anchor.x*w
       return [x0, x0 + w]
     }
     function y0y1(y: number, h: number) {
-      const y0 = y + y_anchor*h
+      const y0 = y + xy_anchor.y*h
       return [y0, y0 - h]
     }
 
@@ -192,9 +212,9 @@ export class ImageURLView extends XYGlyphView {
     const sw_i = sw[i]
     const sh_i = sh[i]
 
-    const {anchor} = this
-    const dx_i = anchor.x*sw_i
-    const dy_i = anchor.y*sh_i
+    const {xy_anchor} = this
+    const dx_i = xy_anchor.x*sw_i
+    const dy_i = xy_anchor.y*sh_i
 
     const sx_i = sx[i] - dx_i
     const sy_i = sy[i] - dy_i

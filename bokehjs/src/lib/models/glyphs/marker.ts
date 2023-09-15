@@ -58,7 +58,7 @@ export abstract class MarkerView extends XYGlyphView {
     }
   }
 
-  protected override _mask_data(): Indices {
+  override mask_data(): Indices {
     // dilate the inner screen region by max_size and map back to data space for use in spatial query
     const {x_target, y_target} = this.renderer.plot_view.frame
 
