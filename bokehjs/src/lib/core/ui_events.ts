@@ -10,7 +10,9 @@ import {reversed, is_empty} from "./util/array"
 import {isObject} from "./util/types"
 import {is_mobile} from "./util/platform"
 import type {PlotView} from "../models/plots/plot"
-import type {ToolView} from "../models/tools/tool"
+import type {Tool, ToolView} from "../models/tools/tool"
+import type {ToolLike} from "../models/tools/tool_proxy"
+import {ToolProxy} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
 
@@ -363,8 +365,8 @@ export class UIEventBus implements EventListenerObject {
     return null
   }
 
-  set_cursor(cursor: string = "default"): void {
-    this.hit_area.style.cursor = cursor
+  set_cursor(cursor?: string | null): void {
+    this.hit_area.style.cursor = cursor ?? "default"
   }
 
   hit_test_frame(plot_view: PlotView, sx: number, sy: number): boolean {
@@ -572,32 +574,53 @@ export class UIEventBus implements EventListenerObject {
       }
     }
 
+    function get_tool_view(tool_like: ToolLike<Tool> | null): ToolView | null {
+      if (tool_like != null) {
+        const tool = tool_like instanceof ToolProxy ? tool_like.tools[0] : tool_like
+        return plot_view.tool_views.get(tool) ?? null
+      } else {
+        return null
+      }
+    }
+
     switch (base_type) {
       case "move": {
         const active_gesture = gestures.move.active
-        if (active_gesture != null)
+        if (active_gesture != null) {
           this.trigger(signal, e, active_gesture.id)
-
-        const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
-        let cursor = "default"
-
-        // the event happened on a renderer
-        if (view != null) {
-          cursor = view.cursor(e.sx, e.sy) ?? cursor
-
-          if (!view.model.propagate_hover && !is_empty(active_inspectors)) {
-            // override event_type to cause inspectors to clear overlays
-            signal = this.move_exit as any // XXX
-          }
-
-        // the event happened on the plot frame but off a renderer
-        } else if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
-          if (!is_empty(active_inspectors)) {
-            cursor = "crosshair"
-          }
         }
 
+        const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
+
+        const cursor = (() => {
+          const current_view =
+            this._current_pan_view ??
+            this._current_pinch_view ??
+            this._current_rotate_view ??
+            this._current_move_view ??
+            view ??
+            get_tool_view(active_gesture)
+
+          if (current_view != null) {
+            const cursor = current_view.cursor(e.sx, e.sy)
+            if (cursor != null) {
+              return cursor
+            }
+          }
+
+          if (this.hit_test_frame(plot_view, e.sx, e.sy) && !is_empty(active_inspectors)) {
+            // the event happened on the plot frame but off a renderer
+            return "crosshair"
+          }
+
+          return null
+        })()
         this.set_cursor(cursor)
+
+        if (view != null && !view.model.propagate_hover && !is_empty(active_inspectors)) {
+          // override event_type to cause inspectors to clear overlays
+          signal = this.move_exit as any // XXX
+        }
 
         active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
         break
@@ -645,6 +668,15 @@ export class UIEventBus implements EventListenerObject {
           srcEvent.preventDefault()
           this.trigger(signal, e, active_gesture.id)
         }
+
+        /* TODO this requires knowledge of the current interactive
+                tool (similar to _current_pan_view, etc.)
+        const active_pan_view = get_tool_view(active_gesture)
+        if (active_pan_view != null) {
+          const cursor = active_pan_view.cursor(e.sx, e.sy)
+          this.set_cursor(cursor)
+        }
+        */
         break
       }
       default: {
