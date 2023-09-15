@@ -140,10 +140,6 @@ FIND_VIEW_SCRIPT = """
         }
         return undefined
     }
-
-    function views() {
-        return Object.values(Bokeh.index)
-    }
 """
 
 def get_events_el(driver: WebDriver, model: Plot) -> WebElement:
@@ -152,7 +148,7 @@ def get_events_el(driver: WebDriver, model: Plot) -> WebElement:
     function* fn(view) {
         yield view.canvas_view.events_el
     }
-    return head(find(views(), id, fn)) ?? null
+    return head(find(Bokeh.index, id, fn)) ?? null
     """
     el = driver.execute_script(script, model.id)
     if el is not None:
@@ -185,7 +181,7 @@ FIND_SCRIPT = """
 
 def find_elements_for(driver: WebDriver, model: Model, selector: str | None = None) -> list[WebElement]:
     script = FIND_SCRIPT + """
-    for (const els of find(Object.values(Bokeh.index))) {
+    for (const els of find(Bokeh.index)) {
         return els
     }
     return null
@@ -194,7 +190,7 @@ def find_elements_for(driver: WebDriver, model: Model, selector: str | None = No
 
 def find_element_for(driver: WebDriver, model: Model, selector: str | None = None) -> WebElement:
     script = FIND_SCRIPT + """
-    for (const els of find(Object.values(Bokeh.index))) {
+    for (const els of find(Bokeh.index)) {
         return els[0] ?? null
     }
     return null
@@ -220,7 +216,7 @@ RESULTS = 'return Bokeh._testing.results'
 
 def SCROLL(amt: float) -> str:
     return """
-    const elt = Object.values(Bokeh.index)[0].canvas_view.events_el;
+    const elt = Bokeh.index.roots[0].canvas_view.events_el;
     const event = new WheelEvent('wheel', { deltaY: %f, clientX: 100, clientY: 100} );
     elt.dispatchEvent(event);
     """ % amt

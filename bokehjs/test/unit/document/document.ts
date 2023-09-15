@@ -146,6 +146,14 @@ describe("Document", () => {
     expect(d.roots().length).to.be.equal(0)
   })
 
+  it("should be constructable with roots", () => {
+    const child = new AnotherModel()
+    const root = new SomeModel({child})
+    const doc = new Document({roots: [root]})
+    expect(doc.roots().length).to.be.equal(1)
+    expect(doc._all_models.size).to.be.equal(2)
+  })
+
   it("has working add_root", () => {
     const d = new Document()
     expect(d.roots().length).to.be.equal(0)

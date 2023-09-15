@@ -130,8 +130,9 @@ class CustomJS(CustomCode):
     The code is made into the body of a function, and all of of the named objects in
     ``args`` are available as parameters that the code can use. Additionally,
     a ``cb_obj`` parameter contains the object that triggered the callback
-    and an optional ``cb_data`` parameter that contains any tool-specific data
-    (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``).
+    an optional ``cb_data`` parameter that contains any tool-specific data
+    (i.e. mouse coordinates and hovered glyph indices for the ``HoverTool``)
+    and additional document context in ``cb_context`` argument.
 
     2. An ES module.
 
@@ -140,15 +141,30 @@ class CustomJS(CustomCode):
 
     .. code-block: javascript
 
-        export default function(args, obj, data) {
+        export default function(args, obj, data, context) {
             // program logic
         }
 
     where ``args`` is a key-value mapping of user-provided parameters, ``obj``
-    refers to the object that triggered the callback, and ``data`` is a key-value
-    mapping of optional parameters provided by the caller.
+    refers to the object that triggered the callback, ``data`` is a key-value
+    mapping of optional parameters provided by the caller, and ``context`` is
+    an additional document context.
 
-    This function can be an asynchronous function (``async function``).
+    The additional document context is composed of the following members:
+
+    * ``index``: The view manager governing all views in the current
+      instance of ``Bokeh``. If only one instance of ``Bokeh`` is
+      loaded, then this is equivalent to using ``Bokeh.index``.
+
+    This function can be an asynchronous function (``async function () {}`` or
+    ``async () => {}``) if for example external resources are needed, which
+    would require usage of one of the asynchronous Web APIs, for example:
+
+    .. code-block: javascript
+
+        const response = await fetch("/assets/data.csv")
+        const data = await response.text()
+
     """)
 
     module = Either(Auto, Bool, default="auto", help="""
@@ -167,7 +183,7 @@ class CustomJS(CustomCode):
 
         .. code-block: python
 
-            from bokeh.models import ColumnDataSrouce, CustomJS
+            from bokeh.models import ColumnDataSource, CustomJS
             source = ColumnDataSource(data=dict(x=[1, 2, 3]))
             CustomJS.from_file("./my_module.mjs", source=source)
 
