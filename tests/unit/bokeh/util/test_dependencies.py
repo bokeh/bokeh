@@ -16,6 +16,10 @@ import pytest ; pytest
 # Imports
 #-----------------------------------------------------------------------------
 
+# External imports
+import numpy as np
+import pandas as pd
+
 # Module under test
 import bokeh.util.dependencies as dep # isort:skip
 
@@ -44,6 +48,14 @@ class Test_import_required:
         with pytest.raises(RuntimeError) as excinfo:
             dep.import_required('bleepbloop', 'nope')
         assert 'nope' in str(excinfo.value)
+
+def test_uses_pandas() -> None:
+    assert dep.uses_pandas(1) is False
+    assert dep.uses_pandas([]) is False
+    assert dep.uses_pandas(np.sqrt(3)) is False
+    assert dep.uses_pandas(np.array([1, 2, 3])) is False
+    assert dep.uses_pandas(pd.Series([1, 2, 3])) is True
+    assert dep.uses_pandas(pd.DataFrame({"x": [1, 2, 3]})) is True
 
 #-----------------------------------------------------------------------------
 # Dev API
