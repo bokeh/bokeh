@@ -114,20 +114,17 @@ export class TabsView extends LayoutDOMView {
       })
       const tooltip = this.tooltips[i]
       if (tooltip) {
-        tooltip.useRelativeBoundingBox = false
         tooltip?.model.setv({
           target: el,
         })
-        const toggleTooltip = (visible: boolean) => {
-          tooltip.model.setv({
-            visible,
-          })
+        const toggle_tooltip = (visible: boolean) => {
+          tooltip.model.visible = visible;
         }
         el.addEventListener("mouseenter", () => {
-          toggleTooltip(true)
+          toggle_tooltip(true)
         })
         el.addEventListener("mouseleave", () => {
-          toggleTooltip(false)
+          toggle_tooltip(false)
         })
       }
       if (tab.closable) {
