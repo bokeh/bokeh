@@ -43,6 +43,7 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 export type TooltipVars = {
   index: number | null
   glyph_view: GlyphView
+  type: string
   x: number
   y: number
   sx: number
@@ -279,6 +280,7 @@ export class HoverToolView extends InspectToolView {
       const vars = {
         index: null,
         glyph_view: glyph,
+        type: glyph.model.type,
         x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
@@ -294,6 +296,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: i,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
@@ -337,6 +340,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: ii,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
@@ -351,6 +355,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: image_index.index,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           image_index,
@@ -391,6 +396,7 @@ export class HoverToolView extends InspectToolView {
             const vars = {
               index,
               glyph_view: glyph,
+              type: glyph.model.type,
               x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
               name: renderer.name,
               indices: subset_indices.multiline_indices,
@@ -423,6 +429,7 @@ export class HoverToolView extends InspectToolView {
           const vars = {
             index,
             glyph_view: glyph,
+            type: glyph.model.type,
             x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
             name: renderer.name,
             indices: subset_indices.indices,
