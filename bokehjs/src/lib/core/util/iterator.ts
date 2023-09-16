@@ -1,10 +1,11 @@
 import {range as arange} from "./array"
 import {assert} from "./assert"
 
-const {abs, ceil, max} = Math
+export {min, max} from "./arrayable"
 
 export function* range(start: number, stop?: number, step: number = 1): Iterable<number> {
   assert(step > 0)
+  const {abs, ceil, max} = Math
 
   if (stop == null) {
     stop = start
