@@ -1,7 +1,6 @@
 import type {Interval} from "../types"
 import type {Scale} from "models/scales/scale"
 import type {RangeInfo, RangeState} from "models/plots/range_manager"
-import {CompositeScale} from "models/coordinates/coordinate_mapping"
 import {minmax} from "core/util/math"
 
 type Bounds = [number, number]
@@ -29,13 +28,7 @@ export function get_info(scales: Scale[], [sxy0, sxy1]: Bounds): RangeState {
 
 export function rescale(scales: Scale[], factor: number, center?: number | null): RangeState {
   const output: RangeState = new Map()
-  for (const input_scale of scales) {
-    const scale = (() => {
-      if (input_scale instanceof CompositeScale) {
-        return input_scale.source_scale
-      } else
-        return input_scale
-    })()
+  for (const scale of scales) {
     const [v0, v1] = scale_interval(scale.target_range, factor, center)
     const [start, end] = scale.r_invert(v0, v1)
     output.set(scale.source_range, {start, end})

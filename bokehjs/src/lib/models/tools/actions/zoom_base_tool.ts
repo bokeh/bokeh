@@ -1,9 +1,12 @@
 import {PlotActionTool, PlotActionToolView} from "./plot_action_tool"
 import {DataRenderer} from "../../renderers/data_renderer"
+import type {Scale} from "../../scales/scale"
+import {CompositeScale} from "../../scales/composite_scale"
 import {Dimensions} from "core/enums"
 import {scale_range} from "core/util/zoom"
 import {assert} from "core/util/assert"
 import type * as p from "core/properties"
+import {logger} from "core/logging"
 
 export abstract class ZoomBaseToolView extends PlotActionToolView {
   declare model: ZoomBaseTool
@@ -59,9 +62,27 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
       const rv = this.plot_view.renderer_view(renderer)
       assert(rv != null)
 
+      const process = (scale: Scale) => {
+        const {level} = this.model
+        for (let i = 0; i < level; i++) {
+          if (scale instanceof CompositeScale) {
+            scale = scale.source_scale
+          } else {
+            logger.warn(`can't reach sub-coordinate level ${level} for ${scale}; stopped at ${i}`)
+            break
+          }
+        }
+
+        if (scale instanceof CompositeScale) {
+          return scale.target_scale
+        } else {
+          return scale
+        }
+      }
+
       const {x_scale, y_scale} = rv.coordinates
-      x_scales.push(x_scale)
-      y_scales.push(y_scale)
+      x_scales.push(process(x_scale))
+      y_scales.push(process(y_scale))
     }
 
     const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, this.factor, x_axis, y_axis)
@@ -82,6 +103,7 @@ export namespace ZoomBaseTool {
     factor: p.Property<number>
     dimensions: p.Property<Dimensions>
     renderers: p.Property<DataRenderer[] | "auto">
+    level: p.Property<number>
   }
 }
 
@@ -96,10 +118,11 @@ export abstract class ZoomBaseTool extends PlotActionTool {
   }
 
   static {
-    this.define<ZoomBaseTool.Props>(({Percent, Or, Array, Ref, Auto}) => ({
+    this.define<ZoomBaseTool.Props>(({Percent, Or, Array, Ref, Auto, NonNegative, Int}) => ({
       factor:     [ Percent,    0.1    ],
       dimensions: [ Dimensions, "both" ],
       renderers:  [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
+      level:      [ NonNegative(Int), 0 ],
     }))
   }
 
