@@ -2,8 +2,9 @@ import numpy as np
 
 from bokeh.core.properties import field
 from bokeh.io import show
-from bokeh.models import (ColumnDataSource, FactorRange, HoverTool,
-                          Range1d, WheelZoomTool, ZoomInTool, ZoomOutTool)
+from bokeh.layouts import column, row
+from bokeh.models import (ColumnDataSource, CustomJS, Div, FactorRange, HoverTool,
+                          Range1d, Switch, WheelZoomTool, ZoomInTool, ZoomOutTool)
 from bokeh.palettes import Category10
 from bokeh.plotting import figure
 
@@ -50,4 +51,19 @@ zoom_out = ZoomOutTool(renderers=renderers, level=level)
 p.add_tools(wheel_zoom, zoom_in, zoom_out, hover)
 p.toolbar.active_scroll = wheel_zoom
 
-show(p)
+on_change = CustomJS(
+    args=dict(tools=[wheel_zoom, zoom_in, zoom_out]),
+    code="""
+export default ({tools}, obj) => {
+    const level = obj.active ? 1 : 0
+    for (const tool of tools) {
+        tool.level = level
+    }
+}
+""")
+
+label = Div(text="Zoom sub-coordinates:")
+widget = Switch(active=level == 1)
+widget.js_on_change("active", on_change)
+
+show(column(row(label, widget), p))
