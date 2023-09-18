@@ -9,7 +9,7 @@ import type * as nd from "core/util/ndarray"
 import type {Glyph, GlyphRenderer, ColumnarDataSource, CDSView, CoordinateMapping} from "./models"
 
 import {
-  AnnularWedge, Annulus, Arc, Bezier, Block, Circle, Ellipse, HArea, HAreaStep, HBar, HSpan,
+  AnnularWedge, Annulus, Arc, Band, Bezier, Block, Circle, Ellipse, HArea, HAreaStep, HBar, HSpan,
   HStrip, HexTile, Image, ImageRGBA, ImageStack, ImageURL, Line, MultiLine, MultiPolygons,
   Patch, Patches, Quad, Quadratic, Ray, Rect, Scatter, Segment, Spline, Step, MathMLGlyph,
   TeXGlyph, Text, VArea, VAreaStep, VBar, VSpan, VStrip, Wedge, Whisker,
@@ -122,6 +122,7 @@ export type GlyphArgs<P> = ArgsOf<P> & UnitsOf<P> & AuxGlyph & ColorAlpha
 export type AnnularWedgeArgs  = GlyphArgs<AnnularWedge.Props>  & AuxLine & AuxFill & AuxHatch
 export type AnnulusArgs       = GlyphArgs<Annulus.Props>       & AuxLine & AuxFill & AuxHatch
 export type ArcArgs           = GlyphArgs<Arc.Props>           & AuxLine
+export type BandArgs          = GlyphArgs<Band.Props>          & AuxLine & AuxFill & AuxHatch
 export type BezierArgs        = GlyphArgs<Bezier.Props>        & AuxLine
 export type BlockArgs         = GlyphArgs<Block.Props>         & AuxLine & AuxFill & AuxHatch
 export type CircleArgs        = GlyphArgs<Circle.Props>        & AuxLine & AuxFill & AuxHatch
@@ -198,6 +199,17 @@ export abstract class GlyphAPI {
     args?: Partial<ArcArgs>): TypedGlyphRenderer<Arc>
   arc(...args: unknown[]): TypedGlyphRenderer<Arc> {
     return this._glyph(Arc, ["x", "y", "radius", "start_angle", "end_angle"], args)
+  }
+
+  band(args: Partial<BandArgs>): TypedGlyphRenderer<Band>
+  band(
+    dimension: BandArgs["dimension"],
+    base: BandArgs["base"],
+    lower: BandArgs["lower"],
+    upper: BandArgs["upper"],
+    args?: Partial<BandArgs>): TypedGlyphRenderer<Band>
+  band(...args: unknown[]): TypedGlyphRenderer<Band> {
+    return this._glyph(Band, ["dimension", "base", "lower", "upper"], args)
   }
 
   bezier(args: Partial<BezierArgs>): TypedGlyphRenderer<Bezier>

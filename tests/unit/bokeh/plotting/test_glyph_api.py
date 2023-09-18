@@ -46,6 +46,12 @@ def test_arc() -> None:
     assert isinstance(gr, GlyphRenderer)
     assert isinstance(gr.glyph, glyphs.Arc)
 
+def test_band() -> None:
+    p = figure()
+    gr = p.band()
+    assert isinstance(gr, GlyphRenderer)
+    assert isinstance(gr.glyph, glyphs.Band)
+
 def test_bezier() -> None:
     p = figure()
     gr = p.bezier()

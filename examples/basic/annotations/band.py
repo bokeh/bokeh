@@ -3,7 +3,7 @@
     The line passes through the mean of the area covered by the band.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show
+    :apis: bokeh.models.ColumnDataSource, bokeh.plotting.figure.band, bokeh.plotting.figure, bokeh.io.show
     :refs: :ref:`ug_basic_annotations_bands`
     :keywords: figure, scatter, line, band, layout
 
@@ -11,7 +11,7 @@
 import numpy as np
 import pandas as pd
 
-from bokeh.models import Band, ColumnDataSource
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 
 # Create some random data
@@ -37,8 +37,11 @@ p.scatter(x="x", y="y", color="blue", marker="dot", size=10, alpha=0.4, source=s
 
 p.line("x", "y_mean", line_dash=(10, 7), line_width=2, source=source)
 
-band = Band(base="x", lower="lower", upper="upper", source=source,
-            fill_alpha=0.3, fill_color="yellow", line_color="black")
-p.add_layout(band)
+p.band(
+    dimension="height",
+    base="x", lower="lower", upper="upper",
+    fill_alpha=0.3, fill_color="yellow", line_color="black",
+    source=source,
+)
 
 show(p)
