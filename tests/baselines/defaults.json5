@@ -3022,6 +3022,17 @@
   CategoricalScale: {
     __extends__: "Scale",
   },
+  CompositeScale: {
+    __extends__: "Scale",
+    source_scale: {
+      type: "symbol",
+      name: "unset",
+    },
+    target_scale: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   CoordinateMapping: {
     __extends__: "Model",
     x_source: {
@@ -5549,6 +5560,8 @@
   WheelZoomTool: {
     __extends__: "Scroll",
     dimensions: "both",
+    renderers: "auto",
+    level: 0,
     maintain_focus: true,
     zoom_on_axis: true,
     zoom_together: "all",
@@ -5620,16 +5633,15 @@
   ZoomBaseTool: {
     __extends__: "PlotActionTool",
     renderers: "auto",
+    dimensions: "both",
+    factor: 0.1,
+    level: 0,
   },
   ZoomInTool: {
     __extends__: "ZoomBaseTool",
-    dimensions: "both",
-    factor: 0.1,
   },
   ZoomOutTool: {
     __extends__: "ZoomBaseTool",
-    dimensions: "both",
-    factor: 0.1,
     maintain_focus: true,
   },
   BoxSelectTool: {
