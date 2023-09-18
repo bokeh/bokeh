@@ -62,13 +62,13 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
       const rv = this.plot_view.renderer_view(renderer)
       assert(rv != null)
 
-      const process = (scale: Scale) => {
+      const process = (scale: Scale, dim: "x" | "y") => {
         const {level} = this.model
         for (let i = 0; i < level; i++) {
           if (scale instanceof CompositeScale) {
             scale = scale.source_scale
           } else {
-            logger.warn(`can't reach sub-coordinate level ${level} for ${scale}; stopped at ${i}`)
+            logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
             break
           }
         }
@@ -81,8 +81,8 @@ export abstract class ZoomBaseToolView extends PlotActionToolView {
       }
 
       const {x_scale, y_scale} = rv.coordinates
-      x_scales.push(process(x_scale))
-      y_scales.push(process(y_scale))
+      x_scales.push(process(x_scale, "x"))
+      y_scales.push(process(y_scale, "y"))
     }
 
     const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, this.factor, x_axis, y_axis)

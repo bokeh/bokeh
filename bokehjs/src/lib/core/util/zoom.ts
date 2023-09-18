@@ -17,7 +17,7 @@ export function scale_interval(range: Interval, factor: number, center?: number 
   return [x0, x1]
 }
 
-export function get_info(scales: Scale[], [sxy0, sxy1]: Bounds): RangeState {
+export function get_info(scales: Iterable<Scale>, [sxy0, sxy1]: Bounds): RangeState {
   const info: RangeState = new Map()
   for (const scale of scales) {
     const [start, end] = scale.r_invert(sxy0, sxy1)
@@ -26,7 +26,7 @@ export function get_info(scales: Scale[], [sxy0, sxy1]: Bounds): RangeState {
   return info
 }
 
-export function rescale(scales: Scale[], factor: number, center?: number | null): RangeState {
+export function rescale(scales: Iterable<Scale>, factor: number, center?: number | null): RangeState {
   const output: RangeState = new Map()
   for (const scale of scales) {
     const [v0, v1] = scale_interval(scale.target_range, factor, center)
@@ -36,7 +36,7 @@ export function rescale(scales: Scale[], factor: number, center?: number | null)
   return output
 }
 
-export function scale_range(x_scales: Scale[], y_scales: Scale[], _x_target: Interval, _y_range: Interval, factor: number,
+export function scale_range(x_scales: Iterable<Scale>, y_scales: Iterable<Scale>, _x_target: Interval, _y_range: Interval, factor: number,
     x_axis: boolean = true, y_axis: boolean = true, center?: {x?: number | null, y?: number | null} | null): ScaleRanges {
   /*
    * Utility function for zoom tools to calculate/create the zoom_info object

@@ -47,42 +47,45 @@ export class WheelZoomToolView extends GestureToolView {
       return
     }
 
-    const {renderers} = this.model
-
-    // TODO renderers != "auto"
-    const {x_scales, y_scales} = (() => {
+    const [x_frame_scales_, y_frame_scales_] = (() => {
       const x_frame = [...frame.x_scales.values()]
       const y_frame = [...frame.y_scales.values()]
 
-      if (axis_view != null) {
+      if (axis_view == null) {
+        return [x_frame, y_frame]
+      } else {
         const {zoom_together} = this.model
         if (zoom_together == "all") {
           if (axis_view.dimension == 0)
-            return {x_scales: x_frame, y_scales: []}
+            return [x_frame, []]
           else
-            return {x_scales: [], y_scales: y_frame}
+            return [[], y_frame]
         } else {
           const {x_scale, y_scale} = axis_view.coordinates
 
           switch (zoom_together) {
             case "cross": {
-              return {x_scales: [x_scale], y_scales: [y_scale]}
+              return [[x_scale], [y_scale]]
             }
             case "none": {
               if (axis_view.dimension == 0)
-                return {x_scales: [x_scale], y_scales: []}
+                return [[x_scale], []]
               else
-                return {x_scales: [], y_scales: [y_scale]}
+                return [[], [y_scale]]
             }
           }
         }
-      } else {
-        return {x_scales: x_frame, y_scales: y_frame}
       }
     })()
 
+    const x_frame_scales = new Set(x_frame_scales_)
+    const y_frame_scales = new Set(y_frame_scales_)
+
+    const x_renderer_scales = new Set<Scale>()
+    const y_renderer_scales = new Set<Scale>()
+
+    const {renderers} = this.model
     const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
-    const subcoord = {x: false, y: false}
 
     for (const renderer of data_renderers) {
       if (renderer.coordinates == null) {
@@ -92,28 +95,64 @@ export class WheelZoomToolView extends GestureToolView {
       const rv = this.plot_view.renderer_view(renderer)
       assert(rv != null)
 
-      const process = (scale: Scale, dim: "x" | "y") => {
-        const {level} = this.model
-        for (let i = 0; i < level; i++) {
-          if (scale instanceof CompositeScale) {
-            subcoord[dim] = true
-            scale = scale.source_scale
-          } else {
-            logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
-            break
-          }
-        }
+      const {x_scale, y_scale} = rv.coordinates
 
-        if (scale instanceof CompositeScale) {
-          return scale.target_scale
-        } else {
-          return scale
+      if (x_scale instanceof CompositeScale) {
+        if (x_frame_scales.has(x_scale.target_scale)) {
+          x_renderer_scales.add(x_scale)
         }
       }
 
-      const {x_scale, y_scale} = rv.coordinates
-      x_scales.push(process(x_scale, "x"))
-      y_scales.push(process(y_scale, "y"))
+      if (y_scale instanceof CompositeScale) {
+        if (y_frame_scales.has(y_scale.target_scale)) {
+          y_renderer_scales.add(y_scale)
+        }
+      }
+    }
+
+    const [x_all_scales, y_all_scales] = (() => {
+      if (renderers == "auto") {
+        return [
+          new Set([...x_frame_scales, ...x_renderer_scales]),
+          new Set([...y_frame_scales, ...y_renderer_scales]),
+        ]
+      } else {
+        return [
+          x_renderer_scales,
+          y_renderer_scales,
+        ]
+      }
+    })()
+
+    const subcoord = {x: false, y: false}
+
+    const traverse = (scale: Scale, dim: "x" | "y") => {
+      const {level} = this.model
+      for (let i = 0; i < level; i++) {
+        if (scale instanceof CompositeScale) {
+          subcoord[dim] = true
+          scale = scale.source_scale
+        } else {
+          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
+          break
+        }
+      }
+
+      if (scale instanceof CompositeScale) {
+        return scale.target_scale
+      } else {
+        return scale
+      }
+    }
+
+    const x_scales = new Set<Scale>()
+    const y_scales = new Set<Scale>()
+
+    for (const x_scale of x_all_scales) {
+      x_scales.add(traverse(x_scale, "x"))
+    }
+    for (const y_scale of y_all_scales) {
+      y_scales.add(traverse(y_scale, "y"))
     }
 
     const center = (() => {
