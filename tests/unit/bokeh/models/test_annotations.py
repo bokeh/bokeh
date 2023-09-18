@@ -27,7 +27,6 @@ from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     Arrow,
     ArrowHead,
-    Band,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -407,32 +406,6 @@ def test_BoxAnnotation_accepts_datetime() -> None:
     assert convert_datetime_type(obj.top) == 1533600000000.0
     assert convert_datetime_type(obj.bottom) == 1533600000000.0
 
-def test_Band() -> None:
-    band = Band()
-    assert band.level == 'annotation'
-    assert band.lower == field("lower")
-    assert band.lower_units == 'data'
-    assert band.upper == field("upper")
-    assert band.upper_units == 'data'
-    assert band.base == field("base")
-    assert band.dimension == 'height'
-    assert isinstance(band.source, ColumnDataSource)
-    assert band.x_range_name == 'default'
-    assert band.y_range_name == 'default'
-    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
-    check_fill_properties(band, "", "#fff9ba", 0.4)
-    check_properties_existence(band, [
-        *ANNOTATION,
-        "lower",
-        "lower_units",
-        "upper",
-        "upper_units",
-        "base",
-        "base_units",
-        "dimension",
-        "source",
-    ], LINE, FILL)
-
 
 def test_Label() -> None:
     label = Label(x=11, y=12)
@@ -629,12 +602,6 @@ def test_Title() -> None:
         prefix("background_", FILL),
         prefix('background_', HATCH),
     )
-
-def test_Band_accept_negative_values() -> None:
-    band = Band(base=-1., lower=-1.5, upper=-0.5)
-    assert band.base == -1.
-    assert band.lower == -1.5
-    assert band.upper == -0.5
 
 def test_can_add_multiple_glyph_renderers_to_legend_item() -> None:
     legend_item = LegendItem()

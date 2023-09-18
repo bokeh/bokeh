@@ -137,6 +137,23 @@ def test_Arc() -> None:
     ], LINE, GLYPH)
 
 
+def test_Band() -> None:
+    band = m.Band()
+    assert band.dimension == "height"
+    assert band.lower == field("lower")
+    assert band.upper == field("upper")
+    assert band.base == field("base")
+    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
+    check_fill_properties(band, "", "#fff9ba", 0.4)
+    check_properties_existence(band, [
+        *GLYPH,
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+    ], LINE, FILL, HATCH)
+
+
 def test_Bezier() -> None:
     glyph = m.Bezier()
     assert glyph.x0 == field("x0")
