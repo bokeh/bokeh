@@ -66,7 +66,6 @@ from ..core.properties import (
     NullDistanceSpec,
     NumberSpec,
     Override,
-    Required,
     Size,
     SizeSpec,
     String,
@@ -114,6 +113,7 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
+    'Band',
     'Bezier',
     'Block',
     'Circle',
@@ -2025,8 +2025,10 @@ class Whisker(LineGlyph):
         super().__init__(*args, **kwargs)
 
     dimension = Enum(Dimension, default="height", help="""
-    The direction of the whisker can be specified by setting this property
-    to "height" (``y`` direction) or "width" (``x`` direction).
+    The direction of the whisker can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
     """)
 
     lower = NumberSpec(default=field("lower"), help="""
@@ -2052,6 +2054,58 @@ class Whisker(LineGlyph):
     line_props = Include(LineProps, help="""
     The {prop} values for the whisker body.
     """)
+
+class Band(LineGlyph, FillGlyph, HatchGlyph):
+    ''' Render a filled area band along a dimension.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dimension = Enum(Dimension, default="height", help="""
+    The direction of the band can be specified by setting this property to:
+
+    * ``"width"`` for ``x`` direction
+    * ``"height"`` for ``y`` direction
+    """)
+
+    lower = NumberSpec(default=field("lower"), help="""
+    The coordinates of the lower portion of the filled area band.
+    """)
+
+    upper = NumberSpec(default=field("upper"), help="""
+    The coordinates of the upper portion of the filled area band.
+    """)
+
+    base = NumberSpec(default=field("base"), help="""
+    The orthogonal coordinates of the upper and lower values.
+    """)
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    hatch_props = Include(ScalarHatchProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_props = Include(ScalarLineProps, help="""
+    The {prop} values for the band.
+    """)
+
+    line_alpha = Override(default=0.3)
+
+    line_color = Override(default="#cccccc")
+
+    fill_props = Include(ScalarFillProps, help="""
+    The {prop} values for the band.
+    """)
+
+    fill_alpha = Override(default=0.4)
+
+    fill_color = Override(default="#fff9ba")
 
 #-----------------------------------------------------------------------------
 # Dev API

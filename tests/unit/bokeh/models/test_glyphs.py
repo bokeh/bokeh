@@ -56,25 +56,34 @@ from _util_models import (
 
 # Module under test
 from bokeh.models.glyphs import ( # isort:skip
-    AnnularWedge, Annulus, Arc,
+    AnnularWedge,
+    Annulus,
+    Arc,
+    Band,
     Bezier,
     Block,
     Circle,
     HArea,
     HAreaStep,
     HBar,
-    Image, ImageRGBA, ImageStack, ImageURL,
+    Image,
+    ImageRGBA,
+    ImageStack,
+    ImageURL,
     Line,
+    MathMLGlyph,
     MultiLine,
     MultiPolygons,
-    Patch, Patches,
-    Quad, Quadratic, Ray,
-    MathMLGlyph,
+    Patch,
+    Patches,
+    Quad,
+    Quadratic,
+    Ray,
     Rect,
     Segment,
     Step,
-    Text,
     TeXGlyph,
+    Text,
     VArea,
     VAreaStep,
     VBar,
@@ -162,6 +171,23 @@ def test_Arc() -> None:
         "end_angle_units",
         "direction",
     ], LINE, GLYPH)
+
+
+def test_Band() -> None:
+    band = Band()
+    assert band.dimension == "height"
+    assert band.lower == field("lower")
+    assert band.upper == field("upper")
+    assert band.base == field("base")
+    check_line_properties(band, "", "#cccccc", 1.0, 0.3)
+    check_fill_properties(band, "", "#fff9ba", 0.4)
+    check_properties_existence(band, [
+        *GLYPH,
+        "dimension",
+        "lower",
+        "upper",
+        "base",
+    ], LINE, FILL, HATCH)
 
 
 def test_Bezier() -> None:

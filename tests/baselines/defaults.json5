@@ -604,31 +604,6 @@
       type: "map",
     },
   },
-  Band: {
-    __extends__: "DataAnnotation",
-    lower: {
-      type: "field",
-      field: "lower",
-    },
-    upper: {
-      type: "field",
-      field: "upper",
-    },
-    base: {
-      type: "field",
-      field: "base",
-    },
-    dimension: "height",
-    line_color: "#cccccc",
-    line_alpha: 0.3,
-    line_width: 1,
-    line_join: "bevel",
-    line_cap: "butt",
-    line_dash: [],
-    line_dash_offset: 0,
-    fill_color: "#fff9ba",
-    fill_alpha: 0.4,
-  },
   BoxAnnotation: {
     __extends__: [
       "Annotation",
@@ -2752,6 +2727,43 @@
       type: "value",
       value: 0,
     },
+  },
+  Band: {
+    __extends__: [
+      "LineGlyph",
+      "FillGlyph",
+      "HatchGlyph",
+    ],
+    dimension: "height",
+    lower: {
+      type: "field",
+      field: "lower",
+    },
+    upper: {
+      type: "field",
+      field: "upper",
+    },
+    base: {
+      type: "field",
+      field: "base",
+    },
+    fill_color: "#fff9ba",
+    fill_alpha: 0.4,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+    line_color: "#cccccc",
+    line_alpha: 0.3,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
   },
   Bezier: {
     __extends__: "LineGlyph",
