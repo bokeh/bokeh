@@ -47,64 +47,42 @@ export class WheelZoomToolView extends GestureToolView {
       return
     }
 
-    // restrict to axis configured in tool's dimensions property and if
-    // zoom origin is inside of frame range/domain
-    const dims = this.model.dimensions
-    const x_axis = dims == "width" || dims == "both"
-    const y_axis = dims == "height" || dims == "both"
-
-    const {x_target, y_target} = frame
-
     const {renderers} = this.model
 
-    const {x_frame_scales, y_frame_scales, center} = (() => {
-      const {x_scales, y_scales, center} = (() => {
-        if (axis_view != null) {
-          const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
+    // TODO renderers != "auto"
+    const {x_scales, y_scales} = (() => {
+      const x_frame = [...frame.x_scales.values()]
+      const y_frame = [...frame.y_scales.values()]
 
-          const {zoom_together} = this.model
-          if (zoom_together == "all") {
-            const {x_scales, y_scales} = frame
-            if (axis_view.dimension == 0)
-              return {x_scales, y_scales: new Map(), center}
-            else
-              return {x_scales: new Map(), y_scales, center}
-          } else {
-            const {x_range_name, y_range_name} = axis_view.model
-            const {x_scale, y_scale} = axis_view.coordinates
+      if (axis_view != null) {
+        const {zoom_together} = this.model
+        if (zoom_together == "all") {
+          if (axis_view.dimension == 0)
+            return {x_scales: x_frame, y_scales: []}
+          else
+            return {x_scales: [], y_scales: y_frame}
+        } else {
+          const {x_scale, y_scale} = axis_view.coordinates
 
-            const x_scales = new Map([[x_range_name, x_scale]])
-            const y_scales = new Map([[y_range_name, y_scale]])
-
-            switch (zoom_together) {
-              case "cross": {
-                return {x_scales, y_scales, center}
-              }
-              case "none": {
-                if (axis_view.dimension == 0)
-                  return {x_scales, y_scales: new Map(), center}
-                else
-                  return {x_scales: new Map(), y_scales, center}
-              }
+          switch (zoom_together) {
+            case "cross": {
+              return {x_scales: [x_scale], y_scales: [y_scale]}
+            }
+            case "none": {
+              if (axis_view.dimension == 0)
+                return {x_scales: [x_scale], y_scales: []}
+              else
+                return {x_scales: [], y_scales: [y_scale]}
             }
           }
-        } else {
-          const {x_scales, y_scales} = frame
-          return {x_scales, y_scales, center: {x: sx, y: sy}}
         }
-      })()
-
-      return {
-        x_frame_scales: [...x_scales.values()],
-        y_frame_scales: [...y_scales.values()],
-        center,
+      } else {
+        return {x_scales: x_frame, y_scales: y_frame}
       }
     })()
 
-    const x_scales = [...x_frame_scales.values()]
-    const y_scales = [...y_frame_scales.values()]
-
     const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+    const subcoord = {x: false, y: false}
 
     for (const renderer of data_renderers) {
       if (renderer.coordinates == null) {
@@ -114,13 +92,14 @@ export class WheelZoomToolView extends GestureToolView {
       const rv = this.plot_view.renderer_view(renderer)
       assert(rv != null)
 
-      const process = (scale: Scale) => {
+      const process = (scale: Scale, dim: "x" | "y") => {
         const {level} = this.model
         for (let i = 0; i < level; i++) {
           if (scale instanceof CompositeScale) {
+            subcoord[dim] = true
             scale = scale.source_scale
           } else {
-            logger.warn(`can't reach sub-coordinate level ${level} for ${scale}; stopped at ${i}`)
+            logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
             break
           }
         }
@@ -133,11 +112,30 @@ export class WheelZoomToolView extends GestureToolView {
       }
 
       const {x_scale, y_scale} = rv.coordinates
-      x_scales.push(process(x_scale))
-      y_scales.push(process(y_scale))
+      x_scales.push(process(x_scale, "x"))
+      y_scales.push(process(y_scale, "y"))
     }
 
+    const center = (() => {
+      const x = subcoord.x ? null : sx
+      const y = subcoord.y ? null : sy
+
+      if (axis_view != null) {
+        return axis_view.dimension == 0 ? {x, y: null} : {x: null, y}
+      } else {
+        return {x, y}
+      }
+    })()
+
+    // restrict to axis configured in tool's dimensions property and if
+    // zoom origin is inside of frame range/domain
+    const dims = this.model.dimensions
+    const x_axis = dims == "width" || dims == "both"
+    const y_axis = dims == "height" || dims == "both"
+
+    const {x_target, y_target} = frame
     const factor = this.model.speed*ev.delta
+
     const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, factor, x_axis, y_axis, center)
 
     this.plot_view.state.push("wheel_zoom", {range: zoom_info})
