@@ -202,9 +202,9 @@ export class ScaleBarView extends AnnotationView {
     axis_layout.absolute = true
 
     if (orientation == "horizontal") {
-      axis_layout.set_sizing({width_policy: "fixed", width: bar_size.width, valign: "center"})
+      axis_layout.set_sizing({width_policy: "fixed", width: bar_size.width, height_policy: "min", valign: "center"})
     } else {
-      axis_layout.set_sizing({height_policy: "fixed", height: bar_size.height, halign: "center"})
+      axis_layout.set_sizing({width_policy: "min", height_policy: "fixed", height: bar_size.height, halign: "center"})
     }
 
     const left = padding
