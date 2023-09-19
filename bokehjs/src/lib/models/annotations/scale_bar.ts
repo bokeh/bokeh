@@ -10,7 +10,6 @@ import {TextBox} from "core/graphics"
 import type {Size} from "core/layout"
 import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
-import {assert} from "core/util/assert"
 import type {Context2d} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
 import {Column, Row, ContentLayoutable, Sizeable} from "core/layout"
@@ -22,6 +21,7 @@ import type {Scale} from "../scales/scale"
 import {LinearScale} from "../scales/linear_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
+import {clamp} from "core/util/math"
 
 const {round} = Math
 
@@ -146,20 +146,25 @@ export class ScaleBarView extends AnnotationView {
     const bar_width = bar_line.line_width.get_value()
     const border_width = border_line.line_width.get_value()
 
+    const {frame} = this.parent
+    const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
+
+    const bar_length_percent = (() => {
+      if (0.0 <= bar_length && bar_length <= 1.0) {
+        return bar_length
+      } else {
+        return clamp(bar_length/frame_span, 0.0, 1.0)
+      }
+    })()
+
     const {new_value, new_unit, scale_factor, exact} = (() => {
       const {range, unit, dimensional} = this.model
-      const value = range.span*bar_length
+      const value = range.span*bar_length_percent
       return dimensional.compute(value, unit)
     })()
 
-    const {frame} = this.parent
-    const frame_span = orientation == "horizontal" ? frame.bbox.width : frame.bbox.height
-    assert(0 < bar_length && bar_length <= 1)
-
-    const init_bar_length_px = frame_span*bar_length
+    const init_bar_length_px = frame_span*bar_length_percent
     const bar_length_px = round(init_bar_length_px*scale_factor)
-
-    //console.log(value, value_in_unit, unit, new_value, new_unit, preferred_value, preferred_value_raw, init_bar_length_px, scale_factor, bar_length_px)
 
     const label_layout = this.label_layout = (() => {
       const label = `${exact ? new_value.toFixed(2) : new_value} ${new_unit}`
@@ -514,12 +519,12 @@ export class ScaleBar extends Annotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<ScaleBar.Props>(({Percent, Number, String, Ref}) => ({
+    this.define<ScaleBar.Props>(({NonNegative, Number, String, Ref}) => ({
       range:          [ Ref(Range) ],
       unit:           [ String, "m" ],
       dimensional:    [ Ref(Dimensional), () => new MetricLength() ],
       orientation:    [ Orientation, "horizontal" ],
-      bar_length:     [ Percent, 0.2 ],
+      bar_length:     [ NonNegative(Number), 0.2 ],
       location:       [ Anchor, "top_right" ],
       label_align:    [ Align, "center" ],
       label_location: [ Location, "below" ],

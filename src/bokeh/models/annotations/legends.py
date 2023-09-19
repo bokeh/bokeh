@@ -46,10 +46,10 @@ from ...core.properties import (
     InstanceDefault,
     Int,
     List,
-    Nullable,
+    NonNegative,
     NullStringSpec,
+    Nullable,
     Override,
-    Percent,
     Positive,
     Required,
     Seq,
@@ -538,7 +538,8 @@ class ScaleBar(Annotation):
     location = Enum(Anchor, default="top_right", help="""
     """)
 
-    bar_length = Percent(default=0.2, help="""
+    bar_length = NonNegative(Either(Float, Int))(default=0.2, help="""
+    The length of the bar, either a percentage of the frame or a number of pixels.
     """)
 
     bar_style = Include(ScalarLineProps, prefix="bar", help="""
