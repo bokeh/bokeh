@@ -87,6 +87,10 @@ export class PlotActions {
     return this.target.canvas.events_el
   }
 
+  async scroll(xy: Point, delta: number): Promise<void> {
+    await this.emit(this._scroll(xy, delta))
+  }
+
   async hover(xy0: Point, xy1?: Point, n?: number): Promise<void> {
     await this.emit(this._hover({type: "line", xy0, xy1: xy1 ?? xy0, n}))
   }
@@ -175,6 +179,17 @@ export class PlotActions {
         break
       }
     }
+  }
+
+  protected *_scroll({x, y}: Point, delta: number): Iterable<MouseEvent> {
+    yield new WheelEvent("wheel", {
+      ..._pointer_common,
+      ...this.screen({x, y}),
+      deltaX: 0,
+      deltaY: delta,
+      deltaZ: 0,
+      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+    })
   }
 
   protected *_hover(path: Path): Iterable<MouseEvent> {
