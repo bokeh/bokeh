@@ -5,7 +5,7 @@ import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
 import type {PanEvent, KeyEvent} from "core/ui_events"
-import type {RectGeometry} from "core/geometry"
+import type {HitTestRect} from "core/geometry"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
@@ -170,7 +170,8 @@ export class BoxSelectToolView extends RegionSelectToolView {
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
-    const geometry: RectGeometry = {type: "rect", sx0, sx1, sy0, sy1}
+    const {greedy} = this.model
+    const geometry: HitTestRect = {type: "rect", sx0, sx1, sy0, sy1, greedy}
     this._select(geometry, final, mode)
   }
 }

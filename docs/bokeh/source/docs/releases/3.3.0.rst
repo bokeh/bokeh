@@ -5,5 +5,6 @@
 
 Bokeh version ``3.3.0`` (September 2023) is a minor milestone of Bokeh project.
 
+* Expanded support for polygonal hit testing and added greedy mode (:bokeh-pull:`13277`)
 * Added support for inline math text expressions (:bokeh-pull:`13214`)
 * Added ``stack_labels`` property to ``WeightedStackColorMapper`` (:bokeh-pull:`13366`)

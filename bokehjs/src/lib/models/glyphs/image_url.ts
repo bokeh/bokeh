@@ -4,7 +4,7 @@ import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import {ImageLoader} from "core/util/image"
@@ -126,9 +126,7 @@ export class ImageURLView extends XYGlyphView {
     } else
       ys.set(this._y, 0)
 
-    const [x0, x1] = minmax(xs)
-    const [y0, y1] = minmax(ys)
-
+    const [x0, x1, y0, y1] = minmax2(xs, ys)
     this._bounds_rect = {x0, x1, y0, y1}
   }
 

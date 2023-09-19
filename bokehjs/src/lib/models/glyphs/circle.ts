@@ -10,7 +10,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as uniforms from "core/uniforms"
 import type {SpatialIndex} from "core/util/spatial"
-import {map, minmax} from "core/util/arrayable"
+import {map, minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {Range1d} from "../ranges/range1d"
@@ -246,19 +246,20 @@ export class CircleView extends XYGlyphView {
   }
 
   protected override _hit_poly(geometry: PolyGeometry): Selection {
-    const {sx, sy} = geometry
+    const {sx: sxs, sy: sys} = geometry
 
-    const [sx0, sx1] = minmax(sx)
-    const [sy0, sy1] = minmax(sy)
+    const candidates = (() => {
+      const [sx0, sx1, sy0, sy1] = minmax2(sxs, sys)
 
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+      const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+      const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
 
-    const candidates = this.index.indices({x0, x1, y0, y1})
+      return this.index.indices({x0, x1, y0, y1})
+    })()
 
     const indices = []
     for (const i of candidates) {
-      if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
+      if (hittest.point_in_poly(this.sx[i], this.sy[i], sxs, sys)) {
         indices.push(i)
       }
     }
