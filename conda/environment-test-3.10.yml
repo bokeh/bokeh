@@ -44,6 +44,7 @@ dependencies:
   - requests >=1.2.3
   - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - scipy
+  - pooch # required in scipy.datasets
   - selenium 4.2
   - toml
   - typing_extensions >=4.0.0

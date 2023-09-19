@@ -443,7 +443,7 @@ def _log_console(driver: WebDriver) -> None:
 
 def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
-        const root_view = Object.values(Bokeh.index)[0]
+        const root_view = Bokeh.index.roots[0]
         const {width, height} = root_view.el.getBoundingClientRect()
         return [Math.round(width), Math.round(height), window.devicePixelRatio]
     """
@@ -478,8 +478,7 @@ function* collect_svgs(views) {
   }
 }
 
-const root_views = Object.values(Bokeh.index)
-return [...collect_svgs(root_views)]
+return [...collect_svgs(Bokeh.index)]
 """
 
 _SVG_SCRIPT = """\
@@ -491,8 +490,7 @@ function* export_svgs(views) {
   }
 }
 
-const root_views = Object.values(Bokeh.index)
-return [...export_svgs(root_views)]
+return [...export_svgs(Bokeh.index)]
 """
 
 _WAIT_SCRIPT = """

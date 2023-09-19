@@ -15,7 +15,7 @@ import {Signal0} from "core/signaling"
 import {isString, isFunction} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
-import {copy, includes} from "core/util/array"
+import {copy} from "core/util/array"
 import {entries} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "models/callbacks/callback"
@@ -95,10 +95,10 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
 
-  constructor(options?: {resolver?: ModelResolver}) {
+  constructor(options: {roots?: Iterable<HasProps>, resolver?: ModelResolver} = {}) {
     documents.push(this)
     this._init_timestamp = Date.now()
-    this._resolver = options?.resolver ?? new ModelResolver(default_resolver)
+    this._resolver = options.resolver ?? new ModelResolver(default_resolver)
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -112,6 +112,9 @@ export class Document implements Equatable {
     this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
+    if (options.roots != null) {
+      this._add_roots(...options.roots)
+    }
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -147,7 +150,7 @@ export class Document implements Equatable {
     }
   }
 
-  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
+  interactive_start(plot: Model, finalize: (() => void) | null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())
@@ -248,13 +251,15 @@ export class Document implements Equatable {
     return this._roots
   }
 
-  protected _add_root(model: HasProps): boolean {
-    if (includes(this._roots, model))
+  protected _add_roots(...models: HasProps[]): boolean {
+    models = models.filter((model) => !this._roots.includes(model))
+    if (models.length == 0) {
       return false
+    }
 
     this._push_all_models_freeze()
     try {
-      this._roots.push(model)
+      this._roots.push(...models)
     } finally {
       this._pop_all_models_freeze()
     }
@@ -285,7 +290,7 @@ export class Document implements Equatable {
   }
 
   add_root(model: HasProps): void {
-    if (this._add_root(model))
+    if (this._add_roots(model))
       this._trigger_on_change(new RootAddedEvent(this, model))
   }
 
@@ -538,7 +543,7 @@ export class Document implements Equatable {
           break
         }
         case "RootAdded": {
-          this._add_root(event.model)
+          this._add_roots(event.model)
           break
         }
         case "RootRemoved": {

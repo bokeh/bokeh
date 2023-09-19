@@ -20,14 +20,22 @@
    * Handle when an output is cleared or removed
    */
   function handleClearOutput(event, handle) {
+    function drop(id) {
+      const view = Bokeh.index.get_by_id(id)
+      if (view != null) {
+        view.model.document.clear()
+        Bokeh.index.delete(view)
+      }
+    }
+
     const cell = handle.cell;
 
     const id = cell.output_area._bokeh_element_id;
     const server_id = cell.output_area._bokeh_server_id;
+
     // Clean up Bokeh references
-    if (id != null && id in Bokeh.index) {
-      Bokeh.index[id].model.document.clear();
-      delete Bokeh.index[id];
+    if (id != null) {
+      drop(id)
     }
 
     if (server_id !== undefined) {
@@ -36,11 +44,8 @@
       cell.notebook.kernel.execute(cmd_clean, {
         iopub: {
           output: function(msg) {
-            const id = msg.content.text.trim();
-            if (id in Bokeh.index) {
-              Bokeh.index[id].model.document.clear();
-              delete Bokeh.index[id];
-            }
+            const id = msg.content.text.trim()
+            drop(id)
           }
         }
       });

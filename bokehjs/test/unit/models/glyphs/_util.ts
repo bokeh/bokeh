@@ -21,16 +21,21 @@ type FilteredKeys<T, U> = {[P in keyof T]: T[P] extends U ? P : never}[keyof T]
 type SpecsOf<P> = {[K in FilteredKeys<P, p.VectorSpec<any, any>>]: P[K] extends p.VectorSpec<infer T, any> ? Arrayable<T> : never}
 export type DataOf<G extends Glyph> = Partial<SpecsOf<G["properties"]>>
 
-export type Options = {axis_type?: AxisType, reversed?: boolean}
+export type Options = {
+  axis_type?: AxisType
+  reversed?: boolean
+  x_range?: Range
+  y_range?: Range
+}
 
-export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options?: Options): Promise<GlyphRendererView> {
-  const axis_type = options?.axis_type ?? "linear"
+export async function create_glyph_renderer_view<G extends Glyph>(glyph: G, data: DataOf<G> = {}, options: Options = {}): Promise<GlyphRendererView> {
+  const axis_type = options.axis_type ?? "linear"
 
   const data_source = new ColumnDataSource({data: data as {[key: string]: Arrayable}}) // TODO: exactOptionalPropertyTypes
   const glyph_renderer = new GlyphRenderer({glyph, data_source})
 
-  const [x_range, x_scale] = make_scale("x", axis_type)
-  const [y_range, y_scale] = make_scale("y", axis_type)
+  const [x_range, x_scale] = make_scale("x", axis_type, options.x_range)
+  const [y_range, y_scale] = make_scale("y", axis_type, options.y_range)
 
   const plot = new Plot({
     width: 200, height: 200,
@@ -52,13 +57,13 @@ export async function create_glyph_view<G extends Glyph>(glyph: G, data: DataOf<
 
 export type AxisType = "linear" | "log" | "categorical"
 
-function make_scale(_axis: "x" | "y", axis_type: AxisType): [Range, Scale] {
+function make_scale(_axis: "x" | "y", axis_type: AxisType, range?: Range): [Range, Scale] {
   switch (axis_type) {
     case "linear":
-      return [new Range1d({start: 0, end: 100}), new LinearScale()]
+      return [range ?? new Range1d({start: 0, end: 100}), new LinearScale()]
     case "log":
-      return [new Range1d({start: 1, end: 1000}), new LogScale()]
+      return [range ?? new Range1d({start: 1, end: 1000}), new LogScale()]
     case "categorical":
-      return [new FactorRange({factors: ["a", "b"], range_padding: 0}), new CategoricalScale()]
+      return [range ?? new FactorRange({factors: ["a", "b"], range_padding: 0}), new CategoricalScale()]
   }
 }

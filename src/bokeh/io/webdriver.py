@@ -28,13 +28,16 @@ import_required("selenium.webdriver",
 # Standard library imports
 import atexit
 import os
-from os.path import devnull, isfile
+from os.path import devnull
 from shutil import which
 from typing import Literal
 
 # External imports
 from packaging.version import Version
 from selenium.webdriver.remote.webdriver import WebDriver
+
+# Bokeh imports
+from ..settings import settings
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -83,6 +86,21 @@ def create_firefox_webdriver(scale_factor: float = 1) -> WebDriver:
 
 def create_chromium_webdriver(extra_options: list[str] | None = None, scale_factor: float = 1) -> WebDriver:
     from selenium.webdriver.chrome.options import Options
+    from selenium.webdriver.chrome.service import Service
+    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+
+    executable_path = settings.chromedriver_path()
+    if executable_path is None:
+        for executable in ["chromedriver", "chromium.chromedriver", "chromedriver-binary"]:
+            executable_path = which(executable)
+            if executable_path is not None:
+                break
+        else:
+            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH; "
+                               "use BOKEH_CHROMEDRIVER_PATH to specify a customized chromedriver's location")
+
+    service = Service(executable_path)
+
     options = Options()
     options.add_argument("--headless")
     options.add_argument("--hide-scrollbars")
@@ -95,9 +113,7 @@ def create_chromium_webdriver(extra_options: list[str] | None = None, scale_fact
     if os.getenv("BOKEH_IN_DOCKER") == "1":
         options.add_argument("--no-sandbox")
 
-    from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
-    return Chrome(options=options)
-
+    return Chrome(service=service, options=options)
 
 
 def scale_factor_less_than_web_driver_device_pixel_ratio(scale_factor: float, web_driver: WebDriver) -> bool:
@@ -115,9 +131,6 @@ def get_web_driver_device_pixel_ratio(web_driver: WebDriver) -> float:
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
-
-def _is_executable(path: str) -> bool:
-    return isfile(path) and os.access(path, os.X_OK)
 
 def _try_create_firefox_webdriver(scale_factor: float = 1) -> WebDriver | None:
     try:

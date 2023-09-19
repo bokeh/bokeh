@@ -3,7 +3,7 @@ import {PolyAnnotation} from "../../annotations/poly_annotation"
 import type {Scale} from "../../scales/scale"
 import {DEFAULT_POLY_OVERLAY} from "./poly_select_tool"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
-import type {PolyGeometry} from "core/geometry"
+import type {HitTestPoly} from "core/geometry"
 import type {Arrayable} from "core/types"
 import type {PanEvent, KeyEvent} from "core/ui_events"
 import type {CoordinateMapper} from "core/util/bbox"
@@ -139,7 +139,8 @@ export class LassoSelectToolView extends RegionSelectToolView {
   }
 
   _do_select(sx: NumArray, sy: NumArray, final: boolean, mode: SelectionMode): void {
-    const geometry: PolyGeometry = {type: "poly", sx, sy}
+    const {greedy} = this.model
+    const geometry: HitTestPoly = {type: "poly", sx, sy, greedy}
     this._select(geometry, final, mode)
   }
 }

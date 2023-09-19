@@ -96,6 +96,8 @@ export function _line_hit(
 export class HoverToolView extends InspectToolView {
   declare model: HoverTool
 
+  protected _current_sxy: [number, number] | null = null
+
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
   protected readonly _ttviews: ViewStorage<Tooltip> = new Map()
@@ -133,6 +135,13 @@ export class HoverToolView extends InspectToolView {
     const {renderers, tooltips} = this.model.properties
     this.on_change(tooltips, () => delete this._template_el)
     this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
+
+    this.connect(this.plot_view.repainted, () => {
+      if (this.model.active && this._current_sxy != null) {
+        const [sx, sy] = this._current_sxy
+        this._inspect(sx, sy)
+      }
+    })
   }
 
   protected async _update_ttmodels(): Promise<void> {
@@ -207,22 +216,26 @@ export class HoverToolView extends InspectToolView {
     const {sx, sy} = ev
     if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._clear()
-    else
+    else {
+      this._current_sxy = [sx, sy]
       this._inspect(sx, sy)
+    }
   }
 
   override _move_exit(): void {
+    this._current_sxy = null
     this._clear()
   }
 
   _inspect(sx: number, sy: number): void {
-    let geometry: PointGeometry | SpanGeometry
-    if (this.model.mode == "mouse")
-      geometry = {type: "point", sx, sy}
-    else {
-      const direction = this.model.mode == "vline" ? "h" : "v"
-      geometry = {type: "span", direction, sx, sy}
-    }
+    const geometry: PointGeometry | SpanGeometry = (() => {
+      if (this.model.mode == "mouse")
+        return {type: "point", sx, sy}
+      else {
+        const direction = this.model.mode == "vline" ? "h" : "v"
+        return {type: "span", direction, sx, sy}
+      }
+    })()
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()

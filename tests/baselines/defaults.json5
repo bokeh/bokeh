@@ -464,6 +464,7 @@
       name: "unset",
     },
     color_baseline: null,
+    stack_labels: null,
   },
   Ticker: {
     __extends__: "Model",
@@ -5434,6 +5435,7 @@
     __extends__: "SelectTool",
     continuous: false,
     persistent: false,
+    greedy: false,
   },
   InspectTool: {
     __extends__: "GestureTool",

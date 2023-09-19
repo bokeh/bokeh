@@ -45,6 +45,12 @@ import csv
 import xml.etree.ElementTree as et
 from typing import TYPE_CHECKING, TypedDict
 
+# External imports
+import numpy as np
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
 # Bokeh imports
 from ..util.sampledata import external_path, open_csv
 
@@ -78,8 +84,8 @@ class CountyData(TypedDict):
     name: str
     detailed_name: str
     state: str
-    lats: list[float]
-    lons: list[float]
+    lats: NDArray[np.float64]
+    lons: NDArray[np.float64]
 
 nan = float('NaN')
 
@@ -110,8 +116,8 @@ def _read_data() -> dict[tuple[State, County], CountyData]:
                 name = name,
                 detailed_name = det_name,
                 state = state,
-                lats = lats,
-                lons = lons,
+                lats = np.array(lats),
+                lons = np.array(lons),
             )
 
     return data

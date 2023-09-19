@@ -17,7 +17,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
+  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column,
@@ -3566,6 +3566,56 @@ describe("Bug", () => {
 
       expect(y_range.start).to.be.equal(a)
       expect(y_range.end).to.be.equal(b)
+    })
+  })
+
+  describe("in issue #7671", () => {
+    it("doesn't to refresh tooltips when plot is updated", async () => {
+      function plot(title: string) {
+        const hover = new HoverTool({
+          tooltips: [
+            ["i",  "$index"],
+            ["sx", "$sx"   ],
+            ["sy", "$sy"   ],
+          ],
+        })
+        const wheel_pan = new WheelPanTool({dimension: "width"})
+
+        const p = fig([200, 200], {
+          title,
+          x_range: [-5, 5],
+          y_range: [-5, 5],
+          tools: [hover, wheel_pan],
+          active_scroll: wheel_pan,
+        })
+        p.circle({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+
+        return p
+      }
+
+      const p0 = plot("initial hover")
+      const p1 = plot("updates to i=1")
+      const p2 = plot("clears tooltip")
+      const {view} = await display(row([p0, p1, p2]))
+
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+      const pv2 = view.owner.get_one(p2)
+
+      const delta = 160
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(0, 0))
+
+      const actions1 = new PlotActions(pv1)
+      await actions1.hover(xy(0, 0))
+      await actions1.scroll(xy(0, 0), delta)
+
+      const actions2 = new PlotActions(pv2)
+      await actions2.hover(xy(0, 0))
+      await actions2.scroll(xy(0, 0), -delta)
+
+      await view.ready
     })
   })
 })
