@@ -22,8 +22,13 @@ import {LinearScale} from "../scales/linear_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 import {clamp} from "core/util/math"
+import {process_placeholders, sprintf} from "core/util/templating"
+import {Enum} from "../../core/kinds"
 
 const {round} = Math
+
+const LengthSizing = Enum("adaptive", "exact")
+type LengthSizing = typeof LengthSizing["__type__"]
 
 class TextLayout extends ContentLayoutable {
 
@@ -140,7 +145,7 @@ export class ScaleBarView extends AnnotationView {
   override compute_geometry(): void {
     super.compute_geometry()
 
-    const {orientation, bar_length, padding, margin, location} = this.model
+    const {orientation, bar_length, length_sizing, padding, margin, location} = this.model
     const {border_line, bar_line} = this.visuals
 
     const bar_width = bar_line.line_width.get_value()
@@ -157,18 +162,42 @@ export class ScaleBarView extends AnnotationView {
       }
     })()
 
-    const {new_value, new_unit, scale_factor, exact} = (() => {
+    const {new_value, new_unit, new_long_unit, scale_factor, exact} = (() => {
       const {range, unit, dimensional} = this.model
       const value = range.span*bar_length_percent
-      return dimensional.compute(value, unit)
+      return dimensional.compute(value, unit, length_sizing == "exact")
     })()
 
     const init_bar_length_px = frame_span*bar_length_percent
     const bar_length_px = round(init_bar_length_px*scale_factor)
 
     const label_layout = this.label_layout = (() => {
-      const label = `${exact ? new_value.toFixed(2) : new_value} ${new_unit}`
-      const label_box = new TextBox({text: label})
+      const {label} = this.model
+      const text = process_placeholders(label, (_, name, format) => {
+        switch (name) {
+          case "value": {
+            if (exact) {
+              if (format != null) {
+                return sprintf(format, new_value)
+              } else {
+                return new_value.toFixed(2)
+              }
+            } else {
+              return `${new_value}`
+            }
+          }
+          case "unit": {
+            switch (format ?? "short") {
+              case "short": return new_unit
+              case "long":  return new_long_unit
+            }
+          }
+          default: {
+            return "???"
+          }
+        }
+      })
+      const label_box = new TextBox({text})
       const label_panel = new Panel(this.model.label_location)
 
       label_box.visuals = this.visuals.label_text.values()
@@ -192,13 +221,13 @@ export class ScaleBarView extends AnnotationView {
 
       const label_layout = new TextLayout(label_box)
       label_layout.absolute = true
-      label_layout.set_sizing({visible: label != "" && this.visuals.label_text.doit})
+      label_layout.set_sizing({visible: text != "" && this.visuals.label_text.doit})
       return label_layout
     })()
 
     const title_layout = this.title_layout = (() => {
-      const {title} = this.model
-      const title_box = new TextBox({text: title})
+      const text = this.model.title
+      const title_box = new TextBox({text})
       const title_panel = new Panel(this.model.title_location)
 
       title_box.visuals = this.visuals.title_text.values()
@@ -222,7 +251,7 @@ export class ScaleBarView extends AnnotationView {
 
       const title_layout = new TextLayout(title_box)
       title_layout.absolute = true
-      title_layout.set_sizing({visible: title != "" && this.visuals.title_text.doit})
+      title_layout.set_sizing({visible: text != "" && this.visuals.title_text.doit})
       return title_layout
     })()
 
@@ -466,7 +495,9 @@ export namespace ScaleBar {
     dimensional: p.Property<Dimensional>
     orientation: p.Property<Orientation>
     bar_length: p.Property<number>
+    length_sizing: p.Property<LengthSizing>
     location: p.Property<Anchor>
+    label: p.Property<string>
     label_align: p.Property<Align>
     label_location: p.Property<Location>
     label_standoff: p.Property<number>
@@ -525,7 +556,9 @@ export class ScaleBar extends Annotation {
       dimensional:    [ Ref(Dimensional), () => new MetricLength() ],
       orientation:    [ Orientation, "horizontal" ],
       bar_length:     [ NonNegative(Number), 0.2 ],
+      length_sizing:  [ LengthSizing, "adaptive" ],
       location:       [ Anchor, "top_right" ],
+      label:          [ String, "@{value} @{unit}" ],
       label_align:    [ Align, "center" ],
       label_location: [ Location, "below" ],
       label_standoff: [ Number, 5 ],

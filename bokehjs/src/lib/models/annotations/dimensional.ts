@@ -30,6 +30,7 @@ export type Basis = BasisItem[]
 export type PreferredValue = {
   new_value: number
   new_unit: string
+  new_long_unit: string
   scale_factor: number
   exact: boolean
 }
@@ -62,7 +63,7 @@ export abstract class Dimensional extends Model {
 
   abstract get basis(): Basis
 
-  compute(value: number, unit: string): PreferredValue {
+  compute(value: number, unit: string, exact?: boolean): PreferredValue {
     const {ticks, basis} = this
 
     const found_unit = basis.find(({short_name: short}) => short == unit)
@@ -70,18 +71,18 @@ export abstract class Dimensional extends Model {
 
     const value_in_unit = value*found_unit.factor
 
-    const [new_unit, new_value] = (() => {
+    const [new_unit, new_long_unit, new_value] = (() => {
       const index = bisect_right_by(basis, value_in_unit, ({factor}) => factor)
       if (index > 0) {
-        const {short_name: new_unit, factor} = basis[index - 1]
+        const {short_name: new_unit, long_name: new_long_unit, factor} = basis[index - 1]
         const new_value = value_in_unit/factor
-        return [new_unit, new_value]
+        return [new_unit, new_long_unit, new_value]
       } else {
-        return [unit, value_in_unit]
+        return [unit, found_unit.long_name, value_in_unit]
       }
     })()
 
-    const exact = ticks.length == 0
+    exact = exact ?? ticks.length == 0
 
     const preferred_value = (() => {
       if (exact) {
@@ -98,6 +99,7 @@ export abstract class Dimensional extends Model {
     return {
       new_value: preferred_value,
       new_unit,
+      new_long_unit,
       scale_factor,
       exact,
     }

@@ -47,8 +47,8 @@ from ...core.properties import (
     Int,
     List,
     NonNegative,
-    NullStringSpec,
     Nullable,
+    NullStringSpec,
     Override,
     Positive,
     Required,
@@ -533,9 +533,20 @@ class ScaleBar(Annotation):
     """)
 
     orientation = Enum(Orientation, help="""
+    Whether the scale bar should be oriented horizontally or vertically.
     """)
 
     location = Enum(Anchor, default="top_right", help="""
+    """)
+
+    length_sizing = Enum("adaptive", "exact", help="""
+    Defines how the length of the bar is interpreted.
+
+    This can either be:
+    * ``"adaptive"`` - the computed length is fit into a set of ticks provided
+        be the dimensional model. If no ticks are provided, then the behavior
+        is the same as if ``"exact"`` sizing was used
+    * ``"exact"`` - the computed length is used as-is
     """)
 
     bar_length = NonNegative(Either(Float, Int))(default=0.2, help="""
@@ -555,6 +566,17 @@ class ScaleBar(Annotation):
     padding = Int(default=10, help="""
     Amount of padding (in pixels) between the contents of the scale bar
     and its border.
+    """)
+
+    label = String(default="@{value} @{unit}", help="""
+    The label template.
+
+    This can use special variables:
+    * ``@{value}`` The current value. Optionally can provide a number
+        formatter with e.g. ``@{value}{%.2f}``.
+    * ``@{unit}`` The unit of measure, by default in the short form.
+        Optionally can provide a format ``@{unit}{short}`` or
+        ``@{unit}{long}``.
     """)
 
     label_style = Include(ScalarTextProps, prefix="label", help="""

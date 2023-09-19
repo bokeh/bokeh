@@ -28,6 +28,7 @@ scale_bar = ScaleBar(
     dimensional=MetricLength(),
     orientation="horizontal",
     location="top_right",
+    label="@{value} @{unit}",
     label_location="above",
     bar_length=0.2,
     bar_line_width=2,
