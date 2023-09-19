@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 300, 150]
+  CartesianFrame bbox=[0, 0, 270, 150]
+  ScaleBar bbox=[150, 10, 110, 67]
+  Title bbox=[0, 0, 270, 0]
+  ToolbarPanel bbox=[270, 0, 30, 150]
