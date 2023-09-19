@@ -161,29 +161,65 @@ export class ScaleBarView extends AnnotationView {
 
     //console.log(value, value_in_unit, unit, new_value, new_unit, preferred_value, preferred_value_raw, init_bar_length_px, scale_factor, bar_length_px)
 
-    const label = `${exact ? new_value.toFixed(2) : new_value} ${new_unit}`
-    const label_box = new TextBox({text: label})
-    label_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
-    label_box.visuals = this.visuals.label_text.values()
-    const label_panel = new Panel(this.model.label_location)
-    label_box.angle = label_panel.get_label_angle_heuristic(orientation)
+    const label_layout = this.label_layout = (() => {
+      const label = `${exact ? new_value.toFixed(2) : new_value} ${new_unit}`
+      const label_box = new TextBox({text: label})
+      const label_panel = new Panel(this.model.label_location)
 
-    const {title} = this.model
-    const title_box = new TextBox({text: title})
-    title_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
-    title_box.visuals = this.visuals.title_text.values()
-    const title_panel = new Panel(this.model.title_location)
-    title_box.angle = title_panel.get_label_angle_heuristic(orientation)
+      label_box.visuals = this.visuals.label_text.values()
+      const label_orientation = (() => {
+        switch (this.model.label_location) {
+          case "above":
+          case "below": return "horizontal"
+          default:      return orientation
+        }
+      })()
+      label_box.angle = label_panel.get_label_angle_heuristic(label_orientation)
+      label_box.base_font_size = this.plot_view.base_font_size
 
-    const label_layout = new TextLayout(label_box)
-    label_layout.absolute = true
-    label_layout.set_sizing({visible: label != "" && this.visuals.label_text.doit})
-    this.label_layout = label_layout
+      label_box.position = {
+        sx: 0,
+        sy: 0,
+        x_anchor: "left",
+        y_anchor: "top",
+      }
+      label_box.align = "auto"
 
-    const title_layout = new TextLayout(title_box)
-    title_layout.absolute = true
-    title_layout.set_sizing({visible: title != "" && this.visuals.title_text.doit})
-    this.title_layout = title_layout
+      const label_layout = new TextLayout(label_box)
+      label_layout.absolute = true
+      label_layout.set_sizing({visible: label != "" && this.visuals.label_text.doit})
+      return label_layout
+    })()
+
+    const title_layout = this.title_layout = (() => {
+      const {title} = this.model
+      const title_box = new TextBox({text: title})
+      const title_panel = new Panel(this.model.title_location)
+
+      title_box.visuals = this.visuals.title_text.values()
+      const title_orientation = (() => {
+        switch (this.model.label_location) {
+          case "above":
+          case "below": return "horizontal"
+          default:      return orientation
+        }
+      })()
+      title_box.angle = title_panel.get_label_angle_heuristic(title_orientation)
+      title_box.base_font_size = this.plot_view.base_font_size
+
+      title_box.position = {
+        sx: 0,
+        sy: 0,
+        x_anchor: "left",
+        y_anchor: "top",
+      }
+      title_box.align = "auto"
+
+      const title_layout = new TextLayout(title_box)
+      title_layout.absolute = true
+      title_layout.set_sizing({visible: title != "" && this.visuals.title_text.doit})
+      return title_layout
+    })()
 
     const bar_size = (() => {
       if (orientation == "horizontal") {
@@ -202,9 +238,17 @@ export class ScaleBarView extends AnnotationView {
     axis_layout.absolute = true
 
     if (orientation == "horizontal") {
-      axis_layout.set_sizing({width_policy: "fixed", width: bar_size.width, height_policy: "min", valign: "center"})
+      axis_layout.set_sizing({
+        width_policy: "fixed", width: bar_size.width,
+        height_policy: "min",
+        valign: "center",
+      })
     } else {
-      axis_layout.set_sizing({width_policy: "min", height_policy: "fixed", height: bar_size.height, halign: "center"})
+      axis_layout.set_sizing({
+        width_policy: "min",
+        height_policy: "fixed", height: bar_size.height,
+        halign: "center",
+      })
     }
 
     const left = padding
@@ -360,7 +404,18 @@ export class ScaleBarView extends AnnotationView {
   }
 
   protected _draw_label(ctx: Context2d): void {
-    const {left, top} = this.label_layout.bbox
+    const {bbox} = this.label_layout
+
+    const [x_offset, y_offset] = (() => {
+      switch (this.model.label_location) {
+        case "left":  return [0, bbox.height]
+        case "right": return [bbox.width, 0]
+        case "above": return [0, 0]
+        case "below": return [0, 0]
+      }
+    })()
+
+    const {left, top} = bbox.translate(x_offset, y_offset)
     ctx.translate(left, top)
     this.label_layout.text.paint(ctx)
     ctx.translate(-left, -top)
