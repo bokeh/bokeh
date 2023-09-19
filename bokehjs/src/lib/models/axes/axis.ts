@@ -451,7 +451,12 @@ export class AxisView extends GuideRendererView {
   // extents sub functions -----------------------------------------------------
 
   /*protected*/ _tick_extent(): number {
-    return this.model.major_tick_out
+    const {major, minor} = this.tick_coords
+    const i = this.dimension
+    return Math.max(
+      major[i].length == 0 ? 0 : this.model.major_tick_out,
+      minor[i].length == 0 ? 0 : this.model.minor_tick_out,
+    )
   }
 
   protected _tick_label_extents(): number[] {

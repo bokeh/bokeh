@@ -1,3 +1,3 @@
 Plot bbox=[0, 0, 300, 50]
-  CartesianFrame bbox=[20, 25, 260, 25]
-  LogAxis bbox=[20, 0, 260, 25]
+  CartesianFrame bbox=[20, 29, 260, 21]
+  LogAxis bbox=[20, 0, 260, 29]
