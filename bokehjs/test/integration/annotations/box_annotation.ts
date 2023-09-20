@@ -175,4 +175,77 @@ describe("BoxAnnotation annotation", () => {
 
   describe("should support non-symmetric resizing by dragging", () => test_resizing(false))
   describe("should support symmetric resizing by dragging", () => test_resizing(true))
+
+  describe("should support interactive limits", () => {
+    async function box(symmetric: boolean = false) {
+      const box = new BoxAnnotation({
+        left: 2, right: 4, top: 4, bottom: 2,
+        left_limit: 1, right_limit: 5, top_limit: 5, bottom_limit: 1,
+        editable: true,
+        symmetric,
+        line_color: "blue",
+      })
+
+      const box_limits = new BoxAnnotation({
+        left: 1, right: 5, top: 5, bottom: 1,
+        line_color: "black", line_dash: "dashed",
+        fill_color: "transparent",
+      })
+
+      const p = fig([200, 200], {renderers: [box, box_limits], x_range: [0, 6], y_range: [0, 6]})
+      const {view} = await display(p)
+      await paint()
+      return view
+    }
+
+    it("when moving", async () => {
+      const view = await box()
+      await pan(view, xy(3, 3), xy(6, 6))
+    })
+
+    function test_resizing(symmetric: boolean) {
+      it("left edge", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(2, 3), xy(0, 3))
+      })
+
+      it("right edge", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(4, 3), xy(6, 3))
+      })
+
+      it("top edge", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(3, 4), xy(3, 6))
+      })
+
+      it("bottom edge", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(3, 2), xy(3, 0))
+      })
+
+      it("top-left corner", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(2, 4), xy(0, 6))
+      })
+
+      it("top-right corner", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(4, 4), xy(6, 6))
+      })
+
+      it("bottom-right corner", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(4, 2), xy(6, 0))
+      })
+
+      it("bottom-left corner", async () => {
+        const view = await box(symmetric)
+        await pan(view, xy(2, 2), xy(0, 0))
+      })
+    }
+
+    describe("when non-symmetric resizing", () => test_resizing(false))
+    describe("when symmetric resizing", () => test_resizing(true))
+  })
 })
