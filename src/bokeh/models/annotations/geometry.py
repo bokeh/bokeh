@@ -28,7 +28,6 @@ from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
     Bool,
     CoordinateLike,
-    Either,
     Enum,
     Float,
     Include,
@@ -48,12 +47,12 @@ from ...core.property_mixins import (
     ScalarHatchProps,
     ScalarLineProps,
 )
+from ..common.properties import Coordinate
 from ..coordinates import (
     FrameBottom,
     FrameLeft,
     FrameRight,
     FrameTop,
-    Node,
 )
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead
@@ -70,8 +69,6 @@ __all__ = (
     "Span",
     "Whisker",
 )
-
-Coordinate = Either(CoordinateLike, Instance(Node))
 
 #-----------------------------------------------------------------------------
 # General API
