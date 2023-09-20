@@ -543,8 +543,12 @@ def _build_glyph_renderer(model: type[Glyph], kwargs: dict[str, Any]) -> GlyphRe
     if data_source is Undefined:
         data_source = ColumnDataSource()
 
-    glyph = model(**kwargs)
-    return GlyphRenderer(data_source=data_source, glyph=glyph, **glyph_renderer_kwargs)
+    return GlyphRenderer(
+        data_source=data_source,
+        glyph=model(**kwargs),
+        auto_ranging="none",
+        **glyph_renderer_kwargs,
+    )
 
 #-----------------------------------------------------------------------------
 # Code

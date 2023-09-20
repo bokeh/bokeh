@@ -163,6 +163,17 @@ class DataRenderer(Renderer):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    auto_ranging = Enum("both", "x", "y", "none", default="both", help="""
+    Defines which dimensions will participate in auto-ranging.
+
+    .. note::
+        Note that a renderer can be removed from auto-ranging for a given
+        range that supports auto-ranging, by not including it that range's
+        ``renderers`` list and when ``renderers`` isn't set to ``"auto"``
+        mode.
+
+    """).accepts(Bool, lambda value: "both" if value else "none")
+
     level = Override(default="glyph")
 
 @abstract

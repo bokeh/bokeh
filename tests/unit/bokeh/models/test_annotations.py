@@ -661,6 +661,7 @@ def test_legacy_Band() -> None:
     assert band.data_source == data_source
     assert band.name == "band_annotation"
     assert band.level == "annotation"
+    assert band.auto_ranging == "none"
 
 def test_legacy_Whisker() -> None:
     data_source = ColumnDataSource()
@@ -671,6 +672,7 @@ def test_legacy_Whisker() -> None:
     assert whisker.data_source == data_source
     assert whisker.name == "whisker_annotation"
     assert whisker.level == "annotation"
+    assert whisker.auto_ranging == "none"
 
 #-----------------------------------------------------------------------------
 # Dev API

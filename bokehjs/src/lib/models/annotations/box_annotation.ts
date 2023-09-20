@@ -2,8 +2,8 @@ import {Annotation, AnnotationView} from "./annotation"
 import {Model} from "../../model"
 import {AreaVisuals} from "./area_visuals"
 import type {Scale} from "../scales/scale"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {auto_ranged} from "../ranges/data_range1d"
+import type {AutoRanged} from "../ranges/auto_ranged"
+import {auto_ranged} from "../ranges/auto_ranged"
 import type {ViewOf, BuildResult} from "core/build_views"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -11,7 +11,7 @@ import {CoordinateUnits} from "core/enums"
 import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
 import {min as amin} from "core/util/array"
-import {BBox, empty} from "core/util/bbox"
+import {BBox} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
@@ -264,10 +264,6 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     })()
 
     return {x0, x1, y0, y1}
-  }
-
-  log_bounds(): Rect {
-    return empty()
   }
 
   get mappers(): LRTB<CoordinateMapper> {
