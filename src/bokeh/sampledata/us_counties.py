@@ -43,6 +43,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import csv
 import xml.etree.ElementTree as et
+from math import nan
 from typing import TYPE_CHECKING, TypedDict
 
 # External imports
@@ -86,8 +87,6 @@ class CountyData(TypedDict):
     state: str
     lats: NDArray[np.float64]
     lons: NDArray[np.float64]
-
-nan = float('NaN')
 
 def _read_data() -> dict[tuple[State, County], CountyData]:
     '''

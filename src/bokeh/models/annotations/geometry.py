@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import nan
+
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
@@ -70,8 +73,6 @@ __all__ = (
 
 Coordinate = Either(CoordinateLike, Instance(Node))
 
-NaN = float("nan")
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -87,19 +88,19 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Coordinate(default=NaN, help="""
+    left = Coordinate(default=nan, help="""
     The x-coordinates of the left edge of the box annotation.
     """).accepts(Null, lambda _value: FrameLeft())
 
-    right = Coordinate(default=NaN, help="""
+    right = Coordinate(default=nan, help="""
     The x-coordinates of the right edge of the box annotation.
     """).accepts(Null, lambda _value: FrameRight())
 
-    top = Coordinate(default=NaN, help="""
+    top = Coordinate(default=nan, help="""
     The y-coordinates of the top edge of the box annotation.
     """).accepts(Null, lambda _value: FrameTop())
 
-    bottom = Coordinate(default=NaN, help="""
+    bottom = Coordinate(default=nan, help="""
     The y-coordinates of the bottom edge of the box annotation.
     """).accepts(Null, lambda _value: FrameBottom())
 
