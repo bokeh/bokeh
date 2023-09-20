@@ -2,7 +2,7 @@ import {display, fig, row} from "../_util"
 import type {Point} from "../../interactive"
 import {PlotActions, xy} from "../../interactive"
 
-import {BoxAnnotation} from "@bokehjs/models"
+import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {paint} from "@bokehjs/core/util/defer"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -38,6 +38,37 @@ describe("BoxAnnotation annotation", () => {
     const p1 = make_plot("svg")
 
     await display(row([p0, p1]))
+  })
+
+  it("should support positioning in node space", async () => {
+    const frame_left = (offset?: number) => new Node({target: "frame", symbol: "left", offset})
+    const frame_right = (offset?: number) => new Node({target: "frame", symbol: "right", offset})
+    const frame_top = (offset?: number) => new Node({target: "frame", symbol: "top", offset})
+    const frame_bottom = (offset?: number) => new Node({target: "frame", symbol: "bottom", offset})
+
+    const box0 = new BoxAnnotation({
+      left: frame_left(),
+      right: frame_right(),
+      top: frame_top(),
+      bottom: frame_bottom(),
+    })
+
+    const box1 = new BoxAnnotation({
+      left: frame_left(50),
+      right: frame_right(-50),
+      top: frame_top(50),
+      bottom: frame_bottom(-50),
+      fill_color: "blue",
+      hatch_color: "red", hatch_pattern: "/",
+    })
+
+    const p = fig([200, 200], {
+      x_range: [-10, 10],
+      y_range: [-10, 10],
+      renderers: [box0, box1],
+    })
+
+    await display(p)
   })
 
   it("should support rounded corners (border_radius property)", async () => {
@@ -91,9 +122,7 @@ describe("BoxAnnotation annotation", () => {
       border_radius: {top_left: 10, top_right: 40, bottom_right: 10, bottom_left: 10},
     })
 
-    const p = fig([200, 200])
-    p.renderers = [box0, box1, box2, box3]
-
+    const p = fig([200, 200], {renderers: [box0, box1, box2, box3]})
     await display(p)
   })
 
