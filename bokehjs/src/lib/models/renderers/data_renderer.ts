@@ -1,8 +1,8 @@
 import {Renderer, RendererView} from "./renderer"
 import type {GlyphView} from "../glyphs/glyph"
 import type {Scale} from "../scales/scale"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {auto_ranged} from "../ranges/data_range1d"
+import type {AutoRanged} from "../ranges/auto_ranged"
+import {Dimensions, auto_ranged} from "../ranges/auto_ranged"
 import type {SelectionManager} from "core/selection_manager"
 import type * as p from "core/properties"
 import type {Rect} from "core/types"
@@ -23,6 +23,10 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 
   readonly [auto_ranged] = true
 
+  bounds_dimensions(): Dimensions {
+    return this.model.auto_ranging
+  }
+
   bounds(): Rect {
     return this.glyph_view.bounds()
   }
@@ -35,7 +39,9 @@ export abstract class DataRendererView extends RendererView implements AutoRange
 export namespace DataRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Renderer.Props
+  export type Props = Renderer.Props & {
+    auto_ranging: p.Property<Dimensions>
+  }
 
   export type Visuals = Renderer.Visuals
 }
@@ -51,6 +57,10 @@ export abstract class DataRenderer extends Renderer {
   }
 
   static {
+    this.define<DataRenderer.Props>(() => ({
+      auto_ranging: [ Dimensions, "both" ],
+    }))
+
     this.override<DataRenderer.Props>({
       level: "glyph",
     })

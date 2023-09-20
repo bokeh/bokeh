@@ -7,8 +7,6 @@
 ''' Display a variety of visual shapes whose attributes can be associated
 with data columns from ``ColumnDataSources``.
 
-
-
 The full list of glyphs is below:
 
 .. toctree::
