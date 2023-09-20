@@ -159,7 +159,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
         const hit_box = bbox.x_range(x_range.start, x_range.end)
         const {x0, y0, x1, y1} = this.index.bounds(hit_box)
-        if (!isFinite(y0+y1)) {
+        if (!isFinite(y0 + y1)) {
           return this._bounds(this.index.bbox)
         }
         return this._bounds({x0, y0, x1, y1})
@@ -171,7 +171,7 @@ export abstract class GlyphView extends DOMComponentView {
         }
         const hit_box = bbox.y_range(y_range.start, y_range.end)
         const {x0, y0, x1, y1} = this.index.bounds(hit_box)
-        if (!isFinite(x0+x1)) {
+        if (!isFinite(x0 + x1)) {
           return this._bounds(this.index.bbox)
         }
         return this._bounds({x0, y0, x1, y1})
