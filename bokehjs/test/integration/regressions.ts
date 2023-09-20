@@ -3151,8 +3151,8 @@ describe("Bug", () => {
   describe("in issue #12880", () => {
     it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
       async function box() {
-        const frame_top = new Node({target: "frame", term: "top"})
-        const frame_bottom = new Node({target: "frame", term: "bottom"})
+        const frame_top = new Node({target: "frame", symbol: "top"})
+        const frame_bottom = new Node({target: "frame", symbol: "bottom"})
 
         const box = new BoxAnnotation({
           left: 1, right: 3, top: frame_top, bottom: frame_bottom,
@@ -3188,10 +3188,10 @@ describe("Bug", () => {
         return p
       }
 
-      const left = new Node({target: "frame", term: "left"})
-      const right = new Node({target: "frame", term: "right"})
-      const top = new Node({target: "frame", term: "top"})
-      const bottom = new Node({target: "frame", term: "bottom"})
+      const left = new Node({target: "frame", symbol: "left"})
+      const right = new Node({target: "frame", symbol: "right"})
+      const top = new Node({target: "frame", symbol: "top"})
+      const bottom = new Node({target: "frame", symbol: "bottom"})
 
       const p00 = plot({left, right, top, bottom})
       const p01 = plot({left: -2, right, top, bottom})

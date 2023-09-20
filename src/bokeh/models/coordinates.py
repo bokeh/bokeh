@@ -101,7 +101,7 @@ class Node(Model):
     being ``NaN``).
     """)
 
-    term = Required(String, help="""
+    symbol = Required(String, help="""
     A symbolic name of a coordinate to provide.
 
     The allowed terms are dependent on the target of this node. For example,
@@ -118,16 +118,16 @@ class Node(Model):
 #-----------------------------------------------------------------------------
 
 def FrameLeft(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", term="left", offset=offset)
+    return Node(target="frame", symbol="left", offset=offset)
 
 def FrameRight(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", term="right", offset=offset)
+    return Node(target="frame", symbol="right", offset=offset)
 
 def FrameTop(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", term="top", offset=offset)
+    return Node(target="frame", symbol="top", offset=offset)
 
 def FrameBottom(*, offset: Optional[int] = Undefined) -> Node:
-    return Node(target="frame", term="bottom", offset=offset)
+    return Node(target="frame", symbol="bottom", offset=offset)
 
 #-----------------------------------------------------------------------------
 # Private API

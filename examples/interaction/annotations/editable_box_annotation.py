@@ -3,10 +3,10 @@ from bokeh.layouts import row
 from bokeh.models import BoxAnnotation, Node
 from bokeh.plotting import figure
 
-frame_left = Node(target="frame", term="left", offset=20)
-frame_right = Node(target="frame", term="right", offset=-20)
-frame_top = Node(target="frame", term="top", offset=20)
-frame_bottom = Node(target="frame", term="bottom", offset=-20)
+frame_left = Node(target="frame", symbol="left", offset=20)
+frame_right = Node(target="frame", symbol="right", offset=-20)
+frame_top = Node(target="frame", symbol="top", offset=20)
+frame_bottom = Node(target="frame", symbol="bottom", offset=-20)
 
 box0 = BoxAnnotation(
     editable=True,

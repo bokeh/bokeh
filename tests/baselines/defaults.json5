@@ -3059,7 +3059,7 @@
       type: "symbol",
       name: "unset",
     },
-    term: {
+    symbol: {
       type: "symbol",
       name: "unset",
     },
@@ -5502,7 +5502,7 @@
           name: "Node",
           attributes: {
             target: "frame",
-            term: "left",
+            symbol: "left",
           },
         },
         right_limit: {
@@ -5510,7 +5510,7 @@
           name: "Node",
           attributes: {
             target: "frame",
-            term: "right",
+            symbol: "right",
           },
         },
         top_limit: {
@@ -5518,7 +5518,7 @@
           name: "Node",
           attributes: {
             target: "frame",
-            term: "top",
+            symbol: "top",
           },
         },
         bottom_limit: {
@@ -5526,7 +5526,7 @@
           name: "Node",
           attributes: {
             target: "frame",
-            term: "bottom",
+            symbol: "bottom",
           },
         },
         editable: true,

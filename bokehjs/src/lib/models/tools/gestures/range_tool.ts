@@ -8,10 +8,10 @@ import type * as p from "core/properties"
 import {tool_icon_range} from "styles/icons.css"
 import {Node} from "../../coordinates/node"
 
-const frame_left = new Node({target: "frame", term: "left"})
-const frame_right = new Node({target: "frame", term: "right"})
-const frame_top = new Node({target: "frame", term: "top"})
-const frame_bottom = new Node({target: "frame", term: "bottom"})
+const frame_left = new Node({target: "frame", symbol: "left"})
+const frame_right = new Node({target: "frame", symbol: "right"})
+const frame_top = new Node({target: "frame", symbol: "top"})
+const frame_bottom = new Node({target: "frame", symbol: "bottom"})
 
 export class RangeToolView extends ToolView {
   declare model: RangeTool

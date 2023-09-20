@@ -203,7 +203,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
     }
 
     const {bbox} = target
-    switch (node.term) {
+    switch (node.symbol) {
       case "top_left":   return xy(bbox.left, bbox.top)
       case "top_center": return xy(bbox.hcenter, bbox.top)
       case "top_right":  return xy(bbox.right, bbox.top)

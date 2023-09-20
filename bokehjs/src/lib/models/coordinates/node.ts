@@ -13,7 +13,7 @@ export namespace Node {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Coordinate.Props & {
     target: p.Property<NodeTarget> // TODO Canvas, Plot, CartesianFrame, Renderer ???
-    term: p.Property<string>
+    symbol: p.Property<string>
     offset: p.Property<number>
   }
 }
@@ -30,13 +30,13 @@ export class Node extends Coordinate {
   static {
     this.define<Node.Props>(({String, Int}) => ({
       target: [ NodeTarget ],
-      term: [ String ],
+      symbol: [ String ],
       offset: [ Int, 0 ],
     }))
   }
 }
 
-export const frame_left = new Node({target: "frame", term: "left"})
-export const frame_right = new Node({target: "frame", term: "right"})
-export const frame_top = new Node({target: "frame", term: "top"})
-export const frame_bottom = new Node({target: "frame", term: "bottom"})
+export const frame_left = new Node({target: "frame", symbol: "left"})
+export const frame_right = new Node({target: "frame", symbol: "right"})
+export const frame_top = new Node({target: "frame", symbol: "top"})
+export const frame_bottom = new Node({target: "frame", symbol: "bottom"})
