@@ -111,11 +111,12 @@ describe("BoxAnnotation annotation", () => {
     await paint()
   })
 
-  describe("should support resizing by dragging", () => {
+  function test_resizing(symmetric: boolean) {
     async function box() {
       const box = new BoxAnnotation({
         left: 2, right: 4, top: 4, bottom: 2,
         editable: true,
+        symmetric,
         line_color: "blue",
       })
 
@@ -180,5 +181,8 @@ describe("BoxAnnotation annotation", () => {
       await actions.pan_along({type: "line", xy0: {x: 2, y: 2}, xy1: {x: 1, y: 1}})
       await paint()
     })
-  })
+  }
+
+  describe("should support non-symmetric resizing by dragging", () => test_resizing(false))
+  describe("should support symmetric resizing by dragging", () => test_resizing(true))
 })
