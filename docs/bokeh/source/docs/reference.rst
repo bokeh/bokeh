@@ -53,11 +53,11 @@ be especially useful.
 
 Linking to the Bokeh documentation
 ----------------------------------
-Developers of other packages that make use of Bokeh might want to use 
+Developers of other packages that make use of Bokeh might want to use
 `intersphinx <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html>`_
 to link to specific classes or functions in the Bokeh docs from their Sphinx
-documentation. The file needed for that is located at 
-https://docs.bokeh.org/en/<version>/objects.inv 
+documentation. The file needed for that is located at
+https://docs.bokeh.org/en/<version>/objects.inv
 where "<version>" can be the number of a released version or "latest", for example
 the entry in the ``conf.py`` file for Sphinx might look like this::
 
