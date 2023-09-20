@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+from typing import Any
 
 # Bokeh imports
 from ...core.enums import (
@@ -45,11 +46,17 @@ from ...core.properties import (
     Required,
     Seq,
 )
+from ...core.property.singletons import Undefined
 from ...core.property_aliases import BorderRadius
 from ...core.property_mixins import ScalarFillProps, ScalarHatchProps, ScalarLineProps
 from ...model import Model
+from ...util.deprecation import deprecated
+from .. import glyphs
 from ..common.properties import Coordinate
+from ..glyphs import Glyph
 from ..nodes import BoxNodes, Node
+from ..renderers import GlyphRenderer, Renderer
+from ..sources import ColumnDataSource
 from .annotation import Annotation
 
 #-----------------------------------------------------------------------------
@@ -57,11 +64,13 @@ from .annotation import Annotation
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "Band",
     "BoxAnnotation",
     "BoxInteractionHandles",
     "PolyAnnotation",
     "Slope",
     "Span",
+    "Whisker",
 )
 
 #-----------------------------------------------------------------------------
@@ -488,12 +497,54 @@ class Span(Annotation):
     hover_line_alpha = Override(default=0.3)
 
 #-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
+
+def Band(**kwargs: Any) -> GlyphRenderer:
+    """ Render a filled area band along a dimension.
+
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.Band`` model or ``figure.band()`` method.
+
+    """
+    deprecated((3, 3, 0), "bokeh.annotations.Band", "bokeh.glyphs.Band or figure.band()")
+    return _build_glyph_renderer(glyphs.Band, kwargs)
+
+def Whisker(**kwargs: Any) -> GlyphRenderer:
+    """ Render whiskers along a dimension.
+
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.Whisker`` model or ``figure.whisker()`` method.
+
+    """
+    deprecated((3, 3, 0), "bokeh.annotations.Whisker", "bokeh.glyphs.Whisker or figure.whisker()")
+    return _build_glyph_renderer(glyphs.Whisker, kwargs)
+
+#-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def _build_glyph_renderer(model: type[Glyph], kwargs: dict[str, Any]) -> GlyphRenderer:
+    defaults = dict(level="annotation")
+    glyph_renderer_kwargs = {}
+
+    for name in Renderer.properties():
+        default = defaults.get(name, Undefined)
+        value = kwargs.pop(name, default)
+        glyph_renderer_kwargs[name] = value
+
+    data_source = kwargs.pop("source", Undefined)
+    if data_source is Undefined:
+        data_source = ColumnDataSource()
+
+    glyph = model(**kwargs)
+    return GlyphRenderer(data_source=data_source, glyph=glyph, **glyph_renderer_kwargs)
 
 #-----------------------------------------------------------------------------
 # Code

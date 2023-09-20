@@ -86,7 +86,12 @@ from .ranges import (
     Range,
     Range1d,
 )
-from .renderers import GlyphRenderer, Renderer, TileRenderer
+from .renderers import (
+    DataRenderer,
+    GlyphRenderer,
+    Renderer,
+    TileRenderer,
+)
 from .scales import (
     CategoricalScale,
     LinearScale,
@@ -300,7 +305,12 @@ class Plot(LayoutDOM):
                 f"Invalid place '{place}' specified. Valid place values are: {nice_join(Place)}",
             )
 
-        getattr(self, place).append(obj)
+        if isinstance(obj, DataRenderer):
+            if place != "center":
+                raise ValueError(f"{obj} can only be added to 'center' region")
+            self.renderers.append(obj)
+        else:
+            getattr(self, place).append(obj)
 
     def add_tools(self, *tools: Tool | str) -> None:
         ''' Adds tools to the plot.

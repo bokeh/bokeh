@@ -27,6 +27,7 @@ from bokeh.core.validation import check_integrity, process_validation_issues
 from bokeh.models import (
     Arrow,
     ArrowHead,
+    Band,
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
@@ -44,9 +45,12 @@ from bokeh.models import (
     Slope,
     Span,
     Title,
+    Whisker,
+    glyphs,
 )
 from bokeh.models.annotations.dimensional import CustomDimensional, Metric
 from bokeh.util.serialization import convert_datetime_type
+from bokeh.util.warnings import BokehDeprecationWarning
 
 from _util_models import (
     ABOVE_FILL,
@@ -647,6 +651,26 @@ def test_legend_item_with_field_label_raises_error_if_field_not_in_cds() -> None
         issues = check_integrity([legend_item])
         process_validation_issues(issues)
         assert mock_logger.error.call_count == 1
+
+def test_legacy_Band() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        band = Band(name="band_annotation", source=data_source)
+    assert isinstance(band, GlyphRenderer)
+    assert isinstance(band.glyph, glyphs.Band)
+    assert band.data_source == data_source
+    assert band.name == "band_annotation"
+    assert band.level == "annotation"
+
+def test_legacy_Whisker() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        whisker = Whisker(name="whisker_annotation", source=data_source)
+    assert isinstance(whisker, GlyphRenderer)
+    assert isinstance(whisker.glyph, glyphs.Whisker)
+    assert whisker.data_source == data_source
+    assert whisker.name == "whisker_annotation"
+    assert whisker.level == "annotation"
 
 #-----------------------------------------------------------------------------
 # Dev API
