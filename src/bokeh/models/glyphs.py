@@ -113,7 +113,7 @@ __all__ = (
     'AnnularWedge',
     'Annulus',
     'Arc',
-    'Band',
+    #'Band',
     'Bezier',
     'Block',
     'Circle',
@@ -154,7 +154,7 @@ __all__ = (
     'VSpan',
     'VStrip',
     'Wedge',
-    'Whisker',
+    #'Whisker',
     'XYGlyph',
 )
 

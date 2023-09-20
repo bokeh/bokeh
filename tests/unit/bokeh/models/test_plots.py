@@ -272,6 +272,20 @@ def test_plot_add_layout_adds_axis_to_renderers_and_side_renderers() -> None:
     assert axis in plot.left
 
 
+def test_plot_add_layout_adds_glyph_renderer_to_plot_renderers() -> None:
+    plot = figure()
+    glyph_renderer = GlyphRenderer()
+    plot.add_layout(glyph_renderer)
+    assert glyph_renderer in plot.renderers
+
+
+def test_plot_add_layout_raises_when_adding_glyph_renderer_to_side_panels() -> None:
+    plot = figure()
+    glyph_renderer = GlyphRenderer()
+    with pytest.raises(ValueError):
+        plot.add_layout(glyph_renderer, "left")
+
+
 def test_sizing_mode_property_is_fixed_by_default() -> None:
     plot = figure()
     assert plot.sizing_mode is None
