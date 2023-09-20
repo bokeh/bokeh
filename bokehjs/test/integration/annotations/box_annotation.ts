@@ -1,9 +1,11 @@
 import {display, fig, row} from "../_util"
-import {PlotActions} from "../../interactive"
+import type {Point} from "../../interactive"
+import {PlotActions, xy} from "../../interactive"
 
 import {BoxAnnotation} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
 import {paint} from "@bokehjs/core/util/defer"
+import type {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("BoxAnnotation annotation", () => {
 
@@ -95,9 +97,15 @@ describe("BoxAnnotation annotation", () => {
     await display(p)
   })
 
+  async function pan(view: PlotView, xy0: Point, xy1: Point) {
+    const actions = new PlotActions(view)
+    await actions.pan_along({type: "line", xy0, xy1})
+    await paint()
+  }
+
   it("should support moving by dragging", async () => {
     const box = new BoxAnnotation({
-      left: 1, right: 3, top: 3, bottom: 1,
+      left: 2, right: 4, top: 4, bottom: 2,
       editable: true,
       line_color: "blue",
     })
@@ -106,9 +114,7 @@ describe("BoxAnnotation annotation", () => {
     const {view} = await display(p)
     await paint()
 
-    const actions = new PlotActions(view)
-    await actions.pan_along({type: "line", xy0: {x: 2, y: 2}, xy1: {x: 4, y: 4}})
-    await paint()
+    await pan(view, xy(3, 3), xy(4, 4))
   })
 
   function test_resizing(symmetric: boolean) {
@@ -128,58 +134,42 @@ describe("BoxAnnotation annotation", () => {
 
     it("left edge", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 2, y: 3}, xy1: {x: 1, y: 3}})
-      await paint()
+      await pan(view, xy(2, 3), xy(1, 3))
     })
 
     it("right edge", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 4, y: 3}, xy1: {x: 5, y: 3}})
-      await paint()
+      await pan(view, xy(4, 3), xy(5, 3))
     })
 
     it("top edge", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 3, y: 4}, xy1: {x: 3, y: 5}})
-      await paint()
+      await pan(view, xy(3, 4), xy(3, 5))
     })
 
     it("bottom edge", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 3, y: 2}, xy1: {x: 3, y: 1}})
-      await paint()
+      await pan(view, xy(3, 2), xy(3, 1))
     })
 
     it("top-left corner", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 2, y: 4}, xy1: {x: 1, y: 5}})
-      await paint()
+      await pan(view, xy(2, 4), xy(1, 5))
     })
 
     it("top-right corner", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 4, y: 4}, xy1: {x: 5, y: 5}})
-      await paint()
+      await pan(view, xy(4, 4), xy(5, 5))
     })
 
     it("bottom-right corner", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 4, y: 2}, xy1: {x: 5, y: 1}})
-      await paint()
+      await pan(view, xy(4, 2), xy(5, 1))
     })
 
     it("bottom-left corner", async () => {
       const view = await box()
-      const actions = new PlotActions(view)
-      await actions.pan_along({type: "line", xy0: {x: 2, y: 2}, xy1: {x: 1, y: 1}})
-      await paint()
+      await pan(view, xy(2, 2), xy(1, 1))
     })
   }
 
