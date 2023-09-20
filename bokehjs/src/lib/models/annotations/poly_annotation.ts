@@ -1,7 +1,7 @@
 import {Annotation, AnnotationView} from "./annotation"
 import type {Scale} from "../scales/scale"
-import type {AutoRanged} from "../ranges/data_range1d"
-import {auto_ranged} from "../ranges/data_range1d"
+import type {AutoRanged} from "../ranges/auto_ranged"
+import {auto_ranged} from "../ranges/auto_ranged"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import {CoordinateUnits} from "core/enums"
@@ -125,10 +125,6 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     } else {
       return empty()
     }
-  }
-
-  log_bounds(): Rect {
-    return empty()
   }
 
   protected _mappers(): {x: CoordinateMapper, y: CoordinateMapper} {

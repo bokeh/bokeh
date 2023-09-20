@@ -3,8 +3,10 @@ import type {Bounds} from "../ranges/data_range1d"
 import {DataRange1d} from "../ranges/data_range1d"
 import type {CartesianFrameView} from "../canvas/cartesian_frame"
 import type {CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {Dimensions} from "../ranges/auto_ranged"
 import type {PlotView} from "./plot_canvas"
-import type {Interval} from "core/types"
+import type {Interval, Rect} from "core/types"
+import * as bbox from "core/util/bbox"
 import {logger} from "core/logging"
 
 export type RangeState = Map<Range, Interval>
@@ -100,12 +102,23 @@ export class RangeManager {
       }
     }
 
+    function restrict(bounds: Rect, dimensions: Dimensions): Rect {
+      switch (dimensions) {
+        case "both": return bounds
+        case "x":    return bbox.x_only(bounds.x0, bounds.x1)
+        case "y":    return bbox.y_only(bounds.y0, bounds.y1)
+        case "none": return bbox.empty()
+      }
+    }
+
     for (const renderer of this.parent.auto_ranged_renderers) {
-      const bds = renderer.bounds()
+      const dimensions = renderer.bounds_dimensions?.() ?? "both"
+
+      const bds = restrict(renderer.bounds(), dimensions)
       bounds.set(renderer.model, bds)
 
       if (calculate_log_bounds) {
-        const log_bds = renderer.log_bounds()
+        const log_bds = restrict(renderer.log_bounds?.() ?? bbox.empty(), dimensions)
         log_bounds.set(renderer.model, log_bds)
       }
     }

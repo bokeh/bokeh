@@ -5585,6 +5585,7 @@
   DataRenderer: {
     __extends__: "Renderer",
     level: "glyph",
+    auto_ranging: "both",
   },
   GuideRenderer: {
     __extends__: "Renderer",
