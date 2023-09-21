@@ -3627,4 +3627,19 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13323", () => {
+    it("doesn't allow to repaint plots in layouts when only their inner layout bbox changed", async () => {
+      const p0 = fig([200, 200])
+      p0.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
+
+      const p1 = fig([200, 200], {y_axis_type: null})
+      p1.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
+
+      const {view} = await display(column([p0, p1]))
+
+      p0.x_range.setv({start: 1, end: 1})
+      await view.ready
+    })
+  })
 })
