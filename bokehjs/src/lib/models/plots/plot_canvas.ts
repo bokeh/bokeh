@@ -803,6 +803,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {inner_bbox} = this.layout
     if (!this._inner_bbox.equals(inner_bbox)) {
       this._inner_bbox = inner_bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 
