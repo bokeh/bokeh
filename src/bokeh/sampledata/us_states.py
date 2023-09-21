@@ -42,6 +42,7 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
+from math import nan
 from typing import TYPE_CHECKING, TypedDict
 
 # External imports
@@ -83,8 +84,6 @@ class StateData(TypedDict):
     region: str
     lats: NDArray[np.float64]
     lons: NDArray[np.float64]
-
-nan = float('NaN')
 
 def _read_data() -> dict[State, StateData]:
     '''

@@ -100,6 +100,12 @@ from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
+from .coordinates import (
+    FrameBottom,
+    FrameLeft,
+    FrameRight,
+    FrameTop,
+)
 from .dom import Template
 from .glyphs import (
     Line,
@@ -421,12 +427,18 @@ class PanTool(Drag):
     height of the plot.
     """)
 
-DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
+# TODO InstanceDefault() doesn't allow for lazy argument evaluation
+# DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
+DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     syncable=False,
     level="overlay",
     visible=True,
     editable=True,
     propagate_hover=True,
+    left_limit=FrameLeft(),
+    right_limit=FrameRight(),
+    top_limit=FrameTop(),
+    bottom_limit=FrameBottom(),
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -840,7 +852,7 @@ DEFAULT_BOX_SELECT_OVERLAY = InstanceDefault(BoxAnnotation,
 class BoxZoomTool(Drag):
     ''' *toolbar icon*: |box_zoom_icon|
 
-    The box zoom tool allows users to define a rectangular egion of a Plot to
+    The box zoom tool allows users to define a rectangular region of a Plot to
     zoom to by dragging he mouse or a finger over the plot region. The end of
     the drag event indicates the selection region is ready.
 

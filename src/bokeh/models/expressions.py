@@ -40,6 +40,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import inf
+
 # Bokeh imports
 from ..core.enums import Direction
 from ..core.has_props import abstract
@@ -210,7 +213,7 @@ class Minimum(ScalarExpression):
         super().__init__(*args, **kwargs)
 
     field = Required(String)
-    initial = Nullable(Float, default=float("+inf"))
+    initial = Nullable(Float, default=inf)
 
 
 class Maximum(ScalarExpression):
@@ -221,7 +224,7 @@ class Maximum(ScalarExpression):
         super().__init__(*args, **kwargs)
 
     field = Required(String)
-    initial = Nullable(Float, default=float("-inf"))
+    initial = Nullable(Float, default=-inf)
 
 
 @abstract

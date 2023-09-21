@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import inf
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
@@ -249,11 +252,11 @@ class Spinner(NumericInput):
 
     mode = Override(default="float")
 
-    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    step = Interval(Float, start=1e-16, end=inf, default=1, help="""
     The step added or subtracted to the current value.
     """)
 
-    page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
+    page_step_multiplier = Interval(Float, start=0, end=inf, default=10, help="""
     Defines the multiplication factor applied to step when the page up and page
     down keys are pressed.
     """)

@@ -49,6 +49,7 @@ from ..util.dataclasses import (
     entries,
     is_dataclass,
 )
+from ..util.dependencies import uses_pandas
 from ..util.serialization import (
     array_encoding_disabled,
     convert_datetime_type,
@@ -454,8 +455,7 @@ class Serializer:
             return self._encode_bool(bool(obj))
 
         # avoid importing pandas here unless it is actually in use
-        module = type(obj).__module__
-        if module is not None and module.startswith("pandas"):
+        if uses_pandas(obj):
             import pandas as pd
             if isinstance(obj, (pd.Series, pd.Index, pd.api.extensions.ExtensionArray)):
                 return self._encode_ndarray(transform_series(obj))

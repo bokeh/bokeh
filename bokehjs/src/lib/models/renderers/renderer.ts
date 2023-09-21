@@ -2,12 +2,15 @@ import {View} from "core/view"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
+import {isString} from "core/util/types"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
+import type {Node} from "../coordinates/node"
+import {BBox} from "core/util/bbox"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -162,6 +165,67 @@ export abstract class RendererView extends View implements visuals.Renderable {
    * Geometry setup that changes between paints.
    */
   compute_geometry(): void {}
+
+  /**
+   * Compute screen coordinates for a symbolic node.
+   */
+  resolve_node(node: Node): {x: number, y: number} {
+    const target = (() => {
+      if (isString(node.target)) {
+        switch (node.target) {
+          case "canvas": return this.plot_view.canvas
+          case "frame":  return this.plot_view.frame
+          case "plot":   return this.plot_view
+          case "parent": return this.parent
+        }
+      } else {
+        if (node.target instanceof Renderer) {
+          const view = this.plot_view.renderer_view(node.target)
+          if (view != null) {
+            return view
+          }
+        }
+        return null
+      }
+    })()
+
+    function xy(x: number, y: number) {
+      const {offset} = node
+      return {x: x + offset, y: y + offset}
+    }
+
+    if (target == null) {
+      return xy(NaN, NaN)
+    }
+
+    if (!("bbox" in target && target.bbox instanceof BBox)) {
+      return xy(NaN, NaN)
+    }
+
+    const {bbox} = target
+    switch (node.symbol) {
+      case "top_left":   return xy(bbox.left, bbox.top)
+      case "top_center": return xy(bbox.hcenter, bbox.top)
+      case "top_right":  return xy(bbox.right, bbox.top)
+
+      case "center_left":   return xy(bbox.left, bbox.vcenter)
+      case "center_center": return xy(bbox.hcenter, bbox.vcenter)
+      case "center_right":  return xy(bbox.right, bbox.vcenter)
+
+      case "bottom_left":   return xy(bbox.left, bbox.bottom)
+      case "bottom_center": return xy(bbox.hcenter, bbox.bottom)
+      case "bottom_right":  return xy(bbox.right, bbox.bottom)
+
+      case "center": return xy(bbox.hcenter, bbox.vcenter)
+
+      case "top":    return xy(NaN, bbox.top)
+      case "left":   return xy(bbox.left, NaN)
+      case "right":  return xy(bbox.right, NaN)
+      case "bottom": return xy(NaN, bbox.bottom)
+
+      default: return xy(NaN, NaN)
+    }
+  }
 }
 
 export namespace Renderer {

@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from collections import Counter
+from math import nan
 
 # Bokeh imports
 from ..core.enums import PaddingUnits, StartEnd
@@ -179,9 +180,9 @@ class DataRange(NumericalRange):
     defaults to all renderers on a plot.
     """)
 
-    start = Override(default=float("nan"))
+    start = Override(default=nan)
 
-    end = Override(default=float("nan"))
+    end = Override(default=nan)
 
 class DataRange1d(DataRange):
     ''' An auto-fitting range in a continuous scalar dimension.
