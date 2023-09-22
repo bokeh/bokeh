@@ -27,10 +27,12 @@ export class BoxEditToolView extends EditToolView {
   declare model: BoxEditTool
   _draw_basepoint: [number, number] | null
 
+  protected _recent_renderers: GlyphRenderer[] = []
+
   override _tap(ev: TapEvent): void {
     if ((this._draw_basepoint != null) || (this._basepoint != null))
       return
-    this._select_event(ev, this._select_mode(ev), this.model.renderers)
+    this._recent_renderers = this._select_event(ev, this._select_mode(ev), this.model.renderers)
   }
 
   override _keyup(ev: KeyEvent): void {
@@ -49,7 +51,7 @@ export class BoxEditToolView extends EditToolView {
 
   _set_extent([sx0, sx1]: [number, number], [sy0, sy1]: [number, number],
               append: boolean, emit: boolean = false): void {
-    const renderer = this.model.renderers[0]
+    const renderer = this._recent_renderers[0] ?? this.model.renderers[0]
     const renderer_view = this.plot_view.renderer_view(renderer)
     if (renderer_view == null)
       return
@@ -188,7 +190,7 @@ export class BoxEditToolView extends EditToolView {
     } else {
       if (this._basepoint != null)
         return
-      this._select_event(ev, "append", this.model.renderers)
+      this._recent_renderers = this._select_event(ev, "append", this.model.renderers)
       this._basepoint = [ev.sx, ev.sy]
     }
   }
