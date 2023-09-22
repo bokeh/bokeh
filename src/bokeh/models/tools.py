@@ -107,6 +107,7 @@ from .glyphs import (
     LRTBGlyph,
     MultiLine,
     Patches,
+    Rect,
     VStrip,
     XYGlyph,
 )
@@ -1531,11 +1532,12 @@ class PolyTool(EditTool):
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
 
-    Allows drawing, dragging and deleting ``Rect`` glyphs on one or more
-    renderers by editing the underlying ``ColumnDataSource`` data. Like other
-    drawing tools, the renderers that are to be edited must be supplied
-    explicitly as a list. When drawing a new box the data will always be added
-    to the ``ColumnDataSource`` on the first supplied renderer.
+    Allows drawing, dragging and deleting box-like glyphs (e.g. ``Block``,
+    ``Rect``, ``HStrip``) on one or more renderers by editing the underlying
+    ``ColumnDataSource`` data. Like other drawing tools, the renderers that
+    are to be edited must be supplied explicitly as a list. When drawing a
+    new box the data will always be added to the ``ColumnDataSource`` on
+    the first supplied renderer.
 
     The tool will modify the columns on the data source corresponding to the
     ``x``, ``y``, ``width`` and ``height`` values of the glyph. Any additional
@@ -1572,7 +1574,7 @@ class BoxEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    renderers = List(GlyphRendererOf(LRTBGlyph, HStrip, VStrip, XYGlyph), help="""
+    renderers = List(GlyphRendererOf(LRTBGlyph, Rect, HStrip, VStrip), help="""
     A list of renderers corresponding to glyphs that may be edited.
     """)
 
