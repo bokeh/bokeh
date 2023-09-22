@@ -49,6 +49,7 @@ be especially useful.
 :ref:`bokeh.settings`
     All Bokeh-related environment variables, which can be used to control
     things like resources, minification, and log levels, are documented here.
+    
 Linking to the Bokeh documentation
 ----------------------------------
 
