@@ -12,15 +12,17 @@ import {VBar} from "../../glyphs/vbar"
 import {HStrip} from "../../glyphs/hstrip"
 import {VStrip} from "../../glyphs/vstrip"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
-import type {ColumnDataSource} from "../../sources/column_data_source"
+import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_box_edit} from "styles/icons.css"
 import {unreachable} from "core/util/assert"
 import {entries, keys} from "core/util/object"
 
-export type HasLRTBLikeCDS = {
-  glyph: Rect | LRTB
-  data_source: ColumnDataSource
+export type BoxLikeGlyph = LRTB | Rect | HStrip | VStrip
+
+export type BoxLikeGlyphRenderer = GlyphRenderer & {
+  glyph: BoxLikeGlyph
+  data_source: ColumnarDataSource
 }
 
 export class BoxEditToolView extends EditToolView {
@@ -308,7 +310,7 @@ export namespace BoxEditTool {
   export type Props = EditTool.Props & {
     dimensions: p.Property<Dimensions>
     num_objects: p.Property<number>
-    renderers: p.Property<(GlyphRenderer & HasLRTBLikeCDS)[]>
+    renderers: p.Property<BoxLikeGlyphRenderer[]>
   }
 }
 
@@ -328,7 +330,7 @@ export class BoxEditTool extends EditTool {
     this.define<BoxEditTool.Props>(({Int, Array, Ref}) => ({
       dimensions:  [ Dimensions, "both" ],
       num_objects: [ Int, 0 ],
-      renderers:   [ Array(Ref<GlyphRenderer & HasLRTBLikeCDS>(GlyphRenderer as any)), [] ],
+      renderers:   [ Array(Ref<BoxLikeGlyphRenderer>(GlyphRenderer as any)), [] ],
     }))
   }
 
