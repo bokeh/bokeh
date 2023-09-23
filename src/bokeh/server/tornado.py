@@ -605,7 +605,7 @@ class BokehTornado(TornadoApplication):
         '''
         return self._session_token_expiration
 
-    def resources(self, absolute_url: str | None = None) -> Resources:
+    def resources(self, absolute_url: str | bool | None = None) -> Resources:
         ''' Provide a :class:`~bokeh.resources.Resources` that specifies where
         Bokeh application sessions should load BokehJS resources from.
 
@@ -617,8 +617,14 @@ class BokehTornado(TornadoApplication):
         '''
         mode = settings.resources(default="server")
         if mode == "server" or mode == "server-dev":
-            root_url = urljoin(absolute_url or self._absolute_url or "", self._prefix)
-            return Resources(mode="server", root_url=root_url, path_versioner=StaticHandler.append_version)
+            if absolute_url is True:
+                absolute_url = self._absolute_url
+            if absolute_url is None or absolute_url is False:
+                absolute_url = "/"
+
+            root_url = urljoin(absolute_url, self._prefix)
+            return Resources(mode=mode, root_url=root_url, path_versioner=StaticHandler.append_version)
+
         return Resources(mode=mode)
 
     def start(self) -> None:
