@@ -57,10 +57,10 @@ Developers of other packages that make use of Bokeh might want to use
 `intersphinx <https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html>`_
 to link to specific classes or functions in the Bokeh docs from their Sphinx
 documentation. The file needed for that is located at
-``https://docs.bokeh.org/en/<version>/objects.inv``
+``https://docs.bokeh.org/en/<version>/``
 where ``<version>`` can be the number of a released version, or "latest". For example
 the entry in the ``conf.py`` file for Sphinx might look like this:
 
 .. code-block:: python
 
-    intersphinx_mapping = {'bokeh': ('https://docs.bokeh.org/en/latest/objects.inv ', None)}
+    intersphinx_mapping = {'bokeh': ('https://docs.bokeh.org/en/latest/', None)}
