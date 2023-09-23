@@ -54,12 +54,17 @@ class Parent(HasProps, Local):
 
 class Test_TypeOfAttr:
 
+    def test___str__(self) -> None:
+        prop = bcpc.TypeOfAttr(Instance(Parent), "p0", Instance(Child0))
+        assert str(prop) == "TypeOfAttr(Instance(Parent), 'p0', Instance(Child0))"
+
     def test_is_valid(self) -> None:
         prop0 = bcpc.TypeOfAttr(Instance(Parent), "p0", Instance(Child0))
         prop1 = bcpc.TypeOfAttr(Instance(Parent), "p0", Instance(Child1))
         prop2 = bcpc.TypeOfAttr(Instance(Parent), "p0", Instance(Child2))
         prop3 = bcpc.TypeOfAttr(Instance(Parent), "p1", Int)
         prop4 = bcpc.TypeOfAttr(Instance(Parent), "p1", String)
+        prop5 = bcpc.TypeOfAttr(Instance(Parent), "p2", String)
 
         assert prop0.is_valid(Parent(p0=Child0())) is True
         assert prop0.is_valid(Parent(p0=Child1())) is True
@@ -78,6 +83,8 @@ class Test_TypeOfAttr:
 
         assert prop4.is_valid(Parent(p0=Child0(), p1=0)) is False
         assert prop4.is_valid(Parent(p0=Child1(), p1="")) is True
+
+        assert prop5.is_valid(Parent(p0=Child1(), p1="")) is False
 
 #-----------------------------------------------------------------------------
 # Dev API
