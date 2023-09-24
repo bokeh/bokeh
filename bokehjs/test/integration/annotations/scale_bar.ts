@@ -1,7 +1,7 @@
 import {display} from "../_util"
 
 import {ScaleBar, Plot, Range1d} from "@bokehjs/models"
-import type {Location} from "@bokehjs/core/enums"
+import type {Location, Align} from "@bokehjs/core/enums"
 
 describe("ScaleBar annotation", () => {
   describe("should support horizontal orientation", () => {
@@ -18,28 +18,41 @@ describe("ScaleBar annotation", () => {
       })
     }
 
-    async function scale_bar_with_label_location(label_location: Location, label_standoff?: number) {
+    async function scale_bar_with_label_location(label_location: Location, label_align?: Align, label_standoff?: number) {
       const scale_bar = new ScaleBar({
         range: new Range1d({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
         label_location,
+        label_align,
         label_standoff,
       })
       await display(plot(scale_bar))
     }
 
-    it("with label above", async () => await scale_bar_with_label_location("above"))
-    it("with label below", async () => await scale_bar_with_label_location("below"))
+    describe("with label above", () => {
+      const label_location = "above" as const
+      it("with label align start", async () => await scale_bar_with_label_location(label_location, "start"))
+      it("with label align center", async () => await scale_bar_with_label_location(label_location, "center"))
+      it("with label align end", async () => await scale_bar_with_label_location(label_location, "end"))
+    })
+
+    describe("with label below", () => {
+      const label_location = "below" as const
+      it("with label align start", async () => await scale_bar_with_label_location(label_location, "start"))
+      it("with label align center", async () => await scale_bar_with_label_location(label_location, "center"))
+      it("with label align end", async () => await scale_bar_with_label_location(label_location, "end"))
+    })
+
     it("with label left", async () => await scale_bar_with_label_location("left"))
     it("with label right", async () => await scale_bar_with_label_location("right"))
 
     const standoff = 20
-    it(`with label above and ${standoff}px standoff`, async () => await scale_bar_with_label_location("above", standoff))
-    it(`with label below and ${standoff}px standoff`, async () => await scale_bar_with_label_location("below", standoff))
-    it(`with label left and ${standoff}px standoff`, async () => await scale_bar_with_label_location("left", standoff))
-    it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", standoff))
+    it(`with label above and ${standoff}px standoff`, async () => await scale_bar_with_label_location("above", "center", standoff))
+    it(`with label below and ${standoff}px standoff`, async () => await scale_bar_with_label_location("below", "center", standoff))
+    it(`with label left and ${standoff}px standoff`, async () => await scale_bar_with_label_location("left", "center", standoff))
+    it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", "center", standoff))
 
     it("with 0px padding", async () => {
       const scale_bar = new ScaleBar({
@@ -119,21 +132,41 @@ describe("ScaleBar annotation", () => {
       })
     }
 
-    async function scale_bar_with_label_location(label_location: Location) {
+    async function scale_bar_with_label_location(label_location: Location, label_align?: Align, label_standoff?: number) {
       const scale_bar = new ScaleBar({
         range: new Range1d({start: 0, end: 1}),
         bar_length: 0.2,
         orientation,
         location: "top_right",
         label_location,
+        label_align,
+        label_standoff,
       })
       await display(plot(scale_bar))
     }
 
     it("with label above", async () => await scale_bar_with_label_location("above"))
     it("with label below", async () => await scale_bar_with_label_location("below"))
-    it("with label left", async () => await scale_bar_with_label_location("left"))
-    it("with label right", async () => await scale_bar_with_label_location("right"))
+
+    describe("with label left", () => {
+      const label_location = "left" as const
+      it("with label align start", async () => await scale_bar_with_label_location(label_location, "start"))
+      it("with label align center", async () => await scale_bar_with_label_location(label_location, "center"))
+      it("with label align end", async () => await scale_bar_with_label_location(label_location, "end"))
+    })
+
+    describe("with label right", () => {
+      const label_location = "right" as const
+      it("with label align start", async () => await scale_bar_with_label_location(label_location, "start"))
+      it("with label align center", async () => await scale_bar_with_label_location(label_location, "center"))
+      it("with label align end", async () => await scale_bar_with_label_location(label_location, "end"))
+    })
+
+    const standoff = 20
+    it(`with label above and ${standoff}px standoff`, async () => await scale_bar_with_label_location("above", "center", standoff))
+    it(`with label below and ${standoff}px standoff`, async () => await scale_bar_with_label_location("below", "center", standoff))
+    it(`with label left and ${standoff}px standoff`, async () => await scale_bar_with_label_location("left", "center", standoff))
+    it(`with label right and ${standoff}px standoff`, async () => await scale_bar_with_label_location("right", "center", standoff))
 
     for (const length_sizing of ["adaptive", "exact"] as const) {
       describe(`with ${length_sizing} sizing`, () => {

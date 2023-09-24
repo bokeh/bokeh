@@ -221,7 +221,18 @@ export class ScaleBarView extends AnnotationView {
 
       const label_layout = new TextLayout(label_box)
       label_layout.absolute = true
-      label_layout.set_sizing({visible: text != "" && this.visuals.label_text.doit})
+
+      const horizontal = orientation == "horizontal"
+      const {label_align} = this.model
+      const halign = horizontal ? label_align : undefined
+      const valign = !horizontal ? label_align : undefined
+
+      label_layout.set_sizing({
+        width_policy: "min",
+        height_policy: "min",
+        visible: text != "" && this.visuals.label_text.doit,
+        halign, valign,
+      })
       return label_layout
     })()
 
@@ -251,7 +262,19 @@ export class ScaleBarView extends AnnotationView {
 
       const title_layout = new TextLayout(title_box)
       title_layout.absolute = true
-      title_layout.set_sizing({visible: text != "" && this.visuals.title_text.doit})
+
+      const horizontal = orientation == "horizontal"
+      const {title_align} = this.model
+      const halign = horizontal ? title_align : undefined
+      const valign = !horizontal ? title_align : undefined
+
+      title_layout.set_sizing({
+        width_policy: "min",
+        height_policy: "min",
+        visible: text != "" && this.visuals.title_text.doit,
+        halign, valign,
+      })
+
       return title_layout
     })()
 
@@ -299,8 +322,6 @@ export class ScaleBarView extends AnnotationView {
       }
     })()
 
-    //inner_layout.rows = {"*": {policy: "auto", align: "center"}}
-    //inner_layout.cols = {"*": {policy: "auto", align: "center"}}
     inner_layout.spacing = this.model.label_standoff
     inner_layout.absolute = true
     inner_layout.set_sizing()
@@ -430,20 +451,15 @@ export class ScaleBarView extends AnnotationView {
     this.axis_view.render()
   }
 
-  protected _draw_title(ctx: Context2d): void {
-    const {left, top} = this.title_layout.bbox
-    ctx.translate(left, top)
-    this.title_layout.text.paint(ctx)
-    ctx.translate(-left, -top)
-  }
-
-  protected _draw_label(ctx: Context2d): void {
-    const {bbox} = this.label_layout
+  protected _draw_text(ctx: Context2d, layout: TextLayout, location: Location): void {
+    const {bbox} = layout
 
     const [x_offset, y_offset] = (() => {
-      switch (this.model.label_location) {
-        case "left":  return [0, bbox.height]
-        case "right": return [bbox.width, 0]
+      const {orientation} = this.model
+      const horizontal = orientation == "horizontal"
+      switch (location) {
+        case "left":  return horizontal ? [0, 0] : [0, bbox.height]
+        case "right": return horizontal ? [0, 0] : [bbox.width, 0]
         case "above": return [0, 0]
         case "below": return [0, 0]
       }
@@ -451,8 +467,16 @@ export class ScaleBarView extends AnnotationView {
 
     const {left, top} = bbox.translate(x_offset, y_offset)
     ctx.translate(left, top)
-    this.label_layout.text.paint(ctx)
+    layout.text.paint(ctx)
     ctx.translate(-left, -top)
+  }
+
+  protected _draw_label(ctx: Context2d): void {
+    this._draw_text(ctx, this.label_layout, this.model.label_location)
+  }
+
+  protected _draw_title(ctx: Context2d): void {
+    this._draw_text(ctx, this.title_layout, this.model.title_location)
   }
 
   protected _render(): void {
@@ -476,11 +500,11 @@ export class ScaleBarView extends AnnotationView {
     if (this.axis_view.layout!.visible) {
       this._draw_axis(ctx)
     }
-    if (this.title_layout.visible) {
-      this._draw_title(ctx)
-    }
     if (this.label_layout.visible) {
       this._draw_label(ctx)
+    }
+    if (this.title_layout.visible) {
+      this._draw_title(ctx)
     }
     ctx.translate(-left, -top)
   }

@@ -30,6 +30,7 @@ scale_bar = ScaleBar(
     location="top_right",
     label="@{value} @{unit}",
     label_location="above",
+    label_align="center",
     bar_length=0.2,
     bar_line_width=2,
     background_fill_alpha=0.8,
