@@ -5466,10 +5466,7 @@
   },
   ScaleBar: {
     __extends__: "Annotation",
-    range: {
-      type: "symbol",
-      name: "unset",
-    },
+    range: "auto",
     unit: "m",
     dimensional: {
       type: "object",

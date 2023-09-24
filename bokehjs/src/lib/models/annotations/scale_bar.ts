@@ -71,6 +71,8 @@ export class ScaleBarView extends AnnotationView {
   protected axis_scale: Scale
   protected cross_scale: Scale
 
+  protected range: Range
+
   protected override _get_size(): Size {
     const {width, height} = this.bbox
     const {margin} = this.model
@@ -82,11 +84,25 @@ export class ScaleBarView extends AnnotationView {
 
   override initialize(): void {
     super.initialize()
+
     const {ticker} = this.model
     this.axis = new LinearAxis({
       ticker,
       ...mixins.attrs_of(this.model, "bar_", mixins.Line, "axis_"),
     })
+
+    this.range = (() => {
+      const {range, orientation} = this.model
+      if (range == "auto") {
+        const {frame} = this.parent
+        switch (orientation) {
+          case "horizontal": return frame.x_range
+          case "vertical":   return frame.y_range
+        }
+      } else {
+        return range
+      }
+    })()
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -123,7 +139,7 @@ export class ScaleBarView extends AnnotationView {
     this.connect(this.model.change, () => {
       this.request_render()
     })
-    this.connect(this.model.range.change, () => {
+    this.connect(this.range.change, () => {
       this.request_render()
     })
   }
@@ -163,8 +179,8 @@ export class ScaleBarView extends AnnotationView {
     })()
 
     const {new_value, new_unit, new_long_unit, scale_factor, exact} = (() => {
-      const {range, unit, dimensional} = this.model
-      const value = range.span*bar_length_percent
+      const {unit, dimensional} = this.model
+      const value = this.range.span*bar_length_percent
       return dimensional.compute(value, unit, length_sizing == "exact")
     })()
 
@@ -514,7 +530,7 @@ export namespace ScaleBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    range: p.Property<Range>
+    range: p.Property<Range | "auto">
     unit: p.Property<string>
     dimensional: p.Property<Dimensional>
     orientation: p.Property<Orientation>
@@ -574,8 +590,8 @@ export class ScaleBar extends Annotation {
       ["background_", mixins.Hatch],
     ])
 
-    this.define<ScaleBar.Props>(({NonNegative, Number, String, Ref}) => ({
-      range:          [ Ref(Range) ],
+    this.define<ScaleBar.Props>(({NonNegative, Number, String, Ref, Or, Auto}) => ({
+      range:          [ Or(Ref(Range), Auto), "auto" ],
       unit:           [ String, "m" ],
       dimensional:    [ Ref(Dimensional), () => new MetricLength() ],
       orientation:    [ Orientation, "horizontal" ],

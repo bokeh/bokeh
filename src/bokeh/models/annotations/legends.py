@@ -51,7 +51,6 @@ from ...core.properties import (
     NullStringSpec,
     Override,
     Positive,
-    Required,
     Seq,
     String,
     TextLike,
@@ -516,20 +515,27 @@ class Legend(Annotation):
         lambda items: [LegendItem(label=item[0], renderers=item[1]) for item in items])
 
 class ScaleBar(Annotation):
-    """
+    """ Represents a scale bar annotation.
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    range = Required(Instance(Range), help="""
+    range = Either(Instance(Range), Auto, default="auto", help="""
+    The range for which to display the scale.
+
+    This can be either a range reference or ``"auto"``, in which case the
+    scale bar will pick the default x or y range of the frame, depending
+    on the orientation of the scale bar.
     """)
 
     unit = String(default="m", help="""
+    The unit of the ``range`` property.
     """)
 
     dimensional = Instance(Dimensional, default=InstanceDefault(MetricLength), help="""
+    Defines the units of measurement.
     """)
 
     orientation = Enum(Orientation, help="""
@@ -537,6 +543,7 @@ class ScaleBar(Annotation):
     """)
 
     location = Enum(Anchor, default="top_right", help="""
+    Location anchor for positioning scale bar.
     """)
 
     length_sizing = Enum("adaptive", "exact", help="""
@@ -556,8 +563,6 @@ class ScaleBar(Annotation):
     bar_style = Include(ScalarLineProps, prefix="bar", help="""
     The {prop} values for the bar line.
     """)
-
-    #decoration = Nullable(Instance(Decoration))
 
     margin = Int(default=10, help="""
     Amount of margin (in pixels) around the outside of the scale bar.
@@ -584,10 +589,11 @@ class ScaleBar(Annotation):
     """)
 
     label_align = Enum(Align, default="center", help="""
+    Specified how to align scale bar's label along the bar.
     """)
 
     label_location = Enum(Location, default="below", help="""
-    Specifies on which side of the legend the label will be located.
+    Specifies on which side of the scael bar the label will be located.
     """)
 
     label_standoff = Int(default=5, help="""
@@ -618,7 +624,7 @@ class ScaleBar(Annotation):
 
     Note that using the default fixed ticker with no predefined ticks,
     then the appearance of the scale bar with be just a solid bar with
-    no additonal markings.
+    no additional markings.
     """)
 
     border_style = Include(ScalarLineProps, prefix="border", help="""
