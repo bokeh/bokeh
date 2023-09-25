@@ -27,13 +27,6 @@ To accomplish this, the ``bokeh.embed`` module offers the
 methods. See :ref:`ug_output_embed_apps` for a detailed discussion of their
 usage, with examples.
 
-As a brief summary, these methods return the text of an HTML ``<script>`` tag,
-which contains an ``id`` attribute tracking the session ID that Bokeh server
-will use, as well as some JavaScript which loads resources from your Bokeh
-server instance and embed a view of your Bokeh application into the parent
-page. The embedded view of your Bokeh application will appear relative to
-wherever you include the generated script tag in the parent page.
-
 If the parent service you wish to integrate with is not Python-based, you can
 still integrate with Bokeh through the ``server_document`` / ``server_session``
 methods, but you will need to do so by calling out to a small, long-lived
@@ -41,7 +34,7 @@ Python script that returns the text contents of those methods via any standard
 form of IPC. Alternatively, you can copy the static contents of the autoloader
 script into your parent app directly as a string, and change the script tag's
 id attribute yourself. However, this approach is not recommended, as it will
-require manually updating the script text stored in your parent app as you
+require manually validating the script text stored in your parent app as you
 upgrade across Bokeh versions, and may break entirely across major versions if
 the autoloader workflow is changed.
 
