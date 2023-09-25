@@ -20,12 +20,12 @@ have to consider more sophisticated deployment configurations.
 Integrating Bokeh server into other web services
 ------------------------------------------------
 
-To add a Bokeh view to an existing website or web-based application, where the
-Bokeh server instance is run and managed independently of the "parent" web
-service in which it is being embedded, the best-supported approach is to use
-``bokeh.embed``'s :func:`~bokeh.embed.server_document` and
-:func:`~bokeh.embed.server_session` methods. See :ref:`ug_output_embed_apps`
-for a detailed discussion of their usage, with examples.
+Bokeh server commonly serves as a solution for constructing plots and
+dashboards and seamlessly embedding them within a larger parent application.
+To accomplish this, the ``bokeh.embed`` module offers the
+:func:`~bokeh.embed.server_document` and :func:`~bokeh.embed.server_session`
+methods. See :ref:`ug_output_embed_apps` for a detailed discussion of their
+usage, with examples.
 
 As a brief summary, these methods return the text of an HTML ``<script>`` tag,
 which contains an ``id`` attribute tracking the session ID that Bokeh server
@@ -40,9 +40,10 @@ methods, but you will need to do so by calling out to a small, long-lived
 Python script that returns the text contents of those methods via any standard
 form of IPC. Alternatively, you can copy the static contents of the autoloader
 script into your parent app directly as a string, and change the script tag's
-id attribute yourself, but this approach will require manually updating the
-script text stored in your parent app as you upgrade across Bokeh versions, and
-may break entirely across major versions if the autoloader workflow is changed.
+id attribute yourself. However, this approach is not recommended, as it will
+require manually updating the script text stored in your parent app as you
+upgrade across Bokeh versions, and may break entirely across major versions if
+the autoloader workflow is changed.
 
 You will need to add the public hostname of your Bokeh server instance to the
 ``script-src`` and ``connect-src`` directives of the parent service's
