@@ -610,9 +610,11 @@ class BokehTornado(TornadoApplication):
         Bokeh application sessions should load BokehJS resources from.
 
         Args:
-            absolute_url (bool):
-                An absolute URL prefix to use for locating resources. If None,
-                relative URLs are used (default: None)
+            absolute_url (str, bool):
+                An absolute URL prefix to use for locating resources. If
+                ``True``, a prefix consisting of server's protocol, host
+                and port will be used. Otherwise, root-relative URLs are
+                used (default: ``None``)
 
         '''
         mode = settings.resources(default="server")
