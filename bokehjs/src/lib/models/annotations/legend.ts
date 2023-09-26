@@ -14,7 +14,7 @@ import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
-import {Column, Row, Grid, ContentLayoutable, Sizeable} from "core/layout"
+import {Column, Row, Grid, ContentLayoutable, Sizeable, TextLayout} from "core/layout"
 
 const {max, ceil} = Math
 
@@ -26,17 +26,6 @@ type EntrySettings = {
   label_standoff: number
   label_width: number
   label_height: number
-}
-
-class TextLayout extends ContentLayoutable {
-
-  constructor(readonly text: TextBox) {
-    super()
-  }
-
-  _content_size(): Sizeable {
-    return new Sizeable(this.text.size())
-  }
 }
 
 class LegendEntry extends ContentLayoutable {

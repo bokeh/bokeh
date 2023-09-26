@@ -12,7 +12,7 @@ import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
 import type {Layoutable} from "core/layout"
-import {Column, Row, ContentLayoutable, Sizeable} from "core/layout"
+import {Column, Row, TextLayout} from "core/layout"
 import type {ContinuousAxis, ContinuousAxisView} from "../axes/continuous_axis"
 import {LinearAxis} from "../axes/linear_axis"
 import {Ticker} from "../tickers/ticker"
@@ -29,30 +29,6 @@ const {round} = Math
 
 const LengthSizing = Enum("adaptive", "exact")
 type LengthSizing = typeof LengthSizing["__type__"]
-
-class TextLayout extends ContentLayoutable {
-
-  constructor(readonly text: TextBox) {
-    super()
-  }
-
-  _content_size(): Sizeable {
-    return new Sizeable(this.text.size())
-  }
-}
-
-/*
-class FixedLayout extends ContentLayoutable {
-
-  constructor(readonly size: Size) {
-    super()
-  }
-
-  _content_size(): Sizeable {
-    return new Sizeable(this.size)
-  }
-}
-*/
 
 export class ScaleBarView extends AnnotationView {
   declare model: ScaleBar
