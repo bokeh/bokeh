@@ -7,12 +7,13 @@ import type * as visuals from "core/visuals"
 import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {TextBox} from "core/graphics"
-import type {Size} from "core/layout"
 import {SideLayout, Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type {Context2d} from "core/util/canvas"
-import type {Layoutable} from "core/layout"
-import {Column, Row, TextLayout} from "core/layout"
+import type {Size, Layoutable} from "core/layout"
+import {TextLayout, FixedLayout} from "core/layout"
+import type {GridItem} from "core/layout/grid"
+import {Grid} from "core/layout/grid"
 import type {ContinuousAxis, ContinuousAxisView} from "../axes/continuous_axis"
 import {LinearAxis} from "../axes/linear_axis"
 import {Ticker} from "../tickers/ticker"
@@ -23,6 +24,7 @@ import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
+import {enumerate} from "core/util/iterator"
 import {process_placeholders, sprintf} from "core/util/templating"
 import {Enum} from "../../core/kinds"
 
@@ -40,7 +42,7 @@ export class ScaleBarView extends AnnotationView {
   protected label_layout: TextLayout
   protected title_layout: TextLayout
   protected axis_layout: Layoutable
-  protected box_layout: Layoutable
+  protected box_layout: Grid
 
   protected axis: ContinuousAxis
   protected axis_view: ContinuousAxisView
@@ -285,50 +287,63 @@ export class ScaleBarView extends AnnotationView {
       })
     }
 
-    const outer_layout = (() => {
-      const inner_layout = (() => {
-        const {label_layout} = this
-        switch (this.model.label_location) {
-          case "above": return new Column([label_layout, axis_layout])
-          case "below": return new Column([axis_layout, label_layout])
-          case "left":  return new Row([label_layout, axis_layout])
-          case "right": return new Row([axis_layout, label_layout])
-        }
-      })()
-
-      inner_layout.spacing = this.model.label_standoff
-      inner_layout.absolute = true
-
-      if (!this.title_layout.visible) {
-        return inner_layout
-      } else {
-        inner_layout.set_sizing()
-
-        const outer_layout = (() => {
-          const {title_layout} = this
-          switch (this.model.title_location) {
-            case "above": return new Column([title_layout, inner_layout])
-            case "below": return new Column([inner_layout, title_layout])
-            case "left":  return new Row([title_layout, inner_layout])
-            case "right": return new Row([inner_layout, title_layout])
-          }
-        })()
-
-        outer_layout.spacing = this.model.title_standoff
-        outer_layout.absolute = true
-
-        return outer_layout
+    this.box_layout = (() => {
+      const panels = {
+        above: [] as Layoutable[],
+        below: [] as Layoutable[],
+        left:  [] as Layoutable[],
+        right: [] as Layoutable[],
       }
+
+      function spacer(location: Location, spacing: number) {
+        const layout = new FixedLayout()
+        layout.absolute = true
+        layout.set_sizing((() => {
+          if (location == "left" || location == "right") {
+            return {width_policy: "fixed", width: spacing}
+          } else {
+            return {height_policy: "fixed", height: spacing}
+          }
+        })())
+        return layout
+      }
+
+      function insert(layout: Layoutable, location: Location, spacing: number) {
+        if (layout.visible) {
+          panels[location].push(spacer(location, spacing), layout)
+        }
+      }
+
+      insert(this.label_layout, this.model.label_location, this.model.label_standoff)
+      insert(this.title_layout, this.model.title_location, this.model.title_standoff)
+
+      const row = panels.above.length
+      const col = panels.left.length
+
+      const items: GridItem<Layoutable>[] = [
+        {layout: axis_layout, row, col},
+      ]
+
+      for (const [layout, i] of enumerate(panels.above)) {
+        items.push({layout, row: row - i - 1, col})
+      }
+      for (const [layout, i] of enumerate(panels.below)) {
+        items.push({layout, row: row + i + 1, col})
+      }
+      for (const [layout, i] of enumerate(panels.left)) {
+        items.push({layout, row, col: col - i - 1})
+      }
+      for (const [layout, i] of enumerate(panels.right)) {
+        items.push({layout, row, col: col + i + 1})
+      }
+
+      return new Grid(items)
     })()
 
-    const left = padding
-    const top = padding
-
-    outer_layout.position = {left, top}
-    outer_layout.set_sizing()
-
-    const box_layout = outer_layout
-    this.box_layout = box_layout
+    const {box_layout} = this
+    box_layout.absolute = true
+    box_layout.position = {left: padding, top: padding}
+    box_layout.set_sizing()
     box_layout.compute()
 
     const [axis_range, cross_range] = (() => {

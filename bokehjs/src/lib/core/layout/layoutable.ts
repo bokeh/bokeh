@@ -306,7 +306,7 @@ export class TextLayout extends ContentLayoutable {
 
 export class FixedLayout extends ContentLayoutable {
 
-  constructor(readonly size: Size) {
+  constructor(readonly size: Partial<Size> = {}) {
     super()
   }
 
