@@ -20,7 +20,7 @@ have to consider more sophisticated deployment configurations.
 Integrating Bokeh server into other web services
 ------------------------------------------------
 
-Bokeh server commonly serves as a solution for constructing plots and
+Bokeh server commonly acts as a solution for constructing plots and
 dashboards and seamlessly embedding them within a larger parent application.
 To accomplish this, the ``bokeh.embed`` module offers the
 :func:`~bokeh.embed.server_document` and :func:`~bokeh.embed.server_session`
