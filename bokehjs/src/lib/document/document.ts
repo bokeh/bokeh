@@ -150,7 +150,7 @@ export class Document implements Equatable {
     }
   }
 
-  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
+  interactive_start(plot: Model, finalize: (() => void) | null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())

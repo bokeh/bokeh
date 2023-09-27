@@ -9,6 +9,7 @@ dependencies:
   - boto
   - colorama
   - nodejs 18.*
+  - packaging
   - setuptools
   - twine
   - yaml

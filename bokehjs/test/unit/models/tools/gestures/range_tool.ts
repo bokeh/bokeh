@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import {RangeTool} from "@bokehjs/models/tools/gestures/range_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
+import {frame_left, frame_right, frame_top, frame_bottom} from "@bokehjs/models/coordinates/node"
 
 describe("range_tool module", () => {
   const source = {start: 0, end: 10}
@@ -52,28 +53,28 @@ describe("range_tool module", () => {
       it("should set overlay coords to null if no ranges are set", () => {
         const rt = new RangeTool()
         rt.update_overlay_from_ranges()
-        expect(rt.overlay.left).to.be.null
-        expect(rt.overlay.right).to.be.null
-        expect(rt.overlay.top).to.be.null
-        expect(rt.overlay.bottom).to.be.null
+        expect(rt.overlay.left).to.be.structurally.equal(frame_left)
+        expect(rt.overlay.right).to.be.structurally.equal(frame_right)
+        expect(rt.overlay.top).to.be.structurally.equal(frame_top)
+        expect(rt.overlay.bottom).to.be.structurally.equal(frame_bottom)
       })
 
       it("should set top/bottom overlay coords to null if y range is null", () => {
         const rt = new RangeTool({x_range})
         rt.update_overlay_from_ranges()
-        expect(rt.overlay.left).to.not.be.null
-        expect(rt.overlay.right).to.not.be.null
-        expect(rt.overlay.top).to.be.null
-        expect(rt.overlay.bottom).to.be.null
+        expect(rt.overlay.left).to.be.equal(0)
+        expect(rt.overlay.right).to.be.equal(10)
+        expect(rt.overlay.top).to.be.structurally.equal(frame_top)
+        expect(rt.overlay.bottom).to.be.structurally.equal(frame_bottom)
       })
 
       it("should set left/right overlay coords to null if x range is null", () => {
         const rt = new RangeTool({y_range})
         rt.update_overlay_from_ranges()
-        expect(rt.overlay.left).to.be.null
-        expect(rt.overlay.right).to.be.null
-        expect(rt.overlay.top).to.not.be.null
-        expect(rt.overlay.bottom).to.not.be.null
+        expect(rt.overlay.left).to.be.structurally.equal(frame_left)
+        expect(rt.overlay.right).to.be.structurally.equal(frame_right)
+        expect(rt.overlay.top).to.be.equal(10)
+        expect(rt.overlay.bottom).to.be.equal(0)
       })
     })
   })

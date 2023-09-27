@@ -89,15 +89,14 @@ describe("ui_event_bus module", () => {
         await plot_view.ready
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-
         expect(spy_trigger.notCalled).to.be.true
+        expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
 
       it("should use default cursor no active inspector", () => {
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-
-        expect(spy_cursor.calledTwice).to.be.true
-        expect(spy_cursor.calledWith("default")).to.be.true
+        expect(spy_cursor.called).to.be.true
+        expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
 
       it("should use default cursor if active inspector but mouse is off-frame", async () => {
@@ -109,8 +108,8 @@ describe("ui_event_bus module", () => {
         stub.returns(false)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-        expect(spy_cursor.calledTwice).to.be.true
-        expect(spy_cursor.calledWith("default")).to.be.true
+        expect(spy_cursor.called).to.be.true
+        expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
 
       it("should change cursor if active inspector is present and over frame", async () => {
@@ -122,8 +121,8 @@ describe("ui_event_bus module", () => {
         stub.returns(true)
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
-        expect(spy_cursor.calledTwice).to.be.true
-        expect(spy_cursor.calledWith("crosshair")).to.be.true
+        expect(spy_cursor.called).to.be.true
+        expect(ui_event_bus.hit_area.style.cursor).to.be.equal("crosshair")
       })
 
       /*

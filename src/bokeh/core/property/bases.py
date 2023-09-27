@@ -38,6 +38,7 @@ from typing import (
 )
 
 # Bokeh imports
+from ...util.dependencies import uses_pandas
 from ...util.strings import nice_join
 from ..has_props import HasProps
 from ._sphinx import property_link, register_type_link, type_link
@@ -59,16 +60,16 @@ if TYPE_CHECKING:
 # Globals and constants
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# General API
-#-----------------------------------------------------------------------------
-
 __all__ = (
     'ContainerProperty',
     'PrimitiveProperty',
     'Property',
     'validation_on',
 )
+
+#-----------------------------------------------------------------------------
+# General API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -247,19 +248,19 @@ class Property(PropertyDescriptorFactory[T]):
 
         """
         import numpy as np
-        import pandas as pd
 
         if isinstance(new, np.ndarray) or isinstance(old, np.ndarray):
             return np.array_equal(new, old)
 
-        if isinstance(new, pd.Series) or isinstance(old, pd.Series):
-            return np.array_equal(new, old)
+        if uses_pandas(new) or uses_pandas(old):
+            import pandas as pd
 
-        if isinstance(new, pd.Index) or isinstance(old, pd.Index):
-            return np.array_equal(new, old)
+            if isinstance(new, pd.Series) or isinstance(old, pd.Series):
+                return np.array_equal(new, old)
+            if isinstance(new, pd.Index) or isinstance(old, pd.Index):
+                return np.array_equal(new, old)
 
         try:
-
             # this handles the special but common case where there is a dict with array
             # or series as values (e.g. the .data property of a ColumnDataSource)
             if isinstance(new, dict) and isinstance(old, dict):

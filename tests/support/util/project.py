@@ -68,8 +68,15 @@ def ls_modules(*, skip_prefixes: Sequence[str] = [], skip_main: bool = True) -> 
     return modules
 
 def verify_clean_imports(target: str, modules: list[str]) -> str:
-    imports =  ";".join(f"import {m}" for m in modules)
-    return f"import sys; {imports}; sys.exit(1 if any({target!r} in x for x in sys.modules.keys()) else 0)"
+    return f"""
+import sys
+for module in {modules!r}:
+    __import__(module)
+    if any(key.startswith({target!r}) for key in sys.modules.keys()):
+        print(module)
+        sys.exit(1)
+sys.exit(0)
+"""
 
 #-----------------------------------------------------------------------------
 # Dev API
