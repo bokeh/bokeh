@@ -22,6 +22,7 @@ import {LinearScale} from "../scales/linear_scale"
 import {CoordinateTransform} from "../coordinates/coordinate_mapping"
 import {build_view} from "core/build_views"
 import {clamp} from "core/util/math"
+import {assert} from "core/util/assert"
 import {process_placeholders, sprintf} from "core/util/templating"
 import {Enum} from "../../core/kinds"
 
@@ -38,7 +39,7 @@ export class ScaleBarView extends AnnotationView {
 
   protected label_layout: TextLayout
   protected title_layout: TextLayout
-  //protected bar_layout: FixedLayout
+  protected axis_layout: Layoutable
   protected box_layout: Layoutable
 
   protected axis: ContinuousAxis
@@ -277,13 +278,11 @@ export class ScaleBarView extends AnnotationView {
         return {width: bar_width, height: bar_length_px}
       }
     })()
-    /*
-    const bar_layout = new FixedLayout(bar_size)
-    bar_layout.set_sizing({width_policy: "fixed", height_policy: "fixed"})
-    this.bar_layout = bar_layout
-    */
 
-    const axis_layout = this.axis_view.layout!
+    const axis_layout = this.axis_view.layout
+    assert(axis_layout != null)
+    this.axis_layout = axis_layout
+
     axis_layout.absolute = true
 
     if (orientation == "horizontal") {
@@ -423,22 +422,6 @@ export class ScaleBarView extends AnnotationView {
     this.visuals.border_line.apply(ctx)
   }
 
-  /*
-  protected _draw_bar(ctx: Context2d): void {
-    ctx.beginPath()
-    if (this.model.orientation == "horizontal") {
-      const {left, right, vcenter} = this.bar_layout.bbox
-      ctx.moveTo(left, vcenter)
-      ctx.lineTo(right, vcenter)
-    } else {
-      const {top, bottom, hcenter} = this.bar_layout.bbox
-      ctx.moveTo(hcenter, top)
-      ctx.lineTo(hcenter, bottom)
-    }
-    this.visuals.bar_line.apply(ctx)
-  }
-  */
-
   protected _draw_axis(_ctx: Context2d): void {
     this.axis_view.render()
   }
@@ -484,12 +467,7 @@ export class ScaleBarView extends AnnotationView {
     if (this.box_layout.visible) {
       this._draw_box(ctx)
     }
-    /*
-    if (this.bar_layout.visible) {
-      this._draw_bar(ctx)
-    }
-    */
-    if (this.axis_view.layout!.visible) {
+    if (this.axis_layout.visible) {
       this._draw_axis(ctx)
     }
     if (this.label_layout.visible) {
