@@ -285,35 +285,45 @@ export class ScaleBarView extends AnnotationView {
       })
     }
 
-    const inner_layout = (() => {
-      const {label_layout} = this
-      switch (this.model.label_location) {
-        case "above": return new Column([label_layout, axis_layout])
-        case "below": return new Column([axis_layout, label_layout])
-        case "left":  return new Row([label_layout, axis_layout])
-        case "right": return new Row([axis_layout, label_layout])
-      }
-    })()
-
-    inner_layout.spacing = this.model.label_standoff
-    inner_layout.absolute = true
-    inner_layout.set_sizing()
-
     const outer_layout = (() => {
-      const {title_layout} = this
-      switch (this.model.title_location) {
-        case "above": return new Column([title_layout, inner_layout])
-        case "below": return new Column([inner_layout, title_layout])
-        case "left":  return new Row([title_layout, inner_layout])
-        case "right": return new Row([inner_layout, title_layout])
+      const inner_layout = (() => {
+        const {label_layout} = this
+        switch (this.model.label_location) {
+          case "above": return new Column([label_layout, axis_layout])
+          case "below": return new Column([axis_layout, label_layout])
+          case "left":  return new Row([label_layout, axis_layout])
+          case "right": return new Row([axis_layout, label_layout])
+        }
+      })()
+
+      inner_layout.spacing = this.model.label_standoff
+      inner_layout.absolute = true
+
+      if (!this.title_layout.visible) {
+        return inner_layout
+      } else {
+        inner_layout.set_sizing()
+
+        const outer_layout = (() => {
+          const {title_layout} = this
+          switch (this.model.title_location) {
+            case "above": return new Column([title_layout, inner_layout])
+            case "below": return new Column([inner_layout, title_layout])
+            case "left":  return new Row([title_layout, inner_layout])
+            case "right": return new Row([inner_layout, title_layout])
+          }
+        })()
+
+        outer_layout.spacing = this.model.title_standoff
+        outer_layout.absolute = true
+
+        return outer_layout
       }
     })()
 
     const left = padding
     const top = padding
 
-    outer_layout.spacing = this.model.title_standoff
-    outer_layout.absolute = true
     outer_layout.position = {left, top}
     outer_layout.set_sizing()
 
