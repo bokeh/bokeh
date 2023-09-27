@@ -135,6 +135,57 @@ export class ScaleBarView extends AnnotationView {
     super.update_geometry()
   }
 
+  protected get horizontal(): boolean {
+    return this.model.orientation == "horizontal"
+  }
+
+  protected text_layout(args: {
+    text: string
+    location: Location
+    align: Align
+    visuals: visuals.Text
+  }): TextLayout {
+    const {text, location, align, visuals} = args
+    const {orientation} = this.model
+
+    const text_box = new TextBox({text})
+    const text_panel = new Panel(location)
+
+    text_box.visuals = visuals.values()
+    const text_orientation = (() => {
+      switch (location) {
+        case "above":
+        case "below": return "horizontal"
+        default:      return orientation
+      }
+    })()
+    text_box.angle = text_panel.get_label_angle_heuristic(text_orientation)
+    text_box.base_font_size = this.plot_view.base_font_size
+
+    text_box.position = {
+      sx: 0,
+      sy: 0,
+      x_anchor: "left",
+      y_anchor: "top",
+    }
+    text_box.align = "auto"
+
+    const text_layout = new TextLayout(text_box)
+    text_layout.absolute = true
+
+    const horizontal = orientation == "horizontal"
+    const halign = horizontal ? align : undefined
+    const valign = !horizontal ? align : undefined
+
+    text_layout.set_sizing({
+      width_policy: "min",
+      height_policy: "min",
+      visible: text != "" && visuals.doit,
+      halign, valign,
+    })
+    return text_layout
+  }
+
   override compute_geometry(): void {
     super.compute_geometry()
 
@@ -164,9 +215,9 @@ export class ScaleBarView extends AnnotationView {
     const init_bar_length_px = frame_span*bar_length_percent
     const bar_length_px = round(init_bar_length_px*scale_factor)
 
-    const label_layout = this.label_layout = (() => {
+    const label_text = (() => {
       const {label} = this.model
-      const text = process_placeholders(label, (_, name, format) => {
+      return process_placeholders(label, (_, name, format) => {
         switch (name) {
           case "value": {
             if (exact) {
@@ -190,86 +241,21 @@ export class ScaleBarView extends AnnotationView {
           }
         }
       })
-      const label_box = new TextBox({text})
-      const label_panel = new Panel(this.model.label_location)
-
-      label_box.visuals = this.visuals.label_text.values()
-      const label_orientation = (() => {
-        switch (this.model.label_location) {
-          case "above":
-          case "below": return "horizontal"
-          default:      return orientation
-        }
-      })()
-      label_box.angle = label_panel.get_label_angle_heuristic(label_orientation)
-      label_box.base_font_size = this.plot_view.base_font_size
-
-      label_box.position = {
-        sx: 0,
-        sy: 0,
-        x_anchor: "left",
-        y_anchor: "top",
-      }
-      label_box.align = "auto"
-
-      const label_layout = new TextLayout(label_box)
-      label_layout.absolute = true
-
-      const horizontal = orientation == "horizontal"
-      const {label_align} = this.model
-      const halign = horizontal ? label_align : undefined
-      const valign = !horizontal ? label_align : undefined
-
-      label_layout.set_sizing({
-        width_policy: "min",
-        height_policy: "min",
-        visible: text != "" && this.visuals.label_text.doit,
-        halign, valign,
-      })
-      return label_layout
     })()
 
-    const title_layout = this.title_layout = (() => {
-      const text = this.model.title
-      const title_box = new TextBox({text})
-      const title_panel = new Panel(this.model.title_location)
+    this.label_layout = this.text_layout({
+      text: label_text,
+      location: this.model.label_location,
+      align: this.model.label_align,
+      visuals: this.visuals.label_text,
+    })
 
-      title_box.visuals = this.visuals.title_text.values()
-      const title_orientation = (() => {
-        switch (this.model.label_location) {
-          case "above":
-          case "below": return "horizontal"
-          default:      return orientation
-        }
-      })()
-      title_box.angle = title_panel.get_label_angle_heuristic(title_orientation)
-      title_box.base_font_size = this.plot_view.base_font_size
-
-      title_box.position = {
-        sx: 0,
-        sy: 0,
-        x_anchor: "left",
-        y_anchor: "top",
-      }
-      title_box.align = "auto"
-
-      const title_layout = new TextLayout(title_box)
-      title_layout.absolute = true
-
-      const horizontal = orientation == "horizontal"
-      const {title_align} = this.model
-      const halign = horizontal ? title_align : undefined
-      const valign = !horizontal ? title_align : undefined
-
-      title_layout.set_sizing({
-        width_policy: "min",
-        height_policy: "min",
-        visible: text != "" && this.visuals.title_text.doit,
-        halign, valign,
-      })
-
-      return title_layout
-    })()
+    this.title_layout = this.text_layout({
+      text: this.model.title,
+      location: this.model.title_location,
+      align: this.model.title_align,
+      visuals: this.visuals.title_text,
+    })
 
     const bar_size = (() => {
       if (orientation == "horizontal") {
@@ -299,13 +285,9 @@ export class ScaleBarView extends AnnotationView {
       })
     }
 
-    const left = padding
-    const top = padding
-
-    const {title_location, label_location} = this.model
-
     const inner_layout = (() => {
-      switch (label_location) {
+      const {label_layout} = this
+      switch (this.model.label_location) {
         case "above": return new Column([label_layout, axis_layout])
         case "below": return new Column([axis_layout, label_layout])
         case "left":  return new Row([label_layout, axis_layout])
@@ -318,13 +300,17 @@ export class ScaleBarView extends AnnotationView {
     inner_layout.set_sizing()
 
     const outer_layout = (() => {
-      switch (title_location) {
+      const {title_layout} = this
+      switch (this.model.title_location) {
         case "above": return new Column([title_layout, inner_layout])
         case "below": return new Column([inner_layout, title_layout])
         case "left":  return new Row([title_layout, inner_layout])
         case "right": return new Row([inner_layout, title_layout])
       }
     })()
+
+    const left = padding
+    const top = padding
 
     outer_layout.spacing = this.model.title_standoff
     outer_layout.absolute = true
