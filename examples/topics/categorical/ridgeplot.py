@@ -1,11 +1,11 @@
 ''' A `ridgeline plot`_ using the `Perceptions of Probability`_ dataset.
 
 This example demonstrates the uses of categorical offsets to position categorical
-values explicitly, which in this case allows for "poor-man's" sub-plots. This is
+values explicitly, which in this case allows for makeshift sub-plots. This is
 because the real data is not available for presentation, so for example it's not
 possible to show ridge line values in hover tool.
 
-Thus a better alternative is to use sub-coordinates as demonstrated in example
+A better alternative is to use sub-coordinates as demonstrated in example
 ``examples/plotting/ridgeplot_subcoordinates.py``.
 
 This chart shows the distribution of responses to the prompt *What probability
