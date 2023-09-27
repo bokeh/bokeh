@@ -44,15 +44,16 @@ for i, channel in enumerate(channels):
 
 level = 1
 
-wheel_zoom = WheelZoomTool(renderers=renderers, level=level)
-zoom_in = ZoomInTool(renderers=renderers, level=level)
-zoom_out = ZoomOutTool(renderers=renderers, level=level)
+ywheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="height")
+xwheel_zoom = WheelZoomTool(renderers=renderers, level=level, dimensions="width")
+zoom_in = ZoomInTool(renderers=renderers, level=level, dimensions="height")
+zoom_out = ZoomOutTool(renderers=renderers, level=level, dimensions="height")
 
-p.add_tools(wheel_zoom, zoom_in, zoom_out, hover)
-p.toolbar.active_scroll = wheel_zoom
+p.add_tools(ywheel_zoom, xwheel_zoom, zoom_in, zoom_out, hover)
+p.toolbar.active_scroll = ywheel_zoom
 
 on_change = CustomJS(
-    args=dict(tools=[wheel_zoom, zoom_in, zoom_out]),
+    args=dict(tools=[ywheel_zoom, zoom_in, zoom_out]),
     code="""
 export default ({tools}, obj) => {
     const level = obj.active ? 1 : 0
