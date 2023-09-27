@@ -6,7 +6,7 @@ because the real data is not available for presentation, so for example it's not
 possible to show ridge line values in hover tool.
 
 Thus a better alternative is to use sub-coordinates as demonstrated in example
-``examples/topics/subcoordinates/ridgeplot.py``.
+``examples/plotting/ridgeplot_subcoordinates.py``.
 
 This chart shows the distribution of responses to the prompt *What probability
 would you assign to the phrase "Highly likely"*.
