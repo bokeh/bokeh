@@ -50,5 +50,6 @@ def test_no_pandas_common_combined() -> None:
     test ensures that importing basic modules does not bring in pandas.
 
     '''
-    proc = run([python, "-c", verify_clean_imports('pandas', MODULES)])
-    assert proc.returncode == 0, "pandas imported in common modules"
+    proc = run([python, "-c", verify_clean_imports("pandas", MODULES)], capture_output=True)
+    output = proc.stdout.decode("utf-8").strip()
+    assert proc.returncode == 0, f"pandas imported in common modules: {output}"

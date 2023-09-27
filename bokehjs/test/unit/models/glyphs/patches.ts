@@ -2,47 +2,123 @@ import {expect} from "assertions"
 
 import {create_glyph_view} from "./_util"
 import {Patches} from "@bokehjs/models/glyphs/patches"
-import type {Geometry} from "@bokehjs/core/geometry"
-import {assert} from "@bokehjs/core/util/assert"
+import type {HitTestGeometry} from "@bokehjs/core/geometry"
+import {DataRange1d} from "@bokehjs/models"
+import type {Arrayable} from "@bokehjs/core/types"
+import {unzip} from "@bokehjs/core/util/array"
+
+type Point = [number, number]
 
 describe("Patches", () => {
 
   describe("PatchesView", () => {
-    it("should hit test rects for containment", async () => {
-      const data = {xs: [[0, 10, 5], [5, 10, 10, 5]], ys: [[0, 0, 10], [10, 10, 20, 20]]}
+
+    it("should rect hit testing", async () => {
+      const data = {
+        xs: [[1, 5, 3], [3, 5, 5, 3], [2, 3, 2, 1]],
+        ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
+      }
       const glyph = new Patches({
         xs: {field: "xs"},
         ys: {field: "ys"},
       })
 
-      const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
+      const glyph_view = await create_glyph_view(glyph, data, {
+        axis_type: "linear",
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
+      })
+      const {xscale, yscale} = glyph_view.parent
 
-      const geometry1: Geometry = {type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 179}
-      const geometry2: Geometry = {type: "rect", sx0: 1,  sy0: 200, sx1: 20, sy1: 180}
-      const geometry3: Geometry = {type: "rect", sx0: 9,  sy0: 181, sx1: 21, sy1: 159}
-      const geometry4: Geometry = {type: "rect", sx0: 10, sy0: 180, sx1: 19, sy1: 165}
-      const geometry5: Geometry = {type: "rect", sx0: 5,  sy0: 190, sx1: 15, sy1: 170}
-      const geometry6: Geometry = {type: "rect", sx0: -1, sy0: 201, sx1: 21, sy1: 159}
+      function rect([x0, y0]: Point, [x1, y1]: Point, greedy: boolean): HitTestGeometry {
+        const [sx0, sx1] = xscale.r_compute(x0, x1)
+        const [sy0, sy1] = yscale.r_compute(y0, y1)
+        return {type: "rect", sx0, sy0, sx1, sy1, greedy}
+      }
+
+      const geometry0 = rect([0, 0], [-1, 1], false)
+      const geometry1 = rect([0, 0], [-1, 1], true)
+
+      const result0 = glyph_view.hit_test(geometry0)
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = glyph_view.hit_test(geometry1)
-      const result2 = glyph_view.hit_test(geometry2)
-      const result3 = glyph_view.hit_test(geometry3)
-      const result4 = glyph_view.hit_test(geometry4)
-      const result5 = glyph_view.hit_test(geometry5)
-      const result6 = glyph_view.hit_test(geometry6)
+      expect(result1?.indices).to.be.equal([])
 
-      assert(result1 != null)
-      expect(result1.indices).to.be.equal([0])
-      assert(result2 != null)
-      expect(result2.indices).to.be.equal([])
-      assert(result3 != null)
-      expect(result3.indices).to.be.equal([1])
-      assert(result4 != null)
-      expect(result4.indices).to.be.equal([])
-      assert(result5 != null)
-      expect(result5.indices).to.be.equal([])
-      assert(result6 != null)
-      expect(result6.indices).to.be.equal([0, 1])
+      const geometry2 = rect([0, 0], [6, 6], false)
+      const geometry3 = rect([0, 0], [6, 6], true)
+
+      const result2 = glyph_view.hit_test(geometry2)
+      expect(result2?.indices).to.be.equal([0, 1, 2])
+
+      const result3 = glyph_view.hit_test(geometry3)
+      expect(result3?.indices).to.be.equal([0, 1, 2])
+
+      const geometry4 = rect([0, 0], [6, 4], false)
+      const geometry5 = rect([0, 0], [6, 4], true)
+
+      const result4 = glyph_view.hit_test(geometry4)
+      expect(result4?.indices).to.be.equal([0])
+
+      const result5 = glyph_view.hit_test(geometry5)
+      expect(result5?.indices).to.be.equal([0, 1, 2])
+    })
+
+    it("should poly hit testing", async () => {
+      const data = {
+        xs: [[1, 5, 3], [3, 5, 5, 3], [2, 3, 2, 1]],
+        ys: [[1, 1, 3], [3, 3, 5, 5], [3, 4, 5, 4]],
+      }
+      const glyph = new Patches({
+        xs: {field: "xs"},
+        ys: {field: "ys"},
+      })
+
+      const glyph_view = await create_glyph_view(glyph, data, {
+        axis_type: "linear",
+        x_range: new DataRange1d(),
+        y_range: new DataRange1d(),
+      })
+      const {xscale, yscale} = glyph_view.parent
+
+      function compute(points: Point[]): {sx: Arrayable<number>, sy: Arrayable<number>} {
+        const [x=[], y=[]] = unzip(points)
+        return {
+          sx: xscale.v_compute(x),
+          sy: yscale.v_compute(y),
+        }
+      }
+
+      function poly(points: Point[], greedy: boolean): HitTestGeometry {
+        return {type: "poly", ...compute(points), greedy}
+      }
+
+      const geometry0 = poly([], false)
+      const geometry1 = poly([], true)
+
+      const result0 = glyph_view.hit_test(geometry0)
+      expect(result0?.indices).to.be.equal([])
+
+      const result1 = glyph_view.hit_test(geometry1)
+      expect(result1?.indices).to.be.equal([])
+
+      const geometry2 = poly([[0, 0], [6, 0], [6, 6], [0, 6], [0, 0]], false)
+      const geometry3 = poly([[0, 0], [6, 0], [6, 6], [0, 6], [0, 0]], true)
+
+      const result2 = glyph_view.hit_test(geometry2)
+      expect(result2?.indices).to.be.equal([0, 1, 2])
+
+      const result3 = glyph_view.hit_test(geometry3)
+      expect(result3?.indices).to.be.equal([0, 1, 2])
+
+      const geometry4 = poly([[0, 0], [6, 0], [6, 4], [0, 4], [0, 0]], false)
+      const geometry5 = poly([[0, 0], [6, 0], [6, 4], [0, 4], [0, 0]], true)
+
+      const result4 = glyph_view.hit_test(geometry4)
+      expect(result4?.indices).to.be.equal([0])
+
+      const result5 = glyph_view.hit_test(geometry5)
+      expect(result5?.indices).to.be.equal([0, 1, 2])
     })
   })
 })

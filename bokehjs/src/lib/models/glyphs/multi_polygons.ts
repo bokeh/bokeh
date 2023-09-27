@@ -2,10 +2,10 @@ import {SpatialIndex} from "core/util/spatial"
 import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
 import type {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
-import type {PointGeometry, RectGeometry} from "core/geometry"
+import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -57,8 +57,7 @@ export class MultiPolygonsView extends GlyphView {
         const ysij = ysi[j][0] // do not use holes
 
         if (xsij.length != 0 && ysij.length != 0) {
-          const [xij0, xij1] = minmax(xsij)
-          const [yij0, yij1] = minmax(ysij)
+          const [xij0, xij1, yij0, yij1] = minmax2(xsij, ysij)
           xi0 = min(xi0, xij0)
           xi1 = max(xi1, xij1)
           yi0 = min(yi0, yij0)
@@ -98,8 +97,7 @@ export class MultiPolygonsView extends GlyphView {
 
         if (xsij.length > 1 && ysij.length > 1) {
           for (let k = 1, endk = xsij.length; k < endk; k++) {
-            const [xij0, xij1] = minmax(xsij[k])
-            const [yij0, yij1] = minmax(ysij[k])
+            const [xij0, xij1, yij0, yij1] = minmax2(xsij[k], ysij[k])
             xi0 = min(xi0, xij0)
             xi1 = max(xi1, xij1)
             yi0 = min(yi0, yij0)
@@ -166,40 +164,70 @@ export class MultiPolygonsView extends GlyphView {
     }
   }
 
-  protected override _hit_rect(geometry: RectGeometry): Selection {
-    const {sx0, sx1, sy0, sy1} = geometry
-    const xs = [sx0, sx1, sx1, sx0]
-    const ys = [sy0, sy0, sy1, sy1]
-    const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+  protected override _hit_poly(geometry: HitTestPoly): Selection {
+    const {sx: sxs, sy: sys, greedy=false} = geometry
 
-    const candidates = this.index.indices({x0, x1, y0, y1})
+    const candidates = (() => {
+      const xs = this.renderer.xscale.v_invert(sxs)
+      const ys = this.renderer.yscale.v_invert(sys)
+
+      const [x0, x1, y0, y1] = minmax2(xs, ys)
+      return this.index.indices({x0, x1, y0, y1})
+    })()
+
     const indices = []
 
-    for (const index of candidates) {
-      const sxss = this.sxs[index]
-      const syss = this.sys[index]
-      let hit = true
-      for (let j = 0, endj = sxss.length; j < endj; j++) {
-        for (let k = 0, endk = sxss[j][0].length; k < endk; k++) {
-          const sx = sxss[j][0][k]
-          const sy = syss[j][0][k]
-          if (!hittest.point_in_poly(sx, sy, xs, ys)) {
-            hit = false
+    for (const i of candidates) {
+      const sxs_i = this.sxs[i]
+      const sys_i = this.sys[i]
+      let hit = !greedy
+
+      const nj = sxs_i.length
+      for (let j = 0; j < nj; j++) {
+        const sxs_ij0 = sxs_i[j][0]
+        const sys_ij0 = sys_i[j][0]
+
+        const nk = sxs_ij0.length
+        for (let k = 0; k < nk; k++) {
+          const sxs_ij0k = sxs_ij0[k]
+          const sys_ij0k = sys_ij0[k]
+          if (!hittest.point_in_poly(sxs_ij0k, sys_ij0k, sxs, sys)) {
+            if (!greedy) {
+              hit = false
+              break
+            }
+          } else {
+            if (greedy) {
+              hit = true
+              break
+            }
+          }
+        }
+        if (!greedy) {
+          if (!hit) {
+            break
+          }
+        } else {
+          if (hit) {
             break
           }
         }
-        if (!hit)
-          break
       }
       if (hit) {
-        indices.push(index)
+        indices.push(i)
       }
     }
     return new Selection({indices})
   }
 
-  protected override _hit_point(geometry: PointGeometry): Selection {
+  protected override _hit_rect(geometry: HitTestRect): Selection {
+    const {sx0, sx1, sy0, sy1, greedy} = geometry
+    const sxs = [sx0, sx1, sx1, sx0]
+    const sys = [sy0, sy0, sy1, sy1]
+    return this._hit_poly({type: "poly", sx: sxs, sy: sys, greedy})
+  }
+
+  protected override _hit_point(geometry: HitTestPoint): Selection {
     const {sx, sy} = geometry
 
     const x = this.renderer.xscale.invert(sx)

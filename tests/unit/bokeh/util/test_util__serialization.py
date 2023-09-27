@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import datetime
+from math import inf, nan
 
 # External imports
 import numpy as np
@@ -148,7 +149,7 @@ def test_convert_datetime_type_with_tz() -> None:
     for tz in pytz.all_timezones:
         assert bus.convert_datetime_type(datetime.datetime(2016, 5, 11, tzinfo=datetime.tzinfo(tz))) == 1462924800000.0
 
-testing = [[float('nan'), 3], [float('-inf'), [float('inf')]]]
+testing = [[nan, 3], [-inf, [inf]]]
 expected = [['NaN', 3.0], ['-Infinity', ['Infinity']]]
 
 @pytest.mark.parametrize('dt', bus.BINARY_ARRAY_TYPES)

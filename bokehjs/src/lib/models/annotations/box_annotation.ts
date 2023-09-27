@@ -8,15 +8,17 @@ import type {SerializableState} from "core/view"
 import {CoordinateUnits} from "core/enums"
 import type * as p from "core/properties"
 import type {LRTB, Corners, CoordinateMapper} from "core/util/bbox"
+import {min as amin} from "core/util/array"
 import {BBox, empty} from "core/util/bbox"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
-import {Enum} from "../../core/kinds"
 import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
 import {assert} from "core/util/assert"
+import {Enum, Number, Nullable, Ref, Or} from "../../core/kinds"
 import {BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
+import {Node} from "../coordinates/node"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -26,11 +28,14 @@ type Corner = "top_left" | "top_right" | "bottom_left" | "bottom_right"
 type Edge = "left" | "right" | "top" | "bottom"
 type HitTarget = Corner | Edge | "area"
 
-type Resizable = typeof Resizable["__type__"]
 const Resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all")
+type Resizable = typeof Resizable["__type__"]
 
-type Movable = typeof Movable["__type__"]
 const Movable = Enum("none", "x", "y", "both")
+type Movable = typeof Movable["__type__"]
+
+const Limit = Nullable(Or(Number, Ref(Node)))
+type Limit = typeof Limit["__type__"]
 
 export class BoxAnnotationView extends AnnotationView implements Pannable, Pinchable, Moveable, AutoRanged {
   declare model: BoxAnnotation
@@ -39,7 +44,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override bbox: BBox = new BBox()
 
   override serializable_state(): SerializableState {
-    return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round ealier
+    return {...super.serializable_state(), bbox: this.bbox.round()} // TODO: probably round earlier
   }
 
   override connect_signals(): void {
@@ -57,10 +62,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom, bottom_units,
     } = this.model
 
-    const left_ok = left_units == "data" && left != null
-    const right_ok = right_units == "data" && right != null
-    const top_ok = top_units == "data" && top != null
-    const bottom_ok = bottom_units == "data" && bottom != null
+    const left_ok = left_units == "data" && !(left instanceof Node)
+    const right_ok = right_units == "data" && !(right instanceof Node)
+    const top_ok = top_units == "data" && !(top instanceof Node)
+    const bottom_ok = bottom_units == "data" && !(bottom instanceof Node)
 
     const [x0, x1] = (() => {
       if (left_ok && right_ok)
@@ -116,19 +121,18 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   protected _render(): void {
-    function compute(value: number | null, mapper: CoordinateMapper, frame_extrema: number): number {
-      return value == null ? frame_extrema : mapper.compute(value)
+    const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
+      return value instanceof Node ? this.resolve_node(value)[dim] : mapper.compute(value)
     }
 
     const {left, right, top, bottom} = this.model
-    const {frame} = this.plot_view
     const {mappers} = this
 
     this.bbox = BBox.from_lrtb({
-      left:   compute(left,   mappers.left,   frame.bbox.left),
-      right:  compute(right,  mappers.right,  frame.bbox.right),
-      top:    compute(top,    mappers.top,    frame.bbox.top),
-      bottom: compute(bottom, mappers.bottom, frame.bbox.bottom),
+      left:   compute("x", left,   mappers.left),
+      right:  compute("x", right,  mappers.right),
+      top:    compute("y", top,    mappers.top),
+      bottom: compute("y", bottom, mappers.bottom),
     })
 
     if (this.bbox.is_valid) {
@@ -255,61 +259,115 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   _pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
-    const sltrb = (() => {
-      const {dx, dy} = ev
+    const {mappers} = this
 
-      const {bbox, target} = this._pan_state
-      const {left, top, right, bottom} = bbox
+    const resolve = (dim: "x" | "y", limit: Node | number | null, mapper: CoordinateMapper): number => {
+      if (limit instanceof Node) {
+        return this.resolve_node(limit)[dim]
+      } else if (limit == null) {
+        return NaN
+      } else {
+        return mapper.compute(limit)
+      }
+    }
+
+    const slimits = BBox.from_lrtb({
+      left: resolve("x", this.model.left_limit, mappers.left),
+      right: resolve("x", this.model.right_limit, mappers.right),
+      top: resolve("y", this.model.top_limit, mappers.top),
+      bottom: resolve("y", this.model.bottom_limit, mappers.bottom),
+    })
+
+    const [dl, dr, dt, db] = (() => {
+      const {dx, dy} = ev
+      const {target} = this._pan_state
 
       const {symmetric} = this.model
       const [Dx, Dy] = symmetric ? [-dx, -dy] : [0, 0]
 
-      const [dl, dr, dt, db] = (() => {
-        switch (target) {
-          case "top_left":
-            return [dx, Dx, dy, Dy]
-          case "top_right":
-            return [Dx, dx, dy, Dy]
-          case "bottom_left":
-            return [dx, Dx, Dy, dy]
-          case "bottom_right":
-            return [Dx, dx, Dy, dy]
-          case "left":
-            return [dx, Dx, 0, 0]
-          case "right":
-            return [Dx, dx, 0, 0]
-          case "top":
-            return [0, 0, dy, Dy]
-          case "bottom":
-            return [0, 0, Dy, dy]
-          case "area": {
-            switch (this.model.movable) {
-              case "both": return [dx, dx, dy, dy]
-              case "x":    return [dx, dx, 0, 0]
-              case "y":    return [0, 0, dy, dy]
-              case "none": return [0, 0, 0, 0]
-            }
+      switch (target) {
+        // corners
+        case "top_left":     return [dx, Dx, dy, Dy]
+        case "top_right":    return [Dx, dx, dy, Dy]
+        case "bottom_left":  return [dx, Dx, Dy, dy]
+        case "bottom_right": return [Dx, dx, Dy, dy]
+        // edges
+        case "left":   return [dx, Dx, 0, 0]
+        case "right":  return [Dx, dx, 0, 0]
+        case "top":    return [0, 0, dy, Dy]
+        case "bottom": return [0, 0, Dy, dy]
+        // area
+        case "area": {
+          switch (this.model.movable) {
+            case "both": return [dx, dx, dy, dy]
+            case "x":    return [dx, dx,  0,  0]
+            case "y":    return [ 0,  0, dy, dy]
+            case "none": return [ 0,  0,  0,  0]
           }
+        }
+      }
+    })()
+
+    const slrtb = (() => {
+      const min = (a: number, b: number) => amin([a, b])
+      const sgn = (v: number) => v < 0 ? -1 : (v > 0 ? 1 : 0)
+
+      const {bbox} = this._pan_state
+      let {left, right, left_sign, right_sign} = (() => {
+        const left = bbox.left + dl
+        const right = bbox.right + dr
+        const left_sign = sgn(dl)
+        const right_sign = sgn(dr)
+        if (left <= right) {
+          return {left, right, left_sign, right_sign}
+        } else {
+          return {left: right, right: left, left_sign: right_sign, right_sign: left_sign}
+        }
+      })()
+      let {top, bottom, top_sign, bottom_sign} = (() => {
+        const top = bbox.top + dt
+        const bottom = bbox.bottom + db
+        const top_sign = sgn(dt)
+        const bottom_sign = sgn(db)
+        if (top <= bottom) {
+          return {top, bottom, top_sign, bottom_sign}
+        } else {
+          return {top: bottom, bottom: top, top_sign: bottom_sign, bottom_sign: top_sign}
         }
       })()
 
-      return BBox.from_lrtb({
-        left: left + dl,
-        right: right + dr,
-        top: top + dt,
-        bottom: bottom + db,
-      })
+      const Dl = left - slimits.left
+      const Dr = slimits.right - right
+
+      const Dh = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
+      if (isFinite(Dh) && Dh < 0) {
+        left += -left_sign*(-Dh)
+        right += -right_sign*(-Dh)
+      }
+
+      const Dt = top - slimits.top
+      const Db = slimits.bottom - bottom
+
+      const Dv = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
+      if (isFinite(Dv) && Dv < 0) {
+        top += -top_sign*(-Dv)
+        bottom += -bottom_sign*(-Dv)
+      }
+
+      return BBox.from_lrtb({left, right, top, bottom})
     })()
 
-    const {mappers} = this
-    const ltrb = {
-      left:   this.model.left == null   ? null : mappers.left.invert(sltrb.left),
-      right:  this.model.right == null  ? null : mappers.right.invert(sltrb.right),
-      top:    this.model.top == null    ? null : mappers.top.invert(sltrb.top),
-      bottom: this.model.bottom == null ? null : mappers.bottom.invert(sltrb.bottom),
-    }
+    const lrtb = (() => {
+      const {left, right, top, bottom} = this.model
+      return {
+        left:   left   instanceof Node ? left   : mappers.left.invert(slrtb.left),
+        right:  right  instanceof Node ? right  : mappers.right.invert(slrtb.right),
+        top:    top    instanceof Node ? top    : mappers.top.invert(slrtb.top),
+        bottom: bottom instanceof Node ? bottom : mappers.bottom.invert(slrtb.bottom),
+      }
+    })()
 
-    this.model.update(ltrb)
+    this.model.update(lrtb)
     this.model.pan.emit(["pan", ev.modifiers])
   }
 
@@ -337,7 +395,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   _pinch(ev: PinchEvent): void {
     assert(this._pinch_state != null)
 
-    const sltrb = (() => {
+    const slrtb = (() => {
       const {scale} = ev
 
       const {bbox} = this._pinch_state
@@ -360,15 +418,18 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       })
     })()
 
-    const {mappers} = this
-    const ltrb = {
-      left:   this.model.left == null   ? null : mappers.left.invert(sltrb.left),
-      right:  this.model.right == null  ? null : mappers.right.invert(sltrb.right),
-      top:    this.model.top == null    ? null : mappers.top.invert(sltrb.top),
-      bottom: this.model.bottom == null ? null : mappers.bottom.invert(sltrb.bottom),
-    }
+    const lrtb = (() => {
+      const {left, right, top, bottom} = this.model
+      const {mappers} = this
+      return {
+        left:   left   instanceof Node ? left   : mappers.left.invert(slrtb.left),
+        right:  right  instanceof Node ? right  : mappers.right.invert(slrtb.right),
+        top:    top    instanceof Node ? top    : mappers.top.invert(slrtb.top),
+        bottom: bottom instanceof Node ? bottom : mappers.bottom.invert(slrtb.bottom),
+      }
+    })()
 
-    this.model.update(ltrb)
+    this.model.update(lrtb)
     this.model.pan.emit(["pan", ev.modifiers])
   }
 
@@ -432,15 +493,20 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    top: p.Property<number | null>
-    bottom: p.Property<number | null>
-    left: p.Property<number | null>
-    right: p.Property<number | null>
+    top: p.Property<number | Node>
+    bottom: p.Property<number | Node>
+    left: p.Property<number | Node>
+    right: p.Property<number | Node>
 
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
     left_units: p.Property<CoordinateUnits>
     right_units: p.Property<CoordinateUnits>
+
+    top_limit: p.Property<Limit>
+    bottom_limit: p.Property<Limit>
+    left_limit: p.Property<Limit>
+    right_limit: p.Property<Limit>
 
     border_radius: p.Property<BorderRadius>
 
@@ -494,16 +560,21 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Nullable}) => ({
-      top:          [ Nullable(Number), null ],
-      bottom:       [ Nullable(Number), null ],
-      left:         [ Nullable(Number), null ],
-      right:        [ Nullable(Number), null ],
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or}) => ({
+      top:          [ Or(Number, Ref(Node)), NaN ],
+      bottom:       [ Or(Number, Ref(Node)), NaN ],
+      left:         [ Or(Number, Ref(Node)), NaN ],
+      right:        [ Or(Number, Ref(Node)), NaN ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
       left_units:   [ CoordinateUnits, "data" ],
       right_units:  [ CoordinateUnits, "data" ],
+
+      top_limit:    [ Limit, null ],
+      bottom_limit: [ Limit, null ],
+      left_limit:   [ Limit, null ],
+      right_limit:  [ Limit, null ],
 
       border_radius: [ BorderRadius, 0 ],
 
@@ -537,7 +608,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
-  update({left, right, top, bottom}: LRTB<number | null>): void {
+  update({left, right, top, bottom}: LRTB<number | Node>): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 

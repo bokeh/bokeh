@@ -27,6 +27,7 @@ import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState} from "core/view"
+import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
@@ -64,6 +65,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
   get canvas(): CanvasView {
     return this.canvas_view
   }
+
+  readonly repainted = new Signal0(this, "repainted")
 
   protected _computed_style = new InlineStyleSheet()
 
@@ -800,6 +803,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {inner_bbox} = this.layout
     if (!this._inner_bbox.equals(inner_bbox)) {
       this._inner_bbox = inner_bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 
@@ -915,6 +919,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     this._needs_paint = false
+    this.repainted.emit()
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {

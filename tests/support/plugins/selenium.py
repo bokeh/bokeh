@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from shutil import which
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -68,13 +69,24 @@ def driver(pytestconfig: config.Config) -> Iterator[WebDriver]:
     driver_name: str = pytestconfig.getoption('driver', 'chrome').lower()
 
     def chrome() -> WebDriver:
+        for executable in ["chromedriver", "chromium.chromedriver", "chromedriver-binary"]:
+            executable_path = which(executable)
+            if executable_path is not None:
+                break
+        else:
+            raise RuntimeError("chromedriver or its variant is not installed or not present on PATH")
+
         from selenium.webdriver.chrome.options import Options
+        from selenium.webdriver.chrome.service import Service
         from selenium.webdriver.chrome.webdriver import WebDriver as Chrome
+
+        service = Service(executable_path)
         options = Options()
         options.add_argument("--headless")
         options.add_argument("--no-sandbox")
         options.add_argument("--window-size=1920x1080")
-        return Chrome(options=options)
+
+        return Chrome(service=service, options=options)
 
     def firefox() -> WebDriver:
         from selenium.webdriver.firefox.options import Options

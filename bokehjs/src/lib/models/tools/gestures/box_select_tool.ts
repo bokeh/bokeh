@@ -1,11 +1,12 @@
 import {RegionSelectTool, RegionSelectToolView} from "./region_select_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
+import {Node} from "../../coordinates/node"
 import type {Scale} from "../../scales/scale"
 import type * as p from "core/properties"
 import type {SelectionMode, CoordinateUnits} from "core/enums"
 import {Dimensions, BoxOrigin} from "core/enums"
 import type {PanEvent, KeyEvent} from "core/ui_events"
-import type {RectGeometry} from "core/geometry"
+import type {HitTestRect} from "core/geometry"
 import type {CoordinateMapper, LRTB} from "core/util/bbox"
 import * as icons from "styles/icons.css"
 
@@ -19,7 +20,7 @@ export class BoxSelectToolView extends RegionSelectToolView {
     this.connect(pan, ([phase, ev]) => {
       if ((phase == "pan" && this._is_continuous(ev)) || phase == "pan:end") {
         const {left, top, right, bottom} = this.model.overlay
-        if (left != null && top != null && right != null && bottom != null) {
+        if (!(left instanceof Node) && !(top instanceof Node) && !(right instanceof Node) && !(bottom instanceof Node)) {
           const screen = this._compute_lrtb({left, right, top, bottom})
           this._do_select([screen.left, screen.right], [screen.top, screen.bottom], false, this._select_mode(ev))
         }
@@ -170,7 +171,8 @@ export class BoxSelectToolView extends RegionSelectToolView {
   }
 
   _do_select([sx0, sx1]: [number, number], [sy0, sy1]: [number, number], final: boolean, mode: SelectionMode = "replace"): void {
-    const geometry: RectGeometry = {type: "rect", sx0, sx1, sy0, sy1}
+    const {greedy} = this.model
+    const geometry: HitTestRect = {type: "rect", sx0, sx1, sy0, sy1, greedy}
     this._select(geometry, final, mode)
   }
 }

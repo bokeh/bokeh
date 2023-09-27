@@ -17,7 +17,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
+  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column,
@@ -28,6 +28,7 @@ import {
   ParkMillerLCG,
   GridPlot,
   Tooltip,
+  Node,
 } from "@bokehjs/models"
 
 import {
@@ -3150,8 +3151,11 @@ describe("Bug", () => {
   describe("in issue #12880", () => {
     it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
       async function box() {
+        const frame_top = new Node({target: "frame", symbol: "top"})
+        const frame_bottom = new Node({target: "frame", symbol: "bottom"})
+
         const box = new BoxAnnotation({
-          left: 1, right: 3, top: null /*frame top*/, bottom: null /*frame bottom*/,
+          left: 1, right: 3, top: frame_top, bottom: frame_bottom,
           editable: true,
           line_color: "blue",
         })
@@ -3173,7 +3177,7 @@ describe("Bug", () => {
 
   describe("in issue #12917", () => {
     it("doesn't allow BoxAnnotation to participate in auto-ranging when its edges are bound to the frame", async () => {
-      function plot(lrtb: LRTB<number | null>) {
+      function plot(lrtb: LRTB<number | Node>) {
         const box = new BoxAnnotation({...lrtb, line_color: "blue"})
         const p = fig([200, 200], {
           renderers: [box],
@@ -3184,17 +3188,22 @@ describe("Bug", () => {
         return p
       }
 
-      const p00 = plot({left: null, right: null, top: null, bottom: null})
-      const p01 = plot({left: -2, right: null, top: null, bottom: null})
-      const p02 = plot({left: null, right: 2, top: null, bottom: null})
-      const p03 = plot({left: -2, right: 2, top: null, bottom: null})
-      const p10 = plot({left: null, right: null, top: 2, bottom: null})
-      const p11 = plot({left: null, right: null, top: null, bottom: -2})
-      const p12 = plot({left: null, right: null, top: 2, bottom: -2})
-      const p13 = plot({left: -2, right: null, top: null, bottom: -2})
-      const p20 = plot({left: null, right: 2, top: 2, bottom: null})
-      const p21 = plot({left: -2, right: null, top: 2, bottom: null})
-      const p22 = plot({left: null, right: 2, top: null, bottom: -2})
+      const left = new Node({target: "frame", symbol: "left"})
+      const right = new Node({target: "frame", symbol: "right"})
+      const top = new Node({target: "frame", symbol: "top"})
+      const bottom = new Node({target: "frame", symbol: "bottom"})
+
+      const p00 = plot({left, right, top, bottom})
+      const p01 = plot({left: -2, right, top, bottom})
+      const p02 = plot({left, right: 2, top, bottom})
+      const p03 = plot({left: -2, right: 2, top, bottom})
+      const p10 = plot({left, right, top: 2, bottom})
+      const p11 = plot({left, right, top, bottom: -2})
+      const p12 = plot({left, right, top: 2, bottom: -2})
+      const p13 = plot({left: -2, right, top, bottom: -2})
+      const p20 = plot({left, right: 2, top: 2, bottom})
+      const p21 = plot({left: -2, right, top: 2, bottom})
+      const p22 = plot({left, right: 2, top, bottom: -2})
       const p23 = plot({left: -2, right: 2, top: 2, bottom: -2})
 
       const gp = gridplot([
@@ -3566,6 +3575,71 @@ describe("Bug", () => {
 
       expect(y_range.start).to.be.equal(a)
       expect(y_range.end).to.be.equal(b)
+    })
+  })
+
+  describe("in issue #7671", () => {
+    it("doesn't to refresh tooltips when plot is updated", async () => {
+      function plot(title: string) {
+        const hover = new HoverTool({
+          tooltips: [
+            ["i",  "$index"],
+            ["sx", "$sx"   ],
+            ["sy", "$sy"   ],
+          ],
+        })
+        const wheel_pan = new WheelPanTool({dimension: "width"})
+
+        const p = fig([200, 200], {
+          title,
+          x_range: [-5, 5],
+          y_range: [-5, 5],
+          tools: [hover, wheel_pan],
+          active_scroll: wheel_pan,
+        })
+        p.circle({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+
+        return p
+      }
+
+      const p0 = plot("initial hover")
+      const p1 = plot("updates to i=1")
+      const p2 = plot("clears tooltip")
+      const {view} = await display(row([p0, p1, p2]))
+
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+      const pv2 = view.owner.get_one(p2)
+
+      const delta = 160
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(0, 0))
+
+      const actions1 = new PlotActions(pv1)
+      await actions1.hover(xy(0, 0))
+      await actions1.scroll(xy(0, 0), delta)
+
+      const actions2 = new PlotActions(pv2)
+      await actions2.hover(xy(0, 0))
+      await actions2.scroll(xy(0, 0), -delta)
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #13323", () => {
+    it("doesn't allow to repaint plots in layouts when only their inner layout bbox changed", async () => {
+      const p0 = fig([200, 200])
+      p0.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
+
+      const p1 = fig([200, 200], {y_axis_type: null})
+      p1.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
+
+      const {view} = await display(column([p0, p1]))
+
+      p0.x_range.setv({start: 1, end: 1})
+      await view.ready
     })
   })
 })

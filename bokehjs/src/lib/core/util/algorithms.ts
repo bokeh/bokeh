@@ -1,5 +1,5 @@
 import type {Rect} from "../types"
-import {minmax} from "./arrayable"
+import {minmax2} from "./arrayable"
 
 const {abs, sqrt, min, max} = Math
 
@@ -112,12 +112,6 @@ export function cbb(
   x_bounds[n + 1] = x3
   y_bounds[n + 1] = y3
 
-  const [x_min, x_max] = minmax(x_bounds)
-  const [y_min, y_max] = minmax(y_bounds)
-  return {
-    x0: x_min,
-    x1: x_max,
-    y0: y_min,
-    y1: y_max,
-  }
+  const [x_min, x_max, y_min, y_max] = minmax2(x_bounds, y_bounds)
+  return {x0: x_min, x1: x_max, y0: y_min, y1: y_max}
 }

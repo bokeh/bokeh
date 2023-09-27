@@ -20,6 +20,7 @@ import pytest ; pytest
 import datetime as dt
 import sys
 from array import array as TypedArray
+from math import inf, nan
 from typing import Any, Sequence
 
 # External imports
@@ -70,9 +71,6 @@ from bokeh.util.warnings import BokehUserWarning
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
-
-nan = float("nan")
-inf = float("inf")
 
 class SomeProps(HasProps):
     p0 = Int(default=1)
@@ -208,7 +206,7 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_dict(self) -> None:
-        val = {float("nan"): {1: [2, 3]}, "bcd": None, "abc": True, None: float("inf")}
+        val = {nan: {1: [2, 3]}, "bcd": None, "abc": True, None: inf}
 
         encoder = Serializer()
         rep = encoder.encode(val)
@@ -225,8 +223,8 @@ class TestSerializer:
         assert encoder.buffers == []
 
     def test_dict_circular(self) -> None:
-        val: dict[Any, Any] = {float("nan"): [1, 2]}
-        val[float("inf")] = val
+        val: dict[Any, Any] = {nan: [1, 2]}
+        val[inf] = val
 
         encoder = Serializer()
         with pytest.raises(SerializationError):
