@@ -557,11 +557,11 @@ class ScaleBar(Annotation):
     """)
 
     bar_length = NonNegative(Either(Float, Int))(default=0.2, help="""
-    The length of the bar, either a percentage of the frame or a number of pixels.
+    The length of the bar, either a fraction of the frame or a number of pixels.
     """)
 
-    bar_style = Include(ScalarLineProps, prefix="bar", help="""
-    The {prop} values for the bar line.
+    bar_line = Include(ScalarLineProps, prefix="bar", help="""
+    The {prop} values for the bar line style.
     """)
 
     margin = Int(default=10, help="""
@@ -584,16 +584,19 @@ class ScaleBar(Annotation):
         ``@{unit}{long}``.
     """)
 
-    label_style = Include(ScalarTextProps, prefix="label", help="""
-    The {prop} values for the label text.
+    label_text = Include(ScalarTextProps, prefix="label", help="""
+    The {prop} values for the label text style.
     """)
 
     label_align = Enum(Align, default="center", help="""
-    Specified how to align scale bar's label along the bar.
+    Specifies where to align scale bar's label along the bar.
+
+    This property effective when placing the label above or below
+    a horizontal scale bar, or left or right of a vertical one.
     """)
 
     label_location = Enum(Location, default="below", help="""
-    Specifies on which side of the scael bar the label will be located.
+    Specifies on which side of the scale bar the label will be located.
     """)
 
     label_standoff = Int(default=5, help="""
@@ -604,11 +607,15 @@ class ScaleBar(Annotation):
     The title text to render.
     """)
 
-    title_style = Include(ScalarTextProps, prefix="title", help="""
-    The {prop} values for the title text.
+    title_text = Include(ScalarTextProps, prefix="title", help="""
+    The {prop} values for the title text style.
     """)
 
     title_align = Enum(Align, default="center", help="""
+    Specifies where to align scale bar's title along the bar.
+
+    This property effective when placing the title above or below
+    a horizontal scale bar, or left or right of a vertical one.
     """)
 
     title_location = Enum(Location, default="above", help="""
@@ -622,21 +629,21 @@ class ScaleBar(Annotation):
     ticker = Instance(Ticker, default=InstanceDefault(FixedTicker, ticks=[]), help="""
     A ticker to use for computing locations of axis components.
 
-    Note that using the default fixed ticker with no predefined ticks,
-    then the appearance of the scale bar with be just a solid bar with
+    Note that if using the default fixed ticker with no predefined ticks,
+    then the appearance of the scale bar will be just a solid bar with
     no additional markings.
     """)
 
-    border_style = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} for the scale bar border style.
+    border_line = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} for the scale bar border line style.
     """)
 
     background_fill = Include(ScalarFillProps, prefix="background", help="""
-    The {prop} for the scale bar background style.
+    The {prop} for the scale bar background fill style.
     """)
 
     background_hatch = Include(ScalarHatchProps, prefix="background", help="""
-    The {prop} for the scale bar background style.
+    The {prop} for the scale bar background hatch style.
     """)
 
     bar_line_width = Override(default=2)
