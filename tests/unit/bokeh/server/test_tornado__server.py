@@ -49,38 +49,76 @@ logging.basicConfig(level=logging.DEBUG)
 
 def test_default_resources(ManagedServerLoop: MSL) -> None:
     application = Application()
+
     with ManagedServerLoop(application) as server:
         r = server._tornado.resources()
         assert r.mode == "server"
-        assert r.root_url == f"http://localhost:{server.port}/"
+        assert r.root_url == "/"
         assert r.path_versioner == StaticHandler.append_version
 
     with ManagedServerLoop(application, prefix="/foo/") as server:
         r = server._tornado.resources()
         assert r.mode == "server"
-        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.root_url == "/foo/"
         assert r.path_versioner == StaticHandler.append_version
 
     with ManagedServerLoop(application, prefix="foo/") as server:
         r = server._tornado.resources()
         assert r.mode == "server"
-        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.root_url == "/foo/"
         assert r.path_versioner == StaticHandler.append_version
 
     with ManagedServerLoop(application, prefix="foo") as server:
         r = server._tornado.resources()
         assert r.mode == "server"
-        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.root_url == "/foo/"
         assert r.path_versioner == StaticHandler.append_version
 
     with ManagedServerLoop(application, prefix="/foo") as server:
         r = server._tornado.resources()
         assert r.mode == "server"
-        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.root_url == "/foo/"
         assert r.path_versioner == StaticHandler.append_version
 
     with ManagedServerLoop(application, prefix="/foo/bar") as server:
         r = server._tornado.resources()
+        assert r.mode == "server"
+        assert r.root_url == "/foo/bar/"
+        assert r.path_versioner == StaticHandler.append_version
+
+
+    with ManagedServerLoop(application) as server:
+        r = server._tornado.resources(absolute_url=True)
+        assert r.mode == "server"
+        assert r.root_url == f"http://localhost:{server.port}/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo/") as server:
+        r = server._tornado.resources(absolute_url=True)
+        assert r.mode == "server"
+        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="foo/") as server:
+        r = server._tornado.resources(absolute_url=True)
+        assert r.mode == "server"
+        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="foo") as server:
+        r = server._tornado.resources(absolute_url=True)
+        assert r.mode == "server"
+        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo") as server:
+        r = server._tornado.resources(absolute_url=True)
+        assert r.mode == "server"
+        assert r.root_url == f"http://localhost:{server.port}/foo/"
+        assert r.path_versioner == StaticHandler.append_version
+
+    with ManagedServerLoop(application, prefix="/foo/bar") as server:
+        r = server._tornado.resources(absolute_url=True)
         assert r.mode == "server"
         assert r.root_url == f"http://localhost:{server.port}/foo/bar/"
         assert r.path_versioner == StaticHandler.append_version
