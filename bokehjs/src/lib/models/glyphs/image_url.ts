@@ -14,7 +14,7 @@ import * as resolve from "../common/resolve"
 export type CanvasImage = HTMLImageElement
 
 export type ImageURLData = XYGlyphData & {
-  readonly url: p.Uniform<string>
+  readonly url: p.Uniform<string | ArrayBuffer>
   readonly angle: p.Uniform<number>
   readonly w: p.Uniform<number>
   readonly h: p.Uniform<number>

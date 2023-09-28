@@ -37,7 +37,7 @@ export class WheelZoomToolView extends GestureToolView {
   override _scroll(ev: ScrollEvent): void {
     const {sx, sy} = ev
 
-    const axis_view = this.plot_view.axis_views.find((view) => view.layout.bbox.contains(sx, sy))
+    const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
     if (axis_view != null && !this.model.zoom_on_axis) {
       return
     }

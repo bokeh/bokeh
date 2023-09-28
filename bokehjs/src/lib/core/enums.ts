@@ -53,6 +53,9 @@ export const Direction = Enum("clock", "anticlock")
 export type Distribution = "uniform" | "normal"
 export const Distribution = Enum("uniform", "normal")
 
+export type Face = typeof Face["__type__"]
+export const Face = Enum("front", "back")
+
 export type FlowMode = typeof FlowMode["__type__"]
 export const FlowMode = Enum("block", "inline")
 

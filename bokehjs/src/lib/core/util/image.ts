@@ -21,8 +21,17 @@ export class ImageLoader {
 
   promise: Promise<Image>
 
-  constructor(url: string, config: ImageHandlers & LoaderOptions = {}) {
+  constructor(src: string | ArrayBuffer, config: ImageHandlers & LoaderOptions = {}) {
     const {attempts = 1, timeout = 1} = config
+
+    const url = (() => {
+      if (src instanceof ArrayBuffer) {
+        const blob = new Blob([src], {type: "image/png"}) // TODO mime
+        return URL.createObjectURL(blob) // TODO revoke
+      } else {
+        return src
+      }
+    })()
 
     this.promise = new Promise((resolve, _reject) => {
       this.image.crossOrigin = "anonymous"
