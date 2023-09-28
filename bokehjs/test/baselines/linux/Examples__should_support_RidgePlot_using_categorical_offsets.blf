@@ -1,0 +1,5 @@
+Plot bbox=[0, 0, 900, 600]
+  CartesianFrame bbox=[106, 5, 789, 568]
+  LinearAxis bbox=[106, 573, 789, 27]
+  CategoricalAxis bbox=[0, 5, 106, 568]
+  Title bbox=[106, 5, 789, 0]
