@@ -91,7 +91,7 @@ members of the project's leadership.
 
 ### Escalation
 
-In the event it is necessary to make a report involving someone on the NumFocus committee itself, please use the general [NumFocus CoC reporting form](https://numfocus.org/code-of-conduct).
+In the event it is necessary to make a report involving someone on the [Conduct Sub-committee](https://github.com/bokeh/bokeh/wiki/BEP-4:-Project-Roles#conduct-sub-committee) itself, please use the general [NumFocus CoC reporting form](https://numfocus.org/code-of-conduct).
 
 ### Attribution
 
