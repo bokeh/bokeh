@@ -984,8 +984,8 @@ describe("Bug", () => {
       const {start: y_start, end: y_end} = p.y_range
       const pan = 0.5
 
-      const xrs = new Map([["default", {start: x_start + pan, end: x_end + pan}]])
-      const yrs = new Map([["default", {start: y_start + pan, end: y_end + pan}]])
+      const xrs = new Map([[p.x_range, {start: x_start + pan, end: x_end + pan}]])
+      const yrs = new Map([[p.y_range, {start: y_start + pan, end: y_end + pan}]])
       view.update_range({xrs, yrs}, {panning: true})
 
       // TODO: p.pan(0.5, 0.5)

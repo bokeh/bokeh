@@ -1,14 +1,22 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import {DataRenderer} from "../../renderers/data_renderer"
+import type {Scale} from "../../scales/scale"
+import {CompositeScale} from "../../scales/composite_scale"
 import {scale_range} from "core/util/zoom"
 import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
+import {logger} from "core/logging"
 import {is_mobile} from "core/util/platform"
+import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum} from "../../../core/kinds"
+import {Enum, Array, Ref, Or, Auto} from "../../../core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]
+
+const Renderers = Or(Array(Ref(DataRenderer)), Auto)
+type Renderers = typeof Renderers["__type__"]
 
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
@@ -39,51 +47,135 @@ export class WheelZoomToolView extends GestureToolView {
       return
     }
 
+    const [x_frame_scales_, y_frame_scales_] = (() => {
+      const x_frame = [...frame.x_scales.values()]
+      const y_frame = [...frame.y_scales.values()]
+
+      if (axis_view == null) {
+        return [x_frame, y_frame]
+      } else {
+        const {zoom_together} = this.model
+        if (zoom_together == "all") {
+          if (axis_view.dimension == 0)
+            return [x_frame, []]
+          else
+            return [[], y_frame]
+        } else {
+          const {x_scale, y_scale} = axis_view.coordinates
+
+          switch (zoom_together) {
+            case "cross": {
+              return [[x_scale], [y_scale]]
+            }
+            case "none": {
+              if (axis_view.dimension == 0)
+                return [[x_scale], []]
+              else
+                return [[], [y_scale]]
+            }
+          }
+        }
+      }
+    })()
+
+    const x_frame_scales = new Set(x_frame_scales_)
+    const y_frame_scales = new Set(y_frame_scales_)
+
+    const x_renderer_scales = new Set<Scale>()
+    const y_renderer_scales = new Set<Scale>()
+
+    const {renderers} = this.model
+    const data_renderers = renderers != "auto" ? renderers : this.plot_view.model.data_renderers
+
+    for (const renderer of data_renderers) {
+      if (renderer.coordinates == null) {
+        continue
+      }
+
+      const rv = this.plot_view.renderer_view(renderer)
+      assert(rv != null)
+
+      const {x_scale, y_scale} = rv.coordinates
+
+      if (x_scale instanceof CompositeScale) {
+        if (x_frame_scales.has(x_scale.target_scale)) {
+          x_renderer_scales.add(x_scale)
+        }
+      }
+
+      if (y_scale instanceof CompositeScale) {
+        if (y_frame_scales.has(y_scale.target_scale)) {
+          y_renderer_scales.add(y_scale)
+        }
+      }
+    }
+
+    const [x_all_scales, y_all_scales] = (() => {
+      if (renderers == "auto") {
+        return [
+          new Set([...x_frame_scales, ...x_renderer_scales]),
+          new Set([...y_frame_scales, ...y_renderer_scales]),
+        ]
+      } else {
+        return [
+          x_renderer_scales,
+          y_renderer_scales,
+        ]
+      }
+    })()
+
+    const subcoord = {x: false, y: false}
+
+    const traverse = (scale: Scale, dim: "x" | "y") => {
+      const {level} = this.model
+      for (let i = 0; i < level; i++) {
+        if (scale instanceof CompositeScale) {
+          subcoord[dim] = true
+          scale = scale.source_scale
+        } else {
+          logger.warn(`can't reach sub-coordinate level ${level} for ${scale} in ${dim} dimension; stopped at ${i}`)
+          break
+        }
+      }
+
+      if (scale instanceof CompositeScale) {
+        return scale.target_scale
+      } else {
+        return scale
+      }
+    }
+
+    const x_scales = new Set<Scale>()
+    const y_scales = new Set<Scale>()
+
+    for (const x_scale of x_all_scales) {
+      x_scales.add(traverse(x_scale, "x"))
+    }
+    for (const y_scale of y_all_scales) {
+      y_scales.add(traverse(y_scale, "y"))
+    }
+
+    const center = (() => {
+      const x = subcoord.x ? null : sx
+      const y = subcoord.y ? null : sy
+
+      if (axis_view != null) {
+        return axis_view.dimension == 0 ? {x, y: null} : {x: null, y}
+      } else {
+        return {x, y}
+      }
+    })()
+
     // restrict to axis configured in tool's dimensions property and if
     // zoom origin is inside of frame range/domain
     const dims = this.model.dimensions
     const x_axis = dims == "width" || dims == "both"
     const y_axis = dims == "height" || dims == "both"
 
-    const {x_range, y_range} = frame.bbox
-    const {x_scales, y_scales, center} = (() => {
-      if (axis_view != null) {
-        const center = axis_view.dimension == 0 ? {x: sx, y: null} : {x: null, y: sy}
-
-        const {zoom_together} = this.model
-        if (zoom_together == "all") {
-          const {x_scales, y_scales} = frame
-          if (axis_view.dimension == 0)
-            return {x_scales, y_scales: new Map(), center}
-          else
-            return {x_scales: new Map(), y_scales, center}
-        } else {
-          const {x_range_name, y_range_name} = axis_view.model
-          const {x_scale, y_scale} = axis_view.coordinates
-
-          const x_scales = new Map([[x_range_name, x_scale]])
-          const y_scales = new Map([[y_range_name, y_scale]])
-
-          switch (zoom_together) {
-            case "cross": {
-              return {x_scales, y_scales, center}
-            }
-            case "none": {
-              if (axis_view.dimension == 0)
-                return {x_scales, y_scales: new Map(), center}
-              else
-                return {x_scales: new Map(), y_scales, center}
-            }
-          }
-        }
-      } else {
-        const {x_scales, y_scales} = frame
-        return {x_scales, y_scales, center: {x: sx, y: sy}}
-      }
-    })()
-
+    const {x_target, y_target} = frame
     const factor = this.model.speed*ev.delta
-    const zoom_info = scale_range(x_scales, y_scales, x_range, y_range, factor, x_axis, y_axis, center)
+
+    const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, factor, x_axis, y_axis, center)
 
     this.plot_view.state.push("wheel_zoom", {range: zoom_info})
 
@@ -99,6 +191,8 @@ export namespace WheelZoomTool {
 
   export type Props = GestureTool.Props & {
     dimensions: p.Property<Dimensions>
+    renderers: p.Property<Renderers>
+    level: p.Property<number>
     maintain_focus: p.Property<boolean>
     zoom_on_axis: p.Property<boolean>
     zoom_together: p.Property<ZoomTogether>
@@ -119,8 +213,10 @@ export class WheelZoomTool extends GestureTool {
   static {
     this.prototype.default_view = WheelZoomToolView
 
-    this.define<WheelZoomTool.Props>(({Boolean, Number}) => ({
+    this.define<WheelZoomTool.Props>(({Boolean, Number, NonNegative, Int}) => ({
       dimensions:     [ Dimensions, "both" ],
+      renderers:      [ Renderers, "auto" ],
+      level:          [ NonNegative(Int), 0 ],
       maintain_focus: [ Boolean, true ],
       zoom_on_axis:   [ Boolean, true ],
       zoom_together:  [ ZoomTogether, "all" ],

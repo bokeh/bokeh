@@ -74,6 +74,7 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     List,
+    NonNegative,
     Null,
     Nullable,
     Override,
@@ -550,12 +551,25 @@ class WheelZoomTool(Scroll):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # ZoomBaseTool common {
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By default
     the wheel zoom tool will zoom in any dimension, but can be configured to
     only zoom horizontally across the width of the plot, or vertically across
     the height of the plot.
     """)
+
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
+    Restrict zoom to ranges used by the provided data renderers. If ``"auto"``
+    then all ranges provided by the cartesian frame will be used.
+    """)
+
+    level = NonNegative(Int, default=0, help="""
+    When working with composite scales (sub-coordinates), this property
+    allows to configure which set of ranges to scale. The default is to
+    scale top-level (frame) ranges.
+    """)
+    # }
 
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all
@@ -912,6 +926,24 @@ class ZoomBaseTool(PlotActionTool):
     then all ranges provided by the cartesian frame will be used.
     """)
 
+    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the zoom tool is constrained to act in. By default
+    the tool will zoom in any dimension, but can be configured to only
+    zoom horizontally across the width of the plot, or vertically across
+    the height of the plot.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage of the range to zoom for each usage of the tool.
+    """)
+
+    level = NonNegative(Int, default=0, help="""
+    When working with composite scales (sub-coordinates), this property
+    allows to configure which set of ranges to scale. The default is to
+    scale top-level (frame) ranges.
+    """)
+
 class ZoomInTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
@@ -927,18 +959,6 @@ class ZoomInTool(ZoomBaseTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
-    dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-in tool is constrained to act in. By default the
-    zoom-in zoom tool will zoom in any dimension, but can be configured to only
-    zoom horizontally across the width of the plot, or vertically across the
-    height of the plot.
-    """)
-
-    factor = Percent(default=0.1, help="""
-    Percentage to zoom for each click of the zoom-in tool.
-    """)
 
 class ZoomOutTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_out_icon|
@@ -956,22 +976,11 @@ class ZoomOutTool(ZoomBaseTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-out tool is constrained to act in. By default the
-    zoom-out tool will zoom in any dimension, but can be configured to only
-    zoom horizontally across the width of the plot, or vertically across the
-    height of the plot.
-    """)
-
-    factor = Percent(default=0.1, help="""
-    Percentage to zoom for each click of the zoom-in tool.
-    """)
-
     maintain_focus = Bool(default=True, help="""
-    If True, then hitting a range bound in any one dimension will prevent all
-    further zooming all dimensions. If False, zooming can continue
-    independently in any dimension that has not yet reached its bounds, even if
-    that causes overall focus or aspect ratio to change.
+    If ``True``, then hitting a range bound in any one dimension will prevent
+    all further zooming in all dimensions. If ``False``, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even
+    if that causes overall focus or aspect ratio to change.
     """)
 
 class BoxSelectTool(Drag, RegionSelectTool):

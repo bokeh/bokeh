@@ -1,7 +1,6 @@
 import {display, fig, column} from "../_util"
 
-import type {Plot, Column,
-             ColorMapper} from "@bokehjs/models"
+import type {Plot, Column, ColorMapper} from "@bokehjs/models"
 import {
   ColorBar, LinearAxis, LinearColorMapper, LogColorMapper, EqHistColorMapper, CategoricalColorMapper,
 } from "@bokehjs/models"

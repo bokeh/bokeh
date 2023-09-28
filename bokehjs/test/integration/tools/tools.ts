@@ -1,5 +1,5 @@
-import {display, fig} from "./_util"
-import {press} from "../interactive"
+import {display, fig} from "../_util"
+import {press} from "../../interactive"
 
 import * as all from "@bokehjs/models/tools"
 import {Toolbar} from "@bokehjs/models"
