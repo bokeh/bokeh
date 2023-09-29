@@ -13,6 +13,7 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
+import os
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -26,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook
+from .notebook import run_notebook_hook, remote_jupyter_proxy_url
 from .saving import save
 from .state import curstate
 
@@ -115,6 +116,11 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
 
+            If the environment variable BOKEH_JUPYTER_EXTERNAL_URL is set
+            to the external URL of a JupyterHub,  notebook_url is overridden
+            with a callable which enables Bokeh to traverse the JupyterHub
+            proxy without specifying this parameter.
+
     Some parameters are only useful when certain output modes are active:
 
     * The ``browser`` and ``new`` parameters only apply when |output_file|
@@ -149,6 +155,8 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
         # This ugliness is to prevent importing bokeh.application (which would bring
         # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
+        if os.environ.get("BOKEH_JUPYTER_EXTERNAL_URL"):
+            notebook_url = remote_jupyter_proxy_url
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
