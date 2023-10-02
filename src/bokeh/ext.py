@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import os
+from os import fspath
 from subprocess import Popen
 
 # Bokeh imports
@@ -101,10 +101,10 @@ def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool 
 
     cmd = [
         "--no-deprecation",
-        compiler_script,
+        fspath(compiler_script),
         command,
-        "--base-dir", os.fspath(base_dir),
-        "--bokehjs-dir", bokehjs_dir,
+        "--base-dir", fspath(base_dir),
+        "--bokehjs-dir", fspath(bokehjs_dir),
         "--bokeh-version", __version__,
     ]
 
