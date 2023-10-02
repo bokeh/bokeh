@@ -135,7 +135,7 @@ def test_dev_resources(ManagedServerLoop: MSL) -> None:
         application = Application()
         with ManagedServerLoop(application) as server:
             r = server._tornado.resources()
-            assert r.mode == "absolute"
+            assert r.mode == "server"
             assert r.dev
 
 def test_index(ManagedServerLoop: MSL) -> None:
