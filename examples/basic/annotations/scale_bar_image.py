@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from bokeh.core.properties import value
 from bokeh.io import show
 from bokeh.models import MetricLength, ScaleBar
@@ -17,8 +19,8 @@ p.y_range.range_padding = 0
 p.x_range.bounds = (0, 1)
 p.y_range.bounds = (0, 1)
 
-with open("assets/pollen.png", "rb") as f:
-    img = f.read()
+pollen_png = Path(__file__).parent / "assets" / "pollen.png"
+img = pollen_png.read_bytes()
 
 p.image_url(x=0, y=0, w=1, h=1, url=value(img), anchor="bottom_left")
 
