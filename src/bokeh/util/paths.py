@@ -52,16 +52,19 @@ def bokehjsdir(dev: bool = False) -> Path:
     """
     Get the location of the bokehjs source files.
 
-    If ``dev`` is ``True``, the files in ``bokehjs/build`` are preferred.
-    Otherwise uses the files in ``bokeh/server/static``.
+    By default the files in ``bokeh/server/static`` are used.  If ``dev``
+    is ``True``, then the files in ``bokehjs/build`` preferred. However,
+    if not available, then a warning is issued and the former files are
+    used as a fallback.
     """
     if dev:
         js_dir = ROOT_DIR.parent.parent / "bokehjs" / "build"
-        if not js_dir.is_dir():
-            raise RuntimeError(f"bokehjs' build directory '{js_dir}' doesn't exist; required by 'settings.dev'")
-        return js_dir
-    else:
-        return staticdir()
+        if js_dir.is_dir():
+            return js_dir
+        else:
+            log.warning(f"bokehjs' build directory '{js_dir}' doesn't exist; required by 'settings.dev'")
+
+    return staticdir()
 
 #-----------------------------------------------------------------------------
 # Dev API
