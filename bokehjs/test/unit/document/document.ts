@@ -967,13 +967,15 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.roots().length).to.be.equal(1)
 
       const model1 = new SomeModel({foo: 128})
       doc.add_root(model1)
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.roots().length).to.be.equal(2)
     })
 
@@ -993,12 +995,14 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.roots().length).to.be.equal(1)
 
       doc.remove_root(model1)
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.roots().length).to.be.equal(0)
     })
 
@@ -1014,12 +1018,14 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.title()).to.be.equal("some title")
 
       doc.set_title("other title")
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(doc.title()).to.be.equal("other title")
     })
 
@@ -1038,12 +1044,14 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(model.foo).to.be.equal(128)
 
       model.foo = 129
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(model.foo).to.be.equal(129)
     })
 
@@ -1060,7 +1068,8 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col1: [4, 5, 6]})
     })
 
@@ -1077,12 +1086,14 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 2, 3, 4, 5, 6]})
 
       source.stream({col0: [7, 8, 9]})
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 2, 3, 4, 5, 6, 7, 8, 9]})
     })
 
@@ -1099,12 +1110,14 @@ describe("Document", () => {
       const patch = doc.create_json_patch([event])
       doc.apply_json_patch(patch)
 
-      expect(events.length).to.be.equal(0)
+      expect(events.filter((e) => e.sync).length).to.be.equal(0)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 4, 5, 6]})
 
       source.patch({col0: [[new Slice({start: 3, stop: 5}), [40, 50]]]})
 
-      expect(events.length).to.be.equal(1)
+      expect(events.filter((e) => e.sync).length).to.be.equal(1)
+      expect(events.filter((e) => !e.sync).length).to.be.equal(1)
       expect(source.data).to.be.equal({col0: [1, 20, 30, 40, 50, 6]})
     })
   })

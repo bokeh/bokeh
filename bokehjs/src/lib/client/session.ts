@@ -79,7 +79,15 @@ export class ClientSession {
   }
 
   protected _document_changed(event: DocumentEvent): void {
-    const events = event instanceof DocumentEventBatch ? event.events : [event]
+    const events = (() => {
+      const events = event instanceof DocumentEventBatch ? (event.sync ? event.events : []) : [event]
+      return events.filter((event) => event.sync)
+    })()
+
+    if (events.length == 0) {
+      return
+    }
+
     const patch = this.document.create_json_patch(events)
 
     // TODO (havocp) the connection may be closed here, which will

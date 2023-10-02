@@ -289,19 +289,28 @@ export class Document implements Equatable {
     return new_title
   }
 
-  add_root(model: HasProps): void {
-    if (this._add_roots(model))
-      this._trigger_on_change(new RootAddedEvent(this, model))
+  add_root(model: HasProps, {sync}: {sync?: boolean} = {}): void {
+    if (this._add_roots(model)) {
+      const event = new RootAddedEvent(this, model)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
-  remove_root(model: HasProps): void {
-    if (this._remove_root(model))
-      this._trigger_on_change(new RootRemovedEvent(this, model))
+  remove_root(model: HasProps, {sync}: {sync?: boolean} = {}): void {
+    if (this._remove_root(model)) {
+      const event = new RootRemovedEvent(this, model)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
-  set_title(title: string): void {
-    if (this._set_title(title))
-      this._trigger_on_change(new TitleChangedEvent(this, title))
+  set_title(title: string, {sync}: {sync?: boolean} = {}): void {
+    if (this._set_title(title)) {
+      const event = new TitleChangedEvent(this, title)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
   title(): string {
@@ -543,19 +552,20 @@ export class Document implements Equatable {
           break
         }
         case "RootAdded": {
-          this._add_roots(event.model)
+          this.add_root(event.model, {sync: false})
           break
         }
         case "RootRemoved": {
-          this._remove_root(event.model)
+          this.remove_root(event.model, {sync: false})
           break
         }
         case "TitleChanged": {
-          this._set_title(event.title)
+          this.set_title(event.title, {sync: false})
           break
         }
-        default:
+        default: {
           throw new Error(`unknown patch event type '${(event as any).kind}'`) // XXX
+        }
       }
     }
 

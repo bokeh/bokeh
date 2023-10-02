@@ -128,6 +128,13 @@ export abstract class DocumentEvent implements Equatable {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.document, that.document)
   }
+
+  /**
+   * Indicates whether this event should be emitted internally within bokehjs,
+   * or whether it should also be synchronized with the server, if any session
+   * is listening for such events.
+   */
+  sync: boolean = true
 }
 
 export class DocumentEventBatch<T extends DocumentChangedEvent> extends DocumentEvent {

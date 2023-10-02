@@ -1,5 +1,4 @@
 import type {Document} from "../document"
-import type {DocumentChangedEvent} from "../document"
 import {RootAddedEvent, RootRemovedEvent, TitleChangedEvent} from "../document"
 import type {HasProps} from "../core/has_props"
 import type {View} from "../core/view"
@@ -93,7 +92,7 @@ export async function add_document_standalone(document: Document, element: Embed
     window.document.title = document.title()
   }
 
-  document.on_change((event: DocumentChangedEvent): void => {
+  document.on_change((event) => {
     if (event instanceof RootAddedEvent) {
       render_model(event.model)
     } else if (event instanceof RootRemovedEvent) {
