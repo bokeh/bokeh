@@ -117,7 +117,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
             is passed, the function is to generate the origin URL.
 
             If the environment variable BOKEH_JUPYTER_EXTERNAL_URL is set
-            to the external URL of a JupyterHub,  notebook_url is overridden
+            to the external URL of a JupyterHub, notebook_url is overridden
             with a callable which enables Bokeh to traverse the JupyterHub
             proxy without specifying this parameter.
 
