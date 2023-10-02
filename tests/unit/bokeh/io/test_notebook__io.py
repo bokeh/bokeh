@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 import json
+import os
 from typing import Any
 from unittest.mock import MagicMock, PropertyMock, patch
 
@@ -123,6 +124,11 @@ def test__server_url() -> None:
     assert binb._server_url("foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"
+
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/jmiller@stsci.edu/"})
+def test__remote_jupyter_proxy_url() -> None:
+    assert binb.remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
 
 #-----------------------------------------------------------------------------
 # Code

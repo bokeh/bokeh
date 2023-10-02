@@ -500,8 +500,8 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     from IPython.display import publish_display_data
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
-def remote_jupyter_proxy_url(port: int):
-    """Callable to configure Bokeh's show method when a proxy must be
+def _remote_jupyter_proxy_url(port: int) -> str:
+    """ Callable to configure Bokeh's show method when a proxy must be
     configured. If port is None we're asking about the URL
     for the origin header.
 
@@ -582,7 +582,7 @@ def show_app(app: Application, state: State, notebook_url: str | Callable[[int |
     loop = IOLoop.current()
 
     if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
-        notebook_url = remote_jupyter_proxy_url
+        notebook_url = _remote_jupyter_proxy_url
 
     if callable(notebook_url):
         origin = notebook_url(None)

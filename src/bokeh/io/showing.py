@@ -27,7 +27,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook, remote_jupyter_proxy_url
+from .notebook import run_notebook_hook, _remote_jupyter_proxy_url
 from .saving import save
 from .state import curstate
 
@@ -156,7 +156,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
         # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
         if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
-            notebook_url = remote_jupyter_proxy_url
+            notebook_url = _remote_jupyter_proxy_url
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
