@@ -24,14 +24,7 @@ log = logging.getLogger(__name__)
 import hashlib
 import json
 from dataclasses import dataclass
-from os.path import (
-    abspath,
-    basename,
-    dirname,
-    exists,
-    join,
-    normpath,
-)
+from os.path import normpath
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -207,7 +200,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
                 else:
                     js_raw.append(Resources._inline(bundle.artifact_path))
         else:
-            js_files.extend([ bundle.artifact_path for bundle in extensions ])
+            js_files.extend([ str(bundle.artifact_path) for bundle in extensions ])
 
     models = [ obj.__class__ for obj in all_objs ] if all_objs else None
     ext = bundle_models(models)
@@ -244,7 +237,7 @@ _default_cdn_host = "https://unpkg.com"
 
 @dataclass(frozen=True)
 class ExtensionEmbed:
-    artifact_path: str
+    artifact_path: Path
     server_url: str
     cdn_url: str | None = None
 
@@ -274,26 +267,26 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
             continue
         names.add(name)
         module = __import__(name)
-        this_file = abspath(module.__file__)
-        base_dir = dirname(this_file)
-        dist_dir = join(base_dir, "dist")
+        this_file = Path(module.__file__).absolute()
+        base_dir = this_file.parent
+        dist_dir = base_dir / "dist"
 
-        ext_path = join(base_dir, "bokeh.ext.json")
-        if not exists(ext_path):
+        ext_path = base_dir / "bokeh.ext.json"
+        if not ext_path.exists():
             continue
 
         server_prefix = f"{resources.root_url}static/extensions"
-        package_path = join(base_dir, "package.json")
+        package_path = base_dir / "package.json"
 
         pkg: Pkg | None = None
-        if exists(package_path):
+        if package_path.exists():
             with open(package_path) as io:
                 try:
                     pkg = json.load(io)
                 except json.decoder.JSONDecodeError:
                     pass
 
-        artifact_path: str
+        artifact_path: Path
         server_url: str
         cdn_url: str | None = None
 
@@ -304,12 +297,13 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
+                pkg_main = Path(normpath(pkg_main))
                 cdn_url = f"{_default_cdn_host}/{pkg_name}@{pkg_version}/{pkg_main}"
             else:
-                pkg_main = join(dist_dir, f"{name}.js")
-            artifact_path = join(base_dir, normpath(pkg_main))
-            artifacts_dir = dirname(artifact_path)
-            artifact_name = basename(artifact_path)
+                pkg_main = dist_dir / f"{name}.js"
+            artifact_path = base_dir / pkg_main
+            artifacts_dir = artifact_path.parent
+            artifact_name = artifact_path.name
             server_path = f"{name}/{artifact_name}"
             if not settings.dev:
                 sha = hashlib.sha256()
@@ -318,10 +312,10 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
                 server_path = f"{server_path}?v={vstring}"
         else:
             for ext in extensions:
-                artifact_path = join(dist_dir, f"{name}{ext}")
+                artifact_path = dist_dir / f"{name}{ext}"
                 artifacts_dir = dist_dir
                 server_path = f"{name}/{name}{ext}"
-                if exists(artifact_path):
+                if artifact_path.exists():
                     break
             else:
                 raise ValueError(f"can't resolve artifact path for '{name}' extension")
