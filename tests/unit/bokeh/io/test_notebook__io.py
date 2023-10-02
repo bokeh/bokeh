@@ -128,7 +128,7 @@ def test__server_url() -> None:
 @patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
 @patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/jmiller@stsci.edu/"})
 def test__remote_jupyter_proxy_url() -> None:
-    assert binb.remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
+    assert binb._remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
 
 #-----------------------------------------------------------------------------
 # Code
