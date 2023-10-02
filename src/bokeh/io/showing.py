@@ -116,7 +116,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
 
-            If the environment variable BOKEH_JUPYTER_EXTERNAL_URL is set
+            If the environment variable JUPYTER_BOKEH_EXTERNAL_URL is set
             to the external URL of a JupyterHub, notebook_url is overridden
             with a callable which enables Bokeh to traverse the JupyterHub
             proxy without specifying this parameter.
@@ -155,7 +155,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
         # This ugliness is to prevent importing bokeh.application (which would bring
         # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
-        if os.environ.get("BOKEH_JUPYTER_EXTERNAL_URL"):
+        if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
             notebook_url = remote_jupyter_proxy_url
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
