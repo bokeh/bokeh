@@ -500,7 +500,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     from IPython.display import publish_display_data
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
-def _remote_jupyter_proxy_url(port: [int | None]) -> str:
+def _remote_jupyter_proxy_url(port: int | None) -> str:
     """ Callable to configure Bokeh's show method when a proxy must be
     configured. If port is None we're asking about the URL
     for the origin header.
