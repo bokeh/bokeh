@@ -456,29 +456,31 @@ To enable development settings, set ``BOKEH_DEV`` to ``true``:
 
             set BOKEH_DEV=true
 
-Setting ``BOKEH_DEV`` to ``true`` is equivalent to setting all of the following
-variables individually:
+Setting ``BOKEH_DEV`` to ``true`` implies the following setup:
 
 - ``BOKEH_BROWSER=none``
 - ``BOKEH_LOG_LEVEL=debug``
 - ``BOKEH_MINIFIED=false``
 - ``BOKEH_PRETTY=true``
 - ``BOKEH_PY_LOG_LEVEL=debug``
-- ``BOKEH_RESOURCES=absolute-dev``
+- ``BOKEH_RESOURCES=server``
 
-This way, Bokeh will use local and unminified BokehJS resources, the default log
-levels are increased, the generated HTML and JSON code will be more
-human-readable, and Bokeh will not open a new browser window each time |show| is
-called.
+but is not strictly equivalent to setting those variables individually.
+
+This way, Bokeh will use local and unminified BokehJS resources, the default
+log levels are increased, the generated HTML and JSON code will be more
+human-readable, and Bokeh will not open a new browser window each time |show|
+is called.
 
 .. note::
-    Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=absolute-dev``, which
-    causes rendering problems when used with :term:`Bokeh server <Server>` or in
-    :ref:`Jupyter notebooks <ug_output_jupyter>`. To avoid those problems,
-    use the following settings instead:
+    Setting ``BOKEH_DEV=true`` enables ``BOKEH_RESOURCES=server``, which
+    requires a resources server. If needed, the user can provide such server
+    by running ``BOKEH_DEV=true bokeh static`` (on Linux) command separately
+    (e.g. in a another terminal or console).
 
-    * Set ``BOKEH_RESOURCES`` to ``server`` for server
-    * Set ``BOKEH_RESOURCES`` to ``inline`` for notebooks
+    Although using server resources for development is the most robust
+    approach, users can slightly simplify their setup by setting
+    ``BOKEH_RESOURCES`` to ``inline`` instead.
 
 .. _contributor_guide_setup_test_setup:
 
