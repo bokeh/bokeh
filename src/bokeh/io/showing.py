@@ -13,7 +13,6 @@
 #-----------------------------------------------------------------------------
 from __future__ import annotations
 
-import os
 import logging # isort:skip
 log = logging.getLogger(__name__)
 
@@ -23,11 +22,12 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from typing import TYPE_CHECKING, Any
+import os
 
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook, _remote_jupyter_proxy_url
+from .notebook import run_notebook_hook, _update_notebook_url_from_env, ProxyUrl
 from .saving import save
 from .state import curstate
 
@@ -53,7 +53,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
+        notebook_handle: bool = False, notebook_url: ProxyUrl = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
 
     :func:`show` may be called multiple times in a single Jupyter notebook
@@ -155,8 +155,7 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
         # This ugliness is to prevent importing bokeh.application (which would bring
         # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
-        if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
-            notebook_url = _remote_jupyter_proxy_url
+        notebook_url = _update_notebook_url_from_env(notebook_url)
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
