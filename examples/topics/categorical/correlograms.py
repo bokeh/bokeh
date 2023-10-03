@@ -14,7 +14,7 @@ The magnitude of each correlation is encoded in the size of the circles.
 import numpy as np
 import pandas as pd
 
-from bokeh.models import ColorBar, LinearColorMapper, FixedTicker, ColumnDataSource
+from bokeh.models import ColorBar, ColumnDataSource, FixedTicker, LinearColorMapper
 from bokeh.plotting import figure, show
 from bokeh.sampledata.forensic_glass import data
 from bokeh.transform import transform
