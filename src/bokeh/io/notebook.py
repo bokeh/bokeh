@@ -30,8 +30,8 @@ from typing import (
     Callable,
     Literal,
     Protocol,
+    TypeAlias,
     TypedDict,
-    Union,
     cast,
     overload,
 )
@@ -165,7 +165,7 @@ class ShowDoc(Protocol):
     def __call__(self, obj: Model, state: State, notebook_handle: CommsHandle) -> CommsHandle: ...
 
 class ShowApp(Protocol):
-    def __call__(self, app: Application, state: State, notebook_url: str, **kw: Any) -> None: ...
+    def __call__(self, app: Application, state: State, notebook_url: str | ProxyUrlFunc, **kw: Any) -> None: ...
 
 class Hooks(TypedDict):
     load: Load
@@ -502,9 +502,9 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
 
-ProxyUrl= Union[str, Callable[Union[int, None], str]]
+ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
 
-def show_app(app: Application, state: State, notebook_url: ProxyUrl = "localhost:8888", port: int = 0, **kw: Any) -> None:
+def show_app(app: Application, state: State, notebook_url: [str | ProxyUrlFunc] = "localhost:8888", port: int = 0, **kw: Any) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:
@@ -690,7 +690,7 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
     return full_url
 
 
-def _update_notebook_url_from_env(notebook_url: ProxyUrl) -> ProxyUrl:
+def _update_notebook_url_from_env(notebook_url: [str | ProxyUrlFunc]) -> [str | ProxyUrlFunc]:
     """Returns ``_remote_jupyter_proxy_url`` which makes Bokeh work when running on JupyterHub behind its proxy if
     the environment variable JUPYTER_BOKEH_EXTERNAL_URL is defined,  otherwise returns ``notebook_url`` unmodified.
     """
