@@ -11,16 +11,17 @@ The magnitude of each correlation is encoded in the size of the circles.
     :keywords: scatter, correlogram
 
 '''
-import pandas as pd
 import numpy as np
-from bokeh.plotting import figure, show
-from bokeh.transform import transform
+import pandas as pd
+
 from bokeh.models import ColorBar, LinearColorMapper, FixedTicker, ColumnDataSource
+from bokeh.plotting import figure, show
 from bokeh.sampledata.forensic_glass import data
+from bokeh.transform import transform
 
 df = data.copy()
 
-pairs = ["Mg-Ba", "Mg-Al", "Mg-Na", "Mg-K", "Mg-Fe", "Mg-Ca", "Ca-Ba", 
+pairs = ["Mg-Ba", "Mg-Al", "Mg-Na", "Mg-K", "Mg-Fe", "Mg-Ca", "Ca-Ba",
          "Ca-Al", "Ca-Na", "Ca-K", "Ca-Fe", "Fe-Ba", "Fe-Al", "Fe-Na",
          "Fe-K", "K-Ba", "K-Al", "K-Na", "Na-Ba", "Na-Al", "Al-Ba"]
 
