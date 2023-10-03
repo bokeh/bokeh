@@ -28,10 +28,10 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Union,
     Literal,
     Protocol,
     TypedDict,
+    Union,
     cast,
     overload,
 )

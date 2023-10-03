@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook, _update_notebook_url_from_env, ProxyUrl
+from .notebook import ProxyUrl, _update_notebook_url_from_env, run_notebook_hook
 from .saving import save
 from .state import curstate
 
