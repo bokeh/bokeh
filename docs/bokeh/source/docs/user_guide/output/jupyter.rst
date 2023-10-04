@@ -117,29 +117,65 @@ steps are necessary to embed Bokeh server applications and to enable network
 connectivity between the client browser and the Bokeh server running in a
 JupyterLab cell. This is because your browser needs to connect to the port the
 Bokeh server is listening on. However, JupyterHub is acting as a reverse proxy
-between your browser and your JupyterLab container. Follow all the JupyterLab
-instructions above, then continue with the following steps:
+between your browser and your JupyterLab container.
 
-1. Install the ``jupyter-server-proxy`` package and enable the server extension as follows:
+Bokeh solves this problem by providing a notebook_url parameter which can be
+passed a callable to compute the final URL based on an integer port.  Further,
+if the JupyterHub admin defines the environment variable
+``JUPYTER_BOKEH_EXTERNAL_URL`` the process of defining notebook_url becomes
+fully automatic and ``notebook_url`` no longer needs to be specified.  This has
+the advantage that the same notebook will run unmodified both on JupyterHub
+and in a standalone JupyterLab session.
+
+Required Dependencies
+~~~~~~~~~~~~~~~~~~~~~
+
+Follow all the JupyterLab (not JupyterHub) instructions above, then continue by
+installing the ``jupyter-server-proxy`` package and enable the server extension as follows:
 
    .. code:: sh
 
     pip install jupyter-server-proxy && jupyter serverextension enable --py jupyter-server-proxy
 
-   If you intend to work with JupyterLab you need to install the corresponding extension,
-   either from the GUI or with the following command:
+If you intend to work with JupyterLab you need to install the corresponding extension,
+either from the GUI or with the following command:
 
    .. code:: sh
 
     jupyter labextension install @jupyterlab/server-proxy
 
-2. Define a function to help create the URL for the browser to connect to
-   the Bokeh server.
+JupyterHub for Administrators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-   See below for a reference implementation. You'll have to either modify
-   this code or assign the URL of your JupyterHub installation to the environment
-   variable ``EXTERNAL_URL``. JupyterHub defaults to ``JUPYTERHUB_SERVICE_PREFIX``
-   in this case.
+If you are a JupyterHub admin you can make Bokeh work autotomatically with
+unchanged notebooks by setting an environment variable in the notebook
+environment:
+
+  .. code:: sh
+
+   export JUPYTER_BOKEH_EXTERNAL_URL="https//our-hub.science.edu"
+
+Often this is done in JupyterHub Helm chart configuration YAML like this:
+
+  .. code-block:: yaml
+
+   hub:
+     single_user:
+       extraEnv:
+         JUPYTER_BOKEH_EXTERNAL_URL="https://our-public-hub-name.edu"
+
+The net effect of the above is that the techniques of the next section are
+automatically used by bokeh and no additional actions are required.
+
+JupyterHub for Users
+~~~~~~~~~~~~~~~~~~~~
+
+For Hubs on which ``JUPYTER_BOKEH_EXTERNAL_URL`` is not set, define a function to
+help create the URL for the browser to connect to the Bokeh server.  See below
+for a reference implementation. You'll have to either modify this code or
+assign the URL of your JupyterHub installation to the environment variable
+``EXTERNAL_URL``. JupyterHub defaults to ``JUPYTERHUB_SERVICE_PREFIX`` in this
+case.
 
    .. code-block:: python
 
@@ -157,7 +193,7 @@ instructions above, then continue with the following steps:
         # If port is None we're asking for the URL origin
         # so return the public hostname.
         if port is None:
-            return host
+           return host
 
         service_url_path = os.environ['JUPYTERHUB_SERVICE_PREFIX']
         proxy_url_path = 'proxy/%d' % port
@@ -166,9 +202,9 @@ instructions above, then continue with the following steps:
         full_url = urllib.parse.urljoin(user_url, proxy_url_path)
         return full_url
 
-3. Pass the function you defined in step 2 to the |show| function
-   as the ``notebook_url`` keyword argument. Bokeh then calls this
-   function when it sets up the server and creates the URL to load a graph:
+Pass the function you defined above to the |show| function as the
+``notebook_url`` keyword argument. Bokeh then calls this function when it sets
+up the server and creates the URL to load a graph:
 
    .. code-block:: python
 
