@@ -43,7 +43,7 @@ new_df = pd.DataFrame({
     "oxide_1": [x[0] for x in pairs],
     "oxide_2": [x[1] for x in pairs],
     "correlation": correlations,
-    "dot_size": [abs(corr) * 120 for corr in correlations]
+    "dot_size": [abs(corr) * 120 for corr in correlations],
 })
 
 x_range = new_df["oxide_1"].unique()
@@ -64,7 +64,7 @@ color_bar = ColorBar(
     title="correlation",
     major_tick_line_color=None,
     width=150,
-    height=20
+    height=20,
 )
 
 p.add_layout(color_bar, "below")
