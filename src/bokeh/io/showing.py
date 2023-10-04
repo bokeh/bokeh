@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook
+from .notebook import run_notebook_hook, DEFAULT_JUPYTER_URL
 from .saving import save
 from .state import curstate
 
@@ -52,7 +52,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-        notebook_handle: bool = False, notebook_url: str | ProxyUrlFunc = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
+         notebook_handle: bool = False, notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+         **kwargs: Any) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
 
     :func:`show` may be called multiple times in a single Jupyter notebook

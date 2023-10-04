@@ -74,6 +74,8 @@ LOAD_MIME_TYPE = 'application/vnd.bokehjs_load.v0+json'
 
 EXEC_MIME_TYPE = 'application/vnd.bokehjs_exec.v0+json'
 
+DEFAULT_JUPYTER_URL = "localhost:8888"
+
 __all__ = (
     'CommsHandle',
     'destroy_server',
@@ -504,7 +506,13 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
 
 ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
 
-def show_app(app: Application, state: State, notebook_url: str | ProxyUrlFunc = "localhost:8888", port: int = 0, **kw: Any) -> None:
+def show_app(
+        app: Application,
+        state: State,
+        notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+        port: int = 0,
+        **kw: Any
+) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:
@@ -694,13 +702,13 @@ def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | Pro
     """If the environment variable ``JUPYTER_BOKEH_EXTERNAL_URL`` is defined, returns a function which
     generates URLs which can traverse the JupyterHub proxy.  Otherwise returns ``notebook_url`` unmodified.
 
-    A warning is issued if ``notebook_url`` is not the default ('localhost:8888') and
-    ``JUPYTER_BOKEH_EXTERNAL_URL`` is also defined since setting the environment variable
-    makes specifying ``notebook_url`` irrelevant.
+    A warning is issued if ``notebook_url`` is not the default and
+    ``JUPYTER_BOKEH_EXTERNAL_URL`` is also defined since setting the
+    environment variable makes specifying ``notebook_url`` irrelevant.
 
     Args:
        notebook_url (str | ProxyUrlFunc):
-          Either a URL string which defaults to 'localhost:8888', or a function that given a port
+          Either a URL string which defaults or a function that given a port
           number will generate a URL suitable for traversing the JupyterHub proxy.
 
     Returns:
@@ -708,9 +716,10 @@ def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | Pro
           Either a URL string or a function that generates a URL string given a port number.  The
           latter function may be user supplied as the input parameter or defined internally by Bokeh
           when ``JUPYER_BOKEH_EXTERNAL_URL`` is set.
+
     """
     if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
-        if notebook_url != "localhost:8888":
+        if notebook_url != DEFAULT_JUPYTER_URL:
             log.warning("Environment var 'JUPYTER_BOKEH_EXTERNAL_URL' is defined. Ignoring 'notebook_url' parameter.")
         return _remote_jupyter_proxy_url
     else:
