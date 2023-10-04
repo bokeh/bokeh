@@ -30,7 +30,6 @@ from typing import (
     Callable,
     Literal,
     Protocol,
-    TypeAlias,
     TypedDict,
     cast,
     overload,
@@ -38,6 +37,7 @@ from typing import (
 from uuid import uuid4
 
 ## External imports
+from typing_extensions import TypeAlias
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
 
