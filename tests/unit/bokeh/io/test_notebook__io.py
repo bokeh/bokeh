@@ -125,10 +125,79 @@ def test__server_url() -> None:
     assert binb._server_url("http://foo.com:8888", 10) == "http://foo.com:10/"
     assert binb._server_url("https://foo.com:8888", 10) == "https://foo.com:10/"
 
+
 @patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
-@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/jmiller@stsci.edu/"})
-def test__remote_jupyter_proxy_url() -> None:
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/homer@donuts.edu/"})
+def test__remote_jupyter_proxy_url_1() -> None:
     assert binb._remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
+
+
+from bokeh.io.notebook import log
+
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_1(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env("https://our-hub.edu:9999")
+    assert mock_warning.called
+    assert rval == binb._remote_jupyter_proxy_url
+
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_2(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env("localhost:8888")
+    assert not mock_warning.called
+    assert rval == binb._remote_jupyter_proxy_url
+
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_3(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env(None)
+    assert mock_warning.called
+    assert rval == binb._remote_jupyter_proxy_url
+
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_4(mock_warning) -> None:
+    def proxy_url_func(int):
+        return "https://some-url.com"
+    rval = binb._update_notebook_url_from_env(proxy_url_func)
+    assert mock_warning.called
+    assert rval == binb._remote_jupyter_proxy_url
+
+
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_5(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env("https://our-hub.edu:9999")
+    assert not mock_warning.called
+    assert rval == "https://our-hub.edu:9999"
+
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_6(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env("localhost:8888")
+    assert not mock_warning.called
+    assert rval == "localhost:8888"
+
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_7(mock_warning) -> None:
+    rval = binb._update_notebook_url_from_env(None)
+    assert not mock_warning.called
+    assert rval == None
+
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
+@patch.object(log, "warning")
+def test__update_notebook_url_from_env_8(mock_warning) -> None:
+    def proxy_url_func(int):
+        return "https://some-url.com"
+    rval = binb._update_notebook_url_from_env(proxy_url_func)
+    assert not mock_warning.called
+    assert rval == proxy_url_func
 
 #-----------------------------------------------------------------------------
 # Code
