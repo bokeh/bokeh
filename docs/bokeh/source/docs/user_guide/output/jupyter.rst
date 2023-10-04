@@ -193,7 +193,7 @@ case.
         # If port is None we're asking for the URL origin
         # so return the public hostname.
         if port is None:
-           return host
+            return host
 
         service_url_path = os.environ['JUPYTERHUB_SERVICE_PREFIX']
         proxy_url_path = 'proxy/%d' % port
