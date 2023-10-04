@@ -1,6 +1,6 @@
 import type {PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import type {HasXYGlyph} from "./edit_tool"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_point_draw} from "styles/icons.css"
@@ -86,8 +86,6 @@ export class PointDrawTool extends EditTool {
   declare properties: PointDrawTool.Props
   declare __view_type__: PointDrawToolView
 
-  override renderers: (GlyphRenderer & HasXYGlyph)[]
-
   constructor(attrs?: Partial<PointDrawTool.Attrs>) {
     super(attrs)
   }
@@ -95,10 +93,11 @@ export class PointDrawTool extends EditTool {
   static {
     this.prototype.default_view = PointDrawToolView
 
-    this.define<PointDrawTool.Props>(({Boolean, Int}) => ({
+    this.define<PointDrawTool.Props>(({Boolean, Int, Array, Ref}) => ({
       add:         [ Boolean, true ],
       drag:        [ Boolean, true ],
       num_objects: [ Int, 0 ],
+      renderers:   [ Array(Ref<GlyphRenderer & HasXYGlyph>(GlyphRenderer as any)), [] ],
     }))
   }
 

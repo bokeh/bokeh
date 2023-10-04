@@ -7,10 +7,10 @@ import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import type {FloatArray, Rect} from "core/types"
 import {ScreenArray} from "core/types"
 import type * as visuals from "core/visuals"
-import * as uniforms from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import {map} from "core/util/arrayable"
+import * as iter from "core/util/iterator"
 import {range} from "core/util/array"
 import * as p from "core/properties"
 import type {LRTBGL} from "./webgl/lrtb"
@@ -24,7 +24,7 @@ export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
   sy0: ScreenArray
   sy1: ScreenArray
 
-  max_line_width: number
+  max_height: number
 }
 
 export interface HStripView extends HStripData {}
@@ -70,9 +70,14 @@ export class HStripView extends GlyphView {
     return this.sy1
   }
 
-  override after_visuals(): void {
-    super.after_visuals()
-    this.max_line_width = uniforms.max(this.line_width)
+  protected override _set_data(indices: number[] | null): void {
+    super._set_data(indices)
+
+    const {abs} = Math
+    const {max, map, zip} = iter
+
+    const {_y0, _y1} = this
+    this.max_height = max(map(zip(_y0, _y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -130,8 +135,10 @@ export class HStripView extends GlyphView {
   }
 
   protected _get_candidates(sy0: number, sy1?: number): Iterable<number> {
-    const {max_line_width} = this
-    const [y0, y1] = this.renderer.yscale.r_invert(sy0 - max_line_width, (sy1 ?? sy0) + max_line_width)
+    const {max_height} = this
+    const [dy0, dy1] = this.renderer.yscale.r_invert(sy0, sy1 ?? sy0)
+    const y0 = dy0 - max_height
+    const y1 = dy1 + max_height
     return this.index.indices({x0: 0, x1: 0, y0, y1})
   }
 

@@ -136,6 +136,7 @@ ALL = (
     'TextBaselineSpec',
     'TextLike',
     'Tuple',
+    'TypeOfAttr',
     'UnitsSpec',
     'UnsetValueError',
     'expr',
