@@ -504,7 +504,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
 
 ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
 
-def show_app(app: Application, state: State, notebook_url: [str | ProxyUrlFunc] = "localhost:8888", port: int = 0, **kw: Any) -> None:
+def show_app(app: Application, state: State, notebook_url: str | ProxyUrlFunc = "localhost:8888", port: int = 0, **kw: Any) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
     Args:
