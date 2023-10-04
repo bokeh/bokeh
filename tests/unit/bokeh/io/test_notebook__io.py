@@ -131,6 +131,11 @@ def test__server_url() -> None:
 def test__remote_jupyter_proxy_url_1() -> None:
     assert binb._remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
 
+@patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
+@patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/homer@donuts.edu/"})
+def test__remote_jupyter_proxy_url_1() -> None:
+    assert binb._remote_jupyter_proxy_url(None) == "our-hub.edu"
+
 
 from bokeh.io.notebook import log
 
