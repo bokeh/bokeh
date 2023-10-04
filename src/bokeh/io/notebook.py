@@ -690,7 +690,7 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
     return full_url
 
 
-def _update_notebook_url_from_env(notebook_url: [str | ProxyUrlFunc]) -> [str | ProxyUrlFunc]:
+def _update_notebook_url_from_env(notebook_url: str | ProxyUrlFunc) -> str | ProxyUrlFunc:
     """If the environment variable ``JUPYTER_BOKEH_EXTERNAL_URL`` is defined, returns a function which
     generates URLs which can traverse the JupyterHub proxy.  Otherwise returns ``notebook_url`` unmodified.
 
