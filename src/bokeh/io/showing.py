@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import ProxyUrlFunc, _update_notebook_url_from_env, run_notebook_hook
+from .notebook import run_notebook_hook
 from .saving import save
 from .state import curstate
 
@@ -154,7 +154,6 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
         # This ugliness is to prevent importing bokeh.application (which would bring
         # in Tornado) just in order to show a non-server object
         assert state.notebook_type is not None
-        notebook_url = _update_notebook_url_from_env(notebook_url)
         return run_notebook_hook(state.notebook_type, 'app', obj, state, notebook_url, **kwargs)
 
     raise ValueError(_BAD_SHOW_MSG)
