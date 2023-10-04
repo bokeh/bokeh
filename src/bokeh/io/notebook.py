@@ -691,8 +691,23 @@ def _remote_jupyter_proxy_url(port: int | None) -> str:
 
 
 def _update_notebook_url_from_env(notebook_url: [str | ProxyUrlFunc]) -> [str | ProxyUrlFunc]:
-    """Returns ``_remote_jupyter_proxy_url`` which makes Bokeh work when running on JupyterHub behind its proxy if
-    the environment variable JUPYTER_BOKEH_EXTERNAL_URL is defined,  otherwise returns ``notebook_url`` unmodified.
+    """If the environment variable ``JUPYTER_BOKEH_EXTERNAL_URL`` is defined, returns a function which
+    generates URLs which can traverse the JupyterHub proxy.  Otherwise returns ``notebook_url`` unmodified.
+
+    A warning is issued if ``notebook_url`` is not the default ('localhost:8888') and
+    ``JUPYTER_BOKEH_EXTERNAL_URL`` is also defined since setting the environment variable
+    makes specifying ``notebook_url`` irrelevant.
+
+    Args:
+       notebook_url (str | ProxyUrlFunc):
+          Either a URL string which defaults to 'localhost:8888', or a function that given a port
+          number will generate a URL suitable for traversing the JupyterHub proxy.
+
+    Returns:
+       str | ProxyUrlFunc
+          Either a URL string or a function that generates a URL string given a port number.  The
+          latter function may be user supplied as the input parameter or defined internally by Bokeh
+          when ``JUPYER_BOKEH_EXTERNAL_URL`` is set.
     """
     if os.environ.get("JUPYTER_BOKEH_EXTERNAL_URL"):
         if notebook_url != "localhost:8888":
