@@ -70,3 +70,4 @@ dependencies:
     - types-pillow
     - types-pyyaml
     - types-requests
+    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
