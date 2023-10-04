@@ -52,7 +52,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-        notebook_handle: bool = False, notebook_url: [str | ProxyUrlFunc] = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
+        notebook_handle: bool = False, notebook_url: str | ProxyUrlFunc = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
 
     :func:`show` may be called multiple times in a single Jupyter notebook
