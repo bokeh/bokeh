@@ -24,6 +24,7 @@ from unittest.mock import MagicMock, PropertyMock, patch
 
 # Bokeh imports
 from bokeh.document.document import Document
+from bokeh.io.notebook import log
 from bokeh.io.state import State
 
 # Module under test
@@ -128,7 +129,7 @@ def test__server_url() -> None:
 
 @patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
 @patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/homer@donuts.edu/"})
-def test__remote_jupyter_proxy_url_1() -> None:
+def test__remote_jupyter_proxy_url_0() -> None:
     assert binb._remote_jupyter_proxy_url(1234) == "https://our-hub.edu/user/homer@donuts.edu/proxy/1234"
 
 @patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
@@ -136,8 +137,6 @@ def test__remote_jupyter_proxy_url_1() -> None:
 def test__remote_jupyter_proxy_url_1() -> None:
     assert binb._remote_jupyter_proxy_url(None) == "our-hub.edu"
 
-
-from bokeh.io.notebook import log
 
 @patch.dict(os.environ, {"JUPYTER_BOKEH_EXTERNAL_URL": "https://our-hub.edu"})
 @patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
@@ -193,7 +192,7 @@ def test__update_notebook_url_from_env_6(mock_warning) -> None:
 def test__update_notebook_url_from_env_7(mock_warning) -> None:
     rval = binb._update_notebook_url_from_env(None)
     assert not mock_warning.called
-    assert rval == None
+    assert rval is None
 
 @patch.dict(os.environ, {"JUPYTERHUB_SERVICE_PREFIX": "/user/home@donuts.edu/"})
 @patch.object(log, "warning")

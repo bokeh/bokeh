@@ -512,7 +512,7 @@ def show_app(
         state: State,
         notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
         port: int = 0,
-        **kw: Any
+        **kw: Any,
 ) -> None:
     ''' Embed a Bokeh server application in a Jupyter Notebook output cell.
 
