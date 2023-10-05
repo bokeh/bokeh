@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook, DEFAULT_JUPYTER_URL
+from .notebook import run_notebook_hook, DEFAULT_JUPYTER_URL, ProxyUrlFunc
 from .saving import save
 from .state import curstate
 
