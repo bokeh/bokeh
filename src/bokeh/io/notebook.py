@@ -37,9 +37,9 @@ from typing import (
 from uuid import uuid4
 
 ## External imports
-from typing_extensions import TypeAlias
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
+    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
