@@ -31,6 +31,7 @@ from typing import (
     Literal,
     Protocol,
     TypedDict,
+    Union,
     cast,
     overload,
 )
@@ -504,7 +505,7 @@ def publish_display_data(data: dict[str, Any], metadata: dict[Any, Any] | None =
     publish_display_data(data, metadata, transient=transient, **kwargs)
 
 
-ProxyUrlFunc: TypeAlias = Callable[[int | None], str]
+ProxyUrlFunc: TypeAlias = Callable[[Union[int, None]], str]
 
 def show_app(
         app: Application,
