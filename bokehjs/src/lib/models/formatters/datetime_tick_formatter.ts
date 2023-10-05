@@ -1,4 +1,4 @@
-import {ContextWhich, Location} from "core/enums"
+import {ContextWhich, Location, ResolutionType} from "core/enums"
 import type * as p from "core/properties"
 import {enumerate} from "core/util/iterator"
 import {sprintf} from "core/util/templating"
@@ -6,8 +6,6 @@ import {isString, is_undefined} from "core/util/types"
 import {TickFormatter} from "models/formatters/tick_formatter"
 import {ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR} from "models/tickers/util"
 import tz from "timezone"
-
-export type ResolutionType = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years"
 
 // Labels of time units, from finest to coarsest.
 export const resolution_order: ResolutionType[] = [
@@ -107,7 +105,7 @@ export namespace DatetimeTickFormatter {
     days: p.Property<string>
     months: p.Property<string>
     years: p.Property<string>
-    strip_leading_zeros: p.Property<boolean>
+    strip_leading_zeros: p.Property<boolean | ResolutionType[]>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -124,7 +122,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String}) => ({
+    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String, Array}) => ({
       microseconds: [ String, "%fus" ],
       milliseconds: [ String, "%3Nms" ],
       seconds: [ String, "%Ss" ],
@@ -135,7 +133,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       days: [ String, "%m/%d" ],
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
-      strip_leading_zeros: [ Boolean, true ],
+      strip_leading_zeros: [ Or(Boolean, Array(ResolutionType)), false ],
       context: [ Nullable(Or(String, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
@@ -167,7 +165,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     let s = s0
     let hybrid_handled = false
     let next_index = resolution_index
-    let next_resolution: ResolutionType
+    let next_resolution: ResolutionType = resolution
 
     // As we format each tick, check to see if we are at a boundary of the
     // next higher unit of time. If so, replace the current format with one
@@ -196,9 +194,10 @@ export class DatetimeTickFormatter extends TickFormatter {
       s = _strftime(t, this[next_resolution])
     }
 
-    if (this.strip_leading_zeros) {
+    const final_resolution = next_resolution
+    if ((typeof this.strip_leading_zeros === 'boolean' && this.strip_leading_zeros) || (Array.isArray(this.strip_leading_zeros) && this.strip_leading_zeros.includes(final_resolution))) {
       const ss = s.replace(/^0+/g, "")
-      if (ss != s && isNaN(parseInt(ss))) {
+      if (ss != s && !Number.isInteger(Number(ss[0]))) {
         // If the string can now be parsed as starting with an integer, then
         // leave all zeros stripped, otherwise start with a zero.
         return `0${ss}`

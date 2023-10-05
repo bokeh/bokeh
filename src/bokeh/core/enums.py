@@ -135,6 +135,7 @@ __all__ = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
     'SelectionMode',
@@ -447,6 +448,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "
 
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")
+
+#: Specify which resolutions should be used for stripping of leading zeros
+ResolutionType = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")
