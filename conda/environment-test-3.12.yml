@@ -57,8 +57,8 @@ dependencies:
   - notebook
   - pandas-datareader
   - pyshp
-  - scikit-learn
-  - squarify
+  #- scikit-learn
+  #- squarify
   - sympy
 
   # pip dependencies
@@ -74,7 +74,7 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph
     # tests
-    - pandas-stubs ==1.5.2.221213
+    #- pandas-stubs ==1.5.2.221213 # Not for python 3.12
     - ruff ==0.0.285
     - types-boto
     - types-colorama
@@ -83,3 +83,6 @@ dependencies:
     - types-pyyaml
     - types-requests
     - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
+    # move the following back to conda sections above when python 3.12 conda-forge packages available
+    - squarify
+    - scikit-learn
