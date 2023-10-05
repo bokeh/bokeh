@@ -8,15 +8,14 @@ import {Tooltip} from "@bokehjs/models/ui/tooltip"
 
 describe("Tabs", () => {
   function new_tabs(numPanels: number, addTooltip: boolean = false): Tabs {
-    const createPanel = () => 
-    {
+    const createPanel = () => {
       const plot = new Plot({
         x_range: new Range1d({start: 0, end: 10}),
         y_range: new Range1d({start: 0, end: 10}),
       })
-      const tooltip = addTooltip ? new Tooltip({content:"test tooltip", position:"right"}) : null
+      const tooltip = addTooltip ? new Tooltip({content: "test tooltip", position: "right"}) : null
       return new TabPanel({child: plot, tooltip})
-    } 
+    }
     const panels = Array(numPanels).map(() => createPanel())
     return new Tabs({tabs: panels})
   }

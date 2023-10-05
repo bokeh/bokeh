@@ -38,7 +38,7 @@ export class TabsView extends LayoutDOMView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const {tabs} = this.model
-    this.tooltips = await Promise.all(tabs.map(tab => tab.tooltip ? build_view(tab.tooltip, {parent: this}) : Promise.resolve(null)))
+    this.tooltips = await Promise.all(tabs.map(tab => (tab.tooltip !== null)  ? build_view(tab.tooltip, {parent: this}) : Promise.resolve(null)))
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -112,12 +112,12 @@ export class TabsView extends LayoutDOMView {
           this.change_active(i)
       })
       const tooltip = this.tooltips[i]
-      if (tooltip) {
-        tooltip?.model.setv({
+      if (tooltip !== null) {
+        tooltip.model.setv({
           target: el,
         })
         const toggle_tooltip = (visible: boolean) => {
-          tooltip.model.visible = visible;
+          tooltip.model.visible = visible
         }
         el.addEventListener("mouseenter", () => {
           toggle_tooltip(true)
