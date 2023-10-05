@@ -641,8 +641,8 @@ class DatetimeTickFormatter(TickFormatter):
                                  help="""
                                  Whether to strip any leading zeros in the formatted ticks.
                                  Valid values are:
-                                 
-                                 * True or False (default) to set stripping across all resolutions. 
+
+                                 * True or False (default) to set stripping across all resolutions.
                                  * A list of resolution types, e.g. `["microseconds", "milliseconds"]`, to enable
                                    scale-dependent stripping of leading zeros.
                                  """)
