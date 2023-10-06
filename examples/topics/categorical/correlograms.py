@@ -14,7 +14,7 @@ The magnitude of each correlation is encoded in the size of the circles.
 
 '''
 
-#from itertools import combinations
+from itertools import combinations
 import numpy as np
 import pandas as pd
 
@@ -25,13 +25,8 @@ from bokeh.transform import transform
 
 elements = ("Mg", "Ca", "Fe", "K", "Na", "Al", "Ba")
 pairs = []
-for i in range(len(elements)):
-    for j in range(len(elements) - 1, i, -1):
-        pair = (elements[i], elements[j])
-        pairs.append(pair)
 
-#pairs = list(combinations(elements, 2))
-
+pairs = list(combinations(elements, 2))
 x, y = list(zip(*pairs))
 
 correlations = []
@@ -43,19 +38,19 @@ new_df = pd.DataFrame({
     "oxide_1": [x[0] for x in pairs],
     "oxide_2": [x[1] for x in pairs],
     "correlation": correlations,
-    "dot_size": [abs(corr) * 120 for corr in correlations],
+    "dot_size": [(1+ 10 * abs(corr)) * 10 for corr in correlations],
 })
 
 x_range = new_df["oxide_1"].unique()
-y_range = list(reversed(new_df["oxide_2"].unique()))
+y_range = list(new_df["oxide_2"].unique())
 
 source = ColumnDataSource(new_df)
 
-mapper = LinearColorMapper(palette="BrBG10", low=-0.5, high=0.5)
+mapper = LinearColorMapper(palette="RdYlGn9", low=-0.5, high=0.5)
 
-p = figure(x_axis_location="above", toolbar_location=None, x_range=x_range, y_range=y_range)
+p = figure(x_axis_location="above", toolbar_location=None, x_range=x_range, y_range=y_range, background_fill_color="#fafafa")
 
-p.scatter(x="oxide_1", y="oxide_2", size="dot_size", source=source, fill_color=transform("correlation", mapper), line_color=None)
+p.scatter(x="oxide_1", y="oxide_2", size="dot_size", source=source, fill_color=transform("correlation", mapper), line_color="#202020")
 
 color_bar = ColorBar(
     color_mapper=mapper,
@@ -72,7 +67,6 @@ p.add_layout(color_bar, "below")
 p.axis.major_tick_line_color = None
 p.axis.major_tick_out = 0
 p.axis.axis_line_color = None
-
 p.grid.grid_line_color = None
 p.outline_line_color = None
 
