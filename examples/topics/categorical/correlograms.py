@@ -15,6 +15,7 @@ The magnitude of each correlation is encoded in the size of the circles.
 '''
 
 from itertools import combinations
+
 import numpy as np
 import pandas as pd
 
