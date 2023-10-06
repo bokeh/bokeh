@@ -25,7 +25,6 @@ from bokeh.sampledata.forensic_glass import data as df
 from bokeh.transform import transform
 
 elements = ("Mg", "Ca", "Fe", "K", "Na", "Al", "Ba")
-pairs = []
 
 pairs = list(combinations(elements, 2))
 x, y = list(zip(*pairs))

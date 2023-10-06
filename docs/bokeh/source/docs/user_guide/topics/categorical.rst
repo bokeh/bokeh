@@ -123,22 +123,3 @@ This example uses the ``segment`` glyph to draw the line connecting the paired d
 
 .. bokeh-plot:: __REPO__/examples/topics/categorical/slope_graph.py
     :source-position: above
-
-Correlograms
-------------
-
-When we have more than three to four quantitative variables, it is sometimes more useful
-to quantify the amount of association between pairs of variables and visualize this quantity
-rather than the raw data. One common way to do this is to calculate correlation coefficients.
-Visualizations of correlation coefficients are called correlograms.
-
-In this plot, we display the correlations as colored circles and scale the circle size with
-the absolute value of the correlation coefficient. In this way, low correlations are suppressed
-and high correlations stand out better.
-
-This example uses the ``LinearColorMapper`` to map the colors of the plot
-in order to highlight the correlations between the pair of elements. This mapper is also
-passed to the color bar to provide a visual legend below:
-
-.. bokeh-plot:: __REPO__/examples/topics/categorical/correlograms.py
-    :source-position: above
