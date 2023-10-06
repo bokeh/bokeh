@@ -787,7 +787,7 @@
     days: "%m/%d",
     months: "%m/%Y",
     years: "%Y",
-    strip_leading_zeros: true,
+    strip_leading_zeros: false,
     context: null,
     context_which: "start",
     context_location: "below",
@@ -3782,7 +3782,9 @@
     formatter: {
       type: "object",
       name: "DatetimeTickFormatter",
-      attributes: {},
+      attributes: {
+        strip_leading_zeros: false,
+      },
     },
   },
   MercatorAxis: {
