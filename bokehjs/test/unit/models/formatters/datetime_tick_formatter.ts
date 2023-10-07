@@ -205,17 +205,17 @@ describe("DatetimeTickFormatter", () => {
     it("should handle boolean", () => {
       const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: true})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\nFOO", "1h", "2h"])
+      expect(labels).to.be.equal(["6/23", "1h", "2h"])
     })
     it("should handle resolution type hours", () => {
       const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["hours"]})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["06/23\nFOO", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23", "1h", "2h"])
     })
     it("should handle resolution type days", () => {
       const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["days"]})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\nFOO", "01h", "02h"])
+      expect(labels).to.be.equal(["6/23", "01h", "02h"])
     })
     it("should handle resolution type milliseconds", () => {
       const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["milliseconds"]})
