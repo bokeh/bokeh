@@ -637,15 +637,14 @@ class DatetimeTickFormatter(TickFormatter):
     years = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                    default="%Y").accepts(List(String), _deprecated_datetime_list_format)
 
-    strip_leading_zeros = Either(Bool, List(Enum(ResolutionType)), default=False,
-                                 help="""
-                                 Whether to strip any leading zeros in the formatted ticks.
-                                 Valid values are:
-
-                                 * True or False (default) to set stripping across all resolutions.
-                                 * A list of resolution types, e.g. `["microseconds", "milliseconds"]`, to enable
-                                   scale-dependent stripping of leading zeros.
-                                 """)
+    strip_leading_zeros = Either(Bool, List(Enum(ResolutionType)), default=False, help="""
+    Whether to strip any leading zeros in the formatted ticks.
+        
+    Valid values are:
+    * ``True`` or ``False`` (default) to set stripping across all resolutions.
+    * A list of resolution types, e.g. ``["microseconds", "milliseconds"]``, to enable
+    scale-dependent stripping of leading zeros.
+    """)
 
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
     A format for adding context to the tick or ticks specified by ``context_which``.
