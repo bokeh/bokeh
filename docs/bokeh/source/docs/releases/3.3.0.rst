@@ -14,6 +14,6 @@ Bokeh version ``3.3.0`` (October 2023) is a minor milestone of Bokeh project.
 * Added support for zooming sub-coordinates (:bokeh-pull:`13345`)
 * Added support for ``ColorMap`` widget (palette selector) (:bokeh-pull:`13269`)
 * Improved ``Bokeh.index`` to allow retrieving views for any model (:bokeh-pull:`13351`)
-* Redesigned ``Tooltip``'s CSS to allow more robust positioning (:bokeh-pull:`13355`)
+* Redesigned ``Tooltip`` CSS to allow more robust positioning (:bokeh-pull:`13355`)
 * Various performance improvements to bokehjs (:bokeh-pull:`13333`, :bokeh-pull:`13334`)
 * Improved discovery and configurability of ``chromedriver`` in ``bokeh.io.export`` (:bokeh-pull:`13351`)
