@@ -122,7 +122,7 @@ This example uses the ``LinearColorMapper`` to map the colors of the plot
 in order to highlight the correlations between the pair of elements. This mapper is also
 passed to the color bar to provide a visual legend below:
 
-.. bokeh-plot:: _REPO_/examples/topics/categorical/correlograms.py
+.. bokeh-plot:: _REPO_/examples/topics/categorical/correlogram.py
     :source-position: below
 
 Slopegraphs
