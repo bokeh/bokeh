@@ -7,6 +7,8 @@ import {TickFormatter} from "models/formatters/tick_formatter"
 import {ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR} from "models/tickers/util"
 import tz from "timezone"
 
+export type {ResolutionType} from "core/enums"
+
 // Labels of time units, from finest to coarsest.
 export const resolution_order: ResolutionType[] = [
   "microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years",
