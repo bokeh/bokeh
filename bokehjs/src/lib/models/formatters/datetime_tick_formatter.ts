@@ -198,7 +198,7 @@ export class DatetimeTickFormatter extends TickFormatter {
 
     const final_resolution = next_resolution
     const {strip_leading_zeros} = this
-    if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) || 
+    if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) ||
         (isArray(strip_leading_zeros) && strip_leading_zeros.includes(final_resolution))) {
       const ss = s.replace(/^0+/g, "")
       if (ss != s && !Number.isInteger(Number(ss[0]))) {

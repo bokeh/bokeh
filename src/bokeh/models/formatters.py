@@ -639,7 +639,7 @@ class DatetimeTickFormatter(TickFormatter):
 
     strip_leading_zeros = Either(Bool, List(Enum(ResolutionType)), default=False, help="""
     Whether to strip any leading zeros in the formatted ticks.
-        
+
     Valid values are:
     * ``True`` or ``False`` (default) to set stripping across all resolutions.
     * A list of resolution types, e.g. ``["microseconds", "milliseconds"]``, to enable
