@@ -201,6 +201,28 @@ describe("DatetimeTickFormatter", () => {
     })
   })
 
+  describe("strip_leading_zeros", () => {
+    it("should handle boolean", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: true})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["6/23\nFOO", "1h", "2h"])
+    })
+    it("should handle resolution type hours", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["hours"]})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["06/23\nFOO", "1h", "2h"])
+    })
+    it("should handle resolution type days", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["days"]})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["6/23\nFOO", "01h", "02h"])
+    })
+    it("should handle resolution type milliseconds", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["milliseconds"]})
+      const labels = formatter.doFormat([t-752, t-747, t-742], {loc: 0})
+      expect(labels).to.be.equal(["0ms", "5ms", "10ms"])
+    })
+  })
   describe("context", () => {
     it("should handle plain string", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "FOO"})
