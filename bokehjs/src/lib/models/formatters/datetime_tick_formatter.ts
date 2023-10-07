@@ -197,7 +197,9 @@ export class DatetimeTickFormatter extends TickFormatter {
     }
 
     const final_resolution = next_resolution
-    if ((typeof this.strip_leading_zeros === 'boolean' && this.strip_leading_zeros) || (Array.isArray(this.strip_leading_zeros) && this.strip_leading_zeros.includes(final_resolution))) {
+    const {strip_leading_zeros} = this
+    if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) || 
+        (isArray(strip_leading_zeros) && strip_leading_zeros.includes(final_resolution))) {
       const ss = s.replace(/^0+/g, "")
       if (ss != s && !Number.isInteger(Number(ss[0]))) {
         // If the string can now be parsed as starting with an integer, then
