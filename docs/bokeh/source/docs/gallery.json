@@ -291,6 +291,10 @@
     {
       "name": "periodic.py",
       "alt": "Thumbnail link to the examples/plotting/periodic.py example shows a plot that renders the periodic table of elements."
+    },
+    {
+      "name": "correlogram.py",
+      "alt": "Thumbnail link to the examples/topics/categorical/correlogram.py example shows the correlations in mineral content for 214 samples of glass fragments obtained during forensic work."
     }
   ],
   "topics/hierarchical": [
