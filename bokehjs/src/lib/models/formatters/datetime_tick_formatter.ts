@@ -167,7 +167,7 @@ export class DatetimeTickFormatter extends TickFormatter {
     let s = s0
     let hybrid_handled = false
     let next_index = resolution_index
-    let next_resolution: ResolutionType = resolution
+    let next_resolution = resolution
 
     // As we format each tick, check to see if we are at a boundary of the
     // next higher unit of time. If so, replace the current format with one
