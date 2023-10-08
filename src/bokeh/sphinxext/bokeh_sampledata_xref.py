@@ -10,7 +10,11 @@ The ``bokeh-sampledata-xref`` directive can be used by supplying:
 
     .. bokeh-sampledata-xref:: sampledata_iris
 
-This can be used to add links to all existing standalone examples in the documentation.
+This can be used to add links to all existing standalone examples in the
+documentation.
+
+To enable this extension, add `"bokeh.sphinxext.bokeh_sampledata_xref"` to the
+extensions list in your Sphinx configuration module.
 
 """
 

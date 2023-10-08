@@ -38,6 +38,9 @@ The repo history shows that :bokeh-commit:`bf19bcb` was made in
 in :bokeh-pull:`1698`,which closed :bokeh-issue:`1694`. This included
 updating all of the files in the :bokeh-tree:`examples` subdirectory.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_roles"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------
