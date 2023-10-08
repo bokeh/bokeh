@@ -26,6 +26,9 @@ Generates the output:
    case for the Bokeh documentation theme). If using this theme outside the
    Bokeh documentation, be sure to include those resources by hand.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_palette_group"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

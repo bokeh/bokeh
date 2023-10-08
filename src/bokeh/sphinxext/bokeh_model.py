@@ -38,6 +38,9 @@ usage yields the output:
 The ``bokeh-model`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_model"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

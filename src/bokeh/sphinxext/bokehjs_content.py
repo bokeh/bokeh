@@ -39,6 +39,9 @@ The inline example code above produces the following output:
 
     alert('this is called in the codepen');
 
+To enable this extension, add `"bokeh.sphinxext.bokehjs_content"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

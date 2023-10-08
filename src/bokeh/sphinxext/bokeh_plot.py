@@ -72,6 +72,9 @@ The inline example code above produces the following output:
 
     show(p)
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_plot"` to the extensions
+list in your Sphinx configuration module.
+
 """
 
 #-----------------------------------------------------------------------------
