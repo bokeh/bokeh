@@ -38,6 +38,9 @@ the above usage yields the output:
 The ``bokeh-prop`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_prop"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

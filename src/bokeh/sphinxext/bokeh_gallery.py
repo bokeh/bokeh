@@ -6,6 +6,9 @@
 # -----------------------------------------------------------------------------
 """ Generate a gallery of Bokeh plots from a configuration file.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_gallery"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------
