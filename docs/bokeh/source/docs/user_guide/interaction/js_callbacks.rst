@@ -120,11 +120,6 @@ events on any Bokeh model, using the ``js_on_change`` method of Bokeh models:
     # execute a callback whenever p.x_range.start changes
     p.x_range.js_on_change('start', callback)
 
-Some Bokeh models have additional, topics events. For example, the
-:class:`~bokeh.models.ColumnDataSource` model also supports ``"patch"`` and
-``"stream"`` events. You can use these events to trigger ``CustomJS`` callbacks
-whenever the data source is patched or streamed to.
-
 The following example attaches a ``CustomJS`` callback to a ``Slider`` widget.
 Whenever the slider value updates, the callback updates the plot data with a
 custom formula:
