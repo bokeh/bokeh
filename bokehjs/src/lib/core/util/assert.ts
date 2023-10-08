@@ -1,4 +1,5 @@
 export class AssertionError extends Error {}
+export class UnreachableError extends Error {}
 
 export function assert(condition: boolean | (() => boolean), message?: string): asserts condition {
   if (condition === true || (condition !== false && condition()))
@@ -15,6 +16,7 @@ export function assert_debug(condition: boolean | (() => boolean), message?: str
   }
 }
 
-export function unreachable(): never {
-  throw new Error("unreachable code")
+export function unreachable(msg?: string): never {
+  const suffix = msg != null ? `: ${msg}` : ""
+  throw new UnreachableError(`unreachable code${suffix}`)
 }

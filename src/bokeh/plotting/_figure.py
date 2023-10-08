@@ -254,7 +254,7 @@ class figure(Plot, GlyphAPI):
                 A NumPy array of x-coordinates to bin into hexagonal tiles.
 
             y (array[float]) :
-                A NumPy array of y-coordinates to bin into hexagonal tiles
+                A NumPy array of y-coordinates to bin into hexagonal tiles.
 
             size (float) :
                 The size of the hexagonal tiling to use. The size is defined as
@@ -296,7 +296,7 @@ class figure(Plot, GlyphAPI):
 
         Any additional keyword arguments are passed to :func:`hex_tile`.
 
-        Returns
+        Returns:
             (Glyphrender, DataFrame)
                 A tuple with the ``HexTile`` renderer generated to display the
                 binning, and a Pandas ``DataFrame`` with columns ``q``, ``r``,

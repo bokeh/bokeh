@@ -19,7 +19,7 @@ import type {Marker} from "../models/glyphs/marker"
 
 export type NamesOf<T extends HasProps> = (keyof T["properties"])[]
 
-export type TypedGlyphRenderer<G extends Glyph> = GlyphRenderer & {glyph: G}
+export type TypedGlyphRenderer<G extends Glyph> = GlyphRenderer & {glyph: G, data_source: ColumnarDataSource}
 
 export type ColorNDArray = nd.Uint32Array1d | nd.Uint8Array1d | nd.Uint8Array2d | nd.FloatArray2d | nd.ObjectNDArray
 export type VectorArg<T> = T | Arrayable<T> | Vector<T>

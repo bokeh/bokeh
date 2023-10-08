@@ -66,7 +66,6 @@ export namespace PolyTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = EditTool.Props & {
-    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
     vertex_renderer: p.Property<(GlyphRenderer & HasXYGlyph) | null>
   }
 }
@@ -76,8 +75,6 @@ export interface PolyTool extends PolyTool.Attrs {}
 export abstract class PolyTool extends EditTool {
   declare properties: PolyTool.Props
   declare __view_type__: PolyToolView
-
-  override renderers: (GlyphRenderer & HasPolyGlyph)[]
 
   constructor(attrs?: Partial<PolyTool.Attrs>) {
     super(attrs)

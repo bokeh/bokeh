@@ -193,6 +193,7 @@ module = [
     "bokeh.core.property.auto",
     #"bokeh.core.property.bases",
     "bokeh.core.property.color",
+    "bokeh.core.property.constraints",
     #"bokeh.core.property.container",
     #"bokeh.core.property.dataspec",
     "bokeh.core.property.datetime",

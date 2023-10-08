@@ -196,12 +196,10 @@ export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Array
   return map(array, (_, i) => array[tmp[i].index])
 }
 
-export function min(array: Arrayable<number>): number {
-  let value: number
+export function min(iterable: Iterable<number>): number {
   let result = Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value) && value < result) {
       result = value
     }
@@ -210,12 +208,10 @@ export function min(array: Arrayable<number>): number {
   return result
 }
 
-export function max(array: Arrayable<number>): number {
-  let value: number
+export function max(iterable: Iterable<number>): number {
   let result = -Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value) && value > result) {
       result = value
     }
@@ -224,13 +220,11 @@ export function max(array: Arrayable<number>): number {
   return result
 }
 
-export function minmax(array: Arrayable<number>): [number, number] {
-  let value: number
+export function minmax(iterable: Iterable<number>): [number, number] {
   let min = +Infinity
   let max = -Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value)) {
       if (value < min) {
         min = value
@@ -267,38 +261,38 @@ export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number
   return [a_min, a_max, b_min, b_max]
 }
 
-export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function min_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
   if (array.length == 0)
     throw new Error("min_by() called with an empty array")
 
   let result = array[0]
-  let resultComputed = key(result)
+  let result_computed = key(result, 0)
 
   for (let i = 1, length = array.length; i < length; i++) {
     const value = array[i]
-    const computed = key(value)
-    if (computed < resultComputed) {
+    const computed = key(value, i)
+    if (computed < result_computed) {
       result = value
-      resultComputed = computed
+      result_computed = computed
     }
   }
 
   return result
 }
 
-export function max_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function max_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
   if (array.length == 0)
     throw new Error("max_by() called with an empty array")
 
   let result = array[0]
-  let resultComputed = key(result)
+  let result_computed = key(result, 0)
 
   for (let i = 1, length = array.length; i < length; i++) {
     const value = array[i]
-    const computed = key(value)
-    if (computed > resultComputed) {
+    const computed = key(value, i)
+    if (computed > result_computed) {
       result = value
-      resultComputed = computed
+      result_computed = computed
     }
   }
 

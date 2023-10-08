@@ -26,7 +26,7 @@ from typing import TYPE_CHECKING, Any
 # Bokeh imports
 from ..models.ui import UIElement
 from ..util.browser import NEW_PARAM, get_browser_controller
-from .notebook import run_notebook_hook
+from .notebook import DEFAULT_JUPYTER_URL, ProxyUrlFunc, run_notebook_hook
 from .saving import save
 from .state import curstate
 
@@ -52,7 +52,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, new: BrowserTarget = "tab",
-        notebook_handle: bool = False, notebook_url: str = "localhost:8888", **kwargs: Any) -> CommsHandle | None:
+         notebook_handle: bool = False, notebook_url: str | ProxyUrlFunc = DEFAULT_JUPYTER_URL,
+         **kwargs: Any) -> CommsHandle | None:
     '''Immediately display a Bokeh object or application.
 
     :func:`show` may be called multiple times in a single Jupyter notebook
@@ -114,6 +115,11 @@ def show(obj: UIElement | Application | ModifyDoc, browser: str | None = None, n
             bound server port.  If the port is provided, the function needs
             to generate the full public URL to the bokeh server.  If None
             is passed, the function is to generate the origin URL.
+
+            If the environment variable JUPYTER_BOKEH_EXTERNAL_URL is set
+            to the external URL of a JupyterHub, notebook_url is overridden
+            with a callable which enables Bokeh to traverse the JupyterHub
+            proxy without specifying this parameter.
 
     Some parameters are only useful when certain output modes are active:
 
