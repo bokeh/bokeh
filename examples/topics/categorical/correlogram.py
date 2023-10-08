@@ -19,24 +19,24 @@ from itertools import combinations
 import numpy as np
 import pandas as pd
 
-from bokeh.models import ColorBar, ColumnDataSource, FixedTicker, LinearColorMapper
+from bokeh.models import ColumnDataSource, FixedTicker
 from bokeh.plotting import figure, show
 from bokeh.sampledata.forensic_glass import data as df
-from bokeh.transform import transform
+from bokeh.transform import linear_cmap
 
 elements = ("Mg", "Ca", "Fe", "K", "Na", "Al", "Ba")
-
 pairs = list(combinations(elements, 2))
-x, y = list(zip(*pairs))
 
 correlations = []
 for x, y in pairs:
     matrix = np.corrcoef(df[x], df[y])
     correlations.append(matrix[0, 1])
 
+x, y = list(zip(*pairs))
+
 new_df = pd.DataFrame({
-    "oxide_1": [x[0] for x in pairs],
-    "oxide_2": [x[1] for x in pairs],
+    "oxide_1": x,
+    "oxide_2": y,
     "correlation": correlations,
     "dot_size": [(1+ 10 * abs(corr)) * 10 for corr in correlations],
 })
@@ -46,14 +46,11 @@ y_range = list(new_df["oxide_2"].unique())
 
 source = ColumnDataSource(new_df)
 
-mapper = LinearColorMapper(palette="RdYlGn9", low=-0.5, high=0.5)
-
 p = figure(x_axis_location="above", toolbar_location=None, x_range=x_range, y_range=y_range, background_fill_color="#fafafa")
 
-p.scatter(x="oxide_1", y="oxide_2", size="dot_size", source=source, fill_color=transform("correlation", mapper), line_color="#202020")
+c = p.scatter(x="oxide_1", y="oxide_2", size="dot_size", source=source, fill_color=linear_cmap("correlation", "RdYlGn9", -0.5, 0.5), line_color="#202020")
 
-color_bar = ColorBar(
-    color_mapper=mapper,
+color_bar = c.construct_color_bar(
     location=(200, 0),
     ticker=FixedTicker(ticks=[-0.5, 0.0, 0.5]),
     title="correlation",

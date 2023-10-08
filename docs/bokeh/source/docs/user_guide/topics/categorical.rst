@@ -118,9 +118,9 @@ In this plot, we display the correlations as colored circles and scale the circl
 the absolute value of the correlation coefficient. In this way, low correlations are suppressed
 and high correlations stand out better.
 
-This example uses the ``LinearColorMapper`` to map the colors of the plot
-in order to highlight the correlations between the pair of elements. This mapper is also
-passed to the color bar to provide a visual legend below:
+This example uses ``linear_cmap`` to map the colors of the plot
+in order to highlight the correlations between the pair of elements.
+This mapper is also passed to the color bar to provide a visual legend below:
 
 .. bokeh-plot:: _REPO_/examples/topics/categorical/correlograms.py
     :source-position: below
