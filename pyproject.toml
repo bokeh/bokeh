@@ -44,6 +44,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -105,6 +106,7 @@ filterwarnings = [
     '''ignore:elementwise comparison failed; this will raise an error in the future\.:DeprecationWarning''',
     '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
     '''ignore:Could not infer format, so each element will be parsed individually, falling back to `dateutil`\. To ensure parsing is consistent and as-expected, please specify a format\.:UserWarning''',
+    '''ignore:datetime.datetime.utcfromtimestamp():DeprecationWarning:dateutil''',
 ]
 
 [tool.coverage.run]
