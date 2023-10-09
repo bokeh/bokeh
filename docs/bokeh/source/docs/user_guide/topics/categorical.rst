@@ -132,9 +132,10 @@ the year on the y-axis. Each rectangle of the plot corresponds to a
 ``(year, month)`` pair. The color of the rectangle indicates the rate of
 unemployment in a given month of a given year.
 
-This example uses the :class:`~bokeh.models.mappers.LinearColorMapper` to map the
+This example uses :func:`~bokeh.transform.linear_cmap` to map the
 colors of the plot because the unemployment rate is a continuous variable.
-This mapper is also passed to the color bar to provide a visual legend on the right:
+This plot also uses :func:`~bokeh.models.GlyphRenderer.construct_color_bar`
+to provide a visual legend on the right:
 
 .. bokeh-plot:: __REPO__/examples/topics/categorical/heatmap_unemployment.py
     :source-position: below
