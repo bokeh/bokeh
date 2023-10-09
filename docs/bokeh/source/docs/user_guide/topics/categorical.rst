@@ -15,7 +15,7 @@ data set of the number of sales of different products in different countries
 over a period of time.
 
 It is also possible for categorical data to have multiple values per category.
-Previous chapters such as :ref:`basic_bars` and :ref:`basic_scatters` have already
+Previous chapters such as :ref:`ug_basic_bars` and :ref:`ug_basic_scatters` have already
 introduced some of the ways to visualize categorical data with single values per
 category.
 
@@ -30,7 +30,7 @@ One categorical variable
 Categorical scatter plots with jitter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `chapter on scatter plots <basic_scatters>` contains examples of visualizing
+The :ref:`chapter on scatter plots <ug_basic_scatters>` contains examples of visualizing
 data with single values for each category.
 
 In case your data contains multiple values per category, you can visualize your data
@@ -71,7 +71,7 @@ For multi-level categories, add the value at the end of the existing list:
 ``["West", "Sales", -0,2]``. Bokeh interprets any numeric value at the end
 of a list of categories as an offset.
 
-Take the :ref:`fruit example from the "Bar charts" chapter <basic_bars_basic>` and
+Take the :ref:`fruit example from the "Bar charts" chapter <ug_basic_bars_basic>` and
 modify it by adding a list of ``offsets``:
 
 .. code-block:: python
