@@ -18,7 +18,12 @@ import pytest ; pytest
 
 # Standard library imports
 import typing as tp
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import (
+    ANY,
+    MagicMock,
+    call,
+    patch,
+)
 
 # Bokeh imports
 from bokeh.core.properties import (
@@ -79,12 +84,12 @@ class Test_PropertyDescriptor:
 
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._get')
     @patch('bokeh.core.property.descriptors.PropertyDescriptor._set')
-    def test_set_from_json(self, mock_get: MagicMock, mock_set: MagicMock) -> None:
+    def test_set_from_json(self, mock_set: MagicMock, mock_get: MagicMock) -> None:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)
         d.set_from_json(f, "bar")
-        mock_get.assert_called_once_with((f, "bar", 10), {})
-        mock_set.assert_called_once_with((f, "bar", 10), {})
+        mock_set.mock_calls == [call((f, 'bar', 10), {})]
+        mock_get.mock_calls == [call(f, mock_set(), 'bar', setter=None)]
 
     def test___get__improper(self) -> None:
         f = Foo()
