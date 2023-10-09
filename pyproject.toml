@@ -106,7 +106,8 @@ filterwarnings = [
     '''ignore:elementwise comparison failed; this will raise an error in the future\.:DeprecationWarning''',
     '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
     '''ignore:Could not infer format, so each element will be parsed individually, falling back to `dateutil`\. To ensure parsing is consistent and as-expected, please specify a format\.:UserWarning''',
-    '''ignore:datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
+    #'''ignore:datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
+    '''ignore::DeprecationWarning''',
 ]
 
 [tool.coverage.run]
