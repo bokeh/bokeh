@@ -88,7 +88,7 @@ class Test_PropertyDescriptor:
         f = Foo()
         d = bcpd.PropertyDescriptor("foo", f)
         d.set_from_json(f, "bar")
-        assert mock_get.mock_calls == [call((f, 'bar', 10), {})]
+        assert mock_get.mock_calls == [call(f)]
         assert mock_set.mock_calls == [call(f, mock_get(), 'bar', setter=None)]
 
     def test___get__improper(self) -> None:
