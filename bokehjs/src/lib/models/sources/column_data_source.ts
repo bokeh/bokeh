@@ -1,6 +1,5 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import type {Arrayable, Data} from "core/types"
-import type {PatchSet} from "core/patching"
+import type {Arrayable} from "core/types"
 import type * as p from "core/properties"
 
 // Data source where the data is defined column-wise, i.e. each key in the
@@ -27,13 +26,5 @@ export class ColumnDataSource extends ColumnarDataSource {
     this.define<ColumnDataSource.Props>(({Any, Dict, Arrayable}) => ({
       data: [ Dict(Arrayable(Any)), {} ],
     }))
-  }
-
-  stream(new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
-    this.stream_to(this.properties.data, new_data, rollover, {sync})
-  }
-
-  patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
-    this.patch_to(this.properties.data, patches, {sync})
   }
 }
