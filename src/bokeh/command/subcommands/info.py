@@ -17,14 +17,15 @@ This will print general information to standard output, such as Python and Bokeh
 
 .. code-block:: none
 
-    Python version      :  3.9.7 | packaged by conda-forge | (default, Sep 29 2021, 19:20:46)
-    IPython version     :  7.20.0
-    Tornado version     :  6.1
-    Bokeh version       :  3.0.0
-    BokehJS static path :  /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
-    node.js version     :  v16.12.0
-    npm version         :  7.24.2
-    Operating system    :  Linux-5.11.0-40-generic-x86_64-with-glibc2.31
+    Python version        :  3.11.3 | packaged by conda-forge | (main, Apr  6 2023, 08:57:19) [GCC 11.3.0]
+    IPython version       :  8.13.2
+    Tornado version       :  6.3
+    Bokeh version         :  3.3.0
+    BokehJS static path   :  /opt/anaconda/envs/test/lib/python3.11/site-packages/bokeh/server/static
+    node.js version       :  v18.16.1
+    npm version           :  9.5.1
+    jupyter_bokeh version :  (not installed)
+    Operating system      :  Linux-5.15.0-86-generic-x86_64-with-glibc2.35
 
 Sometimes it can be useful to get just paths to the BokehJS static files in order
 to configure other servers or processes. To do this, use the ``--static`` option
@@ -33,11 +34,11 @@ to configure other servers or processes. To do this, use the ``--static`` option
 
     bokeh info --static
 
-This will produce output like what is shown below
+This will produce output like what is shown below:
 
 .. code-block:: none
 
-    /opt/anaconda/envs/test/lib/python3.9/site-packages/bokeh/server/static
+    /opt/anaconda/envs/test/lib/python3.11/site-packages/bokeh/server/static
 
 '''
 
@@ -122,14 +123,15 @@ class Info(Subcommand):
             print(settings.bokehjsdir())
         else:
             newline = '\n'
-            print(f"Python version      :  {sys.version.split(newline)[0]}")
-            print(f"IPython version     :  {if_installed(_version('IPython', '__version__'))}")
-            print(f"Tornado version     :  {if_installed(_version('tornado', 'version'))}")
-            print(f"Bokeh version       :  {__version__}")
-            print(f"BokehJS static path :  {settings.bokehjsdir()}")
-            print(f"node.js version     :  {if_installed(nodejs_version())}")
-            print(f"npm version         :  {if_installed(npmjs_version())}")
-            print(f"Operating system    :  {platform.platform()}")
+            print(f"Python version        :  {sys.version.split(newline)[0]}")
+            print(f"IPython version       :  {if_installed(_version('IPython', '__version__'))}")
+            print(f"Tornado version       :  {if_installed(_version('tornado', 'version'))}")
+            print(f"Bokeh version         :  {__version__}")
+            print(f"BokehJS static path   :  {settings.bokehjsdir()}")
+            print(f"node.js version       :  {if_installed(nodejs_version())}")
+            print(f"npm version           :  {if_installed(npmjs_version())}")
+            print(f"jupyter_bokeh version :  {if_installed(_version('jupyter_bokeh', '__version__'))}")
+            print(f"Operating system      :  {platform.platform()}")
 
 #-----------------------------------------------------------------------------
 # Dev API
