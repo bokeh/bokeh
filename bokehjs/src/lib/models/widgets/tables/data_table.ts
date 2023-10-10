@@ -21,7 +21,7 @@ import type {ColumnType, Item} from "./definitions"
 import {DTINDEX_NAME} from "./definitions"
 import {TableWidget} from "./table_widget"
 import {TableColumn} from "./table_column"
-import type {ColumnDataSource} from "../../sources/column_data_source"
+import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {CDSView, CDSViewView} from "../../sources/cds_view"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -41,14 +41,14 @@ let _warned_not_reorderable = false
 
 export class TableDataProvider implements DataProvider<Item> {
   index: number[]
-  source: ColumnDataSource
+  source: ColumnarDataSource
   view: CDSView
 
-  constructor(source: ColumnDataSource, view: CDSView) {
+  constructor(source: ColumnarDataSource, view: CDSView) {
     this.init(source, view)
   }
 
-  init(source: ColumnDataSource, view: CDSView): void {
+  init(source: ColumnarDataSource, view: CDSView): void {
     if (DTINDEX_NAME in source.data)
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
 
@@ -147,7 +147,7 @@ export class DataTableView extends WidgetView {
   protected _in_selection_update = false
   protected _width: number | null = null
 
-  get data_source(): p.Property<ColumnDataSource> {
+  get data_source(): p.Property<ColumnarDataSource> {
     return this.model.properties.source
   }
 
