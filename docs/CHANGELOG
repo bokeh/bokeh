@@ -1,3 +1,76 @@
+2023-10-10      3.3:
+--------------------
+  * bugfixes:
+    - #7671 [component: bokehjs] Tool tip remains while using a scroll tool
+    - #11273 [component: bokehjs] [BUG] hover tooltip is cut off when the tooltip is tall and hover near the top of the plot
+    - #13170 [component: server] [BUG] Static paths loaded always from localhost in Bokeh 3.1.1
+    - #13195 [component: bokehjs] [BUG] WebGL with dashed line is not working when click_policy is muted
+    - #13196 Setting readonly properties in model constructors shouldn't be allowed
+    - #13257 [BUG] FileNotFoundError when setting icon for BoxSelectTool
+    - #13284 [component: bokehjs] Reset WebGL changed flags on data glyph not visual glyphs
+    - #13311 [component: tests] Bokeh build failing
+    - #13315 [component: bokehjs] [BUG] RangeTool allows target plot to pan beyond explicit range bounds
+    - #13323 [component: bokehjs] Layout is broken when using `RangeTool` and other weird behavior
+    - #13347 [component: bokehjs] Long tooltip can trigger viewport scrollbars
+    - #13369 [BUG] gridplot got multiple values for keyword argument 'logo'
+    - #13377 [component: bokehjs] [BUG] `value_throttled` being `Unset` prevents serialization of some widgets
+    - #13380 [component: tests] Examples tests are failing due to a missing dependency
+    - #13400 [component: build] Release build fails with `FileNotFoundError`
+    - #13407 [component: tests] Tests and CI is broken due to urllib3 incompatibility
+
+  * features:
+    - #2325 [component: bokehjs] Lasso select not working on patches
+    - #11571 [FEATURE] Make AutocompleteInput more usable by providing an option to match any part of the input items
+    - #11755 [FEATURE] Show scale in map
+    - #13200 [FEATURE] Preserve category information for categorical colormapping
+    - #13203 [FEATURE] Make BoxEditTool support Quad Model
+    - #13210 Unable to plot a polars.Series with bokeh 3
+    - #13211 [component: bokehjs] Allow inline LaTeX support
+    - #13295 Non-specific error when the DataFrame Used to construct a ColumnDataSource contains non-string keys
+    - #13339 [FEATURE] Allow zoom tools to scale subplots/subcoordinates
+    - #13403 [FEATURE] Transparent use on JupyterHub
+    - #13212 Add more options for specifying contour colors
+    - #13269 Add support for `ColorMap` (palette selector) widget
+    - #13366 Add stack_labels property to WeightedStackColorMapper
+
+  * tasks:
+    - #8807 Support scale factor for PNG output
+    - #12548 [component: docs] Unpin Sphinx theme
+    - #12625 export_png doesn't find chrome webdriver because it was installed as chromedriver-binary 
+    - #13125 Replace utcnow and utcfromtimestamp function calls
+    - #13136 [component: bokehjs] WebGL support for image glyphs
+    - #13324 Selenium deprecation warning because of log_path  
+    - #13329 Restore full top-menu in docs
+    - #13330 Foward-port 3.2.2 SRI hashes and changelog
+    - #13356 [component: docs] Update tutorials URL to new tutorial
+    - #13360 [component: docs] Explicitly document conf.py changes for bokeh.sphinxext
+    - #13385 [component: docs] [FEATURE] Document location of intersphinx file
+    - #13392 [component: docs] [BUG] Interspinx link added by me in #13386 is wrong
+    - #12068 [component: examples] Add a variant of ridgeplot example that uses sub-coordinates
+    - #13175 [component: bokehjs] Implement WebGL multi_line glyph
+    - #13193 [component: bokehjs] Hover tooltip for ImageStack glyph
+    - #13215 Use PEP 673 `Self` type instead of `TypeVar(..., bound=...)`
+    - #13227 Forward ports from 3.2
+    - #13301 [component: bokehjs] Improve WebGL conversion to ReGL AttributeConfig
+    - #13304 [component: tests] Allow to configure Chromium executable
+    - #13309 [component: tests] Allow to serve bokeh examples from bokehjs' devtools server
+    - #13327 [component: tests] Mark Test_webdriver_control and test_get_screenshot_as_png_* as selenium tests
+    - #13333 [component: bokehjs] Don't `set_data()` when `FactorRange.{start,end}` changes
+    - #13334 [component: bokehjs] Improve performance of invalidation of refs in bokehjs
+    - #13342 Upgrade to ruff 0.0.285
+    - #13343 [component: bokehjs] Control random (and np.random) seed in devtools' server
+    - #13352 [component: build] Upgrade to TypeScript 5.2
+    - #13353 [component: docs] 13276 fix issues in documentation part two
+    - #13368 [component: docs] Add more examples in the gallery
+    - #13376 [component: docs] added gallery json and png file to new example
+    - #13398 [component: docs] Clarify CODE_OF_CONDUCT.md escalation section
+    - #13399 [component: docs] Update 3.3.0 release notes
+    - #13405 [component: docs] fix tile_providery.py
+    - #13408 [component: examples] Correlogram example.
+    - #13417 [component: docs] Update and restructure categorical chapter
+    - #13418 Misc 3.3 docs changes
+    - #13419 [component: build] Add Python 3.12 to CI
+
 2023-08-13    3.2.2:
 --------------------
   * bugfixes:
