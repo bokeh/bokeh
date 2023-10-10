@@ -9,6 +9,7 @@ import {
   BoxAnnotation,
   BoxSelectTool,
   CDSView,
+  CategoricalColorMapper,
   Circle,
   ColumnDataSource,
   CopyTool,
@@ -886,6 +887,21 @@ describe("Bug", () => {
           },
         }],
       })
+    })
+  })
+
+  describe("in issue #13416", () => {
+    it("doesn't allow categorical mapping of non-factors to nan_color", async () => {
+      const mapper = new CategoricalColorMapper({
+        factors: ["a", "b"],
+        palette: ["red", "green"],
+        nan_color: "black",
+      })
+
+      const data = ["a", "c", "a", "b", null, "b", "a", NaN]
+      const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
+
+      expect(mapper.v_compute(data)).to.be.equal(result)
     })
   })
 })
