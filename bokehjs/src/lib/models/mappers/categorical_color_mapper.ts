@@ -5,7 +5,7 @@ import type {Factor} from "../ranges/factor_range"
 import {FactorSeq} from "../ranges/factor_range"
 
 import type * as p from "core/properties"
-import type {Arrayable, ArrayableOf} from "core/types"
+import type {Arrayable} from "core/types"
 
 export namespace CategoricalColorMapper {
   export type Attrs = p.AttrsOf<Props>
@@ -30,7 +30,7 @@ export class CategoricalColorMapper extends ColorMapper {
     }))
   }
 
-  protected _v_compute<T>(data: ArrayableOf<Factor>, values: Arrayable<T>,
+  protected _v_compute<T>(data: Arrayable<Factor | number | null>, values: Arrayable<T>,
       palette: Arrayable<T>, {nan_color}: {nan_color: T}): void {
     cat_v_compute(data, this.factors, palette, values, this.start, this.end, nan_color)
   }
