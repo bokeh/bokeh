@@ -170,7 +170,11 @@ export abstract class LayoutDOMView extends UIElementView {
 
         if (created_children.has(child_view)) {
           child_view.render()
-          child_view.after_render()
+          if (child_view instanceof LayoutDOMView) {
+            child_view.r_after_render()
+          } else {
+            child_view.after_render()
+          }
         }
       }
     }

@@ -3642,4 +3642,32 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13264", () => {
+    it("doesn't allow to correctly update children in a complex layout", async () => {
+      function make_tab(title: string, color: Color) {
+        const plot = fig([200, 200])
+        const r = plot.circle([1, 2, 3], [1, 2, 3], {color})
+        const columns = [
+          new TableColumn({field: "x", title: "X"}),
+          new TableColumn({field: "y", title: "Y"}),
+        ]
+        const data_table = new DataTable({source: r.data_source, columns, width: 200, height: 100})
+
+        const layout = column([plot, data_table])
+        return new TabPanel({child: layout, title})
+      }
+
+      const initial_tab = make_tab("Initial tab", "red")
+      const tabs = new Tabs({tabs: [initial_tab]})
+
+      const {view} = await display(tabs, [250, 350])
+
+      const new_tab = make_tab("New tab", "green")
+      tabs.tabs = [...tabs.tabs, new_tab]
+      tabs.active = 1
+
+      await view.ready
+    })
+  })
 })
