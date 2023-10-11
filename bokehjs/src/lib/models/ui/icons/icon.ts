@@ -4,6 +4,11 @@ import type * as p from "core/properties"
 
 export abstract class IconView extends DOMComponentView {
   declare model: Icon
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.change, () => this.render())
+  }
 }
 
 export namespace Icon {
