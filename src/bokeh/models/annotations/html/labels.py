@@ -186,7 +186,7 @@ class HTMLLabel(HTMLTextAnnotation):
 class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     ''' Render multiple text labels as annotations.
 
-    ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
+    ``HTMLLabelSet`` will render multiple text labels at given ``x`` and ``y``
     coordinates, which can be in either screen (pixel) space, or data (axis
     range) space. In this case (as opposed to the single ``Label`` model),
     ``x`` and ``y`` can also be the name of a column from a
