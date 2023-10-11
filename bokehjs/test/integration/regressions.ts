@@ -7,7 +7,7 @@ import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_cli
 import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
+  BoxAnnotation, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -575,27 +575,6 @@ describe("Bug", () => {
   })
 
   describe("in issue #10454", () => {
-    it("disallows using categorical coordinates with LabelSet annotation", async () => {
-      const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
-      p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
-
-      const labels0 = new LabelSet({x: {value: "X1"}, y: {value: "Y3"}, text: {value: "L0"}, text_color: "red"})
-      p.add_layout(labels0)
-
-      const labels1 = new LabelSet({x: {value: "X3"}, y: {value: "Y1"}, text: {value: "L1"}, text_color: "green"})
-      p.add_layout(labels1)
-
-      const source = new ColumnDataSource({data: {
-        x: ["X1", "X2", "X3"],
-        y: ["Y1", "Y2", "Y3"],
-        text: ["L20", "L21", "L22"],
-      }})
-      const labels2 = new LabelSet({x: {field: "x"}, y: {field: "y"}, text: {field: "text"}, source, text_color: "blue"})
-      p.add_layout(labels2)
-
-      await display(p)
-    })
-
     it("disallows using categorical coordinates with Arrow annotation", async () => {
       const p = fig([300, 300], {x_range: ["X1", "X2", "X3"], y_range: ["Y1", "Y2", "Y3"]})
       p.rect({x: ["X1", "X2", "X3"], y: ["Y1", "Y2", "Y3"], width: 1, height: 1, fill_alpha: 0.3})
@@ -1925,32 +1904,6 @@ describe("Bug", () => {
         p.add_layout(new LinearAxis({y_range_name: name}), "right")
         await view.ready
       }
-    })
-  })
-
-  describe("in issue #12127", () => {
-    it("prevents displaying non-text labels in LabelSet", async () => {
-      const p = fig([200, 200], {
-        x_range: new Range1d({start: -1, end: 2}),
-        y_range: new Range1d({start: -1, end: 2}),
-      })
-
-      const source = new ColumnDataSource({data: {
-        a: [0, 0, 1, 1],
-        b: [0, 1, 0, 1],
-        c: [6, 7, 8, 9],
-      }})
-
-      const labels = new LabelSet({
-        x: {field: "a"},
-        y: {field: "b"},
-        text: {field: "c"},
-        source,
-      })
-
-      p.add_layout(labels)
-
-      await display(p)
     })
   })
 

@@ -1,39 +1,41 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
+""" Common utilities for annotation models. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
-from __future__ import annotations # isort:skip
+from __future__ import annotations
 
-import pytest ; pytest
+import logging # isort:skip
+log = logging.getLogger(__name__)
 
 #-----------------------------------------------------------------------------
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
-from bokeh.model import collect_models
-from bokeh.models.util import generate_structure_plot
-from bokeh.plotting import figure
+from ...core.property.singletons import Undefined
+from ..glyphs import Glyph
+from ..renderers import GlyphRenderer, Renderer
+from ..sources import ColumnDataSource
 
 #-----------------------------------------------------------------------------
-# Setup
+# Globals and constants
 #-----------------------------------------------------------------------------
+
+__all__ = ()
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-def test_structure(nx):
-    f = figure(width=400,height=400)
-    f.line(x=[1,2,3],y=[1,2,3])
-    K = generate_structure_plot(f)
-    assert 48 == len(collect_models(K))
 
 #-----------------------------------------------------------------------------
 # Dev API
@@ -42,6 +44,27 @@ def test_structure(nx):
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------
+
+def build_glyph_renderer(model: type[Glyph], kwargs: dict[str, Any]) -> GlyphRenderer:
+    """ Builds a ``GlyphRenderer`` to behave like an annotation. """
+    defaults = dict(level="annotation")
+    glyph_renderer_kwargs = {}
+
+    for name in Renderer.properties():
+        default = defaults.get(name, Undefined)
+        value = kwargs.pop(name, default)
+        glyph_renderer_kwargs[name] = value
+
+    data_source = kwargs.pop("source", Undefined)
+    if data_source is Undefined:
+        data_source = ColumnDataSource()
+
+    return GlyphRenderer(
+        data_source=data_source,
+        glyph=model(**kwargs),
+        auto_ranging="none",
+        **glyph_renderer_kwargs,
+    )
 
 #-----------------------------------------------------------------------------
 # Code
