@@ -42,8 +42,8 @@ from ..core.properties import (
     Int,
     List,
     Nullable,
-    String,
     Seq,
+    String,
 )
 from ..core.validation import error
 from ..core.validation.errors import MISSING_MERCATOR_DIMENSION

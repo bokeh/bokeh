@@ -3782,9 +3782,7 @@
     formatter: {
       type: "object",
       name: "DatetimeTickFormatter",
-      attributes: {
-        strip_leading_zeros: false,
-      },
+      attributes: {},
     },
   },
   MercatorAxis: {
