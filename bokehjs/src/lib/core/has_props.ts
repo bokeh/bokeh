@@ -489,8 +489,8 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
         }
       }
 
-      if (options.sync ?? true)
-        this._push_changes(changed)
+      const sync = options.sync ?? true
+      this._push_changes(changed, sync)
     }
   }
 
@@ -588,7 +588,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return false
   }
 
-  protected _push_changes(changes: [Property, unknown, unknown][]): void {
+  protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
     if (!this.is_syncable)
       return
 
@@ -598,16 +598,20 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const events = []
     for (const [prop,, new_value] of changes) {
-      if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, new_value))
+      if (prop.syncable) {
+        const event = new ModelChangedEvent(document, this, prop.attr, new_value)
+        event.sync = sync
+        events.push(event)
+      }
     }
 
     if (events.length != 0) {
       let event: DocumentEvent
-      if (events.length == 1)
+      if (events.length == 1) {
         [event] = events
-      else
+      } else {
         event = new DocumentEventBatch(document, events)
+      }
       document._trigger_on_change(event)
     }
   }
@@ -624,8 +628,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._clear_watchers()
     prop.set_value(data)
     this.streaming.emit()
-    if (this.document != null && (sync ?? true)) {
+    if (this.document != null) {
       const event = new ColumnsStreamedEvent(this.document, this, prop.attr, new_data, rollover)
+      event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
   }
@@ -636,8 +641,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._clear_watchers()
     prop.set_value(data)
     this.patching.emit([...patched])
-    if (this.document != null && (sync ?? true)) {
+    if (this.document != null) {
       const event = new ColumnsPatchedEvent(this.document, this, prop.attr, patches)
+      event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
   }
