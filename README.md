@@ -77,6 +77,13 @@
     </a>
   </td>
 
+  <td>
+    <a href="https://www.npmjs.com/package/@bokeh/bokehjs">
+    <img src="https://img.shields.io/npm/dm/%40bokeh/bokehjs?style=for-the-badge&logo=npm&label=NPM&color=D98B43"
+         alt="NPM downloads per month" />
+    </a>
+  </td>
+
 </tr>
 
 <tr>
