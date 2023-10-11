@@ -3,6 +3,7 @@ import type * as p from "core/properties"
 import {enumerate} from "core/util/iterator"
 import {sprintf} from "core/util/templating"
 import {isString, isArray, isBoolean, is_undefined} from "core/util/types"
+import type {Arrayable} from "core/types"
 import {TickFormatter} from "models/formatters/tick_formatter"
 import {ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR} from "models/tickers/util"
 import tz from "timezone"
@@ -107,7 +108,7 @@ export namespace DatetimeTickFormatter {
     days: p.Property<string>
     months: p.Property<string>
     years: p.Property<string>
-    strip_leading_zeros: p.Property<boolean | ResolutionType[]>
+    strip_leading_zeros: p.Property<boolean | Arrayable<ResolutionType>>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -124,7 +125,7 @@ export class DatetimeTickFormatter extends TickFormatter {
   }
 
   static {
-    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String, Array}) => ({
+    this.define<DatetimeTickFormatter.Props>(({Boolean, Nullable, Or, Ref, String, Arrayable}) => ({
       microseconds: [ String, "%fus" ],
       milliseconds: [ String, "%3Nms" ],
       seconds: [ String, "%Ss" ],
@@ -135,7 +136,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       days: [ String, "%m/%d" ],
       months: [ String, "%m/%Y" ],
       years: [ String, "%Y" ],
-      strip_leading_zeros: [ Or(Boolean, Array(ResolutionType)), false ],
+      strip_leading_zeros: [ Or(Boolean, Arrayable(ResolutionType)), false ],
       context: [ Nullable(Or(String, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
