@@ -103,22 +103,22 @@ class BoxAnnotation(Annotation):
 
     left_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the left attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``left`` is a node.
     """)
 
     right_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the right attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``right`` is a node.
     """)
 
     top_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the top attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``top`` is a node.
     """)
 
     bottom_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the bottom attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``bottom`` is a node.
     """)
 
     left_limit = Nullable(Coordinate, help="""

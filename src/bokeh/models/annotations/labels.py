@@ -33,7 +33,6 @@ from ...core.properties import (
     Angle,
     AngleSpec,
     Bool,
-    CoordinateLike,
     Enum,
     Float,
     Include,
@@ -54,6 +53,7 @@ from ...core.property_mixins import (
     ScalarTextProps,
     TextProps,
 )
+from ..common.properties import Coordinate
 from .annotation import Annotation, DataAnnotation
 
 #-----------------------------------------------------------------------------
@@ -139,22 +139,22 @@ class Label(TextAnnotation):
         This property is experimental and may change at any point.
     """)
 
-    x = Required(CoordinateLike, help="""
+    x = Required(Coordinate, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
     """)
 
-    y = Required(CoordinateLike, help="""
+    y = Required(Coordinate, help="""
     The y-coordinate in screen coordinates to locate the text anchors.
     """)
 
     x_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``x`` is a node.
     """)
 
     y_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as |data units| by
-    default.
+    default. This doesn't have any effect if ``y`` is a node.
     """)
 
     x_offset = Float(default=0, help="""

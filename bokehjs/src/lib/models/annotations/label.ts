@@ -15,6 +15,7 @@ import {BBox} from "core/util/bbox"
 import {TextAnchor, Padding, BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import {Node} from "../coordinates/node"
 
 type HitTarget = "area"
 type SXY = {sx: number, sy: number}
@@ -93,8 +94,12 @@ export class LabelView extends TextAnnotationView implements Pannable {
     const {mappers} = this
     const {x, y, x_offset, y_offset} = this.model
 
-    const sx = mappers.x.compute(x) + x_offset
-    const sy = mappers.y.compute(y) - y_offset
+    const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
+      return value instanceof Node ? this.resolve_node(value)[dim] : mapper.compute(value)
+    }
+
+    const sx = compute("x", x, mappers.x) + x_offset
+    const sy = compute("y", y, mappers.y) - y_offset // TODO this needs to be unified with the rest of bokehjs
 
     return {sx, sy}
   }
@@ -251,8 +256,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
 export namespace Label {
   export type Props = TextAnnotation.Props & {
     anchor: p.Property<TextAnchor>
-    x: p.Property<number>
-    y: p.Property<number>
+    x: p.Property<number | Node>
+    y: p.Property<number | Node>
     x_units: p.Property<CoordinateUnits>
     y_units: p.Property<CoordinateUnits>
     x_offset: p.Property<number>
@@ -283,10 +288,10 @@ export class Label extends TextAnnotation {
   static {
     this.prototype.default_view = LabelView
 
-    this.define<Label.Props>(({Boolean, Number, Angle}) => ({
+    this.define<Label.Props>(({Boolean, Number, Angle, Or, Ref}) => ({
       anchor:      [ TextAnchor, "auto" ],
-      x:           [ Number ],
-      y:           [ Number ],
+      x:           [ Or(Number, Ref(Node)) ],
+      y:           [ Or(Number, Ref(Node)) ],
       x_units:     [ CoordinateUnits, "data" ],
       y_units:     [ CoordinateUnits, "data" ],
       x_offset:    [ Number, 0 ],
