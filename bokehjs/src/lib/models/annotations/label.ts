@@ -43,6 +43,7 @@ export class LabelView extends TextAnnotationView implements Pannable {
 
     const graphics = this._text_view.graphics()
     graphics.angle = this.angle
+    graphics.align = "auto"
     graphics.visuals = this.visuals.text.values()
 
     const {width, height} = graphics.size()
@@ -121,6 +122,7 @@ export class LabelView extends TextAnnotationView implements Pannable {
 
     const text_box = this._text_view.graphics()
     text_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
+    text_box.angle = 0 // needs reset because text_box is self-referential
     text_box.align = "auto"
     text_box.visuals = this.visuals.text.values()
 
