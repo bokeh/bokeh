@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import (
     AngleUnits,
@@ -31,30 +34,27 @@ from ...core.enums import (
 from ...core.has_props import abstract
 from ...core.properties import (
     Angle,
-    AngleSpec,
     Bool,
     Enum,
     Float,
     Include,
-    NullStringSpec,
-    NumberSpec,
     Override,
     Required,
     TextLike,
-    field,
 )
 from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
-    FillProps,
-    LineProps,
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
-    TextProps,
 )
+from ...util.deprecation import deprecated
+from .. import glyphs
 from ..common.properties import Coordinate
-from .annotation import Annotation, DataAnnotation
+from ..renderers import GlyphRenderer
+from .annotation import Annotation
+from .common import build_glyph_renderer
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -208,91 +208,6 @@ class Label(TextAnnotation):
         This property is experimental and may change at any point.
     """)
 
-class LabelSet(DataAnnotation):
-    ''' Render multiple text labels as annotations.
-
-    ``LabelSet`` will render multiple text labels at given ``x`` and ``y``
-    coordinates, which can be in either screen (pixel) space, or data (axis
-    range) space. In this case (as opposed to the single ``Label`` model),
-    ``x`` and ``y`` can also be the name of a column from a
-    :class:`~bokeh.models.sources.ColumnDataSource`, in which case the labels
-    will be "vectorized" using coordinate values from the specified columns.
-
-    The label can also be configured with a screen space offset from ``x`` and
-    ``y``, by using the ``x_offset`` and ``y_offset`` properties. These offsets
-    may be vectorized by giving the name of a data source column.
-
-    Additionally, the label can be rotated with the ``angle`` property (which
-    may also be a column name.)
-
-    There are also standard text, fill, and line properties to control the
-    appearance of the text, its background, as well as the rectangular bounding
-    box border.
-
-    The data source is provided by setting the ``source`` property.
-
-    '''
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    x = NumberSpec(default=field("x"), help="""
-    The x-coordinates to locate the text anchors.
-    """)
-
-    x_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``xs`` attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    y = NumberSpec(default=field("y"), help="""
-    The y-coordinates to locate the text anchors.
-    """)
-
-    y_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the ``ys`` attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    text = NullStringSpec(default=field("text"), help="""
-    The text values to render.
-    """)
-
-    angle = AngleSpec(default=0, help="""
-    The angles to rotate the text, as measured from the horizontal.
-    """)
-
-    x_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the x-coordinates.
-
-    This is useful, for instance, if it is desired to "float" text a fixed
-    distance in |screen units| from a given data position.
-    """)
-
-    y_offset = NumberSpec(default=0, help="""
-    Offset values to apply to the y-coordinates.
-
-    This is useful, for instance, if it is desired to "float" text a fixed
-    distance in |screen units| from a given data position.
-    """)
-
-    text_props = Include(TextProps, help="""
-    The {prop} values for the text.
-    """)
-
-    background_props = Include(FillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(LineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
-
 class Title(TextAnnotation):
     ''' Render a single title box as an annotation.
 
@@ -331,6 +246,25 @@ class Title(TextAnnotation):
     text_font_style = Override(default="bold")
 
     text_line_height = Override(default=1.0)
+
+#-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
+
+def LabelSet(**kwargs: Any) -> GlyphRenderer:
+    """ Render multiple text labels as annotations.
+
+    .. note::
+        This is a legacy API and will be removed at some point. Prefer using
+        ``bokeh.glyphs.Text`` model or ``figure.text()`` method.
+
+    """
+    deprecated((3, 4, 0), "bokeh.annotations.LabelSet", "bokeh.glyphs.Text or figure.text()")
+
+    if "y_offset" in kwargs:
+        kwargs["y_offset"] = -kwargs["y_offset"]
+
+    return build_glyph_renderer(glyphs.Text, kwargs)
 
 #-----------------------------------------------------------------------------
 # Dev API

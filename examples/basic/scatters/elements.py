@@ -4,7 +4,7 @@ points.
 
 .. bokeh-example-metadata::
     :sampledata: periodic_table
-    :apis: bokeh.plotting.figure.scatter, bokeh.models.sources.ColumnDataSource, bokeh.models.LabelSet
+    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.text, bokeh.models.sources.ColumnDataSource
     :refs: :ref:`ug_interaction_tools_hover_tool`
     :keywords: hover, labels, scatter
 
@@ -13,7 +13,7 @@ points.
 '''
 import pandas as pd
 
-from bokeh.models import ColumnDataSource, LabelSet
+from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.periodic_table import elements
 
@@ -51,12 +51,12 @@ p.hover.tooltips = [
 
 source = ColumnDataSource(elements)
 
-p.scatter("atomic mass", "density", size=12, source=source,
-          color='melting_colors', line_color="black", alpha=0.9)
+p.scatter("atomic mass", "density", size=12,
+          color='melting_colors', line_color="black", alpha=0.9,
+          source=source)
 
-labels = LabelSet(x="atomic mass", y="density", text="symbol", y_offset=8,
-                  text_font_size="11px", text_color="#555555",
-                  source=source, text_align='center')
-p.add_layout(labels)
+p.text(x="atomic mass", y="density", text="symbol", y_offset=-8,
+       text_font_size="11px", text_color="#555555", text_align='center',
+       source=source)
 
 show(p)

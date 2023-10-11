@@ -55,7 +55,6 @@ from bokeh.util.warnings import BokehDeprecationWarning
 from _util_models import (
     ABOVE_FILL,
     ABOVE_HATCH,
-    ANGLE,
     BELOW_FILL,
     BELOW_HATCH,
     FILL,
@@ -461,44 +460,6 @@ def test_Label_accepts_datetime_xy() -> None:
     assert convert_datetime_type(obj.x) == 1533600000000.0
     assert convert_datetime_type(obj.y) == 1533600000000.0
 
-def test_LabelSet() -> None:
-    label_set = LabelSet()
-    assert label_set.level == 'annotation'
-    assert label_set.x == field("x")
-    assert label_set.y == field("y")
-    assert label_set.x_units == 'data'
-    assert label_set.y_units == 'data'
-    assert label_set.text == field("text")
-    assert label_set.angle == 0
-    assert label_set.angle_units == 'rad'
-    assert label_set.x_offset == 0
-    assert label_set.y_offset == 0
-    assert label_set.x_range_name == 'default'
-    assert label_set.y_range_name == 'default'
-    assert isinstance(label_set.source, ColumnDataSource)
-    assert label_set.source.data == {}
-    check_text_properties(label_set)
-    check_fill_properties(label_set, "background_", None, 1.0)
-    check_line_properties(label_set, "border_", None, 1.0, 1.0)
-    check_properties_existence(label_set, [
-        *ANNOTATION,
-        "x",
-        "y",
-        "x_units",
-        "y_units",
-        "text",
-        "angle",
-        "angle_units",
-        "x_offset",
-        "y_offset",
-        "source",
-    ],
-        TEXT,
-        ANGLE,
-        prefix('border_', LINE),
-        prefix('background_', FILL),
-    )
-
 def test_PolyAnnotation() -> None:
     poly = PolyAnnotation()
     assert poly.xs == []
@@ -673,6 +634,19 @@ def test_legacy_Whisker() -> None:
     assert whisker.name == "whisker_annotation"
     assert whisker.level == "annotation"
     assert whisker.auto_ranging == "none"
+
+def test_legacy_LabelSet() -> None:
+    data_source = ColumnDataSource()
+    with pytest.warns(BokehDeprecationWarning):
+        label_set = LabelSet(name="label_set_annotation", source=data_source, x_offset=10, y_offset=20)
+    assert isinstance(label_set, GlyphRenderer)
+    assert isinstance(label_set.glyph, glyphs.Text)
+    assert label_set.data_source == data_source
+    assert label_set.name == "label_set_annotation"
+    assert label_set.level == "annotation"
+    assert label_set.auto_ranging == "none"
+    assert label_set.glyph.x_offset == 10
+    assert label_set.glyph.y_offset == -20
 
 #-----------------------------------------------------------------------------
 # Dev API
