@@ -9,7 +9,7 @@ the `sklearn.neighbors.KernelDensity` function and Bokeh harea glyph
 
 .. _kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
 .. _sklearn.neighbors.KernelDensity: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
-.. _sinaPlot: https://orbit.dtu.dk/en/publications/sinaplot-an-enhanced-chart-for-simple-and-truthful-representation
+.. _SinaPlot: https://orbit.dtu.dk/en/publications/sinaplot-an-enhanced-chart-for-simple-and-truthful-representation
 
 '''
 import numpy as np
