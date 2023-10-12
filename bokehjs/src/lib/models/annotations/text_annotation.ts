@@ -114,7 +114,12 @@ export abstract class TextAnnotationView extends AnnotationView {
     graphics.align = "auto"
     graphics.visuals = this.visuals.text.values()
 
-    const {width, height} = graphics.size()
+    const size = graphics.size()
+    const {padding} = this
+
+    const width = size.width + padding.left + padding.right
+    const height = size.height + padding.top + padding.bottom
+
     return {width, height}
   }
 
