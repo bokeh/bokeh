@@ -2,6 +2,7 @@ import {display, fig, row} from "../_util"
 import {tex} from "./_text_utils"
 
 import type {OutputBackend} from "@bokehjs/core/enums"
+import {TextAlign} from "@bokehjs/core/enums"
 import {Title} from "@bokehjs/models"
 
 const r = String.raw
@@ -40,64 +41,37 @@ describe("Title annotation", () => {
       return row([p0, p1])
     }
 
-    it("with align=left", async () => {
-      const p = plot({align: "left"})
-      await display(p)
-    })
+    for (const align of TextAlign) {
+      it(`with align=${align}`, async () => {
+        const p = plot({align})
+        await display(p)
+      })
 
-    it("with align=center", async () => {
-      const p = plot({align: "center"})
-      await display(p)
-    })
+      it(`with align=${align} and border_line and background_fill`, async () => {
+        const p = plot({align, border_line_color: "black", background_fill_color: "lightgray"})
+        await display(p)
+      })
 
-    it("with align=right", async () => {
-      const p = plot({align: "right"})
-      await display(p)
-    })
+      it(`with align=${align} and border_line and background_hatch and padding and border_radius`, async () => {
+        const p = plot({
+          align,
+          border_line_color: "black",
+          background_hatch_color: "lightgray", background_hatch_pattern: "/",
+          padding: 5,
+          border_radius: 6,
+        })
+        await display(p)
+      })
 
-    it("with align=left and border_line and background_fill", async () => {
-      const p = plot({align: "left", border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
+      it(`with align=${align} and offset=20 and border_line and background_fill`, async () => {
+        const p = plot({align, offset: 20, border_line_color: "black", background_fill_color: "lightgray"})
+        await display(p)
+      })
 
-    it("with align=center and border_line and background_fill", async () => {
-      const p = plot({align: "center", border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=right and border_line and background_fill", async () => {
-      const p = plot({align: "right", border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=left and offset=20 and border_line and background_fill", async () => {
-      const p = plot({align: "left", offset: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=center and offset=20 and border_line and background_fill", async () => {
-      const p = plot({align: "center", offset: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=right and offset=20 and border_line and background_fill", async () => {
-      const p = plot({align: "right", offset: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=left and standoff=20 and border_line and background_fill", async () => {
-      const p = plot({align: "left", standoff: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=center and standoff=20 and border_line and background_fill", async () => {
-      const p = plot({align: "center", standoff: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
-
-    it("with align=right and standoff=20 and border_line and background_fill", async () => {
-      const p = plot({align: "right", standoff: 20, border_line_color: "black", background_fill_color: "lightgray"})
-      await display(p)
-    })
+      it(`with align=${align} and standoff=20 and border_line and background_fill`, async () => {
+        const p = plot({align, standoff: 20, border_line_color: "black", background_fill_color: "lightgray"})
+        await display(p)
+      })
+    }
   })
 })
