@@ -25,8 +25,9 @@ export abstract class AbstractButtonView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
-    if (this.icon_view != null)
+    if (this.icon_view != null) {
       yield this.icon_view
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -43,8 +44,7 @@ export abstract class AbstractButtonView extends ControlView {
   }
 
   override remove(): void {
-    if (this.icon_view != null)
-      this.icon_view.remove()
+    this.icon_view?.remove()
     super.remove()
   }
 
