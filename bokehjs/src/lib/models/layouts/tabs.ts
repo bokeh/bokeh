@@ -19,7 +19,7 @@ import icons_css from "styles/icons.css"
 export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
-  protected tooltips: (TooltipView | null)[]
+  protected tooltips: (TooltipView | null | undefined)[]
   protected header_el: HTMLElement
   protected header_els: HTMLElement[]
 
@@ -112,7 +112,7 @@ export class TabsView extends LayoutDOMView {
           this.change_active(i)
       })
       const tooltip = this.tooltips[i]
-      if (tooltip !== null) {
+      if (tooltip !== null && tooltip !== undefined) {
         tooltip.model.setv({
           target: el,
         })
