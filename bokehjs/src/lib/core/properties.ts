@@ -90,7 +90,7 @@ export type Unset = typeof unset
 
 export class UnsetValueError extends Error {}
 
-export abstract class Property<T = unknown> {
+export abstract class Property<T = unknown, TAlt = T> {
   __value__: T
 
   get syncable(): boolean {
@@ -108,11 +108,11 @@ export abstract class Property<T = unknown> {
     return this._initialized
   }
 
-  initialize(initial_value: T | Unset = unset): void {
+  initialize(initial_value: T | TAlt | Unset = unset): void {
     if (this._initialized)
       throw new Error("already initialized")
 
-    let attr_value: T | Unset = unset
+    let attr_value: T | TAlt | Unset = unset
 
     if (initial_value !== unset) {
       attr_value = initial_value
@@ -152,7 +152,7 @@ export abstract class Property<T = unknown> {
       throw new UnsetValueError(`${this.obj}.${this.attr} is unset`)
   }
 
-  set_value(val: T): void {
+  set_value(val: T | TAlt): void {
     if (!this._initialized)
       this.initialize(val)
     else {
@@ -180,7 +180,7 @@ export abstract class Property<T = unknown> {
   /*readonly*/ internal: boolean
   readonly: boolean
 
-  convert?(value: T, obj: HasProps): T | undefined
+  convert?(value: T | TAlt, obj: HasProps): T | undefined
   on_update?(value: T, obj: HasProps): void
 
   constructor(readonly obj: HasProps,
@@ -198,15 +198,18 @@ export abstract class Property<T = unknown> {
 
   //protected abstract _update(attr_value: T): void
 
-  protected _update(attr_value: T): void {
+  protected _update(attr_value: T | TAlt): void {
     this.validate(attr_value)
-    if (this.convert != null) {
-      const converted = this.convert(attr_value, this.obj)
-      if (converted !== undefined)
-        attr_value = converted
-    }
-    this._value = attr_value
-    this.on_update?.(attr_value, this.obj)
+    const value = (() => {
+      const converted = this.convert?.(attr_value, this.obj)
+      if (converted !== undefined) {
+        return converted
+      } else {
+        return attr_value as T
+      }
+    })()
+    this._value = value
+    this.on_update?.(value, this.obj)
   }
 
   toString(): string {
