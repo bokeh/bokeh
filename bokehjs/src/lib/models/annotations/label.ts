@@ -2,7 +2,6 @@ import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {compute_angle, invert_angle, atan2} from "core/util/math"
 import type {CoordinateMapper} from "core/util/bbox"
 import {CoordinateUnits, AngleUnits, Direction} from "core/enums"
-import {SideLayout} from "core/layout/side_panel"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 import type {Pannable, PanEvent, KeyModifiers} from "core/ui_events"
@@ -22,14 +21,6 @@ function xy<T>(x: T, y: T): XY<T> {
 export class LabelView extends TextAnnotationView implements Pannable {
   declare model: Label
   declare visuals: Label.Visuals
-
-  override update_layout(): void {
-    const {panel} = this
-    if (panel != null)
-      this.layout = new SideLayout(panel, () => this.get_size(), false)
-    else
-      this.layout = undefined
-  }
 
   get mappers(): XY<CoordinateMapper> {
     function mapper(units: CoordinateUnits, scale: CoordinateMapper, view: CoordinateMapper, canvas: CoordinateMapper) {

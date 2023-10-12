@@ -42,7 +42,7 @@ export abstract class TextAnnotationView extends AnnotationView {
   override update_layout(): void {
     const {panel} = this
     if (panel != null)
-      this.layout = new SideLayout(panel, () => this.get_size(), true)
+      this.layout = new SideLayout(panel, () => this.get_size(), false)
     else
       this.layout = undefined
   }
