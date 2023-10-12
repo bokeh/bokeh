@@ -26,7 +26,13 @@ export class HTMLLabelView extends TextAnnotationView {
     const {angle, angle_units} = this.model
     graphics.angle = compute_angle(angle, angle_units)
     graphics.visuals = this.visuals.text.values()
-    const {width, height} = graphics.size()
+
+    const size = graphics.size()
+    const {padding} = this
+
+    const width = size.width + padding.left + padding.right
+    const height = size.height + padding.top + padding.bottom
+
     return {width, height}
   }
 
@@ -86,7 +92,8 @@ export namespace HTMLLabel {
   export type Mixins =
     mixins.Text &
     mixins.BorderLine &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.BackgroundHatch
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -108,6 +115,7 @@ export class HTMLLabel extends TextAnnotation {
       mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
+      ["background_", mixins.Hatch],
     ])
 
     this.define<HTMLLabel.Props>(({Number, String, Angle}) => ({
@@ -124,6 +132,7 @@ export class HTMLLabel extends TextAnnotation {
 
     this.override<HTMLLabel.Props>({
       background_fill_color: null,
+      background_hatch_color: null,
       border_line_color: null,
     })
   }

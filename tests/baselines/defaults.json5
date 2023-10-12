@@ -5061,8 +5061,30 @@
   HTMLAnnotation: {
     __extends__: "Annotation",
   },
-  HTMLLabel: {
+  HTMLTextAnnotation: {
     __extends__: "HTMLAnnotation",
+    padding: 0,
+    border_radius: 0,
+    background_fill_color: null,
+    background_fill_alpha: 1.0,
+    background_hatch_color: null,
+    background_hatch_alpha: 1.0,
+    background_hatch_scale: 12.0,
+    background_hatch_pattern: null,
+    background_hatch_weight: 1.0,
+    background_hatch_extra: {
+      type: "map",
+    },
+    border_line_color: null,
+    border_line_alpha: 1.0,
+    border_line_width: 1,
+    border_line_join: "bevel",
+    border_line_cap: "butt",
+    border_line_dash: [],
+    border_line_dash_offset: 0,
+  },
+  HTMLLabel: {
+    __extends__: "HTMLTextAnnotation",
     x: {
       type: "symbol",
       name: "unset",
@@ -5087,15 +5109,6 @@
     text_align: "left",
     text_baseline: "bottom",
     text_line_height: 1.2,
-    background_fill_color: null,
-    background_fill_alpha: 1.0,
-    border_line_color: null,
-    border_line_alpha: 1.0,
-    border_line_width: 1,
-    border_line_join: "bevel",
-    border_line_cap: "butt",
-    border_line_dash: [],
-    border_line_dash_offset: 0,
   },
   HTMLLabelSet: {
     __extends__: [
@@ -5202,7 +5215,7 @@
     },
   },
   HTMLTitle: {
-    __extends__: "HTMLAnnotation",
+    __extends__: "HTMLTextAnnotation",
     text: "",
     vertical_align: "bottom",
     align: "left",
@@ -5215,15 +5228,6 @@
     text_color: "#444444",
     text_outline_color: null,
     text_alpha: 1.0,
-    background_fill_color: null,
-    background_fill_alpha: 1.0,
-    border_line_color: null,
-    border_line_alpha: 1.0,
-    border_line_width: 1,
-    border_line_join: "bevel",
-    border_line_cap: "butt",
-    border_line_dash: [],
-    border_line_dash_offset: 0,
   },
   ToolbarPanel: {
     __extends__: "HTMLAnnotation",
