@@ -128,7 +128,7 @@ class Test_bundle_custom_extensions:
     def test_with_INLINE_resources(self) -> None:
         from latex_label import LatexLabel
         plot = Plot()
-        plot.add_layout(LatexLabel())
+        plot.add_layout(LatexLabel(x=0, y=0))
         bundle = beb.bundle_for_objs_and_resources([plot], INLINE)
         assert len(bundle.js_raw) == 3
         assert "class LatexLabelView" in bundle.js_raw[2]
@@ -136,7 +136,7 @@ class Test_bundle_custom_extensions:
     def test_with_CDN_resources(self) -> None:
         from latex_label import LatexLabel
         plot = Plot()
-        plot.add_layout(LatexLabel())
+        plot.add_layout(LatexLabel(x=0, y=0))
         bundle = beb.bundle_for_objs_and_resources([plot], CDN)
         assert len(bundle.js_files) == 2
         assert bundle.js_files[1] == "https://unpkg.com/latex_label@0.0.1/dist/latex_label.js"
@@ -144,7 +144,7 @@ class Test_bundle_custom_extensions:
     def test_with_Server_resources(self) -> None:
         from latex_label import LatexLabel
         plot = Plot()
-        plot.add_layout(LatexLabel())
+        plot.add_layout(LatexLabel(x=0, y=0))
         bundle = beb.bundle_for_objs_and_resources([plot], SERVER)
         version_hash = "6b13789e43e5485634533de16a65d8ba9d34c4c9758588b665805435f80eb115"
         assert len(bundle.js_files) == 2
@@ -154,7 +154,7 @@ class Test_bundle_custom_extensions:
     def test_with_Server_resources_dev(self) -> None:
         from latex_label import LatexLabel
         plot = Plot()
-        plot.add_layout(LatexLabel())
+        plot.add_layout(LatexLabel(x=0, y=0))
         with envset(BOKEH_RESOURCES="server", BOKEH_DEV="true"):
             bundle = beb.bundle_for_objs_and_resources([plot], SERVER)
         assert len(bundle.js_files) == 2
