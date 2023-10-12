@@ -85,7 +85,7 @@ export abstract class EditToolView extends GestureToolView {
         continue
       if (!isArray(array)) {
         array = Array.from(array)
-        cds.data[column] = array
+        cds.data.set(column, array)
       }
       array.splice(0, drop)
     }
@@ -121,10 +121,10 @@ export abstract class EditToolView extends GestureToolView {
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       for (const index of cds.selected.indices) {
         if (xkey && (dim == "width" || dim == "both")) {
-          cds.data[xkey][index] += dx
+          cds.get(xkey)[index] += dx
         }
         if (ykey && (dim == "height" || dim == "both")) {
-          cds.data[ykey][index] += dy
+          cds.get(ykey)[index] += dy
         }
       }
       cds.change.emit()

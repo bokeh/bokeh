@@ -1,6 +1,6 @@
 import {Callback} from "./callback"
 import type * as p from "core/properties"
-import {entries} from "core/util/object"
+import {to_object} from "core/util/object"
 import {unzip} from "core/util/array"
 import {use_strict} from "core/util/string"
 
@@ -25,7 +25,7 @@ export namespace CustomJS {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Callback.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<Map<string, unknown>>
     code: p.Property<string>
     module: p.Property<"auto" | boolean>
   }
@@ -42,7 +42,7 @@ export class CustomJS extends Callback {
 
   static {
     this.define<CustomJS.Props>(({Unknown, String, Dict, Auto, Or, Boolean}) => ({
-      args: [ Dict(Unknown), {} ],
+      args: [ Dict(Unknown), new Map() ],
       code: [ String ],
       module: [ Or(Auto, Boolean), "auto" ],
     }))
@@ -72,7 +72,7 @@ export class CustomJS extends Callback {
   }
 
   protected async _compile_function(): Promise<JSFunc> {
-    const [names=[], values=[]] = unzip(entries(this.args))
+    const [names=[], values=[]] = unzip([...this.args.entries()])
     const code = use_strict(this.code)
     const func = new Function(...names, "cb_obj", "cb_data", "cb_context", code)
     return function(...args: unknown[]) {
@@ -112,7 +112,7 @@ export class CustomJS extends Callback {
     const {func, module} = await this.state()
     const context = {index}
     if (module) {
-      return func(this.args, obj, data, context)
+      return func(to_object(this.args), obj, data, context)
     } else {
       return func.call(obj, obj, data, context)
     }

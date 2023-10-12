@@ -3,7 +3,6 @@ import {Styles} from "./styles"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
-import {entries} from "core/util/object"
 import {isString} from "core/util/types"
 import type * as p from "core/properties"
 
@@ -50,7 +49,7 @@ export abstract class DOMElementView extends DOMNodeView {
           }
         }
       } else {
-        for (const [key, value] of entries(style)) {
+        for (const [key, value] of style) {
           const name = key.replace(/_/g, "-")
           if (this.el.style.hasOwnProperty(name)) {
             this.el.style.setProperty(name, value)
@@ -76,7 +75,7 @@ export abstract class DOMElementView extends DOMNodeView {
 export namespace DOMElement {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
-    style: p.Property<Styles | {[key: string]: string} | null>
+    style: p.Property<Styles | Map<string, string> | null>
     children: p.Property<(string | DOMNode | UIElement)[]>
   }
 }

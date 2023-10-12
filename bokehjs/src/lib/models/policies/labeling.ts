@@ -1,6 +1,5 @@
 import {Model} from "../../model"
 import type * as p from "core/properties"
-import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 import type {BBox} from "core/util/bbox"
 import {isIterable} from "core/util/types"
@@ -84,7 +83,7 @@ export namespace CustomLabelingPolicy {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LabelingPolicy.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<Map<string, unknown>>
     code: p.Property<string>
   }
 }
@@ -100,17 +99,17 @@ export class CustomLabelingPolicy extends LabelingPolicy {
 
   static {
     this.define<CustomLabelingPolicy.Props>(({Unknown, String, Dict}) => ({
-      args: [ Dict(Unknown), {} ],
+      args: [ Dict(Unknown), new Map() ],
       code: [ String, "" ],
     }))
   }
 
-  get names(): string[] {
-    return keys(this.args)
+  get names(): Iterable<string> {
+    return this.args.keys()
   }
 
-  get values(): any[] {
-    return values(this.args)
+  get values(): Iterable<unknown> {
+    return this.args.values()
   }
 
   get func(): GeneratorFunction {

@@ -1,14 +1,13 @@
 import {Transform} from "./transform"
 import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
-import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
 export namespace CustomJSTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Transform.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<Map<string, unknown>>
     func: p.Property<string>
     v_func: p.Property<string>
   }
@@ -25,18 +24,18 @@ export class CustomJSTransform extends Transform {
 
   static {
     this.define<CustomJSTransform.Props>(({Unknown, String, Dict}) => ({
-      args:   [ Dict(Unknown), {} ],
+      args:   [ Dict(Unknown), new Map() ],
       func:   [ String, "" ],
       v_func: [ String, "" ],
     }))
   }
 
-  get names(): string[] {
-    return keys(this.args)
+  get names(): Iterable<string> {
+    return this.args.keys()
   }
 
-  get values(): any[] {
-    return values(this.args)
+  get values(): Iterable<unknown> {
+    return this.args.values()
   }
 
   protected _make_transform(name: string, func: string): Function {

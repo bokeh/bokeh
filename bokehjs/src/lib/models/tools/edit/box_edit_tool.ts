@@ -150,7 +150,7 @@ export class BoxEditToolView extends EditToolView {
         return
       const index = length - 1
       for (const [key, val] of entries(fields)) {
-        cds.data[key][index] = val
+        cds.get(key)[index] = val
       }
     }
     this._emit_cds_changes(cds, true, false, emit)
@@ -283,7 +283,7 @@ export class BoxEditToolView extends EditToolView {
 
       for (const index of cds.selected.indices) {
         for (const [key, val] of entries(fields)) {
-          cds.data[key][index] += val
+          cds.get(key)[index] += val
         }
       }
 

@@ -69,7 +69,7 @@ export type ArrayableNew = {new <T>(n: number): Arrayable<T>}
 
 export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 
-export type Data = {[key: string]: Arrayable<unknown>}
+export type Data = Map<string, Arrayable<unknown>>
 
 export type Attrs = {[key: string]: unknown}
 

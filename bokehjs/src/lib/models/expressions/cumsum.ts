@@ -2,6 +2,7 @@ import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {Expression} from "./expression"
 import type {Arrayable} from "core/types"
 import type * as p from "core/properties"
+import {assert} from "core/util/assert"
 
 export namespace CumSum {
   export type Attrs = p.AttrsOf<Props>
@@ -30,7 +31,8 @@ export class CumSum extends Expression {
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<number> {
     const result = new Float64Array(source.get_length() ?? 0)
-    const col = source.data[this.field]
+    const col = source.data.get(this.field)
+    assert(col != null && col.length == result.length)
     const offset = this.include_zero ? 1 : 0
     result[0] = this.include_zero ? 0 : col[0]
     for (let i = 1; i < result.length; i++) {

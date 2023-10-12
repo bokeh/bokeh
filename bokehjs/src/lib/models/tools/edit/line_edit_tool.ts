@@ -81,10 +81,10 @@ export class LineEditToolView extends LineToolView {
     const point_cds = this.model.intersection_renderer.data_source
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey && pykey) {
-      const x = point_cds.data[pxkey]
-      const y = point_cds.data[pykey]
-      this._selected_renderer.data_source.data[pxkey] = x
-      this._selected_renderer.data_source.data[pykey] = y
+      const x = point_cds.get(pxkey)
+      const y = point_cds.get(pykey)
+      this._selected_renderer.data_source.data.set(pxkey, x)
+      this._selected_renderer.data_source.data.set(pykey, y)
     }
     this._emit_cds_changes(this._selected_renderer.data_source, true, true, false)
   }

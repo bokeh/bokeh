@@ -1,6 +1,6 @@
 import {select, option, optgroup, empty, append} from "core/dom"
 import {isString, isArray} from "core/util/types"
-import {entries} from "core/util/object"
+import {map} from "core/util/iterator"
 import type * as p from "core/properties"
 
 import {InputWidget, InputWidgetView} from "./input_widget"
@@ -48,7 +48,7 @@ export class SelectView extends InputWidgetView {
     if (isArray(options)) {
       return build_options(options)
     } else {
-      return entries(options).map(([label, values]) => optgroup({label}, build_options(values)))
+      return [...map(options, ([label, values]) => optgroup({label}, build_options(values)))]
     }
   }
 
@@ -88,7 +88,7 @@ export namespace Select {
 
   export type Props = InputWidget.Props & {
     value: p.Property<string>
-    options: p.Property<(string | [string, string])[] | {[key: string]: (string | [string, string])[]}>
+    options: p.Property<(string | [string, string])[] | Map<string, (string | [string, string])[]>>
   }
 }
 

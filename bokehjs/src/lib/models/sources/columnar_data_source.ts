@@ -7,12 +7,12 @@ import type {Arrayable, ArrayableNew, Data} from "core/types"
 import type {PatchSet} from "core/patching"
 import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
-import {keys, values} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import {DataSource} from "./data_source"
+import {assert} from "core/util/assert"
 
 // Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
@@ -21,7 +21,7 @@ export namespace ColumnarDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataSource.Props & {
-    data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
+    data: p.Property<Map<string, Arrayable>> // XXX: this is hack!!!
     selection_policy: p.Property<SelectionPolicy>
     inspected: p.Property<Selection>
   }
@@ -32,18 +32,7 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 export abstract class ColumnarDataSource extends DataSource {
   declare properties: ColumnarDataSource.Props
 
-  declare data: {[key: string]: Arrayable}
-
-  get_array<T>(key: string): T[] {
-    let column = this.data[key] as Arrayable | undefined
-
-    if (column == null)
-      this.data[key] = column = []
-    else if (!isArray(column))
-      this.data[key] = column = Array.from(column)
-
-    return column as T[]
-  }
+  declare data: Map<string, Arrayable>
 
   _select: Signal0<this>
   inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this>
@@ -71,17 +60,35 @@ export abstract class ColumnarDataSource extends DataSource {
     this.inspect = new Signal(this, "inspect")
   }
 
+  get_array<T>(key: string): T[] {
+    let column = this.data.get(key)
+
+    if (column == null) {
+      this.data.set(key, column = [])
+    } else if (!isArray(column)) {
+      this.data.set(key, column = Array.from(column))
+    }
+
+    return column as T[]
+  }
+
   get_column(name: string): Arrayable | null {
-    return name in this.data ? this.data[name] : null
+    return this.data.get(name) ?? null
+  }
+
+  get(name: string): Arrayable {
+    const column = this.get_column(name)
+    assert(column != null, `unknown column '${name}' in ${this}`)
+    return column
   }
 
   columns(): string[] {
     // return the column names in this data source
-    return keys(this.data)
+    return [...this.data.keys()]
   }
 
   get_length(soft: boolean = true): number | null {
-    const lengths = uniq(values(this.data).map((v) => is_NDArray(v) ? v.shape[0] : v.length))
+    const lengths = uniq([...this.data.values()].map((v) => is_NDArray(v) ? v.shape[0] : v.length))
 
     switch (lengths.length) {
       case 0: {
@@ -106,9 +113,9 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   clear(): void {
-    const empty: {[key: string]: Arrayable} = {}
+    const empty: Map<string, Arrayable> = new Map()
     for (const col of this.columns()) {
-      empty[col] = new (this.data[col].constructor as ArrayableNew)(0)
+      empty.set(col, new (this.data.get(col)!.constructor as ArrayableNew)(0))
     }
     this.data = empty
   }

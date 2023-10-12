@@ -8,7 +8,7 @@ import {isString} from "./util/types"
 import type {HasProps} from "./has_props"
 
 export type HatchPattern = HatchPatternType | string
-export type HatchExtra = {[key: string]: Texture | undefined}
+export type HatchExtra = Map<string, Texture | undefined>
 
 // Primitive
 
@@ -77,7 +77,7 @@ export const Hatch: p.DefineOf<Hatch> = {
   hatch_scale:      [ k.Number, 12.0 ],
   hatch_pattern:    [ k.Nullable(k.Or(HatchPatternType, k.String)), null ],
   hatch_weight:     [ k.Number, 1.0 ],
-  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), {} ], // XXX: recursive imports
+  hatch_extra:      [ k.Dict(k.AnyRef<Texture>()), new Map() ], // XXX: recursive imports
 }
 
 export const Text: p.DefineOf<Text> = {
@@ -159,7 +159,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
   hatch_scale:      [ p.NumberScalar,       12.0        ],
   hatch_pattern:    [ p.NullStringScalar,   null        ],
   hatch_weight:     [ p.NumberScalar,       1.0         ],
-  hatch_extra:      [ p.AnyScalar,          {}          ],
+  hatch_extra:      [ p.AnyScalar,          new Map()   ],
 }
 
 export const TextScalar: p.DefineOf<TextScalar> = {
@@ -241,7 +241,7 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ p.AnyScalar,      {}          ],
+  hatch_extra:      [ p.AnyScalar,      new Map()   ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {

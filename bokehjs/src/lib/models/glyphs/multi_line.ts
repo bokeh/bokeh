@@ -7,7 +7,6 @@ import type {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
-import {to_object} from "core/util/object"
 import type {Context2d} from "core/util/canvas"
 import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
@@ -113,7 +112,7 @@ export class MultiLineView extends GlyphView {
 
     return new Selection({
       indices: [...hits.keys()],
-      multiline_indices: to_object(hits), // TODO: remove to_object()
+      multiline_indices: hits,
     })
   }
 
@@ -145,7 +144,7 @@ export class MultiLineView extends GlyphView {
 
     return new Selection({
       indices: [...hits.keys()],
-      multiline_indices: to_object(hits), // TODO: remove to_object()
+      multiline_indices: hits,
     })
   }
 

@@ -7,12 +7,11 @@ import {DataRange1d} from "../ranges/data_range1d"
 import {FactorRange} from "../ranges/factor_range"
 
 import {BBox} from "core/util/bbox"
-import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import {Signal0} from "core/signaling"
 
-type Ranges = {[key: string]: Range}
-type Scales = {[key: string]: Scale}
+type Ranges = Map<string, Range>
+type Scales = Map<string, Scale>
 
 export class CartesianFrame {
 
@@ -27,10 +26,10 @@ export class CartesianFrame {
               public in_y_scale: Scale,
               public x_range: Range,
               public y_range: Range,
-              public extra_x_ranges: Ranges = {},
-              public extra_y_ranges: Ranges = {},
-              public extra_x_scales: Scales = {},
-              public extra_y_scales: Scales = {}) {
+              public extra_x_ranges: Ranges = new Map(),
+              public extra_y_ranges: Ranges = new Map(),
+              public extra_x_scales: Scales = new Map(),
+              public extra_y_scales: Scales = new Map()) {
     assert(in_x_scale.properties.source_range.is_unset && in_x_scale.properties.target_range.is_unset)
     assert(in_y_scale.properties.source_range.is_unset && in_y_scale.properties.target_range.is_unset)
     this._configure_scales()
@@ -45,12 +44,14 @@ export class CartesianFrame {
   protected _x_scales: Map<string, Scale>
   protected _y_scales: Map<string, Scale>
 
-  protected _get_ranges(range: Range, extra_ranges: Ranges): Map<string, Range> {
-    return new Map(entries({...extra_ranges, default: range}))
+  protected _get_ranges(range: Range, extra_ranges: Ranges): Ranges {
+    const ranges = new Map(extra_ranges)
+    ranges.set("default", range)
+    return ranges
   }
 
-  /*protected*/ _get_scales(scale: Scale, extra_scales: Scales, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
-    const in_scales = new Map(entries({...extra_scales, default: scale}))
+  /*protected*/ _get_scales(scale: Scale, extra_scales: Scales, ranges: Ranges, frame_range: Range): Scales {
+    const in_scales = new Map([...extra_scales.entries(), ["default", scale]])
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {

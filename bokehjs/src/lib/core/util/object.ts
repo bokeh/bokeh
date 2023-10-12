@@ -1,7 +1,5 @@
 import type {PlainObject, Arrayable} from "../types"
-import {concat, union} from "./array"
-
-const {hasOwnProperty} = Object.prototype
+import {union} from "./array"
 
 export const {keys, values, entries, assign, fromEntries: to_object} = Object
 export const extend = assign
@@ -16,18 +14,19 @@ export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
   return {...obj}
 }
 
-export function merge<T>(obj1: PlainObject<Arrayable<T>>, obj2: PlainObject<Arrayable<T>>): PlainObject<T[]> {
+export function merge<K, V>(obj0: Map<K, Arrayable<V>>, obj1: Map<K, Arrayable<V>>): Map<K, V[]> {
   /*
    * Returns an object with the array values for obj1 and obj2 unioned by key.
    */
-  const result: PlainObject<T[]> = Object.create(Object.prototype)
-
-  const keys = concat([Object.keys(obj1), Object.keys(obj2)])
+  const result: Map<K, V[]> = new Map()
+  const keys = [...obj0.keys(), ...obj1.keys()]
 
   for (const key of keys) {
-    const arr1 = hasOwnProperty.call(obj1, key) ? obj1[key] : []
-    const arr2 = hasOwnProperty.call(obj2, key) ? obj2[key] : []
-    result[key] = union(arr1, arr2)
+    const v0 = obj0.get(key)
+    const v1 = obj1.get(key)
+    const arr0 = v0 === undefined ? [] : v0
+    const arr1 = v1 === undefined ? [] : v1
+    result.set(key, union(arr0, arr1))
   }
 
   return result

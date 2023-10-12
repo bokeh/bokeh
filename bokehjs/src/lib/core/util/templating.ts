@@ -12,7 +12,7 @@ export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
 
 export type FormatterSpec = CustomJSHover | FormatterType
-export type Formatters = {[key: string]: FormatterSpec}
+export type Formatters = Map<string, FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
@@ -51,9 +51,8 @@ export function get_formatter(raw_spec: string, format?: string, formatters?: Fo
     return basic_formatter
 
   // format spec in the formatters dict, use that
-  if (formatters != null && raw_spec in formatters) {
-    const formatter = formatters[raw_spec]
-
+  const formatter = formatters?.get(raw_spec)
+  if (formatter != null) {
     if (isString(formatter)) {
       if (formatter in DEFAULT_FORMATTERS)
         return DEFAULT_FORMATTERS[formatter]

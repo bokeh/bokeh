@@ -29,7 +29,7 @@ export class Hatch extends VisualProperties {
     }
 
     const textures = this.hatch_extra.get_value()
-    const texture = textures[pattern]
+    const texture = textures.get(pattern)
     if (texture != null) {
       const image = texture.get_pattern(color, alpha, scale, weight)
       if (image instanceof Promise) {
@@ -82,7 +82,7 @@ export class Hatch extends VisualProperties {
 
   repetition(): CanvasPatternRepetition {
     const pattern = this.hatch_pattern.get_value()!
-    const texture = this.hatch_extra.get_value()[pattern]
+    const texture = this.hatch_extra.get_value().get(pattern)
     if (texture == null)
       return "repeat"
     else {
@@ -139,7 +139,7 @@ export class HatchScalar extends VisualUniforms {
     }
 
     const textures = this.hatch_extra.value
-    const texture = textures[pattern]
+    const texture = textures.get(pattern)
     if (texture != null) {
       const image = texture.get_pattern(color, alpha, scale, weight)
       if (image instanceof Promise) {
@@ -188,7 +188,7 @@ export class HatchScalar extends VisualUniforms {
   repetition(): CanvasPatternRepetition {
     const pattern = this.hatch_pattern.value
     if (pattern != null) {
-      const texture = this.hatch_extra.value[pattern]
+      const texture = this.hatch_extra.value.get(pattern)
       if (texture != null) {
         switch (texture.repetition) {
           case "repeat":    return "repeat"
@@ -245,7 +245,7 @@ export class HatchVector extends VisualUniforms {
     const resolve_image = (pattern: HatchPattern, color: Color, alpha: number, scale: number, weight: number,
         finalize: (image: CanvasImageSource) => void) => {
       const textures = this.hatch_extra.value
-      const texture = textures[pattern]
+      const texture = textures.get(pattern)
       if (texture != null) {
         const image = texture.get_pattern(color, alpha, scale, weight)
         if (image instanceof Promise) {
@@ -342,7 +342,7 @@ export class HatchVector extends VisualUniforms {
   repetition(i: number): CanvasPatternRepetition {
     const pattern = this.hatch_pattern.get(i)
     if (pattern != null) {
-      const texture = this.hatch_extra.value[pattern]
+      const texture = this.hatch_extra.value.get(pattern)
       if (texture != null) {
         switch (texture.repetition) {
           case "repeat":    return "repeat"

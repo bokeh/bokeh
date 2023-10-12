@@ -9,7 +9,7 @@ export namespace ColumnDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnarDataSource.Props & {
-    data: p.Property<{[key: string]: Arrayable}>
+    data: p.Property<Map<string, Arrayable>>
   }
 }
 
@@ -24,7 +24,7 @@ export class ColumnDataSource extends ColumnarDataSource {
 
   static {
     this.define<ColumnDataSource.Props>(({Any, Dict, Arrayable}) => ({
-      data: [ Dict(Arrayable(Any)), {} ],
+      data: [ Dict(Arrayable(Any)), new Map() ],
     }))
   }
 }

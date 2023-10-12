@@ -83,23 +83,28 @@ export class PolyEditToolView extends PolyToolView {
     const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
-    if (this._drawing) return
-    if ((index == null) && (xkey || ykey)) return
+    if (this._drawing) {
+      return
+    }
+    if ((index == null) && (xkey || ykey)) {
+      return
+    }
 
     let xs: number[]
     let ys: number[]
     if (xkey && index != null) { // redundant xkey null check to satisfy build-time checks
-      xs = cds.data[xkey][index]
-      if (!isArray(xs))
-        cds.data[xkey][index] = xs = Array.from(xs)
+      xs = cds.get(xkey)[index]
+      if (!isArray(xs)) {
+        cds.get(xkey)[index] = xs = Array.from(xs)
+      }
     } else {
       xs = glyph.xs.value
     }
 
     if (ykey && index != null) {
-      ys = cds.data[ykey][index]
+      ys = cds.get(ykey)[index]
       if (!isArray(ys))
-        cds.data[ykey][index] = ys = Array.from(ys)
+        cds.get(ykey)[index] = ys = Array.from(ys)
     } else {
       ys = glyph.ys.value
     }
@@ -123,8 +128,8 @@ export class PolyEditToolView extends PolyToolView {
       cds.selected.indices = indices
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       const index = indices[0]
-      if (xkey) cds.data[xkey][index] = x
-      if (ykey) cds.data[ykey][index] = y
+      if (xkey) cds.get(xkey)[index] = x
+      if (ykey) cds.get(ykey)[index] = y
       cds.change.emit()
       this._selected_renderer.data_source.change.emit()
     }

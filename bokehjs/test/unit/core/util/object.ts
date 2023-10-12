@@ -14,10 +14,10 @@ describe("object module", () => {
     expect(object.clone(obj1)).to.be.equal(obj1)
   })
 
-  it("merge should union the array values of two objects", () => {
-    const obj1 = {key1: [], key2: [0]}
-    const obj2 = {key2: [1, 2, 3]}
-    expect(object.merge(obj1, obj2)).to.be.equal({key1: [], key2: [0, 1, 2, 3]})
+  it("merge should union the array values of two maps", () => {
+    const obj1 = new Map([["key1", []], ["key2", [0]]])
+    const obj2 = new Map([["key2", [1, 2, 3]]])
+    expect(object.merge(obj1, obj2)).to.be.equal(new Map([["key1", []], ["key2", [0, 1, 2, 3]]]))
   })
 
   it("is_empty should return true if an object has no keys", () => {

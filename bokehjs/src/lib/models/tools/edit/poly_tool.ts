@@ -24,13 +24,13 @@ export abstract class PolyToolView extends EditToolView {
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey) {
       if (isArray(xs))
-        point_cds.data[pxkey] = xs
+        point_cds.data.set(pxkey, xs)
       else
         point_glyph.x = {value: xs}
     }
     if (pykey) {
       if (isArray(ys))
-        point_cds.data[pykey] = ys
+        point_cds.data.set(pykey, ys)
       else
         point_glyph.y = {value: ys}
     }
@@ -52,9 +52,9 @@ export abstract class PolyToolView extends EditToolView {
       if (vertex_selected.length != 0) {
         const index = point_ds.selected.indices[0]
         if (pxkey)
-          x = point_ds.data[pxkey][index]
+          x = point_ds.get(pxkey)[index]
         if (pykey)
-          y = point_ds.data[pykey][index]
+          y = point_ds.get(pykey)[index]
         point_ds.selection_manager.clear()
       }
     }

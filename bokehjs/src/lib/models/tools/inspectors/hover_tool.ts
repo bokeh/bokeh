@@ -11,7 +11,6 @@ import type {MoveEvent} from "core/ui_events"
 import {assert} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
-import {is_empty} from "core/util/object"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import type {Formatters} from "core/util/templating"
@@ -367,9 +366,9 @@ export class HoverToolView extends InspectToolView {
     } else {
       for (const i of subset_indices.indices) {
         // multiglyphs set additional indices, e.g. multiline_indices for different tooltips
-        if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
+        if (glyph instanceof MultiLineView && subset_indices.multiline_indices.size != 0) {
           const {line_policy} = this.model
-          for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
+          for (const j of subset_indices.multiline_indices.get(i) ?? []) {
             const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (function() {
               if (line_policy == "interp") {
                 const [snap_x, snap_y] = glyph.get_interpolation_hit(i, j, geometry)
@@ -661,7 +660,7 @@ export class HoverTool extends InspectTool {
         ["data (x, y)",   "($x, $y)"  ],
         ["screen (x, y)", "($sx, $sy)"],
       ]],
-      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), {} ],
+      formatters:   [ Dict(Or(Ref(CustomJSHover), FormatterType)), new Map() ],
       renderers:    [ Or(Array(Ref(DataRenderer)), Auto), "auto" ],
       mode:         [ HoverMode, "mouse" ],
       muted_policy: [ MutedPolicy, "show" ],

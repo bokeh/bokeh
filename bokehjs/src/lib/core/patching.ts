@@ -1,10 +1,10 @@
 import type {Arrayable, Data} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import type {NDArray} from "core/util/ndarray"
-import {entries} from "core/util/object"
 import {union} from "core/util/set"
 import type {Slice} from "core/util/slice"
 import * as typed_array from "core/util/typed_array"
+import {logger} from "core/logging"
 
 // exported for testing
 export function stream_to_column(col: Arrayable, new_col: Arrayable, rollover?: number): Arrayable {
@@ -86,7 +86,7 @@ export function slice(ind: number | Slice, length: number): [number, number, num
 
 export type Patch<T> = [number, T] | [[number, number | Slice] | [number, number | Slice, number | Slice], T[]] | [Slice, T[]]
 
-export type PatchSet<T> = {[key: string]: Patch<T>[]}
+export type PatchSet<T> = Map<string, Patch<T>[]>
 
 // exported for testing
 export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]): Set<number> {
@@ -148,15 +148,25 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
 }
 
 export function stream_to_columns(data: Data, new_data: Data, rollover?: number): void {
-  for (const [name, new_column] of entries(new_data)) {
-    data[name] = stream_to_column(data[name], new_column, rollover)
+  for (const [name, new_column] of new_data) {
+    const column = data.get(name)
+    if (column != null) {
+      data.set(name, stream_to_column(column, new_column, rollover))
+    } else {
+      logger.warn(`streaming to an unknown column '${name}'`)
+    }
   }
 }
 
 export function patch_to_columns(data: Data, patches: PatchSet<unknown>): Set<number> {
   let patched: Set<number> = new Set()
-  for (const [column, patch] of entries(patches)) {
-    patched = union(patched, patch_to_column(data[column] as any, patch)) // XXX
+  for (const [name, patch] of patches) {
+    const column = data.get(name)
+    if (column != null) {
+      patched = union(patched, patch_to_column(column as any, patch)) // XXX
+    } else {
+      logger.warn(`patching an unknown column '${name}'`)
+    }
   }
   return patched
 }

@@ -45,33 +45,37 @@ export class PolyDrawToolView extends PolyToolView {
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "edit") {
       if (xkey) {
-        const xs = cds.data[xkey][cds.data[xkey].length-1]
+        const xcol = cds.get(xkey)
+        const xs = xcol[xcol.length-1]
         xs[xs.length-1] = x
       }
       if (ykey) {
-        const ys = cds.data[ykey][cds.data[ykey].length-1]
+        const ycol = cds.get(ykey)
+        const ys = ycol[ycol.length-1]
         ys[ys.length-1] = y
       }
     } else if (mode == "add") {
       if (xkey) {
-        const xidx = cds.data[xkey].length-1
+        const xcol = cds.get(xkey)
+        const xidx = xcol.length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
         const nx = xs[xs.length-1]
         xs[xs.length-1] = x
         if (!isArray(xs)) {
           xs = Array.from(xs)
-          cds.data[xkey][xidx] = xs
+          xcol[xidx] = xs
         }
         xs.push(nx)
       }
       if (ykey) {
-        const yidx = cds.data[ykey].length-1
+        const ycol = cds.get(ykey)
+        const yidx = ycol.length-1
         let ys = cds.get_array<number[]>(ykey)[yidx]
         const ny = ys[ys.length-1]
         ys[ys.length-1] = y
         if (!isArray(ys)) {
           ys = Array.from(ys)
-          cds.data[ykey][yidx] = ys
+          ycol[yidx] = ys
         }
         ys.push(ny)
       }
@@ -133,12 +137,14 @@ export class PolyDrawToolView extends PolyToolView {
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (xkey) {
-      const xidx = cds.data[xkey].length-1
+      const xcol = cds.get(xkey)
+      const xidx = xcol.length-1
       const xs = cds.get_array<number[]>(xkey)[xidx]
       xs.splice(xs.length-1, 1)
     }
     if (ykey) {
-      const yidx = cds.data[ykey].length-1
+      const ycol = cds.get(ykey)
+      const yidx = ycol.length-1
       const ys = cds.get_array<number[]>(ykey)[yidx]
       ys.splice(ys.length-1, 1)
     }
@@ -190,9 +196,13 @@ export class PolyDrawToolView extends PolyToolView {
       const [dx, dy] = [x-px, y-py]
       for (const index of cds.selected.indices) {
         let length, xs, ys
-        if (xkey) xs = cds.data[xkey][index]
+        if (xkey) {
+          const xcol = cds.get(xkey)
+          xs = xcol[index]
+        }
         if (ykey) {
-          ys = cds.data[ykey][index]
+          const ycol = cds.get(ykey)
+          ys = ycol[index]
           length = ys.length
         } else {
           length = xs.length

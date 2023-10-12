@@ -63,11 +63,11 @@ export namespace Plot {
     x_scale: p.Property<Scale>
     y_scale: p.Property<Scale>
 
-    extra_x_ranges: p.Property<{[key: string]: Range}>
-    extra_y_ranges: p.Property<{[key: string]: Range}>
+    extra_x_ranges: p.Property<Map<string, Range>>
+    extra_y_ranges: p.Property<Map<string, Range>>
 
-    extra_x_scales: p.Property<{[key: string]: Scale}>
-    extra_y_scales: p.Property<{[key: string]: Scale}>
+    extra_x_scales: p.Property<Map<string, Scale>>
+    extra_y_scales: p.Property<Map<string, Scale>>
 
     lod_factor: p.Property<number>
     lod_interval: p.Property<number>
@@ -161,11 +161,11 @@ export class Plot extends LayoutDOM {
       x_scale:           [ Ref(Scale), () => new LinearScale() ],
       y_scale:           [ Ref(Scale), () => new LinearScale() ],
 
-      extra_x_ranges:    [ Dict(Ref(Range)), {} ],
-      extra_y_ranges:    [ Dict(Ref(Range)), {} ],
+      extra_x_ranges:    [ Dict(Ref(Range)), new Map() ],
+      extra_y_ranges:    [ Dict(Ref(Range)), new Map() ],
 
-      extra_x_scales:    [ Dict(Ref(Scale)), {} ],
-      extra_y_scales:    [ Dict(Ref(Scale)), {} ],
+      extra_x_scales:    [ Dict(Ref(Scale)), new Map() ],
+      extra_y_scales:    [ Dict(Ref(Scale)), new Map() ],
 
       lod_factor:        [ Number, 10 ],
       lod_interval:      [ Number, 300 ],

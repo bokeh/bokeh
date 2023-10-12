@@ -278,7 +278,7 @@ export namespace UIElement {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
     styles: p.Property<CSSStyles | Styles>
-    stylesheets: p.Property<(BaseStyleSheet | string | {[key: string]: CSSStyles | Styles})[]>
+    stylesheets: p.Property<(BaseStyleSheet | string | Map<string, CSSStyles | Styles>)[]>
   }
 }
 
@@ -298,7 +298,7 @@ export abstract class UIElement extends Model {
       return {
         visible: [ Boolean, true ],
         css_classes: [ Array(String), [] ],
-        styles: [ StylesLike, {} ],
+        styles: [ StylesLike, new Map() ],
         stylesheets: [ Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike))), [] ],
       }
     })

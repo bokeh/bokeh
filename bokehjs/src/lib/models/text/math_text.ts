@@ -2,6 +2,7 @@ import type * as p from "core/properties"
 import type * as visuals from "core/visuals"
 import {isNumber} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
+import {to_object} from "core/util/object"
 import {load_image} from "core/util/image"
 import type {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
@@ -563,7 +564,7 @@ export class TeXView extends MathTextView {
       display: !this.model.inline,
       em: this.base_font_size,
       ex: fmetrics.x_height,
-    }, this.model.macros)
+    }, to_object(this.model.macros))
   }
 }
 
@@ -571,7 +572,7 @@ export namespace TeX {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MathText.Props & {
-    macros: p.Property<{[key: string]: string | [string, number]}>
+    macros: p.Property<Map<string, string | [string, number]>>
     inline: p.Property<boolean>
   }
 }
@@ -590,7 +591,7 @@ export class TeX extends MathText {
     this.prototype.default_view = TeXView
 
     this.define<TeX.Props>(({Boolean, Number, String, Dict, Tuple, Or}) => ({
-      macros: [ Dict(Or(String, Tuple(String, Number))), {} ],
+      macros: [ Dict(Or(String, Tuple(String, Number))), new Map() ],
       inline: [ Boolean, false ],
     }))
   }

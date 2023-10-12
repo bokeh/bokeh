@@ -5,7 +5,6 @@ import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
 import {GeneratorFunction} from "core/types"
 import {repeat} from "core/util/array"
-import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 import {isArray, isTypedArray, isIterable} from "core/util/types"
 
@@ -13,7 +12,7 @@ export namespace CustomJSExpr {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Expression.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<Map<string, unknown>>
     code: p.Property<string>
   }
 }
@@ -29,14 +28,14 @@ export class CustomJSExpr extends Expression {
 
   static {
     this.define<CustomJSExpr.Props>(({Unknown, String, Dict}) => ({
-      args: [ Dict(Unknown), {} ],
+      args: [ Dict(Unknown), new Map() ],
       code: [ String, "" ],
     }))
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    for (const value of values(this.args)) {
+    for (const value of this.args.values()) {
       if (value instanceof HasProps) {
         value.change.connect(() => {
           this._result.clear()
@@ -46,12 +45,12 @@ export class CustomJSExpr extends Expression {
     }
   }
 
-  get names(): string[] {
-    return keys(this.args)
+  get names(): Iterable<string> {
+    return this.args.keys()
   }
 
-  get values(): unknown[] {
-    return values(this.args)
+  get values(): Iterable<unknown> {
+    return this.args.values()
   }
 
   get func(): GeneratorFunction {
@@ -60,7 +59,7 @@ export class CustomJSExpr extends Expression {
   }
 
   protected _v_compute(source: ColumnarDataSource): Arrayable<unknown> {
-    const generator = this.func.apply(source, this.values)
+    const generator = this.func.call(source, ...this.values)
 
     let result = generator.next()
     if ((result.done ?? false) && result.value !== undefined) {

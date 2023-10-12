@@ -29,20 +29,20 @@ export class FreehandDrawToolView extends EditToolView {
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "add") {
       if (xkey) {
-        const xidx = cds.data[xkey].length-1
+        const xidx = cds.get(xkey).length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
         if (!isArray(xs)) {
           xs = Array.from(xs)
-          cds.data[xkey][xidx] = xs
+          cds.get(xkey)[xidx] = xs
         }
         xs.push(x)
       }
       if (ykey) {
-        const yidx = cds.data[ykey].length-1
+        const yidx = cds.get(ykey).length-1
         let ys = cds.get_array<number[]>(ykey)[yidx]
         if (!isArray(ys)) {
           ys = Array.from(ys)
-          cds.data[ykey][yidx] = ys
+          cds.get(ykey)[yidx] = ys
         }
         ys.push(y)
       }

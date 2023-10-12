@@ -5,6 +5,7 @@ import {execute} from "core/util/callbacks"
 import type {Data} from "core/types"
 import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
+import {assert} from "core/util/assert"
 
 export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -27,7 +28,7 @@ export abstract class WebDataSource extends ColumnDataSource {
   }
 
   override get_column(name: string): Arrayable {
-    return name in this.data ? this.data[name] : []
+    return super.get_column(name) ?? []
   }
 
   override get_length(): number {
@@ -57,13 +58,15 @@ export abstract class WebDataSource extends ColumnDataSource {
         break
       }
       case "append": {
-        const original_data = this.data
-        for (const column of this.columns()) {
+        for (const [name, column] of this.data) {
           // XXX: support typed arrays
-          const old_col = Array.from(original_data[column])
-          const new_col = Array.from(data[column])
+          const old_col = Array.from(column)
+          const new_column = data.get(name)
+          assert(new_column != null)
+          const new_col = Array.from(new_column)
           const array = old_col.concat(new_col)
-          data[column] = max_size != null ? array.slice(-max_size) : array
+          const trimmed_array = max_size != null ? array.slice(-max_size) : array
+          data.set(name, trimmed_array)
         }
         this.data = data
         break

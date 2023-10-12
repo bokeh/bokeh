@@ -12,7 +12,6 @@ import {unique_id} from "core/util/string"
 import {isString, isNumber, is_defined} from "core/util/types"
 import {some, range, sort_by, map} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
-import {keys} from "core/util/object"
 import {logger} from "core/logging"
 import type {DOMBoxSizing} from "../../layouts/layout_dom"
 
@@ -25,6 +24,7 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {CDSView, CDSViewView} from "../../sources/cds_view"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
+import type {PatchSet} from "core/patching"
 
 import tables_css, * as tables from "styles/widgets/tables.css"
 import slickgrid_css from "styles/widgets/slickgrid.css"
@@ -65,8 +65,7 @@ export class TableDataProvider implements DataProvider<Item> {
   getItem(offset: number): Item {
     const item: Item = {}
     const {data} = this.source
-    for (const field of keys(data)) {
-      const column = data[field]
+    for (const [field, column] of data) {
       const i = this.index[offset]
       const value = is_NDArray(column) ? column.get(i) : column[i]
       item[field] = value
@@ -79,8 +78,7 @@ export class TableDataProvider implements DataProvider<Item> {
     if (field == DTINDEX_NAME) {
       return this.index[offset]
     } else {
-      const {data} = this.source
-      const column = data[field]
+      const column = this.source.get(field)
       const i = this.index[offset]
       return is_NDArray(column) ? column.get(i) : column[i]
     }
@@ -89,7 +87,10 @@ export class TableDataProvider implements DataProvider<Item> {
   setField(offset: number, field: string, value: unknown): void {
     // field assumed never to be internal index name (ctor would throw)
     const index = this.index[offset]
-    this.source.patch({[field]: [[index, value]]})
+    const patches: PatchSet<unknown> = new Map([
+      [field, [[index, value]]],
+    ])
+    this.source.patch(patches)
   }
 
   getRecords(): Item[] {

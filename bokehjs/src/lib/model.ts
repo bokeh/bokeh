@@ -3,7 +3,6 @@ import type {Class} from "./core/class"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
 import type * as p from "./core/properties"
 import {isString, isPlainObject} from "./core/util/types"
-import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
@@ -22,8 +21,8 @@ export namespace Model {
   export type Props = HasProps.Props & {
     tags: p.Property<unknown[]>
     name: p.Property<string | null>
-    js_property_callbacks: p.Property<{[key: string]: ChangeCallback[]}>
-    js_event_callbacks: p.Property<{[key: string]: EventCallback[]}>
+    js_property_callbacks: p.Property<Map<string, ChangeCallback[]>>
+    js_event_callbacks: p.Property<Map<string, EventCallback[]>>
     subscribed_events: p.Property<Set<string>>
     syncable: p.Property<boolean>
   }
@@ -52,8 +51,8 @@ export class Model extends HasProps {
     this.define<Model.Props>(({Any, Unknown, Boolean, String, Array, Set, Dict, Nullable}) => ({
       tags:                  [ Array(Unknown), [] ],
       name:                  [ Nullable(String), null ],
-      js_property_callbacks: [ Dict(Array(Any /*TODO*/)), {} ],
-      js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), {} ],
+      js_property_callbacks: [ Dict(Array(Any /*TODO*/)), new Map() ],
+      js_event_callbacks:    [ Dict(Array(Any /*TODO*/)), new Map() ],
       subscribed_events:     [ Set(String), new globalThis.Set() ],
       syncable:              [ Boolean, true ],
     }))
@@ -74,7 +73,7 @@ export class Model extends HasProps {
   }
 
   /*protected*/ _process_event(event: ModelEvent): void {
-    for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? []) {
+    for (const callback of this.js_event_callbacks.get(event.event_name) ?? []) {
       execute(callback, event)
     }
 
@@ -112,7 +111,7 @@ export class Model extends HasProps {
     }
     this._js_callbacks.clear()
 
-    for (const [event, callbacks] of dict(this.js_property_callbacks)) {
+    for (const [event, callbacks] of this.js_property_callbacks) {
       const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
@@ -123,7 +122,7 @@ export class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
-    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0) {
+    if (this.js_event_callbacks.size != 0 || this.subscribed_events.size != 0) {
       this._update_event_callbacks()
     }
   }
@@ -170,6 +169,6 @@ export class Model extends HasProps {
 
   on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallback): void {
     const name = isString(event) ? event : event.prototype.event_name
-    this.js_event_callbacks[name] = [...dict(this.js_event_callbacks).get(name) ?? [], callback]
+    this.js_event_callbacks.set(name, [...this.js_event_callbacks.get(name) ?? [], callback])
   }
 }

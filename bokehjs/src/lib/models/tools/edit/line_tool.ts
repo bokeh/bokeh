@@ -18,13 +18,13 @@ export abstract class LineToolView extends EditToolView {
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey) {
       if (isArray(x))
-        point_cds.data[pxkey] = x
+        point_cds.data.set(pxkey, x)
       else
         point_glyph.x = {value: x}
     }
     if (pykey) {
       if (isArray(y))
-        point_cds.data[pykey] = y
+        point_cds.data.set(pykey, y)
       else
         point_glyph.y = {value: y}
     }

@@ -412,7 +412,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
             name=self.__qualified_model__,
         )
 
-        properties = self.properties_with_values(include_defaults=False)
+        properties = self.properties_with_values(include_defaults=True)
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
 
         if attributes:

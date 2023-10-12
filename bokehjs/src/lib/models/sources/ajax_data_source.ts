@@ -3,7 +3,6 @@ import type {UpdateMode} from "core/enums"
 import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
-import {entries} from "core/util/object"
 
 export namespace AjaxDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -11,7 +10,7 @@ export namespace AjaxDataSource {
   export type Props = WebDataSource.Props & {
     polling_interval: p.Property<number | null>
     content_type: p.Property<string>
-    http_headers: p.Property<{[key: string]: string}>
+    http_headers: p.Property<Map<string, string>>
     method: p.Property<HTTPMethod>
     if_modified: p.Property<boolean>
   }
@@ -30,7 +29,7 @@ export class AjaxDataSource extends WebDataSource {
     this.define<AjaxDataSource.Props>(({Boolean, Int, String, Dict, Nullable}) => ({
       polling_interval: [ Nullable(Int), null ],
       content_type:     [ String, "application/json" ],
-      http_headers:     [ Dict(String), {} ],
+      http_headers:     [ Dict(String), new Map() ],
       method:           [ HTTPMethod, "POST" ],
       if_modified:      [ Boolean, false ],
     }))
@@ -73,7 +72,7 @@ export class AjaxDataSource extends WebDataSource {
     xhr.setRequestHeader("Content-Type", this.content_type)
 
     const http_headers = this.http_headers
-    for (const [name, value] of entries(http_headers)) {
+    for (const [name, value] of http_headers) {
       xhr.setRequestHeader(name, value)
     }
 

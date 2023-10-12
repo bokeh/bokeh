@@ -8,7 +8,7 @@ import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
 import {includes, uniq} from "../core/util/array"
-import {clone, keys, entries, is_empty} from "../core/util/object"
+import {keys, entries, is_empty} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
@@ -439,15 +439,15 @@ export class Figure extends BaseFigure {
             if (isArray(value) || nd.is_NDArray(value)) {
               let field
               if (name in data) {
-                if (data[name] !== value) {
+                if (data.get(name) !== value) {
                   field = this._find_uniq_name(data, name)
-                  data[field] = value
+                  data.set(field, value)
                 } else {
                   field = name
                 }
               } else {
                 field = name
-                data[field] = value
+                data.set(field, value)
               }
 
               attrs[name] = {field}
@@ -504,7 +504,7 @@ export class Figure extends BaseFigure {
         return new ColumnDataSource({data: source})
       }
     })()
-    const data = clone(source.data)
+    const data = new Map(source.data)
     delete attrs.source
 
     const {view} = attrs
@@ -754,16 +754,17 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const source = glyph_renderer.data_source
-    if (!(name in source.data)) {
-      throw new Error("column to be grouped does not exist in glyph data source")
+    const {data_source} = glyph_renderer
+
+    const array = data_source.data.get(name)
+    if (array == null) {
+      throw new Error(`column '${name}' to be grouped does not exist in glyph data source`)
     }
 
-    const column = [...source.data[name]]
-    const values = uniq(column).sort()
+    const values = uniq(array).sort()
     for (const value of values) {
       const label = {value: `${value}`}
-      const index = column.indexOf(value)
+      const index = array.indexOf(value)
       const new_item = new LegendItem({label, renderers: [glyph_renderer], index})
       legend.items.push(new_item)
     }

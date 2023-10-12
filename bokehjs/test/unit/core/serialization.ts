@@ -23,7 +23,6 @@ namespace SomeModel {
   export type Props = HasProps.Props & {
     value: p.Property<number>
     array: p.Property<number[]>
-    dict: p.Property<{[key: string]: number}>
     map: p.Property<Map<number[], number>>
     set: p.Property<Set<number[]>>
     obj: p.Property<SomeModel | null>
@@ -40,10 +39,9 @@ class SomeModel extends HasProps {
   }
 
   static {
-    this.define<SomeModel.Props>(({Number, Array, Dict, Ref, Nullable}) => ({
+    this.define<SomeModel.Props>(({Number, Array, Ref, Nullable}) => ({
       value: [ Number, 1 ],
       array: [ Array(Number), [] ],
-      dict: [ Dict(Number), {} ],
       obj: [ Nullable(Ref(SomeModel)), null ],
     }))
   }

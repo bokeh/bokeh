@@ -1,7 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
 import {Indices} from "core/types"
-import {keys, values} from "core/util/object"
 import {isArrayOf, isBoolean, isInteger} from "core/util/types"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import {use_strict} from "core/util/string"
@@ -10,7 +9,7 @@ export namespace CustomJSFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<Map<string, unknown>>
     code: p.Property<string>
   }
 }
@@ -26,17 +25,17 @@ export class CustomJSFilter extends Filter {
 
   static {
     this.define<CustomJSFilter.Props>(({Unknown, String, Dict}) => ({
-      args: [ Dict(Unknown), {} ],
+      args: [ Dict(Unknown), new Map() ],
       code: [ String, "" ],
     }))
   }
 
-  get names(): string[] {
-    return keys(this.args)
+  get names(): Iterable<string> {
+    return this.args.keys()
   }
 
-  get values(): any[] {
-    return values(this.args)
+  get values(): Iterable<unknown> {
+    return this.args.values()
   }
 
   get func(): Function {

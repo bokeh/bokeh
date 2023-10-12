@@ -601,7 +601,7 @@ export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.Ob
 export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.PartialStruct(struct_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
-export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)
+export const Dict = <V>(item_type: Kind<V>) => new Kinds.Map(String, item_type)
 export const Map = <K, V>(key_type: Kind<K>, item_type: Kind<V>) => new Kinds.Map(key_type, item_type)
 export const Set = <V>(item_type: Kind<V>) => new Kinds.Set(item_type)
 export const Enum = <T extends string | number>(...values: T[]) => new Kinds.Enum(values)

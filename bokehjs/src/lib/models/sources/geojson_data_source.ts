@@ -52,7 +52,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
     }))
 
     this.internal<GeoJSONDataSource.Props>(({Any, Dict, Arrayable}) => ({
-      data: [ Dict(Arrayable(Any)), {} ],
+      data: [ Dict(Arrayable(Any)), new Map() ],
     }))
   }
 
@@ -67,7 +67,7 @@ export class GeoJSONDataSource extends ColumnarDataSource {
   }
 
   protected _update_data(): void {
-    this.data = this.geojson_to_column_data()
+    this.data = new Map(entries(this.geojson_to_column_data()))
   }
 
   protected _get_new_list_array(length: number): number[][] {

@@ -542,9 +542,9 @@ export class Document implements Equatable {
           const {model, attr, cols, data} = event
           if (cols != null) {
             const current_data = model.property(attr).get_value() as Data
-            for (const k in current_data) {
-              if (!(k in data)) {
-                data[k] = current_data[k]
+            for (const [name, column] of current_data) {
+              if (!data.has(name)) {
+                data.set(name, column)
               }
             }
           }
