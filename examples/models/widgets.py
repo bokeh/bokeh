@@ -287,11 +287,16 @@ This example shows all widgets available in Bokeh.<br>To learn more about using 
 regarding this topic.
 """), position="top", attachment="below", target=ByCSS("body"), closable=True, visible=True)
 
+tooltip_3 = Tooltip(content=HTML("""\
+Allows users to observer and manipulate values of models' properties.
+"""), position="right", target=click_button, persistance="hover")
+
 doc = Document()
 doc.add_root(widgets)
 doc.add_root(dialog)
 doc.add_root(tooltip_0)
 doc.add_root(tooltip_2)
+doc.add_root(tooltip_3)
 
 if __name__ == "__main__":
     doc.validate()

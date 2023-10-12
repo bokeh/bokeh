@@ -101,6 +101,10 @@ class Tooltip(UIElement):
     the contents of this tooltip, e.g. clicking links.
     """)
 
+    persistance = Enum("manual", "hover", default="manual", help="""
+    TODO
+    """)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
