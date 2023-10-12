@@ -507,6 +507,8 @@ def test_Title() -> None:
     check_properties_existence(title, [
         *ANNOTATION,
         "text",
+        "padding",
+        "border_radius",
         "vertical_align",
         "align",
         "offset",

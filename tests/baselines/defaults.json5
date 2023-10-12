@@ -5235,6 +5235,8 @@
   TextAnnotation: {
     __extends__: "Annotation",
     text: "",
+    padding: 0,
+    border_radius: 0,
     text_color: "#444444",
     text_outline_color: null,
     text_alpha: 1.0,
@@ -5280,8 +5282,6 @@
     angle: 0,
     angle_units: "rad",
     direction: "anticlock",
-    padding: 0,
-    border_radius: 0,
     editable: false,
   },
   LabelSet: {

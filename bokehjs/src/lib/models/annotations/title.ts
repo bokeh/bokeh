@@ -3,7 +3,9 @@ import {VerticalAlign, TextAlign} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
 import type {Panel} from "core/layout/side_panel"
 import type * as p from "core/properties"
+import type {XY, SXY} from "core/util/bbox"
 import type {Position} from "core/graphics"
+import * as resolve from "../common/resolve"
 
 export class TitleView extends TextAnnotationView {
   declare model: Title
@@ -66,29 +68,26 @@ export class TitleView extends TextAnnotationView {
       }
     }
 
-    const x_anchor = align
-    const y_anchor = vertical_align == "middle" ? "center" : vertical_align
-
-    return {sx, sy, x_anchor, y_anchor}
+    return {sx, sy}
   }
 
-  protected _render(): void {
-    const position = this._get_position()
-    const angle = this.panel.get_label_angle_heuristic("parallel")
+  get anchor(): XY<number> {
+    const {align, vertical_align} = this.model
+    return resolve.text_anchor("auto", align, vertical_align)
+  }
 
-    this._paint(this.layer.ctx, position, angle)
+  get origin(): SXY {
+    return this._get_position()
+  }
+
+  get angle(): number {
+    return this.panel.get_label_angle_heuristic("parallel")
   }
 
   protected override _get_size(): Size {
-    if (!this.displayed)
-      return {width: 0, height: 0}
-
-    const graphics = this._text_view.graphics()
-    graphics.visuals = this.visuals.text.values()
-
-    const {width, height} = graphics._size()
     // XXX: The magic 2px is for backwards compatibility. This will be removed at
     // some point, but currently there is no point breaking half of visual tests.
+    const {width, height} = super._get_size()
     return {width, height: height == 0 ? 0 : 2 + height + this.model.standoff}
   }
 }

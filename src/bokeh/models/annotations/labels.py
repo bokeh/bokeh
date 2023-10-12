@@ -85,6 +85,21 @@ class TextAnnotation(Annotation):
     A text or LaTeX notation to render.
     """)
 
+    padding = Padding(default=0, help="""
+    Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows label's box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     text_props = Include(ScalarTextProps, help="""
     The {prop} values for the text.
     """)
@@ -181,21 +196,6 @@ class Label(TextAnnotation):
 
     direction = Enum(Direction, default="anticlock", help="""
     The direction for the angle of the label.
-
-    .. note::
-        This property is experimental and may change at any point.
-    """)
-
-    padding = Padding(default=0, help="""
-    Extra space between the text of a label and its bounding box (border).
-
-    .. note::
-        This property is experimental and may change at any point.
-    """)
-
-    border_radius = BorderRadius(default=0, help="""
-    Allows label's box to have rounded corners. For the best results, it
-    should be used in combination with ``padding``.
 
     .. note::
         This property is experimental and may change at any point.
