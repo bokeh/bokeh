@@ -1,7 +1,7 @@
 import sinon from "sinon"
 
 import {expect} from "assertions"
-import {display, fig} from "./_util"
+import {display, fig, restorable} from "./_util"
 import {PlotActions, xy, click} from "../interactive"
 
 import {
@@ -24,11 +24,16 @@ import {
   Rect,
   Row,
   Scatter,
+  TablerIcon,
   TileRenderer,
   Title,
   Toolbar,
   WMTSTileSource,
 } from "@bokehjs/models"
+
+import {
+  Button,
+} from "@bokehjs/models/widgets"
 
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
@@ -902,6 +907,23 @@ describe("Bug", () => {
       const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
 
       expect(mapper.v_compute(data)).to.be.equal(result)
+    })
+  })
+
+  describe("in issue #13414", () => {
+    it("doesn't allow re-render Icon when its properties change", async () => {
+      const icon = new TablerIcon({icon_name: "eye", size: "1.2em"})
+      const button = new Button({icon, label: "Visibility"})
+
+      const {view} = await display(button)
+
+      const icon_view = view.owner.get_one(icon)
+      using render = restorable(sinon.spy(icon_view, "render"))
+
+      icon.icon_name = "eye-off"
+      await view.ready
+
+      expect(render.calledOnce).to.be.true
     })
   })
 })
