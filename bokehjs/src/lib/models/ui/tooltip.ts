@@ -80,6 +80,8 @@ export class TooltipView extends UIElementView {
     this.render()
   }
 
+  private _scroll_listener?: () => void
+
   override connect_signals(): void {
     super.connect_signals()
 
@@ -87,6 +89,18 @@ export class TooltipView extends UIElementView {
       this._reposition()
     })
     this._observer.observe(this.target)
+
+    let throttle = false
+    document.addEventListener("scroll", this._scroll_listener = () => {
+      if (!throttle) {
+        requestAnimationFrame(() => {
+          this._reposition()
+          throttle = false
+        })
+
+        throttle = true
+      }
+    }, {capture: true})
 
     const {target, content, closable, interactive, position, attachment, visible} = this.model.properties
     this.on_change(target, () => {
@@ -97,6 +111,14 @@ export class TooltipView extends UIElementView {
     })
     this.on_change([content, closable, interactive], () => this.render())
     this.on_change([position, attachment, visible], () => this._reposition())
+  }
+
+  override disconnect_signals(): void {
+    if (this._scroll_listener != null) {
+      document.removeEventListener("scroll", this._scroll_listener, {capture: true})
+      delete this._scroll_listener
+    }
+    super.disconnect_signals()
   }
 
   override remove(): void {
@@ -179,8 +201,11 @@ export class TooltipView extends UIElementView {
       return
     }
 
-    const target_el = this.target.shadowRoot ?? this.target
-    target_el.appendChild(this.el)
+    // Append to `body` to deal with CSS' `contain` interaction
+    // with `position: fixed`. We assume initial containment
+    // block in this function, but `contain` can introduce a
+    // new containment block and offset tooltip's position.
+    (document.body.shadowRoot ?? document.body).append(this.el)
 
     const bbox = bounding_box(this.target)
 
