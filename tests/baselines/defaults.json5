@@ -4437,6 +4437,7 @@
   TabPanel: {
     __extends__: "Model",
     title: "",
+    tooltip: null,
     child: {
       type: "symbol",
       name: "unset",
