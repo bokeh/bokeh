@@ -15,6 +15,7 @@ the `sklearn.neighbors.KernelDensity` function and Bokeh harea glyph
 import numpy as np
 import pandas as pd
 from sklearn.neighbors import KernelDensity
+
 from bokeh.plotting import figure, show
 from bokeh.sampledata.lincoln import data as df
 
