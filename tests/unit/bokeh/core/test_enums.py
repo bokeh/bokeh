@@ -75,6 +75,7 @@ ALL  = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
     'SelectionMode',
@@ -284,6 +285,9 @@ class Test_bce:
     def test_ResetPolicy(self) -> None:
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
 
+    def test_ResolutionType(self) -> None:
+        assert tuple(bce.ResolutionType) == ("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
+
     def test_RoundingFunction(self) -> None:
         assert tuple(bce.RoundingFunction) == ("round", "nearest", "floor", "rounddown", "ceil", "roundup")
 
@@ -380,6 +384,7 @@ def test_enums_contents() -> None:
         'Place',
         'RenderLevel',
         'ResetPolicy',
+        'ResolutionType',
         'RoundingFunction',
         'ScrollbarPolicy',
         'SelectionMode',

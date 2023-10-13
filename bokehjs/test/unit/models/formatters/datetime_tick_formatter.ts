@@ -176,23 +176,23 @@ describe("DatetimeTickFormatter", () => {
     it("should handle hourmin", () => {
       const formatter = new dttf.DatetimeTickFormatter()
       const labels = formatter.doFormat([t, t+MIN*30, t+MIN*60], {loc: 0})
-      expect(labels).to.be.equal([":55", "1:25", "1:55"])
+      expect(labels).to.be.equal([":55", "01:25", "01:55"])
     })
     it("should handle hours", () => {
       const formatter = new dttf.DatetimeTickFormatter()
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
       // happens to test near day boundary
-      expect(labels).to.be.equal(["6/23", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23", "01h", "02h"])
     })
     it("should handle days", () => {
       const formatter = new dttf.DatetimeTickFormatter()
       const labels = formatter.doFormat([t, t+DAY, t+DAY*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23", "6/24", "6/25"])
+      expect(labels).to.be.equal(["06/23", "06/24", "06/25"])
     })
     it("should handle months", () => {
       const formatter = new dttf.DatetimeTickFormatter()
       const labels = formatter.doFormat([t, t+MONTH, t+MONTH*2], {loc: 0})
-      expect(labels).to.be.equal(["6/2022", "7/2022", "8/2022"])
+      expect(labels).to.be.equal(["06/2022", "07/2022", "08/2022"])
     })
     it("should handle years", () => {
       const formatter = new dttf.DatetimeTickFormatter()
@@ -201,16 +201,38 @@ describe("DatetimeTickFormatter", () => {
     })
   })
 
+  describe("strip_leading_zeros", () => {
+    it("should handle boolean", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: true})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["6/23", "1h", "2h"])
+    })
+    it("should handle resolution type hours", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["hours"]})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["06/23", "1h", "2h"])
+    })
+    it("should handle resolution type days", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["days"]})
+      const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
+      expect(labels).to.be.equal(["6/23", "01h", "02h"])
+    })
+    it("should handle resolution type milliseconds", () => {
+      const formatter = new dttf.DatetimeTickFormatter({strip_leading_zeros: ["milliseconds"]})
+      const labels = formatter.doFormat([t-752, t-747, t-742], {loc: 0})
+      expect(labels).to.be.equal(["0ms", "5ms", "10ms"])
+    })
+  })
   describe("context", () => {
     it("should handle plain string", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "FOO"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\nFOO", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23\nFOO", "01h", "02h"])
     })
     it("should handle a format string", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\n2022", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23\n2022", "01h", "02h"])
     })
     it("should handle a DatetimeTickFormatter", () => {
       const context = new dttf.DatetimeTickFormatter({
@@ -231,7 +253,7 @@ describe("DatetimeTickFormatter", () => {
       expect(us_labels).to.be.equal(["752000us\nmicroseconds", "752001us", "752002us"])
 
       const days_labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(days_labels).to.be.equal(["6/23\ndays", "1h", "2h"])
+      expect(days_labels).to.be.equal(["06/23\ndays", "01h", "02h"])
 
       const years_labels = formatter.doFormat([t, t+YEAR, t+YEAR*2], {loc: 0})
       expect(years_labels).to.be.equal(["2022\nyears", "2023", "2024"])
@@ -241,44 +263,44 @@ describe("DatetimeTickFormatter", () => {
     it("should handle start", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_which: "start"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\n2022", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23\n2022", "01h", "02h"])
     })
     it("should handle end", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_which: "end"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23", "1h", "2h\n2022"])
+      expect(labels).to.be.equal(["06/23", "01h", "02h\n2022"])
     })
     it("should handle center", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_which: "center"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23", "1h\n2022", "2h"])
+      expect(labels).to.be.equal(["06/23", "01h\n2022", "02h"])
     })
     it("should handle all", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_which: "all"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\n2022", "1h\n2022", "2h\n2022"])
+      expect(labels).to.be.equal(["06/23\n2022", "01h\n2022", "02h\n2022"])
     })
   })
   describe("context_location", () => {
     it("should handle left", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_location: "left"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["2022 6/23", "1h", "2h"])
+      expect(labels).to.be.equal(["2022 06/23", "01h", "02h"])
     })
     it("should handle right", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_location: "right"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23 2022", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23 2022", "01h", "02h"])
     })
     it("should handle above", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_location: "above"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["2022\n6/23", "1h", "2h"])
+      expect(labels).to.be.equal(["2022\n06/23", "01h", "02h"])
     })
     it("should handle below", () => {
       const formatter = new dttf.DatetimeTickFormatter({context: "%Y", context_location: "below"})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["6/23\n2022", "1h", "2h"])
+      expect(labels).to.be.equal(["06/23\n2022", "01h", "02h"])
     })
   })
 })
