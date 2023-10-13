@@ -3670,4 +3670,31 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13428", () => {
+    it("doesn't allow to correctly position Tooltip under 'contain: strict' and other", async () => {
+      const box = div({
+        style: {
+          position: "relative",
+          contain: "strict",
+          left: "50px",
+          top: "50px",
+          width: "200px",
+          height: "200px",
+          overflow: "auto",
+        },
+      })
+
+      const p = fig([300, 300], {tools: "hover"})
+      p.circle([0], [0], {size: 10})
+
+      const {view} = await display(p, [400, 300], box)
+      box.scroll({left: 100, top: 100})
+
+      const actions = new PlotActions(view)
+      actions.hover(xy(0, 0))
+
+      await view.ready
+    })
+  })
 })
