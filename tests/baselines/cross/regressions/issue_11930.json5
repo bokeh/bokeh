@@ -3,40 +3,40 @@
     {
       type: "object",
       name: "Plot",
-      id: "p1008",
+      id: "p1009",
       attributes: {
         width: 200,
         height: 200,
         x_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1009",
+          id: "p1010",
         },
         y_range: {
           type: "object",
           name: "DataRange1d",
-          id: "p1010",
+          id: "p1011",
         },
         x_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1011",
+          id: "p1012",
         },
         y_scale: {
           type: "object",
           name: "LinearScale",
-          id: "p1012",
+          id: "p1013",
         },
         title: {
           type: "object",
           name: "Title",
-          id: "p1013",
+          id: "p1014",
         },
         renderers: [
           {
             type: "object",
             name: "GlyphRenderer",
-            id: "p1005",
+            id: "p1006",
             attributes: {
               data_source: {
                 type: "object",
@@ -56,6 +56,11 @@
                     type: "object",
                     name: "UnionRenderers",
                     id: "p1003",
+                  },
+                  inspection_policy: {
+                    type: "object",
+                    name: "UnionRenderers",
+                    id: "p1004",
                   },
                   data: {
                     type: "map",
@@ -83,19 +88,19 @@
               view: {
                 type: "object",
                 name: "CDSView",
-                id: "p1006",
+                id: "p1007",
                 attributes: {
                   filter: {
                     type: "object",
                     name: "AllIndices",
-                    id: "p1007",
+                    id: "p1008",
                   },
                 },
               },
               glyph: {
                 type: "object",
                 name: "Line",
-                id: "p1004",
+                id: "p1005",
               },
             },
           },
@@ -103,18 +108,18 @@
         toolbar: {
           type: "object",
           name: "Toolbar",
-          id: "p1014",
+          id: "p1015",
         },
         below: [
           {
             type: "object",
             name: "LinearAxis",
-            id: "p1016",
+            id: "p1017",
             attributes: {
               ticker: {
                 type: "object",
                 name: "FixedTicker",
-                id: "p1015",
+                id: "p1016",
                 attributes: {
                   ticks: [
                     1,
@@ -127,7 +132,7 @@
               formatter: {
                 type: "object",
                 name: "BasicTickFormatter",
-                id: "p1018",
+                id: "p1019",
               },
               axis_label: "int overrides",
               major_label_overrides: {
@@ -146,19 +151,19 @@
               major_label_policy: {
                 type: "object",
                 name: "AllLabels",
-                id: "p1019",
+                id: "p1020",
               },
             },
           },
           {
             type: "object",
             name: "LinearAxis",
-            id: "p1021",
+            id: "p1022",
             attributes: {
               ticker: {
                 type: "object",
                 name: "FixedTicker",
-                id: "p1020",
+                id: "p1021",
                 attributes: {
                   ticks: [
                     1,
@@ -171,7 +176,7 @@
               formatter: {
                 type: "object",
                 name: "BasicTickFormatter",
-                id: "p1023",
+                id: "p1024",
               },
               axis_label: "float overrides",
               major_label_overrides: {
@@ -190,7 +195,7 @@
               major_label_policy: {
                 type: "object",
                 name: "AllLabels",
-                id: "p1024",
+                id: "p1025",
               },
             },
           },

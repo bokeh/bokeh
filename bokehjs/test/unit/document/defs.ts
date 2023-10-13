@@ -235,6 +235,7 @@ describe("document/defs module", () => {
         "selected",
         "default_values",
         "selection_policy",
+        "inspection_policy",
         "inspected",
         "data",
       ]

@@ -185,6 +185,11 @@
           name: "UnionRenderers",
           attributes: {},
         },
+        inspection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
         data: {
           type: "map",
         },
@@ -5304,6 +5309,11 @@
               name: "UnionRenderers",
               attributes: {},
             },
+            inspection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
             data: {
               type: "map",
               entries: [
@@ -5350,6 +5360,11 @@
               },
             },
             selection_policy: {
+              type: "object",
+              name: "UnionRenderers",
+              attributes: {},
+            },
+            inspection_policy: {
               type: "object",
               name: "UnionRenderers",
               attributes: {},
@@ -5543,6 +5558,11 @@
       type: "map",
     },
     selection_policy: {
+      type: "object",
+      name: "UnionRenderers",
+      attributes: {},
+    },
+    inspection_policy: {
       type: "object",
       name: "UnionRenderers",
       attributes: {},
@@ -7148,6 +7168,11 @@
           },
         },
         selection_policy: {
+          type: "object",
+          name: "UnionRenderers",
+          attributes: {},
+        },
+        inspection_policy: {
           type: "object",
           name: "UnionRenderers",
           attributes: {},

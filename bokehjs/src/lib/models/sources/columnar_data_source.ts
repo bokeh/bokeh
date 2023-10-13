@@ -25,6 +25,7 @@ export namespace ColumnarDataSource {
     data: p.Property<Data> // XXX: this is hack!!!
     default_values: p.Property<Dict<unknown>>
     selection_policy: p.Property<SelectionPolicy>
+    inspection_policy: p.Property<SelectionPolicy>
     inspected: p.Property<Selection>
   }
 }
@@ -50,7 +51,7 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   _select: Signal0<this>
-  inspect: Signal<[GlyphRenderer, {geometry: Geometry}], this>
+  inspect: Signal<[GlyphRenderer[], {geometry: Geometry}], this>
 
   readonly selection_manager = new SelectionManager(this)
 
@@ -62,10 +63,11 @@ export abstract class ColumnarDataSource extends DataSource {
     this.define<ColumnarDataSource.Props>(({Ref, Dict, Unknown}) => ({
       default_values: [ Dict(Unknown), {} ],
       selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
+      inspection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
     }))
 
     this.internal<ColumnarDataSource.Props>(({AnyRef}) => ({
-      inspected:         [ AnyRef(), () => new Selection() ],
+      inspected: [ AnyRef(), () => new Selection() ],
     }))
   }
 
