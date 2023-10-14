@@ -324,7 +324,7 @@ class PropertyDescriptor(Generic[T]):
             class_name = obj.__class__.__name__
             raise RuntimeError(f"Cannot set a property value {self.name!r} on a {class_name} instance before HasProps.__init__")
 
-        if self.property.readonly:
+        if self.property.readonly and obj._initialized:
             class_name = obj.__class__.__name__
             raise RuntimeError(f"{class_name}.{self.name} is a readonly property")
 
