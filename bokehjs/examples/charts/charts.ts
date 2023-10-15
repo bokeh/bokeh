@@ -1,5 +1,5 @@
-import Bokeh from "/static/js/bokeh.esm.js"
-import "/static/js/bokeh-api.esm.js"
+import Bokeh from "/static/js/bokeh.mjs"
+import "/static/js/bokeh-api.mjs"
 
 export namespace Charts {
   import plt = Bokeh.Plotting

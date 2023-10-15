@@ -48,9 +48,13 @@ export async function embed_items(docs_json: string | DocsJson, render_items: Re
   return _embed_items(docs_json, render_items, app_path, absolute_url)
 }
 
-async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<ViewManager[]> {
+type JSONString = string
+
+async function _embed_items(docs_json: JSONString | DocsJson, render_items: JSONString | RenderItem[], app_path?: string, absolute_url?: string): Promise<ViewManager[]> {
   if (isString(docs_json))
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
+  if (isString(render_items))
+    render_items = JSON.parse(unescape(render_items)) as RenderItem[]
 
   const docs: {[key: string]: Document} = {}
   for (const [docid, doc_json] of entries(docs_json)) {
