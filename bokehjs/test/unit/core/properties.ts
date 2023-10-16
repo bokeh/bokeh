@@ -20,8 +20,9 @@ class TestTransform extends Transform {
   }
   v_compute(xs: number[]): number[] {
     const ret =  []
-    for (let i = 0; i < xs.length; i++)
+    for (let i = 0; i < xs.length; i++) {
       ret.push(xs[i] + i)
+    }
     return ret
   }
 }
@@ -333,8 +334,9 @@ describe("properties module", () => {
 
     describe("valid", () => {
       it("should return undefined on anchor input", () => {
-        for (const x of enums.Anchor)
+        for (const x of enums.Anchor) {
           expect(prop.valid(x)).to.be.true
+        }
       })
 
       it("should throw an Error on other input", () => {
@@ -354,8 +356,9 @@ describe("properties module", () => {
       })
 
       it("should accept any other value", () => {
-        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()])
+        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()]) {
           expect(prop.valid(x)).to.be.true
+        }
       })
     })
   })

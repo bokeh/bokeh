@@ -32,9 +32,10 @@ export class SetValue extends Callback {
 
   execute(): void {
     const {obj, attr, value} = this
-    if (attr in obj.properties)
+    if (attr in obj.properties) {
       obj.setv({[attr]: value})
-    else
+    } else {
       logger.error(`${obj.type}.${attr} is not a property`)
+    }
   }
 }

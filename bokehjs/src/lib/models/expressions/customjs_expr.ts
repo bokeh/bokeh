@@ -65,12 +65,13 @@ export class CustomJSExpr extends Expression {
     let result = generator.next()
     if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
-      if (isArray(value) || isTypedArray(value))
+      if (isArray(value) || isTypedArray(value)) {
         return value
-      else if (isIterable(value))
+      } else if (isIterable(value)) {
         return [...value]
-      else
+      } else {
         return repeat(value, source.length)
+      }
     } else {
       const array = []
 

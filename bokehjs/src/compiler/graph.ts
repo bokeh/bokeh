@@ -14,8 +14,9 @@ export function detect_cycles<T>(graph: Graph<T>): T[][] {
     const node = nodes[0]
 
     const entry = state.get(node)!
-    if (entry.visited)
+    if (entry.visited) {
       return false
+    }
     if (entry.explored) {
       cycles.push(nodes)
       return true
@@ -28,8 +29,9 @@ export function detect_cycles<T>(graph: Graph<T>): T[][] {
       const {visited} = state.get(neighbor)!
       if (!visited) {
         const cycle = detect_cycle([neighbor, ...nodes])
-        if (cycle)
+        if (cycle) {
           break
+        }
       }
     }
 

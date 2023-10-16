@@ -47,13 +47,14 @@ export class CustomJSFilter extends Filter {
   compute_indices(source: ColumnarDataSource): Indices {
     const size = source.get_length() ?? 1
     const filter = this.func(...this.values, source)
-    if (filter == null)
+    if (filter == null) {
       return Indices.all_set(size)
-    else if (isArrayOf(filter, isInteger))
+    } else if (isArrayOf(filter, isInteger)) {
       return Indices.from_indices(size, filter)
-    else if (isArrayOf(filter, isBoolean))
+    } else if (isArrayOf(filter, isBoolean)) {
       return Indices.from_booleans(size, filter)
-    else
+    } else {
       throw new Error(`expect an array of integers or booleans, or null, got ${filter}`)
+    }
   }
 }

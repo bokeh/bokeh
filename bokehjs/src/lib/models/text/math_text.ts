@@ -46,8 +46,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   _base_font_size: number = 13 // the same as :host's font-size (13px)
 
   set base_font_size(v: number | null | undefined) {
-    if (v != null)
+    if (v != null) {
       this._base_font_size = v
+    }
   }
 
   get base_font_size(): number {
@@ -91,8 +92,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   override async lazy_initialize() {
     await super.lazy_initialize()
 
-    if (this.provider.status == "not_started")
+    if (this.provider.status == "not_started") {
       await this.provider.fetch()
+    }
   }
 
   override connect_signals(): void {
@@ -148,9 +150,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const metrics = font_metrics(this.font)
 
     const x = sx - (() => {
-      if (isNumber(x_anchor))
+      if (isNumber(x_anchor)) {
         return x_anchor*width
-      else {
+      } else {
         switch (x_anchor) {
           case "left": return 0
           case "center": return 0.5*width
@@ -160,22 +162,25 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     })()
 
     const y = sy - (() => {
-      if (isNumber(y_anchor))
+      if (isNumber(y_anchor)) {
         return y_anchor*height
-      else {
+      } else {
         switch (y_anchor) {
           case "top":
-            if (metrics.height > height)
+            if (metrics.height > height) {
               return (height - (-this.valign - metrics.descent) - metrics.height)
-            else
+            } else {
               return 0
+            }
           case "center": return 0.5*height
           case "bottom":
-            if (metrics.height > height)
+            if (metrics.height > height) {
               return (
                 height + metrics.descent + this.valign
               )
-            else return height
+            } else {
+              return height
+            }
           case "baseline": return 0.5*height
         }
       }
@@ -191,9 +196,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const {width, height} = this._size()
     const {angle} = this
 
-    if (angle == null || angle == 0)
+    if (angle == null || angle == 0) {
       return {width, height}
-    else {
+    } else {
       const c = Math.cos(Math.abs(angle))
       const s = Math.sin(Math.abs(angle))
 
@@ -287,9 +292,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   rect(): Rect {
     const rect = this._rect()
     const {angle} = this
-    if (angle == null || angle == 0)
+    if (angle == null || angle == 0) {
       return rect
-    else {
+    } else {
       const {sx, sy} = this.position
       const tr = new AffineTransform()
       tr.translate(sx, sy)
@@ -334,8 +339,9 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   protected abstract _process_text(): HTMLElement | undefined
 
   private async load_image(): Promise<CanvasImage | null> {
-    if (this.provider.MathJax == null)
+    if (this.provider.MathJax == null) {
       return null
+    }
 
     const mathjax_element = this._process_text()
     if (mathjax_element == null) {
@@ -363,11 +369,13 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
   */
   paint(ctx: Context2d): void {
     if (this.svg_image == null) {
-      if (this.provider.status == "not_started" || this.provider.status == "loading")
+      if (this.provider.status == "not_started" || this.provider.status == "loading") {
         this.provider.ready.connect(() => this.load_image())
+      }
 
-      if (this.provider.status == "loaded")
+      if (this.provider.status == "loaded") {
         this.load_image()
+      }
     }
 
     ctx.save()
@@ -490,8 +498,9 @@ export class MathMLView extends MathTextView {
   override get styled_text(): string {
     let styled = this.text.trim()
     let matchs = styled.match(/<math(.*?[^?])?>/s)
-    if (matchs == null)
+    if (matchs == null) {
       return this.text.trim()
+    }
 
     styled = insert_text_on_position(
       styled,
@@ -500,8 +509,9 @@ export class MathMLView extends MathTextView {
     )
 
     matchs = styled.match(/<\/[^>]*?math.*?>/s)
-    if (matchs == null)
+    if (matchs == null) {
       return this.text.trim()
+    }
 
     return insert_text_on_position(styled, styled.indexOf(matchs[0]), "</mstyle>")
   }

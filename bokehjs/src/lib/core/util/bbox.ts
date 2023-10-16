@@ -229,20 +229,42 @@ export class BBox implements Rect, Equatable {
     return x0 == 0 && x1 == 0 && y0 == 0 && y1 == 0
   }
 
-  get left(): number { return this.x0 }
-  get top(): number { return this.y0 }
-  get right(): number { return this.x1 }
-  get bottom(): number { return this.y1 }
+  get left(): number {
+    return this.x0
+  }
+  get top(): number {
+    return this.y0
+  }
+  get right(): number {
+    return this.x1
+  }
+  get bottom(): number {
+    return this.y1
+  }
 
-  get p0(): XY<number> { return {x: this.x0, y: this.y0} }
-  get p1(): XY<number> { return {x: this.x1, y: this.y1} }
+  get p0(): XY<number> {
+    return {x: this.x0, y: this.y0}
+  }
+  get p1(): XY<number> {
+    return {x: this.x1, y: this.y1}
+  }
 
-  get x(): number { return this.x0 }
-  get y(): number { return this.y0 }
-  get width(): number { return this.x1 - this.x0 }
-  get height(): number { return this.y1 - this.y0 }
+  get x(): number {
+    return this.x0
+  }
+  get y(): number {
+    return this.y0
+  }
+  get width(): number {
+    return this.x1 - this.x0
+  }
+  get height(): number {
+    return this.y1 - this.y0
+  }
 
-  get size(): Size { return {width: this.width, height: this.height} }
+  get size(): Size {
+    return {width: this.width, height: this.height}
+  }
 
   get rect(): affine.Rect {
     const {x0, y0, x1, y1} = this
@@ -264,20 +286,38 @@ export class BBox implements Rect, Equatable {
     return {left, right, top, bottom}
   }
 
-  get x_range(): Interval { return {start: this.x0, end: this.x1} }
-  get y_range(): Interval { return {start: this.y0, end: this.y1} }
+  get x_range(): Interval {
+    return {start: this.x0, end: this.x1}
+  }
+  get y_range(): Interval {
+    return {start: this.y0, end: this.y1}
+  }
 
-  get h_range(): Interval { return this.x_range }
-  get v_range(): Interval { return this.y_range }
+  get h_range(): Interval {
+    return this.x_range
+  }
+  get v_range(): Interval {
+    return this.y_range
+  }
 
-  get ranges(): [Interval, Interval] { return [this.x_range, this.y_range] }
+  get ranges(): [Interval, Interval] {
+    return [this.x_range, this.y_range]
+  }
 
-  get aspect(): number { return this.width/this.height }
+  get aspect(): number {
+    return this.width/this.height
+  }
 
-  get hcenter(): number { return (this.left + this.right)/2 }
-  get vcenter(): number { return (this.top + this.bottom)/2 }
+  get hcenter(): number {
+    return (this.left + this.right)/2
+  }
+  get vcenter(): number {
+    return (this.top + this.bottom)/2
+  }
 
-  get area(): number { return this.width*this.height }
+  get area(): number {
+    return this.width*this.height
+  }
 
   round(): BBox {
     return new BBox({

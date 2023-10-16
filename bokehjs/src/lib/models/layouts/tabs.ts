@@ -84,8 +84,9 @@ export class TabsView extends LayoutDOMView {
     super._after_layout()
 
     const {child_views} = this
-    for (const child_view of child_views)
+    for (const child_view of child_views) {
       hide(child_view.el)
+    }
 
     const {active} = this.model
     if (active in child_views) {

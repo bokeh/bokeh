@@ -325,8 +325,9 @@ describe("Bug", () => {
       })
 
       for (const axis of p.yaxis) {
-        if (axis instanceof CategoricalAxis)
+        if (axis instanceof CategoricalAxis) {
           axis.subgroup_label_orientation = 0
+        }
       }
 
       await display(p)

@@ -24,34 +24,36 @@ export class HTMLPrinter {
 
   to_html(obj: unknown): HTMLElement {
     if (isObject(obj)) {
-      if (this.visited.has(obj))
+      if (this.visited.has(obj)) {
         return span("<circular>")
-      else
+      } else {
         this.visited.add(obj)
+      }
     }
 
-    if (obj == null)
+    if (obj == null) {
       return this.null()
-    else if (isBoolean(obj))
+    } else if (isBoolean(obj)) {
       return this.boolean(obj)
-    else if (isNumber(obj))
+    } else if (isNumber(obj)) {
       return this.number(obj)
-    else if (isString(obj))
+    } else if (isString(obj)) {
       return this.string(obj)
-    else if (isSymbol(obj))
+    } else if (isSymbol(obj)) {
       return this.symbol(obj)
-    else if (obj instanceof Model)
+    } else if (obj instanceof Model) {
       return this.model(obj)
-    else if (obj instanceof p.Property)
+    } else if (obj instanceof p.Property) {
       return this.property(obj)
-    else if (isPlainObject(obj))
+    } else if (isPlainObject(obj)) {
       return this.object(obj)
-    else if (isArray(obj))
+    } else if (isArray(obj)) {
       return this.array(obj)
-    else if (isIterable(obj))
+    } else if (isIterable(obj)) {
       return this.iterable(obj)
-    else
+    } else {
       return span(to_string(obj))
+    }
   }
 
   null(): HTMLElement {
@@ -75,12 +77,13 @@ export class HTMLPrinter {
     const dq = val.includes('"')
 
     const str = (() => {
-      if (sq && dq)
+      if (sq && dq) {
         return `\`${val.replace(/`/g, "\\`")}\``
-      else if (dq)
+      } else if (dq) {
         return `'${val}'`
-      else
+      } else {
         return `"${val}"`
+      }
     })()
 
     return span({class: "string"}, str)
@@ -153,8 +156,9 @@ export class ExaminerView extends UIElementView {
   override render(): void {
     super.render()
 
-    if (this.prev_listener != null)
+    if (this.prev_listener != null) {
       diagnostics.disconnect(this.prev_listener)
+    }
 
     const models_list: [HasProps, HTMLElement][] = []
     const props_list: [p.Property, HTMLElement][] = []
@@ -162,13 +166,15 @@ export class ExaminerView extends UIElementView {
 
     const animations = new WeakMap<Element, Animation>()
     const listener = (obj: unknown): void => {
-      if (!(obj instanceof p.Property))
+      if (!(obj instanceof p.Property)) {
         return
+      }
 
       function highlight(el: Element) {
         const prev = animations.get(el)
-        if (prev != null)
+        if (prev != null) {
           prev.cancel()
+        }
         const anim = el.animate([
           {backgroundColor: "#def189"},
           {backgroundColor: "initial"},
@@ -278,8 +284,9 @@ export class ExaminerView extends UIElementView {
     const examiner_el = div({class: "examiner"}, models_panel_el, column_el)
 
     function click(obj: unknown) {
-      if (obj instanceof Model)
+      if (obj instanceof Model) {
         render_props(obj)
+      }
     }
 
     function to_html(obj: unknown) {
@@ -336,8 +343,9 @@ export class ExaminerView extends UIElementView {
       const connections = receivers_for_sender.get(model) ?? []
 
       for (const [base, attrs] of bases) {
-        if (attrs.length == 0)
+        if (attrs.length == 0) {
           continue
+        }
 
         const expander_el = span({class: ["expander"]})
         const base_el = div({class: "base"}, expander_el, "inherited from", " ", span({class: "monospace"}, base.__qualified__))

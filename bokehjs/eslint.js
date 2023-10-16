@@ -57,7 +57,6 @@ module.exports = {
     "@typescript-eslint/no-unnecessary-type-constraint": ["error"],
     "@typescript-eslint/switch-exhaustiveness-check": ["error"],
     "no-self-assign": ["error", {"props": false}],
-    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
     "comma-dangle": ["off"],
     "@typescript-eslint/comma-dangle": ["error", {
       "arrays": "always-multiline",
@@ -121,6 +120,8 @@ module.exports = {
     }],
     "guard-for-in": ["error"],
     "quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": false}],
+    "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
+    // "curly": ["error", "all"],
     "prefer-template": ["error"],
     "generator-star-spacing": ["error", {
       "before": false,

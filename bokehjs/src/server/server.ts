@@ -30,8 +30,9 @@ type Token = {
 function parse_token(token: string): Token {
   let payload = token.split(".")[0]
   const mod = payload.length % 4
-  if (mod != 0)
+  if (mod != 0) {
     payload += "=".repeat(4-mod)
+  }
   payload = payload.replace(/_/g, "/").replace(/-/g, "+")
   const json = Buffer.from(payload, "base64").toString()
   return JSON.parse(json)
@@ -115,9 +116,9 @@ wss.on("connection", (ws, req: Request) => {
 
   const session = (() => {
     const session = sessions.get(session_id)
-    if (session != null)
+    if (session != null) {
       return session
-    else {
+    } else {
       const session = new ServerSession(session_id)
       sessions.set(session_id, session)
       return session
@@ -133,9 +134,9 @@ wss.on("connection", (ws, req: Request) => {
   ws.addEventListener("message", (event) => {
     const {data, type} = event
     log(`received: ${data} ${type}`)
-    if (isString(data) || data instanceof ArrayBuffer)
+    if (isString(data) || data instanceof ArrayBuffer) {
       receiver.consume(data)
-    else {
+    } else {
       ws.close()
       return
     }

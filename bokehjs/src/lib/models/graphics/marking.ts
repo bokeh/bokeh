@@ -30,8 +30,9 @@ export abstract class MarkingView extends View implements visuals.Renderable {
   set_data(source: ColumnarDataSource, indices: Indices): void {
     const self = this as any
     for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
+      }
       const uniform = prop.uniform(source).select(indices)
       self[`${prop.attr}`] = uniform
     }

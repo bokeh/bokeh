@@ -24,8 +24,9 @@ export async function show(obj: Document | UIElement | UIElement[], target?: Emb
     } else {
       const doc = new Document()
 
-      for (const item of isArray(obj) ? obj : [obj])
+      for (const item of isArray(obj) ? obj : [obj]) {
         doc.add_root(item)
+      }
 
       return doc
     }
@@ -38,20 +39,23 @@ export async function show(obj: Document | UIElement | UIElement[], target?: Emb
     if (target == null) {
       if (script != null && contains(document.body, script)) {
         const parent = script.parentNode
-        if (parent instanceof HTMLElement || parent instanceof DocumentFragment)
+        if (parent instanceof HTMLElement || parent instanceof DocumentFragment) {
           return parent
+        }
       }
 
       return document.body
     } else if (isString(target)) {
       const found = document.querySelector(target)
       if (found instanceof HTMLElement) {
-        if (found.shadowRoot != null)
+        if (found.shadowRoot != null) {
           return found.shadowRoot
-        else
+        } else {
           return found
-      } else
+        }
+      } else {
         throw new Error(`'${target}' selector didn't match any elements`)
+      }
     } else if (target instanceof HTMLElement) {
       return target
     } else if (typeof $ !== "undefined" && target instanceof $) {
@@ -66,9 +70,10 @@ export async function show(obj: Document | UIElement | UIElement[], target?: Emb
   return new Promise((resolve, _reject) => {
     const views = [...view_manager]
     const result = isArray(obj) || obj instanceof Document ? views : views[0]
-    if (doc.is_idle)
+    if (doc.is_idle) {
       resolve(result)
-    else
+    } else {
       doc.idle.connect(() => resolve(result))
+    }
   })
 }

@@ -26,8 +26,9 @@ export namespace TappyScatter {
   const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
   const colors: [number, number, number][] = []
-  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
+  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y))) {
     colors.push([r, g, 150])
+  }
 
   const source = new Bokeh.ColumnDataSource({
     data: {x: xx, y: yy, radius: radii, colors},

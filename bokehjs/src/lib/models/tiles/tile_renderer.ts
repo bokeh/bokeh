@@ -55,8 +55,9 @@ export class TileRendererView extends RendererView {
   }
 
   override remove(): void {
-    if (this.attribution_el != null)
+    if (this.attribution_el != null) {
       remove(this.attribution_el)
+    }
     super.remove()
   }
 
@@ -100,8 +101,9 @@ export class TileRendererView extends RendererView {
   }
 
   protected _update_attribution(): void {
-    if (this.attribution_el != null)
+    if (this.attribution_el != null) {
       remove(this.attribution_el)
+    }
 
     const {attribution} = this.model.tile_source
 
@@ -156,8 +158,9 @@ export class TileRendererView extends RendererView {
     const quadkey = this.model.tile_source.tile_xyz_to_quadkey(x, y, z)
     const cache_key = this.model.tile_source.tile_xyz_to_key(x, y, z)
 
-    if (this.model.tile_source.tiles.has(cache_key))
+    if (this.model.tile_source.tiles.has(cache_key)) {
       return
+    }
 
     const [nx, ny, nz] = this.model.tile_source.normalize_xyz(x, y, z)
     const src = this.model.tile_source.get_image_url(nx, ny, nz)
@@ -176,8 +179,9 @@ export class TileRendererView extends RendererView {
     }
 
     this.model.tile_source.tiles.set(cache_key, tile)
-    if (this._tiles == null)
+    if (this._tiles == null) {
       this._tiles = []
+    }
     this._tiles.push(tile)
 
     new ImageLoader(src, {
@@ -187,8 +191,9 @@ export class TileRendererView extends RendererView {
         if (cache_only) {
           tile.finished = true
           this.notify_finished()
-        } else
+        } else {
           this.request_render()
+        }
       },
       failed() {
         tile.finished = true
@@ -211,15 +216,18 @@ export class TileRendererView extends RendererView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
-    if (this._tiles == null)
+    if (this._tiles == null) {
       return false
+    }
 
     for (const tile of this._tiles) {
-      if (!tile.finished)
+      if (!tile.finished) {
         return false
+      }
     }
 
     return true
@@ -365,15 +373,17 @@ export class TileRendererView extends RendererView {
             for (const [cx, cy, cz] of child_tiles) {
               const child_key = tile_source.tile_xyz_to_key(cx, cy, cz)
 
-              if (tile_source.tiles.has(child_key))
+              if (tile_source.tiles.has(child_key)) {
                 children.push(child_key)
+              }
             }
           }
         }
       }
 
-      if (tile == null)
+      if (tile == null) {
         need_load.push(t)
+      }
     }
 
     // draw stand-in parents ----------

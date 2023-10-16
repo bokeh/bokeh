@@ -78,8 +78,9 @@ export class Model extends HasProps {
       execute(callback, event)
     }
 
-    if (this.document != null && this.subscribed_events.has(event.event_name))
+    if (this.document != null && this.subscribed_events.has(event.event_name)) {
       this.document.event_manager.send_event(event)
+    }
   }
 
   trigger_event(event: ModelEvent): void {
@@ -105,8 +106,9 @@ export class Model extends HasProps {
 
     for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
-      for (const cb of callbacks)
+      for (const cb of callbacks) {
         this.disconnect(signal, cb)
+      }
     }
     this._js_callbacks.clear()
 
@@ -114,14 +116,16 @@ export class Model extends HasProps {
       const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
-      for (const cb of wrappers)
+      for (const cb of wrappers) {
         this.connect(signal, cb)
+      }
     }
   }
 
   protected override _doc_attached(): void {
-    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0)
+    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0) {
       this._update_event_callbacks()
+    }
   }
 
   protected override _doc_detached(): void {
@@ -129,14 +133,15 @@ export class Model extends HasProps {
   }
 
   select<T extends HasProps>(selector: ModelSelector<T>): T[] {
-    if (isString(selector))
+    if (isString(selector)) {
       return [...this.references()].filter((ref): ref is T => ref instanceof Model && ref.name === selector)
-    else if (isPlainObject(selector) && "type" in selector)
+    } else if (isPlainObject(selector) && "type" in selector) {
       return [...this.references()].filter((ref): ref is T => ref.type == selector.type)
-    else if (selector.prototype instanceof HasProps)
+    } else if (selector.prototype instanceof HasProps) {
       return [...this.references()].filter((ref): ref is T => ref instanceof selector)
-    else
+    } else {
       throw new Error(`invalid selector ${selector}`)
+    }
   }
 
   select_one<T extends HasProps>(selector: ModelSelector<T>): T | null {

@@ -50,12 +50,13 @@ export class FileInputView extends InputWidgetView {
     }
 
     const [value, filename, mime_type] = (() =>{
-      if (this.model.multiple)
+      if (this.model.multiple) {
         return [values, filenames, mime_types]
-      else if (files.length != 0)
+      } else if (files.length != 0) {
         return [values[0], filenames[0], mime_types[0]]
-      else
+      } else {
         return ["", "", ""]
+      }
     })()
 
     this.model.setv({value, filename, mime_type})

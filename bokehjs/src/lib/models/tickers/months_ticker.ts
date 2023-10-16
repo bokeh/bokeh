@@ -18,8 +18,9 @@ function date_range_by_year(start_time: number, end_time: number): Date[] {
     dates.push(copy_date(date))
 
     date.setUTCFullYear(date.getUTCFullYear() + 1)
-    if (date > end_date)
+    if (date > end_date) {
       break
+    }
   }
 
   return dates
@@ -57,10 +58,11 @@ export class MonthsTicker extends BaseSingleIntervalTicker {
   override initialize(): void {
     super.initialize()
     const months = this.months
-    if (months.length > 1)
+    if (months.length > 1) {
       this.interval = (months[1] - months[0])*ONE_MONTH
-    else
+    } else {
       this.interval = 12*ONE_MONTH
+    }
   }
 
   override get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {

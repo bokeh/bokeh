@@ -21,8 +21,9 @@ export function relativize_modules(relativize: (file: string, module_path: strin
     const {factory} = context
     if (expr != null && ts.isStringLiteralLike(expr) && expr.text.length > 0) {
       const relative = relativize(source.fileName, expr.text)
-      if (relative != null)
+      if (relative != null) {
         return factory.createStringLiteral(relative)
+      }
     }
 
     return null
@@ -118,8 +119,9 @@ export function remove_use_strict() {
     const statements = root.statements.filter((node) => {
       if (ts.isExpressionStatement(node)) {
         const expr = node.expression
-        if (ts.isStringLiteral(expr) && expr.text == "use strict")
+        if (ts.isStringLiteral(expr) && expr.text == "use strict") {
           return false
+        }
       }
       return true
     })
@@ -151,11 +153,13 @@ export function collect_exports(exported: Exports[]) {
   return (_context: ts.TransformationContext) => (root: ts.SourceFile) => {
     for (const statement of root.statements) {
       if (ts.isExportDeclaration(statement)) {
-        if (statement.isTypeOnly)
+        if (statement.isTypeOnly) {
           continue
+        }
         const {exportClause, moduleSpecifier} = statement
-        if (moduleSpecifier == null || !ts.isStringLiteral(moduleSpecifier))
+        if (moduleSpecifier == null || !ts.isStringLiteral(moduleSpecifier)) {
           continue
+        }
         const module = moduleSpecifier.text
         if (exportClause == null) {
           // export * from "module"
@@ -201,12 +205,14 @@ export function collect_imports(imports: Set<string>) {
     function visit(node: ts.Node): ts.Node {
       if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
         const name = node.moduleSpecifier
-        if (name != null && ts.isStringLiteral(name) && name.text.length != 0)
+        if (name != null && ts.isStringLiteral(name) && name.text.length != 0) {
           imports.add(name.text)
+        }
       } else if (isImportCall(node)) {
         const [name] = node.arguments
-        if (ts.isStringLiteral(name) && name.text.length != 0)
+        if (ts.isStringLiteral(name) && name.text.length != 0) {
           imports.add(name.text)
+        }
       }
 
       return ts.visitEachChild(node, visit, context)
@@ -219,8 +225,9 @@ export function collect_deps(source: ts.SourceFile): string[] {
   function traverse(node: ts.Node): void {
     if (is_require(node)) {
       const [arg] = node.arguments
-      if (ts.isStringLiteral(arg) && arg.text.length > 0)
+      if (ts.isStringLiteral(arg) && arg.text.length > 0) {
         deps.add(arg.text)
+      }
     }
 
     ts.forEachChild(node, traverse)
@@ -286,8 +293,9 @@ export function rename_exports() {
       }
 
       return ts.visitEachChild(root, visit, context)
-    } else
+    } else {
       return root
+    }
   }
 }
 

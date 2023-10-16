@@ -59,8 +59,9 @@ type ElementAssertions = {
 }
 
 function compare_attributes(actual: Element, expected: Element) {
-  if (actual.nodeName !== expected.nodeName)
+  if (actual.nodeName !== expected.nodeName) {
     throw new ExpectationError(`expected <${actual.nodeName}> to be equal <${expected.nodeName}>`)
+  }
 
   const names = (el: Element) => [...el.attributes].map((attr) => attr.name)
   const attrs = new Set([...names(actual), ...names(expected)])
@@ -70,20 +71,23 @@ function compare_attributes(actual: Element, expected: Element) {
     const expected_val = expected.getAttribute(attr)
 
     if (actual_val == null || expected_val == null) {
-      if (actual_val == null)
+      if (actual_val == null) {
         throw new ExpectationError(`expected attribute ${attr} missing in the actual element`)
-      else
+      } else {
         throw new ExpectationError(`actual attribute ${attr} missing in the expected element`)
-    } else if (actual_val !== expected_val)
+      }
+    } else if (actual_val !== expected_val) {
       throw new ExpectationError(`expected ${attr}="${expected_val}" to be equal ${attr}="${actual_val}"`)
+    }
   }
 }
 
 function compare_element_attributes(actual: Element, expected: Element) {
   compare_attributes(actual, expected)
 
-  if (actual.childElementCount != expected.childElementCount)
+  if (actual.childElementCount != expected.childElementCount) {
     throw new ExpectationError("elements differ on child count")
+  }
 
   for (let i = 0; i < expected.childElementCount; i++) {
     compare_element_attributes(actual.children[i], expected.children[i])
@@ -186,14 +190,15 @@ class Asserts implements Assertions<unknown> {
     const {value} = this
 
     const is_empty = (() => {
-      if (isArray(value) || isTypedArray(value))
+      if (isArray(value) || isTypedArray(value)) {
         return value.length == 0
-      else if (isPlainObject(value))
+      } else if (isPlainObject(value)) {
         return Object.keys(value).length == 0
-      else if (isIterable(value))
+      } else if (isIterable(value)) {
         return value[Symbol.iterator]().next().done
-      else
+      } else {
         return null
+      }
     })()
 
     if (is_empty == null) {
@@ -285,11 +290,13 @@ function NotThrows(fn: () => unknown) {
 
         if (pattern != null && error instanceof Error) {
           if (pattern instanceof RegExp) {
-            if (error.message.match(pattern) != null)
+            if (error.message.match(pattern) != null) {
               throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception matching ${to_string(pattern)}, got ${to_string(error)}`)
+            }
           } else if (isString(pattern)) {
-            if (error.message.includes(pattern))
+            if (error.message.includes(pattern)) {
               throw new ExpectationError(`expected ${to_string(fn)} to not throw an exception including ${to_string(pattern)}, got ${to_string(error)}`)
+            }
           }
         }
       }

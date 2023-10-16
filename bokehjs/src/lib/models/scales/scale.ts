@@ -62,17 +62,19 @@ export abstract class Scale<T = number> extends Transform<T, number> {
 
   r_compute(x0: T, x1: T): [number, number] {
     const {s_compute} = this
-    if (this.target_range.is_reversed)
+    if (this.target_range.is_reversed) {
       return [s_compute(x1), s_compute(x0)]
-    else
+    } else {
       return [s_compute(x0), s_compute(x1)]
+    }
   }
 
   r_invert(sx0: number, sx1: number): [number, number] {
     const {s_invert} = this
-    if (this.target_range.is_reversed)
+    if (this.target_range.is_reversed) {
       return [s_invert(sx1), s_invert(sx0)]
-    else
+    } else {
       return [s_invert(sx0), s_invert(sx1)]
+    }
   }
 }

@@ -42,12 +42,13 @@ export class LogColorMapper extends ContinuousColorMapper {
 
     // This handles the edge case where value == high, since the code below maps
     // values exactly equal to high to palette.length when it should be one less.
-    if (value == scan_data.max)
+    if (value == scan_data.max) {
       return palette_length - 1
-    else if (value > scan_data.max)
+    } else if (value > scan_data.max) {
       return palette_length
-    else if (value < scan_data.min)
+    } else if (value < scan_data.min) {
       return -1
+    }
 
     const log = Math.log(value / scan_data.min)
     const index = Math.floor(log * scan_data.scale)

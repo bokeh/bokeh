@@ -55,17 +55,20 @@ export abstract class Interpolator extends Transform {
   }
 
   sort(descending: boolean = false): void {
-    if (!this._sorted_dirty)
+    if (!this._sorted_dirty) {
       return
+    }
 
     let tsx: Arrayable<number>
     let tsy: Arrayable<number>
     if (isString(this.x) && isString(this.y) && this.data != null) {
       const column_names = this.data.columns()
-      if (!includes(column_names, this.x))
+      if (!includes(column_names, this.x)) {
         throw new Error("The x parameter does not correspond to a valid column name defined in the data parameter")
-      if (!includes(column_names, this.y))
+      }
+      if (!includes(column_names, this.y)) {
         throw new Error("The y parameter does not correspond to a valid column name defined in the data parameter")
+      }
 
       tsx = this.data.get_column(this.x)!
       tsy = this.data.get_column(this.y)!
@@ -76,11 +79,13 @@ export abstract class Interpolator extends Transform {
       throw new Error("parameters 'x' and 'y' must be both either string fields or arrays")
     }
 
-    if (tsx.length !== tsy.length)
+    if (tsx.length !== tsy.length) {
       throw new Error("The length for x and y do not match")
+    }
 
-    if (tsx.length < 2)
+    if (tsx.length < 2) {
       throw new Error("x and y must have at least two elements to support interpolation")
+    }
 
     const n = tsx.length
     const index = new Uint32Array(n)

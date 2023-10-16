@@ -32,8 +32,9 @@ export class CategoricalAxisView extends AxisView {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    if (range.tops == null || range.tops.length < 2 || !this.visuals.separator_line.doit)
+    if (range.tops == null || range.tops.length < 2 || !this.visuals.separator_line.doit) {
       return
+    }
 
     const dim = this.dimension
     const alt = 1 - dim

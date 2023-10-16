@@ -217,15 +217,17 @@ describe("ColorBar annotation", () => {
 
     const [l, s] = [500, 200]
     const p = (() => {
-      if (horizontal)
+      if (horizontal) {
         return fig([l, s], {x_axis_location: side, border_fill_color: "lightgray"})
-      else
+      } else {
         return fig([s, l], {y_axis_location: side, border_fill_color: "lightgray"})
+      }
     })()
     p.circle({x, y, radius: r, fill_color: {field: "values", transform: color_mapper}, source: {values: v}})
 
-    if (color_bar.title == null)
+    if (color_bar.title == null) {
       color_bar.title = "Unspecified title"
+    }
 
     color_bar.border_line_color = "black"
 
@@ -469,8 +471,9 @@ describe("ColorBar annotation", () => {
         new ColorBar({color_mapper, title: "Reset", display_low: 3, display_high: 7}),
       ]
       const side = vertical ? "right" : "below"
-      for (const cbar of cbars)
+      for (const cbar of cbars) {
         p.add_layout(cbar, side)
+      }
       return {plot: p, cbars}
     }
 

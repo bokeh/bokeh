@@ -20,9 +20,11 @@ describe("Examples", () => {
     const color_map: Map<string, Color> = new Map()
 
     const dark_colors = (function* () {
-      for (const color of values(named_colors))
-        if (brightness(color) < 0.6)
+      for (const color of values(named_colors)) {
+        if (brightness(color) < 0.6) {
           yield color
+        }
+      }
       unreachable()
     })()
 
@@ -40,8 +42,9 @@ describe("Examples", () => {
 
       // XXX: Map keys are compared by reference
       const hash = k.toString()
-      if (!color_map.has(hash))
+      if (!color_map.has(hash)) {
         color_map.set(hash, dark_colors.next().value)
+      }
 
       const color = color_map.get(hash)
       xy.line({expr: t.x}, {expr: t.y}, {line_color: color, source}) // TODO: expr convenience

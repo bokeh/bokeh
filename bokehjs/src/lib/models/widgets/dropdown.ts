@@ -28,9 +28,9 @@ export class DropdownView extends AbstractButtonView {
 
     const caret = div({class: [carets.caret, carets.down]})
 
-    if (!this.model.is_split)
+    if (!this.model.is_split) {
       this.button_el.appendChild(caret)
-    else {
+    } else {
       const toggle = this._render_button(caret)
       toggle.classList.add(buttons.dropdown_toggle)
       toggle.addEventListener("click", () => this._toggle_menu())
@@ -38,9 +38,9 @@ export class DropdownView extends AbstractButtonView {
     }
 
     const items = this.model.menu.map((item, i) => {
-      if (item == null)
+      if (item == null) {
         return div({class: dropdown.divider})
-      else {
+      } else {
         const label = isString(item) ? item : item[0]
         const el = div(label)
         el.addEventListener("click", () => this._item_click(i))
@@ -76,16 +76,17 @@ export class DropdownView extends AbstractButtonView {
   }
 
   protected _toggle_menu(): void {
-    if (this._open)
+    if (this._open) {
       this._hide_menu()
-    else
+    } else {
       this._show_menu()
+    }
   }
 
   override click(): void {
-    if (!this.model.is_split)
+    if (!this.model.is_split) {
       this._toggle_menu()
-    else {
+    } else {
       this._hide_menu()
       this.model.trigger_event(new ButtonClick())
       super.click()

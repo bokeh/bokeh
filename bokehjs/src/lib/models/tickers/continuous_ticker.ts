@@ -64,10 +64,11 @@ export abstract class ContinuousTicker extends Ticker {
     const start_factor = Math.floor(data_low / interval)
     const end_factor   = Math.ceil(data_high / interval)
     let factors: number[]
-    if (!isFinite(start_factor) || !isFinite(end_factor))
+    if (!isFinite(start_factor) || !isFinite(end_factor)) {
       factors = []
-    else
+    } else {
       factors = range(start_factor, end_factor + 1)
+    }
     const ticks = factors
       .map((factor) => factor*interval)
       .filter((tick) => data_low <= tick && tick <= data_high)

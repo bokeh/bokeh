@@ -74,15 +74,17 @@ export class AxisView extends GuideRendererView {
       let {sx0, sy0, sx1, sy1} = this.rule_scoords
       const {dimension, face} = this
       if (dimension == 0) {
-        if (face == "front")
+        if (face == "front") {
           sy0 -= depth
-        else
+        } else {
           sy1 += depth
+        }
       } else {
-        if (face == "front")
+        if (face == "front") {
           sx0 -= depth
-        else
+        } else {
           sx1 += depth
+        }
       }
 
       return BBox.from_lrtb({left: sx0, top: sy0, right: sx1, bottom: sy1})
@@ -93,8 +95,9 @@ export class AxisView extends GuideRendererView {
 
   override *children(): IterViews {
     yield* super.children()
-    if (this._axis_label_view != null)
+    if (this._axis_label_view != null) {
       yield this._axis_label_view
+    }
     yield* this._major_label_views.values()
   }
 
@@ -109,8 +112,9 @@ export class AxisView extends GuideRendererView {
     if (axis_label != null) {
       const _axis_label = isString(axis_label) ? parse_delimited_string(axis_label) : axis_label
       this._axis_label_view = await build_view(_axis_label, {parent: this})
-    } else
+    } else {
       this._axis_label_view = null
+    }
   }
 
   protected async _init_major_labels(): Promise<void> {
@@ -131,8 +135,9 @@ export class AxisView extends GuideRendererView {
       const {extents} = this
       const height = Math.round(extents.tick + extents.tick_label + extents.axis_label)
       return {width: 0, height}
-    } else
+    } else {
       return {width: 0, height: 0}
+    }
   }
 
   get is_renderable(): boolean {
@@ -141,8 +146,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _render(): void {
-    if (!this.is_renderable)
+    if (!this.is_renderable) {
       return
+    }
 
     const {tick_coords, extents} = this
 
@@ -187,8 +193,9 @@ export class AxisView extends GuideRendererView {
   // drawing sub functions -----------------------------------------------------
 
   protected _draw_background(ctx: Context2d, _extents: Extents): void {
-    if (!this.visuals.background_fill.doit)
+    if (!this.visuals.background_fill.doit) {
       return
+    }
 
     ctx.beginPath()
     const {x, y, width, height} = this.bbox
@@ -197,8 +204,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_rule(ctx: Context2d, _extents: Extents): void {
-    if (!this.visuals.axis_line.doit)
+    if (!this.visuals.axis_line.doit) {
       return
+    }
 
     const {sx0, sy0, sx1, sy1} = this.rule_scoords
 
@@ -235,8 +243,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _axis_label_extent(): number {
-    if (this._axis_label_view == null)
+    if (this._axis_label_view == null) {
       return 0
+    }
 
     const axis_label_graphics = this._axis_label_view.graphics()
 
@@ -255,8 +264,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_axis_label(ctx: Context2d, extents: Extents, _tick_coords: TickCoords): void {
-    if (this._axis_label_view == null)
+    if (this._axis_label_view == null) {
       return
+    }
 
     const [sx, sy/* TODO, x_anchor, y_anchor*/] = (() => {
       const {bbox} = this
@@ -316,8 +326,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _draw_ticks(ctx: Context2d, coords: Coords, tin: number, tout: number, visuals: visuals.Line): void {
-    if (!visuals.doit)
+    if (!visuals.doit) {
       return
+    }
 
     const [sxs, sys]   = this.scoords(coords)
     const [nx, ny]     = this.normals
@@ -344,8 +355,9 @@ export class AxisView extends GuideRendererView {
       ctx: Context2d, labels: GraphicsBoxes, coords: Coords,
       orient: Orient | number, standoff: number, visuals: visuals.Text,
   ): void {
-    if (!visuals.doit || labels.length == 0)
+    if (!visuals.doit || labels.length == 0) {
       return
+    }
 
     const [sxs, sys] = this.scoords(coords)
     const [xoff, yoff] = this.offsets
@@ -370,8 +382,9 @@ export class AxisView extends GuideRendererView {
         x_anchor: align,
         y_anchor: vertical_align,
       }
-      if (label instanceof TextBox)
+      if (label instanceof TextBox) {
         label.align = align
+      }
     }
 
     const n = labels.length
@@ -381,12 +394,13 @@ export class AxisView extends GuideRendererView {
     const bboxes = items.map((l) => l.bbox())
     const dist = ((): DistanceMeasure => {
       const [range] = this.ranges
-      if (!range.is_reversed)
+      if (!range.is_reversed) {
         return this.dimension == 0 ? (i, j) => bboxes[j].left - bboxes[i].right
                                    : (i, j) => bboxes[i].top - bboxes[j].bottom
-      else
+      } else {
         return this.dimension == 0 ? (i, j) => bboxes[i].left - bboxes[j].right
                                    : (i, j) => bboxes[j].top - bboxes[i].bottom
+      }
     })()
 
     const {major_label_policy} = this.model
@@ -475,8 +489,9 @@ export class AxisView extends GuideRendererView {
   }
 
   protected _oriented_labels_extent(labels: GraphicsBoxes, orient: Orient | number, standoff: number, visuals: visuals.Text): number {
-    if (labels.length == 0 || !visuals.doit)
+    if (labels.length == 0 || !visuals.doit) {
       return 0
+    }
 
     const angle = this.panel.get_label_angle_heuristic(orient)
     labels.visuals = visuals.values()
@@ -560,9 +575,9 @@ export class AxisView extends GuideRendererView {
     const user_bounds = this.model.bounds
     const range_bounds = [range.min, range.max]
 
-    if (user_bounds == "auto")
+    if (user_bounds == "auto") {
       return [range.min, range.max]
-    else {
+    } else {
       let start: number
       let end: number
 
@@ -594,8 +609,9 @@ export class AxisView extends GuideRendererView {
 
     coords[i][0] = Math.max(start, range.min)
     coords[i][1] = Math.min(end, range.max)
-    if (coords[i][0] > coords[i][1])
+    if (coords[i][0] > coords[i][1]) {
       coords[i][0] = coords[i][1] = NaN
+    }
 
     coords[j][0] = this.loc
     coords[j][1] = this.loc
@@ -634,15 +650,17 @@ export class AxisView extends GuideRendererView {
     const [range_min, range_max] = [range.min, range.max]
 
     for (let ii = 0; ii < majors.length; ii++) {
-      if (majors[ii] < range_min || majors[ii] > range_max)
+      if (majors[ii] < range_min || majors[ii] > range_max) {
         continue
+      }
       coords[i].push(majors[ii])
       coords[j].push(this.loc)
     }
 
     for (let ii = 0; ii < minors.length; ii++) {
-      if (minors[ii] < range_min || minors[ii] > range_max)
+      if (minors[ii] < range_min || minors[ii] > range_max) {
         continue
+      }
       minor_coords[i].push(minors[ii])
       minor_coords[j].push(this.loc)
     }
@@ -656,12 +674,14 @@ export class AxisView extends GuideRendererView {
   get loc(): number {
     const {fixed_location} = this.model
     if (fixed_location != null) {
-      if (isNumber(fixed_location))
+      if (isNumber(fixed_location)) {
         return fixed_location
+      }
 
       const [, cross_range] = this.ranges
-      if (cross_range instanceof FactorRange)
+      if (cross_range instanceof FactorRange) {
         return cross_range.synthetic(fixed_location)
+      }
 
       unreachable()
     }
@@ -702,17 +722,20 @@ export class AxisView extends GuideRendererView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
     if (this._axis_label_view != null) {
-      if (!this._axis_label_view.has_finished())
+      if (!this._axis_label_view.has_finished()) {
         return false
+      }
     }
 
     for (const label_view of this._major_label_views.values()) {
-      if (!label_view.has_finished())
+      if (!label_view.has_finished()) {
         return false
+      }
     }
 
     return true

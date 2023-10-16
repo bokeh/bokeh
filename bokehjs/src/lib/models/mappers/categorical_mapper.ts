@@ -12,8 +12,9 @@ export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boole
 
   const n = a.length
   for (let i = 0; i < n; i++) {
-    if (a[i] !== b[i])
+    if (a[i] !== b[i]) {
       return false
+    }
   }
 
   return true

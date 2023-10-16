@@ -102,10 +102,11 @@ export class AutocompleteInputView extends TextInputView {
     const completions = this.compute_completions(value)
     this._update_completions(completions)
 
-    if (completions.length == 0)
+    if (completions.length == 0) {
       this._hide_menu()
-    else
+    } else {
       this._show_menu()
+    }
   }
 
   protected _show_menu(): void {

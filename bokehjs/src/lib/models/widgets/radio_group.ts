@@ -35,10 +35,12 @@ export class RadioGroupView extends ToggleInputGroupView {
       radio.addEventListener("change", () => this.change_active(i))
       this._inputs.push(radio)
 
-      if (this.model.disabled)
+      if (this.model.disabled) {
         radio.disabled = true
-      if (i == active)
+      }
+      if (i == active) {
         radio.checked = true
+      }
 
       const label_el = label(radio, span(labels[i]))
       group.appendChild(label_el)

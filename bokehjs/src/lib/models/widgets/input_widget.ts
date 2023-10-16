@@ -31,8 +31,9 @@ export abstract class InputWidgetView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
-    if (this.description != null)
+    if (this.description != null) {
       yield this.description
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -65,15 +66,15 @@ export abstract class InputWidgetView extends ControlView {
 
     const {title, description} = this.model
 
-    if (description == null)
+    if (description == null) {
       this.desc_el = null
-    else {
+    } else {
       const icon_el = div({class: inputs.icon})
       this.desc_el = div({class: inputs.description}, icon_el)
 
-      if (isString(description))
+      if (isString(description)) {
         this.desc_el.title = description
-      else {
+      } else {
         const {description} = this
         assert(description != null)
 
@@ -103,8 +104,9 @@ export abstract class InputWidgetView extends ControlView {
           toggle(true)
         })
         desc_el.addEventListener("mouseleave", () => {
-          if (!persistent)
+          if (!persistent) {
             toggle(false)
+          }
         })
         document.addEventListener("mousedown", (event) => {
           const path = event.composedPath()

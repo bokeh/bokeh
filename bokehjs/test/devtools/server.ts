@@ -86,11 +86,13 @@ app.get("/examples", async (_req, res) => {
   const dir = await fs.promises.opendir("examples")
   const entries = []
   for await (const dirent of dir) {
-    if (!dirent.isDirectory())
+    if (!dirent.isDirectory()) {
       continue
+    }
     const {name} = dirent
-    if (name.startsWith(".") || name.startsWith("_"))
+    if (name.startsWith(".") || name.startsWith("_")) {
       continue
+    }
     entries.push(name)
   }
   entries.sort()

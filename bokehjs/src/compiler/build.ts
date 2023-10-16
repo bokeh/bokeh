@@ -65,26 +65,29 @@ type Metadata = {
 
 function is_up_to_date(base_dir: Path, file: string, metadata: Metadata) {
   const contents = read(join(base_dir, file))
-  if (contents == null)
+  if (contents == null) {
     return false
+  }
 
   const old_hash = metadata.signatures[file]
-  if (old_hash == null)
+  if (old_hash == null) {
     return false
+  }
 
   const new_hash = hash(contents)
   return old_hash == new_hash
 }
 
 function needs_install(base_dir: Path, metadata: Metadata): string | null {
-  if (!directory_exists(join(base_dir, "node_modules")))
+  if (!directory_exists(join(base_dir, "node_modules"))) {
     return "New development environment."
-  else if (!is_up_to_date(base_dir, "package.json", metadata))
+  } else if (!is_up_to_date(base_dir, "package.json", metadata)) {
     return "package.json has changed."
-  else if (!is_up_to_date(base_dir, "package-lock.json", metadata))
+  } else if (!is_up_to_date(base_dir, "package-lock.json", metadata)) {
     return "package-lock.json has changed."
-  else
+  } else {
     return null
+  }
 }
 
 export type InitOptions = {
@@ -221,10 +224,12 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
 
   const metadata = (() => {
     let obj = read_json(metadata_path) as any
-    if (obj == null)
+    if (obj == null) {
       obj = {}
-    if (obj.signatures == null)
+    }
+    if (obj.signatures == null) {
       obj.signatures = {}
+    }
     return obj as Metadata
   })()
 
@@ -262,10 +267,11 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       return join(base_dir, "node_modules", "typescript", "lib")
     } else {
       // bokeh/server/static or bokehjs/build
-      if (is_static_dir)
+      if (is_static_dir) {
         return join(bokehjs_dir, "lib")
-      else
+      } else {
         return join(dirname(bokehjs_dir), "node_modules", "typescript", "lib")
+      }
     }
   })()
 
@@ -285,8 +291,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
     if (file_exists(tsconfig_path)) {
       print(`Using ${cyan(tsconfig_path)}`)
       return read_tsconfig(tsconfig_path, is_package ? undefined : preconfigure)
-    } else
+    } else {
       return parse_tsconfig(tsconfig_json, base_dir, preconfigure)
+    }
   })()
 
   if (is_failed(tsconfig)) {
@@ -306,8 +313,9 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const css_dir = join(dist_dir, "css")
 
   print("Compiling styles")
-  if (!await compile_styles(styles_dir, css_dir))
+  if (!await compile_styles(styles_dir, css_dir)) {
     success = false
+  }
 
   wrap_css_modules(css_dir, lib_dir, dts_dir, dts_internal_dir)
 
@@ -320,15 +328,17 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   if (is_failed(tsoutput)) {
     print(report_diagnostics(tsoutput.diagnostics).text)
 
-    if (options.noEmitOnError ?? false)
+    if (options.noEmitOnError ?? false) {
       return false
+    }
   }
 
   const artifact = basename(base_dir)
 
   const bases = [lib_dir]
-  if (is_package)
+  if (is_package) {
     bases.push(join(base_dir, "node_modules"))
+  }
 
   const linker = new Linker({
     entries: [join(lib_dir, "index.js")],
@@ -340,10 +350,13 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   })
 
   print("Linking modules")
-  if (!setup.rebuild) linker.load_cache()
+  if (!setup.rebuild) {
+    linker.load_cache()
+  }
   const {bundles, status} = await linker.link()
-  if (!status)
+  if (!status) {
     success = false
+  }
   linker.store_cache()
   const outputs = [join(dist_dir, `${artifact}.js`)]
 
@@ -354,10 +367,11 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
       if (isString(bokeh_ext.license.file)) {
         const license_path = join(base_dir, bokeh_ext.license.file)
         const text = read(license_path)
-        if (text != null)
+        if (text != null) {
           return text
-        else
+        } else {
           print(`Failed to license text from ${magenta(license_path)}`)
+        }
       }
       if (isString(bokeh_ext.license.text)) {
         return bokeh_ext.license.text

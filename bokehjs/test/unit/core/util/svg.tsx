@@ -116,10 +116,11 @@ describe("SVGRenderingContext2d", () => {
 
           ctx.arc(x, y, radius, start_angle, end_angle, counterclockwise)
 
-          if (i > 1)
+          if (i > 1) {
             ctx.fill()
-          else
+          } else {
             ctx.stroke()
+          }
         }
       }
     }

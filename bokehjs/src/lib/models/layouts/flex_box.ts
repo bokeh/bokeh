@@ -39,8 +39,9 @@ export abstract class FlexBoxView extends LayoutDOMView {
     let c0 = 0
 
     for (const view of this.child_views) {
-      if (!(view instanceof LayoutDOMView))
+      if (!(view instanceof LayoutDOMView)) {
         continue
+      }
 
       const sizing = view.box_sizing()
       const flex = (() => {
@@ -71,20 +72,23 @@ export abstract class FlexBoxView extends LayoutDOMView {
 
       // undo `width/height: 100%` and let `align-self: strech` do the work
       if (this._direction == "row") {
-        if (sizing.height_policy == "max")
+        if (sizing.height_policy == "max") {
           view.style.append(":host", {height: "auto"})
+        }
       } else {
-        if (sizing.width_policy == "max")
+        if (sizing.width_policy == "max") {
           view.style.append(":host", {width: "auto"})
+        }
       }
 
       if (view.layout != null) {
         layoutable.add({r0, c0, r1: r0 + 1, c1: c0 + 1}, view)
 
-        if (this._direction == "row")
+        if (this._direction == "row") {
           c0 += 1
-        else
+        } else {
           r0 += 1
+        }
       }
     }
 

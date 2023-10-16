@@ -28,17 +28,21 @@ export class NumericInputView extends InputWidgetView {
     })
     this.connect(this.model.properties.low.change, () => {
       const {value, low, high} = this.model
-      if (low != null && high != null)
+      if (low != null && high != null) {
         assert(low <= high, "Invalid bounds, low must be inferior to high")
-      if (value != null && low != null && value < low)
+      }
+      if (value != null && low != null && value < low) {
         this.model.value = low
+      }
     })
     this.connect(this.model.properties.high.change, () => {
       const {value, low, high} = this.model
-      if (low != null && high != null)
+      if (low != null && high != null) {
         assert(high >= low, "Invalid bounds, high must be superior to low")
-      if (value != null && high != null && value > high)
+      }
+      if (value != null && high != null && value > high) {
         this.model.value = high
+      }
     })
     this.connect(this.model.properties.high.change, () => this.input_el.placeholder = this.model.placeholder)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
@@ -55,10 +59,12 @@ export class NumericInputView extends InputWidgetView {
       if (!inputFilter(this.input_el.value)) { // an invalid character is entered
         const difflen = this.old_value.length - this.input_el.value.length
         this.input_el.value = this.old_value
-        if (selectionStart != null && selectionEnd != null)
+        if (selectionStart != null && selectionEnd != null) {
           this.input_el.setSelectionRange(selectionStart-1, selectionEnd + difflen)
-      } else
+        }
+      } else {
         this.old_value = this.input_el.value
+      }
     })
   }
 
@@ -96,16 +102,18 @@ export class NumericInputView extends InputWidgetView {
 
   get value(): number | null {
     let value = this.input_el.value != "" ? Number(this.input_el.value) : null
-    if (value != null)
+    if (value != null) {
       value = this.bound_value(value)
+    }
     return value
   }
 
   override change_input(): void {
-    if (this.value == null)
+    if (this.value == null) {
       this.model.value = null
-    else if (!Number.isNaN(this.value))
+    } else if (!Number.isNaN(this.value)) {
       this.model.value = this.value
+    }
   }
 }
 
@@ -154,9 +162,10 @@ export class NumericInput extends InputWidget {
   }
 
   pretty(value: number): string {
-    if (this.format!=null)
+    if (this.format!=null) {
       return this._formatter(value, this.format)
-    else
+    } else {
       return `${value}`
+    }
   }
 }

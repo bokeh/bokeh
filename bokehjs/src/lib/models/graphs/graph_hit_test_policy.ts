@@ -34,15 +34,17 @@ export abstract class GraphHitTestPolicy extends Model {
   abstract do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean
 
   protected _hit_test(geometry: Geometry, graph_view: GraphRendererView, renderer_view: GlyphRendererView): HitTestResult {
-    if (!graph_view.model.visible)
+    if (!graph_view.model.visible) {
       return null
+    }
 
     const hit_test_result = renderer_view.glyph.hit_test(geometry)
 
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return null
-    else
+    } else {
       return renderer_view.model.view.convert_selection_from_subset(hit_test_result)
+    }
   }
 }
 
@@ -66,8 +68,9 @@ export class EdgesOnly extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const edge_selection = graph.edge_renderer.data_source.selected
     edge_selection.update(hit_test_result, final, mode)
@@ -77,8 +80,9 @@ export class EdgesOnly extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const {edge_renderer} = graph_view.model
     const edge_inspection = edge_renderer.get_selection_manager().get_or_create_inspector(graph_view.edge_view.model)
@@ -112,8 +116,9 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, mode)
@@ -123,8 +128,9 @@ export class NodesOnly extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const  {node_renderer} = graph_view.model
     const node_inspection = node_renderer.get_selection_manager().get_or_create_inspector(graph_view.node_view.model)
@@ -167,8 +173,9 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
 
     const edge_indices = []
     for (let i = 0; i < edge_source.data.start.length; i++) {
-      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i]))
+      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i])) {
         edge_indices.push(i)
+      }
     }
 
     const linked_edges = new Selection()
@@ -181,8 +188,9 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, mode)
@@ -197,8 +205,9 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, mode)
@@ -254,8 +263,9 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const edge_selection = graph.edge_renderer.data_source.selected
     edge_selection.update(hit_test_result, final, mode)
@@ -270,8 +280,9 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const edge_inspection = graph_view.edge_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.edge_view.model)
     edge_inspection.update(hit_test_result, final, mode)
@@ -337,15 +348,17 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
   }
 
   do_selection(hit_test_result: HitTestResult, graph: GraphRenderer, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const node_selection = graph.node_renderer.data_source.selected
     node_selection.update(hit_test_result, final, mode)
 
     const adjacent_nodes_selection = this.get_adjacent_nodes(graph.node_renderer.data_source, graph.edge_renderer.data_source, "selection")
-    if (!adjacent_nodes_selection.is_empty())
+    if (!adjacent_nodes_selection.is_empty()) {
       node_selection.update(adjacent_nodes_selection, final, mode)
+    }
 
     graph.node_renderer.data_source._select.emit()
 
@@ -353,8 +366,9 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
   }
 
   do_inspection(hit_test_result: HitTestResult, geometry: Geometry, graph_view: GraphRendererView, final: boolean, mode: SelectionMode): boolean {
-    if (hit_test_result == null)
+    if (hit_test_result == null) {
       return false
+    }
 
     const node_inspection = graph_view.node_view.model.data_source.selection_manager.get_or_create_inspector(graph_view.node_view.model)
     node_inspection.update(hit_test_result, final, mode)

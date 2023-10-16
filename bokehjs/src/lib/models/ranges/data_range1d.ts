@@ -123,10 +123,14 @@ export class DataRange1d extends DataRange {
     const result = bbox.empty()
 
     let width = bounds.x1 - bounds.x0
-    if (width <= 0) { width = 1.0 }
+    if (width <= 0) {
+      width = 1.0
+    }
 
     let height = bounds.y1 - bounds.y0
-    if (height <= 0) { height = 1.0 }
+    if (height <= 0) {
+      height = 1.0
+    }
 
     const xcenter = 0.5*(bounds.x1 + bounds.x0)
     const ycenter = 0.5*(bounds.y1 + bounds.y0)

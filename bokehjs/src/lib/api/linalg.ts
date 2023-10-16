@@ -61,84 +61,92 @@ export namespace np {
 
   export function sin<T extends Numerical>(x: T): T
   export function sin(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return Math.sin(x)
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return Math.sin(x[float]())
-    else
+    } else {
       return map(x, (v) => Math.sin(v))
+    }
   }
 
   export function cos<T extends Numerical>(x: T): T
   export function cos(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return Math.cos(x)
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return Math.cos(x[float]())
-    else
+    } else {
       return map(x, (v) => Math.cos(v))
+    }
   }
 
   export function exp<T extends Numerical>(x: T): T
   export function exp(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return Math.exp(x)
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return Math.exp(x[float]())
-    else
+    } else {
       return map(x, (v) => Math.exp(v))
+    }
   }
 
   export function sqrt<T extends Numerical>(x: T): T
   export function sqrt(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return Math.sqrt(x)
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return Math.sqrt(x[float]())
-    else
+    } else {
       return map(x, (v) => Math.sqrt(v))
+    }
   }
 
   export function factorial<T extends Numerical>(x: T): T
   export function factorial(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return math.factorial(x)
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return math.factorial(x[float]())
-    else
+    } else {
       return map(x, math.factorial)
+    }
   }
 
   export function hermite(n: number): (x: Numerical) => Numerical {
     const poly = math.hermite(n)
     return (x) => {
-      if (isNumber(x))
+      if (isNumber(x)) {
         return math.eval_poly(poly, x)
-      else if (is_Floating(x))
+      } else if (is_Floating(x)) {
         return math.eval_poly(poly, x[float]())
-      else
+      } else {
         return map(x, (v) => math.eval_poly(poly, v))
+      }
     }
   }
 
   export function pos<T extends Numerical>(x: T): T
   export function pos(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return +x
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return +x[float]()
-    else
+    } else {
       return map(x, (v) => +v)
+    }
   }
 
   export function neg<T extends Numerical>(x: T): T
   export function neg(x: Numerical): Numerical {
-    if (isNumber(x))
+    if (isNumber(x)) {
       return -x
-    else if (is_Floating(x))
+    } else if (is_Floating(x)) {
       return -x[float]()
-    else
+    } else {
       return map(x, (v) => -v)
+    }
   }
 
   export function add(x0: number, y0: number): number
@@ -150,19 +158,21 @@ export namespace np {
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return x + y
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => x + yi)
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => xi + y)
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => xi + y[i])
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   export function sub(x0: number, y0: number): number
@@ -174,19 +184,21 @@ export namespace np {
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return x - y
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => x - yi)
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => xi - y)
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => xi - y[i])
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   export function mul(x0: number, y0: number): number
@@ -198,19 +210,21 @@ export namespace np {
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return x * y
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => x * yi)
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => xi * y)
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => xi * y[i])
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   export function div(x0: number, y0: number): number
@@ -222,19 +236,21 @@ export namespace np {
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return x / y
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => x / yi)
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => xi / y)
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => xi / y[i])
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   export function pow(x0: number, y0: number): number
@@ -246,19 +262,21 @@ export namespace np {
     const x_num = isNumber(x)
     const y_num = isNumber(y)
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return x ** y
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => x ** yi)
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => xi ** y)
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => xi ** y[i])
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   function cmp(x0: Numerical, y0: Numerical, op: (x: number, y: number) => boolean): Numerical {
@@ -270,19 +288,21 @@ export namespace np {
 
     const int = (v: boolean) => v ? 1 : 0
 
-    if (x_num && y_num)
+    if (x_num && y_num) {
       return int(x >= y)
-    else if (x_num && !y_num)
+    } else if (x_num && !y_num) {
       return map(y, (yi) => int(op(x, yi)))
-    else if (!x_num && y_num)
+    } else if (!x_num && y_num) {
       return map(x, (xi) => int(op(xi, y)))
-    else if (is_NDArray(x) && is_NDArray(y)) {
-      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+    } else if (is_NDArray(x) && is_NDArray(y)) {
+      if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
         return map(x, (xi, i) => int(op(xi, y[i])))
-      else
+      } else {
         throw new Error("shape or dtype mismatch")
-    } else
+      }
+    } else {
       throw new Error("not implemented")
+    }
   }
 
   export function ge(x0: number, y0: number): number
@@ -317,19 +337,21 @@ export namespace np {
     const y_num = isNumber(y)
 
     const fn = ((): (cond_i: number, i: number) => number => {
-      if (x_num && y_num)
+      if (x_num && y_num) {
         return (cond_i) => cond_i != 0 ? x : y
-      else if (x_num && !y_num)
+      } else if (x_num && !y_num) {
         return (cond_i, i) => cond_i != 0 ? x : y[i]
-      else if (!x_num && y_num)
+      } else if (!x_num && y_num) {
         return (cond_i, i) => cond_i != 0 ? x[i] : y
-      else if (is_NDArray(x) && is_NDArray(y)) {
-        if (is_equal(x.shape, y.shape) && x.dtype == y.dtype)
+      } else if (is_NDArray(x) && is_NDArray(y)) {
+        if (is_equal(x.shape, y.shape) && x.dtype == y.dtype) {
           return (cond_i, i) => cond_i != 0 ? x[i] : y[i]
-        else
+        } else {
           throw new Error("shape or dtype mismatch")
-      } else
+        }
+      } else {
         throw new Error("not implemented")
+      }
     })()
 
     return map(condition, fn) // TODO: preserve ndarrays
@@ -345,8 +367,9 @@ export namespace np {
     if (density) {
       const normed = div(div(hist, diff(edges)), sum(hist))
       return [normed, edges]
-    } else
+    } else {
       return [hist, edges]
+    }
   }
 
   export namespace random {

@@ -41,8 +41,9 @@ import {radians} from "@bokehjs/core/util/math"
       })
 
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
-      if (options?.num_ticks != null)
+      if (options?.num_ticks != null) {
         axis.ticker.desired_num_ticks = options.num_ticks
+      }
       p.add_layout(axis, side)
 
       await display(p)
@@ -67,8 +68,9 @@ import {radians} from "@bokehjs/core/util/math"
       })
 
       const axis = axis_type == "linear" ? new LinearAxis(attrs) : new LogAxis(attrs)
-      if (options?.num_ticks != null)
+      if (options?.num_ticks != null) {
         axis.ticker.desired_num_ticks = options.num_ticks
+      }
       p.add_layout(axis, side)
 
       await display(p)

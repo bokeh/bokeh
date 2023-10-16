@@ -48,9 +48,9 @@ export class TooltipView extends UIElementView {
       }
     })()
 
-    if (el instanceof Element)
+    if (el instanceof Element) {
       this._target = el
-    else {
+    } else {
       logger.warn(`unable to resolve target '${target}' for '${this}'`)
       this._target = document.body
     }
@@ -65,8 +65,9 @@ export class TooltipView extends UIElementView {
 
   override *children(): IterViews {
     yield* super.children()
-    if (this._html != null)
+    if (this._html != null) {
       yield this._html
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -138,8 +139,9 @@ export class TooltipView extends UIElementView {
     } else if (content instanceof HTML) {
       assert(this._html != null)
       return this._html.el
-    } else
+    } else {
       return content
+    }
   }
 
   override render(): void {

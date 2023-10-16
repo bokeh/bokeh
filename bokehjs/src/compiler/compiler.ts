@@ -69,8 +69,9 @@ export function compiler_host(inputs: Inputs, options: ts.CompilerOptions, tslib
         const sf = ts.createSourceFile(name, source, target)
         const version = default_host.createHash!(source)
         return {...sf, version} as any // version is internal to the compiler
-      } else
+      } else {
         return default_host.getSourceFile(name, target, _onError)
+      }
     },
   }
 
@@ -159,8 +160,9 @@ export function read_tsconfig(tsconfig_path: Path, preconfigure?: ts.CompilerOpt
 
 function compile_project(tsconfig_path: Path, config: CompileConfig): TSOutput {
   const tsconfig = read_tsconfig(tsconfig_path)
-  if (is_failed(tsconfig))
+  if (is_failed(tsconfig)) {
     return {diagnostics: tsconfig.diagnostics}
+  }
 
   const {files, options} = tsconfig
 

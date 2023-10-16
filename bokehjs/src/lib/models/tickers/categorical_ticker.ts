@@ -42,8 +42,9 @@ export class CategoricalTicker extends Ticker {
 
     for (const factor of factors) {
       const coord = range.synthetic(factor)
-      if (coord > start && coord < end)
+      if (coord > start && coord < end) {
         result.push(factor)
+      }
     }
 
     return result

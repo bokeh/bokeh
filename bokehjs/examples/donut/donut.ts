@@ -51,8 +51,9 @@ export namespace WebBrowserMarketShare {
         if (isNaN(shares[i])) {
           shares.splice(i, 1)
           browsers.splice(i, 1)
-        } else
+        } else {
           i++
+        }
       }
 
       const other = 100 - sum(shares)
@@ -111,16 +112,18 @@ export namespace WebBrowserMarketShare {
     fig.image_url(icons, x0, y0, NaN, NaN, {source, anchor: "center"})
 
     const texts = item.shares.map((share) => {
-      if (share <= 2.0)
+      if (share <= 2.0) {
         return null
-      else
+      } else {
         return Bokeh.sprintf("%.02f%%", share)
+      }
     })
     const text_angles = item.shares.map((share, i) => {
-      if (share <= 5.0)
+      if (share <= 5.0) {
         return half_angles[i]
-      else
+      } else {
         return 0
+      }
     })
     const [x1, y1] = unzip(half_angles.map((angle) => to_cartesian(1.0, angle)))
     fig.text(x1, y1, texts, {source, angle: text_angles, text_align: "center", text_baseline: "middle"})
@@ -149,8 +152,9 @@ export namespace WebBrowserMarketShare {
     if (!paused) {
       fig.renderers = fig.renderers.filter((r) => !(r instanceof Bokeh.GlyphRenderer))
       render(data[index])
-      if (--index < 0)
+      if (--index < 0) {
         index = data.length-1
+      }
     }
   }, 1000)
 

@@ -49,8 +49,9 @@ export class TableDataProvider implements DataProvider<Item> {
   }
 
   init(source: ColumnarDataSource, view: CDSView): void {
-    if (DTINDEX_NAME in source.data)
+    if (DTINDEX_NAME in source.data) {
       throw new Error(`special name ${DTINDEX_NAME} cannot be used as a data table column`)
+    }
 
     this.source = source
     this.view = view
@@ -118,17 +119,19 @@ export class TableDataProvider implements DataProvider<Item> {
       for (const [field, sign] of cols) {
         const v0 = records[old_index.indexOf(i0)][field!]
         const v1 = records[old_index.indexOf(i1)][field!]
-        if (v0 === v1)
+        if (v0 === v1) {
           continue
+        }
         if (isNumber(v0) && isNumber(v1)) {
           /* eslint-disable @typescript-eslint/strict-boolean-expressions */
           return sign*(v0 - v1 || +isNaN(v0) - +isNaN(v1))
         } else {
           const result = `${v0}`.localeCompare(`${v1}`)
-          if (result == 0)
+          if (result == 0) {
             continue
-          else
+          } else {
             return sign*result
+          }
         }
       }
       return 0
@@ -212,19 +215,22 @@ export class DataTableView extends WidgetView {
 
   override box_sizing(): DOMBoxSizing {
     const sizing = super.box_sizing()
-    if (this.model.autosize_mode === "fit_viewport" && this._width != null)
+    if (this.model.autosize_mode === "fit_viewport" && this._width != null) {
       sizing.width = this._width
+    }
     return sizing
   }
 
   updateLayout(initialized: boolean, rerender: boolean): void {
     const autosize = this.autosize
     if (autosize === AutosizeModes.fit_columns || autosize === AutosizeModes.force_fit) {
-      if (!initialized)
+      if (!initialized) {
         this.grid.resizeCanvas()
+      }
       this.grid.autosizeColumns()
-    } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport)
+    } else if (initialized && rerender && autosize === AutosizeModes.fit_viewport) {
       this.invalidate_layout()
+    }
   }
 
   updateGrid(): void {
@@ -248,8 +254,9 @@ export class DataTableView extends WidgetView {
   }
 
   updateSelection(): void {
-    if (this.model.selectable === false || this._in_selection_update)
+    if (this.model.selectable === false || this._in_selection_update) {
       return
+    }
 
     const {indices} = this.model.source.selected
     const permuted_indices = sort_by(map(indices, (x) => this.data.index.indexOf(x)), (x) => x)
@@ -268,8 +275,9 @@ export class DataTableView extends WidgetView {
     const cur_grid_range = this.grid.getViewport()
 
     const scroll_index = this.model.get_scroll_index(cur_grid_range, permuted_indices)
-    if (scroll_index != null)
+    if (scroll_index != null) {
       this.grid.scrollRowToTop(scroll_index)
+    }
   }
 
   newIndexColumn(): ColumnType {
@@ -290,12 +298,13 @@ export class DataTableView extends WidgetView {
 
   get autosize(): AutosizeMode {
     let autosize: AutosizeMode
-    if (this.model.fit_columns === true)
+    if (this.model.fit_columns === true) {
       autosize = AutosizeModes.force_fit
-    else if (this.model.fit_columns === false)
+    } else if (this.model.fit_columns === false) {
       autosize = AutosizeModes.none
-    else
+    } else {
       autosize = AutosizeModes[this.model.autosize_mode]
+    }
     return autosize
   }
 
@@ -324,12 +333,13 @@ export class DataTableView extends WidgetView {
       const index = this.newIndexColumn()
       // This is to be able to provide negative index behaviour that
       // matches what python users will expect
-      if (index_position == -1)
+      if (index_position == -1) {
         columns.push(index)
-      else if (index_position < -1)
+      } else if (index_position < -1) {
         columns.splice(index_position+1, 0, index)
-      else
+      } else {
         columns.splice(index_position, 0, index)
+      }
     }
 
     let {reorderable} = this.model
@@ -374,17 +384,20 @@ export class DataTableView extends WidgetView {
     if (this.autosize == AutosizeModes.fit_viewport) {
       this.grid.autosizeColumns()
       let width = 0
-      for (const column of columns)
+      for (const column of columns) {
         width += column.width ?? 0
+      }
       this._width = Math.ceil(width)
     }
 
     this.grid.onSort.subscribe((_event: Event, args: OnSortEventArgs<Item>) => {
-      if (!this.model.sortable)
+      if (!this.model.sortable) {
         return
+      }
       const to_sort = args.sortCols
-      if (to_sort == null)
+      if (to_sort == null) {
         return
+      }
       this.data.sort(to_sort)
       this.grid.invalidate()
       this.updateSelection()
@@ -397,8 +410,9 @@ export class DataTableView extends WidgetView {
 
     if (this.model.selectable !== false) {
       this.grid.setSelectionModel(new RowSelectionModel({selectActiveRow: checkbox_selector == null}))
-      if (checkbox_selector != null)
+      if (checkbox_selector != null) {
         this.grid.registerPlugin(checkbox_selector)
+      }
 
       const pluginOptions = {
         dataItemColumnValueExtractor(val: Item, col: TableColumn) {
@@ -514,8 +528,9 @@ export class DataTable extends TableWidget {
   }
 
   get_scroll_index(grid_range: {top: number, bottom: number}, selected_indices: Arrayable<number>): number | null {
-    if (!this.scroll_to_selection || (selected_indices.length == 0))
+    if (!this.scroll_to_selection || (selected_indices.length == 0)) {
       return null
+    }
 
     if (!some(selected_indices, i => grid_range.top <= i && i <= grid_range.bottom)) {
       return Math.max(0, Math.min(...selected_indices) - 1)

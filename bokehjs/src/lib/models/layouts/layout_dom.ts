@@ -56,8 +56,9 @@ export abstract class LayoutDOMView extends UIElementView {
       // This can happen only in pathological cases primarily in tests.
       logger.warn(`${this} wasn't built properly`)
       this.render_to(null)
-    } else
+    } else {
       this.compute_layout()
+    }
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -66,8 +67,9 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   override remove(): void {
-    for (const child_view of this.child_views)
+    for (const child_view of this.child_views) {
       child_view.remove()
+    }
     this._child_views.clear()
     super.remove()
   }
@@ -238,21 +240,25 @@ export abstract class LayoutDOMView extends UIElementView {
 
     const computed_aspect = (() => {
       if (aspect_ratio == "auto") {
-        if (width != null && height != null)
+        if (width != null && height != null) {
           return width/height
-      } else if (isNumber(aspect_ratio))
+        }
+      } else if (isNumber(aspect_ratio)) {
         return aspect_ratio
+      }
 
       return null
     })()
 
     if (aspect_ratio == "auto") {
-      if (width != null && height != null)
+      if (width != null && height != null) {
         styles.aspect_ratio = `${width} / ${height}`
-      else
+      } else {
         styles.aspect_ratio = "auto"
-    } else if (isNumber(aspect_ratio))
+      }
+    } else if (isNumber(aspect_ratio)) {
       styles.aspect_ratio = `${aspect_ratio}`
+    }
 
     const {margin} = this.model
     const margins = (() => {
@@ -280,22 +286,27 @@ export abstract class LayoutDOMView extends UIElementView {
 
       if (aspect_ratio != null) {
         if (width_policy != height_policy) {
-          if (width_policy == "fixed")
+          if (width_policy == "fixed") {
             return [css_width, "auto"]
-          if (height_policy == "fixed")
+          }
+          if (height_policy == "fixed") {
             return ["auto", css_height]
-          if (width_policy == "max")
+          }
+          if (width_policy == "max") {
             return [css_width, "auto"]
-          if (height_policy == "max")
+          }
+          if (height_policy == "max") {
             return ["auto", css_height]
+          }
           return ["auto", "auto"]
         } else {
           if (width_policy != "fixed" && height_policy != "fixed") {
             if (computed_aspect != null) {
-              if (computed_aspect >= 1)
+              if (computed_aspect >= 1) {
                 return [css_width, "auto"]
-              else
+              } else {
                 return ["auto", css_height]
+              }
             }
           }
         }
@@ -314,21 +325,25 @@ export abstract class LayoutDOMView extends UIElementView {
     styles.min_height = min_height == null ? "0px" : to_css(min_height)
 
     if (this.is_layout_root) {
-      if (max_width != null)
+      if (max_width != null) {
         styles.max_width = to_css(max_width)
+      }
 
-      if (max_height != null)
+      if (max_height != null) {
         styles.max_height = to_css(max_height)
+      }
     } else {
-      if (max_width != null)
+      if (max_width != null) {
         styles.max_width = `min(${to_css(max_width)}, 100%)`
-      else if (width_policy != "fixed")
+      } else if (width_policy != "fixed") {
         styles.max_width = "100%"
+      }
 
-      if (max_height != null)
+      if (max_height != null) {
         styles.max_height = `min(${to_css(max_height)}, 100%)`
-      else if (height_policy != "fixed")
+      } else if (height_policy != "fixed") {
         styles.max_height = "100%"
+      }
     }
 
     const {resizable} = this.model
@@ -396,10 +411,11 @@ export abstract class LayoutDOMView extends UIElementView {
       this.layout.compute(this.bbox.size)
 
       for (const child_view of this.layoutable_views) {
-        if (child_view.layout == null)
+        if (child_view.layout == null) {
           child_view._compute_layout()
-        else
+        } else {
           child_view._propagate_layout()
+        }
       }
     } else {
       for (const child_view of this.layoutable_views) {
@@ -442,12 +458,14 @@ export abstract class LayoutDOMView extends UIElementView {
 
   private _was_built: boolean = false
   override render_to(element: Node | null): void {
-    if (!this.is_layout_root)
+    if (!this.is_layout_root) {
       throw new Error(`${this.toString()} is not a root layout`)
+    }
 
     this.render()
-    if (element != null)
+    if (element != null) {
       element.appendChild(this.el)
+    }
     this.r_after_render()
     this._was_built = true
 
@@ -456,10 +474,11 @@ export abstract class LayoutDOMView extends UIElementView {
 
   r_after_render(): void {
     for (const child_view of this.child_views) {
-      if (child_view instanceof LayoutDOMView)
+      if (child_view instanceof LayoutDOMView) {
         child_view.r_after_render()
-      else
+      } else {
         child_view.after_render()
+      }
     }
 
     this.after_render()
@@ -536,20 +555,22 @@ export abstract class LayoutDOMView extends UIElementView {
           const sizing = this.parent.box_sizing()
           width_policy = sizing.width_policy
           height_policy = sizing.height_policy
-          if (aspect_ratio == null)
+          if (aspect_ratio == null) {
             aspect_ratio = sizing.aspect_ratio
+          }
         }
-      } else if (sizing_mode == "fixed")
+      } else if (sizing_mode == "fixed") {
         width_policy = height_policy = "fixed"
-      else if (sizing_mode == "stretch_both")
+      } else if (sizing_mode == "stretch_both") {
         width_policy = height_policy = "max"
-      else if (sizing_mode == "stretch_width")
+      } else if (sizing_mode == "stretch_width") {
         width_policy = "max"
-      else if (sizing_mode == "stretch_height")
+      } else if (sizing_mode == "stretch_height") {
         height_policy = "max"
-      else {
-        if (aspect_ratio == null)
+      } else {
+        if (aspect_ratio == null) {
           aspect_ratio = "auto"
+        }
 
         switch (sizing_mode) {
           case "scale_width":
@@ -570,12 +591,13 @@ export abstract class LayoutDOMView extends UIElementView {
 
     const [halign, valign] = (() => {
       const {align} = this.model
-      if (align == "auto")
+      if (align == "auto") {
         return [undefined, undefined]
-      else if (isArray(align))
+      } else if (isArray(align)) {
         return align
-      else
+      } else {
         return [align, align]
+      }
     })()
 
     const {width, height} = this.model

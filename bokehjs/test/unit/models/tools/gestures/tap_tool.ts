@@ -92,7 +92,11 @@ describe("TapTool", () => {
 
     it("and report key modifiers in a callback", async () => {
       let modifiers: Partial<KeyModifiers> | undefined
-      const callback: TapToolCallback = {execute(_, {event}) { modifiers = event.modifiers }}
+      const callback: TapToolCallback = {
+        execute(_, {event}) {
+          modifiers = event.modifiers
+        },
+      }
       const tool = new TapTool({behavior: "inspect", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 

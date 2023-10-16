@@ -35,15 +35,17 @@ export async function is_available(port: number): Promise<boolean> {
     })
 
     socket.on("error", (error: NodeJS.ErrnoException) => {
-      if (error.code === "ECONNREFUSED")
+      if (error.code === "ECONNREFUSED") {
         available = true
+      }
     })
 
     socket.on("close", () => {
-      if (!failure)
+      if (!failure) {
         resolve(available)
-      else
+      } else {
         reject(new BuildError("net", "timeout when searching for unused port"))
+      }
     })
 
     socket.connect(port, host)

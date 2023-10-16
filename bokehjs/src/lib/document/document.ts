@@ -51,8 +51,9 @@ export class EventManager {
 
   trigger(event: ModelEvent): void {
     for (const model of this.subscribed_models) {
-      if (event.origin != null && event.origin != model)
+      if (event.origin != null && event.origin != model) {
         continue
+      }
       model._process_event(event)
     }
   }
@@ -124,8 +125,9 @@ export class Document implements Equatable {
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
     for (const root of this._roots) {
-      if (!this._idle_roots.has(root))
+      if (!this._idle_roots.has(root)) {
         return false
+      }
     }
     return true
   }
@@ -172,10 +174,11 @@ export class Document implements Equatable {
   }
 
   interactive_duration(): number {
-    if (this._interactive_timestamp == null)
+    if (this._interactive_timestamp == null) {
       return -1
-    else
+    } else {
       return Date.now() - this._interactive_timestamp
+    }
   }
 
   destructively_move(dest_doc: Document): void {
@@ -190,8 +193,9 @@ export class Document implements Equatable {
     this.clear()
 
     for (const root of roots) {
-      if (root.document != null)
+      if (root.document != null) {
         throw new Error(`Somehow we didn't detach ${root}`)
+      }
     }
 
     if (this._all_models.size != 0) {
@@ -269,8 +273,9 @@ export class Document implements Equatable {
 
   protected _remove_root(model: HasProps): boolean {
     const i = this._roots.indexOf(model)
-    if (i < 0)
+    if (i < 0) {
       return false
+    }
 
     this._push_all_models_freeze()
     try {
@@ -284,8 +289,9 @@ export class Document implements Equatable {
 
   protected _set_title(title: string): boolean {
     const new_title = title != this._title
-    if (new_title)
+    if (new_title) {
       this._title = title
+    }
     return new_title
   }
 
@@ -324,8 +330,9 @@ export class Document implements Equatable {
   get_model_by_name(name: string): HasProps | null {
     const found = []
     for (const model of this._all_models.values()) {
-      if (model instanceof Model && model.name == name)
+      if (model instanceof Model && model.name == name) {
         found.push(model)
+      }
     }
 
     switch (found.length) {
@@ -340,10 +347,11 @@ export class Document implements Equatable {
 
   on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
     const message_callbacks = this._message_callbacks.get(msg_type)
-    if (message_callbacks == null)
+    if (message_callbacks == null) {
       this._message_callbacks.set(msg_type, new Set([callback]))
-    else
+    } else {
       message_callbacks.add(callback)
+    }
   }
 
   remove_on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
@@ -432,10 +440,12 @@ export class Document implements Equatable {
       if (!is_dev && pyify_version(js_version) != py_version) {
         logger.warn("JS/Python version mismatch")
         logger.warn(versions_string)
-      } else
+      } else {
         logger.debug(versions_string)
-    } else
+      }
+    } else {
       logger.warn("'version' field is missing")
+    }
   }
 
   static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
@@ -459,10 +469,11 @@ export class Document implements Equatable {
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
     const callbacks = (() => {
-      if (doc_json.callbacks != null)
+      if (doc_json.callbacks != null) {
         return deserializer.decode(doc_json.callbacks) as {[key: string]: DocumentEventCallback[]}
-      else
+      } else {
         return {}
+      }
     })()
 
     doc.remove_on_change(listener)
@@ -490,8 +501,9 @@ export class Document implements Equatable {
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {
     for (const event of events) {
-      if (event.document != this)
+      if (event.document != this) {
         throw new Error("Cannot create a patch using events from a different document")
+      }
     }
 
     const references: Map<HasProps, Ref> = new Map()

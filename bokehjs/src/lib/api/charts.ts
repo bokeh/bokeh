@@ -94,8 +94,9 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   const palette = resolve_palette(opts.palette)
 
   const colors: Color[] = []
-  for (let i = 0; i < normalized_values.length; i++)
+  for (let i = 0; i < normalized_values.length; i++) {
     colors.push(palette[i % palette.length])
+  }
   const text_colors = colors.map((c) => is_dark(color2rgba(c)) ? "white" : "black")
 
   function to_cartesian(r: number, alpha: number): [number, number] {
@@ -108,10 +109,11 @@ export function pie(data: PieChartData, opts: PieChartOpts = {}): Plot {
   text_cy = text_cy.map((y) => y + cy)
 
   const text_angles = half_angles.map((a: number): number => {
-    if (a >= Math.PI/2 && a <= 3*Math.PI/2)
+    if (a >= Math.PI/2 && a <= 3*Math.PI/2) {
       return a + Math.PI
-    else
+    } else {
       return a
+    }
   })
 
   const source = new ColumnDataSource({
@@ -196,10 +198,11 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
   let yscale: Scale = new CategoricalScale()
 
   let xformatter: TickFormatter
-  if (opts.axis_number_format != null)
+  if (opts.axis_number_format != null) {
     xformatter = new NumeralTickFormatter({format: opts.axis_number_format})
-  else
+  } else {
     xformatter = new BasicTickFormatter()
+  }
   let xaxis: Axis = new LinearAxis({formatter: xformatter})
   let xdr: Range = new DataRange1d({start: 0})
   let xscale: Scale = new LinearScale()

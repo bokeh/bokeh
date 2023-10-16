@@ -79,15 +79,19 @@ export class LinearInterpolationScale extends Scale<number> {
     }
 
     const vvs = map(vs, (v) => {
-      if (v < min_val)
+      if (v < min_val) {
         return min_val
-      if (v > max_val)
+      }
+      if (v > max_val) {
         return max_val
+      }
       const k = left_edge_index(v, binning)
-      if (k == -1)
+      if (k == -1) {
         return min_val
-      if (k >= n - 1)
+      }
+      if (k >= n - 1) {
         return max_val
+      }
       const b0 = binning[k]
       const b1 = binning[k+1]
       const c = (v - b0)/(b1 - b0)

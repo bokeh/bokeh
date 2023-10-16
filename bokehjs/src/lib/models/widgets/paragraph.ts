@@ -10,10 +10,11 @@ export class ParagraphView extends MarkupView {
     // This overrides default user-agent styling and helps layout work
     const content = paragraph({style: {margin: 0}})
 
-    if (this.has_math_disabled())
+    if (this.has_math_disabled()) {
       content.textContent = this.model.text
-    else
+    } else {
       content.innerHTML = this.process_tex(this.model.text)
+    }
 
     this.markup_el.appendChild(content)
   }

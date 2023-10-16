@@ -37,16 +37,18 @@ export class WeightedStackColorMapper extends StackColorMapper {
 
   // Weighted mix of colors.
   protected _mix_colors(colors_rgba: RGBAArray, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
-    if (isNaN(total_weight))
+    if (isNaN(total_weight)) {
       return nan_color
+    }
 
     let r = 0.0, g = 0.0, b = 0.0, a = 0.0
     const n = weights.length
 
     if (total_weight != 0) {
       for (let i = 0; i < n; i++) {
-        if (isNaN(weights[i]))
+        if (isNaN(weights[i])) {
           continue
+        }
 
         const weight = weights[i] / total_weight
         r += colors_rgba[i*4  ]*weight
@@ -113,10 +115,11 @@ export class WeightedStackColorMapper extends StackColorMapper {
         const val = baseline == 0 ? data[index] : Math.max(data[index] - baseline, 0)
         weights[icol] = val
         if (!isNaN(val)) {
-          if (isNaN(total))
+          if (isNaN(total)) {
             total = val
-          else
+          } else {
             total += val
+          }
         }
       }
 

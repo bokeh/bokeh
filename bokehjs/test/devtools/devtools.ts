@@ -19,8 +19,9 @@ export class Random {
 
   constructor(seed: number) {
     this.seed = seed % MAX_INT32
-    if (this.seed <= 0)
+    if (this.seed <= 0) {
       this.seed += MAX_INT32 - 1
+    }
   }
 
   integer(): number {
@@ -198,9 +199,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           return output
         } else {
           const {result, exceptionDetails} = output
-          if (exceptionDetails == null)
+          if (exceptionDetails == null) {
             return new Value(result.value)
-          else {
+          } else {
             const {text} = handle_exception(exceptionDetails)
             return new Failure(text)
           }
@@ -369,12 +370,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
       function state(): object {
         function format(value: number, single: string, plural?: string): string {
-          if (value == 0)
+          if (value == 0) {
             return ""
-          else if (value == 1)
+          } else if (value == 1) {
             return ` | 1 ${single}`
-          else
+          } else {
             return ` | ${value} ${plural ?? single}`
+          }
         }
         return {
           failures: format(failures, "failure", "failures"),
@@ -396,8 +398,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
       }
 
       async function add_datapoint(): Promise<void> {
-        if (baselines_root == null)
+        if (baselines_root == null) {
           return
+        }
         const data = await Performance.getMetrics()
         for (const {name, value} of data.metrics) {
           switch (name) {
@@ -423,8 +426,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           const stream = fs.createWriteStream(report_out, {flags: "a"})
           stream.write(`Tests report output generated on ${new Date().toISOString()}:\n`)
           return stream
-        } else
+        } else {
           return null
+        }
       })()
 
       function format_output(test_case: TestItem): string | null {
@@ -487,13 +491,15 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
               const seq = JSON.stringify(to_seq(suites, test))
               const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
-                if (test.dpr != null)
+                if (test.dpr != null) {
                   override_metrics(test.dpr)
+                }
                 try {
                   return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
-                  if (test.dpr != null)
+                  if (test.dpr != null) {
                     override_metrics()
+                  }
                 }
               })()
               await add_datapoint()
@@ -565,8 +571,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                             if (existing == null) {
                               status.errors.push("missing baseline")
                             } else {
-                              if (test.retries != null)
+                              if (test.retries != null) {
                                 may_retry = true
+                              }
                             }
                             const diff = diff_baseline(baseline_file, ref)
                             status.failure = true
@@ -645,16 +652,19 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
               for (let i = 0; i < retries; i++) {
                 const do_retry = await run_test(i, status)
-                if (!do_retry)
+                if (!do_retry) {
                   break
+                }
               }
             }
           }
 
-          if (status.skipped ?? false)
+          if (status.skipped ?? false) {
             skipped++
-          if ((status.failure ?? false) || (status.timeout ?? false))
+          }
+          if ((status.failure ?? false) || (status.timeout ?? false)) {
             failures++
+          }
 
           append_report_out(test_case)
           progress.increment(1, state())
@@ -683,10 +693,11 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
         })
         const json = JSON.stringify({results, metrics}, (_key, value) => {
-          if (value?.type == "Buffer")
+          if (value?.type == "Buffer") {
             return Buffer.from(value.data).toString("base64")
-          else
+          } else {
             return value
+          }
         })
         await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
