@@ -2,19 +2,19 @@ import {HasProps} from "./core/has_props"
 import type {Class} from "./core/class"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
 import type * as p from "./core/properties"
-import {isString, isPlainObject, isFunction} from "./core/util/types"
+import {isString, isPlainObject} from "./core/util/types"
 import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
-import type {CallbackLike0} from "./models/callbacks/callback"
+import type {CallbackLike0} from "./core/util/callbacks"
+import {execute} from "./core/util/callbacks"
 
 export type ModelSelector<T> = Class<T> | string | {type: string}
 
 export type ChangeCallback = CallbackLike0<Model>
 
 export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
-export type EventCallbackLike<T extends ModelEvent = ModelEvent> = EventCallback<T> | EventCallback<T>["execute"]
 
 export namespace Model {
   export type Attrs = p.AttrsOf<Props>
@@ -74,8 +74,9 @@ export class Model extends HasProps {
   }
 
   /*protected*/ _process_event(event: ModelEvent): void {
-    for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? [])
-      callback.execute(event)
+    for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? []) {
+      execute(callback, event)
+    }
 
     if (this.document != null && this.subscribed_events.has(event.event_name))
       this.document.event_manager.send_event(event)
@@ -110,7 +111,7 @@ export class Model extends HasProps {
     this._js_callbacks.clear()
 
     for (const [event, callbacks] of dict(this.js_property_callbacks)) {
-      const wrappers = callbacks.map((cb) => () => cb.execute(this))
+      const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
       for (const cb of wrappers)
@@ -150,14 +151,11 @@ export class Model extends HasProps {
     }
   }
 
-  on_event<T extends ModelEventType>(event: T, callback: EventCallbackLike<BokehEventMap[T]>): void
-  on_event<T extends ModelEvent>(event: Class<T>, callback: EventCallbackLike<T>): void
+  on_event<T extends ModelEventType>(event: T, callback: EventCallback<BokehEventMap[T]>): void
+  on_event<T extends ModelEvent>(event: Class<T>, callback: EventCallback<T>): void
 
-  on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallbackLike): void {
+  on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallback): void {
     const name = isString(event) ? event : event.prototype.event_name
-    this.js_event_callbacks[name] = [
-      ...dict(this.js_event_callbacks).get(name) ?? [],
-      isFunction(callback) ? {execute: callback} : callback,
-    ]
+    this.js_event_callbacks[name] = [...dict(this.js_event_callbacks).get(name) ?? [], callback]
   }
 }

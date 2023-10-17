@@ -12,13 +12,14 @@ import {pyify_version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
-import {isString, isFunction} from "core/util/types"
+import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {copy} from "core/util/array"
 import {entries} from "core/util/object"
 import * as sets from "core/util/set"
-import type {CallbackLike} from "models/callbacks/callback"
+import type {CallbackLike} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import {Model} from "model"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
@@ -32,7 +33,6 @@ Deserializer.register("model", decode_def)
 export type Out<T> = T
 
 export type DocumentEventCallback<T extends BokehEvent = BokehEvent> = CallbackLike<Document, [T]>
-export type DocumentEventCallbackLike<T extends BokehEvent = BokehEvent> = DocumentEventCallback<T> | DocumentEventCallback<T>["execute"]
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -388,19 +388,19 @@ export class Document implements Equatable {
     const callbacks = this._document_callbacks.get(event.event_name)
     if (callbacks != null) {
       for (const callback of callbacks) {
-        callback.execute(this, event)
+        execute(callback, this, event)
       }
     }
   }
 
-  on_event<T extends BokehEventType>(event: T, ...callback: DocumentEventCallbackLike<BokehEventMap[T]>[]): void
-  on_event<T extends BokehEvent>(event: Class<T>, ...callback: DocumentEventCallbackLike<T>[]): void
+  on_event<T extends BokehEventType>(event: T, ...callback: DocumentEventCallback<BokehEventMap[T]>[]): void
+  on_event<T extends BokehEvent>(event: Class<T>, ...callback: DocumentEventCallback<T>[]): void
 
-  on_event(event: string | Class<BokehEvent>, ...callbacks: DocumentEventCallbackLike[]): void {
+  on_event(event: string | Class<BokehEvent>, ...callbacks: DocumentEventCallback[]): void {
     const name = isString(event) ? event : event.prototype.event_name
 
     const existing = this._document_callbacks.get(name) ?? []
-    const added = callbacks.map((callback) => isFunction(callback) ? {execute: callback} : callback)
+    const added = callbacks
 
     this._document_callbacks.set(name, [...existing, ...added])
   }

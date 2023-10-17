@@ -1,11 +1,12 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
-import type {CallbackLike1} from "../callbacks/callback"
 
 import {ButtonClick, MenuItemClick} from "core/bokeh_events"
 import type {StyleSheetLike} from "core/dom"
 import {div, display, undisplay} from "core/dom"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
+import type {CallbackLike1} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 
 import * as buttons from "styles/buttons.css"
 import dropdown_css, * as dropdown from "styles/dropdown.css"
@@ -100,7 +101,7 @@ export class DropdownView extends AbstractButtonView {
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
       } else {
-        value_or_callback.execute(this.model, {index: i}) // TODO
+        execute(value_or_callback, this.model, {index: i}) // TODO
       }
     }
   }
