@@ -739,8 +739,8 @@ def _DYNAMIC_DATETIME_KWARGS() -> dict:
                 scale_boundary=False,
                 hide_duplicates=True,
                 context=None,
-            )
-        )
+            ),
+        ),
     }
 
 #-----------------------------------------------------------------------------

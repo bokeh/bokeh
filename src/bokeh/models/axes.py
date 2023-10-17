@@ -46,13 +46,13 @@ from ..core.properties import (
 )
 from ..core.property_mixins import ScalarFillProps, ScalarLineProps, ScalarTextProps
 from .formatters import (
+    _DYNAMIC_DATETIME_KWARGS,
     BasicTickFormatter,
     CategoricalTickFormatter,
     DatetimeTickFormatter,
     LogTickFormatter,
     MercatorTickFormatter,
     TickFormatter,
-    _DYNAMIC_DATETIME_KWARGS,
 )
 from .labeling import AllLabels, LabelingPolicy
 from .renderers import GuideRenderer
