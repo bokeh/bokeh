@@ -58,6 +58,7 @@ from .tickers import Ticker
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "DYNAMIC_DATETIME_FORMATTER",
     "RELATIVE_DATETIME_CONTEXT",
     "BasicTickFormatter",
     "CategoricalTickFormatter",
@@ -647,6 +648,16 @@ class DatetimeTickFormatter(TickFormatter):
     scale-dependent stripping of leading zeros.
     """)
 
+    scale_boundary = Bool(default=True, help="""
+    Whether to scale up ticks that are right at the boundary of the next higher resolution of time.
+    E.g. at the hours scale a tick sequence of ["00h", "06h", "12h", 18h", "00h"] will see a scale up of the "00h" ticks
+    as they are on boundary of the days scale: ["06/08", "06h", "12h", 18h", "06/09"]
+    """)
+
+    hide_duplicates = Bool(default=False, help="""
+    When activated only the first value of repeating formatted ticks will be shown. Context is unaffected by this.
+    """)
+
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
     A format for adding context to the tick or ticks specified by ``context_which``.
     Valid values are:
@@ -681,6 +692,56 @@ def RELATIVE_DATETIME_CONTEXT() -> DatetimeTickFormatter:
         months = "",
         years = "",
     )
+
+def DYNAMIC_DATETIME_FORMATTER() -> DatetimeTickFormatter:
+    return DatetimeTickFormatter(**_DYNAMIC_DATETIME_KWARGS())
+
+def _DYNAMIC_DATETIME_KWARGS() -> dict:
+    return {
+        "microseconds": "%fus",
+        "milliseconds": "%3Nms",
+        "seconds": "%T",
+        "minsec": "%T",
+        "minutes": "%H:%M",
+        "hourmin": "%H:%M",
+        "hours": "%H:%M",
+        "days": "%b %d",
+        "months": "%b %Y",
+        "years": "%Y",
+        "strip_leading_zeros": ["microseconds", "milliseconds", "seconds"],
+        "scale_boundary": False,
+        "context_which": "all",
+        "context": DatetimeTickFormatter(
+            microseconds="%T",
+            milliseconds="%T",
+            seconds="%b %d, %Y",
+            minsec="%b %d, %Y",
+            minutes="%b %d, %Y",
+            hourmin="%b %d, %Y",
+            hours="%b %d, %Y",
+            days="%Y",
+            months="",
+            years="",
+            scale_boundary=False,
+            hide_duplicates=True,
+            context_which="all",
+            context=DatetimeTickFormatter(
+                microseconds="%b %d, %Y",
+                milliseconds="%b %d, %Y",
+                seconds="",
+                minsec="",
+                minutes="",
+                hourmin="",
+                hours="",
+                days="",
+                months="",
+                years="",
+                scale_boundary=False,
+                hide_duplicates=True,
+                context=None,
+            )
+        )
+    }
 
 #-----------------------------------------------------------------------------
 # Dev API
