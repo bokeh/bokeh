@@ -31,9 +31,19 @@ export function load_baseline(baseline_path: string, ref: string): string | null
   return proc.status == 0 ? proc.stdout : null
 }
 
-export function load_baseline_image(image_path: string, ref: string): Buffer | null {
-  const proc = cp.spawnSync("git", ["show", `${ref}:./${image_path}`], {encoding: "buffer"})
+export function cat_blob(image_path: string, ref: string): Buffer | null {
+  const proc = cp.spawnSync("git", ["cat-file", "blob", `${ref}:./${image_path}`], {encoding: "buffer"})
   return proc.status == 0 ? proc.stdout : null
+}
+
+export function lfs_smudge(input: Buffer): Buffer | null {
+  const proc = cp.spawnSync("git", ["lfs", "smudge"], {input, encoding: "buffer"})
+  return proc.status == 0 ? proc.stdout : null
+}
+
+export function load_baseline_image(image_path: string, ref: string): Buffer | null {
+  const blob = cat_blob(image_path, ref)
+  return blob != null ? lfs_smudge(blob) : null
 }
 
 function git(...args: string[]): cp.SpawnSyncReturns<string> {
