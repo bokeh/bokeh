@@ -1,8 +1,10 @@
 import {Model} from "model"
-import {ColumnarDataSource} from "models/sources/columnar_data_source"
-import {TapTool, TapToolCallback} from "models/tools/gestures/tap_tool"
+import type {ColumnarDataSource} from "models/sources/columnar_data_source"
+import type {TapToolCallback} from "models/tools/gestures/tap_tool"
+import {TapTool} from "models/tools/gestures/tap_tool"
+import type {ExecutableOf} from "core/util/callbacks"
 import {replace_placeholders} from "core/util/templating"
-import * as p from "core/properties"
+import type * as p from "core/properties"
 import {popup} from "./popup_helper"
 
 export namespace Popup {
@@ -15,7 +17,7 @@ export namespace Popup {
 
 export interface Popup extends Popup.Attrs {}
 
-export class Popup extends Model implements TapToolCallback {
+export class Popup extends Model implements ExecutableOf<TapToolCallback> {
   declare properties: Popup.Props
 
   constructor(attrs?: Partial<Popup.Attrs>) {
