@@ -10,7 +10,7 @@ import {offset_bbox} from "@bokehjs/core/dom"
 describe("ImageStack glyph", () => {
   it("should support hover tooltip", async () => {
     // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
-    const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
+    const data = [NaN, NaN, 11, 10, 14, 10, 10, 11, 11, 11, 14, 11, 10, 14, 11, 14, 14, 14]
     const array = new Float64NDArray(data, [3, 3, 2])
 
     function plot() {
