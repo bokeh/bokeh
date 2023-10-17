@@ -20,7 +20,10 @@ import {
   LegendItem,
   Line,
   LinearColorMapper,
+  Node,
   Plot,
+  Range1d,
+  RangeTool,
   Rect,
   Row,
   Scatter,
@@ -902,6 +905,50 @@ describe("Bug", () => {
       await view.ready
 
       expect(render.calledOnce).to.be.true
+    })
+  })
+
+  describe("in issue #13456", () => {
+    it("doesn't allow reuse nodes when updating RangeTool's overlay", async () => {
+      const x_range = new Range1d({start: 0, end: 1})
+      const x_range_tool = new RangeTool({x_range})
+
+      x_range_tool.update_overlay_from_ranges()
+      expect(x_range_tool.overlay.left).to.be.equal(0)
+      expect(x_range_tool.overlay.right).to.be.equal(1)
+      expect(x_range_tool.overlay.top).to.be.instanceof(Node)
+      expect(x_range_tool.overlay.bottom).to.be.instanceof(Node)
+
+      const prev_top = x_range_tool.overlay.top
+      const prev_bottom = x_range_tool.overlay.bottom
+
+      x_range.start = 10
+      x_range.end = 20
+      x_range_tool.update_overlay_from_ranges()
+      expect(x_range_tool.overlay.left).to.be.equal(10)
+      expect(x_range_tool.overlay.right).to.be.equal(20)
+      expect(x_range_tool.overlay.top).to.be.equal(prev_top)
+      expect(x_range_tool.overlay.bottom).to.be.equal(prev_bottom)
+
+      const y_range = new Range1d({start: 0, end: 1})
+      const y_range_tool = new RangeTool({y_range})
+
+      y_range_tool.update_overlay_from_ranges()
+      expect(y_range_tool.overlay.left).to.be.instanceof(Node)
+      expect(y_range_tool.overlay.right).to.be.instanceof(Node)
+      expect(y_range_tool.overlay.top).to.be.equal(1)
+      expect(y_range_tool.overlay.bottom).to.be.equal(0)
+
+      const prev_left = y_range_tool.overlay.left
+      const prev_right = y_range_tool.overlay.right
+
+      y_range.start = 10
+      y_range.end = 20
+      y_range_tool.update_overlay_from_ranges()
+      expect(y_range_tool.overlay.left).to.be.equal(prev_left)
+      expect(y_range_tool.overlay.right).to.be.equal(prev_right)
+      expect(y_range_tool.overlay.top).to.be.equal(20)
+      expect(y_range_tool.overlay.bottom).to.be.equal(10)
     })
   })
 })
