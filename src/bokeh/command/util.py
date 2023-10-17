@@ -24,7 +24,11 @@ import contextlib
 import errno
 import os
 import sys
-from typing import Iterator
+from typing import TYPE_CHECKING, Iterator
+
+if TYPE_CHECKING:
+    # External imports
+    from typing_extensions import Never
 
 # Bokeh imports
 from bokeh.application import Application
@@ -51,7 +55,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-def die(message: str, status: int = 1) -> None:
+def die(message: str, status: int = 1) -> Never:
     ''' Print an error message and exit.
 
     This function will call ``sys.exit`` with the given ``status`` and the
