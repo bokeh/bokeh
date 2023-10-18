@@ -82,6 +82,8 @@ dependencies:
     - types-pillow
     - types-pyyaml
     - types-requests
+    - types-toml
     - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
+    - vermin
     # move the following back to conda sections above when python 3.12 conda-forge packages available
     - squarify
