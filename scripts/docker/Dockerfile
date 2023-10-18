@@ -38,6 +38,10 @@ RUN CHROME_VERSION=$(google-chrome --version | awk '{print $NF}' | sed 's/\.[0-9
     mv chromedriver /usr/bin && \
     rm chromedriver_linux64.zip
 
+# Install and configure the most recent version of git-lfs.
+RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash && \
+    git lfs install
+
 EXPOSE 5006
 
 COPY entrypoint.sh /usr/bin/entrypoint.sh
