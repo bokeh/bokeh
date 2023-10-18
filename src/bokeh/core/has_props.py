@@ -50,6 +50,9 @@ if TYPE_CHECKING:
 else:
     from functools import lru_cache
 
+if TYPE_CHECKING:
+    from typing_extensions import Self
+
 # Bokeh imports
 from ..util.strings import append_docstring, nice_join
 from ..util.warnings import warn
@@ -743,7 +746,7 @@ class HasProps(Serializable, metaclass=MetaHasProps):
         '''
         self.apply_theme(property_values={})
 
-    def clone(self) -> HasProps:
+    def clone(self) -> Self:
         ''' Duplicate a HasProps object.
 
         This creates a shallow clone of the original model, i.e. any
