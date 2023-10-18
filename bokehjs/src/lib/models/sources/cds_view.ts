@@ -10,7 +10,9 @@ import type {ColumnarDataSource} from "./columnar_data_source"
 
 export class CDSViewView extends View {
   declare model: CDSView
-  declare readonly parent: View & {readonly data_source: p.Property<ColumnarDataSource>}
+  declare readonly parent: View & {
+    readonly data_source: p.Property<ColumnarDataSource>
+  }
 
   override initialize(): void {
     super.initialize()
@@ -20,24 +22,50 @@ export class CDSViewView extends View {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {filter} = this.model.properties
-    this.on_change(filter, () => this.compute_indices())
-
-    const connect_listeners = () => {
-      const fn = () => this.compute_indices()
-      const source = this.parent.data_source.get_value()
-      this.connect(source.change, fn)
-      this.connect(source.streaming, fn)
-      this.connect(source.patching, fn)
-      this.connect(source.properties.data.change, fn)
+    const compute_indices = () => {
+      this.compute_indices()
     }
 
-    connect_listeners()
+    const connect_filter = (filter: Filter) => {
+      this.connect(filter.change, compute_indices)
+    }
 
-    const {data_source} = this.parent
-    this.on_change(data_source, () => {
-      // TODO: disconnect
-      connect_listeners()
+    const disconnect_filter = (filter: Filter) => {
+      this.disconnect(filter.change, compute_indices)
+    }
+
+    let {filter} = this.model
+    connect_filter(filter)
+
+    this.on_change(this.model.properties.filter, () => {
+      disconnect_filter(filter)
+      filter = this.model.filter
+      connect_filter(filter)
+      compute_indices()
+    })
+
+    const connect_data_source = (data_source: ColumnarDataSource) => {
+      this.connect(data_source.change, compute_indices)
+      this.connect(data_source.streaming, compute_indices)
+      this.connect(data_source.patching, compute_indices)
+      this.connect(data_source.properties.data.change, compute_indices)
+    }
+
+    const disconnect_data_source = (data_source: ColumnarDataSource) => {
+      this.disconnect(data_source.change, compute_indices)
+      this.disconnect(data_source.streaming, compute_indices)
+      this.disconnect(data_source.patching, compute_indices)
+      this.disconnect(data_source.properties.data.change, compute_indices)
+    }
+
+    let data_source = this.parent.data_source.get_value()
+    connect_data_source(data_source)
+
+    this.on_change(this.parent.data_source, () => {
+      disconnect_data_source(data_source)
+      data_source = this.parent.data_source.get_value()
+      connect_data_source(data_source)
+      compute_indices()
     })
   }
 

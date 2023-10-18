@@ -98,49 +98,45 @@ class InversionFilter(Filter):
     Indices produced by this filter will be inverted.
     """)
 
-class IntersectionFilter(Filter):
+@abstract
+class CompositeFilter(Filter):
+    """ Base class for composite filters. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
+    A collection of filters to perform an operation on.
+    """)
+
+class IntersectionFilter(CompositeFilter):
     """ Computes intersection of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
-    Indices produced by a collection of these filters will be intersected.
-    """)
-
-class UnionFilter(Filter):
+class UnionFilter(CompositeFilter):
     """ Computes union of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
-    Indices produced by a collection of these filters will be unioned.
-    """)
-
-class DifferenceFilter(Filter):
-    """ Computes union of indices resulting from other filters. """
+class DifferenceFilter(CompositeFilter):
+    """ Computes difference of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
-    Indices produced by a collection of these filters will be subtracted.
-    """)
-
-class SymmetricDifferenceFilter(Filter):
+class SymmetricDifferenceFilter(CompositeFilter):
     """ Computes symmetric difference of indices resulting from other filters. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    operands = Required(NonEmpty(Seq(Instance(Filter))), help="""
-    Indices produced by a collection of these filters will be xored.
-    """)
 
 class IndexFilter(Filter):
     ''' An ``IndexFilter`` filters data by returning the subset of data at a given set of indices.

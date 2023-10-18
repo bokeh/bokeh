@@ -4,9 +4,12 @@ import type {CDSViewView} from "@bokehjs/models/sources/cds_view"
 import {CDSView} from "@bokehjs/models/sources/cds_view"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import {BooleanFilter} from "@bokehjs/models/filters/boolean_filter"
 import {IndexFilter} from "@bokehjs/models/filters/index_filter"
 import {GroupFilter} from "@bokehjs/models/filters/group_filter"
 import {IntersectionFilter} from "@bokehjs/models/filters/intersection_filter"
+import {UnionFilter} from "@bokehjs/models/filters/union_filter"
+import {InversionFilter} from "@bokehjs/models/filters/inversion_filter"
 import {build_view} from "@bokehjs/core/build_views"
 import type * as p from "@bokehjs/core/properties"
 import {View} from "@bokehjs/core/view"
@@ -64,6 +67,7 @@ describe("CDSView", () => {
 
   const filter1 = new IndexFilter({indices: [0, 1, 2]})
   const filter2 = new IndexFilter({indices: [1, 2, 3]})
+  const filter3 = new BooleanFilter({booleans: [true, true, false, false, true]})
   const filter_null = new IndexFilter()
 
   describe("compute_indices", () => {
@@ -74,12 +78,51 @@ describe("CDSView", () => {
       expect([...cds.indices]).to.be.equal([0, 1, 2])
     })
 
-    it("updates indices when filters is changed", async () => {
+    it("updates indices when filter is changed", async () => {
       const view = new CDSView({filter: filter1})
       await build(view, source)
       expect([...view.indices]).to.be.equal([0, 1, 2])
       view.filter = filter2
       expect([...view.indices]).to.be.equal([1, 2, 3])
+      view.filter = filter3
+      expect([...view.indices]).to.be.equal([0, 1, 4])
+    })
+
+    it("updates indices when filter's properties are changed", async () => {
+      const boolean_filter = new BooleanFilter({booleans: [true, true, false, false, true]})
+      const boolean_view = new CDSView({filter: boolean_filter})
+      await build(boolean_view, source)
+      expect([...boolean_view.indices]).to.be.equal([0, 1, 4])
+      boolean_filter.booleans = [false, true, true, false, true]
+      expect([...boolean_view.indices]).to.be.equal([1, 2, 4])
+
+      const index_filter = new IndexFilter({indices: [0, 1, 2]})
+      const index_view = new CDSView({filter: index_filter})
+      await build(index_view, source)
+      expect([...index_view.indices]).to.be.equal([0, 1, 2])
+      index_filter.indices = [1, 2, 3]
+      expect([...index_view.indices]).to.be.equal([1, 2, 3])
+
+      const union_filter = new UnionFilter({operands: [boolean_filter, index_filter]})
+      const union_view = new CDSView({filter: union_filter})
+      await build(union_view, source)
+      expect([...union_view.indices]).to.be.equal([1, 2, 3, 4])
+      boolean_filter.booleans = [false, false, false, false, true]
+      index_filter.indices = [0, 3]
+      expect([...union_view.indices]).to.be.equal([0, 3, 4])
+      expect([...index_view.indices]).to.be.equal([0, 3])
+      expect([...boolean_view.indices]).to.be.equal([4])
+
+      const inversion_filter = new InversionFilter({operand: union_filter})
+      const intersection_view = new CDSView({filter: inversion_filter})
+      await build(intersection_view, source)
+      expect([...intersection_view.indices]).to.be.equal([1, 2])
+      boolean_filter.booleans = [true, false, false, true, false]
+      index_filter.indices = [1, 2, 4]
+      expect([...intersection_view.indices]).to.be.equal([])
+      expect([...union_view.indices]).to.be.equal([0, 1, 2, 3, 4])
+      expect([...index_view.indices]).to.be.equal([1, 2, 4])
+      expect([...boolean_view.indices]).to.be.equal([0, 3])
     })
 
     it("computes indices based on the intersection of filters", async () => {
