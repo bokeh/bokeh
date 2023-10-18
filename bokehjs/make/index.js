@@ -15,12 +15,13 @@ if (!fs.existsSync("node_modules/")) {
   npm_install()
 }
 
+const semver = require("semver")
+const {argv} = require("yargs")
+
 const {engines, workspaces} = require("../package.json")
 
 const node_version = process.version
 const npm_version = cp.execSync("npm --version").toString().trim()
-
-const semver = require("semver")
 
 if (!semver.satisfies(node_version, engines.node)) {
   console.log(`node ${engines.node} is required. Current version is ${node_version}.`)
@@ -47,12 +48,14 @@ function is_up_to_date(file) {
   return old_hash == new_hash
 }
 
-for (const workspace of ["", ...workspaces]) {
-  const path = join(workspace, "package.json")
-  if (!is_up_to_date(path)) {
-    console.log(`${path} has changed. Running 'npm install'.`)
-    npm_install()
-    break
+if (argv["up-to-date"] !== false) {
+  for (const workspace of ["", ...workspaces]) {
+    const path = join(workspace, "package.json")
+    if (!is_up_to_date(path)) {
+      console.log(`${path} has changed. Running 'npm install'.`)
+      npm_install()
+      break
+    }
   }
 }
 
