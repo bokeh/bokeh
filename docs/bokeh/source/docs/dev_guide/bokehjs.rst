@@ -137,6 +137,26 @@ Bokeh officially supports the following platforms for development and testing:
 It is possible to work on BokehJS using different platforms and versions.
 However, things might not work as intended, and some tests will not work.
 
+Setting up the repository
+-------------------------
+
+If you previously skipped installation of `Git LFS`_, then this is now required.
+If LFS was installed at the time of cloning Bokeh's repository, then this
+section doesn't apply to you. Otherwise follow installation instructions on LFS'
+website, making sure you run:
+
+.. code-block:: sh
+
+    git lfs install
+
+Now the repository can be updated and required files fetched with:
+
+.. code-block:: sh
+
+    git lfs pull
+
+The repository now is full set up for bokehjs development.
+
 .. _contributor_guide_bokehjs_building:
 
 Building BokehJS
@@ -306,6 +326,7 @@ Views extend the respective ``BaseView`` base class.
       ...
     }
 
+.. _Git LFS: https://git-lfs.com
 .. _gulp: https://gulpjs.com/
 .. _ESLint: https://eslint.org/
 .. _JSFiddle: http://jsfiddle.net/

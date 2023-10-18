@@ -29,6 +29,10 @@ Windows, OSX, or Linux. To install Git on any platform, refer to the
 If you have never used Git before, you can find links to several beginner
 tutorials and resources in the `Git documentation`_.
 
+If you intend to run bokehjs' tests and/or develop bokehjs, then we recommend
+installing `Git LFS`_ at this time as well. If you choose not to, this can be
+done at a later time and the repository updated.
+
 Install or update conda
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -679,6 +683,7 @@ Slack`_.
 .. _Installation: https://conda.io/projects/conda/en/latest/user-guide/install/index.html
 .. _Bokeh Discourse: https://discourse.bokeh.org/
 .. _Git: https://git-scm.com
+.. _Git LFS: https://git-lfs.com
 .. _Installing Git: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
 .. _Pro Git Book: https://git-scm.com/book/en/v2
 .. _Git documentation: https://git-scm.com/doc/ext
