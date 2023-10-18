@@ -43,6 +43,12 @@ repos:
         language: conda
         pass_filenames: false
 
+      - id: run-vermin
+        name: Run vermin checks
+        entry: pytest tests/codebase/test_vermin.py
+        language: conda
+        pass_filenames: false
+
       - id: validate-json
         name: Validate JSON files
         entry: pytest tests/codebase/test_json.py
