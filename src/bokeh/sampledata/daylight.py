@@ -39,6 +39,9 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pandas import DataFrame
 
+# External imports
+import pandas as pd
+
 # Bokeh imports
 from ..util.sampledata import package_csv
 
@@ -66,11 +69,11 @@ def _read_data() -> DataFrame:
     '''
 
     '''
-    df = package_csv('daylight', 'daylight_warsaw_2013.csv', parse_dates=["Date", "Sunrise", "Sunset"])
+    df = package_csv('daylight', 'daylight_warsaw_2013.csv', parse_dates=False)
 
-    df["Date"] = df.Date.map(lambda x: x.date())
-    df["Sunrise"] = df.Sunrise.map(lambda x: x.time())
-    df["Sunset"] = df.Sunset.map(lambda x: x.time())
+    df["Date"] = pd.to_datetime(df.Date).map(lambda x: pd.to_datetime(x).date())
+    df["Sunrise"] = pd.to_datetime(df.Sunrise, format="%H:%M:%S").map(lambda x: x.time())
+    df["Sunset"] = pd.to_datetime(df.Sunset, format="%H:%M:%S").map(lambda x: x.time())
 
     return df
 
