@@ -18,8 +18,8 @@ import pytest ; pytest
 
 # Bokeh imports
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure
 from bokeh.models.ui import Tooltip
+from bokeh.plotting import figure
 
 # Module under test
 from bokeh.models.layouts import Row, Column, LayoutDOM, TabPanel # isort:skip

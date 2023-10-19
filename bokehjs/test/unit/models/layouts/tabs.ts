@@ -1,22 +1,24 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 
 import {TabPanel} from "@bokehjs/models/layouts/tab_panel"
 import {Tabs} from "@bokehjs/models/layouts/tabs"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Tooltip} from "@bokehjs/models/ui/tooltip"
+import {range} from "@bokehjs/core/util/array"
+import {enumerate} from "@bokehjs/core/util/iterator"
 
 describe("Tabs", () => {
-  function new_tabs(numPanels: number, addTooltip: boolean = false): Tabs {
-    const createPanel = () => {
+  function new_tabs(num_panels: number, add_tooltip: boolean = false): Tabs {
+    const create_panel = (i: number) => {
       const plot = new Plot({
         x_range: new Range1d({start: 0, end: 10}),
         y_range: new Range1d({start: 0, end: 10}),
       })
-      const tooltip = addTooltip ? new Tooltip({content: "test tooltip", position: "right"}) : null
+      const tooltip = add_tooltip ? new Tooltip({content: `Tab #${i}`, position: "bottom_center"}) : null
       return new TabPanel({child: plot, tooltip})
     }
-    const panels = Array(numPanels).map(() => createPanel())
+    const panels = range(num_panels).map(create_panel)
     return new Tabs({tabs: panels})
   }
 
@@ -32,9 +34,9 @@ describe("Tabs", () => {
 
   it("should accept a tooltip", () => {
     const tabs = new_tabs(2, true)
-    tabs.tabs.forEach(tab => {
-      expect(tab.tooltip).to.not.be.null
-      expect(tab.tooltip?.content).to.be.equal("test tooltip")
-    })
+    for (const [tab, i] of enumerate(tabs.tabs)) {
+      expect_not_null(tab.tooltip)
+      expect(tab.tooltip.content).to.be.equal(`Tab #${i}`)
+    }
   })
 })
