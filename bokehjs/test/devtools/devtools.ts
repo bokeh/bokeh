@@ -9,7 +9,7 @@ import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
 import type {Box, State} from "./baselines"
-import {create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
+import {create_baseline, diff_baseline, load_baselines} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
@@ -281,6 +281,8 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         reference?: Buffer
         image?: Buffer
         image_diff?: Buffer
+        existing_blf?: string
+        existing_png?: Buffer
       }
 
       type TestItem = [Suite[], Test, Status]
@@ -343,15 +345,39 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         fail("nothing to test because all tests were skipped")
       }
 
+      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
+      const baseline_names = new Set<string>()
+
+      if (baselines_root != null) {
+        const baseline_paths = []
+
+        for (const test_case of test_suite) {
+          const [suites, test, _status] = test_case
+          const baseline_name = encode(description(suites, test, "__"))
+          const baseline_path = path.join(baselines_root, platform, baseline_name)
+          baseline_paths.push(baseline_path)
+        }
+
+        const baselines = await load_baselines(baseline_paths, ref)
+
+        for (let i = 0; i < baselines.length; i++) {
+          const [,, status] = test_suite[i]
+          const baseline = baselines[i]
+          if (baseline.blf != null) {
+            status.existing_blf = baseline.blf
+          }
+          if (baseline.png != null) {
+            status.existing_png = baseline.png
+          }
+        }
+      }
+
       const progress = new Bar({
         format: "{bar} {percentage}% | {value} of {total}{failures}{skipped}",
         stream: process.stdout,
         noTTYOutput: true,
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
-
-      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
-      const baseline_names = new Set<string>()
 
       let skipped = 0
       let failures = 0
@@ -560,13 +586,14 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                           await fs.promises.writeFile(baseline_file, baseline)
                           status.baseline = baseline
 
-                          const existing = load_baseline(baseline_file, ref)
-                          if (existing != baseline) {
-                            if (existing == null) {
+                          const {existing_blf} = status
+                          if (existing_blf != baseline) {
+                            if (existing_blf == null) {
                               status.errors.push("missing baseline")
                             } else {
-                              if (test.retries != null)
+                              if (test.retries != null) {
                                 may_retry = true
+                              }
                             }
                             const diff = diff_baseline(baseline_file, ref)
                             status.failure = true
@@ -587,20 +614,20 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
 
                           const image_file = `${baseline_path}.png`
                           const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file, ref)
+                          const {existing_png} = status
 
                           switch (argv.screenshot) {
                             case undefined:
                             case "test":
-                              if (existing == null) {
+                              if (existing_png == null) {
                                 status.failure = true
                                 status.errors.push("missing baseline image")
                                 await write_image()
                               } else {
-                                status.reference = existing
+                                status.reference = existing_png
 
-                                if (!existing.equals(current)) {
-                                  const diff_result = diff_image(existing, current)
+                                if (!existing_png.equals(current)) {
+                                  const diff_result = diff_image(existing_png, current)
                                   if (diff_result != null) {
                                     may_retry = true
                                     const {diff, pixels, percent} = diff_result
