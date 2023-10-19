@@ -230,7 +230,7 @@ describe("DatetimeTickFormatter", () => {
     it("should handle boolean", () => {
       const formatter = new dttf.DatetimeTickFormatter({scale_up_boundary: false})
       const labels = formatter.doFormat([t, t+HOUR, t+HOUR*2], {loc: 0})
-      expect(labels).to.be.equal(["0h", "1h", "2h"])
+      expect(labels).to.be.equal(["00h", "01h", "02h"])
     })
   })
   describe("context", () => {
