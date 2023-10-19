@@ -121,6 +121,7 @@ export namespace DatetimeTickFormatter {
     months: p.Property<string>
     years: p.Property<string>
     strip_leading_zeros: p.Property<boolean | Arrayable<ResolutionType>>
+    scale_up_boundary: p.Property<boolean>
     context: p.Property<string | DatetimeTickFormatter | null>
     context_which: p.Property<ContextWhich>
     context_location: p.Property<Location>
@@ -149,6 +150,7 @@ export class DatetimeTickFormatter extends TickFormatter {
       months: [ Str, "%m/%Y" ],
       years: [ Str, "%Y" ],
       strip_leading_zeros: [ Or(Bool, Arrayable(ResolutionType)), false ],
+      scale_up_boundary: [ Bool, true ],
       context: [ Nullable(Or(Str, Ref(DatetimeTickFormatter))), null ],
       context_which: [ ContextWhich, "start" ],
       context_location: [ Location, "below" ],
@@ -177,41 +179,44 @@ export class DatetimeTickFormatter extends TickFormatter {
     const s0 = _strftime(t, this[resolution])
     const tm = _mktime(t)
     const resolution_index = resolution_order.indexOf(resolution)
-
+    let final_resolution = resolution
     let s = s0
-    let hybrid_handled = false
-    let next_index = resolution_index
-    let next_resolution = resolution
 
-    // As we format each tick, check to see if we are at a boundary of the
-    // next higher unit of time. If so, replace the current format with one
-    // from that resolution. This is not the best heuristic but it works.
-    while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
-      next_index += 1
+    if (this.scale_up_boundary) {
+      let hybrid_handled = false
+      let next_index = resolution_index
+      let next_resolution = resolution
 
-      if (next_index == resolution_order.length) {
-        break
-      }
+      // As we format each tick, check to see if we are at a boundary of the
+      // next higher unit of time. If so, replace the current format with one
+      // from that resolution. This is not the best heuristic but it works.
+      while (tm[tm_index_for_resolution.get(resolution_order[next_index])!] == 0) {
+        next_index += 1
 
-      // The way to check that we are at the boundary of the next unit of
-      // time is by checking that we have 0 units of the resolution, i.e.
-      // we are at zero minutes, so display hours, or we are at zero seconds,
-      // so display minutes (and if that is zero as well, then display hours).
-      if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
-        if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
-          next_resolution = resolution_order[resolution_index-1]
-          s = _strftime(t, this[next_resolution])
+        if (next_index == resolution_order.length) {
           break
-        } else {
-          hybrid_handled = true
         }
-      }
 
-      next_resolution = resolution_order[next_index]
-      s = _strftime(t, this[next_resolution])
+        // The way to check that we are at the boundary of the next unit of
+        // time is by checking that we have 0 units of the resolution, i.e.
+        // we are at zero minutes, so display hours, or we are at zero seconds,
+        // so display minutes (and if that is zero as well, then display hours).
+        if ((resolution == "minsec" || resolution == "hourmin") && !hybrid_handled) {
+          if ((resolution == "minsec" && tm[4] == 0 && tm[5] != 0) || (resolution == "hourmin" && tm[3] == 0 && tm[4] != 0)) {
+            next_resolution = resolution_order[resolution_index-1]
+            s = _strftime(t, this[next_resolution])
+            break
+          } else {
+            hybrid_handled = true
+          }
+        }
+
+        next_resolution = resolution_order[next_index]
+        s = _strftime(t, this[next_resolution])
+      }
+      final_resolution = next_resolution
     }
 
-    const final_resolution = next_resolution
     const {strip_leading_zeros} = this
     if ((isBoolean(strip_leading_zeros) && strip_leading_zeros) ||
         (isArray(strip_leading_zeros) && strip_leading_zeros.includes(final_resolution))) {
