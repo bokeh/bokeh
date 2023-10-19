@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {expect} from "assertions"
+import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, xy, click} from "../interactive"
 
@@ -38,7 +38,6 @@ import {
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
-import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -119,7 +118,7 @@ describe("Bug", () => {
       const plot = fig([200, 200], {tools: [hover]})
       plot.circle([1, 2, 3], [4, 5, 6])
       const {view} = await display(plot)
-      const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
+      const hover_view = view.owner.get_one(hover)
       expect(hover_view.computed_renderers.length).to.be.equal(1)
 
       plot.circle([2, 3, 4], [4, 5, 6])
@@ -138,9 +137,9 @@ describe("Bug", () => {
       plot.add_layout(r2)
       const {view} = await display(plot)
 
-      const rv0 = view.renderer_view(r0)!
-      const rv1 = view.renderer_view(r1)!
-      const rv2 = view.renderer_view(r2)!
+      const rv0 = view.owner.get_one(r0)
+      const rv1 = view.owner.get_one(r1)
+      const rv2 = view.owner.get_one(r2)
 
       const rv0_spy = sinon.spy(rv0, "render")
       const rv1_spy = sinon.spy(rv1, "render")
@@ -180,7 +179,7 @@ describe("Bug", () => {
       // XXX: no data (!= empty arrays) implies 1 data point, required for
       // scalar glyphs. This doesn't account for purely expression glyphs.
       // This needs to be refined in future.
-      expect(view.renderer_view(renderer)!.glyph.data_size).to.be.equal(1)
+      expect(view.owner.get_one(renderer).glyph.data_size).to.be.equal(1)
     })
 
     // TODO: this should test WebDataSource
@@ -214,7 +213,7 @@ describe("Bug", () => {
         plot.title = "some title"
       }
       set_title()                         // indirection to deal with type narrowing to string
-      assert(plot.title instanceof Title) // expect() can't narrow types
+      expect_instanceof(plot.title, Title) // expect() can't narrow types
       plot.title.text = "other title"
       expect(plot.title).to.be.instanceof(Title)
       expect(plot.title.text).to.be.equal("other title")
@@ -232,7 +231,7 @@ describe("Bug", () => {
 
         const {view} = await display(plot)
 
-        const lnv = view.renderer_views.get(renderer)!
+        const lnv = view.owner.get_one(renderer)
         const ln_spy = sinon.spy(lnv, "request_render")
         const ui = view.canvas_view.ui_event_bus
         const {left, top} = offset_bbox(ui.hit_area)
@@ -262,7 +261,7 @@ describe("Bug", () => {
 
       const {view} = await display(plot)
 
-      const gv = view.renderer_views.get(renderer)!
+      const gv = view.owner.get_one(renderer)
       const gv_spy = sinon.spy(gv, "request_render")
       const ui = view.canvas_view.ui_event_bus
       const {left, top} = offset_bbox(ui.hit_area)
@@ -405,15 +404,23 @@ describe("Bug", () => {
       doc.on_change((event) => events1.push(event))
       await display(doc)
 
+      const m1002 = doc.get_model_by_id("1002")
+      const m1008 = doc.get_model_by_id("1008")
+      const m1009 = doc.get_model_by_id("1009")
+
+      expect_not_null(m1002)
+      expect_not_null(m1008)
+      expect_not_null(m1009)
+
       expect(events1).to.be.similar([
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", -0.15707963267948988),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",    3.2986722862692828),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", -1.0840481406628186),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",    1.0992403876506105),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_width",  565),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_height", 590),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_width",  600),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_height", 600),
+        new ModelChangedEvent(doc, m1008, "start", -0.15707963267948988),
+        new ModelChangedEvent(doc, m1008, "end",    3.2986722862692828),
+        new ModelChangedEvent(doc, m1009, "start", -1.0840481406628186),
+        new ModelChangedEvent(doc, m1009, "end",    1.0992403876506105),
+        new ModelChangedEvent(doc, m1002, "inner_width",  565),
+        new ModelChangedEvent(doc, m1002, "inner_height", 590),
+        new ModelChangedEvent(doc, m1002, "outer_width",  600),
+        new ModelChangedEvent(doc, m1002, "outer_height", 600),
         new MessageSentEvent(doc, "bokeh_event", new DocumentReady()),
       ])
     })
@@ -788,44 +795,34 @@ describe("Bug", () => {
       }
 
       const result0 = rv.hit_test({type: "point", ...at(2, 2)})
-      assert(result0 != null)
-      expect(result0.indices).to.be.equal([])
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = rv.hit_test({type: "point", ...at(3, 3)})
-      assert(result1 != null)
-      expect(result1.indices).to.be.equal([2])
+      expect(result1?.indices).to.be.equal([2])
 
       const result2 = rv.hit_test({type: "span", direction: "h", ...at(2, 2)})
-      assert(result2 != null)
-      expect(result2.indices).to.be.equal([])
+      expect(result2?.indices).to.be.equal([])
 
       const result3 = rv.hit_test({type: "span", direction: "h", ...at(3, 3)})
-      assert(result3 != null)
-      expect(result3.indices).to.be.equal([2])
+      expect(result3?.indices).to.be.equal([2])
 
       const result4 = rv.hit_test({type: "span", direction: "v", ...at(2, 2)})
-      assert(result4 != null)
-      expect(result4.indices).to.be.equal([])
+      expect(result4?.indices).to.be.equal([])
 
       const result5 = rv.hit_test({type: "span", direction: "v", ...at(3, 3)})
-      assert(result5 != null)
-      expect(result5.indices).to.be.equal([2])
+      expect(result5?.indices).to.be.equal([2])
 
       const result6 = rv.hit_test({type: "rect", ...rect(1.5, 1.5, 2.5, 2.5)})
-      assert(result6 != null)
-      expect(result6.indices).to.be.equal([])
+      expect(result6?.indices).to.be.equal([])
 
       const result7 = rv.hit_test({type: "rect", ...rect(2.5, 2.5, 3.5, 3.5)})
-      assert(result7 != null)
-      expect(result7.indices).to.be.equal([2])
+      expect(result7?.indices).to.be.equal([2])
 
       const result8 = rv.hit_test({type: "poly", ...poly(1.5, 1.5, 2.5, 2.5)})
-      assert(result8 != null)
-      expect(result8.indices).to.be.equal([])
+      expect(result8?.indices).to.be.equal([])
 
       const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
-      assert(result9 != null)
-      expect(result9.indices).to.be.equal([2])
+      expect(result9?.indices).to.be.equal([2])
     })
   })
 

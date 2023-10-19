@@ -38,8 +38,8 @@ describe("CartesianFrame", () => {
       const ranges = new Map([["default", new Range1d()]])
       const scales = frame._get_scales(frame.x_scale, {}, ranges, frame_range)
       expect(scales.get("default")).to.be.instanceof(LinearScale)
-      expect(scales.get("default")!.source_range).to.be.instanceof(Range1d)
-      expect(scales.get("default")!.target_range).to.be.instanceof(Range1d)
+      expect(scales.get("default")?.source_range).to.be.instanceof(Range1d)
+      expect(scales.get("default")?.target_range).to.be.instanceof(Range1d)
     })
 
     it("should throw error for incompatible numeric scale and factor range", () => {

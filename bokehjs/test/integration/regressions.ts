@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {expect} from "../unit/assertions"
+import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, xy, click, press, mouseenter} from "../interactive"
 
@@ -44,7 +44,6 @@ import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
-import {assert} from "@bokehjs/core/util/assert"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -727,7 +726,7 @@ describe("Bug", () => {
         (p) => p.y.bind(p),
       ]
 
-      assert(fns.length == n_marker_types)
+      expect(fns.length).to.be.equal(n_marker_types)
 
       const layout = column(fns.map((fn) => row(plots(fn))))
       await display(layout)
@@ -1249,7 +1248,7 @@ describe("Bug", () => {
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
       const {view} = await display(p)
 
-      const crv = view.renderer_views.get(cr)!
+      const crv = view.owner.get_one(cr)
       const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
 
       const ui = view.canvas_view.ui_event_bus
@@ -1304,7 +1303,7 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1, p2]))
 
       function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
-        const crv = plot_view.renderer_views.get(r)!
+        const crv = plot_view.owner.get_one(r)
         const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
 
         const ui = plot_view.canvas_view.ui_event_bus
@@ -1642,7 +1641,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      const zoom_in_tool_view = view.tool_views.get(zoom_in_tool)! as ZoomInTool["__view_type__"]
+      const zoom_in_tool_view = view.owner.get_one(zoom_in_tool)
       zoom_in_tool_view.doit()
 
       await view.ready
@@ -1672,7 +1671,7 @@ describe("Bug", () => {
       document.fonts.add(font)
     })
 
-    function assert_fonts(status: boolean) {
+    function expect_fonts(status: boolean) {
       expect(document.fonts.check("normal 12px VujahdayScript")).to.be.equal(status)
       expect(document.fonts.check("normal 22px VujahdayScript")).to.be.equal(status)
       expect(document.fonts.check("normal 26px VujahdayScript")).to.be.equal(status)
@@ -1680,7 +1679,7 @@ describe("Bug", () => {
     }
 
     it("prevents correct text rendering with lazily loaded fonts", async () => {
-      assert_fonts(false)
+      expect_fonts(false)
 
       const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
 
@@ -1705,14 +1704,14 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       await document.fonts.ready
-      assert_fonts(true)
+      expect_fonts(true)
 
       await view.ready
     })
 
     after_each(() => {
       const deleted = document.fonts.delete(font)
-      assert(deleted, "font cleanup failed")
+      expect_condition(deleted, "font cleanup failed")
     })
   })
 
@@ -2737,8 +2736,8 @@ describe("Bug", () => {
       const crv = view.owner.get_one(r)
       const [[sx], [sy]] = crv.coordinates.map_to_screen([pt.x], [pt.y])
 
-      // TODO: tt.position is not guarantted to be whole pixels (?)
-      assert(isArray(tt.position))
+      // TODO: tt.position is not guaranteed to be whole pixels (?)
+      expect_condition(isArray(tt.position), "tt.position must be a tuple")
       const [px, py] = tt.position
       expect([px|0, py|0]).to.be.equal([sx|0, sy|0])
     })
@@ -3074,17 +3073,17 @@ describe("Bug", () => {
       await paint()
 
       const el_D = view.shadow_el.querySelector("[data-value='D']")
-      assert(el_D != null)
+      expect_not_null(el_D)
       await click(el_D, "mousedown")
       await paint()
 
       const el_A = view.shadow_el.querySelector("[data-value='A']")
-      assert(el_A != null)
+      expect_not_null(el_A)
       await click(el_A, "mousedown")
       await paint()
 
       const el_B = view.shadow_el.querySelector("[data-value='B']")
-      assert(el_B != null)
+      expect_not_null(el_B)
       await click(el_B, "mousedown")
       await paint()
     })
@@ -3347,7 +3346,7 @@ describe("Bug", () => {
       expect(isPlainObject(doc_json)).to.be.true
 
       const {desc_el} = view.owner.get_one(widget)
-      assert(desc_el != null)
+      expect_not_null(desc_el)
       await mouseenter(desc_el)
     })
   })

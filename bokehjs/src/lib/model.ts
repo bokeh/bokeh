@@ -147,7 +147,16 @@ export class Model extends HasProps {
       case 1:
         return result[0]
       default:
-        throw new Error(`found more than one object matching given selector ${selector}`)
+        throw new Error(`found multiple objects matching the given selector ${selector}`)
+    }
+  }
+
+  get_one<T extends HasProps>(selector: ModelSelector<T>): T {
+    const result = this.select_one(selector)
+    if (result != null) {
+      return result
+    } else {
+      throw new Error(`could not find any objects matching the given selector ${selector}`)
     }
   }
 

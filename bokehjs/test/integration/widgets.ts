@@ -1,5 +1,6 @@
 import {display, column} from "./_util"
 import {click} from "../interactive"
+import {expect_not_null} from "../unit/assertions"
 
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
@@ -44,7 +45,8 @@ export async function open_picker(view: PickerBaseView): Promise<void> {
   view.picker._input.dispatchEvent(new MouseEvent("click"))
   await view.ready
 
-  const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
+  const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")
+  expect_not_null(calendar_el)
   await finished_animating(calendar_el)
 }
 
@@ -79,11 +81,12 @@ describe("Widgets", () => {
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
     const {view} = await display(obj, [500, 200])
 
-    const button = view.shadow_el.querySelector("button")!
-    const {left, top} = button.getBoundingClientRect()
+    const button_el = view.shadow_el.querySelector("button")
+    expect_not_null(button_el)
+    const {left, top} = button_el.getBoundingClientRect()
 
     const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
-    button.dispatchEvent(ev)
+    button_el.dispatchEvent(ev)
 
     await view.ready
   })
@@ -99,11 +102,12 @@ describe("Widgets", () => {
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu, split: true})
     const {view} = await display(obj, [500, 200])
 
-    const toggle = view.shadow_el.querySelector(".bk-dropdown-toggle")!
-    const {left, top} = toggle.getBoundingClientRect()
+    const toggle_el = view.shadow_el.querySelector(".bk-dropdown-toggle")
+    expect_not_null(toggle_el)
+    const {left, top} = toggle_el.getBoundingClientRect()
 
     const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
-    toggle.dispatchEvent(ev)
+    toggle_el.dispatchEvent(ev)
 
     await view.ready
   })

@@ -1,10 +1,10 @@
+import {expect} from "../../unit/assertions"
 import {display, fig, row} from "../_util"
 
 import type {HatchPattern} from "@bokehjs/core/property_mixins"
 import type {LineJoin} from "@bokehjs/core/enums"
 import {MarkerType, OutputBackend} from "@bokehjs/core/enums"
 import {Random} from "@bokehjs/core/util/random"
-import {assert} from "@bokehjs/core/util/assert"
 
 describe("Marker glyph", () => {
   const random = new Random(1)
@@ -81,7 +81,7 @@ describe("Marker glyph", () => {
       p.y(X, Y(), attrs)
 
       const N = [...MarkerType].length
-      assert(p.renderers.length == N)
+      expect(p.renderers.length).to.be.equal(N)
 
       return p
     }

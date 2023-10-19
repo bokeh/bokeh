@@ -1,6 +1,5 @@
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 
-import {assert} from "@bokehjs/core/util/assert"
 import {HasProps} from "@bokehjs/core/has_props"
 import * as mixins from "@bokehjs/core/property_mixins"
 import {Serializer} from "@bokehjs/core/serialization/serializer"
@@ -189,7 +188,7 @@ describe("core/has_props module", () => {
 
       counter = 0
       const obj0_ = deserializer0.decode(serializer0.encode(obj0))
-      assert(obj0_ instanceof Some0)
+      expect_instanceof(obj0_, Some0)
       expect(obj0_.prop0).to.be.equal(0)
       expect(obj0_.prop1).to.be.equal(1)
       expect(obj0_.prop2).to.be.equal(2)
@@ -200,7 +199,7 @@ describe("core/has_props module", () => {
 
       counter = 0
       const obj1_ = deserializer1.decode(serializer1.encode(obj1))
-      assert(obj1_ instanceof Some0)
+      expect_instanceof(obj1_, Some0)
       expect(obj1_.prop0).to.be.equal(10)
       expect(obj1_.prop1).to.be.equal(0)
       expect(obj1_.prop2).to.be.equal(1)
@@ -211,7 +210,7 @@ describe("core/has_props module", () => {
 
       counter = 0
       const obj2_ = deserializer2.decode(serializer2.encode(obj2))
-      assert(obj2_ instanceof Some0)
+      expect_instanceof(obj2_, Some0)
       expect(obj2_.prop0).to.be.equal(0)
       expect(obj2_.prop1).to.be.equal(20)
       expect(obj2_.prop2).to.be.equal(1)

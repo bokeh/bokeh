@@ -1,8 +1,9 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
+import {range} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 
 import type {Color} from  "@bokehjs/core/types"
@@ -27,11 +28,9 @@ class TestTransform extends Transform {
 
 class TestExpression extends Expression {
   _v_compute(source: ColumnDataSource): number[] {
-    const ret = []
-    for (let i = 0; i < source.get_length()!; i++) {
-      ret.push(i)
-    }
-    return ret
+    const n = source.get_length()
+    expect_not_null(n)
+    return range(n)
   }
 }
 
