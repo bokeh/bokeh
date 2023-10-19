@@ -49,7 +49,7 @@ describe("TapTool", () => {
   describe("should support 'tap' gesture", () => {
     it("and trigger on 'tap' event", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
@@ -59,7 +59,7 @@ describe("TapTool", () => {
 
     it("and not trigger on 'tap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
@@ -69,7 +69,7 @@ describe("TapTool", () => {
 
     it("and not trigger on 'doubletap' event", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "tap", callback})
       const plot_view = await test_case(tool)
 
@@ -79,7 +79,7 @@ describe("TapTool", () => {
 
     it("and allow setting key modifiers", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "inspect", gesture: "tap", modifiers: {shift: true, alt: true}, callback})
       const plot_view = await test_case(tool)
 
@@ -110,7 +110,7 @@ describe("TapTool", () => {
   describe("should support 'doubletap' gesture", () => {
     it("and not trigger on 'tap' event", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
@@ -120,7 +120,7 @@ describe("TapTool", () => {
 
     it("and trigger on 'doubletap' event", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 
@@ -130,7 +130,7 @@ describe("TapTool", () => {
 
     it("and not trigger on 'doubletap' event when didn't hit a glyph", async () => {
       let called = false
-      const callback: TapToolCallback = {execute() { called = true }}
+      const callback: TapToolCallback = () => called = true
       const tool = new TapTool({behavior: "select", gesture: "doubletap", callback})
       const plot_view = await test_case(tool)
 

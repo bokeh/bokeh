@@ -1,5 +1,6 @@
 import {ActionTool, ActionToolView} from "./action_tool"
-import type {CallbackLike0} from "../../callbacks/callback"
+import type {CallbackLike0} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 
@@ -7,7 +8,10 @@ export class CustomActionView extends ActionToolView {
   declare model: CustomAction
 
   doit(): void {
-    this.model.callback?.execute(this.model)
+    const {callback} = this.model
+    if (callback != null) {
+      execute(callback, this.model)
+    }
   }
 }
 

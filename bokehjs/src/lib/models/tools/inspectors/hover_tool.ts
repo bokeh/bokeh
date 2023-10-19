@@ -12,13 +12,14 @@ import {assert} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {is_empty} from "core/util/object"
+import type {CallbackLike1} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import type {Formatters} from "core/util/templating"
 import {FormatterType, replace_placeholders} from "core/util/templating"
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
-import type {CallbackLike1} from "../../callbacks/callback"
 import type {TemplateView} from "../../dom/template"
 import {Template} from "../../dom/template"
 import type {GlyphView} from "../../glyphs/glyph"
@@ -495,7 +496,7 @@ export class HoverToolView extends InspectToolView {
 
       const index = renderer.data_source.inspected
 
-      callback.execute(this.model, {
+      execute(callback, this.model, {
         geometry: {x, y, ...geometry},
         renderer,
         index,
