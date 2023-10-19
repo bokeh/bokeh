@@ -4,7 +4,6 @@ import type {DataOf} from "./_util"
 import {create_glyph_view} from "./_util"
 import {VSpan} from "@bokehjs/models/glyphs/vspan"
 import type {Geometry} from "@bokehjs/core/geometry"
-import {assert} from "@bokehjs/core/util/assert"
 
 describe("VSpan", () => {
 
@@ -48,17 +47,11 @@ describe("VSpan", () => {
       const result3 = glyph_view.hit_test(geometry3)
       const result4 = glyph_view.hit_test(geometry4)
 
-      assert(result0 != null)
-      assert(result1 != null)
-      assert(result2 != null)
-      assert(result3 != null)
-      assert(result4 != null)
-
-      expect(result0.indices).to.be.equal([0])
-      expect(result1.indices).to.be.equal([1])
-      expect(result2.indices).to.be.equal([2])
-      expect(result3.indices).to.be.equal([3])
-      expect(result4.indices).to.be.equal([])
+      expect(result0?.indices).to.be.equal([0])
+      expect(result1?.indices).to.be.equal([1])
+      expect(result2?.indices).to.be.equal([2])
+      expect(result3?.indices).to.be.equal([3])
+      expect(result4?.indices).to.be.equal([])
     })
   })
 })

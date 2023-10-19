@@ -45,18 +45,17 @@ export namespace TappyScatter {
     source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
-  const tap = p.toolbar.select_one(Bokeh.TapTool)
-  tap!.renderers = [circles]
-  tap!.callback = {
-    execute(_obj, {source}): void {
-      const indices = source.selected.indices
-      if (indices.length == 1)
-        console.log(`Selected index: ${indices[0]}`)
-      else if (indices.length > 1)
-        console.log(`Selected indices: ${[...indices].join(", ")}`)
-      else
-        console.log("Nothing selected")
-    },
+  const tap = p.toolbar.get_one(Bokeh.TapTool)
+  tap.renderers = [circles]
+  tap.callback = (_obj, {source}) => {
+    const indices = source.selected.indices
+    if (indices.length == 1) {
+      console.log(`Selected index: ${indices[0]}`)
+    } else if (indices.length > 1) {
+      console.log(`Selected indices: ${[...indices].join(", ")}`)
+    } else {
+      console.log("Nothing selected")
+    }
   }
 
   plt.show(p)

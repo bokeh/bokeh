@@ -1,6 +1,6 @@
 import sinon from "sinon"
 
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 import {display, fig, restorable} from "./_util"
 import {PlotActions, xy, click} from "../interactive"
 
@@ -38,7 +38,6 @@ import {
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
-import {assert} from "@bokehjs/core/util/assert"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -214,7 +213,7 @@ describe("Bug", () => {
         plot.title = "some title"
       }
       set_title()                         // indirection to deal with type narrowing to string
-      assert(plot.title instanceof Title) // expect() can't narrow types
+      expect_instanceof(plot.title, Title) // expect() can't narrow types
       plot.title.text = "other title"
       expect(plot.title).to.be.instanceof(Title)
       expect(plot.title.text).to.be.equal("other title")
@@ -788,44 +787,34 @@ describe("Bug", () => {
       }
 
       const result0 = rv.hit_test({type: "point", ...at(2, 2)})
-      assert(result0 != null)
-      expect(result0.indices).to.be.equal([])
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = rv.hit_test({type: "point", ...at(3, 3)})
-      assert(result1 != null)
-      expect(result1.indices).to.be.equal([2])
+      expect(result1?.indices).to.be.equal([2])
 
       const result2 = rv.hit_test({type: "span", direction: "h", ...at(2, 2)})
-      assert(result2 != null)
-      expect(result2.indices).to.be.equal([])
+      expect(result2?.indices).to.be.equal([])
 
       const result3 = rv.hit_test({type: "span", direction: "h", ...at(3, 3)})
-      assert(result3 != null)
-      expect(result3.indices).to.be.equal([2])
+      expect(result3?.indices).to.be.equal([2])
 
       const result4 = rv.hit_test({type: "span", direction: "v", ...at(2, 2)})
-      assert(result4 != null)
-      expect(result4.indices).to.be.equal([])
+      expect(result4?.indices).to.be.equal([])
 
       const result5 = rv.hit_test({type: "span", direction: "v", ...at(3, 3)})
-      assert(result5 != null)
-      expect(result5.indices).to.be.equal([2])
+      expect(result5?.indices).to.be.equal([2])
 
       const result6 = rv.hit_test({type: "rect", ...rect(1.5, 1.5, 2.5, 2.5)})
-      assert(result6 != null)
-      expect(result6.indices).to.be.equal([])
+      expect(result6?.indices).to.be.equal([])
 
       const result7 = rv.hit_test({type: "rect", ...rect(2.5, 2.5, 3.5, 3.5)})
-      assert(result7 != null)
-      expect(result7.indices).to.be.equal([2])
+      expect(result7?.indices).to.be.equal([2])
 
       const result8 = rv.hit_test({type: "poly", ...poly(1.5, 1.5, 2.5, 2.5)})
-      assert(result8 != null)
-      expect(result8.indices).to.be.equal([])
+      expect(result8?.indices).to.be.equal([])
 
       const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
-      assert(result9 != null)
-      expect(result9.indices).to.be.equal([2])
+      expect(result9?.indices).to.be.equal([2])
     })
   })
 

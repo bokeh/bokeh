@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 import {display} from "../../_util"
 
 import {Selection} from "@bokehjs/models/selections/selection"
@@ -95,8 +95,8 @@ describe("GraphHitTestPolicy", () => {
         edge_stub.returns(new Selection({indices: [1, 2]}))
         const policy = new EdgesOnly()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
-        expect(result).to.not.be.null
-        expect(result!.indices).to.be.equal([1, 2])
+        expect_not_null(result)
+        expect(result.indices).to.be.equal([1, 2])
       })
     })
 
@@ -168,8 +168,8 @@ describe("GraphHitTestPolicy", () => {
         node_stub.returns(new Selection({indices: [1, 2, 3]}))
         const policy = new NodesOnly()
         const result = policy.hit_test({type: "point", sx: 0, sy: 0}, gv)
-        expect(result).to.not.be.null
-        expect(result!.indices).to.be.equal([1, 2, 3])
+        expect_not_null(result)
+        expect(result.indices).to.be.equal([1, 2, 3])
       })
     })
 

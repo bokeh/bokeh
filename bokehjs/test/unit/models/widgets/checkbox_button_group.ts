@@ -1,6 +1,6 @@
 import * as sinon from "sinon"
 
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 import {display} from "../../_util"
 
 import {CheckboxButtonGroup} from "@bokehjs/models/widgets/checkbox_button_group"
@@ -34,7 +34,8 @@ describe("CheckboxButtonGroup", () => {
       expect(g.active).to.be.equal([0, 1, 2])
 
       const button = view.shadow_el.querySelector<HTMLElement>(".bk-btn:nth-child(1)")
-      button!.click()
+      expect_not_null(button)
+      button.click()
 
       expect(spy.callCount).to.be.equal(1)
       expect(g.active).to.be.equal([1, 2])

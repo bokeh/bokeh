@@ -324,6 +324,20 @@ export function expect<T>(fn_or_val: (() => T) | T): ToFn<T> | ToVal<T> {
   }
 }
 
+export function expect_not_null<T>(val: T | null | undefined): asserts val is T {
+  expect(val).to.not.be.null
+}
+
+export function expect_instanceof<T>(val: unknown, constructor: Constructor<T>): asserts val is T {
+  expect(val).to.be.instanceof(constructor)
+}
+
+export function expect_condition(condition: boolean, message: string): asserts condition {
+  if (!condition) {
+    throw new ExpectationError(`unmet expectation: ${message}`)
+  }
+}
+
 export function expect_element(element: Element): ToElement {
   return {
     to: {

@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 
 import {
   PanTool, TapTool, SaveTool, BoxSelectTool, HoverTool,
@@ -7,7 +7,6 @@ import {
 
 import {gridplot, group_tools} from "@bokehjs/api/gridplot"
 import {figure} from "@bokehjs/api/figure"
-import {assert} from "@bokehjs/core/util/assert"
 
 describe("api/gridplot module", () => {
   it("should support group_tools() function", () => {
@@ -39,14 +38,14 @@ describe("api/gridplot module", () => {
     expect(tools.length).to.be.equal(8)
     const [t0, t1, t2, t3, t4, t5, t6, t7] = tools
 
-    assert(t0 instanceof ToolProxy)
-    assert(t1 instanceof ToolProxy)
-    assert(t2 instanceof PanTool)
-    assert(t3 instanceof ToolProxy)
-    assert(t4 instanceof TapTool)
-    assert(t5 instanceof SaveTool)
-    assert(t6 instanceof ToolProxy)
-    assert(t7 instanceof ToolProxy)
+    expect_instanceof(t0, ToolProxy)
+    expect_instanceof(t1, ToolProxy)
+    expect_instanceof(t2, PanTool)
+    expect_instanceof(t3, ToolProxy)
+    expect_instanceof(t4, TapTool)
+    expect_instanceof(t5, SaveTool)
+    expect_instanceof(t6, ToolProxy)
+    expect_instanceof(t7, ToolProxy)
 
     expect(t0.tools).to.be.equal([pan0, pan1])
     expect(t1.tools).to.be.equal([pan2, pan4, pan3])

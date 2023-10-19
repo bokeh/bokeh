@@ -1,11 +1,10 @@
 import * as sinon from "sinon"
 
-import {expect} from "../unit/assertions"
+import {expect, expect_not_null} from "../unit/assertions"
 import {display, fig, row} from "./_util"
 
 import {figure} from "@bokehjs/api/plotting"
 import type {Location} from "@bokehjs/core/enums"
-import {assert} from "@bokehjs/core/util/assert"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 
@@ -84,7 +83,7 @@ describe("Plot", () => {
 
     const click = (view: PlotView) => {
       const el = view.toolbar_panel?.toolbar_view.overflow_el
-      assert(el != null)
+      expect_not_null(el)
       const ev = new MouseEvent("click", {clientX: 5, clientY: 5, bubbles: true})
       el.dispatchEvent(ev)
     }

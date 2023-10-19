@@ -1,7 +1,6 @@
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 import * as sinon from "sinon"
 
-import {assert} from "@bokehjs/core/util/assert"
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
 import * as ev from "@bokehjs/document/events"
 import {version as js_version} from "@bokehjs/version"
@@ -475,7 +474,7 @@ describe("Document", () => {
     expect(events1.length).to.be.equal(2)
 
     const [batch] = events0
-    assert(batch instanceof ev.DocumentEventBatch)
+    expect_instanceof(batch, ev.DocumentEventBatch)
     expect(batch.events.length).to.be.equal(2)
   })
 
@@ -696,7 +695,7 @@ describe("Document", () => {
     expect(copy.roots().length).to.be.equal(1)
     const model0 = copy.roots()[0]
     expect(model0).to.be.instanceof(SomeModel)
-    assert(model0 instanceof SomeModel)
+    expect_instanceof(model0, SomeModel)
     expect(model0.name).to.be.equal("foo")
 
     // be sure defaults were NOT included
@@ -892,7 +891,7 @@ describe("Document", () => {
     expect(events.length).to.be.equal(2)
 
     const [root0] = doc.roots()
-    assert(root0 instanceof ModelWithConstructTimeChanges)
+    expect_instanceof(root0, ModelWithConstructTimeChanges)
     expect(root0.foo).to.be.equal(4)
     expect(root0.child).to.be.instanceof(AnotherModel)
   })

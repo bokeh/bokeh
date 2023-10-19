@@ -1,7 +1,6 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 import {display, fig} from "../../../_util"
 
-import {assert} from "@bokehjs/core/util/assert"
 import type {CircleView} from "@bokehjs/models/glyphs/circle"
 import {Circle} from "@bokehjs/models/glyphs/circle"
 import {Plot} from "@bokehjs/models/plots/plot"
@@ -58,21 +57,21 @@ describe("HoverTool", () => {
       }
 
       const el0 = hover_view._render_tooltips(data_source, vars)
-      assert(el0 != null)
+      expect_not_null(el0)
       expect(el0.childElementCount).to.be.equal(3)
 
       hover_view.model.tooltips = [["foo", "$x"]]
       await hover_view.ready
 
       const el1 = hover_view._render_tooltips(data_source, vars)
-      assert(el1 != null)
+      expect_not_null(el1)
       expect(el1.childElementCount).to.be.equal(1)
 
       hover_view.model.tooltips = "<b>foo</b> is <i>$x</i>"
       await hover_view.ready
 
       const el2 = hover_view._render_tooltips(data_source, vars)
-      assert(el2 != null)
+      expect_not_null(el2)
       expect(el2.childElementCount).to.be.equal(2)
     })
   })
@@ -133,7 +132,7 @@ describe("HoverTool", () => {
     }
 
     const el = hover_view._render_tooltips(r.data_source, vars)
-    assert(el != null)
+    expect_not_null(el)
 
     const html =
 `

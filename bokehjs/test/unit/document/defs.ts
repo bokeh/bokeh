@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 
 import {Deserializer} from "@bokehjs/core/serialization/deserializer"
 import type {ModelDef} from "@bokehjs/document/defs"
@@ -6,7 +6,6 @@ import {Model} from "@bokehjs/model"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import type * as p from "@bokehjs/core/properties"
-import {assert} from "@bokehjs/core/util/assert"
 import {ColumnDataSource} from "@bokehjs/models"
 
 type int = number
@@ -189,11 +188,11 @@ describe("document/defs module", () => {
       const Some3 = resolver.get<typeof _Some3>("some.Some3")
       const Some4 = resolver.get<typeof _Some4>("some.Some4")
 
-      assert(Some0 != null)
-      assert(Some1 != null)
-      assert(Some2 != null)
-      assert(Some3 != null)
-      assert(Some4 != null)
+      expect_not_null(Some0)
+      expect_not_null(Some1)
+      expect_not_null(Some2)
+      expect_not_null(Some3)
+      expect_not_null(Some4)
 
       expect(Some0.prototype).to.be.instanceof(Model)
       expect(Some1.prototype).to.be.instanceof(Model)
