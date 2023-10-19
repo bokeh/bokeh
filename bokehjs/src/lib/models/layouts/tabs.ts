@@ -1,3 +1,5 @@
+import type {ViewStorage} from "core/build_views"
+import {build_views} from "core/build_views"
 import type {StyleSheetLike} from "core/dom"
 import {div, show, hide, empty} from "core/dom"
 import {remove_at} from "core/util/array"
@@ -10,6 +12,7 @@ import {LayoutDOM, LayoutDOMView} from "./layout_dom"
 import {TabPanel} from "./tab_panel"
 import {GridAlignmentLayout} from "./alignments"
 import type {UIElement} from "../ui/ui_element"
+import type {Tooltip} from "../ui/tooltip"
 
 import tabs_css, * as tabs from "styles/tabs.css"
 import icons_css from "styles/icons.css"
@@ -17,6 +20,7 @@ import icons_css from "styles/icons.css"
 export class TabsView extends LayoutDOMView {
   declare model: Tabs
 
+  protected tooltip_views: ViewStorage<Tooltip> = new Map()
   protected header_el: HTMLElement
   protected header_els: HTMLElement[]
 
@@ -30,6 +34,13 @@ export class TabsView extends LayoutDOMView {
     this.on_change(active, () => {
       this.update_active()
     })
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {tabs} = this.model
+    const tooltips = tabs.map((tab) => tab.tooltip).filter((tt): tt is Tooltip => tt != null)
+    await build_views(this.tooltip_views, tooltips, {parent: this})
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -95,13 +106,32 @@ export class TabsView extends LayoutDOMView {
     const {active} = this.model
 
     const headers = this.model.tabs.map((tab, i) => {
-      const el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
-      el.addEventListener("click", (event) => {
-        if (this.model.disabled)
+      const tab_el = div({class: [tabs.tab, i == active ? tabs.active : null], tabIndex: 0}, tab.title)
+      tab_el.addEventListener("click", (event) => {
+        if (this.model.disabled) {
           return
-        if (event.target == event.currentTarget)
+        }
+        if (event.target == event.currentTarget) {
           this.change_active(i)
+        }
       })
+
+      const tooltip_view = tab.tooltip != null ? this.tooltip_views.get(tab.tooltip) : null
+      if (tooltip_view != null) {
+        tooltip_view.model.target = tab_el
+
+        const toggle_tooltip = (visible: boolean) => {
+          tooltip_view.model.visible = visible
+        }
+
+        tab_el.addEventListener("mouseenter", () => {
+          toggle_tooltip(true)
+        })
+        tab_el.addEventListener("mouseleave", () => {
+          toggle_tooltip(false)
+        })
+      }
+
       if (tab.closable) {
         const close_el = div({class: tabs.close})
         close_el.addEventListener("click", (event) => {
@@ -109,16 +139,19 @@ export class TabsView extends LayoutDOMView {
             this.model.tabs = remove_at(this.model.tabs, i)
 
             const ntabs = this.model.tabs.length
-            if (this.model.active > ntabs - 1)
+            if (this.model.active > ntabs - 1) {
               this.model.active = ntabs - 1
+            }
           }
         })
-        el.appendChild(close_el)
+        tab_el.appendChild(close_el)
       }
+
       if (this.model.disabled || tab.disabled) {
-        el.classList.add(tabs.disabled)
+        tab_el.classList.add(tabs.disabled)
       }
-      return el
+
+      return tab_el
     })
 
     this.header_els = headers

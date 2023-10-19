@@ -61,6 +61,7 @@ from ..core.validation.warnings import (
 )
 from ..model import Model
 from .ui.menus import Menu
+from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -552,6 +553,11 @@ class TabPanel(Model):
 
     title = String(default="", help="""
     The text title of the panel.
+    """)
+
+    tooltip = Nullable(Instance(Tooltip), default=None, help="""
+    A tooltip with plain text or rich HTML contents, providing general help or
+    description of a widget's or component's function.
     """)
 
     child = Instance(UIElement, help="""

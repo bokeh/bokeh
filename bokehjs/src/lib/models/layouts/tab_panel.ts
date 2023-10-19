@@ -1,3 +1,4 @@
+import {Tooltip} from "models/ui/tooltip"
 import {Model} from "../../model"
 import {UIElement} from "../ui/ui_element"
 import type * as p from "core/properties"
@@ -7,6 +8,7 @@ export namespace TabPanel {
 
   export type Props = Model.Props & {
     title: p.Property<string>
+    tooltip: p.Property<Tooltip | null>
     child: p.Property<UIElement>
     closable: p.Property<boolean>
     disabled: p.Property<boolean>
@@ -23,8 +25,9 @@ export class TabPanel extends Model {
   }
 
   static {
-    this.define<TabPanel.Props>(({Boolean, String, Ref}) => ({
+    this.define<TabPanel.Props>(({Boolean, String, Ref, Nullable}) => ({
       title:    [ String, "" ],
+      tooltip:  [ Nullable(Ref(Tooltip)), null ],
       child:    [ Ref(UIElement) ],
       closable: [ Boolean, false ],
       disabled: [ Boolean, false ],
