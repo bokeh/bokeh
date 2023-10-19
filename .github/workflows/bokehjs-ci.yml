@@ -26,6 +26,12 @@ jobs:
       - name: Checkout the repository
         uses: actions/checkout@v3
 
+      - name: Pull baselines from LFS
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          git lfs pull
+
       - name: Install node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
