@@ -1248,7 +1248,7 @@ describe("Bug", () => {
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
       const {view} = await display(p)
 
-      const crv = view.renderer_views.get(cr)!
+      const crv = view.owner.get_one(cr)
       const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
 
       const ui = view.canvas_view.ui_event_bus
@@ -1303,7 +1303,7 @@ describe("Bug", () => {
       const {view} = await display(row([p0, p1, p2]))
 
       function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
-        const crv = plot_view.renderer_views.get(r)!
+        const crv = plot_view.owner.get_one(r)
         const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
 
         const ui = plot_view.canvas_view.ui_event_bus
@@ -1641,7 +1641,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      const zoom_in_tool_view = view.tool_views.get(zoom_in_tool)! as ZoomInTool["__view_type__"]
+      const zoom_in_tool_view = view.owner.get_one(zoom_in_tool)
       zoom_in_tool_view.doit()
 
       await view.ready

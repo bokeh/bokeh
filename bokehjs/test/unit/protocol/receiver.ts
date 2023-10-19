@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 
 import {Message} from "@bokehjs/protocol/message"
 import {Receiver} from "@bokehjs/protocol/receiver"
@@ -49,8 +49,8 @@ describe("protocol/receiver module", () => {
         it("should should set a complete message", () => {
           const res = r.consume('{"bar": "20"}')
           expect(res).to.be.undefined
-          expect(r.message).to.be.instanceof(Message)
-          expect(r.message!.complete()).to.be.true
+          expect_instanceof(r.message, Message)
+          expect(r.message.complete()).to.be.true
         })
 
         it("should throw an error on binary data", () => {
@@ -162,9 +162,9 @@ describe("protocol/receiver module", () => {
         it("should should set a complete message", () => {
           const res = r.consume(new ArrayBuffer(20))
           expect(res).to.be.undefined
-          expect(r.message).to.be.instanceof(Message)
-          expect(r.message!.complete()).to.be.true
-          const {buffers} = r.message!
+          expect_instanceof(r.message, Message)
+          expect(r.message.complete()).to.be.true
+          const {buffers} = r.message
           expect(buffers.size).to.be.equal(2)
           const entries = [...buffers.entries()]
           expect(entries[0][0]).to.be.equal("1")

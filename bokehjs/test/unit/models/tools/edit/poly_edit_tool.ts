@@ -73,7 +73,7 @@ async function make_testcase(): Promise<PolyEditTestCase> {
   plot.add_tools(draw_tool)
   await plot_view.ready
 
-  const draw_tool_view = plot_view.tool_views.get(draw_tool)! as PolyEditToolView
+  const draw_tool_view = plot_view.owner.get_one(draw_tool)
   plot_view.renderer_views.set(glyph_renderer, glyph_renderer_view)
   plot_view.renderer_views.set(vertex_renderer, vertex_renderer_view)
 

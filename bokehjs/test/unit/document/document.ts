@@ -1,4 +1,4 @@
-import {expect, expect_instanceof} from "assertions"
+import {expect, expect_instanceof, expect_not_null} from "assertions"
 import * as sinon from "sinon"
 
 import {Document, DEFAULT_TITLE} from "@bokehjs/document"
@@ -282,12 +282,14 @@ describe("Document", () => {
 
   it("lets us get_model_by_name", () => {
     const d = new Document()
-    const m = new SomeModel({name: "foo"})
-    const m2 = new AnotherModel({name: "bar"})
-    m.child = m2
-    d.add_root(m)
-    expect(d.get_model_by_name(m.name!)).to.be.equal(m)
-    expect(d.get_model_by_name(m2.name!)).to.be.equal(m2)
+    const m0 = new SomeModel({name: "foo"})
+    const m1 = new AnotherModel({name: "bar"})
+    m0.child = m1
+    d.add_root(m0)
+    expect_not_null(m0.name)
+    expect_not_null(m1.name)
+    expect(d.get_model_by_name(m0.name)).to.be.equal(m0)
+    expect(d.get_model_by_name(m1.name)).to.be.equal(m1)
     expect(d.get_model_by_name("invalidid")).to.be.null
   })
 
@@ -770,9 +772,9 @@ describe("Document", () => {
     d.apply_json_patch(patch1)
 
     expect(root1.child.id).to.be.equal(child3.id)
-    expect(root1.child).to.be.instanceof(SomeModel)
-    const root1_child0 = root1.child as SomeModel
-    expect(root1_child0.child!.id).to.be.equal(child2.id)
+    expect_instanceof(root1.child, SomeModel)
+    const root1_child0 = root1.child
+    expect(root1_child0.child?.id).to.be.equal(child2.id)
     expect(d._all_models.has(child1.id)).to.be.true
     expect(d._all_models.has(child2.id)).to.be.true
     expect(d._all_models.has(child3.id)).to.be.true
@@ -783,8 +785,8 @@ describe("Document", () => {
     d.apply_json_patch(patch2)
 
     expect(root1.child.id).to.be.equal(child1.id)
-    expect(root1.child).to.be.instanceof(SomeModel)
-    const root1_child1 = root1.child as SomeModel
+    expect_instanceof(root1.child, SomeModel)
+    const root1_child1 = root1.child
     expect(root1_child1.child).to.be.null
     expect(d._all_models.has(child1.id)).to.be.true
     expect(d._all_models.has(child2.id)).to.be.false
@@ -830,15 +832,15 @@ describe("Document", () => {
     // Testing only for/against null .document is not the strongest test but it
     // should suffice.
 
-    expect(root1.document!.roots().length).to.be.equal(1)
+    expect(root1.document?.roots().length).to.be.equal(1)
     expect(root1.child).to.be.null
 
     const event1 = new ev.ModelChangedEvent(d, root1, "child", child1)
     const patch1 = d.create_json_patch([event1])
     d.apply_json_patch(patch1)
 
-    expect(root1.document!.roots().length).to.be.equal(1)
-    expect(root1.child!.document!.roots().length).to.be.equal(1)
+    expect(root1.document?.roots().length).to.be.equal(1)
+    expect(root1.child?.document?.roots().length).to.be.equal(1)
   })
 
   it("sets proper document on models added during construction", () => {
@@ -867,7 +869,7 @@ describe("Document", () => {
     expect(root1_copy.foo).to.be.equal(4)
     expect(root1_copy.child).to.be.instanceof(AnotherModel)
     expect(root1_copy.document).to.be.equal(copy)
-    expect(root1_copy.child!.document).to.be.equal(copy)
+    expect(root1_copy.child?.document).to.be.equal(copy)
   })
 
   it("can detect changes during model initialization", () => {

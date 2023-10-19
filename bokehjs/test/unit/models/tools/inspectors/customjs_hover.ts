@@ -1,4 +1,4 @@
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 
 import {CustomJSHover} from "@bokehjs/models/tools/inspectors/customjs_hover"
 
@@ -9,42 +9,44 @@ import {version as js_version} from "@bokehjs/version"
 describe("CustomJSHover", () => {
 
   describe("default constructor", () => {
-    const r = new CustomJSHover()
+    const customjs_hover = new CustomJSHover()
 
     it("should have empty args", () => {
-      expect(r.args).to.be.equal({})
+      expect(customjs_hover.args).to.be.equal({})
     })
 
     it("should have empty code", () => {
-      expect(r.code).to.be.equal("")
+      expect(customjs_hover.code).to.be.equal("")
     })
   })
 
   describe("values property", () => {
-    const rng = new Range1d()
-    const r = new CustomJSHover({args: {foo: rng}})
+    const range = new Range1d()
+    const customjs_hover = new CustomJSHover({args: {foo: range}})
 
     it("should contain the args values", () => {
-      expect(r.values).to.be.equal([rng])
+      expect(customjs_hover.values).to.be.equal([range])
     })
 
     it("should round-trip through document serialization", () => {
       const d = new Document()
-      d.add_root(r)
+      d.add_root(customjs_hover)
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
       parsed.version = js_version
       const copy = Document.from_json_string(JSON.stringify(parsed))
-      const r_copy = copy.get_model_by_id(r.id)! as CustomJSHover
-      const rng_copy = copy.get_model_by_id(rng.id)! as CustomJSHover
-      expect(r.values).to.be.equal([rng])
-      expect(r_copy.values).to.be.equal([rng_copy])
+      const customjs_hover_copy = copy.get_model_by_id(customjs_hover.id)
+      const range_copy = copy.get_model_by_id(range.id)
+      expect_instanceof(customjs_hover_copy, CustomJSHover)
+      expect_instanceof(range_copy, Range1d)
+      expect(customjs_hover.values).to.be.equal([range])
+      expect(customjs_hover_copy.values).to.be.equal([range_copy])
     })
 
     it("should update when args changes", () => {
       const rng2 = new Range1d()
-      r.args = {foo: rng2}
-      expect(r.values).to.be.equal([rng2])
+      customjs_hover.args = {foo: rng2}
+      expect(customjs_hover.values).to.be.equal([rng2])
     })
   })
 

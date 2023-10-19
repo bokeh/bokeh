@@ -23,7 +23,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.computed_bounds()).to.be.equal([2, 8])
   })
@@ -40,7 +40,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.computed_bounds()).to.be.equal([0, 10])
   })
@@ -57,7 +57,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker, bounds: [1, 9]})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.computed_bounds()).to.be.equal([1, 9])
   })
@@ -74,7 +74,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.grid_coords("major")).to.be.equal([
       [[2, 2],     [4, 4],     [6, 6],     [8, 8]    ],
@@ -94,7 +94,7 @@ describe("Grid", () => {
     const grid = new Grid({ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
@@ -114,7 +114,7 @@ describe("Grid", () => {
     const grid = new Grid({axis})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
@@ -137,7 +137,7 @@ describe("Grid", () => {
     const grid = new Grid({axis, ticker})
     plot.add_layout(grid, "center")
     const {view: plot_view} = await display(plot)
-    const grid_view = plot_view.renderer_view(grid)!
+    const grid_view = plot_view.owner.get_one(grid)
 
     expect(grid_view.grid_coords("major", false)).to.be.equal([
       [[0.1, 0.1], [2, 2],     [4, 4],     [6, 6],     [8, 8],     [9.9, 9.9]],
