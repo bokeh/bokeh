@@ -134,7 +134,6 @@ with open(__file__, "rb") as example:
   const env = {
     ...process.env,
     BOKEH_DEV: "true",
-    BOKEH_RESOURCES: "server",
     BOKEH_DEFAULT_SERVER_HOST: host,
     BOKEH_DEFAULT_SERVER_PORT: `${port}`,
   }

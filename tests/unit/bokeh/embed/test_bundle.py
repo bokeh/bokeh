@@ -155,7 +155,7 @@ class Test_bundle_custom_extensions:
         from latex_label import LatexLabel
         plot = Plot()
         plot.add_layout(LatexLabel(x=0, y=0))
-        with envset(BOKEH_RESOURCES="server", BOKEH_DEV="true"):
+        with envset(BOKEH_DEV="true"):
             bundle = beb.bundle_for_objs_and_resources([plot], SERVER)
         assert len(bundle.js_files) == 2
         assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
