@@ -30,7 +30,7 @@ dependencies:
   - json5
   - nbconvert >=5.4
   - networkx
-  - nodejs 18.*
+  - nodejs 20.*
   - pre-commit
   - psutil
   - pygments
