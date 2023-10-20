@@ -247,7 +247,7 @@ describe("Color mapping", () => {
 
   describe("with weighted stack color mapper", () => {
     // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
-    const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
+    const data = [NaN, NaN, 11, 10, 14, 10, 10, 11, 11, 11, 14, 11, 10, 14, 11, 14, 14, 14]
     const array = new Float64NDArray(data, [3, 3, 2])
 
     function stack_color_mapper_plot(output_backend: OutputBackend, start_alpha: number = 40, cbar_color: string = "#000", nan_color: string = "#0000",
@@ -290,8 +290,8 @@ describe("Color mapping", () => {
     })
 
     it("should support color baseline", async () =>{
-      const p0 = stack_color_mapper_plot("canvas", 40, "#000", "#0000", false, -5)
-      const p1 = stack_color_mapper_plot("webgl", 40, "#000", "#0000", false, -5)
+      const p0 = stack_color_mapper_plot("canvas", 40, "#000", "#0000", false, 5)
+      const p1 = stack_color_mapper_plot("webgl", 40, "#000", "#0000", false, 5)
       await display(row([p0, p1]))
     })
   })
