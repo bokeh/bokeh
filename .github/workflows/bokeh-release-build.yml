@@ -21,15 +21,21 @@ jobs:
       - name: Check Maintainer
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
+        uses: tspascoal/get-user-teams-membership@v3
+        id: checkUserMember
+        with:
+          username: ${{ github.actor }}
+          team: 'release-manager'
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
         run: |
-          if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
-            echo
-            echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
-            git config --global user.email "info@bokeh.org"
-            git config --global user.name "${{github.actor}}"
-            exit 0
-          fi
+          echo
+          echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
+          git config --global user.email "info@bokeh.org"
+          git config --global user.name "${{github.actor}}"
+          exit 0
+      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
+        run: |
           echo
           echo "User is NOT authorized to build releases, aborting..."
           echo
