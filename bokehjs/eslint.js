@@ -121,7 +121,7 @@ module.exports = {
     "guard-for-in": ["error"],
     "quotes": ["error", "double", {"avoidEscape": true, "allowTemplateLiterals": false}],
     "brace-style": ["error", "1tbs", {"allowSingleLine": true}],
-    // "curly": ["error", "all"],
+    "curly": ["error", "all"],
     "prefer-template": ["error"],
     "generator-star-spacing": ["error", {
       "before": false,
@@ -130,5 +130,23 @@ module.exports = {
       "method": {"before": true, "after": false},
     }],
     "yield-star-spacing": ["error", {"before": false, "after": true}]
-  }
+  },
+  "overrides": [
+    {
+      "files": [
+        "./src/lib/core/**",
+        "./src/lib/models/annotations/**",
+        "./src/lib/models/formatters/**",
+        "./src/lib/models/glyphs/**",
+        "./src/lib/models/plots/**",
+        "./src/lib/models/ranges/**",
+        "./src/lib/models/renderers/**",
+        "./src/lib/models/sources/**",
+        "./src/lib/models/tools/**",
+      ],
+      "rules": {
+        "curly": "off",
+      },
+    },
+  ],
 }
