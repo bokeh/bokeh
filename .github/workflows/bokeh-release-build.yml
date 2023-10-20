@@ -27,14 +27,16 @@ jobs:
           username: ${{ github.actor }}
           team: 'release-manager'
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
+      - name: Maintainer confirmed
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
         run: |
           echo
           echo "User is authorized to build releases, proceeding with release build for $BOKEH_VERSION"
           git config --global user.email "info@bokeh.org"
           git config --global user.name "${{github.actor}}"
           exit 0
-      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
+      - name: Maintainer not detected
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
         run: |
           echo
           echo "User is NOT authorized to build releases, aborting..."

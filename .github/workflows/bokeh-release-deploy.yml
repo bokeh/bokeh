@@ -27,12 +27,14 @@ jobs:
           username: ${{ github.actor }}
           team: 'release-manager'
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
+      - name: Maintainer confirmed
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
         run: |
           echo
           echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"
           exit 0
-      - if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
+      - name: Maintainer not detected
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
         run: |
           echo
           echo "User is NOT authorized to deploy releases, aborting..."
