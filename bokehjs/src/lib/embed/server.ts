@@ -9,21 +9,25 @@ import type {EmbedTarget} from "./dom"
 // @internal
 export function _get_ws_url(app_path: string | undefined, absolute_url: string | undefined): string {
   let protocol = "ws:"
-  if (window.location.protocol == "https:")
+  if (window.location.protocol == "https:") {
     protocol = "wss:"
+  }
 
   let loc: HTMLAnchorElement | Location
   if (absolute_url != null) {
     loc = document.createElement("a")
     loc.href = absolute_url
-  } else
+  } else {
     loc = window.location
+  }
 
   if (app_path != null) {
-    if (app_path == "/")
+    if (app_path == "/") {
       app_path = ""
-  } else
+    }
+  } else {
     app_path = loc.pathname.replace(/\/+$/, "")
+  }
 
   return `${protocol}//${loc.host}${app_path}/ws`
 }
@@ -35,12 +39,14 @@ const _sessions: Map<WebSocketURL, Map<SessionID, Promise<ClientSession>>> = new
 
 function _get_session(websocket_url: string, token: string, args_string: string): Promise<ClientSession> {
   const session_id = parse_token(token).session_id
-  if (!_sessions.has(websocket_url))
+  if (!_sessions.has(websocket_url)) {
     _sessions.set(websocket_url, new Map())
+  }
 
   const subsessions = _sessions.get(websocket_url)!
-  if (!subsessions.has(session_id))
+  if (!subsessions.has(session_id)) {
     subsessions.set(session_id, pull_session(websocket_url, token, args_string))
+  }
 
   return subsessions.get(session_id)!
 }

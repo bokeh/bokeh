@@ -92,8 +92,9 @@ export class CoordinateMapping extends Model {
       throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
     }
 
-    if (scale instanceof LogScale && range instanceof DataRange1d)
+    if (scale instanceof LogScale && range instanceof DataRange1d) {
       range.scale_hint = "log"
+    }
 
     const derived_scale = scale.clone()
     derived_scale.setv({source_range: range, target_range: target})

@@ -48,9 +48,10 @@ export class DateSlider extends AbstractSlider {
   override connected = [true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format))
+    if (isString(format)) {
       return tz(value, format)
-    else
+    } else {
       return format.compute(value)
+    }
   }
 }

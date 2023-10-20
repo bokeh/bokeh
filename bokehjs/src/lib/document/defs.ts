@@ -98,10 +98,11 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
         case "Ref": {
           const [, modelref] = ref
           const model = deserializer.resolver.get(modelref.id)
-          if (model != null)
+          if (model != null) {
             return kinds.Ref(model)
-          else
+          } else {
             throw new Error(`${modelref.id} wasn't defined before referencing it`)
+          }
         }
         case "AnyRef": {
           return kinds.AnyRef()
@@ -112,13 +113,16 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
 
   const base: typeof HasProps = (() => {
     const name = def.extends?.id ?? "Model"
-    if (name == "Model") // TODO: support base classes in general
+    if (name == "Model") {
+      // TODO: support base classes in general
       return Model
+    }
     const base = deserializer.resolver.get(name)
-    if (base != null)
+    if (base != null) {
       return base
-    else
+    } else {
       throw new Error(`base model ${name} of ${def.name} is not defined`)
+    }
   })()
 
   const model = class extends base {
@@ -126,10 +130,11 @@ export function decode_def(def: ModelDef, deserializer: Deserializer): typeof Ha
   }
 
   function decode(value: unknown): unknown {
-    if (value === undefined)
+    if (value === undefined) {
       return value
-    else
+    } else {
       return deserializer.decode(value as AnyVal)
+    }
   }
 
   for (const prop of def.properties ?? []) {

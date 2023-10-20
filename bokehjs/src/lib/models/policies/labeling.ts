@@ -70,10 +70,11 @@ export class NoOverlap extends LabelingPolicy {
     const {min_distance} = this
     let k = null
     for (const i of indices) {
-      if (k != null && distance(k, i) < min_distance)
+      if (k != null && distance(k, i) < min_distance) {
         indices.unset(i)
-      else
+      } else {
         k = i
+      }
     }
     return indices
   }
@@ -124,14 +125,15 @@ export class CustomLabelingPolicy extends LabelingPolicy {
     let result = generator.next()
     if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
-      if (value instanceof Indices)
+      if (value instanceof Indices) {
         return value
-      else if (value === undefined)
+      } else if (value === undefined) {
         return indices
-      else if (isIterable(value))
+      } else if (isIterable(value)) {
         return Indices.from_indices(indices.size, value as Iterable<number>)
-      else
+      } else {
         return Indices.all_unset(indices.size)
+      }
     } else {
       const array: number[] = []
 

@@ -81,7 +81,9 @@ exports.VERSION = "0.0.0";
     },
   })
 
-  if (!argv.rebuild) linker.load_cache()
+  if (!argv.rebuild) {
+    linker.load_cache()
+  }
   const {bundles, status} = await linker.link()
   linker.store_cache()
 
@@ -120,8 +122,9 @@ exports.VERSION = "0.0.0";
   bundle({...esm, minified: false}, outputs.map((name) => rename(name, {ext: ".esm.js"})))
   bundle({...esm, minified: true}, outputs.map((name) => rename(name, {ext: ".esm.min.js"})))
 
-  if (!status)
+  if (!status) {
     throw new BuildError("scripts:bundle", "unable to bundle modules")
+  }
 })
 
 task("lib:build", ["scripts:bundle"])

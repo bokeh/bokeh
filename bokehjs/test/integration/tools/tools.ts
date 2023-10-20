@@ -35,8 +35,9 @@ describe("Tools", () => {
   ]
 
   for (const tool of tools) {
-    if (tool.menu == null)
+    if (tool.menu == null) {
       continue
+    }
 
     it(`should support ${tool.type}'s setup menu`, async () => {
       const tool_button = tool.tool_button()

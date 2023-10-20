@@ -77,12 +77,14 @@ export abstract class ContinuousColorMapper extends ColorMapper {
   protected *_collect(domain: [GlyphRenderer, string | string[]][]) {
     for (const [renderer, fields] of domain) {
       for (const field of isArray(fields) ? fields : [fields]) {
-        if (renderer.view.properties.indices.is_unset)
+        if (renderer.view.properties.indices.is_unset) {
           continue
+        }
 
         const column = renderer.data_source.get_column(field)
-        if (column == null)
+        if (column == null) {
           continue
+        }
 
         let array = renderer.view.indices.select(column)
 
@@ -90,12 +92,13 @@ export abstract class ContinuousColorMapper extends ColorMapper {
         const selected = renderer.data_source.selected.indices
 
         let subset: Arrayable<number> | undefined
-        if (masked != null && selected.length > 0)
+        if (masked != null && selected.length > 0) {
           subset = intersection([...masked], selected)
-        else if (masked != null)
+        } else if (masked != null) {
           subset = [...masked]
-        else if (selected.length > 0)
+        } else if (selected.length > 0) {
           subset = selected
+        }
 
         if (subset != null) {
           array = map(subset, (i) => array[i])
@@ -121,10 +124,12 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
     const {nan_color} = colors
     let {low_color, high_color} = colors
-    if (low_color == null)
+    if (low_color == null) {
       low_color = palette[0]
-    if (high_color == null)
+    }
+    if (high_color == null) {
       high_color = palette[palette.length-1]
+    }
 
     const {domain} = this
     const all_data = !is_empty(domain) ? [...this._collect(domain)] : data
@@ -134,10 +139,11 @@ export abstract class ContinuousColorMapper extends ColorMapper {
     for (let i = 0, end = data.length; i < end; i++) {
       const d = data[i]
 
-      if (isNaN(d))
+      if (isNaN(d)) {
         values[i] = nan_color
-      else
+      } else {
         values[i] = this.cmap(d, palette, low_color, high_color)
+      }
     }
   }
 
@@ -151,12 +157,13 @@ export abstract class ContinuousColorMapper extends ColorMapper {
 
   protected cmap<T>(value: number, palette: Arrayable<T>, low_color: T, high_color: T): T {
     const index = this.value_to_index(value, palette.length)
-    if (index < 0)
+    if (index < 0) {
       return low_color
-    else if (index >= palette.length)
+    } else if (index >= palette.length) {
       return high_color
-    else
+    } else {
       return palette[index]
+    }
   }
 
   abstract index_to_value(index: number): number

@@ -21,8 +21,9 @@ function date_range_by_month(start_time: number, end_time: number): Date[] {
     dates.push(copy_date(date))
 
     date.setUTCMonth(date.getUTCMonth() + 1)
-    if (date > end_date)
+    if (date > end_date) {
       break
+    }
   }
 
   return dates
@@ -64,10 +65,11 @@ export class DaysTicker extends BaseSingleIntervalTicker {
   override initialize(): void {
     super.initialize()
     const days = this.days
-    if (days.length > 1)
+    if (days.length > 1) {
       this.interval = (days[1] - days[0])*ONE_DAY
-    else
+    } else {
       this.interval = 31*ONE_DAY
+    }
   }
 
   override get_ticks_no_defaults(data_low: number, data_high: number, _cross_loc: number, _desired_n_ticks: number): TickSpec<number> {
@@ -89,8 +91,9 @@ export class DaysTicker extends BaseSingleIntervalTicker {
         // TODO (bev) The above description does not exactly work because JS Date
         // is broken and will happily consider "Feb 28 + 3*ONE_DAY" to have month "2"
         const future_date = new Date(day_date.getTime() + (interval / 2))
-        if (future_date.getUTCMonth() == current_month)
+        if (future_date.getUTCMonth() == current_month) {
           dates.push(day_date)
+        }
       }
       return dates
     }

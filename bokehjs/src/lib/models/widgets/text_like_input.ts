@@ -14,10 +14,11 @@ export abstract class TextLikeInputView extends InputWidgetView {
     this.connect(this.model.properties.placeholder.change, () => this.input_el.placeholder = this.model.placeholder)
     this.connect(this.model.properties.max_length.change, () => {
       const {max_length} = this.model
-      if (max_length != null)
+      if (max_length != null) {
         this.input_el.maxLength = max_length
-      else
+      } else {
         this.input_el.removeAttribute("maxLength")
+      }
     })
   }
 
@@ -33,8 +34,9 @@ export abstract class TextLikeInputView extends InputWidgetView {
     input_el.value = this.model.value
     input_el.disabled = this.model.disabled
     input_el.placeholder = this.model.placeholder
-    if (this.model.max_length != null)
+    if (this.model.max_length != null) {
       input_el.maxLength = this.model.max_length
+    }
 
     input_el.addEventListener("change", () => this.change_input())
     input_el.addEventListener("input",  () => this.change_input_value())

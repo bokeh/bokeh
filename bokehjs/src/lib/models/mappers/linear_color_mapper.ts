@@ -46,8 +46,9 @@ export class LinearColorMapper extends ContinuousColorMapper {
 
     // This handles the edge case where value == high, since the code below maps
     // values exactly equal to high to palette.length when it should be one less.
-    if (value == scan_data.max)
+    if (value == scan_data.max) {
       return palette_length - 1
+    }
 
     const normed_value = (value - scan_data.min) * scan_data.norm_factor
     const index = Math.floor(normed_value / scan_data.normed_interval)

@@ -28,9 +28,9 @@ function node(files: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
     proc.on("exit", (code, signal) => {
-      if (code === 0)
+      if (code === 0) {
         resolve()
-      else {
+      } else {
         const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
         reject(new BuildError("node", `tests ${comment}`))
       }
@@ -73,8 +73,9 @@ function chrome(): string {
 
   for (const name of names) {
     const executable = which.sync(name, {nothrow: true, path})
-    if (executable != null)
+    if (executable != null) {
       return executable
+    }
   }
 
   throw new BuildError("headless", `can't find any of ${names.join(", ")} on PATH="${path}"`)
@@ -138,10 +139,11 @@ async function server(port: number): Promise<ChildProcess> {
   const args = ["--no-warnings", "./test/devtools", "server", `--port=${port}`]
 
   if (argv.debug) {
-    if (argv.debug === true)
+    if (argv.debug === true) {
       args.unshift("--inspect-brk")
-    else
+    } else {
       args.unshift(`--inspect-brk=${argv.debug}`)
+    }
   }
 
   const proc = spawn(process.execPath, args, {stdio: ["inherit", "inherit", "inherit", "ipc"]})
@@ -150,10 +152,11 @@ async function server(port: number): Promise<ChildProcess> {
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
     proc.on("message", (msg) => {
-      if (msg == "ready")
+      if (msg == "ready") {
         resolve(proc)
-      else
+      } else {
         reject(new BuildError("devtools-server", "failed to start"))
+      }
     })
     proc.on("exit", (code, _signal) => {
       if (code !== 0) {
@@ -164,12 +167,13 @@ async function server(port: number): Promise<ChildProcess> {
 }
 
 function opts(name: string, value: unknown): string[] {
-  if (Array.isArray(value))
+  if (Array.isArray(value)) {
     return value.map((v) => `--${name}=${v}`)
-  else if (value != null)
+  } else if (value != null) {
     return [`--${name}=${value}`]
-  else
+  } else {
     return [""]
+  }
 }
 
 function opt(name: string, value: unknown): string {
@@ -205,10 +209,11 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   ]
 
   if (argv.debug) {
-    if (argv.debug === true)
+    if (argv.debug === true) {
       args.unshift("--inspect-brk")
-    else
+    } else {
       args.unshift(`--inspect-brk=${argv.debug}`)
+    }
   }
 
   const proc = spawn(process.execPath, args, {stdio: "inherit"})
@@ -217,9 +222,9 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   return new Promise((resolve, reject) => {
     proc.on("error", reject)
     proc.on("exit", (code, signal) => {
-      if (code === 0)
+      if (code === 0) {
         resolve()
-      else {
+      } else {
         const comment = signal === "SIGINT" || code === 130 ? "interrupted" : "failed"
         reject(new BuildError("devtools", `tests ${comment}`))
       }
@@ -307,7 +312,9 @@ async function bundle(name: string): Promise<void> {
     shims: ["fs", "module"],
   })
 
-  if (!argv.rebuild) linker.load_cache()
+  if (!argv.rebuild) {
+    linker.load_cache()
+  }
   const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
@@ -323,8 +330,9 @@ async function bundle(name: string): Promise<void> {
 
   bundle.assemble({prelude, postlude}).write(join(paths.build_dir.test, `${name}.js`))
 
-  if (!status)
+  if (!status) {
     throw new BuildError(`${name}:bundle`, "unable to bundle modules")
+  }
 }
 
 task("test:compile:unit", async () => compile("unit", {auto_index: true}))
@@ -340,9 +348,9 @@ const build_integration = task("test:build:integration", [passthrough("test:comp
 
 task2("test:integration", [start, build_integration], async ([devtools_port, server_port]) => {
   const baselines_root = (() => {
-    if (platform == "linux")
+    if (platform == "linux") {
       return "test/baselines"
-    else {
+    } else {
       console.log(`${chalk.yellow("warning")}: baseline testing is not supported on this platform`)
       return undefined
     }

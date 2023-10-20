@@ -96,21 +96,23 @@ export type TaskLike = string | Task
 export type DependencyLike = TaskLike | Dependency
 
 function _resolve_dep(dep: DependencyLike): Dependency {
-  if (dep instanceof Dependency)
+  if (dep instanceof Dependency) {
     return dep
-  else
+  } else {
     return new Dependency(_resolve_task(dep))
+  }
 }
 
 function _resolve_task(dep: TaskLike): Task {
-  if (dep instanceof Task)
+  if (dep instanceof Task) {
     return dep
-  else {
+  } else {
     const task = tasks.get(dep)
-    if (task != null)
+    if (task != null) {
       return task
-    else
+    } else {
       throw new BuildError("tasks", `can't resolve ${dep} task`)
+    }
   }
 }
 
@@ -150,12 +152,13 @@ export async function run(task: Task): Promise<Result> {
       const args = []
       for (const dep of task.deps) {
         const result = finished.get(dep.task)
-        if (result != null && result.is_Success())
+        if (result != null && result.is_Success()) {
           args.push(result.value)
-        else if (dep.passthrough)
+        } else if (dep.passthrough) {
           args.push(undefined)
-        else
+        } else {
           throw new Error(`${dep} value is not available for ${task}`)
+        }
       }
 
       const start = Date.now()
@@ -215,8 +218,9 @@ export async function run(task: Task): Promise<Result> {
   }
 
   const result = await _run(task, false)
-  if (result.is_Success() && failures.length != 0)
+  if (result.is_Success() && failures.length != 0) {
     return fail(failures)
-  else
+  } else {
     return result
+  }
 }

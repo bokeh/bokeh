@@ -88,10 +88,11 @@ export class MultiChoiceView extends InputWidgetView {
     const selected = new Set(this.model.value)
     const choices = this.model.options.map((opt) => {
       let value, label
-      if (isString(opt))
+      if (isString(opt)) {
         value = label  = opt
-      else
+      } else {
         [value, label] = opt
+      }
       return {value, label, selected: selected.has(value)}
     })
 
@@ -117,10 +118,11 @@ export class MultiChoiceView extends InputWidgetView {
   }
 
   set_disabled(): void {
-    if (this.model.disabled)
+    if (this.model.disabled) {
       this.choice_el.disable()
-    else
+    } else {
       this.choice_el.enable()
+    }
   }
 
   protected get _current_values(): string[] {

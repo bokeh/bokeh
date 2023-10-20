@@ -50,12 +50,13 @@ describe("Line glyph", () => {
         for (let j = 0; j < linewidths.length; j++) {
           const x2 = X()
           const y2 = Y()
-          if (i == 0)
+          if (i == 0) {
             x2[0] = NaN
-          else if (i == 1)
+          } else if (i == 1) {
             x2[4] = NaN
-          else
+          } else {
             y2[2] = NaN
+          }
           p.line(x2, y2, {
             line_width: linewidths[j],
             line_color: colors[i],

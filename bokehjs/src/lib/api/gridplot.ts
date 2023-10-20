@@ -45,8 +45,9 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
 
       const proto = tool.constructor.prototype
       let values = by_type.get(proto)
-      if (values == null)
+      if (values == null) {
         by_type.set(proto, values=new Set())
+      }
       values.add({tool, attrs})
     }
   }
@@ -72,9 +73,9 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
         }
       }
 
-      if (group.length == 1)
+      if (group.length == 1) {
         computed.push(group[0])
-      else {
+      } else {
         const merged = merge?.(cls, group)
         computed.push(merged ?? new ToolProxy({tools: group}))
       }
@@ -95,8 +96,9 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const toolbars: Toolbar[] = []
 
   for (const [item, row, col] of matrix) {
-    if (item == null)
+    if (item == null) {
       continue
+    }
 
     if (item instanceof Plot) {
       if (merge_tools) {
@@ -105,26 +107,29 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       }
     }
 
-    if (options.width != null)
+    if (options.width != null) {
       item.width = options.width
-    if (options.height != null)
+    }
+    if (options.height != null) {
       item.height = options.height
+    }
 
     items.push([item, row, col])
   }
 
   function merge(_cls: typeof Tool, group: Tool[]) {
     const tool = group[0]
-    if (tool instanceof SaveTool)
+    if (tool instanceof SaveTool) {
       return new SaveTool()
-    else if (tool instanceof CopyTool)
+    } else if (tool instanceof CopyTool) {
       return new CopyTool()
-    else if (tool instanceof ExamineTool)
+    } else if (tool instanceof ExamineTool) {
       return new ExamineTool()
-    else if (tool instanceof FullscreenTool)
+    } else if (tool instanceof FullscreenTool) {
       return new FullscreenTool()
-    else
+    } else {
       return null
+    }
   }
 
   const tools = (() => {
@@ -134,10 +139,11 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
       tools.push(...toolbar.tools)
     }
 
-    if (merge_tools)
+    if (merge_tools) {
       return group_tools(tools, merge)
-    else
+    } else {
       return tools
+    }
   })()
 
   const logos = toolbars.map((toolbar) => toolbar.logo)

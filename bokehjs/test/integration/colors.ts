@@ -30,15 +30,17 @@ describe("Color support", () => {
       if (isArrayable(color) || nd.is_NDArray(color)) {
         source.data.fill_color = color
         return {field: "fill_color"}
-      } else
+      } else {
         return color
+      }
     })()
     const fill_alpha: Vector<number> | undefined = (() => {
       if (isArrayable(alpha) || nd.is_NDArray(alpha)) {
         source.data.fill_alpha = alpha
         return {field: "fill_alpha"}
-      } else
+      } else {
         return alpha
+      }
     })()
     const glyph = new Circle({radius: {field: "radius"}, fill_color, fill_alpha, line_color: null})
     const circle = new GlyphRenderer({data_source: source, glyph})

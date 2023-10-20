@@ -43,9 +43,9 @@ export class MercatorTileSource extends TileSource {
   }
 
   protected _computed_initial_resolution(): number {
-    if (this.initial_resolution != null)
+    if (this.initial_resolution != null) {
       return this.initial_resolution
-    else {
+    } else {
       // TODO testing 2015-11-17, if this codepath is used it seems
       // to use 100% cpu and wedge Chrome
       return (2 * Math.PI * 6378137) / this.tile_size
@@ -54,12 +54,14 @@ export class MercatorTileSource extends TileSource {
 
   is_valid_tile(x: number, y: number, z: number): boolean {
     if (!this.wrap_around) {
-      if (x < 0 || x >= 2**z)
+      if (x < 0 || x >= 2**z) {
         return false
+      }
     }
 
-    if (y < 0 || y >= 2**z)
+    if (y < 0 || y >= 2**z) {
       return false
+    }
 
     return true
   }
@@ -88,10 +90,12 @@ export class MercatorTileSource extends TileSource {
     let i = 0
     for (const r of this._resolutions) {
       if (resolution > r) {
-        if (i == 0)
+        if (i == 0) {
           return 0
-        if (i > 0)
+        }
+        if (i > 0) {
           return i - 1
+        }
       }
       i += 1
     }
@@ -105,10 +109,11 @@ export class MercatorTileSource extends TileSource {
     const y_rs = (extent[3] - extent[1]) / height
     const resolution = Math.max(x_rs, y_rs)
     const closest = this._resolutions.reduce(function(previous, current) {
-      if (Math.abs(current - resolution) < Math.abs(previous - resolution))
+      if (Math.abs(current - resolution) < Math.abs(previous - resolution)) {
         return current
-      else
+      } else {
         return previous
+      }
     })
     return this._resolutions.indexOf(closest)
   }
@@ -204,8 +209,9 @@ export class MercatorTileSource extends TileSource {
     const tiles: [number, number, number, Bounds][] = []
     for (let ty = tymax; ty >= tymin; ty--) {
       for (let tx = txmin; tx <= txmax; tx++) {
-        if (this.is_valid_tile(tx, ty, level))
+        if (this.is_valid_tile(tx, ty, level)) {
           tiles.push([tx, ty, level, this.get_tile_meter_bounds(tx, ty, level)])
+        }
       }
     }
 
@@ -285,8 +291,9 @@ export class MercatorTileSource extends TileSource {
       quadkey = quadkey.substring(0, quadkey.length - 1)
       ;[x, y, z] = this.quadkey_to_tile_xyz(quadkey)
       ;[x, y, z] = this.denormalize_xyz(x, y, z, world_x)
-      if (this.tiles.has(this.tile_xyz_to_key(x, y, z)))
+      if (this.tiles.has(this.tile_xyz_to_key(x, y, z))) {
         return [x, y, z]
+      }
     }
     return [0, 0, 0]
   }

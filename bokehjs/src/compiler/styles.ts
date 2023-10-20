@@ -9,8 +9,9 @@ export async function compile_styles(styles_dir: string, css_dir: string): Promi
   let success = true
 
   for (const src of scan(styles_dir, [".less", ".css"])) {
-    if (basename(src).startsWith("_"))
+    if (basename(src).startsWith("_")) {
       continue
+    }
 
     try {
       const style = read(src)!
@@ -31,8 +32,9 @@ export function wrap_css_modules(css_dir: string, js_dir: string, dts_dir: strin
 
   function* collect_classes(ast: CSS.Stylesheet) {
     const {stylesheet} = ast
-    if (stylesheet == null)
+    if (stylesheet == null) {
       return
+    }
 
     for (const rule of stylesheet.rules) {
       if (rule.type == "rule") {
@@ -64,8 +66,9 @@ export function wrap_css_modules(css_dir: string, js_dir: string, dts_dir: strin
 
     const classes = new Set(collect_classes(ast))
     for (const cls of classes) {
-      if (!cls.startsWith("bk-"))
+      if (!cls.startsWith("bk-")) {
         continue
+      }
       const ident = cls.replace(/^bk-/, "").replace(/-/g, "_")
       js.push(`export const ${ident} = "${cls}"`)
       dts.push(`export const ${ident}: string`)

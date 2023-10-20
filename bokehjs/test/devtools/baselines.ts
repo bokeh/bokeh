@@ -17,8 +17,9 @@ export function create_baseline(items: State[]): string {
 
       baseline += "\n"
 
-      if (children != null)
+      if (children != null) {
         descend(children, level+1)
+      }
     }
   }
 
@@ -45,8 +46,9 @@ export function diff_baseline(baseline_path: string, ref: string): string {
   if (proc.status == 0) {
     const proc = git("diff", "--color", "/dev/null", baseline_path)
     return proc.stdout
-  } else
+  } else {
     return diff_highlight(proc.stdout)
+  }
 }
 
 function diff_highlight(diff: string): string {

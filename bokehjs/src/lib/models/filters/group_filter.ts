@@ -38,8 +38,9 @@ export class GroupFilter extends Filter {
     } else {
       const indices = new Indices(size, 0)
       for (let i = 0; i < indices.size; i++) {
-        if (column[i] === this.group)
+        if (column[i] === this.group) {
           indices.set(i)
+        }
       }
       return indices
     }

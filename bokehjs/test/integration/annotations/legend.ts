@@ -102,10 +102,11 @@ describe("Legend annotation", () => {
       }
 
       const gls = glyphs.map(({x, y, type, options}) => {
-        if (type == "line")
+        if (type == "line") {
           return p.line(x, y, options as Partial<LineArgs>)
-        else
+        } else {
           return p.circle(x, y, options)
+        }
       })
 
       if (legend_items == null) {

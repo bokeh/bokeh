@@ -76,36 +76,40 @@ export abstract class CSSGridBoxView extends LayoutDOMView {
     }
 
     const {_rows: rows, _cols: cols} = this
-    if (rows instanceof Map)
+    if (rows instanceof Map) {
       nrows = max(nrows, ...rows.keys())
-    else if (isArray(rows))
+    } else if (isArray(rows)) {
       nrows = max(nrows, rows.length)
+    }
 
-    if (cols instanceof Map)
+    if (cols instanceof Map) {
       ncols = max(ncols, ...cols.keys())
-    else if (isArray(cols))
+    } else if (isArray(cols)) {
       ncols = max(ncols, cols.length)
+    }
 
     function parse_sizing(tracks: TracksSizing | null, template: TrackSizing[]): void {
       if (tracks instanceof Map) {
         for (const [i, spec] of tracks.entries()) {
-          if (isString(spec))
+          if (isString(spec)) {
             template[i].size = spec
-          else
+          } else {
             template[i] = spec
+          }
         }
       } else if (isArray(tracks)) {
         for (const [spec, i] of enumerate(tracks)) {
-          if (isString(spec))
+          if (isString(spec)) {
             template[i].size = spec
-          else
+          } else {
             template[i] = spec
+          }
         }
       } else if (tracks != null) {
         for (const row of template) {
-          if (isString(tracks))
+          if (isString(tracks)) {
             row.size = tracks
-          else {
+          } else {
             row.size = tracks.size
             row.align = tracks.align
           }

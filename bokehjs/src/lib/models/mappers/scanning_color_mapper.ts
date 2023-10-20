@@ -35,11 +35,12 @@ export abstract class ScanningColorMapper extends ContinuousColorMapper {
   override value_to_index(value: number, palette_length: number): number {
     const scan_data = this._scan_data as ScanningScanData
 
-    if (value < scan_data.binning[0])
+    if (value < scan_data.binning[0]) {
       return -1
-    else if (value > scan_data.binning[scan_data.binning.length-1])
+    } else if (value > scan_data.binning[scan_data.binning.length-1]) {
       return palette_length
-    else
+    } else {
       return left_edge_index(value, scan_data.binning)
+    }
   }
 }

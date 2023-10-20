@@ -29,7 +29,9 @@ for (const [filename, limit] of LIMITS) {
   const stats = fs.existsSync(path) ? fs.statSync(path) : null
 
   const ok = stats != null && stats.size <= limit*1024
-  if (!ok) failures++
+  if (!ok) {
+    failures++
+  }
   const prefix = ok ? chalk.green("\u2713") : chalk.red("\u2717")
   const op = ok ? "<=" : "> "
   const padding = " ".repeat(n - filename.length + 1)

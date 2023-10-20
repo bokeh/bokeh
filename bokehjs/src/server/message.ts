@@ -33,8 +33,9 @@ export class Message<T> {
 
   assemble_buffer(buf_header: string, buf_payload: ArrayBuffer): void {
     const nb = this.header.num_buffers ?? 0
-    if (nb <= this._buffers.size)
+    if (nb <= this._buffers.size) {
       throw new Error(`too many buffers received, expecting ${nb}`)
+    }
     const {id} = JSON.parse(buf_header)
     this._buffers.set(id, buf_payload)
   }
@@ -65,8 +66,9 @@ export class Message<T> {
         const ref = {id: `${buffers.length}`}
         buffers.push([ref, val.buffer])
         return ref
-      } else
+      } else {
         return val
+      }
     })
 
     const num_buffers = buffers.length
@@ -101,11 +103,12 @@ export class Message<T> {
 
   // return the reason we should close on bad protocol, if there is one
   problem(): string | null {
-    if (!("msgid" in this.header))
+    if (!("msgid" in this.header)) {
       return "No msgid in header"
-    else if (!("msgtype" in this.header))
+    } else if (!("msgtype" in this.header)) {
       return "No msgtype in header"
-    else
+    } else {
       return null
+    }
   }
 }

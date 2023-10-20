@@ -173,16 +173,17 @@ export async function run_all(query?: string | string[] | RegExp): Promise<void>
 
 export async function* yield_all(query?: string | string[] | RegExp): AsyncGenerator<PartialResult> {
   const matches = ((): (desc: string) => boolean => {
-    if (query == null)
+    if (query == null) {
       return () => true
-    else if (isString(query))
+    } else if (isString(query)) {
       return (desc) => desc.includes(query)
-    else if (isArray(query))
+    } else if (isArray(query)) {
       return (desc) => query.every((q) => desc.includes(q))
-    else if (query instanceof RegExp)
+    } else if (query instanceof RegExp) {
       return (desc) => desc.match(query) != null
-    else
+    } else {
       unreachable()
+    }
   })()
 
   for (const [parents, test] of iter_tests()) {
@@ -237,8 +238,9 @@ export async function get_state(seq: TestSeq): Promise<State | null> {
 
 function _get_state(test: Test): State | null {
   for (const view of test.views) {
-    if (!(view instanceof UIElementView))
+    if (!(view instanceof UIElementView)) {
       continue
+    }
     const state = _resolve_bbox(view.serializable_state()) as State
     return state
   }
@@ -297,8 +299,9 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
 
   try {
     for (const suite of suites) {
-      for (const {fn} of suite.before_each)
+      for (const {fn} of suite.before_each) {
         await fn()
+      }
     }
 
     try {
@@ -308,8 +311,9 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
       error = err instanceof Error ? err : new Error(`${err}`)
     } finally {
       for (const suite of suites) {
-        for (const {fn} of suite.after_each)
+        for (const {fn} of suite.after_each) {
           await fn()
+        }
       }
     }
   } finally {
@@ -321,14 +325,16 @@ async function _run_test(suites: Suite[], test: Test, ctx: TestRunContext): Prom
 
   if (error == null) {
     for (const view of test.views) {
-      if (!(view instanceof UIElementView))
+      if (!(view instanceof UIElementView)) {
         continue
+      }
       try {
         const {width, height} = view.bbox
         if (test.viewport != null) {
           const [vw, vh] = test.viewport
-          if (width > vw || height > vh)
+          if (width > vw || height > vh) {
             error = new Error(`viewport size exceeded [${width}, ${height}] > [${vw}, ${vh}]`)
+          }
         }
         const bbox = offset_bbox(test.el!).box
         const state = _resolve_bbox(view.serializable_state()) as State
@@ -354,14 +360,15 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
 
   const margin = 50
   const size: [number, number] | null = (() => {
-    if (viewport == null)
+    if (viewport == null) {
       return null
-    else if (viewport == "auto") {
+    } else if (viewport == "auto") {
       const model = obj instanceof Document ? obj.roots()[0] : obj
       if (model instanceof LayoutDOM) {
         const {width, height} = _infer_viewport(model)
-        if (isFinite(width) && isFinite(height))
+        if (isFinite(width) && isFinite(height)) {
           return [width + margin, height + margin]
+        }
       }
     } else {
       return viewport
@@ -371,18 +378,18 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   })()
 
   const viewport_el = (() => {
-    if (size == null)
+    if (size == null) {
       return div({class: "viewport", style: {width: "max-content", height: "max-content", overflow: "visible"}}, el)
-    else {
+    } else {
       const [width, height] = size
       return div({class: "viewport", style: {width: `${width}px`, height: `${height}px`, overflow: "hidden"}}, el)
     }
   })()
 
   const doc = (() => {
-    if (obj instanceof Document)
+    if (obj instanceof Document) {
       return obj
-    else {
+    } else {
       const doc = new Document()
       doc.add_root(obj)
       return doc
@@ -397,10 +404,11 @@ export async function display(obj: Document | UIElement, viewport: [number, numb
   test.views = views
   test.el = viewport_el
   test.viewport = size ?? undefined
-  if (obj instanceof Document)
+  if (obj instanceof Document) {
     return {views: test.views, doc, el: viewport_el}
-  else
+  } else {
     return {view: test.views[0] as UIElementView, doc, el: viewport_el}
+  }
 }
 
 export async function compare_on_dom(fn: (ctx: CanvasRenderingContext2D) => void, svg: SVGSVGElement, {width, height}: {width: number, height: number}): Promise<void> {
@@ -427,10 +435,11 @@ import {GridPlot} from "@bokehjs/models/plots"
 import {Button, Div} from "@bokehjs/models/widgets"
 
 function _infer_viewport(obj: UIElement): Size {
-  if (obj instanceof LayoutDOM)
+  if (obj instanceof LayoutDOM) {
     return _infer_layoutdom_viewport(obj)
-  else
+  } else {
     return {width: Infinity, height: Infinity}
+  }
 }
 
 function _infer_layoutdom_viewport(obj: LayoutDOM): Size {

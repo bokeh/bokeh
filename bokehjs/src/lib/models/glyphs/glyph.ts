@@ -264,7 +264,9 @@ export abstract class GlyphView extends View {
         const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
         if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
           this._configure(prop, {
-            get() { return (base as any)[`${prop.attr}`] },
+            get() {
+              return (base as any)[`${prop.attr}`]
+            },
           })
           continue
         }

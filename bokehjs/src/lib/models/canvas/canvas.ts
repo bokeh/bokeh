@@ -64,10 +64,11 @@ async function init_webgl(): Promise<WebGLState | null> {
 const global_webgl: () => Promise<WebGLState | null> = (() => {
   let _global_webgl: WebGLState | null | undefined
   return async () => {
-    if (_global_webgl !== undefined)
+    if (_global_webgl !== undefined) {
       return _global_webgl
-    else
+    } else {
       return _global_webgl = await init_webgl()
+    }
   }
 })()
 
@@ -113,8 +114,9 @@ export class CanvasView extends UIElementView {
 
     if (this.model.output_backend == "webgl") {
       this.webgl = await global_webgl()
-      if (settings.force_webgl && this.webgl == null)
+      if (settings.force_webgl && this.webgl == null) {
         throw new Error("webgl is not available")
+      }
     }
   }
 

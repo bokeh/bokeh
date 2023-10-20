@@ -30,15 +30,18 @@ export type RenameOptions = {
 export function rename(path: string, options: RenameOptions): string {
   let {dir, name, ext} = parse(path)
   if (options.dir != null) {
-    if (options.base != null)
+    if (options.base != null) {
       dir = dir.replace(options.base, options.dir)
-    else
+    } else {
       dir = options.dir
+    }
   }
-  if (options.name != null)
+  if (options.name != null) {
     name = options.name(name)
-  if (options.ext != null)
+  }
+  if (options.ext != null) {
     ext = options.ext
+  }
   return format({dir, name, ext})
 }
 
@@ -53,9 +56,9 @@ export function hash_file(path: Path): string | null {
 
 export function read_json(path: Path): unknown | undefined {
   const data = read(path)
-  if (data == null)
+  if (data == null) {
     return undefined
-  else {
+  } else {
     try {
       return JSON.parse(data)
     } catch {

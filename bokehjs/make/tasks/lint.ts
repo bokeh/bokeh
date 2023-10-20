@@ -26,15 +26,17 @@ async function eslint(dir: string): Promise<void> {
   const errors = results.some(result => result.errorCount != 0)
   const warnings = results.some(result => result.warningCount != 0)
 
-  if (fix)
+  if (fix) {
     await ESLint.outputFixes(results)
+  }
 
   if (errors || warnings) {
     const formatter = await eslint.loadFormatter("stylish")
     const output = await formatter.format(results)
 
-    for (const line of output.trim().split("\n"))
+    for (const line of output.trim().split("\n")) {
       log(line)
+    }
   }
 
   if (errors) {

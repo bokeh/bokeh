@@ -27,8 +27,9 @@ export async function embed_item(item: JsonItem, target?: ID | EmbedTarget): Pro
   const doc_id = uuid4()
   docs_json[doc_id] = item.doc
 
-  if (target == null)
+  if (target == null) {
     target = item.target_id
+  }
 
   const roots: Roots = {[item.root_id]: target}
   const render_item: RenderItem = {roots, root_ids: [item.root_id], docid: doc_id}
@@ -49,8 +50,9 @@ export async function embed_items(docs_json: string | DocsJson, render_items: Re
 }
 
 async function _embed_items(docs_json: string | DocsJson, render_items: RenderItem[], app_path?: string, absolute_url?: string): Promise<ViewManager[]> {
-  if (isString(docs_json))
+  if (isString(docs_json)) {
     docs_json = JSON.parse(unescape(docs_json)) as DocsJson
+  }
 
   const docs: {[key: string]: Document} = {}
   for (const [docid, doc_json] of entries(docs_json)) {
@@ -72,13 +74,15 @@ async function _embed_items(docs_json: string | DocsJson, render_items: RenderIt
         views.push(await add_document_from_session(websocket_url, item.token, element, roots, item.use_for_title))
         console.log("Bokeh items were rendered successfully")
       } catch (error) {
-        if (settings.dev)
+        if (settings.dev) {
           throw error
-        else
+        } else {
           console.error("Error rendering Bokeh items:", error)
+        }
       }
-    } else
+    } else {
       throw new Error("Error rendering Bokeh items: either 'docid' or 'token' was expected.")
+    }
   }
 
   return views

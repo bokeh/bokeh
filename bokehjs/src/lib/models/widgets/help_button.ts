@@ -51,8 +51,9 @@ export class HelpButtonView extends AbstractButtonView {
       toggle(true)
     })
     this.el.addEventListener("mouseleave", () => {
-      if (!persistent)
+      if (!persistent) {
         toggle(false)
+      }
     })
     document.addEventListener("mousedown", (event) => {
       const path = event.composedPath()

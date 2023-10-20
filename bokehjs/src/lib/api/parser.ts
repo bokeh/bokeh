@@ -212,10 +212,11 @@ export class Parser {
       const node = nodes.length == 1 ? nodes[0] : {type: COMPOUND, body: nodes} as CompoundExpression
       return node
     } catch (error) {
-      if (error instanceof ParseError)
+      if (error instanceof ParseError) {
         return {type: FAILURE, message: error.message}
-      else
+      } else {
         throw error
+      }
     }
   }
 

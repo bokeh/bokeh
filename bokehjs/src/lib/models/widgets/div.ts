@@ -6,10 +6,11 @@ export class DivView extends MarkupView {
 
   override render(): void {
     super.render()
-    if (this.model.render_as_text)
+    if (this.model.render_as_text) {
       this.markup_el.textContent = this.model.text
-    else
+    } else {
       this.markup_el.innerHTML = this.has_math_disabled() ? this.model.text : this.process_tex(this.model.text)
+    }
   }
 }
 

@@ -25,10 +25,11 @@ export class MultiSelectView extends InputWidgetView {
 
     const options = this.model.options.map((opt) => {
       let value, _label
-      if (isString(opt))
+      if (isString(opt)) {
         value = _label  = opt
-      else
+      } else {
         [value, _label] = opt
+      }
 
       return option({value}, _label)
     })
@@ -49,8 +50,9 @@ export class MultiSelectView extends InputWidgetView {
   render_selection(): void {
     const selected = new Set(this.model.value)
 
-    for (const el of this.shadow_el.querySelectorAll("option"))
+    for (const el of this.shadow_el.querySelectorAll("option")) {
       el.selected = selected.has(el.value)
+    }
 
     // Note that some browser implementations might not reduce
     // the number of visible options for size <= 3.
@@ -62,8 +64,9 @@ export class MultiSelectView extends InputWidgetView {
 
     const values = []
     for (const el of this.shadow_el.querySelectorAll("option")) {
-      if (el.selected)
+      if (el.selected) {
         values.push(el.value)
+      }
     }
 
     this.model.value = values
@@ -72,8 +75,9 @@ export class MultiSelectView extends InputWidgetView {
     // so that even if python on_change callback is invoked,
     // focus remains on <select> and one can seamlessly scroll
     // up/down.
-    if (is_focused)
+    if (is_focused) {
       this.input_el.focus()
+    }
   }
 }
 

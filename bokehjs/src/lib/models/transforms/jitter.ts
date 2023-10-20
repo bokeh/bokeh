@@ -53,10 +53,11 @@ export class Jitter extends RangeTransform {
 
   override v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
     const xs: Arrayable<number> = (() => {
-      if (this.range instanceof FactorRange)
+      if (this.range instanceof FactorRange) {
         return this.range.v_synthetic(xs0)
-      else
+      } else {
         return xs0 as Arrayable<number>
+      }
     })()
 
     const offsets = (() => {

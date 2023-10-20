@@ -35,8 +35,9 @@ function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> 
         yield [prop.attr, prop.get_value()]
       }
     }
-  } else
+  } else {
     yield* entries(styles)
+  }
 }
 
 export abstract class UIElementView extends DOMComponentView {
@@ -115,11 +116,11 @@ export abstract class UIElementView extends DOMComponentView {
     const displayed = (() => {
       // Consider using Element.checkVisibility() in the future.
       // https://w3c.github.io/csswg-drafts/cssom-view-1/#dom-element-checkvisibility
-      if (!this.el.isConnected)
+      if (!this.el.isConnected) {
         return false
-      else if (this.el.offsetParent != null)
+      } else if (this.el.offsetParent != null) {
         return true
-      else {
+      } else {
         const {position, display} = getComputedStyle(this.el)
         return position == "fixed" && display != "none"
       }
@@ -218,9 +219,9 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _apply_visible(): void {
-    if (this.model.visible)
+    if (this.model.visible) {
       this._display.clear()
-    else {
+    } else {
       // in case `display` element style was set, use `!important` to work around this
       this._display.replace(":host { display: none !important; }")
     }
@@ -241,8 +242,9 @@ export abstract class UIElementView extends DOMComponentView {
       const name = attr.replace(/_/g, "-")
 
       if (!apply(name, value)) {
-        if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value))
+        if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value)) {
           logger.trace(`unknown CSS property '${name}'`)
+        }
       }
     }
   }

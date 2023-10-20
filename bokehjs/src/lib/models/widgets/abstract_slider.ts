@@ -118,8 +118,9 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       }
 
       tooltips = repeat(formatter, value.length)
-    } else
+    } else {
       tooltips = null
+    }
 
     if (this.slider_el == null) {
       this.slider_el = div()
@@ -139,8 +140,9 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this._noUiSlider.on("change", (_, __, values) => this._change(values))
 
       const toggle_tooltip = (i: number, show: boolean): void => {
-        if (tooltips == null || this.slider_el == null)
+        if (tooltips == null || this.slider_el == null) {
           return
+        }
         const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
         const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
         tooltip.style.display = show ? "block" : ""
@@ -161,10 +163,11 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
 
     this._set_bar_color()
 
-    if (this.model.disabled)
+    if (this.model.disabled) {
       this.slider_el.setAttribute("disabled", "true")
-    else
+    } else {
       this.slider_el.removeAttribute("disabled")
+    }
 
     this.title_el = div({class: sliders.slider_title})
     this._update_title()
@@ -202,10 +205,11 @@ export abstract class AbstractSliderView extends AbstractBaseSliderView {
   }
 
   protected _calc_from([value]: number[]): number {
-    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step))
+    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step)) {
       return Math.round(value)
-    else
+    } else {
       return value
+    }
   }
 }
 

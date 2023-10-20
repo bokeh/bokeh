@@ -47,8 +47,9 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
     const yf = y_flipped ? " with flipped y-axis" : ""
 
     for (const anchor of Anchor) {
-      if (!anchor.includes("_"))
+      if (!anchor.includes("_")) {
         continue
+      }
 
       it(`should support ${anchor} anchor with all origins${xf}${yf}`, async () => {
         await plot(anchor, x_flipped, y_flipped)
