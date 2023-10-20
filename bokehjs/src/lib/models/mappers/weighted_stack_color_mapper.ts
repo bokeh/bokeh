@@ -100,12 +100,6 @@ export class WeightedStackColorMapper extends StackColorMapper {
     // If color_baseline not specified, use nan-aware minimum of data.
     const color_baseline = this.color_baseline
     const baseline = color_baseline == null ? min(data) : color_baseline
-    if (baseline != 0) {
-      for (let i = 0, length = data.length; i < length; i++) {
-        // Subtract baseline and clip to zero. Datashader only clips non-integers.
-        data[i] = Math.max(data[i] - baseline, 0)
-      }
-    }
 
     // Mix colors based on weights.
     const {nan_color} = colors
@@ -114,7 +108,9 @@ export class WeightedStackColorMapper extends StackColorMapper {
     for (let i = 0; i < n; i++) {
       let total = NaN
       for (let icol = 0; icol < ncolor; icol++) {
-        const val = data[i*ncolor + icol]
+        const index = i*ncolor + icol
+        // If baseline non-zero, subtract it and clip to zero. Datashader only clips non-integers.
+        const val = baseline == 0 ? data[index] : Math.max(data[index] - baseline, 0)
         weights[icol] = val
         if (!isNaN(val)) {
           if (isNaN(total))
@@ -125,7 +121,7 @@ export class WeightedStackColorMapper extends StackColorMapper {
       }
 
       values[i] = this._mix_colors(palette_as_rgba, nan_color, weights, total)
-      totals[i] = total
+      totals[i] = total + baseline*ncolor
     }
 
     // Calculate alphas using alpha_mapper.

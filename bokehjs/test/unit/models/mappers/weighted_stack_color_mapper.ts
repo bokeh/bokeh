@@ -9,7 +9,7 @@ describe("WeightedStackColorMapper module", () => {
 
   describe("WeightedStackColorMapper.rgba_mapper method", () => {
     // Synthetic data of shape (3, 3, 2), i.e. a stack of two 2D arrays of shape (3, 3) each.
-    const data = [NaN, NaN, 1, 0, 4, 0, 0, 1, 1, 1, 4, 1, 0, 4, 1, 4, 4, 4]
+    const data = [NaN, NaN, 11, 10, 14, 10, 10, 11, 11, 11, 14, 11, 10, 14, 11, 14, 14, 14]
     const array = new Float64NDArray(data, [3, 3, 2])
 
     function get_rgba_mapped(start_alpha: number = 40, nan_color: string = "#0000",
@@ -46,7 +46,7 @@ describe("WeightedStackColorMapper module", () => {
 
     it("should support color baseline", () => {
       // Changes throughout
-      const expected = [0, 0, 0, 0, 139, 0, 116, 40, 164, 0, 91, 169, 116, 0, 139, 40, 128, 0, 128, 40, 153, 0, 102, 212, 91, 0, 164, 169, 102, 0, 153, 212, 128, 0, 128, 255]
+      const expected = [0, 0, 0, 0, 132, 0, 123, 40, 143, 0, 113, 169, 123, 0, 132, 40, 128, 0, 128, 40, 138, 0, 117, 212, 113, 0, 143, 169, 117, 0, 138, 212, 128, 0, 128, 255]
       expect(get_rgba_mapped(40, "#0000", false, -5)).to.be.equal(expected)
     })
   })
