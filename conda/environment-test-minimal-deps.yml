@@ -29,7 +29,7 @@ dependencies:
   - isort 5.8
   - json5
   - nbconvert >=5.4
-  - nodejs 18.*
+  - nodejs 20.*
   - pre-commit
   - psutil
   - pygments
