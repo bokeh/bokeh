@@ -275,7 +275,6 @@ with open(filename, 'rb') as example:
     env = os.environ.copy()
     env['BOKEH_IGNORE_FILENAME'] = 'true'
     env['BOKEH_RESOURCES'] = 'server-dev'
-    env['BOKEH_MINIFIED'] = 'false'
     env['BOKEH_BROWSER'] = 'none'
 
     class Timeout(Exception):
@@ -292,7 +291,6 @@ with open(filename, 'rb') as example:
     with subprocess.Popen(
         cmd, cwd=cwd, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     ) as proc:
-
         status: ProcStatus
         try:
             status = proc.wait()
