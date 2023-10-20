@@ -36,8 +36,10 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import json
+import os
 import re
 from glob import glob
+from os.path import relpath
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -284,7 +286,7 @@ class Resources:
 
     """
 
-    _default_root_dir = Path(".").resolve()
+    _default_root_dir = Path(os.curdir)
     _default_root_url = DEFAULT_SERVER_HTTP_URL
 
     mode: BaseMode
@@ -460,7 +462,7 @@ class Resources:
             raw = [self._inline(path) for path in paths]
         elif self.mode == "relative":
             root_dir = self.root_dir or self._default_root_dir
-            files = [str(path.relative_to(root_dir)) for path in paths]
+            files = [str(relpath(path, root_dir)) for path in paths]
         elif self.mode == "absolute":
             files = list(map(str, paths))
         elif self.mode == "cdn":
