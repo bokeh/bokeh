@@ -22,7 +22,7 @@ from os.path import dirname, join
 # Bokeh imports
 from bokeh.core.has_props import _default_resolver
 from bokeh.document import Document
-from bokeh.embed.bundle import extension_dirs
+from bokeh.embed.bundle import URL, extension_dirs
 from bokeh.ext import build
 from bokeh.models import Plot
 from bokeh.resources import CDN, INLINE, Resources
@@ -107,10 +107,10 @@ class Test_bundle_for_objs_and_resources:
 
     def test_no_objs_all_resources_bundled(self) -> None:
         b = beb.bundle_for_objs_and_resources(None, ABSOLUTE)
-        assert any('bokeh-widgets' in f for f in b.js_files)
-        assert any('bokeh-gl' in f for f in b.js_files)
-        assert any('bokeh-tables' in f for f in b.js_files)
-        assert any('bokeh-mathjax' in f for f in b.js_files)
+        assert any('bokeh-widgets' in f.url for f in b.js_files)
+        assert any('bokeh-gl' in f.url for f in b.js_files)
+        assert any('bokeh-tables' in f.url for f in b.js_files)
+        assert any('bokeh-mathjax' in f.url for f in b.js_files)
 
 class Test_bundle_custom_extensions:
 
@@ -139,7 +139,7 @@ class Test_bundle_custom_extensions:
         plot.add_layout(LatexLabel(x=0, y=0))
         bundle = beb.bundle_for_objs_and_resources([plot], CDN)
         assert len(bundle.js_files) == 2
-        assert bundle.js_files[1] == "https://unpkg.com/latex_label@0.0.1/dist/latex_label.js"
+        assert bundle.js_files[1] == URL("https://unpkg.com/latex_label@0.0.1/dist/latex_label.js")
 
     def test_with_Server_resources(self) -> None:
         from latex_label import LatexLabel
@@ -149,7 +149,7 @@ class Test_bundle_custom_extensions:
         version_hash = "6b13789e43e5485634533de16a65d8ba9d34c4c9758588b665805435f80eb115"
         assert len(bundle.js_files) == 2
         assert (bundle.js_files[1] ==
-                f"http://localhost:5006/static/extensions/latex_label/latex_label.js?v={version_hash}")
+                URL(f"http://localhost:5006/static/extensions/latex_label/latex_label.js?v={version_hash}"))
 
     def test_with_Server_resources_dev(self) -> None:
         from latex_label import LatexLabel
@@ -158,7 +158,7 @@ class Test_bundle_custom_extensions:
         with envset(BOKEH_DEV="true"):
             bundle = beb.bundle_for_objs_and_resources([plot], SERVER)
         assert len(bundle.js_files) == 2
-        assert bundle.js_files[1] == "http://localhost:5006/static/extensions/latex_label/latex_label.js"
+        assert bundle.js_files[1] == URL("http://localhost:5006/static/extensions/latex_label/latex_label.js")
 
 class Test_bundle_ext_package_no_main:
 
