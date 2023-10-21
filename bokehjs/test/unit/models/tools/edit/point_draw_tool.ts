@@ -48,7 +48,7 @@ async function make_testcase(): Promise<PointDrawTestCase> {
   const draw_tool = new PointDrawTool({
     active: true,
     empty_value: "Test",
-    renderers: [glyph_renderer as any],
+    renderers: [glyph_renderer],
   })
   plot.add_tools(draw_tool)
   await plot_view.ready
