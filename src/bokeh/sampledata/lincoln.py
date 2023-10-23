@@ -59,7 +59,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def _read_data() -> pd.DataFrame:
-    data = package_csv('lincoln', 'lincoln.csv')
+    data = package_csv('lincoln', 'lincoln_weather.csv')
 
     return data
 
