@@ -1,5 +1,5 @@
 ''' A `kernel density estimation`_ plot of the "lincoln" data using
-the `sklearn.neighbors.KernelDensity` function and Bokeh harea glyph
+the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` harea glyph
 
 .. bokeh-example-metadata::
     :sampledata: lincoln
@@ -33,7 +33,7 @@ p = figure(
     y_axis_label="mean temperature (F)",
 )
 
-# create an offset function for each category in the data
+# add a non-uniform categorical offset to a given category
 def offset(category, data, scale=7):
     return list(zip([category] * len(data), scale * data))
 
@@ -49,7 +49,7 @@ for month in months:
 
     p.harea(x1=x1, x2=x2, y=temps, alpha=0.8, color="#E0E0E0")
 
-    # create jitter to offset temperature data points
+    # pre-compute jitter in Python, this case is too complex for BokehJS
     tavg_density = np.exp(kde.score_samples(tavg[:, np.newaxis]))
     jitter = (np.random.random(len(tavg)) * 2 - 1) * tavg_density
 
