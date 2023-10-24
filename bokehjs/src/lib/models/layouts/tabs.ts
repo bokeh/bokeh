@@ -27,9 +27,9 @@ export class TabsView extends LayoutDOMView {
   override connect_signals(): void {
     super.connect_signals()
     const {tabs, active} = this.model.properties
-    this.on_change(tabs, () => {
+    this.on_change(tabs, async () => {
       this._update_headers()
-      this.update_children()
+      await this.update_children()
     })
     this.on_change(active, () => {
       this.update_active()

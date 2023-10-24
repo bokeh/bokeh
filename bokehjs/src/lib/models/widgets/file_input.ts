@@ -27,10 +27,10 @@ export class FileInputView extends InputWidgetView {
     this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled})
     this.group_el.appendChild(this.input_el)
 
-    this.input_el.addEventListener("change", () => {
+    this.input_el.addEventListener("change", async () => {
       const {files} = this.input_el
       if (files != null) {
-        this.load_files(files)
+        await this.load_files(files)
       }
     })
   }

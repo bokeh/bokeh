@@ -233,7 +233,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         })
       }
 
-      override_metrics()
+      await override_metrics()
 
       await Browser.grantPermissions({
         permissions: ["clipboardReadWrite"],
@@ -492,13 +492,13 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
               const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
                 if (test.dpr != null) {
-                  override_metrics(test.dpr)
+                  await override_metrics(test.dpr)
                 }
                 try {
                   return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
                   if (test.dpr != null) {
-                    override_metrics()
+                    await override_metrics()
                   }
                 }
               })()
