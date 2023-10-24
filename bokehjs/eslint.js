@@ -84,6 +84,7 @@ module.exports = {
       "FunctionExpression": {"body": 1, "parameters": "off"},
       "ignoredNodes": ["ConditionalExpression"],
     }],
+    "@typescript-eslint/no-floating-promises": ["error", {ignoreVoid: true}],
     "no-debugger": "error",
     "no-floating-decimal": ["error"],
     "no-multiple-empty-lines": ["error", {"max": 1, "maxBOF": 0, "maxEOF": 0}],

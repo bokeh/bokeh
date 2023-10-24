@@ -50,12 +50,12 @@ export class GridPlotView extends LayoutDOMView {
     super.connect_signals()
 
     const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
-    this.on_change(toolbar_location, () => {
+    this.on_change(toolbar_location, async () => {
       this._update_location()
-      this.rebuild()
+      await this.rebuild()
     })
-    this.on_change([toolbar, children, rows, cols, spacing], () => {
-      this.rebuild()
+    this.on_change([toolbar, children, rows, cols, spacing], async () => {
+      await this.rebuild()
     })
 
     this.on_change(this.model.toolbar.properties.tools, async () => {

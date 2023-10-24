@@ -2,9 +2,9 @@ import sinon from "sinon"
 
 import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, click, press, mouseenter} from "../interactive"
+import {PlotActions, actions, xy, click, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
 
-import type {ArrowHead, Line, Renderer, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
@@ -54,12 +54,11 @@ import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
-import {div, offset_bbox} from "@bokehjs/core/dom"
+import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
-import type {PlotView} from "@bokehjs/models/plots/plot"
 import {FigureView} from "@bokehjs/models/plots/figure"
 
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -1247,18 +1246,10 @@ describe("Bug", () => {
         size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
       })
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
-      const {view} = await display(p)
+      const {view: pv} = await display(p)
 
-      const crv = view.owner.get_one(cr)
-      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
-
-      const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset_bbox(ui.hit_area)
-
-      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-      ui.hit_area.dispatchEvent(ev)
-
-      await view.ready
+      await actions(pv).hover(xy(2, 1.5))
+      await pv.ready
     })
   })
 
@@ -1294,31 +1285,22 @@ describe("Bug", () => {
             ["value", "@image"],
           ],
         }))
-        return [p, ir] as const
+        return p
       }
 
-      const [p0, r0] = plot([0])
-      const [p1, r1] = plot([1])
-      const [p2, r2] = plot([0, 1])
+      const p0 = plot([0])
+      const p1 = plot([1])
+      const p2 = plot([0, 1])
 
       const {view} = await display(row([p0, p1, p2]))
 
-      function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
-        const crv = plot_view.owner.get_one(r)
-        const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+      const pv2 = view.owner.get_one(p2)
 
-        const ui = plot_view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
-
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
-      const [pv0, pv1, pv2] = view.child_views as PlotView[]
-
-      hover_at(pv0, r0,  2, 5)
-      hover_at(pv1, r1, 12, 5)
-      hover_at(pv2, r2,  2, 5)
+      await actions(pv0).hover(xy(2, 5))
+      await actions(pv1).hover(xy(12, 5))
+      await actions(pv2).hover(xy(2, 5))
 
       await view.ready
     })
@@ -2173,9 +2155,7 @@ describe("Bug", () => {
       const {view} = await display(layout, [300, 100])
       const button_view = view.owner.get_one(button)
 
-      const ev = new MouseEvent("click", {bubbles: true})
-      button_view.button_el.dispatchEvent(ev)
-
+      await mouse_click(button_view.button_el)
       await view.ready
       await paint()
     })
@@ -2216,8 +2196,7 @@ describe("Bug", () => {
       const button_view = view.owner.get_one(button)
 
       for (const _ of range(0, 5)) {
-        const ev = new MouseEvent("click", {bubbles: true})
-        button_view.button_el.dispatchEvent(ev)
+        await mouse_click(button_view.button_el)
         await view.ready
         await paint()
       }
@@ -2342,9 +2321,7 @@ describe("Bug", () => {
       const {view} = await display(layout, [550, 350])
       const button_view = view.owner.get_one(button)
 
-      const ev = new MouseEvent("click", {bubbles: true})
-      button_view.button_el.dispatchEvent(ev)
-
+      await mouse_click(button_view.button_el)
       await view.ready
     })
   })
@@ -2382,10 +2359,8 @@ describe("Bug", () => {
 
     it("doesn't allow to correctly display lasso select overlay in single plots", async () => {
       const p = plot("red")
-      const {view} = await display(p)
-
-      const actions = new PlotActions(view)
-      await actions.pan_along(path)
+      const {view: pv} = await display(p)
+      await actions(pv).pan_along(path)
     })
 
     it("doesn't allow to correctly display lasso select overlay in layouts", async () => {
@@ -2396,11 +2371,8 @@ describe("Bug", () => {
       const pv0 = view.owner.get_one(p0)
       const pv1 = view.owner.get_one(p1)
 
-      const actions0 = new PlotActions(pv0)
-      await actions0.pan_along(path)
-
-      const actions1 = new PlotActions(pv1)
-      await actions1.pan_along(path)
+      await actions(pv0).pan_along(path)
+      await actions(pv1).pan_along(path)
 
       await paint()
     })
@@ -2457,10 +2429,8 @@ describe("Bug", () => {
       p.add_tools(new HoverTool())
       p.circle([1, 2, 3], [1, 2, 3], {size: 20})
 
-      const {view} = await display(p)
-
-      const actions = new PlotActions(view)
-      actions.hover(xy(3, 3))
+      const {view: pv} = await display(p)
+      await actions(pv).hover(xy(3, 3))
     })
   })
 
@@ -2607,8 +2577,7 @@ describe("Bug", () => {
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(p00)
-      const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1))
+      await actions(pv).hover(xy(2, 1))
     })
 
     it("allows to cut tooltips short in layouts", async () => {
@@ -2627,8 +2596,7 @@ describe("Bug", () => {
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(p00)
-      const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1))
+      await actions(pv).hover(xy(2, 1))
     })
   })
 
@@ -2725,10 +2693,7 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       const pt = xy(1.8, 1.5)
-
-      const actions = new PlotActions(view)
-      actions.hover(pt)
-
+      await actions(view).hover(pt)
       await view.ready
 
       const hover_view = view.owner.get_one(hover)
@@ -2830,10 +2795,8 @@ describe("Bug", () => {
       const plot = fig([200, 200], {x_range: [1, 2], y_range: [1, 2], tools: "hover"})
       plot.circle([0.9], [0.9], {radius: 0.5})
 
-      const {view} = await display(plot)
-
-      const actions = new PlotActions(view)
-      actions.hover(xy(1.1, 1.1))
+      const {view: pv} = await display(plot)
+      await actions(pv).hover(xy(1.1, 1.1))
     })
   })
 
@@ -2938,11 +2901,10 @@ describe("Bug", () => {
 
       p.add_tools(range_tool, hover_tool)
 
-      const {view} = await display(p)
+      const {view: pv} = await display(p)
       await paint()
 
-      const actions = new PlotActions(view)
-      await actions.hover({x: 3, y: 3})
+      await actions(pv).hover({x: 3, y: 3})
       await paint()
     })
   })
@@ -3060,48 +3022,40 @@ describe("Bug", () => {
   })
 
   describe("in issue #12157", () => {
-    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
-      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
-    }
-
     it("doesn't allow MultiChoice widget's menu to persist after selection an option", async () => {
       const input = new MultiChoice({options: ["A", "B", "C", "D"], width: 200})
       const {view} = await display(input, [300, 200])
       await paint()
 
       const input_el = view.choice_el.input.element
-      await click(input_el)
+      await mouse_click(input_el)
       await paint()
 
       const el_D = view.shadow_el.querySelector("[data-value='D']")
       expect_not_null(el_D)
-      await click(el_D, "mousedown")
+      await mouse_down(el_D)
       await paint()
 
       const el_A = view.shadow_el.querySelector("[data-value='A']")
       expect_not_null(el_A)
-      await click(el_A, "mousedown")
+      await mouse_down(el_A)
       await paint()
 
       const el_B = view.shadow_el.querySelector("[data-value='B']")
       expect_not_null(el_B)
-      await click(el_B, "mousedown")
+      await mouse_down(el_B)
       await paint()
     })
   })
 
   describe("in issue #12584", () => {
-    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
-      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
-    }
-
     it("doesn't allow auto-completion to work correctly in MultiChoice widget", async () => {
       const input = new MultiChoice({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
       const {view} = await display(input, [300, 300])
       await paint()
 
       const input_el = view.choice_el.input.element
-      await click(input_el)
+      await mouse_click(input_el)
       input_el.value = "B" // Can't enter value with a synthetic event.
       input_el.focus()
       await paint()
@@ -3348,7 +3302,7 @@ describe("Bug", () => {
 
       const {desc_el} = view.owner.get_one(widget)
       expect_not_null(desc_el)
-      await mouseenter(desc_el)
+      await mouse_enter(desc_el)
     })
   })
 
@@ -3688,13 +3642,11 @@ describe("Bug", () => {
       const p = fig([300, 300], {tools: "hover"})
       p.circle([0], [0], {size: 10})
 
-      const {view} = await display(p, [400, 300], box)
+      const {view: pv} = await display(p, [400, 300], box)
       box.scroll({left: 100, top: 100})
 
-      const actions = new PlotActions(view)
-      actions.hover(xy(0, 0))
-
-      await view.ready
+      await actions(pv).hover(xy(0, 0))
+      await pv.ready
     })
   })
 

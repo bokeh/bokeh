@@ -22,14 +22,29 @@ const _mouse_common: Partial<MouseEventInit> = {
   altKey: false,
 }
 
-export async function mouseenter(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("mouseenter", {..._mouse_common, buttons: MouseButton.Left})
-  el.dispatchEvent(ev0)
+export async function mouse_enter(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseenter", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
 }
 
-export async function mousleave(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("mousleave", {..._mouse_common, buttons: MouseButton.Left})
-  el.dispatchEvent(ev0)
+export async function mouse_leave(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseleave", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_down(el: Element): Promise<void> {
+  const ev = new PointerEvent("mousedown", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_up(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseup", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_click(el: Element): Promise<void> {
+  const ev = new PointerEvent("click", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
 }
 
 const _pointer_common: Partial<PointerEventInit> = {
@@ -74,6 +89,10 @@ type Path = Line | Poly | Circle
 export type Options = {
   pause: number
   units: "data" | "screen"
+}
+
+export function actions(target: PlotView, options: Partial<Options> = {}): PlotActions {
+  return new PlotActions(target, options)
 }
 
 export class PlotActions {

@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
-import {PlotActions, xy, click} from "../interactive"
+import {PlotActions, actions, xy, click} from "../interactive"
 
 import {
   BooleanFilter,
@@ -221,7 +221,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11750", () => {
-    it("makes plots render uncecessarily when hover glyph wasn't defined", async () => {
+    it("makes plots render unnecessarily when hover glyph wasn't defined", async () => {
       async function test(hover_glyph: Line | null) {
         const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
         const glyph = new Line({line_color: "red"})
@@ -233,15 +233,8 @@ describe("Bug", () => {
 
         const lnv = view.owner.get_one(renderer)
         const ln_spy = sinon.spy(lnv, "request_render")
-        const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
 
-        for (let i = 0; i <= 1; i += 0.2) {
-          const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
-          const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-          ui.hit_area.dispatchEvent(ev)
-        }
-
+        await actions(view).hover(xy(0, 0), xy(1, 1), 6)
         return ln_spy.callCount
       }
 
@@ -251,7 +244,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11999", () => {
-    it("makes plots render uncecessarily when inspection indices don't change", async () => {
+    it("makes plots render unnecessarily when inspection indices don't change", async () => {
       const data_source = new ColumnDataSource({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
       const glyph = new Rect({line_color: "red"})
       const hover_glyph = new Rect({line_color: "blue"})
@@ -263,23 +256,11 @@ describe("Bug", () => {
 
       const gv = view.owner.get_one(renderer)
       const gv_spy = sinon.spy(gv, "request_render")
-      const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset_bbox(ui.hit_area)
 
-      for (let i = 0; i <= 1; i += 0.2) {
-        const [[sx], [sy]] = gv.coordinates.map_to_screen([i], [i])
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
+      await actions(view).hover(xy(0, 0), xy(1, 1), 6)
       expect(gv_spy.callCount).to.be.equal(0)
 
-      for (let i = 1; i >= 0; i -= 0.2) {
-        const [[sx], [sy]] = gv.coordinates.map_to_screen([0.8], [i])
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
+      await actions(view).hover(xy(0.8, 1), xy(0.8, 0), 6)
       expect(gv_spy.callCount).to.be.equal(1)
     })
   })
@@ -493,7 +474,7 @@ describe("Bug", () => {
           rotation: 0,
           srcEvent: ev,
         }
-        ui._tap(hev) // can't use dispatchEvent(), becuase of doubletap recognizer
+        ui._tap(hev) // can't use dispatchEvent(), because of doubletap recognizer
         await view.ready
       }
 

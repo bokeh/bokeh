@@ -94,7 +94,7 @@ export async function add_document_standalone(document: Document, element: Embed
 
   document.on_change((event) => {
     if (event instanceof RootAddedEvent) {
-      render_model(event.model)
+      void render_model(event.model)
     } else if (event instanceof RootRemovedEvent) {
       unrender_model(event.model)
     } else if (use_for_title && event instanceof TitleChangedEvent) {

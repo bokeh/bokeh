@@ -99,7 +99,7 @@ export class TapToolView extends SelectToolView {
         source,
         event: {modifiers},
       }
-      execute(callback, this.model, data)
+      void execute(callback, this.model, data)
     }
   }
 }

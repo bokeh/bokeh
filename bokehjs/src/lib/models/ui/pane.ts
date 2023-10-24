@@ -39,8 +39,8 @@ export class PaneView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
     const {children} = this.model.properties
-    this.on_change(children, () => {
-      this._rebuild_views()
+    this.on_change(children, async () => {
+      await this._rebuild_views()
       this.render()
     })
   }

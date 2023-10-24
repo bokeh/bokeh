@@ -77,7 +77,7 @@ function _init_comms(target: string, doc: Document): void {
   }
 }
 
-export function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): void {
+export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): Promise<void> {
   if (size(docs_json) != 1) {
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
   }
@@ -92,7 +92,7 @@ export function embed_items_notebook(docs_json: DocsJson, render_items: RenderIt
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)
 
-    add_document_standalone(document, element, roots)
+    await add_document_standalone(document, element, roots)
 
     for (const root of roots) {
       if (root instanceof HTMLElement) {

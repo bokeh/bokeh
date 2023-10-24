@@ -1,6 +1,6 @@
 import {display, fig, row} from "../_util"
 import type {Point} from "../../interactive"
-import {PlotActions, xy} from "../../interactive"
+import {actions, xy} from "../../interactive"
 
 import {BoxAnnotation, Node} from "@bokehjs/models"
 import type {OutputBackend} from "@bokehjs/core/enums"
@@ -126,9 +126,8 @@ describe("BoxAnnotation annotation", () => {
     await display(p)
   })
 
-  async function pan(view: PlotView, xy0: Point, xy1: Point) {
-    const actions = new PlotActions(view)
-    await actions.pan_along({type: "line", xy0, xy1})
+  async function pan(pv: PlotView, xy0: Point, xy1: Point) {
+    await actions(pv).pan_along({type: "line", xy0, xy1})
     await paint()
   }
 

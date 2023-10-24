@@ -158,5 +158,5 @@ export namespace WebBrowserMarketShare {
     }
   }, 1000)
 
-  plt.show(fig)
+  void plt.show(fig)
 }

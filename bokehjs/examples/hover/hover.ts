@@ -58,5 +58,5 @@ export namespace HoverfulScatter {
     return div
   }
 
-  plt.show(p)
+  void plt.show(p)
 }

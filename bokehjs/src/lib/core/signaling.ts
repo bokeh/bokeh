@@ -187,8 +187,8 @@ function find_connection(conns: Connection[], signal: Signal<any, any>, slot: Sl
 const dirty_set = new Set<Connection[]>()
 
 function schedule_cleanup(connections: Connection[]): void {
-  if (dirty_set.size === 0) {
-    (async () => {
+  if (dirty_set.size == 0) {
+    void (async () => {
       await defer()
       cleanup_dirty_set()
     })()

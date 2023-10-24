@@ -10,7 +10,7 @@ export class CustomActionView extends ActionToolView {
   doit(): void {
     const {callback} = this.model
     if (callback != null) {
-      execute(callback, this.model)
+      void execute(callback, this.model)
     }
   }
 }
