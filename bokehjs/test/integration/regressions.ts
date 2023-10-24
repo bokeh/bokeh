@@ -3697,4 +3697,22 @@ describe("Bug", () => {
       await view.ready
     })
   })
+
+  describe("in issue #13478", () => {
+    it("doesn't render webgl zero-width/height vstrip/hstrip glyphs", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.xgrid.visible = false
+        p.ygrid.visible = false
+        p.vstrip({x0: [2, 4, 6], x1: [2, 4, 6]})
+        p.hstrip({y0: [3, 5, 7], y1: [3, 5, 7]})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
+  })
 })

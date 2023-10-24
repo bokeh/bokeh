@@ -126,8 +126,8 @@ void main()
   v_size = vec2(a_width, a_width);
 #endif
 
-  if (a_show < 0.5 || v_size.x <= 0.0 || v_size.y <= 0.0) {
-    // Do not show this rect.
+  if (a_show < 0.5 || v_size.x < 0.0 || v_size.y < 0.0 || (v_size.x == 0.0 && v_size.y == 0.0)) {
+    // Do not show this marker.
     gl_Position = vec4(-2.0, -2.0, 0.0, 1.0);
     return;
   }
