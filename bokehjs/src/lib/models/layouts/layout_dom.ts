@@ -497,7 +497,7 @@ export abstract class LayoutDOMView extends UIElementView {
       } else {
         // In case after_resize() wasn't called (see regression test for issue
         // #9113), then wait one macro task and consider this view finished.
-        defer().then(() => {
+        void defer().then(() => {
           if (!this._resized) {
             this.finish()
           }

@@ -59,5 +59,5 @@ export namespace TappyScatter {
     }
   }
 
-  plt.show(p)
+  void plt.show(p)
 }

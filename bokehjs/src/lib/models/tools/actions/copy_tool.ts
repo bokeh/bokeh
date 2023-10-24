@@ -12,7 +12,7 @@ export class CopyToolView extends ActionToolView {
   }
 
   doit(): void {
-    this.copy()
+    void this.copy()
   }
 }
 

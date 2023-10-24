@@ -102,7 +102,7 @@ export class DropdownView extends AbstractButtonView {
       if (isString(value_or_callback)) {
         this.model.trigger_event(new MenuItemClick(value_or_callback))
       } else {
-        execute(value_or_callback, this.model, {index: i}) // TODO
+        void execute(value_or_callback, this.model, {index: i})
       }
     }
   }

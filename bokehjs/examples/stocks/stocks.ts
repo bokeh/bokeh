@@ -67,5 +67,5 @@ export namespace Stocks {
 
   // Create plot and attach to DOM
   const plot = make_plot("Simple stocks demo", source)
-  plt.show(plot, "#plot")
+  void plt.show(plot, "#plot")
 }

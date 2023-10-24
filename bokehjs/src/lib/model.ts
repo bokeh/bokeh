@@ -75,7 +75,7 @@ export class Model extends HasProps {
 
   /*protected*/ _process_event(event: ModelEvent): void {
     for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? []) {
-      execute(callback, event)
+      void execute(callback, event)
     }
 
     if (this.document != null && this.subscribed_events.has(event.event_name)) {

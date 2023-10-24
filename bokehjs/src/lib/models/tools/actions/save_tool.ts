@@ -26,12 +26,12 @@ export class SaveToolView extends ActionToolView {
       case "save": {
         const filename = this.model.filename ?? prompt("Enter filename", "bokeh_plot")
         if (filename != null) {
-          this.save(filename)
+          void this.save(filename)
         }
         break
       }
       case "copy": {
-        this.copy()
+        void this.copy()
         break
       }
     }

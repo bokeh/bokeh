@@ -374,7 +374,7 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
       }
 
       if (this.provider.status == "loaded") {
-        this.load_image()
+        void this.load_image()
       }
     }
 

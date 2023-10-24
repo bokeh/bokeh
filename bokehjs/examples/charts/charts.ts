@@ -33,5 +33,5 @@ export namespace Charts {
     [p21, p22, p23, p24],
   ]
 
-  plt.show(plt.gridplot(plots, {toolbar_location: null}))
+  void plt.show(plt.gridplot(plots, {toolbar_location: null}))
 }

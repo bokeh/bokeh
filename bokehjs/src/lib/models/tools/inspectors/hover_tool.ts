@@ -496,7 +496,7 @@ export class HoverToolView extends InspectToolView {
 
       const index = renderer.data_source.inspected
 
-      execute(callback, this.model, {
+      void execute(callback, this.model, {
         geometry: {x, y, ...geometry},
         renderer,
         index,

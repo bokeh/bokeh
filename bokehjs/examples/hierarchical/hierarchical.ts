@@ -33,5 +33,5 @@ export namespace Hierarchical {
 
   p.y_range.start = 0
 
-  show(p)
+  void show(p)
 }

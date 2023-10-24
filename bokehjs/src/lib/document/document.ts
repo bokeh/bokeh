@@ -396,7 +396,7 @@ export class Document implements Equatable {
     const callbacks = this._document_callbacks.get(event.event_name)
     if (callbacks != null) {
       for (const callback of callbacks) {
-        execute(callback, this, event)
+        void execute(callback, this, event)
       }
     }
   }

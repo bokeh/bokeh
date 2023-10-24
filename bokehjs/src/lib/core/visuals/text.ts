@@ -22,7 +22,7 @@ function load_font(font: string, obj: Renderable): void {
 
   const {fonts} = document
   if (!fonts.check(font)) {
-    fonts.load(font).then(() => obj.request_render())
+    void fonts.load(font).then(() => obj.request_render())
   }
 }
 

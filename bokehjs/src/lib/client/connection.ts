@@ -253,7 +253,7 @@ export class ClientConnection {
       this._current_handler = (message) => this._steady_state_handler(message)
 
       // Reload any sessions
-      this._repull_session_doc(resolve, reject)
+      void this._repull_session_doc(resolve, reject)
     } else {
       this._close_bad_protocol("First message was not an ACK")
     }
