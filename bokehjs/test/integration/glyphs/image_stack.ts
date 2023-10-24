@@ -1,11 +1,9 @@
 import {display, fig, row} from "../_util"
+import {actions, xy} from "../../interactive"
 
 import {EqHistColorMapper, HoverTool, WeightedStackColorMapper} from "@bokehjs/models"
-import type {Renderer} from "@bokehjs/models"
 import {varying_alpha_palette} from "@bokehjs/api/palettes"
 import {Float64NDArray} from "@bokehjs/core/util/ndarray"
-import type {PlotView} from "@bokehjs/models/plots/plot"
-import {offset_bbox} from "@bokehjs/core/dom"
 
 describe("ImageStack glyph", () => {
   it("should support hover tooltip", async () => {
@@ -23,31 +21,22 @@ describe("ImageStack glyph", () => {
         renderers: [ir],
         tooltips: [["value", "@image"]],
       }))
-      return [p, ir] as const
+      return p
     }
 
-    const [p0, r0] = plot()
-    const [p1, r1] = plot()
-    const [p2, r2] = plot()
+    const p0 = plot()
+    const p1 = plot()
+    const p2 = plot()
 
     const {view} = await display(row([p0, p1, p2]))
 
-    function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
-      const crv = plot_view.owner.get_one(r)
-      const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+    const pv0 = view.owner.get_one(p0)
+    const pv1 = view.owner.get_one(p1)
+    const pv2 = view.owner.get_one(p2)
 
-      const ui = plot_view.canvas_view.ui_event_bus
-      const {left, top} = offset_bbox(ui.hit_area)
-
-      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-      ui.hit_area.dispatchEvent(ev)
-    }
-
-    const [pv0, pv1, pv2] = view.child_views as PlotView[]
-
-    hover_at(pv0, r0, 0.2, 0.8)
-    hover_at(pv1, r1, 0.8, 0.5)
-    hover_at(pv2, r2, 0.2, 0.2)
+    await actions(pv0).hover(xy(0.2, 0.8))
+    await actions(pv1).hover(xy(0.8, 0.5))
+    await actions(pv2).hover(xy(0.2, 0.2))
 
     await view.ready
   })

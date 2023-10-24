@@ -1,5 +1,6 @@
 import {expect} from "../unit/assertions"
 import {display, fig} from "./_util"
+import {mouse_click} from "../interactive"
 
 import {Spacer, Tabs, TabPanel, GridBox, GroupBox, ScrollBox, Row, Column, HBox, VBox} from "@bokehjs/models/layouts"
 import {Pane} from "@bokehjs/models/ui"
@@ -781,7 +782,7 @@ describe("GroupBox", () => {
     })
     const {view} = await display(group_box, [400, 200])
 
-    view.checkbox_el.dispatchEvent(new MouseEvent("click"))
+    await mouse_click(view.checkbox_el)
     await view.ready
   })
 })

@@ -1,5 +1,6 @@
 import {expect} from "assertions"
 import {fig, display} from "../../_util"
+import {mouse_enter, mouse_leave} from "../../../interactive"
 
 import {Toolbar} from "@bokehjs/models/tools/toolbar"
 import {HoverTool} from "@bokehjs/models/tools/inspectors/hover_tool"
@@ -69,15 +70,11 @@ describe("Toolbar", () => {
       expect(toolbar_view.visible).to.be.false
       expect(toolbar_view.el.classList.contains("bk-hidden")).to.be.true
 
-      const ev0 = new MouseEvent("mouseenter", {clientX: 0, clientY: 0})
-      view.el.dispatchEvent(ev0)
-
+      await mouse_enter(view.el)
       expect(toolbar_view.visible).to.be.true
       expect(toolbar_view.el.classList.contains("bk-hidden")).to.be.false
 
-      const ev1 = new MouseEvent("mouseleave", {clientX: 0, clientY: 0})
-      view.el.dispatchEvent(ev1)
-
+      await mouse_leave(view.el)
       expect(toolbar_view.visible).to.be.false
       expect(toolbar_view.el.classList.contains("bk-hidden")).to.be.true
     })
@@ -97,15 +94,11 @@ describe("Toolbar", () => {
       expect(tbv.visible).to.be.false
       expect(tbv.el.classList.contains("bk-hidden")).to.be.true
 
-      const ev0 = new MouseEvent("mouseenter", {clientX: 0, clientY: 0})
-      view.el.dispatchEvent(ev0)
-
+      await mouse_enter(view.el)
       expect(tbv.visible).to.be.true
       expect(tbv.el.classList.contains("bk-hidden")).to.be.false
 
-      const ev1 = new MouseEvent("mouseleave", {clientX: 0, clientY: 0})
-      view.el.dispatchEvent(ev1)
-
+      await mouse_leave(view.el)
       expect(tbv.visible).to.be.false
       expect(tbv.el.classList.contains("bk-hidden")).to.be.true
     })

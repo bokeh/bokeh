@@ -1,12 +1,12 @@
 import * as sinon from "sinon"
 
-import {expect, expect_not_null} from "../unit/assertions"
+import {expect} from "../unit/assertions"
 import {display, fig, row} from "./_util"
+import {mouse_click} from "../interactive"
 
 import {figure} from "@bokehjs/api/plotting"
 import type {Location} from "@bokehjs/core/enums"
 import {Range1d, LinearScale, LinearAxis, ColumnDataSource, Pane} from "@bokehjs/models"
-import type {PlotView} from "@bokehjs/models/plots/plot"
 
 describe("Plot", () => {
   const f = (location: Location | null, options: {title?: string, inner?: boolean} = {}) => {
@@ -81,31 +81,28 @@ describe("Plot", () => {
       return p
     }
 
-    const click = (view: PlotView) => {
-      const el = view.toolbar_panel?.toolbar_view.overflow_el
-      expect_not_null(el)
-      const ev = new MouseEvent("click", {clientX: 5, clientY: 5, bubbles: true})
-      el.dispatchEvent(ev)
-    }
-
     it("with toolbar located above a plot", async () => {
       const {view} = await display(f("above"))
-      click(view)
+      const {overflow_el} = view.owner.get_one(view.model.toolbar)
+      await mouse_click(overflow_el)
     })
 
     it("with toolbar located below a plot", async () => {
       const {view} = await display(f("below"))
-      click(view)
+      const {overflow_el} = view.owner.get_one(view.model.toolbar)
+      await mouse_click(overflow_el)
     })
 
     it("with toolbar located left of a plot", async () => {
       const {view} = await display(f("left"))
-      click(view)
+      const {overflow_el} = view.owner.get_one(view.model.toolbar)
+      await mouse_click(overflow_el)
     })
 
     it("with toolbar located right of a plot", async () => {
       const {view} = await display(f("right"))
-      click(view)
+      const {overflow_el} = view.owner.get_one(view.model.toolbar)
+      await mouse_click(overflow_el)
     })
   })
 
