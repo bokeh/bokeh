@@ -29,8 +29,17 @@ glyphs:
 Kernel density estimation
 -------------------------
 
-
 .. bokeh-plot:: __REPO__/examples/topics/stats/kde2d.py
+    :source-position: above
+
+.. _ug_topics_stats_sinaplot:
+
+SinaPlot
+--------
+
+SinaPlots can be assembled using the |harea| and |scatter| glyphs:
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/sinaplot.py
     :source-position: above
 
 .. _ug_topics_stats_splom:
@@ -46,6 +55,7 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
 .. bokeh-plot:: __REPO__/examples/topics/stats/splom.py
     :source-position: above
 
+.. |harea|   replace:: :func:`~bokeh.plotting.figure.harea`
 .. |quad|    replace:: :func:`~bokeh.plotting.figure.quad`
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
