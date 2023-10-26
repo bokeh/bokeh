@@ -126,11 +126,11 @@ Developing BokehJS requires the following minimum versions:
 
 * Node.js 18+
 * npm 8+
-* Chrome/Chromium browser 110+ or equivalent
+* Chrome/Chromium browser 118+ or equivalent
 
 Bokeh officially supports the following platforms for development and testing:
 
-* Linux Ubuntu 20.04+ or equivalent
+* Linux Ubuntu 22.04+ or equivalent
 * Windows 10 (or Server 2019)
 * MacOS 10.15
 
