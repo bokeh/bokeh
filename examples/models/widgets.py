@@ -13,19 +13,9 @@ from datetime import date, datetime, time
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (AutocompleteInput, BuiltinIcon, Button, ByCSS, Checkbox,
-                          CheckboxButtonGroup, CheckboxGroup, ColorMap, ColorPicker,
-                          Column, ColumnDataSource, DataTable, DatePicker,
-                          DateRangePicker, DateRangeSlider, DateSlider,
-                          DatetimePicker, DatetimeRangePicker, Dialog, Div,
-                          Dropdown, Examiner, GroupBox, HelpButton, IntEditor, Menu,
-                          MultiChoice, MultipleDatePicker, MultipleDatetimePicker,
-                          MultiSelect, NumberEditor, NumberFormatter, Paragraph,
-                          PasswordInput, PreText, RadioButtonGroup, RadioGroup,
-                          RangeSlider, Row, Select, SelectEditor, SetValue, Slider,
-                          Spinner, StringEditor, StringFormatter, SVGIcon, Switch,
-                          TableColumn, TablerIcon, TabPanel, Tabs, TextAreaInput,
-                          TextInput, TimePicker, Toggle, Tooltip)
+from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, Dialog,
+                          Examiner, GroupBox, Menu, Row, SetValue, SVGIcon,
+                          TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
 from bokeh.models.dom import HTML, ValueOf
 from bokeh.plotting import figure
 from bokeh.sampledata.autompg2 import autompg2 as mpg
@@ -34,12 +24,12 @@ from bokeh.util.browser import view
 
 dialog = Dialog(content=Examiner(), visible=False)
 
-click_button = Button(icon=TablerIcon("settings", size="1.2em"), label="Open Examiner", button_type="success")
+click_button = w.Button(icon=TablerIcon("settings", size="1.2em"), label="Open Examiner", button_type="success")
 click_button.js_on_event("button_click", SetValue(dialog, "visible", True))
 
-disabled_button = Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
+disabled_button = w.Button(label="Button (disabled) - still has click event", button_type="primary", disabled=True)
 
-toggle = Toggle(icon=BuiltinIcon("settings", size="1.2em", color="white"), label="Toggle button", button_type="success")
+toggle = w.Toggle(icon=BuiltinIcon("settings", size="1.2em", color="white"), label="Toggle button", button_type="success")
 
 svg_icon = SVGIcon("""
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
@@ -54,46 +44,58 @@ svg_icon = SVGIcon("""
 
 menu = [("Item 1", "item_1_value"), ("Item 2", "item_2_value"), None, ("Item 3", "item_3_value")]
 
-dropdown = Dropdown(icon=svg_icon, label="Dropdown button", button_type="warning", menu=menu)
-dropdown_split = Dropdown(label="Split button", button_type="danger", menu=menu, split=True)
+dropdown = w.Dropdown(icon=svg_icon, label="Dropdown button", button_type="warning", menu=menu)
+dropdown_split = w.Dropdown(label="Split button", button_type="danger", menu=menu, split=True)
 
-checkbox_group = CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-radio_group = RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
+checkbox_group = w.CheckboxGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
+radio_group = w.RadioGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
-checkbox_button_group = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
-radio_button_group = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
+checkbox_button_group = w.CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1])
+radio_button_group = w.RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0)
 
-checkbox_button_group_vertical = CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1], orientation="vertical")
-radio_button_group_vertical = RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0, orientation="vertical")
+checkbox_button_group_vertical = w.CheckboxButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=[0, 1], orientation="vertical")
+radio_button_group_vertical = w.RadioButtonGroup(labels=["Option 1", "Option 2", "Option 3"], active=0, orientation="vertical")
 
-password_input = PasswordInput(placeholder="Choose your password ...")
+password_input = w.PasswordInput(placeholder="Choose your password ...")
 
-text_input = TextInput(placeholder="Enter value ...")
+text_input = w.TextInput(placeholder="Enter value ...")
 
-text_input_units = TextInput(title="Initial temperature:", placeholder="Enter temperature ...", prefix="T\u2092", suffix="\u2103")
+text_input_units = w.TextInput(title="Initial temperature:", placeholder="Enter temperature ...", prefix="T\u2092", suffix="\u2103")
 
 completions = ["aaa", "aab", "aac", "baa", "caa"]
-autocomplete_input = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions)
 
-autocomplete_input_includes = AutocompleteInput(min_characters=0, placeholder="Enter value (auto-complete) ...", completions=completions, search_strategy="includes")
+autocomplete_input = w.AutocompleteInput(
+    completions=completions,
+    placeholder="Enter value (auto-complete) ...",
+    min_characters=0,
+)
 
-text_area = TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
+autocomplete_input_includes = w.AutocompleteInput(
+    completions=completions,
+    placeholder="Enter value (auto-complete) ...",
+    search_strategy="includes",
+    min_characters=0,
+)
 
-select = Select(options=["Option 1", "Option 2", "Option 3"])
+text_area = w.TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 
-multi_select = MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
+select = w.Select(options=["Option 1", "Option 2", "Option 3"])
 
-multi_choice = MultiChoice(options=["Option %d" % (i+1) for i in range(16)], placeholder="Choose your option ...")
+multi_select = w.MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
 
-slider = Slider(value=10, start=0, end=100, step=0.5)
+multi_choice = w.MultiChoice(options=["Option %d" % (i+1) for i in range(16)], placeholder="Choose your option ...")
 
-range_slider = RangeSlider(value=[10, 90], start=0, end=100, step=0.5)
+slider = w.Slider(value=10, start=0, end=100, step=0.5)
 
-date_slider = DateSlider(value=date(2016, 1, 1), start=date(2015, 1, 1), end=date(2017, 12, 31))
+range_slider = w.RangeSlider(value=[10, 90], start=0, end=100, step=0.5)
 
-date_range_slider = DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)), start=date(2015, 1, 1), end=date(2017, 12, 31))
+date_slider = w.DateSlider(value=date(2016, 1, 1), start=date(2015, 1, 1), end=date(2017, 12, 31))
 
-spinner = Spinner(value=100)
+date_range_slider = w.DateRangeSlider(value=(date(2016, 1, 1), date(2016, 12, 31)), start=date(2015, 1, 1), end=date(2017, 12, 31))
+
+categorical_slider = w.CategoricalSlider(categories=["First", "Second", "Third", "Last"], value="Second")
+
+spinner = w.Spinner(value=100)
 
 page_step_multiplier = ValueOf(obj=spinner, attr="page_step_multiplier")
 
@@ -108,7 +110,7 @@ tooltip_1 = Tooltip(content=HTML("""\
 Your <b>choice</b> of color.<br>See more in Bokeh's <a href="https://docs.bokeh.org/en/latest/">docs</a>.
 """), position="right")
 
-color_picker = ColorPicker(color="red", title="Choose color:", description=tooltip_1)
+color_picker = w.ColorPicker(color="red", title="Choose color:", description=tooltip_1)
 
 from bokeh import palettes
 
@@ -156,37 +158,37 @@ items = [
     ("Turbo", palettes.Turbo[256]),
 ]
 
-color_map = ColorMap(title="Choose pallete:", value="PuBu", items=items)
+color_map = w.ColorMap(title="Choose pallete:", value="PuBu", items=items)
 
-time_picker = TimePicker(title="Time:", seconds=True, second_increment=5)
+time_picker = w.TimePicker(title="Time:", seconds=True, second_increment=5)
 
-time_picker_with_a_value = TimePicker(title="Time:", value=time(14, 53, 21), time_format="h:i:S K", seconds=True, second_increment=5)
+time_picker_with_a_value = w.TimePicker(title="Time:", value=time(14, 53, 21), time_format="h:i:S K", seconds=True, second_increment=5)
 
-date_picker = DatePicker(title="Single date:", date_format="F j, Y")
+date_picker = w.DatePicker(title="Single date:", date_format="F j, Y")
 
-date_picker_with_a_value = DatePicker(title="Single date:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
+date_picker_with_a_value = w.DatePicker(title="Single date:", value=date(2022, 2, 8), min_date=date(2022, 2, 1))
 
-date_range_picker = DateRangePicker(title="Date range:", width=400)
+date_range_picker = w.DateRangePicker(title="Date range:", width=400)
 
-multiple_date_picker = MultipleDatePicker(title="Multiple dates:", width=400)
+multiple_date_picker = w.MultipleDatePicker(title="Multiple dates:", width=400)
 
-datetime_picker = DatetimePicker(title="Single date and time:", date_format="F j, Y @ H:i:S", seconds=True, second_increment=5, width=250)
+datetime_picker = w.DatetimePicker(title="Single date and time:", date_format="F j, Y @ H:i:S", seconds=True, second_increment=5, width=250)
 
-datetime_picker_with_a_value = DatetimePicker(title="Single date and time:", value=datetime(2022, 2, 8, 14, 53, 21), min_date=date(2022, 2, 1), width=250)
+datetime_picker_with_a_value = w.DatetimePicker(title="Single date and time:", value=datetime(2022, 2, 8, 14, 53, 21), min_date=date(2022, 2, 1), width=250)
 
-datetime_range_picker = DatetimeRangePicker(title="Date and time range:", width=400)
+datetime_range_picker = w.DatetimeRangePicker(title="Date and time range:", width=400)
 
-multiple_datetime_picker = MultipleDatetimePicker(title="Multiple dates and times:", width=400)
+multiple_datetime_picker = w.MultipleDatetimePicker(title="Multiple dates and times:", width=400)
 
-checkbox_0 = Checkbox(active=False, label="Inactive checkbox")
+checkbox_0 = w.Checkbox(active=False, label="Inactive checkbox")
 
-checkbox_1 = Checkbox(active=True, label="Active checkbox")
+checkbox_1 = w.Checkbox(active=True, label="Active checkbox")
 
-switch_0 = Switch(active=False)
+switch_0 = w.Switch(active=False)
 
-switch_1 = Switch(active=True, context_menu=Menu())
+switch_1 = w.Switch(active=True, context_menu=Menu())
 
-switch_help = HelpButton(tooltip=Tooltip(content=HTML("""
+switch_help = w.HelpButton(tooltip=Tooltip(content=HTML("""
 This is an <b>on</b> or <b>off</b> style of widget.
 <br>
 Right click on the widget to display the context menu.
@@ -197,18 +199,18 @@ group_box = GroupBox(
     checkable=True,
     child=Column(
         children=[
-            TextInput(prefix="X", suffix="mm"),
-            TextInput(prefix="Y", suffix="mm"),
-            TextInput(prefix="Z", suffix="mm"),
+            w.TextInput(prefix="X", suffix="mm"),
+            w.TextInput(prefix="Y", suffix="mm"),
+            w.TextInput(prefix="Z", suffix="mm"),
         ],
     ),
 )
 
-paragraph = Paragraph(text="some text")
+paragraph = w.Paragraph(text="some text")
 
-div = Div(text="some <b>text</b>")
+div = w.Div(text="some <b>text</b>")
 
-pre_text = PreText(text="some text")
+pre_text = w.PreText(text="some text")
 
 def mk_tab(color: str):
     plot = figure(width=300, height=300)
@@ -219,40 +221,60 @@ tabs = Tabs(tabs=[mk_tab("red"), mk_tab("green"), mk_tab("blue")])
 
 source = ColumnDataSource(data=mpg)
 columns = [
-    TableColumn(field="manufacturer",
-                title="Manufacturer",
-                editor=SelectEditor(options=sorted(mpg["manufacturer"].unique())),
-                formatter=StringFormatter(font_style="bold")),
-    TableColumn(field="model",
-                title="Model",
-                editor=StringEditor(completions=sorted(mpg["model"].unique()))),
-    TableColumn(field="displ",
-                title="Displacement",
-                editor=NumberEditor(step=0.1),
-                formatter=NumberFormatter(format="0.0")),
-    TableColumn(field="year",
-                title="Year",
-                editor=IntEditor()),
-    TableColumn(field="cyl",
-                title="Cylinders",
-                editor=IntEditor()),
-    TableColumn(field="trans",
-                title="Transmission",
-                editor=SelectEditor(options=sorted(mpg["trans"].unique()))),
-    TableColumn(field="drv",
-                title="Drive",
-                editor=SelectEditor(options=sorted(mpg["drv"].unique()))),
-    TableColumn(field="class",
-                title="Class",
-                editor=SelectEditor(options=sorted(mpg["class"].unique()))),
-    TableColumn(field="cty",
-                title="City MPG",
-                editor=IntEditor()),
-    TableColumn(field="hwy",
-                title="Highway MPG",
-                editor=IntEditor()),
+    w.TableColumn(
+        field="manufacturer",
+        title="Manufacturer",
+        editor=w.SelectEditor(options=sorted(mpg["manufacturer"].unique())),
+        formatter=w.StringFormatter(font_style="bold"),
+    ),
+    w.TableColumn(
+        field="model",
+        title="Model",
+        editor=w.StringEditor(completions=sorted(mpg["model"].unique())),
+    ),
+    w.TableColumn(
+        field="displ",
+        title="Displacement",
+        editor=w.NumberEditor(step=0.1),
+        formatter=w.NumberFormatter(format="0.0"),
+    ),
+    w.TableColumn(
+        field="year",
+        title="Year",
+        editor=w.IntEditor(),
+    ),
+    w.TableColumn(
+        field="cyl",
+        title="Cylinders",
+        editor=w.IntEditor(),
+    ),
+    w.TableColumn(
+        field="trans",
+        title="Transmission",
+        editor=w.SelectEditor(options=sorted(mpg["trans"].unique())),
+    ),
+    w.TableColumn(
+        field="drv",
+        title="Drive",
+        editor=w.SelectEditor(options=sorted(mpg["drv"].unique())),
+    ),
+    w.TableColumn(
+        field="class",
+        title="Class",
+        editor=w.SelectEditor(options=sorted(mpg["class"].unique())),
+    ),
+    w.TableColumn(
+        field="cty",
+        title="City MPG",
+        editor=w.IntEditor(),
+    ),
+    w.TableColumn(
+        field="hwy",
+        title="Highway MPG",
+        editor=w.IntEditor(),
+    ),
 ]
-table = DataTable(source=source, columns=columns, editable=True, width=800)
+table = w.DataTable(source=source, columns=columns, editable=True, width=800)
 
 widgets = Column(children=[
     Row(children=[
@@ -265,7 +287,7 @@ widgets = Column(children=[
         Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, autocomplete_input_includes, text_area,
             select, multi_select, multi_choice,
-            slider, range_slider, date_slider, date_range_slider,
+            slider, range_slider, date_slider, date_range_slider, categorical_slider,
             spinner, color_picker, color_map,
             time_picker, time_picker_with_a_value,
             date_picker, date_picker_with_a_value, date_range_picker, multiple_date_picker,

@@ -1,23 +1,33 @@
 import tz from "timezone"
 
-import {AbstractSlider, AbstractRangeSliderView} from "./abstract_slider"
+import {NumericalRangeSlider, NumericalRangeSliderView} from "./numerical_range_slider"
 import type {TickFormatter} from "../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
 
-export class DatetimeRangeSliderView extends AbstractRangeSliderView {
+export class DatetimeRangeSliderView extends NumericalRangeSliderView {
   declare model: DatetimeRangeSlider
+
+  override behaviour = "drag" as const
+  override connected = [false, true, false]
+
+  protected _formatter(value: number, format: string | TickFormatter): string {
+    if (isString(format)) {
+      return tz(value, format)
+    } else {
+      return format.compute(value)
+    }
+  }
 }
 
 export namespace DatetimeRangeSlider {
   export type Attrs = p.AttrsOf<Props>
-
-  export type Props = AbstractSlider.Props
+  export type Props = NumericalRangeSlider.Props
 }
 
 export interface DatetimeRangeSlider extends DatetimeRangeSlider.Attrs {}
 
-export class DatetimeRangeSlider extends AbstractSlider {
+export class DatetimeRangeSlider extends NumericalRangeSlider {
   declare properties: DatetimeRangeSlider.Props
   declare __view_type__: DatetimeRangeSliderView
 
@@ -30,18 +40,7 @@ export class DatetimeRangeSlider extends AbstractSlider {
 
     this.override<DatetimeRangeSlider.Props>({
       format: "%d %b %Y %H:%M:%S",
-      step: 3_600_000,  // 1 hour.
+      step: 3_600_000,  // 1 hour
     })
-  }
-
-  override behaviour = "drag" as "drag"
-  override connected = [false, true, false]
-
-  protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format)) {
-      return tz(value, format)
-    } else {
-      return format.compute(value)
-    }
   }
 }

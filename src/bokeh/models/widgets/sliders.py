@@ -39,6 +39,7 @@ from ...core.properties import (
     Override,
     Readonly,
     Required,
+    Seq,
     String,
     Tuple,
 )
@@ -55,6 +56,7 @@ from .widget import Widget
 
 __all__ = (
     'AbstractSlider',
+    'CategoricalSlider',
     'Slider',
     'RangeSlider',
     'DateSlider',
@@ -105,9 +107,6 @@ class AbstractSlider(Widget):
     Whether or not show slider's value.
     """)
 
-    format = Either(String, Instance(TickFormatter), help="""
-    """)
-
     direction = Enum("ltr", "rtl", help="""
     """)
 
@@ -126,11 +125,41 @@ class AbstractSlider(Widget):
             if self.start == self.end:
                 return f"{self!s} with title {self.title!s}"
 
+@abstract
+class NumericalSlider(AbstractSlider):
+    """ Base class for numerical sliders. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    format = Either(String, Instance(TickFormatter), help="""
+    """)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-class Slider(AbstractSlider):
+class CategoricalSlider(AbstractSlider):
+    """ Discrete slider allowing selection from a collection of values. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    categories = Required(Seq(String), help="""
+    A collection of categories to choose from.
+    """)
+
+    value = Required(String, help="""
+    Initial or selected value.
+    """)
+
+    value_throttled = Readonly(Required(String), help="""
+    Initial or throttled selected value.
+    """)
+
+class Slider(NumericalSlider):
     """ Slider-based number selection widget. """
 
     # explicit __init__ to support Init signatures
@@ -159,7 +188,7 @@ class Slider(AbstractSlider):
 
     format = Override(default="0[.]00")
 
-class RangeSlider(AbstractSlider):
+class RangeSlider(NumericalSlider):
     """ Range-slider based number range selection widget. """
 
     # explicit __init__ to support Init signatures
@@ -188,7 +217,7 @@ class RangeSlider(AbstractSlider):
 
     format = Override(default="0[.]00")
 
-class DateSlider(AbstractSlider):
+class DateSlider(NumericalSlider):
     """ Slider-based date selection widget. """
 
     # explicit __init__ to support Init signatures
@@ -246,7 +275,7 @@ class DateSlider(AbstractSlider):
 
     format = Override(default="%d %b %Y")
 
-class DateRangeSlider(AbstractSlider):
+class DateRangeSlider(NumericalSlider):
     """ Slider-based date range selection widget. """
 
     # explicit __init__ to support Init signatures
@@ -317,7 +346,7 @@ class DateRangeSlider(AbstractSlider):
 
     format = Override(default="%d %b %Y")
 
-class DatetimeRangeSlider(AbstractSlider):
+class DatetimeRangeSlider(NumericalSlider):
     """ Slider-based datetime range selection widget. """
 
     # explicit __init__ to support Init signatures
