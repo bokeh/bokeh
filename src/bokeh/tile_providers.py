@@ -210,7 +210,8 @@ class _TileProvidersModule(types.ModuleType):
                 provider_name = "esri_worldimagery"
             if provider_name == "osm":
                 provider_name = "openstreetmap_mapnik"
-
+            if provider_name.startswith("stamen"):
+                provider_name = f"stadia.{provider_name}"
             if "retina" in provider_name:
                 provider_name = provider_name.replace("retina", "")
                 retina = True
