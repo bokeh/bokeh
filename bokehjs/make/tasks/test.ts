@@ -65,6 +65,13 @@ function sys_path(): string {
   return path.join(delimiter)
 }
 
+// Keep in sync with:
+//   https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#browsers-and-drivers
+//
+// Also update:
+// - bokehjs/test/devtools/devtools.ts
+// - .github/workflows/bokehjs-ci.yml
+// - .github/workflows/bokeh-ci.yml
 const supported_chromium_revision = "r2670" // 118.0.5993.88
 
 function chrome(): string {
