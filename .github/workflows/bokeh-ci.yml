@@ -130,7 +130,12 @@ jobs:
 
       - name: Install chromium
         run: |
-          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
+          INSTALLED=$(chromium --version | cut -d' ' -f2 | cut -d'.' -f1-3)
+          EXPECTED=$(echo "$CHROME_VER" | cut -d'.' -f1-3)
+
+          echo "Currently installed Chromium $INSTALLED; expected $EXPECTED"
+
+          if [[ "$INSTALLED" = "$EXPECTED" ]]; then
             echo "Using pre-installed version of chromium"
           else
             URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER
