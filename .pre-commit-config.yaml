@@ -17,6 +17,15 @@ repos:
       - id: validate-pyproject
         name: Validate pyproject.toml
 
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: check-yaml
+        name: Validate YAML files
+        exclude: conda/recipe/meta.yaml
+      - id: check-json
+        name: Validate JSON files
+
   - repo: local
     hooks:
       - id: run-code-quality
@@ -46,12 +55,6 @@ repos:
       - id: run-vermin
         name: Run vermin checks
         entry: pytest tests/codebase/test_vermin.py
-        language: conda
-        pass_filenames: false
-
-      - id: validate-json
-        name: Validate JSON files
-        entry: pytest tests/codebase/test_json.py
         language: conda
         pass_filenames: false
 

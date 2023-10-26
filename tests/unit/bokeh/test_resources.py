@@ -73,13 +73,11 @@ class TestSRIHashes:
     def test_get_all_hashes_copies(self) -> None:
         ah1 = resources.get_all_sri_hashes()
         ah2 = resources.get_all_sri_hashes()
-        assert ah1 == ah2 == resources._SRI_HASHES
+        assert ah1 == ah2 == resources._ALL_SRI_HASHES
         assert ah1 is not ah2
-        assert ah1 is not resources._SRI_HASHES
-        assert ah2 is not resources._SRI_HASHES
+        assert ah1 is not resources._ALL_SRI_HASHES
+        assert ah2 is not resources._ALL_SRI_HASHES
 
-    # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
-    @pytest.mark.skip
     def test_get_all_hashes_no_future_keys(self) -> None:
         current = V(__version__.split("+", 1)[0])  # remove git hash, "-dirty", etc
         all_hashes = resources.get_all_sri_hashes()
@@ -95,7 +93,7 @@ class TestSRIHashes:
             assert h == all_hashes[key]
 
     def test_get_sri_hashes_for_version_bad(self) -> None:
-        with pytest.raises(KeyError):
+        with pytest.raises(ValueError):
             resources.get_sri_hashes_for_version("junk")
 
 

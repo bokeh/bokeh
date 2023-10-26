@@ -37,7 +37,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import re
-from os.path import basename, join, relpath
+from glob import glob
+from os.path import (
+    basename,
+    join,
+    relpath,
+    splitext,
+)
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -100,7 +106,7 @@ class ComponentDefs(TypedDict):
 
 Hashes: TypeAlias = dict[str, str]
 
-_SRI_HASHES: dict[str, Hashes] | None = None
+_ALL_SRI_HASHES: dict[str, Hashes] = {}
 
 def get_all_sri_hashes() -> dict[str, Hashes]:
     """ Report SRI script hashes for all versions of BokehJS.
@@ -135,15 +141,10 @@ def get_all_sri_hashes() -> dict[str, Hashes]:
     .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 
     """
-    global _SRI_HASHES
-
-    if not _SRI_HASHES:
-        with open(join(ROOT_DIR, "_sri.json"), "rb") as f:
-            _SRI_HASHES = json.load(f)
-
-    assert _SRI_HASHES is not None
-    return dict(_SRI_HASHES)
-
+    for filename in glob(join(ROOT_DIR, "_sri", "*.json")):
+        version = splitext(basename(filename))[0]
+        get_sri_hashes_for_version(version)
+    return dict(_ALL_SRI_HASHES)
 
 def get_sri_hashes_for_version(version: str) -> Hashes:
     """ Report SRI script hashes for a specific version of BokehJS.
@@ -186,8 +187,13 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
     .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 
     """
-    hashes = get_all_sri_hashes()
-    return hashes[version]
+    if version not in _ALL_SRI_HASHES:
+        try:
+            with open(join(ROOT_DIR, "_sri", f"{version}.json")) as f:
+                _ALL_SRI_HASHES[version] = json.load(f)
+        except Exception:
+            raise ValueError(f"Missing SRI hash for version {version}")
+    return _ALL_SRI_HASHES[version]
 
 
 def verify_sri_hashes() -> None:
