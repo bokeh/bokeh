@@ -108,43 +108,16 @@ Hashes: TypeAlias = dict[str, str]
 
 _ALL_SRI_HASHES: dict[str, Hashes] = {}
 
-def get_all_sri_hashes() -> dict[str, Hashes]:
-    """ Report SRI script hashes for all versions of BokehJS.
-
-    Bokeh provides `Subresource Integrity`_ hashes for all JavaScript files that
-    are published to CDN for full releases. This function returns a dictionary
-    that maps version strings to sub-dictionaries that JavaScipt filenames to
-    their hashes.
+def get_all_sri_versions() -> tuple[str, ...]:
+    """ Report all versions that have SRI hashes.
 
     Returns:
-        dict
-
-    Example:
-
-        The returned dict will map version strings to sub-dictionaries for each
-        version:
-
-        .. code-block:: python
-
-            {
-                '1.4.0': {
-                    'bokeh-1.4.0.js': 'vn/jmieHiN+ST+GOXzRU9AFfxsBp8gaJ/wvrzTQGpIKMsdIcyn6U1TYtvzjYztkN',
-                    'bokeh-1.4.0.min.js': 'mdMpUZqu5U0cV1pLU9Ap/3jthtPth7yWSJTu1ayRgk95qqjLewIkjntQDQDQA5cZ',
-                    ...
-                }
-                '1.3.4': {
-                    ...
-                }
-                ...
-            }
-
-    .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+        tuple
 
     """
-    for filename in glob(join(ROOT_DIR, "_sri", "*.json")):
-        version = splitext(basename(filename))[0]
-        get_sri_hashes_for_version(version)
-    return dict(_ALL_SRI_HASHES)
+    files = glob(join(ROOT_DIR, "_sri", "*.json"))
+    return set(splitext(basename(x))[0] for x in files)
+
 
 def get_sri_hashes_for_version(version: str) -> Hashes:
     """ Report SRI script hashes for a specific version of BokehJS.
@@ -697,7 +670,7 @@ __all__ = (
     "CDN",
     "INLINE",
     "Resources",
-    "get_all_sri_hashes",
+    "get_all_sri_versions",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",
 )
