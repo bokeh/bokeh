@@ -1,7 +1,7 @@
 import tz from "timezone"
 
 import {NumericalRangeSlider, NumericalRangeSliderView} from "./numerical_range_slider"
-import type {TickFormatter} from "../formatters/tick_formatter"
+import type {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
 

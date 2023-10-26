@@ -8,7 +8,7 @@ import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
-import {OrientedControl, OrientedControlView} from "./oriented_control"
+import {OrientedControl, OrientedControlView} from "../oriented_control"
 
 import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"

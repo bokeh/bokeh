@@ -2,7 +2,7 @@ import tz from "timezone"
 
 import type {SliderSpec} from "./abstract_slider"
 import {NumericalRangeSlider, NumericalRangeSliderView} from "./numerical_range_slider"
-import type {TickFormatter} from "../formatters/tick_formatter"
+import type {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
 

@@ -1,7 +1,7 @@
 import * as numbro from "@bokeh/numbro"
 
 import {NumericalSlider, NumericalSliderView} from "./numerical_slider"
-import type {TickFormatter} from "../formatters/tick_formatter"
+import type {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 import {isString} from "core/util/types"
 

@@ -1,5 +1,5 @@
 import {AbstractSlider, AbstractSliderView} from "./abstract_slider"
-import {TickFormatter} from "../formatters/tick_formatter"
+import {TickFormatter} from "../../formatters/tick_formatter"
 import type * as p from "core/properties"
 
 export abstract class BaseNumericalSliderView extends AbstractSliderView<number> {
