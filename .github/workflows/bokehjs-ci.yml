@@ -40,6 +40,7 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
+          echo "Currently installed $(chromium --version); expected $CHROME_VER"
           if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
             echo "Using pre-installed version of chromium"
           else
