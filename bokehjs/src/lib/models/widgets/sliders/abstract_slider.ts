@@ -1,4 +1,4 @@
-import type {API} from "nouislider"
+import type {API, PartialFormatter} from "nouislider"
 import noUiSlider from "nouislider"
 
 import * as p from "core/properties"
@@ -112,7 +112,7 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
   override render(): void {
     super.render()
 
-    let tooltips: any[] | null // XXX
+    let tooltips: PartialFormatter[] | null
     if (this.model.tooltips) {
       const formatter = {
         to: (value: number): string => this.pretty(value),
@@ -196,8 +196,8 @@ export namespace AbstractSlider {
   export type Props = OrientedControl.Props & {
     title: p.Property<string | null>
     show_value: p.Property<boolean>
-    value: p.Property<any> // XXX
-    value_throttled: p.Property<any> // XXX
+    value: p.Property<unknown>
+    value_throttled: p.Property<unknown>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
     bar_color: p.Property<Color>
@@ -215,12 +215,12 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Any, Boolean, String, Color, Enum, Nullable}) => {
+    this.define<AbstractSlider.Props>(({Unknown, Boolean, String, Color, Enum, Nullable}) => {
       return {
         title:           [ Nullable(String), "" ],
         show_value:      [ Boolean, true ],
-        value:           [ Any ],
-        value_throttled: [ Any, p.unset, {readonly: true} ],
+        value:           [ Unknown ],
+        value_throttled: [ Unknown, p.unset, {readonly: true} ],
         direction:       [ Enum("ltr", "rtl"), "ltr" ],
         tooltips:        [ Boolean, true ],
         bar_color:       [ Color, "#e6e6e6" ],

@@ -23,7 +23,11 @@ export abstract class NumericalRangeSliderView extends BaseNumericalSliderView {
 
 export namespace NumericalRangeSlider {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = BaseNumericalSlider.Props
+
+  export type Props = BaseNumericalSlider.Props & {
+    value: p.Property<[number, number]>
+    value_throttled: p.Property<[number, number]>
+  }
 }
 
 export interface NumericalRangeSlider extends NumericalRangeSlider.Attrs {}
@@ -31,6 +35,9 @@ export interface NumericalRangeSlider extends NumericalRangeSlider.Attrs {}
 export abstract class NumericalRangeSlider extends BaseNumericalSlider {
   declare properties: NumericalRangeSlider.Props
   declare declare__view_type__: NumericalRangeSliderView
+
+  declare value: [number, number]
+  declare value_throttled: [number, number]
 
   constructor(attrs?: Partial<NumericalRangeSlider.Attrs>) {
     super(attrs)

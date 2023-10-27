@@ -28,7 +28,11 @@ export abstract class NumericalSliderView extends BaseNumericalSliderView {
 
 export namespace NumericalSlider {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = BaseNumericalSlider.Props
+
+  export type Props = BaseNumericalSlider.Props & {
+    value: p.Property<number>
+    value_throttled: p.Property<number>
+  }
 }
 
 export interface NumericalSlider extends NumericalSlider.Attrs {}
@@ -36,6 +40,9 @@ export interface NumericalSlider extends NumericalSlider.Attrs {}
 export abstract class NumericalSlider extends BaseNumericalSlider {
   declare properties: NumericalSlider.Props
   declare __view_type__: NumericalSliderView
+
+  declare value: number
+  declare value_throttled: number
 
   constructor(attrs?: Partial<NumericalSlider.Attrs>) {
     super(attrs)

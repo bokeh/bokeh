@@ -46,6 +46,8 @@ export namespace CategoricalSlider {
 
   export type Props = AbstractSlider.Props & {
     categories: p.Property<string[]>
+    value: p.Property<string>
+    value_throttled: p.Property<string>
   }
 }
 
@@ -54,6 +56,9 @@ export interface CategoricalSlider extends CategoricalSlider.Attrs {}
 export class CategoricalSlider extends AbstractSlider<string> {
   declare properties: CategoricalSlider.Props
   declare __view_type__: CategoricalSliderView
+
+  declare value: string
+  declare value_throttled: string
 
   constructor(attrs?: Partial<CategoricalSlider.Attrs>) {
     super(attrs)
