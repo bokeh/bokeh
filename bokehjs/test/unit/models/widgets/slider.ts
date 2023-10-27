@@ -4,6 +4,7 @@ import {display} from "../../_util"
 import {Slider, RangeSlider, DateSlider, DateRangeSlider, DatetimeRangeSlider} from "@bokehjs/models/widgets"
 import {CustomJSTickFormatter} from "@bokehjs/models/formatters"
 import {isInteger} from "@bokehjs/core/util/types"
+import {build_view} from "@bokehjs/core/build_views"
 
 describe("SliderView", () => {
 
@@ -19,28 +20,32 @@ describe("SliderView", () => {
 })
 
 describe("Slider", () => {
-  it("should support string format", () => {
+  it("should support string format", async () => {
     const slider = new Slider({format: "0a"})
-    expect(slider.pretty(-104000)).to.be.equal("-104k")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
   })
 
-  it("should support TickFormatter format", () => {
+  it("should support TickFormatter format", async () => {
     const format = new CustomJSTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
     const slider = new Slider({format})
-    expect(slider.pretty(-104000)).to.be.equal("-104k")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
   })
 })
 
 describe("RangeSlider", () => {
-  it("should support string format", () => {
+  it("should support string format", async () => {
     const slider = new RangeSlider({format: "0a"})
-    expect(slider.pretty(-104000)).to.be.equal("-104k")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
   })
 
-  it("should support TickFormatter format", () => {
+  it("should support TickFormatter format", async () => {
     const format = new CustomJSTickFormatter({code: "return (tick/1000).toFixed(0) + 'k'"})
     const slider = new RangeSlider({format})
-    expect(slider.pretty(-104000)).to.be.equal("-104k")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(-104000)).to.be.equal("-104k")
   })
 })
 
@@ -53,21 +58,22 @@ describe("DateSliderView", () => {
     const {view} = await display(slider, null)
 
     const [next_step] = view._steps()
-
     expect(next_step).to.be.equal([86_400_000, 86_400_000])
   })
 })
 
 describe("DateSlider", () => {
-  it("should support string format", () => {
+  it("should support string format", async () => {
     const slider = new DateSlider({format: "%Y"})
-    expect(slider.pretty(1599402993268)).to.be.equal("2020")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1599402993268)).to.be.equal("2020")
   })
 
-  it("should support TickFormatter format", () => {
+  it("should support TickFormatter format", async () => {
     const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateSlider({format})
-    expect(slider.pretty(1599402993268)).to.be.equal("2020")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1599402993268)).to.be.equal("2020")
   })
 })
 
@@ -86,30 +92,37 @@ describe("DateRangeSliderView", () => {
 })
 
 describe("DateRangeSlider", () => {
-  it("should support string format", () => {
+  it("should support string format", async () => {
     const slider = new DateRangeSlider({format: "%Y"})
-    expect(slider.pretty(1599402993268)).to.be.equal("2020")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1599402993268)).to.be.equal("2020")
   })
 
-  it("should support TickFormatter format", () => {
+  it("should support TickFormatter format", async () => {
     const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DateRangeSlider({format})
-    expect(slider.pretty(1599402993268)).to.be.equal("2020")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1599402993268)).to.be.equal("2020")
   })
 })
 
 describe("DatetimeRangeSlider", () => {
-  it("should support string format", () => {
-    const slider = new DatetimeRangeSlider({format: "%Y %B %d"})
+  it("should support string format", async () => {
     const datetime = 1648211696000  // 2022-03-25 12:34:56
-    expect(slider.pretty(datetime)).to.be.equal("2022 March 25")
-    slider.format = "%H:%M:%S"
-    expect(slider.pretty(datetime)).to.be.equal("12:34:56")
+
+    const slider0 = new DatetimeRangeSlider({format: "%Y %B %d"})
+    const view0 = await build_view(slider0, {parent: null})
+    expect(view0.pretty(datetime)).to.be.equal("2022 March 25")
+
+    const slider1 = new DatetimeRangeSlider({format: "%H:%M:%S"})
+    const view1 = await build_view(slider1, {parent: null})
+    expect(view1.pretty(datetime)).to.be.equal("12:34:56")
   })
 
-  it("should support TickFormatter format", () => {
+  it("should support TickFormatter format", async () => {
     const format = new CustomJSTickFormatter({code: "return Math.floor(1970 + tick/(1000*60*60*24*365)).toFixed(0)"})
     const slider = new DatetimeRangeSlider({format})
-    expect(slider.pretty(1648211696000)).to.be.equal("2022")
+    const view = await build_view(slider, {parent: null})
+    expect(view.pretty(1648211696000)).to.be.equal("2022")
   })
 })
