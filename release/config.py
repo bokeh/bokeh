@@ -42,6 +42,7 @@ class Config:
 
         self._secrets: dict[str, str] = {}
 
+        self._new: set[str] = set()
         self._modified: set[str] = set()
 
     def add_secret(self, name: str, secret: str) -> None:
@@ -51,12 +52,19 @@ class Config:
         LOG.add_scrubber(Scrubber(secret, name=name))
         self._secrets[name] = secret
 
+    def add_new(self, path: str) -> None:
+        self._new.add(path)
+
     def add_modified(self, path: str) -> None:
         self._modified.add(path)
 
     @property
     def secrets(self) -> dict[str, str]:
         return self._secrets
+
+    @property
+    def new(self) -> set[str]:
+        return self._modified
 
     @property
     def modified(self) -> set[str]:

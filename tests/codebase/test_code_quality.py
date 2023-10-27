@@ -85,6 +85,7 @@ exclude_paths = ("docs/CHANGELOG",)
 exclude_exts = (
     ".patch", ".png", ".jpg", ".pxm", ".ico", ".ics", ".gz", ".gif", ".enc",
     ".xml", ".shp", ".dbf", ".shx", "otf", ".eot", ".ttf", ".woff", ".woff2",
+    ".json", ".yaml",
 )
 
 exclude_dirs = ()

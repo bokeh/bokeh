@@ -37,7 +37,13 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import json
 import re
-from os.path import basename, join, relpath
+from glob import glob
+from os.path import (
+    basename,
+    join,
+    relpath,
+    splitext,
+)
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -100,49 +106,17 @@ class ComponentDefs(TypedDict):
 
 Hashes: TypeAlias = dict[str, str]
 
-_SRI_HASHES: dict[str, Hashes] | None = None
+_ALL_SRI_HASHES: dict[str, Hashes] = {}
 
-def get_all_sri_hashes() -> dict[str, Hashes]:
-    """ Report SRI script hashes for all versions of BokehJS.
-
-    Bokeh provides `Subresource Integrity`_ hashes for all JavaScript files that
-    are published to CDN for full releases. This function returns a dictionary
-    that maps version strings to sub-dictionaries that JavaScipt filenames to
-    their hashes.
+def get_all_sri_versions() -> tuple[str, ...]:
+    """ Report all versions that have SRI hashes.
 
     Returns:
-        dict
-
-    Example:
-
-        The returned dict will map version strings to sub-dictionaries for each
-        version:
-
-        .. code-block:: python
-
-            {
-                '1.4.0': {
-                    'bokeh-1.4.0.js': 'vn/jmieHiN+ST+GOXzRU9AFfxsBp8gaJ/wvrzTQGpIKMsdIcyn6U1TYtvzjYztkN',
-                    'bokeh-1.4.0.min.js': 'mdMpUZqu5U0cV1pLU9Ap/3jthtPth7yWSJTu1ayRgk95qqjLewIkjntQDQDQA5cZ',
-                    ...
-                }
-                '1.3.4': {
-                    ...
-                }
-                ...
-            }
-
-    .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+        tuple
 
     """
-    global _SRI_HASHES
-
-    if not _SRI_HASHES:
-        with open(join(ROOT_DIR, "_sri.json"), "rb") as f:
-            _SRI_HASHES = json.load(f)
-
-    assert _SRI_HASHES is not None
-    return dict(_SRI_HASHES)
+    files = glob(join(ROOT_DIR, "_sri", "*.json"))
+    return set(splitext(basename(x))[0] for x in files)
 
 
 def get_sri_hashes_for_version(version: str) -> Hashes:
@@ -186,8 +160,13 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
     .. _Subresource Integrity: https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 
     """
-    hashes = get_all_sri_hashes()
-    return hashes[version]
+    if version not in _ALL_SRI_HASHES:
+        try:
+            with open(join(ROOT_DIR, "_sri", f"{version}.json")) as f:
+                _ALL_SRI_HASHES[version] = json.load(f)
+        except Exception as e:
+            raise ValueError(f"Missing SRI hash for version {version}") from e
+    return _ALL_SRI_HASHES[version]
 
 
 def verify_sri_hashes() -> None:
@@ -691,7 +670,7 @@ __all__ = (
     "CDN",
     "INLINE",
     "Resources",
-    "get_all_sri_hashes",
+    "get_all_sri_versions",
     "get_sri_hashes_for_version",
     "verify_sri_hashes",
 )
