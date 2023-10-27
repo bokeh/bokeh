@@ -164,8 +164,8 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
         try:
             with open(join(ROOT_DIR, "_sri", f"{version}.json")) as f:
                 _ALL_SRI_HASHES[version] = json.load(f)
-        except Exception:
-            raise ValueError(f"Missing SRI hash for version {version}")
+        except Exception as e:
+            raise ValueError(f"Missing SRI hash for version {version}") from e
     return _ALL_SRI_HASHES[version]
 
 
