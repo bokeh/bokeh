@@ -49,19 +49,19 @@ _CARTO_URLS = {
 }
 
 _STAMEN_URLS = {
-    'STAMEN_TERRAIN':          xyz.Stamen.Terrain.build_url(),
-    'STAMEN_TERRAIN_RETINA':   xyz.Stamen.Terrain.build_url(scale_factor="@2x"),
-    'STAMEN_TONER':            xyz.Stamen.Toner.build_url(),
-    'STAMEN_TONER_BACKGROUND': xyz.Stamen.TonerBackground.build_url(),
-    'STAMEN_TONER_LABELS':     xyz.Stamen.TonerLabels.build_url(),
+    'STAMEN_TERRAIN':          xyz.Stadia.StamenTerrain.build_url(),
+    'STAMEN_TERRAIN_RETINA':   xyz.Stadia.StamenTerrain.build_url(scale_factor="@2x"),
+    'STAMEN_TONER':            xyz.Stadia.StamenToner.build_url(),
+    'STAMEN_TONER_BACKGROUND': xyz.Stadia.StamenTonerBackground.build_url(),
+    'STAMEN_TONER_LABELS':     xyz.Stadia.StamenTonerLabels.build_url(),
 }
 
 _STAMEN_ATTR = {
-    'STAMEN_TERRAIN':          xyz.Stamen.Terrain.html_attribution,
-    'STAMEN_TERRAIN_RETINA':   xyz.Stamen.Terrain.html_attribution,
-    'STAMEN_TONER':            xyz.Stamen.Toner.html_attribution,
-    'STAMEN_TONER_BACKGROUND': xyz.Stamen.TonerBackground.html_attribution,
-    'STAMEN_TONER_LABELS':     xyz.Stamen.TonerLabels.html_attribution,
+    'STAMEN_TERRAIN':          xyz.Stadia.StamenTerrain.html_attribution,
+    'STAMEN_TERRAIN_RETINA':   xyz.Stadia.StamenTerrain.html_attribution,
+    'STAMEN_TONER':            xyz.Stadia.StamenToner.html_attribution,
+    'STAMEN_TONER_BACKGROUND': xyz.Stadia.StamenTonerBackground.html_attribution,
+    'STAMEN_TONER_LABELS':     xyz.Stadia.StamenTonerLabels.html_attribution,
 }
 
 _OSM_URLS = {
@@ -79,7 +79,7 @@ _ESRI_URLS = {
 # XXX This is commented out until version 2.0 and literals are converted to enums
 # Test___all__ = verify_all(bt, ALL)
 
-@pytest.mark.parametrize('name', [ 'STAMEN_TERRAIN',  'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'])
+@pytest.mark.parametrize('name', ['STAMEN_TERRAIN', 'STAMEN_TERRAIN_RETINA', 'STAMEN_TONER', 'STAMEN_TONER_BACKGROUND', 'STAMEN_TONER_LABELS'])
 class Test_StamenProviders:
     def test_type(self, name) -> None:
         p = getattr(bt, name)

@@ -10,14 +10,13 @@ a customized tile source configured for OpenStreetMap.
 
 '''
 from bokeh.layouts import column, gridplot
-from bokeh.models import Div, Range1d, WMTSTileSource
+from bokeh.models import Div, Range1d, TileSource, WMTSTileSource
 from bokeh.plotting import figure, show
 from bokeh.sampledata.airports import data as airports
 
 title = "US Airports: Field Elevation > 1500m"
 
-def plot(tile_source):
-
+def plot(tile_source: TileSource):
     # set to roughly extent of points
     x_range = Range1d(start=airports['x'].min() - 10000, end=airports['x'].max() + 10000, bounds=None)
     y_range = Range1d(start=airports['y'].min() - 10000, end=airports['y'].max() + 10000, bounds=None)
@@ -34,15 +33,16 @@ def plot(tile_source):
     return p
 
 # create a tile source
-tile_options = {}
-tile_options['url'] = 'http://tile.stamen.com/terrain/{Z}/{X}/{Y}.png'
-tile_options['attribution'] = """
-    Map tiles by <a href="http://stamen.com">Stamen Design</a>, under
-    <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.
-    Data by <a href="http://openstreetmap.org">OpenStreetMap</a>,
-    under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.
-    """
-mq_tile_source = WMTSTileSource(**tile_options)
+mq_tile_source = WMTSTileSource(
+    url="https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.png",
+    extra_url_vars=dict(r=""), # or "@2x" for 2x scaled (Retina) images
+    attribution="""
+&copy; <a href="https://stadiamaps.com/" target="_blank">Stadia Maps</a>
+&copy; <a href="https://stamen.com/" target="_blank">Stamen Design</a>
+&copy; <a href="https://openmaptiles.org/" target="_blank">OpenMapTiles</a>
+&copy; <a href="https://www.openstreetmap.org/about/" target="_blank">OpenStreetMap contributors</a>
+""",
+)
 
 carto = plot("CartoDB Positron")
 mq = plot(mq_tile_source)

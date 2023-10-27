@@ -408,10 +408,12 @@ class Plot(LayoutDOM):
                     tile_source = "esri_worldimagery"
                 if tile_source == "osm":
                     tile_source = "openstreetmap_mapnik"
-
+                if tile_source.startswith("stamen"):
+                    tile_source = f"stadia.{tile_source}"
                 if "retina" in tile_source:
                     tile_source = tile_source.replace("retina", "")
                     retina = True
+
                 selected_provider = xyzservices.providers.query_name(tile_source)
 
             scale_factor = "@2x" if retina else None
