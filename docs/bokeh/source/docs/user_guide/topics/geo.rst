@@ -65,42 +65,41 @@ Tile Source for Open Street Map Mapnik.
 
     <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
-Stamen Terrain
-~~~~~~~~~~~~~~
+Stadia/Stamen Terrain
+~~~~~~~~~~~~~~~~~~~~~
 
-Tile Source for Stamen Terrain Service
-
-.. raw:: html
-
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
-
-Stamen Toner
-~~~~~~~~~~~~
-
-Tile Source for Stamen Toner Service
+Tile Source for Stadia/Stamen Terrain Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331.png" />
 
-Stamen Toner Background
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stamen Toner Background Service which does not include labels
-
-.. raw:: html
-
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
-
-Stamen Toner Labels
+Stadia/Stamen Toner
 ~~~~~~~~~~~~~~~~~~~
 
-Tile Source for Stamen Toner Service which includes only labels
+Tile Source for Stadia/Stamen Toner Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner/14/2627/6331.png" />
 
+Stadia/Stamen Toner Background
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stadia/Stamen Toner Background Service which does not include labels
+
+.. raw:: html
+
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_background/14/2627/6331.png" />
+
+Stadia/Stamen Toner Labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stadia/Stamen Toner Service which includes only labels
+
+.. raw:: html
+
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/14/2627/6331.png" />
 
 .. _ug_topics_geo_google_maps:
 

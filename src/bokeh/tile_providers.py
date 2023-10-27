@@ -61,47 +61,47 @@ Tile Source for Open Street Maps.
 STAMEN_TERRAIN
 --------------
 
-Tile Source for Stamen Terrain Service
+Tile Source for Stadia/Stamen Terrain Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331.png" />
 
 STAMEN_TERRAIN_RETINA
 ---------------------
 
-Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
+Tile Source for Stadia/Stamen Terrain Service (tiles at 2x or 'retina' resolution)
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331@2x.png" />
 
 STAMEN_TONER
 ------------
 
-Tile Source for Stamen Toner Service
+Tile Source for Stadia/Stamen Toner Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner/14/2627/6331.png" />
 
 STAMEN_TONER_BACKGROUND
 -----------------------
 
-Tile Source for Stamen Toner Background Service which does not include labels
+Tile Source for Stadia/Stamen Toner Background Service which does not include labels
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_background/14/2627/6331.png" />
 
 STAMEN_TONER_LABELS
 -------------------
 
-Tile Source for Stamen Toner Service which includes only labels
+Tile Source for Stadia/Stamen Toner Service which includes only labels
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/14/2627/6331.png" />
 
 '''
 
