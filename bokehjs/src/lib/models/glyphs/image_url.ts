@@ -4,6 +4,7 @@ import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
 import * as p from "core/properties"
+import {resize} from "core/util/array"
 import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
@@ -28,9 +29,6 @@ export type ImageURLData = XYGlyphData & {
   readonly max_w: number
   readonly max_h: number
 
-  image: (CanvasImage | undefined)[]
-  rendered: Indices
-
   anchor: XY<number>
 }
 
@@ -41,6 +39,10 @@ export class ImageURLView extends XYGlyphView {
   declare visuals: ImageURL.Visuals
 
   protected _images_rendered = false
+
+  /*protected*/ image: (CanvasImage | null)[] = new Array(0)
+  loaders: (ImageLoader | null)[]
+  protected resolved: Indices
 
   override connect_signals(): void {
     super.connect_signals()
@@ -59,36 +61,48 @@ export class ImageURLView extends XYGlyphView {
   private _set_data_iteration: number = 0
 
   protected override _set_data(): void {
-    // TODO: cache by url, to reuse images between iterations
     this._set_data_iteration++
 
-    const n_urls = this.url.length
-    this.image = new Array(n_urls)
-    this.rendered = new Indices(n_urls)
+    const {url} = this
+    const n_url = url.length
+
+    this.image = resize(this.image, n_url, null)
+    this.loaders = new Array(n_url).fill(null)
+    this.resolved = new Indices(n_url)
 
     const {retry_attempts, retry_timeout} = this.model
     const {_set_data_iteration} = this
 
-    for (let i = 0; i < n_urls; i++) {
-      const url = this.url.get(i)
-      if (url == "")
+    for (let i = 0; i < n_url; i++) {
+      const url_i = url.get(i)
+      if (url_i == "") {
         continue
+      }
 
-      const loader = new ImageLoader(url, {
-        loaded: () => {
-          if (this._set_data_iteration == _set_data_iteration && !this.rendered.get(i)) {
+      const loader = new ImageLoader(url_i, {
+        loaded: (image_i) => {
+          if (this._set_data_iteration == _set_data_iteration && !this.resolved.get(i)) {
+            this.resolved.set(i)
+            this.image[i] = image_i
+            this.loaders[i] = null
             this.renderer.request_render()
           }
         },
         failed: () => {
           if (this._set_data_iteration == _set_data_iteration) {
-            this.image[i] = undefined
+            this.resolved.set(i)
+            this.loaders[i] = null
+            const image_i = this.image[i]
+            if (image_i != null) {
+              this.image[i] = null
+              this.renderer.request_render()
+            }
           }
         },
         attempts: retry_attempts + 1,
         timeout: retry_timeout,
       })
-      this.image[i] = loader.image
+      this.loaders[i] = loader
     }
 
     const w_data = this.model.properties.w.units == "data"
@@ -147,7 +161,8 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
-    const {image, sx, sy, sw, sh, angle, global_alpha} = data ?? this
+    const {sx, sy, sw, sh, angle, global_alpha} = data ?? this
+    const {image, loaders, resolved} = this
 
     // TODO (bev): take actual border width into account when clipping
     const {frame} = this.renderer.plot_view
@@ -159,19 +174,31 @@ export class ImageURLView extends XYGlyphView {
     let finished = true
 
     for (const i of indices) {
-      const img = image[i]
+      const loader_i = loaders[i]
 
-      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i)) || img == null)
-        continue
-
-      if (!img.complete) {
-        finished = false
-        continue
-      } else if (img.naturalWidth == 0 && img.naturalHeight == 0) { // dumb way of detecting broken images
+      if (!isFinite(sx[i] + sy[i] + angle.get(i) + global_alpha.get(i))) {
         continue
       }
 
-      this._render_image(ctx, i, img, sx, sy, sw, sh, angle, global_alpha)
+      if (!resolved.get(i)) {
+        if (loader_i != null && loader_i.image.complete) {
+          image[i] = loader_i.image
+          loaders[i] = null
+          resolved.set(i)
+        } else {
+          finished = false
+        }
+      }
+
+      const image_i = image[i]
+      if (image_i == null) {
+        continue
+      }
+      if (image_i.naturalWidth == 0 && image_i.naturalHeight == 0) { // dumb way of detecting broken images
+        continue
+      }
+
+      this._render_image(ctx, i, image_i, sx, sy, sw, sh, angle, global_alpha)
     }
 
     if (finished && !this._images_rendered) {
@@ -224,8 +251,6 @@ export class ImageURLView extends XYGlyphView {
       ctx.drawImage(image, sx_i, sy_i, sw_i, sh_i)
 
     ctx.restore()
-
-    this.rendered.set(i)
   }
 
   override bounds(): Rect {
