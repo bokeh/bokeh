@@ -6,6 +6,22 @@ import type * as p from "core/properties"
 import {InputWidget, InputWidgetView} from "./input_widget"
 import * as inputs from "styles/widgets/inputs.css"
 
+import {Unknown, String, Array, Tuple, Or, Dict} from "../../core/kinds"
+
+const Value = Unknown
+type Value = typeof Value["__type__"]
+
+const Label = String
+type Label = typeof Label["__type__"]
+
+const Options = Array(Or(Label, Tuple(Value, Label)))
+type Options = typeof Options["__type__"]
+
+const OptionsGroups = Dict(Options)
+type OptionsGroups = typeof OptionsGroups["__type__"]
+
+const NotSelected = ""
+
 export class SelectView extends InputWidgetView {
   declare model: Select
 
@@ -24,13 +40,13 @@ export class SelectView extends InputWidgetView {
     })
   }
 
-  private _known_values = new Set<string>()
+  private _known_values = new Map<Value, Label>()
 
   protected options_el(): HTMLOptionElement[] | HTMLOptGroupElement[] {
     const {_known_values} = this
     _known_values.clear()
 
-    function build_options(values: (string | [string, string])[]): HTMLOptionElement[] {
+    function build_options(values: Options): HTMLOptionElement[] {
       return values.map((el) => {
         let value, label
         if (isString(el)) {
@@ -39,8 +55,8 @@ export class SelectView extends InputWidgetView {
           [value, label] = el
         }
 
-        _known_values.add(value)
-        return option({value}, label)
+        _known_values.set(value, label)
+        return option({value: label}, label)
       })
     }
 
@@ -68,15 +84,25 @@ export class SelectView extends InputWidgetView {
   }
 
   override change_input(): void {
-    const value = this.input_el.value
+    const selected_label = this.input_el.value
+    const found = [...this._known_values].find(([_, label]) => selected_label == label)
+    const value = (() => {
+      if (found == null) {
+        return NotSelected
+      } else {
+        const [value, _] = found
+        return value
+      }
+    })()
     this.model.value = value
     super.change_input()
   }
 
   protected _update_value(): void {
     const {value} = this.model
-    if (this._known_values.has(value)) {
-      this.input_el.value = value
+    const label = this._known_values.get(value)
+    if (label !== undefined) {
+      this.input_el.value = label
     } else {
       this.input_el.removeAttribute("value")
     }
@@ -87,8 +113,8 @@ export namespace Select {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputWidget.Props & {
-    value: p.Property<string>
-    options: p.Property<(string | [string, string])[] | {[key: string]: (string | [string, string])[]}>
+    value: p.Property<Value>
+    options: p.Property<Options | OptionsGroups>
   }
 }
 
@@ -105,11 +131,10 @@ export class Select extends InputWidget {
   static {
     this.prototype.default_view = SelectView
 
-    this.define<Select.Props>(({String, Array, Tuple, Dict, Or}) => {
-      const Options = Array(Or(String, Tuple(String, String)))
+    this.define<Select.Props>(() => {
       return {
-        value:   [ String, "" ],
-        options: [ Or(Options, Dict(Options)), [] ],
+        value:   [ Value, NotSelected ],
+        options: [ Or(Options, OptionsGroups), [] ],
       }
     })
   }

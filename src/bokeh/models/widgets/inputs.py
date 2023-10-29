@@ -26,6 +26,7 @@ from math import inf
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
+    Any,
     Bool,
     Color,
     ColorHex,
@@ -420,6 +421,10 @@ class AutocompleteInput(TextInput):
     match any substring of a completion string.
     """)
 
+Options = List(Either(String, Tuple(Any, String)))
+OptionsGroups = Dict(String, Options)
+
+NotSelected = "" # TODO symbol
 
 class Select(InputWidget):
     ''' Single-select widget.
@@ -430,19 +435,18 @@ class Select(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    options = Either(List(Either(String, Tuple(String, String))),
-        Dict(String, List(Either(String, Tuple(String, String)))), help="""
+    options = Either(Options, OptionsGroups, help="""
     Available selection options. Options may be provided either as a list of
     possible string values, or as a list of tuples, each of the form
     ``(value, label)``. In the latter case, the visible widget text for each
     value will be corresponding given label. Option groupings can be provided
     by supplying a dictionary object whose values are in the aforementioned
     list format
-    """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
+    """).accepts(List(Either(Null, String)), lambda v: [ NotSelected if item is None else item for item in v ])
 
-    value = String(default="", help="""
+    value = Any(default=NotSelected, help="""
     Initial or selected value.
-    """).accepts(Null, lambda _: "")
+    """).accepts(Null, lambda _: NotSelected)
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.
