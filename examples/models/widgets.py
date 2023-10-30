@@ -88,8 +88,7 @@ select2 = w.Select(
         (30, "Option 3"),
     ],
 )
-select2_value = ValueOf(obj=select2, attr="value")
-select2.title = HTML(f"""Selected value: <b><ref id="{select2_value.id}"></ref></b>""", refs=[select2_value])
+select2.title = HTML("Selected value: <b>", ValueOf(select2, "value"), "</b>")
 
 multi_select = w.MultiSelect(options=[f"Option {i + 1}" for i in range(16)], size=6)
 

@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
@@ -144,9 +147,8 @@ class Placeholder(DOMNode):
 class ValueOf(Placeholder):
     """ A placeholder for the value of a model's property. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
+    def __init__(self, obj: Init[HasProps] = Intrinsic, attr: Init[str] = Intrinsic, **kwargs) -> None:
+        super().__init__(obj=obj, attr=attr, **kwargs)
 
     obj: HasProps = Required(Instance(HasProps), help="""
     The object whose property will be observed.
@@ -189,9 +191,17 @@ class ColorRef(ValueRef):
 class HTML(Model, Qualified):
     """ A parsed HTML fragment with optional references to DOM nodes and UI elements. """
 
-    # explicit __init__ to support Init signatures
-    def __init__(self, html: Init[str | list[str | DOMNode | UIElement]] = Intrinsic, **kwargs) -> None:
-        super().__init__(html=html, **kwargs)
+    def __init__(self, *html: str | DOMNode | UIElement, **kwargs: Any) -> None:
+        if html and "html" in kwargs:
+            raise TypeError("'html' argument specified multiple times")
+
+        processed_html: Init[str | list[str | DOMNode | UIElement]]
+        if not html:
+            processed_html = kwargs.pop("html", Intrinsic)
+        else:
+            processed_html = list(html)
+
+        super().__init__(html=processed_html, **kwargs)
 
     html = Required(Either(String, List(Either(String, Instance(DOMNode), Instance(UIElement)))), help="""
     Either a parsed HTML string with optional references to Bokeh objects using
