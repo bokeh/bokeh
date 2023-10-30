@@ -8,11 +8,6 @@ import type * as p from "core/properties"
 import {tool_icon_range} from "styles/icons.css"
 import {Node} from "../../coordinates/node"
 
-const frame_left = new Node({target: "frame", symbol: "left"})
-const frame_right = new Node({target: "frame", symbol: "right"})
-const frame_top = new Node({target: "frame", symbol: "top"})
-const frame_bottom = new Node({target: "frame", symbol: "bottom"})
-
 export class RangeToolView extends ToolView {
   declare model: RangeTool
   declare readonly parent: PlotView
@@ -56,10 +51,10 @@ const DEFAULT_RANGE_OVERLAY = () => {
     visible: true,
     editable: true,
     propagate_hover: true,
-    left_limit: frame_left,
-    right_limit: frame_right,
-    top_limit: frame_top,
-    bottom_limit: frame_bottom,
+    left_limit: Node.frame.left,
+    right_limit: Node.frame.right,
+    top_limit: Node.frame.top,
+    bottom_limit: Node.frame.bottom,
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",
@@ -132,11 +127,15 @@ export class RangeTool extends Tool {
 
   update_ranges_from_overlay(): void {
     const {left, right, top, bottom} = this.overlay
-    if (this.x_range != null && this.x_interaction)
+    if (this.x_range != null && this.x_interaction) {
       this.x_range.setv({start: left, end: right})
-    if (this.y_range != null && this.y_interaction)
+    }
+    if (this.y_range != null && this.y_interaction) {
       this.y_range.setv({start: bottom, end: top})
+    }
   }
+
+  private _nodes = Node.frame.freeze()
 
   update_overlay_from_ranges(): void {
     const {x_range, y_range} = this
@@ -144,10 +143,10 @@ export class RangeTool extends Tool {
     const has_y = y_range != null
 
     this.overlay.update({
-      left: has_x ? x_range.start : frame_left,
-      right: has_x ? x_range.end : frame_right,
-      top: has_y ? y_range.end : frame_top,
-      bottom: has_y ? y_range.start : frame_bottom,
+      left: has_x ? x_range.start : this._nodes.left,
+      right: has_x ? x_range.end : this._nodes.right,
+      top: has_y ? y_range.end : this._nodes.top,
+      bottom: has_y ? y_range.start : this._nodes.bottom,
     })
 
     if (!has_x && !has_y) {
