@@ -49,6 +49,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ..dom import HTML
 from ..formatters import TickFormatter
 from ..ui import Tooltip
 from .widget import Widget
@@ -90,7 +91,7 @@ class InputWidget(Widget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    title = String(default="", help="""
+    title = Either(String, Instance(HTML), default="", help="""
     Widget's label.
     """)
 

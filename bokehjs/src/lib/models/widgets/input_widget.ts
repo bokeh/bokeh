@@ -1,6 +1,7 @@
 import {Control, ControlView} from "./control"
 import type {TooltipView} from "../ui/tooltip"
 import {Tooltip} from "../ui/tooltip"
+import {HTML, HTMLView} from "../dom/html"
 
 import {assert} from "core/util/assert"
 import {isString} from "core/util/types"
@@ -18,10 +19,11 @@ export type HTMLInputElementLike = HTMLInputElement | HTMLTextAreaElement | HTML
 export abstract class InputWidgetView extends ControlView {
   declare model: InputWidget
 
+  protected title: HTMLView | string
   protected description: TooltipView | null = null
 
   protected input_el: HTMLInputElementLike
-  protected label_el: HTMLLabelElement
+  protected title_el: HTMLLabelElement
   desc_el: HTMLElement | null = null
   protected group_el: HTMLElement
 
@@ -31,6 +33,9 @@ export abstract class InputWidgetView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
+    if (this.title instanceof HTMLView) {
+      yield this.title
+    }
     if (this.description != null) {
       yield this.description
     }
@@ -39,13 +44,21 @@ export abstract class InputWidgetView extends ControlView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const {description} = this.model
+    const {title, description} = this.model
+    if (title instanceof HTML) {
+      this.title = await build_view(title, {parent: this})
+    } else {
+      this.title = title
+    }
     if (description instanceof Tooltip) {
       this.description = await build_view(description, {parent: this})
     }
   }
 
   override remove(): void {
+    if (this.title instanceof HTMLView) {
+      this.title.remove()
+    }
     this.description?.remove()
     super.remove()
   }
@@ -53,7 +66,7 @@ export abstract class InputWidgetView extends ControlView {
   override connect_signals(): void {
     super.connect_signals()
     this.connect(this.model.properties.title.change, () => {
-      this.label_el.textContent = this.model.title
+      this.title_el = this._build_title_el()
     })
   }
 
@@ -64,21 +77,26 @@ export abstract class InputWidgetView extends ControlView {
   override render(): void {
     super.render()
 
-    const {title, description} = this.model
+    this.desc_el = this._build_description_el()
+    this.title_el = this._build_title_el()
+    this.group_el = div({class: inputs.input_group}, this.title_el)
+    this.shadow_el.appendChild(this.group_el)
+  }
 
+  protected _build_description_el(): HTMLElement | null {
+    const {description} = this.model
     if (description == null) {
-      this.desc_el = null
+      return null
     } else {
       const icon_el = div({class: inputs.icon})
-      this.desc_el = div({class: inputs.description}, icon_el)
+      const desc_el = div({class: inputs.description}, icon_el)
 
       if (isString(description)) {
-        this.desc_el.title = description
+        desc_el.title = description
       } else {
         const {description} = this
         assert(description != null)
 
-        const {desc_el} = this
         if (description.model.target == "auto") {
           description.target = desc_el
         }
@@ -125,11 +143,22 @@ export abstract class InputWidgetView extends ControlView {
           toggle(false)
         })
       }
+      return desc_el
     }
+  }
 
-    this.label_el = label({style: {display: title.length == 0 ? "none" : ""}}, title, this.desc_el)
-    this.group_el = div({class: inputs.input_group}, this.label_el)
-    this.shadow_el.appendChild(this.group_el)
+  protected _build_title_el(): HTMLLabelElement {
+    const {title} = this
+    const content = (() => {
+      if (title instanceof HTMLView) {
+        title.render()
+        return title.el
+      } else {
+        return title
+      }
+    })()
+    const display = title == "" ? "none" : ""
+    return label({style: {display}}, content, this.desc_el)
   }
 
   change_input(): void {}
@@ -139,7 +168,7 @@ export namespace InputWidget {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props & {
-    title: p.Property<string>
+    title: p.Property<string | HTML>
     description: p.Property<string | Tooltip | null>
   }
 }
@@ -156,7 +185,7 @@ export abstract class InputWidget extends Control {
 
   static {
     this.define<InputWidget.Props>(({String, Nullable, Or, Ref}) => ({
-      title: [ String, "" ],
+      title: [ Or(String, Ref(HTML)), "" ],
       description: [ Nullable(Or(String, Ref(Tooltip))), null ],
     }))
   }
