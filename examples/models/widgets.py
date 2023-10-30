@@ -81,9 +81,19 @@ text_area = w.TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, valu
 
 select = w.Select(options=["Option 1", "Option 2", "Option 3"])
 
-multi_select = w.MultiSelect(options=["Option %d" % (i+1) for i in range(16)], size=6)
+select2 = w.Select(
+    options=[
+        (10, "Option 1"),
+        (20, "Option 2"),
+        (30, "Option 3"),
+    ],
+)
+select2_value = ValueOf(obj=select2, attr="value")
+select2.title = HTML(f"""Selected value: <b><ref id="{select2_value.id}"></ref></b>""", refs=[select2_value])
 
-multi_choice = w.MultiChoice(options=["Option %d" % (i+1) for i in range(16)], placeholder="Choose your option ...")
+multi_select = w.MultiSelect(options=[f"Option {i + 1}" for i in range(16)], size=6)
+
+multi_choice = w.MultiChoice(options=[f"Option {i + 1}" for i in range(16)], placeholder="Choose your option ...")
 
 slider = w.Slider(value=10, start=0, end=100, step=0.5)
 
@@ -286,7 +296,7 @@ widgets = Column(children=[
         ]),
         Column(children=[
             password_input, text_input, text_input_units, autocomplete_input, autocomplete_input_includes, text_area,
-            select, multi_select, multi_choice,
+            select, select2, multi_select, multi_choice,
             slider, range_slider, date_slider, date_range_slider, categorical_slider,
             spinner, color_picker, color_map,
             time_picker, time_picker_with_a_value,
