@@ -99,18 +99,6 @@ class InputWidget(Widget):
     Either a plain text or a tooltip with a rich HTML description of the function of this widget.
     """)
 
-    @classmethod
-    def coerce_value(cls, val):
-        prop_obj = cls.lookup('value')
-        if isinstance(prop_obj, Float):
-            return float(val)
-        elif isinstance(prop_obj, Int):
-            return int(val)
-        elif isinstance(prop_obj, String):
-            return str(val)
-        else:
-            return val
-
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
