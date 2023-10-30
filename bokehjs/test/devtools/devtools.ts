@@ -771,7 +771,7 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
 }
 
 type Version = [number, number, number, number]
-const supported_chromium_version: Version = [110, 0, 5481, 100]
+const supported_chromium_version: Version = [118, 0, 5993, 88]
 
 function get_version_tuple(version: string): Version | null {
   const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)
@@ -794,10 +794,10 @@ function check_version(current_chromium_version: Version | null): void {
     return
   }
 
-  const [a, b, c, d] = supported_chromium_version
-  const [A, B, C, D] = current_chromium_version
+  const [a, b, c, _d] = supported_chromium_version
+  const [A, B, C, _D] = current_chromium_version
 
-  if (a != A || b != B || c != C || d != D) {
+  if (a != A || b != B || c != C) {
     const supported_str = chalk.magenta(supported_chromium_version.join("."))
     const current_str = chalk.magenta(current_chromium_version.join("."))
     console.error(`${chalk.yellow("warning:")} ${current_str} is not supported; officially supported version is ${supported_str}`)

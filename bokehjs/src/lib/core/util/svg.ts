@@ -856,8 +856,9 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     else
       throw new Error("invalid arguments")
 
-    if (path != null)
+    if (path != null) {
       throw new Error("not implemented")
+    }
 
     // XXX: hack (?) to allow fill and hatch visuals on same canvas path
     if (this.__currentElement.getAttribute("fill") != "none") {
@@ -1146,11 +1147,30 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
   /**
     * Generates a ClipPath from the clip command.
     */
-  clip(): void {
+  clip(fill_rule?: CanvasFillRule): void
+  clip(path: Path2D, fill_rule?: CanvasFillRule): void
+
+  clip(path_or_fill_rule?: Path2D | CanvasFillRule, fill_rule?: CanvasFillRule): void {
+    let path: Path2D | null = null
+    if (path_or_fill_rule instanceof Path2D)
+      path = path_or_fill_rule
+    else if (fill_rule == null)
+      fill_rule = path_or_fill_rule
+    else
+      throw new Error("invalid arguments")
+
+    if (path != null) {
+      throw new Error("not implemented")
+    }
+
     const clip_path = this.__createElement("clipPath")
     const id = this._random_string()
 
     this.__applyCurrentDefaultPath()
+    if (fill_rule != null) {
+      this.__currentElement.setAttribute("clip-rule", fill_rule)
+    }
+
     clip_path.setAttribute("id", id)
     clip_path.appendChild(this.__currentElement)
 
