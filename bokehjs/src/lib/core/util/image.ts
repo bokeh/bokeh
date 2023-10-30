@@ -47,8 +47,7 @@ export class ImageLoader {
             this.image.crossOrigin = null
             retries = 0
           } else {
-            if (config.failed != null)
-              config.failed()
+            config.failed?.()
             return // XXX reject(new Error(message))
           }
         }
@@ -57,8 +56,7 @@ export class ImageLoader {
       }
       this.image.onload = () => {
         this._finished = true
-        if (config.loaded != null)
-          config.loaded(this.image)
+        config.loaded?.(this.image)
         resolve(this.image)
       }
       this.image.src = url

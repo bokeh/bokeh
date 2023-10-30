@@ -274,3 +274,15 @@ export function repeat<T>(value: T, n: number): T[] {
   const result: T[] = new Array(n).fill(value)
   return result
 }
+
+export function resize<T>(array: T[], new_length: number, fill_value?: T): T[] {
+  if (array.length >= new_length) {
+    return array.slice(0, new_length)
+  } else {
+    const suffix = new Array(new_length - array.length)
+    if (fill_value !== undefined) {
+      suffix.fill(fill_value)
+    }
+    return array.concat(suffix)
+  }
+}
