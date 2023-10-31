@@ -16,21 +16,15 @@ export class DatetimePickerView extends BaseDatetimePickerView {
   }
 
   protected override _on_change(selected: Date[]): void {
-    switch (selected.length) {
-      case 0: {
-        this.model.value = null
-        break
-      }
-      case 1: {
+    assert(selected.length <= 1)
+    this.model.value = (() => {
+      if (selected.length == 0) {
+        return null
+      } else {
         const [datetime] = selected
-        const date = this._format_date(datetime)
-        this.model.value = date
-        break
+        return this._format_date(datetime)
       }
-      default: {
-        assert(false, "invalid length")
-      }
-    }
+    })()
   }
 }
 

@@ -84,21 +84,15 @@ export class TimePickerView extends PickerBaseView {
   }
 
   protected _on_change(selected: Date[]): void {
-    switch (selected.length) {
-      case 0: {
-        this.model.value = null
-        break
-      }
-      case 1: {
+    assert(selected.length <= 1)
+    this.model.value = (() => {
+      if (selected.length == 0) {
+        return null
+      } else {
         const [datetime] = selected
-        const time = this._format_time(datetime)
-        this.model.value = time
-        break
+        return this._format_time(datetime)
       }
-      default: {
-        assert(false, "invalid length")
-      }
-    }
+    })()
   }
 }
 
