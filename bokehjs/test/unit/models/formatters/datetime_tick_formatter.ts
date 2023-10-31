@@ -132,6 +132,9 @@ describe("_us", () => {
   it("should round microseconds", () => {
     expect(dttf._us(123456789.1234)).to.be.equal(789123)
   })
+  it("should handle negative microseconds (pre epoch)", () => {
+    expect(dttf._us(-123456789.1234)).to.be.equal(210877)
+  })
 })
 
 const t = 1655945719752  // Thu, 23 Jun 2022 00:55:19 GMT
