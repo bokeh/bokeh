@@ -70,7 +70,6 @@ export function _strftime(t: number, format: string): string {
   // Python's datetime library augments the microsecond directive %f, which is not
   // supported by the javascript library timezone: http://bigeasy.github.io/timezone/.
   // Use a regular expression to replace %f directive with microseconds.
-  // TODO: what should we do for negative microsecond strings?
   const microsecond_replacement_string = sprintf("$1%06d", _us(t))
   format = format.replace(/((^|[^%])(%%)*)%f/, microsecond_replacement_string)
 
@@ -90,7 +89,13 @@ export function _us(t: number): number {
   // last second. Precision seems to run out around the hundreds of nanoseconds
   // scale, so rounding to the nearest microsecond should round to a nice
   // microsecond / millisecond tick.
-  return Math.round(((t / 1000) % 1) * 1000000)
+  // Note: for negative timestamps (pre epoch) the microsecond scale needs to be
+  // inverted as we are counting backwards.
+  let us = Math.round(((t / 1000) % 1) * 1000000)
+  if (t < 0.0) {
+    us = (1000000 + us) % 1000000
+  }
+  return us
 }
 
 export namespace DatetimeTickFormatter {
