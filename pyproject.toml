@@ -44,6 +44,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Programming Language :: JavaScript",
     "Topic :: Office/Business",
     "Topic :: Office/Business :: Financial",
@@ -71,7 +72,7 @@ dev_template = "{tag}+{ccount}.g{sha}"
 dirty_template = "{tag}+{ccount}.g{sha}.dirty"
 
 [tool.pytest.ini_options]
-timeout = 60
+timeout = 90
 asyncio_mode = "strict"
 norecursedirs = "build _build node_modules tests/support"
 python_files = "*_tests.py *_test.py test_*.py"
@@ -91,7 +92,7 @@ filterwarnings = [
     '''ignore:coroutine 'PeriodicCallback._run' was never awaited:RuntimeWarning''',
     '''ignore:make_current is deprecated; start the event loop first:DeprecationWarning''',
     '''ignore:'get_provider' was deprecated in Bokeh 3\.0\.0 and will be removed, use 'add_tile directly' instead:bokeh.util.warnings.BokehDeprecationWarning''',
-    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors:bokeh.util.warnings.BokehDeprecationWarning''',
+    '''ignore:'HSL\(\)' was deprecated in Bokeh 2\.3\.1 and will be removed, use 'RGB\(\) or named colors' instead:bokeh.util.warnings.BokehDeprecationWarning''',
     '''ignore:elementwise comparison failed; returning scalar instead, but in the future will perform elementwise comparison:FutureWarning''',
     '''ignore:HTTPResponse\.getheader\(\) is deprecated and will be removed in urllib3 v2\.1\.0\. .*:DeprecationWarning:selenium''',
     '''ignore:unclosed <socket.socket .*>:ResourceWarning''',
@@ -105,6 +106,7 @@ filterwarnings = [
     '''ignore:elementwise comparison failed; this will raise an error in the future\.:DeprecationWarning''',
     '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
     '''ignore:Could not infer format, so each element will be parsed individually, falling back to `dateutil`\. To ensure parsing is consistent and as-expected, please specify a format\.:UserWarning''',
+    '''ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
 ]
 
 [tool.coverage.run]
@@ -164,6 +166,7 @@ ignore = [
     'E741', # Ambiguous variable name: I
     'UP035',  # Import from `collections.abc` instead: `Iterator`
     'RUF001', # String contains ambiguous unicode character `σ` (did you mean `o`?)
+    'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
 ]
 line-length = 165
 target-version = "py39"
@@ -192,6 +195,7 @@ module = [
     "bokeh.core.property.auto",
     #"bokeh.core.property.bases",
     "bokeh.core.property.color",
+    "bokeh.core.property.constraints",
     #"bokeh.core.property.container",
     #"bokeh.core.property.dataspec",
     "bokeh.core.property.datetime",

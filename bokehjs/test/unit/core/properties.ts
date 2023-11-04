@@ -1,8 +1,9 @@
-import {expect} from "assertions"
+import {expect, expect_not_null} from "assertions"
 
 import * as p from "@bokehjs/core/properties"
 import * as enums from "@bokehjs/core/enums"
 import {keys} from "@bokehjs/core/util/object"
+import {range} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 
 import type {Color} from  "@bokehjs/core/types"
@@ -11,6 +12,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {named_colors} from  "@bokehjs/core/util/svg_colors"
 import {Transform} from  "@bokehjs/models/transforms/transform"
 import {Expression} from  "@bokehjs/models/expressions/expression"
+import {BitSet} from "@bokehjs/core/util/bitset"
 
 class TestTransform extends Transform {
   compute(x: number): number {
@@ -18,19 +20,18 @@ class TestTransform extends Transform {
   }
   v_compute(xs: number[]): number[] {
     const ret =  []
-    for (let i = 0; i < xs.length; i++)
+    for (let i = 0; i < xs.length; i++) {
       ret.push(xs[i] + i)
+    }
     return ret
   }
 }
 
 class TestExpression extends Expression {
   _v_compute(source: ColumnDataSource): number[] {
-    const ret = []
-    for (let i = 0; i < source.get_length()!; i++) {
-      ret.push(i)
-    }
-    return ret
+    const n = source.get_length()
+    expect_not_null(n)
+    return range(n)
   }
 }
 
@@ -43,7 +44,8 @@ namespace Some {
     array: p.Property<number[]>
     boolean: p.Property<boolean>
     color: p.Property<Color>
-    instance: p.Property<HasProps>
+    instance_has_props: p.Property<HasProps>
+    instance_bitset: p.Property<BitSet>
     number: p.Property<number>
     int: p.Property<number>
     angle: p.Property<number>
@@ -82,7 +84,8 @@ class Some extends HasProps {
       array: [ kinds.Array(kinds.Number) ],
       boolean: [ kinds.Boolean ],
       color: [ kinds.Color ],
-      instance: [ kinds.Ref(HasProps) ],
+      instance_has_props: [ kinds.Ref(HasProps) ],
+      instance_bitset: [ kinds.Ref(BitSet) ],
       number: [ kinds.Number ],
       int: [ kinds.Int ],
       angle: [ kinds.Angle ],
@@ -331,8 +334,9 @@ describe("properties module", () => {
 
     describe("valid", () => {
       it("should return undefined on anchor input", () => {
-        for (const x of enums.Anchor)
+        for (const x of enums.Anchor) {
           expect(prop.valid(x)).to.be.true
+        }
       })
 
       it("should throw an Error on other input", () => {
@@ -352,8 +356,9 @@ describe("properties module", () => {
       })
 
       it("should accept any other value", () => {
-        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()])
+        for (const x of [true, null, 10, 10.2, "foo", [1, 2, 3], {}, new Some(), new X()]) {
           expect(prop.valid(x)).to.be.true
+        }
       })
     })
   })
@@ -561,22 +566,54 @@ describe("properties module", () => {
   })
 
   describe("Instance", () => {
-    const obj = new Some({instance: new Some()})
-    const prop = obj.properties.instance
+    describe("of HasProps", () => {
+      const obj = new Some({instance_has_props: new Some()})
+      const prop = obj.properties.instance_has_props
 
-    describe("valid", () => {
-      it("should return undefined on HasProps", () => {
-        const value = new Some()
-        expect(prop.valid(value)).to.be.true
+      describe("valid", () => {
+        it("should accept HasProps instances", () => {
+          const value = new Some()
+          expect(prop.valid(value)).to.be.true
+        })
+
+        it("should not accept any other inputs", () => {
+          expect(prop.valid(new BitSet(10))).to.be.false
+          expect(prop.valid(true)).to.be.false
+          expect(prop.valid(10)).to.be.false
+          expect(prop.valid(10.2)).to.be.false
+          expect(prop.valid("foo")).to.be.false
+          expect(prop.valid({})).to.be.false
+          expect(prop.valid([])).to.be.false
+        })
       })
 
-      it.skip("should throw an Error on other input", () => {
-        expect(prop.valid(true)).to.be.false
-        expect(prop.valid(10)).to.be.false
-        expect(prop.valid(10.2)).to.be.false
-        expect(prop.valid("foo")).to.be.false
-        expect(prop.valid({})).to.be.false
-        expect(prop.valid([])).to.be.false
+      it("should support may_have_refs", () => {
+        expect(prop.may_have_refs).to.be.true
+      })
+    })
+
+    describe("of BitSet", () => {
+      const obj = new Some({instance_bitset: new BitSet(10)})
+      const prop = obj.properties.instance_bitset
+
+      describe("valid", () => {
+        it("should accept BitSet instances", () => {
+          expect(prop.valid(new BitSet(10))).to.be.true
+        })
+
+        it("should not accept any other inputs", () => {
+          expect(prop.valid(new Some())).to.be.false
+          expect(prop.valid(true)).to.be.false
+          expect(prop.valid(10)).to.be.false
+          expect(prop.valid(10.2)).to.be.false
+          expect(prop.valid("foo")).to.be.false
+          expect(prop.valid({})).to.be.false
+          expect(prop.valid([])).to.be.false
+        })
+      })
+
+      it("should support may_have_refs", () => {
+        expect(prop.may_have_refs).to.be.false
       })
     })
   })

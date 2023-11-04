@@ -53,6 +53,9 @@ export const Direction = Enum("clock", "anticlock")
 export type Distribution = "uniform" | "normal"
 export const Distribution = Enum("uniform", "normal")
 
+export type Face = typeof Face["__type__"]
+export const Face = Enum("front", "back")
+
 export type FlowMode = typeof FlowMode["__type__"]
 export const FlowMode = Enum("block", "inline")
 
@@ -153,6 +156,9 @@ export const RenderLevel = Enum("image", "underlay", "glyph", "guide", "annotati
 
 export type ResetPolicy = "standard" | "event_only"
 export const ResetPolicy = Enum("standard", "event_only")
+
+export type ResolutionType = "microseconds" | "milliseconds" | "seconds" | "minsec" | "minutes" | "hourmin" | "hours" | "days" | "months" | "years"
+export const ResolutionType = Enum("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
 
 export type RoundingFunction = "round" | "nearest" | "floor" | "rounddown" | "ceil" | "roundup"
 export const RoundingFunction = Enum("round", "nearest", "floor", "rounddown", "ceil", "roundup")

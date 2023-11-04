@@ -24,11 +24,9 @@ import sys
 
 # External imports
 import bs4
-from packaging.version import Version as V
 
 # Bokeh imports
 import bokeh.util.version as buv
-from bokeh import __version__
 from bokeh.models import Model
 from bokeh.resources import RuntimeMessage, _get_cdn_urls
 from bokeh.settings import LogLevel, settings
@@ -59,43 +57,24 @@ VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
 class TestSRIHashes:
-    def test_get_all_hashes_valid_format(self) -> None:
-        all_hashes = resources.get_all_sri_hashes()
-        for key, value in all_hashes.items():
-            assert VERSION_PAT.match(key), f"{key} is not a valid version for the SRI hashes dict"
-            assert isinstance(value, dict)
-            assert len(value)
-            assert f"bokeh-{key}.js" in value
-            assert f"bokeh-{key}.min.js" in value
-            for h in value.values():
-                assert len(h) == 64
-
-    def test_get_all_hashes_copies(self) -> None:
-        ah1 = resources.get_all_sri_hashes()
-        ah2 = resources.get_all_sri_hashes()
-        assert ah1 == ah2 == resources._SRI_HASHES
-        assert ah1 is not ah2
-        assert ah1 is not resources._SRI_HASHES
-        assert ah2 is not resources._SRI_HASHES
-
-    # TODO: (bev) conda build on CI is generating bogus versions like "0+untagged.1.g19dd2c8"
-    @pytest.mark.skip
-    def test_get_all_hashes_no_future_keys(self) -> None:
-        current = V(__version__.split("+", 1)[0])  # remove git hash, "-dirty", etc
-        all_hashes = resources.get_all_sri_hashes()
-        for key in all_hashes:
-            assert (
-                V(key) < current
-            ), f"SRI hash dict contains vesion {key} which is newer than current version {__version__}"
+    def test_get_all_sri_versions_valid_format(self) -> None:
+        versions = resources.get_all_sri_versions()
+        for v in versions:
+            assert VERSION_PAT.match(v), f"{v} is not a valid version for the SRI hashes store"
 
     def test_get_sri_hashes_for_version(self) -> None:
-        all_hashes = resources.get_all_sri_hashes()
-        for key in all_hashes:
-            h = resources.get_sri_hashes_for_version(key)
-            assert h == all_hashes[key]
+        versions = resources.get_all_sri_versions()
+        for v in versions:
+            h = resources.get_sri_hashes_for_version(v)
+            assert f"bokeh-{v}.js" in h
+            assert f"bokeh-{v}.min.js" in h
+            if not v.startswith("0"):
+                assert f"bokeh-widgets-{v}.js" in h
+                assert f"bokeh-widgets-{v}.min.js" in h
+            assert h == resources._ALL_SRI_HASHES[v]
 
     def test_get_sri_hashes_for_version_bad(self) -> None:
-        with pytest.raises(KeyError):
+        with pytest.raises(ValueError):
             resources.get_sri_hashes_for_version("junk")
 
 

@@ -74,6 +74,7 @@ from ..core.properties import (
     InstanceDefault,
     Int,
     List,
+    NonNegative,
     Null,
     Nullable,
     Override,
@@ -83,30 +84,31 @@ from ..core.properties import (
     String,
     Struct,
     Tuple,
+    TypeOfAttr,
 )
 from ..core.property.struct import Optional
 from ..core.validation import error
-from ..core.validation.errors import (
-    INCOMPATIBLE_BOX_EDIT_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER,
-    INCOMPATIBLE_LINE_EDIT_RENDERER,
-    INCOMPATIBLE_POINT_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_DRAW_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_RENDERER,
-    INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER,
-    NO_RANGE_TOOL_RANGES,
-)
+from ..core.validation.errors import NO_RANGE_TOOL_RANGES
 from ..model import Model
 from ..util.strings import nice_join
 from .annotations import BoxAnnotation, PolyAnnotation, Span
 from .callbacks import Callback
+from .coordinates import (
+    FrameBottom,
+    FrameLeft,
+    FrameRight,
+    FrameTop,
+)
 from .dom import Template
 from .glyphs import (
+    HStrip,
     Line,
     LineGlyph,
+    LRTBGlyph,
     MultiLine,
     Patches,
     Rect,
+    VStrip,
     XYGlyph,
 )
 from .ranges import Range1d
@@ -163,6 +165,10 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+def GlyphRendererOf(*types: type[Model]):
+    """ Constraints ``GlyphRenderer.glyph`` to the given type or types. """
+    return TypeOfAttr(Instance(GlyphRenderer), "glyph", Either(*(Instance(tp) for tp in types)))
+
 @abstract
 class Tool(Model):
     ''' A base class for all interactive tool types.
@@ -172,6 +178,7 @@ class Tool(Model):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
+
     #Image has to be first! see #12775, temporary fix
     icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^\.")), help="""
     An icon to display in the toolbar.
@@ -288,7 +295,7 @@ class SelectTool(GestureTool):
         super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
+    A list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
 
@@ -319,6 +326,12 @@ class RegionSelectTool(SelectTool):
     Whether the selection overlay should persist after selection gesture
     is completed. This can be paired with setting ``editable = True`` on
     the annotation, to allow to modify the selection.
+    """)
+
+    greedy = Bool(default=False, help="""
+    Defines whether a hit against a glyph requires full enclosure within
+    the selection region (non-greedy) or only an intersection (greedy)
+    (i.e. at least one point within the region).
     """)
 
 @abstract
@@ -415,12 +428,18 @@ class PanTool(Drag):
     height of the plot.
     """)
 
-DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
+# TODO InstanceDefault() doesn't allow for lazy argument evaluation
+# DEFAULT_RANGE_OVERLAY = InstanceDefault(BoxAnnotation,
+DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     syncable=False,
     level="overlay",
     visible=True,
     editable=True,
     propagate_hover=True,
+    left_limit=FrameLeft(),
+    right_limit=FrameRight(),
+    top_limit=FrameTop(),
+    bottom_limit=FrameBottom(),
     fill_color="lightgrey",
     fill_alpha=0.5,
     line_color="black",
@@ -532,12 +551,25 @@ class WheelZoomTool(Scroll):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    # ZoomBaseTool common {
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the wheel zoom tool is constrained to act in. By default
     the wheel zoom tool will zoom in any dimension, but can be configured to
     only zoom horizontally across the width of the plot, or vertically across
     the height of the plot.
     """)
+
+    renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
+    Restrict zoom to ranges used by the provided data renderers. If ``"auto"``
+    then all ranges provided by the cartesian frame will be used.
+    """)
+
+    level = NonNegative(Int, default=0, help="""
+    When working with composite scales (sub-coordinates), this property
+    allows to configure which set of ranges to scale. The default is to
+    scale top-level (frame) ranges.
+    """)
+    # }
 
     maintain_focus = Bool(default=True, help="""
     If True, then hitting a range bound in any one dimension will prevent all
@@ -555,13 +587,16 @@ class WheelZoomTool(Scroll):
     zoom_together = Enum("none", "cross", "all", default="all", help="""
     Defines the behavior of the tool when zooming on an axis:
 
-    - ``"none"`` - zoom only the axis that's being interacted with. Any cross
-    axes, nor any other axes in the dimension of this axis will be affected.
-    - ``"cross"`` - zoom the axis that's being interactd with and its cross
-    axis, if configured. No other axes in this or cross dimension will be
-    affected.
-    - ``"all"`` - zoom all axes in the dimension of the axis that's being
-    interacted with. All cross axes will be unaffected.
+    - ``"none"``
+        zoom only the axis that's being interacted with. Any cross
+        axes nor any other axes in the dimension of this axis will be affected.
+    - ``"cross"``
+        zoom the axis that's being interacted with and its cross
+        axis, if configured. No other axes in this or cross dimension will be
+        affected.
+    - ``"all"``
+        zoom all axes in the dimension of the axis that's being
+        interacted with. All cross axes will be unaffected.
     """)
 
     speed = Float(default=1/600, help="""
@@ -831,7 +866,7 @@ DEFAULT_BOX_SELECT_OVERLAY = InstanceDefault(BoxAnnotation,
 class BoxZoomTool(Drag):
     ''' *toolbar icon*: |box_zoom_icon|
 
-    The box zoom tool allows users to define a rectangular egion of a Plot to
+    The box zoom tool allows users to define a rectangular region of a Plot to
     zoom to by dragging he mouse or a finger over the plot region. The end of
     the drag event indicates the selection region is ready.
 
@@ -891,6 +926,24 @@ class ZoomBaseTool(PlotActionTool):
     then all ranges provided by the cartesian frame will be used.
     """)
 
+    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
+    dimensions = Enum(Dimensions, default="both", help="""
+    Which dimensions the zoom tool is constrained to act in. By default
+    the tool will zoom in any dimension, but can be configured to only
+    zoom horizontally across the width of the plot, or vertically across
+    the height of the plot.
+    """)
+
+    factor = Percent(default=0.1, help="""
+    Percentage of the range to zoom for each usage of the tool.
+    """)
+
+    level = NonNegative(Int, default=0, help="""
+    When working with composite scales (sub-coordinates), this property
+    allows to configure which set of ranges to scale. The default is to
+    scale top-level (frame) ranges.
+    """)
+
 class ZoomInTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_in_icon|
 
@@ -906,18 +959,6 @@ class ZoomInTool(ZoomBaseTool):
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
-    # TODO ZoomInTool dimensions should probably be constrained to be the same as ZoomOutTool
-    dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-in tool is constrained to act in. By default the
-    zoom-in zoom tool will zoom in any dimension, but can be configured to only
-    zoom horizontally across the width of the plot, or vertically across the
-    height of the plot.
-    """)
-
-    factor = Percent(default=0.1, help="""
-    Percentage to zoom for each click of the zoom-in tool.
-    """)
 
 class ZoomOutTool(ZoomBaseTool):
     ''' *toolbar icon*: |zoom_out_icon|
@@ -935,22 +976,11 @@ class ZoomOutTool(ZoomBaseTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dimensions = Enum(Dimensions, default="both", help="""
-    Which dimensions the zoom-out tool is constrained to act in. By default the
-    zoom-out tool will zoom in any dimension, but can be configured to only
-    zoom horizontally across the width of the plot, or vertically across the
-    height of the plot.
-    """)
-
-    factor = Percent(default=0.1, help="""
-    Percentage to zoom for each click of the zoom-in tool.
-    """)
-
     maintain_focus = Bool(default=True, help="""
-    If True, then hitting a range bound in any one dimension will prevent all
-    further zooming all dimensions. If False, zooming can continue
-    independently in any dimension that has not yet reached its bounds, even if
-    that causes overall focus or aspect ratio to change.
+    If ``True``, then hitting a range bound in any one dimension will prevent
+    all further zooming in all dimensions. If ``False``, zooming can continue
+    independently in any dimension that has not yet reached its bounds, even
+    if that causes overall focus or aspect ratio to change.
     """)
 
 class BoxSelectTool(Drag, RegionSelectTool):
@@ -1195,7 +1225,7 @@ class HoverTool(InspectTool):
             ("foo", "@foo"),
             ("bar", "@bar"),
             ("baz", "@baz{safe}"),
-            ("total", "@total{$0,0.00}"
+            ("total", "@total{$0,0.00}"),
         ]
 
     You can also supply a ``Callback`` to the ``HoverTool``, to build custom
@@ -1236,7 +1266,7 @@ class HoverTool(InspectTool):
         super().__init__(*args, **kwargs)
 
     renderers = Either(Auto, List(Instance(DataRenderer)), default="auto", help="""
-    An explicit list of renderers to hit test against. If unset, defaults to
+    A list of renderers to hit test against. If unset, defaults to
     all renderers on a plot.
     """)
 
@@ -1485,15 +1515,7 @@ class EditTool(GestureTool):
     the color column will be filled with the defined empty value.
     """)
 
-    renderers = List(Instance(GlyphRenderer), help="""
-    An explicit list of renderers corresponding to glyphs that may be edited.
-
-    .. note::
-        The kind of renderer will typically depend on the specific type of the
-        edit tool subclass. For instance, ``PointDrawTool`` expects renderers
-        for ``Scatter`` glyphs, while ``BoxEditTool`` expects renderers for
-        ``Rect`` glyphs, etc.
-    """)
+    # TODO abstract renderers = List(Instance(GlyphRenderer & ...))
 
 @abstract
 class PolyTool(EditTool):
@@ -1503,26 +1525,19 @@ class PolyTool(EditTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    vertex_renderer = Nullable(Instance(GlyphRenderer), help="""
+    vertex_renderer = Nullable(GlyphRendererOf(XYGlyph), help="""
     The renderer used to render the vertices of a selected line or polygon.
     """)
-
-    @error(INCOMPATIBLE_POLY_EDIT_VERTEX_RENDERER)
-    def _check_compatible_vertex_renderer(self):
-        if self.vertex_renderer is None:
-            return
-        glyph = self.vertex_renderer.glyph
-        if not isinstance(glyph, XYGlyph):
-            return "glyph type %s found." % type(glyph).__name__
 
 class BoxEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |box_edit_icon|
 
-    Allows drawing, dragging and deleting ``Rect`` glyphs on one or more
-    renderers by editing the underlying ``ColumnDataSource`` data. Like other
-    drawing tools, the renderers that are to be edited must be supplied
-    explicitly as a list. When drawing a new box the data will always be added
-    to the ``ColumnDataSource`` on the first supplied renderer.
+    Allows drawing, dragging and deleting box-like glyphs (e.g. ``Block``,
+    ``Rect``, ``HStrip``) on one or more renderers by editing the underlying
+    ``ColumnDataSource`` data. Like other drawing tools, the renderers that
+    are to be edited must be supplied explicitly as a list. When drawing a
+    new box the data will always be added to the ``ColumnDataSource`` on
+    the first supplied renderer.
 
     The tool will modify the columns on the data source corresponding to the
     ``x``, ``y``, ``width`` and ``height`` values of the glyph. Any additional
@@ -1559,6 +1574,10 @@ class BoxEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(LRTBGlyph, Rect, HStrip, VStrip), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     dimensions = Enum(Dimensions, default="both", help="""
     Which dimensions the box drawing is to be free in. By default, users may
     freely draw boxes with any dimensions. If only "width" is set, the box will
@@ -1574,21 +1593,11 @@ class BoxEditTool(EditTool, Drag, Tap):
     will be dropped to make space for the new box being added.
     """)
 
-    @error(INCOMPATIBLE_BOX_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, Rect):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
-
 class PointDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |point_draw_icon|
 
     The PointDrawTool allows adding, dragging and deleting point-like glyphs
-    (i.e subclasses of``XYGlyph``) on one or more renderers by editing the
+    (i.e subclasses of ``XYGlyph``) on one or more renderers by editing the
     underlying ``ColumnDataSource`` data. Like other drawing tools, the
     renderers that are to be edited must be supplied explicitly as a list. Any
     newly added points will be inserted on the ``ColumnDataSource`` of the
@@ -1625,6 +1634,10 @@ class PointDrawTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(XYGlyph), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     add = Bool(default=True, help="""
     Enables adding of new points on tap events.
     """)
@@ -1638,16 +1651,6 @@ class PointDrawTool(EditTool, Drag, Tap):
     is no limit on the number of objects, but if enabled the oldest drawn point
     will be dropped to make space for the new point.
     """)
-
-    @error(INCOMPATIBLE_POINT_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, XYGlyph):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class PolyDrawTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_draw_icon|
@@ -1689,6 +1692,10 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     drag = Bool(default=True, help="""
     Enables dragging of existing patches and multi-lines on pan events.
     """)
@@ -1699,16 +1706,6 @@ class PolyDrawTool(PolyTool, Drag, Tap):
     oldest drawn patch or multi-line will be dropped to make space for the new
     patch or multi-line.
     """)
-
-    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class FreehandDrawTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |freehand_draw_icon|
@@ -1738,22 +1735,16 @@ class FreehandDrawTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
     num_objects = Int(default=0, help="""
     Defines a limit on the number of patches or multi-lines that can be drawn.
     By default there is no limit on the number of objects, but if enabled the
     oldest drawn patch or multi-line will be overwritten when the limit is
     reached.
     """)
-
-    @error(INCOMPATIBLE_POLY_DRAW_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__ for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
 
 class PolyEditTool(PolyTool, Drag, Tap):
     ''' *toolbar icon*: |poly_edit_icon|
@@ -1765,7 +1756,7 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     The tool will modify the columns on the data source corresponding to the
     ``xs`` and ``ys`` values of the glyph. Any additional columns in the data
-    source will be padded with the declared``empty_value``, when adding a new
+    source will be padded with the declared ``empty_value``, when adding a new
     point.
 
     The supported actions include:
@@ -1792,17 +1783,9 @@ class PolyEditTool(PolyTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    @error(INCOMPATIBLE_POLY_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (MultiLine, Patches)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__
-                                    for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
-
+    renderers = List(GlyphRendererOf(MultiLine, Patches), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
 
 class LineEditTool(EditTool, Drag, Tap):
     ''' *toolbar icon*: |line_edit_icon|
@@ -1814,7 +1797,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     The tool will modify the columns on the data source corresponding to the
     ``x`` and ``y`` values of the glyph. Any additional columns in the data
-    source will be padded with the declared``empty_value``, when adding a new
+    source will be padded with the declared ``empty_value``, when adding a new
     point.
 
     The supported actions include:
@@ -1834,7 +1817,11 @@ class LineEditTool(EditTool, Drag, Tap):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    intersection_renderer = Instance(GlyphRenderer, help="""
+    renderers = List(GlyphRendererOf(Line), help="""
+    A list of renderers corresponding to glyphs that may be edited.
+    """)
+
+    intersection_renderer = GlyphRendererOf(LineGlyph)(help="""
     The renderer used to render the intersections of a selected line
     """)
 
@@ -1845,24 +1832,6 @@ class LineEditTool(EditTool, Drag, Tap):
     plot, or vertical across the height of the plot.
     """)
 
-    @error(INCOMPATIBLE_LINE_EDIT_INTERSECTION_RENDERER)
-    def _check_compatible_intersection_renderer(self):
-        glyph = self.intersection_renderer.glyph
-        if not isinstance(glyph, LineGlyph):
-            return "glyph type %s found." % type(glyph).__name__
-
-    @error(INCOMPATIBLE_LINE_EDIT_RENDERER)
-    def _check_compatible_renderers(self):
-        incompatible_renderers = []
-        for renderer in self.renderers:
-            if not isinstance(renderer.glyph, (Line,)):
-                incompatible_renderers.append(renderer)
-        if incompatible_renderers:
-            glyph_types = ', '.join(type(renderer.glyph).__name__
-                                    for renderer in incompatible_renderers)
-            return "%s glyph type(s) found." % glyph_types
-
-#
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------

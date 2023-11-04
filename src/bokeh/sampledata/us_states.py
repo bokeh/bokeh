@@ -42,7 +42,14 @@ import codecs
 import csv
 import gzip
 import xml.etree.ElementTree as et
+from math import nan
 from typing import TYPE_CHECKING, TypedDict
+
+# External imports
+import numpy as np
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
 
 # Bokeh imports
 from ..util.sampledata import package_path
@@ -75,10 +82,8 @@ State: TypeAlias = str
 class StateData(TypedDict):
     name: str
     region: str
-    lats: list[float]
-    lons: list[float]
-
-nan = float('NaN')
+    lats: NDArray[np.float64]
+    lons: NDArray[np.float64]
 
 def _read_data() -> dict[State, StateData]:
     '''
@@ -107,8 +112,8 @@ def _read_data() -> dict[State, StateData]:
             data[code] = StateData(
                 name   = name,
                 region = region,
-                lats   = lats,
-                lons   = lons,
+                lats   = np.array(lats),
+                lons   = np.array(lons),
             )
 
     return data

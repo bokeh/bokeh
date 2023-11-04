@@ -49,6 +49,7 @@ export namespace RegionSelectTool {
   export type Props = SelectTool.Props & {
     continuous: p.Property<boolean>
     persistent: p.Property<boolean>
+    greedy: p.Property<boolean>
   }
 }
 
@@ -68,6 +69,7 @@ export abstract class RegionSelectTool extends SelectTool {
     this.define<RegionSelectTool.Props>(({Boolean}) => ({
       continuous: [ Boolean, false ],
       persistent: [ Boolean, false ],
+      greedy: [ Boolean, false ],
     }))
   }
 }

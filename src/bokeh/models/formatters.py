@@ -27,6 +27,7 @@ from ..core.enums import (
     LatLon,
     LocationType,
     NumeralLanguage,
+    ResolutionType,
     RoundingFunction,
 )
 from ..core.has_props import abstract
@@ -41,6 +42,7 @@ from ..core.properties import (
     Int,
     List,
     Nullable,
+    Seq,
     String,
 )
 from ..core.validation import error
@@ -325,7 +327,7 @@ class LogTickFormatter(TickFormatter):
 
     min_exponent = Int(0, help="""
     Minimum exponent to format in scientific notation. If not zero
-    all ticks in range from base^-min_expont to base^min_exponent
+    all ticks in range from base^-min_exponent to base^min_exponent
     are displayed without exponential notation.
     """)
 
@@ -367,21 +369,21 @@ class CustomJSTickFormatter(TickFormatter):
 
     Additionally available variables are:
 
-      * ``ticks``, an array of all axis ticks as positioned by the ticker,
-      * ``index``, the position of ``tick`` within ``ticks``, and
-      * the keys of ``args`` mapping, if any.
+    * ``ticks``, an array of all axis ticks as positioned by the ticker,
+    * ``index``, the position of ``tick`` within ``ticks``, and
+    * the keys of ``args`` mapping, if any.
 
     Finding yourself needing to cache an expensive ``ticks``-dependent
     computation, you can store it on the ``this`` variable.
 
-    Example:
+    **Example**
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            code = '''
-            this.precision = this.precision || (ticks.length > 5 ? 1 : 2);
-            return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
-            '''
+        code = '''
+        this.precision = this.precision || (ticks.length > 5 ? 1 : 2);
+        return Math.floor(tick) + " + " + (tick % 1).toFixed(this.precision);
+        '''
     """)
 
 def FuncTickFormatter(*args, **kw):
@@ -636,7 +638,14 @@ class DatetimeTickFormatter(TickFormatter):
     years = String(help=_DATETIME_TICK_FORMATTER_HELP("``years``"),
                    default="%Y").accepts(List(String), _deprecated_datetime_list_format)
 
-    strip_leading_zeros = Bool(default=True, help="Whether to strip any leading zeros in the formatted ticks")
+    strip_leading_zeros = Either(Bool, Seq(Enum(ResolutionType)), default=False, help="""
+    Whether to strip any leading zeros in the formatted ticks.
+
+    Valid values are:
+    * ``True`` or ``False`` (default) to set stripping across all resolutions.
+    * A sequence of resolution types, e.g. ``["microseconds", "milliseconds"]``, to enable
+    scale-dependent stripping of leading zeros.
+    """)
 
     context = Nullable(Either(String, Instance("bokeh.models.formatters.DatetimeTickFormatter")), default=None, help="""
     A format for adding context to the tick or ticks specified by ``context_which``.

@@ -31,7 +31,7 @@ export class DelayedInternalProvider extends MathJaxProvider {
 
   async fetch() {
     this.status = "loading"
-    delay(50).then(() => {
+    void delay(50).then(() => {
       this.status = "loaded"
       this.ready.emit()
     })

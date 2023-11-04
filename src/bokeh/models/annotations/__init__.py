@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 from . import (
     annotation,
     arrows,
+    dimensional,
     geometry,
     html,
     labels,
@@ -30,6 +31,7 @@ from . import (
 )
 from .annotation import *
 from .arrows import *
+from .dimensional import *
 from .geometry import *
 from .html import *
 from .labels import *
@@ -42,6 +44,7 @@ from .legends import *
 __all__ = (
     *annotation.__all__,
     *arrows.__all__,
+    *dimensional.__all__,
     *geometry.__all__,
     *html.__all__,
     *labels.__all__,

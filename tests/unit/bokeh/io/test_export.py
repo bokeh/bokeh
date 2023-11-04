@@ -58,6 +58,15 @@ def webdriver(request: pytest.FixtureRequest):
     finally:
         webdriver_control.terminate(driver)
 
+
+@pytest.fixture(scope="module", params=["chromium", "firefox"])
+def webdriver_with_scale_factor(request: pytest.FixtureRequest):
+    driver = webdriver_control.create(request.param, scale_factor=2.5)
+    try:
+        yield driver
+    finally:
+        webdriver_control.terminate(driver)
+
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
@@ -134,6 +143,27 @@ def test_get_screenshot_as_png_with_fractional_sizing__issue_12611(webdriver: We
     div = Div(text="Something", styles=dict(width="100.64px", height="50.34px"))
     png = bie.get_screenshot_as_png(div, driver=webdriver)
     assert len(png.tobytes()) > 0
+
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_scale_factor_equal_to_dpr__issue_8807(
+        webdriver_with_scale_factor: WebDriver) -> None:
+    div = Div(text="Something", styles=dict(width="100px", height="100px"))
+    png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=2.5)
+    assert png.width == 250
+
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_scale_factor_less_than_dpr__issue_8807(
+        webdriver_with_scale_factor: WebDriver) -> None:
+    div = Div(text="Something", styles=dict(width="100px", height="100px"))
+    png = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=1.5)
+    assert png.width == 150
+
+@pytest.mark.selenium
+def test_get_screenshot_as_png_with_scale_factor_greater_than_dpr__issue_8807(
+        webdriver_with_scale_factor: WebDriver) -> None:
+    div = Div(text="Something", styles=dict(width="100px", height="100px"))
+    with pytest.raises(ValueError):
+        _ = bie.get_screenshot_as_png(div, driver=webdriver_with_scale_factor, scale_factor=3.5)
 
 @pytest.mark.selenium
 def test_get_screenshot_as_png_with_unicode_minified(webdriver: WebDriver) -> None:

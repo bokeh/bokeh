@@ -20,14 +20,15 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import nan
+
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
     Bool,
     CoordinateLike,
-    Either,
     Enum,
-    Factor,
     Float,
     Include,
     Instance,
@@ -45,6 +46,13 @@ from ...core.property_mixins import (
     ScalarFillProps,
     ScalarHatchProps,
     ScalarLineProps,
+)
+from ..common.properties import Coordinate
+from ..coordinates import (
+    FrameBottom,
+    FrameLeft,
+    FrameRight,
+    FrameTop,
 )
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead
@@ -77,40 +85,68 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Either(Null, CoordinateLike, help="""
+    left = Coordinate(default=nan, help="""
     The x-coordinates of the left edge of the box annotation.
-    """)
+    """).accepts(Null, lambda _value: FrameLeft())
 
-    left_units = Enum(CoordinateUnits, default='data', help="""
+    right = Coordinate(default=nan, help="""
+    The x-coordinates of the right edge of the box annotation.
+    """).accepts(Null, lambda _value: FrameRight())
+
+    top = Coordinate(default=nan, help="""
+    The y-coordinates of the top edge of the box annotation.
+    """).accepts(Null, lambda _value: FrameTop())
+
+    bottom = Coordinate(default=nan, help="""
+    The y-coordinates of the bottom edge of the box annotation.
+    """).accepts(Null, lambda _value: FrameBottom())
+
+    left_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the left attribute. Interpreted as |data units| by
     default.
     """)
 
-    right = Either(Null, CoordinateLike, Factor, help="""
-    The x-coordinates of the right edge of the box annotation.
-    """)
-
-    right_units = Enum(CoordinateUnits, default='data', help="""
+    right_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the right attribute. Interpreted as |data units| by
     default.
     """)
 
-    bottom = Either(Null, CoordinateLike, help="""
-    The y-coordinates of the bottom edge of the box annotation.
+    top_units = Enum(CoordinateUnits, default="data", help="""
+    The unit type for the top attribute. Interpreted as |data units| by
+    default.
     """)
 
-    bottom_units = Enum(CoordinateUnits, default='data', help="""
+    bottom_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the bottom attribute. Interpreted as |data units| by
     default.
     """)
 
-    top = Either(Null, CoordinateLike, help="""
-    The y-coordinates of the top edge of the box annotation.
+    left_limit = Nullable(Coordinate, help="""
+    Optional left limit for box movement.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
-    top_units = Enum(CoordinateUnits, default='data', help="""
-    The unit type for the top attribute. Interpreted as |data units| by
-    default.
+    right_limit = Nullable(Coordinate, help="""
+    Optional right limit for box movement.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    top_limit = Nullable(Coordinate, help="""
+    Optional top limit for box movement.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    bottom_limit = Nullable(Coordinate, help="""
+    Optional bottom limit for box movement.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     border_radius = BorderRadius(default=0, help="""

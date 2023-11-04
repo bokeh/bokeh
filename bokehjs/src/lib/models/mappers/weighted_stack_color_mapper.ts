@@ -14,6 +14,7 @@ export namespace WeightedStackColorMapper {
   export type Props = StackColorMapper.Props & {
     alpha_mapper: p.Property<ContinuousColorMapper>
     color_baseline: p.Property<number | null>
+    stack_labels: p.Property<string[] | null>
   }
 }
 
@@ -27,24 +28,27 @@ export class WeightedStackColorMapper extends StackColorMapper {
   }
 
   static {
-    this.define<WeightedStackColorMapper.Props>(({Nullable, Number, Ref}) => ({
+    this.define<WeightedStackColorMapper.Props>(({Array, Nullable, Number, Ref, String}) => ({
       alpha_mapper:   [ Ref(ContinuousColorMapper) ],
       color_baseline: [ Nullable(Number), null ],
+      stack_labels:   [ Nullable(Array(String)), null ],
     }))
   }
 
   // Weighted mix of colors.
   protected _mix_colors(colors_rgba: RGBAArray, nan_color: uint32, weights: Array<number>, total_weight: number): uint32 {
-    if (isNaN(total_weight))
+    if (isNaN(total_weight)) {
       return nan_color
+    }
 
     let r = 0.0, g = 0.0, b = 0.0, a = 0.0
     const n = weights.length
 
     if (total_weight != 0) {
       for (let i = 0; i < n; i++) {
-        if (isNaN(weights[i]))
+        if (isNaN(weights[i])) {
           continue
+        }
 
         const weight = weights[i] / total_weight
         r += colors_rgba[i*4  ]*weight
@@ -98,12 +102,6 @@ export class WeightedStackColorMapper extends StackColorMapper {
     // If color_baseline not specified, use nan-aware minimum of data.
     const color_baseline = this.color_baseline
     const baseline = color_baseline == null ? min(data) : color_baseline
-    if (baseline != 0) {
-      for (let i = 0, length = data.length; i < length; i++) {
-        // Subtract baseline and clip to zero. Datashader only clips non-integers.
-        data[i] = Math.max(data[i] - baseline, 0)
-      }
-    }
 
     // Mix colors based on weights.
     const {nan_color} = colors
@@ -112,18 +110,21 @@ export class WeightedStackColorMapper extends StackColorMapper {
     for (let i = 0; i < n; i++) {
       let total = NaN
       for (let icol = 0; icol < ncolor; icol++) {
-        const val = data[i*ncolor + icol]
+        const index = i*ncolor + icol
+        // If baseline non-zero, subtract it and clip to zero. Datashader only clips non-integers.
+        const val = baseline == 0 ? data[index] : Math.max(data[index] - baseline, 0)
         weights[icol] = val
         if (!isNaN(val)) {
-          if (isNaN(total))
+          if (isNaN(total)) {
             total = val
-          else
+          } else {
             total += val
+          }
         }
       }
 
       values[i] = this._mix_colors(palette_as_rgba, nan_color, weights, total)
-      totals[i] = total
+      totals[i] = total + baseline*ncolor
     }
 
     // Calculate alphas using alpha_mapper.

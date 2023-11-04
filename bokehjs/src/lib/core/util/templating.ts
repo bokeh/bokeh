@@ -168,3 +168,19 @@ export function replace_placeholders(content: string | {html: string}, data_sour
     return [...document.body.childNodes]
   }
 }
+
+export function process_placeholders(text: string, fn: (type: "@" | "$", spec: string, format?: string) => string): string {
+  //
+  // (?:\$\w+) - special vars: $x
+  // (?:@\w+) - simple names: @foo
+  // (?:@{(?:[^{}]+)})) - full names: @{one two}
+  //
+  // (?:{([^{}]+)})? - (optional) format for all of the above: @foo{fmt}
+  //
+  const regex = /((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g
+  return text.replace(regex, (_match, spec: string, format?: string) => {
+    const type = spec[0] as "@" | "$"
+    const name = spec.substring(1).replace(/[{}]/g, "").trim()
+    return fn(type, name, format)
+  })
+}

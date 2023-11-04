@@ -90,7 +90,7 @@ def create_renderer(glyphclass, plot, **kwargs):
     incompatible_literal_spec_values += _process_sequence_literals(glyphclass, kwargs, source, is_user_source)
     incompatible_literal_spec_values += _process_sequence_literals(glyphclass, glyph_visuals, source, is_user_source)
     if incompatible_literal_spec_values:
-        raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjuction="and"))
+        raise RuntimeError(_GLYPH_SOURCE_MSG % nice_join(incompatible_literal_spec_values, conjunction="and"))
 
     # handle the nonselection glyph, we always set one
     nonselection_visuals = pop_visuals(glyphclass, kwargs, prefix='nonselection_', defaults=glyph_visuals, override_defaults={'alpha':0.1})

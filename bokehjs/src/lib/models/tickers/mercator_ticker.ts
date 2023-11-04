@@ -34,10 +34,11 @@ export class MercatorTicker extends BasicTicker {
 
     [data_low, data_high] = clip_mercator(data_low, data_high, this.dimension)
 
-    if (this.dimension == "lon")
+    if (this.dimension == "lon") {
       return this._get_ticks_lon(data_low, data_high, cross_loc, desired_n_ticks)
-    else
+    } else {
       return this._get_ticks_lat(data_low, data_high, cross_loc, desired_n_ticks)
+    }
   }
 
   protected _get_ticks_lon(data_low: number, data_high: number, cross_loc: number, desired_n_ticks: number): TickSpec<number> {

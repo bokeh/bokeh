@@ -26,8 +26,9 @@ export class ValueOfView extends DOMNodeView {
       if (attr in obj.properties) {
         const value = obj.properties[attr].get_value()
         return to_string(value)
-      } else
+      } else {
         return `<not found: ${obj.type}.${attr}>`
+      }
     })()
 
     this.el.textContent = text

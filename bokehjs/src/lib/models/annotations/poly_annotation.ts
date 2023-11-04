@@ -12,7 +12,7 @@ import {Signal} from "core/signaling"
 import type {PanEvent, Pannable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import type {CoordinateMapper} from "core/util/bbox"
 import {BBox, empty} from "core/util/bbox"
-import {minmax} from "core/util/arrayable"
+import {minmax2} from "core/util/arrayable"
 import {assert} from "core/util/assert"
 import type * as p from "core/properties"
 
@@ -73,8 +73,7 @@ class Polygon {
   }
 
   get bbox(): BBox {
-    const [x0, x1] = minmax(this.xs)
-    const [y0, y1] = minmax(this.ys)
+    const [x0, x1, y0, y1] = minmax2(this.xs, this.ys)
     return new BBox({x0, x1, y0, y1})
   }
 
@@ -122,8 +121,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     const {xs_units, ys_units} = this.model
     if (xs_units == "data" && ys_units == "data") {
       const {xs, ys} = this.model
-      const [x0, x1] = minmax(xs)
-      const [y0, y1] = minmax(ys)
+      const [x0, x1, y0, y1] = minmax2(xs, ys)
       return {x0, x1, y0, y1}
     } else
       return empty()

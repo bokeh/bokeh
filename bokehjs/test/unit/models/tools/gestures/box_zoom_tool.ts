@@ -3,7 +3,6 @@ import {display} from "../../../_util"
 import {click} from "../../../../interactive"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
-import type {BoxZoomToolView} from "@bokehjs/models/tools/gestures/box_zoom_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {BoxZoomTool, PanTool, Toolbar} from "@bokehjs/models"
@@ -88,7 +87,7 @@ describe("BoxZoomTool", () => {
       const box_zoom = new BoxZoomTool()
       const {plot_view} = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
+      const box_zoom_view = plot_view.owner.get_one(box_zoom)
 
       // perform the tool action
       const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}
@@ -108,7 +107,7 @@ describe("BoxZoomTool", () => {
       const box_zoom = new BoxZoomTool({match_aspect: true})
       const {plot_view} = await mkplot(box_zoom)
 
-      const box_zoom_view = plot_view.tool_views.get(box_zoom)! as BoxZoomToolView
+      const box_zoom_view = plot_view.owner.get_one(box_zoom)
 
       // perform the tool action
       const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}

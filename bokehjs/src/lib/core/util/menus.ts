@@ -3,6 +3,7 @@ import {div, empty, remove, InlineStyleSheet, ClassList} from "../dom"
 import type {Orientation} from "../enums"
 import {reversed} from "./array"
 import {isString} from "./types"
+import {enumerate} from "./iterator"
 
 import menus_css, * as menus from "styles/menus.css"
 import icons_css from "styles/icons.css"
@@ -22,6 +23,7 @@ export type MenuEntry = {
   tooltip?: string
   class?: string
   content?: HTMLElement
+  custom?: HTMLElement
   active?: () => boolean
   handler?: () => void
   if?: () => boolean
@@ -35,6 +37,7 @@ export type MenuOptions = {
   reversed?: boolean
   prevent_hide?: (event: MouseEvent) => boolean
   extra_styles?: StyleSheetLike[]
+  entry_handler?: (entry: MenuEntry, i: number) => void
 }
 
 //import {DOMComponentView} from "../dom_view"
@@ -58,6 +61,7 @@ export class ContextMenu { //extends DOMComponentView {
   readonly reversed: boolean
   readonly prevent_hide?: (event: MouseEvent) => boolean
   readonly extra_styles: StyleSheetLike[]
+  readonly entry_handler?: (entry: MenuEntry, i: number) => void
   readonly class_list: ClassList
 
   constructor(readonly items: MenuItem[], options: MenuOptions) {
@@ -66,12 +70,14 @@ export class ContextMenu { //extends DOMComponentView {
     this.reversed = options.reversed ?? false
     this.prevent_hide = options.prevent_hide
     this.extra_styles = options.extra_styles ?? []
+    this.entry_handler = options.entry_handler
 
     this.shadow_el = this.el.attachShadow({mode: "open"})
     this.class_list = new ClassList(this.el.classList)
   }
 
-  protected _item_click = (entry: MenuEntry) => {
+  protected _item_click = (entry: MenuEntry, i: number) => {
+    this.entry_handler?.(entry, i)
     entry.handler?.()
     this.hide()
   }
@@ -172,24 +178,24 @@ export class ContextMenu { //extends DOMComponentView {
     this.class_list.add(menus[this.orientation])
 
     const items = this.reversed ? reversed(this.items) : this.items
-    for (const item of items) {
+    for (const [item, i] of enumerate(items)) {
       let el: HTMLElement
       if (item == null) {
         el = div({class: menus.divider})
       } else if (item.if != null && !item.if()) {
         continue
-      } else if (item.content != null) {
-        el = item.content
+      } else if (item.custom != null) {
+        el = item.custom
       } else {
         const icon = item.icon != null ? div({class: [menus.menu_icon, item.icon]}) : null
         const classes = [item.active?.() ?? false ? menus.active: null, item.class]
         el = div({class: classes, title: item.tooltip, tabIndex: 0}, icon, item.label, item.content)
         el.addEventListener("click", () => {
-          this._item_click(item)
+          this._item_click(item, i)
         })
         el.addEventListener("keydown", (event) => {
           if (event.key == "Enter") {
-            this._item_click(item)
+            this._item_click(item, i)
           }
         })
       }

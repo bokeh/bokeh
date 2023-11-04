@@ -1,0 +1,89 @@
+name: bk-test
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+
+  # runtime
+  - contourpy >=1
+  - jinja2 >=2.7
+  - numpy >=1.20.0
+  - packaging >=16.8
+  - pandas >=1.2
+  - pillow >=4.0
+  - python-dateutil >=2.1
+  - pyyaml >=3.10
+  - tornado >=5
+  - xyzservices>=2021.09.1
+
+  # tests
+  - beautifulsoup4
+  - channels
+  - click
+  - colorama
+  - colorcet
+  - coverage
+  - firefox =>96
+  - geckodriver
+  - ipython
+  - isort 5.8
+  - json5
+  - nbconvert >=5.4
+  - networkx
+  - nodejs 20.*
+  - pre-commit
+  - psutil
+  - pygments
+  - pygraphviz
+  - pytest >=7.0
+  - pytest-asyncio >=0.18.1
+  - pytest-cov >=1.8.1
+  - pytest-html
+  - pytest-xdist
+  - pytest-timeout
+  - requests >=1.2.3
+  - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
+  - scipy
+  - pooch # required in scipy.datasets
+  - selenium 4.2
+  - toml
+  - typing_extensions >=4.0.0
+
+  # examples
+  - flask >=1.0
+  - h5py
+  - icalendar
+  - networkx
+  - notebook
+  - pandas-datareader
+  - pyshp
+  - scikit-learn
+  #- squarify
+  - sympy
+
+  # pip dependencies
+  - pip
+  - pip:
+    - mypy >=0.990
+    # docs
+    - pydata_sphinx_theme
+    - requests-unixsocket >= 0.3.0
+    - sphinx
+    - sphinx-copybutton
+    - sphinx-design
+    - sphinx-favicon
+    - sphinxext-opengraph
+    # tests
+    #- pandas-stubs ==1.5.2.221213 # Not for python 3.12
+    - ruff ==0.0.285
+    - types-boto
+    - types-colorama
+    - types-mock
+    - types-pillow
+    - types-pyyaml
+    - types-requests
+    - types-toml
+    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
+    - vermin
+    # move the following back to conda sections above when python 3.12 conda-forge packages available
+    - squarify

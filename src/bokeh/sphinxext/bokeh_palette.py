@@ -46,6 +46,9 @@ Will generate the output:
 
     :bokeh-palette:`viridis(256)`
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_palette"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

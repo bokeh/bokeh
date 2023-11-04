@@ -138,23 +138,23 @@ It's also possible to change a tool icon using the ``icon`` keyword.
 
 You can pass:
 
-    1. A well known icon name
+1. A well known icon name
 
-        .. code-block:: python
+   .. code-block:: python
 
-            plot.add_tools(BoxSelectTool(icon="box_zoom"))
+       plot.add_tools(BoxSelectTool(icon="box_zoom"))
 
-    2. A CSS selector
+2. A CSS selector
 
-        .. code-block:: python
+   .. code-block:: python
 
-            plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
+       plot.add_tools(BoxSelectTool(icon=".my-icon-class"))
 
-    3. An image path
+3. An image path
 
-        .. code-block:: python
+   .. code-block:: python
 
-            plot.add_tools(BoxSelectTool(icon="path/to/icon"))
+       plot.add_tools(BoxSelectTool(icon="path/to/icon"))
 
 .. _ug_interaction_tools_setting_active_tools:
 
@@ -174,6 +174,7 @@ lowest |bokeh.models| level, you can do this by using the ``active_drag``,
 * a ``Tool`` instance --- Bokeh sets the given tool to be the active tool
 
 Additionally, the ``active_inspect`` tool may accept:
+
 * A sequence of ``Tool`` instances to be set as the active tools
 
 As an example:
@@ -904,7 +905,7 @@ Delete patch/multi-line
   Tap a line or patch to select it then press the BACKSPACE key while the
   mouse is within the plot area.
 
- To **Delete** multiple patches/lines at once:
+  To **Delete** multiple patches/lines at once:
 
 Delete selection
   Select patches/lines with SHIFT+tap (or another selection tool), then

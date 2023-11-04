@@ -318,6 +318,11 @@ export function bounding_box(el: Element): BBox {
   return new BBox({x, y, width, height})
 }
 
+export function box_size(el: Element): Size {
+  const {width, height} = el.getBoundingClientRect()
+  return {width, height}
+}
+
 export function position(el: HTMLElement, box: Box, margin?: Extents): void {
   const {style} = el
 

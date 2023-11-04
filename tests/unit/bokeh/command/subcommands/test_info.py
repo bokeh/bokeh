@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from os.path import join
+from typing import Any
 
 # Bokeh imports
 from bokeh.command.bootstrap import main
@@ -65,7 +66,7 @@ def test_run(capsys: Capture) -> None:
     main(["bokeh", "info"])
     out, err = capsys.readouterr()
     lines = out.split("\n")
-    assert len(lines) == 9
+    assert len(lines) == 10
     assert lines[0].startswith("Python version")
     assert lines[1].startswith("IPython version")
     assert lines[2].startswith("Tornado version")
@@ -73,8 +74,9 @@ def test_run(capsys: Capture) -> None:
     assert lines[4].startswith("BokehJS static")
     assert lines[5].startswith("node.js version")
     assert lines[6].startswith("npm version")
-    assert lines[7].startswith("Operating system")
-    assert lines[8] == ""
+    assert lines[7].startswith("jupyter_bokeh version")
+    assert lines[8].startswith("Operating system")
+    assert lines[9] == ""
     assert err == ""
 
 def test_run_static(capsys: Capture) -> None:
@@ -83,7 +85,7 @@ def test_run_static(capsys: Capture) -> None:
     assert err == ""
     assert out.endswith(join('bokeh', 'server', 'static') + '\n')
 
-def test__version_missing(ipython) -> None:
+def test__version_missing(ipython: Any) -> None:
     assert scinfo._version('bokeh', '__version__') is not None
     assert scinfo._version('IPython', '__version__') is not None
     assert scinfo._version('tornado', 'version') is not None

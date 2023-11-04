@@ -464,11 +464,11 @@ The context options are:
 
 ``context_which``
     Which tick or ticks to add a formatted context string to. Values are:
-    `"start"`, `"end"`, `"center"`, and `"all"`.
+    ``"start"``, ``"end"``, ``"center"``, and ``"all"``.
 
 ``context_location``
     Relative to the tick label text baseline, where the context should be
-    rendered. Values are: `"below"`, `"above"`, `"left"`, and `"right"`.
+    rendered. Values are: ``"below"``, ``"above"``, ``"left"``, and ``"right"``.
 
 There is a pre-defined ``RELATIVE_DATETIME_CONTEXT`` that adds context that
 is more or less a single scale higher. The example below demonstrates these
@@ -706,6 +706,20 @@ Valid values for this property are:
 The default orientation is ``"vertical"``.
 
 .. bokeh-plot:: __REPO__/examples/styling/plots/legend_orientation.py
+    :source-position: above
+
+Two dimensional layout
+~~~~~~~~~~~~~~~~~~~~~~
+
+It is possible to activate a two dimensional layout for the legend by setting a positive
+integer to the properties ``nrows`` or ``ncols``. This enables the opportunity to avoid
+truncated legends.
+
+The default for ``nrows`` and ``ncols`` is ``"auto"``, which leads to one column if
+the ``orientation`` property is ``"vertical"`` and one row if the ``orientation`` property
+is ``"horizontal"``.
+
+.. bokeh-plot:: __REPO__/examples/basic/annotations/legend_two_dimensions.py
     :source-position: above
 
 Label text

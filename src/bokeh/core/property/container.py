@@ -202,11 +202,25 @@ class Dict(ContainerProperty[Any]):
 
         key_is_valid = self.keys_type.is_valid
         value_is_valid = self.values_type.is_valid
-        if isinstance(value, dict) and all(key_is_valid(key) and value_is_valid(val) for key, val in value.items()):
-            return
+        expected = f"expected a dict of type {self}"
 
-        msg = "" if not detail else f"expected an element of {self}, got {value!r}"
-        raise ValueError(msg)
+        if not isinstance(value, dict):
+            raise ValueError(f"{expected}, got a value of type {type(value)}" if detail else "")
+
+        bad_keys = [str(k) for k in value if not key_is_valid(k)]
+        bad_value_keys = [str(k) for (k, v) in value.items() if not value_is_valid(v)]
+        exception_header = f"{expected}, got a dict with"
+        bad_keys_str = f"invalid keys: {', '.join(bad_keys)}"
+        bad_value_keys_str = f"invalid values for keys: {', '.join(bad_value_keys)}"
+        err = None
+        if (has_bad_keys := any(bad_keys)) & (has_bad_key_values := any(bad_value_keys)):
+            err = ValueError(f"{exception_header} {bad_keys_str} and {bad_value_keys_str}")
+        elif has_bad_keys:
+            err = ValueError(f"{exception_header} {bad_keys_str}")
+        elif has_bad_key_values:
+            err = ValueError(f"{exception_header} {bad_value_keys_str}")
+        if err:
+            raise err if detail else ValueError("")
 
     def wrap(self, value):
         """ Some property types need to wrap their values in special containers, etc.

@@ -9,7 +9,7 @@ import chalk from "chalk"
 import {Bar, Presets} from "cli-progress"
 
 import type {Box, State} from "./baselines"
-import {create_baseline, load_baseline, diff_baseline, load_baseline_image} from "./baselines"
+import {create_baseline, diff_baseline, load_baselines} from "./baselines"
 import {diff_image} from "./image"
 import {platform} from "./sys"
 
@@ -19,8 +19,9 @@ export class Random {
 
   constructor(seed: number) {
     this.seed = seed % MAX_INT32
-    if (this.seed <= 0)
+    if (this.seed <= 0) {
       this.seed += MAX_INT32 - 1
+    }
   }
 
   integer(): number {
@@ -106,7 +107,7 @@ function timeout(ms: number): Promise<void> {
 }
 
 function encode(s: string): string {
-  return s.replace(/[ \/\[\]]/g, "_")
+  return s.replace(/[ \/\[\]:]/g, "_")
 }
 
 type Suite = {description: string, suites: Suite[], tests: Test[]}
@@ -114,7 +115,11 @@ type Test = {description: string, skip: boolean, threshold?: number, retries?: n
 
 type Result = {error: {str: string, stack?: string} | null, time: number, state?: State, bbox?: Box}
 
-async function run_tests(): Promise<boolean> {
+type TestRunContext = {
+  chromium_version: number
+}
+
+async function run_tests(ctx: TestRunContext): Promise<boolean> {
   let client
   let failure = false
   try {
@@ -194,9 +199,9 @@ async function run_tests(): Promise<boolean> {
           return output
         } else {
           const {result, exceptionDetails} = output
-          if (exceptionDetails == null)
+          if (exceptionDetails == null) {
             return new Value(result.value)
-          else {
+          } else {
             const {text} = handle_exception(exceptionDetails)
             return new Failure(text)
           }
@@ -228,7 +233,7 @@ async function run_tests(): Promise<boolean> {
         })
       }
 
-      override_metrics()
+      await override_metrics()
 
       await Browser.grantPermissions({
         permissions: ["clipboardReadWrite"],
@@ -277,6 +282,8 @@ async function run_tests(): Promise<boolean> {
         reference?: Buffer
         image?: Buffer
         image_diff?: Buffer
+        existing_blf?: string
+        existing_png?: Buffer
       }
 
       type TestItem = [Suite[], Test, Status]
@@ -339,15 +346,39 @@ async function run_tests(): Promise<boolean> {
         fail("nothing to test because all tests were skipped")
       }
 
+      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
+      const baseline_names = new Set<string>()
+
+      if (baselines_root != null) {
+        const baseline_paths = []
+
+        for (const test_case of test_suite) {
+          const [suites, test, _status] = test_case
+          const baseline_name = encode(description(suites, test, "__"))
+          const baseline_path = path.join(baselines_root, platform, baseline_name)
+          baseline_paths.push(baseline_path)
+        }
+
+        const baselines = await load_baselines(baseline_paths, ref)
+
+        for (let i = 0; i < baselines.length; i++) {
+          const [,, status] = test_suite[i]
+          const baseline = baselines[i]
+          if (baseline.blf != null) {
+            status.existing_blf = baseline.blf
+          }
+          if (baseline.png != null) {
+            status.existing_png = baseline.png
+          }
+        }
+      }
+
       const progress = new Bar({
         format: "{bar} {percentage}% | {value} of {total}{failures}{skipped}",
         stream: process.stdout,
         noTTYOutput: true,
         notTTYSchedule: 1000,
       }, Presets.shades_classic)
-
-      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
-      const baseline_names = new Set<string>()
 
       let skipped = 0
       let failures = 0
@@ -365,12 +396,13 @@ async function run_tests(): Promise<boolean> {
 
       function state(): object {
         function format(value: number, single: string, plural?: string): string {
-          if (value == 0)
+          if (value == 0) {
             return ""
-          else if (value == 1)
+          } else if (value == 1) {
             return ` | 1 ${single}`
-          else
+          } else {
             return ` | ${value} ${plural ?? single}`
+          }
         }
         return {
           failures: format(failures, "failure", "failures"),
@@ -392,8 +424,9 @@ async function run_tests(): Promise<boolean> {
       }
 
       async function add_datapoint(): Promise<void> {
-        if (baselines_root == null)
+        if (baselines_root == null) {
           return
+        }
         const data = await Performance.getMetrics()
         for (const {name, value} of data.metrics) {
           switch (name) {
@@ -419,8 +452,9 @@ async function run_tests(): Promise<boolean> {
           const stream = fs.createWriteStream(report_out, {flags: "a"})
           stream.write(`Tests report output generated on ${new Date().toISOString()}:\n`)
           return stream
-        } else
+        } else {
           return null
+        }
       })()
 
       function format_output(test_case: TestItem): string | null {
@@ -481,14 +515,17 @@ async function run_tests(): Promise<boolean> {
             async function run_test(attempt: number | null, status: Status): Promise<boolean> {
               let may_retry = false
               const seq = JSON.stringify(to_seq(suites, test))
+              const ctx_ = JSON.stringify(ctx)
               const output = await (async () => {
-                if (test.dpr != null)
-                  override_metrics(test.dpr)
+                if (test.dpr != null) {
+                  await override_metrics(test.dpr)
+                }
                 try {
-                  return await evaluate<Result>(`Tests.run(${seq})`)
+                  return await evaluate<Result>(`Tests.run(${seq}, ${ctx_})`)
                 } finally {
-                  if (test.dpr != null)
-                    override_metrics()
+                  if (test.dpr != null) {
+                    await override_metrics()
+                  }
                 }
               })()
               await add_datapoint()
@@ -555,13 +592,14 @@ async function run_tests(): Promise<boolean> {
                           await fs.promises.writeFile(baseline_file, baseline)
                           status.baseline = baseline
 
-                          const existing = load_baseline(baseline_file, ref)
-                          if (existing != baseline) {
-                            if (existing == null) {
+                          const {existing_blf} = status
+                          if (existing_blf != baseline) {
+                            if (existing_blf == null) {
                               status.errors.push("missing baseline")
                             } else {
-                              if (test.retries != null)
+                              if (test.retries != null) {
                                 may_retry = true
+                              }
                             }
                             const diff = diff_baseline(baseline_file, ref)
                             status.failure = true
@@ -582,20 +620,20 @@ async function run_tests(): Promise<boolean> {
 
                           const image_file = `${baseline_path}.png`
                           const write_image = async () => fs.promises.writeFile(image_file, current)
-                          const existing = load_baseline_image(image_file, ref)
+                          const {existing_png} = status
 
                           switch (argv.screenshot) {
                             case undefined:
                             case "test":
-                              if (existing == null) {
+                              if (existing_png == null) {
                                 status.failure = true
                                 status.errors.push("missing baseline image")
                                 await write_image()
                               } else {
-                                status.reference = existing
+                                status.reference = existing_png
 
-                                if (!existing.equals(current)) {
-                                  const diff_result = diff_image(existing, current)
+                                if (!existing_png.equals(current)) {
+                                  const diff_result = diff_image(existing_png, current)
                                   if (diff_result != null) {
                                     may_retry = true
                                     const {diff, pixels, percent} = diff_result
@@ -640,16 +678,19 @@ async function run_tests(): Promise<boolean> {
 
               for (let i = 0; i < retries; i++) {
                 const do_retry = await run_test(i, status)
-                if (!do_retry)
+                if (!do_retry) {
                   break
+                }
               }
             }
           }
 
-          if (status.skipped ?? false)
+          if (status.skipped ?? false) {
             skipped++
-          if ((status.failure ?? false) || (status.timeout ?? false))
+          }
+          if ((status.failure ?? false) || (status.timeout ?? false)) {
             failures++
+          }
 
           append_report_out(test_case)
           progress.increment(1, state())
@@ -678,10 +719,11 @@ async function run_tests(): Promise<boolean> {
           return [descriptions(suites, test), {failure, image, image_diff, reference}]
         })
         const json = JSON.stringify({results, metrics}, (_key, value) => {
-          if (value?.type == "Buffer")
+          if (value?.type == "Buffer") {
             return Buffer.from(value.data).toString("base64")
-          else
+          } else {
             return value
+          }
         })
         await fs.promises.writeFile(path.join(baselines_root, platform, "report.json"), json)
 
@@ -728,23 +770,48 @@ async function get_version(): Promise<{browser: string, protocol: string}> {
   }
 }
 
-const chromium_min_version = 110
+type Version = [number, number, number, number]
+const supported_chromium_version: Version = [118, 0, 5993, 88]
 
-async function check_version(version: string): Promise<boolean> {
-  const match = version.match(/Chrome\/(?<major>\d+)\.(\d+)\.(\d+)\.(\d+)/)
-  const major = parseInt(match?.groups?.major ?? "0")
-  const ok = chromium_min_version <= major
-  if (!ok)
-    console.error(`${chalk.red("failed:")} ${version} is not supported, minimum supported version is ${chalk.magenta(chromium_min_version)}`)
-  return ok
+function get_version_tuple(version: string): Version | null {
+  const match = version.match(/(\d+)\.(\d+)\.(\d+)\.(\d+)/)
+  if (match != null) {
+    const [, a, b, c, d] = match.values()
+    return [
+      Number(a),
+      Number(b),
+      Number(c),
+      Number(d),
+    ]
+  }
+  return null
+}
+
+function check_version(current_chromium_version: Version | null): void {
+  if (current_chromium_version == null) {
+    const supported_str = supported_chromium_version.join(".")
+    console.error(`${chalk.yellow("warning:")} unable to determine chromium version; officially supported version is ${supported_str}`)
+    return
+  }
+
+  const [a, b, c, _d] = supported_chromium_version
+  const [A, B, C, _D] = current_chromium_version
+
+  if (a != A || b != B || c != C) {
+    const supported_str = chalk.magenta(supported_chromium_version.join("."))
+    const current_str = chalk.magenta(current_chromium_version.join("."))
+    console.error(`${chalk.yellow("warning:")} ${current_str} is not supported; officially supported version is ${supported_str}`)
+  }
 }
 
 async function run(): Promise<void> {
   const {browser, protocol} = await get_version()
   console.log(`Running in ${chalk.cyan(browser)} using devtools protocol ${chalk.cyan(protocol)}`)
-  const ok0 = await check_version(browser)
-  const ok1 = !argv.info ? await run_tests() : true
-  process.exit(ok0 && ok1 ? 0 : 1)
+  const version = get_version_tuple(browser)
+  check_version(version)
+  const major = version != null ? version[0] : 0
+  const ok = !argv.info ? await run_tests({chromium_version: major}) : true
+  process.exit(ok ? 0 : 1)
 }
 
 async function main(): Promise<void> {
@@ -756,4 +823,4 @@ async function main(): Promise<void> {
   }
 }
 
-main()
+void main()

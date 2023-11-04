@@ -134,13 +134,16 @@ export class Bundle {
     for (const artifact of artifacts) {
       const {module} = artifact
 
-      if (module.canonical != null)
+      if (module.canonical != null) {
         aliases.set(module.canonical, module.id)
+      }
 
-      for (const external of module.externals)
+      for (const external of module.externals) {
         externals.set(external, true)
-      for (const external of module.shims)
+      }
+      for (const external of module.shims) {
         externals.set(external, false)
+      }
 
       const start = wrap(safe_id(module), "")
       sources += start
@@ -182,9 +185,9 @@ export class Bundle {
         }
         case "namespace": {
           const {name} = item
-          if (name != null)
+          if (name != null) {
             yield name
-          else {
+          } else {
             const module = entry.dependencies.get(item.module)
             if (module != null) {
               yield* this.collect_exported(module)
@@ -203,10 +206,11 @@ export class Artifact {
               readonly exported: Map<string, number | string>) {}
 
   full_source(name: string): string {
-    if (this.sourcemap != null)
+    if (this.sourcemap != null) {
       return `${this.source}\n${convert.generateMapFileComment(name)}\n`
-    else
+    } else {
       return `${this.source}\n`
+    }
   }
 
   get module_names(): string[] {
@@ -277,18 +281,21 @@ export class Linker {
       this.external_modules.add("module")
       this.external_modules.add("constants")
 
-      for (const lib of module.builtinModules)
+      for (const lib of module.builtinModules) {
         this.external_modules.add(lib)
+      }
     }
 
     for (const entry of this.entries) {
-      if (!file_exists(entry))
+      if (!file_exists(entry)) {
         throw new BuildError("linker", `entry path ${entry} doesn't exist or isn't a file`)
+      }
     }
 
     for (const base of this.bases) {
-      if (!directory_exists(base))
+      if (!directory_exists(base)) {
         throw new BuildError("linker", `base path ${base} doesn't exist or isn't a directory`)
+      }
     }
 
     this.cache_path = opts.cache
@@ -336,10 +343,11 @@ export class Linker {
     }
 
     const all_modules = main_modules.concat(...plugin_modules)
-    if (!this.plugin)
+    if (!this.plugin) {
       all_modules.forEach((module, i) => module.id = i)
-    else
+    } else {
       all_modules.forEach((module) => module.id = module.hash.slice(0, 10))
+    }
 
     if (this.detect_cycles) {
       function is_internal(module: ModuleInfo) {
@@ -404,13 +412,15 @@ export class Linker {
     }
 
     const deps_changed = (module: ModuleInfo, cached: ModuleInfo): boolean => {
-      if (module.dependencies.size != cached.dependencies.size)
+      if (module.dependencies.size != cached.dependencies.size) {
         return false
+      }
 
       for (const [dep, module_dep] of module.dependencies) {
         const cached_dep = cached.dependencies.get(dep)
-        if (cached_dep == null || cached_dep.id != module_dep.id)
+        if (cached_dep == null || cached_dep.id != module_dep.id) {
           return true
+        }
       }
       return false
     }
@@ -434,8 +444,9 @@ export class Linker {
           })()
           const minified = this.minify ? await minify(module, source, ecma) : {min_source: source}
           code = {source, ...minified}
-        } else
+        } else {
           code = cached!.code
+        }
 
         result.push({module, code})
       }
@@ -464,8 +475,9 @@ export class Linker {
 
   load_cache(): void {
     const {cache_path} = this
-    if (cache_path == null || !file_exists(cache_path))
+    if (cache_path == null || !file_exists(cache_path)) {
       return
+    }
 
     this.cache.clear()
 
@@ -495,16 +507,18 @@ export class Linker {
     for (const {module} of this.cache.values()) {
       for (const [dep, file] of module.dependency_paths) {
         const file_entry = this.cache.get(file)
-        if (file_entry == null)
+        if (file_entry == null) {
           throw new Error(`${file} not in cache`)
+        }
         module.dependencies.set(dep, file_entry.module)
       }
     }
   }
 
   store_cache(): void {
-    if (this.cache_path == null)
+    if (this.cache_path == null) {
       return
+    }
 
     const artifacts = []
     for (const artifact of this.cache.values()) {
@@ -535,10 +549,11 @@ export class Linker {
 
   get_package(dir: string): {[key: string]: unknown} {
     const pkg_path = join(dir, "package.json")
-    if (file_exists(pkg_path))
+    if (file_exists(pkg_path)) {
       return JSON.parse(read(pkg_path)!)
-    else
+    } else {
       return {}
+    }
   }
 
   resolve_export_map(dir: string, subpath: string): string | null {
@@ -557,29 +572,34 @@ export class Linker {
     const pkg = this.get_package(dir)
 
     const index = (() => {
-      if (this.target != null && pkg.module != null)
+      if (this.target != null && pkg.module != null) {
         return pkg.module as string
-      else if (pkg.main != null)
+      } else if (pkg.main != null) {
         return pkg.main as string
-      else
+      } else {
         return "index.js"
+      }
     })()
 
     const path = join(dir, index)
-    if (file_exists(path))
+    if (file_exists(path)) {
       return path
+    }
 
     const js_file = `${path}.js`
-    if (file_exists(js_file))
+    if (file_exists(js_file)) {
       return js_file
+    }
     const json_file = `${path}.json`
-    if (file_exists(json_file))
+    if (file_exists(json_file)) {
       return json_file
+    }
 
     if (directory_exists(path)) {
       const index = join(path, "index.js")
-      if (file_exists(index))
+      if (file_exists(index)) {
         return index
+      }
     }
 
     return null
@@ -588,8 +608,9 @@ export class Linker {
   protected resolve_relative(dep: string, parent: Parent): Path | Error {
     const path = resolve(dirname(parent.file), dep)
 
-    if (file_exists(path))
+    if (file_exists(path)) {
       return path
+    }
 
     const js_file = `${path}.js`
     const json_file = `${path}.json`
@@ -600,38 +621,44 @@ export class Linker {
     if (directory_exists(path)) {
       const pkg_file = this.resolve_package(path)
       if (pkg_file != null) {
-        if (!has_file)
+        if (!has_file) {
           return pkg_file
-        else
+        } else {
           return new BuildError("linker", `both ${has_js_file ? js_file : json_file} and ${pkg_file} exist`)
+        }
       }
     }
 
-    if (has_js_file)
+    if (has_js_file) {
       return js_file
-    else if (has_json_file)
+    } else if (has_json_file) {
       return json_file
-    else
+    } else {
       return new BuildError("linker", `can't resolve '${dep}' from '${parent.file}'`)
+    }
   }
 
   protected resolve_absolute(dep: string, parent: Parent): Path | Error {
     for (const base of this.bases) {
       let path = join(base, dep)
-      if (file_exists(path))
+      if (file_exists(path)) {
         return path
+      }
 
       const js_file = `${path}.js`
-      if (file_exists(js_file))
+      if (file_exists(js_file)) {
         return js_file
+      }
       const json_file = `${path}.json`
-      if (file_exists(json_file))
+      if (file_exists(json_file)) {
         return json_file
+      }
 
       if (directory_exists(path)) {
         const file = this.resolve_package(path)
-        if (file != null)
+        if (file != null) {
           return file
+        }
       }
 
       const [dir, ...rest] = dep.split(sep)
@@ -639,8 +666,9 @@ export class Linker {
         const path = join(base, dir)
         if (directory_exists(path)) {
           const file = this.resolve_export_map(path, rest.join(sep))
-          if (file != null)
+          if (file != null) {
             return file
+          }
         }
       }
 
@@ -650,15 +678,17 @@ export class Linker {
         while (true) {
           base_path = dirname(base_path)
 
-          if (base_path == base)
+          if (base_path == base) {
             break
+          }
 
           path = join(base_path, "node_modules", dep)
 
           if (directory_exists(path)) {
             const file = this.resolve_package(path)
-            if (file != null)
+            if (file != null) {
               return file
+            }
           }
         }
       }
@@ -668,10 +698,11 @@ export class Linker {
   }
 
   resolve_file(dep: string, parent: Parent): Path | Error {
-    if (dep.startsWith("."))
+    if (dep.startsWith(".")) {
       return this.resolve_relative(dep, parent)
-    else
+    } else {
       return this.resolve_absolute(dep, parent)
+    }
   }
 
   private parse_module({file, source}: {file: Path, source: string}): ts.SourceFile {
@@ -759,8 +790,9 @@ export ${export_type} yaml;
         while (path != base) {
           if (directory_exists(path)) {
             const pkg_path = join(path, "package.json")
-            if (file_exists(pkg_path))
+            if (file_exists(pkg_path)) {
               return {dir: path, pkg: JSON.parse(read(pkg_path)!)}
+            }
           }
           path = dirname(path)
         }
@@ -827,9 +859,9 @@ export ${export_type} yaml;
 
         // XXX: .json extension will cause an internal error
         const {output, error} = transpile(type == "json" ? `${file}.ts` : file, source, target, transform)
-        if (error != null)
+        if (error != null) {
           throw new BuildError("linker", error)
-        else {
+        } else {
           source = output
           collected = [...imports]
         }
@@ -837,17 +869,19 @@ export ${export_type} yaml;
 
       ast = this.parse_module({file, source})
 
-      if (collected == null)
+      if (collected == null) {
         collected = transforms.collect_deps(ast)
+      }
       const filtered = collected.filter((dep) => !this.is_external(dep) && !this.excluded(dep) && !this.is_shimmed(dep))
 
       dependency_paths = new Map()
       for (const dep of filtered) {
         const resolved = this.resolve_file(dep, {file})
-        if (resolved instanceof Error)
+        if (resolved instanceof Error) {
           console.log(resolved)
-        else
+        } else {
           dependency_paths.set(dep, resolved)
+        }
       }
 
       externals = new Set(collected.filter((dep) => this.is_external(dep)))
@@ -888,10 +922,12 @@ export ${export_type} yaml;
     for (;;) {
       const file = pending.shift()
 
-      if (file == null)
+      if (file == null) {
         break
-      if (visited.has(file) || this.excludes.has(file))
+      }
+      if (visited.has(file) || this.excludes.has(file)) {
         continue
+      }
 
       const module = this.new_module(file)
       visited.set(module.file, module)
@@ -915,10 +951,12 @@ export ${export_type} yaml;
     for (;;) {
       const module = pending.shift()
 
-      if (module == null)
+      if (module == null) {
         break
-      if (reached.has(module) || this.excludes.has(module.file) || is_excluded(module))
+      }
+      if (reached.has(module) || this.excludes.has(module.file) || is_excluded(module)) {
         continue
+      }
 
       reached.add(module)
       pending.unshift(...module.dependencies.values())
@@ -943,9 +981,9 @@ export function transpile(file: Path, source: string, target: ts.ScriptTarget,
     transformers,
   })
 
-  if (diagnostics == null || diagnostics.length == 0)
+  if (diagnostics == null || diagnostics.length == 0) {
     return {output}
-  else {
+  } else {
     const {text} = report_diagnostics(diagnostics)
     return {output, error: text}
   }

@@ -409,7 +409,7 @@ class Test_json_item:
     def test_doc_json(self, test_plot: figure) -> None:
         out = bes.json_item(test_plot, target=ID("foo"))
         assert set(out.keys()) == JSON_ITEMS_KEYS
-        expected = list(standalone_docs_json([test_plot]).values())[0]
+        expected = next(iter(standalone_docs_json([test_plot]).values()))
         assert out['doc'] == expected
 
     def test_doc_title(self, test_plot: figure) -> None:

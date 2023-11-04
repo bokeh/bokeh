@@ -1,9 +1,16 @@
+import * as sinon from "sinon"
+
 import {expect} from "assertions"
+import {display, restorable} from "../../_util"
+import {PlotActions, xy} from "../../../interactive"
+
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
+import {GlyphRenderer, GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {Circle} from "@bokehjs/models/glyphs"
 import {build_view} from "@bokehjs/core/build_views"
 import {Plot} from "@bokehjs/models/plots"
+import {FactorRange} from "@bokehjs/models/ranges"
+import {CategoricalScale} from "@bokehjs/models/scales"
 
 function mkrenderer(glyph: Circle): GlyphRenderer {
   const data_source = new ColumnDataSource({
@@ -80,5 +87,32 @@ describe("GlyphRendererView", () => {
     const {decimated_glyph} = await make_grv()
     expect((decimated_glyph.model as Circle).line_alpha).to.be.equal({value: 0.3})
     expect((decimated_glyph.model as Circle).line_color).to.be.equal({value: "grey"})
+  })
+
+  it("should call set_data() once when working with FactorRange", async () => {
+    const x_range = new FactorRange({factors: ["a", "b", "c"]})
+    const y_range = new FactorRange({factors: ["u", "v", "w"]})
+
+    const x_scale = new CategoricalScale()
+    const y_scale = new CategoricalScale()
+
+    const data_source = new ColumnDataSource({
+      data: {
+        x: ["a", "b", "c"],
+        y: ["u", "v", "w"],
+      },
+    })
+    const gr = new GlyphRenderer({glyph: new Circle({radius: 0.5}), data_source})
+
+    const bare = {toolbar_location: null, title: null, min_border: 0}
+    const p = new Plot({width: 300, height: 300, x_range, y_range, x_scale, y_scale, renderers: [gr], ...bare})
+
+    using spy = restorable(sinon.spy(GlyphRendererView.prototype, "set_data"))
+    const {view} = await display(p)
+
+    const actions = new PlotActions(view, {units: "screen"})
+    await actions.pan(xy(100, 100), xy(200, 200))
+
+    expect(spy.callCount).to.be.equal(1) // only initial set_data()
   })
 })

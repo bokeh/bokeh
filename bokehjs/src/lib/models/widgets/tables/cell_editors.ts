@@ -364,10 +364,11 @@ export class IntEditorView extends CellEditorView {
       value = Number(value)
     }
 
-    if (isInteger(value))
+    if (isInteger(value)) {
       return super.validateValue(value)
-    else
+    } else {
       return {valid: false, msg: "Please enter a valid integer"}
+    }
   }
 }
 
@@ -424,10 +425,11 @@ export class NumberEditorView extends CellEditorView {
   }
 
   override validateValue(value: any): any {
-    if (isNaN(value))
+    if (isNaN(value)) {
       return {valid: false, msg: "Please enter a valid number"}
-    else
+    } else {
       return super.validateValue(value)
+    }
   }
 }
 

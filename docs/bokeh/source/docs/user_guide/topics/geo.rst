@@ -20,7 +20,7 @@ any name xyzservices may recognize. The ``retina`` keyword can control the resol
 
 If you pass ``retina=True``, Bokeh will attempt to use the tiles in the 2x higher resolution
 than with default settings. However, this functionality needs to be supported by the tile provider.
-Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'` as part of the tile
+Otherwise, the keyword is ignored. Alternatively, you can include ``'retina'`` as part of the tile
 provider name string, e.g. ``'CartoDB Positron retina'``, which will work as ``retina=True``.
 
 Notice that passing ``x_axis_type="mercator"`` and ``y_axis_type="mercator"``
@@ -65,42 +65,41 @@ Tile Source for Open Street Map Mapnik.
 
     <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
-Stamen Terrain
-~~~~~~~~~~~~~~
+Stadia/Stamen Terrain
+~~~~~~~~~~~~~~~~~~~~~
 
-Tile Source for Stamen Terrain Service
-
-.. raw:: html
-
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
-
-Stamen Toner
-~~~~~~~~~~~~
-
-Tile Source for Stamen Toner Service
+Tile Source for Stadia/Stamen Terrain Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331.png" />
 
-Stamen Toner Background
-~~~~~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stamen Toner Background Service which does not include labels
-
-.. raw:: html
-
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
-
-Stamen Toner Labels
+Stadia/Stamen Toner
 ~~~~~~~~~~~~~~~~~~~
 
-Tile Source for Stamen Toner Service which includes only labels
+Tile Source for Stadia/Stamen Toner Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner/14/2627/6331.png" />
 
+Stadia/Stamen Toner Background
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stadia/Stamen Toner Background Service which does not include labels
+
+.. raw:: html
+
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_background/14/2627/6331.png" />
+
+Stadia/Stamen Toner Labels
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Tile Source for Stadia/Stamen Toner Service which includes only labels
+
+.. raw:: html
+
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/14/2627/6331.png" />
 
 .. _ug_topics_geo_google_maps:
 

@@ -30,13 +30,16 @@ export class StepInterpolator extends Interpolator {
     this.sort(false)
 
     if (this.clip) {
-      if (x < this._x_sorted[0] || x > this._x_sorted[this._x_sorted.length-1])
+      if (x < this._x_sorted[0] || x > this._x_sorted[this._x_sorted.length-1]) {
         return NaN
+      }
     } else {
-      if (x < this._x_sorted[0])
+      if (x < this._x_sorted[0]) {
         return this._y_sorted[0]
-      if (x > this._x_sorted[this._x_sorted.length-1])
+      }
+      if (x > this._x_sorted[this._x_sorted.length-1]) {
         return this._y_sorted[this._y_sorted.length-1]
+      }
     }
 
     let ind: number

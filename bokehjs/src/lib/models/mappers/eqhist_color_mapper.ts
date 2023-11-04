@@ -43,8 +43,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
     // 1) Count non-zeros
     let nhist = 0
     for (let i = 0; i < nbins; i++) {
-      if (full_hist[i] != 0)
+      if (full_hist[i] != 0) {
         nhist++
+      }
     }
 
     // 2) Remove zeros, leaving extra element at beginning for rescale_discrete_levels
@@ -64,8 +65,9 @@ export class EqHistColorMapper extends ScanningColorMapper {
     const cdf = cumsum(hist)
     const lo = cdf[1]
     const diff = cdf[nhist] - lo
-    for (let i = 1; i <= nhist; i++)
+    for (let i = 1; i <= nhist; i++) {
       cdf[i] = (cdf[i] - lo) / diff
+    }
     cdf[0] = -1.0
 
     let {rescale_discrete_levels} = this
@@ -80,10 +82,11 @@ export class EqHistColorMapper extends ScanningColorMapper {
       const c = 1.5 - 2*m  // y[0] - m*x[0]
       const multiple = m*discrete_levels + c
 
-      if (multiple > 1)
+      if (multiple > 1) {
         lower_span = 1 - multiple
-      else
+      } else {
         rescale_discrete_levels = false
+      }
     }
 
     // Color bin boundaries are equally spaced in CDF
@@ -99,11 +102,13 @@ export class EqHistColorMapper extends ScanningColorMapper {
       // lowest colorbar label equals low rather than than the arbitrary value set by
       // rescale_discrete_levels. This ensures the bottom colorbar label is correct.
       // If low == binning[low_cutoff_index] then do nothing as label is already correct.
-      if (low < binning[low_cutoff_index] && low_cutoff_index > 0)
+      if (low < binning[low_cutoff_index] && low_cutoff_index > 0) {
         binning[low_cutoff_index-1] = low
+      }
       force_low_cutoff = true
-    } else
+    } else {
       binning[0] = low
+    }
     binning[binning.length-1] = high
 
     return {min: low, max: high, binning, force_low_cutoff}

@@ -29,7 +29,7 @@ dependencies:
   - isort 5.8
   - json5
   - nbconvert >=5.4
-  - nodejs 18.*
+  - nodejs 20.*
   - pre-commit
   - psutil
   - pygments
@@ -63,10 +63,11 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph
     # tests
-    - ruff ==0.0.269
+    - ruff ==0.0.285
     - types-boto
     - types-colorama
     - types-mock
     - types-pillow
     - types-pyyaml
     - types-requests
+    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407

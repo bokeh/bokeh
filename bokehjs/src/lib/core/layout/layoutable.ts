@@ -4,6 +4,7 @@ import type {CoordinateMapper} from "../util/bbox"
 import {BBox} from "../util/bbox"
 import {isNumber} from "../util/types"
 import {assert} from "../util/assert"
+import type {TextBox} from "../graphics"
 
 const {abs, min, max, round} = Math
 
@@ -289,5 +290,27 @@ export abstract class ContentLayoutable extends Layoutable {
     })()
 
     return {width, height}
+  }
+}
+
+export class TextLayout extends ContentLayoutable {
+
+  constructor(readonly text: TextBox) {
+    super()
+  }
+
+  _content_size(): Sizeable {
+    return new Sizeable(this.text.size())
+  }
+}
+
+export class FixedLayout extends ContentLayoutable {
+
+  constructor(readonly size: Partial<Size> = {}) {
+    super()
+  }
+
+  _content_size(): Sizeable {
+    return new Sizeable(this.size)
   }
 }

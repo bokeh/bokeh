@@ -39,8 +39,8 @@ export class PaneView extends UIElementView {
   override connect_signals(): void {
     super.connect_signals()
     const {children} = this.model.properties
-    this.on_change(children, () => {
-      this._rebuild_views()
+    this.on_change(children, async () => {
+      await this._rebuild_views()
       this.render()
     })
   }
@@ -62,12 +62,14 @@ export class PaneView extends UIElementView {
   }
 
   override has_finished(): boolean {
-    if (!super.has_finished())
+    if (!super.has_finished()) {
       return false
+    }
 
     for (const child_view of this.child_views) {
-      if (!child_view.has_finished())
+      if (!child_view.has_finished()) {
         return false
+      }
     }
 
     return true

@@ -12,13 +12,14 @@ import {pyify_version} from "core/util/version"
 import type {Ref} from "core/util/refs"
 import type {ID, Data} from "core/types"
 import {Signal0} from "core/signaling"
-import {isString, isFunction} from "core/util/types"
+import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
-import {copy, includes} from "core/util/array"
+import {copy} from "core/util/array"
 import {entries} from "core/util/object"
 import * as sets from "core/util/set"
-import type {CallbackLike} from "models/callbacks/callback"
+import type {CallbackLike} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import {Model} from "model"
 import type {ModelDef} from "./defs"
 import {decode_def} from "./defs"
@@ -32,7 +33,6 @@ Deserializer.register("model", decode_def)
 export type Out<T> = T
 
 export type DocumentEventCallback<T extends BokehEvent = BokehEvent> = CallbackLike<Document, [T]>
-export type DocumentEventCallbackLike<T extends BokehEvent = BokehEvent> = DocumentEventCallback<T> | DocumentEventCallback<T>["execute"]
 
 // Dispatches events to the subscribed models
 export class EventManager {
@@ -51,8 +51,9 @@ export class EventManager {
 
   trigger(event: ModelEvent): void {
     for (const model of this.subscribed_models) {
-      if (event.origin != null && event.origin != model)
+      if (event.origin != null && event.origin != model) {
         continue
+      }
       model._process_event(event)
     }
   }
@@ -95,10 +96,10 @@ export class Document implements Equatable {
   protected _interactive_plot: Model | null
   protected _interactive_finalize: (() => void) | null
 
-  constructor(options?: {resolver?: ModelResolver}) {
+  constructor(options: {roots?: Iterable<HasProps>, resolver?: ModelResolver} = {}) {
     documents.push(this)
     this._init_timestamp = Date.now()
-    this._resolver = options?.resolver ?? new ModelResolver(default_resolver)
+    this._resolver = options.resolver ?? new ModelResolver(default_resolver)
     this._title = DEFAULT_TITLE
     this._roots = []
     this._all_models = new Map()
@@ -112,6 +113,9 @@ export class Document implements Equatable {
     this._idle_roots = new WeakSet()
     this._interactive_timestamp = null
     this._interactive_plot = null
+    if (options.roots != null) {
+      this._add_roots(...options.roots)
+    }
   }
 
   [equals](that: this, _cmp: Comparator): boolean {
@@ -121,8 +125,9 @@ export class Document implements Equatable {
   get is_idle(): boolean {
     // TODO: models without views, e.g. data models
     for (const root of this._roots) {
-      if (!this._idle_roots.has(root))
+      if (!this._idle_roots.has(root)) {
         return false
+      }
     }
     return true
   }
@@ -147,7 +152,7 @@ export class Document implements Equatable {
     }
   }
 
-  interactive_start(plot: Model, finalize: (() => void)|null = null): void {
+  interactive_start(plot: Model, finalize: (() => void) | null = null): void {
     if (this._interactive_plot == null) {
       this._interactive_plot = plot
       this._interactive_plot.trigger_event(new LODStart())
@@ -169,10 +174,11 @@ export class Document implements Equatable {
   }
 
   interactive_duration(): number {
-    if (this._interactive_timestamp == null)
+    if (this._interactive_timestamp == null) {
       return -1
-    else
+    } else {
       return Date.now() - this._interactive_timestamp
+    }
   }
 
   destructively_move(dest_doc: Document): void {
@@ -187,8 +193,9 @@ export class Document implements Equatable {
     this.clear()
 
     for (const root of roots) {
-      if (root.document != null)
+      if (root.document != null) {
         throw new Error(`Somehow we didn't detach ${root}`)
+      }
     }
 
     if (this._all_models.size != 0) {
@@ -248,13 +255,15 @@ export class Document implements Equatable {
     return this._roots
   }
 
-  protected _add_root(model: HasProps): boolean {
-    if (includes(this._roots, model))
+  protected _add_roots(...models: HasProps[]): boolean {
+    models = models.filter((model) => !this._roots.includes(model))
+    if (models.length == 0) {
       return false
+    }
 
     this._push_all_models_freeze()
     try {
-      this._roots.push(model)
+      this._roots.push(...models)
     } finally {
       this._pop_all_models_freeze()
     }
@@ -264,8 +273,9 @@ export class Document implements Equatable {
 
   protected _remove_root(model: HasProps): boolean {
     const i = this._roots.indexOf(model)
-    if (i < 0)
+    if (i < 0) {
       return false
+    }
 
     this._push_all_models_freeze()
     try {
@@ -279,24 +289,34 @@ export class Document implements Equatable {
 
   protected _set_title(title: string): boolean {
     const new_title = title != this._title
-    if (new_title)
+    if (new_title) {
       this._title = title
+    }
     return new_title
   }
 
-  add_root(model: HasProps): void {
-    if (this._add_root(model))
-      this._trigger_on_change(new RootAddedEvent(this, model))
+  add_root(model: HasProps, {sync}: {sync?: boolean} = {}): void {
+    if (this._add_roots(model)) {
+      const event = new RootAddedEvent(this, model)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
-  remove_root(model: HasProps): void {
-    if (this._remove_root(model))
-      this._trigger_on_change(new RootRemovedEvent(this, model))
+  remove_root(model: HasProps, {sync}: {sync?: boolean} = {}): void {
+    if (this._remove_root(model)) {
+      const event = new RootRemovedEvent(this, model)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
-  set_title(title: string): void {
-    if (this._set_title(title))
-      this._trigger_on_change(new TitleChangedEvent(this, title))
+  set_title(title: string, {sync}: {sync?: boolean} = {}): void {
+    if (this._set_title(title)) {
+      const event = new TitleChangedEvent(this, title)
+      event.sync = sync ?? true
+      this._trigger_on_change(event)
+    }
   }
 
   title(): string {
@@ -310,8 +330,9 @@ export class Document implements Equatable {
   get_model_by_name(name: string): HasProps | null {
     const found = []
     for (const model of this._all_models.values()) {
-      if (model instanceof Model && model.name == name)
+      if (model instanceof Model && model.name == name) {
         found.push(model)
+      }
     }
 
     switch (found.length) {
@@ -326,10 +347,11 @@ export class Document implements Equatable {
 
   on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
     const message_callbacks = this._message_callbacks.get(msg_type)
-    if (message_callbacks == null)
+    if (message_callbacks == null) {
       this._message_callbacks.set(msg_type, new Set([callback]))
-    else
+    } else {
       message_callbacks.add(callback)
+    }
   }
 
   remove_on_message(msg_type: string, callback: (msg_data: unknown) => void): void {
@@ -374,19 +396,19 @@ export class Document implements Equatable {
     const callbacks = this._document_callbacks.get(event.event_name)
     if (callbacks != null) {
       for (const callback of callbacks) {
-        callback.execute(this, event)
+        void execute(callback, this, event)
       }
     }
   }
 
-  on_event<T extends BokehEventType>(event: T, ...callback: DocumentEventCallbackLike<BokehEventMap[T]>[]): void
-  on_event<T extends BokehEvent>(event: Class<T>, ...callback: DocumentEventCallbackLike<T>[]): void
+  on_event<T extends BokehEventType>(event: T, ...callback: DocumentEventCallback<BokehEventMap[T]>[]): void
+  on_event<T extends BokehEvent>(event: Class<T>, ...callback: DocumentEventCallback<T>[]): void
 
-  on_event(event: string | Class<BokehEvent>, ...callbacks: DocumentEventCallbackLike[]): void {
+  on_event(event: string | Class<BokehEvent>, ...callbacks: DocumentEventCallback[]): void {
     const name = isString(event) ? event : event.prototype.event_name
 
     const existing = this._document_callbacks.get(name) ?? []
-    const added = callbacks.map((callback) => isFunction(callback) ? {execute: callback} : callback)
+    const added = callbacks
 
     this._document_callbacks.set(name, [...existing, ...added])
   }
@@ -418,10 +440,12 @@ export class Document implements Equatable {
       if (!is_dev && pyify_version(js_version) != py_version) {
         logger.warn("JS/Python version mismatch")
         logger.warn(versions_string)
-      } else
+      } else {
         logger.debug(versions_string)
-    } else
+      }
+    } else {
       logger.warn("'version' field is missing")
+    }
   }
 
   static from_json(doc_json: DocJson, events?: Out<DocumentEvent[]>): Document {
@@ -445,10 +469,11 @@ export class Document implements Equatable {
     const roots = deserializer.decode(doc_json.roots) as Model[]
 
     const callbacks = (() => {
-      if (doc_json.callbacks != null)
+      if (doc_json.callbacks != null) {
         return deserializer.decode(doc_json.callbacks) as {[key: string]: DocumentEventCallback[]}
-      else
+      } else {
         return {}
+      }
     })()
 
     doc.remove_on_change(listener)
@@ -476,8 +501,9 @@ export class Document implements Equatable {
 
   create_json_patch(events: DocumentChangedEvent[]): Patch {
     for (const event of events) {
-      if (event.document != this)
+      if (event.document != this) {
         throw new Error("Cannot create a patch using events from a different document")
+      }
     }
 
     const references: Map<HasProps, Ref> = new Map()
@@ -538,19 +564,20 @@ export class Document implements Equatable {
           break
         }
         case "RootAdded": {
-          this._add_root(event.model)
+          this.add_root(event.model, {sync: false})
           break
         }
         case "RootRemoved": {
-          this._remove_root(event.model)
+          this.remove_root(event.model, {sync: false})
           break
         }
         case "TitleChanged": {
-          this._set_title(event.title)
+          this.set_title(event.title, {sync: false})
           break
         }
-        default:
+        default: {
           throw new Error(`unknown patch event type '${(event as any).kind}'`) // XXX
+        }
       }
     }
 

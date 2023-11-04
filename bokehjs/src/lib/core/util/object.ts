@@ -6,10 +6,11 @@ const {hasOwnProperty} = Object.prototype
 export const {keys, values, entries, assign, fromEntries: to_object} = Object
 export const extend = assign
 
-export function fields<T extends object>(obj: T): (keyof T)[]
-export function fields(obj: object): string[] {
-  return keys(obj)
-}
+export const typed_keys: <T extends object>(obj: T) => (keyof T)[] = keys
+
+export const typed_values: <T extends object>(obj: T) => T[keyof T][] = values
+
+export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = entries
 
 export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
   return {...obj}

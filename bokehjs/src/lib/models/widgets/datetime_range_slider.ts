@@ -38,9 +38,10 @@ export class DatetimeRangeSlider extends AbstractSlider {
   override connected = [false, true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
-    if (isString(format))
+    if (isString(format)) {
       return tz(value, format)
-    else
+    } else {
       return format.compute(value)
+    }
   }
 }

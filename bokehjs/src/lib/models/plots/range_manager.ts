@@ -7,9 +7,11 @@ import type {PlotView} from "./plot_canvas"
 import type {Interval} from "core/types"
 import {logger} from "core/logging"
 
+export type RangeState = Map<Range, Interval>
+
 export type RangeInfo = {
-  xrs: Map<string, Interval>
-  yrs: Map<string, Interval>
+  xrs: RangeState
+  yrs: RangeState
 }
 
 export type RangeOptions = {
@@ -28,18 +30,17 @@ export class RangeManager {
   invalidate_dataranges: boolean = true
 
   update(range_info: RangeInfo, options: RangeOptions = {}): void {
-    const {x_ranges, y_ranges} = this.frame
-    const range_info_iter: [Range, Interval][] = []
-    for (const [name, interval] of range_info.xrs) {
-      range_info_iter.push([x_ranges.get(name)!, interval])
+    const range_state: RangeState = new Map()
+    for (const [range, interval] of range_info.xrs) {
+      range_state.set(range, interval)
     }
-    for (const [name, interval] of range_info.yrs) {
-      range_info_iter.push([y_ranges.get(name)!, interval])
+    for (const [range, interval] of range_info.yrs) {
+      range_state.set(range, interval)
     }
     if (options.scrolling ?? false) {
-      this._update_ranges_together(range_info_iter)   // apply interval bounds while keeping aspect
+      this._update_ranges_together(range_state)   // apply interval bounds while keeping aspect
     }
-    this._update_ranges_individually(range_info_iter, options)
+    this._update_ranges_individually(range_state, options)
   }
 
   reset(): void {
@@ -49,6 +50,13 @@ export class RangeManager {
     }
     for (const range of y_ranges.values()) {
       range.reset()
+    }
+    for (const renderer of this.parent.model.data_renderers) {
+      const {coordinates} = renderer
+      if (coordinates != null) {
+        coordinates.x_source.reset()
+        coordinates.y_source.reset()
+      }
     }
     this.update_dataranges()
   }
@@ -141,24 +149,24 @@ export class RangeManager {
     // check for good values for ranges before setting initial range
     let good_vals = true
     const {x_ranges, y_ranges} = this.frame
-    const xrs: Map<string, Interval> = new Map()
-    const yrs: Map<string, Interval> = new Map()
-    for (const [name, range] of x_ranges) {
+    const xrs: Map<Range, Interval> = new Map()
+    const yrs: Map<Range, Interval> = new Map()
+    for (const [, range] of x_ranges) {
       const {start, end} = range
       if (isNaN(start + end)) {
         good_vals = false
         break
       }
-      xrs.set(name, {start, end})
+      xrs.set(range, {start, end})
     }
     if (good_vals) {
-      for (const [name, range] of y_ranges) {
+      for (const [, range] of y_ranges) {
         const {start, end} = range
         if (isNaN(start + end)) {
           good_vals = false
           break
         }
-        yrs.set(name, {start, end})
+        yrs.set(range, {start, end})
       }
     }
     if (good_vals)
@@ -169,28 +177,28 @@ export class RangeManager {
     }
   }
 
-  protected _update_ranges_together(range_info_iter: [Range, Interval][]): void {
+  protected _update_ranges_together(range_state: RangeState): void {
     // Get weight needed to scale the diff of the range to honor interval limits
     let weight = 1.0
-    for (const [rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_state) {
       weight = Math.min(weight, this._get_weight_to_constrain_interval(rng, range_info))
     }
     // Apply shared weight to all ranges
     if (weight < 1) {
-      for (const [rng, range_info] of range_info_iter) {
+      for (const [rng, range_info] of range_state) {
         range_info.start = weight*range_info.start + (1 - weight)*rng.start
         range_info.end = weight*range_info.end + (1 - weight)*rng.end
       }
     }
   }
 
-  protected _update_ranges_individually(range_info_iter: [Range, Interval][], options: RangeOptions = {}): void {
+  protected _update_ranges_individually(range_state: RangeState, options: RangeOptions = {}): void {
     const panning = options.panning ?? false
     const scrolling = options.scrolling ?? false
     const maintain_focus = options.maintain_focus ?? false
 
     let hit_bound = false
-    for (const [rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_state) {
       // Limit range interval first. Note that for scroll events,
       // the interval has already been limited for all ranges simultaneously
       if (!scrolling) {
@@ -203,46 +211,38 @@ export class RangeManager {
 
       // Prevent range from going outside limits
       // Also ensure that range keeps the same delta when panning/scrolling
-      if (rng.bounds != null && rng.bounds != "auto") { // check `auto` for type-checking purpose
-        const [min, max] = rng.bounds
+      if (rng.bounds != null) {
+        const [min, max] = rng.computed_bounds
         const new_interval = Math.abs(range_info.end - range_info.start)
 
         if (rng.is_reversed) {
-          if (min != null) {
-            if (min > range_info.end) {
-              hit_bound = true
-              range_info.end = min
-              if (panning || scrolling) {
-                range_info.start = min + new_interval
-              }
+          if (min > range_info.end) {
+            hit_bound = true
+            range_info.end = min
+            if (panning || scrolling) {
+              range_info.start = min + new_interval
             }
           }
-          if (max != null) {
-            if (max < range_info.start) {
-              hit_bound = true
-              range_info.start = max
-              if (panning || scrolling) {
-                range_info.end = max - new_interval
-              }
+          if (max < range_info.start) {
+            hit_bound = true
+            range_info.start = max
+            if (panning || scrolling) {
+              range_info.end = max - new_interval
             }
           }
         } else {
-          if (min != null) {
-            if (min > range_info.start) {
-              hit_bound = true
-              range_info.start = min
-              if (panning || scrolling) {
-                range_info.end = min + new_interval
-              }
+          if (min > range_info.start) {
+            hit_bound = true
+            range_info.start = min
+            if (panning || scrolling) {
+              range_info.end = min + new_interval
             }
           }
-          if (max != null) {
-            if (max < range_info.end) {
-              hit_bound = true
-              range_info.end = max
-              if (panning || scrolling) {
-                range_info.start = max - new_interval
-              }
+          if (max < range_info.end) {
+            hit_bound = true
+            range_info.end = max
+            if (panning || scrolling) {
+              range_info.start = max - new_interval
             }
           }
         }
@@ -256,7 +256,7 @@ export class RangeManager {
     if (scrolling && hit_bound && maintain_focus)
       return
 
-    for (const [rng, range_info] of range_info_iter) {
+    for (const [rng, range_info] of range_state) {
       rng.have_updated_interactively = true
       if (rng.start != range_info.start || rng.end != range_info.end)
         rng.setv(range_info)

@@ -27,6 +27,7 @@ import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState} from "core/view"
+import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
 import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
@@ -64,6 +65,8 @@ export class PlotView extends LayoutDOMView implements Renderable {
   get canvas(): CanvasView {
     return this.canvas_view
   }
+
+  readonly repainted = new Signal0(this, "repainted")
 
   protected _computed_style = new InlineStyleSheet()
 
@@ -104,6 +107,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
   protected throttled_paint: () => void
 
   computed_renderers: Renderer[]
+
+  get computed_renderer_views(): RendererView[] {
+    return this.computed_renderers.map((r) => this.renderer_views.get(r)!)
+  }
 
   renderer_view<T extends Renderer>(renderer: T): T["__view_type__"] | undefined {
     const view = this.renderer_views.get(renderer)
@@ -262,7 +269,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._range_manager = new RangeManager(this)
     this._state_manager = new StateManager(this, this._initial_state)
 
-    this.throttled_paint = throttle(() => { if (!this._removed) this.repaint() }, 1000/60)
+    this.throttled_paint = throttle(() => {
+      if (!this._removed) this.repaint()
+    }, 1000/60)
 
     const {title_location, title} = this.model
     if (title_location != null && title != null) {
@@ -387,11 +396,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
       }
     }
 
-    const set_layout = (side: Side, model: Annotation | Axis): Layoutable => {
+    const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
       const view = this.renderer_view(model)!
       view.panel = new Panel(side)
       view.update_layout?.()
-      return view.layout!
+      return view.layout
     }
 
     const set_layouts = (side: Side, panels: Panels) => {
@@ -402,12 +411,14 @@ export class PlotView extends LayoutDOMView implements Renderable {
         if (isArray(panel)) {
           const items = panel.map((subpanel) => {
             const item = set_layout(side, subpanel)
+            if (item == null)
+              return undefined
             if (subpanel instanceof ToolbarPanel) {
               const dim = horizontal ? "width_policy" : "height_policy"
               item.set_sizing({...item.sizing, [dim]: "min"})
             }
             return item
-          })
+          }).filter((item): item is Layoutable => item != null)
 
           let layout: Row | Column
           if (horizontal) {
@@ -420,8 +431,11 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
           layout.absolute = true
           layouts.push(layout)
-        } else
-          layouts.push(set_layout(side, panel))
+        } else {
+          const layout = set_layout(side, panel)
+          if (layout != null)
+            layouts.push(layout)
+        }
       }
 
       return layouts
@@ -690,10 +704,14 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {x_ranges, y_ranges} = this.frame
     for (const [, range] of x_ranges) {
-      this.connect(range.change, () => { this.request_paint("everything") })
+      this.connect(range.change, () => {
+        this.request_paint("everything")
+      })
     }
     for (const [, range] of y_ranges) {
-      this.connect(range.change, () => { this.request_paint("everything") })
+      this.connect(range.change, () => {
+        this.request_paint("everything")
+      })
     }
 
     this.connect(this.model.change, () => this.request_paint("everything"))
@@ -796,6 +814,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const {inner_bbox} = this.layout
     if (!this._inner_bbox.equals(inner_bbox)) {
       this._inner_bbox = inner_bbox
+      this._invalidate_all = true
       this._needs_paint = true
     }
 
@@ -816,9 +835,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     if (this.is_paused)
       return
 
-    if (this.model.visible) {
+    if (this.is_displayed) {
       logger.trace(`${this.toString()}.paint()`)
       this._actual_paint()
+    } else {
+      // This is possibly the first render cycle, but plot isn't displayed,
+      // so all renderers have to be manually marked as finished, because
+      // their `render()` method didn't run.
+      for (const renderer_view of this.computed_renderer_views) {
+        renderer_view.mark_finished()
+      }
     }
 
     if (this._needs_notify) {
@@ -895,7 +921,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       overlays.prepare()
       this._paint_levels(overlays.ctx, "overlay", frame_box, false)
       if (settings.wireframe)
-        this._paint_layout(overlays.ctx, this.layout)
+        this.paint_layout(overlays.ctx, this.layout)
       overlays.finish()
     }
 
@@ -904,6 +930,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     this._needs_paint = false
+    this.repainted.emit()
   }
 
   protected _paint_levels(ctx: Context2d, level: RenderLevel, clip_region: FrameBox, global_clip: boolean): void {
@@ -929,7 +956,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  protected _paint_layout(ctx: Context2d, layout: Layoutable) {
+  paint_layout(ctx: Context2d, layout: Layoutable) {
     const {x, y, width, height} = layout.bbox
     ctx.strokeStyle = "blue"
     ctx.strokeRect(x, y, width, height)
@@ -937,7 +964,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
       ctx.save()
       if (!layout.absolute)
         ctx.translate(x, y)
-      this._paint_layout(ctx, child)
+      this.paint_layout(ctx, child)
       ctx.restore()
     }
   }
@@ -947,9 +974,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     const [fx, fy, fw, fh] = frame_box
 
     if (this.visuals.border_fill.doit) {
-      this.visuals.border_fill.set_value(ctx)
-      ctx.fillRect(cx, cy, cw, ch)
-      ctx.clearRect(fx, fy, fw, fh)
+      ctx.save()
+      ctx.beginPath()
+      ctx.rect(cx, cy, cw, ch)
+      ctx.rect(fx, fy, fw, fh)
+      ctx.clip("evenodd")
+
+      ctx.beginPath()
+      ctx.rect(cx, cy, cw, ch)
+      this.visuals.border_fill.apply(ctx)
+      ctx.restore()
     }
 
     if (this.visuals.background_fill.doit) {

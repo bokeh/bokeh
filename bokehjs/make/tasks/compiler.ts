@@ -23,7 +23,9 @@ task("compiler:build", ["compiler:ts"], async () => {
 
   const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, apply_transforms, cache})
 
-  if (!argv.rebuild) linker.load_cache()
+  if (!argv.rebuild) {
+    linker.load_cache()
+  }
   const {bundles: [bundle], status} = await linker.link()
   linker.store_cache()
 
@@ -39,6 +41,7 @@ task("compiler:build", ["compiler:ts"], async () => {
 
   bundle.assemble({prelude, postlude}).write(join(build_dir.js, "compiler.js"))
 
-  if (!status)
+  if (!status) {
     throw new BuildError("compiler:build", "unable to bundle modules")
+  }
 })

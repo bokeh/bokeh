@@ -30,7 +30,7 @@ dependencies:
   - json5
   - nbconvert >=5.4
   - networkx
-  - nodejs 18.*
+  - nodejs 20.*
   - pre-commit
   - psutil
   - pygments
@@ -44,6 +44,7 @@ dependencies:
   - requests >=1.2.3
   - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13152
   - scipy
+  - pooch # required in scipy.datasets
   - selenium 4.2
   - toml
   - typing_extensions >=4.0.0
@@ -74,10 +75,13 @@ dependencies:
     - sphinxext-opengraph
     # tests
     - pandas-stubs ==1.5.2.221213
-    - ruff ==0.0.269
+    - ruff ==0.0.285
     - types-boto
     - types-colorama
     - types-mock
     - types-pillow
     - types-pyyaml
     - types-requests
+    - types-toml
+    - urllib3 <2 # see https://github.com/bokeh/bokeh/issues/13407
+    - vermin

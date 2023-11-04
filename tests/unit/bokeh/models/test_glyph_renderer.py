@@ -25,12 +25,14 @@ from bokeh.models import (
     GeoJSONDataSource,
     Image,
     ImageRGBA,
+    ImageStack,
     IndexFilter,
     Line,
     MultiLine,
     Patch,
     Text,
     WebDataSource,
+    WeightedStackColorMapper,
 )
 from bokeh.transform import linear_cmap, log_cmap
 
@@ -103,6 +105,14 @@ class TestGlyphRenderer_construct_color_bar:
     def test_image_good(self, mapper):
         renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
         renderer.glyph = Image(color_mapper=linear_cmap("foo", "Viridis256", 0, 100).transform)
+        cb = renderer.construct_color_bar(title="Title")
+        assert isinstance(cb, ColorBar)
+        assert cb.color_mapper is renderer.glyph.color_mapper
+        assert cb.title == "Title"
+
+    def test_image_stack_good(self):
+        renderer = bmr.GlyphRenderer(data_source=ColumnDataSource())
+        renderer.glyph = ImageStack(color_mapper=WeightedStackColorMapper())
         cb = renderer.construct_color_bar(title="Title")
         assert isinstance(cb, ColorBar)
         assert cb.color_mapper is renderer.glyph.color_mapper

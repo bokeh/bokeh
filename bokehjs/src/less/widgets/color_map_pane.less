@@ -1,0 +1,9 @@
+@import "../_mixins.less";
+
+:host {
+  --number-of-columns: 1;
+  padding: 5px;
+  display: grid;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  gap: 0.25em;
+}

@@ -2,7 +2,7 @@ import type {Size} from "./types"
 import {Sizeable} from "./types"
 import {ContentLayoutable} from "./layoutable"
 
-import type {Side, Orientation} from "../enums"
+import type {Side, Face, Orientation} from "../enums"
 import {isString} from "../util/types"
 
 // This table lays out the rules for configuring the baseline, alignment, etc. of
@@ -136,36 +136,61 @@ const _align_lookup_positive: {[key in Side]: Align} = {
   right: "left",
 }
 
-export class Panel {
-  constructor(readonly side: Side) {}
+export type Dimension = 0 | 1
+export type Normal = -1 | 0 | 1
 
-  get dimension(): 0 | 1 {
-    return this.side == "above" || this.side == "below" ? 0 : 1
+export class Panel {
+  readonly face: Face
+  readonly dimension: Dimension
+  readonly orientation: Orientation
+  readonly is_horizontal: boolean
+  readonly is_vertical: boolean
+  readonly normals: [Normal, Normal]
+
+  constructor(readonly side: Side, face?: Face | "auto") {
+    this.face = (() => {
+      if (face != null && face != "auto") {
+        return face
+      } else {
+        switch (this.side) {
+          case "left":
+          case "above":
+            return "front"
+          case "right":
+          case "below":
+            return "back"
+        }
+      }
+    })()
+    this.dimension = this.side == "above" || this.side == "below" ? 0 : 1
+    this.orientation = this.dimension == 0 ? "horizontal" : "vertical"
+    this.is_horizontal = this.dimension == 0
+    this.is_vertical = this.dimension == 1
+    this.normals = (() => {
+      const sign = this.face == "front" ? -1 : 1
+      switch (this.side) {
+        case "left":  return [sign, 0]
+        case "right": return [sign, 0]
+        case "above": return [0, sign]
+        case "below": return [0, sign]
+      }
+    })()
   }
 
-  get normals(): [number, number] {
-    switch (this.side) {
-      case "above": return [ 0, -1]
-      case "below": return [ 0,  1]
-      case "left":  return [-1,  0]
-      case "right": return [ 1,  0]
+  get face_adjusted_side(): Side {
+    const {side, face} = this
+    switch (side) {
+      case "left":
+      case "right":
+        return face == "front" ? "left" : "right"
+      case "above":
+      case "below":
+        return face == "front" ? "above" : "below"
     }
   }
 
-  get orientation(): Orientation {
-    return this.is_horizontal ? "horizontal" : "vertical"
-  }
-
-  get is_horizontal(): boolean {
-    return this.dimension == 0
-  }
-
-  get is_vertical(): boolean {
-    return this.dimension == 1
-  }
-
   get_label_text_heuristics(orient: Orient | number): {vertical_align: VerticalAlign, align: Align} {
-    const {side} = this
+    const side = this.face_adjusted_side
 
     if (isString(orient)) {
       return {
@@ -181,9 +206,10 @@ export class Panel {
   }
 
   get_label_angle_heuristic(orient: Orient | number): number {
-    if (isString(orient))
-      return _angle_lookup[this.side][orient]
-    else
+    if (isString(orient)) {
+      const side = this.face_adjusted_side
+      return _angle_lookup[side][orient]
+    } else
       return -orient
   }
 }

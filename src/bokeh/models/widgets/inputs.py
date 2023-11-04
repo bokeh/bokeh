@@ -20,10 +20,14 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import inf
+
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Color,
     ColorHex,
     Dict,
     Either,
@@ -39,6 +43,8 @@ from ...core.properties import (
     Override,
     Positive,
     Readonly,
+    Required,
+    Seq,
     String,
     Tuple,
 )
@@ -53,6 +59,7 @@ from .widget import Widget
 __all__ = (
     'AutocompleteInput',
     'Checkbox',
+    'ColorMap',
     'ColorPicker',
     'FileInput',
     'InputWidget',
@@ -245,11 +252,11 @@ class Spinner(NumericInput):
 
     mode = Override(default="float")
 
-    step = Interval(Float, start=1e-16, end=float('inf'), default=1, help="""
+    step = Interval(Float, start=1e-16, end=inf, default=1, help="""
     The step added or subtracted to the current value.
     """)
 
-    page_step_multiplier = Interval(Float, start=0, end=float('inf'), default=10, help="""
+    page_step_multiplier = Interval(Float, start=0, end=inf, default=10, help="""
     Defines the multiplication factor applied to step when the page up and page
     down keys are pressed.
     """)
@@ -519,6 +526,30 @@ class ColorPicker(InputWidget):
 
     color = ColorHex(default='#000000', help="""
     The initial color of the picked color (named or hexadecimal)
+    """)
+
+class ColorMap(InputWidget):
+    ''' Color map picker widget.
+
+    '''
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    value = Required(String, help="""
+    """)
+
+    items = Required(Seq(Tuple(String, Seq(Color))), help="""
+    """)
+
+    swatch_width = NonNegative(Int, default=100, help="""
+    """)
+
+    swatch_height = NonNegative(Int, default=20, help="""
+    """)
+
+    ncols = Positive(Int, default=1, help="""
     """)
 
 #-----------------------------------------------------------------------------

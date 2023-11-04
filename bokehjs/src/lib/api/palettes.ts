@@ -1015,10 +1015,12 @@ export const colorblind = {
 
 export function interp_palette(palette: Color[], n: number): RGBA[] {
   const npalette = palette.length
-  if (npalette < 1)
+  if (npalette < 1) {
     throw new Error("palette must contain at least one color")
-  if (n < 0)
+  }
+  if (n < 0) {
     throw new Error("requested palette length cannot be negative")
+  }
 
   // Arrayable.interpolate operates on whole arrays, not slices, so need separate
   // arrays for each of the R, G, B and A components.
@@ -1047,18 +1049,21 @@ export function interp_palette(palette: Color[], n: number): RGBA[] {
 }
 
 export function linear_palette<T>(palette: T[], n: number): T[] {
-  if (n <= palette.length)
+  if (n <= palette.length) {
     return linspace(0, palette.length - 1, n).map((i) => palette[i|0])
-  else
+  } else {
     throw new Error("too many color entries requested")
+  }
 }
 
 export function varying_alpha_palette(color: Color, n: number | null = null, start_alpha: number = 0, end_alpha: number = 255): string[] {
-  if (start_alpha < 0 || start_alpha > 255)
+  if (start_alpha < 0 || start_alpha > 255) {
     throw new Error("start_alpha must be in the range 0 to 255")
+  }
 
-  if (end_alpha < 0 || end_alpha > 255)
+  if (end_alpha < 0 || end_alpha > 255) {
     throw new Error("end_alpha must be in the range 0 to 255")
+  }
 
   const rgba = color2rgba(color)
 
@@ -1076,8 +1081,9 @@ export function varying_alpha_palette(color: Color, n: number | null = null, sta
   start_alpha /= 255
 
   const palette = new Array<string>(npalette)
-  for (let i = 0; i < npalette; i++)
+  for (let i = 0; i < npalette; i++) {
     palette[i] = color2hex(rgba, start_alpha + diff_alpha*i / (npalette-1))
+  }
 
   return palette
 }

@@ -25,8 +25,9 @@ export type Token = {
 export function parse_token(token: string): Token {
   let payload = token.split(".")[0]
   const mod = payload.length % 4
-  if (mod != 0)
+  if (mod != 0) {
     payload = payload + "=".repeat(4-mod)
+  }
   return JSON.parse(atob(payload.replace(/_/g, "/").replace(/-/g, "+")))
 }
 
@@ -52,10 +53,12 @@ export class ClientConnection {
   }
 
   async connect(): Promise<ClientSession> {
-    if (this.closed_permanently)
+    if (this.closed_permanently) {
       throw new Error("Cannot connect() a closed ClientConnection")
-    if (this.socket != null)
+    }
+    if (this.socket != null) {
       throw new Error("Already connected")
+    }
 
     this._current_handler = null
     this._pending_replies.clear()
@@ -63,8 +66,9 @@ export class ClientConnection {
 
     try {
       let versioned_url = `${this.url}`
-      if (this.args_string != null && this.args_string.length > 0)
+      if (this.args_string != null && this.args_string.length > 0) {
         versioned_url += `?${this.args_string}`
+      }
 
       this.socket = new WebSocket(versioned_url, ["bokeh", this.token])
 
@@ -88,8 +92,9 @@ export class ClientConnection {
     if (!this.closed_permanently) {
       logger.debug(`Permanently closing websocket connection ${this._number}`)
       this.closed_permanently = true
-      if (this.socket != null)
+      if (this.socket != null) {
         this.socket.close(1000, `close method called on ClientConnection ${this._number}`)
+      }
       this.session!._connection_closed()
     }
   }
@@ -118,10 +123,11 @@ export class ClientConnection {
   }
 
   send(message: Message<unknown>): void {
-    if (this.socket != null)
+    if (this.socket != null) {
       message.send(this.socket)
-    else
+    } else {
       logger.error("not connected so cannot send", message)
+    }
   }
 
   async send_with_reply<T>(message: Message<unknown>): Promise<Message<T>> {
@@ -130,17 +136,19 @@ export class ClientConnection {
       this.send(message)
     })
 
-    if (reply.msgtype() == "ERROR")
+    if (reply.msgtype() == "ERROR") {
       throw new Error(`Error reply ${(reply as ErrorMsg).content.text}`)
-    else
+    } else {
       return reply as Message<T>
+    }
   }
 
   protected async _pull_doc_json(): Promise<DocJson> {
     const message = Message.create("PULL-DOC-REQ", {}, {})
     const reply = await this.send_with_reply<{doc: DocJson}>(message)
-    if (!("doc" in reply.content))
+    if (!("doc" in reply.content)) {
       throw new Error("No 'doc' field in PULL-DOC-REPLY")
+    }
     return reply.content.doc
   }
 
@@ -191,8 +199,9 @@ export class ClientConnection {
   }
 
   protected _on_message(event: MessageEvent): void {
-    if (this._current_handler == null)
+    if (this._current_handler == null) {
       logger.error("Got a message with no current handler set")
+    }
 
     try {
       this._receiver.consume(event.data)
@@ -203,8 +212,9 @@ export class ClientConnection {
     const msg = this._receiver.message
     if (msg != null) {
       const problem = msg.problem()
-      if (problem != null)
+      if (problem != null) {
         this._close_bad_protocol(problem)
+      }
 
       this._current_handler!(msg)
     }
@@ -217,8 +227,9 @@ export class ClientConnection {
     this._pending_replies.forEach((pr) => pr.reject("Disconnected"))
     this._pending_replies.clear()
 
-    if (!this.closed_permanently)
+    if (!this.closed_permanently) {
       this._schedule_reconnect(2000)
+    }
 
     reject(new Error(`Lost websocket connection, ${event.code} (${event.reason})`))
   }
@@ -232,8 +243,9 @@ export class ClientConnection {
 
   protected _close_bad_protocol(detail: string): void {
     logger.error(`Closing connection: ${detail}`)
-    if (this.socket != null)
-      this.socket.close(1002, detail) // 1002 = protocol error
+    if (this.socket != null) {
+      this.socket.close(1002, detail)
+    } // 1002 = protocol error
   }
 
   protected _awaiting_ack_handler(message: Message<unknown>, resolve: SessionResolver, reject: Rejecter): void {
@@ -241,9 +253,10 @@ export class ClientConnection {
       this._current_handler = (message) => this._steady_state_handler(message)
 
       // Reload any sessions
-      this._repull_session_doc(resolve, reject)
-    } else
+      void this._repull_session_doc(resolve, reject)
+    } else {
       this._close_bad_protocol("First message was not an ACK")
+    }
   }
 
   protected _steady_state_handler(message: Message<unknown>): void {

@@ -116,6 +116,6 @@ describe("Model objects", () => {
     const some1_1 = new Some1Model({p3: [some1_0, some0_1]})
 
     expect(some1_1.select({type: "Some0Model"})).to.be.equal([some0_0, some0_1])
-    expect(() => some1_1.select_one({type: "Some0Model"})).to.throw(Error, "found more than one object matching given selector")
+    expect(() => some1_1.select_one({type: "Some0Model"})).to.throw(Error, "found multiple objects matching the given selector")
   })
 })

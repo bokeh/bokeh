@@ -33,10 +33,11 @@ export class SelectView extends InputWidgetView {
     function build_options(values: (string | [string, string])[]): HTMLOptionElement[] {
       return values.map((el) => {
         let value, label
-        if (isString(el))
+        if (isString(el)) {
           value = label = el
-        else
+        } else {
           [value, label] = el
+        }
 
         _known_values.add(value)
         return option({value}, label)
@@ -44,10 +45,11 @@ export class SelectView extends InputWidgetView {
     }
 
     const {options} = this.model
-    if (isArray(options))
+    if (isArray(options)) {
       return build_options(options)
-    else
+    } else {
       return entries(options).map(([label, values]) => optgroup({label}, build_options(values)))
+    }
   }
 
   override render(): void {
@@ -73,10 +75,11 @@ export class SelectView extends InputWidgetView {
 
   protected _update_value(): void {
     const {value} = this.model
-    if (this._known_values.has(value))
+    if (this._known_values.has(value)) {
       this.input_el.value = value
-    else
+    } else {
       this.input_el.removeAttribute("value")
+    }
   }
 }
 

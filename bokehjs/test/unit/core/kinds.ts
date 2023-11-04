@@ -2,6 +2,7 @@ import {expect} from "assertions"
 
 import * as k from "@bokehjs/core/kinds"
 import {HasProps} from "@bokehjs/core/has_props"
+import {BitSet} from "@bokehjs/core/util/bitset"
 
 class SomeModel extends HasProps {}
 class OtherModel extends HasProps {}
@@ -11,12 +12,14 @@ describe("core/kinds module", () => {
     const tp = k.Any
     expect(`${tp}`).to.be.equal("Any")
     expect(tp.valid(undefined)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(true)
   })
 
   it("should support Unknown kind", () => {
     const tp = k.Unknown
     expect(`${tp}`).to.be.equal("Unknown")
     expect(tp.valid(undefined)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(true)
   })
 
   it("should support Boolean kind", () => {
@@ -27,6 +30,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.false
     expect(tp.valid(1)).to.be.false
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Number kind", () => {
@@ -35,6 +39,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(0.1)).to.be.true
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Int kind", () => {
@@ -43,11 +48,13 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(0.1)).to.be.false
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Bytes kind", () => {
     const tp = k.Bytes
     expect(`${tp}`).to.be.equal("Bytes")
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support String kind", () => {
@@ -55,6 +62,7 @@ describe("core/kinds module", () => {
     expect(`${tp}`).to.be.equal("String")
     expect(tp.valid(0)).to.be.false
     expect(tp.valid("a")).to.be.true
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Regex kind", () => {
@@ -65,6 +73,7 @@ describe("core/kinds module", () => {
     expect(tp.valid("a")).to.be.true
     expect(tp.valid("ab")).to.be.true
     expect(tp.valid("ba")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Null kind", () => {
@@ -75,6 +84,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.false
     expect(tp.valid(1)).to.be.false
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Nullable kind", () => {
@@ -85,6 +95,8 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(1)).to.be.true
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect(k.Nullable(k.AnyRef()).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Opt kind", () => {
@@ -95,6 +107,8 @@ describe("core/kinds module", () => {
     expect(tp.valid(0)).to.be.true
     expect(tp.valid(1)).to.be.true
     expect(tp.valid("a")).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect(k.Opt(k.AnyRef()).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Or kind", () => {
@@ -106,6 +120,8 @@ describe("core/kinds module", () => {
     expect(tp.valid(null)).to.be.false
     expect(tp.valid(undefined)).to.be.false
     expect(tp.valid([])).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect(k.Or(k.Int, k.AnyRef()).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Tuple kind", () => {
@@ -122,6 +138,8 @@ describe("core/kinds module", () => {
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(null)).to.be.false
     expect(tp.valid(undefined)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect(k.Tuple(k.Int, k.AnyRef()).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Struct kind", () => {
@@ -135,6 +153,10 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1]})).to.be.true
     expect(tp.valid({a: 0, b: "a", d: [1]})).to.be.false
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
+
+    expect(tp.may_have_refs()).to.be.equal(false)
+    const tp1 = k.Struct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.AnyRef()))})
+    expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
   it("should support PartialStruct kind", () => {
@@ -149,6 +171,10 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: "a", c: [1]})).to.be.true
     expect(tp.valid({a: 0, b: "a", d: [1]})).to.be.false
     expect(tp.valid({a: 0, b: "a", c: [1], d: [1]})).to.be.false
+
+    expect(tp.may_have_refs()).to.be.equal(false)
+    const tp1 = k.PartialStruct({a: k.Int, b: k.String, c: k.Opt(k.Array(k.AnyRef()))})
+    expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
   it("should support Arrayable kind", () => {
@@ -158,6 +184,9 @@ describe("core/kinds module", () => {
     expect(tp.valid([0, 1, 2])).to.be.true
     expect(tp.valid([0, "a"])).to.be.true // no item validation
     expect(tp.valid(["a"])).to.be.true    // no item validation
+
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Arrayable(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Array kind", () => {
@@ -167,6 +196,8 @@ describe("core/kinds module", () => {
     expect(tp.valid([0, 1, 2])).to.be.true
     expect(tp.valid([0, "a"])).to.be.false
     expect(tp.valid(["a"])).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Array(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Dict kind", () => {
@@ -177,6 +208,8 @@ describe("core/kinds module", () => {
     expect(tp.valid({a: 0, b: 1})).to.be.true
     expect(tp.valid({a: "a"})).to.be.false
     expect(tp.valid({a: 0, b: "a"})).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Dict(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Map kind", () => {
@@ -186,6 +219,9 @@ describe("core/kinds module", () => {
     expect(tp.valid(new Map([[0, "a"]]))).to.be.true
     expect(tp.valid(new Map([[0, "a"], [1, "b"]]))).to.be.true
     expect(tp.valid(new Map([[0, 1]]))).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Map(k.Int, k.AnyRef())).may_have_refs()).to.be.equal(true)
+    expect((k.Map(k.AnyRef(), k.Int)).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Set kind", () => {
@@ -195,6 +231,8 @@ describe("core/kinds module", () => {
     expect(tp.valid(new Set([0]))).to.be.true
     expect(tp.valid(new Set([0, 1]))).to.be.true
     expect(tp.valid(new Set(["a"]))).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Set(k.AnyRef())).may_have_refs()).to.be.equal(true)
   })
 
   it("should support Enum kind", () => {
@@ -205,6 +243,7 @@ describe("core/kinds module", () => {
     expect(tp.valid("c")).to.be.true
     expect(tp.valid("d")).to.be.false
     expect(tp.valid(1)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Ref kind", () => {
@@ -215,6 +254,8 @@ describe("core/kinds module", () => {
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(true)
+    expect(k.Ref(BitSet).may_have_refs()).to.be.equal(false)
   })
 
   it("should support AnyRef kind", () => {
@@ -225,6 +266,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(new class {})).to.be.true
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(true)
   })
 
   it("should support Function kind", () => {
@@ -238,6 +280,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support DOMNode kind", () => {
@@ -248,6 +291,7 @@ describe("core/kinds module", () => {
     expect(tp.valid(new class {})).to.be.false
     expect(tp.valid("a")).to.be.false
     expect(tp.valid(1)).to.be.false
+    expect(tp.may_have_refs()).to.be.equal(false)
   })
 
   it("should support NonNegative(T) kind", () => {
@@ -270,6 +314,8 @@ describe("core/kinds module", () => {
     expect(tp1.valid(-1.1)).to.be.false
     expect(tp1.valid(0.0)).to.be.true
     expect(tp1.valid(1.1)).to.be.true
+
+    expect(tp0.may_have_refs()).to.be.equal(false)
   })
 
   it("should support Positive(T) kind", () => {
@@ -292,5 +338,7 @@ describe("core/kinds module", () => {
     expect(tp1.valid(-1.1)).to.be.false
     expect(tp1.valid(0.0)).to.be.false
     expect(tp1.valid(1.1)).to.be.true
+
+    expect(tp0.may_have_refs()).to.be.equal(false)
   })
 })

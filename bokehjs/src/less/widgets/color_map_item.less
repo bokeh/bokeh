@@ -1,0 +1,29 @@
+@import "../_mixins.less";
+
+.bk-entry {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.bk-item {
+  --active-tool-highlight: #26aae1;
+
+  border: 1px solid transparent;
+
+  &.bk-active {
+    border-color: var(--active-tool-highlight);
+  }
+  &:hover {
+    background-color: #f9f9f9;
+  }
+  &:focus, &:focus-visible {
+    outline: 1px dotted var(--active-tool-highlight);
+    outline-offset: -1px;
+  }
+  &::-moz-focus-inner {
+    border: 0;
+  }
+}

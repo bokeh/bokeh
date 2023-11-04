@@ -135,6 +135,7 @@ __all__ = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
     'SelectionMode',
@@ -359,7 +360,7 @@ HatchPattern = enumeration(*list(zip(*_hatch_patterns))[1])
 #:     "v"  :  horizontal_wave
 #:     ">"  :  vertical_wave
 #:     "*"  :  criss_cross
-HatchPatternAbbreviation = enumeration(*list(zip(*_hatch_patterns))[0], quote=True)
+HatchPatternAbbreviation = enumeration(*next(iter(zip(*_hatch_patterns))), quote=True)
 
 #: Specify whether events should be combined or collected as-is when a Document hold is in effect
 HoldPolicyType = Literal["combine", "collect"]
@@ -447,6 +448,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "
 
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")
+
+#: Specify which resolutions should be used for stripping of leading zeros
+ResolutionType = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")
 
 #: Specify a policy for  how numbers should be rounded
 RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil", "roundup")

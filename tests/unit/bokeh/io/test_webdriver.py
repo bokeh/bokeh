@@ -60,6 +60,7 @@ _driver_map = {
     "chromium": selenium.webdriver.chrome.webdriver.WebDriver,
 }
 
+@pytest.mark.selenium
 class Test_webdriver_control:
 
     def test_default(self) -> None:
@@ -98,7 +99,6 @@ class Test_webdriver_control:
         biw.webdriver_control.reuse = True
         biw.webdriver_control.reset()
 
-    @pytest.mark.selenium
     @pytest.mark.parametrize('kind', ['firefox', 'chromium'])
     def test_create(self, kind: biw.DriverKind) -> None:
         biw.webdriver_control.kind = kind
@@ -107,7 +107,6 @@ class Test_webdriver_control:
         assert isinstance(d, _driver_map[kind])
         biw.webdriver_control.reset()
 
-    @pytest.mark.selenium
     @pytest.mark.skipif(os.getenv("BOKEH_IN_DOCKER") != "1", reason="Not running in Docker")
     def test_create_chromium_without_docker_envvar(self) -> None:
         os.environ["BOKEH_IN_DOCKER"] = "0"

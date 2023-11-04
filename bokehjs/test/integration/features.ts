@@ -3,7 +3,6 @@ import {PlotActions, xy} from "../interactive"
 
 import {PanTool, SaveTool, CrosshairTool, Span, GridBox, Row, Pane, Slope, GridPlot} from "@bokehjs/models"
 import {paint} from "@bokehjs/core/util/defer"
-import {assert} from "@bokehjs/core/util/assert"
 import {range} from "@bokehjs/core/util/array"
 import {Random} from "@bokehjs/core/util/random"
 
@@ -114,8 +113,7 @@ describe("Feature", () => {
       const {view} = await display(grid)
       await paint()
 
-      const pv0 = view.owner.find_one(p0)
-      assert(pv0 != null, "view not found")
+      const pv0 = view.owner.get_one(p0)
 
       const actions = new PlotActions(pv0)
       await actions.hover(xy(1, 1), xy(4, 4))

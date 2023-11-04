@@ -6,6 +6,7 @@ import {Range1d} from "../../ranges/range1d"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {tool_icon_range} from "styles/icons.css"
+import {Node} from "../../coordinates/node"
 
 export class RangeToolView extends ToolView {
   declare model: RangeTool
@@ -50,6 +51,10 @@ const DEFAULT_RANGE_OVERLAY = () => {
     visible: true,
     editable: true,
     propagate_hover: true,
+    left_limit: Node.frame.left,
+    right_limit: Node.frame.right,
+    top_limit: Node.frame.top,
+    bottom_limit: Node.frame.bottom,
     fill_color: "lightgrey",
     fill_alpha: 0.5,
     line_color: "black",
@@ -122,28 +127,31 @@ export class RangeTool extends Tool {
 
   update_ranges_from_overlay(): void {
     const {left, right, top, bottom} = this.overlay
-    if (this.x_range != null && this.x_interaction)
+    if (this.x_range != null && this.x_interaction) {
       this.x_range.setv({start: left, end: right})
-    if (this.y_range != null && this.y_interaction)
+    }
+    if (this.y_range != null && this.y_interaction) {
       this.y_range.setv({start: bottom, end: top})
+    }
   }
+
+  private _nodes = Node.frame.freeze()
 
   update_overlay_from_ranges(): void {
     const {x_range, y_range} = this
     const has_x = x_range != null
     const has_y = y_range != null
 
+    this.overlay.update({
+      left: has_x ? x_range.start : this._nodes.left,
+      right: has_x ? x_range.end : this._nodes.right,
+      top: has_y ? y_range.end : this._nodes.top,
+      bottom: has_y ? y_range.start : this._nodes.bottom,
+    })
+
     if (!has_x && !has_y) {
-      this.overlay.clear()
       logger.warn("RangeTool not configured with any Ranges.")
-    } else {
-      // TODO: relace null with symbolic frame bounds
-      this.overlay.update({
-        left: has_x ? x_range.start : null,
-        right: has_x ? x_range.end : null,
-        bottom: has_y ? y_range.start : null,
-        top: has_y ? y_range.end : null,
-      })
+      this.overlay.clear()
     }
   }
 

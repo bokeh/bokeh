@@ -2,10 +2,10 @@ import type {EventRole} from "../tool"
 import {GestureTool, GestureToolView} from "./gesture_tool"
 import {BoxAnnotation} from "../../annotations/box_annotation"
 import type {CartesianFrame} from "../../canvas/cartesian_frame"
+import type {RangeState} from "../../plots/range_manager"
 import type * as p from "core/properties"
 import type {PanEvent, KeyEvent, TapEvent} from "core/ui_events"
 import {Dimensions, BoxOrigin} from "core/enums"
-import type {Interval} from "core/types"
 import type {MenuItem} from "core/util/menus"
 import * as icons from "styles/icons.css"
 
@@ -172,16 +172,16 @@ export class BoxZoomToolView extends GestureToolView {
 
     const {x_scales, y_scales} = this.plot_view.frame
 
-    const xrs: Map<string, Interval> = new Map()
-    for (const [name, scale] of x_scales) {
+    const xrs: RangeState = new Map()
+    for (const [, scale] of x_scales) {
       const [start, end] = scale.r_invert(sx0, sx1)
-      xrs.set(name, {start, end})
+      xrs.set(scale.source_range, {start, end})
     }
 
-    const yrs: Map<string, Interval> = new Map()
-    for (const [name, scale] of y_scales) {
+    const yrs: RangeState = new Map()
+    for (const [, scale] of y_scales) {
       const [start, end] = scale.r_invert(sy0, sy1)
-      yrs.set(name, {start, end})
+      yrs.set(scale.source_range, {start, end})
     }
 
     const zoom_info = {xrs, yrs}

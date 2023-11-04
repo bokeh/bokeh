@@ -1,17 +1,17 @@
 import {GestureTool, GestureToolView} from "./gesture_tool"
+import type {RangeInfo, RangeState} from "../../plots/range_manager"
 import type * as p from "core/properties"
 import type {PanEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
-import type {Interval} from "core/types"
 import type {MenuItem} from "core/util/menus"
 import type {Scale} from "models/scales/scale"
 import * as icons from "styles/icons.css"
 
-export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): Map<string, Interval> {
-  const r: Map<string, Interval> = new Map()
-  for (const [name, scale] of scales) {
+export function update_ranges(scales: Map<string, Scale>, p0: number, p1: number): RangeState {
+  const r: RangeState = new Map()
+  for (const [, scale] of scales) {
     const [start, end] = scale.r_invert(p0, p1)
-    r.set(name, {start, end})
+    r.set(scale.source_range, {start, end})
   }
   return r
 }
@@ -25,11 +25,23 @@ export class PanToolView extends GestureToolView {
   protected v_axis_only: boolean
   protected h_axis_only: boolean
 
-  protected pan_info?: {
-    xrs: Map<string, Interval>
-    yrs: Map<string, Interval>
+  protected pan_info?: RangeInfo & {
     sdx: number
     sdy: number
+  }
+
+  override cursor(sx: number, sy: number): string | null {
+    const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
+    if (axis_view != null) {
+      switch (axis_view.dimension) {
+        case 0: return "ew-resize"
+        case 1: return "ns-resize"
+      }
+    } else if (this.plot_view.frame.bbox.contains(sx, sy)) {
+      return "move"
+    } else {
+      return super.cursor(sx, sy)
+    }
   }
 
   override _pan_start(ev: PanEvent): void {

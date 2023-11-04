@@ -20,6 +20,9 @@ generate the following output:
     .. bokeh-jinja:: bokeh.core.templates.FILE
         :noindex:
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_jinja"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

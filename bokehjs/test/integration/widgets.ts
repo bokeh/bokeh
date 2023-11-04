@@ -1,6 +1,10 @@
 import {display, column} from "./_util"
+import {click, mouse_click} from "../interactive"
+import {expect_not_null} from "../unit/assertions"
+
 import {range} from "@bokehjs/core/util/array"
 import {ButtonType} from "@bokehjs/core/enums"
+import type {Color} from "@bokehjs/core/types"
 
 import {ColumnDataSource, Row} from "@bokehjs/models"
 
@@ -9,6 +13,7 @@ import {
   Checkbox, Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
+  ColorMap,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider,
@@ -27,6 +32,8 @@ import {
 
 import type {PickerBaseView} from "@bokehjs/models/widgets/picker_base"
 
+import * as palettes from "@bokehjs/api/palettes"
+
 async function finished_animating(el: Element): Promise<void> {
   return new Promise((resolve, reject) => {
     el.addEventListener("animationend", () => resolve(), {once: true})
@@ -35,10 +42,11 @@ async function finished_animating(el: Element): Promise<void> {
 }
 
 export async function open_picker(view: PickerBaseView): Promise<void> {
-  view.picker._input.dispatchEvent(new MouseEvent("click"))
+  await mouse_click(view.picker._input)
   await view.ready
 
-  const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")!
+  const calendar_el = view.shadow_el.querySelector(".flatpickr-calendar")
+  expect_not_null(calendar_el)
   await finished_animating(calendar_el)
 }
 
@@ -73,12 +81,10 @@ describe("Widgets", () => {
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu})
     const {view} = await display(obj, [500, 200])
 
-    const button = view.shadow_el.querySelector("button")!
-    const {left, top} = button.getBoundingClientRect()
+    const button_el = view.shadow_el.querySelector("button")
+    expect_not_null(button_el)
 
-    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
-    button.dispatchEvent(ev)
-
+    await mouse_click(button_el)
     await view.ready
   })
 
@@ -93,13 +99,53 @@ describe("Widgets", () => {
     const obj = new Dropdown({label: "Dropdown 1", button_type: "primary", menu, split: true})
     const {view} = await display(obj, [500, 200])
 
-    const toggle = view.shadow_el.querySelector(".bk-dropdown-toggle")!
-    const {left, top} = toggle.getBoundingClientRect()
+    const toggle_el = view.shadow_el.querySelector(".bk-dropdown-toggle")
+    expect_not_null(toggle_el)
 
-    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5})
-    toggle.dispatchEvent(ev)
-
+    await mouse_click(toggle_el)
     await view.ready
+  })
+
+  describe("should support ColorMap", () => {
+    const items: [string, Color[]][] = [
+      ["RdBu", palettes.RdBu11],
+      ["RdGy", palettes.RdGy11],
+      ["RdYlBu", palettes.RdYlBu11],
+      ["Spectral", palettes.Spectral11],
+      ["RdYlGn", palettes.RdYlGn11],
+      ["Accent", palettes.Accent8],
+      ["Paired", palettes.Paired12],
+      ["Magma", palettes.Magma256],
+      ["Inferno", palettes.Inferno256],
+      ["Plasma", palettes.Plasma256],
+      ["Viridis", palettes.Viridis256],
+      ["Cividis", palettes.Cividis256],
+      ["Turbo", palettes.Turbo256],
+    ]
+
+    it("with default settings", async () => {
+      const obj = new ColorMap({value: "RdBu", items})
+      const {view} = await display(obj, [250, 400])
+
+      await click(view.input_el)
+      await view.ready
+    })
+
+    it("with ncols=3", async () => {
+      const obj = new ColorMap({value: "Magma", items, ncols: 3})
+      const {view} = await display(obj, [500, 200])
+
+      await click(view.input_el)
+      await view.ready
+    })
+
+    it("with disabled=true", async () => {
+      const obj = new ColorMap({value: "Accent", items, disabled: true})
+      const {view} = await display(obj, [250, 50])
+
+      await click(view.input_el)
+      await view.ready
+    })
   })
 
   it("should allow Checkbox with active=false", async () => {
@@ -185,8 +231,7 @@ describe("Widgets", () => {
   it.allowing(8)("should allow PasswordInput with password visible", async () => {
     const obj = new PasswordInput({value: "foo"})
     const {view} = await display(obj, [500, 100])
-    const ev = new MouseEvent("click", {bubbles: true})
-    view.toggle_el.dispatchEvent(ev)
+    await mouse_click(view.toggle_el)
   })
 
   it.allowing(8)("should allow AutocompleteInput", async () => {

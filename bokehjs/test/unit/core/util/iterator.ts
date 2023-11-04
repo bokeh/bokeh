@@ -104,7 +104,9 @@ describe("core/util/iterator module", () => {
     const r0 = flat_map([1, 2, 3], (k) => Array(k).fill(k))
     expect([...r0]).to.be.equal([1, 2, 2, 3, 3, 3])
 
-    const r1 = flat_map([1, 2, 3], function* (k) { yield* Array(k).fill(k) })
+    const r1 = flat_map([1, 2, 3], function* (k) {
+      yield* Array(k).fill(k)
+    })
     expect([...r1]).to.be.equal([1, 2, 2, 3, 3, 3])
   })
 

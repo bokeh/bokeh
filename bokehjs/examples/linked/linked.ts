@@ -29,5 +29,5 @@ export namespace LinkedBrushingAndPanning {
   const s3 = plt.figure({width: 350, height: 350, tools, x_range: s1.x_range})
   s3.circle(x, y3, {source, color: "olive", size: 8, alpha: 0.5})
 
-  plt.show(plt.gridplot([[s1, s2, s3]]))
+  void plt.show(plt.gridplot([[s1, s2, s3]]))
 }

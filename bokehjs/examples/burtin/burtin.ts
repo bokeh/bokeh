@@ -151,5 +151,5 @@ export namespace Burtin {
     text_font_size: "12px", text_align: "left", text_baseline: "middle",
   })
 
-  plt.show(p)
+  void plt.show(p)
 }

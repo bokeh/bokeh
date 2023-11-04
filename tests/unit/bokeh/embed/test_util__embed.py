@@ -509,7 +509,7 @@ class Test_standalone_docs_json_and_render_items:
         d = Document()
         d.add_root(p1)
         docs_json, render_items = beu.standalone_docs_json_and_render_items([p1])
-        doc = list(docs_json.values())[0]
+        doc = next(iter(docs_json.values()))
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
         assert len(doc['roots']) == 1
@@ -521,7 +521,7 @@ class Test_standalone_docs_json_and_render_items:
         d = Document()
         d.add_root(p1)
         docs_json, render_items = beu.standalone_docs_json_and_render_items([d])
-        doc = list(docs_json.values())[0]
+        doc = next(iter(docs_json.values()))
         assert doc['title'] == "Bokeh Application"
         assert doc['version'] == __version__
         assert len(doc['roots']) == 1

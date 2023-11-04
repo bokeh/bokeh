@@ -3,7 +3,8 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew} from "core/types"
+import type {Arrayable, ArrayableNew, Data} from "core/types"
+import type {PatchSet} from "core/patching"
 import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values} from "core/util/object"
@@ -13,7 +14,7 @@ import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
 import {Selection} from "../selections/selection"
 import {DataSource} from "./data_source"
 
-// Abstract baseclass for column based data sources, where the column
+// Abstract base class for column based data sources, where the column
 // based data may be supplied directly or be computed from an attribute
 
 export namespace ColumnarDataSource {
@@ -110,5 +111,13 @@ export abstract class ColumnarDataSource extends DataSource {
       empty[col] = new (this.data[col].constructor as ArrayableNew)(0)
     }
     this.data = empty
+  }
+
+  stream(new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+    this.stream_to(this.properties.data, new_data, rollover, {sync})
+  }
+
+  patch(patches: PatchSet<unknown>, {sync}: {sync?: boolean} = {}): void {
+    this.patch_to(this.properties.data, patches, {sync})
   }
 }

@@ -38,11 +38,13 @@ export class CheckboxGroupView extends ToggleInputGroupView {
       checkbox.addEventListener("change", () => this.change_active(i))
       this._inputs.push(checkbox)
 
-      if (this.model.disabled)
+      if (this.model.disabled) {
         checkbox.disabled = true
+      }
 
-      if (includes(active, i))
+      if (includes(active, i)) {
         checkbox.checked = true
+      }
 
       const label_el = label(checkbox, span(labels[i]))
       group.appendChild(label_el)

@@ -1,5 +1,6 @@
 import {SelectTool, SelectToolView} from "./select_tool"
-import type {CallbackLike1} from "../../callbacks/callback"
+import type {CallbackLike1} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
 import type {TapEvent, KeyModifiers} from "core/ui_events"
 import * as events from "core/bokeh_events"
@@ -98,7 +99,7 @@ export class TapToolView extends SelectToolView {
         source,
         event: {modifiers},
       }
-      callback.execute(this.model, data)
+      void execute(callback, this.model, data)
     }
   }
 }

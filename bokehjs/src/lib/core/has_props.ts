@@ -5,6 +5,7 @@ import type {Attrs, Data} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
+import {may_have_refs} from "core/util/refs"
 import * as p from "./properties"
 import * as k from "./kinds"
 import type {Property} from "./properties"
@@ -281,7 +282,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const attributes: {[key: string]: AnyVal} = {}
     for (const prop of this) {
-      if (prop.syncable && (serializer.include_defaults || prop.dirty)) {
+      if (prop.syncable && (serializer.include_defaults || prop.dirty) && !(prop.readonly && prop.is_unset)) {
         const value = prop.get_value()
         attributes[prop.attr] = serializer.encode(value) as AnyVal
       }
@@ -481,15 +482,15 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
           changed.push([prop, value, prop.get_value()])
       }
 
-      for (const [, old_value, new_value] of changed) {
-        if (this._needs_invalidate(old_value, new_value)) {
+      for (const [prop, old_value, new_value] of changed) {
+        if (prop.may_have_refs && this._needs_invalidate(old_value, new_value)) {
           document._invalidate_all_models()
           break
         }
       }
 
-      if (options.sync ?? true)
-        this._push_changes(changed)
+      const sync = options.sync ?? true
+      this._push_changes(changed, sync)
     }
   }
 
@@ -511,28 +512,29 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
   // add all references from 'v' to 'result', if recurse
   // is true then descend into refs, if false only
   // descend into non-refs
-  static _value_record_references(v: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
-    const {recursive} = options
-    if (!isObject(v))
+  static _value_record_references(value: unknown, refs: Set<HasProps>, options: {recursive: boolean}): void {
+    if (!isObject(value) || !may_have_refs(value)) {
       return
-    if (v instanceof HasProps) {
-      if (!refs.has(v)) {
-        refs.add(v)
+    }
+    const {recursive} = options
+    if (value instanceof HasProps) {
+      if (!refs.has(value)) {
+        refs.add(value)
         if (recursive) {
-          for (const prop of v.syncable_properties()) {
-            if (!prop.is_unset) {
+          for (const prop of value.syncable_properties()) {
+            if (!prop.is_unset && prop.may_have_refs) {
               const value = prop.get_value()
               HasProps._value_record_references(value, refs, {recursive})
             }
           }
         }
       }
-    } else if (isIterable(v)) {
-      for (const elem of v) {
+    } else if (isIterable(value)) {
+      for (const elem of value) {
         HasProps._value_record_references(elem, refs, {recursive})
       }
-    } else if (isPlainObject(v)) {
-      for (const elem of values(v)) {
+    } else if (isPlainObject(value)) {
+      for (const elem of values(value)) {
         HasProps._value_record_references(elem, refs, {recursive})
       }
     }
@@ -586,7 +588,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     return false
   }
 
-  protected _push_changes(changes: [Property, unknown, unknown][]): void {
+  protected _push_changes(changes: [Property, unknown, unknown][], sync: boolean): void {
     if (!this.is_syncable)
       return
 
@@ -596,16 +598,20 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
 
     const events = []
     for (const [prop,, new_value] of changes) {
-      if (prop.syncable)
-        events.push(new ModelChangedEvent(document, this, prop.attr, new_value))
+      if (prop.syncable) {
+        const event = new ModelChangedEvent(document, this, prop.attr, new_value)
+        event.sync = sync
+        events.push(event)
+      }
     }
 
     if (events.length != 0) {
       let event: DocumentEvent
-      if (events.length == 1)
+      if (events.length == 1) {
         [event] = events
-      else
+      } else {
         event = new DocumentEventBatch(document, events)
+      }
       document._trigger_on_change(event)
     }
   }
@@ -622,8 +628,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._clear_watchers()
     prop.set_value(data)
     this.streaming.emit()
-    if (this.document != null && (sync ?? true)) {
+    if (this.document != null) {
       const event = new ColumnsStreamedEvent(this.document, this, prop.attr, new_data, rollover)
+      event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
   }
@@ -634,8 +641,9 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     this._clear_watchers()
     prop.set_value(data)
     this.patching.emit([...patched])
-    if (this.document != null && (sync ?? true)) {
+    if (this.document != null) {
       const event = new ColumnsPatchedEvent(this.document, this, prop.attr, patches)
+      event.sync = sync ?? true
       this.document._trigger_on_change(event)
     }
   }

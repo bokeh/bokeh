@@ -19,9 +19,9 @@ export class LogScale extends ContinuousScale {
   get s_compute(): (x: number) => number {
     const [factor, offset, inter_factor, inter_offset] = this._compute_state()
     return (x) => {
-      if (inter_factor == 0)
+      if (inter_factor == 0) {
         return 0
-      else {
+      } else {
         const _x = (Math.log(x) - inter_offset) / inter_factor
         return isFinite(_x) ? _x*factor + offset : NaN
       }
@@ -41,16 +41,17 @@ export class LogScale extends ContinuousScale {
     let end = orig_end < 0 ? 0 : orig_end
 
     if (start == end) {
-      if (start == 0)
+      if (start == 0) {
         [start, end] = [1, 10]
-      else {
+      } else {
         const log_val = Math.log10(start)
         start = 10**Math.floor(log_val)
 
-        if (Math.ceil(log_val) != Math.floor(log_val))
+        if (Math.ceil(log_val) != Math.floor(log_val)) {
           end = 10**Math.ceil(log_val)
-        else
+        } else {
           end = 10**(Math.ceil(log_val) + 1)
+        }
       }
     }
 

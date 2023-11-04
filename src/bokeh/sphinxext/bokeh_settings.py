@@ -16,6 +16,9 @@ This directive takes the name of a module attribute
     .. bokeh-settings:: settings
         :module: bokeh.settings
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_settings"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

@@ -15,14 +15,16 @@ import {_resolve_element, _resolve_root_elements} from "./dom"
 export const kernels: {[key: string]: unknown} = {}
 
 function _handle_notebook_comms(this: Document, receiver: Receiver, comm_msg: CommMessage): void {
-  if (comm_msg.buffers.length > 0)
+  if (comm_msg.buffers.length > 0) {
     receiver.consume(comm_msg.buffers[0].buffer)
-  else
+  } else {
     receiver.consume(comm_msg.content.data)
+  }
 
   const msg = receiver.message
-  if (msg != null)
+  if (msg != null) {
     this.apply_json_patch((msg as Message<Patch>).content, msg.buffers)
+  }
 }
 
 function _init_comms(target: string, doc: Document): void {
@@ -75,20 +77,22 @@ function _init_comms(target: string, doc: Document): void {
   }
 }
 
-export function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): void {
-  if (size(docs_json) != 1)
+export async function embed_items_notebook(docs_json: DocsJson, render_items: RenderItem[]): Promise<void> {
+  if (size(docs_json) != 1) {
     throw new Error("embed_items_notebook expects exactly one document in docs_json")
+  }
 
   const document = Document.from_json(values(docs_json)[0])
 
   for (const item of render_items) {
-    if (item.notebook_comms_target != null)
+    if (item.notebook_comms_target != null) {
       _init_comms(item.notebook_comms_target, document)
+    }
 
     const element = _resolve_element(item)
     const roots = _resolve_root_elements(item)
 
-    add_document_standalone(document, element, roots)
+    await add_document_standalone(document, element, roots)
 
     for (const root of roots) {
       if (root instanceof HTMLElement) {

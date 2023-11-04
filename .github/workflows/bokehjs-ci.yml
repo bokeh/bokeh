@@ -8,8 +8,8 @@ on:
   pull_request:
 
 env:
-  CHROME_VER: "110.0.5481.100"
-  CHROME_REV: "chromium_2333"
+  CHROME_VER: "118.0.5993.88"
+  CHROME_REV: "chromium_2670"
 
 jobs:
   test:
@@ -40,7 +40,12 @@ jobs:
         if: runner.os == 'Linux'
         shell: bash
         run: |
-          if [[ "$(chromium --version | cut -d' ' -f2)" = "$CHROME_VER" ]]; then
+          INSTALLED=$(chromium --version | cut -d' ' -f2 | cut -d'.' -f1-3)
+          EXPECTED=$(echo "$CHROME_VER" | cut -d'.' -f1-3)
+
+          echo "Currently installed Chromium ${INSTALLED}.*; expected ${EXPECTED}.*"
+
+          if [[ "$INSTALLED" = "$EXPECTED" ]]; then
             echo "Using pre-installed version of chromium"
           else
             URL=https://github.com/bokeh/chromium/raw/main/linux/$CHROME_VER

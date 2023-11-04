@@ -13,14 +13,16 @@ const request_fullscreen = (() => {
 export class FullscreenToolView extends ActionToolView {
   declare model: FullscreenTool
 
-  doit(): void {
+  async fullscreen(): Promise<void> {
     if (document.fullscreenElement != null) {
-      document.exitFullscreen()
+      await document.exitFullscreen()
     } else {
-      (async () => {
-        await request_fullscreen(this.parent.el)
-      })()
+      await request_fullscreen(this.parent.el)
     }
+  }
+
+  doit(): void {
+    void this.fullscreen()
   }
 }
 

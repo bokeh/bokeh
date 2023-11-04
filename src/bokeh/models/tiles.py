@@ -153,7 +153,7 @@ class WMTSTileSource(MercatorTileSource):
     top-left.
 
     This is the most common used tile source for web mapping applications.
-    Such companies as Google, MapQuest, Stamen, Esri, and OpenStreetMap provide
+    Such companies as Google, MapQuest, Stadia, Esri, and OpenStreetMap provide
     service which use the WMTS specification e.g. ``http://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png``.
 
     '''

@@ -59,6 +59,15 @@ def commit_staging_branch(config: Config, system: System) -> ActionReturn:
             system.run(f"git add {path}")
         except RuntimeError as e:
             return FAILED(f"Could not git add {path!r}", details=e.args)
+    for path in config.new:
+        try:
+            system.run(f"git ls-files --error-unmatch -o {path}")
+        except RuntimeError:
+            return FAILED(f"File {path!r} marked new is not untracked in the repo")
+        try:
+            system.run(f"git add {path}")
+        except RuntimeError as e:
+            return FAILED(f"Could not git add {path!r}", details=e.args)
     try:
         system.run(f"git commit -m'Deployment updates for release {config.version}'")
     except RuntimeError as e:

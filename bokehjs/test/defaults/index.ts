@@ -29,14 +29,15 @@ function _resolve_defaults(_name: string, defaults: KV) {
   delete defaults.__extends__
 
   const bases = (() => {
-    if (isArray(__extends__))
+    if (isArray(__extends__)) {
       return __extends__ as string[]
-    else if (isString(__extends__))
+    } else if (isString(__extends__)) {
       return [__extends__]
-    else if (__extends__ == null)
+    } else if (__extends__ == null) {
       return []
-    else
+    } else {
       throw new Error(`invalid __extends__: ${__extends__}`)
+    }
   })()
 
   let new_defaults: KV = {}
@@ -75,10 +76,11 @@ class DefaultsSerializer extends Serializer {
 
 function get_defaults(name: string): KV {
   const defaults = all_defaults.get(name)
-  if (defaults != null)
+  if (defaults != null) {
     return defaults
-  else
+  } else {
     throw new Error(`can't find defaults for ${name}`)
+  }
 }
 
 function check_matching_defaults(context: string[], name: string, python_defaults: KV, bokehjs_defaults: KV): boolean {
@@ -90,16 +92,19 @@ function check_matching_defaults(context: string[], name: string, python_default
     console.log(`${context.join(" -> ")} ${name}.${k}`)
 
     // node_renderer/edge_renderer are configured dynamicaly in bokehjs
-    if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer"))
+    if (name == "GraphRenderer" && (k == "node_renderer" || k == "edge_renderer")) {
       continue
+    }
 
     // special case for days/months/years tickers (null vs computed integer)
-    if ((name == "DaysTicker" || name == "MonthsTicker" || name == "YearsTicker") && k == "interval")
+    if ((name == "DaysTicker" || name == "MonthsTicker" || name == "YearsTicker") && k == "interval") {
       continue
+    }
 
     // if testing in dev mode, we use special platform independent "Bokeh" font, instead of the default
-    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || (js_v as any)?.value == "Bokeh"))
+    if (settings.dev && k.includes("text_font") && (js_v == "Bokeh" || (js_v as any)?.value == "Bokeh")) {
       continue
+    }
 
     if (k in python_defaults) {
       const py_v = (() => {
@@ -128,11 +133,13 @@ function check_matching_defaults(context: string[], name: string, python_default
       }
 
       if (is_vector(py_v) && !is_vector(js_v)) {
-        if (is_equal(py_v, {type: "value", value: js_v}))
+        if (is_equal(py_v, {type: "value", value: js_v})) {
           continue
+        }
       } else if (!is_vector(py_v) && is_vector(js_v)) {
-        if (is_equal({type: "value", value: py_v}, js_v))
+        if (is_equal({type: "value", value: py_v}, js_v)) {
           continue
+        }
       }
 
       if (!is_equal(py_v, js_v)) {
@@ -140,9 +147,9 @@ function check_matching_defaults(context: string[], name: string, python_default
         if (isArray(js_v) && isArray(py_v)) {
           let equal = true
 
-          if (js_v.length != py_v.length)
+          if (js_v.length != py_v.length) {
             equal = false
-          else {
+          } else {
             for (let i = 0; i < js_v.length; i++) {
               const js_vi = js_v[i]
               const py_vi = py_v[i]
@@ -160,18 +167,21 @@ function check_matching_defaults(context: string[], name: string, python_default
             }
           }
 
-          if (equal)
+          if (equal) {
             continue
+          }
         }
 
         different.push(`${[...context, `${name}.${k}`].join(" -> ")}: bokehjs defaults to ${to_string(js_v)} but python defaults to ${to_string(py_v)}`)
       }
     } else {
       // TODO: bad class structure due to inability to override help
-      if ((name == "Range" || name == "DataRange") && (k == "bounds" || k == "min_interval" || k == "max_interval"))
+      if ((name == "Range" || name == "DataRange") && (k == "bounds" || k == "min_interval" || k == "max_interval")) {
         continue
-      if (name == "XYGlyph" && (k == "x" || k == "y"))
+      }
+      if (name == "XYGlyph" && (k == "x" || k == "y")) {
         continue
+      }
       python_missing.push(`${[...context, `${name}.${k}`].join(" -> ")}: bokehjs defaults to ${to_string(js_v)} but python has no such property`)
     }
   }
@@ -185,8 +195,9 @@ function check_matching_defaults(context: string[], name: string, python_default
   function complain(failures: string[], message: string): void {
     if (failures.length > 0) {
       console.error(message)
-      for (const f of failures)
+      for (const f of failures) {
         console.error(`    ${f}`)
+      }
     }
   }
 
@@ -199,8 +210,9 @@ function check_matching_defaults(context: string[], name: string, python_default
 
 function diff<T>(a: Set<T>, b: Set<T>): Set<T> {
   const result = new Set<T>(a)
-  for (const bi of b)
+  for (const bi of b) {
     result.delete(bi)
+  }
   return result
 }
 
@@ -222,8 +234,9 @@ describe("Defaults", () => {
     const missing_py = diff(js_models, py_models)
     //const missing_js = diff(py_models, js_models)
 
-    if (missing_py.size != 0)
+    if (missing_py.size != 0) {
       throw new ExpectationError(`expected bokeh to implement ${to_string([...missing_py])} models`)
+    }
     //if (missing_js.size != 0)
     //  throw new ExpectationError(`expected bokehjs to implement ${to_string([...missing_js])} models`)
   })

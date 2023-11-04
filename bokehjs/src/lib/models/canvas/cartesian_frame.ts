@@ -61,10 +61,12 @@ export class CartesianFrame {
         throw new Error(`Range ${range.type} is incompatible is Scale ${scale.type}`)
       }
 
-      if (scale instanceof LogScale && range instanceof DataRange1d)
+      if (scale instanceof LogScale && range instanceof DataRange1d) {
         range.scale_hint = "log"
+      }
 
-      const derived_scale = (in_scales.get(name) ?? scale).clone()
+      const base_scale = in_scales.get(name) ?? scale
+      const derived_scale = base_scale.clone()
       derived_scale.setv({source_range: range, target_range: frame_range})
       scales.set(name, derived_scale)
     }

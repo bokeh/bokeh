@@ -28,7 +28,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
 
     const labels = axis_view.compute_labels([0, 2, 4.0, 6, 8, 10])
     expect(labels.items.map((l) => (l as TextBox).text)).to.be.equal(["zero", "2", "four", "6", "8", "ten"])
@@ -48,7 +48,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
 
     const labels = axis_view.compute_labels([0, 2, 4, 6, 8, 10])
 
@@ -72,7 +72,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "below")
 
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
 
     expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
   })
@@ -95,7 +95,7 @@ describe("Axis", () => {
     plot.add_layout(axis, "below")
 
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
 
     expect(axis_view._axis_label_view).to.be.instanceof(TeXView)
   })
@@ -114,7 +114,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "below")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
     expect(axis_view.loc).to.be.equal(10)
   })
 
@@ -132,7 +132,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -151,7 +151,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
     expect(axis_view.offsets).to.be.equal([0, 0])
   })
 
@@ -170,7 +170,7 @@ describe("Axis", () => {
     })
     plot.add_layout(axis, "left")
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
     expect(axis_view.loc).to.be.equal(0.5)
   })
 })
@@ -197,7 +197,7 @@ describe("AxisView", () => {
     plot.add_layout(axis, "below")
 
     const {view: plot_view} = await display(plot)
-    const axis_view = plot_view.renderer_view(axis)!
+    const axis_view = plot_view.owner.get_one(axis)
 
     return {axis, axis_view}
   }

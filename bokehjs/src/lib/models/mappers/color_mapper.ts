@@ -2,7 +2,7 @@ import {Mapper} from "./mapper"
 import type {Factor} from "../ranges/factor_range"
 import type * as p from "core/properties"
 import {Signal0} from "core/signaling"
-import type {Arrayable, ArrayableOf, Color, uint32, RGBAArray} from "core/types"
+import type {Arrayable, Color, uint32, RGBAArray} from "core/types"
 import {ColorArray} from "core/types"
 import {color2rgba, encode_rgba} from "core/util/color"
 import {to_big_endian} from "core/util/platform"
@@ -21,8 +21,9 @@ export function _convert_color(color: Color): uint32 {
 // export for testing
 export function _convert_palette(palette: Color[]): Uint32Array {
   const new_palette = new Uint32Array(palette.length)
-  for (let i = 0, end = palette.length; i < end; i++)
+  for (let i = 0, end = palette.length; i < end; i++) {
     new_palette[i] = _convert_color(palette[i])
+  }
   return new_palette
 }
 
@@ -58,7 +59,7 @@ export abstract class ColorMapper extends Mapper<Color> {
     }))
   }
 
-  v_compute(xs: ArrayableOf<number | Factor>): Arrayable<Color> {
+  v_compute(xs: Arrayable<number> | Arrayable<Factor | number | null>): Arrayable<Color> {
     const values: Color[] = new Array(xs.length)
     this._v_compute(xs, values, this.palette, this._colors((c) => c))
     return values
@@ -82,10 +83,10 @@ export abstract class ColorMapper extends Mapper<Color> {
     return {nan_color: conv(this.nan_color)}
   }
 
-  protected abstract _v_compute<T>(xs: Arrayable<uint32> | Arrayable<Factor>,
+  protected abstract _v_compute<T>(xs: Arrayable<uint32> | Arrayable<Factor | number | null>,
     values: Arrayable<T>, palette: Arrayable<T>, colors: {nan_color: T}): void
 
-  protected _v_compute_uint32(xs: Arrayable<uint32> | Arrayable<Factor>, values: Arrayable<uint32>,
+  protected _v_compute_uint32(xs: Arrayable<uint32> | Arrayable<Factor | number | null>, values: Arrayable<uint32>,
       palette: Arrayable<uint32>, colors: {nan_color: uint32}): void {
     this._v_compute(xs, values, palette, colors)
   }

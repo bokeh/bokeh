@@ -1,8 +1,8 @@
 import {display} from "./_util"
+import {mouse_click} from "../interactive"
 
 import {ColumnDataSource} from "@bokehjs/models"
 import {DataTable, TableColumn} from "@bokehjs/models/widgets/tables"
-import {offset_bbox} from "@bokehjs/core/dom"
 
 describe("DataTable", () => {
 
@@ -17,10 +17,7 @@ describe("DataTable", () => {
     const {view} = await display(table, [600, 400])
 
     const el = view.shadow_el.querySelectorAll(".slick-header-column")[2]
-    const {left, top} = offset_bbox(el)
-    const ev = new MouseEvent("click", {clientX: left + 5, clientY: top + 5, bubbles: true})
-    el.dispatchEvent(ev)
-
+    await mouse_click(el)
     await view.ready
   })
 })

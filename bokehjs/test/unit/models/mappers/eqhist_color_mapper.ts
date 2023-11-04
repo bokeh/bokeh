@@ -17,16 +17,18 @@ describe("EqHistColorMapper module", () => {
         // Ignore values at start of binning array up to low_cutoff_index
         const n = binning.length - low_cutoff_index
         const cutoff_binning = new Array<number>(n)
-        for (let i = 0; i < n; i++)
+        for (let i = 0; i < n; i++) {
           cutoff_binning[i] = binning[i + low_cutoff_index]
+        }
         binning = cutoff_binning
       }
 
       const sorted = values.sort()
-      if (rescale_discrete_levels)
+      if (rescale_discrete_levels) {
         expect(scan.min).to.be.similar(expected_binning[0], 1e-6)
-      else
+      } else {
         expect(scan.min).to.be.equal(sorted[0])
+      }
       expect(scan.max).to.be.equal(sorted[n-1])
 
       expect(binning).to.be.similar(expected_binning, 1e-6)

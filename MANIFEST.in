@@ -1,4 +1,5 @@
 # Package files and data
+graft src/bokeh/_sri
 graft src/bokeh/core/_templates
 graft src/bokeh/sampledata/_data
 graft src/bokeh/sphinxext/_templates

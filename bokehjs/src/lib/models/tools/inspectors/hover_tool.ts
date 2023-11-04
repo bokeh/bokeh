@@ -12,13 +12,14 @@ import {assert} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {is_empty} from "core/util/object"
+import type {CallbackLike1} from "core/util/callbacks"
+import {execute} from "core/util/callbacks"
 import type {Formatters} from "core/util/templating"
 import {FormatterType, replace_placeholders} from "core/util/templating"
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
 import {Tooltip} from "../../ui/tooltip"
-import type {CallbackLike1} from "../../callbacks/callback"
 import type {TemplateView} from "../../dom/template"
 import {Template} from "../../dom/template"
 import type {GlyphView} from "../../glyphs/glyph"
@@ -43,6 +44,7 @@ import {InspectTool, InspectToolView} from "./inspect_tool"
 export type TooltipVars = {
   index: number | null
   glyph_view: GlyphView
+  type: string
   x: number
   y: number
   sx: number
@@ -96,6 +98,8 @@ export function _line_hit(
 export class HoverToolView extends InspectToolView {
   declare model: HoverTool
 
+  protected _current_sxy: [number, number] | null = null
+
   public readonly ttmodels: Map<GlyphRenderer, Tooltip> = new Map()
 
   protected readonly _ttviews: ViewStorage<Tooltip> = new Map()
@@ -133,6 +137,13 @@ export class HoverToolView extends InspectToolView {
     const {renderers, tooltips} = this.model.properties
     this.on_change(tooltips, () => delete this._template_el)
     this.on_change([plot_renderers, renderers, tooltips], async () => await this._update_ttmodels())
+
+    this.connect(this.plot_view.repainted, () => {
+      if (this.model.active && this._current_sxy != null) {
+        const [sx, sy] = this._current_sxy
+        this._inspect(sx, sy)
+      }
+    })
   }
 
   protected async _update_ttmodels(): Promise<void> {
@@ -207,22 +218,26 @@ export class HoverToolView extends InspectToolView {
     const {sx, sy} = ev
     if (!this.plot_view.frame.bbox.contains(sx, sy))
       this._clear()
-    else
+    else {
+      this._current_sxy = [sx, sy]
       this._inspect(sx, sy)
+    }
   }
 
   override _move_exit(): void {
+    this._current_sxy = null
     this._clear()
   }
 
   _inspect(sx: number, sy: number): void {
-    let geometry: PointGeometry | SpanGeometry
-    if (this.model.mode == "mouse")
-      geometry = {type: "point", sx, sy}
-    else {
-      const direction = this.model.mode == "vline" ? "h" : "v"
-      geometry = {type: "span", direction, sx, sy}
-    }
+    const geometry: PointGeometry | SpanGeometry = (() => {
+      if (this.model.mode == "mouse")
+        return {type: "point", sx, sy}
+      else {
+        const direction = this.model.mode == "vline" ? "h" : "v"
+        return {type: "span", direction, sx, sy}
+      }
+    })()
 
     for (const r of this.computed_renderers) {
       const sm = r.get_selection_manager()
@@ -266,6 +281,7 @@ export class HoverToolView extends InspectToolView {
       const vars = {
         index: null,
         glyph_view: glyph,
+        type: glyph.model.type,
         x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
         name: renderer.name,
       }
@@ -281,6 +297,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: i,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
@@ -324,6 +341,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: ii,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           indices: subset_indices.line_indices,
@@ -338,6 +356,7 @@ export class HoverToolView extends InspectToolView {
         const vars = {
           index: image_index.index,
           glyph_view: glyph,
+          type: glyph.model.type,
           x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
           name: renderer.name,
           image_index,
@@ -378,6 +397,7 @@ export class HoverToolView extends InspectToolView {
             const vars = {
               index,
               glyph_view: glyph,
+              type: glyph.model.type,
               x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
               name: renderer.name,
               indices: subset_indices.multiline_indices,
@@ -410,6 +430,7 @@ export class HoverToolView extends InspectToolView {
           const vars = {
             index,
             glyph_view: glyph,
+            type: glyph.model.type,
             x, y, sx, sy, snap_x, snap_y, snap_sx, snap_sy,
             name: renderer.name,
             indices: subset_indices.indices,
@@ -475,7 +496,7 @@ export class HoverToolView extends InspectToolView {
 
       const index = renderer.data_source.inspected
 
-      callback.execute(this.model, {
+      void execute(callback, this.model, {
         geometry: {x, y, ...geometry},
         renderer,
         index,

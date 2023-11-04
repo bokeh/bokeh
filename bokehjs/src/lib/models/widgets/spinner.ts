@@ -182,12 +182,14 @@ export class SpinnerView extends NumericInputView {
   increment(step: number): void {
     const {low, high} = this.model
     if (this.model.value == null) {
-      if (step > 0)
+      if (step > 0) {
         this.model.value = (low!=null)? low : (high!=null)? min(0, high) : 0
-      else if (step < 0)
+      } else if (step < 0) {
         this.model.value = (high!=null)? high : (low!=null)? max(low, 0) : 0
-    } else
+      }
+    } else {
       this.model.value = this.bound_value(this.model.value + step)
+    }
   }
 
   override change_input(): void {
@@ -197,8 +199,12 @@ export class SpinnerView extends NumericInputView {
 
   override bound_value(value: number): number {
     const {low, high} = this.model
-    if (low != null && value < low) return this.model.value ?? 0
-    if (high != null && value > high) return this.model.value ?? 0
+    if (low != null && value < low) {
+      return this.model.value ?? 0
+    }
+    if (high != null && value > high) {
+      return this.model.value ?? 0
+    }
     return value
   }
 }

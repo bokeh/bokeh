@@ -34,7 +34,7 @@ export class Hatch extends VisualProperties {
       const image = texture.get_pattern(color, alpha, scale, weight)
       if (image instanceof Promise) {
         const {_update_iteration} = this
-        image.then((image) => {
+        void image.then((image) => {
           if (this._update_iteration == _update_iteration) {
             finalize(image)
             this.obj.request_render()
@@ -144,7 +144,7 @@ export class HatchScalar extends VisualUniforms {
       const image = texture.get_pattern(color, alpha, scale, weight)
       if (image instanceof Promise) {
         const {_update_iteration} = this
-        image.then((image) => {
+        void image.then((image) => {
           if (this._update_iteration == _update_iteration) {
             finalize(image)
             this.obj.request_render()
@@ -250,7 +250,7 @@ export class HatchVector extends VisualUniforms {
         const image = texture.get_pattern(color, alpha, scale, weight)
         if (image instanceof Promise) {
           const {_update_iteration} = this
-          image.then((image) => {
+          void image.then((image) => {
             if (this._update_iteration == _update_iteration) {
               finalize(image)
               this.obj.request_render()

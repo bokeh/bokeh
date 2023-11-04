@@ -7,7 +7,6 @@ import type {ToolbarView} from "../tools/toolbar"
 import {Toolbar} from "../tools/toolbar"
 import type {UIElement} from "../ui/ui_element"
 import {ActionTool} from "../tools/actions/action_tool"
-import {CanvasLayer} from "core/util/canvas"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {Location} from "core/enums"
@@ -51,12 +50,12 @@ export class GridPlotView extends LayoutDOMView {
     super.connect_signals()
 
     const {toolbar, toolbar_location, children, rows, cols, spacing} = this.model.properties
-    this.on_change(toolbar_location, () => {
+    this.on_change(toolbar_location, async () => {
       this._update_location()
-      this.rebuild()
+      await this.rebuild()
     })
-    this.on_change([toolbar, children, rows, cols, spacing], () => {
-      this.rebuild()
+    this.on_change([toolbar, children, rows, cols, spacing], async () => {
+      await this.rebuild()
     })
 
     this.on_change(this.model.toolbar.properties.tools, async () => {
@@ -109,35 +108,6 @@ export class GridPlotView extends LayoutDOMView {
       }
     })()
     this.style.append(":host", {flex_direction})
-  }
-
-  override export(type: "auto" | "png" | "svg" = "auto", hidpi: boolean = true): CanvasLayer {
-    const output_backend = (() => {
-      switch (type) {
-        case "auto": // TODO: actually infer the best type
-        case "png": return "canvas"
-        case "svg": return "svg"
-      }
-    })()
-
-    const composite = new CanvasLayer(output_backend, hidpi)
-
-    const {x, y, width, height} = this.grid_box_view.bbox.relative()
-    composite.resize(width, height)
-    composite.ctx.save()
-
-    const bg_color = getComputedStyle(this.el).backgroundColor
-    composite.ctx.fillStyle = bg_color
-    composite.ctx.fillRect(x, y, width, height)
-
-    for (const view of this.child_views) {
-      const region = view.export(type, hidpi)
-      const {x, y} = view.bbox
-      composite.ctx.drawImage(region.canvas, x, y)
-    }
-
-    composite.ctx.restore()
-    return composite
   }
 }
 

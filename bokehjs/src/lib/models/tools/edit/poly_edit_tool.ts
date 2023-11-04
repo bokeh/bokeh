@@ -2,7 +2,7 @@ import type {PanEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_eve
 import {isArray} from "core/util/types"
 import type {MultiLine} from "../../glyphs/multi_line"
 import type {Patches} from "../../glyphs/patches"
-import type {GlyphRenderer} from "../../renderers/glyph_renderer"
+import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {PolyTool, PolyToolView} from "./poly_tool"
 import type * as p from "core/properties"
 import {tool_icon_poly_edit} from "styles/icons.css"
@@ -257,7 +257,9 @@ export class PolyEditToolView extends PolyToolView {
 export namespace PolyEditTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = PolyTool.Props
+  export type Props = PolyTool.Props & {
+    renderers: p.Property<(GlyphRenderer & HasPolyGlyph)[]>
+  }
 }
 
 export interface PolyEditTool extends PolyEditTool.Attrs {}
@@ -266,14 +268,16 @@ export class PolyEditTool extends PolyTool {
   declare properties: PolyEditTool.Props
   declare __view_type__: PolyEditToolView
 
-  declare renderers: (GlyphRenderer & HasPolyGlyph)[]
-
   constructor(attrs?: Partial<PolyEditTool.Attrs>) {
     super(attrs)
   }
 
   static {
     this.prototype.default_view = PolyEditToolView
+
+    this.define<PolyEditTool.Props>(({Array, Ref}) => ({
+      renderers: [ Array(Ref<GlyphRenderer & HasPolyGlyph>(GlyphRenderer as any)), [] ],
+    }))
   }
 
   override tool_name = "Poly Edit Tool"

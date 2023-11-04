@@ -32,8 +32,9 @@ export class CategoricalAxisView extends AxisView {
     const [range] = this.ranges as [FactorRange, FactorRange]
     const [start, end] = this.computed_bounds
 
-    if (range.tops == null || range.tops.length < 2 || !this.visuals.separator_line.doit)
+    if (range.tops == null || range.tops.length < 2 || !this.visuals.separator_line.doit) {
       return
+    }
 
     const dim = this.dimension
     const alt = 1 - dim
@@ -69,7 +70,7 @@ export class CategoricalAxisView extends AxisView {
     let standoff = extents.tick + this.model.major_label_standoff
     for (let i = 0; i < info.length; i++) {
       const [labels, coords, orient, visuals] = info[i]
-      this._draw_oriented_labels(ctx, labels, coords, orient, this.panel.side, standoff, visuals)
+      this._draw_oriented_labels(ctx, labels, coords, orient, standoff, visuals)
       standoff += extents.tick_labels[i]
     }
   }

@@ -67,13 +67,13 @@ describe("Glyph (using Rect as a concrete Glyph)", () => {
       const geometry2: Geometry = {type: "rect", sx0: 60, sy0: 210, sx1: 80,  sy1: 150}
       const geometry3: Geometry = {type: "rect", sx0: 0,  sy0:  50, sx1: 200, sy1:  59}
 
-      const result1 = glyph_view.hit_test(geometry1)!
-      const result2 = glyph_view.hit_test(geometry2)!
-      const result3 = glyph_view.hit_test(geometry3)!
+      const result1 = glyph_view.hit_test(geometry1)
+      const result2 = glyph_view.hit_test(geometry2)
+      const result3 = glyph_view.hit_test(geometry3)
 
-      expect(result1.indices).to.be.equal([0])
-      expect(result2.indices).to.be.equal([1])
-      expect(result3.indices).to.be.equal([])
+      expect(result1?.indices).to.be.equal([0])
+      expect(result2?.indices).to.be.equal([1])
+      expect(result3?.indices).to.be.equal([])
     })
   })
 })
@@ -195,13 +195,13 @@ describe("Rect", () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
-          const result1 = glyph_view.hit_test(geometry1)!
-          const result2 = glyph_view.hit_test(geometry2)!
-          const result3 = glyph_view.hit_test(geometry3)!
+          const result1 = glyph_view.hit_test(geometry1)
+          const result2 = glyph_view.hit_test(geometry2)
+          const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1.indices).to.be.equal([1])
-          expect(result2.indices).to.be.equal([1])
-          expect(result3.indices).to.be.equal([])
+          expect(result1?.indices).to.be.equal([1])
+          expect(result2?.indices).to.be.equal([1])
+          expect(result3?.indices).to.be.equal([])
         })
 
         it("should work when width and height units are 'screen'", async () => {
@@ -211,13 +211,13 @@ describe("Rect", () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
-          const result1 = glyph_view.hit_test(geometry1)!
-          const result2 = glyph_view.hit_test(geometry2)!
-          const result3 = glyph_view.hit_test(geometry3)!
+          const result1 = glyph_view.hit_test(geometry1)
+          const result2 = glyph_view.hit_test(geometry2)
+          const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1.indices).to.be.equal([])
-          expect(result2.indices).to.be.equal([1])
-          expect(result3.indices).to.be.equal([])
+          expect(result1?.indices).to.be.equal([])
+          expect(result2?.indices).to.be.equal([1])
+          expect(result3?.indices).to.be.equal([])
         })
 
         it("should work when rects are rotated", async () => {
@@ -232,13 +232,13 @@ describe("Rect", () => {
           const data = {x: [60, 100, 140], y: [60, 100, 140]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
 
-          const result1 = glyph_view.hit_test(geometry1)!
-          const result2 = glyph_view.hit_test(geometry2)!
-          const result3 = glyph_view.hit_test(geometry3)!
+          const result1 = glyph_view.hit_test(geometry1)
+          const result2 = glyph_view.hit_test(geometry2)
+          const result3 = glyph_view.hit_test(geometry3)
 
-          expect(result1.indices).to.be.equal([])
-          expect(result2.indices).to.be.equal([])
-          expect(result3.indices).to.be.equal([1])
+          expect(result1?.indices).to.be.equal([])
+          expect(result2?.indices).to.be.equal([])
+          expect(result3?.indices).to.be.equal([1])
         })
 
         /*
@@ -269,13 +269,13 @@ describe("Rect", () => {
           glyph_view.renderer.plot_view.frame.xscales.default = xscale
           glyph_view.renderer.plot_view.frame.yscales.default = yscale
 
-          const result1 = glyph_view.hit_test({type: "point", sx: 105, sy:   0})!
-          const result2 = glyph_view.hit_test({type: "point", sx: 105, sy: -20})!
-          const result3 = glyph_view.hit_test({type: "point", sx: 91,  sy:  14})!
+          const result1 = glyph_view.hit_test({type: "point", sx: 105, sy:   0})
+          const result2 = glyph_view.hit_test({type: "point", sx: 105, sy: -20})
+          const result3 = glyph_view.hit_test({type: "point", sx: 91,  sy:  14})
 
-          expect(result1.indices).to.be.equal([1])
-          expect(result2.indices).to.be.equal([])
-          expect(result3.indices).to.be.equal([1])
+          expect(result1?.indices).to.be.equal([1])
+          expect(result2?.indices).to.be.equal([])
+          expect(result3?.indices).to.be.equal([1])
         })
         */
 
@@ -283,11 +283,11 @@ describe("Rect", () => {
           const data = {x: [1, 10, 100, 1000], y: [1, 10, 100, 1000]}
           const glyph_view = await create_glyph_view(glyph, data, {axis_type: "log"})
 
-          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333})!
-          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666})!
+          const result4 = glyph_view.hit_test({type: "point", sx: 66.666,  sy: 133.333})
+          const result5 = glyph_view.hit_test({type: "point", sx: 133.333, sy:  66.666})
 
-          expect(result4.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
-          expect(result5.indices).to.be.equal([2])
+          expect(result4?.indices).to.be.equal([])  // XXX: this seems to be a hit if not for intermediate NaNs
+          expect(result5?.indices).to.be.equal([2])
         })
       })
     })

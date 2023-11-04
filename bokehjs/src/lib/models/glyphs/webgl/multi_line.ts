@@ -33,8 +33,8 @@ export class MultiLineGL extends BaseLineGL {
     }
 
     if (data_changed_or_mapped) {
-      this.data_changed = false
-      this.data_mapped = false
+      main_gl_glyph.data_changed = false
+      main_gl_glyph.data_mapped = false
     }
 
     const {data_size} = this.glyph  // Number of lines

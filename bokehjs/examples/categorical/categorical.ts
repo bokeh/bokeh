@@ -44,5 +44,5 @@ export namespace Categorical {
     return fig
   }
 
-  plt.show(new Row({children: [hm(), dot()], sizing_mode: "scale_width"}))
+  void plt.show(new Row({children: [hm(), dot()], sizing_mode: "scale_width"}))
 }

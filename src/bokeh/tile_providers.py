@@ -6,40 +6,7 @@
 #-----------------------------------------------------------------------------
 ''' Pre-configured tile sources for common third party tile services.
 
-get_provider
-    Use this function to retrieve an instance of a predefined tile provider.
-
-    .. warning::
-        get_provider is deprecated as of Bokeh 3.0.0 and will be removed in a future
-        release. Use ``add_tile`` directly instead.
-
-    Args:
-        provider_name (Union[str, Vendors, xyzservices.TileProvider])
-            Name of the tile provider to supply.
-
-            Use a ``tile_providers.Vendors`` enumeration value, or the string
-            name of one of the known providers. Use
-            :class:`xyzservices.TileProvider` to pass custom tile providers.
-
-    Returns:
-        WMTSTileProviderSource: The desired tile provider instance
-
-    Raises:
-        ValueError, if the specified provider can not be found
-
-    Example:
-
-        .. code-block:: python
-
-                >>> from bokeh.tile_providers import get_provider, Vendors
-                >>> get_provider(Vendors.CARTODBPOSITRON)
-                <class 'bokeh.models.tiles.WMTSTileSource'>
-                >>> get_provider('CARTODBPOSITRON')
-                <class 'bokeh.models.tiles.WMTSTileSource'>
-
-                >>> import xyzservices.providers as xyz
-                >>> get_provider(xyz.CartoDB.Positron)
-                <class 'bokeh.models.tiles.WMTSTileSource'>
+.. autofunction:: bokeh.tile_providers.get_provider
 
 The available built-in tile providers are listed in the ``Vendors`` enum:
 
@@ -94,47 +61,47 @@ Tile Source for Open Street Maps.
 STAMEN_TERRAIN
 --------------
 
-Tile Source for Stamen Terrain Service
+Tile Source for Stadia/Stamen Terrain Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331.png" />
 
 STAMEN_TERRAIN_RETINA
 ---------------------
 
-Tile Source for Stamen Terrain Service (tiles at 'retina' resolution)
+Tile Source for Stadia/Stamen Terrain Service (tiles at 2x or 'retina' resolution)
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/terrain/14/2627/6331@2x.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331@2x.png" />
 
 STAMEN_TONER
 ------------
 
-Tile Source for Stamen Toner Service
+Tile Source for Stadia/Stamen Toner Service
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner/14/2627/6331.png" />
 
 STAMEN_TONER_BACKGROUND
 -----------------------
 
-Tile Source for Stamen Toner Background Service which does not include labels
+Tile Source for Stadia/Stamen Toner Background Service which does not include labels
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-background/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_background/14/2627/6331.png" />
 
 STAMEN_TONER_LABELS
 -------------------
 
-Tile Source for Stamen Toner Service which includes only labels
+Tile Source for Stadia/Stamen Toner Service which includes only labels
 
 .. raw:: html
 
-    <img src="https://stamen-tiles.a.ssl.fastly.net/toner-labels/14/2627/6331.png" />
+    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/14/2627/6331.png" />
 
 '''
 
@@ -194,7 +161,41 @@ class _TileProvidersModule(types.ModuleType):
 
     Vendors = deprecated_vendors()
 
-    def get_provider(self, provider_name):
+    def get_provider(self, provider_name: str | Vendors | xyzservices.TileProvider):
+        """Use this function to retrieve an instance of a predefined tile provider.
+
+        .. warning::
+            get_provider is deprecated as of Bokeh 3.0.0 and will be removed in a future
+            release. Use ``add_tile`` directly instead.
+
+        Args:
+            provider_name (Union[str, Vendors, xyzservices.TileProvider]):
+                Name of the tile provider to supply.
+
+                Use a ``tile_providers.Vendors`` enumeration value, or the string
+                name of one of the known providers. Use
+                :class:`xyzservices.TileProvider` to pass custom tile providers.
+
+        Returns:
+            WMTSTileProviderSource: The desired tile provider instance.
+
+        Raises:
+            ValueError: if the specified provider can not be found.
+
+        Example:
+
+            .. code-block:: python
+
+                    >>> from bokeh.tile_providers import get_provider, Vendors
+                    >>> get_provider(Vendors.CARTODBPOSITRON)
+                    <class 'bokeh.models.tiles.WMTSTileSource'>
+                    >>> get_provider('CARTODBPOSITRON')
+                    <class 'bokeh.models.tiles.WMTSTileSource'>
+
+                    >>> import xyzservices.providers as xyz
+                    >>> get_provider(xyz.CartoDB.Positron)
+                    <class 'bokeh.models.tiles.WMTSTileSource'>
+        """
         deprecated((3, 0, 0), "get_provider", "add_tile directly")
         from bokeh.models import WMTSTileSource
 
@@ -209,7 +210,8 @@ class _TileProvidersModule(types.ModuleType):
                 provider_name = "esri_worldimagery"
             if provider_name == "osm":
                 provider_name = "openstreetmap_mapnik"
-
+            if provider_name.startswith("stamen"):
+                provider_name = f"stadia.{provider_name}"
             if "retina" in provider_name:
                 provider_name = provider_name.replace("retina", "")
                 retina = True

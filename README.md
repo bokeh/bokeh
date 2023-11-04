@@ -72,8 +72,15 @@
 
   <td>
     <a href="https://docs.bokeh.org/en/latest/docs/first_steps/installation.html">
-    <img src="https://raw.githubusercontent.com/bokeh/badges/main/cache/bokeh-conda-monthly.svg"
+    <img src="https://img.shields.io/conda/d/conda-forge/bokeh?style=for-the-badge&logo=python&color=D98B43&logoColor=yellow"
          alt="Conda downloads per month" />
+    </a>
+  </td>
+
+  <td>
+    <a href="https://www.npmjs.com/package/@bokeh/bokehjs">
+    <img src="https://img.shields.io/npm/dm/%40bokeh/bokehjs?style=for-the-badge&logo=npm&label=NPM&color=D98B43"
+         alt="NPM downloads per month" />
     </a>
   </td>
 
@@ -119,7 +126,7 @@
 
   <td>
     <a href="https://stackoverflow.com/questions/tagged/bokeh">
-    <img src="https://raw.githubusercontent.com/bokeh/badges/main/cache/bokeh-stackoverflow-total.svg"
+    <img src="https://img.shields.io/stackexchange/stackoverflow/t/%5Bbokeh%5D?style=for-the-badge&logo=stackoverflow&label=stackoverflow&color=blue"
          alt="Bokeh-tagged questions on Stack Overflow" />
      </a>
   </td>

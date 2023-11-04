@@ -8,8 +8,8 @@ import type {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import * as uniforms from "core/uniforms"
-import {range} from "core/util/array"
 import type {Context2d} from "core/util/canvas"
+import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
 
 export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
@@ -100,22 +100,23 @@ export abstract class MarkerView extends XYGlyphView {
   protected override _hit_span(geometry: SpanGeometry): Selection {
     const {sx, sy} = geometry
     const bounds = this.bounds()
-    const ms = this.max_size/2
+    const half_size = this.max_size/2
 
-    let x0, x1, y0, y1
-    if (geometry.direction == "h") {
-      y0 = bounds.y0
-      y1 = bounds.y1
-      const sx0 = sx - ms
-      const sx1 = sx + ms
-      ;[x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
-    } else {
-      x0 = bounds.x0
-      x1 = bounds.x1
-      const sy0 = sy - ms
-      const sy1 = sy + ms
-      ;[y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
-    }
+    const [x0, x1, y0, y1] = (() => {
+      if (geometry.direction == "h") {
+        const {y0, y1} = bounds
+        const sx0 = sx - half_size
+        const sx1 = sx + half_size
+        const [x0, x1] = this.renderer.xscale.r_invert(sx0, sx1)
+        return [x0, x1, y0, y1]
+      } else {
+        const {x0, x1} = bounds
+        const sy0 = sy - half_size
+        const sy1 = sy + half_size
+        const [y0, y1] = this.renderer.yscale.r_invert(sy0, sy1)
+        return [x0, x1, y0, y1]
+      }
+    })()
 
     const indices = [...this.index.indices({x0, x1, y0, y1})]
     return new Selection({indices})
@@ -129,28 +130,32 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
+  protected override _hit_poly(geometry: PolyGeometry): Selection {
+    const {sx: sxs, sy: sys} = geometry
+
+    const candidates = (() => {
+      const xs = this.renderer.xscale.v_invert(sxs)
+      const ys = this.renderer.yscale.v_invert(sys)
+
+      const [x0, x1, y0, y1] = minmax2(xs, ys)
+      return this.index.indices({x0, x1, y0, y1})
+    })()
+
+    const indices = []
+    for (const i of candidates) {
+      if (hittest.point_in_poly(this.sx[i], this.sy[i], sxs, sys)) {
+        indices.push(i)
+      }
+    }
+
+    return new Selection({indices})
+  }
+
   override _set_data(indices: number[] | null): void {
     super._set_data(indices)
 
     const max_size = uniforms.max(this.size)
     this._configure("max_size", {value: max_size})
-  }
-
-  protected override _hit_poly(geometry: PolyGeometry): Selection {
-    const {sx, sy} = geometry
-
-    // TODO (bev) use spatial index to pare candidate list
-    const candidates = range(0, this.sx.length)
-
-    const indices = []
-    for (let i = 0, end = candidates.length; i < end; i++) {
-      const index = candidates[i]
-      if (hittest.point_in_poly(this.sx[i], this.sy[i], sx, sy)) {
-        indices.push(index)
-      }
-    }
-
-    return new Selection({indices})
   }
 
   _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {

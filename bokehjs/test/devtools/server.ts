@@ -1,5 +1,6 @@
 import fs from "fs"
-import {join} from "path"
+import {spawn} from "child_process"
+import {join, resolve, dirname} from "path"
 
 import {argv} from "yargs"
 import express from "express"
@@ -85,11 +86,13 @@ app.get("/examples", async (_req, res) => {
   const dir = await fs.promises.opendir("examples")
   const entries = []
   for await (const dirent of dir) {
-    if (!dirent.isDirectory())
+    if (!dirent.isDirectory()) {
       continue
+    }
     const {name} = dirent
-    if (name.startsWith(".") || name.startsWith("_"))
+    if (name.startsWith(".") || name.startsWith("_")) {
       continue
+    }
     entries.push(name)
   }
   entries.sort()
@@ -107,6 +110,128 @@ app.get("/examples/:name", async (req, res) => {
     }
   } catch {}
   res.status(404).send("No such example")
+})
+
+async function build_example(path: string): Promise<string | null> {
+  const code = `\
+__file__ = "${path}"
+
+import random
+random.seed(1)
+
+import numpy as np
+np.random.seed(1)
+
+import warnings
+warnings.filterwarnings("ignore", ".*", UserWarning, "matplotlib.font_manager")
+
+with open(__file__, "rb") as example:
+    exec(compile(example.read(), __file__, "exec"))
+`
+
+  const env = {
+    ...process.env,
+    BOKEH_DEV: "true",
+    BOKEH_RESOURCES: "server",
+    BOKEH_DEFAULT_SERVER_HOST: host,
+    BOKEH_DEFAULT_SERVER_PORT: `${port}`,
+  }
+
+  const cwd = dirname(path)
+
+  console.log(`Building ${path}`)
+  const proc = spawn("python", ["-c", code], {stdio: "pipe", env, cwd, timeout: 10000})
+
+  let output = ""
+  proc.stdout.on("data", (data) => {
+    output += `${data}`
+  })
+  proc.stderr.on("data", (data) => {
+    output += `${data}`
+  })
+
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("exit", (code, signal) => {
+      if (code === 0 && signal == null) {
+        if (output.trim().length != 0) {
+          console.log(output)
+        }
+        resolve(null)
+      } else {
+        let text = `Process exited with code ${code ?? 0}`
+        if (signal != null) {
+          text += ` and signal ${signal}`
+        }
+        if (output.trim().length != 0) {
+          text += `:\n\n${output}`
+        }
+        resolve(text)
+      }
+    })
+  })
+}
+
+app.get("/bokeh/examples/:path(*)", async (req, res) => {
+  const {path} = req.params
+
+  function not_found(): void {
+    res.status(404).send("No such example")
+  }
+
+  if (path.includes(".")) {
+    not_found()
+    return
+  }
+
+  const examples_dir = resolve("../examples")
+
+  const dir_path = join(examples_dir, path)
+  if (fs.existsSync(dir_path) && fs.statSync(dir_path).isDirectory()) {
+    if (!path.endsWith("/") && path.length != 0) {
+      res.redirect(`/bokeh/examples/${path}/`)
+      return
+    }
+
+    console.log(`Listing ${dir_path}`)
+    const entries = fs.readdirSync(dir_path, {encoding: "utf-8"})
+
+    const dirs = []
+    const files = []
+    for (const entry of entries) {
+      const entry_path = join(dir_path, entry)
+      const stat = fs.statSync(entry_path)
+      if (stat.isDirectory()) {
+        dirs.push(entry)
+      } else if (stat.isFile() && entry.endsWith(".py")) {
+        files.push(entry.replace(/\.py$/, ""))
+      }
+    }
+
+    res.status(200).render("test/devtools/bokeh_examples.html", {directory: dir_path, dirs, files})
+    return
+  }
+
+  const py_path = join(examples_dir, `${path}.py`)
+  if (!(fs.existsSync(py_path) && fs.statSync(py_path).isFile())) {
+    not_found()
+    return
+  }
+
+  const error = await build_example(py_path)
+  if (error != null) {
+    res.status(200).render("test/devtools/bokeh_example.html", {title: py_path, contents: error})
+    return
+  }
+
+  const html_path = join(examples_dir, `${path}.html`)
+  if (!(fs.existsSync(html_path) && fs.statSync(html_path).isFile())) {
+    not_found()
+    return
+  }
+
+  const html = await fs.promises.readFile(html_path, {encoding: "utf-8"})
+  res.status(200).send(html)
 })
 
 process.once("SIGTERM", () => {

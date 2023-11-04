@@ -1,10 +1,10 @@
 import sinon from "sinon"
 
-import {expect} from "../unit/assertions"
+import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, xy, click, press, mouseenter} from "../interactive"
+import {PlotActions, actions, xy, click, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
 
-import type {ArrowHead, Line, Renderer, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
@@ -17,7 +17,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
+  Toolbar, ToolProxy, PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool, WheelPanTool,
   TileRenderer, WMTSTileSource,
   ImageURLTexture,
   Row, Column,
@@ -28,7 +28,12 @@ import {
   ParkMillerLCG,
   GridPlot,
   Tooltip,
+  Node,
 } from "@bokehjs/models"
+
+import {
+  InlineStyleSheet,
+} from "@bokehjs/models/dom"
 
 import {
   Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
@@ -43,7 +48,6 @@ import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
-import {assert} from "@bokehjs/core/util/assert"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
 import {range, linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -54,11 +58,11 @@ import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
-import {div, offset_bbox} from "@bokehjs/core/dom"
+import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
+import {sprintf} from "@bokehjs/core/util/templating"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
-import type {PlotView} from "@bokehjs/models/plots/plot"
 import {FigureView} from "@bokehjs/models/plots/figure"
 
 import {gridplot} from "@bokehjs/api/gridplot"
@@ -324,8 +328,9 @@ describe("Bug", () => {
       })
 
       for (const axis of p.yaxis) {
-        if (axis instanceof CategoricalAxis)
+        if (axis instanceof CategoricalAxis) {
           axis.subgroup_label_orientation = 0
+        }
       }
 
       await display(p)
@@ -725,7 +730,7 @@ describe("Bug", () => {
         (p) => p.y.bind(p),
       ]
 
-      assert(fns.length == n_marker_types)
+      expect(fns.length).to.be.equal(n_marker_types)
 
       const layout = column(fns.map((fn) => row(plots(fn))))
       await display(layout)
@@ -982,8 +987,8 @@ describe("Bug", () => {
       const {start: y_start, end: y_end} = p.y_range
       const pan = 0.5
 
-      const xrs = new Map([["default", {start: x_start + pan, end: x_end + pan}]])
-      const yrs = new Map([["default", {start: y_start + pan, end: y_end + pan}]])
+      const xrs = new Map([[p.x_range, {start: x_start + pan, end: x_end + pan}]])
+      const yrs = new Map([[p.y_range, {start: y_start + pan, end: y_end + pan}]])
       view.update_range({xrs, yrs}, {panning: true})
 
       // TODO: p.pan(0.5, 0.5)
@@ -1245,18 +1250,10 @@ describe("Bug", () => {
         size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
       })
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
-      const {view} = await display(p)
+      const {view: pv} = await display(p)
 
-      const crv = view.renderer_views.get(cr)!
-      const [[sx], [sy]] = crv.coordinates.map_to_screen([2], [1.5])
-
-      const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset_bbox(ui.hit_area)
-
-      const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-      ui.hit_area.dispatchEvent(ev)
-
-      await view.ready
+      await actions(pv).hover(xy(2, 1.5))
+      await pv.ready
     })
   })
 
@@ -1292,31 +1289,22 @@ describe("Bug", () => {
             ["value", "@image"],
           ],
         }))
-        return [p, ir] as const
+        return p
       }
 
-      const [p0, r0] = plot([0])
-      const [p1, r1] = plot([1])
-      const [p2, r2] = plot([0, 1])
+      const p0 = plot([0])
+      const p1 = plot([1])
+      const p2 = plot([0, 1])
 
       const {view} = await display(row([p0, p1, p2]))
 
-      function hover_at(plot_view: PlotView, r: Renderer, x: number, y: number) {
-        const crv = plot_view.renderer_views.get(r)!
-        const [[sx], [sy]] = crv.coordinates.map_to_screen([x], [y])
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+      const pv2 = view.owner.get_one(p2)
 
-        const ui = plot_view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
-
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
-      const [pv0, pv1, pv2] = view.child_views as PlotView[]
-
-      hover_at(pv0, r0,  2, 5)
-      hover_at(pv1, r1, 12, 5)
-      hover_at(pv2, r2,  2, 5)
+      await actions(pv0).hover(xy(2, 5))
+      await actions(pv1).hover(xy(12, 5))
+      await actions(pv2).hover(xy(2, 5))
 
       await view.ready
     })
@@ -1640,7 +1628,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      const zoom_in_tool_view = view.tool_views.get(zoom_in_tool)! as ZoomInTool["__view_type__"]
+      const zoom_in_tool_view = view.owner.get_one(zoom_in_tool)
       zoom_in_tool_view.doit()
 
       await view.ready
@@ -1670,7 +1658,7 @@ describe("Bug", () => {
       document.fonts.add(font)
     })
 
-    function assert_fonts(status: boolean) {
+    function expect_fonts(status: boolean) {
       expect(document.fonts.check("normal 12px VujahdayScript")).to.be.equal(status)
       expect(document.fonts.check("normal 22px VujahdayScript")).to.be.equal(status)
       expect(document.fonts.check("normal 26px VujahdayScript")).to.be.equal(status)
@@ -1678,7 +1666,7 @@ describe("Bug", () => {
     }
 
     it("prevents correct text rendering with lazily loaded fonts", async () => {
-      assert_fonts(false)
+      expect_fonts(false)
 
       const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 3]})
 
@@ -1703,14 +1691,14 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       await document.fonts.ready
-      assert_fonts(true)
+      expect_fonts(true)
 
       await view.ready
     })
 
     after_each(() => {
       const deleted = document.fonts.delete(font)
-      assert(deleted, "font cleanup failed")
+      expect_condition(deleted, "font cleanup failed")
     })
   })
 
@@ -2171,9 +2159,7 @@ describe("Bug", () => {
       const {view} = await display(layout, [300, 100])
       const button_view = view.owner.get_one(button)
 
-      const ev = new MouseEvent("click", {bubbles: true})
-      button_view.button_el.dispatchEvent(ev)
-
+      await mouse_click(button_view.button_el)
       await view.ready
       await paint()
     })
@@ -2214,8 +2200,7 @@ describe("Bug", () => {
       const button_view = view.owner.get_one(button)
 
       for (const _ of range(0, 5)) {
-        const ev = new MouseEvent("click", {bubbles: true})
-        button_view.button_el.dispatchEvent(ev)
+        await mouse_click(button_view.button_el)
         await view.ready
         await paint()
       }
@@ -2340,9 +2325,7 @@ describe("Bug", () => {
       const {view} = await display(layout, [550, 350])
       const button_view = view.owner.get_one(button)
 
-      const ev = new MouseEvent("click", {bubbles: true})
-      button_view.button_el.dispatchEvent(ev)
-
+      await mouse_click(button_view.button_el)
       await view.ready
     })
   })
@@ -2380,10 +2363,8 @@ describe("Bug", () => {
 
     it("doesn't allow to correctly display lasso select overlay in single plots", async () => {
       const p = plot("red")
-      const {view} = await display(p)
-
-      const actions = new PlotActions(view)
-      await actions.pan_along(path)
+      const {view: pv} = await display(p)
+      await actions(pv).pan_along(path)
     })
 
     it("doesn't allow to correctly display lasso select overlay in layouts", async () => {
@@ -2394,11 +2375,8 @@ describe("Bug", () => {
       const pv0 = view.owner.get_one(p0)
       const pv1 = view.owner.get_one(p1)
 
-      const actions0 = new PlotActions(pv0)
-      await actions0.pan_along(path)
-
-      const actions1 = new PlotActions(pv1)
-      await actions1.pan_along(path)
+      await actions(pv0).pan_along(path)
+      await actions(pv1).pan_along(path)
 
       await paint()
     })
@@ -2455,10 +2433,8 @@ describe("Bug", () => {
       p.add_tools(new HoverTool())
       p.circle([1, 2, 3], [1, 2, 3], {size: 20})
 
-      const {view} = await display(p)
-
-      const actions = new PlotActions(view)
-      actions.hover(xy(3, 3))
+      const {view: pv} = await display(p)
+      await actions(pv).hover(xy(3, 3))
     })
   })
 
@@ -2605,8 +2581,7 @@ describe("Bug", () => {
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(p00)
-      const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1))
+      await actions(pv).hover(xy(2, 1))
     })
 
     it("allows to cut tooltips short in layouts", async () => {
@@ -2625,8 +2600,7 @@ describe("Bug", () => {
       const {view} = await display(layout)
 
       const pv = view.owner.get_one(p00)
-      const actions = new PlotActions(pv)
-      await actions.hover(xy(2, 1))
+      await actions(pv).hover(xy(2, 1))
     })
   })
 
@@ -2723,10 +2697,7 @@ describe("Bug", () => {
       const {view} = await display(p)
 
       const pt = xy(1.8, 1.5)
-
-      const actions = new PlotActions(view)
-      actions.hover(pt)
-
+      await actions(view).hover(pt)
       await view.ready
 
       const hover_view = view.owner.get_one(hover)
@@ -2735,8 +2706,8 @@ describe("Bug", () => {
       const crv = view.owner.get_one(r)
       const [[sx], [sy]] = crv.coordinates.map_to_screen([pt.x], [pt.y])
 
-      // TODO: tt.position is not guarantted to be whole pixels (?)
-      assert(isArray(tt.position))
+      // TODO: tt.position is not guaranteed to be whole pixels (?)
+      expect_condition(isArray(tt.position), "tt.position must be a tuple")
       const [px, py] = tt.position
       expect([px|0, py|0]).to.be.equal([sx|0, sy|0])
     })
@@ -2828,10 +2799,8 @@ describe("Bug", () => {
       const plot = fig([200, 200], {x_range: [1, 2], y_range: [1, 2], tools: "hover"})
       plot.circle([0.9], [0.9], {radius: 0.5})
 
-      const {view} = await display(plot)
-
-      const actions = new PlotActions(view)
-      actions.hover(xy(1.1, 1.1))
+      const {view: pv} = await display(plot)
+      await actions(pv).hover(xy(1.1, 1.1))
     })
   })
 
@@ -2936,11 +2905,10 @@ describe("Bug", () => {
 
       p.add_tools(range_tool, hover_tool)
 
-      const {view} = await display(p)
+      const {view: pv} = await display(p)
       await paint()
 
-      const actions = new PlotActions(view)
-      await actions.hover({x: 3, y: 3})
+      await actions(pv).hover({x: 3, y: 3})
       await paint()
     })
   })
@@ -3058,48 +3026,40 @@ describe("Bug", () => {
   })
 
   describe("in issue #12157", () => {
-    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
-      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
-    }
-
     it("doesn't allow MultiChoice widget's menu to persist after selection an option", async () => {
       const input = new MultiChoice({options: ["A", "B", "C", "D"], width: 200})
       const {view} = await display(input, [300, 200])
       await paint()
 
       const input_el = view.choice_el.input.element
-      await click(input_el)
+      await mouse_click(input_el)
       await paint()
 
       const el_D = view.shadow_el.querySelector("[data-value='D']")
-      assert(el_D != null)
-      await click(el_D, "mousedown")
+      expect_not_null(el_D)
+      await mouse_down(el_D)
       await paint()
 
       const el_A = view.shadow_el.querySelector("[data-value='A']")
-      assert(el_A != null)
-      await click(el_A, "mousedown")
+      expect_not_null(el_A)
+      await mouse_down(el_A)
       await paint()
 
       const el_B = view.shadow_el.querySelector("[data-value='B']")
-      assert(el_B != null)
-      await click(el_B, "mousedown")
+      expect_not_null(el_B)
+      await mouse_down(el_B)
       await paint()
     })
   })
 
   describe("in issue #12584", () => {
-    async function click(el: Element, event: "click" | "mousedown" = "click"): Promise<void> {
-      el.dispatchEvent(new MouseEvent(event, {bubbles: true, composed: true}))
-    }
-
     it("doesn't allow auto-completion to work correctly in MultiChoice widget", async () => {
       const input = new MultiChoice({options: ["A1", "B1", "B2", "B3", "C1", "C2"], search_option_limit: 2, width: 200})
       const {view} = await display(input, [300, 300])
       await paint()
 
       const input_el = view.choice_el.input.element
-      await click(input_el)
+      await mouse_click(input_el)
       input_el.value = "B" // Can't enter value with a synthetic event.
       input_el.focus()
       await paint()
@@ -3149,8 +3109,11 @@ describe("Bug", () => {
   describe("in issue #12880", () => {
     it("doesn't allow editable BoxAnnotation to respect frame bounds", async () => {
       async function box() {
+        const frame_top = new Node({target: "frame", symbol: "top"})
+        const frame_bottom = new Node({target: "frame", symbol: "bottom"})
+
         const box = new BoxAnnotation({
-          left: 1, right: 3, top: null /*frame top*/, bottom: null /*frame bottom*/,
+          left: 1, right: 3, top: frame_top, bottom: frame_bottom,
           editable: true,
           line_color: "blue",
         })
@@ -3172,7 +3135,7 @@ describe("Bug", () => {
 
   describe("in issue #12917", () => {
     it("doesn't allow BoxAnnotation to participate in auto-ranging when its edges are bound to the frame", async () => {
-      function plot(lrtb: LRTB<number | null>) {
+      function plot(lrtb: LRTB<number | Node>) {
         const box = new BoxAnnotation({...lrtb, line_color: "blue"})
         const p = fig([200, 200], {
           renderers: [box],
@@ -3183,17 +3146,22 @@ describe("Bug", () => {
         return p
       }
 
-      const p00 = plot({left: null, right: null, top: null, bottom: null})
-      const p01 = plot({left: -2, right: null, top: null, bottom: null})
-      const p02 = plot({left: null, right: 2, top: null, bottom: null})
-      const p03 = plot({left: -2, right: 2, top: null, bottom: null})
-      const p10 = plot({left: null, right: null, top: 2, bottom: null})
-      const p11 = plot({left: null, right: null, top: null, bottom: -2})
-      const p12 = plot({left: null, right: null, top: 2, bottom: -2})
-      const p13 = plot({left: -2, right: null, top: null, bottom: -2})
-      const p20 = plot({left: null, right: 2, top: 2, bottom: null})
-      const p21 = plot({left: -2, right: null, top: 2, bottom: null})
-      const p22 = plot({left: null, right: 2, top: null, bottom: -2})
+      const left = new Node({target: "frame", symbol: "left"})
+      const right = new Node({target: "frame", symbol: "right"})
+      const top = new Node({target: "frame", symbol: "top"})
+      const bottom = new Node({target: "frame", symbol: "bottom"})
+
+      const p00 = plot({left, right, top, bottom})
+      const p01 = plot({left: -2, right, top, bottom})
+      const p02 = plot({left, right: 2, top, bottom})
+      const p03 = plot({left: -2, right: 2, top, bottom})
+      const p10 = plot({left, right, top: 2, bottom})
+      const p11 = plot({left, right, top, bottom: -2})
+      const p12 = plot({left, right, top: 2, bottom: -2})
+      const p13 = plot({left: -2, right, top, bottom: -2})
+      const p20 = plot({left, right: 2, top: 2, bottom})
+      const p21 = plot({left: -2, right, top: 2, bottom})
+      const p22 = plot({left, right: 2, top, bottom: -2})
       const p23 = plot({left: -2, right: 2, top: 2, bottom: -2})
 
       const gp = gridplot([
@@ -3337,8 +3305,8 @@ describe("Bug", () => {
       expect(isPlainObject(doc_json)).to.be.true
 
       const {desc_el} = view.owner.get_one(widget)
-      assert(desc_el != null)
-      await mouseenter(desc_el)
+      expect_not_null(desc_el)
+      await mouse_enter(desc_el)
     })
   })
 
@@ -3455,6 +3423,276 @@ describe("Bug", () => {
       it("dashed to dashdot", async () => {
         await display(multi_plot("dashed", "dashdot"))
       })
+    })
+  })
+
+  describe("in issue #13252", () => {
+    describe("doesn't allow to correctly export GridPlot", () => {
+      function plot(color: Color) {
+        const p = fig([200, 200])
+        const x = range(10)
+        const y = range(10)
+        p.scatter(x, y, {marker: "circle", color})
+        return p
+      }
+
+      function gridplot() {
+        return new GridPlot({
+          children: [
+            [plot("red"),    0, 0],
+            [plot("green"),  0, 1],
+            [plot("blue"),   1, 0],
+            [plot("purple"), 1, 1],
+          ],
+        })
+      }
+
+      // TODO Allow to generate additional baselines for image diff.
+      it.dpr(1)("with devicePixelRatio == 1", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(2)("with devicePixelRatio == 2", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+
+      it.dpr(3)("with devicePixelRatio == 3", async () => {
+        const {view} = await display(gridplot())
+        await view.export("png").to_blob()
+      })
+    })
+  })
+
+  describe("in issue #13255", () => {
+    it("doesn't allow to disable DatePicker after display", async () => {
+      const date_picker = new DatePicker({value: "2023-02-26", width: 100})
+      const {view} = await display(date_picker, [150, 100])
+      date_picker.disabled = true
+      await view.ready
+    })
+  })
+
+  describe("in issue #13262", () => {
+    describe("doesn't allow to correctly compute grid layout in Legend with uneven number of items", () => {
+      function plot() {
+        const x = np.linspace(0, 4*np.pi, 100)
+        const y = np.sin(x)
+
+        const p = fig([450, 200])
+        for (const i of range(7)) {
+          p.line(x, f`${1 + i/20}*${y}`, {legend_label: `${sprintf("%.2f", 1 + i/20)}*sin(x)`})
+        }
+        return p
+      }
+
+      it("in vertical orientation and ncols", async () => {
+        const p = plot()
+        p.legend.orientation = "vertical"
+        p.legend.ncols = 2
+        await display(p)
+      })
+
+      it("in horizontal orientation and nrows", async () => {
+        const p = plot()
+        p.legend.orientation = "horizontal"
+        p.legend.nrows = 2
+        await display(p)
+      })
+    })
+  })
+
+  describe("in issue #13315", () => {
+    it("doesn't allow Range.start and Range.end updates to respect bounds", async () => {
+      const random = new Random(1)
+      const [a, b, n] = [1, 4, 100]
+
+      const x_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
+      const y_range = new Range1d({start: a + 1, end: b - 1, bounds: [a, b]})
+
+      const p = fig([300, 300], {x_range, y_range, tools: ["pan", "wheel_zoom"]})
+
+      const x = linspace(a, b, n)
+      const y = random.floats(n, a, b)
+
+      p.line(x, y)
+
+      const {view} = await display(p)
+
+      x_range.start = a - 1
+      x_range.end = b + 1
+
+      y_range.start = a - 1
+      y_range.end = b + 1
+
+      await view.ready
+
+      expect(x_range.start).to.be.equal(a)
+      expect(x_range.end).to.be.equal(b)
+
+      expect(y_range.start).to.be.equal(a)
+      expect(y_range.end).to.be.equal(b)
+    })
+  })
+
+  describe("in issue #7671", () => {
+    it("doesn't to refresh tooltips when plot is updated", async () => {
+      function plot(title: string) {
+        const hover = new HoverTool({
+          tooltips: [
+            ["i",  "$index"],
+            ["sx", "$sx"   ],
+            ["sy", "$sy"   ],
+          ],
+        })
+        const wheel_pan = new WheelPanTool({dimension: "width"})
+
+        const p = fig([200, 200], {
+          title,
+          x_range: [-5, 5],
+          y_range: [-5, 5],
+          tools: [hover, wheel_pan],
+          active_scroll: wheel_pan,
+        })
+        p.circle({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+
+        return p
+      }
+
+      const p0 = plot("initial hover")
+      const p1 = plot("updates to i=1")
+      const p2 = plot("clears tooltip")
+      const {view} = await display(row([p0, p1, p2]))
+
+      const pv0 = view.owner.get_one(p0)
+      const pv1 = view.owner.get_one(p1)
+      const pv2 = view.owner.get_one(p2)
+
+      const delta = 160
+
+      const actions0 = new PlotActions(pv0)
+      await actions0.hover(xy(0, 0))
+
+      const actions1 = new PlotActions(pv1)
+      await actions1.hover(xy(0, 0))
+      await actions1.scroll(xy(0, 0), delta)
+
+      const actions2 = new PlotActions(pv2)
+      await actions2.hover(xy(0, 0))
+      await actions2.scroll(xy(0, 0), -delta)
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #13323", () => {
+    it("doesn't allow to repaint plots in layouts when only their inner layout bbox changed", async () => {
+      const p0 = fig([200, 200])
+      p0.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
+
+      const p1 = fig([200, 200], {y_axis_type: null})
+      p1.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
+
+      const {view} = await display(column([p0, p1]))
+
+      p0.x_range.setv({start: 1, end: 1})
+      await view.ready
+    })
+  })
+
+  describe("in issue #13264", () => {
+    it("doesn't allow to correctly update children in a complex layout", async () => {
+      function make_tab(title: string, color: Color) {
+        const plot = fig([200, 200])
+        const r = plot.circle([1, 2, 3], [1, 2, 3], {color})
+        const columns = [
+          new TableColumn({field: "x", title: "X"}),
+          new TableColumn({field: "y", title: "Y"}),
+        ]
+        const data_table = new DataTable({source: r.data_source, columns, width: 200, height: 100})
+
+        const layout = column([plot, data_table])
+        return new TabPanel({child: layout, title})
+      }
+
+      const initial_tab = make_tab("Initial tab", "red")
+      const tabs = new Tabs({tabs: [initial_tab]})
+
+      const {view} = await display(tabs, [250, 350])
+
+      const new_tab = make_tab("New tab", "green")
+      tabs.tabs = [...tabs.tabs, new_tab]
+      tabs.active = 1
+
+      await view.ready
+    })
+  })
+
+  describe("in issue #13428", () => {
+    it("doesn't allow to correctly position Tooltip under 'contain: strict' and other", async () => {
+      const box = div({
+        style: {
+          position: "relative",
+          contain: "strict",
+          left: "50px",
+          top: "50px",
+          width: "200px",
+          height: "200px",
+          overflow: "auto",
+        },
+      })
+
+      const p = fig([300, 300], {tools: "hover"})
+      p.circle([0], [0], {size: 10})
+
+      const {view: pv} = await display(p, [400, 300], box)
+      box.scroll({left: 100, top: 100})
+
+      await actions(pv).hover(xy(0, 0))
+      await pv.ready
+    })
+  })
+
+  describe("in issue #13478", () => {
+    it("doesn't render webgl zero-width/height vstrip/hstrip glyphs", async () => {
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([150, 150], {output_backend, title: output_backend})
+        p.xgrid.visible = false
+        p.ygrid.visible = false
+        p.vstrip({x0: [2, 4, 6], x1: [2, 4, 6]})
+        p.hstrip({y0: [3, 5, 7], y1: [3, 5, 7]})
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #13362", () => {
+    it("doesn't correctly apply background and border visuals in SVG backend", async () => {
+      const stylesheet = new InlineStyleSheet({css: ":host { background-color: lightgreen; }"})
+
+      function plot(backend: OutputBackend) {
+        const p = fig([200, 200], {
+          title: backend,
+          output_backend: backend,
+          stylesheets: [stylesheet],
+          background_fill_alpha: 0.25,
+          background_fill_color: "red",
+          border_fill_alpha: 0.25,
+          border_fill_color: "blue",
+        })
+
+        p.line({x: [0, 1], y: [0, 1], line_color: "black", line_width: 8})
+        return p
+      }
+
+      const layout = row([plot("canvas"), plot("svg"), plot("webgl")])
+      await display(layout)
     })
   })
 })

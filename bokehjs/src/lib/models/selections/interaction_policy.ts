@@ -26,8 +26,9 @@ export class IntersectRenderers extends SelectionPolicy {
     const hit_test_result_renderers = []
     for (const r of renderer_views) {
       const result = r.hit_test(geometry)
-      if (result != null)
+      if (result != null) {
         hit_test_result_renderers.push(result)
+      }
     }
     if (hit_test_result_renderers.length > 0) {
       const hit_test_result = hit_test_result_renderers[0]
@@ -47,8 +48,9 @@ export class UnionRenderers extends SelectionPolicy {
     const hit_test_result_renderers = []
     for (const r of renderer_views) {
       const result = r.hit_test(geometry)
-      if (result != null)
+      if (result != null) {
         hit_test_result_renderers.push(result)
+      }
     }
     if (hit_test_result_renderers.length > 0) {
       const hit_test_result = hit_test_result_renderers[0]

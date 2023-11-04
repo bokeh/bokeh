@@ -1,6 +1,6 @@
 import {AbstractButton, AbstractButtonView} from "./abstract_button"
 import {ButtonClick} from "core/bokeh_events"
-import type {EventCallbackLike} from "model"
+import type {EventCallback} from "model"
 
 import type * as p from "core/properties"
 
@@ -37,7 +37,7 @@ export class Button extends AbstractButton {
     })
   }
 
-  on_click(callback: EventCallbackLike<ButtonClick>): void {
+  on_click(callback: EventCallback<ButtonClick>): void {
     this.on_event(ButtonClick, callback)
   }
 }

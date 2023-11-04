@@ -11,6 +11,7 @@ import type {LayoutDOM} from "../models/layouts/layout_dom"
 import type {SizingMode, Location} from "../core/enums"
 import {Matrix} from "../core/util/matrix"
 import {is_equal} from "../core/util/eq"
+import {last} from "../core/util/array"
 import type {Attrs} from "../core/types"
 
 export type GridPlotOpts = {
@@ -44,8 +45,9 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
 
       const proto = tool.constructor.prototype
       let values = by_type.get(proto)
-      if (values == null)
+      if (values == null) {
         by_type.set(proto, values=new Set())
+      }
       values.add({tool, attrs})
     }
   }
@@ -71,9 +73,9 @@ export function group_tools(tools: ToolLike<Tool>[], merge?: MergeFn,
         }
       }
 
-      if (group.length == 1)
+      if (group.length == 1) {
         computed.push(group[0])
-      else {
+      } else {
         const merged = merge?.(cls, group)
         computed.push(merged ?? new ToolProxy({tools: group}))
       }
@@ -91,41 +93,103 @@ export function gridplot(children: (LayoutDOM | null)[][] | Matrix<LayoutDOM | n
   const matrix = Matrix.from(children)
 
   const items: [LayoutDOM, number, number][] = []
-  const tools: ToolLike<Tool>[] = []
+  const toolbars: Toolbar[] = []
 
   for (const [item, row, col] of matrix) {
-    if (item == null)
+    if (item == null) {
       continue
+    }
 
     if (item instanceof Plot) {
       if (merge_tools) {
-        tools.push(...item.toolbar.tools)
+        toolbars.push(item.toolbar)
         item.toolbar_location = null
       }
     }
 
-    if (options.width != null)
+    if (options.width != null) {
       item.width = options.width
-    if (options.height != null)
+    }
+    if (options.height != null) {
       item.height = options.height
+    }
 
     items.push([item, row, col])
   }
 
   function merge(_cls: typeof Tool, group: Tool[]) {
     const tool = group[0]
-    if (tool instanceof SaveTool)
+    if (tool instanceof SaveTool) {
       return new SaveTool()
-    else if (tool instanceof CopyTool)
+    } else if (tool instanceof CopyTool) {
       return new CopyTool()
-    else if (tool instanceof ExamineTool)
+    } else if (tool instanceof ExamineTool) {
       return new ExamineTool()
-    else if (tool instanceof FullscreenTool)
+    } else if (tool instanceof FullscreenTool) {
       return new FullscreenTool()
-    else
+    } else {
       return null
+    }
   }
 
-  const toolbar = new Toolbar({tools: !merge_tools ? tools : group_tools(tools, merge)})
-  return new GridPlot({children: items, toolbar, toolbar_location, sizing_mode})
+  const tools = (() => {
+    const tools: ToolLike<Tool>[] = []
+
+    for (const toolbar of toolbars) {
+      tools.push(...toolbar.tools)
+    }
+
+    if (merge_tools) {
+      return group_tools(tools, merge)
+    } else {
+      return tools
+    }
+  })()
+
+  const logos = toolbars.map((toolbar) => toolbar.logo)
+  const autohides = toolbars.map((toolbar) => toolbar.autohide)
+  const active_drags = toolbars.map((toolbar) => toolbar.active_drag)
+  const active_inspects = toolbars.map((toolbar) => toolbar.active_inspect)
+  const active_scrolls = toolbars.map((toolbar) => toolbar.active_scroll)
+  const active_taps = toolbars.map((toolbar) => toolbar.active_tap)
+  const active_multis = toolbars.map((toolbar) => toolbar.active_multi)
+
+  function assert_unique<T>(values: T[], name: string): T | undefined {
+    const n = new Set(values).size
+    if (n == 0) {
+      return undefined
+    } else if (n > 1) {
+      console.warn(`found multiple competing values for 'toolbar.${name}' property; using the latest value`)
+    }
+    return last(values)
+  }
+
+  const logo = assert_unique(logos, "logo")
+  const autohide = assert_unique(autohides, "autohide")
+  const active_drag = assert_unique(active_drags, "active_drag")
+  const active_inspect = assert_unique(active_inspects, "active_inspect")
+  const active_scroll = assert_unique(active_scrolls, "active_scroll")
+  const active_tap = assert_unique(active_taps, "active_tap")
+  const active_multi = assert_unique(active_multis, "active_multi")
+
+  const toolbar = new Toolbar({
+    tools,
+    logo,
+    autohide,
+    active_drag,
+    active_inspect,
+    active_scroll,
+    active_tap,
+    active_multi,
+    // TODO ...toolbar_options,
+  })
+
+  const gp = new GridPlot({
+    children: items,
+    toolbar,
+    toolbar_location,
+    sizing_mode,
+  })
+
+  return gp
 }

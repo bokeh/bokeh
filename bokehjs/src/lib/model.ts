@@ -2,19 +2,19 @@ import {HasProps} from "./core/has_props"
 import type {Class} from "./core/class"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
 import type * as p from "./core/properties"
-import {isString, isPlainObject, isFunction} from "./core/util/types"
+import {isString, isPlainObject} from "./core/util/types"
 import {dict} from "./core/util/object"
 import type {Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {logger} from "./core/logging"
-import type {CallbackLike0} from "./models/callbacks/callback"
+import type {CallbackLike0} from "./core/util/callbacks"
+import {execute} from "./core/util/callbacks"
 
 export type ModelSelector<T> = Class<T> | string | {type: string}
 
 export type ChangeCallback = CallbackLike0<Model>
 
 export type EventCallback<T extends ModelEvent = ModelEvent> = CallbackLike0<T>
-export type EventCallbackLike<T extends ModelEvent = ModelEvent> = EventCallback<T> | EventCallback<T>["execute"]
 
 export namespace Model {
   export type Attrs = p.AttrsOf<Props>
@@ -74,11 +74,13 @@ export class Model extends HasProps {
   }
 
   /*protected*/ _process_event(event: ModelEvent): void {
-    for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? [])
-      callback.execute(event)
+    for (const callback of dict(this.js_event_callbacks).get(event.event_name) ?? []) {
+      void execute(callback, event)
+    }
 
-    if (this.document != null && this.subscribed_events.has(event.event_name))
+    if (this.document != null && this.subscribed_events.has(event.event_name)) {
       this.document.event_manager.send_event(event)
+    }
   }
 
   trigger_event(event: ModelEvent): void {
@@ -104,23 +106,26 @@ export class Model extends HasProps {
 
     for (const [event, callbacks] of this._js_callbacks) {
       const signal = signal_for(event)
-      for (const cb of callbacks)
+      for (const cb of callbacks) {
         this.disconnect(signal, cb)
+      }
     }
     this._js_callbacks.clear()
 
     for (const [event, callbacks] of dict(this.js_property_callbacks)) {
-      const wrappers = callbacks.map((cb) => () => cb.execute(this))
+      const wrappers = callbacks.map((cb) => () => execute(cb, this))
       this._js_callbacks.set(event, wrappers)
       const signal = signal_for(event)
-      for (const cb of wrappers)
+      for (const cb of wrappers) {
         this.connect(signal, cb)
+      }
     }
   }
 
   protected override _doc_attached(): void {
-    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0)
+    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0) {
       this._update_event_callbacks()
+    }
   }
 
   protected override _doc_detached(): void {
@@ -128,14 +133,15 @@ export class Model extends HasProps {
   }
 
   select<T extends HasProps>(selector: ModelSelector<T>): T[] {
-    if (isString(selector))
+    if (isString(selector)) {
       return [...this.references()].filter((ref): ref is T => ref instanceof Model && ref.name === selector)
-    else if (isPlainObject(selector) && "type" in selector)
+    } else if (isPlainObject(selector) && "type" in selector) {
       return [...this.references()].filter((ref): ref is T => ref.type == selector.type)
-    else if (selector.prototype instanceof HasProps)
+    } else if (selector.prototype instanceof HasProps) {
       return [...this.references()].filter((ref): ref is T => ref instanceof selector)
-    else
+    } else {
       throw new Error(`invalid selector ${selector}`)
+    }
   }
 
   select_one<T extends HasProps>(selector: ModelSelector<T>): T | null {
@@ -146,18 +152,24 @@ export class Model extends HasProps {
       case 1:
         return result[0]
       default:
-        throw new Error(`found more than one object matching given selector ${selector}`)
+        throw new Error(`found multiple objects matching the given selector ${selector}`)
     }
   }
 
-  on_event<T extends ModelEventType>(event: T, callback: EventCallbackLike<BokehEventMap[T]>): void
-  on_event<T extends ModelEvent>(event: Class<T>, callback: EventCallbackLike<T>): void
+  get_one<T extends HasProps>(selector: ModelSelector<T>): T {
+    const result = this.select_one(selector)
+    if (result != null) {
+      return result
+    } else {
+      throw new Error(`could not find any objects matching the given selector ${selector}`)
+    }
+  }
 
-  on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallbackLike): void {
+  on_event<T extends ModelEventType>(event: T, callback: EventCallback<BokehEventMap[T]>): void
+  on_event<T extends ModelEvent>(event: Class<T>, callback: EventCallback<T>): void
+
+  on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallback): void {
     const name = isString(event) ? event : event.prototype.event_name
-    this.js_event_callbacks[name] = [
-      ...dict(this.js_event_callbacks).get(name) ?? [],
-      isFunction(callback) ? {execute: callback} : callback,
-    ]
+    this.js_event_callbacks[name] = [...dict(this.js_event_callbacks).get(name) ?? [], callback]
   }
 }

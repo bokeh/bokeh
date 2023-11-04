@@ -12,6 +12,7 @@ import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
+import type {HasXYGlyph} from "@bokehjs/models/tools/edit/edit_tool"
 import type {FreehandDrawToolView} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 import {FreehandDrawTool} from "@bokehjs/models/tools/edit/freehand_draw_tool"
 
@@ -51,12 +52,12 @@ async function make_testcase(): Promise<FreehandDrawTestCase> {
   const draw_tool = new FreehandDrawTool({
     active: true,
     empty_value: "Test",
-    renderers: [glyph_renderer],
+    renderers: [glyph_renderer as GlyphRenderer & HasXYGlyph],
   })
   plot.add_tools(draw_tool)
   await plot_view.ready
 
-  const draw_tool_view = plot_view.tool_views.get(draw_tool)! as FreehandDrawToolView
+  const draw_tool_view = plot_view.owner.get_one(draw_tool)
   plot_view.renderer_views.set(glyph_renderer, glyph_renderer_view)
   sinon.stub(glyph_renderer_view, "set_data")
 

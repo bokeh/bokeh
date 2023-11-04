@@ -20,7 +20,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
 
   // visual properties
   protected readonly _linewidth = new Float32Buffer(this.regl_wrapper)
-  protected readonly _line_color = new NormalizedUint8Buffer(this.regl_wrapper)
+  protected readonly _line_color = new NormalizedUint8Buffer(this.regl_wrapper, 4)
   protected readonly _line_cap = new Uint8Buffer(this.regl_wrapper)
   protected readonly _line_join = new Uint8Buffer(this.regl_wrapper)
 
@@ -161,7 +161,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
       const n = line_dash.length
 
       if (this._dash_tex_info == null)
-        this._dash_tex_info = new Float32Buffer(this.regl_wrapper)
+        this._dash_tex_info = new Float32Buffer(this.regl_wrapper, 4)
       const dash_tex_info = this._dash_tex_info.get_sized_array(4*n)
 
       if (this._dash_scale == null)

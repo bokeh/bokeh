@@ -20,6 +20,10 @@ export abstract class PickerBaseView extends InputWidgetView {
     return this._picker
   }
 
+  public override *controls() {
+    yield this.picker.altInput ?? this.input_el
+  }
+
   override remove(): void {
     this._picker?.destroy()
     super.remove()
@@ -99,7 +103,9 @@ export abstract class PickerBaseView extends InputWidgetView {
     self.calendarContainer.classList.toggle("arrowTop", !showOnTop)
     self.calendarContainer.classList.toggle("arrowBottom", showOnTop)
 
-    if (self.config.inline) return
+    if (self.config.inline) {
+      return
+    }
 
     let left = window.scrollX + inputBounds.left
     let isCenter = false
@@ -125,7 +131,9 @@ export abstract class PickerBaseView extends InputWidgetView {
 
     self.calendarContainer.classList.toggle("rightMost", rightMost)
 
-    if (self.config.static) return
+    if (self.config.static) {
+      return
+    }
 
     self.calendarContainer.style.top = `${top}px`
 

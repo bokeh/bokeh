@@ -160,8 +160,25 @@ describe("core/util/array module", () => {
     expect(array.argmin([4, 3, 2, 1])).to.be.equal(3)
   })
 
-  it("argmax should return the index of the highest  value along an axis", () => {
+  it("argmax should return the index of the highest value along an axis", () => {
     expect(array.argmax([1, 2, 3, 4])).to.be.equal(3)
     expect(array.argmax([4, 3, 2, 1])).to.be.equal(0)
+  })
+
+  it("should support resize() function", () => {
+    expect(array.resize([1, 2, 3], 0, 0)).to.be.equal([])
+    expect(array.resize([1, 2, 3], 1, 0)).to.be.equal([1])
+    expect(array.resize([1, 2, 3], 2, 0)).to.be.equal([1, 2])
+    expect(array.resize([1, 2, 3], 3, 0)).to.be.equal([1, 2, 3])
+    expect(array.resize([1, 2, 3], 4, 0)).to.be.equal([1, 2, 3, 0])
+    expect(array.resize([1, 2, 3], 5, 0)).to.be.equal([1, 2, 3, 0, 0])
+    expect(array.resize([1, 2, 3], 5, null)).to.be.equal([1, 2, 3, null, null])
+    expect(array.resize([1, 2, 3], 5)).to.be.equal((() => {
+      const array = new Array(5)
+      array[0] = 1
+      array[1] = 2
+      array[2] = 3
+      return array
+    })())
   })
 })

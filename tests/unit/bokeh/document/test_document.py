@@ -154,7 +154,7 @@ class TestDocument:
         for r in roots:
             d.add_root(r)
         assert len(d.roots) == 3
-        assert type(d.roots) is list
+        assert isinstance(d.roots, list)
         roots_iter = iter(d.roots)
         assert next(roots_iter) is roots[0]
         assert next(roots_iter) is roots[1]

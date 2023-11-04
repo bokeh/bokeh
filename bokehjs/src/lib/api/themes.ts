@@ -21,8 +21,9 @@ class Theme implements p.Theme {
     const model = obj instanceof HasProps ? obj.constructor as typeof HasProps : obj
 
     for (const {type, defaults} of this.attrs) {
-      if (model == type || model.prototype instanceof type)
+      if (model == type || model.prototype instanceof type) {
         return defaults.get(attr)
+      }
     }
 
     return undefined

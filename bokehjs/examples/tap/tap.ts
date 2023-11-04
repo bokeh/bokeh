@@ -26,8 +26,9 @@ export namespace TappyScatter {
   const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
   const colors: [number, number, number][] = []
-  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
+  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y))) {
     colors.push([r, g, 150])
+  }
 
   const source = new Bokeh.ColumnDataSource({
     data: {x: xx, y: yy, radius: radii, colors},
@@ -45,19 +46,18 @@ export namespace TappyScatter {
     source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
-  const tap = p.toolbar.select_one(Bokeh.TapTool)
-  tap!.renderers = [circles]
-  tap!.callback = {
-    execute(_obj, {source}): void {
-      const indices = source.selected.indices
-      if (indices.length == 1)
-        console.log(`Selected index: ${indices[0]}`)
-      else if (indices.length > 1)
-        console.log(`Selected indices: ${[...indices].join(", ")}`)
-      else
-        console.log("Nothing selected")
-    },
+  const tap = p.toolbar.get_one(Bokeh.TapTool)
+  tap.renderers = [circles]
+  tap.callback = (_obj, {source}) => {
+    const indices = source.selected.indices
+    if (indices.length == 1) {
+      console.log(`Selected index: ${indices[0]}`)
+    } else if (indices.length > 1) {
+      console.log(`Selected indices: ${[...indices].join(", ")}`)
+    } else {
+      console.log("Nothing selected")
+    }
   }
 
-  plt.show(p)
+  void plt.show(p)
 }

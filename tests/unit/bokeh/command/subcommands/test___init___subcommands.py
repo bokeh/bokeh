@@ -34,7 +34,7 @@ import bokeh.command.subcommands as sc # isort:skip
 
 def test_all() -> None:
     assert hasattr(sc, 'all')
-    assert type(sc.all) is list
+    assert isinstance(sc.all, list)
 
 def test_all_types() -> None:
     from bokeh.command.subcommand import Subcommand

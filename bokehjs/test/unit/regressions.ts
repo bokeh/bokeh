@@ -1,14 +1,15 @@
 import sinon from "sinon"
 
-import {expect} from "assertions"
-import {display, fig} from "./_util"
-import {PlotActions, xy, click} from "../interactive"
+import {expect, expect_instanceof, expect_not_null} from "assertions"
+import {display, fig, restorable} from "./_util"
+import {PlotActions, actions, xy, click} from "../interactive"
 
 import {
   BooleanFilter,
   BoxAnnotation,
   BoxSelectTool,
   CDSView,
+  CategoricalColorMapper,
   Circle,
   ColumnDataSource,
   CopyTool,
@@ -19,21 +20,33 @@ import {
   LegendItem,
   Line,
   LinearColorMapper,
+  Node,
   Plot,
+  Range1d,
+  RangeTool,
   Rect,
   Row,
   Scatter,
+  TablerIcon,
+  TileRenderer,
   Title,
   Toolbar,
+  WMTSTileSource,
 } from "@bokehjs/models"
 
-import {assert} from "@bokehjs/core/util/assert"
+import {
+  Button,
+} from "@bokehjs/models/widgets"
+
+import {version} from "@bokehjs/version"
+import {Model} from "@bokehjs/model"
+import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
-import {offset_bbox} from "@bokehjs/core/dom"
+import {div, offset_bbox} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
@@ -61,6 +74,30 @@ class QualifiedModel extends UIElement {
   }
 }
 
+namespace ModelWithUnsetReadonly {
+  export type Attrs = p.AttrsOf<Props>
+
+  export type Props = Model.Props & {
+    p0: p.Property<number>
+  }
+}
+
+interface ModelWithUnsetReadonly extends ModelWithUnsetReadonly.Attrs {}
+
+class ModelWithUnsetReadonly extends Model {
+  declare properties: ModelWithUnsetReadonly.Props
+
+  constructor(attrs?: Partial<ModelWithUnsetReadonly.Attrs>) {
+    super(attrs)
+  }
+
+  static {
+    this.define<ModelWithUnsetReadonly.Props>(({Int}) => ({
+      p0: [ Int, p.unset, {readonly: true} ],
+    }))
+  }
+}
+
 function data_url(data: string, mime: string, encoding: string = "base64") {
   return `data:${mime};${encoding},${data}`
 }
@@ -85,7 +122,7 @@ describe("Bug", () => {
       const plot = fig([200, 200], {tools: [hover]})
       plot.circle([1, 2, 3], [4, 5, 6])
       const {view} = await display(plot)
-      const hover_view = view.tool_views.get(hover)! as HoverTool["__view_type__"]
+      const hover_view = view.owner.get_one(hover)
       expect(hover_view.computed_renderers.length).to.be.equal(1)
 
       plot.circle([2, 3, 4], [4, 5, 6])
@@ -104,9 +141,9 @@ describe("Bug", () => {
       plot.add_layout(r2)
       const {view} = await display(plot)
 
-      const rv0 = view.renderer_view(r0)!
-      const rv1 = view.renderer_view(r1)!
-      const rv2 = view.renderer_view(r2)!
+      const rv0 = view.owner.get_one(r0)
+      const rv1 = view.owner.get_one(r1)
+      const rv2 = view.owner.get_one(r2)
 
       const rv0_spy = sinon.spy(rv0, "render")
       const rv1_spy = sinon.spy(rv1, "render")
@@ -146,7 +183,7 @@ describe("Bug", () => {
       // XXX: no data (!= empty arrays) implies 1 data point, required for
       // scalar glyphs. This doesn't account for purely expression glyphs.
       // This needs to be refined in future.
-      expect(view.renderer_view(renderer)!.glyph.data_size).to.be.equal(1)
+      expect(view.owner.get_one(renderer).glyph.data_size).to.be.equal(1)
     })
 
     // TODO: this should test WebDataSource
@@ -180,7 +217,7 @@ describe("Bug", () => {
         plot.title = "some title"
       }
       set_title()                         // indirection to deal with type narrowing to string
-      assert(plot.title instanceof Title) // expect() can't narrow types
+      expect_instanceof(plot.title, Title) // expect() can't narrow types
       plot.title.text = "other title"
       expect(plot.title).to.be.instanceof(Title)
       expect(plot.title.text).to.be.equal("other title")
@@ -188,7 +225,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11750", () => {
-    it("makes plots render uncecessarily when hover glyph wasn't defined", async () => {
+    it("makes plots render unnecessarily when hover glyph wasn't defined", async () => {
       async function test(hover_glyph: Line | null) {
         const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
         const glyph = new Line({line_color: "red"})
@@ -198,17 +235,10 @@ describe("Bug", () => {
 
         const {view} = await display(plot)
 
-        const lnv = view.renderer_views.get(renderer)!
+        const lnv = view.owner.get_one(renderer)
         const ln_spy = sinon.spy(lnv, "request_render")
-        const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
 
-        for (let i = 0; i <= 1; i += 0.2) {
-          const [[sx], [sy]] = lnv.coordinates.map_to_screen([i], [i])
-          const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-          ui.hit_area.dispatchEvent(ev)
-        }
-
+        await actions(view).hover(xy(0, 0), xy(1, 1), 6)
         return ln_spy.callCount
       }
 
@@ -218,7 +248,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #11999", () => {
-    it("makes plots render uncecessarily when inspection indices don't change", async () => {
+    it("makes plots render unnecessarily when inspection indices don't change", async () => {
       const data_source = new ColumnDataSource({data: {x: [0, 0.6], y: [0.6, 0], width: [0.4, 0.4], height: [0.4, 0.4]}})
       const glyph = new Rect({line_color: "red"})
       const hover_glyph = new Rect({line_color: "blue"})
@@ -228,25 +258,13 @@ describe("Bug", () => {
 
       const {view} = await display(plot)
 
-      const gv = view.renderer_views.get(renderer)!
+      const gv = view.owner.get_one(renderer)
       const gv_spy = sinon.spy(gv, "request_render")
-      const ui = view.canvas_view.ui_event_bus
-      const {left, top} = offset_bbox(ui.hit_area)
 
-      for (let i = 0; i <= 1; i += 0.2) {
-        const [[sx], [sy]] = gv.coordinates.map_to_screen([i], [i])
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
+      await actions(view).hover(xy(0, 0), xy(1, 1), 6)
       expect(gv_spy.callCount).to.be.equal(0)
 
-      for (let i = 1; i >= 0; i -= 0.2) {
-        const [[sx], [sy]] = gv.coordinates.map_to_screen([0.8], [i])
-        const ev = new MouseEvent("mousemove", {clientX: left + sx, clientY: top + sy})
-        ui.hit_area.dispatchEvent(ev)
-      }
-
+      await actions(view).hover(xy(0.8, 1), xy(0.8, 0), 6)
       expect(gv_spy.callCount).to.be.equal(1)
     })
   })
@@ -371,15 +389,23 @@ describe("Bug", () => {
       doc.on_change((event) => events1.push(event))
       await display(doc)
 
+      const m1002 = doc.get_model_by_id("1002")
+      const m1008 = doc.get_model_by_id("1008")
+      const m1009 = doc.get_model_by_id("1009")
+
+      expect_not_null(m1002)
+      expect_not_null(m1008)
+      expect_not_null(m1009)
+
       expect(events1).to.be.similar([
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "start", -0.15707963267948988),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1008")!, "end",    3.2986722862692828),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "start", -1.0840481406628186),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1009")!, "end",    1.0992403876506105),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_width",  565),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "inner_height", 590),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_width",  600),
-        new ModelChangedEvent(doc, doc.get_model_by_id("1002")!, "outer_height", 600),
+        new ModelChangedEvent(doc, m1008, "start", -0.15707963267948988),
+        new ModelChangedEvent(doc, m1008, "end",    3.2986722862692828),
+        new ModelChangedEvent(doc, m1009, "start", -1.0840481406628186),
+        new ModelChangedEvent(doc, m1009, "end",    1.0992403876506105),
+        new ModelChangedEvent(doc, m1002, "inner_width",  565),
+        new ModelChangedEvent(doc, m1002, "inner_height", 590),
+        new ModelChangedEvent(doc, m1002, "outer_width",  600),
+        new ModelChangedEvent(doc, m1002, "outer_height", 600),
         new MessageSentEvent(doc, "bokeh_event", new DocumentReady()),
       ])
     })
@@ -452,7 +478,7 @@ describe("Bug", () => {
           rotation: 0,
           srcEvent: ev,
         }
-        ui._tap(hev) // can't use dispatchEvent(), becuase of doubletap recognizer
+        ui._tap(hev) // can't use dispatchEvent(), because of doubletap recognizer
         await view.ready
       }
 
@@ -754,44 +780,34 @@ describe("Bug", () => {
       }
 
       const result0 = rv.hit_test({type: "point", ...at(2, 2)})
-      assert(result0 != null)
-      expect(result0.indices).to.be.equal([])
+      expect(result0?.indices).to.be.equal([])
 
       const result1 = rv.hit_test({type: "point", ...at(3, 3)})
-      assert(result1 != null)
-      expect(result1.indices).to.be.equal([2])
+      expect(result1?.indices).to.be.equal([2])
 
       const result2 = rv.hit_test({type: "span", direction: "h", ...at(2, 2)})
-      assert(result2 != null)
-      expect(result2.indices).to.be.equal([])
+      expect(result2?.indices).to.be.equal([])
 
       const result3 = rv.hit_test({type: "span", direction: "h", ...at(3, 3)})
-      assert(result3 != null)
-      expect(result3.indices).to.be.equal([2])
+      expect(result3?.indices).to.be.equal([2])
 
       const result4 = rv.hit_test({type: "span", direction: "v", ...at(2, 2)})
-      assert(result4 != null)
-      expect(result4.indices).to.be.equal([])
+      expect(result4?.indices).to.be.equal([])
 
       const result5 = rv.hit_test({type: "span", direction: "v", ...at(3, 3)})
-      assert(result5 != null)
-      expect(result5.indices).to.be.equal([2])
+      expect(result5?.indices).to.be.equal([2])
 
       const result6 = rv.hit_test({type: "rect", ...rect(1.5, 1.5, 2.5, 2.5)})
-      assert(result6 != null)
-      expect(result6.indices).to.be.equal([])
+      expect(result6?.indices).to.be.equal([])
 
       const result7 = rv.hit_test({type: "rect", ...rect(2.5, 2.5, 3.5, 3.5)})
-      assert(result7 != null)
-      expect(result7.indices).to.be.equal([2])
+      expect(result7?.indices).to.be.equal([2])
 
       const result8 = rv.hit_test({type: "poly", ...poly(1.5, 1.5, 2.5, 2.5)})
-      assert(result8 != null)
-      expect(result8.indices).to.be.equal([])
+      expect(result8?.indices).to.be.equal([])
 
       const result9 = rv.hit_test({type: "poly", ...poly(2.5, 2.5, 3.5, 3.5)})
-      assert(result9 != null)
-      expect(result9.indices).to.be.equal([2])
+      expect(result9?.indices).to.be.equal([2])
     })
   })
 
@@ -801,6 +817,139 @@ describe("Bug", () => {
       const cb = new CustomJS({args: {arg0: "abc"}, code: "return [this, arg0, cb_obj, cb_data.data0]"})
       const result = await cb.execute(obj, {data0: 123})
       expect(result).to.be.equal([obj, "abc", obj, 123])
+    })
+  })
+
+  describe("in issue #13248", () => {
+    it("doesn't allow to render an invisible plot with a tile renderer", async () => {
+      function box(width: number, height: number): HTMLElement {
+        return div({style: {width: `${width}px`, height: `${height}px`, display: "none"}})
+      }
+
+      const osm_source = new WMTSTileSource({
+        // url: "https://c.tile.openstreetmap.org/{Z}/{X}/{Y}.png",
+        url: "/assets/tiles/osm/{Z}_{X}_{Y}.png",
+        attribution: "&copy; (0) OSM source attribution",
+      })
+
+      const osm = new TileRenderer({tile_source: osm_source})
+
+      const p = fig([200, 200], {
+        x_range: [-2000000, 6000000],
+        y_range: [-1000000, 7000000],
+        x_axis_type: "mercator",
+        y_axis_type: "mercator",
+        renderers: [osm],
+      })
+
+      const spy = sinon.spy(osm_source, "get_tiles_by_extent")
+      try {
+        await display(p, [250, 250], box(200, 200))
+        expect(spy.called).to.be.false
+      } finally {
+        spy.restore()
+      }
+    })
+  })
+
+  describe("in issue #13377", () => {
+    it("doesn't allow serialization of unset readonly properties", async () => {
+      const obj = new ModelWithUnsetReadonly()
+      const doc = new Document()
+      doc.add_root(obj)
+      expect(doc.to_json()).to.be.equal({
+        version,
+        title: "Bokeh Application",
+        roots: [{
+          type: "object",
+          name: "ModelWithUnsetReadonly",
+          id: obj.id,
+          attributes: {
+            tags: [],
+            name: null,
+            js_property_callbacks: {type: "map"},
+            js_event_callbacks: {type: "map"},
+            subscribed_events: {type: "set"},
+            syncable: true,
+          },
+        }],
+      })
+    })
+  })
+
+  describe("in issue #13416", () => {
+    it("doesn't allow categorical mapping of non-factors to nan_color", async () => {
+      const mapper = new CategoricalColorMapper({
+        factors: ["a", "b"],
+        palette: ["red", "green"],
+        nan_color: "black",
+      })
+
+      const data = ["a", "c", "a", "b", null, "b", "a", NaN]
+      const result = ["red", "black", "red", "green", "black", "green", "red", "black"]
+
+      expect(mapper.v_compute(data)).to.be.equal(result)
+    })
+  })
+
+  describe("in issue #13414", () => {
+    it("doesn't allow re-render Icon when its properties change", async () => {
+      const icon = new TablerIcon({icon_name: "eye", size: "1.2em"})
+      const button = new Button({icon, label: "Visibility"})
+
+      const {view} = await display(button)
+
+      const icon_view = view.owner.get_one(icon)
+      using render = restorable(sinon.spy(icon_view, "render"))
+
+      icon.icon_name = "eye-off"
+      await view.ready
+
+      expect(render.calledOnce).to.be.true
+    })
+  })
+
+  describe("in issue #13456", () => {
+    it("doesn't allow reuse nodes when updating RangeTool's overlay", async () => {
+      const x_range = new Range1d({start: 0, end: 1})
+      const x_range_tool = new RangeTool({x_range})
+
+      x_range_tool.update_overlay_from_ranges()
+      expect(x_range_tool.overlay.left).to.be.equal(0)
+      expect(x_range_tool.overlay.right).to.be.equal(1)
+      expect(x_range_tool.overlay.top).to.be.instanceof(Node)
+      expect(x_range_tool.overlay.bottom).to.be.instanceof(Node)
+
+      const prev_top = x_range_tool.overlay.top
+      const prev_bottom = x_range_tool.overlay.bottom
+
+      x_range.start = 10
+      x_range.end = 20
+      x_range_tool.update_overlay_from_ranges()
+      expect(x_range_tool.overlay.left).to.be.equal(10)
+      expect(x_range_tool.overlay.right).to.be.equal(20)
+      expect(x_range_tool.overlay.top).to.be.equal(prev_top)
+      expect(x_range_tool.overlay.bottom).to.be.equal(prev_bottom)
+
+      const y_range = new Range1d({start: 0, end: 1})
+      const y_range_tool = new RangeTool({y_range})
+
+      y_range_tool.update_overlay_from_ranges()
+      expect(y_range_tool.overlay.left).to.be.instanceof(Node)
+      expect(y_range_tool.overlay.right).to.be.instanceof(Node)
+      expect(y_range_tool.overlay.top).to.be.equal(1)
+      expect(y_range_tool.overlay.bottom).to.be.equal(0)
+
+      const prev_left = y_range_tool.overlay.left
+      const prev_right = y_range_tool.overlay.right
+
+      y_range.start = 10
+      y_range.end = 20
+      y_range_tool.update_overlay_from_ranges()
+      expect(y_range_tool.overlay.left).to.be.equal(prev_left)
+      expect(y_range_tool.overlay.right).to.be.equal(prev_right)
+      expect(y_range_tool.overlay.top).to.be.equal(20)
+      expect(y_range_tool.overlay.bottom).to.be.equal(10)
     })
   })
 

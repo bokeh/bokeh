@@ -71,7 +71,8 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, width: int | None = None,
-        height: int | None = None, webdriver: WebDriver | None = None, timeout: int = 5, state: State | None = None) -> str:
+        height: int | None = None, scale_factor: float = 1, webdriver: WebDriver | None = None,
+        timeout: int = 5, state: State | None = None) -> str:
     ''' Export the ``UIElement`` object or document as a PNG.
 
     If the filename is not given, it is derived from the script name (e.g.
@@ -89,6 +90,10 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
 
         height (int) : the desired height of the exported layout obj only if
             it's a Plot instance. Otherwise the height kwarg is ignored.
+
+        scale_factor (float, optional) : A factor to scale the output PNG by,
+            providing a higher resolution while maintaining element relative
+            scales.
 
         webdriver (selenium.webdriver) : a selenium webdriver instance to use
             to export the image.
@@ -112,7 +117,8 @@ def export_png(obj: UIElement | Document, *, filename: PathLike | None = None, w
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    image = get_screenshot_as_png(obj, width=width, height=height, driver=webdriver, timeout=timeout, state=state)
+    image = get_screenshot_as_png(obj, width=width, height=height, scale_factor=scale_factor, driver=webdriver,
+                                  timeout=timeout, state=state)
 
     if filename is None:
         filename = default_filename("png")
@@ -216,7 +222,8 @@ def export_svgs(obj: UIElement | Document, *, filename: str | None = None, width
 #-----------------------------------------------------------------------------
 
 def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
-        resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> Image.Image:
+        resources: Resources = INLINE, width: int | None = None, height: int | None = None,
+        scale_factor: float = 1, state: State | None = None) -> Image.Image:
     ''' Get a screenshot of a ``UIElement`` object.
 
     Args:
@@ -230,6 +237,10 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
             It will be used as a timeout for loading Bokeh, then when waiting for
             the layout to be rendered.
 
+        scale_factor (float, optional) : A factor to scale the output PNG by,
+            providing a higher resolution while maintaining element relative
+            scales.
+
         state (State, optional) :
             A :class:`State` object. If None, then the current default
             implicit state is used. (default: None).
@@ -242,7 +253,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    from .webdriver import webdriver_control
+    from .webdriver import get_web_driver_device_pixel_ratio, scale_factor_less_than_web_driver_device_pixel_ratio, webdriver_control
 
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme
@@ -250,7 +261,14 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         with open(tmp.path, mode="w", encoding="utf-8") as file:
             file.write(html)
 
-        web_driver = driver if driver is not None else webdriver_control.get()
+        if driver is not None:
+            web_driver = driver
+            if not scale_factor_less_than_web_driver_device_pixel_ratio(scale_factor, web_driver):
+                device_pixel_ratio = get_web_driver_device_pixel_ratio(web_driver)
+                raise ValueError(f'Expected the web driver to have a device pixel ratio greater than {scale_factor}. '
+                                 f'Was given a web driver with a device pixel ratio of {device_pixel_ratio}.')
+        else:
+            web_driver = webdriver_control.get(scale_factor=scale_factor)
         web_driver.maximize_window()
         web_driver.get(f"file://{tmp.path}")
         wait_until_render_complete(web_driver, timeout)
@@ -260,7 +278,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
     return (Image.open(io.BytesIO(png))
                  .convert("RGBA")
                  .crop((0, 0, width*dpr, height*dpr))
-                 .resize((width, height)))
+                 .resize((int(width*scale_factor), int(height*scale_factor))))
 
 def get_svg(obj: UIElement | Document, *, driver: WebDriver | None = None, timeout: int = 5,
         resources: Resources = INLINE, width: int | None = None, height: int | None = None, state: State | None = None) -> list[str]:
@@ -425,7 +443,7 @@ def _log_console(driver: WebDriver) -> None:
 
 def _maximize_viewport(web_driver: WebDriver) -> tuple[int, int, int]:
     calculate_viewport_size = """\
-        const root_view = Object.values(Bokeh.index)[0]
+        const root_view = Bokeh.index.roots[0]
         const {width, height} = root_view.el.getBoundingClientRect()
         return [Math.round(width), Math.round(height), window.devicePixelRatio]
     """
@@ -460,8 +478,7 @@ function* collect_svgs(views) {
   }
 }
 
-const root_views = Object.values(Bokeh.index)
-return [...collect_svgs(root_views)]
+return [...collect_svgs(Bokeh.index)]
 """
 
 _SVG_SCRIPT = """\
@@ -473,8 +490,7 @@ function* export_svgs(views) {
   }
 }
 
-const root_views = Object.values(Bokeh.index)
-return [...export_svgs(root_views)]
+return [...export_svgs(Bokeh.index)]
 """
 
 _WAIT_SCRIPT = """

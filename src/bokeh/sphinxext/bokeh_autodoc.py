@@ -15,6 +15,9 @@ configured:
 * :ref:`bokeh.sphinxext.bokeh_model`
 * :ref:`bokeh.sphinxext.bokeh_prop`
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_autodoc"` to the
+extensions list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

@@ -1,48 +1,44 @@
 import type {Mapper} from "./mapper"
-import type {FactorSeq, Factor, L1Factor, L2Factor, L3Factor} from "../ranges/factor_range"
-import type {Arrayable, ArrayableOf} from "core/types"
+import type {FactorSeq, Factor} from "../ranges/factor_range"
+import type {Arrayable} from "core/types"
 import {index_of, find_index} from "core/util/arrayable"
-import {isString} from "core/util/types"
+import {isArray} from "core/util/types"
 import type * as p from "core/properties"
 
 export function _cat_equals(a: ArrayLike<unknown>, b: ArrayLike<unknown>): boolean {
-  if (a.length != b.length)
+  if (a.length != b.length) {
     return false
+  }
 
-  for (let i = 0, end = a.length; i < end; i++) {
-    if (a[i] !== b[i])
+  const n = a.length
+  for (let i = 0; i < n; i++) {
+    if (a[i] !== b[i]) {
       return false
+    }
   }
 
   return true
 }
 
-export function cat_v_compute<T>(data: ArrayableOf<Factor>, factors: Arrayable<Factor>,
+export function cat_v_compute<T>(data: Arrayable<unknown>, factors: Arrayable<Factor>,
     targets: Arrayable<T>, values: Arrayable<T>, start: number, end: number | null, extra_value: T): void {
-  const N = data.length
-
-  for (let i = 0; i < N; i++) {
-    let d = data[i]
-
+  let i = 0
+  for (const item of data) {
     let key: number
-    if (isString(d))
-      key = index_of(factors as Arrayable<L1Factor>, d)
-    else {
-      d = d.slice(start, end ?? undefined) as Factor
+    if (!isArray(item)) {
+      key = index_of(factors, item)
+    } else {
+      const d = item.slice(start, end ?? undefined)
 
-      if (d.length == 1)
-        key = index_of(factors as Arrayable<L1Factor>, d[0])
-      else
-        key = find_index(factors as Arrayable<L2Factor | L3Factor>, (x) => _cat_equals(x, d))
+      if (d.length == 1) {
+        key = index_of(factors, d[0])
+      } else {
+        key = find_index(factors, (x) => _cat_equals(x, d))
+      }
     }
 
-    let value: T
-    if (key < 0 || key >= targets.length)
-      value = extra_value
-    else
-      value = targets[key]
-
-    values[i] = value
+    const value = key in targets ? targets[key] : extra_value
+    values[i++] = value
   }
 }
 

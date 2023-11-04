@@ -33,12 +33,13 @@ export abstract class RangeTransform extends Transform {
 
   v_compute(xs0: Arrayable<number | Factor>): Arrayable<number> {
     let xs: Arrayable<number>
-    if (this.range instanceof FactorRange)
+    if (this.range instanceof FactorRange) {
       xs = this.range.v_synthetic(xs0)
-    else if (isArrayableOf(xs0, isNumber))
+    } else if (isArrayableOf(xs0, isNumber)) {
       xs = xs0
-    else
+    } else {
       unreachable()
+    }
 
     const result = new (infer_type(xs))(xs.length)
     for (let i = 0; i < xs.length; i++) {
@@ -49,12 +50,13 @@ export abstract class RangeTransform extends Transform {
   }
 
   compute(x: number | Factor): number {
-    if (this.range instanceof FactorRange)
+    if (this.range instanceof FactorRange) {
       return this._compute(this.range.synthetic(x))
-    else if (isNumber(x))
+    } else if (isNumber(x)) {
       return this._compute(x)
-    else
+    } else {
       unreachable()
+    }
   }
 
   protected abstract _compute(x: number): number

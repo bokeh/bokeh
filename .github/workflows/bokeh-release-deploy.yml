@@ -21,13 +21,21 @@ jobs:
       - name: Check Maintainer
         env:
           BOKEH_VERSION: ${{ github.event.inputs.version }}
-          RELEASE_MAINTAINERS: ${{ secrets.RELEASE_MAINTAINERS }}
+        uses: tspascoal/get-user-teams-membership@v3
+        id: checkUserMember
+        with:
+          username: ${{ github.actor }}
+          team: 'release-manager'
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+      - name: Maintainer confirmed
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'true' }}
         run: |
-          if echo "$RELEASE_MAINTAINERS" | grep -qE "^${{github.actor}}$"; then
-            echo
-            echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"
-            exit 0
-          fi
+          echo
+          echo "User is authorized to deploy releases, proceeding with release deploy for $BOKEH_VERSION"
+          exit 0
+      - name: Maintainer not detected
+        if: ${{ steps.checkUserMember.outputs.isTeamMember == 'false' }}
+        run: |
           echo
           echo "User is NOT authorized to deploy releases, aborting..."
           echo

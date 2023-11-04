@@ -20,9 +20,9 @@ export class DateRangePickerView extends BaseDatePickerView {
         this.model.value = null
         break
       case 1: {
-        const [datetime] = selected
-        const date = this._format_date(datetime)
-        this.model.value = [date, date]
+        // Selection in progress, so do nothing and wait for two selected
+        // dates. Single date selection is still possible and represented
+        // by [date, date] tuple.
         break
       }
       case 2: {

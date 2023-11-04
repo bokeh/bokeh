@@ -14,9 +14,9 @@ import {enumerate} from "core/util/iterator"
 import {isString} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {TextBox} from "core/graphics"
-import {Column, Row, Grid, ContentLayoutable, Sizeable} from "core/layout"
+import {Column, Row, Grid, ContentLayoutable, Sizeable, TextLayout} from "core/layout"
 
-const {max, floor} = Math
+const {max, ceil} = Math
 
 type HitTarget = {type: "entry", entry: LegendEntry}
 
@@ -26,17 +26,6 @@ type EntrySettings = {
   label_standoff: number
   label_width: number
   label_height: number
-}
-
-class TextLayout extends ContentLayoutable {
-
-  constructor(readonly text: TextBox) {
-    super()
-  }
-
-  _content_size(): Sizeable {
-    return new Sizeable(this.text.size())
-  }
 }
 
 class LegendEntry extends ContentLayoutable {
@@ -143,14 +132,14 @@ export class LegendView extends AnnotationView {
       if (vertical) {
         if (nrows != "auto") {
         } else if (ncols != "auto")
-          nrows = floor(n / ncols)
+          nrows = ceil(n / ncols)
         else
           nrows = Infinity
         ncols = Infinity
       } else {
         if (ncols != "auto") {
         } else if (nrows != "auto")
-          ncols = floor(n / nrows)
+          ncols = ceil(n / nrows)
         else
           ncols = Infinity
         nrows = Infinity

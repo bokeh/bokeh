@@ -567,6 +567,15 @@ class Settings:
     See the :class:`~bokeh.resources.Resources` class reference for full details.
     """)
 
+    chromedriver_path: PrioritizedSetting[str | None] = PrioritizedSetting("chromedriver_path", "BOKEH_CHROMEDRIVER_PATH", default=None, help="""
+    The name of or full path to chromedriver's executable.
+
+    This is used to allow ``bokeh.io.export`` to work on systems that use a
+    different name for ``chromedriver``, like ``chromedriver-binary`` or
+    ``chromium.chromedriver`` (or its variant, which is used for example
+    by Snap package manager; see https://snapcraft.io/).
+    """)
+
     cookie_secret: PrioritizedSetting[str | None] = PrioritizedSetting("cookie_secret", "BOKEH_COOKIE_SECRET", default=None, help="""
     Configure the ``cookie_secret`` setting in Tornado. This value is required
     if you use ``get_secure_cookie`` or ``set_secure_cookie``.  It should be a
@@ -683,6 +692,14 @@ class Settings:
     Root directory to use with ``relative`` resources
 
     See the :class:`~bokeh.resources.Resources` class reference for full details.
+    """)
+
+    default_server_host: PrioritizedSetting[str] = PrioritizedSetting("default_server_host", "BOKEH_DEFAULT_SERVER_HOST", default="localhost", help="""
+    Allows to define the default host used by Bokeh's server and resources.
+    """)
+
+    default_server_port: PrioritizedSetting[int] = PrioritizedSetting("default_server_port", "BOKEH_DEFAULT_SERVER_PORT", default=5006, help="""
+    Allows to define the default port used by Bokeh's server and resources.
     """)
 
     secret_key: PrioritizedSetting[str | None] = PrioritizedSetting("secret_key", "BOKEH_SECRET_KEY", default=None, help="""

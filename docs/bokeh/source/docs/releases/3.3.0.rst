@@ -1,0 +1,19 @@
+.. _release-3-3-0:
+
+3.3.0
+=====
+
+Bokeh version ``3.3.0`` (October 2023) is a minor milestone of Bokeh project.
+
+* Fixed a regression in handling root-relative server resource URLs (:bokeh-pull:`13391`)
+* Expanded support for polygonal hit testing and added greedy mode (:bokeh-pull:`13277`)
+* Added support for inline math text expressions (:bokeh-pull:`13214`)
+* Added ``stack_labels`` property to ``WeightedStackColorMapper`` (:bokeh-pull:`13366`)
+* Added support for ``BoxAnnotation`` movement/resize limits (:bokeh-pull:`13365`)
+* Added support for ``ScaleBar`` annotation (:bokeh-pull:`13319`)
+* Added support for zooming sub-coordinates (:bokeh-pull:`13345`)
+* Added support for ``ColorMap`` widget (palette selector) (:bokeh-pull:`13269`)
+* Improved ``Bokeh.index`` to allow retrieving views for any model (:bokeh-pull:`13351`)
+* Redesigned ``Tooltip`` CSS to allow more robust positioning (:bokeh-pull:`13355`)
+* Various performance improvements to bokehjs (:bokeh-pull:`13333`, :bokeh-pull:`13334`)
+* Improved discovery and configurability of ``chromedriver`` in ``bokeh.io.export`` (:bokeh-pull:`13351`)

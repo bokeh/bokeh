@@ -1,6 +1,6 @@
 import FlatBush from "flatbush"
 
-import type {Rect} from "../types"
+import type {Rect, TypedArray} from "../types"
 import {Indices} from "../types"
 import {empty} from "./bbox"
 
@@ -19,12 +19,8 @@ function upperBound(value: number, arr: ArrayLike<number>): number {
 }
 
 class _FlatBush extends FlatBush {
-  declare protected _pos: number
-  declare protected _boxes: Float64Array
-  declare protected _indices: Uint16Array | Uint32Array
-  declare protected _levelBounds: number[]
 
-  get boxes(): Float64Array { // TODO: readonly
+  get boxes(): TypedArray | Uint8ClampedArray {
     return this._boxes
   }
 

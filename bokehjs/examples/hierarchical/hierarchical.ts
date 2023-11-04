@@ -16,9 +16,11 @@ export namespace Hierarchical {
   }
 
   const x: [string, string][] = []
-  for (const fruit of fruits)
-    for (const year of years)
+  for (const fruit of fruits) {
+    for (const year of years) {
       x.push([fruit, year])
+    }
+  }
 
   const counts = concat(zip(data["2015"], data["2016"], data["2017"])) // like an hstack
 
@@ -31,5 +33,5 @@ export namespace Hierarchical {
 
   p.y_range.start = 0
 
-  show(p)
+  void show(p)
 }

@@ -505,7 +505,7 @@ class HTMLTemplateFormatter(CellFormatter):
 
         <a href="<%= url %>"><%= value %></a>
 
-    To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate',
+    To use a different set of template delimiters, pass the appropriate values for `evaluate`, `interpolate`,
     or `escape`.  See the Underscore `template` documentation for more information.  http://underscorejs.org/#template
 
     Example: Simple HTML template to format the column value as code.

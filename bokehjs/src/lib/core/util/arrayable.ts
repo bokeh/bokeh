@@ -1,8 +1,30 @@
 import type {Arrayable, ArrayableNew, FloatArray, TypedArray} from "../types"
 import {clamp} from "./math"
+import {assert, assert_debug} from "./assert"
+
+const {floor} = Math
 
 export function is_empty(array: Arrayable): boolean {
   return array.length == 0
+}
+
+export function is_sorted<T>(array: Arrayable<T>): boolean {
+  const n = array.length
+  if (n == 0) {
+    return true
+  }
+
+  let prev = array[0]
+  for (let i = 1; i < n; i++) {
+    const curr = array[i]
+    if (prev <= curr) {
+      prev = curr
+    } else {
+      return false
+    }
+  }
+
+  return true
 }
 
 export function copy<T>(array: Arrayable<T>): Arrayable<T> {
@@ -174,12 +196,10 @@ export function sort_by<T>(array: Arrayable<T>, key: (item: T) => number): Array
   return map(array, (_, i) => array[tmp[i].index])
 }
 
-export function min(array: Arrayable<number>): number {
-  let value: number
+export function min(iterable: Iterable<number>): number {
   let result = Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value) && value < result) {
       result = value
     }
@@ -188,12 +208,10 @@ export function min(array: Arrayable<number>): number {
   return result
 }
 
-export function max(array: Arrayable<number>): number {
-  let value: number
+export function max(iterable: Iterable<number>): number {
   let result = -Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value) && value > result) {
       result = value
     }
@@ -202,13 +220,11 @@ export function max(array: Arrayable<number>): number {
   return result
 }
 
-export function minmax(array: Arrayable<number>): [number, number] {
-  let value: number
+export function minmax(iterable: Iterable<number>): [number, number] {
   let min = +Infinity
   let max = -Infinity
 
-  for (let i = 0, length = array.length; i < length; i++) {
-    value = array[i]
+  for (const value of iterable) {
     if (!isNaN(value)) {
       if (value < min) {
         min = value
@@ -245,38 +261,38 @@ export function minmax2(arr: Arrayable<number>, brr: Arrayable<number>): [number
   return [a_min, a_max, b_min, b_max]
 }
 
-export function min_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function min_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
   if (array.length == 0)
     throw new Error("min_by() called with an empty array")
 
   let result = array[0]
-  let resultComputed = key(result)
+  let result_computed = key(result, 0)
 
   for (let i = 1, length = array.length; i < length; i++) {
     const value = array[i]
-    const computed = key(value)
-    if (computed < resultComputed) {
+    const computed = key(value, i)
+    if (computed < result_computed) {
       result = value
-      resultComputed = computed
+      result_computed = computed
     }
   }
 
   return result
 }
 
-export function max_by<T>(array: Arrayable<T>, key: (item: T) => number): T {
+export function max_by<T>(array: Arrayable<T>, key: (item: T, i: number) => number): T {
   if (array.length == 0)
     throw new Error("max_by() called with an empty array")
 
   let result = array[0]
-  let resultComputed = key(result)
+  let result_computed = key(result, 0)
 
   for (let i = 1, length = array.length; i < length; i++) {
     const value = array[i]
-    const computed = key(value)
-    if (computed > resultComputed) {
+    const computed = key(value, i)
+    if (computed > result_computed) {
       result = value
-      resultComputed = computed
+      result_computed = computed
     }
   }
 
@@ -341,18 +357,48 @@ export function find_last<T>(array: Arrayable<T>, predicate: (item: T) => boolea
   return index == -1 ? undefined : array[index]
 }
 
-export function sorted_index<T>(array: Arrayable<T>, value: T): number {
-  let low = 0
-  let high = array.length
+export function bisect_left_by<T, U>(array: Arrayable<T>, value: U, fn: (item: T) => U, low: number = 0, high: number = array.length): number {
+  assert_debug(is_sorted(array))
+  assert(0 <= low && high <= array.length)
   while (low < high) {
-    const mid = Math.floor((low + high) / 2)
-    if (array[mid] < value)
+    const mid = floor((low + high) / 2)
+    if (fn(array[mid]) < value) {
       low = mid + 1
-    else
+    } else {
       high = mid
+    }
   }
   return low
 }
+
+export function bisect_right_by<T, U>(array: Arrayable<T>, value: U, fn: (item: T) => U, low: number = 0, high: number = array.length): number {
+  assert_debug(is_sorted(array))
+  assert(0 <= low && high <= array.length)
+  while (low < high) {
+    const mid = floor((low + high) / 2)
+    if (fn(array[mid]) <= value) {
+      low = mid + 1
+    } else {
+      high = mid
+    }
+  }
+  return low
+}
+
+export function bisect_left<T>(array: Arrayable<T>, value: T, low: number = 0, high?: number): number {
+  return bisect_left_by(array, value, (item) => item, low, high)
+}
+
+export function bisect_right<T>(array: Arrayable<T>, value: T, low: number = 0, high?: number): number {
+  return bisect_right_by(array, value, (item) => item, low, high)
+}
+
+export function binary_search<T>(array: Arrayable<T>, value: T): number | null {
+  const i = bisect_left(array, value)
+  return i != array.length && array[i] == value ? i : null
+}
+
+export const sorted_index = bisect_left
 
 export function bin_counts(data: Arrayable<number>, bin_edges: Arrayable<number>): Arrayable<number> {
   const nbins = bin_edges.length - 1

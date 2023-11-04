@@ -479,11 +479,11 @@ The |GroupFilter| has two properties:
   filter to
 * ``group``: the name of the category to select for
 
-In the example below, the data set ``flowers`` contains a categorical variable
+In the example below, the data set ``data`` contains a categorical variable
 called ``species``. All data belongs to one of the three species categories
-``setosa``, ``versicolor``, or ``virginica``. The second plot in this example
+``Adelie``, ``Chinstrap``, or ``Gentoo``. The second plot in this example
 uses a |GroupFilter| to only display data points that are a member of the
-category ``setosa``:
+category ``Adelie``:
 
 .. bokeh-plot:: __REPO__/examples/basic/data/filter_group.py
     :source-position: above
@@ -537,7 +537,7 @@ interval. It then uses the data from the endpoint to update the data locally.
 Updating data locally can happen in two ways: either by replacing the existing
 local data entirely or by appending the new data to the existing data (up to a
 configurable ``max_size``). Replacing local data is the default setting. Pass
-either ``"replace"`` or ``"append"``as the AjaxDataSource's ``mode`` argument to
+either ``"replace"`` or ``"append"`` as the AjaxDataSource's ``mode`` argument to
 control this behavior.
 
 The endpoint that you are using with your ``AjaxDataSource`` should return a

@@ -6,7 +6,7 @@ default_stages: [push]
 
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.269
+    rev: v0.0.285
     hooks:
       - id: ruff
         stages: [commit]
@@ -16,6 +16,15 @@ repos:
     hooks:
       - id: validate-pyproject
         name: Validate pyproject.toml
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.2.0
+    hooks:
+      - id: check-yaml
+        name: Validate YAML files
+        exclude: conda/recipe/meta.yaml
+      - id: check-json
+        name: Validate JSON files
 
   - repo: local
     hooks:
@@ -43,9 +52,9 @@ repos:
         language: conda
         pass_filenames: false
 
-      - id: validate-json
-        name: Validate JSON files
-        entry: pytest tests/codebase/test_json.py
+      - id: run-vermin
+        name: Run vermin checks
+        entry: pytest tests/codebase/test_vermin.py
         language: conda
         pass_filenames: false
 

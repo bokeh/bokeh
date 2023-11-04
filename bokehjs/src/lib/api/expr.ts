@@ -18,10 +18,11 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
       case IDENT:
         if (ast.name.startsWith("$")) {
           const i = Number(ast.name.slice(1))
-          if (isFinite(i) && 0 <= i && i < refs.length)
+          if (isFinite(i) && 0 <= i && i < refs.length) {
             return refs[i]
-          else
+          } else {
             throw new Error(`invalid reference: ${ast.name}`)
+          }
         }
 
         switch (ast.name) {
@@ -34,20 +35,23 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
         const obj = resolve(ast.object)
         if (obj === np) {
           const {name} = ast.member
-          if (Object.prototype.hasOwnProperty.call(np, name))
+          if (Object.prototype.hasOwnProperty.call(np, name)) {
             return (np as any)[name]
-          else
+          } else {
             throw new Error(`'np.${name}' doesn't exist`)
-        } else
+          }
+        } else {
           throw new Error("not an accessable expression")
+        }
       case INDEX:
         throw new Error("not an indexable expression")
       case CALL:
         const callee = resolve(ast.callee)
-        if (isFunction(callee))
+        if (isFunction(callee)) {
           return callee.apply(undefined, ast.args.map((arg) => resolve(arg)))
-        else
+        } else {
           throw new Error("not a callable expression")
+        }
       case UNARY: {
         const op = (() => {
           switch (ast.operator) {
@@ -58,10 +62,11 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
           }
         })()
         const x = resolve(ast.argument)
-        if (is_Numerical(x))
+        if (is_Numerical(x)) {
           return op(x)
-        else
+        } else {
           throw new Error("a number or an array was expected")
+        }
       }
       case BINARY:
         const op = (() => {
@@ -81,10 +86,11 @@ function evaluate(ast: Expression, refs: unknown[]): unknown {
         })()
         const x = resolve(ast.left)
         const y = resolve(ast.right)
-        if (is_Numerical(x) && is_Numerical(y))
+        if (is_Numerical(x) && is_Numerical(y)) {
           return op(x, y)
-        else
+        } else {
           throw new Error("a number or an array was expected")
+        }
       case COMPOUND:
       case SEQUENCE:
       case ARRAY:
@@ -107,8 +113,9 @@ export function f(strings: TemplateStringsArray, ...subs: unknown[]): unknown {
   const parser = new Parser(input)
   const ast = parser.parse()
 
-  if (ast.type != FAILURE)
+  if (ast.type != FAILURE) {
     return evaluate(ast, subs)
-  else
+  } else {
     throw new Error(ast.message)
+  }
 }

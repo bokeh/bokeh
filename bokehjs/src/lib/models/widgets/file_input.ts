@@ -27,10 +27,10 @@ export class FileInputView extends InputWidgetView {
     this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled})
     this.group_el.appendChild(this.input_el)
 
-    this.input_el.addEventListener("change", () => {
+    this.input_el.addEventListener("change", async () => {
       const {files} = this.input_el
       if (files != null) {
-        this.load_files(files)
+        await this.load_files(files)
       }
     })
   }
@@ -50,12 +50,13 @@ export class FileInputView extends InputWidgetView {
     }
 
     const [value, filename, mime_type] = (() =>{
-      if (this.model.multiple)
+      if (this.model.multiple) {
         return [values, filenames, mime_types]
-      else if (files.length != 0)
+      } else if (files.length != 0) {
         return [values[0], filenames[0], mime_types[0]]
-      else
+      } else {
         return ["", "", ""]
+      }
     })()
 
     this.model.setv({value, filename, mime_type})

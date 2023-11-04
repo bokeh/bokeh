@@ -1,19 +1,19 @@
 import json
 import re
 import sys
-from distutils.version import StrictVersion
-from glob import glob
-from os.path import abspath, basename, dirname, join
+from pathlib import Path
 from subprocess import PIPE, Popen
 
-TOP = abspath(join(dirname(__file__), ".."))
+BOKEH = Path(__file__).resolve().parents[1] / "src" / "bokeh"
+
+JS_DIR = BOKEH /  "server" / "static" / "js"
+
+SRI_DIR = BOKEH / "_sri"
 
 VERSION = re.compile(r"^(\d+\.\d+\.\d+)$")
 
 
-def compute_single_hash(path):
-    assert path.endswith(".js")
-
+def compute_single_hash(path: Path) -> str:
     digest = f"openssl dgst -sha384 -binary {path}".split()
     p1 = Popen(digest, stdout=PIPE)
 
@@ -24,42 +24,20 @@ def compute_single_hash(path):
     return out.decode("utf-8").strip()
 
 
-def compute_hashes_for_paths(paths, version):
-    hashes = []
+def dump_hash_file(version: str) -> None:
+    json_path = SRI_DIR / f"{version}.json"
+
+    assert not json_path.exists(), f"{json_path} already exists"
+
+    hashes = {}
+
+    paths = set(JS_DIR.glob("bokeh*.js")) - set(JS_DIR.glob("*.esm.*"))
     for path in paths:
-        name, suffix = basename(path).split(".", 1)
-        filename = f"{name}-{version}.{suffix}"
-        sri_hash = compute_single_hash(path)
-        hashes.append((filename, sri_hash))
-    return dict(sorted(hashes))
+        base, _, suffix = path.name.partition(".")
+        hashes[f"{base}-{version}.{suffix}"] = compute_single_hash(path)
 
-
-def get_current_package_json():
-    tmp = json.load(open(join(TOP, "src", "bokeh", "_sri.json")))
-    items = sorted(tmp.items(), key=lambda item: StrictVersion(item[0]), reverse=True)
-    return {key: dict(val) for key, val in items}
-
-
-def write_package_json(data):
-    with open(join(TOP, "src", "bokeh", "_sri.json"), "w") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-
-
-def update_package(version):
-    current = get_current_package_json()
-
-    assert (
-        version not in current
-    ), f"Version {version} already exists in the hash data file"
-
-    paths = (x for x in glob(join(TOP, "src/bokeh/server/static/js/bokeh*.js")) if ".esm" not in x)
-    hashes = compute_hashes_for_paths(paths, version)
-
-    new = {version: hashes}
-    new.update(current)
-
-    write_package_json(new)
+    with open(json_path, "w") as f:
+        json.dump(dict(sorted(hashes.items())), f, indent=2)
 
 
 if __name__ == "__main__":
@@ -71,4 +49,4 @@ if __name__ == "__main__":
 
     assert VERSION.match(version), f"{version!r} is not a valid Bokeh release version string"
 
-    update_package(version)
+    dump_hash_file(version)

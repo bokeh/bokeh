@@ -477,7 +477,7 @@ class PropertyValueColumnData(PropertyValueDict):
             else:
                 L = self[k]
                 L.extend(new_data[k])
-                if rollover is not None:
+                if rollover is not None and len(L) > rollover:
                     del L[:len(L) - rollover]
 
         from ...document.events import ColumnsStreamedEvent

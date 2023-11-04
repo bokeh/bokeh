@@ -19,8 +19,9 @@ describe("logging module", () => {
 
       let original: LogLevel | null = null
       after_each(() => {
-        if (original != null)
+        if (original != null) {
           set_log_level(original)
+        }
       })
 
       it("trace", () => {

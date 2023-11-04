@@ -26,8 +26,9 @@ export namespace HoverfulScatter {
   const radii = range(N).map((_) => random.float()*0.4 + 1.7)
 
   const colors: [number, number, number][] = []
-  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y)))
+  for (const [r, g] of zip(xx.map((x) => 50 + 2*x), yy.map((y) => 30 + 2*y))) {
     colors.push([r, g, 150])
+  }
 
   const source = new Bokeh.ColumnDataSource({
     data: {x: xx, y: yy, radius: radii, colors},
@@ -45,16 +46,17 @@ export namespace HoverfulScatter {
     source, alpha: 0.5, text_font_size: "7px", text_baseline: "middle", text_align: "center",
   })
 
-  const hover = p.toolbar.select_one(Bokeh.HoverTool)
-  hover!.tooltips = (source, info) => {
+  const hover = p.toolbar.get_one(Bokeh.HoverTool)
+  hover.tooltips = (source, info) => {
     const ds = source as Bokeh.ColumnDataSource
     const div = document.createElement("div")
     div.style.width = "200px"
     div.style.height = "75px"
-    if (info.index != null)
+    if (info.index != null) {
       div.style.backgroundColor = ds.data.colors[info.index]
+    }
     return div
   }
 
-  plt.show(p)
+  void plt.show(p)
 }

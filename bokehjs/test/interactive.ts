@@ -22,14 +22,29 @@ const _mouse_common: Partial<MouseEventInit> = {
   altKey: false,
 }
 
-export async function mouseenter(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("mouseenter", {..._mouse_common, buttons: MouseButton.Left})
-  el.dispatchEvent(ev0)
+export async function mouse_enter(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseenter", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
 }
 
-export async function mousleave(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("mousleave", {..._mouse_common, buttons: MouseButton.Left})
-  el.dispatchEvent(ev0)
+export async function mouse_leave(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseleave", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_down(el: Element): Promise<void> {
+  const ev = new PointerEvent("mousedown", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_up(el: Element): Promise<void> {
+  const ev = new PointerEvent("mouseup", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
+}
+
+export async function mouse_click(el: Element): Promise<void> {
+  const ev = new PointerEvent("click", {..._mouse_common, buttons: MouseButton.Left})
+  el.dispatchEvent(ev)
 }
 
 const _pointer_common: Partial<PointerEventInit> = {
@@ -46,12 +61,12 @@ const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
 export async function click(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
 
   await delay(10)
 
-  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
 }
 
@@ -76,6 +91,10 @@ export type Options = {
   units: "data" | "screen"
 }
 
+export function actions(target: PlotView, options: Partial<Options> = {}): PlotActions {
+  return new PlotActions(target, options)
+}
+
 export class PlotActions {
   readonly options: Options
 
@@ -85,6 +104,10 @@ export class PlotActions {
 
   protected get el(): Element {
     return this.target.canvas.events_el
+  }
+
+  async scroll(xy: Point, delta: number): Promise<void> {
+    await this.emit(this._scroll(xy, delta))
   }
 
   async hover(xy0: Point, xy1?: Point, n?: number): Promise<void> {
@@ -175,6 +198,17 @@ export class PlotActions {
         break
       }
     }
+  }
+
+  protected *_scroll({x, y}: Point, delta: number): Iterable<MouseEvent> {
+    yield new WheelEvent("wheel", {
+      ..._pointer_common,
+      ...this.screen({x, y}),
+      deltaX: 0,
+      deltaY: delta,
+      deltaZ: 0,
+      deltaMode: WheelEvent.DOM_DELTA_PIXEL,
+    })
   }
 
   protected *_hover(path: Path): Iterable<MouseEvent> {

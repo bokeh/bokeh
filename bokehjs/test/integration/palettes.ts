@@ -22,8 +22,9 @@ function plot(name: string, palettes: Color[][]) {
 
   for (const palette of palettes) {
     const k = palette.length
-    if (k == 256)
+    if (k == 256) {
       continue
+    }
     yf.push(`${k}`)
 
     x.push(...xf)

@@ -39,6 +39,9 @@ the same output above will be generated directly from the following code:
     #: Specify a baz style
     baz = enumeration("a", "b", "c")
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_enum"` to the extensions
+list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

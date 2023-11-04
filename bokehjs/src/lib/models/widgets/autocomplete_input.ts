@@ -5,7 +5,7 @@ import {empty, display, undisplay, div} from "core/dom"
 import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
-import {Enum} from "core/kinds"
+import {Enum} from "../../core/kinds"
 
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
@@ -102,10 +102,11 @@ export class AutocompleteInputView extends TextInputView {
     const completions = this.compute_completions(value)
     this._update_completions(completions)
 
-    if (completions.length == 0)
+    if (completions.length == 0) {
       this._hide_menu()
-    else
+    } else {
       this._show_menu()
+    }
   }
 
   protected _show_menu(): void {

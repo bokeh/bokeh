@@ -217,13 +217,15 @@ export class GlyphRendererView extends DataRendererView {
     const {x_ranges, y_ranges} = this.plot_view.frame
 
     for (const [, range] of x_ranges) {
-      if (range instanceof FactorRange)
-        this.connect(range.change, update)
+      if (range instanceof FactorRange) {
+        this.connect(range.invalidate_synthetic, update)
+      }
     }
 
     for (const [, range] of y_ranges) {
-      if (range instanceof FactorRange)
-        this.connect(range.change, update)
+      if (range instanceof FactorRange) {
+        this.connect(range.invalidate_synthetic, update)
+      }
     }
 
     const {transformchange, exprchange} = this.model.glyph

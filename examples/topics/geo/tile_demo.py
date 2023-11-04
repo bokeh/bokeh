@@ -6,7 +6,7 @@ from bokeh.plotting import figure, show
 
 
 # helper function for coordinate conversion between lat/lon in decimal degrees to web mercator
-def lnglat_to_meters(longitude, latitude):
+def lnglat_to_meters(longitude: float, latitude: float) -> tuple[float, float]:
     """ Projects the given (longitude, latitude) values into Web Mercator
     coordinates (meters East of Greenwich and meters North of the Equator).
 
@@ -43,9 +43,13 @@ providers = [
 
 plots = []
 for i, vendor_name in enumerate(providers):
-    plot = figure(x_range=x_range, y_range=y_range, toolbar_location=None,
-                  x_axis_type="mercator", y_axis_type="mercator",
-                  height=250, width=300, title=vendor_name)
+    plot = figure(
+        x_range=x_range, y_range=y_range,
+        x_axis_type="mercator", y_axis_type="mercator",
+        height=250, width=300,
+        title=vendor_name,
+        toolbar_location=None, active_scroll="wheel_zoom",
+    )
     plot.add_tile(vendor_name)
     plots.append(plot)
 

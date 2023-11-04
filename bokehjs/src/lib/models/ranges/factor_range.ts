@@ -4,6 +4,7 @@ import * as p from "core/properties"
 import {Or, String as Str, Array as Arr, Tuple} from "../../core/kinds"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
+import {Signal0} from "core/signaling"
 import {every, sum} from "core/util/array"
 import {isArray, isNumber, isString} from "core/util/types"
 import {unreachable} from "core/util/assert"
@@ -164,7 +165,7 @@ export class FactorRange extends Range {
 
   override initialize(): void {
     super.initialize()
-    this._init(true)
+    this._init()
   }
 
   override connect_signals(): void {
@@ -177,9 +178,11 @@ export class FactorRange extends Range {
     this.connect(this.properties.range_padding_units.change, () => this.reset())
   }
 
+  readonly invalidate_synthetic = new Signal0(this, "invalidate_synthetic")
+
   reset(): void {
-    this._init(false)
-    this.change.emit()
+    this._init()
+    this.invalidate_synthetic.emit()
   }
 
   protected _lookup(x: BoxedFactor): number {
@@ -215,8 +218,6 @@ export class FactorRange extends Range {
         }
         return NaN
       }
-      default:
-        unreachable()
     }
   }
 
@@ -248,7 +249,7 @@ export class FactorRange extends Range {
     return array
   }
 
-  protected _init(silent: boolean): void {
+  protected _init(): void {
     const {levels, mapping, tops, mids, inside_padding} = (() => {
       if (every(this.factors, isString)) {
         const factors = this.factors as string[]
@@ -293,9 +294,10 @@ export class FactorRange extends Range {
       end += this.range_padding
     }
 
-    this.setv({start, end, levels}, {silent})
+    this.setv({start, end, levels}, {silent: true})
 
-    if (this.bounds == "auto")
-      this.setv({bounds: [start, end]}, {silent: true})
+    if (this.bounds == "auto") {
+      this._computed_bounds = [start, end]
+    }
   }
 }

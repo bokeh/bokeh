@@ -1,11 +1,10 @@
 import * as sinon from "sinon"
-import {expect} from "assertions"
+import {expect, expect_instanceof} from "assertions"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {GeneratorFunction, AsyncGeneratorFunction} from "@bokehjs/core/types"
 import {logger} from "@bokehjs/core/logging"
-import {assert} from "@bokehjs/core/util/assert"
 import {Document} from "@bokehjs/document"
 import {version as js_version} from "@bokehjs/version"
 
@@ -27,10 +26,10 @@ describe("CustomJS", () => {
       const copy = Document.from_json_string(JSON.stringify(parsed))
 
       const cb_copy = copy.get_model_by_id(cb.id)
-      assert(cb_copy instanceof CustomJS)
+      expect_instanceof(cb_copy, CustomJS)
 
       const rng_copy = copy.get_model_by_id(rng.id)
-      assert(rng_copy instanceof Range1d)
+      expect_instanceof(rng_copy, Range1d)
 
       expect(cb.args).to.be.equal({rng})
       expect(cb_copy.args).to.be.equal({rng: rng_copy})

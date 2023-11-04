@@ -18,20 +18,24 @@ from bokeh.plotting import curdoc, figure, show
 
 p = figure(
     width=700, height=500,
-    title=\
-        r"$$\color{white} \text{Bessel functions of the first kind: } J_\alpha(x) = \sum_{m=0}^{\infty}"
-        r"\frac{(-1)^m}{m!\:\Gamma(m+\alpha+1)} \left(\frac{x}{2}\right)^{2m+\alpha}$$",
+    title=(
+        r"Bessel functions of the first kind: $$J_\alpha(x) = \sum_{m=0}^{\infty}"
+        r"\frac{(-1)^m}{m!\:\Gamma(m+\alpha+1)} \left(\frac{x}{2}\right)^{2m+\alpha}$$"
+    ),
 )
 p.x_range.range_padding = 0
-p.xaxis.axis_label = r"$$\color{white} x$$"
-p.yaxis.axis_label = r"$$\color{white} J_\alpha(x)$$"
-p.title.text_font_size="14px"
+p.xaxis.axis_label = "$$x$$"
+p.xaxis.axis_label_text_color = "white"
+p.yaxis.axis_label = r"$$J_\alpha(x)$$"
+p.yaxis.axis_label_text_color = "white"
+p.title.text_font_size = "14px"
+p.title.text_color = "white"
 
 x = np.linspace(0.0, 14.0, 100)
 
 for i, (xlabel, ylabel) in enumerate(zip([0.5, 1.6, 2.8, 4.2], [0.95, 0.6, 0.5, 0.45])):
     p.line(x, jv(i, x), line_width=3, color=YlOrRd4[i])
-    p.add_layout(Label(text=r"$$\color{white} J_" + str(i) + "(x)$$", x=xlabel, y=ylabel))
+    p.add_layout(Label(text=f"$$J_{i}(x)$$", x=xlabel, y=ylabel, text_color="white"))
 
 curdoc().theme = 'night_sky'
 

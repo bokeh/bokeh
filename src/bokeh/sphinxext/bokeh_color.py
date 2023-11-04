@@ -19,6 +19,9 @@ and generates a labeled color swatch as output.
 The ``bokeh-color`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.
 
+To enable this extension, add `"bokeh.sphinxext.bokeh_color"` to the extensions
+list in your Sphinx configuration module.
+
 """
 
 # -----------------------------------------------------------------------------

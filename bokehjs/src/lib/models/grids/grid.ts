@@ -27,13 +27,15 @@ export class GridView extends GuideRendererView {
   }
 
   protected _draw_regions(ctx: Context2d): void {
-    if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit)
+    if (!this.visuals.band_fill.doit && !this.visuals.band_hatch.doit) {
       return
+    }
 
     const [xs, ys] = this.grid_coords("major", false)
     for (let i = 0; i < xs.length-1; i++) {
-      if (i % 2 != 1)
+      if (i % 2 != 1) {
         continue
+      }
 
       const [sx0, sy0] = this.coordinates.map_to_screen(xs[i],   ys[i])
       const [sx1, sy1] = this.coordinates.map_to_screen(xs[i+1], ys[i+1])
@@ -47,15 +49,17 @@ export class GridView extends GuideRendererView {
   }
 
   protected _draw_grids(ctx: Context2d): void {
-    if (!this.visuals.grid_line.doit)
+    if (!this.visuals.grid_line.doit) {
       return
+    }
     const [xs, ys] = this.grid_coords("major")
     this._draw_grid_helper(ctx, this.visuals.grid_line, xs, ys)
   }
 
   protected _draw_minor_grids(ctx: Context2d): void {
-    if (!this.visuals.minor_grid_line.doit)
+    if (!this.visuals.minor_grid_line.doit) {
       return
+    }
     const [xs, ys] = this.grid_coords("minor")
     this._draw_grid_helper(ctx, this.visuals.minor_grid_line, xs, ys)
   }
@@ -93,14 +97,16 @@ export class GridView extends GuideRendererView {
       start = Math.min(user_bounds[0], user_bounds[1])
       end = Math.max(user_bounds[0], user_bounds[1])
 
-      if (start < range_bounds[0])
+      if (start < range_bounds[0]) {
         start = range_bounds[0]
+      }
       // XXX:
       //else if (start > range_bounds[1])
       //  start = null
 
-      if (end > range_bounds[1])
+      if (end > range_bounds[1]) {
         end = range_bounds[1]
+      }
       // XXX:
       //else if (end < range_bounds[0])
       //  end = null
@@ -146,22 +152,26 @@ export class GridView extends GuideRendererView {
 
     const [cmin, cmax] = (() => {
       const {cross_bounds} = this.model
-      if (cross_bounds == "auto")
+      if (cross_bounds == "auto") {
         return [cross_range.min, cross_range.max]
-      else
+      } else {
         return cross_bounds
+      }
     })()
 
     if (!exclude_ends) {
-      if (ticks[0] != min)
+      if (ticks[0] != min) {
         ticks.splice(0, 0, min)
-      if (ticks[ticks.length-1] != max)
+      }
+      if (ticks[ticks.length-1] != max) {
         ticks.push(max)
+      }
     }
 
     for (let ii = 0; ii < ticks.length; ii++) {
-      if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends)
+      if ((ticks[ii] == min || ticks[ii] == max) && exclude_ends) {
         continue
+      }
       const dim_i: number[] = []
       const dim_j: number[] = []
       const N = 2

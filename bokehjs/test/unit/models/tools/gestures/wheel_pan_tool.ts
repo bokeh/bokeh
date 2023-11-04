@@ -2,7 +2,6 @@ import {expect} from "assertions"
 import {display} from "../../../_util"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
-import type {WheelPanToolView} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {WheelPanTool} from "@bokehjs/models/tools/gestures/wheel_pan_tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import type {PlotView} from "@bokehjs/models/plots/plot"
@@ -42,7 +41,7 @@ describe("WheelPanTool", () => {
       const x_wheel_pan_tool = new WheelPanTool()
       const plot_view = await mkplot(x_wheel_pan_tool)
 
-      const wheel_pan_tool_view = plot_view.tool_views.get(x_wheel_pan_tool)! as WheelPanToolView
+      const wheel_pan_tool_view = plot_view.owner.get_one(x_wheel_pan_tool)
 
       // negative factors move in positive x-data direction
       wheel_pan_tool_view._update_ranges(-0.5)
@@ -60,7 +59,7 @@ describe("WheelPanTool", () => {
       const x_wheel_pan_tool = new WheelPanTool({dimension: "height"})
       const plot_view = await mkplot(x_wheel_pan_tool)
 
-      const wheel_pan_tool_view = plot_view.tool_views.get(x_wheel_pan_tool)! as WheelPanToolView
+      const wheel_pan_tool_view = plot_view.owner.get_one(x_wheel_pan_tool)
 
       // positive factors move in positive y-data direction
       wheel_pan_tool_view._update_ranges(0.75)

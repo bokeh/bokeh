@@ -82,8 +82,20 @@ export function to_radians_coeff(units: AngleUnits): number {
   }
 }
 
+export function minmax(v0: number, v1: number): [number, number] {
+  return v0 <= v1 ? [v0, v1] : [v1, v0]
+}
+
 export function clamp(val: number, min: number, max: number): number {
   return val < min ? min : (val > max ? max : val)
+}
+
+export function cycle(val: number, min: number, max: number): number {
+  if (val > max)
+    return min
+  if (val < min)
+    return max
+  return val
 }
 
 export function log(x: number, base: number = Math.E): number {
