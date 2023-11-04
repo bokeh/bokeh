@@ -80,12 +80,12 @@ class TestSettings:
         assert set(settings) == set(_expected_settings)
 
     @pytest.mark.parametrize("name", _expected_settings)
-    def test_prefix(self, name) -> None:
+    def test_prefix(self, name: str) -> None:
         ps = getattr(bs.settings, name)
         assert ps.env_var.startswith("BOKEH_")
 
     @pytest.mark.parametrize("name", _expected_settings)
-    def test_parent(self, name) -> None:
+    def test_parent(self, name: str) -> None:
         ps = getattr(bs.settings, name)
         assert ps._parent == bs.settings
 
@@ -95,6 +95,8 @@ class TestSettings:
         assert bs.settings.perform_document_validation.convert_type == "Bool"
         assert bs.settings.simple_ids.convert_type == "Bool"
         assert bs.settings.xsrf_cookies.convert_type == "Bool"
+
+        assert bs.settings.default_server_port.convert_type == "Int"
 
         assert bs.settings.py_log_level.convert_type == "Log Level"
 
@@ -108,6 +110,7 @@ class TestSettings:
             'ico_path',
             'ignore_filename',
             'minified',
+            'default_server_port',
             'perform_document_validation',
             'simple_ids',
             'validation_level',
@@ -125,15 +128,15 @@ class TestSettings:
 
 class TestConverters:
     @pytest.mark.parametrize("value", ["Yes", "YES", "yes", "1", "ON", "on", "true", "True", True])
-    def test_convert_bool(self, value) -> None:
+    def test_convert_bool(self, value: str | bool) -> None:
         assert bs.convert_bool(value)
 
     @pytest.mark.parametrize("value", ["No", "NO", "no", "0", "OFF", "off", "false", "False", False])
-    def test_convert_bool_false(self, value) -> None:
+    def test_convert_bool_false(self, value: str | bool) -> None:
         assert not bs.convert_bool(value)
 
     @pytest.mark.parametrize("value", [True, False])
-    def test_convert_bool_identity(self, value) -> None:
+    def test_convert_bool_identity(self, value: bool) -> None:
         assert bs.convert_bool(value) == value
 
     def test_convert_bool_bad(self) -> None:
@@ -141,7 +144,7 @@ class TestConverters:
             bs.convert_bool("junk")
 
     @pytest.mark.parametrize("value", ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
-    def test_convert_logging_good(self, value) -> None:
+    def test_convert_logging_good(self, value: str) -> None:
         assert bs.convert_logging(value) == getattr(logging, value)
 
         # check lowercase works too
@@ -157,7 +160,7 @@ class TestConverters:
         assert bs.convert_logging(None) is None
 
     @pytest.mark.parametrize("value", ["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
-    def test_convert_logging_identity(self, value) -> None:
+    def test_convert_logging_identity(self, value: str) -> None:
         level = getattr(logging, value)
         assert bs.convert_logging(level) == level
 
@@ -166,7 +169,7 @@ class TestConverters:
             bs.convert_logging("junk")
 
     @pytest.mark.parametrize("value", ["none", "errors", "all"])
-    def test_convert_validation_good(self, value) -> None:
+    def test_convert_validation_good(self, value: str) -> None:
         assert bs.convert_validation(value) == value
 
     def test_convert_validation_bad(self) -> None:
@@ -174,7 +177,7 @@ class TestConverters:
             bs.convert_validation("junk")
 
     @pytest.mark.parametrize("value", ["none", "NONE", "None"])
-    def test_convert_ico_path_none(self, value) -> None:
+    def test_convert_ico_path_none(self, value: str) -> None:
         assert bs.convert_ico_path(value) == "none"
 
     def test_convert_ico_path_default(self) -> None:
