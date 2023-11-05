@@ -28,7 +28,7 @@ from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.strings import nice_join
 from .. import enums
-from .color import ALPHA_DEFAULT_HELP, Color, COLOR_DEFAULT_HELP
+from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
