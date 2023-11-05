@@ -105,6 +105,7 @@ export class SelectView extends InputWidgetView {
       this.input_el.value = label
     } else {
       this.input_el.removeAttribute("value")
+      this.input_el.selectedIndex = -1
     }
   }
 }
