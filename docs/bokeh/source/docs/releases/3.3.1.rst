@@ -9,6 +9,7 @@ minor bugs/regressions and docs issues.
 Changes
 -------
 
+* Fix spinner precision (:bokeh-pull:`13078`)
 * Allow to color map non-factors to nan_color (:bokeh-pull:`13420`)
 * Recursively run after_render() when updating children (:bokeh-pull:`13424`)
 * Connect change signal in IconView (:bokeh-pull:`13427`)
