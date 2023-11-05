@@ -3,11 +3,7 @@ import {NumericInputView, NumericInput} from "./numeric_input"
 import * as p from "core/properties"
 import {button, div, toggle_attribute} from "core/dom"
 
-const {min, max, floor, abs} = Math
-
-function precision(num: number): number { // get number of digits
-  return (floor(num) !== num)? num.toFixed(16).replace(/0+$/, "").split(".")[1].length : 0
-}
+const {min, max} = Math
 
 function debounce(func: () => void, wait: number, immediate: boolean = false) {
   //func must works by side effects
@@ -103,12 +99,6 @@ export class SpinnerView extends NumericInputView {
     }, this.model.wheel_wait, false))
   }
 
-  get precision(): number {
-    const {low, high, step} = this.model
-    const p = precision
-    return max(p(abs(low ?? 0)), p(abs(high ?? 0)), p(abs(step)))
-  }
-
   override remove(): void {
     this._stop_incrementation()
     super.remove()
@@ -189,10 +179,6 @@ export class SpinnerView extends NumericInputView {
     }
   }
 
-  adjust_to_precision(value: number): number {
-    return this.bound_value(Number(value.toFixed(this.precision)))
-  }
-
   increment(step: number): void {
     const {low, high} = this.model
     if (this.model.value == null) {
@@ -200,13 +186,25 @@ export class SpinnerView extends NumericInputView {
         this.model.value = (low!=null)? low : (high!=null)? min(0, high) : 0
       else if (step < 0)
         this.model.value = (high!=null)? high : (low!=null)? max(low, 0) : 0
-    } else
-      this.model.value = this.adjust_to_precision(this.model.value + step)
+    } else {
+      this.model.value = this.bound_value(this.model.value + step)
+    }
   }
 
   override change_input(): void {
     super.change_input()
     this.model.value_throttled = this.model.value
+  }
+
+  override bound_value(value: number): number {
+    const {low, high} = this.model
+    if (low != null && value < low) {
+      return this.model.value ?? 0
+    }
+    if (high != null && value > high) {
+      return this.model.value ?? 0
+    }
+    return value
   }
 }
 
