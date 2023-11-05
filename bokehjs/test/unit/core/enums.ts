@@ -157,6 +157,10 @@ describe("enums module", () => {
     expect([...enums.Orientation]).to.be.equal(["vertical", "horizontal"])
   })
 
+  it("should have OutlineShapeName", () => {
+    expect([...enums.OutlineShapeName]).to.be.equal(["plain", "box", "rectangle", "square", "circle", "ellipse", "trapezium", "parallelogram", "diamond", "triangle"])
+  })
+
   it("should have OutputBackend", () => {
     expect([...enums.OutputBackend]).to.be.equal(["canvas", "svg", "webgl"])
   })

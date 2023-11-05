@@ -17,8 +17,12 @@ import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
+import type {VectorVisuals} from "./defs"
+import {sqrt, PI} from "core/util/math"
+import type {OutlineShapeName} from "core/enums"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
+class OutlineShapeSpec extends p.DataSpec<OutlineShapeName> {}
 
 export interface TextView extends Text.Data {}
 
@@ -95,7 +99,7 @@ export class TextView extends XYGlyphView {
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Partial<Text.Data>): void {
-    const {sx, sy, x_offset, y_offset, angle} = {...this, ...data}
+    const {sx, sy, x_offset, y_offset, angle, outline_shape} = {...this, ...data}
     const {text, background_fill, background_hatch, border_line} = this.visuals
     const {anchor_: anchor, border_radius, padding} = this
     const {labels, swidth, sheight} = this
@@ -105,6 +109,7 @@ export class TextView extends XYGlyphView {
       const sy_i = sy[i] + y_offset.get(i)
       const angle_i = angle.get(i)
       const label_i = labels[i]
+      const shape_i = outline_shape.get(i)
 
       if (!isFinite(sx_i + sy_i + angle_i) || label_i == null) {
         continue
@@ -121,13 +126,14 @@ export class TextView extends XYGlyphView {
       ctx.rotate(angle_i)
       ctx.translate(-dx_i, -dy_i)
 
-      if (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i)) {
-        ctx.beginPath()
+      if (shape_i != "plain" && (background_fill.v_doit(i) || background_hatch.v_doit(i) || border_line.v_doit(i))) {
         const bbox = new BBox({x: 0, y: 0, width: swidth_i, height: sheight_i})
-        round_rect(ctx, bbox, border_radius)
-        background_fill.apply(ctx, i)
-        background_hatch.apply(ctx, i)
-        border_line.apply(ctx, i)
+        const visuals = {
+          fill: background_fill,
+          hatch: background_hatch,
+          line: border_line,
+        }
+        this._paint_shape(ctx, i, shape_i, bbox, visuals, border_radius)
       }
 
       if (text.v_doit(i)) {
@@ -142,6 +148,100 @@ export class TextView extends XYGlyphView {
       ctx.rotate(-angle_i)
       ctx.translate(-sx_i, -sy_i)
     }
+  }
+
+  protected _paint_shape(ctx: Context2d, i: number, shape: OutlineShapeName, bbox: BBox, visuals: VectorVisuals, border_radius: Corners<number>): void {
+    ctx.beginPath()
+    switch (shape) {
+      case "plain": {
+        break
+      }
+      case "box":
+      case "rectangle": {
+        round_rect(ctx, bbox, border_radius)
+        break
+      }
+      case "square": {
+        const square = (() => {
+          const {x, y, width, height} = bbox
+          if (width > height) {
+            const dy = (width - height)/2
+            return new BBox({x, y: y - dy, width, height: width})
+          } else {
+            const dx = (height - width)/2
+            return new BBox({x: x - dx, y, width: height, height})
+          }
+        })()
+        round_rect(ctx, square, border_radius)
+        break
+      }
+      case "circle": {
+        const cx = bbox.x_center
+        const cy = bbox.y_center
+        const radius = sqrt(bbox.width**2 + bbox.height**2)/2
+        ctx.arc(cx, cy, radius, 0, 2*PI, false)
+        break
+      }
+      case "ellipse": {
+        const cx = bbox.x_center
+        const cy = bbox.y_center
+        const rx = bbox.width/2
+        const ry = bbox.height/2
+        const n = 1.5
+        const x_0 = rx
+        const y_0 = ry
+        const a = sqrt(x_0**2 + x_0**(2/n)*y_0**(2 - 2/n))
+        const b = sqrt(y_0**2 + y_0**(2/n)*x_0**(2 - 2/n))
+        ctx.ellipse(cx, cy, a, b, 0, 0, 2*PI)
+        break
+      }
+      case "trapezium": {
+        const {left, right, top, bottom, width} = bbox
+        const ext = 0.2*width
+        ctx.moveTo(left, top)
+        ctx.lineTo(right, top)
+        ctx.lineTo(right + ext, bottom)
+        ctx.lineTo(left - ext, bottom)
+        ctx.closePath()
+        break
+      }
+      case "parallelogram": {
+        const {left, right, top, bottom, width} = bbox
+        const ext = 0.2*width
+        ctx.moveTo(left, top)
+        ctx.lineTo(right + ext, top)
+        ctx.lineTo(right, bottom)
+        ctx.lineTo(left - ext, bottom)
+        ctx.closePath()
+        break
+      }
+      case "diamond": {
+        const {x_center, y_center, width, height} = bbox
+        ctx.moveTo(x_center, y_center - height)
+        ctx.lineTo(width + width/2, y_center)
+        ctx.lineTo(x_center, y_center + height)
+        ctx.lineTo(-width/2, y_center)
+        ctx.closePath()
+        break
+      }
+      case "triangle": {
+        const w = bbox.width
+        const h = bbox.height
+        const l = sqrt(3)/2*w
+        const H = h + l
+        ctx.translate(w/2, -l)
+        ctx.moveTo(0, 0)
+        ctx.lineTo(H/2, H)
+        ctx.lineTo(-H/2, H)
+        ctx.closePath()
+        ctx.translate(-w/2, l)
+        break
+      }
+    }
+
+    visuals.fill.apply(ctx, i)
+    visuals.hatch.apply(ctx, i)
+    visuals.line.apply(ctx, i)
   }
 
   protected override _hit_point(geometry: PointGeometry): Selection {
@@ -248,6 +348,7 @@ export namespace Text {
     anchor: TextAnchorSpec
     padding: p.Property<Padding>
     border_radius: p.Property<BorderRadius>
+    outline_shape: OutlineShapeSpec
   } & Mixins
 
   export type Mixins =
@@ -303,6 +404,7 @@ export class Text extends XYGlyph {
       anchor: [ TextAnchorSpec, {value: "auto"} ],
       padding: [ Padding, 0 ],
       border_radius: [ BorderRadius, 0 ],
+      outline_shape: [ OutlineShapeSpec, "box" ],
     }))
 
     this.override<Text.Props>({

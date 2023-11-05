@@ -342,11 +342,18 @@ export class BBox implements Rect, Equatable {
     return this.width/this.height
   }
 
-  get hcenter(): number {
+  get x_center(): number {
     return (this.left + this.right)/2
   }
-  get vcenter(): number {
+  get y_center(): number {
     return (this.top + this.bottom)/2
+  }
+
+  get hcenter(): number {
+    return this.x_center
+  }
+  get vcenter(): number {
+    return this.y_center
   }
 
   get area(): number {
