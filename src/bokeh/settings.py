@@ -35,13 +35,13 @@ immediately supplied values
         settings.minified(minified_val)
 
     If ``minified_val`` is not None, then it will be returned, as-is.
-    Otherwise, if None is passed, then the setting will continute to look
+    Otherwise, if None is passed, then the setting will continue to look
     down the search order for a value. This is useful for passing optional
-    function paramters that are None by default. If the parameter is passed
+    function parameters that are None by default. If the parameter is passed
     to the function, then it will take precedence.
 
 previously user-set values
-    If the value is set explicity in code:
+    If the value is set explicitly in code:
 
     .. code-block:: python
 
@@ -84,7 +84,7 @@ local defaults
 
         settings.resources(default="server")
 
-    Local defaults have lower precendence than every other setting mechanism
+    Local defaults have lower precedence than every other setting mechanism
     except global defaults.
 
 global defaults
@@ -163,6 +163,11 @@ def convert_str(value: str) -> str:
     ''' Return a string as-is.
     '''
     return value
+
+def convert_int(value: int | str) -> int:
+    ''' Convert a string to an integer.
+    '''
+    return int(value)
 
 def convert_bool(value: bool | str) -> bool:
     ''' Convert a string to True or False.
@@ -492,6 +497,8 @@ class PrioritizedSetting(Generic[T]):
             return "String"
         if self._convert is convert_bool:
             return "Bool"
+        if self._convert is convert_int:
+            return "Int"
         if self._convert is convert_logging:
             return "Log Level"
         if self._convert is convert_str_seq:
@@ -698,7 +705,7 @@ class Settings:
     Allows to define the default host used by Bokeh's server and resources.
     """)
 
-    default_server_port: PrioritizedSetting[int] = PrioritizedSetting("default_server_port", "BOKEH_DEFAULT_SERVER_PORT", default=5006, help="""
+    default_server_port: PrioritizedSetting[int] = PrioritizedSetting("default_server_port", "BOKEH_DEFAULT_SERVER_PORT", default=5006, convert=convert_int, help="""
     Allows to define the default port used by Bokeh's server and resources.
     """)
 
