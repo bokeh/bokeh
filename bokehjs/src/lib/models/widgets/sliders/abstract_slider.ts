@@ -1,4 +1,4 @@
-import type {API} from "nouislider"
+import type {API, PartialFormatter} from "nouislider"
 import noUiSlider from "nouislider"
 
 import * as p from "core/properties"
@@ -8,22 +8,27 @@ import {div, span, empty} from "core/dom"
 import {repeat} from "core/util/array"
 import {color2css} from "core/util/color"
 
-import {OrientedControl, OrientedControlView} from "./oriented_control"
-import {TickFormatter} from "../formatters/tick_formatter"
+import {OrientedControl, OrientedControlView} from "../oriented_control"
 
 import sliders_css, * as sliders from "styles/widgets/sliders.css"
 import nouislider_css from "styles/widgets/nouislider.css"
 import * as inputs from "styles/widgets/inputs.css"
 
-export interface SliderSpec {
-  start: number
-  end: number
-  value: number[]
+export type SliderSpec<T> = {
+  range: {min: number, max: number}
+  start: T[]
   step: number
+  format?: {
+    to: (value: number) => string | number
+    from: (value: string) => number | false
+  }
 }
 
-abstract class AbstractBaseSliderView extends OrientedControlView {
-  declare model: AbstractSlider
+export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
+  declare model: AbstractSlider<T>
+
+  protected behaviour: "drag" | "tap"
+  protected connected: false | boolean[] = false
 
   protected group_el: HTMLElement
   protected slider_el?: HTMLElement
@@ -42,29 +47,27 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
     return this._noUiSlider.steps
   }
 
+  abstract pretty(value: number | string): string
+
+  protected _update_slider(): void {
+    this._noUiSlider.updateOptions(this._calc_to(), true)
+  }
+
   override connect_signals(): void {
     super.connect_signals()
 
     const {direction, orientation, tooltips} = this.model.properties
     this.on_change([direction, orientation, tooltips], () => this.render())
 
-    const {start, end, value, step, title} = this.model.properties
-    this.on_change([start, end, value, step], () => {
-      const {start, end, value, step} = this._calc_to()
-      this._noUiSlider.updateOptions({
-        range: {min: start, max: end},
-        start: value,
-        step,
-      }, true)
-    })
-
     const {bar_color} = this.model.properties
     this.on_change(bar_color, () => {
       this._set_bar_color()
     })
 
-    const {show_value} = this.model.properties
+    const {value, title, show_value} = this.model.properties
     this.on_change([value, title, show_value], () => this._update_title())
+
+    this.on_change(value, () => this._update_slider())
   }
 
   override stylesheets(): StyleSheetLike[] {
@@ -88,36 +91,35 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       }
 
       if (this.model.show_value) {
-        const {value} = this._calc_to()
-        const pretty = value.map((v) => this.model.pretty(v)).join(" .. ")
+        const {start} = this._calc_to()
+        const pretty = start.map((v) => this.pretty(v)).join(" .. ")
         this.title_el.appendChild(span({class: sliders.slider_value}, pretty))
       }
     }
   }
 
   protected _set_bar_color(): void {
-    if (!this.model.disabled && this.slider_el != null) {
+    if (this.connected !== false && !this.model.disabled && this.slider_el != null) {
       const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
       connect_el.style.backgroundColor = color2css(this.model.bar_color)
     }
   }
 
-  protected abstract _calc_to(): SliderSpec
+  protected abstract _calc_to(): SliderSpec<T>
 
-  protected abstract _calc_from(values: number[]): number | number[]
+  protected abstract _calc_from(values: number[]): T | T[]
 
   override render(): void {
     super.render()
 
-    const {start, end, value, step} = this._calc_to()
-
-    let tooltips: any[] | null // XXX
+    let tooltips: PartialFormatter[] | null
     if (this.model.tooltips) {
       const formatter = {
-        to: (value: number): string => this.model.pretty(value),
+        to: (value: number): string => this.pretty(value),
       }
 
-      tooltips = repeat(formatter, value.length)
+      const {start} = this._calc_to()
+      tooltips = repeat(formatter, start.length)
     } else {
       tooltips = null
     }
@@ -126,11 +128,9 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this.slider_el = div()
 
       this._noUiSlider = noUiSlider.create(this.slider_el, {
-        range: {min: start, max: end},
-        start: value,
-        step,
-        behaviour: this.model.behaviour,
-        connect: this.model.connected,
+        ...this._calc_to(),
+        behaviour: this.behaviour,
+        connect: this.connected,
         tooltips: tooltips ?? false,
         orientation: this.model.orientation,
         direction: this.model.direction,
@@ -154,11 +154,7 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
       this._noUiSlider.on("start", (_, i) => toggle_tooltip(i, true))
       this._noUiSlider.on("end",   (_, i) => toggle_tooltip(i, false))
     } else {
-      this._noUiSlider.updateOptions({
-        range: {min: start, max: end},
-        start: value,
-        step,
-      }, true)
+      this._update_slider()
     }
 
     this._set_bar_color()
@@ -194,79 +190,37 @@ abstract class AbstractBaseSliderView extends OrientedControlView {
   }
 }
 
-export abstract class AbstractSliderView extends AbstractBaseSliderView {
-  protected _calc_to(): SliderSpec {
-    return {
-      start: this.model.start,
-      end: this.model.end,
-      value: [this.model.value],
-      step: this.model.step,
-    }
-  }
-
-  protected _calc_from([value]: number[]): number {
-    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step)) {
-      return Math.round(value)
-    } else {
-      return value
-    }
-  }
-}
-
-export abstract class AbstractRangeSliderView extends AbstractBaseSliderView {
-  protected _calc_to(): SliderSpec {
-    return {
-      start: this.model.start,
-      end: this.model.end,
-      value: this.model.value,
-      step: this.model.step,
-    }
-  }
-
-  protected _calc_from(values: number[]): number[] {
-    return values
-  }
-}
-
 export namespace AbstractSlider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = OrientedControl.Props & {
     title: p.Property<string | null>
     show_value: p.Property<boolean>
-    start: p.Property<any> // XXX
-    end: p.Property<any> // XXX
-    value: p.Property<any> // XXX
-    value_throttled: p.Property<any> // XXX
-    step: p.Property<number>
-    format: p.Property<string | TickFormatter>
+    value: p.Property<unknown>
+    value_throttled: p.Property<unknown>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
     bar_color: p.Property<Color>
   }
 }
 
-export interface AbstractSlider extends AbstractSlider.Attrs {}
+export interface AbstractSlider<T extends number | string> extends AbstractSlider.Attrs {}
 
-export abstract class AbstractSlider extends OrientedControl {
+export abstract class AbstractSlider<T extends number | string> extends OrientedControl {
   declare properties: AbstractSlider.Props
-  // TODO: __view_type__: AbstractSliderView
+  declare __view_type__: AbstractSliderView<T>
 
   constructor(attrs?: Partial<AbstractSlider.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Any, Boolean, Number, String, Color, Or, Enum, Ref, Nullable}) => {
+    this.define<AbstractSlider.Props>(({Unknown, Boolean, String, Color, Enum, Nullable}) => {
       return {
         title:           [ Nullable(String), "" ],
         show_value:      [ Boolean, true ],
-        start:           [ Any ],
-        end:             [ Any ],
-        value:           [ Any ],
-        value_throttled: [ Any, p.unset, {readonly: true} ],
-        step:            [ Number, 1 ],
-        format:          [ Or(String, Ref(TickFormatter)) ],
+        value:           [ Unknown ],
+        value_throttled: [ Unknown, p.unset, {readonly: true} ],
         direction:       [ Enum("ltr", "rtl"), "ltr" ],
         tooltips:        [ Boolean, true ],
         bar_color:       [ Color, "#e6e6e6" ],
@@ -276,14 +230,5 @@ export abstract class AbstractSlider extends OrientedControl {
     this.override<AbstractSlider.Props>({
       width: 300, // sliders don't have any intrinsic width
     })
-  }
-
-  behaviour: "drag" | "tap"
-  connected: false | boolean[] = false
-
-  protected abstract _formatter(value: number, format: string | TickFormatter): string
-
-  pretty(value: number): string {
-    return this._formatter(value, this.format)
   }
 }

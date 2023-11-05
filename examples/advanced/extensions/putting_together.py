@@ -6,7 +6,7 @@ from bokeh.util.compiler import TypeScript
 
 CODE = """
 import {UIElement, UIElementView} from "models/ui/ui_element"
-import {Slider} from "models/widgets/slider"
+import {Slider} from "models/widgets/sliders/slider"
 import {div} from "core/dom"
 import * as p from "core/properties"
 

@@ -16,7 +16,7 @@ import {
   ColorMap,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   MultiChoice, Select, MultiSelect,
-  Slider, RangeSlider, DateSlider, DateRangeSlider,
+  Slider, RangeSlider, DateSlider, DateRangeSlider, CategoricalSlider,
   TimePicker,
   DatePicker, DateRangePicker, MultipleDatePicker,
   DatetimePicker, DatetimeRangePicker, MultipleDatetimePicker,
@@ -305,6 +305,11 @@ describe("Widgets", () => {
       start: Date.UTC(2015, 1, 1),
       end: Date.UTC(2017, 12, 31),
     })
+    await display(obj, [500, 100])
+  })
+
+  it("should allow CategoricalSlider", async () => {
+    const obj = new CategoricalSlider({categories: ["a", "b", "c", "d"], value: "b"})
     await display(obj, [500, 100])
   })
 

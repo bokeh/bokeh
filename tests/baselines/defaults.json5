@@ -6454,13 +6454,31 @@
     orientation: "horizontal",
     title: "",
     show_value: true,
-    format: "",
     direction: "ltr",
     tooltips: true,
     bar_color: "#e6e6e6",
   },
-  Slider: {
+  NumericalSlider: {
     __extends__: "AbstractSlider",
+    format: "",
+  },
+  CategoricalSlider: {
+    __extends__: "AbstractSlider",
+    categories: {
+      type: "symbol",
+      name: "unset",
+    },
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
+  Slider: {
+    __extends__: "NumericalSlider",
     format: "0[.]00",
     start: {
       type: "symbol",
@@ -6481,7 +6499,7 @@
     step: 1,
   },
   RangeSlider: {
-    __extends__: "AbstractSlider",
+    __extends__: "NumericalSlider",
     format: "0[.]00",
     value: {
       type: "symbol",
@@ -6502,7 +6520,7 @@
     step: 1,
   },
   DateSlider: {
-    __extends__: "AbstractSlider",
+    __extends__: "NumericalSlider",
     format: "%d %b %Y",
     value: {
       type: "symbol",
@@ -6523,7 +6541,7 @@
     step: 1,
   },
   DateRangeSlider: {
-    __extends__: "AbstractSlider",
+    __extends__: "NumericalSlider",
     format: "%d %b %Y",
     value: {
       type: "symbol",
@@ -6544,7 +6562,7 @@
     step: 1,
   },
   DatetimeRangeSlider: {
-    __extends__: "AbstractSlider",
+    __extends__: "NumericalSlider",
     format: "%d %b %Y %H:%M:%S",
     value: {
       type: "symbol",
