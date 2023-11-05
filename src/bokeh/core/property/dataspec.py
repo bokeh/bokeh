@@ -21,6 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from textwrap import dedent
 from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
@@ -275,10 +276,10 @@ class NumberSpec(DataSpec):
 
 class AlphaSpec(NumberSpec):
 
-    _default_help = """\
+    _default_help = dedent("""\
     Acceptable values are floating-point numbers between 0 and 1 (0 being
     transparent and 1 being opaque).
-    """
+    """)
 
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"
@@ -555,17 +556,17 @@ class ColorSpec(DataSpec):
 
     """
 
-    _default_help = """\
+    _default_help = dedent("""\
     Acceptable values are:
 
     - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
     - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
     - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
     - a 3-tuple of integers (r, g, b) between 0 and 255
-    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
+    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255 and a is between 0 and 1
     - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
 
-    """
+    """)
 
     def __init__(self, default, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"

@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
+from textwrap import dedent
 from typing import Any
 
 # Bokeh imports
@@ -169,10 +170,10 @@ class ColorHex(Color):
 
 class Alpha(Percent):
 
-    _default_help = """\
+    _default_help = dedent("""\
     Acceptable values are floating-point numbers between 0 and 1 (0 being
     transparent and 1 being opaque).
-    """
+    """)
 
     def __init__(self, default: Init[float] = 1.0, *, help: str | None = None) -> None:
         help = f"{help or ''}\n{self._default_help}"
