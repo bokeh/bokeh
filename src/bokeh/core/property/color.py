@@ -22,7 +22,6 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import re
-from textwrap import dedent
 from typing import Any
 
 # Bokeh imports
@@ -51,6 +50,24 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
+ALPHA_DEFAULT_HELP = """\
+Acceptable values are floating-point numbers between 0 and 1 (0 being
+transparent and 1 being opaque).
+"""
+
+COLOR_DEFAULT_HELP = """\
+Acceptable values are:
+
+- any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
+- RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
+- CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
+  ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
+- a 3-tuple of integers (r, g, b) between 0 and 255
+- a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
+  and a is between 0 and 1
+- a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
+
+"""
 
 class RGB(Property[colors.RGB]):
     """ Accept colors.RGB values.
@@ -104,20 +121,6 @@ class Color(Either):
 
     """
 
-    _default_help = """\
-    Acceptable values are:
-
-    - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
-    - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
-    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``,
-      ``'rgb(0 127 0 / 1.0)'``, or ``'hsl(60deg 100% 50% / 1.0)'``
-    - a 3-tuple of integers (r, g, b) between 0 and 255
-    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0 and 255,
-      and a is between 0 and 1
-    - a 32-bit unsigned integer using the 0xRRGGBBAA byte order pattern
-
-    """
-
     def __init__(self, default: Init[str | tuple[int, int, int] | tuple[int, int, int, float]] = Undefined, *, help: str | None = None) -> None:
         types = (Enum(enums.NamedColor),
                  Regex(r"^#[0-9a-fA-F]{3}$"),
@@ -132,7 +135,7 @@ class Color(Either):
                  Tuple(Byte, Byte, Byte),
                  Tuple(Byte, Byte, Byte, Percent),
                  RGB)
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{COLOR_DEFAULT_HELP}"
         super().__init__(*types, default=default, help=help)
 
     def __str__(self) -> str:
@@ -170,13 +173,8 @@ class ColorHex(Color):
 
 class Alpha(Percent):
 
-    _default_help = dedent("""\
-    Acceptable values are floating-point numbers between 0 and 1 (0 being
-    transparent and 1 being opaque).
-    """)
-
     def __init__(self, default: Init[float] = 1.0, *, help: str | None = None) -> None:
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{ALPHA_DEFAULT_HELP}"
         super().__init__(default=default, help=help)
 
 #-----------------------------------------------------------------------------
