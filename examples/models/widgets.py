@@ -79,9 +79,18 @@ autocomplete_input_includes = w.AutocompleteInput(
 
 text_area = w.TextAreaInput(placeholder="Enter text ...", cols=20, rows=10, value="uuu")
 
-select = w.Select(options=["Option 1", "Option 2", "Option 3"])
+select = w.Select(
+    value="Option 1",
+    options=[
+        "Option 1",
+        "Option 2",
+        "Option 3",
+    ],
+)
+select.title = HTML("Selected value: <b>", ValueOf(select, "value"), "</b>")
 
 select2 = w.Select(
+    value=10,
     options=[
         (10, "Option 1"),
         (20, "Option 2"),
