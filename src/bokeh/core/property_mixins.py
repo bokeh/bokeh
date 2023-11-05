@@ -35,7 +35,7 @@ as shown here:
 
 This adds all the fill properties ``fill_color`` and ``fill_alpha`` to this
 model. The help string contains a placeholder `{prop}`. When docs for this class
-are rendered by the, the placeholder will be replaced with more information
+are rendered by the ``bokeh-model`` directive, the placeholder will be replaced with more information
 specific to each property.
 
 .. |Include| replace:: :class:`~bokeh.core.properties.Include`
