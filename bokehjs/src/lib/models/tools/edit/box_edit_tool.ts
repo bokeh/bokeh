@@ -97,8 +97,8 @@ export class BoxEditToolView extends EditToolView {
         if (isField(left) && isField(y) && isField(height) && isField(right)) {
           return {
             [left.field]:   dx0,
-            [y.field]:      dy1,
-            [height.field]: 2 * (dy1 - dy0),
+            [y.field]:      (dy0 + dy1)/2.0,
+            [height.field]: dy1 - dy0,
             [right.field]:  dx1,
           }
         }
@@ -106,9 +106,9 @@ export class BoxEditToolView extends EditToolView {
         const {x, bottom, width, top} = glyph
         if (isField(x) && isField(bottom) && isField(width) && isField(top)) {
           return {
-            [x.field]:      dx0,
+            [x.field]:      (dx0 + dx1)/2.0,
             [bottom.field]: dy0,
-            [width.field]:  2 * (dx1 - dx0),
+            [width.field]:  dx1 - dx0,
             [top.field]:    dy1,
           }
         }
