@@ -2,6 +2,7 @@ import type {PlotView} from "@bokehjs/models/plots/plot_canvas"
 import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
+import type {KeyModifiers} from "@bokehjs/core/ui_events"
 
 export type Point = {x: number, y: number}
 
@@ -84,11 +85,21 @@ type Line = {type: "line", xy0: Point, xy1: Point, n?: number}
 type Poly = {type: "poly", xys: Point[], n?: number}
 type Circle = {type: "circle", xy: Point, r: number, n?: number}
 
+export function line(xy0: Point, xy1: Point, n?: number): Line {
+  return {type: "line", xy0, xy1, n}
+}
+
 type Path = Line | Poly | Circle
 
 export type Options = {
   pause: number
   units: "data" | "screen"
+}
+
+type EventKeys = {
+  shiftKey?: boolean
+  ctrlKey?: boolean
+  altKey?: boolean
 }
 
 export function actions(target: PlotView, options: Partial<Options> = {}): PlotActions {
@@ -122,8 +133,8 @@ export class PlotActions {
     await this.emit(this._pan({type: "line", xy0, xy1, n}))
   }
 
-  async pan_along(path: Path): Promise<void> {
-    await this.emit(this._pan(path))
+  async pan_along(path: Path, modifiers?: Partial<KeyModifiers>): Promise<void> {
+    await this.emit(this._pan(path, this._event_keys(modifiers)))
   }
 
   async tap(xy: Point): Promise<void> {
@@ -132,6 +143,14 @@ export class PlotActions {
 
   async double_tap(xy: Point): Promise<void> {
     await this.emit(this._double_tap(xy))
+  }
+
+  protected _event_keys(modifiers: Partial<KeyModifiers> = {}): EventKeys {
+    return {
+      shiftKey: modifiers.shift,
+      ctrlKey: modifiers.ctrl,
+      altKey: modifiers.alt,
+    }
   }
 
   protected async emit(events: Iterable<UIEvent>): Promise<void> {
@@ -145,9 +164,11 @@ export class PlotActions {
     const {x_scale, y_scale} = this.target.frame
     const {left, top} = offset_bbox(this.el)
     const {units} = this.options
+    const sx = left + (units == "data" ? x_scale.compute(x) : x)
+    const sy = top + (units == "data" ? y_scale.compute(y) : y)
     return {
-      clientX: left + (units == "data" ? x_scale.compute(x) : x),
-      clientY: top + (units == "data" ? y_scale.compute(y) : y),
+      clientX: sx,
+      clientY: sy,
     }
   }
 
@@ -217,17 +238,17 @@ export class PlotActions {
     }
   }
 
-  protected *_move(path: Path, pressure: number = MOVE_PRESSURE): Iterable<PointerEvent> {
+  protected *_move(path: Path, pressure: number = MOVE_PRESSURE, keys: EventKeys = {}): Iterable<PointerEvent> {
     for (const [x, y] of this._compute(path)) {
-      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left})
+      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left, ...keys})
     }
   }
 
-  protected *_pan(path: Path): Iterable<PointerEvent> {
+  protected *_pan(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
     const [xy0, xy1] = this._bounds(path)
-    yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
-    yield* this._move(path, HOLD_PRESSURE)
-    yield new PointerEvent("pointerup",   {..._pointer_common, ...this.screen(xy1), pressure: MOVE_PRESSURE})
+    yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, ...keys, buttons: MouseButton.Left})
+    yield* this._move(path, HOLD_PRESSURE, keys)
+    yield new PointerEvent("pointerup",   {..._pointer_common, ...this.screen(xy1), pressure: MOVE_PRESSURE, ...keys})
   }
 
   protected *_tap(xy: Point): Iterable<PointerEvent> {
