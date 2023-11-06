@@ -110,7 +110,10 @@ export class PlotActions {
   readonly options: Options
 
   constructor(readonly target: PlotView, options: Partial<Options> = {}) {
-    this.options = {pause: 5, units: "data", ...options}
+    // The default pause between emitted events is longer than the
+    // throttling threshold. This allows for predictable number of
+    // paints and thus predictable and repeatable images.
+    this.options = {pause: 20/*ms*/, units: "data", ...options}
   }
 
   protected get el(): Element {
