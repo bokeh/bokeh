@@ -425,12 +425,16 @@ class Select(InputWidget):
         super().__init__(*args, **kwargs)
 
     options = Either(Options, OptionsGroups, help="""
-    Available selection options. Options may be provided either as a list of
-    possible string values, or as a list of tuples, each of the form
-    ``(value, label)``. In the latter case, the visible widget text for each
-    value will be corresponding given label. Option groupings can be provided
-    by supplying a dictionary object whose values are in the aforementioned
-    list format
+    Available selection options.
+
+    Options may be provided either as a list of possible string values, which
+    also act as options' labels, or as a list of tuples, each of the form
+    ``(value, label)``, where ``value`` can be of any type, not necessarily
+    a string. In the latter case, the visible widget text for each value will
+    be corresponding given label.
+
+    Option groupings can be provided by supplying a dictionary object whose
+    values are in the aforementioned list format.
     """).accepts(List(Either(Null, String)), lambda v: [ NotSelected if item is None else item for item in v ])
 
     value = Any(default=NotSelected, help="""
