@@ -2115,8 +2115,8 @@ describe("Bug", () => {
   describe("in issue #11339", () => {
     it.allowing(2*8)("collapses layout after toggling visiblity", async () => {
       const toggle = new Toggle({label: "Click", active: true})
-      const select1 = new Select({title: "Select 1:", options: ["1", "2"]})
-      const select2 = new Select({title: "Select 2:", options: ["1", "2"]})
+      const select1 = new Select({title: "Select 1:", options: ["1", "2"], value: "1"})
+      const select2 = new Select({title: "Select 2:", options: ["1", "2"], value: "1"})
       const div = new Div({text: "Some text"})
 
       const selects = new Column({children: [select1, select2]})
@@ -3078,7 +3078,7 @@ describe("Bug", () => {
       const ys = [0, 1, 4, 9, 16, 25]
       plot.line(xs, ys, {line_width: 2})
 
-      const select = new Select({options: ["A", "B"], width: 100})
+      const select = new Select({options: ["A", "B"], value: "A", width: 100})
       const date_picker = new DatePicker({value: "2023-02-26", width: 100})
 
       const col = column([select, date_picker])

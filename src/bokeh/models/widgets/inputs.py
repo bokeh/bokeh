@@ -26,6 +26,7 @@ from math import inf
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
+    Any,
     Bool,
     Color,
     ColorHex,
@@ -48,6 +49,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ..dom import HTML
 from ..formatters import TickFormatter
 from ..ui import Tooltip
 from .widget import Widget
@@ -89,25 +91,13 @@ class InputWidget(Widget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    title = String(default="", help="""
+    title = Either(String, Instance(HTML), default="", help="""
     Widget's label.
     """)
 
     description = Nullable(Either(String, Instance(Tooltip)), default=None, help="""
     Either a plain text or a tooltip with a rich HTML description of the function of this widget.
     """)
-
-    @classmethod
-    def coerce_value(cls, val):
-        prop_obj = cls.lookup('value')
-        if isinstance(prop_obj, Float):
-            return float(val)
-        elif isinstance(prop_obj, Int):
-            return int(val)
-        elif isinstance(prop_obj, String):
-            return str(val)
-        else:
-            return val
 
 #-----------------------------------------------------------------------------
 # General API
@@ -420,6 +410,10 @@ class AutocompleteInput(TextInput):
     match any substring of a completion string.
     """)
 
+Options = List(Either(String, Tuple(Any, String)))
+OptionsGroups = Dict(String, Options)
+
+NotSelected = "" # TODO symbol
 
 class Select(InputWidget):
     ''' Single-select widget.
@@ -430,19 +424,22 @@ class Select(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    options = Either(List(Either(String, Tuple(String, String))),
-        Dict(String, List(Either(String, Tuple(String, String)))), help="""
-    Available selection options. Options may be provided either as a list of
-    possible string values, or as a list of tuples, each of the form
-    ``(value, label)``. In the latter case, the visible widget text for each
-    value will be corresponding given label. Option groupings can be provided
-    by supplying a dictionary object whose values are in the aforementioned
-    list format
-    """).accepts(List(Either(Null, String)), lambda v: [ "" if item is None else item for item in v ])
+    options = Either(Options, OptionsGroups, help="""
+    Available selection options.
 
-    value = String(default="", help="""
+    Options may be provided either as a list of possible string values, which
+    also act as options' labels, or as a list of tuples, each of the form
+    ``(value, label)``, where ``value`` can be of any type, not necessarily
+    a string. In the latter case, the visible widget text for each value will
+    be corresponding given label.
+
+    Option groupings can be provided by supplying a dictionary object whose
+    values are in the aforementioned list format.
+    """).accepts(List(Either(Null, String)), lambda v: [ NotSelected if item is None else item for item in v ])
+
+    value = Any(default=NotSelected, help="""
     Initial or selected value.
-    """).accepts(Null, lambda _: "")
+    """).accepts(Null, lambda _: NotSelected)
 
 class MultiSelect(InputWidget):
     ''' Multi-select widget.

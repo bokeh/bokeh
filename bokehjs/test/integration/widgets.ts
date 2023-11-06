@@ -260,12 +260,27 @@ describe("Widgets", () => {
   })
 
   it.allowing(8)("should allow MultiChoice", async () => {
-    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3" ]})
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"], value: ["Option 1", "Option 3"]})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow MultiChoice with empty value", async () => {
+    const obj = new MultiChoice({options: ["Option 1", "Option 2", "Option 3"]})
     await display(obj, [500, 100])
   })
 
   it.allowing(8)("should allow Select", async () => {
+    const obj = new Select({options: ["Option 1", "Option 2", "Option 3"], value: "Option 1"})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow Select with empty value", async () => {
     const obj = new Select({options: ["Option 1", "Option 2", "Option 3"]})
+    await display(obj, [500, 100])
+  })
+
+  it.allowing(8)("should allow Select with non-string options", async () => {
+    const obj = new Select({options: [[10, "Option 1"], [20, "Option 2"], [30, "Option 3"]], value: 10})
     await display(obj, [500, 100])
   })
 
@@ -308,7 +323,7 @@ describe("Widgets", () => {
     await display(obj, [500, 100])
   })
 
-  it("should allow CategoricalSlider", async () => {
+  it.allowing(8)("should allow CategoricalSlider", async () => {
     const obj = new CategoricalSlider({categories: ["a", "b", "c", "d"], value: "b"})
     await display(obj, [500, 100])
   })
