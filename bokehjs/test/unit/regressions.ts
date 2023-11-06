@@ -2,11 +2,12 @@ import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, click} from "../interactive"
+import {PlotActions, actions, xy, line, click} from "../interactive"
 
 import {
   BooleanFilter,
   BoxAnnotation,
+  BoxEditTool,
   BoxSelectTool,
   CDSView,
   CategoricalColorMapper,
@@ -43,6 +44,7 @@ import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
+import {keys, entries} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
@@ -54,6 +56,7 @@ import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
 import {defer, paint} from "@bokehjs/core/util/defer"
+import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
@@ -967,6 +970,272 @@ describe("Bug", () => {
       button.dispatchEvent(ev)
       button.dispatchEvent(ev2)
       expect(input.value).to.be.equal("1.3")
+    })
+  })
+
+  describe("in issue #13500", () => {
+    function fields<T extends object>(data: T): {[K in keyof T]: Field} {
+      const result: {[key: string]: Field} = {}
+      for (const field of keys(data)) {
+        result[field] = {field}
+      }
+      return result as {[K in keyof T]: Field}
+    }
+
+    // XXX This is needed to work around issues with pan detection in hammerjs.
+    function round<T extends object>(data: T, exclude: Set<string> = new Set(["color"])): T {
+      const {round} = Math
+      const result: {[key: string]: number[]} = {}
+      for (const [key, val] of entries(data)) {
+        result[key] = exclude.has(key) ? val : val.map(round)
+      }
+      return result as T
+    }
+
+    describe("doesn't allow to correctly compute coordinates in BoxEditTool", () => {
+      it("of Rect glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          x:      [3.0],
+          y:      [2.0],
+          width:  [4.0],
+          height: [2.0],
+          color:  ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {x, y, width, height, color} = fields(data)
+        const renderer = p.rect({x, y, width, height, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          x:      [3.0, 8.0],
+          y:      [2.0, 6.0],
+          width:  [4.0, 2.0],
+          height: [2.0, 4.0],
+          color:  ["red", "green"],
+        })
+      })
+
+      it("of Block glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          x:      [3.0],
+          y:      [2.0],
+          width:  [4.0],
+          height: [2.0],
+          color:  ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {x, y, width, height, color} = fields(data)
+        const renderer = p.rect({x, y, width, height, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          x:      [3.0, 8.0],
+          y:      [2.0, 6.0],
+          width:  [4.0, 2.0],
+          height: [2.0, 4.0],
+          color:  ["red", "green"],
+        })
+      })
+
+      it("of Quad glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          left:   [3.0],
+          right:  [2.0],
+          top:    [4.0],
+          bottom: [2.0],
+          color:  ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {left, right, top, bottom, color} = fields(data)
+        const renderer = p.quad({left, right, top, bottom, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          left:   [3.0, 7.0],
+          right:  [2.0, 9.0],
+          top:    [4.0, 8.0],
+          bottom: [2.0, 4.0],
+          color:  ["red", "green"],
+        })
+      })
+
+      it("of HBar glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          y:      [3.0],
+          height: [2.0],
+          left:   [2.0],
+          right:  [4.0],
+          color:  ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {y, height, left, right, color} = fields(data)
+        const renderer = p.hbar({y, height, left, right, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          y:      [3.0, 6.0],
+          height: [2.0, 4.0],
+          left:   [2.0, 7.0],
+          right:  [4.0, 9.0],
+          color:  ["red", "green"],
+        })
+      })
+
+      it("of VBar glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          x:      [3.0],
+          width:  [2.0],
+          top:    [4.0],
+          bottom: [2.0],
+          color:  ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {x, width, top, bottom, color} = fields(data)
+        const renderer = p.vbar({x, width, top, bottom, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          x:      [3.0, 8.0],
+          width:  [2.0, 2.0],
+          top:    [4.0, 8.0],
+          bottom: [2.0, 4.0],
+          color:  ["red", "green"],
+        })
+      })
+
+      it("of HStrip glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          y0:    [1.0],
+          y1:    [3.0],
+          color: ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {y0, y1, color} = fields(data)
+        const renderer = p.hstrip({y0, y1, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          y0:    [1.0, 4.0],
+          y1:    [3.0, 8.0],
+          color: ["red", "green"],
+        })
+      })
+
+      it("of VStrip glyph", async () => {
+        const p = fig([400, 400], {
+          x_range: [0, 10], y_range: [0, 10],
+          x_axis_type: null, y_axis_type: null,
+          min_border: 0,
+        })
+
+        const data = {
+          x0:    [2.0],
+          x1:    [4.0],
+          color: ["red"],
+        }
+        const source = new ColumnDataSource({data})
+        const {x0, x1, color} = fields(data)
+        const renderer = p.vstrip({x0, x1, color, source})
+
+        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        p.add_tools(edit_tool)
+        p.toolbar.active_drag = edit_tool
+
+        const {view} = await display(p)
+
+        await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
+        await paint()
+
+        expect(round(data)).to.be.equal({
+          x0:    [2.0, 7.0],
+          x1:    [4.0, 9.0],
+          color: ["red", "green"],
+        })
+      })
     })
   })
 })

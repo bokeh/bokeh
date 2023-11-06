@@ -59,73 +59,73 @@ export class BoxEditToolView extends EditToolView {
       return
     const {glyph} = renderer
     const cds = renderer.data_source
-    const [x0, x1] = renderer_view.coordinates.x_scale.r_invert(sx0, sx1)
-    const [y0, y1] = renderer_view.coordinates.y_scale.r_invert(sy0, sy1)
-    const fields = (() => {
+    const [dx0, dx1] = renderer_view.coordinates.x_scale.r_invert(sx0, sx1)
+    const [dy0, dy1] = renderer_view.coordinates.y_scale.r_invert(sy0, sy1)
+    const fields: {[key: string]: number} | null = (() => {
       if (glyph instanceof Rect) {
         const {x, y, width, height} = glyph
         if (isField(x) && isField(y) && isField(width) && isField(height)) {
           return {
-            [x.field]: (x0 + x1)/2,
-            [y.field]: (y0 + y1)/2,
-            [width.field]:  x1 - x0,
-            [height.field]: y1 - y0,
+            [x.field]: (dx0 + dx1)/2,
+            [y.field]: (dy0 + dy1)/2,
+            [width.field]:  dx1 - dx0,
+            [height.field]: dy1 - dy0,
           }
         }
       } else if (glyph instanceof Block) {
         const {x, y, width, height} = glyph
         if (isField(x) && isField(y) && isField(width) && isField(height)) {
           return {
-            [x.field]:      x0,
-            [y.field]:      y0,
-            [width.field]:  x1 - x0,
-            [height.field]: y1 - y0,
+            [x.field]:      dx0,
+            [y.field]:      dy0,
+            [width.field]:  dx1 - dx0,
+            [height.field]: dy1 - dy0,
           }
         }
       } else if (glyph instanceof Quad) {
         const {right, bottom, left, top} = glyph
         if (isField(right) && isField(bottom) && isField(left) && isField(top)) {
           return {
-            [right.field]:  x1,
-            [bottom.field]: y0,
-            [left.field]:   x0,
-            [top.field]:    y1,
+            [right.field]:  dx1,
+            [bottom.field]: dy0,
+            [left.field]:   dx0,
+            [top.field]:    dy1,
           }
         }
       } else if (glyph instanceof HBar) {
         const {left, y, height, right} = glyph
         if (isField(left) && isField(y) && isField(height) && isField(right)) {
           return {
-            [left.field]:   x0,
-            [y.field]:      y1,
-            [height.field]: y1 - y0,
-            [right.field]:  x1,
+            [left.field]:   dx0,
+            [y.field]:      (dy0 + dy1)/2.0,
+            [height.field]: dy1 - dy0,
+            [right.field]:  dx1,
           }
         }
       } else if (glyph instanceof VBar) {
         const {x, bottom, width, top} = glyph
         if (isField(x) && isField(bottom) && isField(width) && isField(top)) {
           return {
-            [x.field]:      x0,
-            [bottom.field]: y0,
-            [width.field]:  x1 - x0,
-            [top.field]:    y1,
+            [x.field]:      (dx0 + dx1)/2.0,
+            [bottom.field]: dy0,
+            [width.field]:  dx1 - dx0,
+            [top.field]:    dy1,
           }
         }
       } else if (glyph instanceof HStrip) {
         const {y0, y1} = glyph
         if (isField(y0) && isField(y1)) {
           return {
-            [y0.field]: y0,
-            [y1.field]: y1,
+            [y0.field]: dy0,
+            [y1.field]: dy1,
           }
         }
       } else if (glyph instanceof VStrip) {
         const {x0, x1} = glyph
         if (isField(x0) && isField(x1)) {
           return {
-            [x0.field]: x0,
-            [x1.field]: x1,
+            [x0.field]: dx0,
+            [x1.field]: dx1,
           }
         }
       } else {
