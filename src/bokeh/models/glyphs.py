@@ -488,6 +488,12 @@ class Circle(XYGlyph, LineGlyph, FillGlyph, HatchGlyph):
     and y dimensions and use the maximum of the two, 'min' selects the minimum.
     """)
 
+    hit_dilation = Size(default=1.0, help="""
+    The factor by which to dilate the hit radius which is responsible for
+    defining the range in which a glyph responds to interactions with the
+    hover and tap tools.
+    """)
+
     line_props = Include(LineProps, help="""
     The {prop} values for the markers.
     """)

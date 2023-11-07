@@ -1302,6 +1302,7 @@
       field: "radius",
     },
     radius_dimension: "x",
+    hit_dilation: 1.0,
     line_color: {
       type: "value",
       value: "black",

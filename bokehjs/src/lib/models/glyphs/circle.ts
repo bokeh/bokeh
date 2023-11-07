@@ -19,12 +19,10 @@ import type {CircleGL} from "./webgl/circle"
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   readonly angle: p.Uniform<number>
 
-  readonly size: p.Uniform<number>
   readonly radius: p.UniformScalar<number>
 
   sradius: ScreenArray
 
-  readonly max_size: number
   readonly max_radius: number
 }
 
@@ -40,13 +38,6 @@ export class CircleView extends XYGlyphView {
   override async load_glglyph() {
     const {CircleGL} = await import("./webgl/circle")
     return CircleGL
-  }
-
-  protected override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
-
-    const max_size = 2*this.max_radius
-    this._configure("max_size", {value: max_size})
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -100,8 +91,8 @@ export class CircleView extends XYGlyphView {
       hr = shr.map((x) => this.renderer.xscale.invert(x)).widen(this.max_radius)
       vr = svr.map((y) => this.renderer.yscale.invert(y)).widen(this.max_radius)
     } else {
-      hr = shr.widen(this.max_size).map((x) => this.renderer.xscale.invert(x))
-      vr = svr.widen(this.max_size).map((y) => this.renderer.yscale.invert(y))
+      hr = shr.widen(this.max_radius).map((x) => this.renderer.xscale.invert(x))
+      vr = svr.widen(this.max_radius).map((y) => this.renderer.yscale.invert(y))
     }
 
     return this.index.indices({
@@ -145,7 +136,7 @@ export class CircleView extends XYGlyphView {
         const y1 = y + dr
         return [x0, x1, y0, y1]
       } else {
-        const ds = this.max_size*hit_dilation
+        const ds = this.max_radius*hit_dilation
         const sx0 = sx - ds
         const sx1 = sx + ds
         const sy0 = sy - ds
@@ -274,8 +265,7 @@ export namespace Circle {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = XYGlyph.Props & {
-    angle: p.AngleSpec
-    radius: p.NullDistanceSpec
+    radius: p.DistanceSpec
     radius_dimension: p.Property<RadiusDimension>
     hit_dilation: p.Property<number>
   } & Mixins
@@ -301,8 +291,7 @@ export class Circle extends XYGlyph {
     this.mixins<Circle.Mixins>([LineVector, FillVector, HatchVector])
 
     this.define<Circle.Props>(({Number}) => ({
-      angle:            [ p.AngleSpec, 0 ],
-      radius:           [ p.NullDistanceSpec, null ],
+      radius:           [ p.DistanceSpec, {field: "radius"} ],
       radius_dimension: [ RadiusDimension, "x" ],
       hit_dilation:     [ Number, 1.0 ],
     }))
