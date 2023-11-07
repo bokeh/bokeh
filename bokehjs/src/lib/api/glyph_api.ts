@@ -215,12 +215,12 @@ export abstract class GlyphAPI {
   block(...args: unknown[]): TypedGlyphRenderer<Block> {
     return this._glyph(Block, ["x", "y", "width", "height"], args)
   }
+
   circle(args: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
   circle(
     x: CircleArgs["x"],
     y: CircleArgs["y"],
     args?: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
-  circle(...args: unknown[]): TypedGlyphRenderer<Circle>
   circle(...args: unknown[]): TypedGlyphRenderer<Circle> {
     return this._glyph(Circle, ["x", "y"], args)
   }
