@@ -18,7 +18,7 @@ export namespace Categorical {
     })
 
     fig.segment(0, factors, x, factors, {line_width: 2, line_color: "green"})
-    fig.circle(x, factors, {size: 15, fill_color: "orange", line_color: "green", line_width: 3})
+    fig.scatter(x, factors, {size: 15, fill_color: "orange", line_color: "green", line_width: 3})
     return fig
   }
 
