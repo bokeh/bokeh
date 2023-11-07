@@ -2,6 +2,7 @@ export class Settings {
   private _dev = false
   private _wireframe = false
   private _force_webgl = false
+  private _force_fields = false
 
   set dev(dev: boolean) {
     this._dev = dev
@@ -25,6 +26,14 @@ export class Settings {
 
   get force_webgl(): boolean {
     return this._force_webgl
+  }
+
+  set force_fields(force_fields: boolean) {
+    this._force_fields = force_fields
+  }
+
+  get force_fields(): boolean {
+    return this._force_fields
   }
 }
 
