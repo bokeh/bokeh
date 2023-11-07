@@ -275,7 +275,7 @@ function plot(a: number, b: number, color: Color, plot_args?: Partial<Plot.Attrs
   p.yaxis.major_label_orientation = "horizontal"
   const xs = [1, 2, 3].map((c) => c*a)
   const ys = [1, 2, 3].map((c) => c*b)
-  p.circle(xs, ys, {size: 10, color})
+  p.scatter(xs, ys, {size: 10, color})
   return p
 }
 
@@ -527,7 +527,7 @@ describe("GridBox", () => {
 describe("Tabs", () => {
   const panel = (color: string) => {
     const p = fig([100, 100])
-    p.circle([0, 5, 10], [0, 5, 10], {size: 5, color})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 5, color})
     return new TabPanel({title: color, child: p})
   }
 
@@ -696,7 +696,7 @@ describe("gridplot()", () => {
         fig.yaxis.each((axis) => (axis.formatter as BasicTickFormatter).use_scientific = false)
         fig.xaxis.major_label_orientation = "vertical"
         fig.yaxis.major_label_orientation = "horizontal"
-        fig.circle(values(xcoeff), values(ycoeff), {size: 5})
+        fig.scatter(values(xcoeff), values(ycoeff), {size: 5})
         return fig
       })
     })

@@ -94,7 +94,7 @@ describe("Examples", () => {
     plot.yaxis.major_tick_out = 10
     plot.ygrid.grid_line_color = null
 
-    const medal = plot.circle({
+    const medal = plot.scatter({
       x: {field: "MetersBack"}, y: {field: "Year"},
       size: 10,
       source,

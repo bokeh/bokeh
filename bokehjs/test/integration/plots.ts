@@ -18,7 +18,7 @@ describe("Plot", () => {
       toolbar_location: location,
       title_location: location,
     })
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     return p
   }
 
@@ -77,7 +77,7 @@ describe("Plot", () => {
   describe("should support toolbar's overflow menu", () => {
     const f = (toolbar_location: Location | null) => {
       const p = fig([200, 200], {tools: "pan,box_zoom,undo,redo,reset,crosshair,help", toolbar_location})
-      p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+      p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
       return p
     }
 
@@ -129,102 +129,102 @@ describe("Plot", () => {
 
   it("should allow fixed x fixed plot", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "fixed", height: 200})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x fixed plot", async () => {
     const p = figure({width_policy: "max", height_policy: "fixed", height: 200})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow fixed x max plot", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "max"})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x max plot", async () => {
     const p = figure({width_policy: "max", height_policy: "max"})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x fixed plot, aspect 0.8", async () => {
     const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 0.8})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow fixed x max plot, aspect 0.8", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 0.8})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x max plot, aspect 0.8", async () => {
     const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 0.8})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x fixed plot, aspect 1.0", async () => {
     const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 1.0})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow fixed x max plot, aspect 1.0", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 1.0})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x max plot, aspect 1.0", async () => {
     const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 1.0})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x fixed plot, aspect 1.25", async () => {
     const p = figure({width_policy: "max", height_policy: "fixed", height: 200, aspect_ratio: 1.25})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow fixed x max plot, aspect 1.25", async () => {
     const p = figure({width_policy: "fixed", width: 200, height_policy: "max", aspect_ratio: 1.25})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow max x max plot, aspect 1.25", async () => {
     const p = figure({width_policy: "max", height_policy: "max", aspect_ratio: 1.25})
-    p.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    p.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(p, [300, 300])
   })
 
   it("should allow fixed frame 300px x 300px", async () => {
     const fig = figure({frame_width: 300, frame_height: 300})
-    fig.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    fig.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     await display(fig, [500, 500])
   })
 
   it("should allow fixed frame 200px x 200px in a layout", async () => {
     const fig0 = figure({frame_width: 200, frame_height: 200})
-    fig0.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    fig0.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     const fig1 = figure({frame_width: 200, frame_height: 200})
-    fig1.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    fig1.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     const layout = row([fig0, fig1])
     await display(layout, [600, 300])
   })
 
   it("should allow fixed frame 200px x 200px in a layout with a title", async () => {
     const fig0 = figure({frame_width: 200, frame_height: 200, title: "A title"})
-    fig0.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    fig0.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     const fig1 = figure({frame_width: 200, frame_height: 200})
-    fig1.circle([0, 5, 10], [0, 5, 10], {size: 10})
+    fig1.scatter([0, 5, 10], [0, 5, 10], {size: 10})
     const layout = row([fig0, fig1])
     await display(layout, [600, 300])
   })
@@ -243,14 +243,14 @@ describe("Plot", () => {
 
     it("should allow empty circle glyphs", async () => {
       const p = webgl_figure()
-      p.circle([1, 2, 3], [1, 4, 9], {size: 10})
-      p.circle([], [], {size: 10})
+      p.scatter([1, 2, 3], [1, 4, 9], {size: 10})
+      p.scatter([], [], {size: 10})
       await display(p)
     })
 
     it("should allow display on log axis", async () => {
       const p = figure({width: 200, height: 200, toolbar_location: null, title: null, y_axis_type: "log", output_backend: "webgl"})
-      p.circle([1, 2, 3], [1, 40, 900], {size: 10})
+      p.scatter([1, 2, 3], [1, 40, 900], {size: 10})
       await display(p)
     })
   })
@@ -285,7 +285,7 @@ describe("Plot", () => {
 
   it("should allow to resize itself when width changes", async () => {
     const plot = fig([200, 200])
-    plot.circle([1, 2, 3], [1, 4, 9], {size: 10})
+    plot.scatter([1, 2, 3], [1, 4, 9], {size: 10})
     const {view} = await display(plot, [450, 250])
     plot.width = 400
     await view.ready
@@ -319,10 +319,10 @@ describe("Plot", () => {
       const v = {field: "v"}
 
       f.line(t, v, {line_width: 2, source, color: "blue"})
-      f.circle(t, v, {size: 5, line_width: 2, source, color: "blue"})
+      f.scatter(t, v, {size: 5, line_width: 2, source, color: "blue"})
 
       f.line({x: t, y: v, line_width: 2, source, y_range_name: "linear", color: "red"})
-      f.circle({x: t, y: v, size: 5, line_width: 2, source, y_range_name: "linear", color: "red"})
+      f.scatter({x: t, y: v, size: 5, line_width: 2, source, y_range_name: "linear", color: "red"})
 
       await display(f)
     })

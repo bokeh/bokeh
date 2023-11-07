@@ -146,7 +146,7 @@ describe("Feature", () => {
       const ys = xs.map((x) => gradient*x + y_intercept + random.normal(0, 4))
 
       const p = fig([200, 200], {x_range, y_range})
-      p.circle(xs, ys, {size: 6, alpha: 0.6, fill_color: null})
+      p.scatter(xs, ys, {size: 6, alpha: 0.6, fill_color: null})
 
       const slope = new Slope({
         gradient,

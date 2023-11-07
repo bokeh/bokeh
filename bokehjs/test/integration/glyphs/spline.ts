@@ -6,9 +6,9 @@ describe("Spline glyph", () => {
   function spline(x: number[], y: number[], closed: boolean = false) {
     return (output_backend: OutputBackend) => {
       const p = fig([200, 200], {x_range: [0, 10], y_range: [0, 10], output_backend, title: output_backend})
-      p.circle(x, y, {size: 10, fill_color: null, line_color: "orange"})
+      p.scatter(x, y, {size: 10, fill_color: null, line_color: "orange"})
       p.spline(x, y, {closed, line_color: "green"})
-      p.circle(x, y, {size: 2, fill_color: "red", line_color: null})
+      p.scatter(x, y, {size: 2, fill_color: "red", line_color: null})
       return p
     }
   }

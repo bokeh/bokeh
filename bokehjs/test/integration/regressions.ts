@@ -259,7 +259,7 @@ describe("Bug", () => {
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
       const view = new CDSView({filter: new BooleanFilter({booleans: [false, true, true, true]})})
-      p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
+      p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
 
@@ -291,7 +291,7 @@ describe("Bug", () => {
 
       const selected = new Selection({indices: [1, 3, 4]})
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const r = p.circle({field: "x"}, {field: "y"}, {
+      const r = p.scatter({field: "x"}, {field: "y"}, {
         source,
         color: {field: "c"},
         selection_line_color: "white",
@@ -406,7 +406,7 @@ describe("Bug", () => {
       const y2 = x.map((xi) => Math.abs(xi - 5))
 
       const s0 = fig([200, 200], {output_backend})
-      s0.circle(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
+      s0.scatter(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
 
       const s1 = fig([200, 200], {output_backend})
       s1.triangle(x, y1, {size: 12, alpha: 0.8, color: "#c02942"})
@@ -523,7 +523,7 @@ describe("Bug", () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
         p.scatter([-1, -2, -3, -4, -5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5, marker: "circle"})
-        p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "red", alpha: 0.5})
+        p.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "red", alpha: 0.5})
         return p
       }
 
@@ -1246,7 +1246,7 @@ describe("Bug", () => {
   describe("in issue #11446", () => {
     it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
       const p = fig([200, 200])
-      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+      const cr = p.scatter([1, 2, 3, 4], [1, 2, 3, 4], {
         size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
       })
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
@@ -1506,7 +1506,7 @@ describe("Bug", () => {
         const source = new ColumnDataSource({data: {x, y}, selected})
 
         p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
-        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
 
         return p
       }
@@ -1537,7 +1537,7 @@ describe("Bug", () => {
           output_backend, title: output_backend,
           x_range: [-1, 1], y_range: [-1, 1],
         })
-        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, size: 20, source})
         return p
       }
 
@@ -1925,7 +1925,7 @@ describe("Bug", () => {
 
       const p = fig([300, 300], {match_aspect: true})
       p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
-      p.circle({x, y, size: 4, color: "black"})
+      p.scatter({x, y, size: 4, color: "black"})
 
       await display(p)
     })
@@ -1937,7 +1937,7 @@ describe("Bug", () => {
 
       const p = fig([300, 300], {match_aspect: true})
       p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
-      p.circle({x, y, size: 4, color: "black"})
+      p.scatter({x, y, size: 4, color: "black"})
 
       await display(p)
     })
@@ -1946,7 +1946,7 @@ describe("Bug", () => {
   describe("in issue #11033", () => {
     it("prevents an update of plot layout after adding an axis", async () => {
       const p = fig([350, 200])
-      p.circle({x: [1, 2, 3], y: [1, 2, 3], size: 20})
+      p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
       const {view} = await display(p)
 
       for (const i of [1, 2, 3, 4, 5, 6]) {
@@ -1995,7 +1995,7 @@ describe("Bug", () => {
         const p = fig([150, 150], {output_backend, title: output_backend})
         p.xgrid.visible = false
         p.ygrid.visible = false
-        p.circle(x, 0, {size, fill_color, line_color})
+        p.scatter(x, 0, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 1, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 2, {marker: "square", size, fill_color, line_color})
         return p
@@ -2018,7 +2018,7 @@ describe("Bug", () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
         p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 4})
-        p.circle({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
         return p
       }
 
@@ -2033,7 +2033,7 @@ describe("Bug", () => {
     it("prevents correct rendering with vectorized line_width == 0", async () => {
       function plot(output_backend: OutputBackend) {
         const p = fig([150, 200], {title: output_backend, output_backend})
-        p.circle({x: 0, y: [0, 1, 2, 3], fill_color: "orange", size: 12, line_width: [0, 5, 0, 5]})
+        p.scatter({x: 0, y: [0, 1, 2, 3], fill_color: "orange", size: 12, line_width: [0, 5, 0, 5]})
         return p
       }
 
@@ -2101,7 +2101,7 @@ describe("Bug", () => {
         height_policy: "fixed",
         toolbar_location: "right",
       })
-      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
       const pane = new Pane({
         styles: {width: "300px", height: "300px", overflow_y: "scroll"},
@@ -2168,7 +2168,7 @@ describe("Bug", () => {
   describe("in issue #4403", () => {
     it("doesn't allow layout resize when parent element's size changed", async () => {
       const plot = figure({sizing_mode: "stretch_both"})
-      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
       const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
       const {view} = await display(pane, [350, 350])
@@ -2182,7 +2182,7 @@ describe("Bug", () => {
   describe("in issue #8469", () => {
     it("makes child layout update invalidate and re-render entire layout", async () => {
       const p0 = figure({width: 300, height: 300})
-      p0.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      p0.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
       const button = new Button({label: "click"})
       const column = new Column({children: [new Column({children: [button, p0]})]})
       const tab0 = new TabPanel({child: column, title: "circle"})
@@ -2210,7 +2210,7 @@ describe("Bug", () => {
   describe("in issue #9133", () => {
     it("doesn't allow to set fixed size of Tabs layout", async () => {
       const p1 = figure({width: 300, height: 300})
-      p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      p1.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
       const p2 = figure({width: 300, height: 300})
       p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
@@ -2352,7 +2352,7 @@ describe("Bug", () => {
       const lasso = new LassoSelectTool({persistent: true})
       lasso.overlay.line_dash = "solid"
       const p = fig([200, 200], {tools: [lasso]})
-      p.circle([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
+      p.scatter([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
       return p
     }
 
@@ -2431,7 +2431,7 @@ describe("Bug", () => {
     it("make tooltips interfere with toolbars", async () => {
       const p = fig([200, 200], {toolbar_location: "above"})
       p.add_tools(new HoverTool())
-      p.circle([1, 2, 3], [1, 2, 3], {size: 20})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const {view: pv} = await display(p)
       await actions(pv).hover(xy(3, 3))
@@ -2446,7 +2446,7 @@ describe("Bug", () => {
           y_axis_location: y ? "below" : null,
         })
 
-        p.circle([1, 2, 3], [1, 2, 3], {size: 10})
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 10})
         return p
       }
 
@@ -2473,7 +2473,7 @@ describe("Bug", () => {
       p.yaxis.major_label_orientation = "horizontal"
       const xs = [1, 2, 3].map((c) => c*a)
       const ys = [1, 2, 3].map((c) => c*b)
-      p.circle(xs, ys, {size: 10, color})
+      p.scatter(xs, ys, {size: 10, color})
       return p
     }
 
@@ -2546,7 +2546,7 @@ describe("Bug", () => {
           baz: ["baz1", "baz2", "baz3"],
         },
       })
-      p.circle([1, 2, 3], [3, 1, 2], {size: 10, color, source})
+      p.scatter([1, 2, 3], [3, 1, 2], {size: 10, color, source})
       const hover = new HoverTool({
         tooltips: [
           ["index",         "$index"],
@@ -2643,7 +2643,7 @@ describe("Bug", () => {
       function plot(color: Color) {
         const tool = new ZoomInTool()
         const plot = fig([300, 300], {toolbar_location: null, tools: [tool]})
-        plot.circle([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
+        plot.scatter([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
         return {plot, tool}
       }
 
@@ -2716,7 +2716,7 @@ describe("Bug", () => {
   describe("in issue #12583", () => {
     function plot(color: Color) {
       const p = fig([100, 100])
-      p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 10, color})
       return p
     }
 
@@ -2765,7 +2765,7 @@ describe("Bug", () => {
   describe("in issue #12640", () => {
     it("doesn't allow layout computation for initially undisplayed components", async () => {
       const plot = fig([200, 200])
-      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
       const pane = new Pane({
         stylesheets: [`
@@ -2857,7 +2857,7 @@ describe("Bug", () => {
       const zoom_out_button = zoom_out.tool_button()
       const toolbar = new Toolbar({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
       const p = fig([200, 200], {toolbar, toolbar_location: "right"})
-      p.circle([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
+      p.scatter([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
 
       const {view} = await display(p)
       await paint()
@@ -2920,7 +2920,7 @@ describe("Bug", () => {
       const random = new Random(1)
       const x = random.floats(100, 0, 9)
       const y = random.floats(100, 0, 1)
-      p.circle(x, y, {size: 10})
+      p.scatter(x, y, {size: 10})
 
       const tool0 = new RangeTool({
         x_range: new Range1d({start: 1, end: 2}),
@@ -3015,7 +3015,7 @@ describe("Bug", () => {
       const table = new DataTable({source, columns, view: cds_view, width: 200})
 
       const p = fig([200, 200])
-      p.circle({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
 
       const {view} = await display(row([table, p]))
       await paint()
@@ -3092,7 +3092,7 @@ describe("Bug", () => {
     it("doesn't allow GridPlot with plots all with sizing_mode='stretch_width'", async () => {
       function plot(color: Color) {
         const p = figure({sizing_mode: "stretch_width", height: 200})
-        p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 10, color})
         return p
       }
 
@@ -3364,7 +3364,7 @@ describe("Bug", () => {
       const cds_view = new CDSView()
 
       const p = fig([200, 200])
-      p.circle({
+      p.scatter({
         x: {field: "values"},
         y: {value: 1},
         fill_color: {field: "color"},
@@ -3555,7 +3555,7 @@ describe("Bug", () => {
           tools: [hover, wheel_pan],
           active_scroll: wheel_pan,
         })
-        p.circle({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+        p.scatter({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
 
         return p
       }
@@ -3589,10 +3589,10 @@ describe("Bug", () => {
   describe("in issue #13323", () => {
     it("doesn't allow to repaint plots in layouts when only their inner layout bbox changed", async () => {
       const p0 = fig([200, 200])
-      p0.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
 
       const p1 = fig([200, 200], {y_axis_type: null})
-      p1.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
 
       const {view} = await display(column([p0, p1]))
 
@@ -3644,7 +3644,7 @@ describe("Bug", () => {
       })
 
       const p = fig([300, 300], {tools: "hover"})
-      p.circle([0], [0], {size: 10})
+      p.scatter([0], [0], {size: 10})
 
       const {view: pv} = await display(p, [400, 300], box)
       box.scroll({left: 100, top: 100})
