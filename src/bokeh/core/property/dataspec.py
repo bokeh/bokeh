@@ -28,7 +28,7 @@ from ...util.dataclasses import Unspecified
 from ...util.serialization import convert_datetime_type, convert_timedelta_type
 from ...util.strings import nice_join
 from .. import enums
-from .color import Color
+from .color import ALPHA_DEFAULT_HELP, COLOR_DEFAULT_HELP, Color
 from .datetime import Datetime, TimeDelta
 from .descriptors import DataSpecPropertyDescriptor, UnitsSpecPropertyDescriptor
 from .either import Either
@@ -275,13 +275,8 @@ class NumberSpec(DataSpec):
 
 class AlphaSpec(NumberSpec):
 
-    _default_help = """\
-    Acceptable values are floating-point numbers between 0 and 1 (0 being
-    transparent and 1 being opaque).
-    """
-
     def __init__(self, default=1.0, *, help: str | None = None) -> None:
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{ALPHA_DEFAULT_HELP}"
         super().__init__(default=default, help=help, accept_datetime=False, accept_timedelta=False)
 
 class NullStringSpec(DataSpec):
@@ -555,20 +550,8 @@ class ColorSpec(DataSpec):
 
     """
 
-    _default_help = """\
-    Acceptable values are:
-
-    - any of the |named CSS colors|, e.g ``'green'``, ``'indigo'``
-    - RGB(A) hex strings, e.g., ``'#FF0000'``, ``'#44444444'``
-    - CSS4 color strings, e.g., ``'rgba(255, 0, 127, 0.6)'``, ``'rgb(0 127 0 / 1.0)'``
-    - a 3-tuple of integers (r, g, b) between 0 and 255
-    - a 4-tuple of (r, g, b, a) where r, g, b are integers between 0..255 and a is between 0..1
-    - a 32-bit unsiged integers using the 0xRRGGBBAA byte order pattern
-
-    """
-
     def __init__(self, default, *, help: str | None = None) -> None:
-        help = f"{help or ''}\n{self._default_help}"
+        help = f"{help or ''}\n{COLOR_DEFAULT_HELP}"
         super().__init__(Nullable(Color), default=default, help=help)
 
     @classmethod
