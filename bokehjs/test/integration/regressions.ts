@@ -56,7 +56,6 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
-import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
@@ -70,8 +69,6 @@ import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
 import {open_picker} from "./widgets"
-
-const n_marker_types = [...MarkerType].length
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -409,10 +406,10 @@ describe("Bug", () => {
       s0.scatter(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
 
       const s1 = fig([200, 200], {output_backend})
-      s1.triangle(x, y1, {size: 12, alpha: 0.8, color: "#c02942"})
+      s1.scatter(x, y1, {marker: "triangle", size: 12, alpha: 0.8, color: "#c02942"})
 
       const s2 = fig([200, 200], {output_backend, visible: false})
-      s2.square(x, y2, {size: 12, alpha: 0.8, color: "#d95b43"})
+      s2.scatter(x, y2, {marker: "square", size: 12, alpha: 0.8, color: "#d95b43"})
 
       return row([s0, s1, s2])
     }
@@ -538,8 +535,8 @@ describe("Bug", () => {
     it("disallows correct rendering of legends with SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.diamond({x: 1, y: 1, color: "red", size: 30, legend_label: "diamond"})
-        p.square({x: 2, y: 1, size: 30, legend_label: "square"})
+        p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
+        p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
         p.legend.location = "top_center"
         return p
       }
@@ -678,12 +675,13 @@ describe("Bug", () => {
     })
 
     it("prevents rendering marker glyphs with reversed ranges", async () => {
-      type MarkerFn = (p: Figure) => (args: Partial<MarkerArgs>) => void
-
-      function plot(fn: MarkerFn, x_range: [number, number], y_range: [number, number]) {
+      function plot(marker: MarkerType, x_range: [number, number], y_range: [number, number]) {
         const p = fig([100, 50], {x_range, y_range, x_axis_type: null, y_axis_type: null})
-        fn(p)({
-          x: [0, 50, 100], y: [0, 50, 100], size: {value: 30},
+        p.scatter({
+          x: [0, 50, 100],
+          y: [0, 50, 100],
+          size: {value: 30},
+          marker,
           fill_color: ["red", "green", "blue"],
           line_color: "black",
           alpha: 0.5,
@@ -691,48 +689,15 @@ describe("Bug", () => {
         return p
       }
 
-      function plots(fn: MarkerFn) {
-        const p1 = plot(fn, [0, 100], [0, 100])
-        const p2 = plot(fn, [100, 0], [0, 100])
-        const p3 = plot(fn, [0, 100], [100, 0])
-        const p4 = plot(fn, [100, 0], [100, 0])
+      function plots(marker: MarkerType) {
+        const p1 = plot(marker, [0, 100], [0, 100])
+        const p2 = plot(marker, [100, 0], [0, 100])
+        const p3 = plot(marker, [0, 100], [100, 0])
+        const p4 = plot(marker, [100, 0], [100, 0])
         return [p1, p2, p3, p4]
       }
 
-      const fns: MarkerFn[] = [
-        (p) => p.asterisk.bind(p),
-        (p) => p.circle.bind(p),
-        (p) => p.circle_cross.bind(p),
-        (p) => p.circle_dot.bind(p),
-        (p) => p.circle_x.bind(p),
-        (p) => p.circle_y.bind(p),
-        (p) => p.cross.bind(p),
-        (p) => p.dash.bind(p),
-        (p) => p.diamond.bind(p),
-        (p) => p.diamond_cross.bind(p),
-        (p) => p.diamond_dot.bind(p),
-        (p) => p.dot.bind(p),
-        (p) => p.hex.bind(p),
-        (p) => p.hex_dot.bind(p),
-        (p) => p.inverted_triangle.bind(p),
-        (p) => p.plus.bind(p),
-        (p) => p.square.bind(p),
-        (p) => p.square_cross.bind(p),
-        (p) => p.square_dot.bind(p),
-        (p) => p.square_pin.bind(p),
-        (p) => p.square_x.bind(p),
-        (p) => p.star.bind(p),
-        (p) => p.star_dot.bind(p),
-        (p) => p.triangle.bind(p),
-        (p) => p.triangle_dot.bind(p),
-        (p) => p.triangle_pin.bind(p),
-        (p) => p.x.bind(p),
-        (p) => p.y.bind(p),
-      ]
-
-      expect(fns.length).to.be.equal(n_marker_types)
-
-      const layout = column(fns.map((fn) => row(plots(fn))))
+      const layout = column([...MarkerType].map((marker) => row(plots(marker))))
       await display(layout)
     })
   })
@@ -1106,9 +1071,9 @@ describe("Bug", () => {
       const common = {x, angle, hatch_pattern: "|", fill_color: "orange"}
 
       p.rect({y: 3, width: 0.7, height: 0.7, ...common})
-      p.square({y: 2, size: 50, ...common})
+      p.scatter({y: 2, size: 50, marker: "square", ...common})
       p.ellipse({y: 1, width: 0.8, height: 0.5, ...common})
-      p.hex({y: 0, size: 50, ...common})
+      p.scatter({y: 0, size: 50, marker: "hex", ...common})
 
       await display(p)
     })
