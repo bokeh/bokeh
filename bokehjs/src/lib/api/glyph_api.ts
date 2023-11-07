@@ -220,9 +220,10 @@ export abstract class GlyphAPI {
   circle(
     x: CircleArgs["x"],
     y: CircleArgs["y"],
+    radius: CircleArgs["radius"],
     args?: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
   circle(...args: unknown[]): TypedGlyphRenderer<Circle> {
-    return this._glyph(Circle, ["x", "y"], args)
+    return this._glyph(Circle, ["x", "y", "radius"], args)
   }
 
   ellipse(args: Partial<EllipseArgs>): TypedGlyphRenderer<Ellipse>
