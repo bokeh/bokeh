@@ -653,6 +653,7 @@ def test_Circle() -> None:
         "radius",
         "radius_units",
         "radius_dimension",
+        "hit_dilation",
     ], LINE, FILL, HATCH, GLYPH)
 
 #-----------------------------------------------------------------------------
