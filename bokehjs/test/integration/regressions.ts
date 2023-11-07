@@ -12,7 +12,7 @@ import {
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
-  Circle, Quad, MultiLine, Text,
+  Circle, Quad, MultiLine, Scatter, Text,
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
@@ -754,7 +754,7 @@ describe("Bug", () => {
       })
 
       const node_renderer = new GlyphRenderer({
-        glyph: new Circle({size: 10, fill_color: "red"}),
+        glyph: new Scatter({size: 10, fill_color: "red"}),
         data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
       })
       const edge_renderer = new GlyphRenderer({
@@ -1450,7 +1450,7 @@ describe("Bug", () => {
       })
 
       const node_renderer = new GlyphRenderer({
-        glyph: new Circle({size: 10, fill_color: "red"}),
+        glyph: new Scatter({size: 10, fill_color: "red"}),
         data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
       })
       const edge_renderer = new GlyphRenderer({
@@ -3275,7 +3275,7 @@ describe("Bug", () => {
         })
 
         const node_renderer = new GlyphRenderer({
-          glyph: new Circle({size: 10, fill_color: "red"}),
+          glyph: new Scatter({size: 10, fill_color: "red"}),
           data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
         })
         const edge_renderer = new GlyphRenderer({

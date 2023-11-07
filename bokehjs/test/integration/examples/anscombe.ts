@@ -2,7 +2,7 @@ import {display} from "../_util"
 
 import {gridplot} from "@bokehjs/api/gridplot"
 import {transpose, linspace} from "@bokehjs/core/util/array"
-import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Circle, Pane, Column} from "@bokehjs/models"
+import {Plot, ColumnDataSource, Range1d, LinearAxis, Grid, Line, Scatter, Pane, Column} from "@bokehjs/models"
 
 describe("Examples", () => {
   it("should support Anscombe", async () => {
@@ -59,8 +59,8 @@ describe("Examples", () => {
       plot.add_layout(ygrid)
       const line = new Line({x: {field: "x"}, y: {field: "y"}, line_color: "#666699", line_width: 2})
       plot.add_glyph(line, lines)
-      const circle = new Circle({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
-      plot.add_glyph(circle, circles)
+      const scatter = new Scatter({x: {field: xname}, y: {field: yname}, size: 12, fill_color: "#cc6633", line_color: "#cc6633", fill_alpha: 0.5})
+      plot.add_glyph(scatter, circles)
 
       return plot
     }
