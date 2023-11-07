@@ -60,6 +60,7 @@ import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
+import {assert} from "@bokehjs/core/util/assert"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
@@ -297,7 +298,8 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      const glyph = r.selection_glyph as Circle
+      const glyph = r.selection_glyph
+      assert(glyph instanceof Scatter)
       glyph.line_color = "black"
       glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
