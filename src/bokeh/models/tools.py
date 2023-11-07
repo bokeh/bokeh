@@ -1201,13 +1201,13 @@ class CustomJSHover(Model):
     The snippet will be made into the body of a function and therefore requires
     a return statement.
 
-    Example:
+    **Example**
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            code = '''
-            return value + " total"
-            '''
+        code = '''
+        return value + " total"
+        '''
     """)
 
 class HoverTool(InspectTool):
@@ -1254,19 +1254,19 @@ class HoverTool(InspectTool):
 
     Hover tool does not currently work with the following glyphs:
 
-        .. hlist::
-            :columns: 3
+    .. hlist::
+        :columns: 3
 
-            * annulus
-            * arc
-            * bezier
-            * image_url
-            * oval
-            * patch
-            * quadratic
-            * ray
-            * step
-            * text
+        * annulus
+        * arc
+        * bezier
+        * image_url
+        * oval
+        * patch
+        * quadratic
+        * ray
+        * step
+        * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 24px
