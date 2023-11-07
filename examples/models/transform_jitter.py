@@ -22,15 +22,15 @@ normal = Jitter(width=0.2, distribution="normal")
 uniform = Jitter(width=0.2, distribution="uniform")
 
 p = figure(x_range=(0, 4), y_range=(0,10), toolbar_location=None, x_axis_location="above")
-p.circle(x='x',  y='y', color='firebrick', source=source, size=5, alpha=0.5)
+p.scatter(x='x', y='y', color='firebrick', source=source, size=5, alpha=0.5)
 
-r1 = p.circle(x='xn', y='y', color='olive', source=source, size=5, alpha=0.5)
-n1 = p.circle(x=field('xn', normal), y='y', color='olive', source=source,
-              size=5, alpha=0.5, visible=False)
+r1 = p.scatter(x='xn', y='y', color='olive', source=source, size=5, alpha=0.5)
+n1 = p.scatter(x=field('xn', normal), y='y', color='olive', source=source,
+               size=5, alpha=0.5, visible=False)
 
-r2 = p.circle(x='xu', y='y', color='navy', source=source, size=5, alpha=0.5)
-u2 = p.circle(x=field('xu', uniform), y='y', color='navy', source=source,
-              size=5, alpha=0.5, visible=False)
+r2 = p.scatter(x='xu', y='y', color='navy', source=source, size=5, alpha=0.5)
+u2 = p.scatter(x=field('xu', uniform), y='y', color='navy', source=source,
+               size=5, alpha=0.5, visible=False)
 
 label_data = ColumnDataSource(data=dict(
     x=[1,2,3], y=[0, 0, 0], t=['Original', 'Normal', 'Uniform'],

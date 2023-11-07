@@ -19,7 +19,14 @@ import type {Marker} from "../models/glyphs/marker"
 
 export type NamesOf<T extends HasProps> = (keyof T["properties"])[]
 
-export type TypedGlyphRenderer<G extends Glyph> = GlyphRenderer & {glyph: G, data_source: ColumnarDataSource}
+export type TypedGlyphRenderer<G extends Glyph> = GlyphRenderer & {
+  data_source: ColumnarDataSource
+  glyph: G
+  hover_glyph: G | null
+  nonselection_glyph: G | "auto" | null
+  selection_glyph: G | "auto" | null
+  muted_glyph: G | "auto" | null
+}
 
 export type ColorNDArray = nd.Uint32Array1d | nd.Uint8Array1d | nd.Uint8Array2d | nd.FloatArray2d | nd.ObjectNDArray
 export type VectorArg<T> = T | Arrayable<T> | Vector<T>
@@ -215,14 +222,15 @@ export abstract class GlyphAPI {
   block(...args: unknown[]): TypedGlyphRenderer<Block> {
     return this._glyph(Block, ["x", "y", "width", "height"], args)
   }
+
   circle(args: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
   circle(
     x: CircleArgs["x"],
     y: CircleArgs["y"],
+    radius: CircleArgs["radius"],
     args?: Partial<CircleArgs>): TypedGlyphRenderer<Circle>
-  circle(...args: unknown[]): TypedGlyphRenderer<Circle>
   circle(...args: unknown[]): TypedGlyphRenderer<Circle> {
-    return this._glyph(Circle, ["x", "y"], args)
+    return this._glyph(Circle, ["x", "y", "radius"], args)
   }
 
   ellipse(args: Partial<EllipseArgs>): TypedGlyphRenderer<Ellipse>
@@ -543,165 +551,165 @@ export abstract class GlyphAPI {
     return this._scatter(args)
   }
 
-  asterisk(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  asterisk(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ asterisk(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ asterisk(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ asterisk(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "asterisk")
   }
 
-  circle_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ circle_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "circle_cross")
   }
 
-  circle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ circle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "circle_dot")
   }
 
-  circle_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ circle_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "circle_x")
   }
 
-  circle_y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  circle_y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ circle_y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ circle_y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "circle_y")
   }
 
-  cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "cross")
   }
 
-  dash(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dash(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ dash(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ dash(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ dash(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "dash")
   }
 
-  diamond(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ diamond(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "diamond")
   }
 
-  diamond_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ diamond_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "diamond_cross")
   }
 
-  diamond_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  diamond_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ diamond_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ diamond_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "diamond_dot")
   }
 
-  dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "dot")
   }
 
-  hex(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ hex(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ hex(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ hex(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "hex")
   }
 
-  hex_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  hex_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ hex_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ hex_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ hex_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "hex_dot")
   }
 
-  inverted_triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  inverted_triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ inverted_triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ inverted_triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ inverted_triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "inverted_triangle")
   }
 
-  plus(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  plus(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ plus(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ plus(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ plus(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "plus")
   }
 
-  square(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ square(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "square")
   }
 
-  square_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ square_cross(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_cross(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_cross(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "square_cross")
   }
 
-  square_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ square_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "square_dot")
   }
 
-  square_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ square_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "square_pin")
   }
 
-  square_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  square_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ square_x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ square_x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "square_x")
   }
 
-  star(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ star(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ star(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ star(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "star")
   }
 
-  star_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  star_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ star_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ star_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ star_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "star_dot")
   }
 
-  triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ triangle(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "triangle")
   }
 
-  triangle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ triangle_dot(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle_dot(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle_dot(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "triangle_dot")
   }
 
-  triangle_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  triangle_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ triangle_pin(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle_pin(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ triangle_pin(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "triangle_pin")
   }
 
-  x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ x(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ x(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ x(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "x")
   }
 
-  y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
-  y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
+  /** @deprecated */ y(args: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ y(x: MarkerArgs["x"], y: MarkerArgs["y"], args?: Partial<MarkerArgs>): TypedGlyphRenderer<Scatter>
+  /** @deprecated */ y(...args: unknown[]): TypedGlyphRenderer<Scatter> {
     return this._scatter(args, "y")
   }
 }

@@ -3,7 +3,7 @@ demonstrates mixing nested categorical factors with top-level categorical
 factors.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.ranges.FactorRange, bokeh.plotting.figure.line, bokeh.plotting.figure.vbar
+    :apis: bokeh.models.FactorRange, bokeh.plotting.figure.line, bokeh.plotting.figure.vbar
     :refs: :ref:`ug_basic_bars_mixed`
     :keywords: bar, line, vbar
 
@@ -32,8 +32,8 @@ p.vbar(x=months, top=monthly, width=0.8,
 
 quarterly = [13, 9, 13, 14]
 p.line(x=quarters, y=quarterly, color=line_color, line_width=3)
-p.circle(x=quarters, y=quarterly, size=10,
-         line_color=line_color, fill_color="white", line_width=3)
+p.scatter(x=quarters, y=quarterly, size=10,
+          line_color=line_color, fill_color="white", line_width=3)
 
 p.y_range.start = 0
 p.x_range.range_padding = 0.1

@@ -406,7 +406,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
         array = this.v_materialize(array)
         return this.vector(array)
       } else {
-        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
+        const message = `attempted to retrieve property array for nonexistent field '${field}'`
+        if (settings.force_fields) {
+          throw new Error(message)
+        } else {
+          logger.warn(message)
+        }
         return this.scalar(null as any, n)
       }
     } else if (isExpr(obj)) {
@@ -439,7 +444,12 @@ export abstract class VectorSpec<T, V extends Vector<T> = Vector<T>> extends Pro
       if (column != null)
         array = this.normalize(column)
       else {
-        logger.warn(`attempted to retrieve property array for nonexistent field '${field}'`)
+        const message = `attempted to retrieve property array for nonexistent field '${field}'`
+        if (settings.force_fields) {
+          throw new Error(message)
+        } else {
+          logger.warn(message)
+        }
         const missing = new Float64Array(length)
         missing.fill(NaN)
         array = missing

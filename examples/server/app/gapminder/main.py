@@ -40,7 +40,7 @@ label = Label(x=1.1, y=22, text=str(years[0]), text_font_size='80px', text_color
 plot.add_layout(label)
 
 color_mapper = CategoricalColorMapper(palette=Spectral6, factors=regions_list)
-plot.circle(
+plot.scatter(
     x='fertility',
     y='life',
     size='population',

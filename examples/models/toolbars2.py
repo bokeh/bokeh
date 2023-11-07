@@ -21,7 +21,7 @@ TOOLS="hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,undo,redo,reset,
 
 def mkplot(xaxis="below", yaxis="left"):
     p = figure(width=300, height=300, tools=TOOLS, x_axis_location=xaxis, y_axis_location=yaxis)
-    p.scatter(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
+    p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
     return p
 
 def mkgrid(plots, location):

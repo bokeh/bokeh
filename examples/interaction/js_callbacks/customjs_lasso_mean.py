@@ -5,12 +5,11 @@ from bokeh.plotting import figure, show
 
 x = [random() for x in range(500)]
 y = [random() for y in range(500)]
-color = ["navy"] * len(x)
+s = ColumnDataSource(data=dict(x=x, y=y))
 
-s = ColumnDataSource(data=dict(x=x, y=y, color=color))
 p = figure(width=400, height=400, tools="lasso_select", title="Select Here")
-p.circle('x', 'y', color='color', size=8, source=s, alpha=0.4,
-         selection_color="firebrick")
+p.scatter('x', 'y', color='navy', size=8, source=s, alpha=0.4,
+          selection_color="firebrick")
 
 s2 = ColumnDataSource(data=dict(x=[0, 1], ym=[0.5, 0.5]))
 p.line(x='x', y='ym', color="orange", line_width=5, alpha=0.6, source=s2)

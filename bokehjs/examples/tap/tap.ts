@@ -38,8 +38,8 @@ export namespace TappyScatter {
 
   const p = plt.figure({title: "Tappy Scatter", tools})
 
-  const circles = p.circle({field: "x"}, {field: "y"}, {
-    source, radius: radii, fill_color: colors, fill_alpha: 0.6, line_color: null,
+  const circles = p.circle({field: "x"}, {field: "y"}, radii, {
+    source, fill_color: colors, fill_alpha: 0.6, line_color: null,
   })
 
   p.text({field: "x"}, {field: "y"}, indices, {

@@ -2,7 +2,7 @@
 many different plot tools.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.scatter
+    :apis: bokeh.plotting.figure.circle
     :refs: :ref:`ug_interaction_tools`, :ref:`ug_basic_scatters_markers`
     :keywords: scatter, tools
 
@@ -21,8 +21,8 @@ TOOLS="hover,crosshair,pan,wheel_zoom,zoom_in,zoom_out,box_zoom,undo,redo,reset,
 
 p = figure(tools=TOOLS)
 
-p.scatter(x, y, radius=radii,
-          fill_color=colors, fill_alpha=0.6,
-          line_color=None)
+p.circle(x, y, radius=radii,
+         fill_color=colors, fill_alpha=0.6,
+         line_color=None)
 
 show(p)

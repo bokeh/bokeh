@@ -3,17 +3,17 @@ circle scatter markers with black outlines, using the low-level ``bokeh.models``
 API.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Circle, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :apis: bokeh.models.Scatter, bokeh.models.Plot, bokeh.models.ColumnDataSource, bokeh.models.LinearAxis, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`ug_basic_scatters_markers`
-    :keywords: circle, figure, scatter
+    :keywords: figure, scatter
 
 '''
 from numpy import arange, pi, sin
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (Circle, ColumnDataSource, LinearAxis,
-                          PanTool, Plot, WheelZoomTool)
+from bokeh.models import (ColumnDataSource, LinearAxis, PanTool,
+                          Plot, Scatter, WheelZoomTool)
 from bokeh.util.browser import view
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -25,8 +25,8 @@ source = ColumnDataSource(
 
 plot = Plot(min_border=80)
 
-circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
-plot.add_glyph(source, circle)
+scatter = Scatter(x="x", y="y", fill_color="red", size=5, line_color="black")
+plot.add_glyph(source, scatter)
 
 plot.add_layout(LinearAxis(), 'below')
 plot.add_layout(LinearAxis(), 'left')

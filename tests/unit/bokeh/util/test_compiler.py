@@ -171,7 +171,7 @@ def test_inline_extension() -> None:
         __implementation__ = TypeScript("^") # invalid syntax on purpose
 
     p = figure()
-    p.circle([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
+    p.scatter([1, 2, 3, 4, 6], [5, 7, 3, 2, 4])
     p.xaxis.formatter = TestFormatter()
     save(p)
 

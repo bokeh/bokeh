@@ -2,7 +2,7 @@
 by adding a dictionary with pairs of position and mathtext.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 '''
@@ -15,7 +15,7 @@ y = 1 / x
 
 plot = figure(height=200)
 plot.title = "Current over Resistance at a static voltage of 1 volt"
-plot.circle(x, y, fill_color="blue", size=5)
+plot.scatter(x, y, fill_color="blue", size=5)
 plot.line(x, y, color="darkgrey")
 
 plot.xaxis.axis_label = "Resistance"

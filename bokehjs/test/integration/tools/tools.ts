@@ -43,7 +43,7 @@ describe("Tools", () => {
       const tool_button = tool.tool_button()
       const toolbar = new Toolbar({buttons: [tool_button], tools: [tool]})
       const p = fig([200, 100], {toolbar_location: "right", toolbar})
-      p.circle([1, 2, 3], [1, 2, 3])
+      p.scatter([1, 2, 3], [1, 2, 3])
       const {view} = await display(p)
       const tool_button_view = view.owner.get_one(tool_button)
       await press(tool_button_view.el)

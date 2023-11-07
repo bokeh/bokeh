@@ -68,7 +68,7 @@ def create_figure():
             groups = pd.Categorical(df[color.value])
         c = [COLORS[xx] for xx in groups.codes]
 
-    p.circle(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
+    p.scatter(x=xs, y=ys, color=c, size=sz, line_color="white", alpha=0.6, hover_color='white', hover_alpha=0.5)
 
     return p
 

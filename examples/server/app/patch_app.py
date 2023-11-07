@@ -19,7 +19,7 @@ color[:200] = ["firebrick"]*200
 source = ColumnDataSource(data=dict(x=x, y=y, color=color))
 
 p = figure(width=400, height=400)
-p.circle('x', 'y', alpha=0.6, size=8, color="color", source=source)
+p.scatter('x', 'y', alpha=0.6, size=8, color="color", source=source)
 
 # CDS with 1d array elements
 x = np.linspace(0, 10, 200)

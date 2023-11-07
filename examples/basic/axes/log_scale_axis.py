@@ -7,6 +7,6 @@ y = [10**xx for xx in x]
 p = figure(width=400, height=400, y_axis_type="log")
 
 p.line(x, y, line_width=2)
-p.circle(x, y, fill_color="white", size=8)
+p.scatter(x, y, fill_color="white", size=8)
 
 show(p)

@@ -20,10 +20,10 @@ colors2 = [colormap2[x] for x in data['species']]
 
 p = figure(output_backend="webgl")
 
-p.diamond(data["flipper_length_mm"], data["body_mass_g"],
+p.scatter(data["flipper_length_mm"], data["body_mass_g"], marker="diamond",
           color=colors1, line_alpha=0.5, fill_alpha=0.2, size=25, legend_label='diamonds')
 
-p.circle(data["flipper_length_mm"], data["body_mass_g"],
-         color=colors2, line_alpha=0.5, fill_alpha=0.2, size=10, legend_label='circles')
+p.scatter(data["flipper_length_mm"], data["body_mass_g"],
+          color=colors2, line_alpha=0.5, fill_alpha=0.2, size=10, legend_label='circles')
 
 show(p)

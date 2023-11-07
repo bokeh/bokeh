@@ -1,7 +1,7 @@
 '''This example shows how to select different behaviours of a selection tool.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.square, bokeh.model.select_one, bokeh.model.BoxSelectTool
+    :apis: bokeh.plotting.figure.scatter, bokeh.model.select_one, bokeh.model.BoxSelectTool
     :refs: :ref:`ug_interaction_tools_pandrag`
     :keywords: selection, tool, BoxSelectTool
 
@@ -30,17 +30,17 @@ fully customizable.</p>
 opts = dict(tools=TOOLS, width=350, height=350)
 
 p1 = figure(title="selection on mouseup", **opts)
-p1.circle(x, y, color="navy", size=6, alpha=0.6)
+p1.scatter(x, y, color="navy", size=6, alpha=0.6)
 
 p2 = figure(title="selection on mousemove", **opts)
-p2.square(x, y, color="olive", size=6, alpha=0.6)
+p2.scatter(x, y, color="olive", size=6, alpha=0.6, marker="square")
 p2.select_one(BoxSelectTool).continuous = True
 
 p3 = figure(title="default highlight", **opts)
-p3.circle(x, y, color="firebrick", alpha=0.5, size=6)
+p3.scatter(x, y, color="firebrick", alpha=0.5, size=6)
 
 p4 = figure(title="custom highlight", **opts)
-p4.square(x, y, color="navy", size=6, alpha=0.6,
+p4.scatter(x, y, color="navy", size=6, alpha=0.6, marker="square",
           nonselection_color="orange", nonselection_alpha=0.6)
 
 layout = column(div,

@@ -22,6 +22,7 @@ from typing import TYPE_CHECKING, Any
 
 # Bokeh imports
 from ..models import glyphs
+from ..util.deprecation import deprecated
 from ._decorators import glyph_method, marker_method
 
 if TYPE_CHECKING:
@@ -106,24 +107,46 @@ Examples:
         pass
 
     @glyph_method(glyphs.Circle)
+    def _circle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        pass
+
     def circle(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """ Configure and add :class:`~bokeh.models.glyphs.Circle` glyphs to this figure.
+
+        Args:
+            x (str or seq[float]) : values or field names of center x coordinates
+
+            y (str or seq[float]) : values or field names of center y coordinates
+
+            radius (str or list[float]) : values or field names of radii in |data units|
+
+            color (color value, optional): shorthand to set both fill and line color
+
+            source (:class:`~bokeh.models.sources.ColumnDataSource`) : a user-supplied data source.
+                An attempt will be made to convert the object to :class:`~bokeh.models.sources.ColumnDataSource`
+                if needed. If none is supplied, one is created for the user automatically.
+
+            **kwargs: |line properties| and |fill properties|
+
+        Examples:
+
+            .. code-block:: python
+
+                from bokeh.plotting import figure, show
+
+                plot = figure(width=300, height=300)
+                plot.circle(x=[1, 2, 3], y=[1, 2, 3], radius=0.2)
+
+                show(plot)
+
         """
-.. note::
-    Only one of ``size`` or ``radius`` should be provided. Note that ``radius``
-    defaults to |data units|.
-
-Examples:
-
-    .. code-block:: python
-
-        from bokeh.plotting import figure, output_file, show
-
-        plot = figure(width=300, height=300)
-        plot.circle(x=[1, 2, 3], y=[1, 2, 3], size=20)
-
-        show(plot)
-
-"""
+        if "size" in kwargs:
+            if "radius" in kwargs:
+                raise ValueError("Can only provide one of size or radius")
+            deprecated((3, 3, 0), "circle() method with size value", "scatter(size=...) instead")
+            return self.scatter(*args, **kwargs)
+        else:
+            return self._circle(*args, **kwargs)
 
     @glyph_method(glyphs.Block)
     def block(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
@@ -1047,12 +1070,6 @@ Examples:
             >>> p.scatter("data1", "data2", marker="mtype", source=data_source, ...)
 
         .. note::
-            When passing ``marker="circle"`` it is also possible to supply a
-            ``radius`` value in |data units|. When configuring marker type
-            from a data source column, *all* markers including circles may only
-            be configured with ``size`` in |screen units|.
-
-        .. note::
             ``Scatter`` markers with multiple marker types may be drawn in a
             different order when using the WebGL output backend. This is an explicit
             trade-off made in the interests of performance.
@@ -1063,11 +1080,10 @@ Examples:
         if isinstance(marker_type, str) and marker_type in _MARKER_SHORTCUTS:
             marker_type = _MARKER_SHORTCUTS[marker_type]
 
-        # The original scatter implementation allowed circle scatters to set a
-        # radius. We will leave this here for compatibility but note that it
-        # only works when the marker type is "circle" (and not referencing a
-        # data source column). Consider deprecating in the future.
         if marker_type == "circle" and "radius" in kwargs:
+            if "size" in kwargs:
+                raise ValueError("Can only provide one of size or radius")
+            deprecated((3, 3, 0), "scatter(radius=...)", "circle(radius=...) instead")
             return self.circle(*args, **kwargs)
         else:
             return self._scatter(*args, marker=marker_type, **kwargs)

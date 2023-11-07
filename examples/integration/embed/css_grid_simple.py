@@ -1,5 +1,5 @@
 from bokeh.io import save
-from bokeh.models import Circle, LinearAxis, Plot, Range1d
+from bokeh.models import LinearAxis, Plot, Range1d, Scatter
 
 aliases = dict(a="above", b="below", l="left", r="right")
 
@@ -8,7 +8,7 @@ def make_figure(axes):
     ydr = Range1d(start=-1, end=1)
 
     plot = Plot(title=None, x_range=xdr, y_range=ydr, width=200, height=200, toolbar_location=None)
-    plot.add_glyph(Circle(x=0, y=0, size=100))
+    plot.add_glyph(Scatter(x=0, y=0, size=100))
 
     for place in axes:
         plot.add_layout(LinearAxis(), aliases[place])

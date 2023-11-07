@@ -125,7 +125,7 @@ def test_gridplot_toolbar_options__issue_13369() -> None:
 def test_gridplot_None() -> None:
     def p():
         p = figure()
-        p.circle([1, 2, 3], [4, 5, 6])
+        p.scatter([1, 2, 3], [4, 5, 6])
         return p
 
     p0, p1, p2, p3 = p(), p(), p(), p()

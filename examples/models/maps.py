@@ -1,8 +1,8 @@
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (BoxSelectTool, Circle, ColumnDataSource, GMapOptions,
-                          GMapPlot, Label, LinearAxis, MercatorTicker,
-                          MercatorTickFormatter, PanTool, WheelZoomTool)
+from bokeh.models import (BoxSelectTool, ColumnDataSource, GMapOptions, GMapPlot,
+                          Label, LinearAxis, MercatorTicker,
+                          MercatorTickFormatter, PanTool, Scatter, WheelZoomTool)
 from bokeh.util.browser import view
 
 # JSON style string taken from: https://snazzymaps.com/style/1/pale-dawn
@@ -31,8 +31,8 @@ source = ColumnDataSource(
     ),
 )
 
-circle = Circle(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
-plot.add_glyph(source, circle)
+scatter = Scatter(x="lon", y="lat", size=15, fill_color="fill", line_color="black")
+plot.add_glyph(source, scatter)
 
 pan = PanTool()
 wheel_zoom = WheelZoomTool()

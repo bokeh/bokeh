@@ -65,8 +65,8 @@ plot.yaxis.major_tick_in = -5
 plot.yaxis.major_tick_out = 10
 plot.ygrid.grid_line_color = None
 
-medal = plot.circle(x="MetersBack", y="Year", size=10, source=source, level="overlay",
-                    fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
+medal = plot.scatter(x="MetersBack", y="Year", size=10, source=source, level="overlay",
+                     fill_color="MedalFill", line_color="MedalLine", fill_alpha=0.5)
 plot.hover.renderers = [medal]
 
 plot.text(x="MetersBack", y="Year", x_offset=10, y_offset=-5,

@@ -8,7 +8,7 @@ y = np.sin(x)
 
 p = figure(toolbar_location="above")
 
-r0 = p.circle(x, y)
+r0 = p.scatter(x, y)
 r1 = p.line(x, y)
 
 r2 = p.line(x, 2*y, line_dash=[4, 4], line_color="orange", line_width=2)

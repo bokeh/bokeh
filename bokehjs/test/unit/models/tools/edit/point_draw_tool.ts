@@ -5,8 +5,8 @@ import {display} from "../../../_util"
 
 import {build_view} from "@bokehjs/core/build_views"
 
-import type {CircleView} from "@bokehjs/models/glyphs/circle"
-import {Circle} from "@bokehjs/models/glyphs/circle"
+import type {GlyphView} from "@bokehjs/models/glyphs/glyph"
+import {Scatter} from "@bokehjs/models/glyphs/scatter"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 import {Selection} from "@bokehjs/models/selections/selection"
@@ -21,7 +21,7 @@ export interface PointDrawTestCase {
   data: {[key: string]: (number | null)[]}
   data_source: ColumnDataSource
   draw_tool_view: PointDrawToolView
-  glyph_view: CircleView
+  glyph_view: GlyphView
 }
 
 async function make_testcase(): Promise<PointDrawTestCase> {
@@ -36,7 +36,7 @@ async function make_testcase(): Promise<PointDrawTestCase> {
   const data = {x: [0, 0.5, 1], y: [0, 0.5, 1], z: [null, null, null]}
   const data_source = new ColumnDataSource({data})
 
-  const glyph = new Circle({
+  const glyph = new Scatter({
     x: {field: "x"},
     y: {field: "y"},
     size: {units: "screen", value: 20},
@@ -60,7 +60,7 @@ async function make_testcase(): Promise<PointDrawTestCase> {
     data,
     data_source,
     draw_tool_view,
-    glyph_view: glyph_renderer_view.glyph as CircleView,
+    glyph_view: glyph_renderer_view.glyph,
   }
 }
 

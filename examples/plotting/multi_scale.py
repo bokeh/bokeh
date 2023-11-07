@@ -2,7 +2,7 @@
 This can be used to depict values in two different units.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle, bokeh.plotting.figure.add_layout
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter, bokeh.plotting.figure.add_layout
     :keywords: scale
 
 '''
@@ -27,9 +27,9 @@ ax = LinearAxis(y_range_name="linear", axis_label="Linear", axis_label_text_colo
 f.add_layout(ax, "left")
 
 f.line(x="t", y="v", line_width=2, source=source, color="blue")
-f.circle(x="t", y="v", size=5, line_width=2, source=source, color="blue")
+f.scatter(x="t", y="v", size=5, line_width=2, source=source, color="blue")
 
 f.line(x="t", y="v", line_width=2, source=source, y_range_name="linear", color="red")
-f.circle(x="t", y="v", size=5, line_width=2, source=source, y_range_name="linear", color="red")
+f.scatter(x="t", y="v", size=5, line_width=2, source=source, y_range_name="linear", color="red")
 
 show(f)

@@ -1,7 +1,7 @@
 import networkx as nx
 
-from bokeh.models import (BoxSelectTool, Circle, EdgesAndLinkedNodes,
-                          HoverTool, MultiLine, Plot, Range1d, TapTool)
+from bokeh.models import (BoxSelectTool, EdgesAndLinkedNodes, HoverTool,
+                          MultiLine, Plot, Range1d, Scatter, TapTool)
 from bokeh.palettes import Spectral4
 from bokeh.plotting import from_networkx, show
 
@@ -15,9 +15,9 @@ plot.add_tools(HoverTool(tooltips=None), TapTool(), BoxSelectTool())
 
 graph_renderer = from_networkx(G, nx.circular_layout, scale=1, center=(0,0))
 
-graph_renderer.node_renderer.glyph = Circle(size=15, fill_color=Spectral4[0])
-graph_renderer.node_renderer.selection_glyph = Circle(size=15, fill_color=Spectral4[2])
-graph_renderer.node_renderer.hover_glyph = Circle(size=15, fill_color=Spectral4[1])
+graph_renderer.node_renderer.glyph = Scatter(size=15, fill_color=Spectral4[0])
+graph_renderer.node_renderer.selection_glyph = Scatter(size=15, fill_color=Spectral4[2])
+graph_renderer.node_renderer.hover_glyph = Scatter(size=15, fill_color=Spectral4[1])
 
 graph_renderer.edge_renderer.glyph = MultiLine(line_color="#CCCCCC", line_alpha=0.8, line_width=5)
 graph_renderer.edge_renderer.selection_glyph = MultiLine(line_color=Spectral4[2], line_width=5)

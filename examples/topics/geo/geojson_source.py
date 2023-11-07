@@ -15,6 +15,6 @@ TOOLTIPS = [('Organisation', '@OrganisationName')]
 
 p = figure(background_fill_color="lightgrey", tooltips=TOOLTIPS)
 
-p.circle(x='x', y='y', size=15, color='Color', alpha=0.7, source=geo_source)
+p.scatter(x='x', y='y', size=15, color='Color', alpha=0.7, source=geo_source)
 
 show(p)

@@ -22,11 +22,10 @@ from typing import TYPE_CHECKING
 
 # Bokeh imports
 from bokeh.core.enums import LineCap, LineJoin, NamedColor as Color
-from bokeh.core.property.vectorization import field, value
+from bokeh.core.property.vectorization import value
 
 if TYPE_CHECKING:
     from bokeh.core.has_props import HasProps
-    from bokeh.models import Marker
 
 # Module under test
  # isort:skip
@@ -130,11 +129,6 @@ def check_text_properties(model: HasProps, prefix: str = "", font_size: str = '1
         assert text_alpha == 1.0
         assert text_align == align
         assert text_baseline == baseline
-
-def check_marker_properties(marker: Marker) -> None:
-    assert marker.x == field("x")
-    assert marker.y == field("y")
-    assert marker.size == 4
 
 #-----------------------------------------------------------------------------
 # Dev API

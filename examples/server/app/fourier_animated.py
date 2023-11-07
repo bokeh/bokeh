@@ -61,7 +61,7 @@ for i in range(4):
     terms_plot.line("x", f"y{i}", color=palette[i], line_width=2,
                     source=lines_source, legend_label=legend_label)
 
-terms_plot.circle("xterm-dot", "yterm-dot", size=5, color="color", source=items_source)
+terms_plot.scatter("xterm-dot", "yterm-dot", size=5, color="color", source=items_source)
 
 terms_plot.multi_line("xterm-line", "yterm-line", color="color", source=items_source)
 
@@ -80,7 +80,7 @@ sum_plot.circle("xsum-circle", "ysum-circle", radius="r",
                 line_color="color", line_width=2, line_dash="dashing",
                 fill_color=None, source=items_source)
 
-sum_plot.circle("xsum-dot", "ysum-dot", size=5, color="color", source=items_source)
+sum_plot.scatter("xsum-dot", "ysum-dot", size=5, color="color", source=items_source)
 
 segment_view = CDSView(filter=IndexFilter([3]))
 sum_plot.segment(x0="xsum-dot", y0="ysum-dot", x1=2.5, y1="ysum-dot",

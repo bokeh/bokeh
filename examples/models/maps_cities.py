@@ -3,15 +3,15 @@ is over 5,000 people, made using the ``GMapPlot`` class.
 
 .. bokeh-example-metadata::
     :sampledata: world_cities
-    :apis: bokeh.models.Circle, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
+    :apis: bokeh.models.Scatter, bokeh.models.GMapPlot, bokeh.models.PanTool, bokeh.models.WheelZoomTool
     :refs: :ref:`ug_styling_plots_axes_labels`, :ref:`ug_topics_geo_google_maps`, :ref:`ug_basic_data`
-    :keywords: circle, map, label, pantool, gmapplot, document
+    :keywords: scatter, map, label, pantool, gmapplot, document
 '''
 
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (Circle, ColumnDataSource, GMapOptions,
-                          GMapPlot, Label, PanTool, WheelZoomTool)
+from bokeh.models import (ColumnDataSource, GMapOptions, GMapPlot,
+                          Label, PanTool, Scatter, WheelZoomTool)
 from bokeh.sampledata.world_cities import data
 from bokeh.util.browser import view
 
@@ -33,8 +33,8 @@ if plot.api_key == "GOOGLE_API_KEY":
 
 plot.title.text = "Cities of the world with a population over 5,000 people."
 
-circle = Circle(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
-plot.add_glyph(ColumnDataSource(data), circle)
+scatter = Scatter(x="lng", y="lat", size=5, line_color=None, fill_color='firebrick', fill_alpha=0.2)
+plot.add_glyph(ColumnDataSource(data), scatter)
 plot.add_tools(PanTool(), WheelZoomTool())
 
 doc = Document()

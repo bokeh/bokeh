@@ -26,12 +26,12 @@ describe("ColorBar annotation", () => {
     const y1 = random.floats(10)
     const y2 = random.floats(10)
 
-    p.circle(x, y0, {fill_color: "red"})
+    p.scatter(x, y0, {fill_color: "red"})
 
-    p.circle(x, y1, {fill_color: "blue"})
+    p.scatter(x, y1, {fill_color: "blue"})
     p.line(x, y1, {line_color: "orange"})
 
-    p.circle(x, y2, {fill_color: "green"})
+    p.scatter(x, y2, {fill_color: "green"})
 
     const color_bar = (attrs: Partial<ColorBar.Attrs>) => {
       const color_mapper = new LinearColorMapper({palette: Spectral11, low: -2, high: 5})
@@ -80,7 +80,7 @@ describe("ColorBar annotation", () => {
     const x = range(0, N)
     const y = random.floats(N)
 
-    p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+    p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
     p.add_layout(color_bar({location: "bottom_left", title: "Bottom left"}), "center")
     p.add_layout(color_bar({location: "bottom_center", title: "Bottom center"}), "center")
@@ -119,7 +119,7 @@ describe("ColorBar annotation", () => {
     const x = range(0, N)
     const y = random.floats(N)
 
-    p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+    p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
     p.add_layout(color_bar({location: "bottom_left", title: "Bottom left"}), "center")
     p.add_layout(color_bar({location: "bottom_center", title: "Bottom center"}), "center")
@@ -154,7 +154,7 @@ describe("ColorBar annotation", () => {
     it("below the frame", async () => {
       const color_mapper = new LinearColorMapper({palette: Spectral11})
       const p = fig([300, 600], {border_fill_color: "lightgray"})
-      p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+      p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
       p.add_layout(color_bar({color_mapper, width: 100, location: "left", title: "Left"}), "below")
       p.add_layout(color_bar({color_mapper, width: 100, location: "center", title: "Center"}), "below")
@@ -167,7 +167,7 @@ describe("ColorBar annotation", () => {
     it("above the frame", async () => {
       const color_mapper = new LinearColorMapper({palette: Spectral11})
       const p = fig([300, 600], {border_fill_color: "lightgray"})
-      p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+      p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
       p.add_layout(color_bar({color_mapper, width: 100, location: "left", title: "Left"}), "above")
       p.add_layout(color_bar({color_mapper, width: 100, location: "center", title: "Center"}), "above")
@@ -180,7 +180,7 @@ describe("ColorBar annotation", () => {
     it("left of the frame", async () => {
       const color_mapper = new LinearColorMapper({palette: Spectral11})
       const p = fig([600, 300], {border_fill_color: "lightgray"})
-      p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+      p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
 
       p.add_layout(color_bar({color_mapper, height: 100, location: "top", title: "Top"}), "left")
       p.add_layout(color_bar({color_mapper, height: 100, location: "center", title: "Center"}), "left")
@@ -194,7 +194,7 @@ describe("ColorBar annotation", () => {
       const color_mapper = new LinearColorMapper({palette: Spectral11})
       const p = fig([600, 300], {border_fill_color: "lightgray"})
 
-      p.circle(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
+      p.scatter(x, y, {fill_color: {field: "y", transform: color_mapper}, size: 10})
       p.add_layout(color_bar({color_mapper, height: 100, location: "top", title: "Top"}), "right")
       p.add_layout(color_bar({color_mapper, height: 100, location: "center", title: "Center"}), "right")
       p.add_layout(color_bar({color_mapper, height: 100, location: "bottom", title: "Bottom"}), "right")
@@ -419,7 +419,7 @@ describe("ColorBar annotation", () => {
       const values = np.linspace(10, 100, 11)
 
       const p = fig([300, 150])
-      p.circle({x, y: 0, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      p.scatter({x, y: 0, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
       p.add_layout(color_bar, "below")
 
       return p
@@ -463,7 +463,7 @@ describe("ColorBar annotation", () => {
       const x = vertical ? 0 : np.arange(11)
       const y = vertical ? np.arange(11) : 0
       const values = np.linspace(0, 10, 11)
-      p.circle({x, y, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
+      p.scatter({x, y, size: 15, fill_color: {field: "values", transform: color_mapper}, source: {values}})
       const cbars = [
         new ColorBar({color_mapper, title: "Update low"}),
         new ColorBar({color_mapper, title: "Update high"}),

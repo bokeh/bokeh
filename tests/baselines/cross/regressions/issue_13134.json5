@@ -120,7 +120,7 @@
               },
               glyph: {
                 type: "object",
-                name: "Circle",
+                name: "Scatter",
                 id: "p1007",
                 attributes: {
                   size: {

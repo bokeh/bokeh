@@ -8,7 +8,7 @@
 '''
 import networkx as nx
 
-from bokeh.models import Circle, MultiLine
+from bokeh.models import MultiLine, Scatter
 from bokeh.plotting import figure, from_networkx, show
 
 G = nx.karate_club_graph()
@@ -29,7 +29,7 @@ plot = figure(width=400, height=400, x_range=(-1.2, 1.2), y_range=(-1.2, 1.2),
 plot.grid.grid_line_color = None
 
 graph_renderer = from_networkx(G, nx.spring_layout, scale=1, center=(0, 0))
-graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="lightblue")
+graph_renderer.node_renderer.glyph = Scatter(size=15, fill_color="lightblue")
 graph_renderer.edge_renderer.glyph = MultiLine(line_color="edge_color",
                                                line_alpha=1, line_width=2)
 plot.renderers.append(graph_renderer)

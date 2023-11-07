@@ -4,20 +4,20 @@ panning.
 
 .. bokeh-example-metadata::
     :sampledata: penguins
-    :apis: bokeh.models.glyphs.Circle, bokeh.models.sources.ColumnDataSource, bokeh.models.plots.Plot, bokeh.models.axes.LinearAxis, bokeh.models.plots.Plot, bokeh.models.ranges.DataRange1d
+    :apis: bokeh.models.Scatter, bokeh.models.ColumnDataSource, bokeh.models.Plot, bokeh.models.LinearAxis, bokeh.models.Plot, bokeh.models.DataRange1d
     :refs: :ref:`ug_topics_stats_splom`
     :keywords: models, scatter, splom
 
 .. _Palmer penguin dataset: https://github.com/allisonhorst/palmerpenguins
 
-''' # noqa: E501
+'''
 from itertools import product
 
 from bokeh.io import show
 from bokeh.layouts import gridplot
-from bokeh.models import (BasicTicker, Circle, ColumnDataSource,
-                          DataRange1d, Grid, LassoSelectTool, LinearAxis,
-                          PanTool, Plot, ResetTool, WheelZoomTool)
+from bokeh.models import (BasicTicker, ColumnDataSource, DataRange1d,
+                          Grid, LassoSelectTool, LinearAxis, PanTool,
+                          Plot, ResetTool, Scatter, WheelZoomTool)
 from bokeh.sampledata.penguins import data
 from bokeh.transform import factor_cmap
 
@@ -61,9 +61,9 @@ for i, (y, x) in enumerate(product(ATTRS, reversed(ATTRS))):
         xticker = BasicTicker()
     p.add_layout(Grid(dimension=0, ticker=xticker))
 
-    circle = Circle(x=x, y=y, fill_alpha=0.6, size=5, line_color=None,
-                    fill_color=factor_cmap('species', 'Category10_3', SPECIES))
-    r = p.add_glyph(source, circle)
+    scatter = Scatter(x=x, y=y, fill_alpha=0.6, size=5, line_color=None,
+                      fill_color=factor_cmap('species', 'Category10_3', SPECIES))
+    r = p.add_glyph(source, scatter)
     p.x_range.renderers.append(r)
     p.y_range.renderers.append(r)
 

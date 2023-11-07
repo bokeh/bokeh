@@ -47,7 +47,7 @@ import bokeh.embed.util as beu # isort:skip
 def test_plot() -> None:
     from bokeh.plotting import figure
     test_plot = figure()
-    test_plot.circle([1, 2], [2, 3])
+    test_plot.scatter([1, 2], [2, 3])
     return test_plot
 
 class SomeModel(Model):

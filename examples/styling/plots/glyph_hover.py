@@ -14,10 +14,12 @@ p.background_fill_color = "#fafafa"
 
 p.line(x, y, line_dash="4 4", line_width=1, color='gray')
 
-cr = p.circle(x, y, size=20,
-              fill_color="steelblue", alpha=0.1, line_color=None,
-              hover_fill_color="midnightblue", hover_alpha=0.5,
-              hover_line_color="white")
+cr = p.scatter(
+    x, y, size=20,
+    fill_color="steelblue", alpha=0.1, line_color=None,
+    hover_fill_color="midnightblue", hover_alpha=0.5,
+    hover_line_color="white",
+)
 
 p.add_tools(HoverTool(tooltips=None, renderers=[cr], mode='hline'))
 

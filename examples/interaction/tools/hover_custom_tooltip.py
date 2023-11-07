@@ -47,6 +47,6 @@ TOOLTIPS = """
 p = figure(width=400, height=400, tooltips=TOOLTIPS,
            title="Mouse over the dots")
 
-p.circle('x', 'y', size=20, source=source)
+p.scatter('x', 'y', size=20, source=source)
 
 show(p)

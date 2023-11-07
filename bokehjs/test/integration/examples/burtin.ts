@@ -113,7 +113,7 @@ describe("Examples", () => {
     const labels = range(-3, 4).map((v) => 10**v)
     const radii = labels.map((label) => a * Math.sqrt(Math.log(label * 1E4)) + b)
 
-    p.circle(0, 0, {radius: radii, fill_color: null, line_color: "white"})
+    p.circle({x: 0, y: 0, radius: radii, fill_color: null, line_color: "white"})
     p.text(0, radii.slice(0, -1), labels.slice(0, -1).map((label) => label.toString()), {
       text_font_size: "11px", text_align: "center", text_baseline: "middle",
     })
@@ -138,7 +138,7 @@ describe("Examples", () => {
     })
 
     // OK, these hand drawn legends are pretty clunky, will be improved in future release
-    p.circle([-40, -40], [-370, -390], {color: values(gram_color), radius: 5})
+    p.circle([-40, -40], [-370, -390], 5, {color: values(gram_color)})
     p.text([-30, -30], [-370, -390], Object.keys(gram_color).map((gram) => `Gram-${gram}`), {
       text_font_size: "9px", text_align: "left", text_baseline: "middle",
     })

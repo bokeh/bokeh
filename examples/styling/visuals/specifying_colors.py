@@ -32,6 +32,6 @@ p = figure(title="Specifying colors")
 # add glyphs to plot
 p.line(x, y1, line_color=single_color)
 p.circle(x, y2, radius=0.12, color=list_of_colors)
-p.triangle(x, y3, size=30, fill_color=numpy_array_of_colors)
+p.scatter(x, y3, size=30, marker="triangle", fill_color=numpy_array_of_colors)
 
 show(p)

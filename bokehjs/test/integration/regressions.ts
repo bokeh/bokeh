@@ -12,7 +12,7 @@ import {
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
   GlyphRenderer, GraphRenderer, GridBox,
-  Circle, Quad, MultiLine, Text,
+  Circle, Quad, MultiLine, Scatter, Text,
   StaticLayoutProvider,
   LinearColorMapper,
   Plot,
@@ -56,11 +56,11 @@ import {Matrix} from "@bokehjs/core/util/matrix"
 import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
-import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
+import {assert} from "@bokehjs/core/util/assert"
 
 import {MathTextView} from "@bokehjs/models/text/math_text"
 import {FigureView} from "@bokehjs/models/plots/figure"
@@ -70,8 +70,6 @@ import {f} from "@bokehjs/api/expr"
 import {np} from "@bokehjs/api/linalg"
 
 import {open_picker} from "./widgets"
-
-const n_marker_types = [...MarkerType].length
 
 function svg_data_url(svg: string): string {
   return `data:image/svg+xml;utf-8,${svg}`
@@ -259,7 +257,7 @@ describe("Bug", () => {
       const c = ["black", "red", "green", "blue"]
       const source = new ColumnDataSource({data: {x, y, c}, selected})
       const view = new CDSView({filter: new BooleanFilter({booleans: [false, true, true, true]})})
-      p.circle({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
+      p.scatter({field: "x"}, {field: "y"}, {source, view, color: {field: "c"}, size: 20})
       return p
     }
 
@@ -291,7 +289,7 @@ describe("Bug", () => {
 
       const selected = new Selection({indices: [1, 3, 4]})
       const source = new ColumnDataSource({data: {x, y, c}, selected})
-      const r = p.circle({field: "x"}, {field: "y"}, {
+      const r = p.scatter({field: "x"}, {field: "y"}, {
         source,
         color: {field: "c"},
         selection_line_color: "white",
@@ -300,7 +298,8 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      const glyph = r.selection_glyph as Circle
+      const glyph = r.selection_glyph
+      assert(glyph instanceof Scatter)
       glyph.line_color = "black"
       glyph.hatch_color = "black"
       glyph.hatch_pattern = "/"
@@ -356,7 +355,7 @@ describe("Bug", () => {
 
       const x_range = new FactorRange({factors})
       const p = fig([400, 200], {x_range})
-      p.circle({source})
+      p.scatter({source})
       p.add_layout(whisker)
 
       await display(p)
@@ -375,7 +374,7 @@ describe("Bug", () => {
 
       const y_range = new FactorRange({factors})
       const p = fig([200, 400], {y_range})
-      p.circle({source})
+      p.scatter({source})
       p.add_layout(whisker)
 
       await display(p)
@@ -406,13 +405,13 @@ describe("Bug", () => {
       const y2 = x.map((xi) => Math.abs(xi - 5))
 
       const s0 = fig([200, 200], {output_backend})
-      s0.circle(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
+      s0.scatter(x, y0, {size: 12, alpha: 0.8, color: "#53777a"})
 
       const s1 = fig([200, 200], {output_backend})
-      s1.triangle(x, y1, {size: 12, alpha: 0.8, color: "#c02942"})
+      s1.scatter(x, y1, {marker: "triangle", size: 12, alpha: 0.8, color: "#c02942"})
 
       const s2 = fig([200, 200], {output_backend, visible: false})
-      s2.square(x, y2, {size: 12, alpha: 0.8, color: "#d95b43"})
+      s2.scatter(x, y2, {marker: "square", size: 12, alpha: 0.8, color: "#d95b43"})
 
       return row([s0, s1, s2])
     }
@@ -495,7 +494,7 @@ describe("Bug", () => {
   describe("in issue #10362", () => {
     it("disallows updating layout when changing axis label", async () => {
       const p = fig([200, 100])
-      p.circle([0, 1, 2], [0, 1, 2], {radius: 0.25})
+      p.circle({x: [0, 1, 2], y: [0, 1, 2], radius: 0.25})
       const {view} = await display(p)
       p.xaxis.axis_label = "X-Axis Label"
       await view.ready
@@ -523,7 +522,7 @@ describe("Bug", () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
         p.scatter([-1, -2, -3, -4, -5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5, marker: "circle"})
-        p.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "red", alpha: 0.5})
+        p.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "red", alpha: 0.5})
         return p
       }
 
@@ -538,8 +537,8 @@ describe("Bug", () => {
     it("disallows correct rendering of legends with SVG backend", async () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([200, 200], {output_backend, title: output_backend})
-        p.diamond({x: 1, y: 1, color: "red", size: 30, legend_label: "diamond"})
-        p.square({x: 2, y: 1, size: 30, legend_label: "square"})
+        p.scatter({x: 1, y: 1, size: 30, marker: "diamond", legend_label: "diamond", color: "red"})
+        p.scatter({x: 2, y: 1, size: 30, marker: "square", legend_label: "square"})
         p.legend.location = "top_center"
         return p
       }
@@ -561,7 +560,7 @@ describe("Bug", () => {
 
       const {view} = await display(p)
 
-      p.circle(x, y, {legend_label: "foo"})
+      p.scatter(x, y, {legend_label: "foo"})
       r.glyph.line_dash = "dotted"
       r.glyph.line_color = "black"
       p.line([1, 4, 8], [2, 12, 6], {line_color: "red", legend_label: "bar"})
@@ -678,12 +677,13 @@ describe("Bug", () => {
     })
 
     it("prevents rendering marker glyphs with reversed ranges", async () => {
-      type MarkerFn = (p: Figure) => (args: Partial<MarkerArgs>) => void
-
-      function plot(fn: MarkerFn, x_range: [number, number], y_range: [number, number]) {
+      function plot(marker: MarkerType, x_range: [number, number], y_range: [number, number]) {
         const p = fig([100, 50], {x_range, y_range, x_axis_type: null, y_axis_type: null})
-        fn(p)({
-          x: [0, 50, 100], y: [0, 50, 100], size: {value: 30},
+        p.scatter({
+          x: [0, 50, 100],
+          y: [0, 50, 100],
+          size: {value: 30},
+          marker,
           fill_color: ["red", "green", "blue"],
           line_color: "black",
           alpha: 0.5,
@@ -691,48 +691,15 @@ describe("Bug", () => {
         return p
       }
 
-      function plots(fn: MarkerFn) {
-        const p1 = plot(fn, [0, 100], [0, 100])
-        const p2 = plot(fn, [100, 0], [0, 100])
-        const p3 = plot(fn, [0, 100], [100, 0])
-        const p4 = plot(fn, [100, 0], [100, 0])
+      function plots(marker: MarkerType) {
+        const p1 = plot(marker, [0, 100], [0, 100])
+        const p2 = plot(marker, [100, 0], [0, 100])
+        const p3 = plot(marker, [0, 100], [100, 0])
+        const p4 = plot(marker, [100, 0], [100, 0])
         return [p1, p2, p3, p4]
       }
 
-      const fns: MarkerFn[] = [
-        (p) => p.asterisk.bind(p),
-        (p) => p.circle.bind(p),
-        (p) => p.circle_cross.bind(p),
-        (p) => p.circle_dot.bind(p),
-        (p) => p.circle_x.bind(p),
-        (p) => p.circle_y.bind(p),
-        (p) => p.cross.bind(p),
-        (p) => p.dash.bind(p),
-        (p) => p.diamond.bind(p),
-        (p) => p.diamond_cross.bind(p),
-        (p) => p.diamond_dot.bind(p),
-        (p) => p.dot.bind(p),
-        (p) => p.hex.bind(p),
-        (p) => p.hex_dot.bind(p),
-        (p) => p.inverted_triangle.bind(p),
-        (p) => p.plus.bind(p),
-        (p) => p.square.bind(p),
-        (p) => p.square_cross.bind(p),
-        (p) => p.square_dot.bind(p),
-        (p) => p.square_pin.bind(p),
-        (p) => p.square_x.bind(p),
-        (p) => p.star.bind(p),
-        (p) => p.star_dot.bind(p),
-        (p) => p.triangle.bind(p),
-        (p) => p.triangle_dot.bind(p),
-        (p) => p.triangle_pin.bind(p),
-        (p) => p.x.bind(p),
-        (p) => p.y.bind(p),
-      ]
-
-      expect(fns.length).to.be.equal(n_marker_types)
-
-      const layout = column(fns.map((fn) => row(plots(fn))))
+      const layout = column([...MarkerType].map((marker) => row(plots(marker))))
       await display(layout)
     })
   })
@@ -754,7 +721,7 @@ describe("Bug", () => {
       })
 
       const node_renderer = new GlyphRenderer({
-        glyph: new Circle({size: 10, fill_color: "red"}),
+        glyph: new Scatter({size: 10, fill_color: "red"}),
         data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
       })
       const edge_renderer = new GlyphRenderer({
@@ -840,7 +807,7 @@ describe("Bug", () => {
       // cleanup will be made). This needs proper support for multi-root display, which
       // will be increasing more useful in future testing.
       const plot = fig([300, 100])
-      plot.circle([1, 2, 3], [1, 2, 3])
+      plot.scatter([1, 2, 3], [1, 2, 3])
       await show(plot, el)
 
       const choices_view = view.owner.get_one(choices)
@@ -901,8 +868,8 @@ describe("Bug", () => {
     it("prevents GridBox from rebuilding when rows or cols properties are modified", async () => {
       const p1 = fig([300, 300])
       const p2 = fig([300, 300])
-      p1.circle({x: [0, 1], y: [0, 1], color: "red"})
-      p2.circle({x: [1, 0], y: [0, 1], color: "green"})
+      p1.scatter({x: [0, 1], y: [0, 1], color: "red"})
+      p2.scatter({x: [1, 0], y: [0, 1], color: "green"})
       const box = new GridBox({
         children: [[p1, 0, 0], [p2, 0, 1]],
         cols: ["300px", "300px"],
@@ -972,7 +939,7 @@ describe("Bug", () => {
       const p = fig([100, 100])
       const {view} = await display(p)
 
-      p.circle(0, 0, {radius: 1})
+      p.circle({x: 0, y: 0, radius: 1})
       await view.ready
     })
   })
@@ -1005,8 +972,8 @@ describe("Bug", () => {
     function layout() {
       const p0 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
       const p1 = fig([200, 200], {sizing_mode: "scale_width", background_fill_alpha: 0.5, border_fill_alpha: 0.5})
-      p0.circle([0, 1, 2], [3, 4, 5])
-      p1.circle([1, 2, 3], [4, 5, 6])
+      p0.scatter([0, 1, 2], [3, 4, 5])
+      p1.scatter([1, 2, 3], [4, 5, 6])
       return row([p0, p1], {sizing_mode: "scale_width", styles: {background_color: "orange"}})
     }
 
@@ -1071,9 +1038,9 @@ describe("Bug", () => {
 
       const view = new CDSView() // shared view between renderers
 
-      const circle_renderer = new GlyphRenderer({
+      const scatter_renderer = new GlyphRenderer({
         data_source: source,
-        glyph: new Circle(),
+        glyph: new Scatter(),
         view,
       })
 
@@ -1090,7 +1057,7 @@ describe("Bug", () => {
         width: 200, height: 200,
         x_range, y_range,
         title: null, toolbar_location: null,
-        renderers: [circle_renderer, quad_renderer],
+        renderers: [scatter_renderer, quad_renderer],
       })
 
       await display(p)
@@ -1106,9 +1073,9 @@ describe("Bug", () => {
       const common = {x, angle, hatch_pattern: "|", fill_color: "orange"}
 
       p.rect({y: 3, width: 0.7, height: 0.7, ...common})
-      p.square({y: 2, size: 50, ...common})
+      p.scatter({y: 2, size: 50, marker: "square", ...common})
       p.ellipse({y: 1, width: 0.8, height: 0.5, ...common})
-      p.hex({y: 0, size: 50, ...common})
+      p.scatter({y: 0, size: 50, marker: "hex", ...common})
 
       await display(p)
     })
@@ -1200,11 +1167,11 @@ describe("Bug", () => {
         const p0 = fig([200, 150], {
           x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\sin(x) + 1}{\\Gamma}\\right)"}),
         })
-        p0.circle([1, 2, 3], [1, 2, 3])
+        p0.scatter([1, 2, 3], [1, 2, 3])
         const p1 = fig([200, 150], {
           x_axis_label: new TeX({text: "\\theta\\cdot\\left(\\frac{\\cos(x) + 1}{\\Omega}\\right)"}),
         })
-        p1.circle([1, 2, 3], [1, 2, 3])
+        p1.scatter([1, 2, 3], [1, 2, 3])
         await display(row([p0, p1]))
       } finally {
         stub.restore()
@@ -1246,7 +1213,7 @@ describe("Bug", () => {
   describe("in issue #11446", () => {
     it("doesn't allow to correctly compute inspection indices in vline or hline mode", async () => {
       const p = fig([200, 200])
-      const cr = p.circle([1, 2, 3, 4], [1, 2, 3, 4], {
+      const cr = p.scatter([1, 2, 3, 4], [1, 2, 3, 4], {
         size: 20, fill_color: "steelblue", hover_fill_color: "red", hover_alpha: 0.1,
       })
       p.add_tools(new HoverTool({tooltips: null, renderers: [cr], mode: "vline"}))
@@ -1450,7 +1417,7 @@ describe("Bug", () => {
       })
 
       const node_renderer = new GlyphRenderer({
-        glyph: new Circle({size: 10, fill_color: "red"}),
+        glyph: new Scatter({size: 10, fill_color: "red"}),
         data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
       })
       const edge_renderer = new GlyphRenderer({
@@ -1506,7 +1473,7 @@ describe("Bug", () => {
         const source = new ColumnDataSource({data: {x, y}, selected})
 
         p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 3, line_color: "#addd8e"})
-        p.circle({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, size: 3, color: "#31a354"})
 
         return p
       }
@@ -1537,7 +1504,7 @@ describe("Bug", () => {
           output_backend, title: output_backend,
           x_range: [-1, 1], y_range: [-1, 1],
         })
-        p.circle({x: {field: "x"}, y: {field: "y"}, size: 20, source})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, size: 20, source})
         return p
       }
 
@@ -1705,7 +1672,7 @@ describe("Bug", () => {
   describe("in issue #11035", () => {
     it("doesn't allow to use non-Plot models in gridplot()", async () => {
       const plot = fig([200, 200])
-      plot.circle([1, 2, 3], [1, 2, 3])
+      plot.scatter([1, 2, 3], [1, 2, 3])
 
       const div = new Div({text: "some text"})
       const button = new Button({label: "Click!"})
@@ -1722,7 +1689,7 @@ describe("Bug", () => {
   describe("in issue #11623", () => {
     function make_plot(toolbar_location: Location | null) {
       const p = fig([200, 200], {toolbar_location})
-      p.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      p.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
       return p
     }
 
@@ -1768,13 +1735,13 @@ describe("Bug", () => {
 
     function make_gridplot(toolbar_location: Location | null) {
       const p0 = fig([100, 100])
-      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
       const p1 = fig([100, 100])
-      p1.circle([1, 2, 3], [1, 2, 3], {color: "blue"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {color: "blue"})
       const p2 = fig([100, 100])
-      p2.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+      p2.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
       const p3 = fig([100, 100])
-      p3.circle([1, 2, 3], [1, 2, 3], {color: "yellow"})
+      p3.scatter([1, 2, 3], [1, 2, 3], {color: "yellow"})
 
       return gridplot([[p0, p1], [p2, p3]], {toolbar_location})
     }
@@ -1858,13 +1825,13 @@ describe("Bug", () => {
       const tools = "xpan,ypan,xwheel_zoom,ywheel_zoom"
 
       const f0 = fig([100, 100], {tools})
-      f0.circle([0, 1, 2], [0, 1, 2])
+      f0.scatter([0, 1, 2], [0, 1, 2])
       const f1 = fig([100, 100], {tools})
-      f1.circle([3, 4, 5], [3, 4, 5])
+      f1.scatter([3, 4, 5], [3, 4, 5])
       const f2 = fig([100, 100], {tools})
-      f2.circle([6, 7, 8], [6, 7, 8])
+      f2.scatter([6, 7, 8], [6, 7, 8])
       const f3 = fig([100, 100], {tools})
-      f3.circle([9, 10, 11], [9, 10, 11])
+      f3.scatter([9, 10, 11], [9, 10, 11])
 
       const gp = gridplot([[f0, f1], [f2, f3]], {toolbar_location: "right", merge_tools: true})
       await display(gp)
@@ -1876,13 +1843,13 @@ describe("Bug", () => {
       const tools = "xpan,ypan,xwheel_zoom,ywheel_zoom"
 
       const f0 = fig([100, 100], {tools})
-      f0.circle([0, 1, 2], [0, 1, 2])
+      f0.scatter([0, 1, 2], [0, 1, 2])
       const f1 = fig([100, 100], {tools})
-      f1.circle([3, 4, 5], [3, 4, 5])
+      f1.scatter([3, 4, 5], [3, 4, 5])
       const f2 = fig([100, 100], {tools})
-      f2.circle([6, 7, 8], [6, 7, 8])
+      f2.scatter([6, 7, 8], [6, 7, 8])
       const f3 = fig([100, 100], {tools})
-      f3.circle([9, 10, 11], [9, 10, 11])
+      f3.scatter([9, 10, 11], [9, 10, 11])
 
       const gp = gridplot([[f0, f1], [f2, f3]], {toolbar_location: "right", merge_tools: true})
       gp.toolbar.active_drag = null
@@ -1907,7 +1874,7 @@ describe("Bug", () => {
       const toolbar = new Toolbar({buttons: [pan_button], tools: [pan]})
 
       const p = fig([200, 100], {toolbar_location: "right", toolbar})
-      p.circle([1, 2, 3], [1, 2, 3])
+      p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
       view.invalidate_render()
@@ -1925,7 +1892,7 @@ describe("Bug", () => {
 
       const p = fig([300, 300], {match_aspect: true})
       p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
-      p.circle({x, y, size: 4, color: "black"})
+      p.scatter({x, y, size: 4, color: "black"})
 
       await display(p)
     })
@@ -1937,7 +1904,7 @@ describe("Bug", () => {
 
       const p = fig([300, 300], {match_aspect: true})
       p.circle({x, y, radius: r, line_color: "black", fill_alpha: 0.7})
-      p.circle({x, y, size: 4, color: "black"})
+      p.scatter({x, y, size: 4, color: "black"})
 
       await display(p)
     })
@@ -1946,7 +1913,7 @@ describe("Bug", () => {
   describe("in issue #11033", () => {
     it("prevents an update of plot layout after adding an axis", async () => {
       const p = fig([350, 200])
-      p.circle({x: [1, 2, 3], y: [1, 2, 3], size: 20})
+      p.scatter({x: [1, 2, 3], y: [1, 2, 3], size: 20})
       const {view} = await display(p)
 
       for (const i of [1, 2, 3, 4, 5, 6]) {
@@ -1995,7 +1962,7 @@ describe("Bug", () => {
         const p = fig([150, 150], {output_backend, title: output_backend})
         p.xgrid.visible = false
         p.ygrid.visible = false
-        p.circle(x, 0, {size, fill_color, line_color})
+        p.scatter(x, 0, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 1, {marker: "circle", size, fill_color, line_color})
         p.scatter(x, 2, {marker: "square", size, fill_color, line_color})
         return p
@@ -2018,7 +1985,7 @@ describe("Bug", () => {
       function make_plot(output_backend: OutputBackend) {
         const p = fig([150, 150], {output_backend, title: output_backend})
         p.line({x: {field: "x"}, y: {field: "y"}, source, line_width: 4})
-        p.circle({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
+        p.scatter({x: {field: "x"}, y: {field: "y"}, source, fill_color: "red", size: 8})
         return p
       }
 
@@ -2033,7 +2000,7 @@ describe("Bug", () => {
     it("prevents correct rendering with vectorized line_width == 0", async () => {
       function plot(output_backend: OutputBackend) {
         const p = fig([150, 200], {title: output_backend, output_backend})
-        p.circle({x: 0, y: [0, 1, 2, 3], fill_color: "orange", size: 12, line_width: [0, 5, 0, 5]})
+        p.scatter({x: 0, y: [0, 1, 2, 3], fill_color: "orange", size: 12, line_width: [0, 5, 0, 5]})
         return p
       }
 
@@ -2068,7 +2035,7 @@ describe("Bug", () => {
       })
 
       const plot = fig([300, 300], {sizing_mode: "stretch_width"})
-      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5])
 
       const col = new Column({children: [div, plot], sizing_mode: "stretch_width"})
       await display(col, [300, 350])
@@ -2101,7 +2068,7 @@ describe("Bug", () => {
         height_policy: "fixed",
         toolbar_location: "right",
       })
-      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
       const pane = new Pane({
         styles: {width: "300px", height: "300px", overflow_y: "scroll"},
@@ -2168,7 +2135,7 @@ describe("Bug", () => {
   describe("in issue #4403", () => {
     it("doesn't allow layout resize when parent element's size changed", async () => {
       const plot = figure({sizing_mode: "stretch_both"})
-      plot.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      plot.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
       const pane = new Pane({styles: {width: "200px", height: "200px"}, children: [plot]})
       const {view} = await display(pane, [350, 350])
@@ -2182,7 +2149,7 @@ describe("Bug", () => {
   describe("in issue #8469", () => {
     it("makes child layout update invalidate and re-render entire layout", async () => {
       const p0 = figure({width: 300, height: 300})
-      p0.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      p0.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
       const button = new Button({label: "click"})
       const column = new Column({children: [new Column({children: [button, p0]})]})
       const tab0 = new TabPanel({child: column, title: "circle"})
@@ -2210,7 +2177,7 @@ describe("Bug", () => {
   describe("in issue #9133", () => {
     it("doesn't allow to set fixed size of Tabs layout", async () => {
       const p1 = figure({width: 300, height: 300})
-      p1.circle([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
+      p1.scatter([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {size: 20, color: "navy", alpha: 0.5})
 
       const p2 = figure({width: 300, height: 300})
       p2.line([1, 2, 3, 4, 5], [6, 7, 2, 4, 5], {line_width: 3, color: "navy", alpha: 0.5})
@@ -2352,7 +2319,7 @@ describe("Bug", () => {
       const lasso = new LassoSelectTool({persistent: true})
       lasso.overlay.line_dash = "solid"
       const p = fig([200, 200], {tools: [lasso]})
-      p.circle([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
+      p.scatter([-2, -1, 0, 1, 2], [-2, -1, 0, 1, 2], {size: 10, color})
       return p
     }
 
@@ -2415,9 +2382,9 @@ describe("Bug", () => {
   describe("in issue #12405", () => {
     it("doesn't allow to propagate computed layouts in nested CSS layouts", async () => {
       const p0 = fig([200, 200])
-      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
       const p1 = fig([200, 200])
-      p1.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
 
       const g = new GridPlot({children: [[p0, 0, 0], [p1, 0, 1]]})
       const r = new Row({children: [g]})
@@ -2431,7 +2398,7 @@ describe("Bug", () => {
     it("make tooltips interfere with toolbars", async () => {
       const p = fig([200, 200], {toolbar_location: "above"})
       p.add_tools(new HoverTool())
-      p.circle([1, 2, 3], [1, 2, 3], {size: 20})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 20})
 
       const {view: pv} = await display(p)
       await actions(pv).hover(xy(3, 3))
@@ -2446,7 +2413,7 @@ describe("Bug", () => {
           y_axis_location: y ? "below" : null,
         })
 
-        p.circle([1, 2, 3], [1, 2, 3], {size: 10})
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 10})
         return p
       }
 
@@ -2473,7 +2440,7 @@ describe("Bug", () => {
       p.yaxis.major_label_orientation = "horizontal"
       const xs = [1, 2, 3].map((c) => c*a)
       const ys = [1, 2, 3].map((c) => c*b)
-      p.circle(xs, ys, {size: 10, color})
+      p.scatter(xs, ys, {size: 10, color})
       return p
     }
 
@@ -2546,7 +2513,7 @@ describe("Bug", () => {
           baz: ["baz1", "baz2", "baz3"],
         },
       })
-      p.circle([1, 2, 3], [3, 1, 2], {size: 10, color, source})
+      p.scatter([1, 2, 3], [3, 1, 2], {size: 10, color, source})
       const hover = new HoverTool({
         tooltips: [
           ["index",         "$index"],
@@ -2643,7 +2610,7 @@ describe("Bug", () => {
       function plot(color: Color) {
         const tool = new ZoomInTool()
         const plot = fig([300, 300], {toolbar_location: null, tools: [tool]})
-        plot.circle([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
+        plot.scatter([1, 2, 3, 4, 5], [1, 2, 3, 4, 5], {size: 10, color})
         return {plot, tool}
       }
 
@@ -2716,7 +2683,7 @@ describe("Bug", () => {
   describe("in issue #12583", () => {
     function plot(color: Color) {
       const p = fig([100, 100])
-      p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+      p.scatter([1, 2, 3], [1, 2, 3], {size: 10, color})
       return p
     }
 
@@ -2765,7 +2732,7 @@ describe("Bug", () => {
   describe("in issue #12640", () => {
     it("doesn't allow layout computation for initially undisplayed components", async () => {
       const plot = fig([200, 200])
-      plot.circle([1, 2, 3], [1, 2, 3], {size: 10})
+      plot.scatter([1, 2, 3], [1, 2, 3], {size: 10})
 
       const pane = new Pane({
         stylesheets: [`
@@ -2797,7 +2764,7 @@ describe("Bug", () => {
   describe("in issue #12410", () => {
     it("allows positioning of hover tool tooltips outside the frame", async () => {
       const plot = fig([200, 200], {x_range: [1, 2], y_range: [1, 2], tools: "hover"})
-      plot.circle([0.9], [0.9], {radius: 0.5})
+      plot.circle({x: [0.9], y: [0.9], radius: 0.5})
 
       const {view: pv} = await display(plot)
       await actions(pv).hover(xy(1.1, 1.1))
@@ -2811,7 +2778,7 @@ describe("Bug", () => {
         y_axis_location: null,
         outline_line_color: "black",
       })
-      const g = p.circle([1, 2, 3], [1, 2, 3], {radius: 0.5})
+      const g = p.circle({x: [1, 2, 3], y: [1, 2, 3], radius: 0.5})
 
       const {view: pv} = await display(p)
       const gv = pv.owner.get_one(g)
@@ -2857,7 +2824,7 @@ describe("Bug", () => {
       const zoom_out_button = zoom_out.tool_button()
       const toolbar = new Toolbar({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
       const p = fig([200, 200], {toolbar, toolbar_location: "right"})
-      p.circle([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
+      p.scatter([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
 
       const {view} = await display(p)
       await paint()
@@ -2920,7 +2887,7 @@ describe("Bug", () => {
       const random = new Random(1)
       const x = random.floats(100, 0, 9)
       const y = random.floats(100, 0, 1)
-      p.circle(x, y, {size: 10})
+      p.scatter(x, y, {size: 10})
 
       const tool0 = new RangeTool({
         x_range: new Range1d({start: 1, end: 2}),
@@ -3015,7 +2982,7 @@ describe("Bug", () => {
       const table = new DataTable({source, columns, view: cds_view, width: 200})
 
       const p = fig([200, 200])
-      p.circle({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
+      p.scatter({x: {field: "col2"}, y: {field: "col3"}, size: 10, source, view: cds_view})
 
       const {view} = await display(row([table, p]))
       await paint()
@@ -3092,7 +3059,7 @@ describe("Bug", () => {
     it("doesn't allow GridPlot with plots all with sizing_mode='stretch_width'", async () => {
       function plot(color: Color) {
         const p = figure({sizing_mode: "stretch_width", height: 200})
-        p.circle([1, 2, 3], [1, 2, 3], {size: 10, color})
+        p.scatter([1, 2, 3], [1, 2, 3], {size: 10, color})
         return p
       }
 
@@ -3142,7 +3109,7 @@ describe("Bug", () => {
           x_range: new DataRange1d({range_padding: 0.3}),
           y_range: new DataRange1d({range_padding: 0.3}),
         })
-        p.circle(0, 0, {radius: 1, fill_color: null})
+        p.circle({x: 0, y: 0, radius: 1, fill_color: null})
         return p
       }
 
@@ -3217,13 +3184,13 @@ describe("Bug", () => {
       }
 
       const p00 = new CustomFigure()
-      p00.circle([1, 2, 3], [1, 2, 3], {fill_color: "red"})
+      p00.scatter([1, 2, 3], [1, 2, 3], {fill_color: "red"})
       const p01 = new CustomFigure()
-      p01.circle([1, 2, 3], [1, 2, 3], {fill_color: "green"})
+      p01.scatter([1, 2, 3], [1, 2, 3], {fill_color: "green"})
       const p10 = new CustomFigure()
-      p10.circle([1, 2, 3], [1, 2, 3], {fill_color: "blue"})
+      p10.scatter([1, 2, 3], [1, 2, 3], {fill_color: "blue"})
       const p11 = new CustomFigure()
-      p11.circle([1, 2, 3], [1, 2, 3], {fill_color: "yellow"})
+      p11.scatter([1, 2, 3], [1, 2, 3], {fill_color: "yellow"})
 
       const gp = new GridBox({
         children: [
@@ -3275,7 +3242,7 @@ describe("Bug", () => {
         })
 
         const node_renderer = new GlyphRenderer({
-          glyph: new Circle({size: 10, fill_color: "red"}),
+          glyph: new Scatter({size: 10, fill_color: "red"}),
           data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
         })
         const edge_renderer = new GlyphRenderer({
@@ -3342,7 +3309,7 @@ describe("Bug", () => {
       const source = new ColumnDataSource({data})
 
       const p = fig([200, 200], {x_range: [0, 7], y_range: [0, 3]})
-      p.circle({field: "x"}, {field: "y"}, {radius: 0.5, color: {field: "color"}, legend_field: "label", source})
+      p.circle({x: {field: "x"}, y: {field: "y"}, radius: 0.5, color: {field: "color"}, legend_field: "label", source})
       p.legend.location = "bottom_right"
 
       const {view} = await display(p)
@@ -3364,7 +3331,7 @@ describe("Bug", () => {
       const cds_view = new CDSView()
 
       const p = fig([200, 200])
-      p.circle({
+      p.scatter({
         x: {field: "values"},
         y: {value: 1},
         fill_color: {field: "color"},
@@ -3555,7 +3522,7 @@ describe("Bug", () => {
           tools: [hover, wheel_pan],
           active_scroll: wheel_pan,
         })
-        p.circle({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
+        p.scatter({x: [0, 2], y: [0, 0], color: ["red", "green"], size: 20})
 
         return p
       }
@@ -3589,10 +3556,10 @@ describe("Bug", () => {
   describe("in issue #13323", () => {
     it("doesn't allow to repaint plots in layouts when only their inner layout bbox changed", async () => {
       const p0 = fig([200, 200])
-      p0.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: "blue"})
 
       const p1 = fig([200, 200], {y_axis_type: null})
-      p1.circle([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {size: 20, color: "red"})
 
       const {view} = await display(column([p0, p1]))
 
@@ -3605,7 +3572,7 @@ describe("Bug", () => {
     it("doesn't allow to correctly update children in a complex layout", async () => {
       function make_tab(title: string, color: Color) {
         const plot = fig([200, 200])
-        const r = plot.circle([1, 2, 3], [1, 2, 3], {color})
+        const r = plot.scatter([1, 2, 3], [1, 2, 3], {color})
         const columns = [
           new TableColumn({field: "x", title: "X"}),
           new TableColumn({field: "y", title: "Y"}),
@@ -3644,7 +3611,7 @@ describe("Bug", () => {
       })
 
       const p = fig([300, 300], {tools: "hover"})
-      p.circle([0], [0], {size: 10})
+      p.scatter([0], [0], {size: 10})
 
       const {view: pv} = await display(p, [400, 300], box)
       box.scroll({left: 100, top: 100})

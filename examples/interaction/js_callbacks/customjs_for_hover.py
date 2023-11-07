@@ -5,7 +5,7 @@ This example demonstrates adding links between points on a graph.
 These lines only show on hover using ``CustomJS`` callbacks to update the plot.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.add_tools, bokeh.models.HoverTool, bokeh.models.sources.ColumnDataSource, bokeh.models.callbacks.CustomJS
+    :apis: bokeh.plotting.figure.add_tools, bokeh.models.HoverTool, bokeh.models.ColumnDataSource, bokeh.models.CustomJS
     :refs: :ref:`ug_interaction_js_callbacks_customjs`
     :keywords: hover, javascript callback, CustomJS
 
@@ -31,7 +31,7 @@ p = figure(width=400, height=400, tools="", toolbar_location=None, title='Hover 
 
 source = ColumnDataSource({'x0': [], 'y0': [], 'x1': [], 'y1': []})
 sr = p.segment(x0='x0', y0='y0', x1='x1', y1='y1', color='olive', alpha=0.6, line_width=3, source=source )
-cr = p.circle(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hover_alpha=1.0)
+cr = p.scatter(x, y, color='olive', size=30, alpha=0.4, hover_color='olive', hover_alpha=1.0)
 
 # add a hover tool that sets the link data for a hovered circle
 code = """

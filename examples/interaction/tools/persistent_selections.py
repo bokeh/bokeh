@@ -18,10 +18,7 @@ lasso_select = LassoSelectTool(persistent=True)
 p.add_tools(box_select, poly_select, lasso_select)
 p.add_tools("crosshair", "hover", "zoom_in", "zoom_out", "undo", "redo")
 
-p.scatter(
-    x, y, radius=radii,
-    fill_color=colors, fill_alpha=0.6,
-    line_color=None,
-)
+p.circle(x, y, radius=radii,
+         fill_color=colors, fill_alpha=0.6, line_color=None)
 
 show(p)

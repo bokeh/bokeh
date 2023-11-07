@@ -56,9 +56,7 @@ colors = np.array([(r, g, 150) for r, g in zip(50+2*x, 30+2*y)], dtype="uint8")
 
 p = figure(tools="pan,wheel_zoom,zoom_in,zoom_out,reset,tap,lasso_select,box_select,box_zoom,undo,redo")
 
-p.scatter(x, y, radius=radii,
-          fill_color=colors, fill_alpha=0.6,
-          line_color=None)
+p.circle(x, y, radius=radii, fill_color=colors, fill_alpha=0.6, line_color=None)
 
 # Add a div to display events and a button to trigger button click events
 

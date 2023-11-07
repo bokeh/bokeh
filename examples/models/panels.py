@@ -1,5 +1,5 @@
 from bokeh.io import show
-from bokeh.models import Circle, ColumnDataSource, LinearAxis, Plot, Range1d, Title
+from bokeh.models import ColumnDataSource, LinearAxis, Plot, Range1d, Scatter, Title
 
 p = Plot(
     title=None, toolbar_location=None,
@@ -25,8 +25,8 @@ p.add_layout(LinearAxis(y_range_name="y"), "left")
 p.add_layout(LinearAxis(axis_label="y_label"), "right")
 p.add_layout(LinearAxis(y_range_name="y"), "right")
 
-gly = Circle(x="x", y="y", size=10)
-p.add_glyph(source, gly)
+scatter = Scatter(x="x", y="y", size=10)
+p.add_glyph(source, scatter)
 
 def add_title(text, loc, bg):
     lab = Title(text=text, background_fill_color=bg)

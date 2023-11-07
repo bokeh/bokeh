@@ -5,7 +5,7 @@ import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
 import {GraphRenderer} from "@bokehjs/models/renderers/graph_renderer"
 import {GlyphRenderer} from "@bokehjs/models/renderers/glyph_renderer"
 import {StaticLayoutProvider} from "@bokehjs/models/graphs"
-import {Circle, MultiLine} from "@bokehjs/models/glyphs"
+import {Scatter, MultiLine} from "@bokehjs/models/glyphs"
 import {Plot} from "@bokehjs/models/plots"
 import type {Document} from "@bokehjs/document"
 import {SerializationError} from "@bokehjs/core/serialization"
@@ -27,7 +27,7 @@ async function create_graph_document(): Promise<GraphComponents> {
   })
 
   const node_renderer = new GlyphRenderer({
-    glyph: new Circle({size: 10, fill_color: "red"}),
+    glyph: new Scatter({size: 10, fill_color: "red"}),
     data_source: new ColumnDataSource({data: {index: [4, 5, 6, 7]}}),
   })
   const edge_renderer = new GlyphRenderer({
