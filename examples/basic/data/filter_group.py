@@ -13,7 +13,7 @@ p1.circle(x="bill_length_mm", y="bill_depth_mm", source=source)
 
 p2 = figure(title="Adelie only", height=300, width=300,
             tools=TOOLS, x_range=p1.x_range, y_range=p1.y_range)
-p2.circle(x="bill_length_mm", y="bill_depth_mm", size=6,
-          source=source, view=view, color='darkorange')
+p2.scatter(x="bill_length_mm", y="bill_depth_mm", size=6,
+           source=source, view=view, color='darkorange')
 
 show(gridplot([[p1, p2]]))

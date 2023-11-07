@@ -7,7 +7,7 @@ y = np.sin(x)
 
 p = figure()
 
-p.circle(x, y, legend_label="sin(x)")
+p.scatter(x, y, legend_label="sin(x)")
 p.line(x, y, legend_label="sin(x)")
 
 p.line(x, 2*y, legend_label="2*sin(x)",

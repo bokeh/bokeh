@@ -23,7 +23,7 @@ p.grid.visible = False
 
 r, bins = p.hexbin(x, y, size=0.5, hover_color="pink", hover_alpha=0.8)
 
-p.circle(x, y, color="white", size=1)
+p.scatter(x, y, color="white", size=1)
 
 p.add_tools(HoverTool(
     tooltips=[("count", "@c"), ("(q,r)", "(@q, @r)")],

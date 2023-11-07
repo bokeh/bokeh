@@ -26,7 +26,7 @@ p = figure(
     background_fill_color="#efefef",
 )
 r = p.image_rgba(image=[img], x=0, y=0, dw=8.5, dh=8.5)
-p.circle(0, 0, size=12, fill_color="black", line_color="white", line_width=3)
+p.scatter(0, 0, size=12, fill_color="black", line_color="white", line_width=3)
 
 # a legend to identify the image pixel i, j coordinates
 source = ColumnDataSource(data=dict(

@@ -2,7 +2,7 @@
 by adding a dictionary with pairs of position and mathtext.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.circle
+    :apis: bokeh.plotting.figure.line, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 '''

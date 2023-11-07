@@ -6,7 +6,7 @@ from bokeh.plotting import figure
 div = Div(text="Pan or zoom the plot, then click on <b>Reset plot</b> button.")
 
 p = figure(width=400, height=400, active_scroll="wheel_zoom")
-p.circle(
+p.scatter(
     x=[1, 2, 3, 4, 5],
     y=[2, 5, 8, 2, 7],
     color=["navy", "orange", "olive", "firebrick", "gold"],
