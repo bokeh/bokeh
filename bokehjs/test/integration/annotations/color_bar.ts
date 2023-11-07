@@ -26,12 +26,12 @@ describe("ColorBar annotation", () => {
     const y1 = random.floats(10)
     const y2 = random.floats(10)
 
-    p.circle(x, y0, {fill_color: "red"})
+    p.scatter(x, y0, {fill_color: "red"})
 
-    p.circle(x, y1, {fill_color: "blue"})
+    p.scatter(x, y1, {fill_color: "blue"})
     p.line(x, y1, {line_color: "orange"})
 
-    p.circle(x, y2, {fill_color: "green"})
+    p.scatter(x, y2, {fill_color: "green"})
 
     const color_bar = (attrs: Partial<ColorBar.Attrs>) => {
       const color_mapper = new LinearColorMapper({palette: Spectral11, low: -2, high: 5})

@@ -123,10 +123,10 @@ describe("Feature", () => {
   describe("in issue #9498", () => {
     it("should allow to inherit sizing_mode from parent", async () => {
       const p0 = fig([200, 200], {sizing_mode: "inherit"})
-      p0.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      p0.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
 
       const p1 = fig([200, 200], {sizing_mode: "inherit"})
-      p1.circle([1, 2, 3], [1, 2, 3], {color: "green"})
+      p1.scatter([1, 2, 3], [1, 2, 3], {color: "green"})
 
       const row = new Row({children: [p0, p1], sizing_mode: "stretch_width"})
       const pane = new Pane({children: [row], styles: {width: "500px", height: "250px"}})

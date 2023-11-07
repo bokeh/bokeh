@@ -123,7 +123,7 @@ describe("in api/plotting module", () => {
     })
 
     it("should throw if multiple legend_* attributes are provided", () => {
-      expect(() => figure().circle(0, 0, {legend_label: "circle", legend_field: "circle"})).to.throw()
+      expect(() => figure().scatter(0, 0, {legend_label: "circle", legend_field: "circle"})).to.throw()
     })
   })
 })

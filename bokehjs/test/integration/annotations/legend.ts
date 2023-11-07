@@ -22,12 +22,12 @@ describe("Legend annotation", () => {
     const y2 = random.floats(10)
     const y3 = random.floats(10)
 
-    const cr0 = p.circle(x, y0, {fill_color: "red"})
+    const cr0 = p.scatter(x, y0, {fill_color: "red"})
 
-    const cr1 = p.circle(x, y1, {fill_color: "blue"})
+    const cr1 = p.scatter(x, y1, {fill_color: "blue"})
     const lr1 = p.line(x, y1, {line_color: "orange"})
 
-    const cr2 = p.circle(x, y2, {fill_color: "green"})
+    const cr2 = p.scatter(x, y2, {fill_color: "green"})
 
     const cr3 = p.scatter(x, y3, {marker: "square", fill_color: "yellow", line_color: "blue"})
 
@@ -105,7 +105,7 @@ describe("Legend annotation", () => {
         if (type == "line") {
           return p.line(x, y, options as Partial<LineArgs>)
         } else {
-          return p.circle(x, y, options)
+          return p.scatter(x, y, options)
         }
       })
 
@@ -278,17 +278,17 @@ describe("Legend annotation", () => {
 
       const p = fig([300, 300])
 
-      const cr1 = p.circle(x, y1, {fill_color: null, line_color: "green"})
+      const cr1 = p.scatter(x, y1, {fill_color: null, line_color: "green"})
 
       const sr2 = p.scatter(x, y2, {marker: "square", fill_color: null, line_color: "orange"})
       const lr2 = p.line(x, y2, {line_color: "orange"})
 
-      const cr3 = p.circle(x, y3, {fill_color: null, line_color: "blue"})
+      const cr3 = p.scatter(x, y3, {fill_color: null, line_color: "blue"})
 
       const sr4 = p.scatter(x, y4, {marker: "square", fill_color: null, line_color: "tomato"})
       const lr4 = p.line(x, y4, {line_color: "tomato"})
 
-      const cr5 = p.circle(x, y5, {fill_color: null, line_color: "purple"})
+      const cr5 = p.scatter(x, y5, {fill_color: null, line_color: "purple"})
 
       const sr6 = p.scatter(x, y6, {marker: "square", fill_color: null, line_color: "pink"})
       const lr6 = p.line(x, y6, {line_color: "pink"})

@@ -332,14 +332,14 @@ describe("Plot", () => {
     it("should support hold_render property", async () => {
       const p = fig([200, 200])
 
-      p.circle([1, 2, 3], [1, 2, 3], {color: "red"})
+      p.scatter([1, 2, 3], [1, 2, 3], {color: "red"})
       const {view} = await display(p)
 
       const spy = sinon.spy(view as any, "_actual_paint") // XXX: protected
 
       p.hold_render = true
-      p.circle([1, 2, 3], [2, 3, 4], {color: "blue"})
-      p.circle([1, 2, 3], [3, 4, 5], {color: "green"})
+      p.scatter([1, 2, 3], [2, 3, 4], {color: "blue"})
+      p.scatter([1, 2, 3], [3, 4, 5], {color: "green"})
       await view.ready
 
       expect(spy.callCount).to.be.equal(0)

@@ -123,13 +123,13 @@ describe("Bug", () => {
     it("prevents hovering over dynamically added glyphs", async () => {
       const hover = new HoverTool({renderers: "auto"})
       const plot = fig([200, 200], {tools: [hover]})
-      plot.circle([1, 2, 3], [4, 5, 6])
+      plot.scatter([1, 2, 3], [4, 5, 6])
       const {view} = await display(plot)
       const hover_view = view.owner.get_one(hover)
       expect(hover_view.computed_renderers.length).to.be.equal(1)
 
-      plot.circle([2, 3, 4], [4, 5, 6])
-      plot.circle([3, 4, 5], [4, 5, 6])
+      plot.scatter([2, 3, 4], [4, 5, 6])
+      plot.scatter([3, 4, 5], [4, 5, 6])
       await view.ready
       expect(hover_view.computed_renderers.length).to.be.equal(3)
     })
@@ -138,8 +138,8 @@ describe("Bug", () => {
   describe("in issue #10784", () => {
     it("doesn't allow to repaint an individual layer of a plot", async () => {
       const plot = fig([200, 200])
-      const r0 = plot.circle([0, 1, 2], [3, 4, 5], {fill_color: "blue", level: "glyph"})
-      const r1 = plot.circle(1, 3, {fill_color: "red", level: "overlay"})
+      const r0 = plot.scatter([0, 1, 2], [3, 4, 5], {fill_color: "blue", level: "glyph"})
+      const r1 = plot.scatter(1, 3, {fill_color: "red", level: "overlay"})
       const r2 = new BoxAnnotation({left: 0, right: 2, bottom: 3, top: 5, level: "overlay"})
       plot.add_layout(r2)
       const {view} = await display(plot)
@@ -506,7 +506,7 @@ describe("Bug", () => {
         const copy_btn = copy.tool_button()
         const toolbar = new Toolbar({tools: [copy], buttons: [copy_btn]})
         const p = fig([100, 100], {toolbar})
-        p.circle({x: [0, 1, 2], y: [0, 1, 2], color})
+        p.scatter({x: [0, 1, 2], y: [0, 1, 2], color})
         return p
       }
 
@@ -545,7 +545,7 @@ describe("Bug", () => {
         y_axis_location: null,
         min_border: 0,
       })
-      const r = p.circle({x: [1, 2, 3], y: [1, 2, 3]})
+      const r = p.scatter([1, 2, 3], [1, 2, 3])
 
       const {view} = await display(p)
       await paint()
@@ -662,9 +662,9 @@ describe("Bug", () => {
       const p1 = fig([200, 200], {tools: "pan", x_range: p0.x_range, y_range: p0.y_range})
       const p2 = fig([200, 200], {tools: "pan", x_range: p0.x_range})
 
-      p0.circle([1, 2, 3], [0, 1, 2])
-      p1.circle([1, 2, 3], [2, 3, 4])
-      p2.circle([1, 2, 3], [5, 6, 7])
+      p0.scatter([1, 2, 3], [0, 1, 2])
+      p1.scatter([1, 2, 3], [2, 3, 4])
+      p2.scatter([1, 2, 3], [5, 6, 7])
 
       const events: RangesUpdate[] = []
       p0.on_event(RangesUpdate, (event) => events.push(event))
