@@ -95,7 +95,7 @@ class CompilationError(RuntimeError):
     def __str__(self) -> str:
         return "\n" + self.text.strip()
 
-bokehjs_dir = settings.bokehjsdir()
+bokehjs_dir = settings.bokehjs_path()
 nodejs_min_version = (18, 0, 0)
 
 def nodejs_version() -> str | None:
@@ -106,7 +106,7 @@ def npmjs_version() -> str | None:
 
 def nodejs_compile(code: str, lang: str = "javascript", file: str | None = None) -> AttrDict:
     compilejs_script = join(bokehjs_dir, "js", "compiler.js")
-    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=bokehjs_dir))
+    output = _run_nodejs([compilejs_script], dict(code=code, lang=lang, file=file, bokehjs_dir=os.fspath(bokehjs_dir)))
     lines = output.split("\n")
     for i, line in enumerate(lines):
         if not line.startswith("LOG"):
@@ -384,7 +384,7 @@ _export_template = \
 _module_template = \
 """"%(module)s": function(require, module, exports) {\n%(source)s\n}"""
 
-def _detect_nodejs() -> str:
+def _detect_nodejs() -> Path:
     nodejs_path = settings.nodejs_path()
     nodejs_paths = [nodejs_path] if nodejs_path is not None else ["nodejs", "node"]
 
@@ -404,34 +404,33 @@ def _detect_nodejs() -> str:
             version = tuple(int(v) for v in match.groups())
 
             if version >= nodejs_min_version:
-                return nodejs_path
+                return Path(nodejs_path)
 
     # if we've reached here, no valid version was found
     version_repr = ".".join(str(x) for x in nodejs_min_version)
     raise RuntimeError(f'node.js v{version_repr} or higher is needed to allow compilation of custom models ' +
                        '("conda install nodejs" or follow https://nodejs.org/en/download/)')
 
-_nodejs = None
-_npmjs = None
+_nodejs: Path | None = None
+_npmjs: Path | None = None
 
-def _nodejs_path() -> str:
+def _nodejs_path() -> Path:
     global _nodejs
     if _nodejs is None:
         _nodejs = _detect_nodejs()
     return _nodejs
 
-def _npmjs_path() -> str:
+def _npmjs_path() -> Path:
     global _npmjs
     if _npmjs is None:
-        _npmjs = join(dirname(_nodejs_path()), "npm")
-        if sys.platform == "win32":
-            _npmjs += '.cmd'
+        executable = "npm.cmd" if sys.platform == "win32" else "npm"
+        _npmjs = _nodejs_path().parent / executable
     return _npmjs
 
 def _crlf_cr_2_lf(s: str) -> str:
     return re.sub(r"\\r\\n|\\r|\\n", r"\\n", s)
 
-def _run(app: str, argv: list[str], input: dict[str, Any] | None = None) -> str:
+def _run(app: Path, argv: list[str], input: dict[str, Any] | None = None) -> str:
     proc = Popen([app, *argv], stdout=PIPE, stderr=PIPE, stdin=PIPE)
     (stdout, errout) = proc.communicate(input=None if input is None else json.dumps(input).encode())
 

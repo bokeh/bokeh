@@ -23,15 +23,9 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import hashlib
 import json
+import os
 from dataclasses import dataclass
-from os.path import (
-    abspath,
-    basename,
-    dirname,
-    exists,
-    join,
-    normpath,
-)
+from os.path import normpath
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -40,6 +34,7 @@ from typing import (
     Sequence,
     TypedDict,
 )
+from urllib.parse import urljoin
 
 # Bokeh imports
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
@@ -77,7 +72,7 @@ class Artifact:
 
 class ScriptRef(Artifact):
     def __init__(self, url: str, type: str = "text/javascript") -> None:
-        self.url = url
+        self.url = URL(url)
         self.type = type
 
 
@@ -89,7 +84,7 @@ class Script(Artifact):
 
 class StyleRef(Artifact):
     def __init__(self, url: str) -> None:
-        self.url = url
+        self.url = URL(url)
 
 
 class Style(Artifact):
@@ -99,14 +94,14 @@ class Style(Artifact):
 
 class Bundle:
 
-    js_files: list[str]
+    js_files: list[URL]
     js_raw: list[str]
-    css_files: list[str]
+    css_files: list[URL]
     css_raw: list[str]
     hashes: Hashes
 
-    def __init__(self, js_files: list[str] = [], js_raw: list[str] = [],
-            css_files: list[str] = [], css_raw: list[str] = [], hashes: Hashes = {}):
+    def __init__(self, js_files: list[URL] = [], js_raw: list[str] = [],
+            css_files: list[URL] = [], css_raw: list[str] = [], hashes: Hashes = {}):
         self.js_files = js_files[:]
         self.js_raw = js_raw[:]
         self.css_files = css_files[:]
@@ -130,11 +125,11 @@ class Bundle:
             return "\n".join(self.js_raw)
 
     @property
-    def js_urls(self) -> list[str]:
+    def js_urls(self) -> list[URL]:
         return self.js_files
 
     @property
-    def css_urls(self) -> list[str]:
+    def css_urls(self) -> list[URL]:
         return self.css_files
 
     def add(self, artifact: Artifact) -> None:
@@ -174,9 +169,9 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
         use_gl      = True
         use_mathjax = True
 
-    js_files: list[str] = []
+    js_files: list[URL] = []
     js_raw: list[str] = []
-    css_files: list[str] = []
+    css_files: list[URL] = []
     css_raw: list[str] = []
 
     if resources is not None:
@@ -188,10 +183,10 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
 
         resources = resources.clone(components=components)
 
-        js_files.extend(resources.js_files)
+        js_files.extend(map(URL, resources.js_files))
         js_raw.extend(resources.js_raw)
 
-        css_files.extend(resources.css_files)
+        css_files.extend(map(URL, resources.css_files))
         css_raw.extend(resources.css_raw)
 
         extensions = _bundle_extensions(all_objs if objs else None, resources)
@@ -207,7 +202,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
                 else:
                     js_raw.append(Resources._inline(bundle.artifact_path))
         else:
-            js_files.extend([ bundle.artifact_path for bundle in extensions ])
+            js_files.extend([ URL(str(bundle.artifact_path)) for bundle in extensions ])
 
     models = [ obj.__class__ for obj in all_objs ] if all_objs else None
     ext = bundle_models(models)
@@ -240,19 +235,32 @@ def _query_extensions(all_objs: set[Model], query: Callable[[type[Model]], bool]
 
     return False
 
-_default_cdn_host = "https://unpkg.com"
+@dataclass(frozen=True)
+class URL:
+    """ Opaque type for representing URLs. """
+
+    url: str
+
+    def __truediv__(self, path: str) -> URL:
+        url = self.url if self.url.endswith("/") else f"{self.url}/"
+        return URL(urljoin(url, path.replace(os.sep, "/")))
+
+    def __str__(self) -> str:
+        return self.url
 
 @dataclass(frozen=True)
 class ExtensionEmbed:
-    artifact_path: str
-    server_url: str
-    cdn_url: str | None = None
+    artifact_path: Path
+    server_url: URL
+    cdn_url: URL | None = None
 
 class Pkg(TypedDict):
     name: NotRequired[str]
     version: NotRequired[str]
     module: NotRequired[str]
     main: NotRequired[str]
+
+_default_cdn_host = URL("https://unpkg.com")
 
 extension_dirs: dict[str, Path] = {}
 
@@ -274,28 +282,28 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
             continue
         names.add(name)
         module = __import__(name)
-        this_file = abspath(module.__file__)
-        base_dir = dirname(this_file)
-        dist_dir = join(base_dir, "dist")
+        this_file = Path(module.__file__).absolute()
+        base_dir = this_file.parent
+        dist_dir = base_dir / "dist"
 
-        ext_path = join(base_dir, "bokeh.ext.json")
-        if not exists(ext_path):
+        ext_path = base_dir / "bokeh.ext.json"
+        if not ext_path.exists():
             continue
 
-        server_prefix = f"{resources.root_url}static/extensions"
-        package_path = join(base_dir, "package.json")
+        server_prefix = URL(resources.root_url) / "static" / "extensions"
+        package_path = base_dir / "package.json"
 
         pkg: Pkg | None = None
-        if exists(package_path):
+        if package_path.exists():
             with open(package_path) as io:
                 try:
                     pkg = json.load(io)
                 except json.decoder.JSONDecodeError:
                     pass
 
-        artifact_path: str
-        server_url: str
-        cdn_url: str | None = None
+        artifact_path: Path
+        server_url: URL
+        cdn_url: URL | None = None
 
         if pkg is not None:
             pkg_name: str | None = pkg.get("name", None)
@@ -304,12 +312,13 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
             pkg_version = pkg.get("version", "latest")
             pkg_main = pkg.get("module", pkg.get("main", None))
             if pkg_main is not None:
-                cdn_url = f"{_default_cdn_host}/{pkg_name}@{pkg_version}/{pkg_main}"
+                pkg_main = Path(normpath(pkg_main))
+                cdn_url = _default_cdn_host / f"{pkg_name}@{pkg_version}" / f"{pkg_main}"
             else:
-                pkg_main = join(dist_dir, f"{name}.js")
-            artifact_path = join(base_dir, normpath(pkg_main))
-            artifacts_dir = dirname(artifact_path)
-            artifact_name = basename(artifact_path)
+                pkg_main = dist_dir / f"{name}.js"
+            artifact_path = base_dir / pkg_main
+            artifacts_dir = artifact_path.parent
+            artifact_name = artifact_path.name
             server_path = f"{name}/{artifact_name}"
             if not settings.dev:
                 sha = hashlib.sha256()
@@ -318,16 +327,16 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
                 server_path = f"{server_path}?v={vstring}"
         else:
             for ext in extensions:
-                artifact_path = join(dist_dir, f"{name}{ext}")
+                artifact_path = dist_dir / f"{name}{ext}"
                 artifacts_dir = dist_dir
                 server_path = f"{name}/{name}{ext}"
-                if exists(artifact_path):
+                if artifact_path.exists():
                     break
             else:
                 raise ValueError(f"can't resolve artifact path for '{name}' extension")
 
         extension_dirs[name] = Path(artifacts_dir)
-        server_url = f"{server_prefix}/{server_path}"
+        server_url = server_prefix / server_path
         embed = ExtensionEmbed(artifact_path, server_url, cdn_url)
         bundles.append(embed)
 

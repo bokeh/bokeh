@@ -110,8 +110,8 @@ calls it with the rendered model.
   }
 
   {% if bundle %}
-  const js_urls = {{ bundle.js_urls|tojson }};
-  const css_urls = {{ bundle.css_urls|tojson }};
+  const js_urls = {{ bundle.js_urls|map(attribute="url")|list|tojson }};
+  const css_urls = {{ bundle.css_urls|map(attribute="url")|list|tojson }};
   {% else %}
   const js_urls = {{ js_urls|tojson }};
   const css_urls = {{ css_urls|tojson }};

@@ -25,7 +25,7 @@ from tornado.httputil import HTTPConnection, HTTPServerRequest
 
 # Bokeh imports
 from bokeh.application import Application
-from bokeh.util.paths import serverdir
+from bokeh.util.paths import server_path
 from tests.support.plugins.managed_server_loop import MSL
 
 # Module under test
@@ -42,7 +42,7 @@ import bokeh.server.views.multi_root_static_handler as bsvm # isort:skip
 def test_multi_root_static_handler(ManagedServerLoop: MSL) -> None:
     application = Application()
 
-    static_path = Path(serverdir()) / "static" # TODO: PR #13042
+    static_path = server_path() / "static"
     js_path = static_path / "js"
     lib_path = static_path / "lib"
 

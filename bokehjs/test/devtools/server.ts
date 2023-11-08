@@ -4,6 +4,7 @@ import {join, resolve, dirname} from "path"
 
 import {argv} from "yargs"
 import express from "express"
+import cors from "cors"
 import nunjucks from "nunjucks"
 
 import * as sys from "./sys"
@@ -16,6 +17,7 @@ nunjucks.configure(".", {
   noCache: true,
 })
 
+app.use(cors())
 app.use("/static", express.static("build/"))
 app.use("/assets", express.static("test/assets/"))
 app.use("/cases", express.static("../tests/baselines/cross/"))
@@ -132,7 +134,6 @@ with open(__file__, "rb") as example:
   const env = {
     ...process.env,
     BOKEH_DEV: "true",
-    BOKEH_RESOURCES: "server",
     BOKEH_DEFAULT_SERVER_HOST: host,
     BOKEH_DEFAULT_SERVER_PORT: `${port}`,
   }
