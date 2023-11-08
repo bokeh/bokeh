@@ -92,7 +92,7 @@ def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> 
 #-----------------------------------------------------------------------------
 
 def _run_command(command: str, base_dir: PathLike, args: list[str], debug: bool = False) -> Popen[bytes]:
-    bokehjs_dir = settings.bokehjsdir()
+    bokehjs_dir = settings.bokehjs_path()
 
     if debug:
         compiler_script = bokehjs_dir / "js" / "compiler" / "main.js"

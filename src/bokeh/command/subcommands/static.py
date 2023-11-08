@@ -87,7 +87,7 @@ class Static(Subcommand):
                 address_string = ' address ' + server.address
 
             log.info(f"Starting Bokeh static server at {server.port}{address_string}")
-            log.debug(f"Serving static files from: {settings.bokehjsdir()}")
+            log.debug(f"Serving static files from: {settings.bokehjs_path()}")
 
             server.run_until_shutdown()
 

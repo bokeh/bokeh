@@ -48,7 +48,7 @@ class StaticHandler(StaticFileHandler):
 
     '''
     def __init__(self, tornado_app, *args, **kw) -> None:
-        kw['path'] = settings.bokehjsdir()
+        kw['path'] = settings.bokehjs_path()
 
         # Note: tornado_app is stored as self.application
         super().__init__(tornado_app, *args, **kw)
@@ -69,7 +69,7 @@ class StaticHandler(StaticFileHandler):
         if settings.dev:
             return path
         else:
-            version = StaticFileHandler.get_version(dict(static_path=settings.bokehjsdir()), path)
+            version = StaticFileHandler.get_version(dict(static_path=settings.bokehjs_path()), path)
             return f"{path}?v={version}"
 
 #-----------------------------------------------------------------------------

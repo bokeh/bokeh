@@ -120,14 +120,14 @@ class Info(Subcommand):
 
         '''
         if args.static:
-            print(settings.bokehjsdir())
+            print(settings.bokehjs_path())
         else:
             newline = '\n'
             print(f"Python version        :  {sys.version.split(newline)[0]}")
             print(f"IPython version       :  {if_installed(_version('IPython', '__version__'))}")
             print(f"Tornado version       :  {if_installed(_version('tornado', 'version'))}")
             print(f"Bokeh version         :  {__version__}")
-            print(f"BokehJS static path   :  {settings.bokehjsdir()}")
+            print(f"BokehJS static path   :  {settings.bokehjs_path()}")
             print(f"node.js version       :  {if_installed(nodejs_version())}")
             print(f"npm version           :  {if_installed(npmjs_version())}")
             print(f"jupyter_bokeh version :  {if_installed(_version('jupyter_bokeh', '__version__'))}")

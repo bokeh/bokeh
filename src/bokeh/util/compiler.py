@@ -95,7 +95,7 @@ class CompilationError(RuntimeError):
     def __str__(self) -> str:
         return "\n" + self.text.strip()
 
-bokehjs_dir = settings.bokehjsdir()
+bokehjs_dir = settings.bokehjs_path()
 nodejs_min_version = (18, 0, 0)
 
 def nodejs_version() -> str | None:

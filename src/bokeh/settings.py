@@ -118,7 +118,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import os
-from os.path import abspath, expanduser, join
+from os.path import join
 from pathlib import Path
 from typing import (
     TYPE_CHECKING,
@@ -136,7 +136,8 @@ from typing import (
 import yaml
 
 # Bokeh imports
-from .util.paths import bokehjsdir, serverdir
+from .util.deprecation import deprecated
+from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
@@ -318,11 +319,11 @@ def convert_ico_path(value: str) -> str:
         return "none"
 
     if lowered == "default":
-        return join(serverdir(), "views", "bokeh.ico")
+        return str(server_path() / "views" / "bokeh.ico")
 
     # undocumented
     if lowered == "default-dev":
-        return join(serverdir(), "views", "bokeh-dev.ico")
+        return str(server_path() / "views" / "bokeh-dev.ico")
 
     if not value.endswith(".ico"):
         raise ValueError(f"Cannot convert {value!r} to valid .ico path")
@@ -510,8 +511,8 @@ class PrioritizedSetting(Generic[T]):
             return "Ico Path"
         raise RuntimeError("unreachable")
 
-_config_user_locations: Sequence[str] = (
-    join(expanduser("~"), ".bokeh", "bokeh.yaml"),
+_config_user_locations: Sequence[Path] = (
+    Path.home() / ".bokeh" / "bokeh.yaml",
 )
 
 class Settings:
@@ -764,18 +765,27 @@ class Settings:
 
     # Non-settings methods
 
-    def bokehjsdir(self) -> Path:
+    def bokehjs_path(self) -> Path:
         ''' The location of the BokehJS source tree.
 
         '''
-        return bokehjsdir(self.dev)
+        return bokehjs_path(self.dev)
+
+    def bokehjsdir(self) -> str:
+        ''' The location of the BokehJS source tree.
+
+        .. deprecated:: 3.4.0
+            Use ``bokehjs_path()`` method instead.
+        '''
+        deprecated((3, 4, 0), "bokehjsdir()", "bokehjs_path() method")
+        return str(self.bokehjs_path())
 
     def css_files(self) -> list[str]:
         ''' The CSS files in the BokehJS directory.
 
         '''
         css_files: list[str] = []
-        for root, _, files in os.walk(self.bokehjsdir()):
+        for root, _, files in os.walk(self.bokehjs_path()):
             for fname in files:
                 if fname.endswith(".css"):
                     css_files.append(join(root, fname))
@@ -786,20 +796,21 @@ class Settings:
 
         '''
         js_files: list[str] = []
-        for root, _, files in os.walk(self.bokehjsdir()):
+        for root, _, files in os.walk(self.bokehjs_path()):
             for fname in files:
                 if fname.endswith(".js"):
                     js_files.append(join(root, fname))
         return js_files
 
-    def load_config(self, location: str) -> None:
+    def load_config(self, location: PathLike) -> None:
         ''' Load a user-specified override config file.
 
         The file should be a YAML format with ``key: value`` lines.
 
         '''
         try:
-            self._config_override = yaml.load(open(abspath(location)), Loader=yaml.SafeLoader)
+            with Path(location).absolute().open() as f:
+                self._config_override = yaml.load(f, Loader=yaml.SafeLoader)
         except Exception:
             raise RuntimeError(f"Could not load Bokeh config file: {location}")
 
@@ -815,10 +826,11 @@ class Settings:
                 self._secret_key_bytes = key.encode("utf-8")
         return self._secret_key_bytes
 
-    def _try_load_config(self, locations: Sequence[str]) -> dict[str, Any]:
+    def _try_load_config(self, locations: Sequence[Path]) -> dict[str, Any]:
         for location in locations:
             try:
-                return yaml.load(open(location), Loader=yaml.SafeLoader)
+                with location.open() as f:
+                    return yaml.load(f, Loader=yaml.SafeLoader)
             except Exception:
                 pass
         return {}

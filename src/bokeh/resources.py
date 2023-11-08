@@ -188,7 +188,7 @@ def verify_sri_hashes() -> None:
     if not is_full_release():
         raise ValueError("verify_sri_hashes() can only be used with full releases")
 
-    paths = list((settings.bokehjsdir() / "js").glob("bokeh*.js"))
+    paths = list((settings.bokehjs_path() / "js").glob("bokeh*.js"))
     hashes = get_sri_hashes_for_version(__version__)
 
     if len(hashes) < len(paths):
@@ -361,7 +361,7 @@ class Resources:
             server = self._server_urls()
             self.messages.extend(server.messages)
 
-        self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjsdir()
+        self.base_dir = Path(base_dir) if base_dir is not None else settings.bokehjs_path()
 
     def clone(self, *, components: list[Component] | None = None) -> Resources:
         """ Make a clone of a resources instance allowing to override its components. """
