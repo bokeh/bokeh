@@ -66,6 +66,11 @@ export type XY<T = number> = {
   y: T
 }
 
+export type SXY = {
+  sx: number
+  sy: number
+}
+
 export type LRTB<T = number> = {
   left: T
   right: T

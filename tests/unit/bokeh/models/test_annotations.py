@@ -343,19 +343,25 @@ def test_Label() -> None:
     check_line_properties(label, "border_", None, 1.0, 1.0)
     check_properties_existence(label, [
         *ANNOTATION,
+        "text",
+        "anchor",
         "x",
         "y",
         "x_units",
         "y_units",
-        "text",
-        "angle",
-        "angle_units",
         "x_offset",
         "y_offset",
+        "angle",
+        "angle_units",
+        "direction",
+        "padding",
+        "border_radius",
+        "editable",
     ],
         TEXT,
         prefix('border_', LINE),
         prefix('background_', FILL),
+        prefix('background_', HATCH),
     )
 
 def test_Label_accepts_datetime_xy() -> None:
@@ -501,6 +507,8 @@ def test_Title() -> None:
     check_properties_existence(title, [
         *ANNOTATION,
         "text",
+        "padding",
+        "border_radius",
         "vertical_align",
         "align",
         "offset",
@@ -509,6 +517,7 @@ def test_Title() -> None:
         TEXT,
         prefix("border_", LINE),
         prefix("background_", FILL),
+        prefix('background_', HATCH),
     )
 
 def test_Whisker() -> None:

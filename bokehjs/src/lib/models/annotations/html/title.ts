@@ -86,7 +86,13 @@ export class HTMLTitleView extends TextAnnotationView {
     const {text} = this.model
     const graphics = new TextBox({text})
     graphics.visuals = this.visuals.text.values()
-    const {width, height} = graphics.size()
+
+    const size = graphics.size()
+    const {padding} = this
+
+    const width = size.width + padding.left + padding.right
+    const height = size.height + padding.top + padding.bottom
+
     // XXX: The magic 2px is for backwards compatibility. This will be removed at
     // some point, but currently there is no point breaking half of visual tests.
     return {width, height: height == 0 ? 0 : 2 + height + this.model.standoff}
@@ -107,7 +113,8 @@ export namespace HTMLTitle {
   export type Mixins =
     mixins.Text           &
     mixins.BorderLine     &
-    mixins.BackgroundFill
+    mixins.BackgroundFill &
+    mixins.BackgroundHatch
 
   export type Visuals = TextAnnotation.Visuals
 }
@@ -129,6 +136,7 @@ export class HTMLTitle extends TextAnnotation {
       mixins.Text,
       ["border_",     mixins.Line],
       ["background_", mixins.Fill],
+      ["background_", mixins.Hatch],
     ])
 
     this.define<HTMLTitle.Props>(({Number, String}) => ({
@@ -147,6 +155,7 @@ export class HTMLTitle extends TextAnnotation {
       text_font_style: "bold",
       text_line_height: 1.0,
       background_fill_color: null,
+      background_hatch_color: null,
       border_line_color: null,
     })
   }

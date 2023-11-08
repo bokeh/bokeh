@@ -1,15 +1,21 @@
 import {display, fig, row} from "../_util"
+import type {Point} from "../../interactive"
+import {PlotActions, xy} from "../../interactive"
 import {tex} from "./_text_utils"
 
 import {Label, HTMLLabel} from "@bokehjs/models/annotations"
-import type {Constructor} from "@bokehjs/core/class"
-import type {OutputBackend} from "@bokehjs/core/enums"
+import type {PlotView} from "@bokehjs/models/plots/plot"
+import type {Class} from "@bokehjs/core/class"
+import type {OutputBackend, Anchor} from "@bokehjs/core/enums"
+import {paint} from "@bokehjs/core/util/defer"
 
 const r = String.raw
 
 describe("Label annotation", () => {
+  const padding = 10
+  const border_radius = 12
 
-  function plot<T extends Label | HTMLLabel>(LabelCls: Constructor<T>) {
+  function plot(LabelCls: Class<Label | HTMLLabel>) {
     const plot = fig([600, 600], {x_range: [0, 10], y_range: [0, 10]})
 
     const label0 = new LabelCls({
@@ -20,6 +26,7 @@ describe("Label annotation", () => {
       text_font_size: "36px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
       background_fill_color: "green", background_fill_alpha: 0.2,
       border_line_color: "blue", border_line_width: 2, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label1 = new LabelCls({
@@ -60,6 +67,7 @@ describe("Label annotation", () => {
       text: "V-label",
       text_font_size: "26px", text_baseline: "top", text_align: "left",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
+      padding, border_radius,
     })
 
     const label6 = new LabelCls({
@@ -67,8 +75,10 @@ describe("Label annotation", () => {
       angle: -15, angle_units: "deg",
       text: "A long label\nspread across\nmultiple lines of text",
       text_font_size: "16px", text_baseline: "top", text_align: "left",
-      background_fill_color: "orange",
+      background_fill_color: null,
+      background_hatch_color: "orange", background_hatch_pattern: "/",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
+      padding, border_radius,
     })
 
     const label_above_0 = new LabelCls({
@@ -78,6 +88,7 @@ describe("Label annotation", () => {
       text_font_size: "30px", text_color: "firebrick", text_alpha: 0.9,
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_above_1 = new LabelCls({
@@ -96,6 +107,7 @@ describe("Label annotation", () => {
       text_font_size: "30px", text_color: "firebrick", text_alpha: 0.9,
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_below_1 = new LabelCls({
@@ -115,6 +127,7 @@ describe("Label annotation", () => {
       text_font_size: "30px", text_color: "firebrick", text_alpha: 0.9, text_baseline: "top",
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_left_1 = new LabelCls({
@@ -135,6 +148,7 @@ describe("Label annotation", () => {
       text_font_size: "30px", text_color: "firebrick", text_alpha: 0.9, text_baseline: "top",
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_right_1 = new LabelCls({
@@ -183,6 +197,7 @@ describe("Label annotation", () => {
       text_font_size: "12px", text_color: "red", text_alpha: 0.9, text_baseline: "bottom", text_align: "left",
       background_fill_color: "green", background_fill_alpha: 0.2,
       border_line_color: "blue", border_line_width: 2, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label1 = new Label({
@@ -223,6 +238,7 @@ describe("Label annotation", () => {
       text: r`$$${tex}$$`,
       text_font_size: "12px", text_baseline: "top", text_align: "left",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
+      padding, border_radius,
     })
 
     const label6 = new Label({
@@ -230,8 +246,10 @@ describe("Label annotation", () => {
       angle: -20, angle_units: "deg",
       text: r`$$${tex}$$`,
       text_font_size: "12px", text_baseline: "top", text_align: "left",
-      background_fill_color: "orange", background_fill_alpha: 0.6,
+      background_fill_color: null,
+      background_hatch_color: "orange", background_hatch_pattern: "/",
       border_line_color: "blue", border_line_width: 1, border_line_dash: [10, 2, 8, 2, 4, 2],
+      padding, border_radius,
     })
 
     const label_above_0 = new Label({
@@ -240,6 +258,7 @@ describe("Label annotation", () => {
       text: r`$$\text{Above: } ${tex}$$`,
       text_font_size: "14px", text_color: "firebrick", text_alpha: 0.9, background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_above_1 = new Label({
@@ -259,6 +278,7 @@ describe("Label annotation", () => {
       text_color: "firebrick", text_alpha: 0.9,
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_below_1 = new Label({
@@ -278,6 +298,7 @@ describe("Label annotation", () => {
       text_font_size: "14px", text_color: "firebrick", text_alpha: 0.9, text_baseline: "top",
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_left_1 = new Label({
@@ -298,6 +319,7 @@ describe("Label annotation", () => {
       text_font_size: "14px", text_color: "firebrick", text_alpha: 0.9, text_baseline: "top",
       background_fill_color: "aquamarine",
       border_line_color: "green", border_line_width: 1, border_line_dash: [8, 4],
+      padding, border_radius,
     })
 
     const label_right_1 = new Label({
@@ -335,6 +357,51 @@ describe("Label annotation", () => {
     const p0 = make_plot("canvas")
     const p1 = make_plot("svg")
 
-    await display(row([p0, p1]))
+    await display(row([p0, p1], {spacing: 20}))
+  })
+
+  describe("should support rotation by dragging", async () => {
+    async function pan(view: PlotView, xy0: Point, xy1: Point) {
+      const actions = new PlotActions(view)
+      await actions.pan_along({type: "line", xy0, xy1})
+      await paint()
+    }
+
+    async function label(anchor: Anchor) {
+      const label = new Label({
+        editable: true,
+        text: "Multi line\nlabel text",
+        x: 0, y: 0,
+        anchor,
+        padding: 10,
+        border_line_color: "black", border_line_dash: "dashed",
+        background_hatch_color: "lightgray", background_hatch_pattern: "/",
+      })
+      return label
+    }
+
+    it("with anchor=center", async () => {
+      const annotation = await label("center")
+      const p = fig([200, 200], {renderers: [annotation], x_range: [-3, 3], y_range: [-3, 3]})
+      const {view} = await display(p)
+      await paint()
+      await pan(view, xy(1, 0), xy(1, 1))
+    })
+
+    it("with anchor=bottom_left", async () => {
+      const annotation = await label("bottom_left")
+      const p = fig([200, 200], {renderers: [annotation], x_range: [-2, 4], y_range: [-2, 4]})
+      const {view} = await display(p)
+      await paint()
+      await pan(view, xy(2, 1), xy(1, 3))
+    })
+
+    it("with anchor=top_right", async () => {
+      const annotation = await label("top_right")
+      const p = fig([200, 200], {renderers: [annotation], x_range: [-5, 1], y_range: [-3, 3]})
+      const {view} = await display(p)
+      await paint()
+      await pan(view, xy(-2, -1), xy(-2, 2))
+    })
   })
 })

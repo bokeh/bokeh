@@ -4,6 +4,9 @@ import {div, display, undisplay, remove} from "core/dom"
 import type * as p from "core/properties"
 import {SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
+import {Padding, BorderRadius} from "../../common/kinds"
+import * as resolve from "../../common/resolve"
+import type {LRTB, Corners} from "core/util/bbox"
 
 export abstract class TextAnnotationView extends AnnotationView {
   declare model: TextAnnotation
@@ -42,6 +45,14 @@ export abstract class TextAnnotationView extends AnnotationView {
     super.render()
   }
 
+  get padding(): LRTB<number> {
+    return resolve.padding(this.model.padding)
+  }
+
+  get border_radius(): Corners<number> {
+    return resolve.border_radius(this.model.border_radius)
+  }
+
   protected _paint(ctx: Context2d, text: string, sx: number, sy: number, angle: number): void {
     const {el} = this
     undisplay(el)
@@ -57,6 +68,16 @@ export abstract class TextAnnotationView extends AnnotationView {
     el.style.font = ctx.font
     el.style.lineHeight = "normal" // needed to prevent ipynb css override
     el.style.whiteSpace = "pre"
+
+    el.style.padding = (() => {
+      const {left, right, top, bottom} = this.padding
+      return `${top}px ${right}px ${bottom}px ${left}px`
+    })()
+
+    el.style.borderRadius = (() => {
+      const {top_left, top_right, bottom_right, bottom_left} = this.border_radius
+      return `${top_left}px ${top_right}px ${bottom_right}px ${bottom_left}px`
+    })()
 
     const [x_anchor, x_t] = (() => {
       switch (this.visuals.text.text_align.get_value()) {
@@ -108,7 +129,11 @@ export abstract class TextAnnotationView extends AnnotationView {
 
 export namespace TextAnnotation {
   export type Attrs = p.AttrsOf<Props>
-  export type Props = Annotation.Props
+
+  export type Props = Annotation.Props & {
+    padding: p.Property<Padding>
+    border_radius: p.Property<BorderRadius>
+  }
 
   export type Visuals = Annotation.Visuals & {
     text: visuals.Text
@@ -125,5 +150,12 @@ export abstract class TextAnnotation extends Annotation {
 
   constructor(attrs?: Partial<TextAnnotation.Attrs>) {
     super(attrs)
+  }
+
+  static {
+    this.define<TextAnnotation.Props>(() => ({
+      padding: [ Padding, 0 ],
+      border_radius: [ BorderRadius, 0 ],
+    }))
   }
 }

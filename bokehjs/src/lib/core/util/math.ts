@@ -65,6 +65,8 @@ export function compute_angle(angle: number, units: AngleUnits, dir: Direction =
   return -sign*angle*to_radians_coeff(units)
 }
 
+export const resolve_angle = compute_angle
+
 export function invert_angle(angle: number, units: AngleUnits, dir: Direction = "anticlock"): number {
   /**
    * Convert CW radians (canvas) to math CCW(default)/CW angle with units.

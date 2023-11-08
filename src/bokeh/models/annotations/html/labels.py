@@ -45,10 +45,12 @@ from ....core.properties import (
     String,
     field,
 )
+from ....core.property_aliases import BorderRadius, Padding
 from ....core.property_mixins import (
     FillProps,
     LineProps,
     ScalarFillProps,
+    ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
     TextProps,
@@ -70,7 +72,46 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class HTMLLabel(HTMLAnnotation):
+class HTMLTextAnnotation(HTMLAnnotation):
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    padding = Padding(default=0, help="""
+    Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows label's box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    background_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    border_props = Include(ScalarLineProps, prefix="border", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_fill_color = Override(default=None)
+
+    background_hatch_color = Override(default=None)
+
+    border_line_color = Override(default=None)
+
+class HTMLLabel(HTMLTextAnnotation):
     ''' Render a single HTML label as an annotation.
 
     ``Label`` will render a single text label at given ``x`` and ``y``
@@ -141,18 +182,6 @@ class HTMLLabel(HTMLAnnotation):
     text_props = Include(ScalarTextProps, help="""
     The {prop} values for the text.
     """)
-
-    background_props = Include(ScalarFillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
 
 class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
     ''' Render multiple text labels as annotations.
@@ -239,7 +268,7 @@ class HTMLLabelSet(HTMLAnnotation, DataAnnotation):
 
     border_line_color = Override(default=None)
 
-class HTMLTitle(HTMLAnnotation):
+class HTMLTitle(HTMLTextAnnotation):
     ''' Render a single title box as an annotation.
 
     See :ref:`ug_basic_annotations_titles` for information on plotting titles.
@@ -312,18 +341,6 @@ class HTMLTitle(HTMLAnnotation):
     text_alpha = Alpha(help="""
     An alpha value to use to fill text with.
     """)
-
-    background_props = Include(ScalarFillProps, prefix="background", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    background_fill_color = Override(default=None)
-
-    border_props = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
-
-    border_line_color = Override(default=None)
 
 #-----------------------------------------------------------------------------
 # Dev API

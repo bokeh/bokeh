@@ -24,6 +24,7 @@ log = logging.getLogger(__name__)
 from ...core.enums import (
     AngleUnits,
     CoordinateUnits,
+    Direction,
     TextAlign,
     VerticalAlign,
 )
@@ -31,7 +32,7 @@ from ...core.has_props import abstract
 from ...core.properties import (
     Angle,
     AngleSpec,
-    CoordinateLike,
+    Bool,
     Enum,
     Float,
     Include,
@@ -42,14 +43,17 @@ from ...core.properties import (
     TextLike,
     field,
 )
+from ...core.property_aliases import BorderRadius, Padding, TextAnchor
 from ...core.property_mixins import (
     FillProps,
     LineProps,
     ScalarFillProps,
+    ScalarHatchProps,
     ScalarLineProps,
     ScalarTextProps,
     TextProps,
 )
+from ..common.properties import Coordinate
 from .annotation import Annotation, DataAnnotation
 
 #-----------------------------------------------------------------------------
@@ -81,19 +85,40 @@ class TextAnnotation(Annotation):
     A text or LaTeX notation to render.
     """)
 
+    padding = Padding(default=0, help="""
+    Extra space between the text of a label and its bounding box (border).
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    border_radius = BorderRadius(default=0, help="""
+    Allows label's box to have rounded corners. For the best results, it
+    should be used in combination with ``padding``.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
     text_props = Include(ScalarTextProps, help="""
     The {prop} values for the text.
     """)
 
-    background_props = Include(ScalarFillProps, prefix="background", help="""
+    background_fill_props = Include(ScalarFillProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    background_hatch_props = Include(ScalarHatchProps, prefix="background", help="""
+    The {prop} values for the text bounding box.
+    """)
+
+    border_props = Include(ScalarLineProps, prefix="border", help="""
     The {prop} values for the text bounding box.
     """)
 
     background_fill_color = Override(default=None)
 
-    border_props = Include(ScalarLineProps, prefix="border", help="""
-    The {prop} values for the text bounding box.
-    """)
+    background_hatch_color = Override(default=None)
 
     border_line_color = Override(default=None)
 
@@ -121,30 +146,30 @@ class Label(TextAnnotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x = Required(CoordinateLike, help="""
+    anchor = TextAnchor(default="auto", help="""
+    Position within the bounding box of the text of a label to which
+    ``x`` and ``y`` coordinates are anchored to.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    x = Required(Coordinate, help="""
     The x-coordinate in screen coordinates to locate the text anchors.
+    """)
+
+    y = Required(Coordinate, help="""
+    The y-coordinate in screen coordinates to locate the text anchors.
     """)
 
     x_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the x attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    y = Required(CoordinateLike, help="""
-    The y-coordinate in screen coordinates to locate the text anchors.
+    default. This doesn't have any effect if ``x`` is a node.
     """)
 
     y_units = Enum(CoordinateUnits, default='data', help="""
     The unit type for the y attribute. Interpreted as |data units| by
-    default.
-    """)
-
-    angle = Angle(default=0, help="""
-    The angle to rotate the text, as measured from the horizontal.
-    """)
-
-    angle_units = Enum(AngleUnits, default='rad', help="""
-    Acceptable values for units are ``"rad"`` and ``"deg"``
+    default. This doesn't have any effect if ``y`` is a node.
     """)
 
     x_offset = Float(default=0, help="""
@@ -159,6 +184,28 @@ class Label(TextAnnotation):
 
     This is useful, for instance, if it is desired to "float" text a fixed
     distance in |screen units| from a given data position.
+    """)
+
+    angle = Angle(default=0, help="""
+    The angle to rotate the text, as measured from the horizontal.
+    """)
+
+    angle_units = Enum(AngleUnits, default="rad", help="""
+    Acceptable values for units are ``"rad"`` and ``"deg"``.
+    """)
+
+    direction = Enum(Direction, default="anticlock", help="""
+    The direction for the angle of the label.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    editable = Bool(default=False, help="""
+    Allows to interactively modify the geometry of this label.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
 class LabelSet(DataAnnotation):
