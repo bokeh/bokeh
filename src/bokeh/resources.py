@@ -38,7 +38,6 @@ log = logging.getLogger(__name__)
 import json
 import os
 import re
-from glob import glob
 from os.path import relpath
 from pathlib import Path
 from typing import (
@@ -189,9 +188,7 @@ def verify_sri_hashes() -> None:
     if not is_full_release():
         raise ValueError("verify_sri_hashes() can only be used with full releases")
 
-    from glob import glob
-    paths = [ Path(p) for p in glob(settings.bokehjsdir() / "js" / "bokeh*.js") ]
-
+    paths = list((settings.bokehjsdir() / "js").glob("bokeh*.js"))
     hashes = get_sri_hashes_for_version(__version__)
 
     if len(hashes) < len(paths):
