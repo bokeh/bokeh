@@ -810,9 +810,21 @@ as a list:
 The tool automatically modifies the columns of the data source
 corresponding to the ``x``, ``y``, ``width``, and ``height`` values of
 the glyph. Any additional columns in the data source will be padded with
-the declared ``empty_value`` when adding a new point. Any newly added
+their respective default values when adding a new point. Any newly added
 points will be inserted in the ``ColumnDataSource`` of the first supplied
 renderer.
+
+.. _ug_interaction_tools_default_values:
+
+Columns' default values are computed based on (in order):
+
+1. Tool's ``default_overrides``, which are user provided.
+2. Data source's ``default_values``, which are user provided.
+3. Data source's inferred default values, which are computed by the data
+   source based on column's ``dtype`` or contents.
+4. Tool's ``empty_value``, which is user provided and is the measure of
+   last resort when a sensible value can't be determined in the previous
+   steps.
 
 It is often useful to limit the number of elements that can be
 drawn. For example, when specifying a certain number of regions of interest.
@@ -876,10 +888,10 @@ you must pass the renderers to be edited as a list:
 
 The tool automatically modifies the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-additional columns in the data source will be padded with the declared
-``empty_value`` when adding a new point. Any newly added points will
-be inserted in the ``ColumnDataSource`` of the first supplied
-renderer.
+additional columns in the data source will be padded in accordance
+to :ref:`ug_interaction_tools_default_values` procedure when adding
+a new point.  Any newly added points will be inserted in the
+``ColumnDataSource`` of the first supplied renderer.
 
 It is also often useful to limit the number of elements that can be
 drawn. For example, when specifying a specific number of regions of interest.
@@ -930,10 +942,10 @@ you must pass the renderers to be edited as a list:
 
 The tool automatically modifies the columns on the data source
 corresponding to the ``x`` and ``y`` values of the glyph. Any
-additional columns in the data source will be padded with the declared
-``empty_value`` when adding a new point. Any newly added points will
-be inserted in the ``ColumnDataSource`` of the first supplied
-renderer.
+additional columns in the data source will be padded in accordance
+to :ref:`ug_interaction_tools_default_values` procedure when adding
+a new point. Any newly added points will be inserted in the
+``ColumnDataSource`` of the first supplied renderer.
 
 It is also often useful to limit the number of elements that can be
 drawn. Using the ``num_objects`` property, you can ensure that once the
@@ -989,10 +1001,10 @@ you must pass the renderers to be edited as a list.
 
 The tool automatically modifies the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-additional columns in the data source will be padded with the declared
-``empty_value``, when adding a new point. Any newly added patch or
-multi-line will be inserted on the ``ColumnDataSource`` of the first
-supplied renderer.
+additional columns in the data source will be padded in accordance
+to :ref:`ug_interaction_tools_default_values` procedure when adding
+a new point. Any newly added patch or multi-line will be inserted in
+the ``ColumnDataSource`` of the first supplied renderer.
 
 It is also often useful to limit the number of elements that can be
 drawn. For example, when specifying a specific number of regions of interest.
@@ -1046,8 +1058,9 @@ render a point-like Glyph (of ``XYGlyph`` type).
 
 The tool automatically modifies the columns on the data source
 corresponding to the ``xs`` and ``ys`` values of the glyph. Any
-additional columns in the data source will be padded with the declared
-``empty_value``, when adding a new point.
+additional columns in the data source will be padded in accordance
+to :ref:`ug_interaction_tools_default_values` procedure when adding
+a new point.
 
 .. raw:: html
 

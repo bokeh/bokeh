@@ -288,6 +288,9 @@
   },
   ColumnarDataSource: {
     __extends__: "DataSource",
+    default_values: {
+      type: "map",
+    },
     selection_policy: {
       type: "object",
       name: "UnionRenderers",
@@ -5978,6 +5981,9 @@
   },
   EditTool: {
     __extends__: "GestureTool",
+    default_overrides: {
+      type: "map",
+    },
     empty_value: 0,
   },
   PolyTool: {

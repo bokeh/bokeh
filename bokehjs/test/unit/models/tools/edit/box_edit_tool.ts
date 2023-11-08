@@ -18,7 +18,7 @@ import {BoxEditTool} from "@bokehjs/models/tools/edit/box_edit_tool"
 import {make_pan_event, make_tap_event, make_move_event, make_key_event} from "./_util"
 
 export interface BoxEditTestCase {
-  data: {[key: string]: (number | null)[]}
+  data: {[key: string]: unknown[]}
   data_source: ColumnDataSource
   draw_tool_view: BoxEditToolView
   glyph_view: RectView
@@ -38,9 +38,12 @@ async function make_testcase(): Promise<BoxEditTestCase> {
     y: [0, 0.5, 1],
     width: [0.1, 0.2, 0.3],
     height: [0.3, 0.2, 0.1],
-    z: [null, null, null],
+    a: [null, null, null],
+    b: ["a", "b", "c"],
+    c: [100, 200, 300],
+    d: [{d: 1}, {d: 2}, {d: 3}],
   }
-  const data_source = new ColumnDataSource({data})
+  const data_source = new ColumnDataSource({data, default_values: {b: "d"}})
 
   const glyph = new Rect({
     x: {field: "x"},
@@ -54,7 +57,8 @@ async function make_testcase(): Promise<BoxEditTestCase> {
 
   const draw_tool = new BoxEditTool({
     active: true,
-    empty_value: "Test",
+    default_overrides: {c: 400},
+    empty_value: "Foo",
     renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
@@ -124,10 +128,14 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._move_enter(moveenter_event)
       testcase.draw_tool_view._keyup(keyup_event)
 
-      expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 1])
-      expect(testcase.data_source.data.y).to.be.equal([0, 1])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      const {selected, data} = testcase.data_source
+      expect(selected.indices).to.be.equal([])
+      expect(data.x).to.be.equal([0, 1])
+      expect(data.y).to.be.equal([0, 1])
+      expect(data.a).to.be.equal([null, null])
+      expect(data.b).to.be.equal(["a", "c"])
+      expect(data.c).to.be.equal([100, 300])
+      expect(data.d).to.be.equal([{d: 1}, {d: 3}])
     })
 
     it("should clear selection on escape key", async () => {
@@ -166,11 +174,15 @@ describe("BoxEditTool", () => {
       drag_event = make_pan_event(200, 200)
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3])
-      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
+      const {data} = testcase.data_source
+      expect(data.x).to.be.equal([0, 0.14601769911504425, 1])
+      expect(data.y).to.be.equal([0, 0.8389830508474576, 1])
+      expect(data.width).to.be.equal([0.1, 0.2, 0.3])
+      expect(data.height).to.be.equal([0.3, 0.2, 0.1])
+      expect(data.a).to.be.equal([null, null, null])
+      expect(data.b).to.be.equal(["a", "b", "c"])
+      expect(data.c).to.be.equal([100, 200, 300])
+      expect(data.d).to.be.equal([{d: 1}, {d: 2}, {d: 3}])
     })
 
     it("should draw box on pan", async () => {
@@ -187,12 +199,16 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._pan_end(drag_event)
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
+      const {selected, data} = testcase.data_source
+      expect(selected.indices).to.be.equal([])
+      expect(data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
+      expect(data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
+      expect(data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
+      expect(data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
+      expect(data.a).to.be.equal([null, null, null, null])
+      expect(data.b).to.be.equal(["a", "b", "c", "d"])
+      expect(data.c).to.be.equal([100, 200, 300, 400])
+      expect(data.d).to.be.equal([{d: 1}, {d: 2}, {d: 3}, "Foo"])
     })
 
     it("should draw and pop box on pan", async () => {
@@ -210,12 +226,16 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._pan_end(drag_event)
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.equal([0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.equal([0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.equal([0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
+      const {selected, data} = testcase.data_source
+      expect(selected.indices).to.be.equal([])
+      expect(data.x).to.be.equal([0.5, 1, -0.1327433628318584])
+      expect(data.y).to.be.equal([0.5, 1, 0.1694915254237288])
+      expect(data.width).to.be.equal([0.2, 0.3, 0.35398230088495575])
+      expect(data.height).to.be.equal([0.2, 0.1, 0.3389830508474576])
+      expect(data.a).to.be.equal([null, null, null])
+      expect(data.b).to.be.equal(["b", "c", "d"])
+      expect(data.c).to.be.equal([200, 300, 400])
+      expect(data.d).to.be.equal([{d: 2}, {d: 3}, "Foo"])
     })
 
     it("should draw box on doubletap and move", async () => {
@@ -233,12 +253,16 @@ describe("BoxEditTool", () => {
       testcase.draw_tool_view._doubletap(tap_event2)
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
-      expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
-      expect(testcase.data_source.data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
-      expect(testcase.data_source.data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
+      const {selected, data} = testcase.data_source
+      expect(selected.indices).to.be.equal([])
+      expect(data.x).to.be.equal([0, 0.5, 1, -0.1327433628318584])
+      expect(data.y).to.be.equal([0, 0.5, 1, 0.1694915254237288])
+      expect(data.width).to.be.equal([0.1, 0.2, 0.3, 0.35398230088495575])
+      expect(data.height).to.be.equal([0.3, 0.2, 0.1, 0.3389830508474576])
+      expect(data.a).to.be.equal([null, null, null, null])
+      expect(data.b).to.be.equal(["a", "b", "c", "d"])
+      expect(data.c).to.be.equal([100, 200, 300, 400])
+      expect(data.d).to.be.equal([{d: 1}, {d: 2}, {d: 3}, "Foo"])
     })
 
     it("should not draw box on doubletap when tool inactive", async () => {

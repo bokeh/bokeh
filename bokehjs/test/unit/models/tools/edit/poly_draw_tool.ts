@@ -50,7 +50,7 @@ async function make_testcase(): Promise<PolyDrawTestCase> {
 
   const draw_tool = new PolyDrawTool({
     active: true,
-    empty_value: "Test",
+    default_overrides: {z: "Test"},
     renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
@@ -256,7 +256,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
-    it("should insert empty_value on other columns", async () => {
+    it("should insert default_overrides on other columns", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 

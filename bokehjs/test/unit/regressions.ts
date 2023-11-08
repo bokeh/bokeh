@@ -1011,7 +1011,7 @@ describe("Bug", () => {
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1047,7 +1047,7 @@ describe("Bug", () => {
         const {x, y, width, height, color} = fields(data)
         const renderer = p.rect({x, y, width, height, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1083,7 +1083,7 @@ describe("Bug", () => {
         const {left, right, top, bottom, color} = fields(data)
         const renderer = p.quad({left, right, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1119,7 +1119,7 @@ describe("Bug", () => {
         const {y, height, left, right, color} = fields(data)
         const renderer = p.hbar({y, height, left, right, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1155,7 +1155,7 @@ describe("Bug", () => {
         const {x, width, top, bottom, color} = fields(data)
         const renderer = p.vbar({x, width, top, bottom, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1189,7 +1189,7 @@ describe("Bug", () => {
         const {y0, y1, color} = fields(data)
         const renderer = p.hstrip({y0, y1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 
@@ -1221,7 +1221,7 @@ describe("Bug", () => {
         const {x0, x1, color} = fields(data)
         const renderer = p.vstrip({x0, x1, color, source})
 
-        const edit_tool = new BoxEditTool({renderers: [renderer], empty_value: "green"})
+        const edit_tool = new BoxEditTool({renderers: [renderer], default_overrides: {color: "green"}})
         p.add_tools(edit_tool)
         p.toolbar.active_drag = edit_tool
 

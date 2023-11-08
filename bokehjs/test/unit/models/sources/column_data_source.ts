@@ -4,7 +4,7 @@ import {with_log_level} from "@bokehjs/core/logging"
 
 import {keys} from "@bokehjs/core/util/object"
 import {ColumnDataSource} from "@bokehjs/models/sources/column_data_source"
-import {Int32NDArray, Float32NDArray, Float64NDArray} from "@bokehjs/core/util/ndarray"
+import {Int32NDArray, Float32NDArray, Float64NDArray, ndarray} from "@bokehjs/core/util/ndarray"
 
 import {trap} from "../../../util"
 
@@ -146,6 +146,46 @@ describe("column_data_source module", () => {
         r.clear()
         expect(r.data).to.be.equal({foo: [], bar: [], baz: new typ([])})
       }
+    })
+  })
+
+  describe("inferred_defaults getter", () => {
+    const cds = new ColumnDataSource({
+      data: {
+        d0: [],
+        d1: [null, false, 0],
+        d2: [true, false, true],
+        d3: [false, true, false],
+        d4: [0, 1, 2, 3],
+        d5: [1, 2, 3, 4],
+        d6: ["a", "b", "c"],
+        d7: ndarray([], {dtype: "bool"}),
+        d8: ndarray([], {dtype: "uint32"}),
+        d9: ndarray([], {dtype: "float64"}),
+        d10: ndarray([1, 2, 3], {dtype: "object"}),
+        d11: ndarray([1, 0, 1], {dtype: "bool"}),
+        d12: ndarray([1, 2, 3], {dtype: "uint32"}),
+        d13: ndarray([1, 2, 3], {dtype: "float64"}),
+        d14: ndarray([1, 2, 3], {dtype: "object"}),
+        // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
+      },
+    })
+    expect(cds.inferred_defaults).to.be.equal({
+      d1: null,
+      d2: false,
+      d3: false,
+      d4: 0,
+      d5: 0,
+      d6: "",
+      d7: false,
+      d8: 0,
+      d9: 0,
+      d10: null,
+      d11: false,
+      d12: 0,
+      d13: 0,
+      d14: null,
+      // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
     })
   })
 })
