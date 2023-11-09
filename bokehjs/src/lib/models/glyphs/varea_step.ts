@@ -117,8 +117,8 @@ export class VAreaStepView extends AreaView {
     const {sx, sy1, sy2} = this
 
     for (let i = 0; i < this.data_size; i++) {
-      const mid_prev_x = (sx[i-1] + sx[i]) / 2
-      const mid_next_x = (sx[i] + sx[i + 1]) / 2
+      const mid_prev_x = (sx[i - 1] + sx[i]) / 2  /* undefined for first */
+      const mid_next_x = (sx[i] + sx[i + 1]) / 2  /* undefined for last  */
 
       let px: number[]
       if (i == 0) {
