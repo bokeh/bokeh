@@ -1,3 +1,32 @@
+2023-11-09    3.3.1:
+--------------------
+  * bugfixes:
+    - #13064 [component: bokehjs] [BUG] Spinner in float mode with int step will increment to int
+    - #13067 [component: bokehjs] [BUG] Incorrectly formatted ticks with %f format when time is older than the Epoch
+    - #13234 [component: docs] [BUG] Running the docs' "Specialized Axis Ticking" example fails due to Node compilation error
+    - #13264 [component: bokehjs] [BUG] Issue with adding DataTable to a new tab from a callback
+    - #13306 [component: docs] Empty bullet points above collapsible blocks in documentation
+    - #13414 [component: bokehjs] Updating button icon does not work on the first click[BUG] 
+    - #13416 [component: bokehjs] p.rect and possible others  in combination with factor_cmap no longer handles NaN values [BUG] 
+    - #13428 [component: bokehjs] [BUG] HoverTools not correctly located in Notebook 
+    - #13435 [BUG] daylight_warsaw_2013 emits a warning
+    - #13452 [component: bokehjs] [BUG] ImageStack hover tooltip shows incorrect numbers
+    - #13456 [component: bokehjs] RangeTool not working in Jupyter notebook 
+    - #13462 [component: bokehjs] [BUG] DateRangePicker selects individual dates by default
+    - #13478 [component: bokehjs] [BUG] {v,h}strip not showing when values are large and width/height is small on WebGL
+    - #13510 Convert value of `BOKEH_DEFAULT_SERVER_PORT` to `int`
+
+  * tasks:
+    - #13413 bokeh info should report jupyter_bokeh version if installed
+    - #13426 [component: build] Simplify release maintainer check
+    - #13429 Add vermin for minpy validation 
+    - #13473 [component: tests] escape the regex used for the datetutil utcfromtimestamp warning filter
+    - #13490 `Stamen` tiles were removed from xyzservices 2023.10.1
+    - #13433 [component: docs] SinaPlot gallery example.
+    - #13480 Backports for 3.3.1
+    - #13506 [component: docs] Misc 3.3.1 release docs
+    - #13512 More 3.3.1 backports
+
 2023-10-10      3.3:
 --------------------
   * bugfixes:
