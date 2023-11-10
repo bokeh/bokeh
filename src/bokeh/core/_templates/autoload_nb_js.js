@@ -157,24 +157,46 @@
      "</code>\n"+
      "</div>"}};
 
-  function display_loaded() {
+  function display_loaded(error = null) {
     const el = document.getElementById({{ elementid|tojson }});
     if (el != null) {
-      el.textContent = "BokehJS is loading...";
-    }
-    if (root.Bokeh !== undefined) {
-      if (el != null) {
-        el.textContent = "BokehJS " + root.Bokeh.version + " successfully loaded.";
+      const text = (() => {
+        if (typeof root.Bokeh === "undefined") {
+          if (error == null) {
+            return "BokehJS is loading ...";
+          } else {
+            return "BokehJS failed to load.";
+          }
+        } else {
+          return `BokehJS ${root.Bokeh.version} ${error == null ? "successfully" : "partially"} loaded.`
+        }
+      })();
+      el.textContent = text
+
+      if (error != null) {
+        const div = document.createElement("div");
+        div.style.fontFamily = "monospace";
+        div.style.whiteSpace = "pre-wrap";
+        div.style.backgroundColor = "rgb(255, 221, 221)";
+        div.textContent = error.stack ?? error.toString();
+        el.append(div);
       }
     } else if (Date.now() < root._bokeh_timeout) {
-      setTimeout(display_loaded, 100)
+      setTimeout(() => display_loaded(error), 100);
     }
   }
 {% endblock %}
 
 {% block run_inline_js %}
     if (root.Bokeh !== undefined || force === true) {
-      {{ super() }}
+      try {
+        {{ super() }}
+      } catch (error) {
+        {%- if elementid -%}
+        display_loaded(error);
+        {%- endif -%}
+        throw error;
+      }
       {%- if elementid -%}
       if (force === true) {
         display_loaded();

@@ -1,3 +1,4 @@
+'use strict';
 {#
 Renders JavaScript code for "autoloading".
 
