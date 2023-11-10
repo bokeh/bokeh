@@ -20,27 +20,31 @@ have to consider more sophisticated deployment configurations.
 Integrating Bokeh server into other web services
 ------------------------------------------------
 
-Bokeh server commonly acts as a solution for constructing plots and
-dashboards and seamlessly embedding them within a larger parent application.
-To accomplish this, the ``bokeh.embed`` module offers the
+Bokeh server is frequently used to create plots and dashboards embedded within
+larger parent applications. For instance, in a financial context, this may
+involve incorporating Bokeh-backed trendlines that chart account balances over
+time into a web-based trading platform. In a supply-chain context, a Bokeh view
+could be integrated into an existing inventory management system to
+interactively monitor a store's item supplies.
+
+To meet this use-case, the ``bokeh.embed`` module offers the
 :func:`~bokeh.embed.server_document` and :func:`~bokeh.embed.server_session`
-methods. See :ref:`ug_output_embed_apps` for a detailed discussion of their
-usage, with examples.
+methods. Refer to :ref:`ug_output_embed_apps` for a detailed discussion of their
+usage, with examples. In short, these methods return the text of an HTML script
+tag that loads a view from Bokeh server, and adds the view to the DOM of any
+page that the script tag is placed in.
 
 If the parent service you wish to integrate with is not Python-based, you can
 still integrate with Bokeh through the ``server_document`` / ``server_session``
-methods, but you will need to do so by calling out to a small, long-lived
+methods. However, you will need to do so by calling out to a small, long-lived
 Python script that returns the text contents of those methods via any standard
-form of IPC. Alternatively, you can copy the static contents of the autoloader
-script into your parent app directly as a string, and change the script tag's
-id attribute yourself. However, this approach is not recommended, as it will
-require manually validating the script text stored in your parent app as you
-upgrade across Bokeh versions, and may break entirely across major versions if
-the autoloader workflow is changed.
+form of IPC.
 
-You will need to add the public hostname of your Bokeh server instance to the
-``script-src`` and ``connect-src`` directives of the parent service's
-`content security policy (CSP)
+To allow your parent application to display embedded Bokeh views, you must
+configure the parent application to permit cross-origin requests to your Bokeh
+server instance. This is accomplished by adding the public hostname and port
+number of your Bokeh server to the ``script-src`` and ``connect-src``
+directives of the parent service's `content security policy (CSP)
 <https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP>`_, for both the HTTP(S)
 and WS(S) protocols. The exact procedure for configuring the CSP will depend on
 the toolkit or framework your parent service is built with, so reference the
