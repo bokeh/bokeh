@@ -185,6 +185,7 @@ export function plugin_postlude_esm(): string {
 
 export function prelude(): string {
   return `\
+'use strict';
 ${comment(license)}
 (function(root, factory) {
   const bokeh = factory();
@@ -211,6 +212,7 @@ export function plugin_postlude(): string {
 
 export function plugin_prelude(options?: {version?: string}): string {
   return `\
+'use strict';
 ${comment(license)}
 (function(root, factory) {
   factory(root["Bokeh"], ${str(options?.version)});
