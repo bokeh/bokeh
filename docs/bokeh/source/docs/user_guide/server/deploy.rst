@@ -63,7 +63,7 @@ If your parent application is Python-based, and you don't mind tightly
 integrating your Bokeh server application into your parent application's
 codebase, Bokeh also supports running its underlying Tornado web server through
 a thread launched by your parent application. Practical examples are linked
-under :ref:`_ug_server_library`. This approach still requires the use of
+under :ref:`ug_server_library`. This approach still requires the use of
 ``server_document`` or ``server_session``, but may simplify CSP configuration
 as well as deployment of your Bokeh server app.
 
