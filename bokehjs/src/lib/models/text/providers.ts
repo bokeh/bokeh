@@ -55,9 +55,8 @@ export class BundleProvider extends MathJaxProvider  {
 
     try {
       const mathjax = await load_module(import("./mathjax"))
+      this.status = mathjax == null ? "failed" : "loaded"
       this._mathjax = mathjax
-
-      this.status = "loaded"
       this.ready.emit()
     } catch (error) {
       this.status = "failed"
