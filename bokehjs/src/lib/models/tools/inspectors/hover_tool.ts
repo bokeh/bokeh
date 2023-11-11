@@ -162,7 +162,7 @@ export class HoverToolView extends InspectToolView {
         interactive: false,
         visible: true,
         position: null,
-        target: this.parent.canvas.overlays_el,
+        target: this.parent.canvas.events_el,
       })
 
       if (r instanceof GlyphRenderer) {
@@ -455,7 +455,7 @@ export class HoverToolView extends InspectToolView {
       }
 
       const [x, y] = in_frame[in_frame.length-1]
-      tooltip.setv({position: [x, y]}, {check_eq: false}) // XXX: force update
+      tooltip.show({x, y})
     }
   }
 

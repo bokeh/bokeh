@@ -401,6 +401,10 @@ export class Tooltip extends UIElement {
     })
   }
 
+  show({x, y}: {x: number, y: number}): void {
+    this.setv({position: [x, y], visible: true}, {check_eq: false}) // XXX: force update
+  }
+
   clear(): void {
     this.position = null
   }
