@@ -178,45 +178,30 @@
   .tool-icon-mask(var(--bokeh-icon-fullscreen));
 }
 
-.bk-tool-icon-chevron-up {
-  .tool-icon-mask(var(--bokeh-icon-chevron-up));
-}
+.bk-tool-icon-chevron-up    { .tool-icon-mask(var(--bokeh-icon-chevron-up)); }
+.bk-tool-icon-chevron-down  { .tool-icon-mask(var(--bokeh-icon-chevron-down)); }
+.bk-tool-icon-chevron-left  { .tool-icon-mask(var(--bokeh-icon-chevron-left)); }
+.bk-tool-icon-chevron-right { .tool-icon-mask(var(--bokeh-icon-chevron-right)); }
 
-.bk-tool-icon-chevron-down {
-  .tool-icon-mask(var(--bokeh-icon-chevron-down));
-}
+.bk-tool-icon-caret-up    { .tool-icon-mask(var(--bokeh-icon-caret-up)); }
+.bk-tool-icon-caret-down  { .tool-icon-mask(var(--bokeh-icon-caret-down)); }
+.bk-tool-icon-caret-left  { .tool-icon-mask(var(--bokeh-icon-caret-left)); }
+.bk-tool-icon-caret-right { .tool-icon-mask(var(--bokeh-icon-caret-right)); }
 
-.bk-tool-icon-chevron-left {
-  .tool-icon-mask(var(--bokeh-icon-chevron-left));
-}
+.bk-tool-icon-see-on  { .tool-icon-mask(var(--bokeh-icon-see-on)); }
+.bk-tool-icon-see-off { .tool-icon-mask(var(--bokeh-icon-see-off)); }
 
-.bk-tool-icon-chevron-right {
-  .tool-icon-mask(var(--bokeh-icon-chevron-right));
-}
+.bk-tool-icon-x-grip { .tool-icon-mask(var(--bokeh-icon-y-grip)); }
+.bk-tool-icon-y-grip { .tool-icon-mask(var(--bokeh-icon-y-grip)); }
 
-.bk-tool-icon-caret-up {
-  .tool-icon-mask(var(--bokeh-icon-caret-up));
-}
+.bk-tool-icon-arrow-down-to-bar { .tool-icon-mask(var(--bokeh-icon-arrow-down-to-bar)); }
+.bk-tool-icon-arrow-up-from-bar { .tool-icon-mask(var(--bokeh-icon-arrow-up-from-bar)); }
 
-.bk-tool-icon-caret-down {
-  .tool-icon-mask(var(--bokeh-icon-caret-down));
-}
+.bk-tool-icon-minimize { .tool-icon-mask(var(--bokeh-icon-minimize)); }
+.bk-tool-icon-maximize { .tool-icon-mask(var(--bokeh-icon-maximize)); }
 
-.bk-tool-icon-caret-left {
-  .tool-icon-mask(var(--bokeh-icon-caret-left));
-}
-
-.bk-tool-icon-caret-right {
-  .tool-icon-mask(var(--bokeh-icon-caret-right));
-}
-
-.bk-tool-icon-see-on {
-  .tool-icon-mask(var(--bokeh-icon-see-on));
-}
-
-.bk-tool-icon-see-off {
-  .tool-icon-mask(var(--bokeh-icon-see-off));
-}
+.bk-tool-icon-pointer  { .tool-icon-mask(var(--bokeh-icon-hand)); }
+.bk-tool-icon-delete   { .tool-icon-mask(var(--bokeh-icon-trash)); }
 
 :host {
   // Based on https://tabler-icons.io/ (MIT License)
@@ -270,4 +255,16 @@
   --bokeh-icon-see-off: data-uri("icons/see-off.svg");
 
   --bokeh-cursor-rotate: data-uri("icons/cursor-rotate.svg") 12 12, auto;
+
+  --bokeh-icon-x-grip: data-uri("icons/x-grip.svg");
+  --bokeh-icon-y-grip: data-uri("icons/y-grip.svg");
+
+  --bokeh-icon-arrow-down-to-bar: data-uri("icons/arrow-down-to-bar.svg");
+  --bokeh-icon-arrow-up-from-bar: data-uri("icons/arrow-up-from-bar.svg");
+
+  --bokeh-icon-minimize: data-uri("icons/minimize.svg");
+  --bokeh-icon-maximize: data-uri("icons/maximize.svg");
+
+  --bokeh-icon-hand: data-uri("icons/hand.svg");
+  --bokeh-icon-trash: data-uri("icons/trash.svg");
 }
