@@ -15,12 +15,13 @@ import {receivers_for_sender} from "core/signaling"
 import {diagnostics} from "core/diagnostics"
 
 import examiner_css from "styles/examiner.css"
+import pretty_css, * as pretty from "styles/pretty.css"
 
 export class HTMLPrinter {
   protected readonly visited = new WeakSet()
   protected depth = 0
 
-  constructor(readonly click: (obj: unknown) => void, readonly max_items: number, readonly max_depth: number) {}
+  constructor(readonly click?: (obj: unknown) => void, readonly max_items: number = 5, readonly max_depth: number = 3) {}
 
   to_html(obj: unknown): HTMLElement {
     if (isObject(obj)) {
@@ -57,19 +58,19 @@ export class HTMLPrinter {
   }
 
   null(): HTMLElement {
-    return span({class: "null"}, "null")
+    return span({class: pretty.nullish}, "null")
   }
 
   token(val: string): HTMLElement {
-    return span({class: "token"}, val)
+    return span({class: pretty.token}, val)
   }
 
   boolean(val: boolean): HTMLElement {
-    return span({class: "boolean"}, `${val}`)
+    return span({class: pretty.boolean}, `${val}`)
   }
 
   number(val: number): HTMLElement {
-    return span({class: "number"}, `${val}`)
+    return span({class: pretty.number}, `${val}`)
   }
 
   string(val: string): HTMLElement {
@@ -86,11 +87,11 @@ export class HTMLPrinter {
       }
     })()
 
-    return span({class: "string"}, str)
+    return span({class: pretty.string}, str)
   }
 
   symbol(val: symbol): HTMLElement {
-    return span({class: "symbol"}, val.toString())
+    return span({class: pretty.symbol}, val.toString())
   }
 
   array(obj: unknown[]): HTMLElement {
@@ -104,14 +105,14 @@ export class HTMLPrinter {
         break
       }
     }
-    return span({class: "array"}, T("["), ...interleave(items, () => T(", ")), T("]"))
+    return span({class: pretty.array}, T("["), ...interleave(items, () => T(", ")), T("]"))
   }
 
   iterable(obj: Iterable<unknown>): HTMLElement {
     const T = this.token
     const tag = Object(obj)[Symbol.toStringTag] ?? "Object"
     const items = this.array([...obj])
-    return span({class: "iterable"}, `${tag}`, T("("), items, T(")"))
+    return span({class: pretty.iterable}, `${tag}`, T("("), items, T(")"))
   }
 
   object(obj: PlainObject): HTMLElement {
@@ -125,19 +126,23 @@ export class HTMLPrinter {
         break
       }
     }
-    return span({class: "object"}, T("{"), ...interleave(items, () => T(", ")), T("}"))
+    return span({class: pretty.object}, T("{"), ...interleave(items, () => T(", ")), T("}"))
   }
 
   model(obj: Model): HTMLElement {
     const T = this.token
-    const el = span({class: "model"}, obj.constructor.__qualified__, T("("), this.to_html(obj.id), T(")"))
-    el.addEventListener("click", () => this.click(obj))
+    const el = span({class: pretty.model}, obj.constructor.__qualified__, T("("), this.to_html(obj.id), T(")"))
+    const {click} = this
+    if (click != null) {
+      el.classList.add("ref")
+      el.addEventListener("click", () => click(obj))
+    }
     return el
   }
 
   property(obj: p.Property): HTMLElement {
     const model = this.model(obj.obj as Model)
-    const attr = span({class: "attr"}, obj.attr)
+    const attr = span({class: pretty.attr}, obj.attr)
     return span(model, this.token("."), attr)
   }
 }
@@ -146,7 +151,7 @@ export class ExaminerView extends UIElementView {
   declare model: Examiner
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), examiner_css]
+    return [...super.stylesheets(), pretty_css, examiner_css]
   }
 
   private prev_listener: ((obj: unknown) => void) | null = null
@@ -290,7 +295,7 @@ export class ExaminerView extends UIElementView {
     }
 
     function to_html(obj: unknown) {
-      const printer = new HTMLPrinter(click, 5, 3)
+      const printer = new HTMLPrinter(click)
       return printer.to_html(obj)
     }
 

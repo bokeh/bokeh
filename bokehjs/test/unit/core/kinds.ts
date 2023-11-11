@@ -297,9 +297,9 @@ describe("core/kinds module", () => {
     expect(tp.may_have_refs()).to.be.equal(false)
   })
 
-  it("should support DOMNode kind", () => {
-    const tp = k.DOMNode
-    expect(`${tp}`).to.be.equal("DOMNode")
+  it("should support Node kind", () => {
+    const tp = k.Node
+    expect(`${tp}`).to.be.equal("Node")
     expect(tp.valid(document.createElement("div"))).to.be.true
     expect(tp.valid(new SomeModel())).to.be.false
     expect(tp.valid(new class {})).to.be.false

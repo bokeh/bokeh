@@ -3,9 +3,13 @@ import type * as p from "core/properties"
 import * as icons from "styles/icons.css"
 import type {DialogView} from "../../ui/dialog"
 import {Dialog} from "../../ui/dialog"
-import {Examiner} from "../../ui/examiner"
+import {Examiner, HTMLPrinter} from "../../ui/examiner"
+import {HTML} from "../../dom/html"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
+import {div} from "core/dom"
+
+import pretty_css from "styles/pretty.css"
 
 export class ExamineToolView extends ActionToolView {
   declare model: ExamineTool
@@ -20,9 +24,13 @@ export class ExamineToolView extends ActionToolView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
+    const target = this.parent.model
+    const printer = new HTMLPrinter()
+
     const dialog = new Dialog({
-      content: new Examiner({target: this.parent.model}),
-      closable: true,
+      stylesheets: [pretty_css],
+      title: new HTML({html: div("Examine ", printer.to_html(target))}),
+      content: new Examiner({target}),
       visible: false,
     })
     this._dialog = await build_view(dialog, {parent: this.parent})
