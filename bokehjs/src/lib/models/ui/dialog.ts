@@ -4,6 +4,7 @@ import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {div, bounding_box} from "core/dom"
+import {apply_styles} from "core/css"
 import {isString, isNumber} from "core/util/types"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -27,34 +28,19 @@ type Position<T> =
   ({top: T, height: T} | {bottom: T, height: T} | {top: T, bottom: T})
 type CSSPosition = Position<CSSVal>
 
-function _update_css(style: CSSStyleDeclaration, key: string, val: number | string | null | undefined): void {
-  if (val != null) {
-    style.setProperty(key, isNumber(val) ? `${val}px` : val)
-  } else {
-    style.removeProperty(key)
-  }
+function px(val: string | number): string {
+  return isNumber(val) ? `${val}px` : val
 }
 
 function reposition(el: HTMLElement, position: CSSPosition): void {
-  const {style} = el
-
-  const left = "left" in position ? position.left : "unset"
-  _update_css(style, "left", left)
-
-  const right = "right" in position ? position.right : "unset"
-  _update_css(style, "right", right)
-
-  const top = "top" in position ? position.top : "unset"
-  _update_css(style, "top", top)
-
-  const bottom = "bottom" in position ? position.bottom : "unset"
-  _update_css(style, "bottom", bottom)
-
-  const width = "width" in position ? position.width : "unset"
-  _update_css(style, "width", width)
-
-  const height = "height" in position ? position.height : "unset"
-  _update_css(style, "height", height)
+  apply_styles(el.style, {
+    left: "left" in position ? px(position.left) : "unset",
+    right: "right" in position ? px(position.right) : "unset",
+    top: "top" in position ? px(position.top) : "unset",
+    bottom: "bottom" in position ? px(position.bottom) : "unset",
+    width: "width" in position ? px(position.width) : "unset",
+    height: "height" in position ? px(position.height) : "unset",
+  })
 }
 
 export class DialogView extends UIElementView {

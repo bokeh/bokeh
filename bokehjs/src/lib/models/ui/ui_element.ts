@@ -1,26 +1,25 @@
 import {Model} from "../../model"
 import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
-import {logger} from "core/logging"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import {DOMComponentView} from "core/dom_view"
 import type {SerializableState} from "core/view"
-import type {CSSStyles, StyleSheet, StyleSheetLike} from "core/dom"
+import type {StyleSheet, StyleSheetLike} from "core/dom"
+import {apply_styles, compose_stylesheet} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
-import {keys, entries} from "core/util/object"
 import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
 import {Array, Or, Ref, String, Dict, Nullable} from "core/kinds"
 
-const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
-type StylesLike = typeof StylesLike["__type__"]
+export const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
+export type StylesLike = typeof StylesLike["__type__"]
 
-const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
-type StyleSheets = typeof StyleSheets["__type__"]
+export const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
+export type StyleSheets = typeof StyleSheets["__type__"]
 
 export type DOMBoxSizing = {
   width_policy: SizingPolicy | "auto"
@@ -33,19 +32,6 @@ export type DOMBoxSizing = {
 }
 
 const {round, floor} = Math
-
-function* _iter_styles(styles: CSSStyles | Map<string, string | null> | Styles): Iterable<[string, unknown]> {
-  if (styles instanceof Styles) {
-    const model_attrs = new Set(keys(Model.prototype._props))
-    for (const prop of styles) {
-      if (!model_attrs.has(prop.attr)) {
-        yield [prop.attr, prop.get_value()]
-      }
-    }
-  } else {
-    yield* entries(styles)
-  }
-}
 
 export abstract class UIElementView extends DOMComponentView {
   declare model: UIElement
@@ -72,23 +58,7 @@ export abstract class UIElementView extends DOMComponentView {
       } else if (stylesheet instanceof BaseStyleSheet) {
         yield stylesheet.underlying()
       } else {
-        const output = []
-
-        for (const [selector, styles] of entries(stylesheet)) {
-          output.push(`${selector} {`)
-
-          for (const [attr, value] of _iter_styles(styles)) {
-            const name = attr.replace(/_/g, "-")
-
-            if (isString(value) && value.length != 0) {
-              output.push(`  ${name}: ${value};`)
-            }
-          }
-
-          output.push("}")
-        }
-
-        const css = output.join("\n")
+        const css = compose_stylesheet(stylesheet)
         yield new InlineStyleSheet(css)
       }
     }
@@ -235,25 +205,7 @@ export abstract class UIElementView extends DOMComponentView {
   }
 
   protected _apply_styles(): void {
-    const {styles} = this.model
-
-    const apply = (name: string, value: unknown) => {
-      const known = name in this.el.style   // XXX: hasOwnProperty() doesn't work for unknown reasons
-      if (known && isString(value)) {
-        this.el.style[name as any] = value  // XXX: setProperty() doesn't support camel-case
-      }
-      return known
-    }
-
-    for (const [attr, value] of _iter_styles(styles)) {
-      const name = attr.replace(/_/g, "-")
-
-      if (!apply(name, value)) {
-        if (!apply(`-webkit-${name}`, value) && !apply(`-moz-${name}`, value)) {
-          logger.trace(`unknown CSS property '${name}'`)
-        }
-      }
-    }
+    apply_styles(this.el.style, this.model.styles)
   }
 
   protected _update_visible(): void {
@@ -284,7 +236,7 @@ export namespace UIElement {
   export type Props = Model.Props & {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
-    styles: p.Property<CSSStyles | Map<string, string | null> | Styles>
+    styles: p.Property<StylesLike>
     stylesheets: p.Property<StyleSheets>
   }
 }

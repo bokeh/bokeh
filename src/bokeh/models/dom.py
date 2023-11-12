@@ -31,7 +31,6 @@ from ..core.properties import (
     Either,
     Instance,
     List,
-    Nullable,
     Required,
     String,
 )
@@ -85,7 +84,7 @@ class DOMElement(DOMNode):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    style = Nullable(Either(Instance(Styles), Dict(String, String)))
+    style = Either(Instance(Styles), Dict(String, String), default={})
 
     children = List(Either(String, Instance(DOMNode), Instance(UIElement)), default=[])
 
