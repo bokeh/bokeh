@@ -41,7 +41,6 @@ from ..core.validation import error
 from ..core.validation.errors import NOT_A_PROPERTY_OF
 from ..model import Model, Qualified
 from .css import Styles
-from .renderers import RendererGroup
 from .ui.ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -135,7 +134,7 @@ class ToggleGroup(Action):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    groups = List(Instance(RendererGroup))
+    groups = List(Instance(".models.renderers.RendererGroup"))
 
 @abstract
 class Placeholder(DOMNode):

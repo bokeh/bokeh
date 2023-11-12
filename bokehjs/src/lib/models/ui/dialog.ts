@@ -464,6 +464,14 @@ export class DialogView extends UIElementView {
     this.el.classList.toggle(dialogs.maximized, this._maximized)
   }
 
+  open(): void {
+    if (this.model.visible && !this._has_rendered) {
+      this.render()
+    } else {
+      this.model.visible = true
+    }
+  }
+
   close(): void {
     this.model.visible = false
   }

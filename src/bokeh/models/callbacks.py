@@ -42,6 +42,7 @@ from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
+from .ui import Dialog, UIElement
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
@@ -52,9 +53,11 @@ if TYPE_CHECKING:
 
 __all__ = (
     'Callback',
-    'OpenURL',
     'CustomJS',
+    'OpenDialog',
+    'OpenURL',
     'SetValue',
+    'ToggleVisibility',
 )
 
 #-----------------------------------------------------------------------------
@@ -236,6 +239,24 @@ class SetValue(Callback):
             return None
         else:
             return f"{self.value!r} is not a valid value for {self.obj}.{self.attr}"
+
+class ToggleVisibility(Callback):
+    """ Allows toggle visibility of an UI element. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    target = Required(Instance(UIElement))
+
+class OpenDialog(Callback):
+    """ Allows to open a dialog box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dialog = Required(Instance(Dialog)) # OwnedInstance
 
 # TODO: class Show(Callback): target = Required(Either(Instance(DOMNode), Instance(UIElement)))
 # TODO: class Hide(Callback): ...
