@@ -11,8 +11,8 @@ the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
 .. _sklearn.neighbors.KernelDensity: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
 
 '''
-import pandas as pd
 import numpy as np
+import pandas as pd
 from sklearn.neighbors import KernelDensity
 
 from bokeh.models import CustomJSTickFormatter, Label
@@ -61,7 +61,7 @@ for _, row in new_df.iterrows():
 
 # Convert x-axis labels to percentages
 x_axis_labels = {3: "3%", 4: "4%", 5: "5%", 6: "6%", 7: "7%"}
-p.xaxis.formatter = CustomJSTickFormatter(code="""return tick in %s ? %s[tick] : '';""" % (x_axis_labels, x_axis_labels))
+p.xaxis.formatter = CustomJSTickFormatter(code="""var labels = %s; return labels[tick] || '';""" % x_axis_labels)
 
 p.axis.axis_line_color = None
 p.axis.major_tick_out = 0
