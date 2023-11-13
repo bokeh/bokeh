@@ -37,7 +37,7 @@ export class ExamineToolView extends ActionToolView {
   }
 
   doit(): void {
-    this._dialog.model.visible = true
+    this._dialog.open()
   }
 }
 

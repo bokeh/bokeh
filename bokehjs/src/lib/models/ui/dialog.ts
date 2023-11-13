@@ -10,7 +10,8 @@ import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {XY, LRTB} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {min as amin} from "core/util/array"
+import {last, remove, min as amin} from "core/util/array"
+import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import {Node} from "../coordinates/node"
@@ -27,6 +28,8 @@ type Position<T> =
   ({top: T, height: T} | {bottom: T, height: T} | {top: T, bottom: T})
 type CSSPosition = Position<CSSVal>
 
+const _stacking_order: DialogView[] = []
+
 export class DialogView extends UIElementView {
   declare model: Dialog
 
@@ -39,9 +42,10 @@ export class DialogView extends UIElementView {
   }
 
   protected readonly _position = new InlineStyleSheet()
+  protected readonly _stacking = new InlineStyleSheet()
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), dialogs_css, icons_css, this._position]
+    return [...super.stylesheets(), dialogs_css, icons_css, this._position, this._stacking]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -65,17 +69,7 @@ export class DialogView extends UIElementView {
     super.connect_signals()
 
     const {visible} = this.model.properties
-    this.on_change(visible, () => {
-      if (this.model.visible) {
-        if (!this._has_rendered) {
-          this.render()
-        } else {
-          document.body.append(this.el)
-        }
-      } else {
-        this.el.remove()
-      }
-    })
+    this.connect(visible.change, () => this._toggle(this.model.visible))
   }
 
   override remove(): void {
@@ -215,6 +209,7 @@ export class DialogView extends UIElementView {
     }
     this.el.addEventListener("pointerdown", (event) => {
       assert(state == null)
+      this.bring_to_front()
 
       const target = this._hit_target(event.composedPath())
       if (target == null || !this._can_hit(target)) {
@@ -238,12 +233,6 @@ export class DialogView extends UIElementView {
       target_el.setPointerCapture(event.pointerId)
     })
 
-    if (this.model.visible) {
-      document.body.append(this.el)
-    } else {
-      this.el.remove()
-
-    }
     this._has_rendered = true
   }
 
@@ -440,16 +429,40 @@ export class DialogView extends UIElementView {
     this.el.classList.toggle(dialogs.maximized, this._maximized)
   }
 
-  open(): void {
-    if (this.model.visible && !this._has_rendered) {
-      this.render()
+  protected _toggle(show: boolean) {
+    if (show) {
+      if (!this._has_rendered) {
+        this.render()
+      }
+      document.body.append(this.el)
+      this.bring_to_front()
     } else {
-      this.model.visible = true
+      remove(_stacking_order, this)
+      this.el.remove()
     }
+  }
+
+  open(): void {
+    this.model.setv({visible: true}, {check_eq: false})
   }
 
   close(): void {
     this.model.visible = false
+  }
+
+  bring_to_front(): void {
+    if (last(_stacking_order) == this) {
+      return
+    }
+
+    remove(_stacking_order, this)
+    _stacking_order.push(this)
+
+    for (const [dialog_view, i] of enumerate(_stacking_order)) {
+      dialog_view._stacking.replace(":host", {
+        "z-index": `${i}`,
+      })
+    }
   }
 }
 
