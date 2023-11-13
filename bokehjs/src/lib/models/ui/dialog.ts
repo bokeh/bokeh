@@ -3,9 +3,8 @@ import type {DOMNodeView} from "../dom/dom_node"
 import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import type {StyleSheetLike, Keys} from "core/dom"
-import {div, bounding_box} from "core/dom"
-import {apply_styles} from "core/css"
-import {isString, isNumber} from "core/util/types"
+import {InlineStyleSheet, px, div, bounding_box} from "core/dom"
+import {isString} from "core/util/types"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
@@ -28,21 +27,6 @@ type Position<T> =
   ({top: T, height: T} | {bottom: T, height: T} | {top: T, bottom: T})
 type CSSPosition = Position<CSSVal>
 
-function px(val: string | number): string {
-  return isNumber(val) ? `${val}px` : val
-}
-
-function reposition(el: HTMLElement, position: CSSPosition): void {
-  apply_styles(el.style, {
-    left: "left" in position ? px(position.left) : "unset",
-    right: "right" in position ? px(position.right) : "unset",
-    top: "top" in position ? px(position.top) : "unset",
-    bottom: "bottom" in position ? px(position.bottom) : "unset",
-    width: "width" in position ? px(position.width) : "unset",
-    height: "height" in position ? px(position.height) : "unset",
-  })
-}
-
 export class DialogView extends UIElementView {
   declare model: Dialog
 
@@ -54,8 +38,10 @@ export class DialogView extends UIElementView {
     yield this._content
   }
 
+  protected readonly _position = new InlineStyleSheet()
+
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), dialogs_css, icons_css]
+    return [...super.stylesheets(), dialogs_css, icons_css, this._position]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -107,7 +93,15 @@ export class DialogView extends UIElementView {
   protected _close_el: HTMLElement
 
   protected _reposition(position: CSSPosition): void {
-    reposition(this.el, position)
+    this._position.replace(":host", {
+      left: "left" in position ? px(position.left) : "unset",
+      right: "right" in position ? px(position.right) : "unset",
+      top: "top" in position ? px(position.top) : "unset",
+      bottom: "bottom" in position ? px(position.bottom) : "unset",
+      width: "width" in position ? px(position.width) : "unset",
+      height: "height" in position ? px(position.height) : "unset",
+    })
+
     this.update_bbox()
   }
 

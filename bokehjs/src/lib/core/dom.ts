@@ -1,7 +1,9 @@
-import {isBoolean, isString, isArray, isPlainObject} from "./util/types"
+import {isBoolean, isNumber, isString, isArray, isPlainObject} from "./util/types"
 import {entries} from "./util/object"
 import {BBox} from "./util/bbox"
 import type {Size, Box, Extents} from "./types"
+import type {CSSStyles, CSSStyleSheetDecl} from "./css"
+import {compose_stylesheet} from "./css"
 
 export type {CSSStyles, CSSStylesNative, CSSOurStyles} from "./css"
 
@@ -422,8 +424,6 @@ export enum MouseButton {
   Middle = Auxiliary,
 }
 
-import type {CSSOurStyles} from "./css"
-
 export abstract class StyleSheet {
   protected readonly el: HTMLStyleElement | HTMLLinkElement
 
@@ -437,46 +437,47 @@ export abstract class StyleSheet {
 }
 
 export class InlineStyleSheet extends StyleSheet {
-  protected override readonly el: HTMLStyleElement
+  protected override readonly el = style({type: "text/css"})
 
-  constructor(css?: string) {
+  constructor(css?: string | CSSStyleSheetDecl) {
     super()
-    this.el = style({type: "text/css"}, css)
+    if (isString(css)) {
+      this._update(css)
+    } else if (css != null) {
+      this._update(compose_stylesheet(css))
+    }
+  }
+
+  get css(): string {
+    return this.el.textContent ?? ""
+  }
+
+  protected _update(css: string): void {
+    this.el.textContent = css
   }
 
   clear(): void {
     this.replace("")
   }
 
-  private *_to_rules(styles: CSSOurStyles) {
-    // TODO: prefixing
-    for (const [attr, value] of entries(styles)) {
-      if (value != null) {
-        const name = attr.replace(/_/g, "-")
-        yield `${name}: ${value};`
-      }
+  private _to_css(css: string, styles: CSSStyles | undefined): string {
+    if (styles == null) {
+      return css
+    } else {
+      return compose_stylesheet({[css]: styles})
     }
   }
 
-  private _to_css(css: string, styles: CSSOurStyles | undefined): string {
-    if (styles == null)
-      return css
-    else
-      return `${css}{${[...this._to_rules(styles)].join("")}}`
+  replace(css: string, styles?: CSSStyles): void {
+    this._update(this._to_css(css, styles))
   }
 
-  replace(css: string, styles?: CSSOurStyles): void {
-    this.el.textContent = this._to_css(css, styles)
+  prepend(css: string, styles?: CSSStyles): void {
+    this._update(`${this._to_css(css, styles)}\n${this.css}`)
   }
 
-  prepend(css: string, styles?: CSSOurStyles): void {
-    const text = this.el.textContent ?? ""
-    this.el.textContent = `${this._to_css(css, styles)}\n${text}`
-  }
-
-  append(css: string, styles?: CSSOurStyles): void {
-    const text = this.el.textContent ?? ""
-    this.el.textContent = `${text}\n${this._to_css(css, styles)}`
+  append(css: string, styles?: CSSStyles): void {
+    this._update(`${this.css}\n${this._to_css(css, styles)}`)
   }
 
   remove(): void {
@@ -527,8 +528,8 @@ export async function dom_ready(): Promise<void> {
   }
 }
 
-export function px(value: number): string {
-  return `${value}px`
+export function px(value: number | string): string {
+  return isNumber(value) ? `${value}px` : value
 }
 
 export const supports_adopted_stylesheets = "adoptedStyleSheets" in ShadowRoot.prototype
