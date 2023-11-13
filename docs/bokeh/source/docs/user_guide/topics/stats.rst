@@ -34,6 +34,13 @@ Kernel density estimation
 
 .. _ug_topics_stats_sinaplot:
 
+Kernel density estimates can also be created using |varea| glyphs:
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/density.py
+    :source-position: above
+
+.. _ug_topics_stats_density:
+
 SinaPlot
 --------
 
@@ -58,5 +65,6 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
 .. |harea|   replace:: :func:`~bokeh.plotting.figure.harea`
 .. |quad|    replace:: :func:`~bokeh.plotting.figure.quad`
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
+.. |varea|   replace:: :func:`~bokeh.plotting.figure.varea`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
 .. |Whisker| replace:: :class:`~bokeh.models.annotations.Whisker`
