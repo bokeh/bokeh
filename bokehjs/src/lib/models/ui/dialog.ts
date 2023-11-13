@@ -376,57 +376,98 @@ export class DialogView extends UIElementView {
 
   protected _collapsed: boolean = false
   collapse(): void {
-    if (!this._collapsed) {
-      if (this._normal_bbox == null) {
-        this._normal_bbox = bounding_box(this.el)
+    const position = (() => {
+      if (!this._collapsed) {
+        this._minimize(false)
+        this._maximize(false)
+        if (this._normal_bbox == null) {
+          this._normal_bbox = bounding_box(this.el)
+        }
+        const {left, top, width} = this._normal_bbox
+        return {left, top, width, height: "max-content"}
+      } else {
+        const {_normal_bbox} = this
+        assert(_normal_bbox != null)
+        this._normal_bbox = null
+        return _normal_bbox
       }
-      const {left, top, width} = this._normal_bbox
-      this._reposition({left, top, width, height: "max-content"})
-      this._minimize_el.title = "Restore"
-    } else {
-      assert(this._normal_bbox != null)
-      this._reposition(this._normal_bbox)
-      this._minimize_el.title = "Collapse"
-      this._normal_bbox = null
+    })()
+    this._reposition(position)
+    this._collapse(!this._collapsed)
+  }
+  protected _collapse(value: boolean) {
+    if (this._collapsed != value) {
+      this._collapsed = value
+      this.el.classList.toggle(dialogs.collapsed, this._collapsed)
+      this._collapse_el.title = this._collapsed ? "Restore" : "Collapse"
     }
-    this._collapsed = !this._collapsed
-    this.el.classList.toggle(dialogs.collapsed, this._collapsed)
   }
 
   protected _minimized: boolean = false
   minimize(): void {
-    if (!this._minimized) {
-      if (this._normal_bbox == null) {
-        this._normal_bbox = bounding_box(this.el)
+    const position = (() => {
+      if (!this._minimized) {
+        this._collapse(false)
+        this._maximize(false)
+        if (this._normal_bbox == null) {
+          this._normal_bbox = bounding_box(this.el)
+        }
+        return {left: 0, bottom: 0, width: "max-content", height: "max-content"}
+      } else {
+        const {_normal_bbox} = this
+        assert(_normal_bbox != null)
+        this._normal_bbox = null
+        return _normal_bbox
       }
-      this._reposition({left: 0, bottom: 0, width: "max-content", height: "max-content"})
-      this._minimize_el.title = "Restore"
-    } else {
-      assert(this._normal_bbox != null)
-      this._reposition(this._normal_bbox)
-      this._minimize_el.title = "Minimize"
-      this._normal_bbox = null
+    })()
+    this._reposition(position)
+    this._minimize(!this._minimized)
+  }
+  protected _minimize(value: boolean): void {
+    if (this._minimized != value) {
+      this._minimized = value
+      this.el.classList.toggle(dialogs.minimized, this._minimized)
+      this._minimize_el.title = this._minimized ? "Restore" : "Minimize"
     }
-    this._minimized = !this._minimized
-    this.el.classList.toggle(dialogs.minimized, this._minimized)
   }
 
   protected _maximized: boolean = false
   maximize(): void {
-    if (!this._maximized) {
-      if (this._normal_bbox == null) {
-        this._normal_bbox = bounding_box(this.el)
+    const position = (() => {
+      if (!this._maximized) {
+        this._collapse(false)
+        this._minimize(false)
+        if (this._normal_bbox == null) {
+          this._normal_bbox = bounding_box(this.el)
+        }
+        return {left: 0, top: 0, width: "100%", height: "100%"}
+      } else {
+        const {_normal_bbox} = this
+        assert(_normal_bbox != null)
+        this._normal_bbox = null
+        return _normal_bbox
       }
-      this._reposition({left: 0, top: 0, width: "100%", height: "100%"})
-      this._maximize_el.title = "Restore"
-    } else {
-      assert(this._normal_bbox != null)
-      this._reposition(this._normal_bbox)
-      this._maximize_el.title = "Maximize"
+    })()
+    this._reposition(position)
+    this._maximize(!this._maximized)
+  }
+  protected _maximize(value: boolean): void {
+    if (this._maximized != value) {
+      this._maximized = value
+      this.el.classList.toggle(dialogs.maximized, this._maximized)
+      this._maximize_el.title = this._maximized ? "Restore" : "Maximize"
+    }
+  }
+
+  restore(): void {
+    this._collapse(false)
+    this._minimize(false)
+    this._maximize(false)
+    const {_normal_bbox} = this
+    if (_normal_bbox != null) {
+      this._reposition(_normal_bbox)
       this._normal_bbox = null
     }
-    this._maximized = !this._maximized
-    this.el.classList.toggle(dialogs.maximized, this._maximized)
   }
 
   protected _toggle(show: boolean) {
@@ -434,7 +475,9 @@ export class DialogView extends UIElementView {
       if (!this._has_rendered) {
         this.render()
       }
-      document.body.append(this.el)
+      if (!this.el.isConnected) {
+        document.body.append(this.el)
+      }
       this.bring_to_front()
     } else {
       remove(_stacking_order, this)
