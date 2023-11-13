@@ -194,7 +194,6 @@ export class DialogView extends UIElementView {
       document.removeEventListener("pointerup", pointer_up)
       document.removeEventListener("keydown", key_press)
       this.el.classList.remove(dialogs.interacting)
-      document.body.style.cursor = ""
     }
     const pointer_move = (event: PointerEvent) => {
       assert(state != null)
@@ -242,10 +241,7 @@ export class DialogView extends UIElementView {
       document.addEventListener("keydown", key_press)
 
       const target_el = this._handles[target]
-      const {cursor} = getComputedStyle(target_el)
-      document.body.style.cursor = cursor
-
-      this.el.setPointerCapture(event.pointerId)
+      target_el.setPointerCapture(event.pointerId)
     })
 
     if (this.model.visible) {
