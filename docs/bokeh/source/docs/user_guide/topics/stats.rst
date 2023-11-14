@@ -34,7 +34,7 @@ Kernel density estimation
 
 .. _ug_topics_stats_sinaplot:
 
-Kernel density estimates can also be created using |varea| glyphs:
+Kernel density estimates can also be plotted using |varea| glyphs:
 
 .. bokeh-plot:: __REPO__/examples/topics/stats/density.py
     :source-position: above
