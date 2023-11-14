@@ -38,6 +38,7 @@ export class DialogView extends UIElementView {
 
   override *children(): IterViews {
     yield* super.children()
+    yield this._title
     yield this._content
   }
 
@@ -73,7 +74,9 @@ export class DialogView extends UIElementView {
   }
 
   override remove(): void {
+    remove(_stacking_order, this)
     this._content.remove()
+    this._title.remove()
     super.remove()
   }
 
@@ -102,8 +105,8 @@ export class DialogView extends UIElementView {
   override render(): void {
     super.render()
 
-    this._title.render()
-    this._content.render()
+    this._title.render_to(null)
+    this._content.render_to(null)
 
     const inner_el = div({class: dialogs.inner})
     this.shadow_el.append(inner_el)
@@ -265,7 +268,7 @@ export class DialogView extends UIElementView {
   }
 
   protected _can_hit(target: Box.HitTarget): boolean {
-    if (this._maximized) {
+    if (this._minimized || this._maximized) {
       return false
     }
     const {left, right, top, bottom} = this.resizable

@@ -457,15 +457,16 @@ export abstract class LayoutDOMView extends UIElementView {
   }
 
   private _was_built: boolean = false
-  override render_to(element: Node | null): void {
+  override render_to(target: Node | null): void {
     if (!this.is_layout_root) {
       throw new Error(`${this.toString()} is not a root layout`)
     }
 
-    this.render()
-    if (element != null) {
-      element.appendChild(this.el)
+    if (target != null) {
+      target.appendChild(this.el)
     }
+    this.render()
+
     this.r_after_render()
     this._was_built = true
 
