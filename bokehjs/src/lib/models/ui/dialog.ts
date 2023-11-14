@@ -236,6 +236,15 @@ export class DialogView extends UIElementView {
       target_el.setPointerCapture(event.pointerId)
     })
 
+    title_el.addEventListener("wheel", (event) => {
+      const dy = event.deltaY
+      if ((dy < 0 && !this._collapsed) || (dy > 0 && this._collapsed)) {
+        event.preventDefault()
+        event.stopPropagation()
+        this.collapse()
+      }
+    })
+
     this._has_rendered = true
   }
 
