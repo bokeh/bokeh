@@ -1887,18 +1887,6 @@
       name: "unset",
     },
   },
-  Node: {
-    __extends__: "Model",
-    target: {
-      type: "symbol",
-      name: "unset",
-    },
-    symbol: {
-      type: "symbol",
-      name: "unset",
-    },
-    offset: 0,
-  },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",
   },
@@ -5025,6 +5013,18 @@
     },
     color_baseline: null,
     stack_labels: null,
+  },
+  Node: {
+    __extends__: "Model",
+    target: {
+      type: "symbol",
+      name: "unset",
+    },
+    symbol: {
+      type: "symbol",
+      name: "unset",
+    },
+    offset: 0,
   },
   GridPlot: {
     __extends__: [

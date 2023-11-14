@@ -47,6 +47,7 @@ from . import (
     layouts,
     map_plots,
     mappers,
+    nodes,
     plots,
     ranges,
     renderers,
@@ -79,6 +80,7 @@ from .labeling import *
 from .layouts import *
 from .map_plots import *
 from .mappers import *
+from .nodes import *
 from .plots import *
 from .ranges import *
 from .renderers import *
@@ -117,6 +119,7 @@ __all__ = (
     *layouts.__all__,
     *map_plots.__all__,
     *mappers.__all__,
+    *nodes.__all__,
     *plots.__all__,
     *ranges.__all__,
     *renderers.__all__,

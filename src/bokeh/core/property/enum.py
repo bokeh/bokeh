@@ -21,7 +21,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, overload
+from typing import (
+    Any,
+    _LiteralGenericAlias,
+    get_args,
+    overload,
+)
 
 # Bokeh imports
 from ...util.strings import nice_join
@@ -53,17 +58,26 @@ class Enum(String):
 
     """
 
+    _enum: enums.Enumeration
+
+    @overload
+    def __init__(self, enum: _LiteralGenericAlias, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(self, enum: str, *values: str, default: Init[str] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
-        if not (not values and isinstance(enum, enums.Enumeration)):
-            enum = enums.enumeration(enum, *values)
-        self._enum = enum
+    def __init__(self, enum: str | _LiteralGenericAlias | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
+        if isinstance(enum, str):
+            self._enum = enums.enumeration(enum, *values)
+        elif values:
+            raise ValueError("unexpected enum values")
+        elif isinstance(enum, enums.Enumeration):
+            self._enum = enum
+        else:
+            self._enum = enums.enumeration(*get_args(enum))
 
-        default = default if default is not Intrinsic else enum._default
+        default = default if default is not Intrinsic else self._enum._default
         super().__init__(default=default, help=help)
 
     def __str__(self) -> str:

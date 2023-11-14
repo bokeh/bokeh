@@ -55,12 +55,7 @@ from ...core.property_mixins import (
     ScalarLineProps,
 )
 from ..common.properties import Coordinate
-from ..coordinates import (
-    FrameBottom,
-    FrameLeft,
-    FrameRight,
-    FrameTop,
-)
+from ..nodes import BoxNodes, Node
 from .annotation import Annotation, DataAnnotation
 from .arrows import ArrowHead, TeeHead
 
@@ -92,21 +87,21 @@ class BoxAnnotation(Annotation):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    left = Coordinate(default=lambda: FrameLeft(), help="""
+    left = Coordinate(default=lambda: Node.frame.left, help="""
     The x-coordinates of the left edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameLeft())
+    """).accepts(Null, lambda _: Node.frame.left)
 
-    right = Coordinate(default=lambda: FrameRight(), help="""
+    right = Coordinate(default=lambda: Node.frame.right, help="""
     The x-coordinates of the right edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameRight())
+    """).accepts(Null, lambda _: Node.frame.right)
 
-    top = Coordinate(default=lambda: FrameTop(), help="""
+    top = Coordinate(default=lambda: Node.frame.top, help="""
     The y-coordinates of the top edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameTop())
+    """).accepts(Null, lambda _: Node.frame.top)
 
-    bottom = Coordinate(default=lambda: FrameBottom(), help="""
+    bottom = Coordinate(default=lambda: Node.frame.bottom, help="""
     The y-coordinates of the bottom edge of the box annotation.
-    """).accepts(Null, lambda _value: FrameBottom())
+    """).accepts(Null, lambda _: Node.frame.bottom)
 
     left_units = Enum(CoordinateUnits, default="data", help="""
     The unit type for the left attribute. Interpreted as |data units| by
@@ -257,6 +252,10 @@ class BoxAnnotation(Annotation):
 
     hover_fill_color = Override(default=None)
     hover_fill_alpha = Override(default=0.4)
+
+    @property
+    def nodes(self) -> BoxNodes:
+        return BoxNodes(self)
 
 class Band(DataAnnotation):
     ''' Render a filled area band along a dimension.

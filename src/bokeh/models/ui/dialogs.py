@@ -25,15 +25,15 @@ from ...core.enums import Movable, Resizable
 from ...core.properties import (
     Bool,
     Either,
+    Enum,
     Instance,
     Nullable,
     Required,
     String,
-    Enum,
 )
 from ...core.property_aliases import Anchor
-#from ..coordinates import Node
 from ..dom import DOMNode
+from ..nodes import Node
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -48,8 +48,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-Node = UIElement # TODO
 
 Limit = Instance(Node)
 
