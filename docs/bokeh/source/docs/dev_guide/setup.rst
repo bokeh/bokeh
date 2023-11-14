@@ -129,7 +129,7 @@ Then, activate the environment:
 
 .. note::
     To update your local environment, use
-    ``conda env update --name bkdev -f <environment file>``. Updating your local
+    ``conda env update --name bkdev -f conda/<environment file>``. Updating your local
     environment is necessary whenever the dependencies in the test environments
     change. This can happen when the environment files are updated in the main
     Bokeh repository or when you switch branches to work on different issues,

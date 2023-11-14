@@ -80,7 +80,7 @@ point.
 
 .. note::
     The URLs must be accessible by HTTP or HTTPS. For security reasons,
-    browsers will not allow loading local (``file://``) images into to HTML
+    browsers will not allow loading local (``file://``) images into HTML
     canvas elements. For similar reasons, if the page is HTTPS, then the
     URLs for the images must also be HTTPS.
 
