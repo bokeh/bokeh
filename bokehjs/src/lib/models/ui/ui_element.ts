@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import type {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import type {Align} from "core/enums"
@@ -223,6 +224,10 @@ export abstract class UIElementView extends DOMComponentView {
 
   override serializable_state(): SerializableState {
     return {...super.serializable_state(), bbox: this.bbox}
+  }
+
+  resolve_node(_node: Node): {x: number, y: number} {
+    return {x: NaN, y: NaN}
   }
 }
 

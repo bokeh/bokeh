@@ -21,15 +21,18 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
+from ...core.enums import Movable, Resizable
 from ...core.properties import (
     Bool,
     Either,
     Instance,
-    List,
     Nullable,
     Required,
     String,
+    Enum,
 )
+from ...core.property_aliases import Anchor
+#from ..coordinates import Node
 from ..dom import DOMNode
 from .ui_element import UIElement
 
@@ -39,13 +42,28 @@ from .ui_element import UIElement
 
 __all__ = (
     "Dialog",
+    "Panel",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-Button = UIElement # TODO
+Node = UIElement # TODO
+
+Limit = Instance(Node)
+
+class Panel(UIElement):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    #target = Nullable(Instance(UIElement), default=None)
+    position = Required(Instance(Node))
+    anchor = Anchor(default="top_left")
+    content = Required(Either(String, Instance(DOMNode), Instance(UIElement)))
 
 class Dialog(UIElement):
     """ """
@@ -54,25 +72,22 @@ class Dialog(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    title = Nullable(Either(String, Instance(DOMNode), Instance(UIElement)))
+    content = Required(Either(String, Instance(DOMNode), Instance(UIElement)))
 
-    title = Nullable(Either(String, Instance(DOMNode)), default=None, help="""
-    """)
+    collapsible = Bool(default=True)
+    minimizable = Bool(default=True)
+    maximizable = Bool(default=True)
+    closable = Bool(default=True)
 
-    content = Required(Either(String, Instance(DOMNode), Instance(UIElement)), help="""
-    """)
+    resizable = Enum(Resizable, default="all")
+    movable = Enum(Movable, default="both")
+    symmetric = Bool(default=False)
 
-    buttons = List(Instance(Button), default=[], help="""
-    """)
-
-    modal = Bool(default=False, help="""
-    """)
-
-    closable = Bool(default=True, help="""
-    Whether to show close (x) button in the title bar.
-    """)
-
-    draggable = Bool(default=True, help="""
-    """)
+    top_limit = Nullable(Limit, default=None)
+    bottom_limit = Nullable(Limit, default=None)
+    left_limit = Nullable(Limit, default=None)
+    right_limit = Nullable(Limit, default=None)
 
 #-----------------------------------------------------------------------------
 # Dev API

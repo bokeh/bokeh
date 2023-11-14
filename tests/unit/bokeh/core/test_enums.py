@@ -66,6 +66,7 @@ ALL  = (
     'Location',
     'MapType',
     'MarkerType',
+    'Movable',
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
@@ -75,6 +76,7 @@ ALL  = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'Resizable',
     'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
@@ -257,6 +259,9 @@ class Test_bce:
                                          "plus", "square", "square_cross", "square_dot", "square_pin", "square_x", "star", "star_dot",
                                          "triangle", "triangle_dot", "triangle_pin", "x", "y")
 
+    def test_Movable(self) -> None:
+        assert tuple(bce.Movable) == ("none", "x", "y", "both")
+
     def test_NamedColor(self) -> None:
         assert len(tuple(bce.NamedColor)) == 148
         assert tuple(bce.NamedColor) == tuple(named.__all__)
@@ -284,6 +289,9 @@ class Test_bce:
 
     def test_ResetPolicy(self) -> None:
         assert tuple(bce.ResetPolicy) == ("standard", "event_only")
+
+    def test_Resizable(self) -> None:
+        assert tuple(bce.Resizable) == ("none", "left", "right", "top", "bottom", "x", "y", "all")
 
     def test_ResolutionType(self) -> None:
         assert tuple(bce.ResolutionType) == ("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")

@@ -126,6 +126,7 @@ __all__ = (
     'Location',
     'MapType',
     'MarkerType',
+    'Movable',
     'NamedColor',
     'NumeralLanguage',
     'Orientation',
@@ -135,6 +136,7 @@ __all__ = (
     'Place',
     'RenderLevel',
     'ResetPolicy',
+    'Resizable',
     'ResolutionType',
     'RoundingFunction',
     'ScrollbarPolicy',
@@ -418,6 +420,9 @@ MarkerType = enumeration(
     "triangle", "triangle_dot", "triangle_pin", "x", "y",
 )
 
+#: Indicates in which dimensions an object (a renderer or an UI element) can be moved.
+Movable = enumeration("none", "x", "y", "both")
+
 #: Specify one of the CSS4 named colors (https://www.w3.org/TR/css-color-4/#named-colors)
 NamedColor = enumeration(*colors.named.__all__, case_sensitive=False)
 
@@ -448,6 +453,9 @@ RenderLevel = enumeration("image", "underlay", "glyph", "guide", "annotation", "
 
 #: What reset actions should occur on a Plot reset
 ResetPolicy = enumeration("standard", "event_only")
+
+#: Indicates in which dimensions an object (a renderer or an UI element) can be resized.
+Resizable = enumeration("none", "left", "right", "top", "bottom", "x", "y", "all")
 
 #: Specify which resolutions should be used for stripping of leading zeros
 ResolutionType = enumeration("microseconds", "milliseconds", "seconds", "minsec", "minutes", "hourmin", "hours", "days", "months", "years")

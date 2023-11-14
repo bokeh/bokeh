@@ -24,7 +24,12 @@ log = logging.getLogger(__name__)
 from math import inf
 
 # Bokeh imports
-from ...core.enums import CoordinateUnits, Dimension
+from ...core.enums import (
+    CoordinateUnits,
+    Dimension,
+    Movable,
+    Resizable,
+)
 from ...core.properties import (
     Bool,
     CoordinateLike,
@@ -193,7 +198,7 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
-    resizable = Enum("none", "left", "right", "top", "bottom", "x", "y", "all", default="all", help="""
+    resizable = Enum(Resizable, default="all", help="""
     If `editable` is set, this property allows to configure which
     combinations of edges are allowed to be moved, thus allows
     restrictions on resizing of the box.
@@ -202,7 +207,7 @@ class BoxAnnotation(Annotation):
         This property is experimental and may change at any point.
     """)
 
-    movable = Enum("none", "x", "y", "both", default="both", help="""
+    movable = Enum(Movable, default="both", help="""
     If `editable` is set, this property allows to configure in which
     directions the box can be moved.
 

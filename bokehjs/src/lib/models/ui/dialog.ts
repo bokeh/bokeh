@@ -1,11 +1,10 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
-import type {DOMNodeView} from "../dom/dom_node"
 import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import type {StyleSheetLike, Keys} from "core/dom"
 import {InlineStyleSheet, px, div, bounding_box} from "core/dom"
 import {isString} from "core/util/types"
-import type {IterViews} from "core/build_views"
+import type {IterViews, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {XY, LRTB} from "core/util/bbox"
@@ -15,12 +14,13 @@ import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
 import {Node} from "../coordinates/node"
+import {Or, Ref} from "../../core/kinds"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
 import icons_css from "styles/icons.css"
 
-type Button = UIElement
-const Button = UIElement
+const UIElementLike = Or(Ref(UIElement), Ref(DOMNode))
+type UIElementLike = typeof UIElementLike["__type__"]
 
 type CSSVal = number | string
 type Position<T> =
@@ -33,8 +33,8 @@ const _stacking_order: DialogView[] = []
 export class DialogView extends UIElementView {
   declare model: Dialog
 
-  protected _title: DOMNodeView
-  protected _content: DOMNodeView
+  protected _title: ViewOf<UIElementLike>
+  protected _content: ViewOf<UIElementLike>
 
   override *children(): IterViews {
     yield* super.children()
@@ -295,9 +295,9 @@ export class DialogView extends UIElementView {
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
-    const resolve = (_dim: "x" | "y", limit: Node | number | null): number => {
+    const resolve = (dim: "x" | "y", limit: Node | number | null): number => {
       if (limit instanceof Node) {
-        return NaN // this.resolve_node(limit)[dim]
+        return this.resolve_node(limit)[dim]
       } else {
         return NaN
       }
@@ -525,11 +525,9 @@ export namespace Dialog {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    title: p.Property<string | DOMNode | null>
-    content: p.Property<string | DOMNode | UIElement>
-    buttons: p.Property<Button[]>
+    title: p.Property<string | UIElementLike | null>
+    content: p.Property<string | UIElementLike>
 
-    //modal: p.Property<boolean>
     collapsible: p.Property<boolean>
     minimizable: p.Property<boolean>
     maximizable: p.Property<boolean>
@@ -559,12 +557,10 @@ export class Dialog extends UIElement {
   static {
     this.prototype.default_view = DialogView
 
-    this.define<Dialog.Props>(({Boolean, String, Array, Ref, Or, Nullable}) => ({
-      title: [ Nullable(Or(String, Ref(DOMNode))), null ],
+    this.define<Dialog.Props>(({Boolean, String, Ref, Or, Nullable}) => ({
+      title: [ Nullable(Or(String, Ref(DOMNode), Ref(UIElement))), null ],
       content: [ Or(String, Ref(DOMNode), Ref(UIElement)) ],
-      buttons: [ Array(Ref(Button)), [] ],
 
-      //modal: [ Boolean, false ],
       collapsible: [ Boolean, true ],
       minimizable: [ Boolean, true ],
       maximizable: [ Boolean, true ],
