@@ -5,7 +5,7 @@ the corresponding lines.
 
 .. bokeh-example-metadata::
     :sampledata: stocks
-    :apis: bokeh.plotting.figure.line, bokeh.palettes.brewer-palettes
+    :apis: bokeh.plotting.figure.line, bokeh.palettes
     :refs: :ref:`ug_basic_annotations_legends`
     :keywords: line, time series, legend
 '''
