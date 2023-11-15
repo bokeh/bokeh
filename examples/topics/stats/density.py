@@ -15,47 +15,36 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KernelDensity
 
-from bokeh.models import CustomJSTickFormatter, Label
+from bokeh.models import ColumnDataSource, CustomJSTickFormatter, Label
+from bokeh.palettes import Dark2
 from bokeh.plotting import figure, show
 from bokeh.sampledata.cows import data as df
 
 grouped = df.groupby('breed')
+colors = Dark2[5]
+x = np.linspace(2, 8, 1000)
+source = ColumnDataSource(dict(x=x))
 
-butterfat = []
-for breed, group_df in grouped:
-    values = group_df['butterfat'].values
-    butterfat.append(values)
+p = figure(title="Multiple density estimates", height=300, x_range=(2.5, 7.5), x_axis_label="butterfat contents", y_axis_label="density")    
 
-new_dict = {
-    "values": [butterfat[0], butterfat[1], butterfat[2],butterfat[3], butterfat[4]],
-    "bandwidths": [0.2, 0.2, 0.2, 0.2, 0.2],
-    "colors": ["#409DFA", "#FF3399", "#AC5703", "#9E5205", "green"],
-    "labels": ["Ayrshire", "Canadian", "Guernsey", "Holstein-Friesian", "Jersey"],
-}
-
-new_df = pd.DataFrame(new_dict)
-
-p = figure(title="Density estimates of butterfat percentages in cows", height=400, x_axis_label="butterfat contents", y_axis_label="density")
-
-positions = np.linspace(2, 8, 1000)
-for _, row in new_df.iterrows():
-    data, bandwidth, color, label = (row["values"], row["bandwidths"], row["colors"], row["labels"])
-
-    kde = KernelDensity(kernel="gaussian", bandwidth=bandwidth).fit(data[:, np.newaxis])
-    log_dens = kde.score_samples(positions[:, np.newaxis])
-
-    p.varea(x=positions, y1=np.exp(log_dens), y2=0, fill_alpha=0.3, fill_color=color)
+for i, (breed, group_df) in enumerate(grouped):
+    data = group_df['butterfat'].values
+    kde = KernelDensity(kernel="gaussian", bandwidth=0.2).fit(data[:, np.newaxis])
+    log_dens = kde.score_samples(x[:, np.newaxis])
+    y = np.exp(log_dens)
+    source.add(y, breed)
+    p.varea(x="x", y1=breed, y2=0, source=source, fill_alpha=0.3, fill_color=colors[i])
 
     # Find the highest point and annotate with the label
-    max_idx = np.argmax(np.exp(log_dens))
+    max_idx = np.argmax(y)
     highest_point_label = Label(
-        x=positions[max_idx],
-        y=np.exp(log_dens[max_idx]),
-        text=label,
+        x=x[max_idx],
+        y=y[max_idx],
+        text=breed,
         text_font_size="10pt",
         x_offset=10,
         y_offset=-5,
-        text_color=color,
+        text_color=colors[i],
     )
     p.add_layout(highest_point_label)
 
@@ -64,14 +53,11 @@ x_axis_labels = {3: "3%", 4: "4%", 5: "5%", 6: "6%", 7: "7%"}
 p.xaxis.formatter = CustomJSTickFormatter(code="""var labels = %s; return labels[tick] || '';""" % x_axis_labels)
 
 p.axis.axis_line_color = None
-p.axis.major_tick_out = 0
-p.axis.minor_tick_out = 0
-p.axis.major_tick_in = 0
+p.axis.major_tick_line_color = None
+p.axis.minor_tick_line_color = None
 
-p.x_range.start = 2.5
-p.x_range.end = 7.5
 p.xgrid.grid_line_color = None
-p.yaxis.ticker = [0, 0.5, 1, 1.5]
+p.yaxis.ticker = (0, 0.5, 1, 1.5)
 p.y_range.start = 0
 
 show(p)
