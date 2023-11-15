@@ -24,7 +24,7 @@ colors = Dark2[5]
 x = np.linspace(2, 8, 1000)
 source = ColumnDataSource(dict(x=x))
 
-p = figure(title="Multiple density estimates", height=300, x_range=(2.5, 7.5), x_axis_label="butterfat contents", y_axis_label="density")    
+p = figure(title="Multiple density estimates", height=300, x_range=(2.5, 7.5), x_axis_label="butterfat contents", y_axis_label="density")
 
 for i, (breed, group_df) in enumerate(grouped):
     data = group_df['butterfat'].values
