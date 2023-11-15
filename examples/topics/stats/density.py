@@ -12,7 +12,6 @@ the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
 
 '''
 import numpy as np
-import pandas as pd
 from sklearn.neighbors import KernelDensity
 
 from bokeh.models import ColumnDataSource, Label, PrintfTickFormatter
