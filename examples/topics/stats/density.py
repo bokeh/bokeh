@@ -15,7 +15,7 @@ import numpy as np
 import pandas as pd
 from sklearn.neighbors import KernelDensity
 
-from bokeh.models import ColumnDataSource, CustomJSTickFormatter, Label
+from bokeh.models import ColumnDataSource, Label, PrintfTickFormatter
 from bokeh.palettes import Dark2
 from bokeh.plotting import figure, show
 from bokeh.sampledata.cows import data as df
@@ -49,8 +49,7 @@ for i, (breed, group_df) in enumerate(grouped):
     p.add_layout(highest_point_label)
 
 # Convert x-axis labels to percentages
-x_axis_labels = {3: "3%", 4: "4%", 5: "5%", 6: "6%", 7: "7%"}
-p.xaxis.formatter = CustomJSTickFormatter(code="""var labels = %s; return labels[tick] || '';""" % x_axis_labels)
+p.xaxis.formatter = PrintfTickFormatter(format="%d%%")
 
 p.axis.axis_line_color = None
 p.axis.major_tick_line_color = None
