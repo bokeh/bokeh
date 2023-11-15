@@ -99,6 +99,14 @@
   }
 }
 
+.bk-pin {
+  .mask-image(var(--bokeh-icon-pin));
+}
+:host(.bk-pinned) {
+  .bk-pin {
+    .mask-image(var(--bokeh-icon-unpin));
+  }
+}
 .bk-collapse {
   .mask-image(var(--bokeh-icon-chevron-up));
 }

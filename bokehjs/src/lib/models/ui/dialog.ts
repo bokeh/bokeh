@@ -9,7 +9,7 @@ import {build_view} from "core/build_views"
 import type * as p from "core/properties"
 import type {XY, LRTB} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {last, remove, min as amin} from "core/util/array"
+import {find, remove, min as amin} from "core/util/array"
 import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
@@ -84,6 +84,7 @@ export class DialogView extends UIElementView {
 
   protected _handles: {[key in Box.HitTarget]: HTMLElement}
 
+  protected _pin_el: HTMLElement
   protected _collapse_el: HTMLElement
   protected _minimize_el: HTMLElement
   protected _maximize_el: HTMLElement
@@ -124,6 +125,10 @@ export class DialogView extends UIElementView {
     const controls_el = div({class: dialogs.controls})
     header_el.append(title_el, controls_el)
 
+    const pin_el = div({class: [dialogs.ctrl, dialogs.pin], title: "Pin"})
+    pin_el.addEventListener("click", () => this.pin())
+    this._pin_el = pin_el
+
     const collapse_el = div({class: [dialogs.ctrl, dialogs.collapse], title: "Collapse"})
     collapse_el.addEventListener("click", () => this.collapse())
     this._collapse_el = collapse_el
@@ -140,6 +145,9 @@ export class DialogView extends UIElementView {
     close_el.addEventListener("click", () => this.close())
     this._close_el = close_el
 
+    if (this.model.pinnable) {
+      controls_el.append(pin_el)
+    }
     if (this.model.collapsible) {
       controls_el.append(collapse_el)
     }
@@ -384,6 +392,28 @@ export class DialogView extends UIElementView {
     return BBox.from_lrtb({left, right, top, bottom})
   }
 
+  protected _pinned: boolean = false
+  pin(): void {
+    const {_pinned} = this
+    for (const dialog_view of _stacking_order) {
+      if (dialog_view == this) {
+        this._pin(!_pinned)
+      } else {
+        dialog_view._pin(false)
+      }
+    }
+    if (!_pinned) {
+      this.bring_to_front()
+    }
+  }
+  protected _pin(value: boolean): void {
+    if (this._pinned != value) {
+      this._pinned = value
+      this.el.classList.toggle(dialogs.pinned, this._pinned)
+      this._pin_el.title = this._pinned ? "Unpin" : "Pin"
+    }
+  }
+
   protected _normal_bbox: BBox | null = null
 
   protected _collapsed: boolean = false
@@ -419,6 +449,7 @@ export class DialogView extends UIElementView {
   minimize(): void {
     const position = (() => {
       if (!this._minimized) {
+        this._pin(false)
         this._collapse(false)
         this._maximize(false)
         if (this._normal_bbox == null) {
@@ -488,6 +519,7 @@ export class DialogView extends UIElementView {
         this.render()
       }
       if (!this.el.isConnected) {
+        _stacking_order.push(this)
         document.body.append(this.el)
       }
       this.bring_to_front()
@@ -506,12 +538,15 @@ export class DialogView extends UIElementView {
   }
 
   bring_to_front(): void {
-    if (last(_stacking_order) == this) {
-      return
+    const pinned = find(_stacking_order, (view) => view._pinned)
+    if (pinned != null) {
+      remove(_stacking_order, pinned)
     }
-
     remove(_stacking_order, this)
     _stacking_order.push(this)
+    if (pinned != null) {
+      _stacking_order.push(pinned)
+    }
 
     for (const [dialog_view, i] of enumerate(_stacking_order)) {
       dialog_view._stacking.replace(":host", {
@@ -528,6 +563,7 @@ export namespace Dialog {
     title: p.Property<string | UIElementLike | null>
     content: p.Property<string | UIElementLike>
 
+    pinnable: p.Property<boolean>
     collapsible: p.Property<boolean>
     minimizable: p.Property<boolean>
     maximizable: p.Property<boolean>
@@ -561,6 +597,7 @@ export class Dialog extends UIElement {
       title: [ Nullable(Or(String, Ref(DOMNode), Ref(UIElement))), null ],
       content: [ Or(String, Ref(DOMNode), Ref(UIElement)) ],
 
+      pinnable: [ Boolean, true ],
       collapsible: [ Boolean, true ],
       minimizable: [ Boolean, true ],
       maximizable: [ Boolean, true ],

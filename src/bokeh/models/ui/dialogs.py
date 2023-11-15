@@ -73,6 +73,7 @@ class Dialog(UIElement):
     title = Nullable(Either(String, Instance(DOMNode), Instance(UIElement)))
     content = Required(Either(String, Instance(DOMNode), Instance(UIElement)))
 
+    pinnable = Bool(default=True)
     collapsible = Bool(default=True)
     minimizable = Bool(default=True)
     maximizable = Bool(default=True)

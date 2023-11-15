@@ -18,15 +18,19 @@ export {
 const slice = Array.prototype.slice
 
 export function head<T>(array: T[]): T {
-  return array[0]
-}
-
-export function tail<T>(array: ArrayLike<T>): T {
-  return array[array.length-1]
+  if (array.length != 0) {
+    return array[0]
+  } else {
+    throw new Error("out of bounds access")
+  }
 }
 
 export function last<T>(array: ArrayLike<T>): T {
-  return array[array.length-1]
+  if (array.length != 0) {
+    return array[array.length-1]
+  } else {
+    throw new Error("out of bounds access")
+  }
 }
 
 export function copy<T>(array: T[]): T[] {
