@@ -318,7 +318,7 @@ def _contour_coords(
         raise RuntimeError("Neither fill nor line requested in _contour_coords")
 
     from contourpy import FillType, LineType, contour_generator
-    cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedOffset, fill_type=FillType.OuterOffset)
+    cont_gen = contour_generator(x, y, z, line_type=LineType.ChunkCombinedNan, fill_type=FillType.OuterOffset)
 
     fill_coords = None
     if want_fill:
@@ -361,27 +361,15 @@ def _filled_to_coords(filled) -> SingleFillCoords:
 def _lines_to_coords(lines) -> SingleLineCoords:
     # Processes line data returned from a single call to
     # contourpy.ContourGenerator.lines(level).
-    # ContourPy line data format is LineType.ChunkCombinedOffset.
+    # ContourPy line data format is LineType.ChunkCombinedNan.
     # 'lines' type awaits type annotations in contourpy.
     points = lines[0][0]
     if points is None:
         empty = np.empty(0)
         return SingleLineCoords(empty, empty)
 
-    offsets = lines[1][0]
-    npoints = len(points)
-    nlines = len(offsets) - 1
-
-    xs = np.empty(npoints + nlines-1)
-    ys = np.empty(npoints + nlines-1)
-    for i in range(nlines):
-        start = offsets[i]
-        end = offsets[i+1]
-        if i > 0:
-            xs[start+i-1] = np.nan
-            ys[start+i-1] = np.nan
-        xs[start+i:end+i] = points[start:end, 0]
-        ys[start+i:end+i] = points[start:end, 1]
+    xs = points[:, 0]
+    ys = points[:, 1]
     return SingleLineCoords(xs, ys)
 
 def _palette_from_collection(collection: PaletteCollection, n: int) -> Palette:
