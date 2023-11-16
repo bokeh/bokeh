@@ -2,7 +2,7 @@ from bokeh.plotting import figure, show
 
 p = figure(width=300, height=300)
 
-p.circle([1,2], [3,4])
+p.scatter([1, 2], [3, 4])
 
 # configure visual properties on a plot's title attribute
 p.title.text = "Title With Options"

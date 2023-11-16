@@ -8,14 +8,15 @@ y = [4, 5, 5, 7, 2]
 p = figure(title="Glyphs properties example", x_axis_label="x", y_axis_label="y")
 
 # add circle renderer with additional arguments
-p.circle(
+p.scatter(
     x,
     y,
+    marker="circle",
+    size=80,
     legend_label="Objects",
     fill_color="red",
     fill_alpha=0.5,
     line_color="blue",
-    size=80,
 )
 
 # show the results

@@ -12,7 +12,7 @@ p = figure(title="Multiple glyphs example", x_axis_label="x", y_axis_label="y")
 # add multiple renderers
 p.line(x, y1, legend_label="Temp.", color="blue", line_width=2)
 p.vbar(x=x, top=y2, legend_label="Rate", width=0.5, bottom=0, color="red")
-p.circle(x, y3, legend_label="Objects", color="yellow", size=12)
+p.scatter(x, y3, legend_label="Objects", color="yellow", size=12)
 
 # show the results
 show(p)

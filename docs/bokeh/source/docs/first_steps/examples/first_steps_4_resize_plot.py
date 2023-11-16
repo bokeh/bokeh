@@ -17,8 +17,8 @@ p = figure(
 p.width = 450
 p.height = 150
 
-# add circle renderer
-circle = p.circle(x, y, fill_color="red", size=15)
+# add scatter renderer
+p.scatter(x, y, fill_color="red", size=15)
 
 # show the results
 show(p)

@@ -13,11 +13,11 @@ tools = ["box_select", "hover", "reset"]
 
 # create a first plot with all data in the ColumnDataSource
 p = figure(height=300, width=300, tools=tools)
-p.circle(x="x", y="y", size=10, hover_color="red", source=source)
+p.scatter(x="x", y="y", size=10, hover_color="red", source=source)
 
 # create a second plot with a subset of ColumnDataSource, based on view
 p_filtered = figure(height=300, width=300, tools=tools)
-p_filtered.circle(x="x", y="y", size=10, hover_color="red", source=source, view=view)
+p_filtered.scatter(x="x", y="y", size=10, hover_color="red", source=source, view=view)
 
 # show both plots next to each other in a gridplot layout
 show(gridplot([[p, p_filtered]]))

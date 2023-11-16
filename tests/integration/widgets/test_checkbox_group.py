@@ -24,11 +24,11 @@ from selenium.webdriver.common.by import By
 from bokeh.layouts import column
 from bokeh.models import (
     CheckboxGroup,
-    Circle,
     ColumnDataSource,
     CustomJS,
     Plot,
     Range1d,
+    Scatter,
 )
 from tests.support.plugins.project import BokehModelPage, BokehServerPage
 from tests.support.util.selenium import RECORD, find_element_for, find_elements_for
@@ -66,7 +66,7 @@ class Test_CheckboxGroup:
         def modify_doc(doc):
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
-            plot.add_glyph(source, Circle(x='x', y='y', size=20))
+            plot.add_glyph(source, Scatter(x='x', y='y', size=20))
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
             def cb(attr, old, new):
                 source.data['val'] = ([*group.active, 0, 0])[:2] # keep col length at 2, padded with zero

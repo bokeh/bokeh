@@ -33,7 +33,7 @@ source = ColumnDataSource(data=dict(
     color=Sunset4,
     coord=["img[0,0]", "img[0,1]", "img[1,0]", "img[1,1]"],
 ))
-p.square(0, 0, color="color", legend_group="coord", source=source, visible=False)
+p.scatter(0, 0, marker="square", color="color", legend_group="coord", source=source, visible=False)
 p.legend.location = "bottom_center"
 p.legend.orientation = "horizontal"
 p.legend.glyph_height = 30

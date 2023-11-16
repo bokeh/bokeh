@@ -101,9 +101,9 @@ def bohr_diagram():
             y = r*np.sin(A)
             xs = np.append(xs, x)
             ys = np.append(ys, y)
-            #plot.circle(x=x, y=y)
-            #plot.polar.circle(r=i+1, phi=list(range(0, 360, da)), phi_units="deg")
-        c1 = plot.circle(x=xs, y=ys, visible=False)
+            #plot.scatter(x=x, y=y, size=5)
+            #plot.polar.scatter(r=i+1, phi=list(range(0, 360, da)), phi_units="deg", size=5)
+        c1 = plot.scatter(x=xs, y=ys, size=5, visible=False)
         c1.group = group
     return plot, groups
 

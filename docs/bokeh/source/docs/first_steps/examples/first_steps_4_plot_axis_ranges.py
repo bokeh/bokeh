@@ -13,8 +13,8 @@ p = figure(
     height=250,
 )
 
-# add circle renderer with additional arguments
-circle = p.circle(x, y, size=8)
+# add scatter renderer with additional arguments
+p.scatter(x, y, size=8)
 
 # show the results
 show(p)

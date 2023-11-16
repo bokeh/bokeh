@@ -13,7 +13,7 @@ p = figure(
 )
 
 # add a renderer
-p.circle(x, y, size=10)
+p.scatter(x, y, size=10)
 
 # change some things about the x-axis
 p.xaxis.axis_label = "Temp"

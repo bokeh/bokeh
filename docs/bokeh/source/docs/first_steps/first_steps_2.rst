@@ -29,7 +29,7 @@ Use the :func:`~bokeh.plotting.figure.circle` function instead of
 
 .. code-block:: python
 
-    p.circle(x, y3, legend_label="Objects", color="yellow", size=12)
+    p.scatter(x, y3, legend_label="Objects", color="yellow", size=12)
 
 Replace one of the ``line()`` functions in your previous visualization with
 the :func:`~bokeh.plotting.figure.circle` function to create circles:
@@ -120,27 +120,28 @@ Take the circles from above, for example. You defined the circles to have a
 red color by passing the argument ``fill_color="red"``.
 
 To change the color of your circles from red to blue, you first need to assign
-a variable name (such as ``circle``) to the new object when you call the
+a variable name (such as ``scatter``) to the new object when you call the
 :func:`~bokeh.plotting.figure.circle` function.
 
 .. code-block:: python
 
-    circle = p.circle(
+    scatter = p.scatter(
+        marker="circle",
         x,
         y,
+        size=80,
         legend_label="Objects",
         fill_color="red",
         fill_alpha=0.5,
         line_color="blue",
-        size=80,
-        )
+      )
 
 Next, use that variable to access the object's ``glyph`` attribute and change
 its properties:
 
 .. code-block:: python
 
-    glyph = circle.glyph
+    glyph = scatter.glyph
     glyph.fill_color = "blue"
 
 Generate red circles once more, but this time change their color to blue before

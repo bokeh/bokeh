@@ -33,7 +33,7 @@ The ``bokeh-plot`` directive can be used by either supplying:
 
      p = figure(title="example", width=300, height=300)
      p.line(x, y, line_width=2)
-     p.circle(x, y, size=10, fill_color="white")
+     p.scatter(x, y, size=10, fill_color="white")
 
      show(p)
 
@@ -68,7 +68,7 @@ The inline example code above produces the following output:
 
     p = figure(title="example", width=300, height=300)
     p.line(x, y, line_width=2)
-    p.circle(x, y, size=10, fill_color="white")
+    p.scatter(x, y, size=10, fill_color="white")
 
     show(p)
 

@@ -5,7 +5,7 @@ use of mathtext on ``Div``, ``Paragraph`` and ``Slider`` objects, as well as
 axis labels, and also streaming data via a ``ColumnDataSource``.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.circle, bokeh.plotting.figure.line, bokeh.models.sources.ColumnDataSource.stream,
+    :apis: bokeh.plotting.figure.scatter, bokeh.plotting.figure.line, bokeh.models.sources.ColumnDataSource.stream,
         bokeh.models.Div, bokeh.models.Paragraph, bokeh.models.Slider
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
@@ -97,7 +97,7 @@ cds0 = ColumnDataSource(data=dict(x=[0], xdot=[0]))
 cds1 = ColumnDataSource(data=dict(x=[], xdot=[]))
 
 line = ps[0].line(source=cds0, x="x", y="xdot", alpha=0.5)
-circle = ps[1].circle(source=cds1, x="x", y="xdot", line_alpha=0, fill_alpha=0.5)
+circle = ps[1].scatter(source=cds1, x="x", y="xdot", line_alpha=0, fill_alpha=0.5)
 
 delta_slider = Slider(start=0, end=0.6, value=delta, step=0.05, title=r"$$\delta \text{ (damping factor, 1/s)}$$")
 gamma_slider = Slider(start=0, end=0.6, value=gamma, step=0.05, title=r"$$\gamma \text{ (amplitude of forcing, m/s}^2)$$")

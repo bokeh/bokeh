@@ -13,7 +13,7 @@ r1 = p.line(x, y)
 
 r2 = p.line(x, 2*y, line_dash=[4, 4], line_color="orange", line_width=2)
 
-r3 = p.square(x, 3*y, fill_color=None, line_color="green")
+r3 = p.scatter(x, 3*y, marker="square", fill_color=None, line_color="green")
 r4 = p.line(x, 3*y, line_color="green")
 
 legend = Legend(items=[

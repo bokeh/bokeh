@@ -16,7 +16,7 @@ p = figure(
 )
 
 # add renderers
-p.circle(x, y, size=10)
+p.scatter(x, y, size=10)
 p.line(x, y, line_width=2)
 
 # show the results
