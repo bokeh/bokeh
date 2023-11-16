@@ -62,7 +62,7 @@ def get_html_lines(resource_mode: ResourcesMode) -> list[str]:
     html = file_html(p, resources=Resources(resource_mode))
     return html.split('\n')
 
-pinned_template_sha256 = "84b4865b21c819396814839642f629ca09fa0df1033ed1f63fa3f40acae89bb2"
+pinned_template_sha256 = "527b63a6551a6a530089318a509e498fbd4d7057d77a0c23c6270313dcc7570a"
 
 def test_autoload_template_has_changed() -> None:
     """This is not really a test but a reminder that if you change the
