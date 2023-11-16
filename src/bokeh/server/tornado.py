@@ -429,7 +429,7 @@ class BokehTornado(TornadoApplication):
                 raise RuntimeError("Couldn't find websocket path")
             for r in app_patterns:
                 assert len(r) == 3 # TODO: handle two valued case as well
-                r[2]["bokeh_websocket_path"] = websocket_path # type: ignore[misc] # TODO: possible bug in mypy; pyright supports the assertion
+                r[2]["bokeh_websocket_path"] = websocket_path
 
             all_patterns.extend(app_patterns)
 

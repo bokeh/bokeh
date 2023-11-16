@@ -53,7 +53,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=0.990
+    - mypy >=1.7
     # docs
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0

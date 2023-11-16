@@ -291,10 +291,10 @@ class RGB(Color):
     def from_tuple(cls, value: RGBTuple) -> RGB:
         ''' Initialize ``RGB`` instance from a 3- or 4-tuple. '''
         if len(value) == 3:
-            r, g, b = value         # type:ignore # https://github.com/python/mypy/issues/1178
+            r, g, b = value
             return RGB(r, g, b)
         else:
-            r, g, b, a = value      # type:ignore # https://github.com/python/mypy/issues/1178
+            r, g, b, a = value
             return RGB(r, g, b, a)
 
     @classmethod
