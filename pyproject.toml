@@ -10,7 +10,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "Jinja2 >=2.9",
-    "contourpy >=1",
+    "contourpy >=1.2",
     "numpy >=1.16",
     "packaging >=16.8",
     "pandas >=1.2",

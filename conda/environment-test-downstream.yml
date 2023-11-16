@@ -5,7 +5,7 @@ dependencies:
   - python=3.9
 
   # runtime
-  - contourpy >=1
+  - contourpy >=1.2
   - jinja2 >=2.7
   - numpy >=1.16
   - packaging >=16.8
