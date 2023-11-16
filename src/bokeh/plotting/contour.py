@@ -18,7 +18,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence, Union
+from typing import (
+    TYPE_CHECKING,
+    Sequence,
+    Union,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -33,6 +38,7 @@ from ..plotting._renderer import _process_sequence_literals
 from ..util.dataclasses import dataclass, entries
 
 if TYPE_CHECKING:
+    from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan
     from numpy.typing import ArrayLike, NDArray
     from typing_extensions import TypeAlias
 
@@ -326,6 +332,9 @@ def _contour_coords(
         all_ys = []
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
+            if TYPE_CHECKING:
+                # This is guaranteed by use of fill_type=FillType.OuterOffset in contour_generator call.
+                filled = cast(FillReturn_OuterOffset, filled)
             coords = _filled_to_coords(filled)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
@@ -337,6 +346,9 @@ def _contour_coords(
         all_ys = []
         for level in levels:
             lines = cont_gen.lines(level)
+            if TYPE_CHECKING:
+                # This is guaranteed by use of line_type=LineType.ChunkCombinedNan in contour_generator call.
+                lines = cast(LineReturn_ChunkCombinedNan, lines)
             coords = _lines_to_coords(lines)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
@@ -344,11 +356,10 @@ def _contour_coords(
 
     return ContourCoords(fill_coords, line_coords)
 
-def _filled_to_coords(filled) -> SingleFillCoords:
+def _filled_to_coords(filled: FillReturn_OuterOffset) -> SingleFillCoords:
     # Processes polygon data returned from a single call to
     # contourpy.ContourGenerator.filled(lower_level, upper_level)
     # ContourPy filled data format is FillType.OuterOffset.
-    # 'filled' type awaits type annotations in contourpy.
     xs = []
     ys = []
     for points, offsets in zip(*filled):
@@ -358,11 +369,10 @@ def _filled_to_coords(filled) -> SingleFillCoords:
         ys.append([points[offsets[i]:offsets[i+1], 1] for i in range(n)])
     return SingleFillCoords(xs, ys)
 
-def _lines_to_coords(lines) -> SingleLineCoords:
+def _lines_to_coords(lines: LineReturn_ChunkCombinedNan) -> SingleLineCoords:
     # Processes line data returned from a single call to
     # contourpy.ContourGenerator.lines(level).
     # ContourPy line data format is LineType.ChunkCombinedNan.
-    # 'lines' type awaits type annotations in contourpy.
     points = lines[0][0]
     if points is None:
         empty = np.empty(0)
