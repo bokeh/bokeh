@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "@bokeh/numbro": "^1.6.2",
-    "@bokeh/slickgrid": "~2.4.4102",
+    "@bokeh/slickgrid": "~2.4.4103",
     "@types/geojson": "^7946.0.10",
     "@types/google.maps": "^3.54.0",
     "@types/hammerjs": "^2.0.41",
