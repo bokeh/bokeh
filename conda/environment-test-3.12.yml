@@ -64,7 +64,7 @@ dependencies:
   # pip dependencies
   - pip
   - pip:
-    - mypy >=0.990
+    - mypy >=1.7
     # docs
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
@@ -74,7 +74,7 @@ dependencies:
     - sphinx-favicon
     - sphinxext-opengraph
     # tests
-    #- pandas-stubs ==1.5.2.221213 # Not for python 3.12
+    - pandas-stubs >=2.1
     - ruff ==0.0.285
     - types-boto
     - types-colorama
