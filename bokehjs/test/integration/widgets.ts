@@ -13,7 +13,7 @@ import {
   Checkbox, Switch,
   CheckboxGroup, RadioGroup,
   CheckboxButtonGroup, RadioButtonGroup,
-  ColorMap,
+  PaletteSelect,
   TextInput, PasswordInput, AutocompleteInput, TextAreaInput, FileInput,
   MultiChoice, Select, MultiSelect,
   Slider, RangeSlider, DateSlider, DateRangeSlider, CategoricalSlider,
@@ -106,7 +106,7 @@ describe("Widgets", () => {
     await view.ready
   })
 
-  describe("should support ColorMap", () => {
+  describe("should support PaletteSelect", () => {
     const items: [string, Color[]][] = [
       ["RdBu", palettes.RdBu11],
       ["RdGy", palettes.RdGy11],
@@ -124,7 +124,7 @@ describe("Widgets", () => {
     ]
 
     it("with default settings", async () => {
-      const obj = new ColorMap({value: "RdBu", items})
+      const obj = new PaletteSelect({value: "RdBu", items})
       const {view} = await display(obj, [250, 400])
 
       await click(view.input_el)
@@ -132,7 +132,7 @@ describe("Widgets", () => {
     })
 
     it("with ncols=3", async () => {
-      const obj = new ColorMap({value: "Magma", items, ncols: 3})
+      const obj = new PaletteSelect({value: "Magma", items, ncols: 3})
       const {view} = await display(obj, [500, 200])
 
       await click(view.input_el)
@@ -140,7 +140,7 @@ describe("Widgets", () => {
     })
 
     it("with disabled=true", async () => {
-      const obj = new ColorMap({value: "Accent", items, disabled: true})
+      const obj = new PaletteSelect({value: "Accent", items, disabled: true})
       const {view} = await display(obj, [250, 50])
 
       await click(view.input_el)

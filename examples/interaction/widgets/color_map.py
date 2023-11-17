@@ -1,7 +1,7 @@
 from bokeh import palettes
 from bokeh.io import show
 from bokeh.layouts import column
-from bokeh.models import ColorMap
+from bokeh.models import PaletteSelect
 
 items0 = [
     ("Magma", palettes.Magma[256]),
@@ -50,9 +50,9 @@ items1 = [
     ("Set3", palettes.Set3[12]),
 ]
 
-color_map0 = ColorMap(title="Choose palette:", value="Turbo", items=items0)
-color_map1 = ColorMap(title="Choose palette (grid):", value="PuBu", items=items1, ncols=3)
-color_map2 = ColorMap(title="Choose palette (disabled):", value="PuBu", items=items1, disabled=True)
+color_map0 = PaletteSelect(title="Choose palette:", value="Turbo", items=items0)
+color_map1 = PaletteSelect(title="Choose palette (grid):", value="PuBu", items=items1, ncols=3)
+color_map2 = PaletteSelect(title="Choose palette (disabled):", value="PuBu", items=items1, disabled=True)
 
 layout = column(color_map0, color_map1, color_map2)
 show(layout)

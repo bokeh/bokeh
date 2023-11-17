@@ -22,11 +22,13 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 from math import inf
+from typing import Any as any
 
 # Bokeh imports
 from ...core.has_props import abstract
 from ...core.properties import (
     Any,
+    Auto,
     Bool,
     Color,
     ColorHex,
@@ -49,6 +51,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
+from ...util.deprecation import deprecated
 from ..dom import HTML
 from ..formatters import TickFormatter
 from ..ui import Tooltip
@@ -61,7 +64,7 @@ from .widget import Widget
 __all__ = (
     'AutocompleteInput',
     'Checkbox',
-    'ColorMap',
+    'PaletteSelect',
     'ColorPicker',
     'FileInput',
     'InputWidget',
@@ -74,6 +77,7 @@ __all__ = (
     'Switch',
     'TextAreaInput',
     'TextInput',
+    'ColorMap',
 )
 
 #-----------------------------------------------------------------------------
@@ -525,8 +529,8 @@ class ColorPicker(InputWidget):
     The initial color of the picked color (named or hexadecimal)
     """)
 
-class ColorMap(InputWidget):
-    ''' Color map picker widget.
+class PaletteSelect(InputWidget):
+    ''' Color palette select widget.
 
     '''
 
@@ -535,19 +539,34 @@ class ColorMap(InputWidget):
         super().__init__(*args, **kwargs)
 
     value = Required(String, help="""
+    The name of the initial or selected color palette.
     """)
 
     items = Required(Seq(Tuple(String, Seq(Color))), help="""
+    A selection of named color palettes to choose from.
     """)
 
     swatch_width = NonNegative(Int, default=100, help="""
+    The width of the UI element showing the preview of a palette, in pixels.
     """)
 
-    swatch_height = NonNegative(Int, default=20, help="""
+    swatch_height = Either(Auto, NonNegative(Int), default="auto", help="""
+    The height of the UI element showing the preview of a palette, either in
+    pixels or automatically adjusted.
     """)
 
     ncols = Positive(Int, default=1, help="""
+    The number of columns to split the display of the palettes into.
     """)
+
+def ColorMap(*args: any, **kwargs: any) -> PaletteSelect:
+    ''' Color palette select widget.
+
+    .. deprecated:: 3.4.0
+        Use ``PaletteSelect`` widget instead.
+    '''
+    deprecated((3, 4, 0), "ColorMap widget", "PaletteSelect widget")
+    return PaletteSelect(*args, **kwargs)
 
 #-----------------------------------------------------------------------------
 # Private API
