@@ -9,3 +9,4 @@ Bokeh version ``3.4.0`` (December 2023) is a minor milestone of Bokeh project.
 * Added support for interactivity (rotation) to ``Label`` when ``editable=True`` (:bokeh-pull:`12825`)
 * ``BOKEH_DEV=true`` now defaults to server development resources (:bokeh-pull:`13042`)
 * ``ColorMap`` widget was renamed to ``PaletteSelect`` (:bokeh-pull:`13537`)
+* Enabled JavaScript's strict mode (``"use strict";``) in bokehjs' bundles (:bokeh-pull:`13523`)
