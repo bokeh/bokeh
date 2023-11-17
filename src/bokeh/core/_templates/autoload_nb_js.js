@@ -160,7 +160,7 @@
   function display_loaded(error = null) {
     const el = document.getElementById({{ elementid|tojson }});
     if (el != null) {
-      const text = (() => {
+      const html = (() => {
         if (typeof root.Bokeh === "undefined") {
           if (error == null) {
             return "BokehJS is loading ...";
@@ -168,18 +168,28 @@
             return "BokehJS failed to load.";
           }
         } else {
-          return `BokehJS ${root.Bokeh.version} ${error == null ? "successfully" : "partially"} loaded.`
+          const prefix = `BokehJS ${root.Bokeh.version}`;
+          if (error == null) {
+            return `${prefix} successfully loaded.`;
+          } else {
+            return `${prefix} <b>encountered errors</b> while loading and may not function as expected.`;
+          }
         }
       })();
-      el.textContent = text
+      el.innerHTML = html;
 
       if (error != null) {
-        const div = document.createElement("div");
-        div.style.fontFamily = "monospace";
-        div.style.whiteSpace = "pre-wrap";
-        div.style.backgroundColor = "rgb(255, 221, 221)";
-        div.textContent = error.stack ?? error.toString();
-        el.append(div);
+        const wrapper = document.createElement("div");
+        wrapper.style.overflow = "auto";
+        wrapper.style.height = "5em";
+        wrapper.style.resize = "vertical";
+        const content = document.createElement("div");
+        content.style.fontFamily = "monospace";
+        content.style.whiteSpace = "pre-wrap";
+        content.style.backgroundColor = "rgb(255, 221, 221)";
+        content.textContent = error.stack ?? error.toString();
+        wrapper.append(content);
+        el.append(wrapper);
       }
     } else if (Date.now() < root._bokeh_timeout) {
       setTimeout(() => display_loaded(error), 100);
