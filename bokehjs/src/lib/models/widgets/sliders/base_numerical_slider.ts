@@ -26,7 +26,7 @@ export namespace BaseNumericalSlider {
   export type Props = AbstractSlider.Props & {
     start: p.Property<number>
     end: p.Property<number>
-    step: p.Property<number>
+    step: p.Property<number | null>
     format: p.Property<string | TickFormatter>
   }
 }
@@ -35,7 +35,7 @@ export interface BaseNumericalSlider extends BaseNumericalSlider.Attrs {}
 
 export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   declare properties: BaseNumericalSlider.Props
-  declare declare__view_type__: BaseNumericalSliderView
+  declare __view_type__: BaseNumericalSliderView
 
   override initialize(): void {
     super.initialize()
@@ -46,8 +46,7 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
     super.connect_signals()
 
     const {start, end} = this.properties
-    this.connect(start.change, () => this._enforce_bounds())
-    this.connect(end.change, () => this._enforce_bounds())
+    this.on_change([start, end], () => this._enforce_bounds())
   }
 
   protected _bounds(): [number, number] {
@@ -61,11 +60,11 @@ export abstract class BaseNumericalSlider extends AbstractSlider<number> {
   protected abstract _enforce_bounds(): void
 
   static {
-    this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref}) => {
+    this.define<BaseNumericalSlider.Props>(({Float, Str, Or, Ref, Nullable}) => {
       return {
         start:  [ Float, p.unset ],
         end:    [ Float, p.unset ],
-        step:   [ Float, 1 ],
+        step:   [ Nullable(Float), 1 ],
         format: [ Or(Str, Ref(TickFormatter)) ],
       }
     })

@@ -7,7 +7,6 @@ import {datetime} from "core/util/templating"
 export class DatetimeRangeSliderView extends NumericalRangeSliderView {
   declare model: DatetimeRangeSlider
 
-  override behaviour = "drag" as const
   override connected = [false, true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
