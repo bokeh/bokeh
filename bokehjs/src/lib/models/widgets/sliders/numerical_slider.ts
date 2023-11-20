@@ -5,24 +5,23 @@ import type * as p from "core/properties"
 export abstract class NumericalSliderView extends BaseNumericalSliderView {
   declare model: NumericalSlider
 
-  protected _calc_to(): SliderSpec<number> {
+  protected _calc_spec(): SliderSpec<number> {
     const {start, end, value, step} = this.model
     return {
-      range: {
-        min: start,
-        max: end,
-      },
-      start: [value],
+      min: start,
+      max: end,
+      values: [value],
       step,
+      compute: (value: number) => value,
+      invert: (synthetic: number) => synthetic,
     }
   }
 
+  protected _calc_to(value: number): number[] {
+    return [value]
+  }
   protected _calc_from([value]: number[]): number {
-    if (Number.isInteger(this.model.start) && Number.isInteger(this.model.end) && Number.isInteger(this.model.step)) {
-      return Math.round(value)
-    } else {
-      return value
-    }
+    return value
   }
 }
 

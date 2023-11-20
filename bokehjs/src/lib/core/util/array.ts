@@ -127,14 +127,7 @@ export function linspace(start: number, stop: number, num: number = 100): number
 }
 
 export function logspace(start: number, stop: number, num: number = 100, base: number = 10): number[] {
-  const step = num == 1 ? 0 : (stop - start) / (num - 1)
-  const array = new Array(num)
-
-  for (let i = 0; i < num; i++) {
-    array[i] = base**(start + i*step)
-  }
-
-  return array
+  return linspace(start, stop, num).map((v) => base**v)
 }
 
 export function transpose<T>(array: T[][]): T[][] {

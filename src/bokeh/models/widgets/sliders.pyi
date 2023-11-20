@@ -11,7 +11,7 @@ from datetime import date, datetime
 from typing import Literal, Sequence, Unpack
 
 # Bokeh imports
-from ..._types import Color, Datetime
+from ..._types import Datetime
 from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit
 
@@ -21,7 +21,7 @@ class _AbstractSliderInit(_WidgetInit, total=False):
     show_value: bool
     direction: Literal["ltr", "rtl"]
     tooltips: bool
-    bar_color: Color
+    appearance: Literal["normal", "stealth"]
 
 class AbstractSlider(Widget):
     @abstractmethod
@@ -32,7 +32,7 @@ class AbstractSlider(Widget):
     show_value: bool = ...
     direction: Literal["ltr", "rtl"] = ...
     tooltips: bool = ...
-    bar_color: Color = ...
+    appearance: Literal["normal", "stealth"] = ...
 
 class _NumericalSliderInit(_AbstractSliderInit, total=False):
     format: str | TickFormatter

@@ -1,4 +1,9 @@
 :host {
+  --track-size: 0.5em;
+  --handle-size: 1.0em;
+}
+
+:host {
   background-color: var(--background-color);
 }
 
@@ -12,24 +17,58 @@
   color: var(--inherit-color);
 }
 
-// from inputs.less
-.bk-input-group {
+.bk-slider {
+  display: flex;
   position: relative;
   width: 100%;
+  height: var(--handle-size);
+}
+
+.bk-track {
+  align-self: center;
+  position: relative;
+  width: 100%;
+  height: var(--track-size);
+  border-radius: 4px;
+  border: 1px solid #c0c0c0;
+  background-color: #e5e5e5;
+}
+
+.bk-span {
+  --value: 0; // [0, 1]
+  position: relative;
+  left: 0;
+  top: 0;
+  width: calc(var(--value)*100%);
   height: 100%;
-  display: inline-flex;
-  flex-wrap: nowrap;
-  align-items: start;
-  flex-direction: column;
-  background-color: var(--inherit-background-color);
+  border-top-left-radius: var(--track-size);
+  border-bottom-left-radius: var(--track-size);
+  background-color: #c2d5f7;
+}
 
-  white-space: nowrap;
+.bk-handle {
+  --value: 0; // [0, 1]
+  position: absolute;
+  left: calc(var(--value)*100%);
+  top: 50%;
+  width: var(--handle-size);
+  height: var(--handle-size);
+  border-radius: 50%;
+  background-color: #3b80f0;
+  transform: translate(-50%, -50%);
+  cursor: ew-resize;
+}
 
-  &.bk-inline {
-    flex-direction: row;
+:host(.bk-stealth) {
+  --handle-size: var(--track-size);
 
-    & > *:not(:first-child) {
-      margin-left: 5px;
-    }
+  .bk-handle {
+    opacity: 0;
+  }
+}
+
+:host(.bk-vertical) {
+  .bk-handle {
+    cursor: ns-resize;
   }
 }

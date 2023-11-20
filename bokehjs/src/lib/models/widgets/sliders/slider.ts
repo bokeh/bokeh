@@ -8,7 +8,6 @@ import {isString} from "core/util/types"
 export class SliderView extends NumericalSliderView {
   declare model: Slider
 
-  override behaviour = "tap" as const
   override connected = [true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {
