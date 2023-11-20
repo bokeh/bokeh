@@ -332,9 +332,8 @@ def _contour_coords(
         all_ys = []
         for i in range(len(levels)-1):
             filled = cont_gen.filled(levels[i], levels[i+1])
-            if TYPE_CHECKING:
-                # This is guaranteed by use of fill_type=FillType.OuterOffset in contour_generator call.
-                filled = cast(FillReturn_OuterOffset, filled)
+            # This is guaranteed by use of fill_type=FillType.OuterOffset in contour_generator call.
+            filled = cast("FillReturn_OuterOffset", filled)
             coords = _filled_to_coords(filled)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
@@ -346,9 +345,8 @@ def _contour_coords(
         all_ys = []
         for level in levels:
             lines = cont_gen.lines(level)
-            if TYPE_CHECKING:
-                # This is guaranteed by use of line_type=LineType.ChunkCombinedNan in contour_generator call.
-                lines = cast(LineReturn_ChunkCombinedNan, lines)
+            # This is guaranteed by use of line_type=LineType.ChunkCombinedNan in contour_generator call.
+            lines = cast("LineReturn_ChunkCombinedNan", lines)
             coords = _lines_to_coords(lines)
             all_xs.append(coords.xs)
             all_ys.append(coords.ys)
