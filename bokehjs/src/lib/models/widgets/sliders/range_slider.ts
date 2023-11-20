@@ -8,7 +8,6 @@ import {isString} from "core/util/types"
 export class RangeSliderView extends NumericalRangeSliderView {
   declare model: RangeSlider
 
-  override behaviour = "drag" as const
   override connected = [false, true, false]
 
   protected _formatter(value: number, format: string | TickFormatter): string {

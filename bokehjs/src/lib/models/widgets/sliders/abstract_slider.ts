@@ -1,38 +1,46 @@
-import type {API, PartialFormatter} from "nouislider"
-import noUiSlider from "nouislider"
-
 import * as p from "core/properties"
-import type {Color} from "core/types"
-import type {StyleSheetLike} from "core/dom"
-import {div, span, empty} from "core/dom"
-import {repeat} from "core/util/array"
-import {color2css} from "core/util/color"
+import type {StyleSheetLike, Keys} from "core/dom"
+import {div, span, empty, bounding_box, box_size} from "core/dom"
+import {assert} from "core/util/assert"
+import {clamp} from "core/util/math"
+import {range} from "core/util/array"
+import {zip} from "core/util/iterator"
+import {bisect_right} from "core/util/arrayable"
+import type {BBox, XY} from "core/util/bbox"
 
 import {OrientedControl, OrientedControlView} from "../oriented_control"
 
-import sliders_css, * as sliders from "styles/widgets/sliders.css"
-import nouislider_css from "styles/widgets/nouislider.css"
+import * as sliders_css from "styles/widgets/sliders.css"
 import * as inputs from "styles/widgets/inputs.css"
 
+const {abs, max} = Math
+
 export type SliderSpec<T> = {
-  range: {min: number, max: number}
-  start: T[]
-  step: number
-  format?: {
-    to: (value: number) => string | number
-    from: (value: string) => number | false
-  }
+  min: number
+  max: number
+  step: number | null
+  values: T[]
+  compute(value: T): number
+  invert(synthetic: number): T
+}
+
+type SliderMeta<T> = SliderSpec<T> & {
+  span: number
+  ticks: number[] | null
 }
 
 export abstract class AbstractSliderView<T extends number | string> extends OrientedControlView {
   declare model: AbstractSlider<T>
 
-  protected behaviour: "drag" | "tap"
-  protected connected: false | boolean[] = false
+  protected connected: boolean[] = []
 
   protected group_el: HTMLElement
-  protected slider_el?: HTMLElement
+  protected slider_el: HTMLElement
   protected title_el: HTMLElement
+  protected span_el: HTMLElement
+  protected track_el: HTMLElement
+
+  protected handles: HTMLElement[]
 
   protected override readonly _auto_width = "auto"
   protected override readonly _auto_height = "auto"
@@ -41,16 +49,42 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     yield this.slider_el as HTMLInputElement
   }
 
-  private _noUiSlider: API
-
-  get _steps(): API["steps"] {
-    return this._noUiSlider.steps
-  }
-
   abstract pretty(value: number | string): string
 
+  protected _meta: SliderMeta<T>
+
+  protected _update_state(): void {
+    const spec = this._calc_spec()
+    const {min, max, step} = spec
+    const ticks = (() => {
+      if (step != null) {
+        const ticks = range(min, max, step)
+        ticks.push(max)
+        return ticks
+      } else {
+        return null
+      }
+    })()
+    const span = max - min
+    const meta = {...spec, span, ticks}
+    this._meta = meta
+  }
+
+  protected _update_value(): void {
+    this._meta.values = this._calc_to(this.model.value as T | T[])
+    for (const [value, handle_el] of zip(this._meta.values, this.handles)) {
+      this.move_to(handle_el, this._compute(value))
+    }
+  }
+
   protected _update_slider(): void {
-    this._noUiSlider.updateOptions(this._calc_to(), true)
+    this._update_state()
+    this._update_value()
+  }
+
+  override _after_layout(): void {
+    super._after_layout()
+    this._update_value()
   }
 
   override connect_signals(): void {
@@ -59,19 +93,14 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
     const {direction, orientation, tooltips} = this.model.properties
     this.on_change([direction, orientation, tooltips], () => this.render())
 
-    const {bar_color} = this.model.properties
-    this.on_change(bar_color, () => {
-      this._set_bar_color()
-    })
-
     const {value, title, show_value} = this.model.properties
+    this.on_change(value, () => this._update_value())
     this.on_change([value, title, show_value], () => this._update_title())
 
-    this.on_change(value, () => this._update_slider())
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), nouislider_css, sliders_css]
+    return [...super.stylesheets(), sliders_css.default]
   }
 
   _update_title(): void {
@@ -91,102 +120,243 @@ export abstract class AbstractSliderView<T extends number | string> extends Orie
       }
 
       if (this.model.show_value) {
-        const {start} = this._calc_to()
-        const pretty = start.map((v) => this.pretty(v)).join(" .. ")
-        this.title_el.appendChild(span({class: sliders.slider_value}, pretty))
+        const {values} = this._meta
+        const pretty = values.map((v) => this.pretty(v)).join(" .. ")
+        this.title_el.appendChild(span({class: sliders_css.slider_value}, pretty))
       }
     }
   }
 
-  protected _set_bar_color(): void {
-    if (this.connected !== false && !this.model.disabled && this.slider_el != null) {
-      const connect_el = this.slider_el.querySelector<HTMLElement>(".noUi-connect")!
-      connect_el.style.backgroundColor = color2css(this.model.bar_color)
-    }
+  get horizontal(): boolean {
+    return this.model.orientation == "horizontal"
   }
 
-  protected abstract _calc_to(): SliderSpec<T>
-
-  protected abstract _calc_from(values: number[]): T | T[]
+  protected move_to(handle_el: HTMLElement, pos: number): T {
+    const size = box_size(this.track_el)
+    const px = this.horizontal ? pos*size.width : pos*size.height
+    return this._move_to(handle_el, px)
+  }
+  protected _move_to(handle_el: HTMLElement, v: number): T {
+    const {width, height} = box_size(this.track_el)
+    if (this.horizontal) {
+      const sx = clamp(v, 0, width)
+      const value = this._invert(sx/width)
+      const x = this._compute(value)
+      handle_el.style.setProperty("--value", `${x}`)
+      this.span_el.style.setProperty("--value", `${x}`)
+      return value
+    } else {
+      const sy = clamp(v, 0, height)
+      const value = this._invert(sy/height)
+      const y = this._compute(value)
+      handle_el.style.setProperty("--value", `${y}`)
+      this.span_el.style.setProperty("--value", `${y}`)
+      return value
+    }
+  }
 
   override render(): void {
     super.render()
+    this._update_state()
 
-    let tooltips: PartialFormatter[] | null
-    if (this.model.tooltips) {
-      const formatter = {
-        to: (value: number): string => this.pretty(value),
-      }
-
-      const {start} = this._calc_to()
-      tooltips = repeat(formatter, start.length)
-    } else {
-      tooltips = null
+    this.handles = []
+    for (const _ of this._meta.values) {
+      const handle_el = div({class: sliders_css.handle, tabIndex: 0})
+      this.handles.push(handle_el)
     }
 
-    if (this.slider_el == null) {
-      this.slider_el = div()
+    this.span_el = div({class: sliders_css.span})
+    this.track_el = div({class: sliders_css.track}, this.span_el, ...this.handles)
+    this.slider_el = div({class: sliders_css.slider}, this.track_el)
 
-      this._noUiSlider = noUiSlider.create(this.slider_el, {
-        ...this._calc_to(),
-        behaviour: this.behaviour,
-        connect: this.connected,
-        tooltips: tooltips ?? false,
-        orientation: this.model.orientation,
-        direction: this.model.direction,
-      })
+    this.class_list.toggle(sliders_css.stealth, this.model.appearance == "stealth")
+    this.class_list.toggle(sliders_css.vertical, !this.horizontal)
 
-      this._noUiSlider.on("slide",  (_, __, values) => this._slide(values))
-      this._noUiSlider.on("change", (_, __, values) => this._change(values))
+    type PointerId = number
+    type DragState = {bbox: BBox, xy: XY, target: HitTarget, pointer: PointerId}
+    let state: DragState | null = null
 
-      const toggle_tooltip = (i: number, show: boolean): void => {
-        if (tooltips == null || this.slider_el == null) {
-          return
+    const {track_el} = this
+
+    type HitType = "handle" | "track"
+    type HitTarget = {type: HitType, el: HTMLElement}
+    const hit_target = (path: Event): HitTarget | null => {
+      for (const el of path.composedPath()) {
+        for (const handle_el of this.handles) {
+          if (el == handle_el) {
+            return {type: "handle", el: handle_el}
+          }
         }
-        const handle = this.slider_el.querySelectorAll(".noUi-handle")[i]
-        const tooltip = handle.querySelector<HTMLElement>(".noUi-tooltip")!
-        tooltip.style.display = show ? "block" : ""
+        if (el == track_el) {
+          return {type: "track", el: track_el}
+        }
       }
-
-      this._noUiSlider.on("start", () => this._toggle_user_select(false))
-      this._noUiSlider.on("end",   () => this._toggle_user_select(true))
-
-      this._noUiSlider.on("start", (_, i) => toggle_tooltip(i, true))
-      this._noUiSlider.on("end",   (_, i) => toggle_tooltip(i, false))
-    } else {
-      this._update_slider()
+      return null
     }
 
-    this._set_bar_color()
-
-    if (this.model.disabled) {
-      this.slider_el.setAttribute("disabled", "true")
-    } else {
-      this.slider_el.removeAttribute("disabled")
+    const drag = (event: PointerEvent, state: DragState): T => {
+      const v = (() => {
+        if (this.horizontal) {
+          const dx = event.x - state.xy.x
+          return state.bbox.x + dx
+        } else {
+          const dy = event.y - state.xy.y
+          return state.bbox.y + dy
+        }
+      })()
+      return this._move_to(state.target.el, v)
     }
 
-    this.title_el = div({class: sliders.slider_title})
+    const move = (event: PointerEvent, handle_el: HTMLElement): T => {
+      const bbox = bounding_box(track_el)
+      const xy = bbox.relativize(event)
+      return this._move_to(handle_el, this.horizontal ? xy.x : xy.y)
+    }
+
+    track_el.addEventListener("pointerdown", (event) => {
+      assert(state == null)
+      if (!event.isPrimary) {
+        return
+      }
+      const target = hit_target(event)
+      if (target == null) {
+        return
+      }
+      target.el.setPointerCapture(event.pointerId)
+      event.preventDefault()
+      const {x, y} = event
+      const bbox = bounding_box(target.el, track_el) // ???
+      state = {
+        bbox: bbox.translate(bbox.width/2, bbox.height/2),
+        xy: {x, y},
+        target,
+        pointer: event.pointerId,
+      }
+    })
+    track_el.addEventListener("pointermove", (event) => {
+      if (state != null && state.pointer == event.pointerId && state.target.type == "handle") {
+        const value = drag(event, state)
+        this._slide([value])
+      }
+    })
+    track_el.addEventListener("pointercancel", (event) => {
+      if (state != null && state.pointer == event.pointerId) {
+        state = null
+      }
+    })
+    // TODO distinguish between tap and pan (and press)
+    track_el.addEventListener("pointerup", (event) => {
+      if (state != null && state.pointer == event.pointerId) {
+        const value = (() => {
+          if (state.target.type == "handle") {
+            return drag(event, state)
+          } else if (this.handles.length == 1) {
+            const [handle_el] = this.handles
+            return move(event, handle_el)
+          } else {
+            return null
+          }
+        })()
+        if (value != null) {
+          this._change([value])
+        }
+        state = null
+      }
+    })
+
+    /* TODO
+    track_el.addEventListener("wheel", (event) => {
+      const dy = event.deltaY
+      event.preventDefault()
+      event.stopPropagation()
+    })
+    */
+
+    const shift = (event: KeyboardEvent, offset: number) => {
+      const target = hit_target(event)
+      if (target != null && target.type == "handle") {
+        const i = this.handles.indexOf(target.el)
+        const {min, max, values, compute, invert} = this._meta
+        const value = values[i]
+        const new_value = invert(clamp(compute(value) + offset, min, max))
+        return this.move_to(target.el, this._compute(new_value))
+      } else {
+        return null
+      }
+    }
+
+    const keydown = (event: KeyboardEvent): void => {
+      const value = (() => {
+        switch (event.key as Keys) {
+          case "PageUp": {
+            return this._invert(1.0)
+          }
+          case "PageDown": {
+            return this._invert(0.0)
+          }
+          case "ArrowUp":
+          case "ArrowLeft": {
+            const {step} = this._meta
+            return step != null ? shift(event, -step) : null
+          }
+          case "ArrowDown":
+          case "ArrowRight": {
+            const {step} = this._meta
+            return step != null ? shift(event, +step) : null
+          }
+          default: {
+            return null
+          }
+        }
+      })()
+      if (value != null) {
+        this._change([value])
+      }
+    }
+
+    for (const handle_el of this.handles) {
+      handle_el.addEventListener("keydown", keydown)
+    }
+
+    this.title_el = div({class: sliders_css.slider_title})
     this._update_title()
 
     this.group_el = div({class: inputs.input_group}, this.title_el, this.slider_el)
     this.shadow_el.appendChild(this.group_el)
-    this._has_finished = true
   }
 
-  protected _toggle_user_select(enable: boolean): void {
-    const {style} = document.body
-    const value = enable ? "" : "none"
-    style.userSelect = value
-    style.webkitUserSelect = value
-  }
-
-  protected _slide(values: number[]): void {
+  protected _slide(values: T[]): void {
     this.model.value = this._calc_from(values)
   }
 
-  protected _change(values: number[]): void {
+  protected _change(values: T[]): void {
     const value = this._calc_from(values)
     this.model.setv({value, value_throttled: value})
+  }
+
+  protected abstract _calc_spec(): SliderSpec<T>
+
+  protected abstract _calc_to(values: T | T[]): T[]
+  protected abstract _calc_from(values: T[]): T | T[]
+
+  protected _compute(value: T): number {
+    const {min, span, compute} = this._meta
+    return (compute(value) - min)/span
+  }
+
+  protected _invert(synthetic: number): T {
+    assert(0 <= synthetic && synthetic <= 1.0)
+    const {min, span, ticks, invert} = this._meta
+    const value = synthetic*span + min
+    if (ticks == null) {
+      return invert(value)
+    } else {
+      const i = max(bisect_right(ticks, value) - 1, 0)
+      const v0 = ticks[i]
+      const v1 = ticks[i + 1] ?? Infinity
+      const v = abs(value - v0) <= abs(value - v1) ? v0 : v1
+      return invert(v)
+    }
   }
 }
 
@@ -200,7 +370,7 @@ export namespace AbstractSlider {
     value_throttled: p.Property<unknown>
     direction: p.Property<"ltr" | "rtl">
     tooltips: p.Property<boolean>
-    bar_color: p.Property<Color>
+    appearance: p.Property<"normal" | "stealth">
   }
 }
 
@@ -215,7 +385,7 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
   }
 
   static {
-    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Color, Enum, Nullable}) => {
+    this.define<AbstractSlider.Props>(({Unknown, Bool, Str, Enum, Nullable}) => {
       return {
         title:           [ Nullable(Str), "" ],
         show_value:      [ Bool, true ],
@@ -223,7 +393,7 @@ export abstract class AbstractSlider<T extends number | string> extends Oriented
         value_throttled: [ Unknown, p.unset, {readonly: true} ],
         direction:       [ Enum("ltr", "rtl"), "ltr" ],
         tooltips:        [ Bool, true ],
-        bar_color:       [ Color, "#e6e6e6" ],
+        appearance:      [ Enum("normal", "stealth"), "normal" ],
       }
     })
 

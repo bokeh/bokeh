@@ -50,7 +50,6 @@
     "flatbush": "^4.2.0",
     "flatpickr": "^4.6.13",
     "mathjax-full": "^3.2.2",
-    "nouislider": "^15.7.1",
     "proj4": "^2.9.2",
     "regl": "^2.1.0",
     "sprintf-js": "^1.1.3",

@@ -6,8 +6,6 @@ import {isNumber} from "core/util/types"
 export class CategoricalSliderView extends AbstractSliderView<string> {
   declare model: CategoricalSlider
 
-  override behaviour = "tap" as const
-
   override connect_signals(): void {
     super.connect_signals()
 
@@ -15,25 +13,27 @@ export class CategoricalSliderView extends AbstractSliderView<string> {
     this.on_change([categories], () => this._update_slider())
   }
 
-  protected _calc_to(): SliderSpec<string> {
-    const {categories} = this.model
+  protected _calc_spec(): SliderSpec<string> {
+    const {categories, value} = this.model
     return {
-      range: {
-        min: 0,
-        max: categories.length - 1,
-      },
-      start: [this.model.value],
+      min: 0,
+      max: categories.length - 1,
       step: 1,
-      format: {
-        to: (value: number) => categories[value],
-        from: (value: string) => categories.indexOf(value),
+      values: [value],
+      compute(value: string): number {
+        return categories.indexOf(value)
+      },
+      invert(synthetic: number): string {
+        return categories[synthetic]
       },
     }
   }
 
-  protected _calc_from([value]: number[]): string {
-    const {categories} = this.model
-    return categories[value]
+  protected _calc_to(value: string): string[] {
+    return [value]
+  }
+  protected _calc_from([value]: string[]): string {
+    return value
   }
 
   pretty(value: number | string): string {

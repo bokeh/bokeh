@@ -125,6 +125,10 @@ export function linspace(start: number, stop: number, num: number = 100): number
   return array
 }
 
+export function logspace(start: number, stop: number, num: number = 100, base: number = 10): number[] {
+  return linspace(start, stop, num).map((v) => base**v)
+}
+
 export function transpose<T>(array: T[][]): T[][] {
   const rows = array.length
   const cols = array[0].length

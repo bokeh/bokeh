@@ -9,12 +9,13 @@ import {isString} from "core/util/types"
 export class DateSliderView extends NumericalSliderView {
   declare model: DateSlider
 
-  override behaviour = "tap" as const
   override connected = [true, false]
 
-  protected override _calc_to(): SliderSpec<number> {
-    const spec = super._calc_to()
-    spec.step *= 86_400_000
+  protected override _calc_spec(): SliderSpec<number> {
+    const spec = super._calc_spec()
+    if (spec.step != null) {
+      spec.step *= 86_400_000
+    }
     return spec
   }
 
