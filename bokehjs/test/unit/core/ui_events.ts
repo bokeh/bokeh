@@ -80,7 +80,7 @@ describe("ui_event_bus module", () => {
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
 
         expect(spy_trigger.calledTwice).to.be.true
-        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move, e, inspector.id])
+        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move, e, inspector])
       })
 
       it("should not trigger move event for inactive inspectors", async () => {
@@ -151,7 +151,7 @@ describe("ui_event_bus module", () => {
 
         ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
         expect(spy_trigger.calledTwice).to.be.true
-        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move_exit, e, inspector.id])
+        expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move_exit, e, inspector])
         // should also use view renderer cursor and not inspector cursor
         expect(spy_cursor.calledTwice).to.be.true
         expect(spy_cursor.calledWith("pointer")).to.be.true
@@ -180,7 +180,7 @@ describe("ui_event_bus module", () => {
         ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
 
         expect(spy_trigger.calledOnce).to.be.true
-        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture])
       })
 
       /*
@@ -245,7 +245,7 @@ describe("ui_event_bus module", () => {
         expect(stopPropagation.calledOnce).to.be.true
 
         expect(spy_trigger.calledOnce).to.be.true
-        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.scroll, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.scroll, e, gesture])
       })
     })
 
@@ -268,7 +268,7 @@ describe("ui_event_bus module", () => {
         ui_event_bus._trigger(ui_event_bus.pan_start, e, new Event("pointerdown"))
 
         expect(spy_trigger.callCount).to.be.equal(1)
-        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.pan_start, e, gesture.id])
+        expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.pan_start, e, gesture])
       })
     })
   })
@@ -300,7 +300,7 @@ describe("ui_event_bus module", () => {
       expect(bk_event).to.be.instanceof(Tap)
       expect(bk_event.sx).to.be.equal(100)
       expect(bk_event.sy).to.be.equal(200)
-      // XXX: expect(bk_event.origin.id).to.be.equal(plot_view.model.id)
+      // XXX: expect(bk_event.origin).to.be.equal(plot_view.model)
     })
 
     it("_bokify_point_event should trigger event with appropriate coords and model id", () => {
@@ -316,7 +316,7 @@ describe("ui_event_bus module", () => {
       expect(bk_event).to.be.instanceof(MouseMove)
       expect(bk_event.sx).to.be.equal(100)
       expect(bk_event.sy).to.be.equal(200)
-      // XXX: expect(bk_event.origin.id).to.be.equal(plot_view.model.id)
+      // XXX: expect(bk_event.origin).to.be.equal(plot_view.model)
     })
   })
 
@@ -343,10 +343,16 @@ describe("ui_event_bus module", () => {
       spy_uievent.restore()
     })
 
+    const dummy_methods = {
+      preventDefault: () => {},
+      stopPropagation: () => {},
+      composedPath: () => [],
+    }
+
     it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []}
+      e.srcEvent = {pageX: 100, pageY: 200, ...dummy_methods}
 
       plot_view.model.add_tools(new TapTool())
       await plot_view.ready
@@ -360,7 +366,7 @@ describe("ui_event_bus module", () => {
     it("_doubletap method should handle doubletap event", async () => {
       const e: any = new Event("doubletap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []}
+      e.srcEvent = {pageX: 100, pageY: 200, ...dummy_methods}
 
       plot_view.model.add_tools(new PolySelectTool())
       await plot_view.ready
@@ -374,7 +380,7 @@ describe("ui_event_bus module", () => {
     it("_press method should handle press event", () => {
       const e: any = new Event("press") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []}
+      e.srcEvent = {pageX: 100, pageY: 200, ...dummy_methods}
 
       ui_event_bus._press(e)
 
@@ -386,7 +392,7 @@ describe("ui_event_bus module", () => {
     it("_pressup method should handle pressup event", () => {
       const e: any = new Event("pressup") // XXX: not a hammerjs event
       e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []}
+      e.srcEvent = {pageX: 100, pageY: 200, ...dummy_methods}
 
       ui_event_bus._pressup(e)
 
@@ -398,7 +404,7 @@ describe("ui_event_bus module", () => {
         type: "panstart",
         deltaX: 0,
         deltaY: 0,
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const pan_tool = new PanTool()
@@ -416,7 +422,7 @@ describe("ui_event_bus module", () => {
         type: "pan",
         deltaX: 0,
         deltaY: 0,
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const pan_tool = new PanTool()
@@ -435,7 +441,7 @@ describe("ui_event_bus module", () => {
         type: "panend",
         deltaX: 0,
         deltaY: 0,
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const pan_tool = new PanTool()
@@ -452,7 +458,7 @@ describe("ui_event_bus module", () => {
     it("_pinch_start method should handle pinchstart event", async () => {
       const e: any = { // XXX: not a hammerjs event
         type: "pinchstart",
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const wheel_zoom_tool = new WheelZoomTool()
@@ -472,7 +478,7 @@ describe("ui_event_bus module", () => {
     it("_pinch method should handle pinch event", async () => {
       const e: any = { // XXX: not a hammerjs event
         type: "pinch",
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const wheel_zoom_tool = new WheelZoomTool()
@@ -485,14 +491,14 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pinch_start({...e, type: "pinchstart"})
       ui_event_bus._pinch(e)
 
-      expect(spy_plot.callCount).to.be.equal(2)
+      expect(spy_plot.callCount).to.be.equal(3) // pinch_start, lod_start, pinch
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
     it("_pinch_end method should handle pinchend event", async () => {
       const e: any = { // XXX: not a hammerjs event
         type: "pinchend",
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       const wheel_zoom_tool = new WheelZoomTool()
@@ -600,7 +606,7 @@ describe("ui_event_bus module", () => {
 
       const etap: any = { // XXX: not a hammerjs event
         type: "tap",
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
       ui_event_bus._tap(etap)
@@ -610,7 +616,7 @@ describe("ui_event_bus module", () => {
         type: "panstart",
         deltaX: 0,
         deltaY: 0,
-        srcEvent: {pageX: 100, pageY: 200, preventDefault: () => {}, composedPath: () => []},
+        srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
       ui_event_bus._pan_start(epan)
       expect(spy_uievent.calledTwice).to.be.true

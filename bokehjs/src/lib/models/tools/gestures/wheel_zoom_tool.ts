@@ -7,7 +7,6 @@ import type * as p from "core/properties"
 import type {PinchEvent, ScrollEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
-import {is_mobile} from "core/util/platform"
 import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
 import {Enum, Array, Ref, Or, Auto} from "../../../core/kinds"
@@ -21,22 +20,18 @@ type Renderers = typeof Renderers["__type__"]
 export class WheelZoomToolView extends GestureToolView {
   declare model: WheelZoomTool
 
-  override _pinch(ev: PinchEvent): void {
-    // TODO (bev) this can probably be done much better
-    const {sx, sy, scale, modifiers} = ev
-
-    let delta: number
-    if (scale >= 1)
-      delta = (scale - 1)*20.0
-    else
-      delta = -20.0/scale
-
-    this._scroll({type: "wheel", sx, sy, delta, modifiers})
+  override _scroll(ev: ScrollEvent): void {
+    const {sx, sy, delta} = ev
+    this.zoom(sx, sy, delta)
   }
 
-  override _scroll(ev: ScrollEvent): void {
-    const {sx, sy} = ev
+  override _pinch(ev: PinchEvent): void {
+    const {sx, sy, scale} = ev
+    const delta = scale >= 1 ? (scale - 1)*20.0 : -20.0/scale
+    this.zoom(sx, sy, delta)
+  }
 
+  zoom(sx: number, sy: number, delta: number): void {
     const axis_view = this.plot_view.axis_views.find((view) => view.bbox.contains(sx, sy))
     if (axis_view != null && !this.model.zoom_on_axis) {
       return
@@ -173,7 +168,7 @@ export class WheelZoomToolView extends GestureToolView {
     const y_axis = dims == "height" || dims == "both"
 
     const {x_target, y_target} = frame
-    const factor = this.model.speed*ev.delta
+    const factor = this.model.speed*delta
 
     const zoom_info = scale_range(x_scales, y_scales, x_target, y_target, factor, x_axis, y_axis, center)
 
@@ -230,7 +225,7 @@ export class WheelZoomTool extends GestureTool {
 
   override tool_name = "Wheel Zoom"
   override tool_icon = tool_icon_wheel_zoom
-  override event_type = is_mobile ? "pinch" as "pinch" : "scroll" as "scroll"
+  override event_type = "scroll" as const
   override default_order = 10
 
   override get tooltip(): string {
