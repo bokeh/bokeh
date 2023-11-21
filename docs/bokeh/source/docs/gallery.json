@@ -387,6 +387,10 @@
     {
       "name": "sinaplot.py",
       "alt": "Thumbnail link to the examples/topics/stats/sinaplot.py example shows a kernel density estimation plot of the lincoln data."
+    },
+    {
+      "name": "density.py",
+      "alt": "Thumbnail link to the examples/topics/stats/density.py example shows a multiple kernel density estimation of the cows data."
     }
   ],
   "interaction/tools": [
