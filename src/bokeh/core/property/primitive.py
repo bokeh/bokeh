@@ -22,6 +22,8 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import numbers
+from math import isfinite
+from typing import Any
 
 # External imports
 import numpy as np
@@ -41,8 +43,9 @@ __all__ = (
     'Bool',
     'Bytes',
     'Complex',
-    'Int',
+    'FiniteFloat',
     'Float',
+    'Int',
     'Null',
     'String',
 )
@@ -186,6 +189,17 @@ class Float(PrimitiveProperty[float]):
 
     def __init__(self, default: Init[float] = 0.0, *, help: str | None = None) -> None:
         super().__init__(default=default, help=help)
+
+class FiniteFloat(Float):
+    """ Accept floating point values excluding ``nan`` and infinities.
+
+    """
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if not isfinite(value):
+            raise ValueError(f"expected a non-nan and finite floating point value, got {value}")
 
 class Bytes(PrimitiveProperty[bytes]):
     """ Accept bytes values.
