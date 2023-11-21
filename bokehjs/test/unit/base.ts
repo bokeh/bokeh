@@ -291,6 +291,7 @@ describe("default model resolver", () => {
       "PolyTool",
       "PreText",
       "PrintfTickFormatter",
+      "Progress",
       "QUADKEYTileSource",
       "Quad",
       "Quadratic",

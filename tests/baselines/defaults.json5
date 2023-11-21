@@ -7120,6 +7120,21 @@
     __extends__: "AbstractGroup",
     inline: false,
   },
+  Indicator: {
+    __extends__: "Widget",
+  },
+  Progress: {
+    __extends__: "Indicator",
+    mode: "determinate",
+    value: 0,
+    min: 0,
+    max: 100,
+    reversed: false,
+    orientation: "horizontal",
+    label: "@{percent}%",
+    label_location: "inline",
+    description: null,
+  },
   AutocompleteInput: {
     __extends__: "TextInput",
     completions: [],

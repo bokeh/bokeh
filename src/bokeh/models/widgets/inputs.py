@@ -604,6 +604,10 @@ class PaletteSelect(InputWidget):
     The number of columns to split the display of the palettes into.
     """)
 
+#-----------------------------------------------------------------------------
+# Legacy API
+#-----------------------------------------------------------------------------
+
 def ColorMap(*args: Any, **kwargs: Any) -> PaletteSelect:
     ''' Color palette select widget.
 

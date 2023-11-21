@@ -399,8 +399,8 @@ from .property.data_frame import PandasGroupBy
 from .property.primitive import Bool
 from .property.primitive import Bytes
 from .property.primitive import Complex
-from .property.primitive import Int
 from .property.primitive import Float
+from .property.primitive import Int
 from .property.primitive import Null
 from .property.primitive import String
 

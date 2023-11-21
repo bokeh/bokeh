@@ -36,7 +36,7 @@
   top: calc(50% - var(--bar-height)/2);
   height: var(--bar-height);
   border-radius: calc(var(--bar-height)/2);
-  background-color: #e5e5e5;
+  background-color: var(--inactive-bg);
   transition-property: background-color;
 }
 
@@ -47,15 +47,15 @@
   width: var(--switch-size);
   height: var(--switch-size);
   border-radius: 8px;
-  background-color: #adadad;
+  background-color: var(--inactive-fg);
   transition-property: left, background-color;
 }
 
 :host(.bk-active) .bk-bar {
-  background-color: #c2d5f7;
+  background-color: var(--active-bg);
 }
 
 :host(.bk-active) .bk-knob {
   left: calc(100% - var(--switch-size));
-  background-color: #3b80f0;
+  background-color: var(--active-fg);
 }

@@ -21,6 +21,7 @@ import {
   DatePicker, DateRangePicker, MultipleDatePicker,
   DatetimePicker, DatetimeRangePicker, MultipleDatetimePicker,
   Paragraph, Div, PreText,
+  Progress,
 } from "@bokehjs/models/widgets"
 
 import {
@@ -197,6 +198,36 @@ describe("Widgets", () => {
   it("should allow Switch with active=true and label", async () => {
     const obj = new Switch({active: true, label: "Display:"})
     await display(obj, [100, 30])
+  })
+
+  describe("should support Progress indicator widget", () => {
+    describe("in determinate mode", () => {
+      it("and horizontal orientation", async () => {
+        const obj = new Progress({
+          mode: "determinate",
+          orientation: "horizontal",
+          value: 105,
+          min: 0,
+          max: 179,
+          label: "@{index} of @{total} (@{percent}%)",
+          width: 200,
+        })
+        await display(obj, [300, 100])
+      })
+
+      it("and vertical orientation", async () => {
+        const obj = new Progress({
+          mode: "determinate",
+          orientation: "vertical",
+          value: 105,
+          min: 0,
+          max: 179,
+          label: "@{index} of @{total} (@{percent}%)",
+          height: 200,
+        })
+        await display(obj, [100, 300])
+      })
+    })
   })
 
   it("should allow CheckboxGroup", async () => {

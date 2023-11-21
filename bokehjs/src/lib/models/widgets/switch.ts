@@ -2,7 +2,7 @@ import {ToggleInput, ToggleInputView} from "./toggle_input"
 import {IconLike} from "../common/kinds"
 import {apply_icon} from "../common/resolve"
 import type {FullDisplay} from "../layouts/layout_dom"
-import type {StyleSheetLike} from "core/dom"
+import type {StyleSheetLike, Keys} from "core/dom"
 import {div, undisplay} from "core/dom"
 import type * as p from "core/properties"
 import * as icons_css from "styles/icons.css"
@@ -39,13 +39,14 @@ export class SwitchView extends ToggleInputView {
 
     this.body_el.addEventListener("click", () => this._toggle_active())
     this.knob_el.addEventListener("keydown", (event) => {
-      switch (event.key) {
+      switch (event.key as Keys) {
         case "Enter":
         case " ": {
           event.preventDefault()
           this._toggle_active()
           break
         }
+        default:
       }
     })
   }

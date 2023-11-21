@@ -203,7 +203,7 @@ export function replace_placeholders(content: string | {html: string}, data_sour
  */
 const regex = /((?:[$@][\p{Letter}\p{Number}_]+)|(?:[$@]\{(?:[^{}]+)\}))(?:\{([^{}]+)\})?/gu
 
-type PlaceholderReplacer = (type: PlaceholderType, name: string, format: string | undefined, i: number, spec: string) => string | null | undefined
+export type PlaceholderReplacer = (type: PlaceholderType, name: string, format: string | undefined, i: number, spec: string) => string | null | undefined
 
 export function process_placeholders(text: string, fn: PlaceholderReplacer): string {
   let i = 0 // this var is used for testing purposes

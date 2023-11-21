@@ -15,7 +15,7 @@ from math import pi
 from bokeh import palettes
 from bokeh.document import Document
 from bokeh.embed import file_html
-from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource,
+from bokeh.models import (BuiltinIcon, ByCSS, Column, ColumnDataSource, CustomJS,
                           Dialog, Examiner, GroupBox, Row, SetValue, SVGIcon,
                           TablerIcon, TabPanel, Tabs, Tooltip, widgets as w)
 from bokeh.models.dom import HTML, ValueOf
@@ -216,6 +216,36 @@ This is an <b>on</b> or <b>off</b> style of widget.
 Right click on the widget to display the context menu.
 """), position="right"))
 
+progress = w.Progress(value=0, min=0, max=179, label="Processing item @{index} of @{total} (@{percent}%)", width_policy="max")
+progress_disabled = w.Progress(value=30, min=0, max=100, disabled=True, width_policy="max")
+indeterminate_progress = w.Progress(mode="indeterminate", width_policy="max")
+indeterminate_progress_thin = w.Progress(mode="indeterminate", label=None, width_policy="max")
+
+progress_vertical = w.Progress(value=105, min=0, max=179, label="@{percent}% (@{index} of @{total})", orientation="vertical", height_policy="max")
+indeterminate_progress_vertical = w.Progress(mode="indeterminate", orientation="vertical", height_policy="max")
+
+start_computation = w.Button(label="Start computation")
+start_computation.js_on_click(CustomJS(
+    args=dict(progress=progress, button=start_computation),
+    code="""
+function delay(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms))
+}
+export default async ({progress, button}) => {
+    button.disabled = true
+    try {
+        progress.value = 0
+        while (!progress.has_finished) {
+            const ms = Math.random()*100
+            await delay(ms)
+            progress.increment(1)
+        }
+    } finally {
+        button.disabled = false
+    }
+}
+"""))
+
 group_box = GroupBox(
     title="Head offset:",
     checkable=True,
@@ -317,6 +347,17 @@ widgets = Column(children=[
             checkbox_0,
             checkbox_1,
             Row(children=[switch_0, switch_1, switch_help]),
+            Row(children=[
+                Column(children=[
+                    start_computation,
+                    progress,
+                    progress_disabled,
+                    indeterminate_progress,
+                    indeterminate_progress_thin,
+                ], width_policy="max"),
+                progress_vertical,
+                indeterminate_progress_vertical,
+            ], width_policy="max"),
             group_box,
             paragraph, div, pre_text,
         ]),

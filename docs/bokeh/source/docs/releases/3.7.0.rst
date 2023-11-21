@@ -21,6 +21,7 @@ Bokeh version ``3.7.0`` (January 2025) is a minor milestone of Bokeh project.
 * Fixed tool button visibility handling in ``Toolbar`` (:bokeh-pull:`14251`)
 * Added support for ``html_id`` and ``html_attributes`` properties to UI components (:bokeh-pull:`14357`)
 * Added support for value formatting to ``ValueOf(obj, attr)`` (:bokeh-pull:`14358`)
+* Added support for determinate and indeterminate ``Progress`` widgets (:bokeh-pull:`13546`)
 
 Deprecations
 ------------
