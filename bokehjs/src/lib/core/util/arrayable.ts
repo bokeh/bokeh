@@ -358,7 +358,7 @@ export function find_last<T>(array: Arrayable<T>, predicate: (item: T) => boolea
 }
 
 export function bisect_left_by<T, U>(array: Arrayable<T>, value: U, fn: (item: T) => U, low: number = 0, high: number = array.length): number {
-  assert_debug(is_sorted(array))
+  assert_debug(() => is_sorted(array))
   assert(0 <= low && high <= array.length)
   while (low < high) {
     const mid = floor((low + high) / 2)
@@ -372,7 +372,7 @@ export function bisect_left_by<T, U>(array: Arrayable<T>, value: U, fn: (item: T
 }
 
 export function bisect_right_by<T, U>(array: Arrayable<T>, value: U, fn: (item: T) => U, low: number = 0, high: number = array.length): number {
-  assert_debug(is_sorted(array))
+  assert_debug(() => is_sorted(array))
   assert(0 <= low && high <= array.length)
   while (low < high) {
     const mid = floor((low + high) / 2)
