@@ -66,7 +66,7 @@ async function make_testcase(): Promise<PolyEditTestCase> {
 
   const draw_tool = new PolyEditTool({
     active: true,
-    empty_value: "Test",
+    default_overrides: {z: "Test"},
     renderers: [glyph_renderer as any],
     vertex_renderer: vertex_renderer as GlyphRenderer & HasXYGlyph,
   })

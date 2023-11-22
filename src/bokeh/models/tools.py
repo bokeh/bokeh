@@ -58,6 +58,7 @@ from ..core.enums import (
 from ..core.has_props import abstract
 from ..core.properties import (
     Alpha,
+    Any,
     AnyRef,
     Auto,
     Bool,
@@ -1507,12 +1508,27 @@ class EditTool(GestureTool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    default_overrides = Dict(String, Any, default={}, help="""
+    Padding values overriding ``ColumnarDataSource.default_values``.
+
+    Defines values to insert into non-coordinate columns when a new glyph is
+    inserted into the ``ColumnDataSource`` columns, e.g. when a circle glyph
+    defines ``"x"``, ``"y"`` and ``"color"`` columns, adding a new point will
+    add the x and y-coordinates to ``"x"`` and ``"y"`` columns and the color
+    column will be filled with the defined default value.
+    """)
+
     empty_value = Either(Bool, Int, Float, Date, Datetime, Color, String, default=0, help="""
-    Defines the value to insert on non-coordinate columns when a new
-    glyph is inserted into the ``ColumnDataSource`` columns, e.g. when a
-    circle glyph defines 'x', 'y' and 'color' columns, adding a new
-    point will add the x and y-coordinates to 'x' and 'y' columns and
-    the color column will be filled with the defined empty value.
+    The "last resort" padding value.
+
+    This is used the same as ``default_values``, when the tool was unable
+    to figure out a default value otherwise. The tool will try the following
+    alternatives in order:
+
+    1. ``EditTool.default_overrides``
+    2. ``ColumnarDataSource.default_values``
+    3. ``ColumnarDataSource``'s inferred default values
+    4. ``EditTool.empty_value``
     """)
 
     # TODO abstract renderers = List(Instance(GlyphRenderer & ...))

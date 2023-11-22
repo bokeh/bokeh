@@ -133,10 +133,25 @@ export abstract class EditToolView extends GestureToolView {
   }
 
   _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
-    // Pad ColumnDataSource non-coordinate columns with empty_value
+    // Pad ColumnDataSource non-coordinate columns with default values
+    const {default_values, inferred_defaults} = cds
+    const {default_overrides} = this.model
+
     for (const column of cds.columns()) {
-      if (!includes(coord_columns, column))
-        cds.get_array(column).push(this.model.empty_value)
+      if (!includes(coord_columns, column)) {
+        const default_value = (() => {
+          if (column in default_overrides) {
+            return default_overrides[column]
+          } else if (column in default_values) {
+            return default_values[column]
+          } else if (column in inferred_defaults) {
+            return inferred_defaults[column]
+          } else {
+            return this.model.empty_value
+          }
+        })()
+        cds.get_array(column).push(default_value)
+      }
     }
   }
 
@@ -169,6 +184,7 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
+    default_overrides: p.Property<{[key: string]: unknown}>
     empty_value: p.Property<unknown>
   }
 }
@@ -184,7 +200,8 @@ export abstract class EditTool extends GestureTool {
   }
 
   static {
-    this.define<EditTool.Props>(({Unknown}) => ({
+    this.define<EditTool.Props>(({Unknown, Dict}) => ({
+      default_overrides: [ Dict(Unknown), {} ],
       empty_value: [ Unknown, 0 ],
     }))
   }

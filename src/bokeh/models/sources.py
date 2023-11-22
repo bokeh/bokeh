@@ -117,6 +117,15 @@ class ColumnarDataSource(DataSource):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
+    default_values = Dict(String, Any, default={}, help="""
+    Defines the default value for each column.
+
+    This is used when inserting rows into a data source, e.g. by edit tools,
+    when a value for a given column is not explicitly provided. If a default
+    value is missing, a tool will defer to its own configuration or will try
+    to let the data source to infer a sensible default value.
+    """)
+
     selection_policy = Instance(SelectionPolicy, default=InstanceDefault(UnionRenderers), help="""
     An instance of a ``SelectionPolicy`` that determines how selections are set.
     """)

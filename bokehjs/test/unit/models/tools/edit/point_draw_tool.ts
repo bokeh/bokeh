@@ -33,7 +33,11 @@ async function make_testcase(): Promise<PointDrawTestCase> {
 
   const {view: plot_view} = await display(plot)
 
-  const data = {x: [0, 0.5, 1], y: [0, 0.5, 1], z: [null, null, null]}
+  const data = {
+    x: [0, 0.5, 1],
+    y: [0, 0.5, 1],
+    z: [null, null, null],
+  }
   const data_source = new ColumnDataSource({data})
 
   const glyph = new Scatter({
@@ -47,7 +51,7 @@ async function make_testcase(): Promise<PointDrawTestCase> {
 
   const draw_tool = new PointDrawTool({
     active: true,
-    empty_value: "Test",
+    default_overrides: {z: "Test"},
     renderers: [glyph_renderer as any],
   })
   plot.add_tools(draw_tool)
@@ -131,7 +135,7 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data.y).to.be.equal([0.5, 1, 0.3389830508474576])
     })
 
-    it("should insert empty_value on other columns", async () => {
+    it("should insert default_overrides on other columns", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
