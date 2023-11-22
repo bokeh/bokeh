@@ -1,7 +1,8 @@
 import {CartesianFrame} from "../canvas/cartesian_frame"
 import type {CanvasView, FrameBox} from "../canvas/canvas"
 import {Canvas} from "../canvas/canvas"
-import type {Renderer, RendererView} from "../renderers/renderer"
+import type {Renderer} from "../renderers/renderer"
+import {RendererView} from "../renderers/renderer"
 import type {DataRenderer} from "../renderers/data_renderer"
 import type {Tool} from "../tools/tool"
 import {ToolProxy} from "../tools/tool_proxy"
@@ -185,19 +186,35 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this.request_paint("everything")
   }
 
-  request_paint(to_invalidate: RendererView[] | RendererView | "everything"): void {
+  request_paint(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
     this.invalidate_painters(to_invalidate)
     this.schedule_paint()
   }
 
-  invalidate_painters(to_invalidate: RendererView[] | RendererView | "everything"): void {
+  invalidate_painters(to_invalidate: (Renderer | RendererView)[] | Renderer | RendererView | "everything"): void {
     if (to_invalidate == "everything")
       this._invalidate_all = true
     else if (isArray(to_invalidate)) {
-      for (const renderer_view of to_invalidate)
-        this._invalidated_painters.add(renderer_view)
-    } else
-      this._invalidated_painters.add(to_invalidate)
+      for (const item of to_invalidate) {
+        const view = (() => {
+          if (item instanceof RendererView) {
+            return item
+          } else {
+            return this.renderer_view(item)!
+          }
+        })()
+        this._invalidated_painters.add(view)
+      }
+    } else {
+      const view = (() => {
+        if (to_invalidate instanceof RendererView) {
+          return to_invalidate
+        } else {
+          return this.renderer_view(to_invalidate)!
+        }
+      })()
+      this._invalidated_painters.add(view)
+    }
   }
 
   schedule_paint(): void {

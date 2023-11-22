@@ -28,6 +28,8 @@ export function isNotNull<T>(obj: T | null | undefined): obj is T {
   return obj != null
 }
 
+export const non_null = isNotNull
+
 export function isBoolean(obj: unknown): obj is boolean {
   return obj === true || obj === false || toString.call(obj) === "[object Boolean]"
 }

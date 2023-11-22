@@ -7,6 +7,7 @@ import * as events from "core/bokeh_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
+import {non_null} from "core/util/types"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
@@ -61,9 +62,7 @@ export class TapToolView extends SelectToolView {
 
     for (const [, renderers] of renderers_by_source) {
       const sm = renderers[0].get_selection_manager()
-      const r_views = renderers
-        .map((r) => this.plot_view.renderer_view(r))
-        .filter((rv): rv is NonNullable<DataRendererView> => rv != null)
+      const r_views = renderers.map((r) => this.plot_view.renderer_view(r)).filter(non_null)
       const did_hit = sm.select(r_views, geometry, final, mode)
       if (did_hit) {
         const [rv] = r_views
@@ -134,6 +133,10 @@ export class TapTool extends SelectTool {
       modifiers: [ events.KeyModifiers, {} ],
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
+
+    this.override<TapTool.Props>({
+      mode: "xor",
+    })
 
     this.register_alias("click", () => new TapTool({behavior: "inspect"}))
     this.register_alias("tap", () => new TapTool())

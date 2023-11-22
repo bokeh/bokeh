@@ -166,8 +166,8 @@ export const RoundingFunction = Enum("round", "nearest", "floor", "rounddown", "
 export type ScrollbarPolicy = typeof ScrollbarPolicy["__type__"]
 export const ScrollbarPolicy = Enum("auto", "visible", "hidden")
 
-export type SelectionMode = "replace" | "append" | "intersect" | "subtract"
-export const SelectionMode = Enum("replace", "append", "intersect", "subtract")
+export type SelectionMode = typeof SelectionMode["__type__"]
+export const SelectionMode = Enum("replace", "append", "intersect", "subtract", "xor")
 
 export type Side = "above" | "below" | "left" | "right"
 export const Side = Enum("above", "below", "left", "right")

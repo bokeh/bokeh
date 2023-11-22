@@ -78,7 +78,13 @@ describe("core/util/array module", () => {
     expect(array.uniq([0, 1, 2, 1, 2, undefined])).to.be.equal([0, 1, 2, undefined])
   })
 
-  it("intersection should return array of values in first array found in all others", () => {
+  it("union() should return an array of unique values from all arrays", () => {
+    const a = [0, 1, 2]
+    const b = [1, 5, 2]
+    expect(array.union(a, b)).to.be.equal([0, 1, 2, 5])
+  })
+
+  it("intersection() should return an array of values in first array found in all others", () => {
     const a = [0, 1, 2]
     const b = [1, 5, 2]
     expect(array.intersection(a, b)).to.be.equal([1, 2])
@@ -87,13 +93,7 @@ describe("core/util/array module", () => {
     expect(array.intersection(a, b, [2])).to.be.equal([2])
   })
 
-  it("union should return array of unique values from all arrays", () => {
-    const a = [0, 1, 2]
-    const b = [1, 5, 2]
-    expect(array.union(a, b)).to.be.equal([0, 1, 2, 5])
-  })
-
-  it("difference should return array of values from the first array not in all others ", () => {
+  it("difference() should return an array of values from the first array not in all others", () => {
     const a = [0, 1, 2]
     const b = [1, 5, 2]
     expect(array.difference(a, b)).to.be.equal([0])
@@ -101,6 +101,14 @@ describe("core/util/array module", () => {
     expect(array.difference(a, [10, 20])).to.be.equal([0, 1, 2])
     expect(array.difference(a, b, [2])).to.be.equal([0])
     expect(array.difference(a, b, [0])).to.be.equal([])
+  })
+
+  it("symmetric_difference() should return an array of values from either one array or the other, but not both", () => {
+    const a = [0, 1, 2]
+    const b = [1, 5, 2]
+    expect(array.symmetric_difference(a, b)).to.be.equal([0, 5])
+    expect(array.symmetric_difference(a, [])).to.be.equal([0, 1, 2])
+    expect(array.symmetric_difference([], b)).to.be.equal([1, 5, 2])
   })
 
   it("split() should allow to split an array into chunks", () => {

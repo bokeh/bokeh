@@ -739,7 +739,7 @@ class TapTool(Tap, SelectTool):
 
     .. warning::
         Configuring modifiers is a platform dependent feature and
-        can make this tool unsable for example on mobile devices.
+        can make this tool unusable for example on mobile devices.
 
     """).accepts(Enum(KeyModifier), lambda key_mod: {key_mod: True})
 
@@ -771,6 +771,8 @@ class TapTool(Tap, SelectTool):
         please see :ref:`ug_interaction_js_callbacks_customjs_js_on_event`.
 
     """)
+
+    mode = Override(default="xor")
 
 class CrosshairTool(InspectTool):
     ''' *toolbar icon*: |crosshair_icon|

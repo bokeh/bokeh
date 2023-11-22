@@ -190,7 +190,7 @@ describe("enums module", () => {
   })
 
   it("should have SelectionMode", () => {
-    expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract"])
+    expect([...enums.SelectionMode]).to.be.equal(["replace", "append", "intersect", "subtract", "xor"])
   })
 
   it("should have Side", () => {
