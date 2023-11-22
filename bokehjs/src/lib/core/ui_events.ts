@@ -1,7 +1,6 @@
 import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
-import {logger} from "./logging"
 import type {Keys} from "./dom"
 import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
@@ -166,7 +165,7 @@ export type KeyEvent = {
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
 
-export type UISignal<E> = Signal<{id: string | null, e: E}, UIEventBus>
+export type UISignal<E> = Signal<{tool: ToolLike<Tool> | null, e: E}, UIEventBus>
 
 export class UIEventBus implements EventListenerObject {
   readonly pan_start:    UISignal<PanEvent> = new Signal(this, "pan:start")
@@ -204,7 +203,7 @@ export class UIEventBus implements EventListenerObject {
   constructor(readonly canvas_view: CanvasView) {
     this.hammer = new Hammer(this.hit_area, {
       cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
-      touchAction: "auto",
+      touchAction: "none", // TODO configure pan-x | pan-y | pinch-zoom
       inputClass: !is_mobile ? Hammer.PointerEventInput : Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
     })
 
@@ -268,89 +267,77 @@ export class UIEventBus implements EventListenerObject {
   }
 
   register_tool(tool_view: ToolView): void {
-    let first = true
-    for (const et of tool_view.model.event_types) {
-      this._register_tool(tool_view, et, first)
-      first = false
-    }
-  }
+    const {model: tool} = tool_view
 
-  private _register_tool(tool_view: ToolView, et: EventType, shared: boolean = true): void {
-    const v = tool_view
-    const {id} = v.model
-
-    const conditionally = <T>(fn: (e: T) => void) => (arg: {id: string | null, e: T}): void => {
-      if (arg.id == id) fn(arg.e)
-    }
-
-    const unconditionally = <T>(fn: (e: T) => void) => (arg: {id: string | null, e: T}): void => {
-      fn(arg.e)
-    }
-
-    switch (et) {
-      case "pan": {
-        if (v._pan_start != null)    v.connect(this.pan_start,    conditionally(v._pan_start.bind(v)))
-        if (v._pan != null)          v.connect(this.pan,          conditionally(v._pan.bind(v)))
-        if (v._pan_end != null)      v.connect(this.pan_end,      conditionally(v._pan_end.bind(v)))
-        break
-      }
-      case "pinch": {
-        if (v._pinch_start != null)  v.connect(this.pinch_start,  conditionally(v._pinch_start.bind(v)))
-        if (v._pinch != null)        v.connect(this.pinch,        conditionally(v._pinch.bind(v)))
-        if (v._pinch_end != null)    v.connect(this.pinch_end,    conditionally(v._pinch_end.bind(v)))
-        break
-      }
-      case "rotate": {
-        if (v._rotate_start != null) v.connect(this.rotate_start, conditionally(v._rotate_start.bind(v)))
-        if (v._rotate != null)       v.connect(this.rotate,       conditionally(v._rotate.bind(v)))
-        if (v._rotate_end != null)   v.connect(this.rotate_end,   conditionally(v._rotate_end.bind(v)))
-        break
-      }
-      case "move": {
-        if (v._move_enter != null)   v.connect(this.move_enter,   conditionally(v._move_enter.bind(v)))
-        if (v._move != null)         v.connect(this.move,         conditionally(v._move.bind(v)))
-        if (v._move_exit != null)    v.connect(this.move_exit,    conditionally(v._move_exit.bind(v)))
-        break
-      }
-      case "tap": {
-        if (v._tap != null)          v.connect(this.tap,          conditionally(v._tap.bind(v)))
-        // XXX: ultimately this shouldn't fall-throught, but breaking here would fail elsewhere
-      }
-      case "doubletap": {
-        if (v._doubletap != null)    v.connect(this.doubletap,    conditionally(v._doubletap.bind(v)))
-        break
-      }
-      case "press": {
-        if (v._press != null)        v.connect(this.press,        conditionally(v._press.bind(v)))
-        break
-      }
-      case "pressup": {
-        if (v._pressup != null)      v.connect(this.pressup,      conditionally(v._pressup.bind(v)))
-        break
-      }
-      case "scroll": {
-        if (v._scroll != null)       v.connect(this.scroll,       conditionally(v._scroll.bind(v)))
-        break
+    const handler = <T>(fn: (e: T) => void) => (arg: {tool: ToolLike<Tool> | null, e: T}): void => {
+      if (arg.tool == null || arg.tool == tool) {
+        fn.call(tool_view, arg.e)
       }
     }
 
-    // Skip shared events if registering multi-tool
-    if (!shared)
-      return
+    if (tool_view._pan_start != null) {
+      tool_view.connect(this.pan_start,    handler(tool_view._pan_start))
+    }
+    if (tool_view._pan != null) {
+      tool_view.connect(this.pan,          handler(tool_view._pan))
+    }
+    if (tool_view._pan_end != null) {
+      tool_view.connect(this.pan_end,      handler(tool_view._pan_end))
+    }
 
-    if (v._keydown != null)
-      v.connect(this.keydown, unconditionally(v._keydown.bind(v)))
+    if (tool_view._pinch_start != null) {
+      tool_view.connect(this.pinch_start,  handler(tool_view._pinch_start))
+    }
+    if (tool_view._pinch != null) {
+      tool_view.connect(this.pinch,        handler(tool_view._pinch))
+    }
+    if (tool_view._pinch_end != null) {
+      tool_view.connect(this.pinch_end,    handler(tool_view._pinch_end))
+    }
 
-    if (v._keyup != null)
-      v.connect(this.keyup, unconditionally(v._keyup.bind(v)))
+    if (tool_view._rotate_start != null) {
+      tool_view.connect(this.rotate_start, handler(tool_view._rotate_start))
+    }
+    if (tool_view._rotate != null) {
+      tool_view.connect(this.rotate,       handler(tool_view._rotate))
+    }
+    if (tool_view._rotate_end != null) {
+      tool_view.connect(this.rotate_end,   handler(tool_view._rotate_end))
+    }
 
-    // Dual touch hack part 1/2
-    // This is a hack for laptops with touch screen who may be pinching or scrolling
-    // in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
-    // will be linked to pinch. But we also want to trigger in the case of a scroll.
-    if (is_mobile && v._scroll != null && et == "pinch") {
-      logger.debug("Registering scroll on touch screen")
-      v.connect(this.scroll, conditionally(v._scroll.bind(v)))
+    if (tool_view._move_enter != null) {
+      tool_view.connect(this.move_enter,   handler(tool_view._move_enter))
+    }
+    if (tool_view._move != null) {
+      tool_view.connect(this.move,         handler(tool_view._move))
+    }
+    if (tool_view._move_exit != null) {
+      tool_view.connect(this.move_exit,    handler(tool_view._move_exit))
+    }
+
+    if (tool_view._tap != null) {
+      tool_view.connect(this.tap,          handler(tool_view._tap))
+    }
+    if (tool_view._doubletap != null) {
+      tool_view.connect(this.doubletap,    handler(tool_view._doubletap))
+    }
+    if (tool_view._press != null) {
+      tool_view.connect(this.press,        handler(tool_view._press))
+    }
+    if (tool_view._pressup != null) {
+      tool_view.connect(this.pressup,      handler(tool_view._pressup))
+    }
+
+    if (tool_view._scroll != null) {
+      tool_view.connect(this.scroll,       handler(tool_view._scroll))
+    }
+
+    if (tool_view._keydown != null) {
+      tool_view.connect(this.keydown,      handler(tool_view._keydown))
+    }
+
+    if (tool_view._keyup != null) {
+      tool_view.connect(this.keyup,        handler(tool_view._keyup))
     }
   }
 
@@ -587,7 +574,7 @@ export class UIEventBus implements EventListenerObject {
       case "move": {
         const active_gesture = gestures.move.active
         if (active_gesture != null) {
-          this.trigger(signal, e, active_gesture.id)
+          this.trigger(signal, e, active_gesture)
         }
 
         const active_inspectors = plot_view.model.toolbar.inspectors.filter(t => t.active)
@@ -622,7 +609,7 @@ export class UIEventBus implements EventListenerObject {
           signal = this.move_exit as any // XXX
         }
 
-        active_inspectors.map((inspector) => this.trigger(signal, e, inspector.id))
+        active_inspectors.map((inspector) => this.trigger(signal, e, inspector))
         break
       }
       case "tap": {
@@ -636,7 +623,7 @@ export class UIEventBus implements EventListenerObject {
         if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.tap.active
           if (active_gesture != null)
-            this.trigger(signal, e, active_gesture.id)
+            this.trigger(signal, e, active_gesture)
         }
         break
       }
@@ -644,21 +631,25 @@ export class UIEventBus implements EventListenerObject {
         if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
           const active_gesture = gestures.doubletap.active ?? gestures.tap.active
           if (active_gesture != null)
-            this.trigger(signal, e, active_gesture.id)
+            this.trigger(signal, e, active_gesture)
+        }
+        break
+      }
+      case "pinch": {
+        const active_gesture = gestures.pinch.active ?? gestures.scroll.active
+        if (active_gesture != null) {
+          srcEvent.preventDefault()
+          srcEvent.stopPropagation()
+          this.trigger(signal, e, active_gesture)
         }
         break
       }
       case "scroll": {
-        // Dual touch hack part 2/2
-        // This is a hack for laptops with touch screen who may be pinching or scrolling
-        // in order to use the wheel zoom tool. If it's a touch screen the WheelZoomTool event
-        // will be linked to pinch. But we also want to trigger in the case of a scroll.
-        const base = is_mobile ? "pinch" : "scroll"
-        const active_gesture = gestures[base].active
+        const active_gesture = gestures.scroll.active
         if (active_gesture != null) {
           srcEvent.preventDefault()
           srcEvent.stopPropagation()
-          this.trigger(signal, e, active_gesture.id)
+          this.trigger(signal, e, active_gesture)
         }
         break
       }
@@ -666,7 +657,8 @@ export class UIEventBus implements EventListenerObject {
         const active_gesture = gestures.pan.active
         if (active_gesture != null) {
           srcEvent.preventDefault()
-          this.trigger(signal, e, active_gesture.id)
+          srcEvent.stopPropagation()
+          this.trigger(signal, e, active_gesture)
         }
 
         /* TODO this requires knowledge of the current interactive
@@ -682,15 +674,15 @@ export class UIEventBus implements EventListenerObject {
       default: {
         const active_gesture = gestures[base_type].active
         if (active_gesture != null)
-          this.trigger(signal, e, active_gesture.id)
+          this.trigger(signal, e, active_gesture)
       }
     }
 
     this._trigger_bokeh_event(plot_view, e)
   }
 
-  trigger<E>(signal: UISignal<E>, e: E, id: string | null = null): void {
-    signal.emit({id, e})
+  trigger<E>(signal: UISignal<E>, e: E, tool: ToolLike<Tool> | null = null): void {
+    signal.emit({tool, e})
   }
 
   /*protected*/ _trigger_bokeh_event(plot_view: PlotView, e: UIEvent): void {

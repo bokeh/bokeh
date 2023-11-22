@@ -6,7 +6,6 @@ import {build_views, remove_views} from "core/build_views"
 import type * as p from "core/properties"
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Logo, Location} from "core/enums"
-import type {EventType} from "core/ui_events"
 import {every, sort_by, includes, intersection, split, clear} from "core/util/array"
 import {join} from "core/util/iterator"
 import {typed_keys, values, entries} from "core/util/object"
@@ -240,20 +239,28 @@ export class ToolbarView extends UIElementView {
   }
 }
 
-export type GesturesMap = {
-  pan:       {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  scroll:    {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  pinch:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  tap:       {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  doubletap: {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  press:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  pressup:   {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  rotate:    {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  move:      {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-  multi:     {tools: ToolLike<GestureTool>[], active: ToolLike<GestureTool> | null}
-}
+import {Struct, Ref, Nullable, Array, Or} from "../../core/kinds"
 
-export type GestureType = keyof GesturesMap
+const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
+const GestureEntry = Struct({
+  tools: Array(GestureToolLike),
+  active: Nullable(GestureToolLike),
+})
+const GesturesMap = Struct({
+  pan:       GestureEntry,
+  scroll:    GestureEntry,
+  pinch:     GestureEntry,
+  rotate:    GestureEntry,
+  move:      GestureEntry,
+  tap:       GestureEntry,
+  doubletap: GestureEntry,
+  press:     GestureEntry,
+  pressup:   GestureEntry,
+  multi:     GestureEntry,
+})
+
+type GesturesMap = typeof GesturesMap["__type__"]
+type GestureType = keyof GesturesMap
 
 // XXX: add appropriate base classes to get rid of this
 export type Drag = Tool
@@ -303,12 +310,12 @@ function create_gesture_map(): GesturesMap {
     pan:       {tools: [], active: null},
     scroll:    {tools: [], active: null},
     pinch:     {tools: [], active: null},
+    rotate:    {tools: [], active: null},
+    move:      {tools: [], active: null},
     tap:       {tools: [], active: null},
     doubletap: {tools: [], active: null},
     press:     {tools: [], active: null},
     pressup:   {tools: [], active: null},
-    rotate:    {tools: [], active: null},
-    move:      {tools: [], active: null},
     multi:     {tools: [], active: null},
   }
 }
@@ -335,28 +342,12 @@ export class Toolbar extends UIElement {
       active_multi:   [ Nullable(Or(Ref(GestureTool), Auto)), "auto" ],
     }))
 
-    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Struct, Nullable, Null, Auto}) => {
-      const GestureEntry = Struct({
-        tools: Array(Ref(GestureTool)),
-        active: Nullable(Ref(GestureTool)),
-      })
-      const GestureMap = Struct({
-        pan:       GestureEntry,
-        scroll:    GestureEntry,
-        pinch:     GestureEntry,
-        tap:       GestureEntry,
-        doubletap: GestureEntry,
-        press:     GestureEntry,
-        pressup:   GestureEntry,
-        rotate:    GestureEntry,
-        move:      GestureEntry,
-        multi:     GestureEntry,
-      })
+    this.internal<Toolbar.Props>(({Array, Boolean, Ref, Or, Null, Auto}) => {
       return {
         buttons:    [ Or(Array(Or(Ref(ToolButton), Null)), Auto), "auto" ],
         location:   [ Location, "right" ],
         inner:      [ Boolean, false ],
-        gestures:   [ GestureMap, create_gesture_map ],
+        gestures:   [ GesturesMap, create_gesture_map ],
         actions:    [ Array(Or(Ref(ActionTool), Ref(ToolProxy))), [] ],
         inspectors: [ Array(Or(Ref(InspectTool), Ref(ToolProxy))), [] ],
         auxiliaries: [ Array(Or(Ref(Tool), Ref(ToolProxy))), [] ],
@@ -473,7 +464,7 @@ export class Toolbar extends UIElement {
       }
     }
 
-    function _get_active_attr(et: EventType | "multi"): keyof ActiveGestureToolsProps | null {
+    function _get_active_attr(et: GestureType): keyof ActiveGestureToolsProps | null {
       switch (et) {
         case "tap":    return "active_tap"
         case "pan":    return "active_drag"
