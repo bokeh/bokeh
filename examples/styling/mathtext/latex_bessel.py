@@ -2,7 +2,7 @@
 mathtext on titles, ``Label`` annotations and axis labels.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.figure.line, bokeh.models.annotations.Label, bokeh.models.annotations.Title
+    :apis: bokeh.plotting.figure.line, bokeh.models.Label, bokeh.models.Title
     :refs: :ref:`ug_styling_mathtext`
     :keywords: mathtext, latex
 
