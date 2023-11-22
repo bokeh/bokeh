@@ -1,7 +1,7 @@
 ''' A marker plot that demonstrates a slope.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.slope, bokeh.plotting.figure.scatter
+    :apis: bokeh.models.Slope, bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_annotations_slope`
     :keywords: slope
 

@@ -3,7 +3,7 @@ the same data.
 
 .. bokeh-example-metadata::
     :sampledata: penguins
-    :apis: bokeh.plotting.Figure.scatter
+    :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_scatters_markers`
     :keywords: scatter, linked brushing
 
