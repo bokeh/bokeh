@@ -28,13 +28,13 @@ describe("CustomJSHover", () => {
       expect(customjs_hover.values).to.be.equal([range])
     })
 
-    it("should round-trip through document serialization", () => {
+    it("should round-trip through document serialization", async () => {
       const d = new Document()
       d.add_root(customjs_hover)
       const json = d.to_json_string()
       const parsed = JSON.parse(json)
       parsed.version = js_version
-      const copy = Document.from_json_string(JSON.stringify(parsed))
+      const copy = await Document.from_json_string(JSON.stringify(parsed))
       const customjs_hover_copy = copy.get_model_by_id(customjs_hover.id)
       const range_copy = copy.get_model_by_id(range.id)
       expect_instanceof(customjs_hover_copy, CustomJSHover)

@@ -9,7 +9,7 @@ async function test(name: string) {
   const response = await fetch(`/cases/${name}`)
   const text = await response.text()
   const doc_json = json5.parse<DocJson>(text)
-  const doc = Document.from_json(doc_json)
+  const doc = await Document.from_json(doc_json)
   return await display(doc)
 }
 

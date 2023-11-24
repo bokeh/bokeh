@@ -739,7 +739,7 @@ side of a communications channel while it was being removed on the other end.\
             self.callbacks.trigger_on_change(TitleChangedEvent(self, title, setter))
 
     def to_json(self, *, deferred: bool = True) -> DocJson:
-        ''' Convert this document to a JSON-serializble object.
+        ''' Convert this document to a JSON-serializable object.
 
         Return:
             DocJson
@@ -752,10 +752,14 @@ side of a communications channel while it was being removed on the other end.\
         roots = serializer.encode(self._roots)
         callbacks = serializer.encode(self.callbacks._js_event_callbacks)
 
+        from ..embed.bundle import used_bundles
+        bundles = used_bundles(self._roots).components()
+
         doc_json = DocJson(
             version=__version__,
             title=self.title,
             roots=roots,
+            bundles=bundles,
         )
 
         if data_models:

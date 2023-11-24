@@ -62,7 +62,7 @@ const loader = `\
     if (alias != null)
       return alias;
 
-    const trailing = name.length > 0 && name[name.lenght-1] === "/";
+    const trailing = name.length > 0 && name[name.length-1] === "/";
     const index = aliases[name + (trailing ? "" : "/") + "index"];
     if (index != null)
       return index;
@@ -104,7 +104,7 @@ const loader = `\
           });
         }
 
-        modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport);
+        modules[id].call(mod.exports, require, mod, mod.exports, __esModule, __esExport, base_url);
       } else {
         cache[name] = mod;
       }
@@ -195,9 +195,18 @@ ${comment(license)}
   }
   const Bokeh = root.Bokeh;
   Bokeh[bokeh.version] = bokeh;
-})(this, function() {
+})(globalThis, function() {
   let define;
-  const parent_require = typeof require === "function" && require
+  const parent_require = typeof require === "function" && require;
+  const base_url = (() => {
+    if (typeof document !== "undefined" && document.currentScript != null) {
+      const parts = document.currentScript.src.split("/");
+      parts.pop();
+      return parts.join("/");
+    } else {
+      return null
+    }
+  })()
   return ${loader}\
 `
 }
@@ -216,10 +225,10 @@ export function plugin_prelude(options?: {version?: string}): string {
 ${comment(license)}
 (function(root, factory) {
   factory(root["Bokeh"], ${str(options?.version)});
-})(this, function(Bokeh, version) {
+})(globalThis, function(Bokeh, version) {
   let define;
   return (function(modules, entry, aliases, externals) {
-    const bokeh = typeof Bokeh !== "undefined" && (version != null ? Bokeh[version] : Bokeh);
+    const bokeh = typeof Bokeh !== "undefined" ? (version != null ? Bokeh[version] : Bokeh) : null;
     if (bokeh != null) {
       return bokeh.register_plugin(modules, entry, aliases);
     } else {
@@ -233,8 +242,9 @@ export function default_prelude(options?: {global?: string}): string {
   return `\
 (function(root, factory) {
   ${options?.global != null ? `root[${str(options.global)}] = factory()` : "Object.assign(root, factory())"};
-})(this, function() {
+})(globalThis, function() {
   const parent_require = typeof require === "function" && require
+  const base_url = null
   return ${loader}
 `
 }

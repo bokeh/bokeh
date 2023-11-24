@@ -1,13 +1,13 @@
 import {DocumentEventBatch} from "document"
 import {ConnectionLost} from "core/bokeh_events"
-import type {Patch, Document, DocumentEvent} from "document"
+import type {InboundPatch, Document, DocumentEvent} from "document"
 import {Message} from "protocol/message"
 import type {ClientConnection} from "./connection"
 import {logger} from "core/logging"
 
 export type OkMsg = Message<{}>
 export type ErrorMsg = Message<{text: string, traceback: string | null}>
-export type PatchMsg = Message<Patch>
+export type PatchMsg = Message<InboundPatch>
 
 export class ClientSession {
   protected _document_listener = (event: DocumentEvent) => {
@@ -23,12 +23,12 @@ export class ClientSession {
     return this._connection.id
   }
 
-  handle(message: Message<unknown>): void {
+  async handle(message: Message<unknown>): Promise<void> {
     const msgtype = message.msgtype()
 
     switch (msgtype) {
       case "PATCH-DOC": {
-        this._handle_patch(message as PatchMsg)
+        await this._handle_patch(message as PatchMsg)
         break
       }
       case "OK": {
@@ -96,8 +96,8 @@ export class ClientSession {
     this._connection.send(message)
   }
 
-  protected _handle_patch(message: PatchMsg): void {
-    this.document.apply_json_patch(message.content, message.buffers)
+  protected async _handle_patch(message: PatchMsg): Promise<void> {
+    await this.document.apply_json_patch(message.content, message.buffers)
   }
 
   protected _handle_ok(message: OkMsg): void {

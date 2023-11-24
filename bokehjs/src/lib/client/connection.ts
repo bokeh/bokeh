@@ -40,7 +40,7 @@ export class ClientConnection {
   closed_permanently: boolean = false
   id: string
 
-  protected _current_handler: ((message: Message<unknown>) => void) | null = null
+  protected _current_handler: ((message: Message<unknown>) => Promise<void>) | null = null
   protected _pending_replies: Map<string, PendingReply> = new Map()
   protected _pending_messages: Message<unknown>[] = []
   protected readonly _receiver: Receiver = new Receiver()
@@ -162,7 +162,7 @@ export class ClientConnection {
           reject(new Error("The connection has been closed"))
         } else {
           const events: DocumentEvent[] = []
-          const document = Document.from_json(doc_json, events)
+          const document = await Document.from_json(doc_json, events)
 
           this.session = new ClientSession(this, document)
 
@@ -172,7 +172,7 @@ export class ClientConnection {
           }
 
           for (const msg of this._pending_messages) {
-            this.session.handle(msg)
+            await this.session.handle(msg)
           }
           this._pending_messages = []
 
@@ -180,7 +180,7 @@ export class ClientConnection {
           resolve(this.session)
         }
       } else {
-        this.session.document.replace_with_json(doc_json)
+        await this.session.document.replace_with_json(doc_json)
         logger.debug("Updated existing session with new pulled doc")
         // Since the session already exists, we don't need to call `resolve` again.
       }
@@ -193,12 +193,12 @@ export class ClientConnection {
 
   protected _on_open(resolve: SessionResolver, reject: Rejecter): void {
     logger.info(`Websocket connection ${this._number} is now open`)
-    this._current_handler = (message: Message<unknown>) => {
-      this._awaiting_ack_handler(message, resolve, reject)
+    this._current_handler = async (message: Message<unknown>) => {
+      await this._awaiting_ack_handler(message, resolve, reject)
     }
   }
 
-  protected _on_message(event: MessageEvent): void {
+  protected async _on_message(event: MessageEvent): Promise<void> {
     if (this._current_handler == null) {
       logger.error("Got a message with no current handler set")
     }
@@ -216,7 +216,7 @@ export class ClientConnection {
         this._close_bad_protocol(problem)
       }
 
-      this._current_handler!(msg)
+      await this._current_handler!(msg)
     }
   }
 
@@ -248,9 +248,11 @@ export class ClientConnection {
     } // 1002 = protocol error
   }
 
-  protected _awaiting_ack_handler(message: Message<unknown>, resolve: SessionResolver, reject: Rejecter): void {
+  protected async _awaiting_ack_handler(message: Message<unknown>, resolve: SessionResolver, reject: Rejecter): Promise<void> {
     if (message.msgtype() === "ACK") {
-      this._current_handler = (message) => this._steady_state_handler(message)
+      this._current_handler = async (message) => {
+        await this._steady_state_handler(message)
+      }
 
       // Reload any sessions
       void this._repull_session_doc(resolve, reject)
@@ -259,14 +261,14 @@ export class ClientConnection {
     }
   }
 
-  protected _steady_state_handler(message: Message<unknown>): void {
+  protected async _steady_state_handler(message: Message<unknown>): Promise<void> {
     const reqid = message.reqid()
     const pr = this._pending_replies.get(reqid)
     if (pr != null) {
       this._pending_replies.delete(reqid)
       pr.resolve(message)
     } else if (this.session != null) {
-      this.session.handle(message)
+      await this.session.handle(message)
     } else if (message.msgtype() != "PATCH-DOC") {
       // This branch can be executed only before we get the document.
       // When we get the document, all of the patches will already be incorporated.

@@ -12,7 +12,7 @@ describe("CustomJS", () => {
 
   describe("args property", () => {
 
-    it("should round-trip through document serialization", () => {
+    it("should round-trip through document serialization", async () => {
       const rng = new Range1d()
       const cb = new CustomJS({code: "return 10", args: {rng}})
 
@@ -23,7 +23,7 @@ describe("CustomJS", () => {
       const parsed = JSON.parse(json)
       parsed.version = js_version
 
-      const copy = Document.from_json_string(JSON.stringify(parsed))
+      const copy = await Document.from_json_string(JSON.stringify(parsed))
 
       const cb_copy = copy.get_model_by_id(cb.id)
       expect_instanceof(cb_copy, CustomJS)
