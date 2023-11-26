@@ -32,8 +32,12 @@ For the following definition of ``bokeh.sphinxext.sample.Opts``:
 
 the above usage yields the output:
 
-    .. bokeh-options:: Opts
-        :module: bokeh.sphinxext.sample
+=====
+
+.. bokeh-options:: Opts
+    :module: bokeh.sphinxext.sample
+
+=====
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_options"` to the
 extensions list in your Sphinx configuration module.
