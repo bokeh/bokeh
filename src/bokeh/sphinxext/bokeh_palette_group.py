@@ -19,7 +19,11 @@ As an example, the following usage of the the directive:
 
 Generates the output:
 
-    .. bokeh-palette-group:: mpl
+-----
+
+.. bokeh-palette-group:: mpl
+
+-----
 
 .. note::
    This extension assumes both Bootstrap and JQuery are present (which is the

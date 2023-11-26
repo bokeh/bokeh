@@ -25,10 +25,14 @@ Examples
 
 The directive above will generate the following output:
 
-    .. bokeh-enum:: baz
-        :module: bokeh.sphinxext.sample
+=====
 
-        Specify a baz style
+.. bokeh-enum:: baz
+    :module: bokeh.sphinxext.sample
+
+    Specify a baz style
+
+=====
 
 Although ``bokeh-enum`` may be used explicitly, it is more often convenient in
 conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension. Together,

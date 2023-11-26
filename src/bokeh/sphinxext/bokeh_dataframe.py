@@ -17,7 +17,7 @@ For example:
 
 Will generate the output:
 
-    :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_dataframe"` to the
 extensions list in your Sphinx configuration module.

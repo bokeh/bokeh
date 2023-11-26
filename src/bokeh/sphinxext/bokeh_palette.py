@@ -6,7 +6,7 @@
 # -----------------------------------------------------------------------------
 """ Generate an inline visual representations of a single color palette.
 
-The ``:bokeh-palette:`` role can be used with by providing any of the
+The ``:bokeh-palette:`` role can be used by providing any of the
 following:
 
 * a palette name from ``bokeh.palettes``, e.g. ``Spectral9``
@@ -15,23 +15,39 @@ following:
 
 * An explicit list of colors: ``['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']``
 
-The following usage of the the directive:
+The following usage of the the directive is valid:
+
+-----
+
+* by name
 
 .. code-block:: rest
 
-    * by name: :bokeh-palette:`Spectral9`
+    :bokeh-palette:`Spectral9`
 
-    * by function: :bokeh-palette:`viridis(12)`
+:bokeh-palette:`Spectral9`
 
-    * by list: :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+-----
 
-Generates the output:
+* by function
 
-    * by name: :bokeh-palette:`Spectral9`
+.. code-block:: rest
 
-    * by function: :bokeh-palette:`viridis(12)`
+    :bokeh-palette:`viridis(12)`
 
-    * by list: :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+:bokeh-palette:`viridis(12)`
+
+-----
+
+* by list
+
+.. code-block:: rest
+
+    :bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+
+:bokeh-palette:`['#000000', '#333333', '#666666', '#999999', '#cccccc', '#ffffff']`
+
+-----
 
 Palette swatches are 20 pixels in height. For palettes short than 20 colors,
 the default width for the swatches is 20 pixels. If larger palettes are given,
@@ -44,7 +60,11 @@ pixel. For instance displaying the full Viridis palette with the expression
 
 Will generate the output:
 
-    :bokeh-palette:`viridis(256)`
+-----
+
+:bokeh-palette:`viridis(256)`
+
+-----
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_palette"` to the
 extensions list in your Sphinx configuration module.
