@@ -8,7 +8,12 @@
 # Standard library imports
 from abc import abstractmethod
 from datetime import date, datetime
-from typing import Literal, Sequence, Unpack
+from typing import (
+    Any,
+    Literal,
+    Sequence,
+    Unpack,
+)
 
 # Bokeh imports
 from ..._types import Datetime
@@ -16,6 +21,7 @@ from ..formatters import TickFormatter
 from .widget import Widget, _WidgetInit
 
 class _AbstractSliderInit(_WidgetInit, total=False):
+    value: Any
     orientation: Literal["horizontal", "vertical"]
     title: str | None
     show_value: bool
@@ -27,6 +33,7 @@ class AbstractSlider(Widget):
     @abstractmethod
     def __init__(self, **kwargs: Unpack[_AbstractSliderInit]) -> None: ...
 
+    value: Any = ...
     orientation: Literal["horizontal", "vertical"] = ...
     title: str | None = ...
     show_value: bool = ...
