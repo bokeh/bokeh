@@ -458,9 +458,9 @@ class HSL(Color):
 
         '''
         if self.a == 1.0:
-            return f"hsl({self.h}, {self.s*100}%, {self.l*100}%)"
+            return f"hsl({self.h}, {self.s:%}, {self.l:%})"
         else:
-            return f"hsla({self.h}, {self.s*100}%, {self.l*100}%, {self.a})"
+            return f"hsla({self.h}, {self.s:%}, {self.l:%}, {self.a})"
 
     def to_hsl(self) -> HSL:
         ''' Return a HSL copy for this HSL color.
