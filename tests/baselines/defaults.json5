@@ -6847,6 +6847,10 @@
   AbstractSlider: {
     __extends__: "Widget",
     width: 300,
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
     orientation: "horizontal",
     title: "",
     show_value: true,
@@ -6856,11 +6860,11 @@
   },
   CategoricalSlider: {
     __extends__: "AbstractSlider",
-    categories: {
+    value: {
       type: "symbol",
       name: "unset",
     },
-    value: {
+    categories: {
       type: "symbol",
       name: "unset",
     },
@@ -6871,11 +6875,12 @@
   },
   DateRangeSlider: {
     __extends__: "NumericalSlider",
-    format: "%d %b %Y",
     value: {
       type: "symbol",
       name: "unset",
     },
+    step: 1,
+    format: "%d %b %Y",
     value_throttled: {
       type: "symbol",
       name: "unset",
@@ -6888,15 +6893,14 @@
       type: "symbol",
       name: "unset",
     },
-    step: 1,
   },
   DateSlider: {
     __extends__: "NumericalSlider",
-    format: "%d %b %Y",
     value: {
       type: "symbol",
       name: "unset",
     },
+    format: "%d %b %Y",
     value_throttled: {
       type: "symbol",
       name: "unset",
@@ -6909,36 +6913,15 @@
       type: "symbol",
       name: "unset",
     },
-    step: 1,
   },
   DatetimeRangeSlider: {
     __extends__: "NumericalSlider",
-    format: "%d %b %Y %H:%M:%S",
     value: {
-      type: "symbol",
-      name: "unset",
-    },
-    value_throttled: {
-      type: "symbol",
-      name: "unset",
-    },
-    start: {
-      type: "symbol",
-      name: "unset",
-    },
-    end: {
       type: "symbol",
       name: "unset",
     },
     step: 3600000,
-  },
-  MultiValuedSlider: {
-    __extends__: "NumericalSlider",
-    format: "0[.]00",
-    value: {
-      type: "symbol",
-      name: "unset",
-    },
+    format: "%d %b %Y %H:%M:%S",
     value_throttled: {
       type: "symbol",
       name: "unset",
@@ -6951,19 +6934,39 @@
       type: "symbol",
       name: "unset",
     },
-    step: 1,
+  },
+  MultiValuedSlider: {
+    __extends__: "NumericalSlider",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
+    format: "0[.]00",
+    value_throttled: {
+      type: "symbol",
+      name: "unset",
+    },
+    start: {
+      type: "symbol",
+      name: "unset",
+    },
+    end: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   NumericalSlider: {
     __extends__: "AbstractSlider",
+    step: 1,
     format: "",
   },
   RangeSlider: {
     __extends__: "NumericalSlider",
-    format: "0[.]00",
     value: {
       type: "symbol",
       name: "unset",
     },
+    format: "0[.]00",
     value_throttled: {
       type: "symbol",
       name: "unset",
@@ -6976,10 +6979,13 @@
       type: "symbol",
       name: "unset",
     },
-    step: 1,
   },
   Slider: {
     __extends__: "NumericalSlider",
+    value: {
+      type: "symbol",
+      name: "unset",
+    },
     format: "0[.]00",
     start: {
       type: "symbol",
@@ -6989,15 +6995,10 @@
       type: "symbol",
       name: "unset",
     },
-    value: {
-      type: "symbol",
-      name: "unset",
-    },
     value_throttled: {
       type: "symbol",
       name: "unset",
     },
-    step: 1,
   },
   AvgAggregator: {
     __extends__: "RowAggregator",
