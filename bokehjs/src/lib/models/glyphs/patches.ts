@@ -20,7 +20,7 @@ export class PatchesView extends GlyphView {
   declare visuals: Patches.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this.xs.array, this.ys.array)
+    inplace.project_xy(this.xs.data, this.ys.data)
   }
 
   protected _index_data(index: SpatialIndex): void {

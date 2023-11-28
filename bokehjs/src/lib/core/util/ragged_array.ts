@@ -6,13 +6,13 @@ import {assert} from "./assert"
 
 type OffsetArray = Uint8Array | Uint16Array | Uint32Array
 
-export class RaggedArray<ArrayType extends TypedArray> implements Equatable {
+export class RaggedArray<ArrayType extends TypedArray = Float64Array> implements Equatable {
   static [Symbol.toStringTag] = "RaggedArray"
 
-  constructor(readonly offsets: OffsetArray, readonly array: ArrayType) {}
+  constructor(readonly offsets: OffsetArray, readonly data: ArrayType) {}
 
   [equals](that: this, cmp: Comparator): boolean {
-    return cmp.arrays(this.offsets, that.offsets) && cmp.arrays(this.array, that.array)
+    return cmp.arrays(this.offsets, that.offsets) && cmp.arrays(this.data, that.data)
   }
 
   get length(): number {
@@ -20,7 +20,7 @@ export class RaggedArray<ArrayType extends TypedArray> implements Equatable {
   }
 
   clone(): RaggedArray<ArrayType> {
-    return new RaggedArray<ArrayType>(this.offsets.slice(), this.array.slice() as ArrayType)
+    return new RaggedArray<ArrayType>(this.offsets.slice(), this.data.slice() as ArrayType)
   }
 
   static from<ArrayType extends TypedArray>(items: Arrayable<Arrayable<number>>, ctor: Constructor<ArrayType>): RaggedArray<ArrayType> {
@@ -50,7 +50,7 @@ export class RaggedArray<ArrayType extends TypedArray> implements Equatable {
   *[Symbol.iterator](): IterableIterator<ArrayType> {
     const {offsets, length} = this
     for (let i = 0; i < length; i++) {
-      yield this.array.subarray(offsets[i], offsets[i + 1]) as ArrayType
+      yield this.data.subarray(offsets[i], offsets[i + 1]) as ArrayType
     }
   }
 
@@ -61,11 +61,11 @@ export class RaggedArray<ArrayType extends TypedArray> implements Equatable {
   get(i: number): ArrayType {
     this._check_bounds(i)
     const {offsets} = this
-    return this.array.subarray(offsets[i], offsets[i + 1]) as ArrayType
+    return this.data.subarray(offsets[i], offsets[i + 1]) as ArrayType
   }
 
   set(i: number, array: ArrayLike<number>): void {
     this._check_bounds(i)
-    this.array.set(array, this.offsets[i])
+    this.data.set(array, this.offsets[i])
   }
 }
