@@ -17,9 +17,9 @@ export class VAreaView extends AreaView {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x = this._x[i]
-      const y1 = this._y1[i]
-      const y2 = this._y2[i]
+      const x = this.x[i]
+      const y1 = this.y1[i]
+      const y2 = this.y2[i]
       index.add_rect(x, min(y1, y2), x, max(y1, y2))
     }
   }
@@ -67,9 +67,9 @@ export class VAreaView extends AreaView {
   }
 
   protected override _map_data(): void {
-    this.sx  = this.renderer.xscale.v_compute(this._x)
-    this.sy1 = this.renderer.yscale.v_compute(this._y1)
-    this.sy2 = this.renderer.yscale.v_compute(this._y2)
+    this.sx  = this.renderer.xscale.v_compute(this.x)
+    this.sy1 = this.renderer.yscale.v_compute(this.y1)
+    this.sy2 = this.renderer.yscale.v_compute(this.y2)
   }
 }
 

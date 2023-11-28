@@ -65,16 +65,16 @@ export class HStripView extends GlyphView {
     const {abs} = Math
     const {max, map, zip} = iter
 
-    const {_y0, _y1} = this
-    this.max_height = max(map(zip(_y0, _y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
+    const {y0, y1} = this
+    this.max_height = max(map(zip(y0, y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    const {_y0, _y1, data_size} = this
+    const {y0, y1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const y0_i = _y0[i]
-      const y1_i = _y1[i]
+      const y0_i = y0[i]
+      const y1_i = y1[i]
       index.add_rect(UNUSED, y0_i, UNUSED, y1_i)
     }
   }

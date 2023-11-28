@@ -159,10 +159,10 @@ export namespace LRTB {
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 
   export type Data = p.GlyphDataOf<Props> & {
-    _right: Arrayable<number>
-    _bottom: Arrayable<number>
-    _left: Arrayable<number>
-    _top: Arrayable<number>
+    right: Arrayable<number>
+    bottom: Arrayable<number>
+    left: Arrayable<number>
+    top: Arrayable<number>
 
     sright: Arrayable<number>
     sbottom: Arrayable<number>

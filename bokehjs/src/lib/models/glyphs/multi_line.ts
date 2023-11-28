@@ -29,15 +29,15 @@ export class MultiLineView extends GlyphView {
   }
 
   protected override _project_data(): void {
-    inplace.project_xy(this._xs.array, this._ys.array)
+    inplace.project_xy(this.xs.array, this.ys.array)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs.get(i)
-      const ysi = this._ys.get(i)
+      const xsi = this.xs.get(i)
+      const ysi = this.ys.get(i)
 
       const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)
@@ -115,10 +115,10 @@ export class MultiLineView extends GlyphView {
     let vs: RaggedArray<FloatArray>
     if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
-      vs = this._ys
+      vs = this.ys
     } else {
       val = this.renderer.xscale.invert(sx)
-      vs = this._xs
+      vs = this.xs
     }
 
     const hits: Map<number, number[]> = new Map()
@@ -141,8 +141,8 @@ export class MultiLineView extends GlyphView {
   }
 
   get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const xsi = this._xs.get(i)
-    const ysi = this._ys.get(i)
+    const xsi = this.xs.get(i)
+    const ysi = this.ys.get(i)
     const x2 = xsi[point_i]
     const y2 = ysi[point_i]
     const x3 = xsi[point_i + 1]

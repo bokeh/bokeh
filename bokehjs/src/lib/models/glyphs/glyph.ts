@@ -325,7 +325,7 @@ export abstract class GlyphView extends View {
         } else
           final_array = array
 
-        this._configure(`_${prop.attr}`, {value: final_array})
+        this._configure(prop.attr, {value: final_array})
       } else {
         const uniform = prop.uniform(source).select(indices)
         this._configure(prop, {value: uniform})
@@ -389,7 +389,7 @@ export abstract class GlyphView extends View {
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
         const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[`_${prop.attr}`] as FloatArray | RaggedArray<FloatArray>
+        let array = self[prop.attr] as FloatArray | RaggedArray<FloatArray>
         if (array instanceof RaggedArray) {
           const screen = scale.v_compute(array.array)
           array = new RaggedArray(array.offsets, screen)

@@ -65,16 +65,16 @@ export class VStripView extends GlyphView {
     const {abs} = Math
     const {max, map, zip} = iter
 
-    const {_x0, _x1} = this
-    this.max_width = max(map(zip(_x0, _x1), ([x0_i, x1_i]) => abs(x0_i - x1_i)))
+    const {x0, x1} = this
+    this.max_width = max(map(zip(x0, x1), ([x0_i, x1_i]) => abs(x0_i - x1_i)))
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    const {_x0, _x1, data_size} = this
+    const {x0, x1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0_i = _x0[i]
-      const x1_i = _x1[i]
+      const x0_i = x0[i]
+      const x1_i = x1[i]
       index.add_rect(x0_i, UNUSED, x1_i, UNUSED)
     }
   }

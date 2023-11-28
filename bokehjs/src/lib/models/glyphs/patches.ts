@@ -20,15 +20,15 @@ export class PatchesView extends GlyphView {
   declare visuals: Patches.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._xs.array, this._ys.array)
+    inplace.project_xy(this.xs.array, this.ys.array)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs.get(i)
-      const ysi = this._ys.get(i)
+      const xsi = this.xs.get(i)
+      const ysi = this.ys.get(i)
 
       const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)

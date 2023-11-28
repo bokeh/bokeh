@@ -10,16 +10,16 @@ export abstract class XYGlyphView extends GlyphView {
   declare visuals: XYGlyph.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x, this._y)
+    inplace.project_xy(this.x, this.y)
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {_x, _y, data_size} = this
+    const {x, y, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x = _x[i]
-      const y = _y[i]
-      index.add_point(x, y)
+      const x_i = x[i]
+      const y_i = y[i]
+      index.add_point(x_i, y_i)
     }
   }
 

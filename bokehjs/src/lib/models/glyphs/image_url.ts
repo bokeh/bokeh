@@ -112,17 +112,17 @@ export class ImageURLView extends XYGlyphView {
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {
       for (let i = 0; i < n; i++) {
-        [xs[i], xs[n + i]] = x0x1(this._x[i], this.w.get(i) ?? 0)
+        [xs[i], xs[n + i]] = x0x1(this.x[i], this.w.get(i) ?? 0)
       }
     } else
-      xs.set(this._x, 0)
+      xs.set(this.x, 0)
 
     if (h_data) {
       for (let i = 0; i < n; i++) {
-        [ys[i], ys[n + i]] = y0y1(this._y[i], this.h.get(i) ?? 0)
+        [ys[i], ys[n + i]] = y0y1(this.y[i], this.h.get(i) ?? 0)
       }
     } else
-      ys.set(this._y, 0)
+      ys.set(this.y, 0)
 
     const [x0, x1, y0, y1] = minmax2(xs, ys)
     this._bounds_rect = {x0, x1, y0, y1}
@@ -137,12 +137,12 @@ export class ImageURLView extends XYGlyphView {
     const h = this.h.map((h_i) => h_i ?? NaN)
 
     if (this.model.properties.w.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, w, "edge", this.model.dilate)
+      this.sw = this.sdist(this.renderer.xscale, this.x, w, "edge", this.model.dilate)
     else
       this.sw = to_screen(w)
 
     if (this.model.properties.h.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, h, "edge", this.model.dilate)
+      this.sh = this.sdist(this.renderer.yscale, this.y, h, "edge", this.model.dilate)
     else
       this.sh = to_screen(h)
   }

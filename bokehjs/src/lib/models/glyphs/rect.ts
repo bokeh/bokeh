@@ -42,7 +42,7 @@ export class RectView extends CenterRotatableView {
     const n = this.data_size
 
     if (this.model.properties.width.units == "data")
-      [this.swidth, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
+      [this.swidth, this.sx0] = this._map_dist_corner_for_data_side_length(this.x, this.width, this.renderer.xscale)
     else {
       this.swidth = to_screen(this.width)
 
@@ -53,7 +53,7 @@ export class RectView extends CenterRotatableView {
     }
 
     if (this.model.properties.height.units == "data")
-      [this.sheight, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
+      [this.sheight, this.sy1] = this._map_dist_corner_for_data_side_length(this.y, this.height, this.renderer.yscale)
     else {
       this.sheight = to_screen(this.height)
 

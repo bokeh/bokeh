@@ -19,20 +19,20 @@ export class SegmentView extends GlyphView {
   declare visuals: Segment.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x0, this._y0)
-    inplace.project_xy(this._x1, this._y1)
+    inplace.project_xy(this.x0, this.y0)
+    inplace.project_xy(this.x1, this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
-    const {_x0, _x1, _y0, _y1, data_size} = this
+    const {x0, x1, y0, y1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0 = _x0[i]
-      const x1 = _x1[i]
-      const y0 = _y0[i]
-      const y1 = _y1[i]
-      index.add_rect(min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1))
+      const x0_i = x0[i]
+      const x1_i = x1[i]
+      const y0_i = y0[i]
+      const y1_i = y1[i]
+      index.add_rect(min(x0_i, x1_i), min(y0_i, y1_i), max(x0_i, x1_i), max(y0_i, y1_i))
     }
   }
 
@@ -115,10 +115,10 @@ export class SegmentView extends GlyphView {
     let val: number
     if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
-      ;[v0, v1] = [this._y0, this._y1]
+      ;[v0, v1] = [this.y0, this.y1]
     } else {
       val = this.renderer.xscale.invert(sx)
-      ;[v0, v1] = [this._x0, this._x1]
+      ;[v0, v1] = [this.x0, this.x1]
     }
 
     const indices = []

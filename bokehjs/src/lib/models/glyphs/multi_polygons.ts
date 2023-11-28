@@ -30,8 +30,8 @@ export class MultiPolygonsView extends GlyphView {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs[i]
-      const ysi = this._ys[i]
+      const xsi = this.xs[i]
+      const ysi = this.ys[i]
 
       if (xsi.length == 0 || ysi.length == 0) {
         index.add_empty()
@@ -69,8 +69,8 @@ export class MultiPolygonsView extends GlyphView {
     const index = new SpatialIndex(data_size)
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs[i]
-      const ysi = this._ys[i]
+      const xsi = this.xs[i]
+      const ysi = this.ys[i]
 
       if (xsi.length == 0 || ysi.length == 0) {
         index.add_empty()
@@ -290,19 +290,19 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   override map_data(): void {
-    const n_i = this._xs.length
+    const n_i = this.xs.length
     this.sxs = new Array(n_i)
     this.sys = new Array(n_i)
     for (let i = 0; i < n_i; i++) {
-      const n_j = this._xs[i].length
+      const n_j = this.xs[i].length
       this.sxs[i] = new Array(n_j)
       this.sys[i] = new Array(n_j)
       for (let j = 0; j < n_j; j++) {
-        const n_k = this._xs[i][j].length
+        const n_k = this.xs[i][j].length
         this.sxs[i][j] = new Array(n_k)
         this.sys[i][j] = new Array(n_k)
         for (let k = 0; k < n_k; k++) {
-          const [sx, sy] = this.renderer.coordinates.map_to_screen(this._xs[i][j][k], this._ys[i][j][k])
+          const [sx, sy] = this.renderer.coordinates.map_to_screen(this.xs[i][j][k], this.ys[i][j][k])
           this.sxs[i][j][k] = sx
           this.sys[i][j][k] = sy
         }

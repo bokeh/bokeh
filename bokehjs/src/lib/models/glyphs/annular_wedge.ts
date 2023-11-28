@@ -29,12 +29,12 @@ export class AnnularWedgeView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
+      this.sinner_radius = this.sdist(this.renderer.xscale, this.x, this.inner_radius)
     else
       this.sinner_radius = to_screen(this.inner_radius)
 
     if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
+      this.souter_radius = this.sdist(this.renderer.xscale, this.x, this.outer_radius)
     else
       this.souter_radius = to_screen(this.outer_radius)
     this.max_souter_radius = max(this.souter_radius)
@@ -95,8 +95,8 @@ export class AnnularWedgeView extends XYGlyphView {
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = this.souter_radius[i]**2
       const ir2 = this.sinner_radius[i]**2
-      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
+      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       const dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= or2 && dist >= ir2)
         candidates.push(i)

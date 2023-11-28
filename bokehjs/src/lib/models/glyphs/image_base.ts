@@ -24,8 +24,6 @@ export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
   declare visuals: ImageBase.Visuals
 
-  image_data: Arrayable<ImageData>
-
   protected _width: Uint32Array
   protected _height: Uint32Array
 
@@ -145,8 +143,8 @@ export abstract class ImageBaseView extends XYGlyphView {
     const dw_i = this.dw.get(i)
     const dh_i = this.dh.get(i)
 
-    const x_i = this._x[i]
-    const y_i = this._y[i]
+    const x_i = this.x[i]
+    const y_i = this.y[i]
 
     const {xy_anchor} = this
 
@@ -182,12 +180,12 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.dw.units == "data")
-      this.sdw = this.sdist(this.renderer.xscale, this._x, this.dw, "edge", this.model.dilate)
+      this.sdw = this.sdist(this.renderer.xscale, this.x, this.dw, "edge", this.model.dilate)
     else
       this.sdw = to_screen(this.dw)
 
     if (this.model.properties.dh.units == "data")
-      this.sdh = this.sdist(this.renderer.yscale, this._y, this.dh, "edge", this.model.dilate)
+      this.sdh = this.sdist(this.renderer.yscale, this.y, this.dh, "edge", this.model.dilate)
     else
       this.sdh = to_screen(this.dh)
   }

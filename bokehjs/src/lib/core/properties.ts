@@ -70,7 +70,7 @@ export type MaxAttrsOf<Props> = {
 }
 
 export type CoordsAttrsOf<Props> = {
-  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> ? `_${Key}` : never]:
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> ? Key : never]:
     Props[Key] extends CoordinateSpec          ? Arrayable<number> :
     Props[Key] extends CoordinateSeqSpec       ? RaggedArray<FloatArray> :
     Props[Key] extends CoordinateSeqSeqSeqSpec ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never

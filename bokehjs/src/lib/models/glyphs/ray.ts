@@ -15,7 +15,7 @@ export class RayView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
+      this.slength = this.sdist(this.renderer.xscale, this.x, this.length)
     else
       this.slength = to_screen(this.length)
 

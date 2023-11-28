@@ -28,7 +28,7 @@ export class VSpanView extends GlyphView {
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    for (const x_i of this._x) {
+    for (const x_i of this.x) {
       index.add_point(x_i, UNUSED)
     }
   }

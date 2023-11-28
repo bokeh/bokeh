@@ -17,12 +17,13 @@ export class VAreaStepView extends AreaView {
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
+    const {x, y1, y2} = this
 
     for (let i = 0; i < this.data_size; i++) {
-      const x = this._x[i]
-      const y1 = this._y1[i]
-      const y2 = this._y2[i]
-      index.add_rect(x, min(y1, y2), x, max(y1, y2))
+      const x_i = x[i]
+      const y1_i = y1[i]
+      const y2_i = y2[i]
+      index.add_rect(x_i, min(y1_i, y2_i), x_i, max(y1_i, y2_i))
     }
   }
 
@@ -117,9 +118,9 @@ export class VAreaStepView extends AreaView {
   }
 
   protected override _map_data(): void {
-    this.sx  = this.renderer.xscale.v_compute(this._x)
-    this.sy1 = this.renderer.yscale.v_compute(this._y1)
-    this.sy2 = this.renderer.yscale.v_compute(this._y2)
+    this.sx  = this.renderer.xscale.v_compute(this.x)
+    this.sy1 = this.renderer.yscale.v_compute(this.y1)
+    this.sy2 = this.renderer.yscale.v_compute(this.y2)
   }
 }
 

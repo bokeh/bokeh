@@ -17,10 +17,10 @@ export class HAreaView extends AreaView {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x1 = this._x1[i]
-      const x2 = this._x2[i]
-      const y = this._y[i]
-      index.add_rect(min(x1, x2), y, max(x1, x2), y)
+      const x1_i = this.x1[i]
+      const x2_i = this.x2[i]
+      const y_i = this.y[i]
+      index.add_rect(min(x1_i, x2_i), y_i, max(x1_i, x2_i), y_i)
     }
   }
 
@@ -67,9 +67,9 @@ export class HAreaView extends AreaView {
   }
 
   protected override _map_data(): void {
-    this.sx1 = this.renderer.xscale.v_compute(this._x1)
-    this.sx2 = this.renderer.xscale.v_compute(this._x2)
-    this.sy  = this.renderer.yscale.v_compute(this._y)
+    this.sx1 = this.renderer.xscale.v_compute(this.x1)
+    this.sx2 = this.renderer.xscale.v_compute(this.x2)
+    this.sy  = this.renderer.yscale.v_compute(this.y)
   }
 }
 

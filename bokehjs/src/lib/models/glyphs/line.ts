@@ -105,10 +105,10 @@ export class LineView extends XYGlyphView {
     let values: Arrayable<number>
     if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
-      values = this._y
+      values = this.y
     } else {
       val = this.renderer.xscale.invert(sx)
-      values = this._x
+      values = this.x
     }
 
     const indices = []
@@ -131,7 +131,7 @@ export class LineView extends XYGlyphView {
   }
 
   get_interpolation_hit(i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]]
+    const [x2, y2, x3, y3] = [this.x[i], this.y[i], this.x[i+1], this.y[i+1]]
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 

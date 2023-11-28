@@ -14,10 +14,10 @@ export class QuadView extends LRTBView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const l = this._left[i]
-    const r = this._right[i]
-    const t = this._top[i]
-    const b = this._bottom[i]
+    const l = this.left[i]
+    const r = this.right[i]
+    const t = this.top[i]
+    const b = this.bottom[i]
     return [l, r, t, b]
   }
 }

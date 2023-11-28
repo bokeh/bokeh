@@ -16,20 +16,20 @@ export class QuadraticView extends GlyphView {
   declare visuals: Quadratic.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x0, this._y0)
-    inplace.project_xy(this._x1, this._y1)
+    inplace.project_xy(this.x0, this.y0)
+    inplace.project_xy(this.x1, this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {_x0, _x1, _y0, _y1, _cx, _cy, data_size} = this
+    const {x0, x1, y0, y1, cx, cy, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0_i = _x0[i]
-      const x1_i = _x1[i]
-      const y0_i = _y0[i]
-      const y1_i = _y1[i]
-      const cx_i = _cx[i]
-      const cy_i = _cy[i]
+      const x0_i = x0[i]
+      const x1_i = x1[i]
+      const y0_i = y0[i]
+      const y1_i = y1[i]
+      const cx_i = cx[i]
+      const cy_i = cy[i]
 
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()

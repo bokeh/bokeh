@@ -1,5 +1,4 @@
 import {LRTB, LRTBView} from "./lrtb"
-import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
@@ -16,9 +15,9 @@ export class HBarView extends LRTBView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const left_i = this._left[i]
-    const right_i = this._right[i]
-    const y_i = this._y[i]
+    const left_i = this.left[i]
+    const right_i = this.right[i]
+    const y_i = this.y[i]
     const half_height_i = this.height.get(i)/2
 
     const l = Math.min(left_i, right_i)
@@ -30,17 +29,17 @@ export class HBarView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    this.sy = this.renderer.yscale.v_compute(this._y)
-    this.swidth = this.sdist(this.renderer.yscale, this._y, this.height, "center")
-    this.sleft = this.renderer.xscale.v_compute(this._left)
-    this.sright = this.renderer.xscale.v_compute(this._right)
+    this.sy = this.renderer.yscale.v_compute(this.y)
+    this.sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
+    this.sleft = this.renderer.xscale.v_compute(this.left)
+    this.sright = this.renderer.xscale.v_compute(this.right)
 
     const n = this.sy.length
     this.stop = new ScreenArray(n)
     this.sbottom = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
-      this.stop[i] = this.sy[i] - this.swidth[i]/2
-      this.sbottom[i] = this.sy[i] + this.swidth[i]/2
+      this.stop[i] = this.sy[i] - this.sheight[i]/2
+      this.sbottom[i] = this.sy[i] + this.sheight[i]/2
     }
 
     this._clamp_viewport()
@@ -53,19 +52,13 @@ export namespace HBar {
   export type Props = LRTB.Props & {
     left: p.CoordinateSpec
     y: p.CoordinateSpec
-    height: p.NumberSpec
+    height: p.DistanceSpec
     right: p.CoordinateSpec
   }
 
   export type Visuals = LRTB.Visuals
 
-  export type Data = LRTB.Data & p.GlyphDataOf<Props> & {
-    _y: Arrayable<number>
-    height: p.Uniform<number>
-
-    sy: Arrayable<number>
-    swidth: Arrayable<number>
-  }
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface HBar extends HBar.Attrs {}
@@ -84,7 +77,7 @@ export class HBar extends LRTB {
     this.define<HBar.Props>(({}) => ({
       left:   [ p.XCoordinateSpec, {value: 0} ],
       y:      [ p.YCoordinateSpec, {field: "y"} ],
-      height: [ p.NumberSpec,      {value: 1} ],
+      height: [ p.DistanceSpec,    {value: 1} ],
       right:  [ p.XCoordinateSpec, {field: "right"} ],
     }))
   }

@@ -15,8 +15,8 @@ export class BlockView extends LRTBView {
   }
 
   protected _lrtb(i: number): [number, number, number, number] {
-    const x_i = this._x[i]
-    const y_i = this._y[i]
+    const x_i = this.x[i]
+    const y_i = this.y[i]
     const width_i = this.width.get(i)
     const height_i = this.height.get(i)
 
@@ -29,10 +29,10 @@ export class BlockView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    const sx = this.renderer.xscale.v_compute(this._x)
-    const sy = this.renderer.yscale.v_compute(this._y)
-    const sw = this.sdist(this.renderer.xscale, this._x, this.width, "edge")
-    const sh = this.sdist(this.renderer.yscale, this._y, this.height, "edge")
+    const sx = this.renderer.xscale.v_compute(this.x)
+    const sy = this.renderer.yscale.v_compute(this.y)
+    const sw = this.sdist(this.renderer.xscale, this.x, this.width, "edge")
+    const sh = this.sdist(this.renderer.yscale, this.y, this.height, "edge")
 
     const n = sx.length
 

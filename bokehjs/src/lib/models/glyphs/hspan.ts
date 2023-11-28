@@ -28,7 +28,7 @@ export class HSpanView extends GlyphView {
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    for (const y_i of this._y) {
+    for (const y_i of this.y) {
       index.add_point(UNUSED, y_i)
     }
   }

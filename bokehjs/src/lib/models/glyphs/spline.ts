@@ -14,7 +14,7 @@ export class SplineView extends XYGlyphView {
 
   protected override _set_data(): void {
     const {tension, closed} = this.model
-    ;[this._xt, this._yt] = catmullrom_spline(this._x, this._y, 20, tension, closed)
+    ;[this._xt, this._yt] = catmullrom_spline(this.x, this.y, 20, tension, closed)
   }
 
   protected override _map_data(): void {

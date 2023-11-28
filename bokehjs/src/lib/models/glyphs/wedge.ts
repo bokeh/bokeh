@@ -29,7 +29,7 @@ export class WedgeView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
+      this.sradius = this.sdist(this.renderer.xscale, this.x, this.radius)
     else
       this.sradius = to_screen(this.radius)
     this.max_sradius = max(this.sradius)
@@ -78,8 +78,8 @@ export class WedgeView extends XYGlyphView {
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const r2 = this.sradius[i]**2
-      ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
+      ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
         candidates.push(i)

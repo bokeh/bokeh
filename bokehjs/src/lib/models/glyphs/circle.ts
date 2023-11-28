@@ -30,20 +30,20 @@ export class CircleView extends XYGlyphView {
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    const {_x, _y, radius, data_size} = this
+    const {x, y, radius, data_size} = this
     for (let i = 0; i < data_size; i++) {
-      const x = _x[i]
-      const y = _y[i]
-      const r = radius.get(i)
-      index.add_rect(x - r, y - r, x + r, y + r)
+      const x_i = x[i]
+      const y_i = y[i]
+      const r_i = radius.get(i)
+      index.add_rect(x_i - r_i, y_i - r_i, x_i + r_i, y_i + r_i)
     }
   }
 
   protected override _map_data(): void {
     this.sradius = (() => {
       if (this.model.properties.radius.units == "data") {
-        const sradius_x = () => this.sdist(this.renderer.xscale, this._x, this.radius)
-        const sradius_y = () => this.sdist(this.renderer.yscale, this._y, this.radius)
+        const sradius_x = () => this.sdist(this.renderer.xscale, this.x, this.radius)
+        const sradius_y = () => this.sdist(this.renderer.yscale, this.y, this.radius)
 
         switch (this.model.radius_dimension) {
           case "x":   return sradius_x()
@@ -131,8 +131,8 @@ export class CircleView extends XYGlyphView {
     if (this.model.properties.radius.units == "data") {
       for (const i of candidates) {
         const r2 = (this.sradius[i]*hit_dilation)**2
-        const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-        const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+        const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
+        const [sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
         const dist = (sx0 - sx1)**2 + (sy0 - sy1)**2
         if (dist <= r2) {
           indices.push(i)

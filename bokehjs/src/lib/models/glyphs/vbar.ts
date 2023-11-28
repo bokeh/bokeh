@@ -1,5 +1,4 @@
 import {LRTB, LRTBView} from "./lrtb"
-import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
@@ -17,9 +16,9 @@ export class VBarView extends LRTBView {
 
   protected _lrtb(i: number): [number, number, number, number] {
     const half_width_i = this.width.get(i)/2
-    const x_i = this._x[i]
-    const top_i = this._top[i]
-    const bottom_i = this._bottom[i]
+    const x_i = this.x[i]
+    const top_i = this.top[i]
+    const bottom_i = this.bottom[i]
 
     const l = x_i - half_width_i
     const r = x_i + half_width_i
@@ -30,10 +29,10 @@ export class VBarView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this._x)
-    this.swidth = this.sdist(this.renderer.xscale, this._x, this.width, "center")
-    this.stop = this.renderer.yscale.v_compute(this._top)
-    this.sbottom = this.renderer.yscale.v_compute(this._bottom)
+    this.sx = this.renderer.xscale.v_compute(this.x)
+    this.swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
+    this.stop = this.renderer.yscale.v_compute(this.top)
+    this.sbottom = this.renderer.yscale.v_compute(this.bottom)
 
     const n = this.sx.length
     this.sleft = new ScreenArray(n)
@@ -53,19 +52,13 @@ export namespace VBar {
   export type Props = LRTB.Props & {
     x: p.CoordinateSpec
     bottom: p.CoordinateSpec
-    width: p.NumberSpec
+    width: p.DistanceSpec
     top: p.CoordinateSpec
   }
 
   export type Visuals = LRTB.Visuals
 
-  export type Data = LRTB.Data & p.GlyphDataOf<Props> & {
-    _x: Arrayable<number>
-    width: p.Uniform<number>
-
-    sx: Arrayable<number>
-    swidth: Arrayable<number>
-  }
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface VBar extends VBar.Attrs {}
@@ -84,7 +77,7 @@ export class VBar extends LRTB {
     this.define<VBar.Props>(({}) => ({
       x:      [ p.XCoordinateSpec, {field: "x"} ],
       bottom: [ p.YCoordinateSpec, {value: 0} ],
-      width:  [ p.NumberSpec,      {value: 1} ],
+      width:  [ p.DistanceSpec,    {value: 1} ],
       top:    [ p.YCoordinateSpec, {field: "top"} ],
     }))
   }
