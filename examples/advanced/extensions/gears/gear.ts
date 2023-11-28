@@ -1,8 +1,8 @@
-import {XYGlyph, XYGlyphView, XYGlyphData} from "@bokehjs/models/glyphs/xy_glyph"
+import {XYGlyph, XYGlyphView} from "@bokehjs/models/glyphs/xy_glyph"
 import {generic_area_vector_legend} from "@bokehjs/models/glyphs/utils"
 import {isString} from "@bokehjs/core/util/types"
 import {Context2d} from "@bokehjs/core/util/canvas"
-import {ScreenArray, Rect} from "@bokehjs/core/types"
+import type {Arrayable, Rect} from "@bokehjs/core/types"
 import {LineVector, FillVector, HatchVector} from "@bokehjs/core/property_mixins"
 import * as visuals from "@bokehjs/core/visuals"
 import * as p from "@bokehjs/core/properties"
@@ -10,18 +10,7 @@ import * as p from "@bokehjs/core/properties"
 import {Draw, gear_tooth, internal_gear_tooth}  from "./gear_utils"
 import {arc_to_bezier} from "./bezier"
 
-export interface GearData extends XYGlyphData {
-  angle: p.Uniform<number>
-  module: p.Uniform<number>
-  pressure_angle: p.Uniform<number>
-  shaft_size: p.Uniform<number>
-  teeth: p.Uniform<number>
-  internal: p.Uniform<boolean>
-
-  smodule: ScreenArray
-}
-
-export interface GearView extends GearData {}
+export interface GearView extends Gear.Data {}
 
 export class GearView extends XYGlyphView {
   declare model: Gear
@@ -31,8 +20,8 @@ export class GearView extends XYGlyphView {
     this.smodule = this.sdist(this.renderer.xscale, this._x, this.module, 'edge')
   }
 
-  _render(ctx: Context2d, indices: number[], data?: GearData): void {
-    const {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal} = data ?? this
+  _render(ctx: Context2d, indices: number[], data?: Partial<Gear.Data>): void {
+    const {sx, sy, smodule, angle, teeth, pressure_angle, shaft_size, internal} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -165,6 +154,10 @@ export namespace Gear {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Gear.Props> & {
+    smodule: Arrayable<number>
+  }
 }
 
 export interface Gear extends Gear.Attrs {}
