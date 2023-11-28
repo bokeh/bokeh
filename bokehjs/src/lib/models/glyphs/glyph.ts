@@ -255,6 +255,7 @@ export abstract class GlyphView extends View {
       enumerable: true,
       value,
     })
+    this._define_inherited(attr, false)
   }
 
   protected _inherit_from(attr: string, base: this): void {
@@ -265,11 +266,24 @@ export abstract class GlyphView extends View {
         return base[attr as keyof typeof base]
       },
     })
+    this._define_inherited(attr, true)
+  }
+
+  protected _define_inherited(attr: string, value: boolean): void {
+    Object.defineProperty(this, `inherited_${attr}`, {
+      configurable: true,
+      enumerable: true,
+      value,
+    })
   }
 
   protected _can_inherit_from<T>(prop: p.Property<T>, base: this): boolean {
     const base_prop = base.model.property(prop.attr)
     return is_equal(prop.get_value(), base_prop.get_value())
+  }
+
+  protected _is_inherited<T>(prop: p.Property<T>): boolean {
+    return this[`inherited_${prop.attr}` as keyof this] as boolean
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
@@ -311,7 +325,7 @@ export abstract class GlyphView extends View {
       // TODO: infer precision
       final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
     } else if (prop instanceof p.CoordinateSeqSeqSeqSpec) {
-      // TODO
+      // TODO RaggedArrayN
       final_array = array
     } else {
       final_array = array
@@ -405,20 +419,27 @@ export abstract class GlyphView extends View {
   protected _mask_data?(): Indices
 
   map_data(): void {
-    const self = this as any
-
     const {x_scale, y_scale} = this.renderer.coordinates
+    const {base} = this
+
+    const v_compute = <T>(prop: p.BaseCoordinateSpec<T>) => {
+      const scale = prop.dimension == "x" ? x_scale : y_scale
+      const array = this[prop.attr as keyof this] as Arrayable<number> | RaggedArray
+      if (array instanceof RaggedArray) {
+        return new RaggedArray(array.offsets, scale.v_compute(array.data))
+      } else {
+        return scale.v_compute(array)
+      }
+    }
+
     for (const prop of this.model) {
       if (prop instanceof p.BaseCoordinateSpec) {
-        const scale = prop.dimension == "x" ? x_scale : y_scale
-        let array = self[prop.attr] as FloatArray | RaggedArray<FloatArray>
-        if (array instanceof RaggedArray) {
-          const screen = scale.v_compute(array.array)
-          array = new RaggedArray(array.offsets, screen)
+        if (base != null && this._is_inherited(prop)) {
+          this._inherit_from(`s${prop.attr}`, base)
         } else {
-          array = scale.v_compute(array)
+          const array = v_compute(prop)
+          this._define_attr(`s${prop.attr}`, array)
         }
-        (this as any)[`s${prop.attr}`] = array
       }
     }
 

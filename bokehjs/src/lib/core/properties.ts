@@ -82,10 +82,21 @@ export type ScreenAttrsOf<Props> = {
     Props[Key] extends CoordinateSeqSpec             ? RaggedArray<FloatArray> :
     Props[Key] extends CoordinateSeqSeqSeqSpec       ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
 }
+export type InheritedAttrsOf<Props> = {
+  [Key in keyof Props & string as
+    Props[Key] extends VectorSpec<any, any> ? `inherited_${Key}` :
+    Props[Key] extends ScalarSpec<any, any> ? `inherited_${Key}` : never]: boolean
+}
+
+export type InheritedScreenOf<Props> = {
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `inherited_s${Key}` : never]: boolean
+}
+
+export type InheritedOf<Props> = InheritedAttrsOf<Props> & InheritedScreenOf<Props>
 
 export type Expanded<T> = T extends infer Obj ? {[K in keyof Obj]: Obj[K]} : never
 
-export type GlyphDataOf<Props> = Expanded<CoordsAttrsOf<Props> & ScreenAttrsOf<Props> & MaxAttrsOf<Props> & UniformsOf<Props>>
+export type GlyphDataOf<Props> = Expanded<CoordsAttrsOf<Props> & ScreenAttrsOf<Props> & MaxAttrsOf<Props> & UniformsOf<Props> & InheritedOf<Props>>
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
