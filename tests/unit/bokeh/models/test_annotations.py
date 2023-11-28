@@ -18,7 +18,6 @@ import pytest ; pytest
 
 # Standard library imports
 from datetime import datetime
-from math import isnan
 from unittest import mock
 
 # Bokeh imports
@@ -37,6 +36,7 @@ from bokeh.models import (
     Legend,
     LegendItem,
     LinearColorMapper,
+    Node,
     PolyAnnotation,
     Slope,
     Span,
@@ -238,16 +238,16 @@ def test_Arrow() -> None:
 
 def test_BoxAnnotation() -> None:
     box = BoxAnnotation()
-    assert isnan(box.left)
+    assert isinstance(box.left, Node)
     assert box.left_units == "data"
     assert box.left_limit is None
-    assert isnan(box.right)
+    assert isinstance(box.right, Node)
     assert box.right_units == "data"
     assert box.right_limit is None
-    assert isnan(box.bottom)
+    assert isinstance(box.bottom, Node)
     assert box.bottom_units == "data"
     assert box.bottom_limit is None
-    assert isnan(box.top)
+    assert isinstance(box.top, Node)
     assert box.top_units == "data"
     assert box.top_limit is None
     assert box.x_range_name == "default"

@@ -4745,20 +4745,36 @@
   BoxAnnotation: {
     __extends__: "Annotation",
     left: {
-      type: "number",
-      value: "nan",
+      type: "object",
+      name: "Node",
+      attributes: {
+        target: "frame",
+        symbol: "left",
+      },
     },
     right: {
-      type: "number",
-      value: "nan",
+      type: "object",
+      name: "Node",
+      attributes: {
+        target: "frame",
+        symbol: "right",
+      },
     },
     top: {
-      type: "number",
-      value: "nan",
+      type: "object",
+      name: "Node",
+      attributes: {
+        target: "frame",
+        symbol: "top",
+      },
     },
     bottom: {
-      type: "number",
-      value: "nan",
+      type: "object",
+      name: "Node",
+      attributes: {
+        target: "frame",
+        symbol: "bottom",
+      },
     },
     left_units: "data",
     right_units: "data",
@@ -5623,6 +5639,22 @@
         syncable: false,
         level: "overlay",
         propagate_hover: true,
+        left: {
+          type: "number",
+          value: "nan",
+        },
+        right: {
+          type: "number",
+          value: "nan",
+        },
+        top: {
+          type: "number",
+          value: "nan",
+        },
+        bottom: {
+          type: "number",
+          value: "nan",
+        },
         left_limit: {
           type: "object",
           name: "Node",
@@ -5727,6 +5759,22 @@
         syncable: false,
         level: "overlay",
         visible: false,
+        left: {
+          type: "number",
+          value: "nan",
+        },
+        right: {
+          type: "number",
+          value: "nan",
+        },
+        top: {
+          type: "number",
+          value: "nan",
+        },
+        bottom: {
+          type: "number",
+          value: "nan",
+        },
         left_units: "canvas",
         right_units: "canvas",
         top_units: "canvas",
@@ -5772,6 +5820,22 @@
         syncable: false,
         level: "overlay",
         visible: false,
+        left: {
+          type: "number",
+          value: "nan",
+        },
+        right: {
+          type: "number",
+          value: "nan",
+        },
+        top: {
+          type: "number",
+          value: "nan",
+        },
+        bottom: {
+          type: "number",
+          value: "nan",
+        },
         editable: true,
         line_color: "black",
         line_alpha: 1.0,

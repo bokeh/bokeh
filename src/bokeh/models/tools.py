@@ -42,6 +42,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import difflib
 import typing as tp
+from math import nan
 from typing import Literal
 
 # Bokeh imports
@@ -436,6 +437,10 @@ DEFAULT_RANGE_OVERLAY = lambda: BoxAnnotation(
     visible=True,
     editable=True,
     propagate_hover=True,
+    left=nan,
+    right=nan,
+    top=nan,
+    bottom=nan,
     left_limit=FrameLeft(),
     right_limit=FrameRight(),
     top_limit=FrameTop(),
@@ -834,6 +839,10 @@ DEFAULT_BOX_ZOOM_OVERLAY = InstanceDefault(BoxAnnotation,
     level="overlay",
     visible=False,
     editable=False,
+    left=nan,
+    right=nan,
+    top=nan,
+    bottom=nan,
     top_units="canvas",
     left_units="canvas",
     bottom_units="canvas",
@@ -851,6 +860,10 @@ DEFAULT_BOX_SELECT_OVERLAY = InstanceDefault(BoxAnnotation,
     level="overlay",
     visible=False,
     editable=True,
+    left=nan,
+    right=nan,
+    top=nan,
+    bottom=nan,
     top_units="data",
     left_units="data",
     bottom_units="data",
