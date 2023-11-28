@@ -2,6 +2,7 @@ import type {HitTestResult} from "core/hittest"
 import * as p from "core/properties"
 import * as bbox from "core/util/bbox"
 import * as visuals from "core/visuals"
+import * as uniforms from "core/uniforms"
 import type * as geometry from "core/geometry"
 import {settings} from "core/settings"
 import type {Context2d} from "core/util/canvas"
@@ -15,7 +16,7 @@ import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
 import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
-import {inplace_map, max} from "core/util/arrayable"
+import {inplace_map} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import type {Scale} from "../scales/scale"
@@ -323,8 +324,8 @@ export abstract class GlyphView extends View {
         const uniform = prop.uniform(source).select(indices)
         this._configure(prop, {value: uniform})
 
-        if (prop instanceof p.DistanceSpec) {
-          const max_value = uniform.is_Scalar() ? uniform.value : max((uniform as any).array)
+        if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
+          const max_value = uniforms.max(uniform)
           this._configure(`max_${prop.attr}`, {value: max_value})
         }
       }

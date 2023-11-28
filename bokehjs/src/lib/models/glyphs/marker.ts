@@ -7,7 +7,6 @@ import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import * as uniforms from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
@@ -149,13 +148,6 @@ export abstract class MarkerView extends XYGlyphView {
     }
 
     return new Selection({indices})
-  }
-
-  override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
-
-    const max_size = uniforms.max(this.size)
-    this._configure("max_size", {value: max_size})
   }
 
   _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
