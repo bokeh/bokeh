@@ -5,12 +5,13 @@ import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import {to_screen} from "core/types"
-import type {ScreenArray} from "core/types"
+import type {Arrayable} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import type {SpatialIndex} from "core/util/spatial"
-import {map, minmax2} from "core/util/arrayable"
+import {elementwise} from "core/util/array"
+import {minmax2} from "core/util/arrayable"
 import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {Range1d} from "../ranges/range1d"
@@ -18,12 +19,9 @@ import type {CircleGL} from "./webgl/circle"
 
 export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
   readonly angle: p.Uniform<number>
-
-  readonly radius: p.UniformScalar<number>
-
-  sradius: ScreenArray
-
+  readonly radius: p.Uniform<number>
   readonly max_radius: number
+  sradius: Arrayable<number>
 }
 
 export interface CircleView extends CircleData {}
@@ -51,32 +49,21 @@ export class CircleView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    if (this.model.properties.radius.units == "data") {
-      switch (this.model.radius_dimension) {
-        case "x": {
-          this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
-          break
+    this.sradius = (() => {
+      if (this.model.properties.radius.units == "data") {
+        const sradius_x = () => this.sdist(this.renderer.xscale, this._x, this.radius)
+        const sradius_y = () => this.sdist(this.renderer.yscale, this._y, this.radius)
+
+        switch (this.model.radius_dimension) {
+          case "x":   return sradius_x()
+          case "y":   return sradius_y()
+          case "max": return elementwise(sradius_x(), sradius_y(), Math.max)
+          case "min": return elementwise(sradius_x(), sradius_y(), Math.min)
         }
-        case "y": {
-          this.sradius = this.sdist(this.renderer.yscale, this._y, this.radius)
-          break
-        }
-        case "max": {
-          const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
-          const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
-          this.sradius = map(sradius_x, (s, i) => Math.max(s, sradius_y[i]))
-          break
-        }
-        case "min": {
-          const sradius_x = this.sdist(this.renderer.xscale, this._x, this.radius)
-          const sradius_y = this.sdist(this.renderer.yscale, this._y, this.radius)
-          this.sradius = map(sradius_x, (s, i) => Math.min(s, sradius_y[i]))
-          break
-        }
+      } else {
+        return to_screen(this.radius)
       }
-    } else {
-      this.sradius = to_screen(this.radius)
-    }
+    })()
   }
 
   protected override _mask_data(): Indices {

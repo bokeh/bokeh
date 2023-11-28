@@ -278,6 +278,15 @@ export function pairwise<T, U>(array: T[], fn: (prev: T, next: T) => U): U[] {
   return result
 }
 
+export function elementwise<T, U>(array0: Arrayable<T>, array1: Arrayable<T>, fn: (a: T, b: T) => U): U[] {
+  const n = Math.min(array0.length, array1.length)
+  const result: U[] = Array(n)
+  for (let i = 0; i < n; i++) {
+    result[i] = fn(array0[i], array1[i])
+  }
+  return result
+}
+
 export function reversed<T>(array: T[]): T[] {
   const n = array.length
   const result: T[] = new Array(n)
