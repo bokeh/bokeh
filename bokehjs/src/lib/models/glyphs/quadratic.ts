@@ -9,9 +9,7 @@ import {generic_line_vector_legend} from "./utils"
 import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type QuadraticData = p.GlyphDataOf<Quadratic.Props>
-
-export interface QuadraticView extends QuadraticData {}
+export interface QuadraticView extends Quadratic.Data {}
 
 export class QuadraticView extends GlyphView {
   declare model: Quadratic
@@ -42,7 +40,7 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: QuadraticData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Quadratic.Data): void {
     if (!this.visuals.line.doit)
       return
 
@@ -91,6 +89,8 @@ export namespace Quadratic {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Quadratic extends Quadratic.Attrs {}

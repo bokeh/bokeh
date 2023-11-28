@@ -4,9 +4,7 @@ import {isTypedArray} from "core/util/types"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageRGBAData = p.GlyphDataOf<ImageRGBA.Props>
-
-export interface ImageRGBAView extends ImageRGBAData {}
+export interface ImageRGBAView extends ImageRGBA.Data {}
 
 export class ImageRGBAView extends ImageBaseView {
   declare model: ImageRGBA
@@ -32,6 +30,8 @@ export namespace ImageRGBA {
   export type Props = ImageBase.Props
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}

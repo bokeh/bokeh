@@ -13,9 +13,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export type MultiPolygonsData = p.GlyphDataOf<MultiPolygons.Props>
-
-export interface MultiPolygonsView extends MultiPolygonsData {}
+export interface MultiPolygonsView extends MultiPolygons.Data {}
 
 export class MultiPolygonsView extends GlyphView {
   declare model: MultiPolygons
@@ -114,7 +112,7 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: MultiPolygonsData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiPolygons.Data): void {
     if (!this.visuals.fill.doit && !this.visuals.line.doit)
       return
 
@@ -328,6 +326,8 @@ export namespace MultiPolygons {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface MultiPolygons extends MultiPolygons.Attrs {}

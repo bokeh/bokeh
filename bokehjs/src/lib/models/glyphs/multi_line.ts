@@ -14,9 +14,7 @@ import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
 
-export type MultiLineData = p.GlyphDataOf<MultiLine.Props>
-
-export interface MultiLineView extends MultiLineData {}
+export interface MultiLineView extends MultiLine.Data {}
 
 export class MultiLineView extends GlyphView {
   declare model: MultiLine
@@ -46,7 +44,7 @@ export class MultiLineView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: MultiLineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: MultiLine.Data): void {
     const {sxs, sys} = data ?? this
 
     for (const i of indices) {
@@ -172,6 +170,8 @@ export namespace MultiLine {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface MultiLine extends MultiLine.Attrs {}

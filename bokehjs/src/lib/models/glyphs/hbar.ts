@@ -1,18 +1,9 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type HBarData = LRTBData & p.GlyphDataOf<HBar.Props> & {
-  _y: Arrayable<number>
-  height: p.Uniform<number>
-
-  sy: Arrayable<number>
-  swidth: Arrayable<number>
-}
-
-export interface HBarView extends HBarData {}
+export interface HBarView extends HBar.Data {}
 
 export class HBarView extends LRTBView {
   declare model: HBar
@@ -67,6 +58,14 @@ export namespace HBar {
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props> & {
+    _y: Arrayable<number>
+    height: p.Uniform<number>
+
+    sy: Arrayable<number>
+    swidth: Arrayable<number>
+  }
 }
 
 export interface HBar extends HBar.Attrs {}

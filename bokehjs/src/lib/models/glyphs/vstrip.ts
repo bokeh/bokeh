@@ -16,11 +16,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
-export type VStripData = p.GlyphDataOf<VStrip.Props> & {
-  max_width: number
-}
-
-export interface VStripView extends VStripData {}
+export interface VStripView extends VStrip.Data {}
 
 export class VStripView extends GlyphView {
   declare model: VStrip
@@ -100,7 +96,7 @@ export class VStripView extends GlyphView {
     return [(this.sx0[i] + this.sx1[i])/2, vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VStripData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: VStrip.Data): void {
     const {sx0, sx1} = data ?? this
     const {top, bottom, height} = this.renderer.plot_view.frame.bbox
 
@@ -201,6 +197,10 @@ export namespace VStrip {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_width: number
+  }
 }
 
 export interface VStrip extends VStrip.Attrs {}

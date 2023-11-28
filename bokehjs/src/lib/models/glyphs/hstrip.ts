@@ -16,11 +16,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
-export type HStripData = p.GlyphDataOf<HStrip.Props> & {
-  max_height: number
-}
-
-export interface HStripView extends HStripData {}
+export interface HStripView extends HStrip.Data {}
 
 export class HStripView extends GlyphView {
   declare model: HStrip
@@ -100,7 +96,7 @@ export class HStripView extends GlyphView {
     return [hcenter, (this.sy0[i] + this.sy1[i])/2]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HStripData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HStrip.Data): void {
     const {sy0, sy1} = data ?? this
     const {left, right, width} = this.renderer.plot_view.frame.bbox
 
@@ -201,6 +197,10 @@ export namespace HStrip {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_height: number
+  }
 }
 
 export interface HStrip extends HStrip.Attrs {}

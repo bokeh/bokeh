@@ -16,11 +16,7 @@ const {abs, max} = Math
 
 const UNUSED = 0
 
-export type VSpanData = p.GlyphDataOf<VSpan.Props> & {
-  max_line_width: number
-}
-
-export interface VSpanView extends VSpanData {}
+export interface VSpanView extends VSpan.Data {}
 
 export class VSpanView extends GlyphView {
   declare model: VSpan
@@ -53,7 +49,7 @@ export class VSpanView extends GlyphView {
     return [this.sx[i], vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VSpanData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: VSpan.Data): void {
     const {sx} = data ?? this
     const {top, bottom} = this.renderer.plot_view.frame.bbox
 
@@ -142,6 +138,10 @@ export namespace VSpan {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_line_width: number
+  }
 }
 
 export interface VSpan extends VSpan.Attrs {}

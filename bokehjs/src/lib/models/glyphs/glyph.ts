@@ -30,9 +30,7 @@ import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
 
-export type GlyphData = p.GlyphDataOf<Glyph.Props>
-
-export interface GlyphView extends GlyphData {}
+export interface GlyphView extends Glyph.Data {}
 
 export abstract class GlyphView extends View {
   declare model: Glyph
@@ -111,7 +109,7 @@ export abstract class GlyphView extends View {
     return this.renderer.parent.canvas_view
   }
 
-  render(ctx: Context2d, indices: number[], data?: GlyphData): void {
+  render(ctx: Context2d, indices: number[], data?: Glyph.Data): void {
     if (this.glglyph != null) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
@@ -121,7 +119,7 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected abstract _render(ctx: Context2d, indices: number[], data?: GlyphData): void
+  protected abstract _render(ctx: Context2d, indices: number[], data?: Glyph.Data): void
 
   override has_finished(): boolean {
     return true
@@ -410,6 +408,8 @@ export namespace Glyph {
   }
 
   export type Visuals = visuals.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Glyph extends Glyph.Attrs {}

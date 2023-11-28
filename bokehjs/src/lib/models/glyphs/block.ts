@@ -1,13 +1,8 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type BlockData = LRTBData & p.GlyphDataOf<Block.Props> & {
-  max_width: number
-}
-
-export interface BlockView extends BlockData {}
+export interface BlockView extends Block.Data {}
 
 export class BlockView extends LRTBView {
   declare model: Block
@@ -67,6 +62,10 @@ export namespace Block {
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props> & {
+    max_width: number
+  }
 }
 
 export interface Block extends Block.Attrs {}

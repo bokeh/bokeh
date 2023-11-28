@@ -9,15 +9,13 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type PatchData = p.GlyphDataOf<Patch.Props>
-
-export interface PatchView extends PatchData {}
+export interface PatchView extends Patch.Data {}
 
 export class PatchView extends XYGlyphView {
   declare model: Patch
   declare visuals: Patch.Visuals
 
-  protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Patch.Data): void {
     const {sx, sy} = data ?? this
 
     let move = true
@@ -70,6 +68,8 @@ export namespace Patch {
   export type Mixins = mixins.LineScalar & mixins.FillScalar & mixins.HatchScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar, hatch: visuals.HatchScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Patch extends Patch.Attrs {}

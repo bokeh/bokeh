@@ -4,9 +4,7 @@ import type * as visuals from "core/visuals"
 import type {Rect} from "core/types"
 import * as p from "core/properties"
 
-export type CenterRotatableData = p.GlyphDataOf<CenterRotatable.Props>
-
-export interface CenterRotatableView extends CenterRotatableData {}
+export interface CenterRotatableView extends CenterRotatable.Data {}
 
 export abstract class CenterRotatableView extends XYGlyphView {
   declare model: CenterRotatable
@@ -43,6 +41,8 @@ export namespace CenterRotatable {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface CenterRotatable extends CenterRotatable.Attrs {}

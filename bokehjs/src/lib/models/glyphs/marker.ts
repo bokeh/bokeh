@@ -10,9 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
 
-export type MarkerData = p.GlyphDataOf<Marker.Props>
-
-export interface MarkerView extends MarkerData {}
+export interface MarkerView extends Marker.Data {}
 
 export abstract class MarkerView extends XYGlyphView {
   declare model: Marker
@@ -20,7 +18,7 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], data?: MarkerData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Marker.Data): void {
     const {sx, sy, size, angle} = data ?? this
 
     for (const i of indices) {
@@ -144,7 +142,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): Marker.Data {
     // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const n = index + 1
 
@@ -180,6 +178,8 @@ export namespace Marker {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Marker extends Marker.Attrs {}

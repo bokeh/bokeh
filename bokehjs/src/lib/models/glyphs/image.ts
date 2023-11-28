@@ -5,9 +5,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageData = p.GlyphDataOf<Image.Props>
-
-export interface ImageView extends ImageData {}
+export interface ImageView extends Image.Data {}
 
 export class ImageView extends ImageBaseView {
   declare model: Image
@@ -55,6 +53,8 @@ export namespace Image {
   }
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Image extends Image.Attrs {}

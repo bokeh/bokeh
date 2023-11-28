@@ -18,11 +18,7 @@ import {anchor} from "../common/resolve"
 
 type ImageData = HTMLCanvasElement | null
 
-export type ImageBaseData = p.GlyphDataOf<ImageBase.Props> & {
-  image_data: Arrayable<ImageData>
-}
-
-export interface ImageBaseView extends ImageBaseData {}
+export interface ImageBaseView extends ImageBase.Data {}
 
 export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
@@ -79,7 +75,7 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageBaseData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ImageBase.Data): void {
     const {image_data, sx, sy, sdw, sdh} = data ?? this
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
@@ -252,6 +248,10 @@ export namespace ImageBase {
   export type Mixins = mixins.ImageVector
 
   export type Visuals = XYGlyph.Visuals & {image: visuals.ImageVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    image_data: Arrayable<ImageData>
+  }
 }
 
 export interface ImageBase extends ImageBase.Attrs {}

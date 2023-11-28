@@ -13,9 +13,7 @@ import * as resolve from "../common/resolve"
 
 export type CanvasImage = HTMLImageElement
 
-export type ImageURLData = p.GlyphDataOf<ImageURL.Props>
-
-export interface ImageURLView extends ImageURLData {}
+export interface ImageURLView extends ImageURL.Data {}
 
 export class ImageURLView extends XYGlyphView {
   declare model: ImageURL
@@ -149,7 +147,7 @@ export class ImageURLView extends XYGlyphView {
       this.sh = to_screen(h)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: ImageURL.Data): void {
     const {sx, sy, sw, sh, angle, global_alpha} = data ?? this
     const {image, loaders, resolved} = this
 
@@ -263,6 +261,8 @@ export namespace ImageURL {
   }
 
   export type Visuals = XYGlyph.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageURL extends ImageURL.Attrs {}

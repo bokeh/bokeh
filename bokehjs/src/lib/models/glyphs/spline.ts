@@ -6,14 +6,7 @@ import type {Arrayable, ScreenArray} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 
-export type SplineData = p.GlyphDataOf<Spline.Props> & {
-  _xt: Arrayable<number>
-  _yt: Arrayable<number>
-  sxt: ScreenArray
-  syt: ScreenArray
-}
-
-export interface SplineView extends SplineData {}
+export interface SplineView extends Spline.Data {}
 
 export class SplineView extends XYGlyphView {
   declare model: Spline
@@ -30,7 +23,7 @@ export class SplineView extends XYGlyphView {
     this.syt = y_scale.v_compute(this._yt)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: Spline.Data): void {
     const {sxt: sx, syt: sy} = data ?? this
 
     let move = true
@@ -68,6 +61,13 @@ export namespace Spline {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    _xt: Arrayable<number>
+    _yt: Arrayable<number>
+    sxt: ScreenArray
+    syt: ScreenArray
+  }
 }
 
 export interface Spline extends Spline.Attrs {}

@@ -9,9 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
 
-export type StepData = p.GlyphDataOf<Step.Props>
-
-export interface StepView extends StepData {}
+export interface StepView extends Step.Data {}
 
 export class StepView extends XYGlyphView {
   declare model: Step
@@ -25,7 +23,7 @@ export class StepView extends XYGlyphView {
     return StepGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Step.Data): void {
     const npoints = indices.length
     if (npoints < 2)
       return
@@ -113,6 +111,8 @@ export namespace Step {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Step extends Step.Attrs {}

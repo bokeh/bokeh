@@ -15,9 +15,7 @@ import {Selection} from "../selections/selection"
 import type {Range1d} from "../ranges/range1d"
 import type {CircleGL} from "./webgl/circle"
 
-export type CircleData = p.GlyphDataOf<Circle.Props>
-
-export interface CircleView extends CircleData {}
+export interface CircleView extends Circle.Data {}
 
 export class CircleView extends XYGlyphView {
   declare model: Circle
@@ -81,7 +79,7 @@ export class CircleView extends XYGlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: CircleData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Circle.Data): void {
     const {sx, sy, sradius} = data ?? this
 
     for (const i of indices) {
@@ -253,6 +251,8 @@ export namespace Circle {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Circle extends Circle.Attrs {}

@@ -4,9 +4,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageStackData = p.GlyphDataOf<ImageStack.Props>
-
-export interface ImageStackView extends ImageData {}
+export interface ImageStackView extends Image.Data {}
 
 export class ImageStackView extends ImageBaseView {
   declare model: ImageStack
@@ -55,6 +53,8 @@ export namespace ImageStack {
   }
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageStack extends ImageStack.Attrs {}

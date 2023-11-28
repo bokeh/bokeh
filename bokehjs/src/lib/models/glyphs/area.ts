@@ -6,9 +6,7 @@ import type {Context2d} from "core/util/canvas"
 import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 
-export type AreaData = p.GlyphDataOf<Area.Props>
-
-export interface AreaView extends AreaData {}
+export interface AreaView extends Area.Data {}
 
 export abstract class AreaView extends GlyphView {
   declare model: Area
@@ -27,6 +25,8 @@ export namespace Area {
   export type Mixins = mixins.FillScalar & mixins.HatchScalar
 
   export type Visuals = Glyph.Visuals & {fill: visuals.FillScalar, hatch: visuals.HatchScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Area extends Area.Attrs {}

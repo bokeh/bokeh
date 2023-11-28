@@ -9,9 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {AnnulusGL} from "./webgl/annulus"
 
-export type AnnulusData = p.GlyphDataOf<Annulus.Props>
-
-export interface AnnulusView extends AnnulusData {}
+export interface AnnulusView extends Annulus.Data {}
 
 export class AnnulusView extends XYGlyphView {
   declare model: Annulus
@@ -37,7 +35,7 @@ export class AnnulusView extends XYGlyphView {
       this.souter_radius = to_screen(this.outer_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: AnnulusData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Annulus.Data): void {
     const {sx, sy, sinner_radius, souter_radius} = data ?? this
 
     for (const i of indices) {
@@ -127,6 +125,8 @@ export namespace Annulus {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Annulus extends Annulus.Attrs {}

@@ -9,9 +9,7 @@ import {inplace} from "core/util/projections"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type BezierData = p.GlyphDataOf<Bezier.Props>
-
-export interface BezierView extends BezierData {}
+export interface BezierView extends Bezier.Data {}
 
 export class BezierView extends GlyphView {
   declare model: Bezier
@@ -44,7 +42,7 @@ export class BezierView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: BezierData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
     if (!this.visuals.line.doit)
       return
 
@@ -97,6 +95,8 @@ export namespace Bezier {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Bezier extends Bezier.Attrs {}

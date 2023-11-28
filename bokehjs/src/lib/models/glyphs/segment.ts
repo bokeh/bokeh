@@ -12,9 +12,7 @@ import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 
-export type SegmentData = p.GlyphDataOf<Segment.Props>
-
-export interface SegmentView extends SegmentData {}
+export interface SegmentView extends Segment.Data {}
 
 export class SegmentView extends GlyphView {
   declare model: Segment
@@ -38,7 +36,7 @@ export class SegmentView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: SegmentData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Segment.Data): void {
     if (!this.visuals.line.doit)
       return
 
@@ -175,6 +173,8 @@ export namespace Segment {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Segment extends Segment.Attrs {}

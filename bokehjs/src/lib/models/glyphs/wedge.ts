@@ -13,11 +13,7 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {WedgeGL} from "./webgl/wedge"
 
-export type WedgeData = p.GlyphDataOf<Wedge.Props> & {
-  max_sradius: number
-}
-
-export interface WedgeView extends WedgeData {}
+export interface WedgeView extends Wedge.Data {}
 
 export class WedgeView extends XYGlyphView {
   declare model: Wedge
@@ -39,7 +35,7 @@ export class WedgeView extends XYGlyphView {
     this.max_sradius = max(this.sradius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: WedgeData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Wedge.Data): void {
     const {sx, sy, sradius, start_angle, end_angle} = data ?? this
     const anticlock = this.model.direction == "anticlock"
 
@@ -131,6 +127,10 @@ export namespace Wedge {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_sradius: number
+  }
 }
 
 export interface Wedge extends Wedge.Attrs {}

@@ -13,11 +13,7 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {AnnularWedgeGL} from "./webgl/annular_wedge"
 
-export type AnnularWedgeData = p.GlyphDataOf<AnnularWedge.Props> & {
-  max_souter_radius: number
-}
-
-export interface AnnularWedgeView extends AnnularWedgeData {}
+export interface AnnularWedgeView extends AnnularWedge.Data {}
 
 export class AnnularWedgeView extends XYGlyphView {
   declare model: AnnularWedge
@@ -44,7 +40,7 @@ export class AnnularWedgeView extends XYGlyphView {
     this.max_souter_radius = max(this.souter_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: AnnularWedgeData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: AnnularWedge.Data): void {
     const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = data ?? this
     const anticlock = this.model.direction == "anticlock"
 
@@ -147,6 +143,10 @@ export namespace AnnularWedge {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_souter_radius: number
+  }
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}

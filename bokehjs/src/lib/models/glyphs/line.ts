@@ -10,9 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {LineGL} from "./webgl/line_gl"
 
-export type LineData = p.GlyphDataOf<Line.Props>
-
-export interface LineView extends LineData {}
+export interface LineView extends Line.Data {}
 
 export class LineView extends XYGlyphView {
   declare model: Line
@@ -26,7 +24,7 @@ export class LineView extends XYGlyphView {
     return LineGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Line.Data): void {
     const {sx, sy} = data ?? this
     const nonselection = this.parent.nonselection_glyph == this
 
@@ -150,6 +148,8 @@ export namespace Line {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Line extends Line.Attrs {}

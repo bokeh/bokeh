@@ -17,18 +17,7 @@ import type {HexTileGL} from "./webgl/hex_tile"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export type HexTileData = p.GlyphDataOf<HexTile.Props> & {
-  _x: FloatArray
-  _y: FloatArray
-
-  sx: ScreenArray
-  sy: ScreenArray
-
-  svx: Vertices
-  svy: Vertices
-}
-
-export interface HexTileView extends HexTileData {}
+export interface HexTileView extends HexTile.Data {}
 
 export class HexTileView extends GlyphView {
   declare model: HexTile
@@ -139,7 +128,7 @@ export class HexTileView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HexTileData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HexTile.Data): void {
     const {sx, sy, svx, svy, scale} = data ?? this
 
     for (const i of indices) {
@@ -228,6 +217,17 @@ export namespace HexTile {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    _x: FloatArray
+    _y: FloatArray
+
+    sx: ScreenArray
+    sy: ScreenArray
+
+    svx: Vertices
+    svy: Vertices
+  }
 }
 
 export interface HexTile extends HexTile.Attrs { }

@@ -7,9 +7,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export type EllipseData = p.GlyphDataOf<Ellipse.Props>
-
-export interface EllipseView extends EllipseData {}
+export interface EllipseView extends Ellipse.Data {}
 
 export class EllipseView extends CenterRotatableView  {
   declare model: Ellipse
@@ -27,7 +25,7 @@ export class EllipseView extends CenterRotatableView  {
       this.sheight = to_screen(this.height)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: EllipseData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Ellipse.Data): void {
     const {sx, sy, swidth, sheight, angle} = data ?? this
 
     for (const i of indices) {
@@ -120,6 +118,8 @@ export namespace Ellipse {
   export type Props = CenterRotatable.Props
 
   export type Visuals = CenterRotatable.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Ellipse extends Ellipse.Attrs {}

@@ -3,9 +3,7 @@ import {inplace} from "core/util/projections"
 import * as p from "core/properties"
 import {Glyph, GlyphView} from "./glyph"
 
-export type XYGlyphData = p.GlyphDataOf<XYGlyph.Props>
-
-export interface XYGlyphView extends XYGlyphData {}
+export interface XYGlyphView extends XYGlyph.Data {}
 
 export abstract class XYGlyphView extends GlyphView {
   declare model: XYGlyph
@@ -39,6 +37,8 @@ export namespace XYGlyph {
   }
 
   export type Visuals = Glyph.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface XYGlyph extends XYGlyph.Attrs {}

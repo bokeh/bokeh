@@ -19,18 +19,7 @@ import {round_rect} from "../common/painting"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
 
-export type TextData = p.GlyphDataOf<Text.Props> & {
-  labels: (TextBox | null)[]
-
-  swidth: Float32Array
-  sheight: Float32Array
-
-  anchor_: p.Uniform<XY<number>> // can't resolve in v_materialize() due to dependency on other properties
-  padding: LRTB<number>
-  border_radius: Corners<number>
-}
-
-export interface TextView extends TextData {}
+export interface TextView extends Text.Data {}
 
 export class TextView extends XYGlyphView {
   declare model: Text
@@ -94,7 +83,7 @@ export class TextView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: TextData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Text.Data): void {
     const {sx, sy, x_offset, y_offset, angle} = data ?? this
     const {text, background_fill, background_hatch, border_line} = this.visuals
     const {anchor_: anchor, border_radius, padding} = this
@@ -258,6 +247,17 @@ export namespace Text {
     border_line: visuals.LineVector
     background_fill: visuals.FillVector
     background_hatch: visuals.HatchVector
+  }
+
+  export type Data = p.GlyphDataOf<Props> & {
+    labels: (TextBox | null)[]
+
+    swidth: Float32Array
+    sheight: Float32Array
+
+    anchor_: p.Uniform<XY<number>> // can't resolve in v_materialize() due to dependency on other properties
+    padding: LRTB<number>
+    border_radius: Corners<number>
   }
 }
 

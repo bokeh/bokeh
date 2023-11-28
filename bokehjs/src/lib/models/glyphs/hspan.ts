@@ -16,11 +16,7 @@ const {abs, max} = Math
 
 const UNUSED = 0
 
-export type HSpanData = p.GlyphDataOf<HSpan.Props> & {
-  max_line_width: number
-}
-
-export interface HSpanView extends HSpanData {}
+export interface HSpanView extends HSpan.Data {}
 
 export class HSpanView extends GlyphView {
   declare model: HSpan
@@ -53,7 +49,7 @@ export class HSpanView extends GlyphView {
     return [hcenter, this.sy[i]]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HSpanData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: HSpan.Data): void {
     const {sy} = data ?? this
     const {left, right} = this.renderer.plot_view.frame.bbox
 
@@ -142,6 +138,10 @@ export namespace HSpan {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_line_width: number
+  }
 }
 
 export interface HSpan extends HSpan.Attrs {}

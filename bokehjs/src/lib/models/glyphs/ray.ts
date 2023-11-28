@@ -7,9 +7,7 @@ import {to_screen} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
-export type RayData = p.GlyphDataOf<Ray.Props>
-
-export interface RayView extends RayData {}
+export interface RayView extends Ray.Data {}
 
 export class RayView extends XYGlyphView {
   declare model: Ray
@@ -31,7 +29,7 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: RayData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Ray.Data): void {
     if (!this.visuals.line.doit)
       return
 
@@ -76,6 +74,8 @@ export namespace Ray {
   export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Ray extends Ray.Attrs {}

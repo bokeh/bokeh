@@ -5,9 +5,7 @@ import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
 
-export type ScatterData = p.GlyphDataOf<Scatter.Props>
-
-export interface ScatterView extends ScatterData {}
+export interface ScatterView extends Scatter.Data {}
 
 export class ScatterView extends MarkerView {
   declare model: Scatter
@@ -20,7 +18,7 @@ export class ScatterView extends MarkerView {
     return MultiMarkerGL
   }
 
-  protected override _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
+  protected override _render(ctx: Context2d, indices: number[], data?: Scatter.Data): void {
     const {sx, sy, size, angle, marker} = data ?? this
 
     for (const i of indices) {
@@ -71,6 +69,10 @@ export namespace Scatter {
   export type Props = Marker.Props & {
     marker: p.MarkerSpec
   }
+
+  export type Visuals = Marker.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Scatter extends Scatter.Attrs {}

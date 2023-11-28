@@ -19,21 +19,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
 
-export type LRTBData = p.GlyphDataOf<LRTB.Props> & {
-  _right: Arrayable<number>
-  _bottom: Arrayable<number>
-  _left: Arrayable<number>
-  _top: Arrayable<number>
-
-  sright: Arrayable<number>
-  sbottom: Arrayable<number>
-  sleft: Arrayable<number>
-  stop: Arrayable<number>
-
-  border_radius: Corners<number>
-}
-
-export interface LRTBView extends LRTBData {}
+export interface LRTBView extends LRTB.Data {}
 
 export abstract class LRTBView extends GlyphView {
   declare model: LRTB
@@ -88,7 +74,7 @@ export abstract class LRTBView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: LRTBData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: LRTB.Data): void {
     const {sleft, sright, stop, sbottom, border_radius} = data ?? this
 
     for (const i of indices) {
@@ -171,6 +157,20 @@ export namespace LRTB {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    _right: Arrayable<number>
+    _bottom: Arrayable<number>
+    _left: Arrayable<number>
+    _top: Arrayable<number>
+
+    sright: Arrayable<number>
+    sbottom: Arrayable<number>
+    sleft: Arrayable<number>
+    stop: Arrayable<number>
+
+    border_radius: Corners<number>
+  }
 }
 
 export interface LRTB extends LRTB.Attrs {}

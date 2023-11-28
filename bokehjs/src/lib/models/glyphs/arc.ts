@@ -8,9 +8,7 @@ import {Direction} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
-export type ArcData = p.GlyphDataOf<Arc.Props>
-
-export interface ArcView extends ArcData {}
+export interface ArcView extends Arc.Data {}
 
 export class ArcView extends XYGlyphView {
   declare model: Arc
@@ -23,7 +21,7 @@ export class ArcView extends XYGlyphView {
       this.sradius = to_screen(this.radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ArcData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Arc.Data): void {
     if (!this.visuals.line.doit)
       return
 
@@ -92,6 +90,8 @@ export namespace Arc {
   export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Arc extends Arc.Attrs {}

@@ -19,16 +19,7 @@ import type {RectGL} from "./webgl/rect"
 
 const {abs, sqrt} = Math
 
-export type RectData = p.GlyphDataOf<Rect.Props> & {
-  sx0: ScreenArray
-  sy1: ScreenArray
-  ssemi_diag: ScreenArray
-  max_x2_ddist: number
-  max_y2_ddist: number
-  border_radius: Corners<number>
-}
-
-export interface RectView extends RectData {}
+export interface RectView extends Rect.Data {}
 
 export class RectView extends CenterRotatableView {
   declare model: Rect
@@ -93,7 +84,7 @@ export class RectView extends CenterRotatableView {
     this.max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Rect.Data): void {
     const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = data ?? this
 
     for (const i of indices) {
@@ -240,6 +231,15 @@ export namespace Rect {
   }
 
   export type Visuals = CenterRotatable.Visuals
+
+  export type Data = p.GlyphDataOf<Props> & {
+    sx0: ScreenArray
+    sy1: ScreenArray
+    ssemi_diag: ScreenArray
+    max_x2_ddist: number
+    max_y2_ddist: number
+    border_radius: Corners<number>
+  }
 }
 
 export interface Rect extends Rect.Attrs {}

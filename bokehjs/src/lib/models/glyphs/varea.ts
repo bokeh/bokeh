@@ -6,9 +6,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type VAreaData = p.GlyphDataOf<VArea.Props>
-
-export interface VAreaView extends VAreaData {}
+export interface VAreaView extends VArea.Data {}
 
 export class VAreaView extends AreaView {
   declare model: VArea
@@ -26,7 +24,7 @@ export class VAreaView extends AreaView {
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: VAreaData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: VArea.Data): void {
     const {sx, sy1, sy2} = data ?? this
 
     ctx.beginPath()
@@ -85,6 +83,8 @@ export namespace VArea {
   }
 
   export type Visuals = Area.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface VArea extends VArea.Attrs {}

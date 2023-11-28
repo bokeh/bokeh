@@ -13,9 +13,7 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export type PatchesData = p.GlyphDataOf<Patches.Props>
-
-export interface PatchesView extends PatchesData {}
+export interface PatchesView extends Patches.Data {}
 
 export class PatchesView extends GlyphView {
   declare model: Patches
@@ -45,7 +43,7 @@ export class PatchesView extends GlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Patches.Data): void {
     const {sxs, sys} = data ?? this
 
     for (const i of indices) {
@@ -216,6 +214,8 @@ export namespace Patches {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Patches extends Patches.Attrs {}

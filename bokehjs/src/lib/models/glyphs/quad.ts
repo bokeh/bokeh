@@ -1,10 +1,7 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
 import * as p from "core/properties"
 
-export type QuadData = LRTBData & p.GlyphDataOf<Quad.Props>
-
-export interface QuadView extends QuadData {}
+export interface QuadView extends Quad.Data {}
 
 export class QuadView extends LRTBView {
   declare model: Quad
@@ -36,6 +33,8 @@ export namespace Quad {
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface Quad extends Quad.Attrs {}

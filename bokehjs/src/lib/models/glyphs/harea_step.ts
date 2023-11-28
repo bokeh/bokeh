@@ -9,9 +9,7 @@ import {StepMode} from "core/enums"
 import {flip_step_mode} from "core/util/flip_step_mode"
 import {Selection} from "../selections/selection"
 
-export type HAreaStepData = p.GlyphDataOf<HAreaStep.Props>
-
-export interface HAreaStepView extends HAreaStepData {}
+export interface HAreaStepView extends HAreaStep.Data {}
 
 export class HAreaStepView extends AreaView {
   declare model: HAreaStep
@@ -58,7 +56,7 @@ export class HAreaStepView extends AreaView {
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: HAreaStepData): void {
+  protected _render(ctx: Context2d, _indices: number[], data?: HAreaStep.Data): void {
     const {sx1, sx2, sy} = data ?? this
 
     const forward_mode = this.model.step_mode
@@ -137,6 +135,8 @@ export namespace HAreaStep {
   }
 
   export type Visuals = Area.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface HAreaStep extends HAreaStep.Attrs {}
