@@ -22,6 +22,7 @@ import {is_NDArray} from "./util/ndarray"
 import {diagnostics} from "./diagnostics"
 import {unreachable} from "./util/assert"
 import {serialize} from "./serialization"
+import type {RaggedArray} from "./util/ragged_array"
 
 import {Uniform, UniformScalar, UniformVector, ColorUniformVector} from "./uniforms"
 export {Uniform, UniformScalar, UniformVector}
@@ -55,11 +56,36 @@ export function use_theme(theme: Theme | null = null): void {
 // Property base class
 //
 
-export type UniformsOf<M> = {
-  [K in keyof M]: M[K] extends VectorSpec<infer T, any> ? Uniform<T>       :
-                  M[K] extends ScalarSpec<infer T, any> ? UniformScalar<T> :
-                  M[K] extends Property<infer T>        ? T                : never
+export type UniformsOf<Props> = {
+  [Key in keyof Props as
+    Props[Key] extends BaseCoordinateSpec<any> ? never   :
+    Props[Key] extends VectorSpec<any, any>    ? Key     :
+    Props[Key] extends ScalarSpec<any, any>    ? Key     : never]:
+      Props[Key] extends VectorSpec<infer T, any> ? Uniform<T>       :
+      Props[Key] extends ScalarSpec<infer T, any> ? UniformScalar<T> : never
 }
+
+export type MaxAttrsOf<Props> = {
+  [Key in keyof Props & string as Props[Key] extends DistanceSpec ? `max_${Key}` : never]: number
+}
+
+export type CoordsAttrsOf<Props> = {
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> ? `_${Key}` : never]:
+    Props[Key] extends CoordinateSpec          ? Arrayable<number> :
+    Props[Key] extends CoordinateSeqSpec       ? RaggedArray<FloatArray> :
+    Props[Key] extends CoordinateSeqSeqSeqSpec ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
+}
+
+export type ScreenAttrsOf<Props> = {
+  [Key in keyof Props & string as Props[Key] extends BaseCoordinateSpec<any> | DistanceSpec ? `s${Key}` : never]:
+    Props[Key] extends CoordinateSpec | DistanceSpec ? Arrayable<number> :
+    Props[Key] extends CoordinateSeqSpec             ? RaggedArray<FloatArray> :
+    Props[Key] extends CoordinateSeqSeqSeqSpec       ? Arrayable<Arrayable<Arrayable<Arrayable<number>>>> : never
+}
+
+export type Expanded<T> = T extends infer Obj ? {[K in keyof Obj]: Obj[K]} : never
+
+export type GlyphDataOf<Props> = Expanded<CoordsAttrsOf<Props> & ScreenAttrsOf<Props> & MaxAttrsOf<Props> & UniformsOf<Props>>
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
@@ -676,14 +702,14 @@ export class ColorSpec extends DataSpec<types.Color | null> {
   }
 }
 
-export class NDArraySpec extends DataSpec<NDArray> {}
+export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
 export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
 export class NullStringSpec extends DataSpec<string | null> {}
 export class ArraySpec extends DataSpec<any[]> {}
 
-export class MarkerSpec extends DataSpec<enums.MarkerType> {}
+export class MarkerSpec extends DataSpec<enums.MarkerType | null> {}
 export class LineJoinSpec extends DataSpec<enums.LineJoin> {}
 export class LineCapSpec extends DataSpec<enums.LineCap> {}
 export class LineDashSpec extends DataSpec<enums.LineDash | number[]> {}

@@ -30,7 +30,7 @@ import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
 
-export type GlyphData = {}
+export type GlyphData = p.GlyphDataOf<Glyph.Props>
 
 export interface GlyphView extends GlyphData {}
 
