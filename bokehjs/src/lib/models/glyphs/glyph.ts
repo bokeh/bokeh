@@ -14,7 +14,6 @@ import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
-import {isString} from "core/util/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
@@ -115,7 +114,7 @@ export abstract class GlyphView extends View {
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._render(ctx, indices, data ?? this.base ?? undefined)
+      this._render(ctx, indices, data)
     }
   }
 
@@ -196,23 +195,17 @@ export abstract class GlyphView extends View {
   protected _hit_poly?(geometry: geometry.PolyGeometry): Selection
 
   hit_test(geometry: geometry.Geometry): HitTestResult {
-    switch (geometry.type) {
-      case "point":
-        if (this._hit_point != null)
-          return this._hit_point(geometry)
-        break
-      case "span":
-        if (this._hit_span != null)
-          return this._hit_span(geometry)
-        break
-      case "rect":
-        if (this._hit_rect != null)
-          return this._hit_rect(geometry)
-        break
-      case "poly":
-        if (this._hit_poly != null)
-          return this._hit_poly(geometry)
-        break
+    const hit = (() => {
+      switch (geometry.type) {
+        case "point": return this._hit_point?.(geometry)
+        case "span":  return this._hit_span?.(geometry)
+        case "rect":  return this._hit_rect?.(geometry)
+        case "poly":  return this._hit_poly?.(geometry)
+      }
+    })()
+
+    if (hit != null) {
+      return hit
     }
 
     if (!this._nohit_warned.has(geometry.type)) {
@@ -256,31 +249,38 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected _configure(prop: string | p.Property<unknown>, descriptor: PropertyDescriptor): void {
-    Object.defineProperty(this, isString(prop) ? prop : prop.attr, {
+  protected _define_attr(attr: string, value: number | uniforms.Uniform<unknown> | Arrayable<unknown> | RaggedArray<any>): void {
+    Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
-      ...descriptor,
+      value,
     })
+  }
+
+  protected _inherit_from(attr: string, base: this): void {
+    Object.defineProperty(this, attr, {
+      configurable: true,
+      enumerable: true,
+      get() {
+        return base[attr as keyof typeof base]
+      },
+    })
+  }
+
+  protected _can_inherit_from<T>(prop: p.Property<T>, base: this): boolean {
+    const base_prop = base.model.property(prop.attr)
+    return is_equal(prop.get_value(), base_prop.get_value())
   }
 
   set_visuals(source: ColumnarDataSource, indices: Indices): void {
     for (const prop of this._iter_visuals()) {
       const {base} = this
-      if (base != null) {
-        const base_prop = (base.model.properties as {[key: string]: p.Property<unknown> | undefined})[prop.attr]
-        if (base_prop != null && is_equal(prop.get_value(), base_prop.get_value())) {
-          this._configure(prop, {
-            get() {
-              return (base as any)[`${prop.attr}`]
-            },
-          })
-          continue
-        }
+      if (base != null && this._can_inherit_from(prop, base)) {
+        this._inherit_from(prop.attr, base)
+      } else {
+        const uniform = prop.uniform(source).select(indices)
+        this._define_attr(prop.attr, uniform)
       }
-
-      const uniform = prop.uniform(source).select(indices)
-      this._configure(prop, {value: uniform})
     }
 
     for (const visual of this.visuals) {
@@ -290,49 +290,69 @@ export abstract class GlyphView extends View {
     this.glglyph?.set_visuals_changed()
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
+  protected _transform_array<T>(prop: p.BaseCoordinateSpec<T>, array: Arrayable<unknown>) {
     const {x_source, y_source} = this.renderer.coordinates
-    const visual_props = new Set(this._iter_visuals())
+    const range = prop.dimension == "x" ? x_source : y_source
+
+    if (range instanceof FactorRange) {
+      if (prop instanceof p.CoordinateSpec) {
+        array = range.v_synthetic(array as Arrayable<number | Factor>)
+      } else if (prop instanceof p.CoordinateSeqSpec) {
+        for (let i = 0; i < array.length; i++) {
+          array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
+        }
+      } else if (prop instanceof p.CoordinateSeqSeqSeqSpec) {
+        // TODO
+      }
+    }
+
+    let final_array: Arrayable<unknown> | RaggedArray<FloatArray>
+    if (prop instanceof p.CoordinateSeqSpec) {
+      // TODO: infer precision
+      final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
+    } else if (prop instanceof p.CoordinateSeqSeqSeqSpec) {
+      // TODO
+      final_array = array
+    } else {
+      final_array = array
+    }
+
+    return final_array
+  }
+
+  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
+    const visuals = new Set(this._iter_visuals())
+    const {base} = this
 
     this._data_size = indices.count
 
     for (const prop of this.model) {
-      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec))
+      if (!(prop instanceof p.VectorSpec || prop instanceof p.ScalarSpec)) {
         continue
+      }
 
-      if (visual_props.has(prop)) // let set_visuals() do the work, at least for now
+      if (visuals.has(prop)) { // let set_visuals() do the work, at least for now
         continue
+      }
 
-      if (prop instanceof p.BaseCoordinateSpec) {
-        const base_array = prop.array(source)
-        let array = indices.select(base_array)
-
-        const range = prop.dimension == "x" ? x_source : y_source
-        if (range instanceof FactorRange) {
-          if (prop instanceof p.CoordinateSpec) {
-            array = range.v_synthetic(array as Arrayable<number | Factor>)
-          } else if (prop instanceof p.CoordinateSeqSpec) {
-            for (let i = 0; i < array.length; i++) {
-              array[i] = range.v_synthetic(array[i] as Arrayable<number | Factor>)
-            }
-          }
-        }
-
-        let final_array: Arrayable<unknown> | RaggedArray<FloatArray>
-        if (prop instanceof p.CoordinateSeqSpec) {
-          // TODO: infer precision
-          final_array = RaggedArray.from(array as Arrayable<Arrayable<number>>, Float64Array)
-        } else
-          final_array = array
-
-        this._configure(prop.attr, {value: final_array})
-      } else {
-        const uniform = prop.uniform(source).select(indices)
-        this._configure(prop, {value: uniform})
+      if (base != null && this._can_inherit_from(prop, base)) {
+        this._inherit_from(prop.attr, base)
 
         if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
-          const max_value = uniforms.max(uniform)
-          this._configure(`max_${prop.attr}`, {value: max_value})
+          this._inherit_from(`max_${prop.attr}`, base)
+        }
+      } else {
+        if (prop instanceof p.BaseCoordinateSpec) {
+          const array = this._transform_array(prop, indices.select(prop.array(source)))
+          this._define_attr(prop.attr, array)
+        } else {
+          const uniform = prop.uniform(source).select(indices)
+          this._define_attr(prop.attr, uniform)
+
+          if (prop instanceof p.DistanceSpec || prop instanceof p.ScreenSizeSpec) {
+            const max_value = uniforms.max(uniform)
+            this._define_attr(`max_${prop.attr}`, max_value)
+          }
         }
       }
     }
@@ -341,7 +361,7 @@ export abstract class GlyphView extends View {
       this._project_data()
     }
 
-    this._set_data(indices_to_update ?? null)  // TODO doesn't take subset indices into account
+    this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
     for (const decoration of this.decorations.values()) {
       decoration.marking.set_data(source, indices)
@@ -349,7 +369,9 @@ export abstract class GlyphView extends View {
 
     this.glglyph?.set_data_changed()
 
-    this.index_data()
+    if (base == null) {
+      this.index_data()
+    }
   }
 
   protected _set_data(_indices: number[] | null): void {}

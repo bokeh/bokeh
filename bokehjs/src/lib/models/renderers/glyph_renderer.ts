@@ -253,6 +253,12 @@ export class GlyphRendererView extends DataRendererView {
     const {all_indices} = this
 
     this.glyph.set_data(source, all_indices, indices)
+    this.decimated_glyph.set_data(source, all_indices, indices)
+    this.selection_glyph.set_data(source, all_indices, indices)
+    this.nonselection_glyph.set_data(source, all_indices, indices)
+    this.hover_glyph?.set_data(source, all_indices, indices)
+    this.muted_glyph.set_data(source, all_indices, indices)
+
     this.set_visuals()
 
     this._update_masked_indices()
