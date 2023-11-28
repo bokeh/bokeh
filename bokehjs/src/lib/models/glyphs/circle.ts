@@ -1,11 +1,9 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import {to_screen} from "core/types"
-import type {Arrayable} from "core/types"
 import {RadiusDimension} from "core/enums"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
@@ -17,12 +15,7 @@ import {Selection} from "../selections/selection"
 import type {Range1d} from "../ranges/range1d"
 import type {CircleGL} from "./webgl/circle"
 
-export type CircleData = XYGlyphData & p.UniformsOf<Circle.Mixins> & {
-  readonly angle: p.Uniform<number>
-  readonly radius: p.Uniform<number>
-  readonly max_radius: number
-  sradius: Arrayable<number>
-}
+export type CircleData = p.GlyphDataOf<Circle.Props>
 
 export interface CircleView extends CircleData {}
 

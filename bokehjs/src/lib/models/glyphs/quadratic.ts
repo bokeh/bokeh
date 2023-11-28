@@ -1,30 +1,15 @@
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
-  _x0: FloatArray
-  _y0: FloatArray
-  _x1: FloatArray
-  _y1: FloatArray
-  _cx: FloatArray
-  _cy: FloatArray
-
-  sx0: ScreenArray
-  sy0: ScreenArray
-  sx1: ScreenArray
-  sy1: ScreenArray
-  scx: ScreenArray
-  scy: ScreenArray
-}
+export type QuadraticData = p.GlyphDataOf<Quadratic.Props>
 
 export interface QuadraticView extends QuadraticData {}
 

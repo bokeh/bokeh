@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry} from "core/geometry"
 import * as mixins from "core/property_mixins"
@@ -20,13 +19,7 @@ import {round_rect} from "../common/painting"
 
 class TextAnchorSpec extends p.DataSpec<TextAnchor> {}
 
-export type TextData = XYGlyphData & p.UniformsOf<Text.Mixins> & {
-  readonly text: p.Uniform<string | null>
-  readonly angle: p.Uniform<number>
-  readonly x_offset: p.Uniform<number>
-  readonly y_offset: p.Uniform<number>
-  readonly anchor: p.Uniform<TextAnchor>
-
+export type TextData = p.GlyphDataOf<Text.Props> & {
   labels: (TextBox | null)[]
 
   swidth: Float32Array

@@ -1,10 +1,9 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray, Rect} from "core/types"
+import type {Rect} from "core/types"
 import type * as visuals from "core/visuals"
 import * as uniforms from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
@@ -17,10 +16,7 @@ const {abs, max} = Math
 
 const UNUSED = 0
 
-export type HSpanData = GlyphData & p.UniformsOf<HSpan.Mixins> & {
-  _y: FloatArray
-  sy: ScreenArray
-
+export type HSpanData = p.GlyphDataOf<HSpan.Props> & {
   max_line_width: number
 }
 

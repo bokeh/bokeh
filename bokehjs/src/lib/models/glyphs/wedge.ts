@@ -1,10 +1,9 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -14,14 +13,8 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {WedgeGL} from "./webgl/wedge"
 
-export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
-  readonly radius: p.Uniform<number>
-  sradius: ScreenArray
+export type WedgeData = p.GlyphDataOf<Wedge.Props> & {
   max_sradius: number
-  readonly max_radius: number
-
-  readonly start_angle: p.Uniform<number>
-  readonly end_angle: p.Uniform<number>
 }
 
 export interface WedgeView extends WedgeData {}

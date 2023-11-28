@@ -1,19 +1,8 @@
 import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray, ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type QuadData = LRTBData & {
-  _right: FloatArray
-  _bottom: FloatArray
-  _left: FloatArray
-  _top: FloatArray
-
-  sright: ScreenArray
-  sbottom: ScreenArray
-  sleft: ScreenArray
-  stop: ScreenArray
-}
+export type QuadData = LRTBData & p.GlyphDataOf<Quad.Props>
 
 export interface QuadView extends QuadData {}
 

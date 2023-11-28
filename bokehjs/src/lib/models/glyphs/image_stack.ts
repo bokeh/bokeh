@@ -1,11 +1,10 @@
-import type {ImageDataBase} from "./image_base"
 import {ImageBase, ImageBaseView} from "./image_base"
 import {StackColorMapper} from "../mappers/stack_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageStackData = ImageDataBase
+export type ImageStackData = p.GlyphDataOf<ImageStack.Props>
 
 export interface ImageStackView extends ImageData {}
 

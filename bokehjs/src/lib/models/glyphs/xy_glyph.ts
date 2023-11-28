@@ -1,17 +1,9 @@
-import type {FloatArray, ScreenArray} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import * as p from "core/properties"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 
-export type XYGlyphData = GlyphData & {
-  _x: FloatArray
-  _y: FloatArray
-
-  sx: ScreenArray
-  sy: ScreenArray
-}
+export type XYGlyphData = p.GlyphDataOf<XYGlyph.Props>
 
 export interface XYGlyphView extends XYGlyphData {}
 

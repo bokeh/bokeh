@@ -1,4 +1,3 @@
-import type {CenterRotatableData} from "./center_rotatable"
 import {CenterRotatable, CenterRotatableView} from "./center_rotatable"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry, RectGeometry} from "core/geometry"
@@ -20,7 +19,7 @@ import type {RectGL} from "./webgl/rect"
 
 const {abs, sqrt} = Math
 
-export type RectData = CenterRotatableData & {
+export type RectData = p.GlyphDataOf<Rect.Props> & {
   sx0: ScreenArray
   sy1: ScreenArray
   ssemi_diag: ScreenArray
@@ -52,28 +51,28 @@ export class RectView extends CenterRotatableView {
     const n = this.data_size
 
     if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
+      [this.swidth, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
     else {
-      this.sw = to_screen(this.width)
+      this.swidth = to_screen(this.width)
 
       this.sx0 = new ScreenArray(n)
       for (let i = 0; i < n; i++) {
-        this.sx0[i] = this.sx[i] - this.sw[i]/2
+        this.sx0[i] = this.sx[i] - this.swidth[i]/2
       }
     }
 
     if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
+      [this.sheight, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
     else {
-      this.sh = to_screen(this.height)
+      this.sheight = to_screen(this.height)
 
       this.sy1 = new ScreenArray(n)
       for (let i = 0; i < n; i++) {
-        this.sy1[i] = this.sy[i] - this.sh[i]/2
+        this.sy1[i] = this.sy[i] - this.sheight[i]/2
       }
     }
 
-    const {sw, sh} = this
+    const {swidth: sw, sheight: sh} = this
     this.ssemi_diag = new ScreenArray(n)
 
     for (let i = 0; i < n; i++) {
@@ -86,8 +85,8 @@ export class RectView extends CenterRotatableView {
     const scenter_y = new ScreenArray(n)
 
     for (let i = 0; i < n; i++) {
-      scenter_x[i] = this.sx0[i] + this.sw[i]/2
-      scenter_y[i] = this.sy1[i] + this.sh[i]/2
+      scenter_x[i] = this.sx0[i] + this.swidth[i]/2
+      scenter_y[i] = this.sy1[i] + this.sheight[i]/2
     }
 
     this.max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
@@ -95,33 +94,33 @@ export class RectView extends CenterRotatableView {
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
-    const {sx, sy, sx0, sy1, sw, sh, angle, border_radius} = data ?? this
+    const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = data ?? this
 
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sx0_i = sx0[i]
       const sy1_i = sy1[i]
-      const sw_i = sw[i]
-      const sh_i = sh[i]
+      const swidth_i = swidth[i]
+      const sheight_i = sheight[i]
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
+      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + swidth_i + sheight_i + angle_i))
         continue
 
-      if (sw_i == 0 || sh_i == 0)
+      if (swidth_i == 0 || sheight_i == 0)
         continue
 
       ctx.beginPath()
       if (angle_i != 0) {
         ctx.translate(sx_i, sy_i)
         ctx.rotate(angle_i)
-        const box = new BBox({x: -sw_i/2, y: -sh_i/2, width: sw_i, height: sh_i})
+        const box = new BBox({x: -swidth_i/2, y: -sheight_i/2, width: swidth_i, height: sheight_i})
         round_rect(ctx, box, border_radius)
         ctx.rotate(-angle_i)
         ctx.translate(-sx_i, -sy_i)
       } else {
-        const box = new BBox({x: sx0_i, y: sy1_i, width: sw_i, height: sh_i})
+        const box = new BBox({x: sx0_i, y: sy1_i, width: swidth_i, height: sheight_i})
         round_rect(ctx, box, border_radius)
       }
 
@@ -148,7 +147,7 @@ export class RectView extends CenterRotatableView {
       y1: y + this.max_y2_ddist,
     })
 
-    const {sx, sy, sx0, sy1, sw, sh, angle} = this
+    const {sx, sy, sx0, sy1, swidth: sw, sheight: sh, angle} = this
     const indices = []
 
     for (const i of candidates) {

@@ -1,10 +1,9 @@
 import {SpatialIndex} from "core/util/spatial"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2} from "core/util/arrayable"
 import {sum} from "core/util/arrayable"
-import type {Arrayable, Rect, FloatArray, ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, Indices} from "core/types"
 import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,13 +13,7 @@ import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 
-export type MultiPolygonsData = GlyphData & p.UniformsOf<MultiPolygons.Mixins> & {
-  _xs: FloatArray[][][]
-  _ys: FloatArray[][][]
-
-  sxs: ScreenArray[][][]
-  sys: ScreenArray[][][]
-}
+export type MultiPolygonsData = p.GlyphDataOf<MultiPolygons.Props>
 
 export interface MultiPolygonsView extends MultiPolygonsData {}
 

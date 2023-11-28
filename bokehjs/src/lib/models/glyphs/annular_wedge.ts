@@ -1,9 +1,8 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import type * as visuals from "core/visuals"
 import {Direction} from "core/enums"
@@ -14,19 +13,8 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {AnnularWedgeGL} from "./webgl/annular_wedge"
 
-export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
-  readonly inner_radius: p.Uniform<number>
-  readonly outer_radius: p.Uniform<number>
-
-  readonly start_angle: p.Uniform<number>
-  readonly end_angle: p.Uniform<number>
-
-  sinner_radius: ScreenArray
-  souter_radius: ScreenArray
+export type AnnularWedgeData = p.GlyphDataOf<AnnularWedge.Props> & {
   max_souter_radius: number
-
-  readonly max_inner_radius: number
-  readonly max_outer_radius: number
 }
 
 export interface AnnularWedgeView extends AnnularWedgeData {}

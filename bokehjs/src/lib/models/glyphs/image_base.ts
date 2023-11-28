@@ -1,6 +1,5 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import type {ScreenArray} from "core/types"
+import type {Arrayable} from "core/types"
 import {to_screen} from "core/types"
 import {ImageOrigin} from "core/enums"
 import * as p from "core/properties"
@@ -19,26 +18,19 @@ import {anchor} from "../common/resolve"
 
 type ImageData = HTMLCanvasElement | null
 
-export type ImageDataBase = XYGlyphData & {
-  readonly image_data: ImageData[]
-
-  readonly image: p.Uniform<NDArrayType<number>>
-  readonly dw: p.Uniform<number>
-  readonly dh: p.Uniform<number>
-
-  sw: ScreenArray
-  sh: ScreenArray
+export type ImageBaseData = p.GlyphDataOf<ImageBase.Props> & {
+  image_data: Arrayable<ImageData>
 }
 
-export interface ImageBaseView extends ImageDataBase {}
+export interface ImageBaseView extends ImageBaseData {}
 
 export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
   declare visuals: ImageBase.Visuals
 
-  protected _image_data: ImageData[] | null = null
+  protected _image_data: Arrayable<ImageData> | null = null
 
-  get image_data(): ImageData[] {
+  get image_data(): Arrayable<ImageData> {
     assert(this._image_data != null, "data not set")
     return this._image_data
   }
@@ -87,8 +79,8 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageDataBase): void {
-    const {image_data, sx, sy, sw, sh} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: ImageBaseData): void {
+    const {image_data, sx, sy, sdw, sdh} = data ?? this
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
     ctx.save()
@@ -99,20 +91,20 @@ export abstract class ImageBaseView extends XYGlyphView {
         const image_data_i = image_data[i]
         const sx_i = sx[i]
         const sy_i = sy[i]
-        const sw_i = sw[i]
-        const sh_i = sh[i]
+        const sdw_i = sdw[i]
+        const sdh_i = sdh[i]
 
-        if (image_data_i == null || !isFinite(sx_i + sy_i + sw_i + sh_i))
+        if (image_data_i == null || !isFinite(sx_i + sy_i + sdw_i + sdh_i))
           continue
 
-        const tx_i = xy_sign.x*xy_anchor.x*sw_i
-        const ty_i = xy_sign.y*xy_anchor.y*sh_i
+        const tx_i = xy_sign.x*xy_anchor.x*sdw_i
+        const ty_i = xy_sign.y*xy_anchor.y*sdh_i
 
         ctx.save()
         ctx.translate(sx_i - tx_i, sy_i - ty_i)
         ctx.scale(xy_sign.x*xy_scale.x, xy_sign.y*xy_scale.y)
         this.visuals.image.set_vectorize(ctx, i)
-        ctx.drawImage(image_data_i, -xy_offset.x*sw_i, -xy_offset.y*sh_i, sw_i, sh_i)
+        ctx.drawImage(image_data_i, -xy_offset.x*sdw_i, -xy_offset.y*sdh_i, sdw_i, sdh_i)
         ctx.restore()
       }
     }
@@ -199,14 +191,14 @@ export abstract class ImageBaseView extends XYGlyphView {
 
   protected override _map_data(): void {
     if (this.model.properties.dw.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.dw, "edge", this.model.dilate)
+      this.sdw = this.sdist(this.renderer.xscale, this._x, this.dw, "edge", this.model.dilate)
     else
-      this.sw = to_screen(this.dw)
+      this.sdw = to_screen(this.dw)
 
     if (this.model.properties.dh.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.dh, "edge", this.model.dilate)
+      this.sdh = this.sdist(this.renderer.yscale, this._y, this.dh, "edge", this.model.dilate)
     else
-      this.sh = to_screen(this.dh)
+      this.sdh = to_screen(this.dh)
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {

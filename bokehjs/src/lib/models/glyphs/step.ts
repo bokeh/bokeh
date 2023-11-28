@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend} from "./utils"
 import * as mixins from "core/property_mixins"
@@ -10,7 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
 
-export type StepData = XYGlyphData
+export type StepData = p.GlyphDataOf<Step.Props>
 
 export interface StepView extends StepData {}
 

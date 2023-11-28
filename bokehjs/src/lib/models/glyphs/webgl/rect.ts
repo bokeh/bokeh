@@ -15,8 +15,8 @@ export class RectGL extends SXSYGlyphGL {
   protected override _set_data(): void {
     super._set_data()
 
-    this._widths.set_from_array(this.glyph.sw)
-    this._heights.set_from_array(this.glyph.sh)
+    this._widths.set_from_array(this.glyph.swidth)
+    this._heights.set_from_array(this.glyph.sheight)
 
     this._angles.set_from_prop(this.glyph.angle)
 

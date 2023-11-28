@@ -1,5 +1,4 @@
 import type {RenderOne} from "./defs"
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -11,12 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
 
-export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
-  readonly size: p.Uniform<number>
-  readonly angle: p.Uniform<number>
-
-  readonly max_size: number
-}
+export type MarkerData = p.GlyphDataOf<Marker.Props>
 
 export interface MarkerView extends MarkerData {}
 

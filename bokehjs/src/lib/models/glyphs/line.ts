@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
@@ -11,7 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {LineGL} from "./webgl/line_gl"
 
-export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
+export type LineData = p.GlyphDataOf<Line.Props>
 
 export interface LineView extends LineData {}
 

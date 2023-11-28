@@ -1,34 +1,15 @@
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
-  _x0: FloatArray
-  _y0: FloatArray
-  _x1: FloatArray
-  _y1: FloatArray
-  _cx0: FloatArray
-  _cy0: FloatArray
-  _cx1: FloatArray
-  _cy1: FloatArray
-
-  sx0: ScreenArray
-  sy0: ScreenArray
-  sx1: ScreenArray
-  sy1: ScreenArray
-  scx0: ScreenArray
-  scy0: ScreenArray
-  scx1: ScreenArray
-  scy1: ScreenArray
-}
+export type BezierData = p.GlyphDataOf<Bezier.Props>
 
 export interface BezierView extends BezierData {}
 

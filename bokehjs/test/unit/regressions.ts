@@ -124,7 +124,7 @@ function scalar_image(N: number = 100) {
       d[i*N + j] = sin(x[i])*cos(y[j])
     }
   }
-  return ndarray(d, {shape: [N, N]})
+  return ndarray(d, {dtype: "float64", shape: [N, N]})
 }
 
 describe("Bug", () => {

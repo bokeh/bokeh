@@ -1,6 +1,5 @@
 import type {PointGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray} from "core/types"
-import type {AreaData} from "./area"
+import type {Arrayable} from "core/types"
 import {Area, AreaView} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
@@ -10,15 +9,7 @@ import {StepMode} from "core/enums"
 import {flip_step_mode} from "core/util/flip_step_mode"
 import {Selection} from "../selections/selection"
 
-export type VAreaStepData = AreaData & {
-  _x: FloatArray
-  _y1: FloatArray
-  _y2: FloatArray
-
-  sx: ScreenArray
-  sy1: ScreenArray
-  sy2: ScreenArray
-}
+export type VAreaStepData = p.GlyphDataOf<VAreaStep.Props>
 
 export interface VAreaStepView extends VAreaStepData {}
 
@@ -37,7 +28,7 @@ export class VAreaStepView extends AreaView {
     }
   }
 
-  protected _step_path(ctx: Context2d, mode: StepMode, sx: ScreenArray, sy: ScreenArray, from_i: number, to_i: number): void {
+  protected _step_path(ctx: Context2d, mode: StepMode, sx: Arrayable<number>, sy: Arrayable<number>, from_i: number, to_i: number): void {
     // Assume the path was already moved to the first point
     let prev_x = sx[from_i]
     let prev_y = sy[from_i]

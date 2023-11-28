@@ -1,4 +1,3 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 
 import type {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
@@ -18,14 +17,9 @@ import type {HexTileGL} from "./webgl/hex_tile"
 
 export type Vertices = [number, number, number, number, number, number]
 
-export type HexTileData = GlyphData & p.UniformsOf<HexTile.Mixins> & {
-  readonly q: p.Uniform<number>
-  readonly r: p.Uniform<number>
-
+export type HexTileData = p.GlyphDataOf<HexTile.Props> & {
   _x: FloatArray
   _y: FloatArray
-
-  readonly scale: p.Uniform<number>
 
   sx: ScreenArray
   sy: ScreenArray

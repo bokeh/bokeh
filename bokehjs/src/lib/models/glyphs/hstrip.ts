@@ -1,10 +1,9 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {FloatArray, Rect} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import {ScreenArray} from "core/types"
 import type * as visuals from "core/visuals"
 import type {Context2d} from "core/util/canvas"
@@ -17,13 +16,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
-export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
-  _y0: FloatArray
-  _y1: FloatArray
-
-  sy0: ScreenArray
-  sy1: ScreenArray
-
+export type HStripData = p.GlyphDataOf<HStrip.Props> & {
   max_height: number
 }
 
@@ -46,7 +39,7 @@ export class HStripView extends GlyphView {
     }
   }
 
-  get sleft(): ScreenArray {
+  get sleft(): Arrayable<number> {
     const {left} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const sleft = new ScreenArray(n)
@@ -54,7 +47,7 @@ export class HStripView extends GlyphView {
     return sleft
   }
 
-  get sright(): ScreenArray {
+  get sright(): Arrayable<number> {
     const {right} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const sright = new ScreenArray(n)
@@ -62,11 +55,11 @@ export class HStripView extends GlyphView {
     return sright
   }
 
-  get stop(): ScreenArray {
+  get stop(): Arrayable<number> {
     return this.sy0
   }
 
-  get sbottom(): ScreenArray {
+  get sbottom(): Arrayable<number> {
     return this.sy1
   }
 

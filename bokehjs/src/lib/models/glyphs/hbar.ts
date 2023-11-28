@@ -1,21 +1,15 @@
 import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray} from "core/types"
+import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type HBarData = LRTBData & {
-  _left: FloatArray
-  _y: FloatArray
-  readonly height: p.Uniform<number>
-  _right: FloatArray
+export type HBarData = LRTBData & p.GlyphDataOf<HBar.Props> & {
+  _y: Arrayable<number>
+  height: p.Uniform<number>
 
-  sy: ScreenArray
-  sh: ScreenArray
-  sleft: ScreenArray
-  sright: ScreenArray
-  stop: ScreenArray
-  sbottom: ScreenArray
+  sy: Arrayable<number>
+  swidth: Arrayable<number>
 }
 
 export interface HBarView extends HBarData {}
@@ -46,7 +40,7 @@ export class HBarView extends LRTBView {
 
   protected override _map_data(): void {
     this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
+    this.swidth = this.sdist(this.renderer.yscale, this._y, this.height, "center")
     this.sleft = this.renderer.xscale.v_compute(this._left)
     this.sright = this.renderer.xscale.v_compute(this._right)
 
@@ -54,8 +48,8 @@ export class HBarView extends LRTBView {
     this.stop = new ScreenArray(n)
     this.sbottom = new ScreenArray(n)
     for (let i = 0; i < n; i++) {
-      this.stop[i] = this.sy[i] - this.sh[i]/2
-      this.sbottom[i] = this.sy[i] + this.sh[i]/2
+      this.stop[i] = this.sy[i] - this.swidth[i]/2
+      this.sbottom[i] = this.sy[i] + this.swidth[i]/2
     }
 
     this._clamp_viewport()

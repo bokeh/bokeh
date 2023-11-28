@@ -10,6 +10,7 @@ export abstract class Uniform<T = number> implements Equatable {
   abstract [Symbol.iterator](): Generator<T, void, undefined>
   abstract select(indices: Indices): Uniform<T>
   abstract [equals](that: this, cmp: Comparator): boolean
+  abstract map<U>(fn: (v: T) => U): Uniform<U>
 
   is_Scalar(): this is UniformScalar<T> { return this.is_scalar }
   is_Vector(): this is UniformVector<T> { return !this.is_scalar }
@@ -40,6 +41,10 @@ export class UniformScalar<T> extends Uniform<T> {
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.length, that.length) && cmp.eq(this.value, that.value)
   }
+
+  map<U>(fn: (v: T) => U): UniformScalar<U> {
+    return new UniformScalar(fn(this.value), this.length)
+  }
 }
 
 export class UniformVector<T> extends Uniform<T> {
@@ -66,6 +71,10 @@ export class UniformVector<T> extends Uniform<T> {
 
   [equals](that: this, cmp: Comparator): boolean {
     return cmp.eq(this.length, that.length) && cmp.eq(this.array, that.array)
+  }
+
+  map<U>(fn: (v: T) => U): UniformVector<U> {
+    return new UniformVector(arrayable.map(this.array, fn))
   }
 }
 

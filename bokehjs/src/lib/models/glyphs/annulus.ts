@@ -1,6 +1,5 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -10,16 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {AnnulusGL} from "./webgl/annulus"
 
-export type AnnulusData = XYGlyphData & p.UniformsOf<Annulus.Mixins> & {
-  readonly inner_radius: p.Uniform<number>
-  readonly outer_radius: p.Uniform<number>
-
-  sinner_radius: ScreenArray
-  souter_radius: ScreenArray
-
-  readonly max_inner_radius: number
-  readonly max_outer_radius: number
-}
+export type AnnulusData = p.GlyphDataOf<Annulus.Props>
 
 export interface AnnulusView extends AnnulusData {}
 

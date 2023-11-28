@@ -1,6 +1,5 @@
 import type {PointGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray} from "core/types"
-import type {AreaData} from "./area"
+import type {Arrayable} from "core/types"
 import {Area, AreaView} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
@@ -10,15 +9,7 @@ import {StepMode} from "core/enums"
 import {flip_step_mode} from "core/util/flip_step_mode"
 import {Selection} from "../selections/selection"
 
-export type HAreaStepData = AreaData & {
-  _x1: FloatArray
-  _x2: FloatArray
-  _y: FloatArray
-
-  sx1: ScreenArray
-  sx2: ScreenArray
-  sy: ScreenArray
-}
+export type HAreaStepData = p.GlyphDataOf<HAreaStep.Props>
 
 export interface HAreaStepView extends HAreaStepData {}
 
@@ -37,23 +28,24 @@ export class HAreaStepView extends AreaView {
     }
   }
 
-  protected _step_path(ctx: Context2d, mode: StepMode, sx: ScreenArray, sy: ScreenArray, from_i: number, to_i: number): void {
+  protected _step_path(ctx: Context2d, mode: StepMode, sx: Arrayable<number>, sy: Arrayable<number>, from_i: number, to_i: number): void {
     // Assume the path was already moved to the first point
     let prev_x = sx[from_i]
     let prev_y = sy[from_i]
     const idx_dir = from_i < to_i ? 1 : -1
     for (let i = from_i + idx_dir; i != to_i; i += idx_dir) {
       switch (mode) {
-        case "before":
+        case "before": {
           ctx.lineTo(sx[i], prev_y)
           ctx.lineTo(sx[i], sy[i])
           break
-        case "after":
+        }
+        case "after": {
           ctx.lineTo(prev_x, sy[i])
           ctx.lineTo(sx[i], sy[i])
           break
-        case "center":
-        {
+        }
+        case "center": {
           const mid_y = (prev_y + sy[i]) / 2
           ctx.lineTo(prev_x, mid_y)
           ctx.lineTo(sx[i], mid_y)

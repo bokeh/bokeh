@@ -1,15 +1,14 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {FloatArray, ScreenArray} from "core/types"
+import type {Arrayable, ScreenArray} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 
-export type SplineData = XYGlyphData & {
-  _xt: FloatArray
-  _yt: FloatArray
+export type SplineData = p.GlyphDataOf<Spline.Props> & {
+  _xt: Arrayable<number>
+  _yt: Arrayable<number>
   sxt: ScreenArray
   syt: ScreenArray
 }

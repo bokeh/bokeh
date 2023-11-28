@@ -1,6 +1,4 @@
 import type {PointGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray} from "core/types"
-import type {AreaData} from "./area"
 import {Area, AreaView} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
@@ -8,15 +6,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type HAreaData = AreaData & {
-  _x1: FloatArray
-  _x2: FloatArray
-  _y: FloatArray
-
-  sx1: ScreenArray
-  sx2: ScreenArray
-  sy: ScreenArray
-}
+export type HAreaData = p.GlyphDataOf<HArea.Props>
 
 export interface HAreaView extends HAreaData {}
 

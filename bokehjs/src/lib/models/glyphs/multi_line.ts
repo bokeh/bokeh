@@ -3,25 +3,18 @@ import {inplace} from "core/util/projections"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
+import type {Rect, RaggedArray, FloatArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
 
-export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
-  _xs: RaggedArray<FloatArray>
-  _ys: RaggedArray<FloatArray>
-
-  sxs: RaggedArray<ScreenArray>
-  sys: RaggedArray<ScreenArray>
-}
+export type MultiLineData = p.GlyphDataOf<MultiLine.Props>
 
 export interface MultiLineView extends MultiLineData {}
 

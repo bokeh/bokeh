@@ -1,10 +1,9 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect, Arrayable} from "core/types"
 import type {Anchor} from "core/enums"
 import type * as visuals from "core/visuals"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
@@ -20,16 +19,16 @@ import type {LRTBGL} from "./webgl/lrtb"
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
 
-export type LRTBData = GlyphData & p.UniformsOf<LRTB.Mixins> & {
-  _right: FloatArray
-  _bottom: FloatArray
-  _left: FloatArray
-  _top: FloatArray
+export type LRTBData = p.GlyphDataOf<LRTB.Props> & {
+  _right: Arrayable<number>
+  _bottom: Arrayable<number>
+  _left: Arrayable<number>
+  _top: Arrayable<number>
 
-  sright: ScreenArray
-  sbottom: ScreenArray
-  sleft: ScreenArray
-  stop: ScreenArray
+  sright: Arrayable<number>
+  sbottom: Arrayable<number>
+  sleft: Arrayable<number>
+  stop: Arrayable<number>
 
   border_radius: Corners<number>
 }

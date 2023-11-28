@@ -1,21 +1,10 @@
 import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray} from "core/types"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type BlockData = LRTBData & {
-  _x: FloatArray
-  _y: FloatArray
-  readonly width: p.Uniform<number>
-  readonly height: p.Uniform<number>
-
-  stop: ScreenArray
-  sbottom: ScreenArray
-  sleft: ScreenArray
-  sright: ScreenArray
-
-  readonly max_width: number
+export type BlockData = LRTBData & p.GlyphDataOf<Block.Props> & {
+  max_width: number
 }
 
 export interface BlockView extends BlockData {}

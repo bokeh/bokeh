@@ -72,7 +72,7 @@ export class ImageGL extends BaseGLGlyph {
       this._bounds = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
-      const {sx, sy, sw, sh, xy_anchor, xy_scale, xy_sign} = this.glyph
+      const {sx, sy, sdw: sw, sdh: sh, xy_anchor, xy_scale, xy_sign} = this.glyph
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sw_i = sw[i]

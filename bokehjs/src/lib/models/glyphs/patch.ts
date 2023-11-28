@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_scalar_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
@@ -10,7 +9,7 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type PatchData = XYGlyphData & p.UniformsOf<Patch.Mixins>
+export type PatchData = p.GlyphDataOf<Patch.Props>
 
 export interface PatchView extends PatchData {}
 

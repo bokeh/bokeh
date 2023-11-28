@@ -1,4 +1,3 @@
-import type {ImageDataBase} from "./image_base"
 import {ImageBase, ImageBaseView} from "./image_base"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
@@ -6,7 +5,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageData = ImageDataBase
+export type ImageData = p.GlyphDataOf<Image.Props>
 
 export interface ImageView extends ImageData {}
 

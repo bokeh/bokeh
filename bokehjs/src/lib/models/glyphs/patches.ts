@@ -1,9 +1,8 @@
 import type {SpatialIndex} from "core/util/spatial"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2, sum} from "core/util/arrayable"
-import type {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, Indices} from "core/types"
 import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,13 +13,7 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
-  _xs: RaggedArray<FloatArray>
-  _ys: RaggedArray<FloatArray>
-
-  sxs: RaggedArray<ScreenArray>
-  sys: RaggedArray<ScreenArray>
-}
+export type PatchesData = p.GlyphDataOf<Patches.Props>
 
 export interface PatchesView extends PatchesData {}
 
