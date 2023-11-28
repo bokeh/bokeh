@@ -24,8 +24,8 @@ export class VAreaView extends AreaView {
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: VArea.Data): void {
-    const {sx, sy1, sy2} = data ?? this
+  protected _render(ctx: Context2d, _indices: number[], data?: Partial<VArea.Data>): void {
+    const {sx, sy1, sy2} = {...this, ...data}
 
     ctx.beginPath()
     for (let i = 0, end = sy1.length; i < end; i++) {

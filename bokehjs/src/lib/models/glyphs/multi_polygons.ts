@@ -112,11 +112,11 @@ export class MultiPolygonsView extends GlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: MultiPolygons.Data): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<MultiPolygons.Data>): void {
     if (!this.visuals.fill.doit && !this.visuals.line.doit)
       return
 
-    const {sxs, sys} = data ?? this
+    const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {
       ctx.beginPath()

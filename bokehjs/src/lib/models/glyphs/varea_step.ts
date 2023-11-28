@@ -55,8 +55,8 @@ export class VAreaStepView extends AreaView {
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: VAreaStep.Data): void {
-    const {sx, sy1, sy2} = data ?? this
+  protected _render(ctx: Context2d, _indices: number[], data?: Partial<VAreaStep.Data>): void {
+    const {sx, sy1, sy2} = {...this, ...data}
 
     const forward_mode = this.model.step_mode
     const backward_mode = flip_step_mode(this.model.step_mode)

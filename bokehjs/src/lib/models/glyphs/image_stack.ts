@@ -4,7 +4,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export interface ImageStackView extends Image.Data {}
+export interface ImageStackView extends ImageBase.Data {}
 
 export class ImageStackView extends ImageBaseView {
   declare model: ImageStack
@@ -33,7 +33,7 @@ export class ImageStackView extends ImageBaseView {
     }
 
     // Only reset image_data if already initialized
-    if (this._image_data != null) {
+    if (this.image_data != null) {
       this._set_data(null)
       this.renderer.request_render()
     }

@@ -84,8 +84,8 @@ export class RectView extends CenterRotatableView {
     this.max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Rect.Data): void {
-    const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Rect.Data>): void {
+    const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]

@@ -49,8 +49,8 @@ export class HSpanView extends GlyphView {
     return [hcenter, this.sy[i]]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HSpan.Data): void {
-    const {sy} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<HSpan.Data>): void {
+    const {sy} = {...this, ...data}
     const {left, right} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {

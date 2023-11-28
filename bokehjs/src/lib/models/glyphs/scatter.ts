@@ -18,8 +18,8 @@ export class ScatterView extends MarkerView {
     return MultiMarkerGL
   }
 
-  protected override _render(ctx: Context2d, indices: number[], data?: Scatter.Data): void {
-    const {sx, sy, size, angle, marker} = data ?? this
+  protected override _render(ctx: Context2d, indices: number[], data?: Partial<Scatter.Data>): void {
+    const {sx, sy, size, angle, marker} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]

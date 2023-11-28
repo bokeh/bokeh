@@ -40,8 +40,8 @@ export class AnnularWedgeView extends XYGlyphView {
     this.max_souter_radius = max(this.souter_radius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: AnnularWedge.Data): void {
-    const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<AnnularWedge.Data>): void {
+    const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {

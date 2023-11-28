@@ -49,8 +49,8 @@ export class VSpanView extends GlyphView {
     return [this.sx[i], vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VSpan.Data): void {
-    const {sx} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<VSpan.Data>): void {
+    const {sx} = {...this, ...data}
     const {top, bottom} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {

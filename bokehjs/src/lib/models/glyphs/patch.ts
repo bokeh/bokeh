@@ -15,8 +15,8 @@ export class PatchView extends XYGlyphView {
   declare model: Patch
   declare visuals: Patch.Visuals
 
-  protected _render(ctx: Context2d, indices: number[], data?: Patch.Data): void {
-    const {sx, sy} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Patch.Data>): void {
+    const {sx, sy} = {...this, ...data}
 
     let move = true
     ctx.beginPath()

@@ -147,8 +147,8 @@ export class ImageURLView extends XYGlyphView {
       this.sh = to_screen(h)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageURL.Data): void {
-    const {sx, sy, sw, sh, angle, global_alpha} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
+    const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
     const {image, loaders, resolved} = this
 
     // TODO (bev): take actual border width into account when clipping

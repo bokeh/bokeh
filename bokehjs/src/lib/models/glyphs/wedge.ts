@@ -35,8 +35,8 @@ export class WedgeView extends XYGlyphView {
     this.max_sradius = max(this.sradius)
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Wedge.Data): void {
-    const {sx, sy, sradius, start_angle, end_angle} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Wedge.Data>): void {
+    const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {

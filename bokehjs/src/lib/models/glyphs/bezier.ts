@@ -46,7 +46,7 @@ export class BezierView extends GlyphView {
     if (!this.visuals.line.doit)
       return
 
-    const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = data ?? this
+    const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = {...this, ...data}
 
     for (const i of indices) {
       const sx0_i = sx0[i]

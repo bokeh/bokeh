@@ -23,12 +23,12 @@ export class StepView extends XYGlyphView {
     return StepGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Step.Data): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const npoints = indices.length
     if (npoints < 2)
       return
 
-    const {sx, sy} = data ?? this
+    const {sx, sy} = {...this, ...data}
     const mode = this.model.mode
 
     this.visuals.line.set_value(ctx)

@@ -18,8 +18,8 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], data?: Marker.Data): void {
-    const {sx, sy, size, angle} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Marker.Data>): void {
+    const {sx, sy, size, angle} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -142,7 +142,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): Marker.Data {
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): Partial<Marker.Data> {
     // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const n = index + 1
 
@@ -157,12 +157,12 @@ export abstract class MarkerView extends XYGlyphView {
 
     const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
 
-    return {sx, sy, size, angle} as any
+    return {sx, sy, size, angle}
   }
 
   override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const args = this._get_legend_args({x0, x1, y0, y1}, index)
-    this._render(ctx, [index], args) // XXX
+    this._render(ctx, [index], args)
   }
 }
 

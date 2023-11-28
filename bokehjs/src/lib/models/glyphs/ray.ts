@@ -29,11 +29,11 @@ export class RayView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: Ray.Data): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
     if (!this.visuals.line.doit)
       return
 
-    const {sx, sy, slength, angle} = data ?? this
+    const {sx, sy, slength, angle} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]

@@ -24,12 +24,7 @@ export abstract class ImageBaseView extends XYGlyphView {
   declare model: ImageBase
   declare visuals: ImageBase.Visuals
 
-  protected _image_data: Arrayable<ImageData> | null = null
-
-  get image_data(): Arrayable<ImageData> {
-    assert(this._image_data != null, "data not set")
-    return this._image_data
-  }
+  image_data: Arrayable<ImageData>
 
   protected _width: Uint32Array
   protected _height: Uint32Array
@@ -75,8 +70,8 @@ export abstract class ImageBaseView extends XYGlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageBase.Data): void {
-    const {image_data, sx, sy, sdw, sdh} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageBase.Data>): void {
+    const {image_data, sx, sy, sdw, sdh} = {...this, ...data}
     const {xy_sign, xy_scale, xy_offset, xy_anchor} = this
 
     ctx.save()
@@ -113,8 +108,8 @@ export abstract class ImageBaseView extends XYGlyphView {
   protected override _set_data(indices: number[] | null): void {
     const n = this.data_size
 
-    if (this._image_data == null || this._image_data.length != n) {
-      this._image_data = new Array(n).fill(null)
+    if (typeof this.image_data == "undefined" || this.image_data.length != n) {
+      this.image_data = new Array(n).fill(null)
       this._width = new Uint32Array(n)
       this._height = new Uint32Array(n)
     }

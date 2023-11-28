@@ -109,13 +109,13 @@ export abstract class GlyphView extends View {
     return this.renderer.parent.canvas_view
   }
 
-  render(ctx: Context2d, indices: number[], data?: Glyph.Data): void {
+  render(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {
     if (this.glglyph != null) {
       this.glglyph.render(ctx, indices, this.base ?? this)
     } else if (this.canvas.webgl != null && settings.force_webgl) {
       throw new Error(`${this} doesn't support webgl rendering`)
     } else {
-      this._render(ctx, indices, data ?? this.base)
+      this._render(ctx, indices, data ?? this.base ?? undefined)
     }
   }
 
@@ -242,10 +242,18 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected base?: this
+  protected _base: this | null = null
+
+  get base(): this | null {
+    return this._base
+  }
+
   set_base<T extends this>(base: T): void {
-    if (base != this && base instanceof this.constructor)
-      this.base = base
+    if (base != this && base instanceof this.constructor) {
+      this._base = base
+    } else {
+      this._base = null
+    }
   }
 
   protected _configure(prop: string | p.Property<unknown>, descriptor: PropertyDescriptor): void {
