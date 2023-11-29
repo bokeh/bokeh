@@ -15,6 +15,7 @@ import {
   ColumnDataSource,
   CopyTool,
   CustomJS,
+  DataRange1d,
   GlyphRenderer,
   HoverTool,
   Legend,
@@ -63,8 +64,8 @@ import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
-import {Spectral11} from "@bokehjs/api/palettes"
-import {defer, paint, poll} from "@bokehjs/core/util/defer"
+import {Spectral11, Viridis256} from "@bokehjs/api/palettes"
+import {defer, delay, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
@@ -1265,6 +1266,83 @@ describe("Bug", () => {
           color: ["red", "green"],
         })
       })
+    })
+  })
+
+  describe("in issue #13555", () => {
+    it("doesn't allow to computed correct image index for inverted ranges", async () => {
+      const n = 5
+
+      async function plot(x_flipped: boolean, y_flipped: boolean) {
+        const x = linspace(0, 10, n)
+        const y = linspace(0, 10, n)
+
+        const values: number[] = []
+        for (const yi of y) {
+          for (const xi of x) {
+            values.push(xi + yi)
+          }
+        }
+        const image = ndarray(values, {dtype: "float64", shape: [n, n]})
+
+        const x_range = new DataRange1d({flipped: x_flipped})
+        const y_range = new DataRange1d({flipped: y_flipped})
+
+        const p = fig([300, 300], {x_range, y_range, toolbar_location: "right"})
+
+        const color_mapper = new LinearColorMapper({palette: Viridis256})
+        const img = p.image({image: [image], x: 0, y: 0, dw: 2*n, dh: 2*n, color_mapper})
+
+        const hover = new TapTool({renderers: [img], behavior: "select"})
+        p.add_tools(hover)
+
+        const {view} = await display(p)
+        return {view, img}
+      }
+
+      function image_index(i: number, j: number) {
+        return [{index: 0, i, j, flat_index: j*n + i}]
+      }
+
+      async function test(options: {x_flipped: boolean, y_flipped: boolean}) {
+        const {x_flipped, y_flipped} = options
+
+        const {view, img} = await plot(x_flipped, y_flipped)
+        const actions = new PlotActions(view)
+
+        await actions.tap({x: 1, y: 1})
+        await view.ready
+        await delay(500) // remove in PR #12831
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, 0))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: 2*n-1, y: 1})
+        await view.ready
+        await delay(500) // remove in PR #12831
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, 0))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: 1, y: 2*n-1})
+        await view.ready
+        await delay(500) // remove in PR #12831
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, n-1))
+        img.data_source.selected.clear()
+        await view.ready
+
+        await actions.tap({x: 2*n-1, y: 2*n-1})
+        await view.ready
+        await delay(500) // remove in PR #12831
+        expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, n-1))
+        img.data_source.selected.clear()
+        await view.ready
+      }
+
+      await test({x_flipped: false, y_flipped: false})
+      await test({x_flipped: true,  y_flipped: false})
+      await test({x_flipped: false, y_flipped: true})
+      await test({x_flipped: true,  y_flipped: true})
     })
   })
 })
