@@ -209,18 +209,14 @@ export abstract class ImageBaseView extends XYGlyphView {
     })
   }
 
-  _image_index(index: number, x: number, y: number): ImageIndex {
+  protected _image_index(index: number, x: number, y: number): ImageIndex {
     const [l, r, t, b] = this._lrtb(index)
     const width = this._width[index]
     const height = this._height[index]
     const dx = (r - l) / width
     const dy = (t - b) / height
-    let i = Math.floor((x - l) / dx)
-    let j = Math.floor((y - b) / dy)
-    if (this.renderer.xscale.source_range.is_reversed)
-      i = width-i-1
-    if (this.renderer.yscale.source_range.is_reversed)
-      j = height-j-1
+    const i = Math.floor((x - l) / dx)
+    const j = Math.floor((y - b) / dy)
     return {index, i, j, flat_index: j*width + i}
   }
 
@@ -234,7 +230,7 @@ export abstract class ImageBaseView extends XYGlyphView {
 
     const indices = []
     for (const index of candidates) {
-      if (sx != Infinity && sy != Infinity) {
+      if (isFinite(sx) && isFinite(sy)) {
         indices.push(index)
         result.image_indices.push(this._image_index(index, x, y))
       }
