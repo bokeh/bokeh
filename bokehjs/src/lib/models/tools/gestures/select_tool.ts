@@ -12,12 +12,14 @@ import type {Geometry} from "core/geometry"
 import {Signal0} from "core/signaling"
 import type {MenuItem} from "core/util/menus"
 import {unreachable} from "core/util/assert"
+import {uniq} from "core/util/array"
 
 export abstract class SelectToolView extends GestureToolView {
   declare model: SelectTool
 
   override connect_signals(): void {
     super.connect_signals()
+    this.model.invert.connect(() => this._invert_selection())
     this.model.clear.connect(() => this._clear_selection())
   }
 
@@ -57,7 +59,21 @@ export abstract class SelectToolView extends GestureToolView {
   }
 
   protected _clear_selection(): void {
-    this._clear()
+    const {computed_renderers} = this
+    const selection_managers = uniq(computed_renderers.map((r) => r.selection_manager))
+    for (const selection_manager of selection_managers) {
+      selection_manager.clear()
+    }
+    this.plot_view.request_paint(computed_renderers)
+  }
+
+  protected _invert_selection(): void {
+    const {computed_renderers} = this
+    const selection_managers = uniq(computed_renderers.map((r) => r.selection_manager))
+    for (const selection_manager of selection_managers) {
+      selection_manager.invert()
+    }
+    this.plot_view.request_paint(computed_renderers)
   }
 
   protected _select_mode(modifiers: KeyModifiers): SelectionMode {
@@ -80,16 +96,8 @@ export abstract class SelectToolView extends GestureToolView {
       return
 
     if (ev.key == "Escape") {
-      this._clear()
+      this._clear_selection()
     }
-  }
-
-  _clear(): void {
-    for (const renderer of this.computed_renderers) {
-      renderer.get_selection_manager().clear()
-    }
-    const renderer_views = this.computed_renderers.map((r) => this.plot_view.renderer_view(r)!)
-    this.plot_view.request_paint(renderer_views)
   }
 
   protected abstract _select(geometry: Geometry, final: boolean, mode: SelectionMode): void
@@ -145,15 +153,11 @@ export abstract class SelectTool extends GestureTool {
   declare properties: SelectTool.Props
   declare __view_type__: SelectToolView
 
-  clear: Signal0<this>
+  readonly invert = new Signal0(this, "invert")
+  readonly clear = new Signal0(this, "clear")
 
   constructor(attrs?: Partial<SelectTool.Attrs>) {
     super(attrs)
-  }
-
-  override initialize(): void {
-    super.initialize()
-    this.clear = new Signal0(this, "clear")
   }
 
   static {
@@ -197,9 +201,23 @@ export abstract class SelectTool extends GestureTool {
           this.mode = "subtract"
           this.active = true
         },
+      }, {
+        icon: "bk-tool-icon-xor-mode",
+        tooltip: "Symmetric difference with the current selection",
+        active: () => this.mode == "xor",
+        handler: () => {
+          this.mode = "xor"
+          this.active = true
+        },
       },
       null,
       {
+        icon: "bk-tool-icon-invert-selection",
+        tooltip: "Invert the current selection",
+        handler: () => {
+          this.invert.emit()
+        },
+      }, {
         icon: "bk-tool-icon-clear-selection",
         tooltip: "Clear the current selection and/or selection overlay (Esc)",
         handler: () => {

@@ -67,7 +67,7 @@ class Selection(Model):
 
     For "multi" glyphs such as ``Patches``, ``MultiLine``, ``MultiPolygons``,
     etc, this list records the indices of which entire sub-items are selected.
-    For example, which indidual polygons of a ``MultiPolygon`` are selected.
+    For example, which individual polygons of a ``MultiPolygon`` are selected.
     """)
 
     line_indices = Seq(Int, default=[], help="""
@@ -80,8 +80,8 @@ class Selection(Model):
     multiline_indices = Dict(String, Seq(Int), default={}, help="""
     The detailed point indices included in a selection on a ``MultiLine``.
 
-    This value records which points, on which lines, are part of a seletion on
-    a ``MulitLine``. The keys are the top level indices (i.e., which line)
+    This value records which points, on which lines, are part of a selection
+    on a ``MultiLine``. The keys are the top level indices (i.e. which line)
     which map to lists of indices (i.e. which points on that line).
 
     If you only need to know which lines are selected, without knowing what

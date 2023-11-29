@@ -50,4 +50,11 @@ describe("Selection", () => {
     s.clear()
     expect(s.indices).to.be.equal([])
   })
+
+  it("should be invertible", () => {
+    const s = new Selection()
+    s.update(some_1d_selection, true, "replace")
+    s.invert(10)
+    expect(s.indices).to.be.equal([0, 1, 2, 3, 6, 7, 8, 9])
+  })
 })

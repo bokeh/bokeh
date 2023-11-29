@@ -196,6 +196,25 @@ export function difference<T>(array: Arrayable<T>, ...arrays: Arrayable<T>[]): A
   return filter(array, (value) => !rest.has(value))
 }
 
+export function symmetric_difference<T>(array0: Arrayable<T>, array1: Arrayable<T>): Arrayable<T> {
+  const set0 = new Set(array0)
+  const set1 = new Set(array1)
+
+  const result: T[] = []
+  for (const val of set0) {
+    if (!set1.has(val)) {
+      result.push(val)
+    }
+  }
+  for (const val of set1) {
+    if (!set0.has(val)) {
+      result.push(val)
+    }
+  }
+
+  return result
+}
+
 export function remove_at<T>(array: T[], i: number): T[] {
   assert(isInteger(i) && i >= 0)
   const result = copy(array)

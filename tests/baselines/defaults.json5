@@ -5819,6 +5819,7 @@
       "Tap",
       "SelectTool",
     ],
+    mode: "xor",
     behavior: "select",
     gesture: "tap",
     modifiers: {

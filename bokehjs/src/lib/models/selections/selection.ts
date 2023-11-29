@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import type * as p from "core/properties"
 import type {SelectionMode} from "core/enums"
-import {union, intersection, difference} from "core/util/array"
+import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge, entries, to_object} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int} from "../../core/kinds"
@@ -70,12 +70,7 @@ export class Selection extends Model {
   update(selection: Selection, _final: boolean = true, mode: SelectionMode = "replace"): void {
     switch (mode) {
       case "replace": {
-        this.indices = selection.indices
-        this.line_indices = selection.line_indices
-        this.multiline_indices = selection.multiline_indices
-        this.image_indices = selection.image_indices
-        this.view = selection.view
-        this.selected_glyphs = selection.selected_glyphs
+        this.update_through_replacement(selection)
         break
       }
       case "append": {
@@ -90,7 +85,28 @@ export class Selection extends Model {
         this.update_through_subtraction(selection)
         break
       }
+      case "xor": {
+        this.update_through_symmetric_difference(selection)
+        break
+      }
     }
+  }
+
+  // TODO `size` wouldn't be needed if `indices` was an instance of
+  // `Indices` class, instead of an array of numbers. Then also we
+  // could just call `.invert()` on the class.
+  invert(size: number): void {
+    const indices = new Set(this.indices)
+    const inversion = []
+    for (let i = 0; i < size; i++) {
+      if (!indices.has(i)) {
+        inversion.push(i)
+      }
+    }
+    this.indices = inversion
+    // this.line_indices
+    // this.multiline_indices
+    // this.image_indices
   }
 
   clear(): void {
@@ -116,6 +132,15 @@ export class Selection extends Model {
     return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
+  update_through_replacement(other: Selection): void {
+    this.indices = other.indices
+    this.line_indices = other.line_indices
+    this.multiline_indices = other.multiline_indices
+    this.image_indices = other.image_indices
+    this.view = other.view
+    this.selected_glyphs = other.selected_glyphs
+  }
+
   update_through_union(other: Selection): void {
     this.indices = union(this.indices, other.indices)
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
@@ -135,6 +160,15 @@ export class Selection extends Model {
 
   update_through_subtraction(other: Selection): void {
     this.indices = difference(this.indices, other.indices)
+    // TODO: think through and fix any logic below
+    this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
+    this.line_indices = union(other.line_indices, this.line_indices)
+    this.view = other.view
+    this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
+  }
+
+  update_through_symmetric_difference(other: Selection): void {
+    this.indices = symmetric_difference(this.indices, other.indices)
     // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)

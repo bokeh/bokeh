@@ -29,6 +29,7 @@ import {
   Row,
   Scatter,
   TablerIcon,
+  TapTool,
   TileRenderer,
   Title,
   Toolbar,
@@ -461,7 +462,7 @@ describe("Bug", () => {
       const p = fig([100, 100], {
         x_range: [0, 2], y_range: [0, 2],
         x_axis_type: null, y_axis_type: null,
-        tools: "tap",
+        tools: [new TapTool({mode: "replace"})],
         min_border: 10,
       })
       const r = p.block({x: [0, 1], y: [0, 1], width: 1, height: 1})

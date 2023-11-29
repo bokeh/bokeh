@@ -459,7 +459,7 @@ RoundingFunction = enumeration("round", "nearest", "floor", "rounddown", "ceil",
 ScrollbarPolicy = enumeration("auto", "visible", "hidden")
 
 #: Selection modes
-SelectionMode = enumeration("replace", "append", "intersect", "subtract")
+SelectionMode = enumeration("replace", "append", "intersect", "subtract", "xor")
 
 #: Sizing mode policies
 SizingModeType = Literal["stretch_width", "stretch_height", "stretch_both", "scale_width", "scale_height", "scale_both", "fixed", "inherit"]

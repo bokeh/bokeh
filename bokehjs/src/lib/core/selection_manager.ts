@@ -66,10 +66,22 @@ export class SelectionManager {
     return did_hit
   }
 
+  invert(rview?: DataRendererView): void {
+    const n = this.source.get_length()
+    if (n == null) {
+      return
+    }
+    this.source.selected.invert(n)
+    if (rview != null) {
+      this.get_or_create_inspector(rview.model).invert(n)
+    }
+  }
+
   clear(rview?: DataRendererView): void {
     this.source.selected.clear()
-    if (rview != null)
+    if (rview != null) {
       this.get_or_create_inspector(rview.model).clear()
+    }
   }
 
   get_or_create_inspector(renderer: DataRenderer): Selection {
