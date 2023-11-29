@@ -29,7 +29,12 @@ export class HBarView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    this.sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
+    if (this.inherited_y && this.inherited_height) {
+      this._inherit_attr("sheight")
+    } else {
+      const sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
+      this._define_attr("sheight", sheight)
+    }
 
     const n = this.sy.length
     this.stop = new ScreenArray(n)

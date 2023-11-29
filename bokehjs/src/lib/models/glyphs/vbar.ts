@@ -29,7 +29,12 @@ export class VBarView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    this.swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
+    if (this.inherited_x && this.inherited_width) {
+      this._inherit_attr<VBar.Data>("swidth")
+    } else {
+      const swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
+      this._define_attr<VBar.Data>("swidth", swidth)
+    }
 
     const n = this.sx.length
     this.sleft = new ScreenArray(n)

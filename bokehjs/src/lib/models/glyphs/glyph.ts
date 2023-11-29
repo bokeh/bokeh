@@ -250,7 +250,7 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected _define_attr(attr: string, value: number | uniforms.Uniform<unknown> | Arrayable<unknown> | RaggedArray<any>): void {
+  protected _define_attr<Props>(attr: keyof Props, value: number | uniforms.Uniform<unknown> | Arrayable<unknown> | RaggedArray<any>): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
@@ -259,13 +259,13 @@ export abstract class GlyphView extends View {
     this._define_inherited(attr, false)
   }
 
-  protected _inherit_attr(attr: string): void {
+  protected _inherit_attr<Props>(attr: keyof Props): void {
     const {base} = this
     assert(base != null)
     this._inherit_from(attr, base)
   }
 
-  protected _inherit_from(attr: string, base: this): void {
+  protected _inherit_from<Props>(attr: keyof Props, base: this): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
@@ -276,8 +276,8 @@ export abstract class GlyphView extends View {
     this._define_inherited(attr, true)
   }
 
-  protected _define_inherited(attr: string, value: boolean): void {
-    Object.defineProperty(this, `inherited_${attr}`, {
+  protected _define_inherited<Props>(attr: keyof Props, value: boolean): void {
+    Object.defineProperty(this, `inherited_${attr as string}`, {
       configurable: true,
       enumerable: true,
       value,
