@@ -27,6 +27,13 @@ export function delay(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+export async function poll(fn: () => boolean, interval: number = 50, timeout: number = 500): Promise<void> {
+  while (!fn() && timeout >= 0) {
+    await delay(interval)
+    timeout -= interval
+  }
+}
+
 export function paint(): Promise<void> {
   return new Promise((resolve) => {
     requestAnimationFrame(() => resolve())
