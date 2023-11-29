@@ -16,7 +16,7 @@ import type {Arrayable, Rect, FloatArray} from "core/types"
 import {ScreenArray, Indices} from "core/types"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
-import {is_equal} from "core/util/eq"
+import {is_equal, EqNotImplemented} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
 import {assert} from "core/util/assert"
 import type {Scale} from "../scales/scale"
@@ -286,7 +286,19 @@ export abstract class GlyphView extends View {
 
   protected _can_inherit_from<T>(prop: p.Property<T>, base: this): boolean {
     const base_prop = base.model.property(prop.attr)
-    return is_equal(prop.get_value(), base_prop.get_value())
+
+    const value = prop.get_value()
+    const base_value = base_prop.get_value()
+
+    try {
+      return is_equal(value, base_value)
+    } catch (error) {
+      if (error instanceof EqNotImplemented) {
+        return false
+      } else {
+        throw error
+      }
+    }
   }
 
   protected _is_inherited<T>(prop: p.Property<T>): boolean {

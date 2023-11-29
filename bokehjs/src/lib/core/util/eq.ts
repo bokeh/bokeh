@@ -19,6 +19,8 @@ export const wildcard: any = Symbol("wildcard")
 
 const toString = Object.prototype.toString
 
+export class EqNotImplemented extends Error {}
+
 export class Comparator {
   private readonly a_stack: unknown[] = []
   private readonly b_stack: unknown[] = []
@@ -110,7 +112,7 @@ export class Comparator {
         return this.nodes(a, b)
       }
 
-      throw Error(`can't compare objects of type ${class_name}`)
+      throw new EqNotImplemented(`can't compare objects of type ${class_name}`)
     })()
 
     a_stack.pop()
