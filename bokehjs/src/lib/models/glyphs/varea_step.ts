@@ -116,21 +116,15 @@ export class VAreaStepView extends AreaView {
 
     return new Selection()
   }
-
-  protected override _map_data(): void {
-    this.sx  = this.renderer.xscale.v_compute(this.x)
-    this.sy1 = this.renderer.yscale.v_compute(this.y1)
-    this.sy2 = this.renderer.yscale.v_compute(this.y2)
-  }
 }
 
 export namespace VAreaStep {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Area.Props & {
-    x: p.CoordinateSpec
-    y1: p.CoordinateSpec
-    y2: p.CoordinateSpec
+    x: p.XCoordinateSpec
+    y1: p.YCoordinateSpec
+    y2: p.YCoordinateSpec
     step_mode: p.Property<StepMode>
   }
 
