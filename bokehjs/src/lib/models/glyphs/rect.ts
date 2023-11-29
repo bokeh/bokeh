@@ -41,9 +41,9 @@ export class RectView extends CenterRotatableView {
   protected override _map_data(): void {
     const n = this.data_size
 
-    if (this.model.properties.width.units == "data")
+    if (this.model.properties.width.units == "data") {
       [this.swidth, this.sx0] = this._map_dist_corner_for_data_side_length(this.x, this.width, this.renderer.xscale)
-    else {
+    } else {
       this.swidth = to_screen(this.width)
 
       this.sx0 = new ScreenArray(n)
@@ -52,9 +52,9 @@ export class RectView extends CenterRotatableView {
       }
     }
 
-    if (this.model.properties.height.units == "data")
+    if (this.model.properties.height.units == "data") {
       [this.sheight, this.sy1] = this._map_dist_corner_for_data_side_length(this.y, this.height, this.renderer.yscale)
-    else {
+    } else {
       this.sheight = to_screen(this.height)
 
       this.sy1 = new ScreenArray(n)

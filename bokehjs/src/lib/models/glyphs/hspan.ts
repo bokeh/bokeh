@@ -41,7 +41,10 @@ export class HSpanView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sy = map(this.sy, (yi) => round(yi))
+    if (!this.inherited_sy) {
+      const sy = map(this.sy, (yi) => round(yi))
+      this._define_attr("sy", sy)
+    }
   }
 
   scenterxy(i: number): [number, number] {

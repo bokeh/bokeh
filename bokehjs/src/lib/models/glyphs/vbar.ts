@@ -29,10 +29,7 @@ export class VBarView extends LRTBView {
   }
 
   protected override _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this.x)
     this.swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
-    this.stop = this.renderer.yscale.v_compute(this.top)
-    this.sbottom = this.renderer.yscale.v_compute(this.bottom)
 
     const n = this.sx.length
     this.sleft = new ScreenArray(n)
@@ -50,10 +47,10 @@ export namespace VBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LRTB.Props & {
-    x: p.CoordinateSpec
-    bottom: p.CoordinateSpec
+    x: p.XCoordinateSpec
+    bottom: p.YCoordinateSpec
     width: p.DistanceSpec
-    top: p.CoordinateSpec
+    top: p.YCoordinateSpec
   }
 
   export type Visuals = LRTB.Visuals

@@ -18,6 +18,7 @@ import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
 import {is_equal} from "core/util/eq"
 import {SpatialIndex} from "core/util/spatial"
+import {assert} from "core/util/assert"
 import type {Scale} from "../scales/scale"
 import type {Factor} from "../ranges/factor_range"
 import {FactorRange} from "../ranges/factor_range"
@@ -256,6 +257,12 @@ export abstract class GlyphView extends View {
       value,
     })
     this._define_inherited(attr, false)
+  }
+
+  protected _inherit_attr(attr: string): void {
+    const {base} = this
+    assert(base != null)
+    this._inherit_from(attr, base)
   }
 
   protected _inherit_from(attr: string, base: this): void {

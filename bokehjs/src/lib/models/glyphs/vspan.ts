@@ -41,7 +41,10 @@ export class VSpanView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sx = map(this.sx, (xi) => round(xi))
+    if (!this.inherited_sx) {
+      const sx = map(this.sx, (xi) => round(xi))
+      this._define_attr("sx", sx)
+    }
   }
 
   scenterxy(i: number): [number, number] {

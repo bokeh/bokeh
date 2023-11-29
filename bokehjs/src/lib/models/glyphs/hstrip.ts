@@ -66,7 +66,12 @@ export class HStripView extends GlyphView {
     const {max, map, zip} = iter
 
     const {y0, y1} = this
-    this.max_height = max(map(zip(y0, y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
+    if (this.inherited_y0 && this.inherited_y1) {
+      this._inherit_attr("max_height")
+    } else {
+      const max_height = max(map(zip(y0, y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
+      this._define_attr("max_height", max_height)
+    }
   }
 
   protected override _index_data(index: SpatialIndex): void {
@@ -87,8 +92,14 @@ export class HStripView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sy0 = map(this.sy0, (yi) => round(yi))
-    this.sy1 = map(this.sy1, (yi) => round(yi))
+    if (!this.inherited_sy0) {
+      const sy0 = map(this.sy0, (yi) => round(yi))
+      this._define_attr("sy0", sy0)
+    }
+    if (!this.inherited_sy1) {
+      const sy1 = map(this.sy1, (yi) => round(yi))
+      this._define_attr("sy1", sy1)
+    }
   }
 
   scenterxy(i: number): [number, number] {
