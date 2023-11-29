@@ -22,6 +22,7 @@ import {
   Line,
   LinearColorMapper,
   Node,
+  Pane,
   Plot,
   Range1d,
   RangeTool,
@@ -34,6 +35,13 @@ import {
   Toolbar,
   WMTSTileSource,
 } from "@bokehjs/models"
+
+import {
+  GlobalImportedStyleSheet,
+  GlobalInlineStyleSheet,
+  ImportedStyleSheet,
+  InlineStyleSheet,
+} from "@bokehjs/models/dom"
 
 import {
   Button,
@@ -55,7 +63,7 @@ import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11} from "@bokehjs/api/palettes"
-import {defer, paint} from "@bokehjs/core/util/defer"
+import {defer, paint, poll} from "@bokehjs/core/util/defer"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
@@ -990,6 +998,34 @@ describe("Bug", () => {
       button.dispatchEvent(ev)
       button.dispatchEvent(ev2)
       expect(input.value).to.be.equal("1.3")
+    })
+  })
+
+  describe("in issue #13556", () => {
+    it("doesn't allow creation of correct DOM elements for imported stylesheets", async () => {
+      const style0 = new GlobalImportedStyleSheet({url: "/assets/css/global.css"})
+      const style1 = new ImportedStyleSheet({url: "/assets/css/local.css"})
+
+      const style2 = new GlobalInlineStyleSheet({css: ":root { --global-inline: 1; }"})
+      const style3 = new InlineStyleSheet({css: ":host { --local-inline: 1; }"})
+
+      const pane = new Pane({stylesheets: [style0, style1, style2, style3]})
+      const {view} = await display(pane, [100, 100])
+
+      expect(document.head.querySelectorAll("link[href='/assets/css/global.css']").length).to.be.equal(1)
+      expect(view.shadow_el.querySelectorAll("link[href='/assets/css/local.css']").length).to.be.equal(1)
+
+      expect([...document.head.querySelectorAll("style")].filter((el) => el.textContent?.includes("--global-inline: 1")).length).to.be.equal(1)
+      expect([...view.shadow_el.querySelectorAll("style")].filter((el) => el.textContent?.includes("--local-inline: 1")).length).to.be.equal(1)
+
+      await poll(() => [...document.styleSheets].some((style) => style.href?.includes("global.css")))
+      await poll(() => [...view.shadow_el.styleSheets].some((style) => style.href?.includes("global.css")))
+
+      expect(getComputedStyle(document.documentElement).getPropertyValue("--global-imported")).to.be.equal("1")
+      expect(getComputedStyle(view.el).getPropertyValue("--local-imported")).to.be.equal("1")
+
+      expect(getComputedStyle(document.documentElement).getPropertyValue("--global-inline")).to.be.equal("1")
+      expect(getComputedStyle(view.el).getPropertyValue("--local-inline")).to.be.equal("1")
     })
   })
 
