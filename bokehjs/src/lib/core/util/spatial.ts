@@ -1,7 +1,7 @@
 import FlatBush from "flatbush"
 
 import type {Rect, TypedArray} from "../types"
-import {Indices} from "../types"
+import {PackedIndices} from "./indices"
 import {empty} from "./bbox"
 
 function upperBound(value: number, arr: ArrayLike<number>): number {
@@ -24,14 +24,14 @@ class _FlatBush extends FlatBush {
     return this._boxes
   }
 
-  search_indices(minX: number, minY: number, maxX: number, maxY: number): Indices {
+  search_indices(minX: number, minY: number, maxX: number, maxY: number): PackedIndices {
     if (this._pos !== this._boxes.length) {
       throw new Error("Data not yet indexed - call index.finish().")
     }
 
     let nodeIndex: number | undefined = this._boxes.length - 4
     const queue = []
-    const results = new Indices(this.numItems)
+    const results = new PackedIndices(this.numItems)
 
     while (nodeIndex !== undefined) {
       // find the end index of the node

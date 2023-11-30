@@ -10,11 +10,12 @@ import {Glyph} from "../glyphs/glyph"
 import {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {CDSViewView} from "../sources/cds_view"
 import {CDSView} from "../sources/cds_view"
-import type {Color} from "core/types"
-import {Indices} from "core/types"
+import type {Color, Indices} from "core/types"
+import {OpaqueIndices} from "core/util/indices"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
 import {extend, clone} from "core/util/object"
+import {range} from "core/util/array"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
@@ -25,7 +26,7 @@ import {is_equal} from "core/util/eq"
 import {FactorRange} from "../ranges/factor_range"
 import {Decoration} from "../graphics/decoration"
 import type {Marking} from "../graphics/marking"
-import type {OpaqueIndices, MultiIndices, ImageIndex} from "../selections/selection"
+import type {OpaqueIndices as ArrayIndices, MultiIndices, ImageIndex} from "../selections/selection"
 
 type Defaults = {
   fill: {fill_alpha?: number, fill_color?: Color}
@@ -81,7 +82,7 @@ export class GlyphRendererView extends DataRendererView {
     yield this.decimated_glyph
   }
 
-  protected all_indices: Indices
+  protected all_indices: OpaqueIndices
   protected decimated: Indices
 
   protected last_dtrender: number
@@ -167,8 +168,8 @@ export class GlyphRendererView extends DataRendererView {
   }
 
   private _previous_inspected?: {
-    indices: OpaqueIndices
-    line_indices: OpaqueIndices
+    indices: ArrayIndices
+    line_indices: ArrayIndices
     multiline_indices: MultiIndices
     image_indices: ImageIndex[]
     selected_glyphs: Glyph[]
@@ -257,7 +258,7 @@ export class GlyphRendererView extends DataRendererView {
   async set_data(indices?: number[]): Promise<void> {
     const source = this.model.data_source
 
-    this.all_indices = this.model.view.indices
+    this.all_indices = OpaqueIndices.from_packed(this.model.view.indices)
     const {all_indices} = this
 
     await this.glyph.set_data(source, all_indices, indices)
@@ -273,10 +274,7 @@ export class GlyphRendererView extends DataRendererView {
 
     const {lod_factor} = this.plot_model
     const n = this.all_indices.count
-    this.decimated = new Indices(n)
-    for (let i = 0; i < n; i += lod_factor) {
-      this.decimated.set(i)
-    }
+    this.decimated = new OpaqueIndices(n, range(0, n, lod_factor))
 
     this.plot_view.invalidate_dataranges = true
   }
@@ -325,7 +323,8 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.map_data()
 
     // all_indices is in full data space, indices is converted to subset space by mask_data (that may use the spatial index)
-    const all_indices = [...this.all_indices]
+    //const all_indices = [...this.all_indices]
+    const all_indices = this.all_indices.array
     let indices = [...this._update_masked_indices()]
 
     const {ctx} = this.layer

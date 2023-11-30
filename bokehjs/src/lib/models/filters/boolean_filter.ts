@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 
 export namespace BooleanFilter {
@@ -26,13 +26,13 @@ export class BooleanFilter extends Filter {
     }))
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: ColumnarDataSource): PackedIndices {
     const size = source.get_length() ?? 1
     const {booleans} = this
     if (booleans == null) {
-      return Indices.all_set(size)
+      return PackedIndices.all_set(size)
     } else {
-      return Indices.from_booleans(size, booleans)
+      return PackedIndices.from_booleans(size, booleans)
     }
   }
 }

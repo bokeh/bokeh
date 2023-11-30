@@ -12,8 +12,9 @@ import type {Anchor} from "core/enums"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
-import type {Arrayable, Rect, FloatArray} from "core/types"
-import {ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, FloatArray, Indices} from "core/types"
+import {ScreenArray} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import {RaggedArray} from "core/util/ragged_array"
 import {inplace_map} from "core/util/arrayable"
 import {is_equal, EqNotImplemented} from "core/util/eq"
@@ -448,16 +449,16 @@ export abstract class GlyphView extends View {
     this._index = index
   }
 
-  mask_data(): Indices {
+  mask_data(): PackedIndices {
     /** Returns subset indices in the viewport. */
     if (this._mask_data == null) {
-      return Indices.all_set(this.data_size)
+      return PackedIndices.all_set(this.data_size)
     } else {
       return this._mask_data()
     }
   }
 
-  protected _mask_data?(): Indices
+  protected _mask_data?(): PackedIndices
 
   map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates

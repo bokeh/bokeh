@@ -290,12 +290,16 @@ export class BitSet implements Equatable {
   select<T>(array: Arrayable<T>): Arrayable<T> {
     this._check_array_length(array)
     const n = this.count
-    const result = new (array.constructor as ArrayableNew)<T>(n)
-    let i = 0
-    for (const j of this) {
-      result[i++] = array[j]
+    if (n == this.size) {
+      return array.slice()
+    } else {
+      const result = new (array.constructor as ArrayableNew)<T>(n)
+      let i = 0
+      for (const j of this) {
+        result[i++] = array[j]
+      }
+      return result
     }
-    return result
   }
 
   protected _check_bounds(k: number): void {

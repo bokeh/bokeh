@@ -111,5 +111,9 @@ export type Interval = {
   end: number
 }
 
-export {BitSet as Indices} from "./util/bitset"
-export type {RaggedArray} from "./util/ragged_array"
+export type Indices = {
+  [Symbol.iterator](): Iterator<number>
+  select<T>(array: Arrayable<T>): Arrayable<T>
+  readonly count: number
+  readonly size: number
+}

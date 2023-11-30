@@ -1,6 +1,6 @@
 import {Model} from "../../model"
 import type {DataSource} from "../sources/data_source"
-import type {Indices} from "core/types"
+import type {PackedIndices} from "core/util/indices"
 import type * as p from "core/properties"
 
 export namespace Filter {
@@ -18,5 +18,5 @@ export abstract class Filter extends Model {
     super(attrs)
   }
 
-  abstract compute_indices(source: DataSource): Indices
+  abstract compute_indices(source: DataSource): PackedIndices
 }

@@ -1,7 +1,7 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
 import type {Dict} from "core/types"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import {keys, values} from "core/util/object"
 import {isArrayOf, isBoolean, isInteger} from "core/util/types"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
@@ -45,15 +45,15 @@ export class CustomJSFilter extends Filter {
     return new Function(...this.names, "source", code)
   }
 
-  compute_indices(source: ColumnarDataSource): Indices {
+  compute_indices(source: ColumnarDataSource): PackedIndices {
     const size = source.get_length() ?? 1
     const filter = this.func(...this.values, source)
     if (filter == null) {
-      return Indices.all_set(size)
+      return PackedIndices.all_set(size)
     } else if (isArrayOf(filter, isInteger)) {
-      return Indices.from_indices(size, filter)
+      return PackedIndices.from_indices(size, filter)
     } else if (isArrayOf(filter, isBoolean)) {
-      return Indices.from_booleans(size, filter)
+      return PackedIndices.from_booleans(size, filter)
     } else {
       throw new Error(`expect an array of integers or booleans, or null, got ${filter}`)
     }

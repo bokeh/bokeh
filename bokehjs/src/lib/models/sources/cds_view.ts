@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import type * as p from "core/properties"
 import type {Selection} from "../selections/selection"
 import {View} from "core/view"
-import {Indices} from "core/types"
+import {PackedIndices} from "core/util/indices"
 import {Filter} from "../filters/filter"
 import {AllIndices} from "../filters/all_indices"
 import {IntersectionFilter} from "../filters/intersection_filter"
@@ -75,7 +75,7 @@ export class CDSViewView extends View {
     const source = this.parent.data_source.get_value()
 
     const size = source.get_length() ?? 1
-    const indices = Indices.all_set(size)
+    const indices = PackedIndices.all_set(size)
 
     const filtered = this.model.filter.compute_indices(source)
     indices.intersect(filtered)
@@ -91,9 +91,9 @@ export namespace CDSView {
   export type Props = Model.Props & {
     filter: p.Property<Filter>
     // internal
-    indices: p.Property<Indices>
+    indices: p.Property<PackedIndices>
     indices_map: p.Property<Map<number, number>>
-    masked: p.Property<Indices | null>
+    masked: p.Property<PackedIndices | null>
   }
 }
 
@@ -115,9 +115,9 @@ export class CDSView extends Model {
     }))
 
     this.internal<CDSView.Props>(({Int, Mapping, Ref, Nullable}) => ({
-      indices:     [ Ref(Indices) ],
+      indices:     [ Ref(PackedIndices) ],
       indices_map: [ Mapping(Int, Int), new Map() ],
-      masked:      [ Nullable(Ref(Indices)), null ],
+      masked:      [ Nullable(Ref(PackedIndices)), null ],
     }))
   }
 

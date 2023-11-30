@@ -5,7 +5,9 @@ import {use_strict} from "core/util/string"
 import type {BBox} from "core/util/bbox"
 import {isIterable} from "core/util/types"
 import type {Dict} from "core/types"
-import {Indices, GeneratorFunction} from "core/types"
+import type {Indices} from "core/types"
+import {GeneratorFunction} from "core/types"
+import {PackedIndices} from "core/util/indices"
 
 export type DistanceMeasure = (i: number, j: number) => number
 
@@ -126,14 +128,14 @@ export class CustomLabelingPolicy extends LabelingPolicy {
     let result = generator.next()
     if ((result.done ?? false) && result.value !== undefined) {
       const {value} = result
-      if (value instanceof Indices) {
+      if (value instanceof PackedIndices) {
         return value
       } else if (value === undefined) {
         return indices
       } else if (isIterable(value)) {
-        return Indices.from_indices(indices.size, value as Iterable<number>)
+        return PackedIndices.from_indices(indices.size, value as Iterable<number>)
       } else {
-        return Indices.all_unset(indices.size)
+        return PackedIndices.all_unset(indices.size)
       }
     } else {
       const array: number[] = []
@@ -143,7 +145,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
         result = generator.next()
       } while (!(result.done ?? false))
 
-      return Indices.from_indices(indices.size, array)
+      return PackedIndices.from_indices(indices.size, array)
     }
   }
 }
