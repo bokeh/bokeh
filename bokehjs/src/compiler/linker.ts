@@ -436,8 +436,8 @@ export class Linker {
           const ecma = (() => {
             switch (this.target) {
               case "ES2022": return 2020 // TODO: 2022
-              case "ES2020": return 2020
               case null:
+              case "ES2020": return 2020
               case "ES2017": return 2017
               case "ES2015": return 5
             }
@@ -841,8 +841,8 @@ export ${export_type} yaml;
         const target = (() => {
           switch (this.target) {
             case "ES2022": return ES2022
-            case "ES2020": return ES2020
             case null:
+            case "ES2020": return ES2020
             case "ES2017": return ES2017
             case "ES2015": return ES2015
           }
