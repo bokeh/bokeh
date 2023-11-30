@@ -39,6 +39,8 @@ from .docs import html_repr, process_example
 from .util import HasDocumentRef, collect_models, visit_value_and_its_immediate_references
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..document import Document
@@ -87,7 +89,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
-    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Model:
+    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self:
         obj = super().__new__(cls)
 
         # Setting 'id' implies deferred initialization, which means properties
