@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
@@ -45,6 +46,10 @@ export class ImageURLView extends XYGlyphView {
   private _set_data_iteration: number = 0
 
   protected override _set_data(): void {
+    if (this.inherited_url) {
+      return
+    }
+
     this._set_data_iteration++
 
     const {url} = this
@@ -133,18 +138,32 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    const w = this.w.map((w_i) => w_i ?? NaN)
-    const h = this.h.map((h_i) => h_i ?? NaN)
+    const w = () => this.w.map((w_i) => w_i ?? NaN)
+    const h = () => this.h.map((h_i) => h_i ?? NaN)
 
-    if (this.model.properties.w.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this.x, w, "edge", this.model.dilate)
-    else
-      this.sw = to_screen(w)
+    this._define_or_inherit_attr<ImageURL.Data>("sw", () => {
+      if (this.model.properties.w.units == "data") {
+        if (this.inherited_x && this.inherited_w) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, w(), "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_w ? inherit : to_screen(w())
+      }
+    })
 
-    if (this.model.properties.h.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this.y, h, "edge", this.model.dilate)
-    else
-      this.sh = to_screen(h)
+    this._define_or_inherit_attr<ImageURL.Data>("sh", () => {
+      if (this.model.properties.h.units == "data") {
+        if (this.inherited_y && this.inherited_h) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.yscale, this.y, h(), "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_h ? inherit : to_screen(h())
+      }
+    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {

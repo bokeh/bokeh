@@ -30,6 +30,10 @@ import type {BaseGLGlyph, BaseGLGlyphConstructor} from "./webgl/base"
 
 const {abs, ceil} = Math
 
+export const inherit = Symbol("inherit")
+
+type ValueLike = number | uniforms.Uniform<unknown> | Arrayable<unknown> | RaggedArray<any>
+
 export interface GlyphView extends Glyph.Data {}
 
 export abstract class GlyphView extends View {
@@ -250,7 +254,16 @@ export abstract class GlyphView extends View {
     }
   }
 
-  protected _define_attr<Props>(attr: keyof Props, value: number | uniforms.Uniform<unknown> | Arrayable<unknown> | RaggedArray<any>): void {
+  protected _define_or_inherit_attr<Data>(attr: keyof Data, fn: () => typeof inherit | ValueLike): void {
+    const value = fn()
+    if (value === inherit) {
+      this._inherit_attr<Data>(attr)
+    } else {
+      this._define_attr<Data>(attr, value)
+    }
+  }
+
+  protected _define_attr<Data>(attr: keyof Data, value: ValueLike): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
@@ -259,13 +272,13 @@ export abstract class GlyphView extends View {
     this._define_inherited(attr, false)
   }
 
-  protected _inherit_attr<Props>(attr: keyof Props): void {
+  protected _inherit_attr<Data>(attr: keyof Data): void {
     const {base} = this
     assert(base != null)
     this._inherit_from(attr, base)
   }
 
-  protected _inherit_from<Props>(attr: keyof Props, base: this): void {
+  protected _inherit_from<Data>(attr: keyof Data, base: this): void {
     Object.defineProperty(this, attr, {
       configurable: true,
       enumerable: true,
@@ -276,7 +289,7 @@ export abstract class GlyphView extends View {
     this._define_inherited(attr, true)
   }
 
-  protected _define_inherited<Props>(attr: keyof Props, value: boolean): void {
+  protected _define_inherited<Data>(attr: keyof Data, value: boolean): void {
     Object.defineProperty(this, `inherited_${attr as string}`, {
       configurable: true,
       enumerable: true,
