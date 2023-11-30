@@ -18,7 +18,7 @@ export class PolyEditToolView extends PolyToolView {
   _drawing: boolean = false
   _cur_index: number | null = null
 
-  override _doubletap(ev: TapEvent): void {
+  override _press(ev: TapEvent): void {
     if (this.model.vertex_renderer == null || !this.model.active)
       return
     const point = this._map_drag(ev.sx, ev.sy, this.model.vertex_renderer)
@@ -282,6 +282,6 @@ export class PolyEditTool extends PolyTool {
 
   override tool_name = "Poly Edit Tool"
   override tool_icon = tool_icon_poly_edit
-  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override event_type = ["tap" as "tap", "press" as "press", "pan" as "pan", "move" as "move"]
   override default_order = 4
 }

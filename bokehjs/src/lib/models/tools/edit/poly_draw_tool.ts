@@ -109,7 +109,7 @@ export class PolyDrawToolView extends PolyToolView {
     this._set_vertices(xs, ys)
   }
 
-  override _doubletap(ev: TapEvent): void {
+  override _press(ev: TapEvent): void {
     if (!this.model.active)
       return
     if (this._drawing) {
@@ -271,6 +271,6 @@ export class PolyDrawTool extends PolyTool {
 
   override tool_name = "Polygon Draw Tool"
   override tool_icon = tool_icon_poly_draw
-  override event_type = ["pan" as "pan", "tap" as "tap", "move" as "move"]
+  override event_type = ["pan" as "pan", "tap" as "tap", "press" as "press", "move" as "move"]
   override default_order = 3
 }

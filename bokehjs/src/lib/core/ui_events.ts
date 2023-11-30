@@ -629,6 +629,15 @@ export class UIEventBus implements EventListenerObject {
         }
         break
       }
+      case "press": {
+        if (this.hit_test_frame(plot_view, e.sx, e.sy)) {
+          const active_gesture = gestures.press.active ?? gestures.tap.active
+          if (active_gesture != null) {
+            this.trigger(signal, e, active_gesture)
+          }
+        }
+        break
+      }
       case "pinch": {
         const active_gesture = gestures.pinch.active ?? gestures.scroll.active
         if (active_gesture != null) {
@@ -857,6 +866,7 @@ export class UIEventBus implements EventListenerObject {
     } else {
       clearTimeout(this._tap_timer)
       this._tap_timer = null
+      e.type = "doubletap"
       this._doubletap(e)
     }
   }
