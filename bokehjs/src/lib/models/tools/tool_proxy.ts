@@ -5,7 +5,6 @@ import {Model} from "../../model"
 import type {ToolView, EventRole} from "./tool"
 import {Tool} from "./tool"
 import type {ToolButton} from "./tool_button"
-import type {InspectTool} from "./inspectors/inspect_tool"
 import type {MenuItem} from "core/util/menus"
 import {enumerate, some} from "core/util/iterator"
 
@@ -18,6 +17,7 @@ export namespace ToolProxy {
     tools: p.Property<T[]>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
+    //toggleable: p.Property<boolean>
   }
 }
 
@@ -36,6 +36,7 @@ export class ToolProxy<T extends Tool> extends Model {
       tools:    [ Array(Ref(Tool)), [] ],
       active:   [ Boolean, (self) => some((self as ToolProxy<Tool>).tools, (tool) => tool.active) ],
       disabled: [ Boolean, false ],
+      //toggleable: [ Boolean, false ],
     }))
   }
 
@@ -83,7 +84,7 @@ export class ToolProxy<T extends Tool> extends Model {
 
   get toggleable(): boolean {
     const tool = this.tools[0] as Tool
-    return "toggleable" in tool && (tool as InspectTool).toggleable
+    return tool.toggleable
   }
 
   override initialize(): void {
