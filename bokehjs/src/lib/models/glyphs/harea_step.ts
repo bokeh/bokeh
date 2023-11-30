@@ -150,7 +150,7 @@ export class HAreaStep extends Area {
 
     this.define<HAreaStep.Props>(({}) => ({
       x1:        [ p.XCoordinateSpec, {field: "x1"} ],
-      x2:        [ p.YCoordinateSpec, {field: "x2"} ],
+      x2:        [ p.XCoordinateSpec, {field: "x2"} ],
       y:         [ p.YCoordinateSpec, {field: "y"} ],
       step_mode: [ StepMode, "before" ],
     }))
