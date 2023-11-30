@@ -87,7 +87,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
-    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self:
+    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any):
         obj = super().__new__(cls)
 
         # Setting 'id' implies deferred initialization, which means properties
