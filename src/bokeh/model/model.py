@@ -45,6 +45,7 @@ if TYPE_CHECKING:
     from ..document.events import DocumentPatchedEvent
     from ..models.callbacks import Callback as JSEventCallback, CustomCode as JSChangeCallback
     from ..util.callback_manager import PropertyCallback
+    from typing_extensions import Self
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -87,7 +88,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
 
     _id: ID
 
-    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any):
+    def __new__(cls, *args: Any, id: ID | None = None, **kwargs: Any) -> Self:
         obj = super().__new__(cls)
 
         # Setting 'id' implies deferred initialization, which means properties
