@@ -39,13 +39,14 @@ from .docs import html_repr, process_example
 from .util import HasDocumentRef, collect_models, visit_value_and_its_immediate_references
 
 if TYPE_CHECKING:
+    from typing_extensions import Self
+
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
     from ..models.callbacks import Callback as JSEventCallback, CustomCode as JSChangeCallback
     from ..util.callback_manager import PropertyCallback
-    from typing_extensions import Self
 
 #-----------------------------------------------------------------------------
 # Globals and constants
