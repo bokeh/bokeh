@@ -183,14 +183,14 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
-    it("should draw patch on doubletap", async () => {
+    it("should draw patch on press", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
+      testcase.draw_tool_view._press(make_tap_event(300, 300))
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
-      testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
+      testcase.draw_tool_view._press(make_tap_event(200, 200))
 
       const new_xs = [0.04424778761061947, -0.13274336283185842, -0.30973451327433627]
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
@@ -200,15 +200,15 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data.ys).to.be.equal(ydata)
     })
 
-    it("should draw and pop patch on doubletap", async () => {
+    it("should draw and pop patch on press", async () => {
       const testcase = await make_testcase()
       testcase.draw_tool_view.model.num_objects = 2
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
+      testcase.draw_tool_view._press(make_tap_event(300, 300))
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
-      testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
+      testcase.draw_tool_view._press(make_tap_event(200, 200))
 
       const new_xs = [0.04424778761061947, -0.13274336283185842, -0.30973451327433627]
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
@@ -223,11 +223,11 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
+      testcase.draw_tool_view._press(make_tap_event(300, 300))
       testcase.data_source.data.xs[2] = Float32Array.from(testcase.data_source.data.xs[2])
       testcase.data_source.data.ys[2] = Float32Array.from(testcase.data_source.data.ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
-      testcase.draw_tool_view._doubletap(make_tap_event(200, 200))
+      testcase.draw_tool_view._press(make_tap_event(200, 200))
 
       const new_xs = [0.044247787445783615, -0.13274335861206055, -0.30973451327433627]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
@@ -243,7 +243,7 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
+      testcase.draw_tool_view._press(make_tap_event(300, 300))
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._move_enter(make_move_event(0, 0))
       testcase.draw_tool_view._keyup(make_key_event("Escape"))
@@ -261,17 +261,17 @@ describe("PolyDrawTool", (): void => {
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
 
       hit_test_stub.returns(null)
-      testcase.draw_tool_view._doubletap(make_tap_event(300, 300))
+      testcase.draw_tool_view._press(make_tap_event(300, 300))
 
       expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
     })
 
-    it("should not draw poly on doubletap when tool inactive", async () => {
+    it("should not draw poly on press when tool inactive", async () => {
       const testcase = await make_testcase()
       testcase.draw_tool_view.model.active = false
 
       const tap_event = make_tap_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
       expect(testcase.draw_tool_view._drawing).to.be.false
     })
   })

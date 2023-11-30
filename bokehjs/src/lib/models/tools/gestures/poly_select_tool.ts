@@ -109,7 +109,7 @@ export class PolySelectToolView extends RegionSelectToolView {
       this._clear_overlay()
   }
 
-  override _doubletap(ev: TapEvent): void {
+  override _press(ev: TapEvent): void {
     this._finish_selection(ev.modifiers)
   }
 
@@ -201,6 +201,6 @@ export class PolySelectTool extends RegionSelectTool {
 
   override tool_name = "Poly Select"
   override tool_icon = tool_icon_polygon_select
-  override event_type = "tap" as "tap"
+  override event_type = ["tap" as "tap", "press" as "press"]
   override default_order = 11
 }

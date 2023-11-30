@@ -174,14 +174,14 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.data).to.be.equal(testcase.data)
     })
 
-    it("should show vertices on doubletap", async () => {
+    it("should show vertices on press", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       sinon.stub(testcase.vertex_glyph_view, "hit_test").returns(null)
 
       hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
 
       expect(testcase.vertex_source.data.x).to.be.equal(testcase.data.xs[1] as any) // XXX: null
       expect(testcase.vertex_source.data.y).to.be.equal(testcase.data.ys[1] as any) // XXX: null
@@ -196,7 +196,7 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(null)
       hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
       expect(testcase.vertex_source.selected.indices).to.be.equal([1])
@@ -210,7 +210,7 @@ describe("PolyEditTool", (): void => {
       vertex_hit_test_stub.returns(null)
       hit_test_stub.returns(new Selection({indices: [1]}))
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
 
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       testcase.draw_tool_view._tap(tap_event)
@@ -236,7 +236,7 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(new Selection({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
       const panstart_event = make_pan_event(300, 300)
       testcase.draw_tool_view._pan_start(panstart_event)
@@ -252,7 +252,7 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.data.z).to.be.equal([null, null])
     })
 
-    it("should add vertex on doubletap", async () => {
+    it("should add vertex on press", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
@@ -260,11 +260,11 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(new Selection({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event) // Poly selected
+      testcase.draw_tool_view._press(tap_event) // Poly selected
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
-      testcase.draw_tool_view._doubletap(tap_event) // Vertex selected
+      testcase.draw_tool_view._press(tap_event) // Vertex selected
       vertex_hit_test_stub.returns(new Selection({indices: [2]}))
-      testcase.draw_tool_view._doubletap(make_tap_event(290, 290)) // Add new vertex
+      testcase.draw_tool_view._press(make_tap_event(290, 290)) // Add new vertex
 
       const xs = [0, 0.5, 0.04424778761061947, 1]
       const ys = [0, -0.5, -0, -1]
@@ -276,7 +276,7 @@ describe("PolyEditTool", (): void => {
       expect(testcase.data_source.data.z).to.be.equal([null, null])
     })
 
-    it("should add vertex on tap after doubletap ", async () => {
+    it("should add vertex on tap after press ", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       const vertex_hit_test_stub = sinon.stub(testcase.vertex_glyph_view, "hit_test")
@@ -284,9 +284,9 @@ describe("PolyEditTool", (): void => {
       hit_test_stub.returns(new Selection({indices: [1]}))
       vertex_hit_test_stub.returns(null)
       const tap_event = make_tap_event(300, 300)
-      testcase.draw_tool_view._doubletap(tap_event) // Poly selected
+      testcase.draw_tool_view._press(tap_event) // Poly selected
       vertex_hit_test_stub.returns(new Selection({indices: [1]}))
-      testcase.draw_tool_view._doubletap(tap_event) // Vertex selected
+      testcase.draw_tool_view._press(tap_event) // Vertex selected
       vertex_hit_test_stub.returns(new Selection({indices: [2]}))
       const tap_event2 = make_tap_event(290, 290)
       const moveenter_event = make_move_event(290, 290)
