@@ -5637,6 +5637,7 @@
     __extends__: "Model",
     icon: null,
     description: null,
+    toggleable: true,
   },
   ToolProxy: {
     __extends__: "Model",
@@ -5675,7 +5676,6 @@
   },
   InspectTool: {
     __extends__: "GestureTool",
-    toggleable: true,
   },
   Toolbar: {
     __extends__: "UIElement",

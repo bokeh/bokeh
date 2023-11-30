@@ -126,6 +126,7 @@ export namespace Tool {
     description: p.Property<string | null>
     active: p.Property<boolean>
     disabled: p.Property<boolean>
+    toggleable: p.Property<boolean>
   }
 }
 
@@ -150,6 +151,10 @@ export abstract class Tool extends Model {
     this.internal<Tool.Props>(({Boolean}) => ({
       active: [ Boolean, false ],
       disabled: [ Boolean, false ],
+    }))
+
+    this.define<Tool.Props>(({Boolean}) => ({
+      toggleable: [ Boolean, true ],
     }))
   }
 
