@@ -1,4 +1,5 @@
 import {LRTB, LRTBView} from "./lrtb"
+import type {LRTBRect} from "./lrtb"
 import * as p from "core/properties"
 
 export interface QuadView extends Quad.Data {}
@@ -13,12 +14,12 @@ export class QuadView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
+  protected _lrtb(i: number): LRTBRect {
     const l = this.left[i]
     const r = this.right[i]
     const t = this.top[i]
     const b = this.bottom[i]
-    return [l, r, t, b]
+    return {l, r, t, b}
   }
 }
 

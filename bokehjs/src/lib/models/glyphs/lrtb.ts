@@ -1,5 +1,5 @@
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect, Arrayable} from "core/types"
+import type {Rect} from "core/types"
 import type {Anchor} from "core/enums"
 import type * as visuals from "core/visuals"
 import type {SpatialIndex} from "core/util/spatial"
@@ -10,7 +10,9 @@ import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
 import {Selection} from "../selections/selection"
 import type * as p from "core/properties"
 import type {Corners} from "core/util/bbox"
+import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import {inplace_map} from "core/util/arrayable"
 import {BorderRadius} from "../common/kinds"
 import * as resolve from "../common/resolve"
 import {round_rect} from "../common/painting"
@@ -18,6 +20,8 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 // This class is intended to be a private implementation detail that can
 // be re-used by various rect, bar, box, quad, etc. glyphs.
+
+export type LRTBRect = {l: number, r: number, t: number, b: number}
 
 export interface LRTBView extends LRTB.Data {}
 
@@ -33,7 +37,7 @@ export abstract class LRTBView extends GlyphView {
     return LRTBGL
   }
 
-  override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): {x: number, y: number} | null {
+  override get_anchor_point(anchor: Anchor, i: number, _spt: [number, number]): XY | null {
     const left = Math.min(this.sleft[i], this.sright[i])
     const right = Math.max(this.sright[i], this.sleft[i])
     const top = Math.min(this.stop[i], this.sbottom[i])     // screen coordinates !!!
@@ -62,14 +66,14 @@ export abstract class LRTBView extends GlyphView {
     this.border_radius = resolve.border_radius(this.model.border_radius)
   }
 
-  protected abstract _lrtb(i: number): [number, number, number, number]
+  protected abstract _lrtb(i: number): LRTBRect
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const [l, r, t, b] = this._lrtb(i)
+      const {l, r, t, b} = this._lrtb(i)
       index.add_rect(min(l, r), min(t, b), max(r, l), max(t, b))
     }
   }
@@ -98,15 +102,21 @@ export abstract class LRTBView extends GlyphView {
 
   // We need to clamp the endpoints inside the viewport, because various browser canvas
   // implementations have issues drawing rects with enpoints far outside the viewport
-  protected _clamp_viewport(): void {
-    const hr = this.renderer.plot_view.frame.bbox.h_range
-    const vr = this.renderer.plot_view.frame.bbox.v_range
-    const n = this.stop.length
-    for (let i = 0; i < n; i++) {
-      this.stop[i] = Math.max(this.stop[i], vr.start)
-      this.sbottom[i] = Math.min(this.sbottom[i], vr.end)
-      this.sleft[i] = Math.max(this.sleft[i], hr.start)
-      this.sright[i] = Math.min(this.sright[i], hr.end)
+  protected _clamp_to_viewport(): void {
+    const {min, max} = Math
+    const {h_range, v_range} = this.renderer.plot_view.frame.bbox
+
+    if (!this.inherited_sleft) {
+      inplace_map(this.sleft, (left) => max(left, h_range.start))
+    }
+    if (!this.inherited_sright) {
+      inplace_map(this.sright, (right) => min(right, h_range.end))
+    }
+    if (!this.inherited_stop) {
+      inplace_map(this.stop, (top) => max(top, v_range.start))
+    }
+    if (!this.inherited_sbottom) {
+      inplace_map(this.sbottom, (bottom) => min(bottom, v_range.end))
     }
   }
 
@@ -158,17 +168,12 @@ export namespace LRTB {
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 
-  export type Data = p.GlyphDataOf<Props> & {
-    right: Arrayable<number>
-    bottom: Arrayable<number>
-    left: Arrayable<number>
-    top: Arrayable<number>
-
-    sright: Arrayable<number>
-    sbottom: Arrayable<number>
-    sleft: Arrayable<number>
-    stop: Arrayable<number>
-
+  export type Data = p.GlyphDataOf<Props & {
+    readonly left: p.XCoordinateSpec
+    readonly right: p.XCoordinateSpec
+    readonly top: p.YCoordinateSpec
+    readonly bottom: p.YCoordinateSpec
+  }> & {
     border_radius: Corners<number>
   }
 }

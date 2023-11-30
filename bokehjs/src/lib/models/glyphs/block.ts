@@ -1,4 +1,6 @@
 import {LRTB, LRTBView} from "./lrtb"
+import type {LRTBRect} from "./lrtb"
+import {minmax} from "core/util/math"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
@@ -14,40 +16,59 @@ export class BlockView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
+  protected _lrtb(i: number): LRTBRect {
     const x_i = this.x[i]
     const y_i = this.y[i]
     const width_i = this.width.get(i)
     const height_i = this.height.get(i)
 
-    const l = Math.min(x_i, x_i + width_i)
-    const r = Math.max(x_i, x_i + width_i)
-    const t = Math.max(y_i, y_i + height_i)
-    const b = Math.min(y_i, y_i + height_i)
+    const [l, r] = minmax(x_i, x_i + width_i)
+    const [b, t] = minmax(y_i, y_i + height_i)
 
-    return [l, r, t, b]
+    return {l, r, t, b}
   }
 
   protected override _map_data(): void {
-    const sx = this.renderer.xscale.v_compute(this.x)
-    const sy = this.renderer.yscale.v_compute(this.y)
-    const sw = this.sdist(this.renderer.xscale, this.x, this.width, "edge")
-    const sh = this.sdist(this.renderer.yscale, this.y, this.height, "edge")
-
+    const {sx, sy} = this
     const n = sx.length
 
-    this.stop = new ScreenArray(n)
-    this.sbottom = new ScreenArray(n)
-    this.sleft = new ScreenArray(n)
-    this.sright = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.stop[i] = sy[i] - sh[i]
-      this.sbottom[i] = sy[i]
-      this.sleft[i] = sx[i]
-      this.sright[i] = sx[i] + sw[i]
+    if (this.inherited_x && this.inherited_width) {
+      this._inherit_attr<Block.Data>("sleft")
+      this._inherit_attr<Block.Data>("sright")
+    } else {
+      const sw = this.sdist(this.renderer.xscale, this.x, this.width, "edge")
+
+      const sleft = new ScreenArray(n)
+      const sright = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        sleft[i] = sx[i]
+        sright[i] = sx[i] + sw[i]
+      }
+
+      this._define_attr<Block.Data>("sleft", sleft)
+      this._define_attr<Block.Data>("sright", sright)
     }
 
-    this._clamp_viewport()
+    if (this.inherited_y && this.inherited_height) {
+      this._inherit_attr<Block.Data>("stop")
+      this._inherit_attr<Block.Data>("sbottom")
+    } else {
+      const sh = this.sdist(this.renderer.yscale, this.y, this.height, "edge")
+
+      const stop = new ScreenArray(n)
+      const sbottom = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        stop[i] = sy[i] - sh[i]
+        sbottom[i] = sy[i]
+      }
+
+      this._define_attr<Block.Data>("stop", stop)
+      this._define_attr<Block.Data>("sbottom", sbottom)
+    }
+
+    this._clamp_to_viewport()
   }
 }
 
@@ -57,14 +78,14 @@ export namespace Block {
   export type Props = LRTB.Props & {
     x: p.CoordinateSpec
     y: p.CoordinateSpec
-    width: p.NumberSpec
-    height: p.NumberSpec
+    width: p.DistanceSpec
+    height: p.DistanceSpec
   }
 
   export type Visuals = LRTB.Visuals
 
   export type Data = LRTB.Data & p.GlyphDataOf<Props> & {
-    max_width: number
+    readonly max_width: number
   }
 }
 
@@ -84,8 +105,8 @@ export class Block extends LRTB {
     this.define<Block.Props>(({}) => ({
       x:      [ p.XCoordinateSpec, {field: "x"} ],
       y:      [ p.YCoordinateSpec, {field: "y"} ],
-      width:  [ p.NumberSpec,      {value: 1}   ],
-      height: [ p.NumberSpec,      {value: 1}   ],
+      width:  [ p.DistanceSpec,    {value: 1}   ],
+      height: [ p.DistanceSpec,    {value: 1}   ],
     }))
   }
 }

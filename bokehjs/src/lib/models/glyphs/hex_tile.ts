@@ -4,7 +4,7 @@ import type {PointGeometry, RectGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect, Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
 import type * as visuals from "core/visuals"
@@ -42,30 +42,32 @@ export class HexTileView extends GlyphView {
     const {q, r} = this
 
     const n = this.q.length
-    this._x = new Float64Array(n)
-    this._y = new Float64Array(n)
-    const {_x, _y} = this
+    const x = new Float64Array(n)
+    const y = new Float64Array(n)
 
     const sqrt3 = Math.sqrt(3)
     if (orientation == "pointytop") {
       for (let i = 0; i < n; i++) {
         const q_i = q.get(i)
         const r2_i = r.get(i)/2
-        _x[i] = size*sqrt3*(q_i + r2_i)/aspect_scale
-        _y[i] = -3*size*r2_i
+        x[i] = size*sqrt3*(q_i + r2_i)/aspect_scale
+        y[i] = -3*size*r2_i
       }
     } else {
       for (let i = 0; i < n; i++) {
         const q2_i = q.get(i)/2
         const r_i = r.get(i)
-        _x[i] = 3*size*q2_i
-        _y[i] = -size*sqrt3*(r_i + q2_i)*aspect_scale
+        x[i] = 3*size*q2_i
+        y[i] = -size*sqrt3*(r_i + q2_i)*aspect_scale
       }
     }
+
+    this._define_attr<HexTile.Data>("x", x)
+    this._define_attr<HexTile.Data>("y", y)
   }
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x, this._y)
+    inplace.project_xy(this.x, this.y)
   }
 
   protected _index_data(index: SpatialIndex): void {
@@ -75,29 +77,35 @@ export class HexTileView extends GlyphView {
     if (this.model.orientation == "flattop") {
       [xsize, ysize] = [ysize, xsize]
       ysize *= this.model.aspect_scale
-    } else
+    } else {
       xsize /= this.model.aspect_scale
+    }
 
-    const {data_size} = this
-
+    const {x, y, data_size} = this
     for (let i = 0; i < data_size; i++) {
-      const x = this._x[i]
-      const y = this._y[i]
-      index.add_rect(x - xsize, y - ysize, x + xsize, y + ysize)
+      const x_i = x[i]
+      const y_i = y[i]
+      index.add_rect(x_i - xsize, y_i - ysize, x_i + xsize, y_i + ysize)
     }
   }
 
   // overriding map_data instead of _map_data because the default automatic mappings
   // for other glyphs (with cartesian coordinates) is not useful
   override map_data(): void {
-    [this.sx, this.sy] = this.renderer.coordinates.map_to_screen(this._x, this._y)
-    ;[this.svx, this.svy] = this._get_unscaled_vertices()
+    const [sx, sy] = this.renderer.coordinates.map_to_screen(this.x, this.y)
+    const [svx, svy] = this._get_unscaled_vertices()
+
+    this._define_attr<HexTile.Data>("sx", sx)
+    this._define_attr<HexTile.Data>("sy", sy)
+
+    this._define_attr<HexTile.Data>("svx", svx)
+    this._define_attr<HexTile.Data>("svy", svy)
 
     // From overridden GlyphView.map_data()
     this.glglyph?.set_data_mapped()
   }
 
-  protected _get_unscaled_vertices(): [[number, number, number, number, number, number], [number, number, number, number, number, number]] {
+  protected _get_unscaled_vertices(): [Vertices, Vertices] {
     const size = this.model.size
     const aspect_scale = this.model.aspect_scale
 
@@ -171,21 +179,22 @@ export class HexTileView extends GlyphView {
   }
 
   protected override _hit_span(geometry: SpanGeometry): Selection {
-    const {sx, sy} = geometry
-
-    let indices: number[]
-    if (geometry.direction == "v") {
-      const y = this.renderer.yscale.invert(sy)
-      const hr = this.renderer.plot_view.frame.bbox.h_range
-      const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
-      indices = [...this.index.indices({x0, y0: y, x1, y1: y})]
-    } else {
-      const x = this.renderer.xscale.invert(sx)
-      const vr = this.renderer.plot_view.frame.bbox.v_range
-      const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
-      indices = [...this.index.indices({x0: x, y0, x1: x, y1})]
-    }
-
+    const rect = (() => {
+      if (geometry.direction == "v") {
+        const {sy} = geometry
+        const y = this.renderer.yscale.invert(sy)
+        const hr = this.renderer.plot_view.frame.bbox.h_range
+        const [x0, x1] = this.renderer.xscale.r_invert(hr.start, hr.end)
+        return {x0, y0: y, x1, y1: y}
+      } else {
+        const {sx} = geometry
+        const x = this.renderer.xscale.invert(sx)
+        const vr = this.renderer.plot_view.frame.bbox.v_range
+        const [y0, y1] = this.renderer.yscale.r_invert(vr.start, vr.end)
+        return {x0: x, y0, x1: x, y1}
+      }
+    })()
+    const indices =  [...this.index.indices(rect)]
     return new Selection({indices})
   }
 
@@ -219,14 +228,14 @@ export namespace HexTile {
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
 
   export type Data = p.GlyphDataOf<Props> & {
-    _x: FloatArray
-    _y: FloatArray
+    readonly x: Arrayable<number>
+    readonly y: Arrayable<number>
 
-    sx: ScreenArray
-    sy: ScreenArray
+    readonly sx: Arrayable<number>
+    readonly sy: Arrayable<number>
 
-    svx: Vertices
-    svy: Vertices
+    readonly svx: Vertices
+    readonly svy: Vertices
   }
 }
 

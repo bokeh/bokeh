@@ -290,23 +290,31 @@ export class MultiPolygonsView extends GlyphView {
   }
 
   override map_data(): void {
-    const n_i = this.xs.length
-    this.sxs = new Array(n_i)
-    this.sys = new Array(n_i)
-    for (let i = 0; i < n_i; i++) {
-      const n_j = this.xs[i].length
-      this.sxs[i] = new Array(n_j)
-      this.sys[i] = new Array(n_j)
-      for (let j = 0; j < n_j; j++) {
-        const n_k = this.xs[i][j].length
-        this.sxs[i][j] = new Array(n_k)
-        this.sys[i][j] = new Array(n_k)
-        for (let k = 0; k < n_k; k++) {
-          const [sx, sy] = this.renderer.coordinates.map_to_screen(this.xs[i][j][k], this.ys[i][j][k])
-          this.sxs[i][j][k] = sx
-          this.sys[i][j][k] = sy
+    if (this.inherited_xs && this.inherited_ys) {
+      this._inherit_attr<MultiPolygons.Data>("sxs")
+      this._inherit_attr<MultiPolygons.Data>("sys")
+    } else {
+      const {xs, ys} = this
+      const n_i = xs.length
+      const sxs = new Array(n_i)
+      const sys = new Array(n_i)
+      for (let i = 0; i < n_i; i++) {
+        const n_j = xs[i].length
+        sxs[i] = new Array(n_j)
+        sys[i] = new Array(n_j)
+        for (let j = 0; j < n_j; j++) {
+          const n_k = xs[i][j].length
+          sxs[i][j] = new Array(n_k)
+          sys[i][j] = new Array(n_k)
+          for (let k = 0; k < n_k; k++) {
+            const [sx, sy] = this.renderer.coordinates.map_to_screen(xs[i][j][k], ys[i][j][k])
+            sxs[i][j][k] = sx
+            sys[i][j][k] = sy
+          }
         }
       }
+      this._define_attr<MultiPolygons.Data>("sxs", sxs)
+      this._define_attr<MultiPolygons.Data>("sys", sys)
     }
   }
 

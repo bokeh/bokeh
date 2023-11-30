@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -15,10 +16,17 @@ export class ArcView extends XYGlyphView {
   declare visuals: Arc.Visuals
 
   protected override _map_data(): void {
-    if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this.x, this.radius)
-    else
-      this.sradius = to_screen(this.radius)
+    this._define_or_inherit_attr<Arc.Data>("sradius", () => {
+      if (this.model.properties.radius.units == "data") {
+        if (this.inherited_x && this.inherited_radius) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.radius)
+        }
+      } else {
+        return this.inherited_radius ? inherit : to_screen(this.radius)
+      }
+    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Arc.Data>): void {

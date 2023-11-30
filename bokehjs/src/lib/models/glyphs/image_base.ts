@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import type {Arrayable} from "core/types"
 import {to_screen} from "core/types"
 import {ImageOrigin} from "core/enums"
@@ -183,15 +184,29 @@ export abstract class ImageBaseView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    if (this.model.properties.dw.units == "data")
-      this.sdw = this.sdist(this.renderer.xscale, this.x, this.dw, "edge", this.model.dilate)
-    else
-      this.sdw = to_screen(this.dw)
+    this._define_or_inherit_attr<ImageBase.Data>("sdw", () => {
+      if (this.model.properties.dw.units == "data") {
+        if (this.inherited_x && this.inherited_dw) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.dw, "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_dw ? inherit : to_screen(this.dw)
+      }
+    })
 
-    if (this.model.properties.dh.units == "data")
-      this.sdh = this.sdist(this.renderer.yscale, this.y, this.dh, "edge", this.model.dilate)
-    else
-      this.sdh = to_screen(this.dh)
+    this._define_or_inherit_attr<ImageBase.Data>("sdh", () => {
+      if (this.model.properties.dh.units == "data") {
+        if (this.inherited_y && this.inherited_dh) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.yscale, this.y, this.dh, "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_dh ? inherit : to_screen(this.dh)
+      }
+    })
   }
 
   _image_index(index: number, x: number, y: number): ImageIndex {

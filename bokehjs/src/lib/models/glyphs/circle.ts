@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -40,21 +41,32 @@ export class CircleView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    this.sradius = (() => {
+    this._define_or_inherit_attr<Circle.Data>("sradius", () => {
       if (this.model.properties.radius.units == "data") {
         const sradius_x = () => this.sdist(this.renderer.xscale, this.x, this.radius)
         const sradius_y = () => this.sdist(this.renderer.yscale, this.y, this.radius)
 
-        switch (this.model.radius_dimension) {
-          case "x":   return sradius_x()
-          case "y":   return sradius_y()
-          case "max": return elementwise(sradius_x(), sradius_y(), Math.max)
-          case "min": return elementwise(sradius_x(), sradius_y(), Math.min)
+        const {radius_dimension} = this.model
+        switch (radius_dimension) {
+          case "x": {
+            return this.inherited_x && this.inherited_radius ? inherit : sradius_x()
+          }
+          case "y": {
+            return this.inherited_y && this.inherited_radius ? inherit : sradius_y()
+          }
+          case "min":
+          case "max": {
+            if (this.inherited_x && this.inherited_y && this.inherited_radius) {
+              return inherit
+            } else {
+              return elementwise(sradius_x(), sradius_y(), Math[radius_dimension])
+            }
+          }
         }
       } else {
-        return to_screen(this.radius)
+        return this.inherited_sradius ? inherit : to_screen(this.radius)
       }
-    })()
+    })
   }
 
   protected override _mask_data(): Indices {

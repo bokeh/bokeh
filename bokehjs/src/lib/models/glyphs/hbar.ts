@@ -1,4 +1,5 @@
 import {LRTB, LRTBView} from "./lrtb"
+import type {LRTBRect} from "./lrtb"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
@@ -14,7 +15,7 @@ export class HBarView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
+  protected _lrtb(i: number): LRTBRect {
     const left_i = this.left[i]
     const right_i = this.right[i]
     const y_i = this.y[i]
@@ -25,26 +26,35 @@ export class HBarView extends LRTBView {
     const t = y_i + half_height_i
     const b = y_i - half_height_i
 
-    return [l, r, t, b]
+    return {l, r, t, b}
   }
 
   protected override _map_data(): void {
     if (this.inherited_y && this.inherited_height) {
-      this._inherit_attr("sheight")
+      this._inherit_attr<HBar.Data>("sheight")
+      this._inherit_attr<HBar.Data>("stop")
+      this._inherit_attr<HBar.Data>("sbottom")
     } else {
       const sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
-      this._define_attr("sheight", sheight)
+
+      const {sy} = this
+      const n = this.sy.length
+      const stop = new ScreenArray(n)
+      const sbottom = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        const sy_i = sy[i]
+        const sheight_i = sheight[i]
+        stop[i] = sy_i - sheight_i/2
+        sbottom[i] = sy_i + sheight_i/2
+      }
+
+      this._define_attr<HBar.Data>("sheight", sheight)
+      this._define_attr<HBar.Data>("stop", stop)
+      this._define_attr<HBar.Data>("sbottom", sbottom)
     }
 
-    const n = this.sy.length
-    this.stop = new ScreenArray(n)
-    this.sbottom = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.stop[i] = this.sy[i] - this.sheight[i]/2
-      this.sbottom[i] = this.sy[i] + this.sheight[i]/2
-    }
-
-    this._clamp_viewport()
+    this._clamp_to_viewport()
   }
 }
 

@@ -1,4 +1,5 @@
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
@@ -14,18 +15,29 @@ export class RayView extends XYGlyphView {
   declare visuals: Ray.Visuals
 
   protected override _map_data(): void {
-    if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this.x, this.length)
-    else
-      this.slength = to_screen(this.length)
+    this._define_or_inherit_attr<Ray.Data>("slength", () => {
+      if (this.model.properties.length.units == "data") {
+        if (this.inherited_x && this.inherited_length) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.length)
+        }
+      } else {
+        return this.inherited_length ? inherit : to_screen(this.length)
+      }
+    })
 
-    const {width, height} = this.renderer.plot_view.frame.bbox
-    const inf_len = 2*(width + height)
+    if (!this.inherited_slength) {
+      const {width, height} = this.renderer.plot_view.frame.bbox
+      const inf_len = 2*(width + height)
 
-    const {slength} = this
-    for (let i = 0, end = slength.length; i < end; i++) {
-      if (slength[i] == 0)
-        slength[i] = inf_len
+      const {slength} = this
+      const n = slength.length
+      for (let i = 0; i < n; i++) {
+        if (slength[i] == 0) {
+          slength[i] = inf_len
+        }
+      }
     }
   }
 

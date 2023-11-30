@@ -1,4 +1,5 @@
 import {CenterRotatable, CenterRotatableView} from "./center_rotatable"
+import {inherit} from "./glyph"
 import type {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import type {Rect} from "core/types"
@@ -14,15 +15,29 @@ export class EllipseView extends CenterRotatableView  {
   declare visuals: Ellipse.Visuals
 
   protected override _map_data(): void {
-    if (this.model.properties.width.units == "data")
-      this.swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
-    else
-      this.swidth = to_screen(this.width)
+    this._define_or_inherit_attr<Ellipse.Data>("swidth", () => {
+      if (this.model.properties.width.units == "data") {
+        if (this.inherited_x && this.inherited_width) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.width, "center")
+        }
+      } else {
+        return this.inherited_width ? inherit : to_screen(this.width)
+      }
+    })
 
-    if (this.model.properties.height.units == "data")
-      this.sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
-    else
-      this.sheight = to_screen(this.height)
+    this._define_or_inherit_attr<Ellipse.Data>("sheight", () => {
+      if (this.model.properties.height.units == "data") {
+        if (this.inherited_y && this.inherited_height) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.yscale, this.y, this.height, "center")
+        }
+      } else {
+        return this.inherited_height ? inherit : to_screen(this.height)
+      }
+    })
   }
 
   protected _render(ctx: Context2d, indices: number[], data?: Partial<Ellipse.Data>): void {
