@@ -52,6 +52,7 @@ type Assertions<T> = {
   empty: void
   below(expected: number): void
   above(expected: number): void
+  within(low: number, high: number): void
 }
 
 type ElementAssertions = {
@@ -226,6 +227,14 @@ class Asserts implements Assertions<unknown> {
     if (!(isNumber(value) && value > expected) == !this.negated) {
       const be = this.negated ? "not be" : "be"
       throw new ExpectationError(`expected ${to_string(value)} to ${be} below ${to_string(expected)}`)
+    }
+  }
+
+  within(low: number, high: number): void {
+    const {value} = this
+    if (!(isNumber(value) && low <= value && value <= high) == !this.negated) {
+      const be = this.negated ? "not be" : "be"
+      throw new ExpectationError(`expected ${to_string(value)} to ${be} within ${to_string(low)} .. ${to_string(high)} range`)
     }
   }
 }
