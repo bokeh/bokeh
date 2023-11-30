@@ -17,11 +17,12 @@ export class HAreaStepView extends AreaView {
 
   protected _index_data(index: SpatialIndex): void {
     const {min, max} = Math
+    const {x1, x2, y} = this
 
     for (let i = 0; i < this.data_size; i++) {
-      const x1_i = this.x1[i]
-      const x2_i = this.x2[i]
-      const y_i = this.y[i]
+      const x1_i = x1[i]
+      const x2_i = x2[i]
+      const y_i = y[i]
       index.add_rect(min(x1_i, x2_i), y_i, max(x1_i, x2_i), y_i)
     }
   }
@@ -88,16 +89,17 @@ export class HAreaStepView extends AreaView {
       let py: number[]
 
       switch (this.model.step_mode) {
-        case "before":
+        case "before": {
           px = [sy[i], sy[i+1], sy[i+1], sy[i]]
           py = [sx1[i+1], sx1[i+1], sx2[i+1], sx2[i+1]]
           break
-        case "after":
+        }
+        case "after": {
           px = [sy[i], sy[i+1], sy[i+1], sy[i]]
           py = [sx1[i], sx1[i], sx2[i], sx2[i]]
           break
-        case "center":
-        {
+        }
+        case "center": {
           const mid_y = (sy[i] + sy[i+1]) / 2
           px = [sy[i], mid_y, mid_y, sy[i+1], sy[i+1], mid_y, mid_y, sy[i]]
           py = [sx1[i], sx1[i], sx1[i+1], sx1[i+1], sx2[i+1], sx2[i+1], sx2[i], sx2[i]]

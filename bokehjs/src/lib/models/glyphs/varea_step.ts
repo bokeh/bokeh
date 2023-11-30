@@ -34,16 +34,17 @@ export class VAreaStepView extends AreaView {
     const idx_dir = from_i < to_i ? 1 : -1
     for (let i = from_i + idx_dir; i != to_i; i += idx_dir) {
       switch (mode) {
-        case "before":
+        case "before": {
           ctx.lineTo(prev_x, sy[i])
           ctx.lineTo(sx[i], sy[i])
           break
-        case "after":
+        }
+        case "after": {
           ctx.lineTo(sx[i], prev_y)
           ctx.lineTo(sx[i], sy[i])
           break
-        case "center":
-        {
+        }
+        case "center": {
           const mid_x = (prev_x + sx[i]) / 2
           ctx.lineTo(mid_x, prev_y)
           ctx.lineTo(mid_x, sy[i])
@@ -88,16 +89,17 @@ export class VAreaStepView extends AreaView {
       let py: number[]
 
       switch (this.model.step_mode) {
-        case "before":
+        case "before": {
           px = [sx[i], sx[i+1], sx[i+1], sx[i]]
           py = [sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1]]
           break
-        case "after":
+        }
+        case "after": {
           px = [sx[i], sx[i+1], sx[i+1], sx[i]]
           py = [sy1[i], sy1[i], sy2[i], sy2[i]]
           break
-        case "center":
-        {
+        }
+        case "center": {
           const mid_x = (sx[i] + sx[i+1]) / 2
           px = [sx[i], mid_x, mid_x, sx[i+1], sx[i+1], mid_x, mid_x, sx[i]]
           py = [sy1[i], sy1[i], sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1], sy2[i], sy2[i]]
