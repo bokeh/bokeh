@@ -96,7 +96,7 @@ export type InheritedOf<Props> = InheritedAttrsOf<Props> & InheritedScreenOf<Pro
 
 export type Expanded<T> = T extends infer Obj ? {[K in keyof Obj]: Obj[K]} : never
 
-export type GlyphDataOf<Props> = Expanded<CoordsAttrsOf<Props> & ScreenAttrsOf<Props> & MaxAttrsOf<Props> & UniformsOf<Props> & InheritedOf<Props>>
+export type GlyphDataOf<Props> = Expanded<Readonly<CoordsAttrsOf<Props> & ScreenAttrsOf<Props> & MaxAttrsOf<Props> & UniformsOf<Props> & InheritedOf<Props>>>
 
 export type AttrsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T : never
