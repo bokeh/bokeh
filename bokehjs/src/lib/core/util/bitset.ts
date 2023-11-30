@@ -173,10 +173,6 @@ export class BitSet implements Equatable {
     }
   }
 
-  private _check_size(other: BitSet): void {
-    assert(this.size == other.size, `Size mismatch (${this.size} != ${other.size})`)
-  }
-
   invert(): void {
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] = ~this._array[i] >>> 0
@@ -244,7 +240,7 @@ export class BitSet implements Equatable {
   }
 
   select<T>(array: Arrayable<T>): Arrayable<T> {
-    assert(this.size <= array.length, "Size mismatch")
+    this._check_array_length(array)
     const n = this.count
     const result = new (array.constructor as ArrayableNew)<T>(n)
     let i = 0
@@ -252,5 +248,23 @@ export class BitSet implements Equatable {
       result[i++] = array[j]
     }
     return result
+  }
+
+  protected _check_bounds(k: number): void {
+    if (!(0 <= k && k < this.size)) {
+      throw new AssertionError(`Out of bounds: 0 <= ${k} < ${this.size}`)
+    }
+  }
+
+  protected _check_size(other: BitSet): void {
+    if (this.size != other.size) {
+      throw new AssertionError(`Size mismatch (${this.size} != ${other.size})`)
+    }
+  }
+
+  protected _check_array_length(other: Arrayable) {
+    if (!(this.size <= other.length)) {
+      throw new AssertionError(`Size mismatch (${this.size} != ${other.length})`)
+    }
   }
 }
