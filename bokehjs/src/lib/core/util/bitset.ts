@@ -1,34 +1,44 @@
 import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
 import type {Arrayable, ArrayableNew} from "../types"
-import {assert} from "./assert"
+import {assert, AssertionError} from "./assert"
 import {has_refs} from "core/util/refs"
+
+const WORD_LENGTH = 32
+const FULL_WORD = 0xffffffff
 
 export class BitSet implements Equatable {
   readonly [Symbol.toStringTag] = "BitSet"
 
   static readonly [has_refs] = false
 
-  private static readonly _word_length = 32
-
   private readonly _array: Uint32Array
   private readonly _nwords: number
 
-  constructor(readonly size: number, init: Uint32Array | 1 | 0 = 0) {
-    this._nwords = Math.ceil(size/BitSet._word_length)
+  constructor(readonly size: number, init: Uint32Array | 1 | 0 = 0, count?: number) {
+    this._nwords = Math.ceil(size/WORD_LENGTH)
     if (init == 0 || init == 1) {
       this._array = new Uint32Array(this._nwords)
       if (init == 1) {
         this._array.fill(0xffffffff)
+        this._count = size
+      } else {
+        this._count = 0
       }
     } else {
       assert(init.length == this._nwords, "Initializer size mismatch")
       this._array = init
+      if (count != null) {
+        this._count = count
+      } else {
+        this._update_count()
+      }
     }
+    this._clear_trailing()
   }
 
   clone(): BitSet {
-    return new BitSet(this.size, new Uint32Array(this._array))
+    return new BitSet(this.size, new Uint32Array(this._array), this._count)
   }
 
   [equals](that: this, cmp: Comparator): boolean {
@@ -36,7 +46,7 @@ export class BitSet implements Equatable {
       return false
     }
     const {_nwords} = this
-    const trailing = this.size % BitSet._word_length
+    const trailing = this.size % WORD_LENGTH
     const n = trailing == 0 ? _nwords : _nwords - 1
     for (let i = 0; i < n; i++) {
       if (this._array[i] != that._array[i]) {
@@ -83,26 +93,31 @@ export class BitSet implements Equatable {
     return bits
   }
 
-  private _check_bounds(k: number): void {
-    assert(0 <= k && k < this.size, `Out of bounds: 0 <= ${k} < ${this.size}`)
-  }
-
   get(k: number): boolean {
     this._check_bounds(k)
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
-    return ((this._array[i] >> j) & 0b1) == 0b1
+    const bit = 0b1 << j
+    const is_set = (this._array[i] & bit) != 0
+    return is_set
   }
 
   set(k: number, v: boolean = true): void {
     this._check_bounds(k)
-    this._count = null
     const i = k >>> 5  // Math.floor(k/32)
     const j = k & 0x1f // k % 32
+    const bit = 0b1 << j
+    const is_set = (this._array[i] & bit) != 0
     if (v) {
-      this._array[i] |= 0b1 << j
+      if (!is_set) {
+        this._count++
+      }
+      this._array[i] |= bit
     } else {
-      this._array[i] &= ~(0b1 << j)
+      if (is_set) {
+        this._count--
+      }
+      this._array[i] &= ~bit
     }
   }
 
@@ -114,13 +129,19 @@ export class BitSet implements Equatable {
     yield* this.ones()
   }
 
-  private _count: number | null = null
+  private _count: number
   get count(): number {
-    let count = this._count
-    if (count == null) {
-      this._count = count = this._get_count()
-    }
-    return count
+    return this._count
+  }
+
+  protected _bit_count(i: number): number {
+    // https://stackoverflow.com/questions/109023/count-the-number-of-set-bits-in-a-32-bit-integer/109025#109025
+    i = i | 0                                        // convert to an integer
+    i = i - ((i >>> 1) & 0x55555555)                 // add pairs of bits
+    i = (i & 0x33333333) + ((i >>> 2) & 0x33333333)  // quads
+    i = (i + (i >>> 4)) & 0x0f0f0f0f                 // groups of 8
+    i *= 0x01010101                                  // horizontal sum of bytes
+    return i >>> 24                                  // return just that top byte (after truncating to 32-bit even when int is wider than uint32_t)
   }
 
   protected _get_count(): number {
@@ -129,54 +150,77 @@ export class BitSet implements Equatable {
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
       if (word == 0) {
-        k += BitSet._word_length
+        continue
+      } else if (word == FULL_WORD) {
+        c += WORD_LENGTH
       } else {
-        for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
+        for (let j = 0; j < WORD_LENGTH && k < size; j++, k++) {
           if (((word >>> j) & 0b1) == 0b1) {
             c += 1
           }
         }
+        //c += this._bit_count(word)
       }
     }
     return c
   }
 
-  *ones(): Iterable<number> {
+  protected _update_count(): void {
+    this._count = this._get_count()
+  }
+
+  protected _clear_trailing(): void {
+    const {_nwords} = this
+    const trailing = this.size % WORD_LENGTH
+    const n = trailing == 0 ? _nwords : _nwords - 1
+    const msb = 1 << (trailing - 1)
+    const mask = (msb - 1)^msb
+    this._array[n] &= mask
+  }
+
+  ones(): number[] {
+    const indices = new Array(this.count)
+    let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
       if (word == 0) {
-        k += BitSet._word_length
+        k += WORD_LENGTH
         continue
       }
-      for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
+      for (let j = 0; j < WORD_LENGTH && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b1) {
-          yield k
+          indices[index++] = k
         }
       }
     }
+    return indices
   }
 
-  *zeros(): Iterable<number> {
+  zeros(): number[] {
+    const indices = new Array(this.size - this.count)
+    let index = 0
     const {_array, _nwords, size} = this
     for (let k = 0, i = 0; i < _nwords; i++) {
       const word = _array[i]
-      if (word == 0xffffffff) {
-        k += BitSet._word_length
+      if (word == FULL_WORD) {
+        k += WORD_LENGTH
         continue
       }
-      for (let j = 0; j < BitSet._word_length && k < size; j++, k++) {
+      for (let j = 0; j < WORD_LENGTH && k < size; j++, k++) {
         if (((word >>> j) & 0b1) == 0b0) {
-          yield k
+          indices[index++] = k
         }
       }
     }
+    return indices
   }
 
   invert(): void {
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] = ~this._array[i] >>> 0
     }
+    this._update_count()
   }
 
   add(other: BitSet): void {
@@ -184,6 +228,7 @@ export class BitSet implements Equatable {
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] |= other._array[i]
     }
+    this._update_count()
   }
 
   intersect(other: BitSet): void {
@@ -191,6 +236,7 @@ export class BitSet implements Equatable {
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] &= other._array[i]
     }
+    this._update_count()
   }
 
   subtract(other: BitSet): void {
@@ -200,6 +246,7 @@ export class BitSet implements Equatable {
       const b = other._array[i]
       this._array[i] = (a ^ b) & a
     }
+    this._update_count()
   }
 
   symmetric_subtract(other: BitSet): void {
@@ -207,6 +254,7 @@ export class BitSet implements Equatable {
     for (let i = 0; i < this._nwords; i++) {
       this._array[i] ^= other._array[i]
     }
+    this._update_count()
   }
 
   inversion(): BitSet {
