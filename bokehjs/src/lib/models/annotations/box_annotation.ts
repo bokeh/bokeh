@@ -561,10 +561,10 @@ export class BoxAnnotation extends Annotation {
     ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or}) => ({
-      top:          [ Or(Number, Ref(Node)), NaN ],
-      bottom:       [ Or(Number, Ref(Node)), NaN ],
-      left:         [ Or(Number, Ref(Node)), NaN ],
-      right:        [ Or(Number, Ref(Node)), NaN ],
+      top:          [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "top"}) ],
+      bottom:       [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "bottom"}) ],
+      left:         [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "left"}) ],
+      right:        [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],

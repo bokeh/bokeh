@@ -134,21 +134,21 @@ def autoload_static(model: Model | Document, resources: Resources, script_path: 
     return js, tag
 
 @overload
-def components(models: Model, wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+def components(models: Model, wrap_script: bool = ..., # type: ignore[overload-overlap] # XXX: mypy bug
     wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, str]: ...
 @overload
 def components(models: Model, wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
     theme: ThemeLike = ...) -> tuple[str, RenderRoot]: ...
 
 @overload
-def components(models: Sequence[Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+def components(models: Sequence[Model], wrap_script: bool = ..., # type: ignore[overload-overlap] # XXX: mypy bug
     wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, Sequence[str]]: ...
 @overload
 def components(models: Sequence[Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
     theme: ThemeLike = ...) -> tuple[str, Sequence[RenderRoot]]: ...
 
 @overload
-def components(models: dict[str, Model], wrap_script: bool = ..., # type: ignore[misc] # XXX: mypy bug
+def components(models: dict[str, Model], wrap_script: bool = ..., # type: ignore[overload-overlap] # XXX: mypy bug
     wrap_plot_info: Literal[True] = ..., theme: ThemeLike = ...) -> tuple[str, dict[str, str]]: ...
 @overload
 def components(models: dict[str, Model], wrap_script: bool = ..., wrap_plot_info: Literal[False] = ...,
