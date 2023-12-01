@@ -148,6 +148,10 @@ export class PlotActions {
     await this.emit(this._double_tap(xy))
   }
 
+  async press(xy: Point): Promise<void> {
+    await this.emit(this._press(xy))
+  }
+
   protected _event_keys(modifiers: Partial<KeyModifiers> = {}): EventKeys {
     return {
       shiftKey: modifiers.shift,
@@ -156,8 +160,8 @@ export class PlotActions {
     }
   }
 
-  protected async emit(events: Iterable<UIEvent>): Promise<void> {
-    for (const ev of events) {
+  protected async emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): Promise<void> {
+    for await (const ev of events) {
       this.el.dispatchEvent(ev)
       await delay(this.options.pause)
     }
@@ -263,5 +267,12 @@ export class PlotActions {
   protected *_double_tap(xy: Point): Iterable<PointerEvent> {
     yield* this._tap(xy)
     yield* this._tap(xy)
+  }
+
+  protected async *_press(xy: Point): AsyncIterable<PointerEvent> {
+    const [pointerdown, pointerup] = this._tap(xy)
+    yield pointerdown
+    await delay(300)
+    yield pointerup
   }
 }

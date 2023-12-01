@@ -2,6 +2,7 @@ import * as sinon from "sinon"
 
 import {expect} from "assertions"
 import {display, restorable} from "../_util"
+import {actions, xy} from "../../interactive"
 
 import * as dom from "@bokehjs/core/dom"
 import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
@@ -21,6 +22,63 @@ import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import {UIEventBus} from "@bokehjs/core/ui_events"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
+
+describe("UIEventBus", () => {
+
+  function plot() {
+    const p = new Plot({
+      width: 100,
+      height: 100,
+      min_border: 0,
+      toolbar_location: null,
+      x_range: new Range1d({start: 0, end: 10}),
+      y_range: new Range1d({start: 0, end: 10}),
+    })
+    return p
+  }
+
+  it("should support tap gesture", async () => {
+    const p = plot()
+
+    const events = []
+    p.on_event("tap", (event) => events.push(event))
+    p.on_event("doubletap", (event) => events.push(event))
+    p.on_event("press", (event) => events.push(event))
+
+    const {view} = await display(p)
+    await actions(view).tap(xy(5, 5))
+
+    expect(events.length).to.be.equal(1)
+  })
+
+  it("should support doubletap gesture", async () => {
+    const p = plot()
+
+    const events = []
+    p.on_event("tap", (event) => events.push(event))
+    p.on_event("doubletap", (event) => events.push(event))
+    p.on_event("press", (event) => events.push(event))
+
+    const {view} = await display(p)
+    await actions(view).double_tap(xy(5, 5))
+
+    expect(events.length).to.be.equal(2) // tap followed by doubletap
+  })
+
+  it("should support press gesture", async () => {
+    const p = plot()
+
+    const events = []
+    p.on_event("tap", (event) => events.push(event))
+    p.on_event("doubletap", (event) => events.push(event))
+    p.on_event("press", (event) => events.push(event))
+
+    const {view} = await display(p)
+    await actions(view).press(xy(5, 5))
+
+    expect(events.length).to.be.equal(1)
+  })
+})
 
 describe("ui_event_bus module", () => {
 
@@ -358,20 +416,6 @@ describe("ui_event_bus module", () => {
       await plot_view.ready
 
       ui_event_bus._tap(e)
-
-      expect(spy_plot.callCount).to.be.equal(2) // tap event and selection event
-      expect(spy_uievent.calledOnce).to.be.true
-    })
-
-    it("_doubletap method should handle doubletap event", async () => {
-      const e: any = new Event("doubletap") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200, ...dummy_methods}
-
-      plot_view.model.add_tools(new PolySelectTool())
-      await plot_view.ready
-
-      ui_event_bus._doubletap(e)
 
       expect(spy_plot.callCount).to.be.equal(2) // tap event and selection event
       expect(spy_uievent.calledOnce).to.be.true
