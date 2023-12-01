@@ -197,8 +197,7 @@ class Tool(Model):
 
     visible = Bool(True, help="""
     Whether an on/off toggle button should appear in the toolbar for this
-    inspection tool. If ``False``, the viewers of a plot will not be able to
-    toggle the inspector on or off using the toolbar.
+    inspection tool. If ``False``, tool button will not appear on the toolbar.
     """)
 
     _known_aliases: tp.ClassVar[dict[str, tp.Callable[[], Tool]]] = {}
