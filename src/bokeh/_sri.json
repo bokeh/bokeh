@@ -1,4 +1,18 @@
 {
+  "3.3.2": {
+    "bokeh-3.3.2.js": "H1cNbnyMzIKv8Mggr+mvhwkGXUbLZBa0LxkClx/ApY7uRgVsdvKMiXq4eVvSVSxK",
+    "bokeh-3.3.2.min.js": "zZpxaJBwloSSOSe25Zqjbooun0e30PaNmVdRdZnUstTKAlpj/KPOa+0selw1dld0",
+    "bokeh-api-3.3.2.js": "mus17THyvDPCFioWqm5gnjlpwjUc3W5uHaHLRqlYfd4LqLNCVTyibtZoK0z6xGYE",
+    "bokeh-api-3.3.2.min.js": "MQv7vwnF1nZ6Qmt1ePOkFQsK+fh16QRROfXja1Wnk3A2zcjWSWP8rFemcJzhefcr",
+    "bokeh-gl-3.3.2.js": "XtkiazM0ZuuEiBMp6tvE9RUMuI779Cpd4tZeK9hHoKF6klIvuAiX/5+qdvu9+fFl",
+    "bokeh-gl-3.3.2.min.js": "mQVopMWfSeo5iFxkQEeYvTIL6MJL0iWwlsNGEa2WWCRE2xChhHxiQGEr8Uf9m/Nf",
+    "bokeh-mathjax-3.3.2.js": "xiMlkafSqygwajg/C17gpZCBNiYUt38kTCbMb90aPnuNGs+Qi7tZDu9cDfzVy3Ej",
+    "bokeh-mathjax-3.3.2.min.js": "mx5w86/waTHXjshpCk/4j8JcepYLSn9nf0BUlG2QJ4tFIXsVWQaw+Qfvf7tvNqY9",
+    "bokeh-tables-3.3.2.js": "mU4NAErxdjictow55M+eAKVYRhhapSYwSwjQp0xLTmzQSOcBle869mgK468Q1ubB",
+    "bokeh-tables-3.3.2.min.js": "uLgKXrZ5MzCELPWdSYL8Sz52IihhwMpAiXvcpHdlfz4U1Y24/sQHIE4Le3ikiIGf",
+    "bokeh-widgets-3.3.2.js": "yisI/s0fAfy2PIaV8sFCG2KYFrkbSuqOrDk0Ats+zvZefRNehJwT3Q6SoI8A/epI",
+    "bokeh-widgets-3.3.2.min.js": "68FLJZ8Laj+TTxnOzyW/KnCd6awEyxNVbKa8cRuAsSyROshWYKmV9a3UnRJBpCxl"
+  },
   "3.3.1": {
     "bokeh-3.3.1.js": "r48u8jcxXd5MewA4SQlRHM5ei9em+3pfbnYtyu0MqLW4M1gP3LrWD6QoWP/effbu",
     "bokeh-3.3.1.min.js": "j1urMZNH3DcuUnrKaqWhDp1+bFgaM+Xy711eHQBGZ98HvzXIXCyauEJQHgAMpB2m",
