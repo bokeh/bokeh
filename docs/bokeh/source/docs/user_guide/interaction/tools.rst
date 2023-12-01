@@ -347,9 +347,9 @@ from properties on the |Selection| object for a glyph data source. For example:
 will hold the selected indices in the common case of a "scatter" type glyph.
 
 .. note::
-    Complete the selection by making a double left-click or tapping. To make a
-    multiple selection, press the SHIFT key. To clear the selection, press the
-    ESC key.
+    Complete the selection by making press tap on the canvas. To make
+    a multiple selection, press the SHIFT key. To clear the selection,
+    press the ESC key.
 
 TapTool
 ~~~~~~~
@@ -843,8 +843,8 @@ showing the pressed keys. The ``BoxEditTool`` can **Add**, **Move**
 and **Delete** boxes on plots:
 
 Add box
-  Hold shift, then click and drag anywhere on the plot or double tap
-  once to start drawing. Move the mouse and double tap again to
+  Hold shift, then click and drag anywhere on the plot or press tap
+  once to start drawing. Move the mouse and press tap again to
   finish drawing.
 
 Move box
@@ -1028,8 +1028,8 @@ showing the pressed keys. The ``PolyDrawTool`` can **Add**, **Move**,
 and **Delete** patches and multi-lines:
 
 Add patch/multi-line
-  Double tap to add the first vertex, then use tap to add each
-  subsequent vertex. To finalize the draw action, double tap to insert
+  Press tap to add the first vertex, then use tap to add each
+  subsequent vertex. To finalize the draw action, press tap to insert
   the final vertex or press the ESC key.
 
 Move patch/multi-line
@@ -1073,12 +1073,12 @@ showing the pressed keys. The ``PolyEditTool`` can **Add**, **Move**,
 and **Delete** vertices on existing patches and multi-lines:
 
 Show vertices
-  Double tap an existing patch or multi-line.
+  Press tap an existing patch or multi-line.
 
 Add vertex
-  Double tap an existing vertex to select it. The tool will draw the
+  Press tap an existing vertex to select it. The tool will draw the
   next point. To add it, tap in a new location. To finish editing
-  and add a point, double tap. Otherwise press the ESC key to cancel.
+  and add a point, press tap. Otherwise press the ESC key to cancel.
 
 Move vertex
   Drag an existing vertex and let go of the mouse button to release
