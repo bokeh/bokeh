@@ -201,6 +201,6 @@ export class PolySelectTool extends RegionSelectTool {
 
   override tool_name = "Poly Select"
   override tool_icon = tool_icon_polygon_select
-  override event_type = ["tap" as "tap", "press" as "press"]
+  override event_type = "tap" as "tap"
   override default_order = 11
 }
