@@ -5,6 +5,7 @@
 
 Bokeh version ``3.4.0`` (December 2023) is a minor milestone of Bokeh project.
 
+* Added support for zero latency tap (no single and double tap disambiguation) (:bokeh-pull:`12831`)
 * Added support for ``padding``, ``border_radius``, etc. to ``Label`` and ``Title`` (:bokeh-pull:`12825`)
 * Added support for interactivity (rotation) to ``Label`` when ``editable=True`` (:bokeh-pull:`12825`)
 * ``BOKEH_DEV=true`` now defaults to server development resources (:bokeh-pull:`13042`)
