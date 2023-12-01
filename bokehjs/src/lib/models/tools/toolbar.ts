@@ -118,19 +118,10 @@ export class ToolbarView extends UIElementView {
       const {buttons} = this.model
       if (buttons == "auto") {
         const groups = [
-          ...values(this.model.gestures).map((gesture) => gesture.tools),
-          this.model.actions.filter((tool) => {
-            console.log("The toggle value of this action tool is" + tool.toggleable);
-            return tool.toggleable;
-          }),
-          this.model.inspectors.filter((tool) => {
-            console.log("The toggle value of this inspector tool is" + tool.toggleable);
-            return tool.toggleable;
-          }),
-          this.model.auxiliaries.filter((tool) => {
-            console.log("The toggle value of this auxiliary tool is" + tool.toggleable);
-            return tool.toggleable;
-          }),
+          ...values(this.model.gestures).map((gesture) => gesture.tools.filter((tool) => tool.visible)),
+          this.model.actions.filter((tool) => tool.visible),
+          this.model.inspectors.filter((tool) => tool.visible && tool.toggleable),
+          this.model.auxiliaries.filter((tool) => tool.visible),
         ]
         return groups.map((group) => group.map((tool) => tool.tool_button()))
       } else {

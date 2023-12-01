@@ -16,7 +16,9 @@ export abstract class InspectToolView extends ToolView {
 export namespace InspectTool {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = Tool.Props
+  export type Props = Tool.Props & {
+    toggleable: p.Property<boolean>
+  }
 }
 
 export interface InspectTool extends InspectTool.Attrs {}
@@ -30,6 +32,10 @@ export abstract class InspectTool extends Tool {
   }
 
   static {
+    this.define<InspectTool.Props>(({Boolean}) => ({
+      toggleable: [ Boolean, true ],
+    }))
+
     this.override<InspectTool.Props>({
       active: true,
     })

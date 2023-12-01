@@ -6119,6 +6119,7 @@
   },
   InspectTool: {
     __extends__: "GestureTool",
+    toggleable: true,
   },
   LassoSelectTool: {
     __extends__: [
@@ -6346,7 +6347,7 @@
     __extends__: "Model",
     icon: null,
     description: null,
-    toggleable: true,
+    visible: true,
   },
   ToolProxy: {
     __extends__: "Model",
