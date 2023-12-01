@@ -1,3 +1,12 @@
+2023-12-01    3.3.2:
+--------------------
+  * bugfixes:
+    - #13432 [BUG] BoxAnnotation don't show up if not all lrbt-bounds are set
+
+  * tasks:
+    - #13553 Backports for 3.3.2
+    - #13567 Update switcher.json for 3.3.2 release
+
 2023-11-09    3.3.1:
 --------------------
   * bugfixes:
