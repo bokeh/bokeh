@@ -64,7 +64,7 @@ class Config:
 
     @property
     def new(self) -> set[str]:
-        return self._modified
+        return self._new
 
     @property
     def modified(self) -> set[str]:
