@@ -1,4 +1,4 @@
-'''This example creates an interactive map visualization of airport routes and locations using Bokeh.
+''' This example creates an interactive map visualization of airport routes and locations using Bokeh.
 
 .. bokeh-example-metadata::
     :sampledata: airport_routes, us_states

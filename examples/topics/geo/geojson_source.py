@@ -1,4 +1,4 @@
-'''This example demonstrates the use of GeoJSON data in Bokeh to create a scatter plot.
+''' This example demonstrates the use of GeoJSON data in Bokeh to create a scatter plot.
 
 .. bokeh-example-metadata::
     :sampledata: sample_geojson
