@@ -164,7 +164,7 @@ html_context = {
     "VERSION": version,
 }
 
-html_css_files = [f"custom.css?v={version}"]
+html_css_files = ["custom.css"]
 
 html_static_path = ["_static"]
 
