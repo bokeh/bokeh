@@ -2,7 +2,7 @@
 
 .. bokeh-example-metadata::
     :sampledata: airport_routes, us_states
-    :apis: bokeh.models.ColumnDataSource, bokeh.models.StaticLayoutProvider, bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool 
+    :apis: bokeh.models.ColumnDataSource, bokeh.models.StaticLayoutProvider, bokeh.models.NodesAndLinkedEdges, bokeh.models.TapTool
     :refs: :ref:`ug_topics_graph`
     :keywords: graph, interactive, map, routes, airports, hover tool, tap tool
 '''
