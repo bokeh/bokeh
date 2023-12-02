@@ -39,7 +39,7 @@ describe("BoxZoomTool", () => {
       const plot = new Plot({
         x_range: new Range1d({start: -1, end: 1}),
         y_range: new Range1d({start: -1, end: 1}),
-        toolbar: new Toolbar({buttons, tools}),
+        toolbar: new Toolbar({children: buttons, tools}),
       })
       const {view: plot_view} = await display(plot)
       return {
