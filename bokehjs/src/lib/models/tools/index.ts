@@ -5,9 +5,7 @@ export * from "./inspectors"
 
 export {Tool}        from "./tool"
 export {ToolProxy}   from "./tool_proxy"
+
 export {ToolMenu}    from "./tool_menu"
 export {Toolbar}     from "./toolbar"
-
 export {ToolButton}  from "./tool_button"
-export {OnOffButton} from "./on_off_button"
-export {ClickButton} from "./click_button"

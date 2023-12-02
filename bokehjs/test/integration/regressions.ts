@@ -18,7 +18,7 @@ import {
   LinearColorMapper,
   Plot,
   TeX,
-  Toolbar, ToolProxy,
+  Toolbar, ToolButton, ToolProxy,
   PanTool, PolySelectTool, LassoSelectTool, HoverTool, ZoomInTool, ZoomOutTool, RangeTool,
   WheelPanTool, BoxSelectTool, BoxZoomTool, WheelZoomTool, UndoTool, RedoTool, ResetTool,
   TileRenderer, WMTSTileSource,
@@ -1893,8 +1893,8 @@ describe("Bug", () => {
   describe("in issue #11946", () => {
     it("doesn't allow to persist menus after a re-render", async () => {
       const pan = new PanTool()
-      const pan_button = pan.tool_button()
-      const toolbar = new Toolbar({buttons: [pan_button], tools: [pan]})
+      const pan_button = new ToolButton({tool: pan})
+      const toolbar = new Toolbar({children: [pan_button], tools: [pan]})
 
       const p = fig([200, 100], {toolbar_location: "right", toolbar})
       p.scatter([1, 2, 3], [1, 2, 3])
@@ -2650,11 +2650,11 @@ describe("Bug", () => {
           p11.tool,
         ],
       })
-      const zoom_in_btn = zoom_in.tool_button()
+      const zoom_in_btn = new ToolButton({tool: zoom_in})
 
       const toolbar = new Toolbar({
         tools: [zoom_in],
-        buttons: [zoom_in_btn],
+        children: [zoom_in_btn],
       })
 
       const gp = new GridPlot({
@@ -2842,10 +2842,10 @@ describe("Bug", () => {
   describe("in issue #5829", () => {
     it("allows PolySelectTool's overlay to stay the same at all zoom levels", async () => {
       const poly_select = new PolySelectTool()
-      const poly_select_button = poly_select.tool_button()
+      const poly_select_button = new ToolButton({tool: poly_select})
       const zoom_out = new ZoomOutTool()
-      const zoom_out_button = zoom_out.tool_button()
-      const toolbar = new Toolbar({tools: [poly_select, zoom_out], buttons: [poly_select_button, zoom_out_button]})
+      const zoom_out_button = new ToolButton({tool: zoom_out})
+      const toolbar = new Toolbar({tools: [poly_select, zoom_out], children: [poly_select_button, zoom_out_button]})
       const p = fig([200, 200], {toolbar, toolbar_location: "right"})
       p.scatter([10, 20, 30, 40], [10, 20, 30, 40], {size: 10})
 

@@ -67,6 +67,7 @@ ALL = (
     'LineDash',
     'LineJoin',
     'Location',
+    'LogoStyle',
     'MapType',
     'MarkerType',
     'Movable',
@@ -272,6 +273,9 @@ class Test_bce:
 
     def test_Location(self) -> None:
         assert tuple(bce.Location) == ("above", "below", "left", "right")
+
+    def test_LogoStyle(self) -> None:
+        assert tuple(bce.LogoStyle) == ("normal", "grey")
 
     def test_MapType(self) -> None:
         assert tuple(bce.MapType) == ("satellite", "roadmap", "terrain", "hybrid")

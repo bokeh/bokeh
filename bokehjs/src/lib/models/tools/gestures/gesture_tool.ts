@@ -1,5 +1,4 @@
 import {Tool, ToolView} from "../tool"
-import {OnOffButton} from "../on_off_button"
 import type {PlotView} from "../../plots/plot"
 import type {EventType} from "core/ui_events"
 import type * as p from "core/properties"
@@ -10,6 +9,11 @@ export abstract class GestureToolView extends ToolView {
 
   get plot_view(): PlotView {
     return this.parent
+  }
+
+  override connect_signals(): void {
+    super.connect_signals()
+    this.connect(this.model.do, () => this.model.active = !this.model.active)
   }
 }
 
@@ -31,8 +35,4 @@ export abstract class GestureTool extends Tool {
   abstract readonly default_order: number
 
   abstract override readonly event_type: EventType | EventType[]
-
-  override tool_button(): OnOffButton {
-    return new OnOffButton({tool: this})
-  }
 }

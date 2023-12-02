@@ -116,6 +116,9 @@
           type: "object",
           name: "Toolbar",
           id: "p1019",
+          attributes: {
+            children: "auto",
+          },
         },
         below: [
           {

@@ -50,6 +50,7 @@ from ..core.enums import (
     Dimension,
     Dimensions,
     KeyModifierType,
+    LogoStyle,
     PanDirection,
     RegionSelectionMode,
     SelectionMode,
@@ -147,6 +148,7 @@ __all__ = (
     'Tap',
     'TapTool',
     'Tool',
+    'ToolButton',
     'ToolMenu',
     'ToolProxy',
     'Toolbar',
@@ -375,7 +377,32 @@ class InspectTool(GestureTool):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
 
-    toggleable = DeprecatedAlias("visible", since=(3, 4, 0))
+    toggleable = DeprecatedAlias[bool]("visible", since=(3, 4, 0))
+
+class ToolButton(UIElement):
+    """ UI component for interacting with plot tools. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    tool = Required(Either(Instance(Tool), Instance(ToolProxy)), help="""
+    A reference to a tool this button interacts with.
+    """)
+
+    icon = Nullable(IconLike, default=None, help="""
+    An icon to display in the toolbar.
+
+    The icon can provided as well known tool icon name, a CSS class selector,
+    a data URI with an ``image/*`` MIME, a path to an image, a PIL ``Image``
+    object, or an RGB(A) NumPy array. If ``None``, then the intrinsic icon
+    will be used (may depend on tool's configuration).
+    """)
+
+    tooltip = Nullable(String, default=None, help="""
+    A string describing the purpose of this tool button. If not defined, an
+    auto-generated tooltip will be used based on the tool's description.
+    """)
 
 class Toolbar(UIElement):
     ''' Collect tools to display for a single plot.
@@ -390,7 +417,16 @@ class Toolbar(UIElement):
     A list of tools to add to the plot.
     """)
 
-    logo = Nullable(Enum("normal", "grey"), default="normal", help="""
+    children = Either(Auto, List(Nullable(Instance(UIElement))), default="auto", help="""
+    The layout of tool buttons and other UI elements in this toolbar.
+
+    If ``"auto"``, then the layout will be automatically determined based on
+    ``tools`` property, tools' pre-defined grouping and priority. Otherwise
+    the user can specify the layout of tool buttons, separators and other
+    tool unrelated UI elements, like select widgets, etc.
+    """)
+
+    logo = Nullable(Enum(LogoStyle), default="normal", help="""
     What version of the Bokeh logo to display on the toolbar. If
     set to None, no logo will be displayed.
     """)

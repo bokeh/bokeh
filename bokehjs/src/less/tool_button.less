@@ -8,6 +8,8 @@
 
 :host {
   position: relative;
+  flex: 0 0 auto;
+  order: 0;
 
   width: var(--button-width);
   height: var(--button-height);
@@ -95,7 +97,7 @@
 }
 
 :host(:hover) {
-  background-color: rgba(192, 192, 192, 0.15);
+  background-color: var(--hover-color);
 }
 
 :host(:focus), :host(:focus-visible) {

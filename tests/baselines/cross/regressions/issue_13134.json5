@@ -148,6 +148,9 @@
           type: "object",
           name: "Toolbar",
           id: "p1022",
+          attributes: {
+            children: "auto",
+          },
         },
       },
     },

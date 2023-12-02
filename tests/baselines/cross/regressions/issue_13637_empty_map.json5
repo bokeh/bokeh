@@ -813,6 +813,7 @@
             visible: true,
             context_menu: null,
             tools: [],
+            children: "auto",
             logo: "normal",
             autohide: false,
             group: true,
