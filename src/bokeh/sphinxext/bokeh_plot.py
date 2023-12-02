@@ -101,7 +101,8 @@ from uuid import uuid4
 from docutils import nodes
 from docutils.parsers.rst.directives import choice, flag
 from sphinx.errors import SphinxError
-from sphinx.util import copyfile, ensuredir, status_iterator
+from sphinx.util import copyfile, ensuredir
+from sphinx.util.display import status_iterator
 from sphinx.util.nodes import set_source_info
 
 # Bokeh imports

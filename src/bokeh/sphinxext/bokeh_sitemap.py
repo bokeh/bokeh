@@ -38,7 +38,7 @@ from os.path import join
 
 # External imports
 from sphinx.errors import SphinxError
-from sphinx.util import status_iterator
+from sphinx.util.display import status_iterator
 
 # Bokeh imports
 from . import PARALLEL_SAFE
