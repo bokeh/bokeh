@@ -153,6 +153,8 @@ export class DataTableView extends WidgetView {
   protected _in_selection_update = false
   protected _width: number | null = null
 
+  private _filtered_selection: number[] = []
+
   get data_source(): p.Property<ColumnarDataSource> {
     return this.model.properties.source
   }
@@ -252,6 +254,8 @@ export class DataTableView extends WidgetView {
 
       this.data.sort(sorters)
     }
+    this._sync_selected_with_view()
+    this.updateSelection()
     this.grid.invalidate()
     this.updateLayout(true, true)
   }
@@ -458,6 +462,22 @@ export class DataTableView extends WidgetView {
   get_selected_rows(): number[] {
     return this.grid.getSelectedRows()
   }
+
+  _sync_selected_with_view(): void {
+    const notFiltered = [...this.data.source.selected.indices].filter((element) =>
+      this.data.index.includes(element),
+    )
+    const wasFiltered = this._filtered_selection.filter((element) =>
+      this.data.index.includes(element),
+    )
+    this._filtered_selection.push(
+      ...[...this.data.source.selected.indices].filter(
+        (element) => !this.data.index.includes(element),
+      ),
+    )
+    this.data.source.selected.indices = [...wasFiltered, ...notFiltered]
+  }
+
 }
 
 export namespace DataTable {
