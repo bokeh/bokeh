@@ -51,7 +51,7 @@ RENDERER_ARGS = ['name', 'level', 'visible', 'x_range_name', 'y_range_name',
 # Dev API
 #-----------------------------------------------------------------------------
 
-def get_graph_kwargs(node_source, edge_source, **kwargs):
+def get_graph_kwargs(node_source: ColumnDataSource, edge_source: ColumnDataSource, **kwargs):
 
     if not isinstance(node_source, ColumnarDataSource):
         try:
@@ -78,7 +78,10 @@ def get_graph_kwargs(node_source, edge_source, **kwargs):
             marker = marker['value']
 
         if marker is None or marker == "circle":
-            marker_type = Circle
+            if "node_radius" in kwargs:
+                marker_type = Circle
+            else:
+                marker_type = Scatter
         else:
             kwargs["node_marker"] = marker
 
