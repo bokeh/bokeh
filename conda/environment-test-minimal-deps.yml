@@ -57,7 +57,7 @@ dependencies:
     # docs
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
-    - sphinx
+    - sphinx >= 7.1.0
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
