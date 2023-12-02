@@ -7,7 +7,7 @@ import {PlotActions, actions, xy, click, press, mouse_enter, mouse_down, mouse_c
 import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -3660,6 +3660,19 @@ describe("Bug", () => {
 
       const layout = row([plot("canvas"), plot("svg"), plot("webgl")])
       await display(layout)
+    })
+  })
+
+  describe("in issue #8890", () => {
+    it("doesn't allow to render newly added Span annotation", async () => {
+      const span0 = new Span({location: 0.5, dimension: "width", line_color: "red"})
+      const span1 = new Span({location: 0.5, dimension: "height", line_color: "blue"})
+
+      const plot = fig([200, 200], {x_range: [0, 1], y_range: [0, 1], renderers: [span0]})
+      const {view} = await display(plot)
+
+      plot.add_layout(span1)
+      await view.ready
     })
   })
 })
