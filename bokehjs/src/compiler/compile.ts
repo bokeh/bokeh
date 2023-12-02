@@ -21,7 +21,7 @@ export function compile_typescript(base_dir: string, inputs: Inputs, bokehjs_dir
 
   const preconfigure: ts.CompilerOptions = {
     module: ts.ModuleKind.CommonJS,
-    target: ts.ScriptTarget.ES2017,
+    target: ts.ScriptTarget.ES2020,
     paths: {
       "*": [
         join(bokehjs_dir, "js/lib/*"),
