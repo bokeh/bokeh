@@ -1,10 +1,10 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
@@ -14,17 +14,7 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {WedgeGL} from "./webgl/wedge"
 
-export type WedgeData = XYGlyphData & p.UniformsOf<Wedge.Mixins> & {
-  readonly radius: p.Uniform<number>
-  sradius: ScreenArray
-  max_sradius: number
-  readonly max_radius: number
-
-  readonly start_angle: p.Uniform<number>
-  readonly end_angle: p.Uniform<number>
-}
-
-export interface WedgeView extends WedgeData {}
+export interface WedgeView extends Wedge.Data {}
 
 export class WedgeView extends XYGlyphView {
   declare model: Wedge
@@ -39,15 +29,23 @@ export class WedgeView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    if (this.model.properties.radius.units == "data")
-      this.sradius = this.sdist(this.renderer.xscale, this._x, this.radius)
-    else
-      this.sradius = to_screen(this.radius)
-    this.max_sradius = max(this.sradius)
+    this._define_or_inherit_attr<Wedge.Data>("sradius", () => {
+      if (this.model.properties.radius.units == "data") {
+        if (this.inherited_x && this.inherited_radius) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.radius)
+        }
+      } else {
+        return this.inherited_radius ? inherit : to_screen(this.radius)
+      }
+    })
+
+    this._define_or_inherit_attr<Wedge.Data>("max_sradius", () => max(this.sradius))
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: WedgeData): void {
-    const {sx, sy, sradius, start_angle, end_angle} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Wedge.Data>): void {
+    const {sx, sy, sradius, start_angle, end_angle} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
@@ -89,8 +87,8 @@ export class WedgeView extends XYGlyphView {
 
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const r2 = this.sradius[i]**2
-      ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      ;[sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
+      ;[sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= r2) {
         candidates.push(i)
@@ -138,6 +136,10 @@ export namespace Wedge {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    readonly max_sradius: number
+  }
 }
 
 export interface Wedge extends Wedge.Attrs {}

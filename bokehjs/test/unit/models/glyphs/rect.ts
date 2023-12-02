@@ -113,8 +113,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(ScreenArray.of(20))
-      expect(glyph_view.sh).to.be.equal(ScreenArray.of(40))
+      expect(glyph_view.swidth).to.be.equal(ScreenArray.of(20))
+      expect(glyph_view.sheight).to.be.equal(ScreenArray.of(40))
     })
 
     it("`_map_data` should correctly map data if width and height units are 'screen'", async () => {
@@ -125,8 +125,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(new ScreenArray([10]))
-      expect(glyph_view.sh).to.be.equal(new ScreenArray([20]))
+      expect(glyph_view.swidth).to.be.equal(new ScreenArray([10]))
+      expect(glyph_view.sheight).to.be.equal(new ScreenArray([20]))
     })
 
     // XXX: needs update
@@ -169,7 +169,7 @@ describe("Rect", () => {
     })
     */
 
-    it("`_map_data` should map values for sw and sh when a height is 0", async () => {
+    it("`_map_data` should map values for swidth and sheight when a height is 0", async () => {
       const glyph = new Rect({
         x: {field: "x"},
         y: {field: "y"},
@@ -180,8 +180,8 @@ describe("Rect", () => {
       const glyph_view = await create_glyph_view(glyph, data, {axis_type: "linear"})
       glyph_view.map_data()
 
-      expect(glyph_view.sw).to.be.equal(ScreenArray.of(20))
-      expect(glyph_view.sh).to.be.equal(ScreenArray.of(0))
+      expect(glyph_view.swidth).to.be.equal(ScreenArray.of(20))
+      expect(glyph_view.sheight).to.be.equal(ScreenArray.of(0))
     })
 
     describe("hit-testing", () => {

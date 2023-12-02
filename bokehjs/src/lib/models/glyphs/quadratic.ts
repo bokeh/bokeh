@@ -1,52 +1,35 @@
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import {inplace} from "core/util/projections"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {qbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type QuadraticData = GlyphData & p.UniformsOf<Quadratic.Mixins> & {
-  _x0: FloatArray
-  _y0: FloatArray
-  _x1: FloatArray
-  _y1: FloatArray
-  _cx: FloatArray
-  _cy: FloatArray
-
-  sx0: ScreenArray
-  sy0: ScreenArray
-  sx1: ScreenArray
-  sy1: ScreenArray
-  scx: ScreenArray
-  scy: ScreenArray
-}
-
-export interface QuadraticView extends QuadraticData {}
+export interface QuadraticView extends Quadratic.Data {}
 
 export class QuadraticView extends GlyphView {
   declare model: Quadratic
   declare visuals: Quadratic.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x0, this._y0)
-    inplace.project_xy(this._x1, this._y1)
+    inplace.project_xy(this.x0, this.y0)
+    inplace.project_xy(this.x1, this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {_x0, _x1, _y0, _y1, _cx, _cy, data_size} = this
+    const {x0, x1, y0, y1, cx, cy, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0_i = _x0[i]
-      const x1_i = _x1[i]
-      const y0_i = _y0[i]
-      const y1_i = _y1[i]
-      const cx_i = _cx[i]
-      const cy_i = _cy[i]
+      const x0_i = x0[i]
+      const x1_i = x1[i]
+      const y0_i = y0[i]
+      const y1_i = y1[i]
+      const cx_i = cx[i]
+      const cy_i = cy[i]
 
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx_i + cy_i))
         index.add_empty()
@@ -57,11 +40,11 @@ export class QuadraticView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: QuadraticData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Quadratic.Data>): void {
     if (!this.visuals.line.doit)
       return
 
-    const {sx0, sy0, sx1, sy1, scx, scy} = data ?? this
+    const {sx0, sy0, sx1, sy1, scx, scy} = {...this, ...data}
 
     for (const i of indices) {
       const sx0_i = sx0[i]
@@ -106,6 +89,8 @@ export namespace Quadratic {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Quadratic extends Quadratic.Attrs {}

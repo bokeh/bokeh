@@ -1,5 +1,4 @@
 import type {RenderOne} from "./defs"
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -7,19 +6,11 @@ import type * as visuals from "core/visuals"
 import type {Rect, Indices} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
-import * as uniforms from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
 import {minmax2} from "core/util/arrayable"
 import {Selection} from "../selections/selection"
 
-export type MarkerData = XYGlyphData & p.UniformsOf<Marker.Mixins> & {
-  readonly size: p.Uniform<number>
-  readonly angle: p.Uniform<number>
-
-  readonly max_size: number
-}
-
-export interface MarkerView extends MarkerData {}
+export interface MarkerView extends Marker.Data {}
 
 export abstract class MarkerView extends XYGlyphView {
   declare model: Marker
@@ -27,8 +18,8 @@ export abstract class MarkerView extends XYGlyphView {
 
   protected _render_one: RenderOne
 
-  protected _render(ctx: Context2d, indices: number[], data?: MarkerData): void {
-    const {sx, sy, size, angle} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Marker.Data>): void {
+    const {sx, sy, size, angle} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -151,14 +142,7 @@ export abstract class MarkerView extends XYGlyphView {
     return new Selection({indices})
   }
 
-  override _set_data(indices: number[] | null): void {
-    super._set_data(indices)
-
-    const max_size = uniforms.max(this.size)
-    this._configure("max_size", {value: max_size})
-  }
-
-  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): MarkerData {
+  _get_legend_args({x0, x1, y0, y1}: Rect, index: number): Partial<Marker.Data> {
     // using objects like this seems a little wonky, since the keys are coerced to strings, but it works
     const n = index + 1
 
@@ -173,12 +157,12 @@ export abstract class MarkerView extends XYGlyphView {
 
     const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
 
-    return {sx, sy, size, angle} as any
+    return {sx, sy, size, angle}
   }
 
   override draw_legend_for_index(ctx: Context2d, {x0, x1, y0, y1}: Rect, index: number): void {
     const args = this._get_legend_args({x0, x1, y0, y1}, index)
-    this._render(ctx, [index], args) // XXX
+    this._render(ctx, [index], args)
   }
 }
 
@@ -194,6 +178,8 @@ export namespace Marker {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Marker extends Marker.Attrs {}

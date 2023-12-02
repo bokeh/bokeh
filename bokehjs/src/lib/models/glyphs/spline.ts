@@ -1,20 +1,12 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {FloatArray, ScreenArray} from "core/types"
+import type {Arrayable} from "core/types"
 import type {Context2d} from "core/util/canvas"
 import {catmullrom_spline} from "core/util/interpolation"
 
-export type SplineData = XYGlyphData & {
-  _xt: FloatArray
-  _yt: FloatArray
-  sxt: ScreenArray
-  syt: ScreenArray
-}
-
-export interface SplineView extends SplineData {}
+export interface SplineView extends Spline.Data {}
 
 export class SplineView extends XYGlyphView {
   declare model: Spline
@@ -22,25 +14,29 @@ export class SplineView extends XYGlyphView {
 
   protected override _set_data(): void {
     const {tension, closed} = this.model
-    ;[this._xt, this._yt] = catmullrom_spline(this._x, this._y, 20, tension, closed)
+    const [xt, yt] = catmullrom_spline(this.x, this.y, 20, tension, closed)
+    this._define_attr<Spline.Data>("xt", xt)
+    this._define_attr<Spline.Data>("yt", yt)
   }
 
   protected override _map_data(): void {
     const {x_scale, y_scale} = this.renderer.coordinates
-    this.sxt = x_scale.v_compute(this._xt)
-    this.syt = y_scale.v_compute(this._yt)
+    const sxt = x_scale.v_compute(this.xt)
+    const syt = y_scale.v_compute(this.yt)
+    this._define_attr<Spline.Data>("sxt", sxt)
+    this._define_attr<Spline.Data>("syt", syt)
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: SplineData): void {
-    const {sxt: sx, syt: sy} = data ?? this
+  protected _render(ctx: Context2d, _indices: number[], data?: Partial<Spline.Data>): void {
+    const {sxt, syt} = {...this, ...data}
 
     let move = true
     ctx.beginPath()
 
-    const n = sx.length
+    const n = sxt.length
     for (let j = 0; j < n; j++) {
-      const sx_i = sx[j]
-      const sy_i = sy[j]
+      const sx_i = sxt[j]
+      const sy_i = syt[j]
 
       if (!isFinite(sx_i + sy_i))
         move = true
@@ -69,6 +65,13 @@ export namespace Spline {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    readonly xt: Arrayable<number>
+    readonly yt: Arrayable<number>
+    readonly sxt: Arrayable<number>
+    readonly syt: Arrayable<number>
+  }
 }
 
 export interface Spline extends Spline.Attrs {}

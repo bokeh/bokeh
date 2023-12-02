@@ -2,7 +2,7 @@ import type {ReglWrapper} from "./regl_wrap"
 import {cap_lookup, hatch_pattern_to_index, join_lookup} from "./webgl_utils"
 import type {LineCap, LineJoin} from "core/enums"
 import type {HatchPattern} from "core/property_mixins"
-import type {uint32} from "core/types"
+import type {uint32, Arrayable} from "core/types"
 import type {Uniform} from "core/uniforms"
 import {assert} from "core/util/assert"
 import {color2rgba} from "core/util/color"
@@ -55,12 +55,13 @@ abstract class WrappedBuffer<ArrayType extends WrappedArrayType> {
 
   protected abstract new_array(len: number): ArrayType
 
-  set_from_array(numbers: number[] | Float32Array): void {
+  set_from_array(numbers: Arrayable<number>): void {
     const len = numbers.length
     const array = this.get_sized_array(len)
 
-    for (let i = 0; i < len; i++)
+    for (let i = 0; i < len; i++) {
       array[i] = numbers[i]
+    }
 
     this.update()
   }

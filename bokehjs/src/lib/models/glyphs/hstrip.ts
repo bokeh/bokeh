@@ -1,10 +1,9 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {FloatArray, Rect} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import {ScreenArray} from "core/types"
 import type * as visuals from "core/visuals"
 import type {Context2d} from "core/util/canvas"
@@ -17,17 +16,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
-export type HStripData = GlyphData & p.UniformsOf<HStrip.Mixins> & {
-  _y0: FloatArray
-  _y1: FloatArray
-
-  sy0: ScreenArray
-  sy1: ScreenArray
-
-  max_height: number
-}
-
-export interface HStripView extends HStripData {}
+export interface HStripView extends HStrip.Data {}
 
 export class HStripView extends GlyphView {
   declare model: HStrip
@@ -46,7 +35,7 @@ export class HStripView extends GlyphView {
     }
   }
 
-  get sleft(): ScreenArray {
+  get sleft(): Arrayable<number> {
     const {left} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const sleft = new ScreenArray(n)
@@ -54,7 +43,7 @@ export class HStripView extends GlyphView {
     return sleft
   }
 
-  get sright(): ScreenArray {
+  get sright(): Arrayable<number> {
     const {right} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const sright = new ScreenArray(n)
@@ -62,11 +51,11 @@ export class HStripView extends GlyphView {
     return sright
   }
 
-  get stop(): ScreenArray {
+  get stop(): Arrayable<number> {
     return this.sy0
   }
 
-  get sbottom(): ScreenArray {
+  get sbottom(): Arrayable<number> {
     return this.sy1
   }
 
@@ -76,16 +65,21 @@ export class HStripView extends GlyphView {
     const {abs} = Math
     const {max, map, zip} = iter
 
-    const {_y0, _y1} = this
-    this.max_height = max(map(zip(_y0, _y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
+    const {y0, y1} = this
+    if (this.inherited_y0 && this.inherited_y1) {
+      this._inherit_attr("max_height")
+    } else {
+      const max_height = max(map(zip(y0, y1), ([y0_i, y1_i]) => abs(y0_i - y1_i)))
+      this._define_attr("max_height", max_height)
+    }
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    const {_y0, _y1, data_size} = this
+    const {y0, y1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const y0_i = _y0[i]
-      const y1_i = _y1[i]
+      const y0_i = y0[i]
+      const y1_i = y1[i]
       index.add_rect(UNUSED, y0_i, UNUSED, y1_i)
     }
   }
@@ -98,8 +92,14 @@ export class HStripView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sy0 = map(this.sy0, (yi) => round(yi))
-    this.sy1 = map(this.sy1, (yi) => round(yi))
+    if (!this.inherited_sy0) {
+      const sy0 = map(this.sy0, (yi) => round(yi))
+      this._define_attr("sy0", sy0)
+    }
+    if (!this.inherited_sy1) {
+      const sy1 = map(this.sy1, (yi) => round(yi))
+      this._define_attr("sy1", sy1)
+    }
   }
 
   scenterxy(i: number): [number, number] {
@@ -107,8 +107,8 @@ export class HStripView extends GlyphView {
     return [hcenter, (this.sy0[i] + this.sy1[i])/2]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: HStripData): void {
-    const {sy0, sy1} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<HStrip.Data>): void {
+    const {sy0, sy1} = {...this, ...data}
     const {left, right, width} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {
@@ -208,6 +208,10 @@ export namespace HStrip {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_height: number
+  }
 }
 
 export interface HStrip extends HStrip.Attrs {}

@@ -1,9 +1,8 @@
 import type {SpatialIndex} from "core/util/spatial"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {minmax2, sum} from "core/util/arrayable"
-import type {Arrayable, Rect, RaggedArray, FloatArray, ScreenArray, Indices} from "core/types"
+import type {Arrayable, Rect, Indices} from "core/types"
 import type {HitTestPoint, HitTestRect, HitTestPoly} from "core/geometry"
 import type {Context2d} from "core/util/canvas"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
@@ -14,30 +13,22 @@ import {Selection} from "../selections/selection"
 import {unreachable} from "core/util/assert"
 import {inplace} from "core/util/projections"
 
-export type PatchesData = GlyphData & p.UniformsOf<Patches.Mixins> & {
-  _xs: RaggedArray<FloatArray>
-  _ys: RaggedArray<FloatArray>
-
-  sxs: RaggedArray<ScreenArray>
-  sys: RaggedArray<ScreenArray>
-}
-
-export interface PatchesView extends PatchesData {}
+export interface PatchesView extends Patches.Data {}
 
 export class PatchesView extends GlyphView {
   declare model: Patches
   declare visuals: Patches.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._xs.array, this._ys.array)
+    inplace.project_xy(this.xs.data, this.ys.data)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs.get(i)
-      const ysi = this._ys.get(i)
+      const xsi = this.xs.get(i)
+      const ysi = this.ys.get(i)
 
       const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)
@@ -52,8 +43,8 @@ export class PatchesView extends GlyphView {
     })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: PatchesData): void {
-    const {sxs, sys} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Patches.Data>): void {
+    const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sxs.get(i)
@@ -223,6 +214,8 @@ export namespace Patches {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Patches extends Patches.Attrs {}

@@ -196,7 +196,9 @@ def test_Block() -> None:
         "x",
         "y",
         "width",
+        "width_units",
         "height",
+        "height_units",
         "border_radius",
     ], FILL, HATCH, LINE, GLYPH)
 
@@ -244,6 +246,7 @@ def test_HBar() -> None:
     check_properties_existence(glyph, [
         "y",
         "height",
+        "height_units",
         "left",
         "right",
         "border_radius",
@@ -609,6 +612,7 @@ def test_VBar() -> None:
     check_properties_existence(glyph, [
         "x",
         "width",
+        "width_units",
         "top",
         "bottom",
         "border_radius",

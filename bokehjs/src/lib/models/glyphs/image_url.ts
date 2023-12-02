@@ -1,5 +1,5 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import type {Arrayable, Rect} from "core/types"
 import {ScreenArray, to_screen, Indices} from "core/types"
 import {Anchor} from "core/enums"
@@ -14,31 +14,16 @@ import * as resolve from "../common/resolve"
 
 export type CanvasImage = HTMLImageElement
 
-export type ImageURLData = XYGlyphData & {
-  readonly url: p.Uniform<string | ArrayBuffer>
-  readonly angle: p.Uniform<number>
-  readonly w: p.Uniform<number>
-  readonly h: p.Uniform<number>
-  readonly global_alpha: p.Uniform<number>
-
-  _bounds_rect: Rect
-
-  sw: ScreenArray
-  sh: ScreenArray
-
-  readonly max_w: number
-  readonly max_h: number
-
-  anchor: XY<number>
-}
-
-export interface ImageURLView extends ImageURLData {}
+export interface ImageURLView extends ImageURL.Data {}
 
 export class ImageURLView extends XYGlyphView {
   declare model: ImageURL
   declare visuals: ImageURL.Visuals
 
   protected _images_rendered = false
+  protected _bounds_rect: Rect
+
+  anchor: XY<number>
 
   /*protected*/ image: (CanvasImage | null)[] = new Array(0)
   loaders: (ImageLoader | null)[]
@@ -61,6 +46,10 @@ export class ImageURLView extends XYGlyphView {
   private _set_data_iteration: number = 0
 
   protected override _set_data(): void {
+    if (this.inherited_url) {
+      return
+    }
+
     this._set_data_iteration++
 
     const {url} = this
@@ -128,17 +117,17 @@ export class ImageURLView extends XYGlyphView {
     // if the width/height are in screen units, don't try to include them in bounds
     if (w_data) {
       for (let i = 0; i < n; i++) {
-        [xs[i], xs[n + i]] = x0x1(this._x[i], this.w.get(i))
+        [xs[i], xs[n + i]] = x0x1(this.x[i], this.w.get(i) ?? 0)
       }
     } else
-      xs.set(this._x, 0)
+      xs.set(this.x, 0)
 
     if (h_data) {
       for (let i = 0; i < n; i++) {
-        [ys[i], ys[n + i]] = y0y1(this._y[i], this.h.get(i))
+        [ys[i], ys[n + i]] = y0y1(this.y[i], this.h.get(i) ?? 0)
       }
     } else
-      ys.set(this._y, 0)
+      ys.set(this.y, 0)
 
     const [x0, x1, y0, y1] = minmax2(xs, ys)
     this._bounds_rect = {x0, x1, y0, y1}
@@ -149,19 +138,36 @@ export class ImageURLView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    if (this.model.properties.w.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.w, "edge", this.model.dilate)
-    else
-      this.sw = to_screen(this.w)
+    const w = () => this.w.map((w_i) => w_i ?? NaN)
+    const h = () => this.h.map((h_i) => h_i ?? NaN)
 
-    if (this.model.properties.h.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.h, "edge", this.model.dilate)
-    else
-      this.sh = to_screen(this.h)
+    this._define_or_inherit_attr<ImageURL.Data>("sw", () => {
+      if (this.model.properties.w.units == "data") {
+        if (this.inherited_x && this.inherited_w) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, w(), "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_w ? inherit : to_screen(w())
+      }
+    })
+
+    this._define_or_inherit_attr<ImageURL.Data>("sh", () => {
+      if (this.model.properties.h.units == "data") {
+        if (this.inherited_y && this.inherited_h) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.yscale, this.y, h(), "edge", this.model.dilate)
+        }
+      } else {
+        return this.inherited_h ? inherit : to_screen(h())
+      }
+    })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: ImageURLData): void {
-    const {sx, sy, sw, sh, angle, global_alpha} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<ImageURL.Data>): void {
+    const {sx, sy, sw, sh, angle, global_alpha} = {...this, ...data}
     const {image, loaders, resolved} = this
 
     // TODO (bev): take actual border width into account when clipping
@@ -274,6 +280,8 @@ export namespace ImageURL {
   }
 
   export type Visuals = XYGlyph.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageURL extends ImageURL.Attrs {}

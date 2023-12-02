@@ -1,21 +1,8 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray, ScreenArray} from "core/types"
+import type {LRTBRect} from "./lrtb"
 import * as p from "core/properties"
 
-export type QuadData = LRTBData & {
-  _right: FloatArray
-  _bottom: FloatArray
-  _left: FloatArray
-  _top: FloatArray
-
-  sright: ScreenArray
-  sbottom: ScreenArray
-  sleft: ScreenArray
-  stop: ScreenArray
-}
-
-export interface QuadView extends QuadData {}
+export interface QuadView extends Quad.Data {}
 
 export class QuadView extends LRTBView {
   declare model: Quad
@@ -27,12 +14,12 @@ export class QuadView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
-    const l = this._left[i]
-    const r = this._right[i]
-    const t = this._top[i]
-    const b = this._bottom[i]
-    return [l, r, t, b]
+  protected _lrtb(i: number): LRTBRect {
+    const l = this.left[i]
+    const r = this.right[i]
+    const t = this.top[i]
+    const b = this.bottom[i]
+    return {l, r, t, b}
   }
 }
 
@@ -47,6 +34,8 @@ export namespace Quad {
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface Quad extends Quad.Attrs {}

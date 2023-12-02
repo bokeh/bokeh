@@ -1,24 +1,9 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray} from "core/types"
+import type {LRTBRect} from "./lrtb"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type VBarData = LRTBData & {
-  _x: FloatArray
-  _bottom: FloatArray
-  readonly width: p.Uniform<number>
-  _top: FloatArray
-
-  sx: ScreenArray
-  sw: ScreenArray
-  stop: ScreenArray
-  sbottom: ScreenArray
-  sleft: ScreenArray
-  sright: ScreenArray
-}
-
-export interface VBarView extends VBarData {}
+export interface VBarView extends VBar.Data {}
 
 export class VBarView extends LRTBView {
   declare model: VBar
@@ -30,35 +15,46 @@ export class VBarView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
+  protected _lrtb(i: number): LRTBRect {
     const half_width_i = this.width.get(i)/2
-    const x_i = this._x[i]
-    const top_i = this._top[i]
-    const bottom_i = this._bottom[i]
+    const x_i = this.x[i]
+    const top_i = this.top[i]
+    const bottom_i = this.bottom[i]
 
     const l = x_i - half_width_i
     const r = x_i + half_width_i
     const t = Math.max(top_i, bottom_i)
     const b = Math.min(top_i, bottom_i)
 
-    return [l, r, t, b]
+    return {l, r, t, b}
   }
 
   protected override _map_data(): void {
-    this.sx = this.renderer.xscale.v_compute(this._x)
-    this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
-    this.stop = this.renderer.yscale.v_compute(this._top)
-    this.sbottom = this.renderer.yscale.v_compute(this._bottom)
+    if (this.inherited_x && this.inherited_width) {
+      this._inherit_attr<VBar.Data>("swidth")
+      this._inherit_attr<VBar.Data>("sleft")
+      this._inherit_attr<VBar.Data>("sright")
+    } else {
+      const swidth = this.sdist(this.renderer.xscale, this.x, this.width, "center")
 
-    const n = this.sx.length
-    this.sleft = new ScreenArray(n)
-    this.sright = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.sleft[i] = this.sx[i] - this.sw[i]/2
-      this.sright[i] = this.sx[i] + this.sw[i]/2
+      const {sx} = this
+      const n = sx.length
+      const sleft = new ScreenArray(n)
+      const sright = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        const sx_i = sx[i]
+        const swidth_i = swidth[i]
+        sleft[i] = sx_i - swidth_i/2
+        sright[i] = sx_i + swidth_i/2
+      }
+
+      this._define_attr<VBar.Data>("swidth", swidth)
+      this._define_attr<VBar.Data>("sleft", sleft)
+      this._define_attr<VBar.Data>("sright", sright)
     }
 
-    this._clamp_viewport()
+    this._clamp_to_viewport()
   }
 }
 
@@ -66,13 +62,15 @@ export namespace VBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LRTB.Props & {
-    x: p.CoordinateSpec
-    bottom: p.CoordinateSpec
-    width: p.NumberSpec
-    top: p.CoordinateSpec
+    x: p.XCoordinateSpec
+    bottom: p.YCoordinateSpec
+    width: p.DistanceSpec
+    top: p.YCoordinateSpec
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface VBar extends VBar.Attrs {}
@@ -91,7 +89,7 @@ export class VBar extends LRTB {
     this.define<VBar.Props>(({}) => ({
       x:      [ p.XCoordinateSpec, {field: "x"} ],
       bottom: [ p.YCoordinateSpec, {value: 0} ],
-      width:  [ p.NumberSpec,      {value: 1} ],
+      width:  [ p.DistanceSpec,    {value: 1} ],
       top:    [ p.YCoordinateSpec, {field: "top"} ],
     }))
   }

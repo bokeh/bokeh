@@ -81,7 +81,7 @@ describe("ImageRGBA glyph", () => { // TODO: async describe
           dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
         }
       }
-      return ndarray(d, {shape: [N, N]})
+      return ndarray(d, {dtype: "uint32", shape: [N, N]})
     }
 
     function make_plot(output_backend: OutputBackend) {

@@ -85,7 +85,7 @@ function scalar_image(N: number = 100) {
       d[i*N + j] = sin(x[i])*cos(y[j])
     }
   }
-  return ndarray(d, {shape: [N, N]})
+  return ndarray(d, {dtype: "float64", shape: [N, N]})
 }
 
 function rgba_image() {
@@ -103,7 +103,7 @@ function rgba_image() {
       dv.setUint32(4*(i*N + j), encode_rgba([r, g, b, a]))
     }
   }
-  return ndarray(d, {shape: [N, N]})
+  return ndarray(d, {dtype: "uint32", shape: [N, N]})
 }
 
 function svg_image() {

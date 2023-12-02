@@ -13,3 +13,4 @@ Bokeh version ``3.4.0`` (December 2023) is a minor milestone of Bokeh project.
 * Added support for xor selection mode and selection inversion (only for point selections) to select tools (:bokeh-pull:`13545`)
 * Changed the default selection mode of ``TapTool`` to ``"xor"`` to allow deselect with tap gesture (:bokeh-pull:`13545`)
 * Migrated bokehjs' bundles from ES2017 JavaScript standard to ES2020 (:bokeh-pull:`13565`)
+* Added support for non-visual glyph data property overrides (:bokeh-pull:`13554`)

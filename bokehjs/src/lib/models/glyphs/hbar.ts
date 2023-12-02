@@ -1,24 +1,9 @@
-import type {LRTBData} from "./lrtb"
 import {LRTB, LRTBView} from "./lrtb"
-import type {FloatArray} from "core/types"
+import type {LRTBRect} from "./lrtb"
 import {ScreenArray} from "core/types"
 import * as p from "core/properties"
 
-export type HBarData = LRTBData & {
-  _left: FloatArray
-  _y: FloatArray
-  readonly height: p.Uniform<number>
-  _right: FloatArray
-
-  sy: ScreenArray
-  sh: ScreenArray
-  sleft: ScreenArray
-  sright: ScreenArray
-  stop: ScreenArray
-  sbottom: ScreenArray
-}
-
-export interface HBarView extends HBarData {}
+export interface HBarView extends HBar.Data {}
 
 export class HBarView extends LRTBView {
   declare model: HBar
@@ -30,10 +15,10 @@ export class HBarView extends LRTBView {
     return [scx, scy]
   }
 
-  protected _lrtb(i: number): [number, number, number, number] {
-    const left_i = this._left[i]
-    const right_i = this._right[i]
-    const y_i = this._y[i]
+  protected _lrtb(i: number): LRTBRect {
+    const left_i = this.left[i]
+    const right_i = this.right[i]
+    const y_i = this.y[i]
     const half_height_i = this.height.get(i)/2
 
     const l = Math.min(left_i, right_i)
@@ -41,24 +26,35 @@ export class HBarView extends LRTBView {
     const t = y_i + half_height_i
     const b = y_i - half_height_i
 
-    return [l, r, t, b]
+    return {l, r, t, b}
   }
 
   protected override _map_data(): void {
-    this.sy = this.renderer.yscale.v_compute(this._y)
-    this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
-    this.sleft = this.renderer.xscale.v_compute(this._left)
-    this.sright = this.renderer.xscale.v_compute(this._right)
+    if (this.inherited_y && this.inherited_height) {
+      this._inherit_attr<HBar.Data>("sheight")
+      this._inherit_attr<HBar.Data>("stop")
+      this._inherit_attr<HBar.Data>("sbottom")
+    } else {
+      const sheight = this.sdist(this.renderer.yscale, this.y, this.height, "center")
 
-    const n = this.sy.length
-    this.stop = new ScreenArray(n)
-    this.sbottom = new ScreenArray(n)
-    for (let i = 0; i < n; i++) {
-      this.stop[i] = this.sy[i] - this.sh[i]/2
-      this.sbottom[i] = this.sy[i] + this.sh[i]/2
+      const {sy} = this
+      const n = this.sy.length
+      const stop = new ScreenArray(n)
+      const sbottom = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        const sy_i = sy[i]
+        const sheight_i = sheight[i]
+        stop[i] = sy_i - sheight_i/2
+        sbottom[i] = sy_i + sheight_i/2
+      }
+
+      this._define_attr<HBar.Data>("sheight", sheight)
+      this._define_attr<HBar.Data>("stop", stop)
+      this._define_attr<HBar.Data>("sbottom", sbottom)
     }
 
-    this._clamp_viewport()
+    this._clamp_to_viewport()
   }
 }
 
@@ -66,13 +62,15 @@ export namespace HBar {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LRTB.Props & {
-    left: p.CoordinateSpec
-    y: p.CoordinateSpec
-    height: p.NumberSpec
-    right: p.CoordinateSpec
+    left: p.XCoordinateSpec
+    y: p.YCoordinateSpec
+    height: p.DistanceSpec
+    right: p.XCoordinateSpec
   }
 
   export type Visuals = LRTB.Visuals
+
+  export type Data = LRTB.Data & p.GlyphDataOf<Props>
 }
 
 export interface HBar extends HBar.Attrs {}
@@ -91,7 +89,7 @@ export class HBar extends LRTB {
     this.define<HBar.Props>(({}) => ({
       left:   [ p.XCoordinateSpec, {value: 0} ],
       y:      [ p.YCoordinateSpec, {field: "y"} ],
-      height: [ p.NumberSpec,      {value: 1} ],
+      height: [ p.DistanceSpec,    {value: 1} ],
       right:  [ p.XCoordinateSpec, {field: "right"} ],
     }))
   }

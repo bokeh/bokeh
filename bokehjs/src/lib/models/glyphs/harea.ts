@@ -1,6 +1,4 @@
 import type {PointGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray} from "core/types"
-import type {AreaData} from "./area"
 import {Area, AreaView} from "./area"
 import type {Context2d} from "core/util/canvas"
 import type {SpatialIndex} from "core/util/spatial"
@@ -8,17 +6,7 @@ import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type HAreaData = AreaData & {
-  _x1: FloatArray
-  _x2: FloatArray
-  _y: FloatArray
-
-  sx1: ScreenArray
-  sx2: ScreenArray
-  sy: ScreenArray
-}
-
-export interface HAreaView extends HAreaData {}
+export interface HAreaView extends HArea.Data {}
 
 export class HAreaView extends AreaView {
   declare model: HArea
@@ -29,15 +17,15 @@ export class HAreaView extends AreaView {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x1 = this._x1[i]
-      const x2 = this._x2[i]
-      const y = this._y[i]
-      index.add_rect(min(x1, x2), y, max(x1, x2), y)
+      const x1_i = this.x1[i]
+      const x2_i = this.x2[i]
+      const y_i = this.y[i]
+      index.add_rect(min(x1_i, x2_i), y_i, max(x1_i, x2_i), y_i)
     }
   }
 
-  protected _render(ctx: Context2d, _indices: number[], data?: HAreaData): void {
-    const {sx1, sx2, sy} = data ?? this
+  protected _render(ctx: Context2d, _indices: number[], data?: Partial<HArea.Data>): void {
+    const {sx1, sx2, sy} = {...this, ...data}
 
     ctx.beginPath()
     for (let i = 0, end = sx1.length; i < end; i++) {
@@ -77,24 +65,20 @@ export class HAreaView extends AreaView {
     const scy = this.sy[i]
     return [scx, scy]
   }
-
-  protected override _map_data(): void {
-    this.sx1 = this.renderer.xscale.v_compute(this._x1)
-    this.sx2 = this.renderer.xscale.v_compute(this._x2)
-    this.sy  = this.renderer.yscale.v_compute(this._y)
-  }
 }
 
 export namespace HArea {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Area.Props & {
-    x1: p.CoordinateSpec
-    x2: p.CoordinateSpec
-    y: p.CoordinateSpec
+    x1: p.XCoordinateSpec
+    x2: p.XCoordinateSpec
+    y: p.YCoordinateSpec
   }
 
   export type Visuals = Area.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface HArea extends HArea.Attrs {}

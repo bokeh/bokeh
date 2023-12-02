@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_area_scalar_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
@@ -10,16 +9,14 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Selection} from "../selections/selection"
 
-export type PatchData = XYGlyphData & p.UniformsOf<Patch.Mixins>
-
-export interface PatchView extends PatchData {}
+export interface PatchView extends Patch.Data {}
 
 export class PatchView extends XYGlyphView {
   declare model: Patch
   declare visuals: Patch.Visuals
 
-  protected _render(ctx: Context2d, indices: number[], data?: PatchData): void {
-    const {sx, sy} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Patch.Data>): void {
+    const {sx, sy} = {...this, ...data}
 
     let move = true
     ctx.beginPath()
@@ -71,6 +68,8 @@ export namespace Patch {
   export type Mixins = mixins.LineScalar & mixins.FillScalar & mixins.HatchScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar, fill: visuals.FillScalar, hatch: visuals.HatchScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Patch extends Patch.Attrs {}

@@ -5,6 +5,7 @@ import type {ReglWrapper} from "./regl_wrap"
 import type {ImageProps} from "./types"
 import type {ImageBaseView} from "../image_base"
 import type {Texture2D, Texture2DOptions} from "regl"
+import {assert} from "core/util/assert"
 
 export class ImageGL extends BaseGLGlyph {
   protected _tex: Array<Texture2D | null> = []
@@ -72,7 +73,7 @@ export class ImageGL extends BaseGLGlyph {
       this._bounds = Array(nimage).fill(null)
 
     for (let i = 0; i < nimage; i++) {
-      const {sx, sy, sw, sh, xy_anchor, xy_scale, xy_sign} = this.glyph
+      const {sx, sy, sdw: sw, sdh: sh, xy_anchor, xy_scale, xy_sign} = this.glyph
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sw_i = sw[i]
@@ -97,24 +98,27 @@ export class ImageGL extends BaseGLGlyph {
   }
 
   protected _set_image(): void {
-    const {image} = this.glyph
+    const {image, image_data} = this.glyph
     const nimage = image.length
 
-    if (this._tex.length != nimage)
+    assert(image_data != null)
+
+    if (this._tex.length != nimage) {
       this._tex = Array(nimage).fill(null)
+    }
 
     for (let i = 0; i < nimage; i++) {
-      const image_data = this.glyph.image_data[i]
+      const image_data_i = image_data[i]
 
-      if (image_data == null) {
+      if (image_data_i == null) {
         this._tex[i] = null
         continue
       }
 
       const tex_options: Texture2DOptions = {
-        width: image_data.width,
-        height: image_data.height,
-        data: image_data,
+        width: image_data_i.width,
+        height: image_data_i.height,
+        data: image_data_i,
         format: "rgba",
         type: "uint8",
       }

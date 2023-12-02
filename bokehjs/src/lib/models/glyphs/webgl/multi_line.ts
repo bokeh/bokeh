@@ -89,7 +89,7 @@ export class MultiLineGL extends BaseLineGL {
     // Set data properties which are points and show flags for data
     // (taking into account NaNs but not selected indices)
     const line_count = this.glyph.data_size
-    const total_point_count =  this.glyph.sxs.array.length
+    const total_point_count =  this.glyph.sxs.data.length
 
     if (this._points == null)
       this._points = new Float32Buffer(this.regl_wrapper)
@@ -137,7 +137,7 @@ export class MultiLineGL extends BaseLineGL {
 
   protected _set_length(): void {
     const line_count = this.glyph.data_size
-    const total_point_count =  this.glyph.sxs.array.length
+    const total_point_count =  this.glyph.sxs.data.length
 
     const points_array = this._points!.get_array()
     const show_array = this._show!.get_array()

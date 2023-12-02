@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend} from "./utils"
 import * as mixins from "core/property_mixins"
@@ -10,9 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {unreachable} from "core/util/assert"
 import type {StepGL} from "./webgl/step"
 
-export type StepData = XYGlyphData
-
-export interface StepView extends StepData {}
+export interface StepView extends Step.Data {}
 
 export class StepView extends XYGlyphView {
   declare model: Step
@@ -26,12 +23,12 @@ export class StepView extends XYGlyphView {
     return StepGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: StepData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Step.Data>): void {
     const npoints = indices.length
     if (npoints < 2)
       return
 
-    const {sx, sy} = data ?? this
+    const {sx, sy} = {...this, ...data}
     const mode = this.model.mode
 
     this.visuals.line.set_value(ctx)
@@ -114,6 +111,8 @@ export namespace Step {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Step extends Step.Attrs {}

@@ -1,5 +1,5 @@
-import type {CenterRotatableData} from "./center_rotatable"
 import {CenterRotatable, CenterRotatableView} from "./center_rotatable"
+import {inherit} from "./glyph"
 import type {PointGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import type {Rect} from "core/types"
@@ -8,41 +8,53 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import * as p from "core/properties"
 
-export type EllipseData = CenterRotatableData
-
-export interface EllipseView extends EllipseData {}
+export interface EllipseView extends Ellipse.Data {}
 
 export class EllipseView extends CenterRotatableView  {
   declare model: Ellipse
   declare visuals: Ellipse.Visuals
 
   protected override _map_data(): void {
-    if (this.model.properties.width.units == "data")
-      this.sw = this.sdist(this.renderer.xscale, this._x, this.width, "center")
-    else
-      this.sw = to_screen(this.width)
+    this._define_or_inherit_attr<Ellipse.Data>("swidth", () => {
+      if (this.model.properties.width.units == "data") {
+        if (this.inherited_x && this.inherited_width) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.width, "center")
+        }
+      } else {
+        return this.inherited_width ? inherit : to_screen(this.width)
+      }
+    })
 
-    if (this.model.properties.height.units == "data")
-      this.sh = this.sdist(this.renderer.yscale, this._y, this.height, "center")
-    else
-      this.sh = to_screen(this.height)
+    this._define_or_inherit_attr<Ellipse.Data>("sheight", () => {
+      if (this.model.properties.height.units == "data") {
+        if (this.inherited_y && this.inherited_height) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.yscale, this.y, this.height, "center")
+        }
+      } else {
+        return this.inherited_height ? inherit : to_screen(this.height)
+      }
+    })
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: EllipseData): void {
-    const {sx, sy, sw, sh, angle} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Ellipse.Data>): void {
+    const {sx, sy, swidth, sheight, angle} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
-      const sw_i = sw[i]
-      const sh_i = sh[i]
+      const swidth_i = swidth[i]
+      const sheight_i = sheight[i]
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sw_i + sh_i + angle_i))
+      if (!isFinite(sx_i + sy_i + swidth_i + sheight_i + angle_i))
         continue
 
       ctx.beginPath()
-      ctx.ellipse(sx_i, sy_i, sw_i/2, sh_i/2, angle_i, 0, 2*Math.PI)
+      ctx.ellipse(sx_i, sy_i, swidth_i/2, sheight_i/2, angle_i, 0, 2*Math.PI)
 
       this.visuals.fill.apply(ctx, i)
       this.visuals.hatch.apply(ctx, i)
@@ -79,7 +91,7 @@ export class EllipseView extends CenterRotatableView  {
     const indices: number[] = []
 
     for (const i of candidates) {
-      cond = hittest.point_in_ellipse(sx, sy, this.angle.get(i), this.sh[i]/2, this.sw[i]/2, this.sx[i], this.sy[i])
+      cond = hittest.point_in_ellipse(sx, sy, this.angle.get(i), this.sheight[i]/2, this.swidth[i]/2, this.sx[i], this.sy[i])
       if (cond) {
         indices.push(i)
       }
@@ -96,22 +108,22 @@ export class EllipseView extends CenterRotatableView  {
     const sy: number[] = new Array(n)
     sy[index] = (y0 + y1)/2
 
-    const scale = this.sw[index] / this.sh[index]
+    const scale = this.swidth[index] / this.sheight[index]
     const d = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0))*0.8
 
-    const sw: number[] = new Array(n)
-    const sh: number[] = new Array(n)
+    const swidth: number[] = new Array(n)
+    const sheight: number[] = new Array(n)
     if (scale > 1) {
-      sw[index] = d
-      sh[index] = d/scale
+      swidth[index] = d
+      sheight[index] = d/scale
     } else {
-      sw[index] = d*scale
-      sh[index] = d
+      swidth[index] = d*scale
+      sheight[index] = d
     }
 
     const angle = new p.UniformScalar(0, n) // don't attempt to match glyph angle
 
-    this._render(ctx, [index], {sx, sy, sw, sh, angle} as any) // XXX
+    this._render(ctx, [index], {sx, sy, swidth, sheight, angle})
   }
 }
 
@@ -121,6 +133,8 @@ export namespace Ellipse {
   export type Props = CenterRotatable.Props
 
   export type Visuals = CenterRotatable.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Ellipse extends Ellipse.Attrs {}

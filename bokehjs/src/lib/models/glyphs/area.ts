@@ -1,4 +1,3 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_scalar_legend} from "./utils"
 import type * as visuals from "core/visuals"
@@ -7,9 +6,7 @@ import type {Context2d} from "core/util/canvas"
 import type * as p from "core/properties"
 import * as mixins from "core/property_mixins"
 
-export type AreaData = GlyphData & p.UniformsOf<Area.Mixins>
-
-export interface AreaView extends AreaData {}
+export interface AreaView extends Area.Data {}
 
 export abstract class AreaView extends GlyphView {
   declare model: Area
@@ -28,6 +25,8 @@ export namespace Area {
   export type Mixins = mixins.FillScalar & mixins.HatchScalar
 
   export type Visuals = Glyph.Visuals & {fill: visuals.FillScalar, hatch: visuals.HatchScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Area extends Area.Attrs {}

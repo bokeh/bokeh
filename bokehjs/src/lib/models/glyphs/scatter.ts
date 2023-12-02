@@ -1,17 +1,11 @@
-import type {MarkerData} from "./marker"
 import {Marker, MarkerView} from "./marker"
 import {marker_funcs} from "./defs"
-import type {MarkerType} from "core/enums"
 import type {Rect} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 import type {MultiMarkerGL} from "./webgl/multi_marker"
 
-export type ScatterData = MarkerData & {
-  readonly marker: p.Uniform<MarkerType | null>
-}
-
-export interface ScatterView extends ScatterData {}
+export interface ScatterView extends Scatter.Data {}
 
 export class ScatterView extends MarkerView {
   declare model: Scatter
@@ -24,8 +18,8 @@ export class ScatterView extends MarkerView {
     return MultiMarkerGL
   }
 
-  protected override _render(ctx: Context2d, indices: number[], data?: ScatterData): void {
-    const {sx, sy, size, angle, marker} = data ?? this
+  protected override _render(ctx: Context2d, indices: number[], data?: Partial<Scatter.Data>): void {
+    const {sx, sy, size, angle, marker} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -75,6 +69,10 @@ export namespace Scatter {
   export type Props = Marker.Props & {
     marker: p.MarkerSpec
   }
+
+  export type Visuals = Marker.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Scatter extends Scatter.Attrs {}

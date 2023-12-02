@@ -1,4 +1,3 @@
-import type {ImageDataBase} from "./image_base"
 import {ImageBase, ImageBaseView} from "./image_base"
 import {ColorMapper} from "../mappers/color_mapper"
 import {LinearColorMapper} from "../mappers/linear_color_mapper"
@@ -6,9 +5,7 @@ import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageData = ImageDataBase
-
-export interface ImageView extends ImageData {}
+export interface ImageView extends Image.Data {}
 
 export class ImageView extends ImageBaseView {
   declare model: Image
@@ -33,7 +30,7 @@ export class ImageView extends ImageBaseView {
     }
 
     // Only reset image_data if already initialized
-    if (this._image_data != null) {
+    if (this.image_data != null) {
       this._set_data(null)
       this.renderer.request_render()
     }
@@ -56,6 +53,8 @@ export namespace Image {
   }
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Image extends Image.Attrs {}

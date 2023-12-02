@@ -1,58 +1,37 @@
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, FloatArray, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {inplace} from "core/util/projections"
 import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
 
-export type BezierData = GlyphData & p.UniformsOf<Bezier.Mixins> & {
-  _x0: FloatArray
-  _y0: FloatArray
-  _x1: FloatArray
-  _y1: FloatArray
-  _cx0: FloatArray
-  _cy0: FloatArray
-  _cx1: FloatArray
-  _cy1: FloatArray
-
-  sx0: ScreenArray
-  sy0: ScreenArray
-  sx1: ScreenArray
-  sy1: ScreenArray
-  scx0: ScreenArray
-  scy0: ScreenArray
-  scx1: ScreenArray
-  scy1: ScreenArray
-}
-
-export interface BezierView extends BezierData {}
+export interface BezierView extends Bezier.Data {}
 
 export class BezierView extends GlyphView {
   declare model: Bezier
   declare visuals: Bezier.Visuals
 
   protected override _project_data(): void {
-    inplace.project_xy(this._x0, this._y0)
-    inplace.project_xy(this._x1, this._y1)
+    inplace.project_xy(this.x0, this.y0)
+    inplace.project_xy(this.x1, this.y1)
   }
 
   protected _index_data(index: SpatialIndex): void {
-    const {data_size, _x0, _y0, _x1, _y1, _cx0, _cy0, _cx1, _cy1} = this
+    const {data_size, x0, y0, x1, y1, cx0, cy0, cx1, cy1} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0_i = _x0[i]
-      const y0_i = _y0[i]
-      const x1_i = _x1[i]
-      const y1_i = _y1[i]
-      const cx0_i = _cx0[i]
-      const cy0_i = _cy0[i]
-      const cx1_i = _cx1[i]
-      const cy1_i = _cy1[i]
+      const x0_i = x0[i]
+      const y0_i = y0[i]
+      const x1_i = x1[i]
+      const y1_i = y1[i]
+      const cx0_i = cx0[i]
+      const cy0_i = cy0[i]
+      const cx1_i = cx1[i]
+      const cy1_i = cy1[i]
 
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i))
         index.add_empty()
@@ -63,11 +42,11 @@ export class BezierView extends GlyphView {
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: BezierData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
     if (!this.visuals.line.doit)
       return
 
-    const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = data ?? this
+    const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = {...this, ...data}
 
     for (const i of indices) {
       const sx0_i = sx0[i]
@@ -116,6 +95,8 @@ export namespace Bezier {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Bezier extends Bezier.Attrs {}

@@ -1,13 +1,10 @@
-import type {ImageDataBase} from "./image_base"
 import {ImageBase, ImageBaseView} from "./image_base"
 import type {NDArrayType} from "core/util/ndarray"
 import {isTypedArray} from "core/util/types"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageRGBAData = ImageDataBase
-
-export interface ImageRGBAView extends ImageRGBAData {}
+export interface ImageRGBAView extends ImageRGBA.Data {}
 
 export class ImageRGBAView extends ImageBaseView {
   declare model: ImageRGBA
@@ -33,6 +30,8 @@ export namespace ImageRGBA {
   export type Props = ImageBase.Props
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageRGBA extends ImageRGBA.Attrs {}

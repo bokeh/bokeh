@@ -1,9 +1,9 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry} from "core/geometry"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import type * as visuals from "core/visuals"
 import {Direction} from "core/enums"
@@ -14,22 +14,7 @@ import {Selection} from "../selections/selection"
 import {max} from "../../core/util/arrayable"
 import type {AnnularWedgeGL} from "./webgl/annular_wedge"
 
-export type AnnularWedgeData = XYGlyphData & p.UniformsOf<AnnularWedge.Mixins> & {
-  readonly inner_radius: p.Uniform<number>
-  readonly outer_radius: p.Uniform<number>
-
-  readonly start_angle: p.Uniform<number>
-  readonly end_angle: p.Uniform<number>
-
-  sinner_radius: ScreenArray
-  souter_radius: ScreenArray
-  max_souter_radius: number
-
-  readonly max_inner_radius: number
-  readonly max_outer_radius: number
-}
-
-export interface AnnularWedgeView extends AnnularWedgeData {}
+export interface AnnularWedgeView extends AnnularWedge.Data {}
 
 export class AnnularWedgeView extends XYGlyphView {
   declare model: AnnularWedge
@@ -44,20 +29,35 @@ export class AnnularWedgeView extends XYGlyphView {
   }
 
   protected override _map_data(): void {
-    if (this.model.properties.inner_radius.units == "data")
-      this.sinner_radius = this.sdist(this.renderer.xscale, this._x, this.inner_radius)
-    else
-      this.sinner_radius = to_screen(this.inner_radius)
+    this._define_or_inherit_attr<AnnularWedge.Data>("sinner_radius", () => {
+      if (this.model.properties.inner_radius.units == "data") {
+        if (this.inherited_x && this.inherited_inner_radius) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.inner_radius)
+        }
+      } else {
+        return this.inherited_inner_radius ? inherit : to_screen(this.inner_radius)
+      }
+    })
 
-    if (this.model.properties.outer_radius.units == "data")
-      this.souter_radius = this.sdist(this.renderer.xscale, this._x, this.outer_radius)
-    else
-      this.souter_radius = to_screen(this.outer_radius)
-    this.max_souter_radius = max(this.souter_radius)
+    this._define_or_inherit_attr<AnnularWedge.Data>("souter_radius", () => {
+      if (this.model.properties.outer_radius.units == "data") {
+        if (this.inherited_x && this.inherited_outer_radius) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.outer_radius)
+        }
+      } else {
+        return this.inherited_outer_radius ? inherit : to_screen(this.outer_radius)
+      }
+    })
+
+    this._define_or_inherit_attr<AnnularWedge.Data>("max_souter_radius", () => max(this.souter_radius))
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: AnnularWedgeData): void {
-    const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<AnnularWedge.Data>): void {
+    const {sx, sy, start_angle, end_angle, sinner_radius, souter_radius} = {...this, ...data}
     const anticlock = this.model.direction == "anticlock"
 
     for (const i of indices) {
@@ -111,8 +111,8 @@ export class AnnularWedgeView extends XYGlyphView {
     for (const i of this.index.indices({x0, x1, y0, y1})) {
       const or2 = this.souter_radius[i]**2
       const ir2 = this.sinner_radius[i]**2
-      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this._x[i])
-      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this._y[i])
+      const [sx0, sx1] = this.renderer.xscale.r_compute(x, this.x[i])
+      const [sy0, sy1] = this.renderer.yscale.r_compute(y, this.y[i])
       const dist = (sx0-sx1)**2 + (sy0-sy1)**2
       if (dist <= or2 && dist >= ir2)
         candidates.push(i)
@@ -159,6 +159,10 @@ export namespace AnnularWedge {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    readonly max_souter_radius: number
+  }
 }
 
 export interface AnnularWedge extends AnnularWedge.Attrs {}

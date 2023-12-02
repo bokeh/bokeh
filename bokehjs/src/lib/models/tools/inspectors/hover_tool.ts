@@ -8,7 +8,7 @@ import type * as p from "core/properties"
 import {Signal} from "core/signaling"
 import type {Arrayable, Color} from "core/types"
 import type {MoveEvent} from "core/ui_events"
-import {assert} from "core/util/assert"
+import {assert, unreachable} from "core/util/assert"
 import {color2css, color2hex} from "core/util/color"
 import {enumerate} from "core/util/iterator"
 import {is_empty} from "core/util/object"
@@ -309,7 +309,7 @@ export class HoverToolView extends InspectToolView {
       const {line_policy} = this.model
       for (const i of subset_indices.line_indices) {
         const [[snap_x, snap_y], [snap_sx, snap_sy], ii] = (() => {
-          const [x, y] = [glyph._x, glyph._y]
+          const {x, y} = glyph
           switch (line_policy) {
             case "interp": {
               const [snap_x, snap_y] = glyph.get_interpolation_hit(i, geometry)
@@ -370,13 +370,13 @@ export class HoverToolView extends InspectToolView {
         if (glyph instanceof MultiLineView && !is_empty(subset_indices.multiline_indices)) {
           const {line_policy} = this.model
           for (const j of subset_indices.multiline_indices[i.toString()]) { // TODO: subset_indices.multiline_indices.get(i)
-            const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (function() {
+            const [[snap_x, snap_y], [snap_sx, snap_sy], jj] = (() => {
               if (line_policy == "interp") {
                 const [snap_x, snap_y] = glyph.get_interpolation_hit(i, j, geometry)
                 const snap_sxy = [xscale.compute(snap_x), yscale.compute(snap_y)]
                 return [[snap_x, snap_y], snap_sxy, j]
               }
-              const [xs, ys] = [glyph._xs.get(i), glyph._ys.get(i)]
+              const [xs, ys] = [glyph.xs.get(i), glyph.ys.get(i)]
               if (line_policy == "prev") {
                 const [snap_sxy, jj] = _line_hit(glyph.sxs.get(i), glyph.sys.get(i), j)
                 return [[xs[j], ys[j]], snap_sxy, jj]
@@ -389,7 +389,7 @@ export class HoverToolView extends InspectToolView {
                 const [snap_sxy, jj] = _nearest_line_hit(j, geometry, glyph.sxs.get(i), glyph.sys.get(i))
                 return [[xs[jj], ys[jj]], snap_sxy, jj]
               }
-              throw new Error("shouldn't have happened")
+              unreachable()
             })()
 
             const index = renderer.view.convert_indices_from_subset([i])[0]
@@ -408,10 +408,10 @@ export class HoverToolView extends InspectToolView {
           }
         } else {
           // handle non-multiglyphs
-          const snap_x = (glyph as any)._x?.[i]
-          const snap_y = (glyph as any)._y?.[i]
+          const snap_x = (glyph as any).x?.[i]
+          const snap_y = (glyph as any).y?.[i]
 
-          const {point_policy, anchor}  = this.model
+          const {point_policy, anchor} = this.model
           const [snap_sx, snap_sy] = (function() {
             if (point_policy == "snap_to_data") {
               const pt = glyph.get_anchor_point(anchor, i, [sx, sy])

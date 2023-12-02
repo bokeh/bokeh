@@ -3,27 +3,18 @@ import {inplace} from "core/util/projections"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, RaggedArray, FloatArray, ScreenArray} from "core/types"
+import type {Rect, RaggedArray, FloatArray} from "core/types"
 import * as hittest from "core/hittest"
 import * as p from "core/properties"
 import {minmax2} from "core/util/arrayable"
 import {to_object} from "core/util/object"
 import type {Context2d} from "core/util/canvas"
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend, line_interpolation} from "./utils"
 import {Selection} from "../selections/selection"
 import type {MultiLineGL} from "./webgl/multi_line"
 
-export type MultiLineData = GlyphData & p.UniformsOf<MultiLine.Mixins> & {
-  _xs: RaggedArray<FloatArray>
-  _ys: RaggedArray<FloatArray>
-
-  sxs: RaggedArray<ScreenArray>
-  sys: RaggedArray<ScreenArray>
-}
-
-export interface MultiLineView extends MultiLineData {}
+export interface MultiLineView extends MultiLine.Data {}
 
 export class MultiLineView extends GlyphView {
   declare model: MultiLine
@@ -38,23 +29,23 @@ export class MultiLineView extends GlyphView {
   }
 
   protected override _project_data(): void {
-    inplace.project_xy(this._xs.array, this._ys.array)
+    inplace.project_xy(this.xs.data, this.ys.data)
   }
 
   protected _index_data(index: SpatialIndex): void {
     const {data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const xsi = this._xs.get(i)
-      const ysi = this._ys.get(i)
+      const xsi = this.xs.get(i)
+      const ysi = this.ys.get(i)
 
       const [x0, x1, y0, y1] = minmax2(xsi, ysi)
       index.add_rect(x0, y0, x1, y1)
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: MultiLineData): void {
-    const {sxs, sys} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<MultiLine.Data>): void {
+    const {sxs, sys} = {...this, ...data}
 
     for (const i of indices) {
       const sx = sxs.get(i)
@@ -124,10 +115,10 @@ export class MultiLineView extends GlyphView {
     let vs: RaggedArray<FloatArray>
     if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
-      vs = this._ys
+      vs = this.ys
     } else {
       val = this.renderer.xscale.invert(sx)
-      vs = this._xs
+      vs = this.xs
     }
 
     const hits: Map<number, number[]> = new Map()
@@ -150,8 +141,8 @@ export class MultiLineView extends GlyphView {
   }
 
   get_interpolation_hit(i: number, point_i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const xsi = this._xs.get(i)
-    const ysi = this._ys.get(i)
+    const xsi = this.xs.get(i)
+    const ysi = this.ys.get(i)
     const x2 = xsi[point_i]
     const y2 = ysi[point_i]
     const x3 = xsi[point_i + 1]
@@ -179,6 +170,8 @@ export namespace MultiLine {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface MultiLine extends MultiLine.Attrs {}

@@ -1,4 +1,3 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import {generic_line_scalar_legend, line_interpolation} from "./utils"
 import type {PointGeometry, SpanGeometry} from "core/geometry"
@@ -11,9 +10,7 @@ import type {Context2d} from "core/util/canvas"
 import {Selection} from "../selections/selection"
 import type {LineGL} from "./webgl/line_gl"
 
-export type LineData = XYGlyphData & p.UniformsOf<Line.Mixins>
-
-export interface LineView extends LineData {}
+export interface LineView extends Line.Data {}
 
 export class LineView extends XYGlyphView {
   declare model: Line
@@ -27,8 +24,8 @@ export class LineView extends XYGlyphView {
     return LineGL
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: LineData): void {
-    const {sx, sy} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Line.Data>): void {
+    const {sx, sy} = {...this, ...data}
     const nonselection = this.parent.nonselection_glyph == this
 
     let iprev: number | null = null
@@ -108,10 +105,10 @@ export class LineView extends XYGlyphView {
     let values: Arrayable<number>
     if (geometry.direction == "v") {
       val = this.renderer.yscale.invert(sy)
-      values = this._y
+      values = this.y
     } else {
       val = this.renderer.xscale.invert(sx)
-      values = this._x
+      values = this.x
     }
 
     const indices = []
@@ -134,7 +131,7 @@ export class LineView extends XYGlyphView {
   }
 
   get_interpolation_hit(i: number, geometry: PointGeometry | SpanGeometry): [number, number] {
-    const [x2, y2, x3, y3] = [this._x[i], this._y[i], this._x[i+1], this._y[i+1]]
+    const [x2, y2, x3, y3] = [this.x[i], this.y[i], this.x[i+1], this.y[i+1]]
     return line_interpolation(this.renderer, geometry, x2, y2, x3, y3)
   }
 
@@ -151,6 +148,8 @@ export namespace Line {
   export type Mixins = mixins.LineScalar
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineScalar}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Line extends Line.Attrs {}

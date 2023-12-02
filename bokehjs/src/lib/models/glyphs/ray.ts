@@ -1,47 +1,51 @@
-import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
+import {inherit} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {LineVector} from "core/property_mixins"
 import type * as visuals from "core/visuals"
-import type {Rect, ScreenArray} from "core/types"
+import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
 
-export type RayData = XYGlyphData & p.UniformsOf<Ray.Mixins> & {
-  readonly length: p.Uniform<number>
-  readonly angle: p.Uniform<number>
-
-  slength: ScreenArray
-}
-
-export interface RayView extends RayData {}
+export interface RayView extends Ray.Data {}
 
 export class RayView extends XYGlyphView {
   declare model: Ray
   declare visuals: Ray.Visuals
 
   protected override _map_data(): void {
-    if (this.model.properties.length.units == "data")
-      this.slength = this.sdist(this.renderer.xscale, this._x, this.length)
-    else
-      this.slength = to_screen(this.length)
+    this._define_or_inherit_attr<Ray.Data>("slength", () => {
+      if (this.model.properties.length.units == "data") {
+        if (this.inherited_x && this.inherited_length) {
+          return inherit
+        } else {
+          return this.sdist(this.renderer.xscale, this.x, this.length)
+        }
+      } else {
+        return this.inherited_length ? inherit : to_screen(this.length)
+      }
+    })
 
-    const {width, height} = this.renderer.plot_view.frame.bbox
-    const inf_len = 2*(width + height)
+    if (!this.inherited_slength) {
+      const {width, height} = this.renderer.plot_view.frame.bbox
+      const inf_len = 2*(width + height)
 
-    const {slength} = this
-    for (let i = 0, end = slength.length; i < end; i++) {
-      if (slength[i] == 0)
-        slength[i] = inf_len
+      const {slength} = this
+      const n = slength.length
+      for (let i = 0; i < n; i++) {
+        if (slength[i] == 0) {
+          slength[i] = inf_len
+        }
+      }
     }
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: RayData): void {
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Ray.Data>): void {
     if (!this.visuals.line.doit)
       return
 
-    const {sx, sy, slength, angle} = data ?? this
+    const {sx, sy, slength, angle} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
@@ -82,6 +86,8 @@ export namespace Ray {
   export type Mixins = LineVector
 
   export type Visuals = XYGlyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface Ray extends Ray.Attrs {}

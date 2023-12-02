@@ -1,8 +1,7 @@
-import type {CenterRotatableData} from "./center_rotatable"
 import {CenterRotatable, CenterRotatableView} from "./center_rotatable"
 import {generic_area_vector_legend} from "./utils"
 import type {PointGeometry, RectGeometry} from "core/geometry"
-import type {Arrayable, FloatArray} from "core/types"
+import type {Arrayable} from "core/types"
 import {ScreenArray, to_screen, infer_type} from "core/types"
 import type * as types from "core/types"
 import type * as p from "core/properties"
@@ -20,16 +19,7 @@ import type {RectGL} from "./webgl/rect"
 
 const {abs, sqrt} = Math
 
-export type RectData = CenterRotatableData & {
-  sx0: ScreenArray
-  sy1: ScreenArray
-  ssemi_diag: ScreenArray
-  max_x2_ddist: number
-  max_y2_ddist: number
-  border_radius: Corners<number>
-}
-
-export interface RectView extends RectData {}
+export interface RectView extends Rect.Data {}
 
 export class RectView extends CenterRotatableView {
   declare model: Rect
@@ -51,77 +41,109 @@ export class RectView extends CenterRotatableView {
   protected override _map_data(): void {
     const n = this.data_size
 
-    if (this.model.properties.width.units == "data")
-      [this.sw, this.sx0] = this._map_dist_corner_for_data_side_length(this._x, this.width, this.renderer.xscale)
-    else {
-      this.sw = to_screen(this.width)
+    if (this.inherited_x && this.inherited_width) {
+      this._inherit_attr<Rect.Data>("swidth")
+      this._inherit_attr<Rect.Data>("sx0")
+    } else {
+      let swidth: Arrayable<number>
+      let sx0: Arrayable<number>
 
-      this.sx0 = new ScreenArray(n)
-      for (let i = 0; i < n; i++) {
-        this.sx0[i] = this.sx[i] - this.sw[i]/2
+      if (this.model.properties.width.units == "data") {
+        [swidth, sx0] = this._map_dist_corner_for_data_side_length(this.x, this.width, this.renderer.xscale)
+      } else {
+        swidth = to_screen(this.width)
+        sx0 = new ScreenArray(n)
+
+        const {sx} = this
+        for (let i = 0; i < n; i++) {
+          sx0[i] = sx[i] - swidth[i]/2
+        }
       }
+
+      this._define_attr<Rect.Data>("swidth", swidth)
+      this._define_attr<Rect.Data>("sx0", sx0)
     }
 
-    if (this.model.properties.height.units == "data")
-      [this.sh, this.sy1] = this._map_dist_corner_for_data_side_length(this._y, this.height, this.renderer.yscale)
-    else {
-      this.sh = to_screen(this.height)
+    if (this.inherited_y && this.inherited_height) {
+      this._inherit_attr<Rect.Data>("sheight")
+      this._inherit_attr<Rect.Data>("sy1")
+    } else {
+      let sheight: Arrayable<number>
+      let sy1: Arrayable<number>
 
-      this.sy1 = new ScreenArray(n)
-      for (let i = 0; i < n; i++) {
-        this.sy1[i] = this.sy[i] - this.sh[i]/2
+      if (this.model.properties.height.units == "data") {
+        [sheight, sy1] = this._map_dist_corner_for_data_side_length(this.y, this.height, this.renderer.yscale)
+      } else {
+        sheight = to_screen(this.height)
+        sy1 = new ScreenArray(n)
+
+        const {sy} = this
+        for (let i = 0; i < n; i++) {
+          sy1[i] = sy[i] - sheight[i]/2
+        }
       }
+
+      this._define_attr<Rect.Data>("sheight", sheight)
+      this._define_attr<Rect.Data>("sy1", sy1)
     }
 
-    const {sw, sh} = this
-    this.ssemi_diag = new ScreenArray(n)
+    if (this.inherited_swidth && this.inherited_sheight) {
+      this._inherit_attr<Rect.Data>("max_x2_ddist")
+      this._inherit_attr<Rect.Data>("max_y2_ddist")
+    } else {
+      const {sx0, sy1, swidth, sheight} = this
+      const ssemi_diag = new ScreenArray(n)
 
-    for (let i = 0; i < n; i++) {
-      const sw_i = sw[i]
-      const sh_i = sh[i]
-      this.ssemi_diag[i] = sqrt(sw_i**2 + sh_i**2)/2
+      for (let i = 0; i < n; i++) {
+        const swidth_i = swidth[i]
+        const sheight_i = sheight[i]
+        ssemi_diag[i] = sqrt(swidth_i**2 + sheight_i**2)/2
+      }
+
+      const scenter_x = new ScreenArray(n)
+      const scenter_y = new ScreenArray(n)
+
+      for (let i = 0; i < n; i++) {
+        scenter_x[i] = sx0[i] + swidth[i]/2
+        scenter_y[i] = sy1[i] + sheight[i]/2
+      }
+
+      const max_x2_ddist = max(this._ddist(0, scenter_x, ssemi_diag))
+      const max_y2_ddist = max(this._ddist(1, scenter_y, ssemi_diag))
+
+      this._define_attr<Rect.Data>("max_x2_ddist", max_x2_ddist)
+      this._define_attr<Rect.Data>("max_y2_ddist", max_y2_ddist)
     }
-
-    const scenter_x = new ScreenArray(n)
-    const scenter_y = new ScreenArray(n)
-
-    for (let i = 0; i < n; i++) {
-      scenter_x[i] = this.sx0[i] + this.sw[i]/2
-      scenter_y[i] = this.sy1[i] + this.sh[i]/2
-    }
-
-    this.max_x2_ddist = max(this._ddist(0, scenter_x, this.ssemi_diag))
-    this.max_y2_ddist = max(this._ddist(1, scenter_y, this.ssemi_diag))
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: RectData): void {
-    const {sx, sy, sx0, sy1, sw, sh, angle, border_radius} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<Rect.Data>): void {
+    const {sx, sy, sx0, sy1, swidth, sheight, angle, border_radius} = {...this, ...data}
 
     for (const i of indices) {
       const sx_i = sx[i]
       const sy_i = sy[i]
       const sx0_i = sx0[i]
       const sy1_i = sy1[i]
-      const sw_i = sw[i]
-      const sh_i = sh[i]
+      const swidth_i = swidth[i]
+      const sheight_i = sheight[i]
       const angle_i = angle.get(i)
 
-      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + sw_i + sh_i + angle_i))
+      if (!isFinite(sx_i + sy_i + sx0_i + sy1_i + swidth_i + sheight_i + angle_i))
         continue
 
-      if (sw_i == 0 || sh_i == 0)
+      if (swidth_i == 0 || sheight_i == 0)
         continue
 
       ctx.beginPath()
       if (angle_i != 0) {
         ctx.translate(sx_i, sy_i)
         ctx.rotate(angle_i)
-        const box = new BBox({x: -sw_i/2, y: -sh_i/2, width: sw_i, height: sh_i})
+        const box = new BBox({x: -swidth_i/2, y: -sheight_i/2, width: swidth_i, height: sheight_i})
         round_rect(ctx, box, border_radius)
         ctx.rotate(-angle_i)
         ctx.translate(-sx_i, -sy_i)
       } else {
-        const box = new BBox({x: sx0_i, y: sy1_i, width: sw_i, height: sh_i})
+        const box = new BBox({x: sx0_i, y: sy1_i, width: swidth_i, height: sheight_i})
         round_rect(ctx, box, border_radius)
       }
 
@@ -148,7 +170,7 @@ export class RectView extends CenterRotatableView {
       y1: y + this.max_y2_ddist,
     })
 
-    const {sx, sy, sx0, sy1, sw, sh, angle} = this
+    const {sx, sy, sx0, sy1, swidth: sw, sheight: sh, angle} = this
     const indices = []
 
     for (const i of candidates) {
@@ -206,7 +228,7 @@ export class RectView extends CenterRotatableView {
     return [sside_length, spt_corner]
   }
 
-  protected _ddist(dim: 0 | 1, spts: FloatArray, spans: FloatArray): FloatArray {
+  protected _ddist(dim: 0 | 1, spts: Arrayable<number>, spans: Arrayable<number>): Arrayable<number> {
     const ArrayType = infer_type(spts, spans)
 
     const scale = dim == 0 ? this.renderer.xscale : this.renderer.yscale
@@ -241,6 +263,14 @@ export namespace Rect {
   }
 
   export type Visuals = CenterRotatable.Visuals
+
+  export type Data = p.GlyphDataOf<Props> & {
+    readonly sx0: Arrayable<number>
+    readonly sy1: Arrayable<number>
+    readonly max_x2_ddist: number
+    readonly max_y2_ddist: number
+    border_radius: Corners<number>
+  }
 }
 
 export interface Rect extends Rect.Attrs {}

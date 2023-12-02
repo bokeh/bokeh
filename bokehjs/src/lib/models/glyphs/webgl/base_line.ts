@@ -7,6 +7,7 @@ import type {GlyphView} from "../glyph"
 import type * as visuals from "core/visuals"
 import {resolve_line_dash} from "core/visuals/line"
 import type {Framebuffer2D, Texture2D} from "regl"
+import type {Arrayable} from "core/types"
 
 export type BaseLineVisuals = visuals.LineVector | visuals.LineScalar
 
@@ -96,7 +97,7 @@ export abstract class BaseLineGL extends BaseGLGlyph {
     }
   }
 
-  protected _set_points_single(points: Float32Array, sx: Float32Array, sy: Float32Array): void {
+  protected _set_points_single(points: Float32Array, sx: Arrayable<number>, sy: Arrayable<number>): void {
     // Set points array for a single line.
     const npoints = points.length/2 - 2
     const is_closed = (npoints > 2 && sx[0] == sx[npoints-1] && sy[0] == sy[npoints-1] &&

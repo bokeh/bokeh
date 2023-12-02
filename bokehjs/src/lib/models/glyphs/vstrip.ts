@@ -1,10 +1,9 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_area_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector, FillVector, HatchVector} from "core/property_mixins"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {FloatArray, Rect} from "core/types"
+import type {Arrayable, Rect} from "core/types"
 import {ScreenArray} from "core/types"
 import type * as visuals from "core/visuals"
 import type {Context2d} from "core/util/canvas"
@@ -17,17 +16,7 @@ import type {LRTBGL} from "./webgl/lrtb"
 
 const UNUSED = 0
 
-export type VStripData = GlyphData & p.UniformsOf<VStrip.Mixins> & {
-  _x0: FloatArray
-  _x1: FloatArray
-
-  sx0: ScreenArray
-  sx1: ScreenArray
-
-  max_width: number
-}
-
-export interface VStripView extends VStripData {}
+export interface VStripView extends VStrip.Data {}
 
 export class VStripView extends GlyphView {
   declare model: VStrip
@@ -46,15 +35,15 @@ export class VStripView extends GlyphView {
     }
   }
 
-  get sleft(): ScreenArray {
+  get sleft(): Arrayable<number> {
     return this.sx0
   }
 
-  get sright(): ScreenArray {
+  get sright(): Arrayable<number> {
     return this.sx1
   }
 
-  get stop(): ScreenArray {
+  get stop(): Arrayable<number> {
     const {top} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const stop = new ScreenArray(n)
@@ -62,7 +51,7 @@ export class VStripView extends GlyphView {
     return stop
   }
 
-  get sbottom(): ScreenArray {
+  get sbottom(): Arrayable<number> {
     const {bottom} = this.renderer.plot_view.frame.bbox
     const n = this.data_size
     const sbottom = new ScreenArray(n)
@@ -76,16 +65,21 @@ export class VStripView extends GlyphView {
     const {abs} = Math
     const {max, map, zip} = iter
 
-    const {_x0, _x1} = this
-    this.max_width = max(map(zip(_x0, _x1), ([x0_i, x1_i]) => abs(x0_i - x1_i)))
+    const {x0, x1} = this
+    if (this.inherited_x0 && this.inherited_x1) {
+      this._inherit_attr("max_width")
+    } else {
+      const max_width = max(map(zip(x0, x1), ([x0_i, x1_i]) => abs(x0_i - x1_i)))
+      this._define_attr("max_width", max_width)
+    }
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    const {_x0, _x1, data_size} = this
+    const {x0, x1, data_size} = this
 
     for (let i = 0; i < data_size; i++) {
-      const x0_i = _x0[i]
-      const x1_i = _x1[i]
+      const x0_i = x0[i]
+      const x1_i = x1[i]
       index.add_rect(x0_i, UNUSED, x1_i, UNUSED)
     }
   }
@@ -98,8 +92,14 @@ export class VStripView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sx0 = map(this.sx0, (xi) => round(xi))
-    this.sx1 = map(this.sx1, (xi) => round(xi))
+    if (!this.inherited_sx0) {
+      const sx0 = map(this.sx0, (xi) => round(xi))
+      this._define_attr("sx0", sx0)
+    }
+    if (!this.inherited_sx1) {
+      const sx1 = map(this.sx1, (xi) => round(xi))
+      this._define_attr("sx1", sx1)
+    }
   }
 
   scenterxy(i: number): [number, number] {
@@ -107,8 +107,8 @@ export class VStripView extends GlyphView {
     return [(this.sx0[i] + this.sx1[i])/2, vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VStripData): void {
-    const {sx0, sx1} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<VStrip.Data>): void {
+    const {sx0, sx1} = {...this, ...data}
     const {top, bottom, height} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {
@@ -208,6 +208,10 @@ export namespace VStrip {
   export type Mixins = LineVector & FillVector & HatchVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector, fill: visuals.FillVector, hatch: visuals.HatchVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_width: number
+  }
 }
 
 export interface VStrip extends VStrip.Attrs {}

@@ -1,13 +1,10 @@
-import type {ImageDataBase} from "./image_base"
 import {ImageBase, ImageBaseView} from "./image_base"
 import {StackColorMapper} from "../mappers/stack_color_mapper"
 import type {NDArrayType} from "core/util/ndarray"
 import type * as p from "core/properties"
 import type {ImageGL} from "./webgl/image"
 
-export type ImageStackData = ImageDataBase
-
-export interface ImageStackView extends ImageData {}
+export interface ImageStackView extends ImageBase.Data {}
 
 export class ImageStackView extends ImageBaseView {
   declare model: ImageStack
@@ -36,7 +33,7 @@ export class ImageStackView extends ImageBaseView {
     }
 
     // Only reset image_data if already initialized
-    if (this._image_data != null) {
+    if (this.image_data != null) {
       this._set_data(null)
       this.renderer.request_render()
     }
@@ -56,6 +53,8 @@ export namespace ImageStack {
   }
 
   export type Visuals = ImageBase.Visuals
+
+  export type Data = p.GlyphDataOf<Props>
 }
 
 export interface ImageStack extends ImageStack.Attrs {}

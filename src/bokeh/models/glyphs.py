@@ -424,11 +424,11 @@ class Block(LRTBGlyph):
     The y-coordinates of the centers of the blocks.
     """)
 
-    width = NumberSpec(default=1, help="""
+    width = DistanceSpec(default=1, help="""
     The widths of the blocks.
     """)
 
-    height = NumberSpec(default=1, help="""
+    height = DistanceSpec(default=1, help="""
     The heights of the blocks.
     """)
 
@@ -646,7 +646,7 @@ class HBar(LRTBGlyph):
     The y-coordinates of the centers of the horizontal bars.
     """)
 
-    height = NumberSpec(default=1, help="""
+    height = DistanceSpec(default=1, help="""
     The heights of the vertical bars.
     """)
 
@@ -1670,7 +1670,7 @@ class VBar(LRTBGlyph):
     The x-coordinates of the centers of the vertical bars.
     """)
 
-    width = NumberSpec(default=1, help="""
+    width = DistanceSpec(default=1, help="""
     The widths of the vertical bars.
     """)
 

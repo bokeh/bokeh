@@ -1,10 +1,9 @@
-import type {GlyphData} from "./glyph"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
 import {LineVector} from "core/property_mixins"
 import type {PointGeometry, SpanGeometry, RectGeometry} from "core/geometry"
-import type {FloatArray, ScreenArray, Rect} from "core/types"
+import type {Rect} from "core/types"
 import type * as visuals from "core/visuals"
 import * as uniforms from "core/uniforms"
 import type {Context2d} from "core/util/canvas"
@@ -17,14 +16,7 @@ const {abs, max} = Math
 
 const UNUSED = 0
 
-export type VSpanData = GlyphData & p.UniformsOf<VSpan.Mixins> & {
-  _x: FloatArray
-  sx: ScreenArray
-
-  max_line_width: number
-}
-
-export interface VSpanView extends VSpanData {}
+export interface VSpanView extends VSpan.Data {}
 
 export class VSpanView extends GlyphView {
   declare model: VSpan
@@ -36,7 +28,7 @@ export class VSpanView extends GlyphView {
   }
 
   protected override _index_data(index: SpatialIndex): void {
-    for (const x_i of this._x) {
+    for (const x_i of this.x) {
       index.add_point(x_i, UNUSED)
     }
   }
@@ -49,7 +41,10 @@ export class VSpanView extends GlyphView {
   protected override _map_data(): void {
     super._map_data()
     const {round} = Math
-    this.sx = map(this.sx, (xi) => round(xi))
+    if (!this.inherited_sx) {
+      const sx = map(this.sx, (xi) => round(xi))
+      this._define_attr("sx", sx)
+    }
   }
 
   scenterxy(i: number): [number, number] {
@@ -57,8 +52,8 @@ export class VSpanView extends GlyphView {
     return [this.sx[i], vcenter]
   }
 
-  protected _render(ctx: Context2d, indices: number[], data?: VSpanData): void {
-    const {sx} = data ?? this
+  protected _render(ctx: Context2d, indices: number[], data?: Partial<VSpan.Data>): void {
+    const {sx} = {...this, ...data}
     const {top, bottom} = this.renderer.plot_view.frame.bbox
 
     for (const i of indices) {
@@ -146,6 +141,10 @@ export namespace VSpan {
   export type Mixins = LineVector
 
   export type Visuals = Glyph.Visuals & {line: visuals.LineVector}
+
+  export type Data = p.GlyphDataOf<Props> & {
+    max_line_width: number
+  }
 }
 
 export interface VSpan extends VSpan.Attrs {}
