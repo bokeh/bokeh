@@ -26,7 +26,7 @@ export class LinearColorMapper extends ContinuousColorMapper {
     super(attrs)
   }
 
-  protected scan(data: Arrayable<number>, n: number): LinearScanData {
+  public scan(data: Arrayable<number>, n: number): LinearScanData {
     const low = this.low != null ? this.low : min(data)
     const high = this.high != null ? this.high : max(data)
 
