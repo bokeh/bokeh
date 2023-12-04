@@ -1,4 +1,4 @@
-''' A basic scatter plot with the toolbar positioned below the plot outside of the axes, titles, etc.
+''' A basic scatter plot with the toolbar positioned above the plot outside of the axes, titles, etc.
 This example demonstrates a way to set the toolbar's location relative to the plot outside of the axes, titles, etc.
 
 .. bokeh-example-metadata::
@@ -10,7 +10,7 @@ This example demonstrates a way to set the toolbar's location relative to the pl
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400,
-           title=None, toolbar_location="below",
+           title='Toolbar Location & Sticky Off', toolbar_location="above",
            toolbar_sticky=False)
 
 p.scatter([1, 2, 3, 4, 5], [2, 5, 8, 2, 7], size=10)
