@@ -1,5 +1,6 @@
 ''' A basic line plot with the toolbar set to autohide.
-This example demonstrates a way to hide the toolbar when the cursor is outside the plot.
+This example demonstrates a way to hide the toolbar when 
+the cursor is outside the plot.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Toolbar.autohide, bokeh.plotting.figure.line, bokeh.plotting.show
