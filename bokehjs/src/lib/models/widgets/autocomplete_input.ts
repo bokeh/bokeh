@@ -1,12 +1,10 @@
 import {TextInput, TextInputView} from "./text_input"
-
 import type {StyleSheetLike} from "core/dom"
 import {empty, display, undisplay, div} from "core/dom"
 import type * as p from "core/properties"
 import {take} from "core/util/iterator"
 import {clamp} from "core/util/math"
 import {Enum} from "../../core/kinds"
-
 import dropdown_css, * as dropdown from "styles/dropdown.css"
 
 type SearchStrategy = typeof SearchStrategy["__type__"]
@@ -16,11 +14,8 @@ export class AutocompleteInputView extends TextInputView {
   declare model: AutocompleteInput
 
   protected _open: boolean = false
-
   protected _last_value: string = ""
-
   protected _hover_index: number = 0
-
   protected menu: HTMLElement
 
   override stylesheets(): StyleSheetLike[] {
@@ -102,11 +97,10 @@ export class AutocompleteInputView extends TextInputView {
     const completions = this.compute_completions(value)
     this._update_completions(completions)
 
-    if (completions.length == 0) {
+    if (completions.length == 0)
       this._hide_menu()
-    } else {
+    else
       this._show_menu()
-    }
   }
 
   protected _show_menu(): void {
@@ -156,7 +150,7 @@ export class AutocompleteInputView extends TextInputView {
     const n_children = this.menu.children.length
     if (this._open && n_children > 0) {
       this.menu.children[this._hover_index].classList.remove(dropdown.active)
-      this._hover_index = clamp(new_index, 0, n_children-1)
+      this._hover_index = clamp(new_index, 0, n_children - 1)
       this.menu.children[this._hover_index].classList.add(dropdown.active)
     }
   }
