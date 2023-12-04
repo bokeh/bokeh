@@ -1,5 +1,5 @@
 ''' A basic scatter plot with the toolbar positioned above the plot.
-This example demonstrates a way to set the toolbar's location relative 
+This example demonstrates a way to set the toolbar's location relative
 to the edge of the plot.
 
 .. bokeh-example-metadata::
