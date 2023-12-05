@@ -29,9 +29,6 @@ export class AutocompleteInputView extends TextInputView {
 
   override render(): void {
     super.render()
-
-    this.input_el.addEventListener("keydown", (event) => this._keydown(event))
-    this.input_el.addEventListener("keyup", (event) => this._keyup(event))
     this.input_el.addEventListener("focusin", () => this._toggle_menu())
 
     this.menu = div({class: [dropdown.menu, dropdown.below]})
@@ -159,8 +156,6 @@ export class AutocompleteInputView extends TextInputView {
       this.menu.children[this._hover_index].classList.add(dropdown.active)
     }
   }
-
-  _keydown(_event: KeyboardEvent): void {}
 
   protected override _keyup(event: KeyboardEvent): void {
     super._keyup(event)
