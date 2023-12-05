@@ -37,7 +37,7 @@ import {
 
 import {
   Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker,
+  Div, TextInput, DatePicker, AutocompleteInput,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -57,6 +57,7 @@ import {paint, delay} from "@bokehjs/core/util/defer"
 import {encode_rgba} from "@bokehjs/core/util/color"
 import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
+import type {Keys} from "@bokehjs/core/dom"
 import {div} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
@@ -3672,6 +3673,17 @@ describe("Bug", () => {
       const {view} = await display(plot)
 
       plot.add_layout(span1)
+      await view.ready
+    })
+  })
+
+  describe("in issue #13574", () => {
+    it("doesn't allow to correctly change active menu item with arrows in AutocompleteInput", async () => {
+      const widget = new AutocompleteInput({completions: ["aaa", "aab", "aac", "aad", "aae"], min_characters: 0})
+      const {view} = await display(widget, [300, 200])
+      view.input_el.dispatchEvent(new FocusEvent("focusin"))
+      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
+      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
       await view.ready
     })
   })

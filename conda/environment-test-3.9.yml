@@ -36,7 +36,7 @@ dependencies:
   - pygments
   - pygraphviz
   - pytest >=7.0
-  - pytest-asyncio
+  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
