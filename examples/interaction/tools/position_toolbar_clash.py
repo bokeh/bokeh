@@ -1,4 +1,4 @@
-''' A basic scatter plot with the toolbar positioned above the plot.
+''' A basic scatter plot with the toolbar positioned below the plot.
 This example demonstrates a way to set the toolbar's location relative
 to the edge of the plot.
 
@@ -11,7 +11,7 @@ to the edge of the plot.
 from bokeh.plotting import figure, show
 
 p = figure(width=400, height=400,
-           title='Toolbar Location', toolbar_location="above")
+           title=None, toolbar_location="below")
 
 p.scatter([1, 2, 3, 4, 5], [2, 5, 8, 2, 7], size=10)
 
