@@ -21,7 +21,7 @@ def bkapp_page():
 
         # generate a script to load the customized session
         script = server_session(session_id=session.id, url=app_url)
-        
+
         # use the script in the rendered page
         return render_template("embed.html", script=script, template="Flask")
 
