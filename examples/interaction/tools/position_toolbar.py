@@ -1,7 +1,5 @@
-''' A basic scatter plot with the toolbar positioned below the plot,
-outside of the axes, titles, etc.
-This example shows a way to set the toolbar's location relative to the plot,
-outside of the axes, titles, etc.
+''' This example demonstrates a basic scatter plot with the toolbar
+positioned below the plot, outside of the axes, titles, etc.
 
 .. bokeh-example-metadata::
     :apis: bokeh.plotting.figure.toolbar_location, bokeh.plotting.figure.toolbar_sticky, bokeh.plotting.figure.scatter, bokeh.plotting.show
