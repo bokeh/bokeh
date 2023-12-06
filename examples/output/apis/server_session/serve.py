@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from bokeh.client import pull_session
+from bokeh.client import pull_session, push_session
 from bokeh.embed import server_session
 
 app_url = "http://localhost:5100/bokeh_app"
@@ -16,9 +16,12 @@ def bkapp_page():
         # update or customize that session
         session.document.roots[0].title.text = "Special Plot Title For A Specific User!"
 
+        # overwrite the document in current session
+        push_session(session_id=session.id, document=session.document, url=app_url)
+
         # generate a script to load the customized session
         script = server_session(session_id=session.id, url=app_url)
-
+        
         # use the script in the rendered page
         return render_template("embed.html", script=script, template="Flask")
 
