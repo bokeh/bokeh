@@ -87,7 +87,9 @@ def collect_defaults() -> dict[str, Any]:
     import bokeh.models
     import bokeh.plotting  # noqa: F401
 
-    for name, model in Model.model_class_reverse_map.items():
+    models = sorted(Model.model_class_reverse_map.values(), key=lambda model: f"{model.__module__}.{model.__name__}")
+
+    for model in models:
         with warnings.catch_warnings():
             warnings.filterwarnings("ignore", category=BokehDeprecationWarning)
             obj = model()
@@ -99,14 +101,16 @@ def collect_defaults() -> dict[str, Any]:
 
         properties = obj.query_properties_with_values(query, include_defaults=True, include_undefined=True)
         attributes = {key: serializer.encode(val) for key, val in properties.items()}
-        defaults[name] = attributes
 
         bases = [base.__qualified_model__ for base in model.__bases__ if issubclass(base, HasProps) and base != HasProps]
         if bases != []:
-            defaults[name] = dict(
-                __extends__=bases[0] if len(bases) == 1 else bases,
-                **defaults[name],
+            attributes = dict(
+                __extends__ = bases[0] if len(bases) == 1 else bases,
+                **attributes,
             )
+
+        name = model.__qualified_model__
+        defaults[name] = attributes
 
     return defaults
 
