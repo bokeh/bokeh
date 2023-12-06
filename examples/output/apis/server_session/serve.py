@@ -16,8 +16,8 @@ def bkapp_page():
         # update or customize that session
         session.document.roots[0].title.text = "Special Plot Title For A Specific User!"
 
-        # overwrite the document in current session
-        push_session(session_id=session.id, document=session.document, url=app_url)
+        # push the changes in document to the current session
+        session.push()
 
         # generate a script to load the customized session
         script = server_session(session_id=session.id, url=app_url)
