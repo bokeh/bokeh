@@ -2,12 +2,13 @@ import Hammer from "hammerjs"
 
 import {Signal} from "./signaling"
 import type {Keys} from "./dom"
-import {offset_bbox} from "./dom"
+import {offset_bbox, MouseButton} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
 import {isObject} from "./util/types"
 import {is_mobile} from "./util/platform"
+import {assert} from "./util/assert"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
@@ -209,6 +210,11 @@ export class UIEventBus implements EventListenerObject {
 
     this._configure_hammerjs()
 
+    this.hit_area.addEventListener("pointerdown", (ev) => this._pointer_down(ev))
+    this.hit_area.addEventListener("pointermove", (ev) => this._pointer_move(ev))
+    this.hit_area.addEventListener("pointerup", (ev) => this._pointer_up(ev))
+    this.hit_area.addEventListener("pointercancel", (ev) => this._pointer_cancel(ev))
+
     // Mouse & keyboard events not handled through hammerjs
 
     // We can 'add and forget' these event listeners because this.hit_area is a DOM element
@@ -233,22 +239,131 @@ export class UIEventBus implements EventListenerObject {
   }
 
   handleEvent(e: KeyboardEvent): void {
-    if (e.type == "keydown")
+    if (e.type == "keydown") {
       this._key_down(e)
-    else if (e.type == "keyup")
+    } else if (e.type == "keyup") {
       this._key_up(e)
+    }
+  }
+
+  private state: {
+    event: PointerEvent
+    phase: "started" | "pressing" | "panning" // "pinching" | "rotating"
+    timer: number | null
+  } | null = null
+
+  private tap_timestamp: number = -Infinity
+
+  private readonly move_threshold: number = 5/*px*/
+  private readonly press_threshold: number = 300/*ms*/
+  private readonly doubletap_threshold: number = 300/*ms*/
+
+  protected _pointer_down(ev: PointerEvent): void {
+    if (!ev.isPrimary) {
+      return
+    }
+    if (ev.pointerType == "mouse" && ev.buttons != MouseButton.Left) {
+      return
+    }
+    assert(this.state == null)
+    this.state = {
+      event: ev,
+      phase: "started",
+      timer: setTimeout(() => this._pointer_timeout(), this.press_threshold),
+    }
+  }
+
+  protected _cancel_timeout(): void {
+    const {state} = this
+    assert(state != null)
+    if (state.timer != null) {
+      clearTimeout(state.timer)
+      state.timer = null
+    }
+  }
+
+  protected _pointer_timeout(): void {
+    const {state} = this
+    assert(state != null && state.phase == "started")
+    state.phase = "pressing"
+    state.timer = null
+    this._press(state.event)
+  }
+
+  protected _pointer_move(ev: PointerEvent): void {
+    const {state} = this
+    if (state?.event.pointerId != ev.pointerId) {
+      return
+    }
+    const ev0 = state.event
+    const ev1 = ev
+    const dx = ev1.x - ev0.x
+    const dy = ev1.y - ev0.y
+    switch (state.phase) {
+      case "started": {
+        if (dx**2 + dy**2 <= this.move_threshold**2) {
+          return
+        }
+        this._cancel_timeout()
+        state.phase = "panning"
+        this._pan_start(ev0, dx, dy)
+        this._pan(ev1, dx, dy)
+        break
+      }
+      case "pressing": {
+        break
+      }
+      case "panning": {
+        this._pan(ev1, dx, dy)
+        break
+      }
+    }
+  }
+
+  protected _pointer_up(ev: PointerEvent): void {
+    const {state} = this
+    if (state?.event.pointerId != ev.pointerId) {
+      return
+    }
+    this._cancel_timeout()
+    const ev0 = state.event
+    const ev1 = ev
+    switch (state.phase) {
+      case "started": {
+        const {tap_timestamp} = this
+        if (ev1.timeStamp - tap_timestamp < this.doubletap_threshold) {
+          this.tap_timestamp = -Infinity
+          this._doubletap(ev0)
+        } else {
+          this.tap_timestamp = ev1.timeStamp
+          this._tap(ev0)
+        }
+        break
+      }
+      case "pressing": {
+        this._pressup(ev1)
+        break
+      }
+      case "panning": {
+        const dx = ev1.x - ev0.x
+        const dy = ev1.y - ev0.y
+        this._pan_end(ev1, dx, dy)
+        break
+      }
+    }
+    this.state = null
+  }
+
+  protected _pointer_cancel(ev: PointerEvent): void {
+    const {state} = this
+    if (state?.event.pointerId != ev.pointerId) {
+      return
+    }
+    this._cancel_timeout()
+    this.state = null
   }
 
   protected _configure_hammerjs(): void {
-    this.hammer.on("tap", (e) => this._tap_or_doubletap(e))
-    this.hammer.on("press", (e) => this._press(e))
-    this.hammer.on("pressup", (e) => this._pressup(e))
-
-    this.hammer.get("pan").set({direction: Hammer.DIRECTION_ALL})
-    this.hammer.on("panstart", (e) => this._pan_start(e))
-    this.hammer.on("pan", (e) => this._pan(e))
-    this.hammer.on("panend", (e) => this._pan_end(e))
-
     this.hammer.get("pinch").set({enable: true})
     this.hammer.on("pinchstart", (e) => this._pinch_start(e))
     this.hammer.on("pinch", (e) => this._pinch(e))
@@ -756,13 +871,13 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _pan_event(e: HammerEvent): PanEvent {
+  /*private*/ _pan_event(type: PanEvent["type"], ev: PointerEvent, dx: number, dy: number): PanEvent {
     return {
-      type: e.type as PanEvent["type"],
-      ...this._get_sxy(e.srcEvent),
-      dx: e.deltaX,
-      dy: e.deltaY,
-      modifiers: this._get_modifiers(e.srcEvent),
+      type,
+      ...this._get_sxy(ev),
+      dx,
+      dy,
+      modifiers: this._get_modifiers(ev),
     }
   }
 
@@ -784,11 +899,11 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _tap_event(e: HammerEvent): TapEvent {
+  /*private*/ _tap_event(type: TapEvent["type"], ev: PointerEvent): TapEvent {
     return {
-      type: e.type as TapEvent["type"],
-      ...this._get_sxy(e.srcEvent),
-      modifiers: this._get_modifiers(e.srcEvent),
+      type,
+      ...this._get_sxy(ev),
+      modifiers: this._get_modifiers(ev),
     }
   }
 
@@ -817,20 +932,16 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _pan_start(e: HammerEvent): void {
-    const ev = this._pan_event(e)
-    // back out delta to get original center point
-    ev.sx -= e.deltaX
-    ev.sy -= e.deltaY
-    this._trigger(this.pan_start, ev, e.srcEvent)
+  /*private*/ _pan_start(ev: PointerEvent, dx: number, dy: number): void {
+    this._trigger(this.pan_start, this._pan_event("panstart", ev, dx, dy), ev)
   }
 
-  /*private*/ _pan(e: HammerEvent): void {
-    this._trigger(this.pan, this._pan_event(e), e.srcEvent)
+  /*private*/ _pan(ev: PointerEvent, dx: number, dy: number): void {
+    this._trigger(this.pan, this._pan_event("pan", ev, dx, dy), ev)
   }
 
-  /*private*/ _pan_end(e: HammerEvent): void {
-    this._trigger(this.pan_end, this._pan_event(e), e.srcEvent)
+  /*private*/ _pan_end(ev: PointerEvent, dx: number, dy: number): void {
+    this._trigger(this.pan_end, this._pan_event("panend", ev, dx, dy), ev)
   }
 
   /*private*/ _pinch_start(e: HammerEvent): void {
@@ -857,34 +968,20 @@ export class UIEventBus implements EventListenerObject {
     this._trigger(this.rotate_end, this._rotate_event(e), e.srcEvent)
   }
 
-  private _tap_timer: number | null = null
-
-  private _tap_or_doubletap(e: HammerEvent): void {
-    if (this._tap_timer == null) {
-      this._tap(e)
-      this._tap_timer = setTimeout(() => this._tap_timer = null, 300 /*ms*/)
-    } else {
-      clearTimeout(this._tap_timer)
-      this._tap_timer = null
-      e.type = "doubletap"
-      this._doubletap(e)
-    }
+  /*private*/ _tap(ev: PointerEvent): void {
+    this._trigger(this.tap, this._tap_event("tap", ev), ev)
   }
 
-  /*private*/ _tap(e: HammerEvent): void {
-    this._trigger(this.tap, this._tap_event(e), e.srcEvent)
+  /*private*/ _doubletap(ev: PointerEvent): void {
+    this._trigger(this.doubletap, this._tap_event("doubletap", ev), ev)
   }
 
-  /*private*/ _doubletap(e: HammerEvent): void {
-    this._trigger(this.doubletap, this._tap_event(e), e.srcEvent)
+  /*private*/ _press(ev: PointerEvent): void {
+    this._trigger(this.press, this._tap_event("press", ev), ev)
   }
 
-  /*private*/ _press(e: HammerEvent): void {
-    this._trigger(this.press, this._tap_event(e), e.srcEvent)
-  }
-
-  /*private*/ _pressup(e: HammerEvent): void {
-    this._trigger(this.pressup, this._tap_event(e), e.srcEvent)
+  /*private*/ _pressup(ev: PointerEvent): void {
+    this._trigger(this.pressup, this._tap_event("pressup", ev), ev)
   }
 
   /*private*/ _mouse_enter(e: MouseEvent): void {
