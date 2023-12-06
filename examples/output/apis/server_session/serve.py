@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 
-from bokeh.client import pull_session, push_session
+from bokeh.client import pull_session
 from bokeh.embed import server_session
 
 app_url = "http://localhost:5100/bokeh_app"
