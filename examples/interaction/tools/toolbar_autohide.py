@@ -4,7 +4,7 @@ the cursor is outside the plot.
 
 .. bokeh-example-metadata::
     :apis: bokeh.models.Toolbar.autohide, bokeh.plotting.figure.line, bokeh.plotting.show
-    :refs: :ref:`_ug_interaction_tools_autohide`
+    :refs: :ref:`ug_interaction_tools_autohide`
     :keywords: autohide, toolbar
 '''
 
