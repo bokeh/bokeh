@@ -9,7 +9,7 @@ view = CDSView(filter=GroupFilter(column_name="species", group="Adelie"))
 TOOLS = "box_select,reset,help"
 
 p1 = figure(title="Full data set", height=300, width=300, tools=TOOLS)
-p1.circle(x="bill_length_mm", y="bill_depth_mm", source=source)
+p1.scatter(x="bill_length_mm", y="bill_depth_mm", source=source)
 
 p2 = figure(title="Adelie only", height=300, width=300,
             tools=TOOLS, x_range=p1.x_range, y_range=p1.y_range)

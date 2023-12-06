@@ -133,7 +133,7 @@ def get_sri_hashes_for_version(version: str) -> Hashes:
         dict
 
     Raises:
-        KeyError: if the specified version does not exist
+        ValueError: if the specified version does not exist
 
     Example:
 

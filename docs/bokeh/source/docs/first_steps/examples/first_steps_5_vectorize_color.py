@@ -17,9 +17,9 @@ p = figure(
     height=250,
 )
 
-# add circle and line renderers
-line = p.line(x, y, line_color="blue", line_width=1)
-circle = p.circle(x, y, fill_color=colors, line_color="blue", size=15)
+# add line and scatter renderers
+p.line(x, y, line_color="blue", line_width=1)
+p.scatter(x, y, fill_color=colors, line_color="blue", size=15)
 
 # show the results
 show(p)

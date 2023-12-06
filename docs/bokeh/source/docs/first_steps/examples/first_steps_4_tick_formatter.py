@@ -17,7 +17,7 @@ p = figure(
 p.yaxis[0].formatter = NumeralTickFormatter(format="$0.00")
 
 # add renderers
-p.circle(x, y, size=8)
+p.scatter(x, y, size=8)
 p.line(x, y, color="navy", line_width=1)
 
 # show the results

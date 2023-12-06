@@ -78,14 +78,15 @@ class BokehReleases(BokehDirective):
 
         rst = []
 
-        for v in versions:
+        for version in versions:
             try:
-                hashes = get_sri_hashes_for_version(v)
-                rst.append(RELEASE_DETAIL.render(version=v, table=sorted(hashes.items())))
-            except KeyError:
-                if v == __version__:
-                    raise RuntimeError(f"Missing SRI Hash for full release version {v!r}")
-                rst.append(RELEASE_DETAIL.render(version=v, table=[]))
+                hashes = get_sri_hashes_for_version(version)
+                table = sorted(hashes.items())
+            except ValueError:
+                if version == __version__:
+                    raise RuntimeError(f"Missing SRI Hash for full release version {version!r}")
+                table = []
+            rst.append(RELEASE_DETAIL.render(version=version, table=table))
 
         return self.parse("\n".join(rst), "<bokeh-releases>")
 

@@ -23,7 +23,7 @@ def draw_test_figure(aspect_scale=1, width=300, height=300):
         aspect_scale=aspect_scale,
         title=f"Aspect scale = {aspect_scale}",
         toolbar_location=None)
-    p.circle([-1, +1, +1, -1], [-1, -1, +1, +1])
+    p.scatter([-1, +1, +1, -1], [-1, -1, +1, +1])
     return p
 
 aspect_scales = [0.25, 0.5, 1, 2, 4]

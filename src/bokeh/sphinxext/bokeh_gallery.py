@@ -41,7 +41,8 @@ from typing import TypedDict
 
 # External imports
 from sphinx.errors import SphinxError
-from sphinx.util import ensuredir, status_iterator
+from sphinx.util import ensuredir
+from sphinx.util.display import status_iterator
 
 # Bokeh imports
 from . import PARALLEL_SAFE

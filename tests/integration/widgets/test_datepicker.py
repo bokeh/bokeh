@@ -23,12 +23,12 @@ from datetime import date
 # Bokeh imports
 from bokeh.layouts import column
 from bokeh.models import (
-    Circle,
     ColumnDataSource,
     CustomJS,
     DatePicker,
     Plot,
     Range1d,
+    Scatter,
 )
 from tests.support.plugins.project import BokehModelPage, BokehServerPage
 from tests.support.util.selenium import RECORD, find_element_for
@@ -179,7 +179,7 @@ class Test_DatePicker:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
-            plot.add_glyph(source, Circle(x='x', y='y', size=20))
+            plot.add_glyph(source, Scatter(x='x', y='y', size=20))
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
             dp.on_change('value', cb)
@@ -207,7 +207,7 @@ class Test_DatePicker:
             source = ColumnDataSource(dict(x=[1, 2], y=[1, 1], val=["a", "b"]))
             plot = Plot(height=400, width=400, x_range=Range1d(0, 1), y_range=Range1d(0, 1), min_border=0)
             plot.tags.append(CustomJS(name="custom-action", args=dict(s=source), code=RECORD("data", "s.data")))
-            plot.add_glyph(source, Circle(x='x', y='y', size=20))
+            plot.add_glyph(source, Scatter(x='x', y='y', size=20))
             def cb(attr, old, new):
                 source.data['val'] = [old, new]
                 dp.disabled_dates = ["2019-09-15"]

@@ -20,7 +20,7 @@ y = np.random.normal(size=2500) * 2 + 6 * np.log(x)
 
 df = pd.DataFrame(data=dict(x=x, y=y)).sort_values(by="x")
 
-df2 = df.y.rolling(window=300).agg({"y_mean": np.mean, "y_std": np.std})
+df2 = df.y.rolling(window=300).agg({"y_mean": "mean", "y_std": "std"})
 
 df = pd.concat([df, df2], axis=1)
 df["lower"] = df.y_mean - df.y_std

@@ -13,8 +13,8 @@ y = 1 - (x-1)**2
 
 source = ColumnDataSource(data=dict(x=x, y=y))
 
-p  = figure(toolbar_location=None, background_fill_color="#fafafa")
-p.circle(x=1, y=list(range(0, 11)))
+p = figure(toolbar_location=None, background_fill_color="#fafafa")
+p.scatter(x=1, y=list(range(0, 11)))
 p.line('x', 'y', color="orange", source=source)
 
 slider = Slider(start=0, end=10, step=0.1, value=1)

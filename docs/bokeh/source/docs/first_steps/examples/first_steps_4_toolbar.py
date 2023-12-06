@@ -16,7 +16,7 @@ p = figure(
 p.toolbar_location = "below"
 
 # add a renderer
-p.circle(x, y, size=10)
+p.scatter(x, y, size=10)
 
 # show the results
 show(p)

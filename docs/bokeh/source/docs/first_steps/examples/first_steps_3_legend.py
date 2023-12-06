@@ -10,14 +10,15 @@ p = figure(title="Legend example")
 
 # add circle renderer with legend_label arguments
 line = p.line(x, y1, legend_label="Temp.", line_color="blue", line_width=2)
-circle = p.circle(
+circle = p.scatter(
     x,
     y2,
+    marker="circle",
+    size=80,
     legend_label="Objects",
     fill_color="red",
     fill_alpha=0.5,
     line_color="blue",
-    size=80,
 )
 
 # display legend in top left corner (default is top right corner)

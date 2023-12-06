@@ -41,19 +41,19 @@ source_static = ColumnDataSource(data=dict(date=[], t1=[], t2=[], t1_returns=[],
 
 corr = figure(width=370, height=350,  min_border_left=60,
               tools="pan,wheel_zoom,box_select,reset", active_drag="box_select")
-corr.circle("t1_returns", "t2_returns", size=3, source=source,
-            selection_color="orange", alpha=0.8,
-            nonselection_alpha=0.1, selection_alpha=0.5)
+corr.scatter("t1_returns", "t2_returns", size=3, source=source,
+             selection_color="orange", alpha=0.8,
+             nonselection_alpha=0.1, selection_alpha=0.5)
 
 ts1 = figure(width=900, height=200, x_axis_type="datetime",
              tools="pan,wheel_zoom,xbox_select,reset", active_drag="xbox_select")
 ts1.line("Date", "t1", source=source_static)
-ts1.circle("Date", "t1", size=3, source=source, color=None, selection_color="orange")
+ts1.scatter("Date", "t1", size=3, source=source, color=None, selection_color="orange")
 
 ts2 = figure(width=900, height=200, x_axis_type="datetime",
              tools="pan,wheel_zoom,xbox_select,reset", active_drag="xbox_select")
 ts2.line("Date", "t2", source=source_static)
-ts2.circle("Date", "t2", size=3, source=source, color=None, selection_color="orange")
+ts2.scatter("Date", "t2", size=3, source=source, color=None, selection_color="orange")
 
 ts2.x_range = ts1.x_range
 

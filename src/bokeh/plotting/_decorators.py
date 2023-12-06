@@ -55,12 +55,12 @@ def marker_method():
 
         @wraps(func)
         def wrapped(self, *args, **kwargs):
+            deprecated((3, 4, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
             if len(args) > len(glyphclass._args):
                 raise TypeError(f"{func.__name__} takes {len(glyphclass._args)} positional argument but {len(args)} were given")
             for arg, param in zip(args, sigparams[1:]):
                 kwargs[param.name] = arg
             kwargs["marker"] = marker_type
-            deprecated((3, 3, 0), f"{func.__name__}() method", f"scatter(marker={func.__name__!r}, ...) instead")
             return create_renderer(Scatter, self, **kwargs)
 
         wrapped.__signature__ = Signature(parameters=sigparams)

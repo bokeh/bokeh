@@ -20,7 +20,7 @@ p = figure(
 )
 
 # add renderers
-p.circle(dates, y, size=8)
+p.scatter(dates, y, size=8)
 p.line(dates, y, color="navy", line_width=1)
 
 # format axes ticks

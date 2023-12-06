@@ -20,10 +20,10 @@ p = figure(
 
 # add some renderers
 p.line(x, x, legend_label="y=x")
-p.circle(x, x, legend_label="y=x", fill_color="white", size=8)
+p.scatter(x, x, legend_label="y=x", fill_color="white", size=8)
 p.line(x, y0, legend_label="y=x^2", line_width=3)
 p.line(x, y1, legend_label="y=10^x", line_color="red")
-p.circle(x, y1, legend_label="y=10^x", fill_color="red", line_color="red", size=6)
+p.scatter(x, y1, legend_label="y=10^x", fill_color="red", line_color="red", size=6)
 p.line(x, y2, legend_label="y=10^x^2", line_color="orange", line_dash="4 4")
 
 # show the results

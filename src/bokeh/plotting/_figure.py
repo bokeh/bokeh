@@ -49,6 +49,7 @@ from ..models import (
     CoordinateMapping,
     DataRange1d,
     GraphRenderer,
+    LayoutProvider,
     Plot,
     Range,
     Scale,
@@ -646,7 +647,7 @@ class figure(Plot, GlyphAPI):
         '''
         return self._line_stack(y=stackers, **kw)
 
-    def graph(self, node_source, edge_source, layout_provider, **kwargs):
+    def graph(self, node_source: ColumnDataSource, edge_source: ColumnDataSource, layout_provider: LayoutProvider, **kwargs):
         ''' Creates a network graph using the given node, edge and layout provider.
 
         Args:

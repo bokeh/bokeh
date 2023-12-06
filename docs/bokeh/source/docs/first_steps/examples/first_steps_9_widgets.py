@@ -8,7 +8,7 @@ y = [4, 5, 5, 7, 2, 6, 4, 9, 1, 3]
 
 # create plot with circle glyphs
 p = figure(x_range=(1, 9), width=500, height=250)
-points = p.circle(x=x, y=y, size=30, fill_color="#21a7df")
+points = p.scatter(x=x, y=y, size=30, fill_color="#21a7df")
 
 # set up textarea (div)
 div = Div(

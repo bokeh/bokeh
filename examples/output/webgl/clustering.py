@@ -34,7 +34,7 @@ affinity = cluster.AffinityPropagation(damping=.9, preference=-200)
 # change here, to select clustering algorithm (note: spectral is slow)
 algorithm = dbscan  # <- SELECT ALG
 
-plots =[]
+plots = []
 for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     X, y = dataset
     X = StandardScaler().fit_transform(X)
@@ -49,7 +49,7 @@ for dataset in (noisy_circles, noisy_moons, blobs1, blobs2):
     p = figure(output_backend="webgl", title=algorithm.__class__.__name__,
                width=PLOT_SIZE, height=PLOT_SIZE)
 
-    p.circle(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1)
+    p.scatter(X[:, 0], X[:, 1], color=colors[y_pred].tolist(), alpha=0.1)
 
     plots.append(p)
 

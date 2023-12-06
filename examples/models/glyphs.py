@@ -15,6 +15,7 @@ N = 9
 x = np.linspace(-2, 2, N)
 y = x**2
 sizes = np.linspace(10, 20, N)
+radii = np.linspace(0.1, 0.8, N)
 
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
@@ -26,6 +27,7 @@ source = ColumnDataSource(dict(
     x = x,
     y = y,
     sizes = sizes,
+    radii = radii,
     xs = xs,
     ys = ys,
     xsss = [[[x]] for x in xs],
@@ -47,6 +49,7 @@ glyphs = [
     ("annulus", Annulus(x="x", y="y", inner_radius=screen(10), outer_radius=screen(20), fill_color="#7FC97F")),
     ("arc", Arc(x="x", y="y", radius=screen(20), start_angle=0.6, end_angle=4.1, line_color="#BEAED4", line_width=3)),
     ("bezier", Bezier(x0="x", y0="y", x1="xp02", y1="y", cx0="xp01", cy0="yp01", cx1="xm01", cy1="ym01", line_color="#D95F02", line_width=2)),
+    ("circle", Circle(x="x", y="y", radius="radii",  fill_color="#3288BD")),
     ("ellipse", Ellipse(x="x", y="y", width=screen(15), height=screen(25), angle=-0.7, fill_color="#1D91C0")),
     ("image_url",  ImageURL(x="x", y="y", w=0.4, h=0.4, url=value("https://static.bokeh.org/logos/logo.png"), anchor="center")),
     ("line", Line(x="x", y="y", line_color="#F46D43")),
@@ -64,21 +67,21 @@ glyphs = [
 ]
 
 markers = [
-    ("circle", Circle(x="x", y="y", radius=0.1, fill_color="#3288BD")),
+    ("circle", Scatter(x="x", y="y", size="sizes",  fill_color="#3288BD", marker="circle")),
     ("circle_x", Scatter(x="x", y="y", size="sizes", line_color="#DD1C77", fill_color=None, marker="circle_x")),
-    ("circle_cross",Scatter(x="x", y="y", size="sizes", line_color="#FB8072", fill_color=None, line_width=2, marker="circle_x")),
-    ("square",Scatter(x="x", y="y", size="sizes", fill_color="#74ADD1", marker="square")),
-    ("square_x",Scatter(x="x", y="y", size="sizes", line_color="#FDAE6B", fill_color=None, line_width=2, marker="square_x")),
-    ("square_cross",Scatter(x="x", y="y", size="sizes", line_color="#7FC97F", fill_color=None, line_width=2, marker="square_cross")),
-    ("diamond",Scatter(x="x", y="y", size="sizes", line_color="#1C9099", line_width=2, marker="diamond")),
-    ("diamond_cross",Scatter(x="x", y="y", size="sizes", line_color="#386CB0", fill_color=None, line_width=2, marker="diamond_cross")),
-    ("triangle",Scatter(x="x", y="y", size="sizes", line_color="#99D594", line_width=2, marker="triangle")),
-    ("inverted_triangle",Scatter(x="x", y="y", size="sizes", line_color="#DE2D26", line_width=2, marker="inverted_triangle")),
-    ("cross",Scatter(x="x", y="y", size="sizes", line_color="#E6550D", fill_color=None, line_width=2, marker="cross")),
-    ("asterisk",Scatter(x="x", y="y", size="sizes", line_color="#F0027F", fill_color=None, line_width=2, marker="asterisk")),
-    ("x",Scatter(x="x", y="y", size="sizes", line_color="thistle", fill_color=None, line_width=2, marker="x")),
-    ("hex",Scatter(x="x", y="y", size="sizes", line_color="#99D594", line_width=2, marker="hex")),
-    ("dash",Scatter(x="x", y="y", size="sizes", angle=0.5, line_color="#386CB0", line_width=1, marker="dash")),
+    ("circle_cross", Scatter(x="x", y="y", size="sizes", line_color="#FB8072", fill_color=None, line_width=2, marker="circle_x")),
+    ("square", Scatter(x="x", y="y", size="sizes", fill_color="#74ADD1", marker="square")),
+    ("square_x", Scatter(x="x", y="y", size="sizes", line_color="#FDAE6B", fill_color=None, line_width=2, marker="square_x")),
+    ("square_cross", Scatter(x="x", y="y", size="sizes", line_color="#7FC97F", fill_color=None, line_width=2, marker="square_cross")),
+    ("diamond", Scatter(x="x", y="y", size="sizes", line_color="#1C9099", line_width=2, marker="diamond")),
+    ("diamond_cross", Scatter(x="x", y="y", size="sizes", line_color="#386CB0", fill_color=None, line_width=2, marker="diamond_cross")),
+    ("triangle", Scatter(x="x", y="y", size="sizes", line_color="#99D594", line_width=2, marker="triangle")),
+    ("inverted_triangle", Scatter(x="x", y="y", size="sizes", line_color="#DE2D26", line_width=2, marker="inverted_triangle")),
+    ("cross", Scatter(x="x", y="y", size="sizes", line_color="#E6550D", fill_color=None, line_width=2, marker="cross")),
+    ("asterisk", Scatter(x="x", y="y", size="sizes", line_color="#F0027F", fill_color=None, line_width=2, marker="asterisk")),
+    ("x", Scatter(x="x", y="y", size="sizes", line_color="thistle", fill_color=None, line_width=2, marker="x")),
+    ("hex", Scatter(x="x", y="y", size="sizes", line_color="#99D594", line_width=2, marker="hex")),
+    ("dash", Scatter(x="x", y="y", size="sizes", angle=0.5, line_color="#386CB0", line_width=1, marker="dash")),
 ]
 
 def make_tab(title, glyph):
