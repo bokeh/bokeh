@@ -18,6 +18,7 @@ export type ImageIndex = {
   j: number
   flat_index: number
 }
+export type ImageIndices = ImageIndex[]
 
 export namespace Selection {
   export type Attrs = p.AttrsOf<Props>
@@ -132,6 +133,35 @@ export class Selection extends Model {
     return this.indices.length == 0 && this.line_indices.length == 0 && this.image_indices.length == 0
   }
 
+  protected _union_image_indices(...collection: ImageIndices[]): ImageIndices {
+    const is = new Map<number, Set<number>>()
+    const js = new Map<number, Set<number>>()
+
+    const result: ImageIndices = []
+
+    for (const indices of collection) {
+      for (const image_index of indices) {
+        const {index, i, j} = image_index
+
+        const iis = is.get(index)
+        const ijs = js.get(index)
+
+        if (iis != null && ijs != null) {
+          if (!iis.has(i) || !ijs.has(j)) {
+            result.push(image_index)
+            iis.add(i)
+            ijs.add(j)
+          }
+        } else {
+          result.push(image_index)
+          is.set(index, new Set([i]))
+          js.set(index, new Set([j]))
+        }
+      }
+    }
+    return result
+  }
+
   update_through_replacement(other: Selection): void {
     this.indices = other.indices
     this.line_indices = other.line_indices
@@ -145,6 +175,7 @@ export class Selection extends Model {
     this.indices = union(this.indices, other.indices)
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
+    this.image_indices = this._union_image_indices(this.image_indices, other.image_indices) // TODO
     this.view = other.view
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
@@ -154,6 +185,7 @@ export class Selection extends Model {
     // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
+    this.image_indices = this._union_image_indices(this.image_indices, other.image_indices) // TODO
     this.view = other.view
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
@@ -163,6 +195,7 @@ export class Selection extends Model {
     // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
+    this.image_indices = this._union_image_indices(this.image_indices, other.image_indices) // TODO
     this.view = other.view
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
@@ -172,6 +205,7 @@ export class Selection extends Model {
     // TODO: think through and fix any logic below
     this.selected_glyphs = union(other.selected_glyphs, this.selected_glyphs)
     this.line_indices = union(other.line_indices, this.line_indices)
+    this.image_indices = this._union_image_indices(this.image_indices, other.image_indices) // TODO
     this.view = other.view
     this.multiline_indices = merge(other.multiline_indices, this.multiline_indices)
   }
