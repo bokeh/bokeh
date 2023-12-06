@@ -14,6 +14,7 @@ import {Serializer} from "@bokehjs/core/serialization"
 import {default_resolver} from "@bokehjs/base"
 import {settings} from "@bokehjs/core/settings"
 
+import "@bokehjs/models/main"
 import "@bokehjs/models/widgets/main"
 import "@bokehjs/models/widgets/tables/main"
 
@@ -24,7 +25,7 @@ type KV<T = unknown> = {[key: string]: T}
 import defaults_json5 from "./defaults.json5"
 const all_defaults = dict<KV>(json5.parse(defaults_json5))
 
-function _resolve_defaults(_name: string, defaults: KV) {
+function _resolve_defaults(name: string, defaults: KV) {
   const {__extends__} = defaults
   delete defaults.__extends__
 
@@ -42,16 +43,31 @@ function _resolve_defaults(_name: string, defaults: KV) {
 
   let new_defaults: KV = {}
   for (const base of bases) {
-    const base_defaults = all_defaults.get(base)!
-    new_defaults = {...new_defaults, ...base_defaults}
+    const base_defaults = all_defaults.get(base)
+    if (base_defaults != null) {
+      new_defaults = {...new_defaults, ...resolve_defaults(base, base_defaults)}
+    } else {
+      throw new Error(`missing base: ${name} extends ${base}`)
+    }
   }
 
   return {...new_defaults, ...defaults}
 }
 
+function resolve_defaults(name: string, defaults: KV) {
+  if (!_resolved_names.has(name)) {
+    const new_defaults = _resolve_defaults(name, defaults)
+    all_defaults.set(name, new_defaults)
+    _resolved_names.add(name)
+    return new_defaults
+  } else {
+    return defaults
+  }
+}
+
+const _resolved_names = new Set<string>()
 for (const [name, defaults] of all_defaults) {
-  const new_defaults = _resolve_defaults(name, defaults)
-  all_defaults.set(name, new_defaults)
+  resolve_defaults(name, defaults)
 }
 
 class DefaultsSerializer extends Serializer {
