@@ -104,8 +104,6 @@ __all__ = (
     'Dimension',
     'Dimensions',
     'Direction',
-    'Enumeration',
-    'enumeration',
     'FlowMode',
     'FontStyle',
     'HAlign',
