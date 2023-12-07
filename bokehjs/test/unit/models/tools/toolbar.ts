@@ -199,6 +199,38 @@ describe("ToolbarView", () => {
       expect(tbv.visible).to.be.false
     })
   })
+
+  describe("should not show tools with visible=false", () => {
+    let hover_1: HoverTool
+    let hover_2: HoverTool
+    let pan_1 : PanTool
+    let pan_2 : PanTool
+
+    before_each(() => {
+      hover_1 = new HoverTool({visible: false})
+      hover_2 = new HoverTool()
+      pan_1 = new PanTool({visible: true})
+      pan_2 = new PanTool()
+    })
+
+
+    it("should have correct visibility status of tools", () => {
+      expect(hover_1.visible).to.be.false
+      expect(hover_2.visible).to.be.true
+      expect(pan_1.visible).to.be.true
+      expect(pan_2.visible).to.be.true
+    })
+
+    it("should not add tools with visible=true or default to toolbar", async () => {
+      const tb = new Toolbar({tools: [hover_1, hover_2, pan_1, pan_2]})
+      const tbv = await build_view(tb, {parent: null})
+
+      const tool_buttons = tb.tools.map((tool) => tool.tool_button())
+
+      expect(tbv.tool_buttons.length).to.be.equal(3)
+      expect(tbv.tool_buttons).to.be.equal(tool_buttons)
+    })
+  })
 })
 
 class MultiTool extends SelectTool {
