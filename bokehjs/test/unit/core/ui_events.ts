@@ -5,7 +5,7 @@ import {display, restorable} from "../_util"
 import {actions, xy} from "../../interactive"
 
 import * as dom from "@bokehjs/core/dom"
-import {MouseMove} from "@bokehjs/core/bokeh_events"
+import type {PointEvent} from "@bokehjs/core/bokeh_events"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
@@ -41,43 +41,73 @@ describe("UIEventBus", () => {
   it("should support tap gesture", async () => {
     const p = plot()
 
-    const events = []
+    const events: PointEvent[] = []
     p.on_event("tap", (event) => events.push(event))
     p.on_event("doubletap", (event) => events.push(event))
     p.on_event("press", (event) => events.push(event))
+    p.on_event("pressup", (event) => events.push(event))
+    p.on_event("panstart", (event) => events.push(event))
+    p.on_event("pan", (event) => events.push(event))
+    p.on_event("panend", (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).tap(xy(5, 5))
 
-    expect(events.length).to.be.equal(1)
+    expect(events.map((ev) => ev.event_name)).to.be.equal(["tap"])
   })
 
   it("should support doubletap gesture", async () => {
     const p = plot()
 
-    const events = []
+    const events: PointEvent[] = []
     p.on_event("tap", (event) => events.push(event))
     p.on_event("doubletap", (event) => events.push(event))
     p.on_event("press", (event) => events.push(event))
+    p.on_event("pressup", (event) => events.push(event))
+    p.on_event("panstart", (event) => events.push(event))
+    p.on_event("pan", (event) => events.push(event))
+    p.on_event("panend", (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).double_tap(xy(5, 5))
 
-    expect(events.length).to.be.equal(2) // tap followed by doubletap
+    expect(events.map((ev) => ev.event_name)).to.be.equal(["tap", "doubletap"])
   })
 
   it("should support press gesture", async () => {
     const p = plot()
 
-    const events = []
+    const events: PointEvent[] = []
     p.on_event("tap", (event) => events.push(event))
     p.on_event("doubletap", (event) => events.push(event))
     p.on_event("press", (event) => events.push(event))
+    p.on_event("pressup", (event) => events.push(event))
+    p.on_event("panstart", (event) => events.push(event))
+    p.on_event("pan", (event) => events.push(event))
+    p.on_event("panend", (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).press(xy(5, 5))
 
-    expect(events.length).to.be.equal(1)
+    expect(events.map((ev) => ev.event_name)).to.be.equal(["press", "pressup"])
+  })
+
+  it("should support pan gesture", async () => {
+    const p = plot()
+
+    const events: PointEvent[] = []
+    p.on_event("tap", (event) => events.push(event))
+    p.on_event("doubletap", (event) => events.push(event))
+    p.on_event("press", (event) => events.push(event))
+    p.on_event("pressup", (event) => events.push(event))
+    p.on_event("panstart", (event) => events.push(event))
+    p.on_event("pan", (event) => events.push(event))
+    p.on_event("panend", (event) => events.push(event))
+
+    const {view} = await display(p)
+    await actions(view).pan(xy(4, 4), xy(6, 6), 3)
+
+    expect(events.map((ev) => ev.event_name)).to.be.equal(["panstart", "pan", "pan", "panend"])
   })
 })
 

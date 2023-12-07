@@ -51,7 +51,6 @@ import {
 
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
-import {UIEventBus} from "@bokehjs/core/ui_events"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
@@ -67,7 +66,7 @@ import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Viridis256} from "@bokehjs/api/palettes"
-import {defer, delay, paint, poll} from "@bokehjs/core/util/defer"
+import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
@@ -479,15 +478,12 @@ describe("Bug", () => {
       await actions.tap(xy(30, 70)) // click on 0
       expect(r.data_source.selected.indices).to.be.equal([0])
 
-      await delay(UIEventBus.doubletap_threshold)
       await actions.tap(xy(30, 30)) // click on empty
       expect(r.data_source.selected.indices).to.be.equal([])
 
-      await delay(UIEventBus.doubletap_threshold)
       await actions.tap(xy(70, 30)) // click on 1
       expect(r.data_source.selected.indices).to.be.equal([1])
 
-      await delay(UIEventBus.doubletap_threshold)
       await actions.tap(xy(5, 5))   // click off frame
       expect(r.data_source.selected.indices).to.be.equal([1])
     })
@@ -1308,21 +1304,18 @@ describe("Bug", () => {
         img.data_source.selected.clear()
         await view.ready
 
-        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 2*n-1, y: 1})
         await view.ready
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, 0))
         img.data_source.selected.clear()
         await view.ready
 
-        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 1, y: 2*n-1})
         await view.ready
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, n-1))
         img.data_source.selected.clear()
         await view.ready
 
-        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 2*n-1, y: 2*n-1})
         await view.ready
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, n-1))

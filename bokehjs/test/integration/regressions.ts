@@ -46,7 +46,6 @@ import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
-import {UIEventBus} from "@bokehjs/core/ui_events"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
@@ -2833,9 +2832,7 @@ describe("Bug", () => {
 
       const actions = new PlotActions(view)
       await actions.tap({x: 15, y: 15})
-      await delay(UIEventBus.doubletap_threshold)
       await actions.tap({x: 15, y: 35})
-      await delay(UIEventBus.doubletap_threshold)
       await actions.tap({x: 35, y: 35})
 
       const zoom_out_button_view = view.owner.get_one(zoom_out_button)

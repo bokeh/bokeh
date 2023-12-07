@@ -140,6 +140,7 @@ export class PlotActions {
 
   async tap(xy: Point): Promise<void> {
     await this.emit(this._tap(xy))
+    await delay(UIEventBus.doubletap_threshold)
   }
 
   async double_tap(xy: Point): Promise<void> {
