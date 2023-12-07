@@ -51,6 +51,7 @@ import {
 
 import {version} from "@bokehjs/version"
 import {Model} from "@bokehjs/model"
+import {UIEventBus} from "@bokehjs/core/ui_events"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
@@ -59,7 +60,7 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
-import {div, offset_bbox} from "@bokehjs/core/dom"
+import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
@@ -473,32 +474,21 @@ describe("Bug", () => {
       const {view} = await display(p)
       expect(r.data_source.selected.indices).to.be.equal([])
 
-      async function tap(sx: number, sy: number) {
-        const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
-        const ev = new MouseEvent("click", {clientX: left + sx, clientY: top + sy})
-        const hev = {
-          type: "tap",
-          deltaX: 0,
-          deltaY: 0,
-          scale: 1,
-          rotation: 0,
-          srcEvent: ev,
-        }
-        ui._tap(hev) // can't use dispatchEvent(), because of doubletap recognizer
-        await view.ready
-      }
+      const actions = new PlotActions(view, {units: "screen"})
 
-      await tap(30, 70) // click on 0
+      await actions.tap(xy(30, 70)) // click on 0
       expect(r.data_source.selected.indices).to.be.equal([0])
 
-      await tap(30, 30) // click on empty
+      await delay(UIEventBus.doubletap_threshold)
+      await actions.tap(xy(30, 30)) // click on empty
       expect(r.data_source.selected.indices).to.be.equal([])
 
-      await tap(70, 30) // click on 1
+      await delay(UIEventBus.doubletap_threshold)
+      await actions.tap(xy(70, 30)) // click on 1
       expect(r.data_source.selected.indices).to.be.equal([1])
 
-      await tap(5, 5)   // click off frame
+      await delay(UIEventBus.doubletap_threshold)
+      await actions.tap(xy(5, 5))   // click off frame
       expect(r.data_source.selected.indices).to.be.equal([1])
     })
   })
@@ -1314,28 +1304,27 @@ describe("Bug", () => {
 
         await actions.tap({x: 1, y: 1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, 0))
         img.data_source.selected.clear()
         await view.ready
 
+        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 2*n-1, y: 1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, 0))
         img.data_source.selected.clear()
         await view.ready
 
+        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 1, y: 2*n-1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, n-1))
         img.data_source.selected.clear()
         await view.ready
 
+        await delay(UIEventBus.doubletap_threshold)
         await actions.tap({x: 2*n-1, y: 2*n-1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, n-1))
         img.data_source.selected.clear()
         await view.ready

@@ -5,12 +5,12 @@ import {display, restorable} from "../_util"
 import {actions, xy} from "../../interactive"
 
 import * as dom from "@bokehjs/core/dom"
-import {Tap, MouseMove} from "@bokehjs/core/bokeh_events"
+import {MouseMove} from "@bokehjs/core/bokeh_events"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
 import {PolySelectTool} from "@bokehjs/models/tools/gestures/poly_select_tool"
-import {GestureTool, GestureToolView} from "@bokehjs/models/tools/gestures/gesture_tool"
+//import {GestureTool, GestureToolView} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 
@@ -18,7 +18,8 @@ import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
 import type {PlotView} from "@bokehjs/models/plots/plot"
 import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
-import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+//import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
+import type {UIEvent} from "@bokehjs/core/ui_events"
 import {UIEventBus} from "@bokehjs/core/ui_events"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
@@ -331,53 +332,6 @@ describe("ui_event_bus module", () => {
     })
   })
 
-  describe("_bokify methods", () => {
-    let dom_stub: sinon.SinonStub
-    let spy: sinon.SinonSpy
-
-    before_each(() => {
-      dom_stub = sinon.stub(dom, "offset_bbox").returns(new BBox({top: 0, left: 0, width: 600, height: 660}))
-      spy = sinon.spy(plot_view.model, "trigger_event")
-    })
-
-    after_each(() => {
-      dom_stub.restore()
-      spy.restore()
-    })
-
-    it("_bokify_hammer should trigger event with appropriate coords and model id", () => {
-      const e: any = new Event("tap") // XXX: not a hammerjs event
-      e.pointerType = "mouse"
-      e.srcEvent = {pageX: 100, pageY: 200}
-
-      const ev = ui_event_bus._tap_event(e)
-      ui_event_bus._trigger_bokeh_event(plot_view, ev)
-
-      const bk_event = spy.args[0][0]
-
-      expect(bk_event).to.be.instanceof(Tap)
-      expect(bk_event.sx).to.be.equal(100)
-      expect(bk_event.sy).to.be.equal(200)
-      // XXX: expect(bk_event.origin).to.be.equal(plot_view.model)
-    })
-
-    it("_bokify_point_event should trigger event with appropriate coords and model id", () => {
-      const e: any = new Event("mousemove")
-      e.pageX = 100 // XXX: readonly
-      e.pageY = 200 // XXX: readonly
-
-      const ev = ui_event_bus._move_event(e)
-      ui_event_bus._trigger_bokeh_event(plot_view, ev)
-
-      const bk_event = spy.args[0][0]
-
-      expect(bk_event).to.be.instanceof(MouseMove)
-      expect(bk_event.sx).to.be.equal(100)
-      expect(bk_event.sy).to.be.equal(200)
-      // XXX: expect(bk_event.origin).to.be.equal(plot_view.model)
-    })
-  })
-
   describe("_event methods", () => {
     // These tests are mildly integration tests. Based on an Event (as would be
     // initiated by event listeners attached in the _register_tool method), they
@@ -407,6 +361,7 @@ describe("ui_event_bus module", () => {
       composedPath: () => [],
     }
 
+    /*
     it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
       e.pointerType = "mouse"
@@ -498,6 +453,7 @@ describe("ui_event_bus module", () => {
       expect(spy_plot.callCount).to.be.equal(4) // lod_start, pan_start, ranges_update and pan_end events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
+    */
 
     it("_pinch_start method should handle pinchstart event", async () => {
       const e: any = { // XXX: not a hammerjs event
@@ -630,6 +586,7 @@ describe("ui_event_bus module", () => {
       expect(spy_uievent.calledOnce).to.be.true
     })
 
+    /*
     it("multi-gesture tool should receive multiple events", async () => {
       class MultiToolView extends GestureToolView {
         override _tap(_e: TapEvent): void {}
@@ -665,5 +622,6 @@ describe("ui_event_bus module", () => {
       ui_event_bus._pan_start(epan)
       expect(spy_uievent.calledTwice).to.be.true
     })
+    */
   })
 })

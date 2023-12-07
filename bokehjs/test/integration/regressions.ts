@@ -46,6 +46,7 @@ import type {Factor} from "@bokehjs/models/ranges/factor_range"
 
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {LineDash, Location, OutputBackend} from "@bokehjs/core/enums"
+import {UIEventBus} from "@bokehjs/core/ui_events"
 import {Anchor, MarkerType} from "@bokehjs/core/enums"
 import {subsets, tail} from "@bokehjs/core/util/iterator"
 import {isArray, isPlainObject} from "@bokehjs/core/util/types"
@@ -59,7 +60,7 @@ import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
 import {div} from "@bokehjs/core/dom"
-import type {XY, LRTB} from "@bokehjs/core/util/bbox"
+import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
 
@@ -2830,26 +2831,19 @@ describe("Bug", () => {
       const {view} = await display(p)
       await paint()
 
-      //const actions = new PlotActions(view)
-      //await actions.tap({x: 15, y: 15})
-      //await actions.tap({x: 15, y: 35})
-      //await actions.tap({x: 35, y: 35})
-
-      function tap(xy: XY) {
-        const sx = view.frame.x_scale.compute(xy.x)
-        const sy = view.frame.y_scale.compute(xy.y)
-        const poly_select_view = view.owner.get_one(poly_select)
-        poly_select_view._tap({type: "tap", sx, sy, modifiers: {ctrl: false, shift: false, alt: false}})
-      }
-
-      tap({x: 15, y: 15})
-      tap({x: 15, y: 35})
-      tap({x: 35, y: 35})
+      const actions = new PlotActions(view)
+      await actions.tap({x: 15, y: 15})
+      await delay(UIEventBus.doubletap_threshold)
+      await actions.tap({x: 15, y: 35})
+      await delay(UIEventBus.doubletap_threshold)
+      await actions.tap({x: 35, y: 35})
 
       const zoom_out_button_view = view.owner.get_one(zoom_out_button)
       for (let i = 0; i < 5; i++) {
         await click(zoom_out_button_view.el)
       }
+
+      await view.ready
     })
   })
 

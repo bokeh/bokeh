@@ -254,9 +254,9 @@ export class UIEventBus implements EventListenerObject {
 
   private tap_timestamp: number = -Infinity
 
-  private readonly move_threshold: number = 5/*px*/
-  private readonly press_threshold: number = 300/*ms*/
-  private readonly doubletap_threshold: number = 300/*ms*/
+  static readonly move_threshold: number = 5/*px*/
+  static readonly press_threshold: number = 300/*ms*/
+  static readonly doubletap_threshold: number = 300/*ms*/
 
   protected _pointer_down(ev: PointerEvent): void {
     if (!ev.isPrimary) {
@@ -269,7 +269,7 @@ export class UIEventBus implements EventListenerObject {
     this.state = {
       event: ev,
       phase: "started",
-      timer: setTimeout(() => this._pointer_timeout(), this.press_threshold),
+      timer: setTimeout(() => this._pointer_timeout(), UIEventBus.press_threshold),
     }
   }
 
@@ -301,7 +301,7 @@ export class UIEventBus implements EventListenerObject {
     const dy = ev1.y - ev0.y
     switch (state.phase) {
       case "started": {
-        if (dx**2 + dy**2 <= this.move_threshold**2) {
+        if (dx**2 + dy**2 <= UIEventBus.move_threshold**2) {
           return
         }
         this._cancel_timeout()
@@ -331,7 +331,7 @@ export class UIEventBus implements EventListenerObject {
     switch (state.phase) {
       case "started": {
         const {tap_timestamp} = this
-        if (ev1.timeStamp - tap_timestamp < this.doubletap_threshold) {
+        if (ev1.timeStamp - tap_timestamp < UIEventBus.doubletap_threshold) {
           this.tap_timestamp = -Infinity
           this._doubletap(ev0)
         } else {
