@@ -1169,25 +1169,28 @@ type CSSStylesSnake = {
   z_index?: string | null
 }
 
-export type CSSStylesNative = CSSStylesCamel & CSSStylesDashed
-export type CSSOurStyles = CSSStylesDashed & CSSStylesSnake
-export type CSSStyles = CSSStylesNative & CSSStylesSnake
+export type CSSVariables = {[key in `--${string}`]?: string | null}
+
+export type CSSStyles = CSSStylesCamel & CSSStylesDashed & CSSStylesSnake & CSSVariables
 
 export type CSSStylesLike = CSSStyles | DictLike<string | null> | Styles
 
-const _declaration = document.createElement("div").style
+const _style_decl = document.createElement("div").style
 function _css_name(attr: string): string | null {
-  const name = attr.replace(/_/g, "-").replaceAll(/[A-Z]/g, (c) => `-${c}`)
+  if (attr.startsWith("--")) {
+    return attr
+  }
+  const name = attr.replaceAll(/_/g, "-").replaceAll(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)
   // XXX hasOwnProperty() doesn't work for unknown reasons (e.g. in Firefox)
-  if (name in _declaration) {
+  if (name in _style_decl) {
     return name
   }
   const webkit_name = `-webkit-${name}`
-  if (webkit_name in _declaration) {
+  if (webkit_name in _style_decl) {
     return webkit_name
   }
   const moz_name = `-moz-${name}`
-  if (moz_name in _declaration) {
+  if (moz_name in _style_decl) {
     return moz_name
   }
   logger.warn(`unknown CSS property '${attr}'`)

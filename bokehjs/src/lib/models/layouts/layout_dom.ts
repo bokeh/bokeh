@@ -4,9 +4,8 @@ import {Menu} from "../menus/menu"
 import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
-import type {CSSOurStyles} from "core/dom"
 import {remove, px} from "core/dom"
-import type {Display} from "core/css"
+import type {Display, CSSStyles} from "core/css"
 import {isNumber, isArray, isNotNull} from "core/util/types"
 import type * as p from "core/properties"
 
@@ -230,7 +229,7 @@ export abstract class LayoutDOMView extends UIElementView {
       return isNumber(value) ? px(value) : `${value.percent}%`
     }
 
-    const styles: CSSOurStyles = {}
+    const styles: CSSStyles = {}
 
     const display = this._intrinsic_display()
     styles.display = css_display(display)

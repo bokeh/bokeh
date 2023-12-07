@@ -5,8 +5,6 @@ import type {Size, Box, Extents} from "./types"
 import type {CSSStyles, CSSStyleSheetDecl} from "./css"
 import {compose_stylesheet} from "./css"
 
-export type {CSSStyles, CSSStylesNative, CSSOurStyles} from "./css"
-
 export type HTMLAttrs = {[name: string]: unknown}
 export type HTMLItem = string | Node | NodeList | HTMLCollection | null | undefined
 export type HTMLChild = HTMLItem | HTMLItem[]

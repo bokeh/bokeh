@@ -17,15 +17,17 @@ import type {BasicTickFormatter, Plot} from "@bokehjs/models"
 import {LinearAxis} from "@bokehjs/models"
 
 describe("UIElement", () => {
-  it("should support dashed, snake and camel CSS property names in styles", async () => {
-    const common = {width: "100px", height: "100px"}
+  it("should support dashed, snake and camel CSS property names and CSS variables in styles", async () => {
+    const [width, height] = [100, 100]
+    const common = {width: `${width}px`, height: `${height}px`}
 
     const p0 = new Pane({styles: {...common, "background-color": "red"}})
     const p1 = new Pane({styles: {...common, background_color: "green"}})
     const p2 = new Pane({styles: {...common, backgroundColor: "blue"}})
+    const p3 = new Pane({styles: {...common, "--bg-color": "yellow"}, stylesheets: [":host { background-color: var(--bg-color); }"]})
 
-    const layout = new Pane({styles: {display: "inline-flex"}, children: [p0, p1, p2]})
-    await display(layout, [350, 150])
+    const layout = new Pane({styles: {display: "inline-flex"}, children: [p0, p1, p2, p3]})
+    await display(layout, [layout.children.length*width + 50, height + 50])
   })
 })
 
