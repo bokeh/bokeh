@@ -81,10 +81,6 @@ export function is_Tapable(obj: unknown): obj is Keyable {
   return isObject(obj) && "_tap" in obj
 }
 
-function is_touch(event: unknown): event is TouchEvent {
-  return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
-}
-
 export type ScreenCoord = {sx: number, sy: number}
 
 export type KeyModifiers = {
@@ -783,59 +779,41 @@ export class UIEventBus implements EventListenerObject {
     signal.emit({tool, e})
   }
 
-  /*protected*/ _trigger_bokeh_event(plot_view: PlotView, e: UIEvent): void {
-    const ev = (() => {
-      const {sx, sy, modifiers} = e
+  /*protected*/ _trigger_bokeh_event(plot_view: PlotView, ev: UIEvent): void {
+    const bokeh_event = (() => {
+      const {sx, sy, modifiers} = ev
       const x = plot_view.frame.x_scale.invert(sx)
       const y = plot_view.frame.y_scale.invert(sy)
 
-      switch (e.type) {
-        case "wheel":
-          return new events.MouseWheel(sx, sy, x, y, e.delta, modifiers)
-        case "move":
-          return new events.MouseMove(sx, sy, x, y, modifiers)
-        case "enter":
-          return new events.MouseEnter(sx, sy, x, y, modifiers)
-        case "leave":
-          return new events.MouseLeave(sx, sy, x, y, modifiers)
-        case "tap":
-          return new events.Tap(sx, sy, x, y, modifiers)
-        case "doubletap":
-          return new events.DoubleTap(sx, sy, x, y, modifiers)
-        case "press":
-          return new events.Press(sx, sy, x, y, modifiers)
-        case "pressup":
-          return new events.PressUp(sx, sy, x, y, modifiers)
-        case "pan":
-          return new events.Pan(sx, sy, x, y, e.dx, e.dy, modifiers)
-        case "panstart":
-          return new events.PanStart(sx, sy, x, y, modifiers)
-        case "panend":
-          return new events.PanEnd(sx, sy, x, y, modifiers)
-        case "pinch":
-          return new events.Pinch(sx, sy, x, y, e.scale, modifiers)
-        case "pinchstart":
-          return new events.PinchStart(sx, sy, x, y, modifiers)
-        case "pinchend":
-          return new events.PinchEnd(sx, sy, x, y, modifiers)
-        case "rotate":
-          return new events.Rotate(sx, sy, x, y, e.rotation, modifiers)
-        case "rotatestart":
-          return new events.RotateStart(sx, sy, x, y, modifiers)
-        case "rotateend":
-          return new events.RotateEnd(sx, sy, x, y, modifiers)
-        default:
-          return undefined
+      switch (ev.type) {
+        case "wheel":       return new events.MouseWheel(sx, sy, x, y, ev.delta, modifiers)
+        case "enter":       return new events.MouseEnter(sx, sy, x, y, modifiers)
+        case "move":        return new events.MouseMove(sx, sy, x, y, modifiers)
+        case "leave":       return new events.MouseLeave(sx, sy, x, y, modifiers)
+        case "tap":         return new events.Tap(sx, sy, x, y, modifiers)
+        case "doubletap":   return new events.DoubleTap(sx, sy, x, y, modifiers)
+        case "press":       return new events.Press(sx, sy, x, y, modifiers)
+        case "pressup":     return new events.PressUp(sx, sy, x, y, modifiers)
+        case "panstart":    return new events.PanStart(sx, sy, x, y, modifiers)
+        case "pan":         return new events.Pan(sx, sy, x, y, ev.dx, ev.dy, modifiers)
+        case "panend":      return new events.PanEnd(sx, sy, x, y, modifiers)
+        case "pinchstart":  return new events.PinchStart(sx, sy, x, y, modifiers)
+        case "pinch":       return new events.Pinch(sx, sy, x, y, ev.scale, modifiers)
+        case "pinchend":    return new events.PinchEnd(sx, sy, x, y, modifiers)
+        case "rotatestart": return new events.RotateStart(sx, sy, x, y, modifiers)
+        case "rotate":      return new events.Rotate(sx, sy, x, y, ev.rotation, modifiers)
+        case "rotateend":   return new events.RotateEnd(sx, sy, x, y, modifiers)
+        default:            return null
       }
     })()
 
-    if (ev != null) {
-      plot_view.model.trigger_event(ev)
+    if (bokeh_event != null) {
+      plot_view.model.trigger_event(bokeh_event)
     }
   }
 
   /*private*/ _get_sxy(event: MouseEvent): ScreenCoord {
-    const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
+    const {pageX, pageY} = event
     const {left, top} = offset_bbox(this.hit_area)
     return {
       sx: pageX - left,
