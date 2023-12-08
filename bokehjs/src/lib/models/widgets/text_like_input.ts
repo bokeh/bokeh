@@ -8,6 +8,7 @@ export abstract class TextLikeInputView extends InputWidgetView {
 
   override connect_signals(): void {
     super.connect_signals()
+    this.connect(this.model.properties.input_id.change, () => this.input_el.id = this.model.input_id)
     this.connect(this.model.properties.value.change, () => this.input_el.value = this.model.value)
     this.connect(this.model.properties.value_input.change, () => this.input_el.value = this.model.value_input)
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
@@ -31,6 +32,7 @@ export abstract class TextLikeInputView extends InputWidgetView {
     this.group_el.appendChild(el)
 
     const {input_el} = this
+    input_el.id = this.model.input_id
     input_el.value = this.model.value
     input_el.disabled = this.model.disabled
     input_el.placeholder = this.model.placeholder
@@ -57,6 +59,7 @@ export namespace TextLikeInput {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = InputWidget.Props & {
+    input_id: p.Property<string>
     value: p.Property<string>
     value_input: p.Property<string>
     placeholder: p.Property<string>
@@ -76,6 +79,7 @@ export class TextLikeInput extends InputWidget {
 
   static {
     this.define<TextLikeInput.Props>(({Int, String, Nullable}) => ({
+      input_id:    [ String, "" ],
       value:       [ String, "" ],
       value_input: [ String, "" ],
       placeholder: [ String, "" ],
