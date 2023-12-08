@@ -9,7 +9,6 @@ import type {PointEvent} from "@bokehjs/core/bokeh_events"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
-import {PolySelectTool} from "@bokehjs/models/tools/gestures/poly_select_tool"
 //import {GestureTool, GestureToolView} from "@bokehjs/models/tools/gestures/gesture_tool"
 import {TapTool} from "@bokehjs/models/tools/gestures/tap_tool"
 import {WheelZoomTool} from "@bokehjs/models/tools/gestures/wheel_zoom_tool"
@@ -20,7 +19,7 @@ import {Plot} from "@bokehjs/models/plots/plot"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
 //import type {UIEvent, PanEvent, TapEvent} from "@bokehjs/core/ui_events"
 import type {UIEvent} from "@bokehjs/core/ui_events"
-import {UIEventBus} from "@bokehjs/core/ui_events"
+import type {UIEventBus} from "@bokehjs/core/ui_events"
 //import {build_view} from "@bokehjs/core/build_views"
 import {BBox} from "@bokehjs/core/util/bbox"
 
@@ -122,19 +121,12 @@ describe("ui_event_bus module", () => {
     return view
   }
 
-  let hammer_stub: sinon.SinonStub
   let plot_view: PlotView
   let ui_event_bus: UIEventBus
 
   before_each(async () => {
-    hammer_stub = sinon.stub(UIEventBus.prototype as any, "_configure_hammerjs") // XXX: protected
-
     plot_view = await new_plot()
     ui_event_bus = plot_view.canvas_view.ui_event_bus
-  })
-
-  after_each(() => {
-    hammer_stub.restore()
   })
 
   describe("_trigger method", () => {
@@ -385,12 +377,6 @@ describe("ui_event_bus module", () => {
       spy_uievent.restore()
     })
 
-    const dummy_methods = {
-      preventDefault: () => {},
-      stopPropagation: () => {},
-      composedPath: () => [],
-    }
-
     /*
     it("_tap method should handle tap event", async () => {
       const e: any = new Event("tap") // XXX: not a hammerjs event
@@ -483,7 +469,6 @@ describe("ui_event_bus module", () => {
       expect(spy_plot.callCount).to.be.equal(4) // lod_start, pan_start, ranges_update and pan_end events
       expect(spy_uievent.callCount).to.be.equal(2)
     })
-    */
 
     it("_pinch_start method should handle pinchstart event", async () => {
       const e: any = { // XXX: not a hammerjs event
@@ -616,7 +601,6 @@ describe("ui_event_bus module", () => {
       expect(spy_uievent.calledOnce).to.be.true
     })
 
-    /*
     it("multi-gesture tool should receive multiple events", async () => {
       class MultiToolView extends GestureToolView {
         override _tap(_e: TapEvent): void {}

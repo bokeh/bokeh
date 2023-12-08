@@ -1,5 +1,3 @@
-import Hammer from "hammerjs"
-
 import {Signal} from "./signaling"
 import type {Keys} from "./dom"
 import {offset_bbox, MouseButton} from "./dom"
@@ -7,7 +5,6 @@ import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
 import {isObject} from "./util/types"
-import {is_mobile} from "./util/platform"
 import {assert} from "./util/assert"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
@@ -15,8 +12,6 @@ import type {ToolLike} from "../models/tools/tool_proxy"
 import {ToolProxy} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
-
-type NativeUIEvent = TouchEvent | MouseEvent | PointerEvent
 
 export interface Moveable {
   _move_start(ev: MoveEvent): boolean
@@ -88,15 +83,6 @@ export function is_Tapable(obj: unknown): obj is Keyable {
 
 function is_touch(event: unknown): event is TouchEvent {
   return typeof TouchEvent !== "undefined" && event instanceof TouchEvent
-}
-
-type HammerEvent = {
-  type: string
-  deltaX: number
-  deltaY: number
-  scale: number
-  rotation: number
-  srcEvent: NativeUIEvent
 }
 
 export type ScreenCoord = {sx: number, sy: number}
@@ -195,21 +181,11 @@ export class UIEventBus implements EventListenerObject {
   readonly keydown:      UISignal<KeyEvent>     = new Signal(this, "keydown")
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
-  private readonly hammer: HammerManager
-
   get hit_area(): HTMLElement {
     return this.canvas_view.events_el
   }
 
   constructor(readonly canvas_view: CanvasView) {
-    this.hammer = new Hammer(this.hit_area, {
-      cssProps: {} as any, // NOTE: don't assign style, use .bk-events instead
-      touchAction: "none", // TODO configure pan-x | pan-y | pinch-zoom
-      inputClass: !is_mobile ? Hammer.PointerEventInput : Hammer.TouchMouseInput, // https://github.com/bokeh/bokeh/issues/9187
-    })
-
-    this._configure_hammerjs()
-
     this.hit_area.addEventListener("pointerenter", (ev) => this._pointer_enter(ev))
     this.hit_area.addEventListener("pointerleave", (ev) => this._pointer_leave(ev))
     this.hit_area.addEventListener("pointerdown", (ev) => this._pointer_down(ev))
@@ -217,22 +193,17 @@ export class UIEventBus implements EventListenerObject {
     this.hit_area.addEventListener("pointerup", (ev) => this._pointer_up(ev))
     this.hit_area.addEventListener("pointercancel", (ev) => this._pointer_cancel(ev))
 
-    // Mouse & keyboard events not handled through hammerjs
-
-    // We can 'add and forget' these event listeners because this.hit_area is a DOM element
-    // that will be thrown away when the view is removed
     this.hit_area.addEventListener("contextmenu", (e) => this._context_menu(e))
     this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
 
     // But we MUST remove listeners registered on document or we'll leak memory: register
     // 'this' as the listener (it implements the event listener interface, i.e. handleEvent)
-    // instead of an anonymous function so we can easily refer back to it for removing
+    // instead of an anonymous function so we can easily refer back to it for removing.
     document.addEventListener("keydown", this)
     document.addEventListener("keyup", this)
   }
 
   destroy(): void {
-    this.hammer.destroy()
     document.removeEventListener("keydown", this)
     document.removeEventListener("keyup", this)
   }
@@ -382,18 +353,6 @@ export class UIEventBus implements EventListenerObject {
       this._pan_end(ev, dx, dy)
     }
     this.state = null
-  }
-
-  protected _configure_hammerjs(): void {
-    this.hammer.get("pinch").set({enable: true})
-    this.hammer.on("pinchstart", (e) => this._pinch_start(e))
-    this.hammer.on("pinch", (e) => this._pinch(e))
-    this.hammer.on("pinchend", (e) => this._pinch_end(e))
-
-    this.hammer.get("rotate").set({enable: true})
-    this.hammer.on("rotatestart", (e) => this._rotate_start(e))
-    this.hammer.on("rotate", (e) => this._rotate(e))
-    this.hammer.on("rotateend", (e) => this._rotate_end(e))
   }
 
   register_tool(tool_view: ToolView): void {
@@ -743,10 +702,10 @@ export class UIEventBus implements EventListenerObject {
         break
       }
       case "tap": {
-        // XXX: hammerjs, why non-standard path?
-        const path: EventTarget[] = (srcEvent as any).path ?? srcEvent.composedPath()
-        if (path.length != 0 && path[0] != this.hit_area)
+        const path: EventTarget[] = srcEvent.composedPath()
+        if (path.length != 0 && path[0] != this.hit_area) {
           return // don't trigger bokeh events
+        }
 
         view?.on_hit?.(e.sx, e.sy)
 
@@ -875,7 +834,7 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _get_sxy(event: NativeUIEvent): ScreenCoord {
+  /*private*/ _get_sxy(event: MouseEvent): ScreenCoord {
     const {pageX, pageY} = is_touch(event) ? (event.touches.length != 0 ? event.touches : event.changedTouches)[0] : event
     const {left, top} = offset_bbox(this.hit_area)
     return {
@@ -884,7 +843,7 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  protected _get_modifiers(event: NativeUIEvent | KeyboardEvent): KeyModifiers {
+  protected _get_modifiers(event: MouseEvent | KeyboardEvent): KeyModifiers {
     return {
       shift: event.shiftKey,
       ctrl: event.ctrlKey,
@@ -902,21 +861,21 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _pinch_event(e: HammerEvent): PinchEvent {
+  /*private*/ _pinch_event(type: PinchEvent["type"], ev: PointerEvent, scale: number): PinchEvent {
     return {
-      type: e.type as PinchEvent["type"],
-      ...this._get_sxy(e.srcEvent),
-      scale: e.scale,
-      modifiers: this._get_modifiers(e.srcEvent),
+      type,
+      ...this._get_sxy(ev),
+      scale,
+      modifiers: this._get_modifiers(ev),
     }
   }
 
-  /*private*/ _rotate_event(e: HammerEvent): RotateEvent {
+  /*private*/ _rotate_event(type: RotateEvent["type"], ev: PointerEvent, rotation: number): RotateEvent {
     return {
-      type: e.type as RotateEvent["type"],
-      ...this._get_sxy(e.srcEvent),
-      rotation: e.rotation,
-      modifiers: this._get_modifiers(e.srcEvent),
+      type,
+      ...this._get_sxy(ev),
+      rotation,
+      modifiers: this._get_modifiers(ev),
     }
   }
 
@@ -965,28 +924,28 @@ export class UIEventBus implements EventListenerObject {
     this._trigger(this.pan_end, this._pan_event("panend", ev, dx, dy), ev)
   }
 
-  /*private*/ _pinch_start(e: HammerEvent): void {
-    this._trigger(this.pinch_start, this._pinch_event(e), e.srcEvent)
+  /*private*/ _pinch_start(ev: PointerEvent, scale: number): void {
+    this._trigger(this.pinch_start, this._pinch_event("pinchstart", ev, scale), ev)
   }
 
-  /*private*/ _pinch(e: HammerEvent): void {
-    this._trigger(this.pinch, this._pinch_event(e), e.srcEvent)
+  /*private*/ _pinch(ev: PointerEvent, scale: number): void {
+    this._trigger(this.pinch, this._pinch_event("pinch", ev, scale), ev)
   }
 
-  /*private*/ _pinch_end(e: HammerEvent): void {
-    this._trigger(this.pinch_end, this._pinch_event(e), e.srcEvent)
+  /*private*/ _pinch_end(ev: PointerEvent, scale: number): void {
+    this._trigger(this.pinch_end, this._pinch_event("pinchend", ev, scale), ev)
   }
 
-  /*private*/ _rotate_start(e: HammerEvent): void {
-    this._trigger(this.rotate_start, this._rotate_event(e), e.srcEvent)
+  /*private*/ _rotate_start(ev: PointerEvent, rotation: number): void {
+    this._trigger(this.rotate_start, this._rotate_event("rotatestart", ev, rotation), ev)
   }
 
-  /*private*/ _rotate(e: HammerEvent): void {
-    this._trigger(this.rotate, this._rotate_event(e), e.srcEvent)
+  /*private*/ _rotate(ev: PointerEvent, rotation: number): void {
+    this._trigger(this.rotate, this._rotate_event("rotate", ev, rotation), ev)
   }
 
-  /*private*/ _rotate_end(e: HammerEvent): void {
-    this._trigger(this.rotate_end, this._rotate_event(e), e.srcEvent)
+  /*private*/ _rotate_end(ev: PointerEvent, rotation: number): void {
+    this._trigger(this.rotate_end, this._rotate_event("rotateend", ev, rotation), ev)
   }
 
   /*private*/ _tap(ev: PointerEvent): void {
