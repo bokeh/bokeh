@@ -31,7 +31,6 @@ export abstract class TextLikeInputView extends InputWidgetView {
     this.group_el.appendChild(el)
 
     const {input_el} = this
-    input_el.id = "input"
     input_el.value = this.model.value
     input_el.disabled = this.model.disabled
     input_el.placeholder = this.model.placeholder

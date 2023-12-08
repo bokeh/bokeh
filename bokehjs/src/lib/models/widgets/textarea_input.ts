@@ -16,7 +16,7 @@ export class TextAreaInputView extends TextLikeInputView {
     this.connect(this.model.properties.cols.change, () => this.input_el.cols = this.model.cols)
   }
   protected _render_input(): HTMLElement {
-    return this.input_el = textarea({class: inputs.input})
+    return this.input_el = textarea({class: inputs.input, id: "input"})
   }
 
   override render(): void {
