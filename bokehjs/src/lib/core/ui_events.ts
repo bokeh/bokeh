@@ -360,6 +360,13 @@ export class UIEventBus implements EventListenerObject {
       return
     }
     this._cancel_timeout()
+    if (state.phase == "panning") {
+      const ev0 = state.event
+      const ev1 = ev
+      const dx = ev1.x - ev0.x
+      const dy = ev1.y - ev0.y
+      this._pan_end(ev, dx, dy)
+    }
     this.state = null
   }
 
