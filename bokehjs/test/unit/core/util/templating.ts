@@ -112,8 +112,8 @@ describe("templating module", () => {
       expect(v).to.be.equal(99999)
     })
 
-    it("should throw an error on unknown special vars", () => {
-      expect(() => tmpl.get_value("$x", source, 0, {})).to.throw()
+    it("should return a missing value marker on unknown special vars", () => {
+      expect(tmpl.get_value("$x", source, 0, {})).to.be.equal("???")
     })
 
     it("should return null for missing column", () => {

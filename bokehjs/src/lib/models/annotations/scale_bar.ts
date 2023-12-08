@@ -239,7 +239,7 @@ export class ScaleBarView extends AnnotationView {
             }
           }
           default: {
-            return "???"
+            return null
           }
         }
       })
