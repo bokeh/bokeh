@@ -1,7 +1,7 @@
 import {settings} from "core/settings"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
-import {div, append} from "core/dom"
+import {div, append, px} from "core/dom"
 import {OutputBackend} from "core/enums"
 import {UIEventBus} from "core/ui_events"
 import {load_module} from "core/util/modules"
@@ -12,7 +12,7 @@ import type {PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet} from "core/dom"
-import canvas_css from "styles/canvas.css"
+import * as canvas_css from "styles/canvas.css"
 import icons_css from "styles/icons.css"
 
 export type FrameBox = [number, number, number, number]
@@ -91,11 +91,11 @@ export class CanvasView extends UIElementView {
   override initialize(): void {
     super.initialize()
 
-    this.underlays_el = div({class: "bk-layer"})
+    this.underlays_el = div({class: canvas_css.layer})
     this.primary = this.create_layer()
     this.overlays = this.create_layer()
-    this.overlays_el = div({class: "bk-layer"})
-    this.events_el = div({class: ["bk-layer", "bk-events"]})
+    this.overlays_el = div({class: canvas_css.layer})
+    this.events_el = div({class: [canvas_css.layer, canvas_css.events]})
 
     this.ui_event_bus = new UIEventBus(this)
   }
@@ -127,7 +127,7 @@ export class CanvasView extends UIElementView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), canvas_css, icons_css, this._size]
+    return [...super.stylesheets(), canvas_css.default, icons_css, this._size]
   }
 
   override render(): void {
@@ -166,12 +166,10 @@ export class CanvasView extends UIElementView {
     if (changed) {
       const {width, height} = this.bbox
 
-      this._size.replace(`
-      .bk-layer {
-        width: ${width}px;
-        height: ${height}px;
-      }
-      `)
+      this._size.replace(`.${canvas_css.layer}`, {
+        width: px(width),
+        height: px(height),
+      })
 
       this.primary.resize(width, height)
       this.overlays.resize(width, height)
