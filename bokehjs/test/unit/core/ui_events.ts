@@ -153,7 +153,7 @@ describe("ui_event_bus module", () => {
       let spy_cursor: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "mousemove", sx: 0, sy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
+        e = {type: "move", sx: 0, sy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
         spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
@@ -546,40 +546,40 @@ describe("ui_event_bus module", () => {
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
-    it("_move_enter method should handle mouseenter event", async () => {
-      const e = new MouseEvent("mouseenter")
+    it("_move_enter method should handle pointerenter event", async () => {
+      const e = new PointerEvent("pointerenter")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ui_event_bus._mouse_enter(e)
+      ui_event_bus._enter(e)
 
       expect(spy_plot.calledOnce).to.be.true
       expect(spy_uievent.calledOnce).to.be.true
     })
 
-    it("_move method should handle mousemove event", async () => {
-      const e = new MouseEvent("mousemove")
+    it("_move method should handle pointermove event", async () => {
+      const e = new PointerEvent("pointermove")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ui_event_bus._mouse_move(e)
+      ui_event_bus._move(e)
 
       expect(spy_plot.callCount).to.be.equal(2)
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
-    it("_move_exit method should handle mouseleave event", async () => {
-      const e = new MouseEvent("mouseleave")
+    it("_move_exit method should handle pointerleave event", async () => {
+      const e = new PointerEvent("pointerleave")
 
       const crosshair_tool = new CrosshairTool()
       plot_view.model.add_tools(crosshair_tool)
       await plot_view.ready
 
-      ui_event_bus._mouse_exit(e)
+      ui_event_bus._exit(e)
 
       expect(spy_plot.calledOnce).to.be.true
       expect(spy_uievent.calledOnce).to.be.true

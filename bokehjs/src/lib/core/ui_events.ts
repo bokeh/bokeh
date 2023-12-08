@@ -142,7 +142,7 @@ export type TapEvent = {
 }
 
 export type MoveEvent = {
-  type: "mousemove" | "mouseenter" | "mouseleave"
+  type: "enter" | "move" | "leave"
   sx: number
   sy: number
   modifiers: KeyModifiers
@@ -210,6 +210,8 @@ export class UIEventBus implements EventListenerObject {
 
     this._configure_hammerjs()
 
+    this.hit_area.addEventListener("pointerenter", (ev) => this._pointer_enter(ev))
+    this.hit_area.addEventListener("pointerleave", (ev) => this._pointer_leave(ev))
     this.hit_area.addEventListener("pointerdown", (ev) => this._pointer_down(ev))
     this.hit_area.addEventListener("pointermove", (ev) => this._pointer_move(ev))
     this.hit_area.addEventListener("pointerup", (ev) => this._pointer_up(ev))
@@ -219,9 +221,6 @@ export class UIEventBus implements EventListenerObject {
 
     // We can 'add and forget' these event listeners because this.hit_area is a DOM element
     // that will be thrown away when the view is removed
-    this.hit_area.addEventListener("mousemove", (e) => this._mouse_move(e))
-    this.hit_area.addEventListener("mouseenter", (e) => this._mouse_enter(e))
-    this.hit_area.addEventListener("mouseleave", (e) => this._mouse_exit(e))
     this.hit_area.addEventListener("contextmenu", (e) => this._context_menu(e))
     this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
 
@@ -258,6 +257,18 @@ export class UIEventBus implements EventListenerObject {
   static readonly press_threshold: number = 300/*ms*/
   static readonly doubletap_threshold: number = 300/*ms*/
 
+  protected _pointer_enter(ev: PointerEvent): void {
+    if (ev.isPrimary) {
+      this._enter(ev)
+    }
+  }
+
+  protected _pointer_leave(ev: PointerEvent): void {
+    if (ev.isPrimary) {
+      this._exit(ev)
+    }
+  }
+
   protected _pointer_down(ev: PointerEvent): void {
     if (!ev.isPrimary) {
       return
@@ -291,6 +302,9 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _pointer_move(ev: PointerEvent): void {
+    if (ev.isPrimary) {
+      this._move(ev)
+    }
     const {state} = this
     if (state?.event.pointerId != ev.pointerId) {
       return
@@ -559,20 +573,20 @@ export class UIEventBus implements EventListenerObject {
         const event = relativize_event(rotate_view)
         this.__trigger(rotate_view, signal, event, srcEvent)
       }
-    } else if (e.type == "mouseenter" || e.type == "mousemove" || e.type == "mouseleave") {
+    } else if (e.type == "enter" || e.type == "move" || e.type == "leave") {
       const prev_view = this._prev_move?.plot_view
 
-      if (prev_view != null && (e.type == "mouseleave" || prev_view != curr_view)) {
+      if (prev_view != null && (e.type == "leave" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(prev_view)
-        this.__trigger(prev_view, this.move_exit, {type: "mouseleave", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
+        this.__trigger(prev_view, this.move_exit, {type: "leave", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
       }
 
-      if (curr_view != null && (e.type == "mouseenter" || prev_view != curr_view)) {
+      if (curr_view != null && (e.type == "enter" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(curr_view)
-        this.__trigger(curr_view, this.move_enter, {type: "mouseenter", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
+        this.__trigger(curr_view, this.move_enter, {type: "enter", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
       }
 
-      if (curr_view != null && e.type == "mousemove") {
+      if (curr_view != null && e.type == "move") {
         const event = relativize_event(curr_view)
         this.__trigger(curr_view, signal, event, srcEvent)
       }
@@ -819,11 +833,11 @@ export class UIEventBus implements EventListenerObject {
       switch (e.type) {
         case "wheel":
           return new events.MouseWheel(sx, sy, x, y, e.delta, modifiers)
-        case "mousemove":
+        case "move":
           return new events.MouseMove(sx, sy, x, y, modifiers)
-        case "mouseenter":
+        case "enter":
           return new events.MouseEnter(sx, sy, x, y, modifiers)
-        case "mouseleave":
+        case "leave":
           return new events.MouseLeave(sx, sy, x, y, modifiers)
         case "tap":
           return new events.Tap(sx, sy, x, y, modifiers)
@@ -914,11 +928,11 @@ export class UIEventBus implements EventListenerObject {
     }
   }
 
-  /*private*/ _move_event(e: MouseEvent): MoveEvent {
+  /*private*/ _move_event(type: MoveEvent["type"], ev: PointerEvent): MoveEvent {
     return {
-      type: e.type as MoveEvent["type"],
-      ...this._get_sxy(e),
-      modifiers: this._get_modifiers(e),
+      type,
+      ...this._get_sxy(ev),
+      modifiers: this._get_modifiers(ev),
     }
   }
 
@@ -991,16 +1005,16 @@ export class UIEventBus implements EventListenerObject {
     this._trigger(this.pressup, this._tap_event("pressup", ev), ev)
   }
 
-  /*private*/ _mouse_enter(e: MouseEvent): void {
-    this._trigger(this.move_enter, this._move_event(e), e)
+  /*private*/ _enter(ev: PointerEvent): void {
+    this._trigger(this.move_enter, this._move_event("enter", ev), ev)
   }
 
-  /*private*/ _mouse_move(e: MouseEvent): void {
-    this._trigger(this.move, this._move_event(e), e)
+  /*private*/ _move(ev: PointerEvent): void {
+    this._trigger(this.move, this._move_event("move", ev), ev)
   }
 
-  /*private*/ _mouse_exit(e: MouseEvent): void {
-    this._trigger(this.move_exit, this._move_event(e), e)
+  /*private*/ _exit(ev: PointerEvent): void {
+    this._trigger(this.move_exit, this._move_event("leave", ev), ev)
   }
 
   /*private*/ _mouse_wheel(e: WheelEvent): void {
