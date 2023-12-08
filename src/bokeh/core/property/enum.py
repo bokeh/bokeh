@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # Standard library imports
 from typing import (
     Any,
-    _LiteralGenericAlias,
+    Literal,
     get_args,
     overload,
 )
@@ -61,13 +61,13 @@ class Enum(String):
     _enum: enums.Enumeration
 
     @overload
-    def __init__(self, enum: _LiteralGenericAlias, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
+    def __init__(self, enum: type[Literal[""]], *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(self, enum: enums.Enumeration, *, default: Init[str] = ..., help: str | None = ...) -> None: ...
     @overload
     def __init__(self, enum: str, *values: str, default: Init[str] = ..., help: str | None = ...) -> None: ...
 
-    def __init__(self, enum: str | _LiteralGenericAlias | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
+    def __init__(self, enum: str | type[Literal[""]] | enums.Enumeration, *values: str, default: Init[str] = Intrinsic, help: str | None = None) -> None:
         if isinstance(enum, str):
             self._enum = enums.enumeration(enum, *values)
         elif values:
