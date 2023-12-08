@@ -22,7 +22,7 @@ export class TextInputView extends TextLikeInputView {
     const {prefix, suffix} = this.model
     const prefix_el = prefix != null ? div({class: "bk-input-prefix"}, prefix) : null
     const suffix_el = suffix != null ? div({class: "bk-input-suffix"}, suffix) : null
-    const container_el = div({class: "bk-input-container"}, prefix_el, this.input_el, suffix_el)
+    const container_el = div({class: "bk-input-container", style: "flex-direction: column"}, prefix_el, this.title_el, this.input_el, suffix_el)
     return container_el
   }
 
