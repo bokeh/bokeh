@@ -245,15 +245,17 @@ describe("Bug", () => {
         const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
         const glyph = new Line({line_color: "red"})
         const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
+        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline", attachment: "above"})]})
         plot.add_renderers(renderer)
 
         const {view} = await display(plot)
 
         const lnv = view.owner.get_one(renderer)
-        const ln_spy = sinon.spy(lnv, "request_render")
+        const ln_spy = sinon.spy(lnv, "request_paint")
 
         await actions(view).hover(xy(0, 0), xy(1, 1), 6)
+        await view.ready
+
         return ln_spy.callCount
       }
 
@@ -274,12 +276,14 @@ describe("Bug", () => {
       const {view} = await display(plot)
 
       const gv = view.owner.get_one(renderer)
-      const gv_spy = sinon.spy(gv, "request_render")
+      const gv_spy = sinon.spy(gv, "request_paint")
 
       await actions(view).hover(xy(0, 0), xy(1, 1), 6)
+      await view.ready
       expect(gv_spy.callCount).to.be.equal(0)
 
-      await actions(view).hover(xy(0.8, 1), xy(0.8, 0), 6)
+      await actions(view).hover(xy(0.6, 1), xy(0.6, 0), 6)
+      await view.ready
       expect(gv_spy.callCount).to.be.equal(1)
     })
   })
