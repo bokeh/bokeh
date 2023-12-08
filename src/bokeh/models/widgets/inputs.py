@@ -301,10 +301,6 @@ class TextLikeInput(InputWidget):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
     
-    input_id = String(default="", help="""
-    The id attribute for HTML <input> element.
-    """)
-
     value = String(default="", help="""
     Initial or entered text value.
 
