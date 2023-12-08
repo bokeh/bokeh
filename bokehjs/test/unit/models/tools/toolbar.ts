@@ -200,33 +200,110 @@ describe("ToolbarView", () => {
     })
   })
 
-  describe("should not show tools with visible=false", () => {
-    let hover_1: HoverTool
-    let hover_2: HoverTool
-    let pan_1: PanTool
-    let pan_2: PanTool
+  describe("toggleable attribute with inspect tools", () => {
+    it("should not show inspect tools if toggleable=false", async () => {
+      const hover = new HoverTool({toggleable: false})
+      const tb = new Toolbar({tools: [hover]})
+      const tbv = await build_view(tb, {parent: null})
+
+      expect(tbv.tool_buttons.length).to.be.equal(0)
+    })
+
+    it("should show inspect tools if toggleable=true", async () => {
+      const hover = new HoverTool({toggleable: true})
+      const tb = new Toolbar({tools: [hover]})
+      const tbv = await build_view(tb, {parent: null})
+
+      expect(tbv.tool_buttons.length).to.be.equal(1)
+    })
+
+    it("should show inspect tools if toggleable is not set", async () => {
+      const hover = new HoverTool()
+      const tb = new Toolbar({tools: [hover]})
+      const tbv = await build_view(tb, {parent: null})
+
+      expect(tbv.tool_buttons.length).to.be.equal(1)
+    })
+  })
+
+  describe("visible attribute of tools in toolbar", () => {
+    let hover: HoverTool
+    let pan: PanTool
+    let tap: TapTool
 
     before_each(() => {
-      hover_1 = new HoverTool({visible: false})
-      hover_2 = new HoverTool()
-      pan_1 = new PanTool({visible: true})
-      pan_2 = new PanTool()
+      hover = new HoverTool()
+      pan = new PanTool()
+      tap = new TapTool()
     })
 
     it("should have correct visibility status of tools", () => {
-      expect(hover_1.visible).to.be.false
-      expect(hover_2.visible).to.be.true
-      expect(pan_1.visible).to.be.true
-      expect(pan_2.visible).to.be.true
+      expect(hover.visible).to.be.true
+      expect(pan.visible).to.be.true
+      expect(tap.visible).to.be.true
+
+      hover.visible = false
+      expect(hover.visible).to.be.false
+      expect(pan.visible).to.be.true
+      expect(tap.visible).to.be.true
+
+      pan.visible = false
+      expect(hover.visible).to.be.false
+      expect(pan.visible).to.be.false
+      expect(tap.visible).to.be.true
+
+      tap.visible = false
+      expect(hover.visible).to.be.false
+      expect(pan.visible).to.be.false
+      expect(tap.visible).to.be.false
     })
 
-    it("should not add tools with visible=true or default to toolbar", async () => {
-      const tb = new Toolbar({tools: [hover_1, hover_2, pan_1, pan_2]})
+    it("should not add tools with visible=false", async () => {
+      hover.visible = false
+      pan.visible = false
+      const tb = new Toolbar({tools: [hover, pan, tap]})
+      const tb_visible_true = new Toolbar({tools: [tap]})
       const tbv = await build_view(tb, {parent: null})
 
-      expect(tbv.tool_buttons.length).to.be.equal(3)
-      expect(tbv.tool_buttons).to.be.equal([hover_2.tool_button(), pan_1.tool_button(), pan_2.tool_button()])
+      expect(tbv.tool_buttons.length).to.be.equal(1)
+      expect(tbv.tool_buttons[0].tool.tool_name).to.be.equal("Tap")
+
+      const tool_names = tbv.tool_buttons.map((button) => button.tool.tool_name)
+      const tb_names = tb_visible_true.tools.map((tool) => tool.tool_name)
+      expect(tool_names).to.be.equal(tb_names)
     })
+
+    it("should have default tools all be visible", async () => {
+      const tb = new Toolbar({tools: [hover, pan, tap]})
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.tool_buttons.length).to.be.equal(3)
+    })
+
+    it("should show no tools if all tools have visible=false", async () => {
+      hover.visible = false
+      pan.visible = false
+      tap.visible = false
+      const tb = new Toolbar({tools: [hover, pan, tap]})
+      const tbv = await build_view(tb, {parent: null})
+      expect(tbv.tool_buttons.length).to.be.equal(0)
+    })
+
+    it("should properly show tools after changing visibility", async () => {
+      const tb = new Toolbar({tools: [hover]})
+      let tbv = await build_view(tb, {parent: null})
+
+      expect(tbv.tool_buttons.length).to.be.equal(1)
+
+      hover.visible = false
+      tbv = await build_view(tb, {parent: null})
+      expect(tbv.tool_buttons.length).to.be.equal(0)
+
+      hover.visible = true
+      tbv = await build_view(tb, {parent: null})
+      expect(tbv.tool_buttons.length).to.be.equal(1)
+      expect(tbv.tool_buttons[0].tool.tool_name).to.be.equal("Hover")
+    })
+
   })
 })
 
