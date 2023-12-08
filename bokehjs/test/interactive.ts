@@ -126,10 +126,6 @@ export class PlotActions {
     await this.emit(this._hover({type: "line", xy0, xy1: xy1 ?? xy0, n}))
   }
 
-  async move(xy0: Point, xy1: Point, n?: number, pressure?: number): Promise<void> {
-    await this.emit(this._move({type: "line", xy0, xy1, n}, pressure))
-  }
-
   async pan(xy0: Point, xy1: Point, n?: number): Promise<void> {
     await this.emit(this._pan({type: "line", xy0, xy1, n}))
   }
@@ -238,22 +234,20 @@ export class PlotActions {
     })
   }
 
-  protected *_hover(path: Path): Iterable<MouseEvent> {
+  protected *_move(path: Path, pressure: number, buttons: MouseButton, keys: EventKeys): Iterable<PointerEvent> {
     for (const [x, y] of this._compute(path)) {
-      yield new MouseEvent("mousemove", {..._pointer_common, ...this.screen({x, y})})
+      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons, ...keys})
     }
   }
 
-  protected *_move(path: Path, pressure: number = MOVE_PRESSURE, keys: EventKeys = {}): Iterable<PointerEvent> {
-    for (const [x, y] of this._compute(path)) {
-      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left, ...keys})
-    }
+  protected *_hover(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
+    yield* this._move(path, MOVE_PRESSURE, MouseButton.None, keys)
   }
 
   protected *_pan(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
     const [xy0, xy1] = this._bounds(path)
     yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, ...keys, buttons: MouseButton.Left})
-    yield* this._move(path, HOLD_PRESSURE, keys)
+    yield* this._move(path, HOLD_PRESSURE, MouseButton.Left, keys)
     yield new PointerEvent("pointerup",   {..._pointer_common, ...this.screen(xy1), pressure: MOVE_PRESSURE, ...keys})
   }
 
