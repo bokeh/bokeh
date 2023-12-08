@@ -82,11 +82,7 @@ export class VAreaStepView extends AreaView {
   }
 
   protected _line_selection_for(i: number): Selection {
-    const result = new Selection()
-    result.add_to_selected_glyphs(this.model)
-    result.view = this
-    result.line_indices = [i]
-    return result
+    return new Selection({line_indices: [i], selected_glyphs: [this.model], view: this})
   }
 
   protected _hit_point_before(geometry: PointGeometry): Selection {
@@ -117,18 +113,18 @@ export class VAreaStepView extends AreaView {
     const {sx, sy1, sy2} = this
 
     for (let i = 0; i < this.data_size; i++) {
-      const mid_prev_x = (sx[i - 1] + sx[i]) / 2  /* undefined for first */
-      const mid_next_x = (sx[i] + sx[i + 1]) / 2  /* undefined for last  */
+      const mid_prev_x = (sx[i - 1] + sx[i])/2 /* undefined for first */
+      const mid_next_x = (sx[i] + sx[i + 1])/2 /* undefined for last  */
 
-      let px: number[]
-      if (i == 0) {
-        px = [sx[i], mid_next_x, mid_next_x, sx[i]]
-      } else if (i == this.data_size - 1) {
-        px = [mid_prev_x, sx[i], sx[i], mid_prev_x]
-      } else {
-        px = [mid_prev_x, mid_next_x, mid_next_x, mid_prev_x]
-      }
-
+      const px = (() => {
+        if (i == 0) {
+          return [sx[i], mid_next_x, mid_next_x, sx[i]]
+        } else if (i == this.data_size - 1) {
+          return [mid_prev_x, sx[i], sx[i], mid_prev_x]
+        } else {
+          return [mid_prev_x, mid_next_x, mid_next_x, mid_prev_x]
+        }
+      })()
       const py = [sy1[i], sy1[i], sy2[i], sy2[i]]
 
       if (hittest.point_in_poly(geometry.sx, geometry.sy, px, py)) {
@@ -140,12 +136,9 @@ export class VAreaStepView extends AreaView {
 
   protected override _hit_point(geometry: PointGeometry): Selection {
     switch (this.model.step_mode) {
-      case "before":
-        return this._hit_point_before(geometry)
-      case "after":
-        return this._hit_point_after(geometry)
-      case "center":
-        return this._hit_point_center(geometry)
+      case "before": return this._hit_point_before(geometry)
+      case "after":  return this._hit_point_after(geometry)
+      case "center": return this._hit_point_center(geometry)
     }
   }
 }
