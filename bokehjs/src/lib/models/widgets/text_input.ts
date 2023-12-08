@@ -18,7 +18,7 @@ export class TextInputView extends TextLikeInputView {
   }
 
   protected _render_input(): HTMLElement {
-    this.input_el = input({type: "text", class: inputs.input, id:"input"})
+    this.input_el = input({type: "text", class: inputs.input, id: "input"})
     const {prefix, suffix} = this.model
     const prefix_el = prefix != null ? div({class: "bk-input-prefix"}, prefix) : null
     const suffix_el = suffix != null ? div({class: "bk-input-suffix"}, suffix) : null
