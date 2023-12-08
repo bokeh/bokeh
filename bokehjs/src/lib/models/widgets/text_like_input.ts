@@ -39,6 +39,7 @@ export abstract class TextLikeInputView extends InputWidgetView {
     if (this.model.max_length != null) {
       input_el.maxLength = this.model.max_length
     }
+    this.title_el.htmlFor = input_el.id
 
     input_el.addEventListener("change", () => this.change_input())
     input_el.addEventListener("input",  () => this.change_input_value())
