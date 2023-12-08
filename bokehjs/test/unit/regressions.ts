@@ -58,6 +58,7 @@ import {keys, entries} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
+import type {XY} from "@bokehjs/core/util/bbox"
 import {div, offset_bbox} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {DocJson, DocumentEvent} from "@bokehjs/document"
@@ -69,6 +70,7 @@ import {defer, delay, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
+import type {GlyphRendererView} from "@bokehjs/models/renderers/glyph_renderer"
 import {ImageURLView} from "@bokehjs/models/glyphs/image_url"
 import {CopyToolView} from "@bokehjs/models/tools/actions/copy_tool"
 import {TableDataProvider} from "@bokehjs/models/widgets/tables/data_table"
@@ -1270,7 +1272,7 @@ describe("Bug", () => {
   })
 
   describe("in issue #13555", () => {
-    it("doesn't allow to computed correct image index for inverted ranges", async () => {
+    it("doesn't allow to compute correct image index for inverted ranges", async () => {
       const n = 5
 
       async function plot(x_flipped: boolean, y_flipped: boolean) {
@@ -1343,6 +1345,140 @@ describe("Bug", () => {
       await test({x_flipped: true,  y_flipped: false})
       await test({x_flipped: false, y_flipped: true})
       await test({x_flipped: true,  y_flipped: true})
+    })
+  })
+
+  describe("in issue #13293", () => {
+    function indices(gv: GlyphRendererView, {x, y}: XY) {
+      const sx = gv.coordinates.x_scale.compute(x)
+      const sy = gv.coordinates.y_scale.compute(y)
+      const htr = gv.hit_test({type: "point", sx, sy})
+      expect_not_null(htr)
+      return htr.line_indices
+    }
+
+    describe("doesn't allow to correctly hit-test VAreaStep", () => {
+      it("with step_mode=before", async () => {
+        const p = fig([300, 300], {title: "varea_step: before"})
+        const g = p.varea_step({
+          x: [1, 2, 3, 4, 5],
+          y1: [12, 16, 14, 13, 15],
+          y2: [1, 4, 2, 1, 3],
+          step_mode: "before",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(0.75, 10))).to.be.equal([])
+        expect(indices(gv, xy(1.25, 10))).to.be.equal([1])
+        expect(indices(gv, xy(1.75, 10))).to.be.equal([1])
+        expect(indices(gv, xy(2.25, 10))).to.be.equal([2])
+        expect(indices(gv, xy(2.75, 10))).to.be.equal([2])
+      })
+
+      it("with step_mode=center", async () => {
+        const p = fig([300, 300], {title: "varea_step: center"})
+        const g = p.varea_step({
+          x: [1, 2, 3, 4, 5],
+          y1: [12, 16, 14, 13, 15],
+          y2: [1, 4, 2, 1, 3],
+          step_mode: "center",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(0.75, 10))).to.be.equal([])
+        expect(indices(gv, xy(1.25, 10))).to.be.equal([0])
+        expect(indices(gv, xy(1.75, 10))).to.be.equal([1])
+        expect(indices(gv, xy(2.25, 10))).to.be.equal([1])
+        expect(indices(gv, xy(2.75, 10))).to.be.equal([2])
+      })
+
+      it("with step_mode=after", async () => {
+        const p = fig([300, 300], {title: "varea_step: after"})
+        const g = p.varea_step({
+          x: [1, 2, 3, 4, 5],
+          y1: [12, 16, 14, 13, 15],
+          y2: [1, 4, 2, 1, 3],
+          step_mode: "after",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x=@x, y1=@y1, y2=@y2"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(0.75, 10))).to.be.equal([])
+        expect(indices(gv, xy(1.25, 10))).to.be.equal([0])
+        expect(indices(gv, xy(1.75, 10))).to.be.equal([0])
+        expect(indices(gv, xy(2.25, 10))).to.be.equal([1])
+        expect(indices(gv, xy(2.75, 10))).to.be.equal([1])
+      })
+    })
+
+    describe("doesn't allow to correctly hit-test HAreaStep", () => {
+      it("with step_mode=before", async () => {
+        const p = fig([300, 300], {title: "harea_step: before"})
+        const g = p.harea_step({
+          y: [1, 2, 3, 4, 5],
+          x1: [1, 4, 2, 1, 3],
+          x2: [12, 16, 14, 13, 15],
+          step_mode: "before",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(10, 0.75))).to.be.equal([])
+        expect(indices(gv, xy(10, 1.25))).to.be.equal([1])
+        expect(indices(gv, xy(10, 1.75))).to.be.equal([1])
+        expect(indices(gv, xy(10, 2.25))).to.be.equal([2])
+        expect(indices(gv, xy(10, 2.75))).to.be.equal([2])
+      })
+
+      it("with step_mode=center", async () => {
+        const p = fig([300, 300], {title: "harea_step: center"})
+        const g = p.harea_step({
+          y: [1, 2, 3, 4, 5],
+          x1: [1, 4, 2, 1, 3],
+          x2: [12, 16, 14, 13, 15],
+          step_mode: "center",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(10, 0.75))).to.be.equal([])
+        expect(indices(gv, xy(10, 1.25))).to.be.equal([0])
+        expect(indices(gv, xy(10, 1.75))).to.be.equal([1])
+        expect(indices(gv, xy(10, 2.25))).to.be.equal([1])
+        expect(indices(gv, xy(10, 2.75))).to.be.equal([2])
+      })
+
+      it("with step_mode=after", async () => {
+        const p = fig([300, 300], {title: "harea_step: after"})
+        const g = p.harea_step({
+          y: [1, 2, 3, 4, 5],
+          x1: [1, 4, 2, 1, 3],
+          x2: [12, 16, 14, 13, 15],
+          step_mode: "after",
+        })
+        p.add_tools(new HoverTool({tooltips: "i=$index, x1=@x1, x2=@x2, y=@y"}))
+
+        const {view} = await display(p)
+        const gv = view.owner.get_one(g)
+
+        expect(indices(gv, xy(10, 0.75))).to.be.equal([])
+        expect(indices(gv, xy(10, 1.25))).to.be.equal([0])
+        expect(indices(gv, xy(10, 1.75))).to.be.equal([0])
+        expect(indices(gv, xy(10, 2.25))).to.be.equal([1])
+        expect(indices(gv, xy(10, 2.75))).to.be.equal([1])
+      })
     })
   })
 })
