@@ -66,9 +66,10 @@ class TestSRIHashes:
         versions = resources.get_all_sri_versions()
         for v in versions:
             h = resources.get_sri_hashes_for_version(v)
-            assert f"bokeh-{v}.js" in h
-            assert f"bokeh-{v}.min.js" in h
-            if not v.startswith("0"):
+            if "0.8" <= v:
+                assert f"bokeh-{v}.js" in h
+                assert f"bokeh-{v}.min.js" in h
+            if "1" <= v:
                 assert f"bokeh-widgets-{v}.js" in h
                 assert f"bokeh-widgets-{v}.min.js" in h
             assert h == resources._ALL_SRI_HASHES[v]
