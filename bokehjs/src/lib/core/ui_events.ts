@@ -237,6 +237,9 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _pointer_down(ev: PointerEvent): void {
+    if (ev.composedPath()[0] != this.hit_area) {
+      return
+    }
     if (!ev.isPrimary) {
       return
     }
@@ -249,6 +252,7 @@ export class UIEventBus implements EventListenerObject {
       phase: "started",
       timer: setTimeout(() => this._pointer_timeout(), UIEventBus.press_threshold),
     }
+    this.hit_area.setPointerCapture(ev.pointerId)
   }
 
   protected _cancel_timeout(): void {
@@ -302,6 +306,9 @@ export class UIEventBus implements EventListenerObject {
   }
 
   protected _pointer_up(ev: PointerEvent): void {
+    if (ev.composedPath()[0] != this.hit_area) {
+      return
+    }
     const {state} = this
     if (state?.event.pointerId != ev.pointerId) {
       return
