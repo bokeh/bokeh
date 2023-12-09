@@ -81,42 +81,65 @@ export class VAreaStepView extends AreaView {
     return [scx, scy]
   }
 
-  protected override _hit_point(geometry: PointGeometry): Selection {
+  protected _line_selection_for(i: number): Selection {
+    return new Selection({line_indices: [i], selected_glyphs: [this.model], view: this})
+  }
+
+  protected _hit_point_before(geometry: PointGeometry): Selection {
     const {sx, sy1, sy2} = this
-
-    for (let i = 0; i < this.data_size - 1; i++) {
-      let px: number[]
-      let py: number[]
-
-      switch (this.model.step_mode) {
-        case "before": {
-          px = [sx[i], sx[i+1], sx[i+1], sx[i]]
-          py = [sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1]]
-          break
-        }
-        case "after": {
-          px = [sx[i], sx[i+1], sx[i+1], sx[i]]
-          py = [sy1[i], sy1[i], sy2[i], sy2[i]]
-          break
-        }
-        case "center": {
-          const mid_x = (sx[i] + sx[i+1]) / 2
-          px = [sx[i], mid_x, mid_x, sx[i+1], sx[i+1], mid_x, mid_x, sx[i]]
-          py = [sy1[i], sy1[i], sy1[i+1], sy1[i+1], sy2[i+1], sy2[i+1], sy2[i], sy2[i]]
-          break
-        }
-      }
-
+    for (let i = 1; i < this.data_size; i++) {
+      const px = [sx[i-1], sx[i], sx[i], sx[i-1]]
+      const py = [sy1[i], sy1[i], sy2[i], sy2[i]]
       if (hittest.point_in_poly(geometry.sx, geometry.sy, px, py)) {
-        const result = new Selection()
-        result.add_to_selected_glyphs(this.model)
-        result.view = this
-        result.line_indices = [i]
-        return result
+        return this._line_selection_for(i)
       }
     }
-
     return new Selection()
+  }
+
+  protected _hit_point_after(geometry: PointGeometry): Selection {
+    const {sx, sy1, sy2} = this
+    for (let i = 0; i < this.data_size - 1; i++) {
+      const px = [sx[i], sx[i+1], sx[i+1], sx[i]]
+      const py = [sy1[i], sy1[i], sy2[i], sy2[i]]
+      if (hittest.point_in_poly(geometry.sx, geometry.sy, px, py)) {
+        return this._line_selection_for(i)
+      }
+    }
+    return new Selection()
+  }
+
+  protected _hit_point_center(geometry: PointGeometry): Selection {
+    const {sx, sy1, sy2} = this
+
+    for (let i = 0; i < this.data_size; i++) {
+      const mid_prev_x = (sx[i - 1] + sx[i])/2 /* undefined for first */
+      const mid_next_x = (sx[i] + sx[i + 1])/2 /* undefined for last  */
+
+      const px = (() => {
+        if (i == 0) {
+          return [sx[i], mid_next_x, mid_next_x, sx[i]]
+        } else if (i == this.data_size - 1) {
+          return [mid_prev_x, sx[i], sx[i], mid_prev_x]
+        } else {
+          return [mid_prev_x, mid_next_x, mid_next_x, mid_prev_x]
+        }
+      })()
+      const py = [sy1[i], sy1[i], sy2[i], sy2[i]]
+
+      if (hittest.point_in_poly(geometry.sx, geometry.sy, px, py)) {
+        return this._line_selection_for(i)
+      }
+    }
+    return new Selection()
+  }
+
+  protected override _hit_point(geometry: PointGeometry): Selection {
+    switch (this.model.step_mode) {
+      case "before": return this._hit_point_before(geometry)
+      case "after":  return this._hit_point_after(geometry)
+      case "center": return this._hit_point_center(geometry)
+    }
   }
 }
 
