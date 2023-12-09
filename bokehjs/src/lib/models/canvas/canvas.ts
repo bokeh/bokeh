@@ -122,7 +122,7 @@ export class CanvasView extends UIElementView {
   }
 
   override remove(): void {
-    this.ui_event_bus.destroy()
+    this.ui_event_bus.remove()
     super.remove()
   }
 

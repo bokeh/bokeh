@@ -150,7 +150,7 @@ export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap
 
 export type UISignal<E> = Signal<{tool: ToolLike<Tool> | null, e: E}, UIEventBus>
 
-export class UIEventBus implements EventListenerObject {
+export class UIEventBus {
   readonly pan_start:    UISignal<PanEvent> = new Signal(this, "pan:start")
   readonly pan:          UISignal<PanEvent> = new Signal(this, "pan")
   readonly pan_end:      UISignal<PanEvent> = new Signal(this, "pan:end")
@@ -177,39 +177,51 @@ export class UIEventBus implements EventListenerObject {
   readonly keydown:      UISignal<KeyEvent>     = new Signal(this, "keydown")
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
-  get hit_area(): HTMLElement {
-    return this.canvas_view.events_el
-  }
+  readonly hit_area: HTMLElement
 
   constructor(readonly canvas_view: CanvasView) {
-    this.hit_area.addEventListener("pointerenter", (ev) => this._pointer_enter(ev))
-    this.hit_area.addEventListener("pointerleave", (ev) => this._pointer_leave(ev))
-    this.hit_area.addEventListener("pointerdown", (ev) => this._pointer_down(ev))
-    this.hit_area.addEventListener("pointermove", (ev) => this._pointer_move(ev))
-    this.hit_area.addEventListener("pointerup", (ev) => this._pointer_up(ev))
-    this.hit_area.addEventListener("pointercancel", (ev) => this._pointer_cancel(ev))
+    this.hit_area = canvas_view.events_el
 
-    this.hit_area.addEventListener("contextmenu", (e) => this._context_menu(e))
-    this.hit_area.addEventListener("wheel", (e) => this._mouse_wheel(e))
+    this._pointer_enter = this._pointer_enter.bind(this)
+    this._pointer_leave = this._pointer_leave.bind(this)
+    this._pointer_down = this._pointer_down.bind(this)
+    this._pointer_move = this._pointer_move.bind(this)
+    this._pointer_up = this._pointer_up.bind(this)
+    this._pointer_cancel = this._pointer_cancel.bind(this)
 
-    // But we MUST remove listeners registered on document or we'll leak memory: register
-    // 'this' as the listener (it implements the event listener interface, i.e. handleEvent)
-    // instead of an anonymous function so we can easily refer back to it for removing.
-    document.addEventListener("keydown", this)
-    document.addEventListener("keyup", this)
+    this._context_menu = this._context_menu.bind(this)
+    this._mouse_wheel = this._mouse_wheel.bind(this)
+
+    this._key_down = this._key_down.bind(this)
+    this._key_up = this._key_up.bind(this)
+
+    this.hit_area.addEventListener("pointerenter", this._pointer_enter)
+    this.hit_area.addEventListener("pointerleave", this._pointer_leave)
+    this.hit_area.addEventListener("pointerdown", this._pointer_down)
+    this.hit_area.addEventListener("pointermove", this._pointer_move)
+    this.hit_area.addEventListener("pointerup", this._pointer_up)
+    this.hit_area.addEventListener("pointercancel", this._pointer_cancel)
+
+    this.hit_area.addEventListener("contextmenu", this._context_menu)
+    this.hit_area.addEventListener("wheel", this._mouse_wheel)
+
+    document.addEventListener("keydown", this._key_down)
+    document.addEventListener("keyup", this._key_up)
   }
 
-  destroy(): void {
-    document.removeEventListener("keydown", this)
-    document.removeEventListener("keyup", this)
-  }
+  remove(): void {
+    this.hit_area.removeEventListener("pointerenter", this._pointer_enter)
+    this.hit_area.removeEventListener("pointerleave", this._pointer_leave)
+    this.hit_area.removeEventListener("pointerdown", this._pointer_down)
+    this.hit_area.removeEventListener("pointermove", this._pointer_move)
+    this.hit_area.removeEventListener("pointerup", this._pointer_up)
+    this.hit_area.removeEventListener("pointercancel", this._pointer_cancel)
 
-  handleEvent(e: KeyboardEvent): void {
-    if (e.type == "keydown") {
-      this._key_down(e)
-    } else if (e.type == "keyup") {
-      this._key_up(e)
-    }
+    this.hit_area.removeEventListener("contextmenu", this._context_menu)
+    this.hit_area.removeEventListener("wheel", this._mouse_wheel)
+
+    document.removeEventListener("keydown", this._key_down)
+    document.removeEventListener("keyup", this._key_up)
   }
 
   private state: {
