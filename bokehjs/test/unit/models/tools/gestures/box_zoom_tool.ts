@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
-import {click} from "../../../../interactive"
+import {tap} from "../../../../interactive"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -71,13 +71,13 @@ describe("BoxZoomTool", () => {
       expect(pan.class_list.has("bk-active")).to.be.true
 
       // Click and check is active
-      await click(zoom.el)
+      await tap(zoom.el)
       await defer()
       expect(zoom.class_list.has("bk-active")).to.be.true
       expect(pan.class_list.has("bk-active")).to.be.false
 
       // Click again and check is not active
-      await click(zoom.el)
+      await tap(zoom.el)
       await defer()
       expect(zoom.class_list.has("bk-active")).to.be.false
       expect(pan.class_list.has("bk-active")).to.be.false

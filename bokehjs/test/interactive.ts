@@ -62,20 +62,23 @@ const _pointer_common: Partial<PointerEventInit> = {
 const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
-export async function click(el: Element): Promise<void> {
+export async function tap(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
+
   const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
+
+  await delay(UIGestures.doubletap_threshold)
 }
 
 export async function press(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
 
   await delay(UIGestures.press_threshold)
 
-  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
 }
 

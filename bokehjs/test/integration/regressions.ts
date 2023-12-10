@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, actions, xy, click, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
 
 import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
@@ -2648,7 +2648,7 @@ describe("Bug", () => {
       const {view} = await display(gp)
 
       const btn = view.owner.get_one(zoom_in_btn)
-      await click(btn.el)
+      await tap(btn.el)
     })
   })
 
@@ -2837,7 +2837,7 @@ describe("Bug", () => {
 
       const zoom_out_button_view = view.owner.get_one(zoom_out_button)
       for (let i = 0; i < 5; i++) {
-        await click(zoom_out_button_view.el)
+        await tap(zoom_out_button_view.el)
       }
 
       await view.ready

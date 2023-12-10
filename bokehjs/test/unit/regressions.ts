@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, line, click} from "../interactive"
+import {PlotActions, actions, xy, line, tap} from "../interactive"
 
 import {
   BooleanFilter,
@@ -521,7 +521,7 @@ describe("Bug", () => {
       const stub = sinon.stub(CopyToolView.prototype, "copy")
       stub.callsFake(async () => undefined)
       try {
-        await click(copy_btn_view.el)
+        await tap(copy_btn_view.el)
         await defer()
         expect(stub.callCount).to.be.equal(1)
       } finally {

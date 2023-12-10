@@ -74,9 +74,21 @@ export type GestureHandlers = {
   on_rotate_end?(event: RotateEvent): void
 }
 
-export class UIGestures {
+export type Options = {
+  /**
+   * Whether the hit target must be the event target or are descendants permitted.
+   * For example, canvas' events layer must be the event target, because we don't
+   * want tooltips, toolbar or other panels to trigger UI events.
+   */
+  must_be_target?: boolean
+}
 
-  constructor(readonly hit_area: HTMLElement, readonly handlers: GestureHandlers) {
+export class UIGestures {
+  readonly must_be_target: boolean
+
+  constructor(readonly hit_area: HTMLElement, readonly handlers: GestureHandlers, options: Options = {}) {
+    this.must_be_target = options.must_be_target ?? false
+
     this._pointer_enter = this._pointer_enter.bind(this)
     this._pointer_leave = this._pointer_leave.bind(this)
     this._pointer_down = this._pointer_down.bind(this)
@@ -107,6 +119,10 @@ export class UIGestures {
     this.disconnect_signals()
   }
 
+  protected _self_is_target(ev: PointerEvent): boolean {
+    return ev.composedPath()[0] == this.hit_area
+  }
+
   private state: {
     event: PointerEvent
     phase: "started" | "pressing" | "panning" // "pinching" | "rotating"
@@ -132,7 +148,7 @@ export class UIGestures {
   }
 
   protected _pointer_down(ev: PointerEvent): void {
-    if (ev.composedPath()[0] != this.hit_area) {
+    if (this.must_be_target && !this._self_is_target(ev)) {
       return
     }
     if (!ev.isPrimary) {
@@ -201,7 +217,7 @@ export class UIGestures {
   }
 
   protected _pointer_up(ev: PointerEvent): void {
-    if (ev.composedPath()[0] != this.hit_area) {
+    if (this.must_be_target && !this._self_is_target(ev)) {
       return
     }
     const {state} = this
@@ -216,10 +232,10 @@ export class UIGestures {
         const {tap_timestamp} = this
         if (ev1.timeStamp - tap_timestamp < UIGestures.doubletap_threshold) {
           this.tap_timestamp = -Infinity
-          this.on_doubletap(ev0)
+          this.on_doubletap(ev1)
         } else {
           this.tap_timestamp = ev1.timeStamp
-          this.on_tap(ev0)
+          this.on_tap(ev1)
         }
         break
       }

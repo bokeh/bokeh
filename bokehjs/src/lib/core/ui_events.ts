@@ -84,8 +84,6 @@ export function is_Tapable(obj: unknown): obj is Keyable {
   return isObject(obj) && "_tap" in obj
 }
 
-export type ScreenCoord = {sx: number, sy: number}
-
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
 
 export type ScrollEvent = {
@@ -164,7 +162,7 @@ export class UIEventBus {
     this.on_rotate = this.on_rotate.bind(this)
     this.on_rotate_end = this.on_rotate_end.bind(this)
 
-    this.ui_gestures = new UIGestures(this.hit_area, this)
+    this.ui_gestures = new UIGestures(this.hit_area, this, {must_be_target: true})
     this.ui_gestures.connect_signals()
 
     this.on_context_menu = this.on_context_menu.bind(this)
@@ -652,7 +650,7 @@ export class UIEventBus {
     }
   }
 
-  protected _get_sxy(event: MouseEvent): ScreenCoord {
+  protected _get_sxy(event: MouseEvent): {sx: number, sy: number} {
     const {pageX, pageY} = event
     const {left, top} = offset_bbox(this.hit_area)
     return {

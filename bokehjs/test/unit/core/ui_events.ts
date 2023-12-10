@@ -284,16 +284,14 @@ describe("ui_event_bus module", () => {
 
     describe("base_type=scroll", () => {
       let e: UIEvent
-      let srcEvent: WheelEvent
       let preventDefault: sinon.SinonSpy
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: srcEvent}
-        srcEvent = new WheelEvent("wheel")
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new WheelEvent("wheel")}
 
-        preventDefault = sinon.spy(srcEvent, "preventDefault")
-        stopPropagation = sinon.spy(srcEvent, "stopPropagation")
+        preventDefault = sinon.spy(e.native, "preventDefault")
+        stopPropagation = sinon.spy(e.native, "stopPropagation")
       })
 
       after_each(() => {

@@ -1,5 +1,5 @@
 import {display, column} from "./_util"
-import {click, mouse_click} from "../interactive"
+import {tap, mouse_click} from "../interactive"
 import {expect_not_null} from "../unit/assertions"
 
 import {range} from "@bokehjs/core/util/array"
@@ -127,7 +127,7 @@ describe("Widgets", () => {
       const obj = new PaletteSelect({value: "RdBu", items})
       const {view} = await display(obj, [250, 400])
 
-      await click(view.input_el)
+      await tap(view.input_el)
       await view.ready
     })
 
@@ -135,7 +135,7 @@ describe("Widgets", () => {
       const obj = new PaletteSelect({value: "Magma", items, ncols: 3})
       const {view} = await display(obj, [500, 200])
 
-      await click(view.input_el)
+      await tap(view.input_el)
       await view.ready
     })
 
@@ -143,7 +143,7 @@ describe("Widgets", () => {
       const obj = new PaletteSelect({value: "Accent", items, disabled: true})
       const {view} = await display(obj, [250, 50])
 
-      await click(view.input_el)
+      await tap(view.input_el)
       await view.ready
     })
   })
