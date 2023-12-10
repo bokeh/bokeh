@@ -70,7 +70,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool()
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 150, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -83,7 +83,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool()
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 150, delta: -100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: -100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -96,7 +96,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "width"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 150, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -109,7 +109,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "height"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 150, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -122,7 +122,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 150, sy: 301, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 150, sy: 301, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -135,7 +135,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "both", zoom_on_axis: true})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 301, sy: 150, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 301, sy: 150, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({
@@ -148,7 +148,7 @@ describe("WheelZoomTool", () => {
       const wheel_zoom = new WheelZoomTool({dimensions: "both"})
       const {view, tool_view} = await make_plot(wheel_zoom)
 
-      const zoom_event = {type: "wheel" as "wheel", sx: 50, sy: 50, delta: 100, modifiers}
+      const zoom_event = {type: "wheel" as const, sx: 50, sy: 50, delta: 100, modifiers, native: new WheelEvent("wheel")}
       tool_view._scroll(zoom_event)
 
       expect(xy_axis(view)).to.be.similar({

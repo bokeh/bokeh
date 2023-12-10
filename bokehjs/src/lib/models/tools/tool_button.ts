@@ -1,7 +1,7 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
-import type {StyleSheetLike} from "core/dom"
+import type {StyleSheetLike, Keys} from "core/dom"
 import {div, MouseButton} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
@@ -72,7 +72,7 @@ export abstract class ToolButtonView extends UIElementView {
     })
 
     this.el.addEventListener("keydown", (event) => {
-      switch (event.key) {
+      switch (event.key as Keys) {
         case "Enter": {
           this._clicked()
           break
@@ -81,6 +81,7 @@ export abstract class ToolButtonView extends UIElementView {
           this._pressed()
           break
         }
+        default:
       }
     })
   }

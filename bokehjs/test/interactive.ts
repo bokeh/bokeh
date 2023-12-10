@@ -3,7 +3,7 @@ import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
 import type {KeyModifiers} from "@bokehjs/core/ui_events"
-import {UIEventBus} from "@bokehjs/core/ui_events"
+import {UIGestures} from "@bokehjs/core/ui_gestures"
 
 export type Point = {x: number, y: number}
 
@@ -73,7 +73,7 @@ export async function press(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
   el.dispatchEvent(ev0)
 
-  await delay(UIEventBus.press_threshold)
+  await delay(UIGestures.press_threshold)
 
   const ev1 = new PointerEvent("pointerup", {bubbles: true})
   el.dispatchEvent(ev1)
@@ -136,7 +136,7 @@ export class PlotActions {
 
   async tap(xy: Point): Promise<void> {
     await this.emit(this._tap(xy))
-    await delay(UIEventBus.doubletap_threshold)
+    await delay(UIGestures.doubletap_threshold)
   }
 
   async double_tap(xy: Point): Promise<void> {
@@ -265,7 +265,7 @@ export class PlotActions {
   protected async *_press(xy: Point): AsyncIterable<PointerEvent> {
     const [pointerdown, pointerup] = this._tap(xy)
     yield pointerdown
-    await delay(UIEventBus.press_threshold)
+    await delay(UIGestures.press_threshold)
     yield pointerup
   }
 }

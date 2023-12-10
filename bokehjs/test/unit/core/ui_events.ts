@@ -145,7 +145,7 @@ describe("ui_event_bus module", () => {
       let spy_cursor: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "move", sx: 0, sy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
+        e = {type: "move", sx: 0, sy: 0, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
         spy_cursor = sinon.spy(ui_event_bus, "set_cursor")
       })
 
@@ -158,7 +158,7 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e)
 
         expect(spy_trigger.calledTwice).to.be.true
         expect(spy_trigger.args[1]).to.be.equal([ui_event_bus.move, e, inspector])
@@ -169,13 +169,13 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(inspector)
         await plot_view.ready
 
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e)
         expect(spy_trigger.notCalled).to.be.true
         expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
 
       it("should use default cursor no active inspector", () => {
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e)
         expect(spy_cursor.called).to.be.true
         expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
@@ -188,7 +188,7 @@ describe("ui_event_bus module", () => {
         using stub = restorable(sinon.stub(ui_event_bus, "hit_test_frame"))
         stub.returns(false)
 
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e)
         expect(spy_cursor.called).to.be.true
         expect(ui_event_bus.hit_area.style.cursor).to.be.equal("default")
       })
@@ -201,7 +201,7 @@ describe("ui_event_bus module", () => {
         using stub = restorable(sinon.stub(ui_event_bus, "hit_test_frame"))
         stub.returns(true)
 
-        ui_event_bus._trigger(ui_event_bus.move, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.move, e)
         expect(spy_cursor.called).to.be.true
         expect(ui_event_bus.hit_area.style.cursor).to.be.equal("crosshair")
       })
@@ -245,11 +245,11 @@ describe("ui_event_bus module", () => {
     describe("base_type=tap", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "tap", sx: 10, sy: 15, modifiers: {ctrl: false, shift: false, alt: false}}
+        e = {type: "tap", sx: 10, sy: 15, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointerup")}
       })
 
       it("should not trigger tap event if no active tap tool", () => {
-        ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.tap, e)
         expect(spy_trigger.notCalled).to.be.true
       })
 
@@ -258,7 +258,7 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
-        ui_event_bus._trigger(ui_event_bus.tap, e, new Event("mousemove"))
+        ui_event_bus._trigger(ui_event_bus.tap, e)
 
         expect(spy_trigger.calledOnce).to.be.true
         expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.tap, e, gesture])
@@ -284,13 +284,13 @@ describe("ui_event_bus module", () => {
 
     describe("base_type=scroll", () => {
       let e: UIEvent
-      let srcEvent: Event
+      let srcEvent: WheelEvent
       let preventDefault: sinon.SinonSpy
       let stopPropagation: sinon.SinonSpy
 
       before_each(() => {
-        e = {type: "wheel", sx: 0, sy: 0, delta: 1, modifiers: {ctrl: false, shift: false, alt: false}}
-        srcEvent = new Event("scroll")
+        e = {type: "wheel", sx: 0, sy: 0, delta: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: srcEvent}
+        srcEvent = new WheelEvent("wheel")
 
         preventDefault = sinon.spy(srcEvent, "preventDefault")
         stopPropagation = sinon.spy(srcEvent, "stopPropagation")
@@ -303,7 +303,7 @@ describe("ui_event_bus module", () => {
 
       it("should not trigger scroll event if no active scroll tool", () => {
         plot_view.model.toolbar.gestures.scroll.active = null
-        ui_event_bus._trigger(ui_event_bus.scroll, e, srcEvent)
+        ui_event_bus._trigger(ui_event_bus.scroll, e)
         expect(spy_trigger.notCalled).to.be.true
 
         // assert that default scrolling isn't hijacked
@@ -319,7 +319,7 @@ describe("ui_event_bus module", () => {
         // unclear why add_tools doesn't activate the tool, so have to do it manually
         plot_view.model.toolbar.gestures.scroll.active = gesture
 
-        ui_event_bus._trigger(ui_event_bus.scroll, e, srcEvent)
+        ui_event_bus._trigger(ui_event_bus.scroll, e)
 
         // assert that default scrolling is disabled
         expect(preventDefault.calledOnce).to.be.true
@@ -333,11 +333,11 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, modifiers: {ctrl: false, shift: false, alt: false}}
+        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointerdown")} // ??? pointermove
       })
 
       it("should not trigger event if no active tool", () => {
-        ui_event_bus._trigger(ui_event_bus.pan_start, e, new Event("pointerdown"))
+        ui_event_bus._trigger(ui_event_bus.pan_start, e)
         expect(spy_trigger.notCalled).to.be.true
       })
 
@@ -346,7 +346,7 @@ describe("ui_event_bus module", () => {
         plot_view.model.add_tools(gesture)
         await plot_view.ready
 
-        ui_event_bus._trigger(ui_event_bus.pan_start, e, new Event("pointerdown"))
+        ui_event_bus._trigger(ui_event_bus.pan_start, e)
 
         expect(spy_trigger.callCount).to.be.equal(1)
         expect(spy_trigger.args[0]).to.be.equal([ui_event_bus.pan_start, e, gesture])

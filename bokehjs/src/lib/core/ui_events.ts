@@ -1,17 +1,20 @@
+import {UIGestures} from "./ui_gestures"
 import {Signal} from "./signaling"
 import type {Keys} from "./dom"
-import {offset_bbox, MouseButton} from "./dom"
+import {offset_bbox} from "./dom"
 import * as events from "./bokeh_events"
 import {getDeltaY} from "./util/wheel"
 import {reversed, is_empty} from "./util/array"
 import {isObject} from "./util/types"
-import {assert} from "./util/assert"
 import type {PlotView} from "../models/plots/plot"
 import type {Tool, ToolView} from "../models/tools/tool"
 import type {ToolLike} from "../models/tools/tool_proxy"
 import {ToolProxy} from "../models/tools/tool_proxy"
 import type {RendererView} from "../models/renderers/renderer"
 import type {CanvasView} from "../models/canvas/canvas"
+
+import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
+export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 
 export interface Moveable {
   _move_start(ev: MoveEvent): boolean
@@ -83,52 +86,7 @@ export function is_Tapable(obj: unknown): obj is Keyable {
 
 export type ScreenCoord = {sx: number, sy: number}
 
-export type KeyModifiers = {
-  shift: boolean
-  ctrl: boolean
-  alt: boolean
-}
-
-export type PanEvent = {
-  type: "pan" | "panstart" | "panend"
-  sx: number
-  sy: number
-  dx: number
-  dy: number
-  modifiers: KeyModifiers
-}
-
-export type PinchEvent = {
-  type: "pinch" | "pinchstart" | "pinchend"
-  sx: number
-  sy: number
-  scale: number
-  modifiers: KeyModifiers
-}
-
-export type RotateEvent = {
-  type: "rotate" | "rotatestart" | "rotateend"
-  sx: number
-  sy: number
-  rotation: number
-  modifiers: KeyModifiers
-}
-
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
-
-export type TapEvent = {
-  type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
-  sx: number
-  sy: number
-  modifiers: KeyModifiers
-}
-
-export type MoveEvent = {
-  type: "enter" | "move" | "leave"
-  sx: number
-  sy: number
-  modifiers: KeyModifiers
-}
 
 export type ScrollEvent = {
   type: "wheel"
@@ -136,6 +94,7 @@ export type ScrollEvent = {
   sy: number
   delta: number
   modifiers: KeyModifiers
+  native: WheelEvent
 }
 
 export type UIEvent = GestureEvent | TapEvent | MoveEvent | ScrollEvent
@@ -144,6 +103,7 @@ export type KeyEvent = {
   type: "keyup" | "keydown"
   key: Keys
   modifiers: KeyModifiers
+  native: KeyboardEvent
 }
 
 export type EventType = "pan" | "pinch" | "rotate" | "move" | "tap" | "doubletap" | "press" | "pressup" | "scroll"
@@ -178,196 +138,56 @@ export class UIEventBus {
   readonly keyup:        UISignal<KeyEvent>     = new Signal(this, "keyup")
 
   readonly hit_area: HTMLElement
+  readonly ui_gestures: UIGestures
 
   constructor(readonly canvas_view: CanvasView) {
     this.hit_area = canvas_view.events_el
 
-    this._pointer_enter = this._pointer_enter.bind(this)
-    this._pointer_leave = this._pointer_leave.bind(this)
-    this._pointer_down = this._pointer_down.bind(this)
-    this._pointer_move = this._pointer_move.bind(this)
-    this._pointer_up = this._pointer_up.bind(this)
-    this._pointer_cancel = this._pointer_cancel.bind(this)
+    this.on_tap = this.on_tap.bind(this)
+    this.on_doubletap = this.on_doubletap.bind(this)
+    this.on_press = this.on_press.bind(this)
+    this.on_pressup = this.on_pressup.bind(this)
 
-    this._context_menu = this._context_menu.bind(this)
-    this._mouse_wheel = this._mouse_wheel.bind(this)
+    this.on_enter = this.on_enter.bind(this)
+    this.on_move = this.on_move.bind(this)
+    this.on_leave = this.on_leave.bind(this)
 
-    this._key_down = this._key_down.bind(this)
-    this._key_up = this._key_up.bind(this)
+    this.on_pan_start = this.on_pan_start.bind(this)
+    this.on_pan = this.on_pan.bind(this)
+    this.on_pan_end = this.on_pan_end.bind(this)
 
-    this.hit_area.addEventListener("pointerenter", this._pointer_enter)
-    this.hit_area.addEventListener("pointerleave", this._pointer_leave)
-    this.hit_area.addEventListener("pointerdown", this._pointer_down)
-    this.hit_area.addEventListener("pointermove", this._pointer_move)
-    this.hit_area.addEventListener("pointerup", this._pointer_up)
-    this.hit_area.addEventListener("pointercancel", this._pointer_cancel)
+    this.on_pinch_start = this.on_pinch_start.bind(this)
+    this.on_pinch = this.on_pinch.bind(this)
+    this.on_pinch_end = this.on_pinch_end.bind(this)
 
-    this.hit_area.addEventListener("contextmenu", this._context_menu)
-    this.hit_area.addEventListener("wheel", this._mouse_wheel)
+    this.on_rotate_start = this.on_rotate_start.bind(this)
+    this.on_rotate = this.on_rotate.bind(this)
+    this.on_rotate_end = this.on_rotate_end.bind(this)
 
-    document.addEventListener("keydown", this._key_down)
-    document.addEventListener("keyup", this._key_up)
+    this.ui_gestures = new UIGestures(this.hit_area, this)
+    this.ui_gestures.connect_signals()
+
+    this.on_context_menu = this.on_context_menu.bind(this)
+    this.on_mouse_wheel = this.on_mouse_wheel.bind(this)
+
+    this.on_key_down = this.on_key_down.bind(this)
+    this.on_key_up = this.on_key_up.bind(this)
+
+    this.hit_area.addEventListener("contextmenu", this.on_context_menu)
+    this.hit_area.addEventListener("wheel", this.on_mouse_wheel)
+
+    document.addEventListener("keydown", this.on_key_down)
+    document.addEventListener("keyup", this.on_key_up)
   }
 
   remove(): void {
-    this.hit_area.removeEventListener("pointerenter", this._pointer_enter)
-    this.hit_area.removeEventListener("pointerleave", this._pointer_leave)
-    this.hit_area.removeEventListener("pointerdown", this._pointer_down)
-    this.hit_area.removeEventListener("pointermove", this._pointer_move)
-    this.hit_area.removeEventListener("pointerup", this._pointer_up)
-    this.hit_area.removeEventListener("pointercancel", this._pointer_cancel)
+    this.ui_gestures.remove()
 
-    this.hit_area.removeEventListener("contextmenu", this._context_menu)
-    this.hit_area.removeEventListener("wheel", this._mouse_wheel)
+    this.hit_area.removeEventListener("contextmenu", this.on_context_menu)
+    this.hit_area.removeEventListener("wheel", this.on_mouse_wheel)
 
-    document.removeEventListener("keydown", this._key_down)
-    document.removeEventListener("keyup", this._key_up)
-  }
-
-  private state: {
-    event: PointerEvent
-    phase: "started" | "pressing" | "panning" // "pinching" | "rotating"
-    timer: number | null
-  } | null = null
-
-  private tap_timestamp: number = -Infinity
-
-  static readonly move_threshold: number = 5/*px*/
-  static readonly press_threshold: number = 300/*ms*/
-  static readonly doubletap_threshold: number = 300/*ms*/
-
-  protected _pointer_enter(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this._enter(ev)
-    }
-  }
-
-  protected _pointer_leave(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this._exit(ev)
-    }
-  }
-
-  protected _pointer_down(ev: PointerEvent): void {
-    if (ev.composedPath()[0] != this.hit_area) {
-      return
-    }
-    if (!ev.isPrimary) {
-      return
-    }
-    if (ev.pointerType == "mouse" && ev.buttons != MouseButton.Left) {
-      return
-    }
-    assert(this.state == null)
-    this.state = {
-      event: ev,
-      phase: "started",
-      timer: setTimeout(() => this._pointer_timeout(), UIEventBus.press_threshold),
-    }
-    this.hit_area.setPointerCapture(ev.pointerId)
-  }
-
-  protected _cancel_timeout(): void {
-    const {state} = this
-    assert(state != null)
-    if (state.timer != null) {
-      clearTimeout(state.timer)
-      state.timer = null
-    }
-  }
-
-  protected _pointer_timeout(): void {
-    const {state} = this
-    assert(state != null && state.phase == "started")
-    state.phase = "pressing"
-    state.timer = null
-    this._press(state.event)
-  }
-
-  protected _pointer_move(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this._move(ev)
-    }
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
-      return
-    }
-    const ev0 = state.event
-    const ev1 = ev
-    const dx = ev1.x - ev0.x
-    const dy = ev1.y - ev0.y
-    switch (state.phase) {
-      case "started": {
-        if (dx**2 + dy**2 <= UIEventBus.move_threshold**2) {
-          return
-        }
-        this._cancel_timeout()
-        state.phase = "panning"
-        this._pan_start(ev0, dx, dy)
-        this._pan(ev1, dx, dy)
-        break
-      }
-      case "pressing": {
-        break
-      }
-      case "panning": {
-        this._pan(ev1, dx, dy)
-        break
-      }
-    }
-  }
-
-  protected _pointer_up(ev: PointerEvent): void {
-    if (ev.composedPath()[0] != this.hit_area) {
-      return
-    }
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
-      return
-    }
-    this._cancel_timeout()
-    const ev0 = state.event
-    const ev1 = ev
-    switch (state.phase) {
-      case "started": {
-        const {tap_timestamp} = this
-        if (ev1.timeStamp - tap_timestamp < UIEventBus.doubletap_threshold) {
-          this.tap_timestamp = -Infinity
-          this._doubletap(ev0)
-        } else {
-          this.tap_timestamp = ev1.timeStamp
-          this._tap(ev0)
-        }
-        break
-      }
-      case "pressing": {
-        this._pressup(ev1)
-        break
-      }
-      case "panning": {
-        const dx = ev1.x - ev0.x
-        const dy = ev1.y - ev0.y
-        this._pan_end(ev1, dx, dy)
-        break
-      }
-    }
-    this.state = null
-  }
-
-  protected _pointer_cancel(ev: PointerEvent): void {
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
-      return
-    }
-    this._cancel_timeout()
-    if (state.phase == "panning") {
-      const ev0 = state.event
-      const ev1 = ev
-      const dx = ev1.x - ev0.x
-      const dy = ev1.y - ev0.y
-      this._pan_end(ev, dx, dy)
-    }
-    this.state = null
+    document.removeEventListener("keydown", this.on_key_down)
+    document.removeEventListener("keyup", this.on_key_up)
   }
 
   register_tool(tool_view: ToolView): void {
@@ -480,11 +300,12 @@ export class UIEventBus {
   protected _curr_pinch: {plot_view: PlotView} | null = null
   protected _curr_rotate: {plot_view: PlotView} | null = null
 
-  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E, srcEvent: Event): void {
-    if (!this.hit_area.isConnected)
+  _trigger<E extends UIEvent>(signal: UISignal<E>, e: E): void {
+    if (!this.hit_area.isConnected) {
       return
+    }
 
-    const {sx, sy} = e
+    const {sx, sy, native: srcEvent} = e
     const plot_view = this.hit_test_plot(sx, sy)
     const curr_view = plot_view
 
@@ -552,12 +373,12 @@ export class UIEventBus {
 
       if (prev_view != null && (e.type == "leave" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(prev_view)
-        this.__trigger(prev_view, this.move_exit, {type: "leave", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
+        this.__trigger(prev_view, this.move_exit, {type: "leave", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}, native: srcEvent as PointerEvent}, srcEvent)
       }
 
       if (curr_view != null && (e.type == "enter" || prev_view != curr_view)) {
         const {sx, sy} = relativize_event(curr_view)
-        this.__trigger(curr_view, this.move_enter, {type: "enter", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}}, srcEvent)
+        this.__trigger(curr_view, this.move_enter, {type: "enter", sx, sy, modifiers: {shift: false, ctrl: false, alt: false}, native: srcEvent as PointerEvent}, srcEvent)
       }
 
       if (curr_view != null && e.type == "move") {
@@ -831,7 +652,7 @@ export class UIEventBus {
     }
   }
 
-  /*private*/ _get_sxy(event: MouseEvent): ScreenCoord {
+  protected _get_sxy(event: MouseEvent): ScreenCoord {
     const {pageX, pageY} = event
     const {left, top} = offset_bbox(this.hit_area)
     return {
@@ -848,146 +669,104 @@ export class UIEventBus {
     }
   }
 
-  /*private*/ _pan_event(type: PanEvent["type"], ev: PointerEvent, dx: number, dy: number): PanEvent {
+  protected _scroll_event(event: WheelEvent): ScrollEvent {
     return {
-      type,
-      ...this._get_sxy(ev),
-      dx,
-      dy,
-      modifiers: this._get_modifiers(ev),
+      type: event.type as ScrollEvent["type"],
+      ...this._get_sxy(event),
+      delta: getDeltaY(event),
+      modifiers: this._get_modifiers(event),
+      native: event,
     }
   }
 
-  /*private*/ _pinch_event(type: PinchEvent["type"], ev: PointerEvent, scale: number): PinchEvent {
+  protected _key_event(event: KeyboardEvent): KeyEvent {
     return {
-      type,
-      ...this._get_sxy(ev),
-      scale,
-      modifiers: this._get_modifiers(ev),
+      type: event.type as KeyEvent["type"],
+      key: event.key as Keys,
+      modifiers: this._get_modifiers(event),
+      native: event,
     }
   }
 
-  /*private*/ _rotate_event(type: RotateEvent["type"], ev: PointerEvent, rotation: number): RotateEvent {
-    return {
-      type,
-      ...this._get_sxy(ev),
-      rotation,
-      modifiers: this._get_modifiers(ev),
-    }
+  on_tap(event: TapEvent): void {
+    this._trigger(this.tap, event)
   }
 
-  /*private*/ _tap_event(type: TapEvent["type"], ev: PointerEvent): TapEvent {
-    return {
-      type,
-      ...this._get_sxy(ev),
-      modifiers: this._get_modifiers(ev),
-    }
+  on_doubletap(event: TapEvent): void {
+    this._trigger(this.doubletap, event)
   }
 
-  /*private*/ _move_event(type: MoveEvent["type"], ev: PointerEvent): MoveEvent {
-    return {
-      type,
-      ...this._get_sxy(ev),
-      modifiers: this._get_modifiers(ev),
-    }
+  on_press(event: TapEvent): void {
+    this._trigger(this.press, event)
   }
 
-  /*private*/ _scroll_event(e: WheelEvent): ScrollEvent {
-    return {
-      type: e.type as ScrollEvent["type"],
-      ...this._get_sxy(e),
-      delta: getDeltaY(e),
-      modifiers: this._get_modifiers(e),
-    }
+  on_pressup(event: TapEvent): void {
+    this._trigger(this.pressup, event)
   }
 
-  /*private*/ _key_event(e: KeyboardEvent): KeyEvent {
-    return {
-      type: e.type as KeyEvent["type"],
-      key: e.key as Keys,
-      modifiers: this._get_modifiers(e),
-    }
+  on_enter(event: MoveEvent): void {
+    this._trigger(this.move_enter, event)
   }
 
-  /*private*/ _pan_start(ev: PointerEvent, dx: number, dy: number): void {
-    this._trigger(this.pan_start, this._pan_event("panstart", ev, dx, dy), ev)
+  on_move(event: MoveEvent): void {
+    this._trigger(this.move, event)
   }
 
-  /*private*/ _pan(ev: PointerEvent, dx: number, dy: number): void {
-    this._trigger(this.pan, this._pan_event("pan", ev, dx, dy), ev)
+  on_leave(event: MoveEvent): void {
+    this._trigger(this.move_exit, event)
   }
 
-  /*private*/ _pan_end(ev: PointerEvent, dx: number, dy: number): void {
-    this._trigger(this.pan_end, this._pan_event("panend", ev, dx, dy), ev)
+  on_pan_start(event: PanEvent): void {
+    this._trigger(this.pan_start, event)
   }
 
-  /*private*/ _pinch_start(ev: PointerEvent, scale: number): void {
-    this._trigger(this.pinch_start, this._pinch_event("pinchstart", ev, scale), ev)
+  on_pan(event: PanEvent): void {
+    this._trigger(this.pan, event)
   }
 
-  /*private*/ _pinch(ev: PointerEvent, scale: number): void {
-    this._trigger(this.pinch, this._pinch_event("pinch", ev, scale), ev)
+  on_pan_end(event: PanEvent): void {
+    this._trigger(this.pan_end, event)
   }
 
-  /*private*/ _pinch_end(ev: PointerEvent, scale: number): void {
-    this._trigger(this.pinch_end, this._pinch_event("pinchend", ev, scale), ev)
+  on_pinch_start(event: PinchEvent): void {
+    this._trigger(this.pinch_start, event)
   }
 
-  /*private*/ _rotate_start(ev: PointerEvent, rotation: number): void {
-    this._trigger(this.rotate_start, this._rotate_event("rotatestart", ev, rotation), ev)
+  on_pinch(event: PinchEvent): void {
+    this._trigger(this.pinch, event)
   }
 
-  /*private*/ _rotate(ev: PointerEvent, rotation: number): void {
-    this._trigger(this.rotate, this._rotate_event("rotate", ev, rotation), ev)
+  on_pinch_end(event: PinchEvent): void {
+    this._trigger(this.pinch_end, event)
   }
 
-  /*private*/ _rotate_end(ev: PointerEvent, rotation: number): void {
-    this._trigger(this.rotate_end, this._rotate_event("rotateend", ev, rotation), ev)
+  on_rotate_start(event: RotateEvent): void {
+    this._trigger(this.rotate_start, event)
   }
 
-  /*private*/ _tap(ev: PointerEvent): void {
-    this._trigger(this.tap, this._tap_event("tap", ev), ev)
+  on_rotate(event: RotateEvent): void {
+    this._trigger(this.rotate, event)
   }
 
-  /*private*/ _doubletap(ev: PointerEvent): void {
-    this._trigger(this.doubletap, this._tap_event("doubletap", ev), ev)
+  on_rotate_end(event: RotateEvent): void {
+    this._trigger(this.rotate_end, event)
   }
 
-  /*private*/ _press(ev: PointerEvent): void {
-    this._trigger(this.press, this._tap_event("press", ev), ev)
+  on_mouse_wheel(event: WheelEvent): void {
+    this._trigger(this.scroll, this._scroll_event(event))
   }
 
-  /*private*/ _pressup(ev: PointerEvent): void {
-    this._trigger(this.pressup, this._tap_event("pressup", ev), ev)
-  }
-
-  /*private*/ _enter(ev: PointerEvent): void {
-    this._trigger(this.move_enter, this._move_event("enter", ev), ev)
-  }
-
-  /*private*/ _move(ev: PointerEvent): void {
-    this._trigger(this.move, this._move_event("move", ev), ev)
-  }
-
-  /*private*/ _exit(ev: PointerEvent): void {
-    this._trigger(this.move_exit, this._move_event("leave", ev), ev)
-  }
-
-  /*private*/ _mouse_wheel(e: WheelEvent): void {
-    this._trigger(this.scroll, this._scroll_event(e), e)
-  }
-
-  /*private*/ _context_menu(_e: MouseEvent): void {
+  on_context_menu(_event: MouseEvent): void {
     // TODO
   }
 
-  /*private*/ _key_down(e: KeyboardEvent): void {
+  on_key_down(event: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
-    this.trigger(this.keydown, this._key_event(e))
+    this.trigger(this.keydown, this._key_event(event))
   }
 
-  /*private*/ _key_up(e: KeyboardEvent): void {
+  on_key_up(event: KeyboardEvent): void {
     // NOTE: keyup event triggered unconditionally
-    this.trigger(this.keyup, this._key_event(e))
+    this.trigger(this.keyup, this._key_event(event))
   }
 }
