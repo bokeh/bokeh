@@ -226,7 +226,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
   private _pan_state: {poly: Polygon, target: HitTarget} | null = null
 
-  _pan_start(ev: PanEvent): boolean {
+  on_pan_start(ev: PanEvent): boolean {
     if (this.model.visible && this.model.editable) {
       const {sx, sy} = ev
       const target = this._hit_test(sx, sy)
@@ -242,7 +242,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     return false
   }
 
-  _pan(ev: PanEvent): void {
+  on_pan(ev: PanEvent): void {
     assert(this._pan_state != null)
 
     const spoly = (() => {
@@ -272,7 +272,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     this.model.pan.emit(["pan", ev.modifiers])
   }
 
-  _pan_end(ev: PanEvent): void {
+  on_pan_end(ev: PanEvent): void {
     this._pan_state = null
     this.model.pan.emit(["pan:end", ev.modifiers])
   }
@@ -284,7 +284,7 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
 
   private _is_hovered: boolean = false
 
-  _move_start(_ev: MoveEvent): boolean {
+  on_enter(_ev: MoveEvent): boolean {
     const {_has_hover} = this
     if (_has_hover) {
       this._is_hovered = true
@@ -293,9 +293,9 @@ export class PolyAnnotationView extends AnnotationView implements Pannable, Move
     return _has_hover
   }
 
-  _move(_ev: MoveEvent): void {}
+  on_move(_ev: MoveEvent): void {}
 
-  _move_end(_ev: MoveEvent): void {
+  on_leave(_ev: MoveEvent): void {
     if (this._has_hover) {
       this._is_hovered = false
       this.request_paint()

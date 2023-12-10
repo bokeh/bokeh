@@ -16,72 +16,72 @@ import type {CanvasView} from "../models/canvas/canvas"
 import type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 export type {TapEvent, PanEvent, PinchEvent, RotateEvent, MoveEvent, KeyModifiers} from "./ui_gestures"
 
+export interface Tapable {
+  on_tap(event: TapEvent): void
+  on_doubletap?(event: TapEvent): void
+  on_press?(event: TapEvent): void
+  on_pressup?(event: TapEvent): void
+}
+
 export interface Moveable {
-  _move_start(ev: MoveEvent): boolean
-  _move(ev: MoveEvent): void
-  _move_end(ev: MoveEvent): void
+  on_enter(event: MoveEvent): boolean
+  on_move(event: MoveEvent): void
+  on_leave(event: MoveEvent): void
 }
 
 export interface Pannable {
-  _pan_start(ev: PanEvent): boolean
-  _pan(ev: PanEvent): void
-  _pan_end(ev: PanEvent): void
+  on_pan_start(event: PanEvent): boolean
+  on_pan(event: PanEvent): void
+  on_pan_end(event: PanEvent): void
 }
 
 export interface Pinchable {
-  _pinch_start(ev: PinchEvent): boolean
-  _pinch(ev: PinchEvent): void
-  _pinch_end(ev: PinchEvent): void
+  on_pinch_start(event: PinchEvent): boolean
+  on_pinch(event: PinchEvent): void
+  on_pinch_end(event: PinchEvent): void
 }
 
 export interface Rotatable {
-  _rotate_start(ev: RotateEvent): boolean
-  _rotate(ev: RotateEvent): void
-  _rotate_end(ev: RotateEvent): void
+  on_rotate_start(event: RotateEvent): boolean
+  on_rotate(event: RotateEvent): void
+  on_rotate_end(event: RotateEvent): void
 }
 
 export interface Scrollable {
-  _scroll(ev: ScrollEvent): void
+  on_scroll(event: ScrollEvent): void
 }
 
 export interface Keyable {
-  _keydown(ev: KeyEvent): void
-  _keyup(ev: KeyEvent): void
-}
-
-export interface Tapable {
-  _tap(ev: TapEvent): void
-  _doubletap?(ev: TapEvent): void
-  _press?(ev: TapEvent): void
-  _pressup?(ev: TapEvent): void
-}
-
-export function is_Moveable(obj: unknown): obj is Moveable {
-  return isObject(obj) && "_move_start" in obj && "_move" in obj && "_move_end" in obj
-}
-
-export function is_Pannable(obj: unknown): obj is Pannable {
-  return isObject(obj) && "_pan_start" in obj && "_pan" in obj && "_pan_end" in obj
-}
-
-export function is_Pinchable(obj: unknown): obj is Pinchable {
-  return isObject(obj) && "_pinch_start" in obj && "_pinch" in obj && "_pinch_end" in obj
-}
-
-export function is_Rotatable(obj: unknown): obj is Rotatable {
-  return isObject(obj) && "_rotate_start" in obj && "_rotate" in obj && "_rotate_end" in obj
-}
-
-export function is_Scrollable(obj: unknown): obj is Scrollable {
-  return isObject(obj) && "_scroll" in obj
-}
-
-export function is_Keyable(obj: unknown): obj is Keyable {
-  return isObject(obj) && "_keydown" in obj && "_keyup" in obj
+  on_keydown(event: KeyEvent): void
+  on_keyup(event: KeyEvent): void
 }
 
 export function is_Tapable(obj: unknown): obj is Keyable {
-  return isObject(obj) && "_tap" in obj
+  return isObject(obj) && "on_tap" in obj
+}
+
+export function is_Moveable(obj: unknown): obj is Moveable {
+  return isObject(obj) && "on_enter" in obj && "on_move" in obj && "on_leave" in obj
+}
+
+export function is_Pannable(obj: unknown): obj is Pannable {
+  return isObject(obj) && "on_pan_start" in obj && "on_pan" in obj && "on_pan_end" in obj
+}
+
+export function is_Pinchable(obj: unknown): obj is Pinchable {
+  return isObject(obj) && "on_pinch_start" in obj && "on_pinch" in obj && "on_pinch_end" in obj
+}
+
+export function is_Rotatable(obj: unknown): obj is Rotatable {
+  return isObject(obj) && "on_rotate_start" in obj && "on_rotate" in obj && "on_rotate_end" in obj
+}
+
+export function is_Scrollable(obj: unknown): obj is Scrollable {
+  return isObject(obj) && "on_scroll" in obj
+}
+
+export function is_Keyable(obj: unknown): obj is Keyable {
+  return isObject(obj) && "on_keydown" in obj && "on_keyup" in obj
 }
 
 export type GestureEvent = PanEvent | PinchEvent | RotateEvent
@@ -410,7 +410,7 @@ export class UIEventBus {
       if (this._current_pan_view == null) {
         if (view != null) {
           if (event_type == "pan:start" && is_Pannable(view)) {
-            if (view._pan_start(e as PanEvent)) {
+            if (view.on_pan_start(e as PanEvent)) {
               this._current_pan_view = view
               srcEvent.preventDefault()
               return
@@ -419,9 +419,9 @@ export class UIEventBus {
         }
       } else {
         if (event_type == "pan")
-          this._current_pan_view._pan(e as PanEvent)
+          this._current_pan_view.on_pan(e as PanEvent)
         else if (event_type == "pan:end") {
-          this._current_pan_view._pan_end(e as PanEvent)
+          this._current_pan_view.on_pan_end(e as PanEvent)
           this._current_pan_view = null
         }
         srcEvent.preventDefault()
@@ -431,7 +431,7 @@ export class UIEventBus {
       if (this._current_pinch_view == null) {
         if (view != null) {
           if (event_type == "pinch:start" && is_Pinchable(view)) {
-            if (view._pinch_start(e as PinchEvent)) {
+            if (view.on_pinch_start(e as PinchEvent)) {
               this._current_pinch_view = view
               srcEvent.preventDefault()
               return
@@ -440,9 +440,9 @@ export class UIEventBus {
         }
       } else {
         if (event_type == "pinch")
-          this._current_pinch_view._pinch(e as PinchEvent)
+          this._current_pinch_view.on_pinch(e as PinchEvent)
         else if (event_type == "pinch:end") {
-          this._current_pinch_view._pinch_end(e as PinchEvent)
+          this._current_pinch_view.on_pinch_end(e as PinchEvent)
           this._current_pinch_view = null
         }
         srcEvent.preventDefault()
@@ -452,7 +452,7 @@ export class UIEventBus {
       if (this._current_rotate_view == null) {
         if (view != null) {
           if (event_type == "rotate:start" && is_Rotatable(view)) {
-            if (view._rotate_start(e as RotateEvent)) {
+            if (view.on_rotate_start(e as RotateEvent)) {
               this._current_rotate_view = view
               srcEvent.preventDefault()
               return
@@ -461,9 +461,9 @@ export class UIEventBus {
         }
       } else {
         if (event_type == "rotate")
-          this._current_rotate_view._rotate(e as RotateEvent)
+          this._current_rotate_view.on_rotate(e as RotateEvent)
         else if (event_type == "rotate:end") {
-          this._current_rotate_view._rotate_end(e as RotateEvent)
+          this._current_rotate_view.on_rotate_end(e as RotateEvent)
           this._current_rotate_view = null
         }
         srcEvent.preventDefault()
@@ -471,13 +471,13 @@ export class UIEventBus {
       }
     } else if (base_type == "move") {
       if (this._current_move_view == view) {
-        this._current_move_view?._move(e as MoveEvent)
+        this._current_move_view?.on_move(e as MoveEvent)
       } else {
-        this._current_move_view?._move_end(e as MoveEvent)
+        this._current_move_view?.on_leave(e as MoveEvent)
         this._current_move_view = null
 
         if (view != null && is_Moveable(view)) {
-          if (view._move_start(e as MoveEvent)) {
+          if (view.on_enter(e as MoveEvent)) {
             this._current_move_view = view
           }
         }
