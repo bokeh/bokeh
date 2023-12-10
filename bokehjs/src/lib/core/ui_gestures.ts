@@ -1,5 +1,5 @@
 import {MouseButton, offset_bbox} from "./dom"
-import {assert} from "./util/assert"
+import {assert, unreachable} from "./util/assert"
 
 export type KeyModifiers = {
   shift: boolean
@@ -83,6 +83,18 @@ export type Options = {
   must_be_target?: boolean
 }
 
+type PointerId = typeof PointerEvent.prototype["pointerId"]
+type Pointer = {init: PointerEvent, last: PointerEvent}
+
+type GesturePhase =
+  | "idle"         // before any pointer down
+  | "started"      // at least one pointer down and waiting for either movement or pointer up or timeout
+  | "pressing"     // one pointer down and reached press timeout
+  | "panning"      // one pointer down and reached movement threshold
+  | "pinching"     // two pointers down and reached scaling threshold
+  | "rotating"     // two pointers down and reached rotational threshold
+  | "transitional" // one pointer down after another was released (after pinching or rotation)
+
 export class UIGestures {
   readonly must_be_target: boolean
 
@@ -123,150 +135,289 @@ export class UIGestures {
     return ev.composedPath()[0] == this.hit_area
   }
 
-  private state: {
-    event: PointerEvent
-    phase: "started" | "pressing" | "panning" // "pinching" | "rotating"
-    timer: number | null
-  } | null = null
+  protected phase: GesturePhase = "idle"
+  protected pointers: Map<PointerId, Pointer> = new Map()
+  protected press_timer: number | null = null
+  protected tap_timestamp: number = -Infinity
 
-  private tap_timestamp: number = -Infinity
+  protected last_scale: number | null = null
+  protected last_rotation: number | null = null
 
   static readonly move_threshold: number = 5/*px*/
   static readonly press_threshold: number = 300/*ms*/
   static readonly doubletap_threshold: number = 300/*ms*/
+  static readonly pinch_threshold: number = 0/*unit less*/
+  static readonly rotate_threshold: number = 0/*rad*/
 
-  protected _pointer_enter(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this.on_enter(ev)
-    }
+  protected get _is_multi_gesture(): boolean {
+    return this.pointers.size >= 2
   }
 
-  protected _pointer_leave(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this.on_leave(ev)
-    }
+  protected _within_threshold(ptr: Pointer): boolean {
+    const {dx, dy} = this._movement(ptr)
+    return dx**2 + dy**2 <= UIGestures.move_threshold**2
   }
 
-  protected _pointer_down(ev: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(ev)) {
-      return
-    }
-    if (!ev.isPrimary) {
-      return
-    }
-    if (ev.pointerType == "mouse" && ev.buttons != MouseButton.Left) {
-      return
-    }
-    assert(this.state == null)
-    this.state = {
-      event: ev,
-      phase: "started",
-      timer: setTimeout(() => this._pointer_timeout(), UIGestures.press_threshold),
-    }
-    this.hit_area.setPointerCapture(ev.pointerId)
+  protected get _any_movement(): boolean {
+    return [...this.pointers.values()].some((ptr) => !this._within_threshold(ptr))
+  }
+
+  protected _start_timeout(): void {
+    assert(this.press_timer == null)
+    this.press_timer = setTimeout(() => this._pointer_timeout(), UIGestures.press_threshold)
   }
 
   protected _cancel_timeout(): void {
-    const {state} = this
-    assert(state != null)
-    if (state.timer != null) {
-      clearTimeout(state.timer)
-      state.timer = null
+    const {press_timer} = this
+    if (press_timer != null) {
+      clearTimeout(press_timer)
+      this.press_timer = null
     }
   }
 
   protected _pointer_timeout(): void {
-    const {state} = this
-    assert(state != null && state.phase == "started")
-    state.phase = "pressing"
-    state.timer = null
-    this.on_press(state.event)
+    assert(this.phase == "started")
+    assert(!this._is_multi_gesture)
+    this.phase = "pressing"
+    this.press_timer = null
+    const [pointer] = this.pointers.values()
+    this.on_press(pointer.init)
   }
 
-  protected _pointer_move(ev: PointerEvent): void {
-    if (ev.isPrimary) {
-      this.on_move(ev)
+  protected _pointer_enter(event: PointerEvent): void {
+    if (event.isPrimary) {
+      this.on_enter(event)
     }
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
+  }
+
+  protected _pointer_leave(event: PointerEvent): void {
+    if (event.isPrimary) {
+      this.on_leave(event)
+    }
+  }
+
+  protected _pointer_down(event: PointerEvent): void {
+    if (this.must_be_target && !this._self_is_target(event)) {
       return
     }
-    const ev0 = state.event
-    const ev1 = ev
-    const dx = ev1.x - ev0.x
-    const dy = ev1.y - ev0.y
-    switch (state.phase) {
+    if (this._is_multi_gesture) {
+      return
+    }
+    if (this.pointers.has(event.pointerId)) {
+      return
+    }
+    if (event.isPrimary && event.pointerType == "mouse" && event.buttons != MouseButton.Left) {
+      return
+    }
+    this.pointers.set(event.pointerId, {init: event, last: event})
+    this.hit_area.setPointerCapture(event.pointerId)
+    switch (this.phase) {
+      case "idle": {
+        this.phase = "started"
+        this._start_timeout()
+        break
+      }
       case "started": {
-        if (dx**2 + dy**2 <= UIGestures.move_threshold**2) {
+        this._cancel_timeout()
+        break
+      }
+      case "pressing":
+      case "panning":
+      case "pinching":
+      case "rotating":
+      case "transitional":
+        break
+    }
+  }
+
+  protected _pointer_move(event: PointerEvent): void {
+    if (this.must_be_target && !this._self_is_target(event)) {
+      return
+    }
+    if (event.isPrimary) {
+      this.on_move(event)
+    }
+    const pointer = this.pointers.get(event.pointerId)
+    if (pointer == null) {
+      return
+    }
+    pointer.last = event
+    switch (this.phase) {
+      case "idle": {
+        unreachable()
+      }
+      case "started":
+      case "transitional": {
+        if (!this._any_movement) {
           return
         }
         this._cancel_timeout()
-        state.phase = "panning"
-        this.on_pan_start(ev0, dx, dy)
-        this.on_pan(ev1, dx, dy)
-        break
-      }
-      case "pressing": {
-        break
-      }
-      case "panning": {
-        this.on_pan(ev1, dx, dy)
-        break
-      }
-    }
-  }
-
-  protected _pointer_up(ev: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(ev)) {
-      return
-    }
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
-      return
-    }
-    this._cancel_timeout()
-    const ev0 = state.event
-    const ev1 = ev
-    switch (state.phase) {
-      case "started": {
-        const {tap_timestamp} = this
-        if (ev1.timeStamp - tap_timestamp < UIGestures.doubletap_threshold) {
-          this.tap_timestamp = -Infinity
-          this.on_doubletap(ev1)
+        if (!this._is_multi_gesture) {
+          this.phase = "panning"
+          const [ptr] = this.pointers.values()
+          const {dx, dy} = this._movement(ptr)
+          this.on_pan_start(ptr.init, 0, 0)
+          this.on_pan(ptr.last, dx, dy)
         } else {
-          this.tap_timestamp = ev1.timeStamp
-          this.on_tap(ev1)
+          const [ptr0, ptr1] = this.pointers.values()
+          const scale = this._scale(ptr0, ptr1)
+          const rotation = this._rotation(ptr0, ptr1)
+          if (Math.abs(scale - 1) > UIGestures.pinch_threshold) {
+            this.phase = "pinching"
+            this.on_pinch_start(ptr0.init, ptr1.init, 1)
+            this.on_pinch(ptr0.last, ptr1.last, scale)
+            this.last_scale = scale
+          } else if (Math.abs(rotation) > UIGestures.rotate_threshold) {
+            this.phase = "rotating"
+            this.on_rotate_start(ptr0.init, ptr1.init, 0)
+            this.on_rotate(ptr1.last, ptr1.last, rotation)
+            this.last_rotation = rotation
+          }
         }
         break
       }
       case "pressing": {
-        this.on_pressup(ev1)
         break
       }
       case "panning": {
-        const dx = ev1.x - ev0.x
-        const dy = ev1.y - ev0.y
-        this.on_pan_end(ev1, dx, dy)
+        const [ptr] = this.pointers.values()
+        const {dx, dy} = this._movement(ptr)
+        this.on_pan(event, dx, dy)
+        break
+      }
+      case "pinching": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const scale = this._scale(ptr0, ptr1)
+        if (scale != this.last_scale) {
+          this.on_pinch(ptr0.last, ptr1.last, scale)
+          this.last_scale = scale
+        }
+        break
+      }
+      case "rotating": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const rotation = this._rotation(ptr0, ptr1)
+        if (rotation != this.last_rotation) {
+          this.on_rotate(ptr0.last, ptr1.last, rotation)
+          this.last_rotation = rotation
+        }
         break
       }
     }
-    this.state = null
   }
 
-  protected _pointer_cancel(ev: PointerEvent): void {
-    const {state} = this
-    if (state?.event.pointerId != ev.pointerId) {
+  protected _pointer_up(event: PointerEvent): void {
+    if (this.must_be_target && !this._self_is_target(event)) {
+      return
+    }
+    const pointer = this.pointers.get(event.pointerId)
+    if (pointer == null) {
+      return
+    }
+    pointer.last = event
+    this._cancel_timeout()
+    switch (this.phase) {
+      case "idle": {
+        unreachable()
+      }
+      case "started": {
+        const [ptr] = this.pointers.values()
+        const {tap_timestamp} = this
+        if (ptr.last.timeStamp - tap_timestamp < UIGestures.doubletap_threshold) {
+          this.tap_timestamp = -Infinity
+          this.on_doubletap(ptr.last)
+        } else {
+          this.tap_timestamp = ptr.last.timeStamp
+          this.on_tap(ptr.last)
+        }
+        this.phase = "idle"
+        break
+      }
+      case "transitional": {
+        this.phase = "idle"
+        break
+      }
+      case "pressing": {
+        const [ptr] = this.pointers.values()
+        this.on_pressup(ptr.last)
+        this.phase = "idle"
+        break
+      }
+      case "panning": {
+        const [ptr] = this.pointers.values()
+        const {dx, dy} = this._movement(ptr)
+        this.on_pan_end(event, dx, dy)
+        this.phase = "idle"
+        break
+      }
+      case "pinching": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const scale = this._scale(ptr0, ptr1)
+        this.on_pinch_end(ptr0.last, ptr1.last, scale)
+        this.phase = "transitional"
+        this.last_scale = null
+        break
+      }
+      case "rotating": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const rotation = this._rotation(ptr0, ptr1)
+        this.on_rotate_end(ptr0.last, ptr1.last, rotation)
+        this.phase = "transitional"
+        this.last_rotation = null
+        break
+      }
+    }
+    this.pointers.delete(event.pointerId)
+    if (this.phase == "transitional") {
+      const [ptr] = this.pointers.values()
+      ptr.init = ptr.last
+    }
+  }
+
+  protected _pointer_cancel(event: PointerEvent): void {
+    if (!this.pointers.has(event.pointerId)) {
       return
     }
     this._cancel_timeout()
-    if (state.phase == "panning") {
-      const ev0 = state.event
-      const ev1 = ev
-      const dx = ev1.x - ev0.x
-      const dy = ev1.y - ev0.y
-      this.on_pan_end(ev, dx, dy)
+    switch (this.phase) {
+      case "idle": {
+        unreachable()
+      }
+      case "started":
+      case "pressing":
+      case "transitional": {
+        this.phase = "idle"
+        break
+      }
+      case "panning": {
+        const [ptr] = this.pointers.values()
+        const {dx, dy} = this._movement(ptr)
+        this.on_pan_end(event, dx, dy)
+        this.phase = "idle"
+        break
+      }
+      case "pinching": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const scale = this._scale(ptr0, ptr1)
+        this.on_pinch_end(ptr0.last, ptr1.last, scale)
+        this.phase = "transitional"
+        this.last_scale = null
+        break
+      }
+      case "rotating": {
+        const [ptr0, ptr1] = this.pointers.values()
+        const rotation = this._rotation(ptr0, ptr1)
+        this.on_rotate_end(ptr0.last, ptr1.last, rotation)
+        this.phase = "transitional"
+        this.last_rotation = null
+        break
+      }
     }
-    this.state = null
+    this.pointers.delete(event.pointerId)
+    if (this.phase == "transitional") {
+      const [ptr] = this.pointers.values()
+      ptr.init = ptr.last
+    }
   }
 
   on_tap(ev: PointerEvent): void {
@@ -332,41 +483,41 @@ export class UIGestures {
     }
   }
 
-  on_pinch_start(ev: PointerEvent, scale: number): void {
+  on_pinch_start(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
     const {on_pinch_start} = this.handlers
     if (on_pinch_start != null) {
-      on_pinch_start(this._pinch_event("pinchstart", ev, scale))
+      on_pinch_start(this._pinch_event("pinchstart", ev0, ev1, scale))
     }
   }
-  on_pinch(ev: PointerEvent, scale: number): void {
+  on_pinch(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
     const {on_pinch} = this.handlers
     if (on_pinch != null) {
-      on_pinch(this._pinch_event("pinch", ev, scale))
+      on_pinch(this._pinch_event("pinch", ev0, ev1, scale))
     }
   }
-  on_pinch_end(ev: PointerEvent, scale: number): void {
+  on_pinch_end(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
     const {on_pinch_end} = this.handlers
     if (on_pinch_end != null) {
-      on_pinch_end(this._pinch_event("pinchend", ev, scale))
+      on_pinch_end(this._pinch_event("pinchend", ev0, ev1, scale))
     }
   }
 
-  on_rotate_start(ev: PointerEvent, rotation: number): void {
+  on_rotate_start(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
     const {on_rotate_start} = this.handlers
     if (on_rotate_start != null) {
-      on_rotate_start(this._rotate_event("rotatestart", ev, rotation))
+      on_rotate_start(this._rotate_event("rotatestart", ev0, ev1, rotation))
     }
   }
-  on_rotate(ev: PointerEvent, rotation: number): void {
+  on_rotate(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
     const {on_rotate} = this.handlers
     if (on_rotate != null) {
-      on_rotate(this._rotate_event("rotate", ev, rotation))
+      on_rotate(this._rotate_event("rotate", ev0, ev1, rotation))
     }
   }
-  on_rotate_end(ev: PointerEvent, rotation: number): void {
+  on_rotate_end(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
     const {on_rotate_end} = this.handlers
     if (on_rotate_end != null) {
-      on_rotate_end(this._rotate_event("rotateend", ev, rotation))
+      on_rotate_end(this._rotate_event("rotateend", ev0, ev1, rotation))
     }
   }
 
@@ -416,23 +567,56 @@ export class UIGestures {
     }
   }
 
-  protected _pinch_event(type: PinchEvent["type"], event: PointerEvent, scale: number): PinchEvent {
+  protected _pinch_event(type: PinchEvent["type"], event0: PointerEvent, event1: PointerEvent, scale: number): PinchEvent {
+    const {sx: sx0, sy: sy0} = this._get_sxy(event0)
+    const {sx: sx1, sy: sy1} = this._get_sxy(event1)
     return {
       type,
-      ...this._get_sxy(event),
+      sx: (sx0 + sx1)/2,
+      sy: (sy0 + sy1)/2,
       scale,
-      modifiers: this._get_modifiers(event),
-      native: event,
+      modifiers: this._get_modifiers(event0),
+      native: event0,
     }
   }
 
-  protected _rotate_event(type: RotateEvent["type"], event: PointerEvent, rotation: number): RotateEvent {
+  protected _rotate_event(type: RotateEvent["type"], event0: PointerEvent, event1: PointerEvent, rotation: number): RotateEvent {
+    const {sx: sx0, sy: sy0} = this._get_sxy(event0)
+    const {sx: sx1, sy: sy1} = this._get_sxy(event1)
     return {
       type,
-      ...this._get_sxy(event),
+      sx: (sx0 + sx1)/2,
+      sy: (sy0 + sy1)/2,
       rotation,
-      modifiers: this._get_modifiers(event),
-      native: event,
+      modifiers: this._get_modifiers(event0),
+      native: event0,
     }
+  }
+
+  protected _movement(ptr: Pointer): {dx: number, dy: number} {
+    return {
+      dx: ptr.last.x - ptr.init.x,
+      dy: ptr.last.y - ptr.init.y,
+    }
+  }
+
+  protected _distance(ev0: PointerEvent, ev1: PointerEvent): number {
+    const x = ev1.x - ev0.x
+    const y = ev1.y - ev0.y
+    return Math.sqrt(x**2 + y**2)
+  }
+
+  protected _angle(ev0: PointerEvent, ev1: PointerEvent): number {
+    const x = ev1.x - ev0.x
+    const y = ev1.y - ev0.y
+    return Math.atan2(y, x)*180/Math.PI
+  }
+
+  protected _scale(ptr0: Pointer, ptr1: Pointer): number {
+    return this._distance(ptr0.last, ptr1.last)/this._distance(ptr0.init, ptr1.init)
+  }
+
+  protected _rotation(ptr0: Pointer, ptr1: Pointer): number {
+    return this._angle(ptr1.last, ptr0.last) + this._angle(ptr1.init, ptr0.init)
   }
 }
