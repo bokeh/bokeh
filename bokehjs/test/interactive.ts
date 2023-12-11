@@ -3,6 +3,7 @@ import {MouseButton, offset_bbox} from "@bokehjs/core/dom"
 import {linspace, zip, last} from "@bokehjs/core/util/array"
 import {delay} from "@bokehjs/core/util/defer"
 import type {KeyModifiers} from "@bokehjs/core/ui_events"
+import {UIGestures} from "@bokehjs/core/ui_gestures"
 
 export type Point = {x: number, y: number}
 
@@ -61,23 +62,23 @@ const _pointer_common: Partial<PointerEventInit> = {
 const MOVE_PRESSURE = 0.0
 const HOLD_PRESSURE = 0.5
 
-export async function click(el: Element): Promise<void> {
+export async function tap(el: Element): Promise<void> {
   const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
 
-  await delay(10)
-
   const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
+
+  await delay(UIGestures.doubletap_threshold)
 }
 
 export async function press(el: Element): Promise<void> {
-  const ev0 = new PointerEvent("pointerdown", {pressure: 0.5, buttons: MouseButton.Left, bubbles: true})
+  const ev0 = new PointerEvent("pointerdown", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev0)
 
-  await delay(250)
+  await delay(UIGestures.press_threshold)
 
-  const ev1 = new PointerEvent("pointerup", {bubbles: true})
+  const ev1 = new PointerEvent("pointerup", {..._pointer_common, pressure: HOLD_PRESSURE, buttons: MouseButton.Left})
   el.dispatchEvent(ev1)
 }
 
@@ -128,10 +129,6 @@ export class PlotActions {
     await this.emit(this._hover({type: "line", xy0, xy1: xy1 ?? xy0, n}))
   }
 
-  async move(xy0: Point, xy1: Point, n?: number, pressure?: number): Promise<void> {
-    await this.emit(this._move({type: "line", xy0, xy1, n}, pressure))
-  }
-
   async pan(xy0: Point, xy1: Point, n?: number): Promise<void> {
     await this.emit(this._pan({type: "line", xy0, xy1, n}))
   }
@@ -142,10 +139,15 @@ export class PlotActions {
 
   async tap(xy: Point): Promise<void> {
     await this.emit(this._tap(xy))
+    await delay(UIGestures.doubletap_threshold)
   }
 
   async double_tap(xy: Point): Promise<void> {
     await this.emit(this._double_tap(xy))
+  }
+
+  async press(xy: Point): Promise<void> {
+    await this.emit(this._press(xy))
   }
 
   protected _event_keys(modifiers: Partial<KeyModifiers> = {}): EventKeys {
@@ -156,8 +158,8 @@ export class PlotActions {
     }
   }
 
-  protected async emit(events: Iterable<UIEvent>): Promise<void> {
-    for (const ev of events) {
+  protected async emit(events: Iterable<UIEvent> | AsyncIterable<UIEvent>): Promise<void> {
+    for await (const ev of events) {
       this.el.dispatchEvent(ev)
       await delay(this.options.pause)
     }
@@ -235,22 +237,20 @@ export class PlotActions {
     })
   }
 
-  protected *_hover(path: Path): Iterable<MouseEvent> {
+  protected *_move(path: Path, pressure: number, buttons: MouseButton, keys: EventKeys): Iterable<PointerEvent> {
     for (const [x, y] of this._compute(path)) {
-      yield new MouseEvent("mousemove", {..._pointer_common, ...this.screen({x, y})})
+      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons, ...keys})
     }
   }
 
-  protected *_move(path: Path, pressure: number = MOVE_PRESSURE, keys: EventKeys = {}): Iterable<PointerEvent> {
-    for (const [x, y] of this._compute(path)) {
-      yield new PointerEvent("pointermove", {..._pointer_common, ...this.screen({x, y}), pressure, buttons: MouseButton.Left, ...keys})
-    }
+  protected *_hover(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
+    yield* this._move(path, MOVE_PRESSURE, MouseButton.None, keys)
   }
 
   protected *_pan(path: Path, keys: EventKeys = {}): Iterable<PointerEvent> {
     const [xy0, xy1] = this._bounds(path)
     yield new PointerEvent("pointerdown", {..._pointer_common, ...this.screen(xy0), pressure: HOLD_PRESSURE, ...keys, buttons: MouseButton.Left})
-    yield* this._move(path, HOLD_PRESSURE, keys)
+    yield* this._move(path, HOLD_PRESSURE, MouseButton.Left, keys)
     yield new PointerEvent("pointerup",   {..._pointer_common, ...this.screen(xy1), pressure: MOVE_PRESSURE, ...keys})
   }
 
@@ -263,5 +263,12 @@ export class PlotActions {
   protected *_double_tap(xy: Point): Iterable<PointerEvent> {
     yield* this._tap(xy)
     yield* this._tap(xy)
+  }
+
+  protected async *_press(xy: Point): AsyncIterable<PointerEvent> {
+    const [pointerdown, pointerup] = this._tap(xy)
+    yield pointerdown
+    await delay(UIGestures.press_threshold)
+    yield pointerup
   }
 }

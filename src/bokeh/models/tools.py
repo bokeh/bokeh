@@ -1092,7 +1092,7 @@ class PolySelectTool(Tap, RegionSelectTool):
     The polygon selection tool allows users to make selections on a
     Plot by indicating a polygonal region with mouse clicks. single
     clicks (or taps) add successive points to the definition of the
-    polygon, and a double click (or tap) indicates the selection
+    polygon, and a press click (or tap) indicates the selection
     region is ready.
 
     See :ref:`ug_styling_plots_selected_unselected_glyphs` for information
@@ -1577,9 +1577,8 @@ class BoxEditTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add box: Hold shift then click and drag anywhere on the plot or double
-      tap once to start drawing, move the mouse and double tap again to finish
-      drawing.
+    * Add box: Hold shift then click and drag anywhere on the plot or press
+      once to start drawing, move the mouse and press again to finish drawing.
 
     * Move box: Click and drag an existing box, the box will be dropped once
       you let go of the mouse button.
@@ -1703,8 +1702,8 @@ class PolyDrawTool(PolyTool, Drag, Tap):
 
     The supported actions include:
 
-    * Add patch or multi-line: Double tap to add the first vertex, then use tap
-      to add each subsequent vertex, to finalize the draw action double tap to
+    * Add patch or multi-line: press to add the first vertex, then use tap
+      to add each subsequent vertex, to finalize the draw action press to
       insert the final vertex or press the ESC key.
 
     * Move patch or multi-line: Tap and drag an existing patch/multi-line, the
@@ -1792,11 +1791,11 @@ class PolyEditTool(PolyTool, Drag, Tap):
 
     The supported actions include:
 
-    * Show vertices: Double tap an existing patch or multi-line
+    * Show vertices: press an existing patch or multi-line
 
-    * Add vertex: Double tap an existing vertex to select it, the tool will
+    * Add vertex: press an existing vertex to select it, the tool will
       draw the next point, to add it tap in a new location. To finish editing
-      and add a point double tap otherwise press the ESC key to cancel.
+      and add a point press otherwise press the ESC key to cancel.
 
     * Move vertex: Drag an existing vertex and let go of the mouse button to
       release it.
@@ -1833,7 +1832,7 @@ class LineEditTool(EditTool, Drag, Tap):
 
     The supported actions include:
 
-    * Show intersections: Double tap an existing line
+    * Show intersections: press an existing line
 
     * Move point: Drag an existing point and let go of the mouse button to
       release it.

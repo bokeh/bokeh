@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
-import {PlotActions, actions, xy, click, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
+import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
 
 import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
@@ -59,7 +59,7 @@ import {Figure, figure, show} from "@bokehjs/api/plotting"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import type {Keys} from "@bokehjs/core/dom"
 import {div} from "@bokehjs/core/dom"
-import type {XY, LRTB} from "@bokehjs/core/util/bbox"
+import type {LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 import {assert} from "@bokehjs/core/util/assert"
 
@@ -2648,7 +2648,7 @@ describe("Bug", () => {
       const {view} = await display(gp)
 
       const btn = view.owner.get_one(zoom_in_btn)
-      await click(btn.el)
+      await tap(btn.el)
     })
   })
 
@@ -2830,26 +2830,17 @@ describe("Bug", () => {
       const {view} = await display(p)
       await paint()
 
-      //const actions = new PlotActions(view)
-      //await actions.tap({x: 15, y: 15})
-      //await actions.tap({x: 15, y: 35})
-      //await actions.tap({x: 35, y: 35})
-
-      function tap(xy: XY) {
-        const sx = view.frame.x_scale.compute(xy.x)
-        const sy = view.frame.y_scale.compute(xy.y)
-        const poly_select_view = view.owner.get_one(poly_select)
-        poly_select_view._tap({type: "tap", sx, sy, modifiers: {ctrl: false, shift: false, alt: false}})
-      }
-
-      tap({x: 15, y: 15})
-      tap({x: 15, y: 35})
-      tap({x: 35, y: 35})
+      const actions = new PlotActions(view)
+      await actions.tap({x: 15, y: 15})
+      await actions.tap({x: 15, y: 35})
+      await actions.tap({x: 35, y: 35})
 
       const zoom_out_button_view = view.owner.get_one(zoom_out_button)
       for (let i = 0; i < 5; i++) {
-        await click(zoom_out_button_view.el)
+        await tap(zoom_out_button_view.el)
       }
+
+      await view.ready
     })
   })
 

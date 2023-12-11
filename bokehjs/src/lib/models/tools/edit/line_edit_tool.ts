@@ -16,7 +16,7 @@ export class LineEditToolView extends LineToolView {
   _selected_renderer: GlyphRenderer | null
   _drawing: boolean = false
 
-  override _doubletap(ev: TapEvent): void {
+  override _press(ev: TapEvent): void {
     if (!this.model.active)
       return
 
@@ -156,7 +156,7 @@ export class LineEditTool extends LineTool {
 
   override tool_name = "Line Edit Tool"
   override tool_icon = tool_icon_line_edit
-  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override event_type = ["tap" as "tap", "press" as "press", "pan" as "pan", "move" as "move"]
   override default_order = 4
 
   override get tooltip(): string {

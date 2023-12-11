@@ -238,19 +238,19 @@ describe("BoxEditTool", () => {
       expect(data.d).to.be.equal([{d: 2}, {d: 3}, "Foo"])
     })
 
-    it("should draw box on doubletap and move", async () => {
+    it("should draw box on press and move", async () => {
       const testcase = await make_testcase()
       const hit_test_stub = sinon.stub(testcase.glyph_view, "hit_test")
       hit_test_stub.returns(null)
 
       const tap_event1 = make_tap_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(tap_event1)
+      testcase.draw_tool_view._press(tap_event1)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       const move_event = make_move_event(200, 200)
       testcase.draw_tool_view._move(move_event)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.equal([300, 300])
       const tap_event2 = make_tap_event(200, 200, true)
-      testcase.draw_tool_view._doubletap(tap_event2)
+      testcase.draw_tool_view._press(tap_event2)
 
       expect(testcase.draw_tool_view._draw_basepoint).to.be.null
       const {selected, data} = testcase.data_source
@@ -265,12 +265,12 @@ describe("BoxEditTool", () => {
       expect(data.d).to.be.equal([{d: 1}, {d: 2}, {d: 3}, "Foo"])
     })
 
-    it("should not draw box on doubletap when tool inactive", async () => {
+    it("should not draw box on press when tool inactive", async () => {
       const testcase = await make_testcase()
       testcase.draw_tool_view.model.active = false
 
       const tap_event = make_tap_event(300, 300, true)
-      testcase.draw_tool_view._doubletap(tap_event)
+      testcase.draw_tool_view._press(tap_event)
       expect(testcase.draw_tool_view._draw_basepoint).to.be.undefined
     })
   })

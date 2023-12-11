@@ -2,7 +2,7 @@ import sinon from "sinon"
 
 import {expect, expect_instanceof, expect_not_null} from "assertions"
 import {display, fig, restorable} from "./_util"
-import {PlotActions, actions, xy, line, click} from "../interactive"
+import {PlotActions, actions, xy, line, tap} from "../interactive"
 
 import {
   BooleanFilter,
@@ -59,14 +59,14 @@ import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
 import type {XY} from "@bokehjs/core/util/bbox"
-import {div, offset_bbox} from "@bokehjs/core/dom"
+import {div} from "@bokehjs/core/dom"
 import type {Color, Arrayable} from "@bokehjs/core/types"
 import type {DocJson, DocumentEvent} from "@bokehjs/document"
 import {Document, ModelChangedEvent, MessageSentEvent} from "@bokehjs/document"
 import {DocumentReady, RangesUpdate} from "@bokehjs/core/bokeh_events"
 import {gridplot} from "@bokehjs/api/gridplot"
 import {Spectral11, Viridis256} from "@bokehjs/api/palettes"
-import {defer, delay, paint, poll} from "@bokehjs/core/util/defer"
+import {defer, paint, poll} from "@bokehjs/core/util/defer"
 import type {Field} from "@bokehjs/core/vectorization"
 
 import {UIElement, UIElementView} from "@bokehjs/models/ui/ui_element"
@@ -245,15 +245,17 @@ describe("Bug", () => {
         const data_source = new ColumnDataSource({data: {x: [0, 1], y: [0.1, 0.1]}})
         const glyph = new Line({line_color: "red"})
         const renderer = new GlyphRenderer({data_source, glyph, hover_glyph})
-        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline"})]})
+        const plot = fig([200, 200], {tools: [new HoverTool({mode: "vline", attachment: "above"})]})
         plot.add_renderers(renderer)
 
         const {view} = await display(plot)
 
         const lnv = view.owner.get_one(renderer)
-        const ln_spy = sinon.spy(lnv, "request_render")
+        const ln_spy = sinon.spy(lnv, "request_paint")
 
         await actions(view).hover(xy(0, 0), xy(1, 1), 6)
+        await view.ready
+
         return ln_spy.callCount
       }
 
@@ -274,12 +276,14 @@ describe("Bug", () => {
       const {view} = await display(plot)
 
       const gv = view.owner.get_one(renderer)
-      const gv_spy = sinon.spy(gv, "request_render")
+      const gv_spy = sinon.spy(gv, "request_paint")
 
       await actions(view).hover(xy(0, 0), xy(1, 1), 6)
+      await view.ready
       expect(gv_spy.callCount).to.be.equal(0)
 
-      await actions(view).hover(xy(0.8, 1), xy(0.8, 0), 6)
+      await actions(view).hover(xy(0.6, 1), xy(0.6, 0), 6)
+      await view.ready
       expect(gv_spy.callCount).to.be.equal(1)
     })
   })
@@ -473,32 +477,18 @@ describe("Bug", () => {
       const {view} = await display(p)
       expect(r.data_source.selected.indices).to.be.equal([])
 
-      async function tap(sx: number, sy: number) {
-        const ui = view.canvas_view.ui_event_bus
-        const {left, top} = offset_bbox(ui.hit_area)
-        const ev = new MouseEvent("click", {clientX: left + sx, clientY: top + sy})
-        const hev = {
-          type: "tap",
-          deltaX: 0,
-          deltaY: 0,
-          scale: 1,
-          rotation: 0,
-          srcEvent: ev,
-        }
-        ui._tap(hev) // can't use dispatchEvent(), because of doubletap recognizer
-        await view.ready
-      }
+      const actions = new PlotActions(view, {units: "screen"})
 
-      await tap(30, 70) // click on 0
+      await actions.tap(xy(30, 70)) // click on 0
       expect(r.data_source.selected.indices).to.be.equal([0])
 
-      await tap(30, 30) // click on empty
+      await actions.tap(xy(30, 30)) // click on empty
       expect(r.data_source.selected.indices).to.be.equal([])
 
-      await tap(70, 30) // click on 1
+      await actions.tap(xy(70, 30)) // click on 1
       expect(r.data_source.selected.indices).to.be.equal([1])
 
-      await tap(5, 5)   // click off frame
+      await actions.tap(xy(5, 5))   // click off frame
       expect(r.data_source.selected.indices).to.be.equal([1])
     })
   })
@@ -531,7 +521,7 @@ describe("Bug", () => {
       const stub = sinon.stub(CopyToolView.prototype, "copy")
       stub.callsFake(async () => undefined)
       try {
-        await click(copy_btn_view.el)
+        await tap(copy_btn_view.el)
         await defer()
         expect(stub.callCount).to.be.equal(1)
       } finally {
@@ -1314,28 +1304,24 @@ describe("Bug", () => {
 
         await actions.tap({x: 1, y: 1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, 0))
         img.data_source.selected.clear()
         await view.ready
 
         await actions.tap({x: 2*n-1, y: 1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, 0))
         img.data_source.selected.clear()
         await view.ready
 
         await actions.tap({x: 1, y: 2*n-1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(0, n-1))
         img.data_source.selected.clear()
         await view.ready
 
         await actions.tap({x: 2*n-1, y: 2*n-1})
         await view.ready
-        await delay(500) // remove in PR #12831
         expect(img.data_source.selected.image_indices).to.be.equal(image_index(n-1, n-1))
         img.data_source.selected.clear()
         await view.ready

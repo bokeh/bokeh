@@ -1,8 +1,10 @@
 import {UIElement, UIElementView} from "../ui/ui_element"
 import {Tool} from "./tool"
 import {ToolProxy} from "./tool_proxy"
-import type {StyleSheetLike} from "core/dom"
-import {div, MouseButton} from "core/dom"
+import type {TapEvent} from "core/ui_gestures"
+import {UIGestures} from "core/ui_gestures"
+import type {StyleSheetLike, Keys} from "core/dom"
+import {div} from "core/dom"
 import {ToolIcon} from "core/enums"
 import {ContextMenu} from "core/util/menus"
 import {reversed} from "core/util/array"
@@ -18,7 +20,8 @@ export abstract class ToolButtonView extends UIElementView {
   declare model: ToolButton
   declare readonly parent: ToolbarView
 
-  private _menu: ContextMenu
+  protected _menu: ContextMenu
+  protected _ui_gestures: UIGestures
 
   override initialize(): void {
     super.initialize()
@@ -33,46 +36,23 @@ export abstract class ToolButtonView extends UIElementView {
       prevent_hide: (event) => event.composedPath().includes(this.el),
     })
 
-    const duration = 250 /*ms*/
-    let start: number | null = null
-    let timer: number | null = null
-
-    this.el.addEventListener("pointerdown", (e) => {
-      if (e.buttons == MouseButton.Left) {
-        start = e.timeStamp
-        timer = setTimeout(() => {
-          start = null
-          timer = null
-          this._pressed()
-        }, duration)
-      }
-    })
-
-    this.el.addEventListener("pointerup", (e) => {
-      if (timer != null) {
-        clearTimeout(timer)
-        timer = null
-      }
-
-      if (start != null) {
-        const end = e.timeStamp
-        if (end - start >= duration) {
-          this._pressed()
-        } else {
-          if (this._menu.is_open) {
-            this._menu.hide()
-            return
-          }
-          if (e.composedPath().includes(this.el)) {
-            this._clicked()
-          }
+    this._ui_gestures = new UIGestures(this.el, {
+      on_tap: (event: TapEvent) => {
+        if (this._menu.is_open) {
+          this._menu.hide()
+          return
         }
-        start = null
-      }
+        if (event.native.composedPath().includes(this.el)) {
+          this._clicked()
+        }
+      },
+      on_press: () => {
+        this._pressed()
+      },
     })
 
     this.el.addEventListener("keydown", (event) => {
-      switch (event.key) {
+      switch (event.key as Keys) {
         case "Enter": {
           this._clicked()
           break
@@ -81,17 +61,20 @@ export abstract class ToolButtonView extends UIElementView {
           this._pressed()
           break
         }
+        default:
       }
     })
   }
 
   override connect_signals(): void {
     super.connect_signals()
+    this._ui_gestures.connect_signals()
     this.connect(this.model.change, () => this.render())
     this.connect(this.model.tool.change as Signal0<Tool>, () => this.render())
   }
 
   override remove(): void {
+    this._ui_gestures.remove()
     this._menu.remove()
     super.remove()
   }

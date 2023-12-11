@@ -29,7 +29,7 @@
     "skipLibCheck": true,
     "target": "ES2022",
     "lib": ["es2022", "dom", "dom.iterable"],
-    "types": ["hammerjs", "google.maps"],
+    "types": ["google.maps"],
     "baseUrl": ".",
     "rootDir": ".",
     "outDir": "../../build/js/lib",

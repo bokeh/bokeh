@@ -34,16 +34,16 @@ describe("TapTool", () => {
 
   function tap(plot_view: PlotView, sx: number, sy: number,
       modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
-    const event: TapEvent = {type: "tap", sx, sy, modifiers}
+    const event: TapEvent = {type: "tap", sx, sy, modifiers, native: new PointerEvent("pointerup")}
     const {ui_event_bus} = plot_view.canvas_view
-    ui_event_bus._trigger(ui_event_bus.tap, event, new Event("mousemove"))
+    ui_event_bus._trigger(ui_event_bus.tap, event)
   }
 
   function doubletap(plot_view: PlotView, sx: number, sy: number,
       modifiers: KeyModifiers = {ctrl: false, shift: false, alt: false}) {
-    const event: TapEvent = {type: "tap", sx, sy, modifiers}
+    const event: TapEvent = {type: "tap", sx, sy, modifiers, native: new PointerEvent("pointerup")}
     const {ui_event_bus} = plot_view.canvas_view
-    ui_event_bus._trigger(ui_event_bus.doubletap, event, new Event("mousemove"))
+    ui_event_bus._trigger(ui_event_bus.doubletap, event)
   }
 
   describe("should support 'tap' gesture", () => {

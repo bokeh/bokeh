@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 import {display} from "../../../_util"
-import {click} from "../../../../interactive"
+import {tap} from "../../../../interactive"
 
 import type {Tool} from "@bokehjs/models/tools/tool"
 import {Range1d} from "@bokehjs/models/ranges/range1d"
@@ -71,13 +71,13 @@ describe("BoxZoomTool", () => {
       expect(pan.class_list.has("bk-active")).to.be.true
 
       // Click and check is active
-      await click(zoom.el)
+      await tap(zoom.el)
       await defer()
       expect(zoom.class_list.has("bk-active")).to.be.true
       expect(pan.class_list.has("bk-active")).to.be.false
 
       // Click again and check is not active
-      await click(zoom.el)
+      await tap(zoom.el)
       await defer()
       expect(zoom.class_list.has("bk-active")).to.be.false
       expect(pan.class_list.has("bk-active")).to.be.false
@@ -90,10 +90,10 @@ describe("BoxZoomTool", () => {
       const box_zoom_view = plot_view.owner.get_one(box_zoom)
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event0 = {type: "pan" as const, sx: 200, sy: 100, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 500, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event1 = {type: "pan" as const, sx: 400, sy: 500, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_range
@@ -110,10 +110,10 @@ describe("BoxZoomTool", () => {
       const box_zoom_view = plot_view.owner.get_one(box_zoom)
 
       // perform the tool action
-      const zoom_event0 = {type: "pan" as "pan", sx: 200, sy: 200, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event0 = {type: "pan" as const, sx: 200, sy: 200, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
       box_zoom_view._pan_start(zoom_event0)
 
-      const zoom_event1 = {type: "pan" as "pan", sx: 400, sy: 300, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}}
+      const zoom_event1 = {type: "pan" as const, sx: 400, sy: 300, dx: 0, dy: 0, scale: 1, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointermove")}
       box_zoom_view._pan_end(zoom_event1)
 
       const hr = plot_view.frame.x_range

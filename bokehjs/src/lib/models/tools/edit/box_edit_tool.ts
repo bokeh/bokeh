@@ -166,7 +166,7 @@ export class BoxEditToolView extends EditToolView {
     this._set_extent(sxlim, sylim, append, emit)
   }
 
-  override _doubletap(ev: TapEvent): void {
+  override _press(ev: TapEvent): void {
     if (!this.model.active)
       return
     if (this._draw_basepoint != null) {
@@ -336,6 +336,6 @@ export class BoxEditTool extends EditTool {
 
   override tool_name = "Box Edit Tool"
   override tool_icon = tool_icon_box_edit
-  override event_type = ["tap" as "tap", "pan" as "pan", "move" as "move"]
+  override event_type = ["tap" as "tap", "press" as "press", "pan" as "pan", "move" as "move"]
   override default_order = 1
 }
