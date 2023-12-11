@@ -101,8 +101,8 @@ export class UIGestures {
   constructor(readonly hit_area: HTMLElement, readonly handlers: GestureHandlers, options: Options = {}) {
     this.must_be_target = options.must_be_target ?? false
 
-    this._pointer_enter = this._pointer_enter.bind(this)
-    this._pointer_leave = this._pointer_leave.bind(this)
+    this._pointer_over = this._pointer_over.bind(this)
+    this._pointer_out = this._pointer_out.bind(this)
     this._pointer_down = this._pointer_down.bind(this)
     this._pointer_move = this._pointer_move.bind(this)
     this._pointer_up = this._pointer_up.bind(this)
@@ -110,8 +110,8 @@ export class UIGestures {
   }
 
   connect_signals(): void {
-    this.hit_area.addEventListener("pointerenter", this._pointer_enter)
-    this.hit_area.addEventListener("pointerleave", this._pointer_leave)
+    this.hit_area.addEventListener("pointerover", this._pointer_over)
+    this.hit_area.addEventListener("pointerout", this._pointer_out)
     this.hit_area.addEventListener("pointerdown", this._pointer_down)
     this.hit_area.addEventListener("pointermove", this._pointer_move)
     this.hit_area.addEventListener("pointerup", this._pointer_up)
@@ -119,8 +119,8 @@ export class UIGestures {
   }
 
   disconnect_signals(): void {
-    this.hit_area.removeEventListener("pointerenter", this._pointer_enter)
-    this.hit_area.removeEventListener("pointerleave", this._pointer_leave)
+    this.hit_area.removeEventListener("pointerover", this._pointer_over)
+    this.hit_area.removeEventListener("pointerout", this._pointer_out)
     this.hit_area.removeEventListener("pointerdown", this._pointer_down)
     this.hit_area.removeEventListener("pointermove", this._pointer_move)
     this.hit_area.removeEventListener("pointerup", this._pointer_up)
@@ -184,13 +184,19 @@ export class UIGestures {
     this.on_press(pointer.init)
   }
 
-  protected _pointer_enter(event: PointerEvent): void {
+  protected _pointer_over(event: PointerEvent): void {
+    if (this.must_be_target && !this._self_is_target(event)) {
+      return
+    }
     if (event.isPrimary) {
       this.on_enter(event)
     }
   }
 
-  protected _pointer_leave(event: PointerEvent): void {
+  protected _pointer_out(event: PointerEvent): void {
+    if (this.must_be_target && !this._self_is_target(event)) {
+      return
+    }
     if (event.isPrimary) {
       this.on_leave(event)
     }
