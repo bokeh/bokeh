@@ -34,19 +34,19 @@ describe("Tools", () => {
     new all.ZoomOutTool({visible: false}),
   ]
 
-  for (const tool of tools) {
+  for (const tool of tools){
     it(`should show ${tool.type}'s visibility works`, async () => {
-        if (tool.visible === true) {
-            throw new Error(`${tool.type} is unexpectedly visible.`);
-        }
+      if (tool.visible === true) {
+        throw new Error(`${tool.type} is unexpectedly visible.`);
+      }
       const tool_button = tool.tool_button();
-      const toolbar = new Toolbar({ buttons: [tool_button], tools: [tool] });
-      const p = fig([300, 100], { toolbar_location: "right", toolbar });
+      const toolbar = new Toolbar({ buttons: [tool_button], tools: [tool] })
+      const p = fig([300, 100], { toolbar_location: "right", toolbar })
 
-      const { view } = await display(p);
+      const {view} = await display(p);
       const tool_button_view = view.owner.get_one(tool_button);
       await press(tool_button_view.el)
 
-    });
+    })
   }
-});
+})
