@@ -131,8 +131,12 @@ export class UIGestures {
     this.disconnect_signals()
   }
 
-  protected _self_is_target(ev: PointerEvent): boolean {
-    return ev.composedPath()[0] == this.hit_area
+  protected _self_is_target(event: PointerEvent): boolean {
+    return event.composedPath()[0] == this.hit_area
+  }
+
+  protected _is_event_target(event: PointerEvent): boolean {
+    return !this.must_be_target || this._self_is_target(event)
   }
 
   protected phase: GesturePhase = "idle"
@@ -185,7 +189,7 @@ export class UIGestures {
   }
 
   protected _pointer_over(event: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(event)) {
+    if (!this._is_event_target(event)) {
       return
     }
     if (event.isPrimary) {
@@ -194,7 +198,7 @@ export class UIGestures {
   }
 
   protected _pointer_out(event: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(event)) {
+    if (!this._is_event_target(event)) {
       return
     }
     if (event.isPrimary) {
@@ -203,7 +207,7 @@ export class UIGestures {
   }
 
   protected _pointer_down(event: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(event)) {
+    if (!this._is_event_target(event)) {
       return
     }
     if (this._is_multi_gesture) {
@@ -237,7 +241,7 @@ export class UIGestures {
   }
 
   protected _pointer_move(event: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(event)) {
+    if (!this._is_event_target(event)) {
       return
     }
     if (event.isPrimary) {
@@ -313,7 +317,7 @@ export class UIGestures {
   }
 
   protected _pointer_up(event: PointerEvent): void {
-    if (this.must_be_target && !this._self_is_target(event)) {
+    if (!this._is_event_target(event)) {
       return
     }
     const pointer = this.pointers.get(event.pointerId)
