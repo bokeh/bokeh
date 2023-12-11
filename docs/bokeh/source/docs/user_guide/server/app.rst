@@ -585,4 +585,4 @@ Besides the lifecycle hooks above, you may also define request hooks to
 access the HTTP requests your users make. For further information, see
 :ref:`ug_server_request_handler`.
 
-.. _Jinja project documentation: https://jinja.palletsprojects.com/en/2.10.x/
+.. _Jinja project documentation: https://jinja.palletsprojects.com
