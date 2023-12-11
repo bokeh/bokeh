@@ -6,6 +6,7 @@ import {actions, xy} from "../../interactive"
 
 import * as dom from "@bokehjs/core/dom"
 import type {PointEvent} from "@bokehjs/core/bokeh_events"
+import * as Events from "@bokehjs/core/bokeh_events"
 
 import {CrosshairTool} from "@bokehjs/models/tools/inspectors/crosshair_tool"
 import {PanTool} from "@bokehjs/models/tools/gestures/pan_tool"
@@ -41,13 +42,13 @@ describe("UIEventBus", () => {
     const p = plot()
 
     const events: PointEvent[] = []
-    p.on_event("tap", (event) => events.push(event))
-    p.on_event("doubletap", (event) => events.push(event))
-    p.on_event("press", (event) => events.push(event))
-    p.on_event("pressup", (event) => events.push(event))
-    p.on_event("panstart", (event) => events.push(event))
-    p.on_event("pan", (event) => events.push(event))
-    p.on_event("panend", (event) => events.push(event))
+    p.on_event(Events.Tap, (event) => events.push(event))
+    p.on_event(Events.DoubleTap, (event) => events.push(event))
+    p.on_event(Events.Press, (event) => events.push(event))
+    p.on_event(Events.PressUp, (event) => events.push(event))
+    p.on_event(Events.PanStart, (event) => events.push(event))
+    p.on_event(Events.Pan, (event) => events.push(event))
+    p.on_event(Events.PanEnd, (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).tap(xy(5, 5))
@@ -59,13 +60,13 @@ describe("UIEventBus", () => {
     const p = plot()
 
     const events: PointEvent[] = []
-    p.on_event("tap", (event) => events.push(event))
-    p.on_event("doubletap", (event) => events.push(event))
-    p.on_event("press", (event) => events.push(event))
-    p.on_event("pressup", (event) => events.push(event))
-    p.on_event("panstart", (event) => events.push(event))
-    p.on_event("pan", (event) => events.push(event))
-    p.on_event("panend", (event) => events.push(event))
+    p.on_event(Events.Tap, (event) => events.push(event))
+    p.on_event(Events.DoubleTap, (event) => events.push(event))
+    p.on_event(Events.Press, (event) => events.push(event))
+    p.on_event(Events.PressUp, (event) => events.push(event))
+    p.on_event(Events.PanStart, (event) => events.push(event))
+    p.on_event(Events.Pan, (event) => events.push(event))
+    p.on_event(Events.PanEnd, (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).double_tap(xy(5, 5))
@@ -77,13 +78,13 @@ describe("UIEventBus", () => {
     const p = plot()
 
     const events: PointEvent[] = []
-    p.on_event("tap", (event) => events.push(event))
-    p.on_event("doubletap", (event) => events.push(event))
-    p.on_event("press", (event) => events.push(event))
-    p.on_event("pressup", (event) => events.push(event))
-    p.on_event("panstart", (event) => events.push(event))
-    p.on_event("pan", (event) => events.push(event))
-    p.on_event("panend", (event) => events.push(event))
+    p.on_event(Events.Tap, (event) => events.push(event))
+    p.on_event(Events.DoubleTap, (event) => events.push(event))
+    p.on_event(Events.Press, (event) => events.push(event))
+    p.on_event(Events.PressUp, (event) => events.push(event))
+    p.on_event(Events.PanStart, (event) => events.push(event))
+    p.on_event(Events.Pan, (event) => events.push(event))
+    p.on_event(Events.PanEnd, (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).press(xy(5, 5))
@@ -95,13 +96,13 @@ describe("UIEventBus", () => {
     const p = plot()
 
     const events: PointEvent[] = []
-    p.on_event("tap", (event) => events.push(event))
-    p.on_event("doubletap", (event) => events.push(event))
-    p.on_event("press", (event) => events.push(event))
-    p.on_event("pressup", (event) => events.push(event))
-    p.on_event("panstart", (event) => events.push(event))
-    p.on_event("pan", (event) => events.push(event))
-    p.on_event("panend", (event) => events.push(event))
+    p.on_event(Events.Tap, (event) => events.push(event))
+    p.on_event(Events.DoubleTap, (event) => events.push(event))
+    p.on_event(Events.Press, (event) => events.push(event))
+    p.on_event(Events.PressUp, (event) => events.push(event))
+    p.on_event(Events.PanStart, (event) => events.push(event))
+    p.on_event(Events.Pan, (event) => events.push(event))
+    p.on_event(Events.PanEnd, (event) => events.push(event))
 
     const {view} = await display(p)
     await actions(view).pan(xy(4, 4), xy(6, 6), 3)
@@ -331,7 +332,7 @@ describe("ui_event_bus module", () => {
     describe("normally propagate other gesture base_types", () => {
       let e: UIEvent
       before_each(() => {
-        e = {type: "panstart", sx: 0, sy: 0, dx: 0, dy: 0, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointerdown")} // ??? pointermove
+        e = {type: "pan_start", sx: 0, sy: 0, dx: 0, dy: 0, modifiers: {ctrl: false, shift: false, alt: false}, native: new PointerEvent("pointerdown")} // ??? pointermove
       })
 
       it("should not trigger event if no active tool", () => {
@@ -451,7 +452,7 @@ describe("ui_event_bus module", () => {
 
     it("_pan_end method should handle pan end event", async () => {
       const e: any = { // XXX: not a hammerjs event
-        type: "panend",
+        type: "pan_end",
         deltaX: 0,
         deltaY: 0,
         srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
@@ -468,9 +469,9 @@ describe("ui_event_bus module", () => {
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
-    it("_pinch_start method should handle pinchstart event", async () => {
+    it("_pinch_start method should handle pinch_start event", async () => {
       const e: any = { // XXX: not a hammerjs event
-        type: "pinchstart",
+        type: "pinch_start",
         srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
@@ -501,16 +502,16 @@ describe("ui_event_bus module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
 
-      ui_event_bus._pinch_start({...e, type: "pinchstart"})
+      ui_event_bus._pinch_start({...e, type: "pinch_start"})
       ui_event_bus._pinch(e)
 
       expect(spy_plot.callCount).to.be.equal(3) // pinch_start, lod_start, pinch
       expect(spy_uievent.callCount).to.be.equal(2)
     })
 
-    it("_pinch_end method should handle pinchend event", async () => {
+    it("_pinch_end method should handle pinch_end event", async () => {
       const e: any = { // XXX: not a hammerjs event
-        type: "pinchend",
+        type: "pinch_end",
         srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},
       }
 
@@ -521,7 +522,7 @@ describe("ui_event_bus module", () => {
       //idk why it's not auto active
       plot_view.model.toolbar.gestures.pinch.active = wheel_zoom_tool
 
-      ui_event_bus._pinch_start({...e, type: "pinchstart"})
+      ui_event_bus._pinch_start({...e, type: "pinch_start"})
       ui_event_bus._pinch_end(e)
 
       expect(spy_plot.callCount).to.be.equal(2)
@@ -626,7 +627,7 @@ describe("ui_event_bus module", () => {
       expect(spy_uievent.calledOnce).to.be.true
 
       const epan: any = { // XXX: not a hammerjs event
-        type: "panstart",
+        type: "pan_start",
         deltaX: 0,
         deltaY: 0,
         srcEvent: {pageX: 100, pageY: 200, ...dummy_methods},

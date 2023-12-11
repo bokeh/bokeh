@@ -8,7 +8,7 @@ export type KeyModifiers = {
 }
 
 export type TapEvent = {
-  type: "tap" | "doubletap" | "press" | "pressup" | "contextmenu"
+  type: "tap" | "double_tap" | "press" | "press_up"
   sx: number
   sy: number
   modifiers: KeyModifiers
@@ -24,7 +24,7 @@ export type MoveEvent = {
 }
 
 export type PanEvent = {
-  type: "panstart" | "pan" | "panend"
+  type: "pan_start" | "pan" | "pan_end"
   sx: number
   sy: number
   dx: number
@@ -34,21 +34,21 @@ export type PanEvent = {
 }
 
 export type PinchEvent = {
-  type: "pinchstart" | "pinch" | "pinchend"
+  type: "pinch_start" | "pinch" | "pinch_end"
   sx: number
   sy: number
   scale: number
   modifiers: KeyModifiers
-  native: PointerEvent
+  native: PointerEvent // TODO two pointers
 }
 
 export type RotateEvent = {
-  type: "rotatestart" | "rotate" | "rotateend"
+  type: "rotate_start" | "rotate" | "rotate_end"
   sx: number
   sy: number
   rotation: number
   modifiers: KeyModifiers
-  native: PointerEvent
+  native: PointerEvent // TODO two pointers
 }
 
 export type GestureHandlers = {
@@ -439,7 +439,7 @@ export class UIGestures {
   on_doubletap(ev: PointerEvent): void {
     const {on_doubletap} = this.handlers
     if (on_doubletap != null) {
-      on_doubletap(this._tap_event("doubletap", ev))
+      on_doubletap(this._tap_event("double_tap", ev))
     }
   }
   on_press(ev: PointerEvent): void {
@@ -451,7 +451,7 @@ export class UIGestures {
   on_pressup(ev: PointerEvent): void {
     const {on_pressup} = this.handlers
     if (on_pressup != null) {
-      on_pressup(this._tap_event("pressup", ev))
+      on_pressup(this._tap_event("press_up", ev))
     }
   }
 
@@ -477,7 +477,7 @@ export class UIGestures {
   on_pan_start(ev: PointerEvent, dx: number, dy: number): void {
     const {on_pan_start} = this.handlers
     if (on_pan_start != null) {
-      on_pan_start(this._pan_event("panstart", ev, dx, dy))
+      on_pan_start(this._pan_event("pan_start", ev, dx, dy))
     }
   }
   on_pan(ev: PointerEvent, dx: number, dy: number): void {
@@ -489,14 +489,14 @@ export class UIGestures {
   on_pan_end(ev: PointerEvent, dx: number, dy: number): void {
     const {on_pan_end} = this.handlers
     if (on_pan_end != null) {
-      on_pan_end(this._pan_event("panend", ev, dx, dy))
+      on_pan_end(this._pan_event("pan_end", ev, dx, dy))
     }
   }
 
   on_pinch_start(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
     const {on_pinch_start} = this.handlers
     if (on_pinch_start != null) {
-      on_pinch_start(this._pinch_event("pinchstart", ev0, ev1, scale))
+      on_pinch_start(this._pinch_event("pinch_start", ev0, ev1, scale))
     }
   }
   on_pinch(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
@@ -508,14 +508,14 @@ export class UIGestures {
   on_pinch_end(ev0: PointerEvent, ev1: PointerEvent, scale: number): void {
     const {on_pinch_end} = this.handlers
     if (on_pinch_end != null) {
-      on_pinch_end(this._pinch_event("pinchend", ev0, ev1, scale))
+      on_pinch_end(this._pinch_event("pinch_end", ev0, ev1, scale))
     }
   }
 
   on_rotate_start(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
     const {on_rotate_start} = this.handlers
     if (on_rotate_start != null) {
-      on_rotate_start(this._rotate_event("rotatestart", ev0, ev1, rotation))
+      on_rotate_start(this._rotate_event("rotate_start", ev0, ev1, rotation))
     }
   }
   on_rotate(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
@@ -527,7 +527,7 @@ export class UIGestures {
   on_rotate_end(ev0: PointerEvent, ev1: PointerEvent, rotation: number): void {
     const {on_rotate_end} = this.handlers
     if (on_rotate_end != null) {
-      on_rotate_end(this._rotate_event("rotateend", ev0, ev1, rotation))
+      on_rotate_end(this._rotate_event("rotate_end", ev0, ev1, rotation))
     }
   }
 

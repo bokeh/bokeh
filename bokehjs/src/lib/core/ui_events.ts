@@ -312,14 +312,14 @@ export class UIEventBus {
       return {...e, sx: rel_sx, sy: rel_sy} as E
     }
 
-    if (e.type == "panstart" || e.type == "pan" || e.type == "panend") {
+    if (e.type == "pan_start" || e.type == "pan" || e.type == "pan_end") {
       let pan_view: PlotView | null
-      if (e.type == "panstart" && curr_view != null) {
+      if (e.type == "pan_start" && curr_view != null) {
         this._curr_pan = {plot_view: curr_view}
         pan_view = curr_view
       } else if (e.type == "pan" && this._curr_pan != null) {
         pan_view = this._curr_pan.plot_view
-      } else if (e.type == "panend" && this._curr_pan != null) {
+      } else if (e.type == "pan_end" && this._curr_pan != null) {
         pan_view = this._curr_pan.plot_view
         this._curr_pan = null
       } else {
@@ -330,14 +330,14 @@ export class UIEventBus {
         const event = relativize_event(pan_view)
         this.__trigger(pan_view, signal, event, srcEvent)
       }
-    } else if (e.type == "pinchstart" || e.type == "pinch" || e.type == "pinchend") {
+    } else if (e.type == "pinch_start" || e.type == "pinch" || e.type == "pinch_end") {
       let pinch_view: PlotView | null
-      if (e.type == "pinchstart" && curr_view != null) {
+      if (e.type == "pinch_start" && curr_view != null) {
         this._curr_pinch = {plot_view: curr_view}
         pinch_view = curr_view
       } else if (e.type == "pinch" && this._curr_pinch != null) {
         pinch_view = this._curr_pinch.plot_view
-      } else if (e.type == "pinchend" && this._curr_pinch != null) {
+      } else if (e.type == "pinch_end" && this._curr_pinch != null) {
         pinch_view = this._curr_pinch.plot_view
         this._curr_pinch = null
       } else {
@@ -348,14 +348,14 @@ export class UIEventBus {
         const event = relativize_event(pinch_view)
         this.__trigger(pinch_view, signal, event, srcEvent)
       }
-    } else if (e.type == "rotatestart" || e.type == "rotate" || e.type == "rotateend") {
+    } else if (e.type == "rotate_start" || e.type == "rotate" || e.type == "rotate_end") {
       let rotate_view: PlotView | null
-      if (e.type == "rotatestart" && curr_view != null) {
+      if (e.type == "rotate_start" && curr_view != null) {
         this._curr_rotate = {plot_view: curr_view}
         rotate_view = curr_view
       } else if (e.type == "rotate" && this._curr_rotate != null) {
         rotate_view = this._curr_rotate.plot_view
-      } else if (e.type == "rotateend" && this._curr_rotate != null) {
+      } else if (e.type == "rotate_end" && this._curr_rotate != null) {
         rotate_view = this._curr_rotate.plot_view
         this._curr_rotate = null
       } else {
@@ -624,24 +624,24 @@ export class UIEventBus {
       const y = plot_view.frame.y_scale.invert(sy)
 
       switch (ev.type) {
-        case "wheel":       return new events.MouseWheel(sx, sy, x, y, ev.delta, modifiers)
-        case "enter":       return new events.MouseEnter(sx, sy, x, y, modifiers)
-        case "move":        return new events.MouseMove(sx, sy, x, y, modifiers)
-        case "leave":       return new events.MouseLeave(sx, sy, x, y, modifiers)
-        case "tap":         return new events.Tap(sx, sy, x, y, modifiers)
-        case "doubletap":   return new events.DoubleTap(sx, sy, x, y, modifiers)
-        case "press":       return new events.Press(sx, sy, x, y, modifiers)
-        case "pressup":     return new events.PressUp(sx, sy, x, y, modifiers)
-        case "panstart":    return new events.PanStart(sx, sy, x, y, modifiers)
-        case "pan":         return new events.Pan(sx, sy, x, y, ev.dx, ev.dy, modifiers)
-        case "panend":      return new events.PanEnd(sx, sy, x, y, modifiers)
-        case "pinchstart":  return new events.PinchStart(sx, sy, x, y, modifiers)
-        case "pinch":       return new events.Pinch(sx, sy, x, y, ev.scale, modifiers)
-        case "pinchend":    return new events.PinchEnd(sx, sy, x, y, modifiers)
-        case "rotatestart": return new events.RotateStart(sx, sy, x, y, modifiers)
-        case "rotate":      return new events.Rotate(sx, sy, x, y, ev.rotation, modifiers)
-        case "rotateend":   return new events.RotateEnd(sx, sy, x, y, modifiers)
-        default:            return null
+        case "wheel":        return new events.MouseWheel(sx, sy, x, y, ev.delta, modifiers)
+        case "enter":        return new events.MouseEnter(sx, sy, x, y, modifiers)
+        case "move":         return new events.MouseMove(sx, sy, x, y, modifiers)
+        case "leave":        return new events.MouseLeave(sx, sy, x, y, modifiers)
+        case "tap":          return new events.Tap(sx, sy, x, y, modifiers)
+        case "double_tap":   return new events.DoubleTap(sx, sy, x, y, modifiers)
+        case "press":        return new events.Press(sx, sy, x, y, modifiers)
+        case "press_up":     return new events.PressUp(sx, sy, x, y, modifiers)
+        case "pan_start":    return new events.PanStart(sx, sy, x, y, modifiers)
+        case "pan":          return new events.Pan(sx, sy, x, y, ev.dx, ev.dy, modifiers)
+        case "pan_end":      return new events.PanEnd(sx, sy, x, y, modifiers)
+        case "pinch_start":  return new events.PinchStart(sx, sy, x, y, modifiers)
+        case "pinch":        return new events.Pinch(sx, sy, x, y, ev.scale, modifiers)
+        case "pinch_end":    return new events.PinchEnd(sx, sy, x, y, modifiers)
+        case "rotate_start": return new events.RotateStart(sx, sy, x, y, modifiers)
+        case "rotate":       return new events.Rotate(sx, sy, x, y, ev.rotation, modifiers)
+        case "rotate_end":   return new events.RotateEnd(sx, sy, x, y, modifiers)
+        default:             return null
       }
     })()
 
