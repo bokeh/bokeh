@@ -57,3 +57,7 @@ export class Cloner {
       throw new CloningError(`${Object.prototype.toString.call(obj)} is not cloneable`)
   }
 }
+
+export function clone_<T extends CloneableType>(obj: T): T {
+  return new Cloner().clone(obj)
+}
