@@ -125,6 +125,8 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.hbar`
         * :func:`~bokeh.plotting.figure.hex`
         * :func:`~bokeh.plotting.figure.hex_tile`
+        * :func:`~bokeh.plotting.figure.hstrip`
+        * :func:`~bokeh.plotting.figure.hspan`
         * :func:`~bokeh.plotting.figure.image`
         * :func:`~bokeh.plotting.figure.image_rgba`
         * :func:`~bokeh.plotting.figure.image_url`
@@ -132,7 +134,6 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.line`
         * :func:`~bokeh.plotting.figure.multi_line`
         * :func:`~bokeh.plotting.figure.multi_polygons`
-        * :func:`~bokeh.plotting.figure.oval`
         * :func:`~bokeh.plotting.figure.patch`
         * :func:`~bokeh.plotting.figure.patches`
         * :func:`~bokeh.plotting.figure.plus`
@@ -156,6 +157,8 @@ class figure(Plot, GlyphAPI):
         * :func:`~bokeh.plotting.figure.varea`
         * :func:`~bokeh.plotting.figure.varea_step`
         * :func:`~bokeh.plotting.figure.vbar`
+        * :func:`~bokeh.plotting.figure.vstrip`
+        * :func:`~bokeh.plotting.figure.vspan`
         * :func:`~bokeh.plotting.figure.wedge`
         * :func:`~bokeh.plotting.figure.x`
         * :func:`~bokeh.plotting.figure.y`
