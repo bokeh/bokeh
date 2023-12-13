@@ -13,15 +13,14 @@ Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 .. bokeh-plot:: __REPO__/examples/topics/stats/histogram.py
     :source-position: above
 
-.. _ug_topics_stats_boxplot:
+.. _ug_topics_stats_pyramid:
 
 Horizontal histograms can also be plotted using the |hbar| glyphs:
 
 .. bokeh-plot:: __REPO__/examples/topics/stats/pyramid.py
     :source-position: above
 
-.. _ug_topics_stats_pyramid:
-
+.. _ug_topics_stats_boxplot:
 
 Boxplot
 -------
