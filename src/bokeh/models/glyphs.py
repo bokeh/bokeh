@@ -856,7 +856,7 @@ class ImageStack(ImageBase):
     ''' Render images given as 3D stacked arrays by flattening each stack into
     an RGBA image using a ``StackColorMapper``.
 
-    The 3D arrays have shape (ny, nx, nstack) where ``nstack` is the number of
+    The 3D arrays have shape (ny, nx, nstack) where ``nstack`` is the number of
     stacks. The ``color_mapper`` produces an RGBA value for each of the
     (ny, nx) pixels by combining array values in the ``nstack`` direction.
 
