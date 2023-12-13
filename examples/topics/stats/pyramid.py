@@ -21,7 +21,8 @@ bins = np.arange(0, 80, 3)
 m_hist, edges = np.histogram(male_ages, bins=bins)
 f_hist, edges = np.histogram(female_ages, bins=bins)
 
-p = figure(title="Pyramid plot", height=400, width=600, x_range=(-60, 40), x_axis_label="count", y_axis_label="age (years)")
+p = figure(title="Pyramid plot", height=400, width=600, x_range=(-60, 40),
+           x_axis_label="count", y_axis_label="age (years)")
 
 p.hbar(right=m_hist * -1, y=edges[1:], height=2, color="#055BB2")
 
