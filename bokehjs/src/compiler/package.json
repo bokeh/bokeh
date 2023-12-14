@@ -20,8 +20,8 @@
     "convert-source-map": "^2.0.0",
     "css": "^3.0.0",
     "less": "^4.2.0",
-    "terser": "^5.19.2",
-    "typescript": "~5.2.2",
+    "terser": "^5.26.0",
+    "typescript": "~5.3.3",
     "yargs": "^17.7.2"
   }
 }
