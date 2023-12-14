@@ -113,7 +113,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
-from .ranges import Range1d
+from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
 from .ui import UIElement
 
@@ -476,12 +476,12 @@ class RangeTool(Tool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x_range = Nullable(Instance(Range1d), help="""
+    x_range = Nullable(Instance(Range), help="""
     A range synchronized to the x-dimension of the overlay. If None, the overlay
     will span the entire x-dimension.
     """)
 
-    y_range = Nullable(Instance(Range1d), help="""
+    y_range = Nullable(Instance(Range), help="""
     A range synchronized to the y-dimension of the overlay. If None, the overlay
     will span the entire y-dimension.
     """)

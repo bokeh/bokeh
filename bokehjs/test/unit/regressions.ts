@@ -12,6 +12,7 @@ import {
   CDSView,
   CategoricalColorMapper,
   Circle,
+  Column,
   ColumnDataSource,
   CopyTool,
   CustomJS,
@@ -1465,6 +1466,42 @@ describe("Bug", () => {
         expect(indices(gv, xy(10, 2.25))).to.be.equal([1])
         expect(indices(gv, xy(10, 2.75))).to.be.equal([1])
       })
+    })
+  })
+
+  describe("in issue #13507", () => {
+    it("doesn't allow to emit RangesUpdate on plots linked by RangeTool's ranges", async () => {
+      const source = new ColumnDataSource({
+        data: {
+          x: [1, 2, 3, 4, 5],
+          y: [1, 2, 3, 4, 5],
+        },
+      })
+
+      const target_plot = fig([300, 200], {x_range: [1.5, 3.5], y_range: [1.5, 3.5]})
+      target_plot.scatter({size: 20, source})
+
+      const range_plot = fig([300, 200])
+      range_plot.scatter({size: 20, source})
+
+      const range_tool = new RangeTool({
+        x_range: target_plot.x_range,
+        y_range: target_plot.y_range,
+      })
+      range_plot.add_tools(range_tool)
+
+      const updates = {target: false, range: false}
+      target_plot.on_event(RangesUpdate, () => updates.target = true)
+      range_plot.on_event(RangesUpdate, () => updates.range = true)
+
+      const layout = new Column({children: [target_plot, range_plot]})
+      const {view} = await display(layout)
+
+      const pv = view.owner.get_one(range_plot)
+      await actions(pv).pan(xy(2.5, 2.5), xy(3.5, 3.5))
+      await view.ready
+
+      expect(updates.target && updates.range).to.be.true
     })
   })
 })
