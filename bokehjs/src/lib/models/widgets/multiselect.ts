@@ -20,9 +20,7 @@ export class MultiSelectView extends InputWidgetView {
     this.connect(this.model.properties.disabled.change, () => this.render())
   }
 
-  override render(): void {
-    super.render()
-
+  protected _render_input(): HTMLElement {
     const options = this.model.options.map((opt) => {
       let value, _label
       if (isString(opt)) {
@@ -42,8 +40,11 @@ export class MultiSelectView extends InputWidgetView {
     }, options)
 
     this.input_el.addEventListener("change", () => this.change_input())
-    this.group_el.appendChild(this.input_el)
+    return this.input_el
+  }
 
+  override render(): void {
+    super.render()
     this.render_selection()
   }
 

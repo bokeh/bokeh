@@ -112,9 +112,7 @@ export class PaletteSelectView extends InputWidgetView {
     }
   }
 
-  override render(): void {
-    super.render()
-
+  protected _render_input(): HTMLElement {
     this._value_el = div({class: [palette_select_css.value, item_css.entry]}, this._render_value())
     const chevron_el = div({class: [palette_select_css.chevron, icons_css.tool_icon_chevron_down]})
 
@@ -126,8 +124,12 @@ export class PaletteSelectView extends InputWidgetView {
       input_el.tabIndex = 0
     }
 
-    this.input_el = input_el as any // XXX
-    this.group_el.appendChild(input_el)
+    this.input_el = input_el as any // XXX Div is not an Input-like element
+    return this.input_el
+  }
+
+  override render(): void {
+    super.render()
 
     const item_els: HTMLElement[] = []
 
@@ -183,11 +185,11 @@ export class PaletteSelectView extends InputWidgetView {
 
     this._update_ncols()
 
-    input_el.addEventListener("pointerup", () => {
+    this.input_el.addEventListener("pointerup", () => {
       this.toggle()
     })
 
-    input_el.addEventListener("keyup", (event) => {
+    this.input_el.addEventListener("keyup", (event) => {
       switch (event.key as Keys) {
         case "Enter": {
           this.toggle()
@@ -208,7 +210,7 @@ export class PaletteSelectView extends InputWidgetView {
         this.select(items[j])
       }
     }
-    input_el.addEventListener("keydown", (event) => {
+    this.input_el.addEventListener("keydown", (event) => {
       const offset = (() => {
         switch (event.key as Keys) {
           case "ArrowUp":   return -1

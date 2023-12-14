@@ -69,16 +69,21 @@ export class SpinnerView extends NumericInputView {
     })
   }
 
-  override render(): void {
-    super.render()
-    this.wrapper_el = div({class: "bk-spin-wrapper"})
-    this.group_el.replaceChild(this.wrapper_el, this.input_el)
+  protected override _render_input(): HTMLElement {
+    super._render_input()
 
     this.btn_up_el = button({class: "bk-spin-btn bk-spin-btn-up"})
     this.btn_down_el = button({class: "bk-spin-btn bk-spin-btn-down"})
-    this.wrapper_el.appendChild(this.input_el)
-    this.wrapper_el.appendChild(this.btn_up_el)
-    this.wrapper_el.appendChild(this.btn_down_el)
+
+    const {input_el, btn_up_el, btn_down_el} = this
+    this.wrapper_el = div({class: "bk-spin-wrapper"}, input_el, btn_up_el, btn_down_el)
+
+    return this.wrapper_el
+  }
+
+  override render(): void {
+    super.render()
+
     for (const btn of this.buttons()) {
       toggle_attribute(btn, "disabled", this.model.disabled)
       btn.addEventListener("mousedown", (evt) => this._btn_mouse_down(evt))

@@ -14,9 +14,7 @@ export class FileInputView extends InputWidgetView {
     return [...super.stylesheets(), buttons_css]
   }
 
-  override render(): void {
-    super.render()
-
+  protected _render_input(): HTMLElement {
     const {multiple, disabled} = this.model
 
     const accept = (() => {
@@ -24,8 +22,11 @@ export class FileInputView extends InputWidgetView {
       return isString(accept) ? accept : accept.join(",")
     })()
 
-    this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled})
-    this.group_el.appendChild(this.input_el)
+    return this.input_el = input({type: "file", class: inputs.input, multiple, accept, disabled})
+  }
+
+  override render(): void {
+    super.render()
 
     this.input_el.addEventListener("change", async () => {
       const {files} = this.input_el

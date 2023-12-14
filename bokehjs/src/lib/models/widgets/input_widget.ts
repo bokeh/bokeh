@@ -79,7 +79,9 @@ export abstract class InputWidgetView extends ControlView {
 
     this.desc_el = this._build_description_el()
     this.title_el = this._build_title_el()
-    this.group_el = div({class: inputs.input_group}, this.title_el)
+    const input_or_container_el = this._render_input()
+    this.input_el.id = "input"
+    this.group_el = div({class: inputs.input_group}, this.title_el, input_or_container_el)
     this.shadow_el.appendChild(this.group_el)
   }
 
@@ -158,8 +160,10 @@ export abstract class InputWidgetView extends ControlView {
       }
     })()
     const display = title == "" ? "none" : ""
-    return label({style: {display}}, content, this.desc_el)
+    return label({for: "input", style: {display}}, content, this.desc_el)
   }
+
+  protected abstract _render_input(): HTMLElement
 
   change_input(): void {}
 }

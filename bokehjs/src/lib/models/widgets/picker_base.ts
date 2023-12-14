@@ -54,12 +54,13 @@ export abstract class PickerBaseView extends InputWidgetView {
 
   protected abstract _on_change(selected: Date[]): void
 
+  protected _render_input(): HTMLElement {
+    return this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
+  }
+
   override render(): void {
     super.render()
     this._picker?.destroy()
-
-    this.input_el = input({type: "text", class: inputs.input, disabled: this.model.disabled})
-    this.group_el.appendChild(this.input_el)
 
     const options = this.flatpickr_options
     this._picker = flatpickr(this.input_el, options)
