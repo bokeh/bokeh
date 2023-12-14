@@ -1,7 +1,7 @@
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {display, div, empty, span, undisplay} from "core/dom"
-import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment} from "core/enums"
+import {Anchor, HoverMode, LinePolicy, MutedPolicy, PointPolicy, TooltipAttachment, FormatterType} from "core/enums"
 import type {Geometry, GeometryData, PointGeometry, SpanGeometry} from "core/geometry"
 import * as hittest from "core/hittest"
 import type * as p from "core/properties"
@@ -14,7 +14,7 @@ import {enumerate} from "core/util/iterator"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
 import type {Formatters} from "core/util/templating"
-import {FormatterType, replace_placeholders} from "core/util/templating"
+import {replace_placeholders} from "core/util/templating"
 import {isFunction, isNumber, isString, is_undefined} from "core/util/types"
 import {tool_icon_hover} from "styles/icons.css"
 import * as styles from "styles/tooltips.css"
@@ -626,8 +626,10 @@ export class HoverToolView extends InspectToolView {
     }
 
     if (tooltips instanceof Template) {
-      this._template_view!.update(ds, i, vars)
-      return this._template_view!.el
+      const {_template_view} = this
+      assert(_template_view != null)
+      _template_view.update(ds, i, vars)
+      return _template_view.el
     }
 
     if (tooltips != null) {

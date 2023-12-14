@@ -2307,6 +2307,8 @@
       type: "symbol",
       name: "unset",
     },
+    format: null,
+    formatter: "raw",
   },
   CoordinateTransform: {
     __extends__: "Expression",

@@ -5,6 +5,8 @@ import type * as p from "core/properties"
 
 export abstract class PlaceholderView extends DOMNodeView {
   declare model: Placeholder
+
+  declare el: HTMLElement
   static override tag_name = "span" as const
 
   override render(): void {

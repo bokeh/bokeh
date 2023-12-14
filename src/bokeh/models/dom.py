@@ -24,13 +24,16 @@ log = logging.getLogger(__name__)
 from typing import Any
 
 # Bokeh imports
+from ..core.enums import FormatterType
 from ..core.has_props import HasProps, abstract
 from ..core.properties import (
     Bool,
     Dict,
     Either,
+    Enum,
     Instance,
     List,
+    Nullable,
     Required,
     String,
 )
@@ -170,12 +173,34 @@ class Index(Placeholder):
         super().__init__(*args, **kwargs)
 
 class ValueRef(Placeholder):
+    """ Allows to reference a value in a column of a data source.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    field = Required(String)
+    field = Required(String, help="""
+    The name of the field to reference, which is equivalent to using ``"@{field}``.
+    """)
+
+    format = Nullable(String, default=None, help="""
+    Optional format string, which is equivalent to using ``"@{field}{format}"``.
+    """)
+
+    formatter = Either(
+        Enum(FormatterType),
+        Instance(".models.callbacks.CustomJS"),
+        Instance(".models.tools.CustomJSHover"), default="raw", help="""
+    Either a named value formatter or an instance of ``CustomJS`` or ``CustomJSHover``.
+
+    .. note::
+        Custom JS formatters can return a value of any type, not necessarily a string.
+        If a non-string value is returned then, if it's an instance of DOM ``Node``
+        (in particular it can be a DOM ``Document`` or a ``DocumentFragment``), then
+        it will be added to the DOM tree as-is, otherwise it will be converted to a
+        string and added verbatim. No HTML parsing is attempted in any case.
+    """)
 
 class ColorRef(ValueRef):
 

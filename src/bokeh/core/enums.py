@@ -106,6 +106,7 @@ __all__ = (
     'Direction',
     'FlowMode',
     'FontStyle',
+    'FormatterType',
     'HAlign',
     'HatchPattern',
     'HatchPatternAbbreviation',
@@ -337,6 +338,10 @@ FlowMode = enumeration(FlowModeType)
 #: Specify the font style for rendering text
 FontStyleType = Literal["normal", "italic", "bold", "bold italic"]
 FontStyle = enumeration(FontStyleType)
+
+#: Names of built-in value formatters
+FormatterTypeType = Literal["raw", "basic", "numeral", "printf", "datetime"]
+FormatterType = enumeration(FormatterTypeType)
 
 #: Specify one of the built-in patterns for hatching fills
 HatchPatternType = Literal[
