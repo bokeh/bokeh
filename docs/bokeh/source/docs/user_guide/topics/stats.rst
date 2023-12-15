@@ -15,7 +15,8 @@ Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 
 .. _ug_topics_stats_pyramid:
 
-Horizontal histograms can also be plotted using the |hbar| glyphs:
+A population pyramid plot is a divergent horizontal bar plot that can be used to compare distributions between two groups.
+In Bokeh they can be created using |hbar| glyphs.
 
 .. bokeh-plot:: __REPO__/examples/topics/stats/pyramid.py
     :source-position: above

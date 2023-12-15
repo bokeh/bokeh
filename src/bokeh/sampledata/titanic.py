@@ -33,7 +33,7 @@ log = logging.getLogger(__name__)
 from typing import TYPE_CHECKING
 
 # Bokeh imports
-from ..util.sampledata import package_csv
+from ..util.sampledata import external_csv
 
 if TYPE_CHECKING:
     import pandas as pd
@@ -59,7 +59,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 def _read_data() -> pd.DataFrame:
-    data = package_csv('titanic', 'titanic_all.csv')
+    data = external_csv('titanic', 'titanic_all.csv')
 
     return data
 
