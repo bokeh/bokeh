@@ -26,7 +26,7 @@ import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {enumerate} from "core/util/iterator"
 import {process_placeholders, sprintf} from "core/util/templating"
-import {Enum} from "../../core/kinds"
+import {Enum} from "core/kinds"
 
 const {round} = Math
 

@@ -6,7 +6,7 @@ import {empty, span} from "core/dom"
 import {assert} from "core/util/assert"
 import {isString, isArray} from "core/util/types"
 import type * as p from "core/properties"
-import {String, Ref, Or} from "../../core/kinds"
+import {String, Ref, Or} from "core/kinds"
 
 const HTMLRef = Or(Ref(DOMNode), Ref(UIElement))
 type HTMLRef = typeof HTMLRef["__type__"]

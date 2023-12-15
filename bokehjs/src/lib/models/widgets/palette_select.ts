@@ -15,7 +15,7 @@ import * as item_css from "styles/widgets/palette_select_item.css"
 import * as pane_css from "styles/widgets/palette_select_pane.css"
 import * as icons_css from "styles/icons.css"
 
-import {Tuple, String, Arrayable, Color} from "../../core/kinds"
+import {Tuple, String, Arrayable, Color} from "core/kinds"
 
 const Item = Tuple(String, Arrayable(Color))
 type Item = typeof Item["__type__"]

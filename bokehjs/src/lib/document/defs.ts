@@ -1,5 +1,5 @@
 import {Model} from "../model"
-import * as kinds from "../core/kinds"
+import * as kinds from "core/kinds"
 import type {HasProps} from "core/has_props"
 import type {AnyVal} from "core/serialization"
 import type {Deserializer} from "core/serialization/deserializer"

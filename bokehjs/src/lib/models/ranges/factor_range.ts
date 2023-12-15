@@ -1,7 +1,7 @@
 import {Range} from "./range"
 import {PaddingUnits} from "core/enums"
 import * as p from "core/properties"
-import {Or, String as Str, Array as Arr, Tuple} from "../../core/kinds"
+import {Or, String as Str, Array as Arr, Tuple} from "core/kinds"
 import type {Arrayable} from "core/types"
 import {ScreenArray} from "core/types"
 import {Signal0} from "core/signaling"
