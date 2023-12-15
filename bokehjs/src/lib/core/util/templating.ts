@@ -149,21 +149,29 @@ export function replace_placeholders(content: string | {html: string}, data_sour
   str = str.replace(/((?:\$\w+)|(?:@\w+)|(?:@{(?:[^{}]+)}))(?:{([^{}]+)})?/g, (_match, spec, format) => {
     const value = get_value(spec, data_source, i, special_vars)
 
-    // missing value, return ???
-    if (value == null) {
-      return encode != null ? encode(MISSING) : MISSING
-    }
-
     // 'safe' format, return the value as-is
     if (format == "safe") {
       has_html = true
-      return `${value}`
+      if (value == null) {
+        return MISSING
+      } else if (isNumber(value) && isNaN(value)) {
+        return "NaN"
+      } else {
+        return `${value}`
+      }
+    } else {
+      const result = (() => {
+        if (value == null) {
+          return MISSING
+        } else if (isNumber(value) && isNaN(value)) {
+          return "NaN"
+        } else {
+          const formatter = get_formatter(spec, format, formatters)
+          return `${formatter(value, format, special_vars)}`
+        }
+      })()
+      return encode != null ? encode(result) : result
     }
-
-    // format and escape everything else
-    const formatter = get_formatter(spec, format, formatters)
-    const result = `${formatter(value, format, special_vars)}`
-    return encode != null ? encode(result) : result
   })
 
   if (!has_html)
