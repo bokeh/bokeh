@@ -110,7 +110,7 @@ export abstract class GlyphView extends View {
   }
 
   get canvas() {
-    return this.renderer.parent.canvas_view
+    return this.renderer.plot_view.canvas_view
   }
 
   render(ctx: Context2d, indices: number[], data?: Partial<Glyph.Data>): void {

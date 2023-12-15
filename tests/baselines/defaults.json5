@@ -1692,6 +1692,9 @@
     hidpi: true,
     output_backend: "canvas",
   },
+  Coordinate: {
+    __extends__: "Model",
+  },
   CoordinateMapping: {
     __extends__: "Model",
     x_source: {
@@ -1724,7 +1727,7 @@
     },
   },
   Node: {
-    __extends__: "Model",
+    __extends__: "Coordinate",
     target: {
       type: "symbol",
       name: "unset",
@@ -1734,6 +1737,32 @@
       name: "unset",
     },
     offset: 0,
+  },
+  Polar: {
+    __extends__: "Coordinate",
+    origin: {
+      type: "object",
+      name: "XY",
+      attributes: {
+        x: 0,
+        y: 0,
+      },
+    },
+    radius: 0,
+    angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+  },
+  XY: {
+    __extends__: "Coordinate",
+    x: {
+      type: "number",
+      value: "nan",
+    },
+    y: {
+      type: "number",
+      value: "nan",
+    },
   },
   GlobalImportedStyleSheet: {
     __extends__: "ImportedStyleSheet",
@@ -5294,6 +5323,260 @@
   Selector: {
     __extends__: "Model",
   },
+  "bokeh.models.shapes.AnnularWedge": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    inner_radius: 0,
+    outer_radius: 0,
+    radius_dimension: "x",
+    start_angle: 0,
+    end_angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+  },
+  "bokeh.models.shapes.Annulus": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    inner_radius: 0,
+    outer_radius: 0,
+    radius_dimension: "x",
+  },
+  "bokeh.models.shapes.Arc": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    radius: 0,
+    radius_dimension: "x",
+    start_angle: 0,
+    end_angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+    decorations: [],
+  },
+  "bokeh.models.shapes.Area": {
+    fill_color: "gray",
+    fill_alpha: 1.0,
+    hatch_color: "black",
+    hatch_alpha: 1.0,
+    hatch_scale: 12.0,
+    hatch_pattern: null,
+    hatch_weight: 1.0,
+    hatch_extra: {
+      type: "map",
+    },
+  },
+  "bokeh.models.shapes.ArrowHead": {
+    __extends__: "bokeh.models.shapes.Shape",
+    size: 25,
+  },
+  "bokeh.models.shapes.Bezier": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+    ],
+    xy0: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    xy1: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    cxy0: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    cxy1: null,
+  },
+  "bokeh.models.shapes.Box": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    width: 0,
+    height: 0,
+    anchor: "center",
+  },
+  "bokeh.models.shapes.Circle": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    radius: 0,
+    radius_dimension: "x",
+  },
+  "bokeh.models.shapes.Label": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+      "bokeh.models.shapes.Text",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    width: null,
+    height: null,
+    anchor: "auto",
+    text: "",
+    angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+    padding: 0,
+    border_radius: 0,
+  },
+  "bokeh.models.shapes.Marker": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    size: 5,
+    angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+    marker: "circle",
+  },
+  "bokeh.models.shapes.NormalHead": {
+    __extends__: [
+      "bokeh.models.shapes.ArrowHead",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    fill_color: "black",
+  },
+  "bokeh.models.shapes.OpenHead": {
+    __extends__: [
+      "bokeh.models.shapes.ArrowHead",
+      "bokeh.models.shapes.Path",
+    ],
+  },
+  "bokeh.models.shapes.Path": {
+    line_color: "black",
+    line_alpha: 1.0,
+    line_width: 1,
+    line_join: "bevel",
+    line_cap: "butt",
+    line_dash: [],
+    line_dash_offset: 0,
+  },
+  "bokeh.models.shapes.Segment": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+    ],
+    xy0: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    xy1: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+  },
+  "bokeh.models.shapes.Shape": {
+    __extends__: "Renderer",
+    level: "overlay",
+  },
+  "bokeh.models.shapes.Spline": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+    ],
+    xs: [],
+    ys: [],
+    tension: 0.5,
+    closed: false,
+  },
+  "bokeh.models.shapes.TeeHead": {
+    __extends__: [
+      "bokeh.models.shapes.ArrowHead",
+      "bokeh.models.shapes.Path",
+    ],
+  },
+  "bokeh.models.shapes.Text": {
+    text_color: "#444444",
+    text_outline_color: null,
+    text_alpha: 1.0,
+    text_font: "helvetica",
+    text_font_size: "16px",
+    text_font_style: "normal",
+    text_align: "left",
+    text_baseline: "bottom",
+    text_line_height: 1.2,
+  },
+  "bokeh.models.shapes.VeeHead": {
+    __extends__: [
+      "bokeh.models.shapes.ArrowHead",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    fill_color: "black",
+  },
+  "bokeh.models.shapes.Wedge": {
+    __extends__: [
+      "bokeh.models.shapes.Shape",
+      "bokeh.models.shapes.Path",
+      "bokeh.models.shapes.Area",
+    ],
+    xy: {
+      type: "object",
+      name: "XY",
+      attributes: {},
+    },
+    radius: 0,
+    radius_dimension: "x",
+    start_angle: 0,
+    end_angle: 0,
+    angle_units: "rad",
+    direction: "anticlock",
+  },
   AjaxDataSource: {
     __extends__: "WebDataSource",
     polling_interval: null,
@@ -5718,6 +6001,15 @@
   ActionTool: {
     __extends__: "Tool",
   },
+  AngleTool: {
+    __extends__: "MeasurementTool",
+    angle_offset: 0,
+    angle_units: "deg",
+    direction: "anticlock",
+    precision: 2,
+    distance: true,
+    persistent: true,
+  },
   BoxEditTool: {
     __extends__: [
       "EditTool",
@@ -5838,6 +6130,9 @@
     },
     code: "",
   },
+  DistanceTool: {
+    __extends__: "MeasurementTool",
+  },
   Drag: {
     __extends__: "GestureTool",
   },
@@ -5944,6 +6239,9 @@
       name: "unset",
     },
     dimensions: "both",
+  },
+  MeasurementTool: {
+    __extends__: "GestureTool",
   },
   PanTool: {
     __extends__: "Drag",

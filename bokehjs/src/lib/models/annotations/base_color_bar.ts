@@ -107,7 +107,7 @@ export abstract class BaseColorBarView extends AnnotationView {
         return self._frame
       },
       get canvas_view() {
-        return self.parent.canvas_view
+        return self.plot_view.canvas_view
       },
       request_layout() {
         // force re-layout; not ideal but ColorBar's layout doesn't fully
@@ -492,10 +492,15 @@ export abstract class BaseColorBarView extends AnnotationView {
 
     // XXX: shrink outline region by 1px to make right and bottom lines visible
     // if they are on the edge of the canvas.
-    if (x + width >= this.parent.canvas_view.bbox.width) {
+    const {
+      width: canvas_width,
+      height: canvas_height,
+    } = this.plot_view.canvas_view.bbox
+
+    if (x + width >= canvas_width) {
       width -= 1
     }
-    if (y + height >= this.parent.canvas_view.bbox.height) {
+    if (y + height >= canvas_height) {
       height -= 1
     }
 

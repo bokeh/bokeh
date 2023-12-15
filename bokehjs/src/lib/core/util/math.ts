@@ -2,7 +2,16 @@ import type {AngleUnits, Direction} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
 
-const {PI, abs, sign} = Math
+const {PI, abs, floor, ceil, sign, min, max, sin, cos} = Math
+export {PI, abs, floor, ceil, sign, min, max, sin, cos}
+
+export function absmin(a: number, b: number): number {
+  return abs(a) <= abs(b) ? a : b
+}
+
+export function absmax(a: number, b: number): number {
+  return abs(a) >= abs(b) ? a : b
+}
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
@@ -30,6 +39,12 @@ export function angle_between(mid: number, lhs: number, rhs: number, anticlock: 
   const norm_mid = angle_norm(mid)
   const cond = angle_dist(lhs, norm_mid) <= d && angle_dist(norm_mid, rhs) <= d
   return !anticlock ? cond : !cond
+}
+
+export function to_cartesian(radius: number, angle: number): [number, number] {
+  const x = radius*cos(angle)
+  const y = radius*sin(angle)
+  return [x, y]
 }
 
 export function randomIn(min: number, max?: number): number {

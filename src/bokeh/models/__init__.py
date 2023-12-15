@@ -30,6 +30,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ..model import Model
+from . import shapes  # noqa: F401
 from . import (
     annotations,
     axes,

@@ -1,5 +1,5 @@
 import {Marker, MarkerView} from "./marker"
-import {marker_funcs} from "./defs"
+import {v_marker_funcs} from "./defs"
 import type {Rect} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
@@ -40,7 +40,7 @@ export class ScatterView extends MarkerView {
         ctx.rotate(angle_i)
       }
 
-      marker_funcs[marker_i](ctx, i, r, this.visuals)
+      v_marker_funcs[marker_i](ctx, i, r, this.visuals)
 
       if (angle_i != 0) {
         ctx.rotate(-angle_i)

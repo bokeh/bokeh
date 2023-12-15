@@ -17,13 +17,21 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import nan
+
 # Bokeh imports
+from ..core.enums import AngleUnits, Direction
+from ..core.has_props import abstract
 from ..core.properties import (
+    Angle,
     Either,
     Enum,
+    Float,
     Instance,
     InstanceDefault,
     Int,
+    NonNegative,
     Required,
     String,
 )
@@ -39,6 +47,8 @@ from .scales import LinearScale, Scale
 __all__ = (
     "CoordinateMapping",
     "Node",
+    "XY",
+    "Polar",
 )
 
 #-----------------------------------------------------------------------------
@@ -78,7 +88,53 @@ class CoordinateMapping(Model):
     The vertical range to map y-coordinates in the target coordinate space.
     """)
 
-class Node(Model):
+@abstract
+class Coordinate(Model):
+    """
+    Base class for various coordinate-like models.
+
+    .. note::
+        This model is experimental and may change at any point.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class XY(Coordinate):
+    """
+    Represents a point in a cartesian coordinate system.
+
+    .. note::
+        This model is experimental and may change at any point.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    x = Float(default=nan)
+    y = Float(default=nan)
+
+class Polar(Coordinate):
+    """
+    Represents a point in a polar coordinate system.
+
+    .. note::
+        This model is experimental and may change at any point.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    origin = Instance(Coordinate, lambda: XY(x=0, y=0))
+    radius = NonNegative(Float, default=0)
+    angle = Angle(default=0)
+    angle_units = Enum(AngleUnits, default="rad")
+    direction = Enum(Direction, default="anticlock")
+
+class Node(Coordinate):
     """
     Represents a symbolic coordinate (by name).
 
