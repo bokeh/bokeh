@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import type {PlotView} from "../plots/plot"
 import type * as p from "core/properties"
-import {Nullable, Or, Tuple, Number, Auto} from "../../core/kinds"
+import {Nullable, Or, Tuple, Number, Auto} from "core/kinds"
 
 const Bounds = Nullable(Or(Tuple(Nullable(Number), Nullable(Number)), Auto))
 type Bounds = typeof Bounds["__type__"]

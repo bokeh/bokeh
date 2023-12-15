@@ -1,7 +1,7 @@
 import {Coordinate} from "./coordinate"
 import {Model} from "../../model"
 import type * as p from "core/properties"
-import {Enum, Or, Ref} from "../../core/kinds"
+import {Enum, Or, Ref} from "core/kinds"
 
 export const ImplicitTarget = Enum("canvas", "plot", "frame", "parent")
 export type ImplicitTarget = typeof ImplicitTarget["__type__"]

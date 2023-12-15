@@ -1,4 +1,4 @@
-import type {Kind, Constructor} from "../../core/kinds"
+import type {Kind, Constructor} from "core/kinds"
 import {
   Array,
   Auto,
@@ -13,7 +13,7 @@ import {
   Ref,
   String,
   Tuple,
-} from "../../core/kinds"
+} from "core/kinds"
 import type {HasProps} from "core/has_props"
 import * as enums from "core/enums"
 

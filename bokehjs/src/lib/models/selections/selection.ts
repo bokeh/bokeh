@@ -4,7 +4,7 @@ import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
 import {merge, entries, to_object} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
-import {Arrayable, Int} from "../../core/kinds"
+import {Arrayable, Int} from "core/kinds"
 import {map} from "core/util/arrayable"
 
 export type OpaqueIndices = typeof OpaqueIndices["__type__"]

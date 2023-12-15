@@ -14,7 +14,7 @@ import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, Key
 import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
 import {assert} from "core/util/assert"
-import {Enum, Number, Nullable, Ref, Or} from "../../core/kinds"
+import {Enum, Number, Nullable, Ref, Or} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"

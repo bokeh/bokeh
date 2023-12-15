@@ -239,7 +239,7 @@ export class ToolbarView extends UIElementView {
   }
 }
 
-import {Struct, Ref, Nullable, Array, Or} from "../../core/kinds"
+import {Struct, Ref, Nullable, Array, Or} from "core/kinds"
 
 const GestureToolLike = Or(Ref(GestureTool), Ref(ToolProxy<GestureTool>))
 const GestureEntry = Struct({

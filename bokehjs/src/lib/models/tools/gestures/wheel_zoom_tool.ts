@@ -9,7 +9,7 @@ import {Dimensions} from "core/enums"
 import {logger} from "core/logging"
 import {assert} from "core/util/assert"
 import {tool_icon_wheel_zoom} from "styles/icons.css"
-import {Enum, Array, Ref, Or, Auto} from "../../../core/kinds"
+import {Enum, Array, Ref, Or, Auto} from "core/kinds"
 
 const ZoomTogether = Enum("none", "cross", "all")
 type ZoomTogether = typeof ZoomTogether["__type__"]
