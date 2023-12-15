@@ -73,17 +73,17 @@ export class MultiChoiceView extends InputWidgetView {
     return [...super.stylesheets(), choices_css]
   }
 
-  override render(): void {
-    super.render()
-
-    this.input_el = select({
+  protected _render_input(): HTMLElement {
+    return this.input_el = select({
       multiple: true,
       class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     })
+  }
 
-    this.group_el.appendChild(this.input_el)
+  override render(): void {
+    super.render()
 
     const selected = new Set(this.model.value)
     const choices = this.model.options.map((opt) => {

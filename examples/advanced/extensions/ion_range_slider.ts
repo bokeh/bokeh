@@ -27,6 +27,11 @@ export class IonRangeSliderView extends InputWidgetView {
 
   private value_el?: HTMLInputElement
 
+  protected _render_input(): HTMLElement {
+    this.input_el = input({type: "text"})
+    return div({style: {width: "100%"}}, this.input_el)
+  }
+
   override render(): void {
     // BokehJS Views create <div> elements by default, accessible as this.el.
     // Many Bokeh views ignore this default <div>, and instead do things
@@ -38,9 +43,6 @@ export class IonRangeSliderView extends InputWidgetView {
       this.value_el = input({type: "text", class: "bk-input", readonly: true, style: {marginBottom: "5px"}})
       this.group_el.appendChild(this.value_el)
     }
-
-    this.input_el = input({type: "text"})
-    this.group_el.appendChild(div({style: {width: "100%"}}, this.input_el))
 
     // Set up parameters
     const max = this.model.end

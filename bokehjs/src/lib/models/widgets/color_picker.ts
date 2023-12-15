@@ -16,18 +16,19 @@ export class ColorPickerView extends InputWidgetView {
     this.connect(this.model.properties.disabled.change, () => this.input_el.disabled = this.model.disabled)
   }
 
-  override render(): void {
-    super.render()
-
-    this.input_el = input({
+  protected _render_input(): HTMLElement {
+    return this.input_el = input({
       type: "color",
       class: inputs.input,
       name: this.model.name,
       value: this.model.color,
       disabled: this.model.disabled,
     })
+  }
+
+  override render(): void {
+    super.render()
     this.input_el.addEventListener("change", () => this.change_input())
-    this.group_el.appendChild(this.input_el)
   }
 
   override change_input(): void {

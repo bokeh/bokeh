@@ -68,19 +68,19 @@ export class SelectView extends InputWidgetView {
     }
   }
 
-  override render(): void {
-    super.render()
-
+  protected _render_input(): HTMLElement {
     this.input_el = select({
       class: inputs.input,
       name: this.model.name,
       disabled: this.model.disabled,
     }, this.options_el())
-
-    this._update_value()
-
     this.input_el.addEventListener("change", () => this.change_input())
-    this.group_el.appendChild(this.input_el)
+    return this.input_el
+  }
+
+  override render(): void {
+    super.render()
+    this._update_value()
   }
 
   override change_input(): void {

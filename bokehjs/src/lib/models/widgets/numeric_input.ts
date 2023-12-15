@@ -68,10 +68,8 @@ export class NumericInputView extends InputWidgetView {
     })
   }
 
-  override render(): void {
-    super.render()
-
-    this.input_el = input({
+  protected _render_input(): HTMLElement {
+    return this.input_el = input({
       type: "text",
       class: inputs.input,
       name: this.model.name,
@@ -79,12 +77,15 @@ export class NumericInputView extends InputWidgetView {
       disabled: this.model.disabled,
       placeholder: this.model.placeholder,
     })
+  }
+
+  override render(): void {
+    super.render()
 
     this.old_value = this.format_value
     this.set_input_filter()
     this.input_el.addEventListener("change", () => this.change_input())
-    this.input_el.addEventListener("focusout", () => this.input_el.value =  this.format_value)
-    this.group_el.appendChild(this.input_el)
+    this.input_el.addEventListener("focusout", () => this.input_el.value = this.format_value)
   }
 
   set_input_filter(): void {
