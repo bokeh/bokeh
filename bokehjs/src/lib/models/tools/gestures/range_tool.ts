@@ -2,9 +2,10 @@ import {Tool, ToolView} from "../tool"
 import {OnOffButton} from "../on_off_button"
 import type {PlotView} from "../../plots/plot"
 import {BoxAnnotation} from "../../annotations/box_annotation"
-import {Range1d} from "../../ranges/range1d"
+import {Range} from "../../ranges/range"
 import {logger} from "core/logging"
 import type * as p from "core/properties"
+import {non_null} from "core/util/types"
 import {tool_icon_range} from "styles/icons.css"
 import {Node} from "../../coordinates/node"
 
@@ -24,16 +25,19 @@ export class RangeToolView extends ToolView {
   override connect_signals(): void {
     super.connect_signals()
 
-    if (this.model.x_range != null)
+    if (this.model.x_range != null) {
       this.connect(this.model.x_range.change, () => this.model.update_overlay_from_ranges())
-    if (this.model.y_range != null)
+    }
+    if (this.model.y_range != null) {
       this.connect(this.model.y_range.change, () => this.model.update_overlay_from_ranges())
+    }
 
     this.model.overlay.pan.connect(([state, _]) => {
       if (state == "pan") {
         this.model.update_ranges_from_overlay()
       } else if (state == "pan:end") {
-        this.parent.trigger_ranges_update_event()
+        const ranges = [this.model.x_range, this.model.y_range].filter(non_null)
+        this.parent.trigger_ranges_update_event(ranges)
       }
     })
 
@@ -72,8 +76,8 @@ export namespace RangeTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Tool.Props & {
-    x_range: p.Property<Range1d | null>
-    y_range: p.Property<Range1d | null>
+    x_range: p.Property<Range | null>
+    y_range: p.Property<Range | null>
     x_interaction: p.Property<boolean>
     y_interaction: p.Property<boolean>
     overlay: p.Property<BoxAnnotation>
@@ -94,8 +98,8 @@ export class RangeTool extends Tool {
     this.prototype.default_view = RangeToolView
 
     this.define<RangeTool.Props>(({Boolean, Ref, Nullable}) => ({
-      x_range:       [ Nullable(Ref(Range1d)), null ],
-      y_range:       [ Nullable(Ref(Range1d)), null ],
+      x_range:       [ Nullable(Ref(Range)), null ],
+      y_range:       [ Nullable(Ref(Range)), null ],
       x_interaction: [ Boolean, true ],
       y_interaction: [ Boolean, true ],
       overlay:       [ Ref(BoxAnnotation), DEFAULT_RANGE_OVERLAY ],

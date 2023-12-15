@@ -43,20 +43,37 @@ export class RangeManager {
     this._update_ranges_individually(range_state, options)
   }
 
-  reset(): void {
-    const {x_ranges, y_ranges} = this.frame
-    for (const range of x_ranges.values()) {
-      range.reset()
+  ranges(): {x_ranges: Range[], y_ranges: Range[]} {
+    const x_ranges = new Set<Range>()
+    const y_ranges = new Set<Range>()
+
+    for (const range of this.frame.x_ranges.values()) {
+      x_ranges.add(range)
     }
-    for (const range of y_ranges.values()) {
-      range.reset()
+    for (const range of this.frame.y_ranges.values()) {
+      y_ranges.add(range)
     }
     for (const renderer of this.parent.model.data_renderers) {
       const {coordinates} = renderer
       if (coordinates != null) {
-        coordinates.x_source.reset()
-        coordinates.y_source.reset()
+        x_ranges.add(coordinates.x_source)
+        y_ranges.add(coordinates.y_source)
       }
+    }
+
+    return {
+      x_ranges: [...x_ranges],
+      y_ranges: [...y_ranges],
+    }
+  }
+
+  reset(): void {
+    const {x_ranges, y_ranges} = this.ranges()
+    for (const range of x_ranges) {
+      range.reset()
+    }
+    for (const range of y_ranges) {
+      range.reset()
     }
     this.update_dataranges()
   }
