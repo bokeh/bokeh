@@ -156,7 +156,7 @@ describe("templating module", () => {
 
   describe("replace_placeholders", () => {
     const source = new ColumnDataSource({data: {
-      foo: [10, 1.002, -1],
+      foo: [10, 1.002, NaN],
       bar: ["a", "<div>b</div>", "'qux'\"quux\""],
       baz: [1492890671885, 1290460671885, 1090410671285],
     }})
@@ -173,14 +173,17 @@ describe("templating module", () => {
       const s2 = tmpl.replace_placeholders("stuff @foo", source, 1)
       expect(s2).to.be.equal("stuff 1.002")
 
-      const s3 = tmpl.replace_placeholders("stuff @bar", source, 0)
-      expect(s3).to.be.equal("stuff a")
+      const s3 = tmpl.replace_placeholders("stuff @foo", source, 2)
+      expect(s3).to.be.equal("stuff NaN")
 
-      const s4 = tmpl.replace_placeholders("stuff @bar", source, 1)
-      expect(s4).to.be.equal("stuff <div>b</div>")
+      const s4 = tmpl.replace_placeholders("stuff @bar", source, 0)
+      expect(s4).to.be.equal("stuff a")
 
-      const s5 = tmpl.replace_placeholders("stuff @bar", source, 2)
-      expect(s5).to.be.equal("stuff 'qux'\"quux\"")
+      const s5 = tmpl.replace_placeholders("stuff @bar", source, 1)
+      expect(s5).to.be.equal("stuff <div>b</div>")
+
+      const s6 = tmpl.replace_placeholders("stuff @bar", source, 2)
+      expect(s6).to.be.equal("stuff 'qux'\"quux\"")
     })
 
     it("should replace field names with values as-is with safe format", () => {
@@ -192,15 +195,19 @@ describe("templating module", () => {
       const n2 = document.createTextNode("stuff 1.002")
       expect(s2).to.be.equal([n2])
 
-      const s3 = tmpl.replace_placeholders("stuff @bar{safe}", source, 0)
-      const n3 = document.createTextNode("stuff a")
+      const s3 = tmpl.replace_placeholders("stuff @foo{safe}", source, 2)
+      const n3 = document.createTextNode("stuff NaN")
       expect(s3).to.be.equal([n3])
 
-      const s4 = tmpl.replace_placeholders("stuff @bar{safe}", source, 1)
-      const n4_0 = document.createTextNode("stuff ")
-      const n4_1 = document.createElement("div")
-      n4_1.textContent = "b"
-      expect(s4).to.be.equal([n4_0, n4_1])
+      const s4 = tmpl.replace_placeholders("stuff @bar{safe}", source, 0)
+      const n4 = document.createTextNode("stuff a")
+      expect(s4).to.be.equal([n4])
+
+      const s5 = tmpl.replace_placeholders("stuff @bar{safe}", source, 1)
+      const n5_0 = document.createTextNode("stuff ")
+      const n5_1 = document.createElement("div")
+      n5_1.textContent = "b"
+      expect(s5).to.be.equal([n5_0, n5_1])
     })
 
     it("should ignore extra/unused formatters", () => {
