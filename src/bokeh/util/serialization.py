@@ -211,7 +211,7 @@ def convert_datetime_type(obj: Any | pd.Timestamp | pd.Timedelta | dt.datetime |
 
     # Time
     elif isinstance(obj, dt.time):
-        return (obj.hour * 3600 + obj.minute * 60 + obj.second) * 1000 + obj.microsecond / 1000.
+        return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond/1000.0
 
     raise ValueError(f"unknown datetime object: {obj!r}")
 
@@ -229,17 +229,18 @@ def convert_datetime_array(array: npt.NDArray[Any]) -> npt.NDArray[np.floating[A
         array
 
     '''
+    def convert(array: npt.NDArray[Any]) -> npt.NDArray[Any]:
+        return np.where(np.isnat(array), np.nan, array.astype("int64")/1000.0)
+
     # not quite correct, truncates to ms..
-    if array.dtype.kind == 'M':
-        return array.astype('datetime64[us]').astype('int64') / 1000.0
-
-    elif array.dtype.kind == 'm':
-        return array.astype('timedelta64[us]').astype('int64') / 1000.0
-
+    if array.dtype.kind == "M":
+        return convert(array.astype("datetime64[us]"))
+    elif array.dtype.kind == "m":
+        return convert(array.astype("timedelta64[us]"))
     # XXX (bev) special case dates, not great
-    elif array.dtype.kind == 'O' and len(array) > 0 and isinstance(array[0], dt.date):
+    elif array.dtype.kind == "O" and len(array) > 0 and isinstance(array[0], dt.date):
         try:
-            return array.astype('datetime64[us]').astype('int64') / 1000.0
+            return convert(array.astype("datetime64[us]"))
         except Exception:
             pass
 

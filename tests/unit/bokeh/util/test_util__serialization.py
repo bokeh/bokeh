@@ -135,13 +135,34 @@ def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
     a = np.arange(0,10,100)
     assert bus.convert_datetime_array(a) is a
 
-def test_convert_datetime_type_array() -> None:
-    a = np.array(['2018-01-03T15:37:59', '2018-01-03T15:37:59.922452', '2016-05-11'], dtype='datetime64')
-    r = bus.convert_datetime_array(a)
-    assert r[0] == 1514993879000.0
-    assert r[1] == 1514993879922.452
-    assert r[2] == 1462924800000.0
-    assert r.dtype == 'float64'
+def test_convert_datetime_array() -> None:
+    array = np.array(['2018-01-03T15:37:59', '2018-01-03T15:37:59.922452', '2016-05-11', 'NaT'], dtype='datetime64')
+    assert np.array_equal(
+        bus.convert_datetime_array(array),
+        np.array([1514993879000.0, 1514993879922.452, 1462924800000.0, np.nan], dtype="float64"),
+        equal_nan=True,
+    )
+
+    array = np.array([datetime.date(2023, 12, 15), datetime.date(2023, 12, 16)])
+    assert np.array_equal(
+        bus.convert_datetime_array(array),
+        np.array([1702598400000.0, 1702684800000.0], dtype="float64"),
+    )
+
+def test_convert_datetime_array_NaT() -> None:
+    array = np.array(["NaT"], dtype="datetime64")
+    assert np.array_equal(
+        bus.convert_datetime_array(array),
+        np.array([np.nan], dtype="float64"),
+        equal_nan=True,
+    )
+
+    array = np.array(["NaT"], dtype="timedelta64")
+    assert np.array_equal(
+        bus.convert_datetime_array(array),
+        np.array([np.nan], dtype="float64"),
+        equal_nan=True,
+    )
 
 def test_convert_datetime_type_with_tz() -> None:
     # This ensures datetimes are sent to BokehJS timezone-naive
