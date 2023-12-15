@@ -36,7 +36,7 @@ p.hbar(right=f_hist, y=edges[1:], height=bar_width, color=colors[1], line_width=
 for i, (count, age) in enumerate(zip(f_hist, edges[1:])):
     if i % 2 == 0:
         p.text(x=count, y=edges[1:][i], text=[f"{age-bin_width}-{age}yrs"], x_offset=5, y_offset=7, text_font_size="12px", text_color=colors[2])
-        
+
 # customise x-axis and y-axis
 p.xaxis.ticker = (-60, -40, -20, 0, 20, 40, 60)
 p.xaxis.major_tick_out = 0
