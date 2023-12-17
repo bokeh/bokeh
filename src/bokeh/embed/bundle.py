@@ -37,9 +37,9 @@ from typing import (
 from urllib.parse import urljoin
 
 # Bokeh imports
+from ..core.has_props import HasProps
 from ..core.templates import CSS_RESOURCES, JS_RESOURCES
 from ..document.document import Document
-from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
@@ -142,12 +142,12 @@ class Bundle:
         elif isinstance(artifact, Style):
             self.css_raw.append(artifact.content)
 
-def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resources: Resources | None) -> Bundle:
+def bundle_for_objs_and_resources(objs: Sequence[HasProps | Document] | None, resources: Resources | None) -> Bundle:
     ''' Generate rendered CSS and JS resources suitable for the given
     collection of Bokeh objects
 
     Args:
-        objs (seq[Model or Document]) :
+        objs (seq[HasProps or Document]) :
 
         resources (Resources)
 
@@ -215,7 +215,7 @@ def bundle_for_objs_and_resources(objs: Sequence[Model | Document] | None, resou
 # Private API
 #-----------------------------------------------------------------------------
 
-def _query_extensions(all_objs: set[Model], query: Callable[[type[Model]], bool]) -> bool:
+def _query_extensions(all_objs: set[HasProps], query: Callable[[type[HasProps]], bool]) -> bool:
     names: set[str] = set()
 
     for obj in all_objs:
@@ -228,7 +228,7 @@ def _query_extensions(all_objs: set[Model], query: Callable[[type[Model]], bool]
             continue
         names.add(name)
 
-        for model in Model.model_class_reverse_map.values():
+        for model in HasProps.model_class_reverse_map.values():
             if model.__module__.startswith(name):
                 if query(model):
                     return True
@@ -264,13 +264,13 @@ _default_cdn_host = URL("https://unpkg.com")
 
 extension_dirs: dict[str, Path] = {}
 
-def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[ExtensionEmbed]:
+def _bundle_extensions(objs: set[HasProps] | None, resources: Resources) -> list[ExtensionEmbed]:
     names: set[str] = set()
     bundles: list[ExtensionEmbed] = []
 
     extensions = [".min.js", ".js"] if resources.minified else [".js"]
 
-    all_objs = objs if objs is not None else Model.model_class_reverse_map.values()
+    all_objs = objs if objs is not None else HasProps.model_class_reverse_map.values()
 
     for obj in all_objs:
         if hasattr(obj, "__implementation__"):
@@ -342,8 +342,8 @@ def _bundle_extensions(objs: set[Model] | None, resources: Resources) -> list[Ex
 
     return bundles
 
-def _all_objs(objs: Sequence[Model | Document]) -> set[Model]:
-    all_objs: set[Model] = set()
+def _all_objs(objs: Sequence[HasProps | Document]) -> set[HasProps]:
+    all_objs: set[HasProps] = set()
 
     for obj in objs:
         if isinstance(obj, Document):
@@ -354,11 +354,11 @@ def _all_objs(objs: Sequence[Model | Document]) -> set[Model]:
 
     return all_objs
 
-def _any(objs: set[Model], query: Callable[[Model], bool]) -> bool:
+def _any(objs: set[HasProps], query: Callable[[HasProps], bool]) -> bool:
     ''' Whether any of a collection of objects satisfies a given query predicate
 
     Args:
-        objs (set[Model]) :
+        objs (set[HasProps]) :
 
         query (callable)
 
@@ -366,14 +366,13 @@ def _any(objs: set[Model], query: Callable[[Model], bool]) -> bool:
         True, if ``query(obj)`` is True for some object in ``objs``, else False
 
     '''
-
     return any(query(x) for x in objs)
 
-def _use_tables(all_objs: set[Model]) -> bool:
+def _use_tables(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a TableWidget
 
     Args:
-        objs (seq[Model or Document]) :
+        objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -382,11 +381,11 @@ def _use_tables(all_objs: set[Model]) -> bool:
     from ..models.widgets import TableWidget
     return _any(all_objs, lambda obj: isinstance(obj, TableWidget)) or _ext_use_tables(all_objs)
 
-def _use_widgets(all_objs: set[Model]) -> bool:
+def _use_widgets(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a any Widget
 
     Args:
-        objs (seq[Model or Document]) :
+        objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -395,10 +394,10 @@ def _use_widgets(all_objs: set[Model]) -> bool:
     from ..models.widgets import Widget
     return _any(all_objs, lambda obj: isinstance(obj, Widget)) or _ext_use_widgets(all_objs)
 
-def _model_requires_mathjax(model: Model) -> bool:
+def _model_requires_mathjax(model: HasProps) -> bool:
     """Whether a model requires MathJax to be loaded
     Args:
-        model (Model): Model to check
+        model (HasProps): HasProps to check
     Returns:
         bool: True if MathJax required, False if not
     """
@@ -436,10 +435,10 @@ def _model_requires_mathjax(model: Model) -> bool:
 
     return False
 
-def _use_mathjax(all_objs: set[Model]) -> bool:
+def _use_mathjax(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a model requesting MathJax
     Args:
-        objs (seq[Model or Document]) :
+        objs (seq[HasProps or Document]) :
     Returns:
         bool
     '''
@@ -447,11 +446,11 @@ def _use_mathjax(all_objs: set[Model]) -> bool:
 
     return _any(all_objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
 
-def _use_gl(all_objs: set[Model]) -> bool:
+def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL
 
     Args:
-        objs (seq[Model or Document]) :
+        objs (seq[HasProps or Document]) :
 
     Returns:
         bool
@@ -460,15 +459,15 @@ def _use_gl(all_objs: set[Model]) -> bool:
     from ..models.plots import Plot
     return _any(all_objs, lambda obj: isinstance(obj, Plot) and obj.output_backend == "webgl")
 
-def _ext_use_tables(all_objs: set[Model]) -> bool:
+def _ext_use_tables(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import TableWidget
     return _query_extensions(all_objs, lambda cls: issubclass(cls, TableWidget))
 
-def _ext_use_widgets(all_objs: set[Model]) -> bool:
+def _ext_use_widgets(all_objs: set[HasProps]) -> bool:
     from ..models.widgets import Widget
     return _query_extensions(all_objs, lambda cls: issubclass(cls, Widget))
 
-def _ext_use_mathjax(all_objs: set[Model]) -> bool:
+def _ext_use_mathjax(all_objs: set[HasProps]) -> bool:
     from ..models.text import MathText
     return _query_extensions(all_objs, lambda cls: issubclass(cls, MathText))
 #-----------------------------------------------------------------------------
