@@ -552,8 +552,8 @@ class ScaleBar(Annotation):
     This can either be:
 
     * ``"adaptive"`` - the computed length is fit into a set of ticks provided
-        be the dimensional model. If no ticks are provided, then the behavior
-        is the same as if ``"exact"`` sizing was used
+      be the dimensional model. If no ticks are provided, then the behavior
+      is the same as if ``"exact"`` sizing was used
     * ``"exact"`` - the computed length is used as-is
 
     """)
@@ -581,10 +581,9 @@ class ScaleBar(Annotation):
     This can use special variables:
 
     * ``@{value}`` The current value. Optionally can provide a number
-        formatter with e.g. ``@{value}{%.2f}``.
+      formatter with e.g. ``@{value}{%.2f}``.
     * ``@{unit}`` The unit of measure, by default in the short form.
-        Optionally can provide a format ``@{unit}{short}`` or
-        ``@{unit}{long}``.
+      Optionally can provide a format ``@{unit}{short}`` or ``@{unit}{long}``.
 
     """)
 
