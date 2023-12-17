@@ -550,10 +550,12 @@ class ScaleBar(Annotation):
     Defines how the length of the bar is interpreted.
 
     This can either be:
+
     * ``"adaptive"`` - the computed length is fit into a set of ticks provided
         be the dimensional model. If no ticks are provided, then the behavior
         is the same as if ``"exact"`` sizing was used
     * ``"exact"`` - the computed length is used as-is
+
     """)
 
     bar_length = NonNegative(Either(Float, Int))(default=0.2, help="""
@@ -577,11 +579,13 @@ class ScaleBar(Annotation):
     The label template.
 
     This can use special variables:
+
     * ``@{value}`` The current value. Optionally can provide a number
         formatter with e.g. ``@{value}{%.2f}``.
     * ``@{unit}`` The unit of measure, by default in the short form.
         Optionally can provide a format ``@{unit}{short}`` or
         ``@{unit}{long}``.
+
     """)
 
     label_text = Include(ScalarTextProps, prefix="label", help="""
