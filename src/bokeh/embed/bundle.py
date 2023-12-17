@@ -43,7 +43,7 @@ from ..model import Model
 from ..resources import Resources
 from ..settings import settings
 from ..util.compiler import bundle_models
-from .util import contains_tex_string, is_tex_string
+from .util import contains_tex_string
 
 if TYPE_CHECKING:
     from typing_extensions import NotRequired
@@ -402,25 +402,28 @@ def _model_requires_mathjax(model: Model) -> bool:
     Returns:
         bool: True if MathJax required, False if not
     """
+    # TODO query model's properties that include TextLike or better
+    # yet load mathjax bundle dynamically on bokehjs' side.
+
     from ..models.annotations import TextAnnotation
     from ..models.axes import Axis
     from ..models.widgets.markups import Div, Paragraph
     from ..models.widgets.sliders import AbstractSlider
 
     if isinstance(model, TextAnnotation):
-        if isinstance(model.text, str) and is_tex_string(model.text):
+        if isinstance(model.text, str) and contains_tex_string(model.text):
             return True
 
     if isinstance(model, AbstractSlider):
-        if isinstance(model.title, str) and is_tex_string(model.title):
+        if isinstance(model.title, str) and contains_tex_string(model.title):
             return True
 
     if isinstance(model, Axis):
-        if isinstance(model.axis_label, str) and is_tex_string(model.axis_label):
+        if isinstance(model.axis_label, str) and contains_tex_string(model.axis_label):
             return True
 
         for val in model.major_label_overrides.values():
-            if isinstance(val, str) and is_tex_string(val):
+            if isinstance(val, str) and contains_tex_string(val):
                 return True
 
     if isinstance(model, Div) and not model.disable_math and not model.render_as_text:
