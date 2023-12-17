@@ -20,7 +20,7 @@
     "@types/pngjs": "^6.0.4",
     "@types/sinon": "^17.0.2",
     "@types/source-map-support": "^0.5.10",
-    "@types/yargs": "^16.0.4",
+    "@types/yargs": "^17.0.32",
     "chalk": "^4.1.2",
     "chrome-remote-interface": "^0.33.0",
     "cli-progress": "^3.11.2",

@@ -4,8 +4,8 @@ import CDP = require("chrome-remote-interface")
 import fs from "fs"
 import path from "path"
 import readline from "readline"
-import {argv} from "yargs"
 import chalk from "chalk"
+import yargs from "yargs"
 import {Bar, Presets} from "cli-progress"
 
 import type {Box, State} from "./baselines"
@@ -64,13 +64,23 @@ process.on("exit", () => {
   rl?.close()
 })
 
-const url = argv._[0] as string
-const host = argv.host as string | undefined ?? "127.0.0.1"
-const port = parseInt(argv.port as string | undefined ?? "9222")
-const ref = (argv.ref ?? "HEAD") as string
-const randomize = (argv.randomize ?? false) as boolean
-const seed = argv.seed != null ? Number(argv.seed) : Date.now()
-const pedantic = argv.pedantic as boolean | undefined ?? false
+const argv = yargs(process.argv.slice(2)).options({
+  host: {type: "string", default: "127.0.0.1"},
+  port: {type: "number", default: 9222},
+  ref: {type: "string", default: "HEAD"},
+  randomize: {type: "boolean", default: false},
+  seed: {type: "number", default: Date.now()},
+  pedantic: {type: "boolean", default: false},
+  keyword: {type: "string", array: true, demandOption: false, alias: "k"},
+  grep: {type: "string", array: true, demandOption: false},
+  "baselines-root": {type: "string", demandOption: false},
+  screenshot: {type: "string", choices: ["test", "save", "skip"] as const, default: "test"},
+  retry: {type: "boolean", default: false},
+  info: {type: "boolean", default: false},
+}).parseSync()
+
+const {host, port, ref, randomize, seed, pedantic, keyword, grep, screenshot, retry, info} = argv
+const url = argv._[0] as string | undefined ?? "about:blank"
 
 interface CallFrame {
   name: string
@@ -315,9 +325,9 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         shuffle(test_suite, random)
       }
 
-      if (argv.k != null || argv.grep != null) {
-        if (argv.k != null) {
-          const keywords: string[] = Array.isArray(argv.k) ? argv.k : [argv.k]
+      if (keyword != null || grep != null) {
+        if (keyword != null) {
+          const keywords = keyword
           for (const [suites, test] of test_suite) {
             if (!keywords.some((keyword) => description(suites, test).includes(keyword))) {
               test.skip = true
@@ -325,11 +335,8 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
           }
         }
 
-        if (argv.grep != null) {
-          const regexes = (() => {
-            const arr = Array.isArray(argv.grep) ? argv.grep : [argv.grep]
-            return arr.map((str) => new RegExp(str as string))
-          })()
+        if (grep != null) {
+          const regexes = grep.map((re) => new RegExp(re))
           for (const [suites, test] of test_suite) {
             if (!regexes.some((regex) => description(suites, test).match(regex) != null)) {
               test.skip = true
@@ -346,7 +353,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
         fail("nothing to test because all tests were skipped")
       }
 
-      const baselines_root = (argv.baselinesRoot as string | undefined) ?? null
+      const baselines_root = argv["baselines-root"]
       const baseline_names = new Set<string>()
 
       if (baselines_root != null) {
@@ -622,9 +629,8 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                           const write_image = async () => fs.promises.writeFile(image_file, current)
                           const {existing_png} = status
 
-                          switch (argv.screenshot) {
-                            case undefined:
-                            case "test":
+                          switch (screenshot) {
+                            case "test": {
                               if (existing_png == null) {
                                 status.failure = true
                                 status.errors.push("missing baseline image")
@@ -648,13 +654,17 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
                                 }
                               }
                               break
-                            case "save":
+                            }
+                            case "save": {
                               await write_image()
                               break
-                            case "skip":
+                            }
+                            case "skip": {
                               break
-                            default:
-                              throw new Error(`invalid argument --screenshot=${argv.screenshot}`)
+                            }
+                            default: {
+                              throw new Error(`invalid argument --screenshot=${screenshot}`)
+                            }
                           }
                         }
                       })()
@@ -673,7 +683,7 @@ async function run_tests(ctx: TestRunContext): Promise<boolean> {
             }
 
             const do_retry = await run_test(null, status)
-            if ((argv.retry || test.retries != null) && do_retry) {
+            if ((retry || test.retries != null) && do_retry) {
               const retries = test.retries ?? 10
 
               for (let i = 0; i < retries; i++) {
@@ -810,7 +820,7 @@ async function run(): Promise<void> {
   const version = get_version_tuple(browser)
   check_version(version)
   const major = version != null ? version[0] : 0
-  const ok = !argv.info ? await run_tests({chromium_version: major}) : true
+  const ok = !info ? await run_tests({chromium_version: major}) : true
   process.exit(ok ? 0 : 1)
 }
 

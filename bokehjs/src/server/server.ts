@@ -11,7 +11,7 @@ declare global {
 
 import type {IncomingMessage} from "http"
 import WebSocket from "ws"
-import {argv} from "yargs"
+import yargs from "yargs"
 
 import {version} from "./package.json"
 import {Receiver} from "./receiver"
@@ -69,8 +69,12 @@ type PullDoc = {
 const TOKEN = Symbol("TOKEN")
 type Request = IncomingMessage & {[TOKEN]?: string}
 
-const host = argv.host as string | undefined ?? "127.0.0.1"
-const port = parseInt(argv.port as string | undefined ?? "5877")
+const argv = yargs(process.argv.slice(2)).options({
+  host: {type: "string", default: "127.0.0.1"},
+  port: {type: "number", default: 5877},
+}).parseSync()
+
+const {host, port} = argv
 
 function log(_message: string): void {
   //console.log(message)
