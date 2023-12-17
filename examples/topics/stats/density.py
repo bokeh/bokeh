@@ -7,7 +7,7 @@ the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
     :refs: :ref:`ug_topics_stats_density`
     :keywords: density, varea
 
-.. _kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
+.. _multiple kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
 .. _sklearn.neighbors.KernelDensity: https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KernelDensity.html
 
 '''
