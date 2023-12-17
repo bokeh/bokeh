@@ -1,7 +1,7 @@
 import type {ChildProcess} from "child_process"
 import {spawn} from "child_process"
-import {argv} from "yargs"
 
+import {argv} from "../main"
 import {task, task2, success, BuildError} from "../task"
 import {find_port, retry, terminate, keep_alive} from "./_util"
 
@@ -38,9 +38,7 @@ async function server(host?: string, port?: number, inspect?: boolean): Promise<
   })
 }
 
-const host = argv.host as string | undefined
-const port = parseInt(argv.port as string | undefined ?? "5877")
-const inspect = argv.inspect as boolean | undefined
+const {host, port, inspect} = argv
 
 task("run:server", async () => {
   await server(host, port, inspect)

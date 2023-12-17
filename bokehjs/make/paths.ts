@@ -1,11 +1,11 @@
 import {resolve, join} from "path"
-import {argv} from "yargs"
+
+import {argv} from "./main"
 
 export const base_dir = resolve("./")
-
 export const make_dir = join(base_dir, "make")
 
-const BUILD_DIR = argv.buildDir ? resolve(argv.buildDir as string) : join(base_dir, "build")
+const BUILD_DIR = argv.buildDir != null ? resolve(argv.buildDir) : join(base_dir, "build")
 const JS_BUILD_DIR = join(BUILD_DIR, "js")
 const CSS_BUILD_DIR = join(BUILD_DIR, "css")
 

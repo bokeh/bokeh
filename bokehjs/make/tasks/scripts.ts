@@ -1,5 +1,4 @@
 import {join, relative} from "path"
-import {argv} from "yargs"
 import fs from "fs"
 
 import {task, passthrough, BuildError} from "../task"
@@ -9,6 +8,8 @@ import {compile_typescript} from "@compiler/compiler"
 import type {AssemblyOptions} from "@compiler/linker"
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
+
+import {argv} from "../main"
 import * as paths from "../paths"
 
 import pkg from "../../package.json"
@@ -68,10 +69,10 @@ task("scripts:bundle", [passthrough("scripts:compile")], async () => {
   const linker = new Linker({
     entries: packages.map((pkg) => pkg.main),
     bases: [paths.build_dir.lib, "./node_modules"],
-    cache: argv.cache !== false ? join(paths.build_dir.js, "bokeh.json") : undefined,
+    cache: argv.cache ? join(paths.build_dir.js, "bokeh.json") : undefined,
     target: "ES2020",
     exports: ["tslib"],
-    detect_cycles: argv.detectCycles as boolean | undefined,
+    detect_cycles: argv.detectCycles,
     overrides: {
       // https://github.com/bokeh/bokeh/issues/12142
       "mathjax-full/js/components/version.js": `\

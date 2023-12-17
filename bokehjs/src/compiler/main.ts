@@ -1,9 +1,21 @@
-import {argv} from "yargs"
+import yargs from "yargs"
 import {resolve} from "path"
 
 import {read} from "./sys"
 import {init, build} from "./build"
 import {compile_and_resolve_deps} from "./compile"
+
+const argv = yargs(process.argv.slice(2)).options({
+  code: {type: "string"},
+  file: {type: "string"},
+  lang: {type: "string", choices: ["typescript", "javascript"], default: "typescript"},
+  "base-dir": {type: "string"},
+  "bokehjs-dir": {type: "string", default: "./build"}, // this is what bokeh.settings defaults to
+  "bokeh-version": {type: "string"},
+  "bokehjs-version": {type: "string"},
+  rebuild: {type: "boolean", default: false},
+  interactive: {type: "boolean", default: false},
+}).parseSync()
 
 async function read_stdin() {
   const stdin = process.stdin
@@ -28,10 +40,10 @@ async function compile() {
   const input = await (async () => {
     if (argv.file != null) {
       return {
-        code: argv.code != null ? argv.code as string : read(argv.file as string)!,
-        lang: (argv.lang as string | undefined) ?? "typescript",
-        file: argv.file as string,
-        bokehjs_dir: (argv.bokehjsDir as string | undefined) ?? "./build", // this is what bokeh.settings defaults to
+        code: argv.code != null ? argv.code : read(argv.file)!,
+        lang: argv.lang,
+        file: argv.file,
+        bokehjs_dir: argv.bokehjsDir,
       }
     } else {
       return JSON.parse(await read_stdin())
@@ -44,10 +56,10 @@ async function main() {
   const cmd = argv._[0]
   if (cmd == "build") {
     try {
-      const base_dir = resolve(argv.baseDir as string)
-      const bokehjs_dir = resolve(argv.bokehjsDir as string)
-      const rebuild = argv.rebuild as boolean | undefined
-      const bokeh_version = argv.bokehVersion as string
+      const base_dir = resolve(argv.baseDir!)
+      const bokehjs_dir = resolve(argv.bokehjsDir)
+      const rebuild = argv.rebuild
+      const bokeh_version = argv.bokehVersion!
       const result = await build(base_dir, bokehjs_dir, {rebuild, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {
@@ -57,11 +69,11 @@ async function main() {
     }
   } else if (cmd == "init") {
     try {
-      const base_dir = resolve(argv.baseDir as string)
-      const bokehjs_dir = resolve(argv.bokehjsDir as string)
-      const interactive = argv.interactive as boolean | undefined
-      const bokehjs_version = argv.bokehjsVersion as string | undefined
-      const bokeh_version = argv.bokehVersion as string
+      const base_dir = resolve(argv.baseDir!)
+      const bokehjs_dir = resolve(argv.bokehjsDir)
+      const interactive = argv.interactive
+      const bokehjs_version = argv.bokehjsVersion
+      const bokeh_version = argv.bokehVersion!
       const result = await init(base_dir, bokehjs_dir, {interactive, bokehjs_version, bokeh_version})
       process.exit(result ? 0 : 1)
     } catch (error) {

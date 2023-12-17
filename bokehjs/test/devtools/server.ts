@@ -2,7 +2,7 @@ import fs from "fs"
 import {spawn} from "child_process"
 import {join, resolve, dirname} from "path"
 
-import {argv} from "yargs"
+import yargs from "yargs"
 import express from "express"
 import cors from "cors"
 import nunjucks from "nunjucks"
@@ -239,9 +239,12 @@ process.once("SIGTERM", () => {
   process.exit(0)
 })
 
-const host = argv.host as string | undefined ?? "127.0.0.1"
-const port = parseInt(argv.port as string | undefined ?? "5777")
+const argv = yargs(process.argv.slice(2)).options({
+  host: {type: "string", default: "127.0.0.1"},
+  port: {type: "number", default: 5777},
+}).parseSync()
 
+const {host, port} = argv
 const server = app.listen(port, host)
 
 server.on("listening", () => {

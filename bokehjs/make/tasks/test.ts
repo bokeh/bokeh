@@ -1,12 +1,12 @@
 import type {ChildProcess} from "child_process"
 import {spawn} from "child_process"
-import {argv} from "yargs"
 import {join, delimiter, basename, extname, dirname} from "path"
 import chalk from "chalk"
 import which from "which"
 import fs from "fs"
 import os from "os"
 
+import {argv} from "../main"
 import {task, task2, success, passthrough, BuildError} from "../task"
 import * as paths from "../paths"
 import {platform, find_port, retry, terminate, keep_alive} from "./_util"
@@ -50,16 +50,19 @@ function sys_path(): string {
   const path = [process.env.PATH]
 
   switch (platform) {
-    case "linux":
+    case "linux": {
       path.push("/opt/google/chrome/")
       break
-    case "macos":
+    }
+    case "macos": {
       path.push("/Applications/Google\ Chrome.app/Contents/MacOS/")
       break
-    case "windows":
+    }
+    case "windows": {
       path.push("c:\\Program Files\\Google\\Chrome\\Application\\")
       path.push("c:\\Program Files (x86)\\Google\\Chrome\\Application\\")
       break
+    }
   }
 
   return path.join(delimiter)
@@ -89,10 +92,10 @@ function chrome(): string {
 }
 
 function chromium_executable(): string {
-  return argv.e as string | undefined ?? chrome()
+  return argv.executable ?? chrome()
 }
 
-const devtools_host = argv.host as string | undefined ?? "127.0.0.1"
+const devtools_host = argv.host
 
 async function headless(devtools_port: number): Promise<ChildProcess> {
   const data_dir = fs.mkdtempSync(join(os.tmpdir(), "headless"))
@@ -146,11 +149,7 @@ async function server(port: number): Promise<ChildProcess> {
   const args = ["--no-warnings", "./test/devtools", "server", `--port=${port}`]
 
   if (argv.debug) {
-    if (argv.debug === true) {
-      args.unshift("--inspect-brk")
-    } else {
-      args.unshift(`--inspect-brk=${argv.debug}`)
-    }
+    args.unshift("--inspect-brk")
   }
 
   const proc = spawn(process.execPath, args, {stdio: ["inherit", "inherit", "inherit", "ipc"]})
@@ -173,31 +172,27 @@ async function server(port: number): Promise<ChildProcess> {
   })
 }
 
-function opts(name: string, value: unknown): string[] {
+function opt(name: string, value: unknown): string[] {
   if (Array.isArray(value)) {
     return value.map((v) => `--${name}=${v}`)
   } else if (value != null) {
     return [`--${name}=${value}`]
   } else {
-    return [""]
+    return []
   }
-}
-
-function opt(name: string, value: unknown): string {
-  return value != null ? `--${name}=${value}` : ""
 }
 
 function devtools(devtools_port: number, server_port: number, name: string, baselines_root?: string): Promise<void> {
   const args = [
+    ...opt("keyword", argv.keyword),
+    ...opt("grep", argv.grep),
+    ...opt("ref", argv.ref),
+    ...opt("baselines-root", baselines_root),
+    ...opt("randomize", argv.randomize),
+    ...opt("seed", argv.seed),
+    ...opt("pedantic", argv.pedantic),
+    `--screenshot=${argv.screenshot}`,
     `http://localhost:${server_port}/${name}`,
-    ...opts("k", argv.k),
-    ...opts("grep", argv.grep),
-    opt("ref", argv.ref),
-    opt("baselines-root", baselines_root),
-    opt("randomize", argv.randomize),
-    opt("seed", argv.seed),
-    opt("pedantic", argv.pedantic),
-    `--screenshot=${argv.screenshot ?? "test"}`,
   ]
   return _devtools(devtools_port, args)
 }
@@ -216,11 +211,7 @@ function _devtools(devtools_port: number, user_args: string[]): Promise<void> {
   ]
 
   if (argv.debug) {
-    if (argv.debug === true) {
-      args.unshift("--inspect-brk")
-    } else {
-      args.unshift(`--inspect-brk=${argv.debug}`)
-    }
+    args.unshift("--inspect-brk")
   }
 
   const proc = spawn(process.execPath, args, {stdio: "inherit"})

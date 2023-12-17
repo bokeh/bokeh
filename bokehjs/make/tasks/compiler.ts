@@ -1,10 +1,11 @@
 import {join} from "path"
-import {argv} from "yargs"
 
 import {task, BuildError} from "../task"
 import {compile_typescript} from "@compiler/compiler"
 import {Linker} from "@compiler/linker"
 import * as preludes from "@compiler/prelude"
+
+import {argv} from "../main"
 import {src_dir, build_dir} from "../paths"
 
 task("compiler:ts", async () => {
@@ -19,7 +20,7 @@ task("compiler:build", ["compiler:ts"], async () => {
   const minify = false
   const es_modules = false
   const apply_transforms = false
-  const cache = argv.cache !== false ? join(build_dir.js, "compiler.json") : undefined
+  const cache = argv.cache ? join(build_dir.js, "compiler.json") : undefined
 
   const linker = new Linker({entries, bases, externals, builtins, minify, es_modules, apply_transforms, cache})
 
