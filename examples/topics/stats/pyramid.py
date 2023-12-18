@@ -38,7 +38,7 @@ for i, (count, age) in enumerate(zip(f_hist, edges[1:])):
            x_offset=5, y_offset=7, text_font_size="12px", text_color=DarkText[5])
 
 # customise x-axis and y-axis
-p.xaxis.ticker = (-60, -40, -20, 0, 20, 40, 60)
+p.xaxis.ticker = (-80, -60, -40, -20, 0, 20, 40, 60, 80)
 p.xaxis.major_tick_out = 0
 p.y_range.start = 3
 p.ygrid.grid_line_color = None
