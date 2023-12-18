@@ -373,6 +373,10 @@
       "alt": "Thumbnail link to the examples/topics/stats/histogram.py example shows a histogram of sampled data from a normal (Gaussian) distribution overlaid with a line showing the ideal distribution curve."
     },
     {
+      "name": "pyramid.py",
+      "alt": "Thumbnail link to the examples/topics/stats/pyramid.py example shows a pyramid plot showing the age distribution of the male and female Titanic passengers."
+    },
+    {
       "name": "kde2d.py",
       "alt": "Thumbnail link to the examples/topics/stats/kde2d.py example shows a bivariate kernel density estimation plot of the autompg data."
     },

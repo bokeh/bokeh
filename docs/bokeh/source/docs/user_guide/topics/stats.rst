@@ -13,6 +13,14 @@ Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 .. bokeh-plot:: __REPO__/examples/topics/stats/histogram.py
     :source-position: above
 
+.. _ug_topics_stats_pyramid:
+
+A population pyramid plot is a divergent horizontal bar plot that can be used to compare distributions between two groups.
+In Bokeh they can be created using |hbar| glyphs.
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/pyramid.py
+    :source-position: above
+
 .. _ug_topics_stats_boxplot:
 
 Boxplot
@@ -63,6 +71,7 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
     :source-position: above
 
 .. |harea|   replace:: :func:`~bokeh.plotting.figure.harea`
+.. |hbar|    replace:: :func:`~bokeh.plotting.figure.hbar`
 .. |quad|    replace:: :func:`~bokeh.plotting.figure.quad`
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
 .. |varea|   replace:: :func:`~bokeh.plotting.figure.varea`
