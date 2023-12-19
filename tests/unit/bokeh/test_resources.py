@@ -18,6 +18,7 @@ import pytest  # isort:skip
 
 # Standard library imports
 import os
+import re
 import subprocess
 import sys
 
@@ -52,6 +53,9 @@ def teardown_module() -> None:
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
+
+VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
+
 ALL_VERSIONS = resources.get_all_sri_versions()
 
 # very old Bokeh versions are inconsistent and have to be handled specially
@@ -59,6 +63,10 @@ STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
 WIERD_VERSIONS = ALL_VERSIONS - STANDARD_VERSIONS
 
 class TestSRIHashes:
+    def test_get_all_sri_versions_valid_format(self) -> None:
+        versions = resources.get_all_sri_versions()
+        for v in versions:
+            assert VERSION_PAT.match(v), f"{v} is not a valid version for the SRI hashes store"
 
     @pytest.mark.parametrize("v", STANDARD_VERSIONS)
     def test_get_sri_hashes_for_standard_versions(self, v) -> None:
