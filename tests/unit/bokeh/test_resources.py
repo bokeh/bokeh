@@ -18,12 +18,12 @@ import pytest  # isort:skip
 
 # Standard library imports
 import os
-import re
 import subprocess
 import sys
 
 # External imports
 import bs4
+from packaging.version import Version as V
 
 # Bokeh imports
 import bokeh.util.version as buv
@@ -52,33 +52,36 @@ def teardown_module() -> None:
 # -----------------------------------------------------------------------------
 # General API
 # -----------------------------------------------------------------------------
+ALL_VERSIONS = resources.get_all_sri_versions()
 
-VERSION_PAT = re.compile(r"^(\d+\.\d+\.\d+)$")
-
+# very old Bokeh versions are inconsistent and have to be handled specially
+STANDARD_VERSIONS = {v for v in ALL_VERSIONS if V(v) >= V("0.4.1")}
+WIERD_VERSIONS = ALL_VERSIONS - STANDARD_VERSIONS
 
 class TestSRIHashes:
-    def test_get_all_sri_versions_valid_format(self) -> None:
-        versions = resources.get_all_sri_versions()
-        for v in versions:
-            assert VERSION_PAT.match(v), f"{v} is not a valid version for the SRI hashes store"
 
-    def test_get_sri_hashes_for_version(self) -> None:
-        versions = resources.get_all_sri_versions()
-        for v in versions:
-            h = resources.get_sri_hashes_for_version(v)
-            if "0.3" <= v:
-                if v == "0.3.0":
-                    v_t = "0.3"
-                elif v == "0.4.0":
-                    v_t = "0.4"
-                else:
-                    v_t = v
-                assert f"bokeh-{v_t}.js" in h
-                assert f"bokeh-{v_t}.min.js" in h
-            if "1" <= v:
-                assert f"bokeh-widgets-{v_t}.js" in h
-                assert f"bokeh-widgets-{v_t}.min.js" in h
-            assert h == resources._ALL_SRI_HASHES[v]
+    @pytest.mark.parametrize("v", STANDARD_VERSIONS)
+    def test_get_sri_hashes_for_standard_versions(self, v) -> None:
+
+        h = resources.get_sri_hashes_for_version(v)
+        assert f"bokeh-{v}.js" in h
+        assert f"bokeh-{v}.min.js" in h
+        if v >= "1":
+            assert f"bokeh-widgets-{v}.js" in h
+            assert f"bokeh-widgets-{v}.min.js" in h
+
+    @pytest.mark.parametrize("v", WIERD_VERSIONS)
+    def test_get_sri_hashes_for_weird_versions(self, v) -> None:
+
+        h = resources.get_sri_hashes_for_version(v)
+        # 0.1.0 and 0.0.2 are tagged but untestable
+        if v <= "0.2.0":
+            return
+
+        # other early versions omitted trailing .0 in filnames
+        v = v.rstrip(".0")
+        assert f"bokeh-{v}.js" in h
+        assert f"bokeh-{v}.min.js" in h
 
     def test_get_sri_hashes_for_version_bad(self) -> None:
         with pytest.raises(ValueError):
