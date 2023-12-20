@@ -107,6 +107,12 @@
   display: inline-block;
 }
 
+:host(:not(.bk-closable)) {
+  .bk-close {
+    display: none;
+  }
+}
+
 .bk-close {
   position: absolute;
   top: 2px;

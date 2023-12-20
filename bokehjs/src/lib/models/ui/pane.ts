@@ -37,6 +37,9 @@ export class PaneView extends UIElementView {
     const created_elements = new Set(created)
 
     if (created_elements.size != 0) {
+      // Remove then either reattach existing elements or render and attach
+      // new elements, so that the order of children is consistent. Otherwise
+      // we would be pushing new elements to the end.
       for (const element_view of this.element_views) {
         element_view.el.remove()
       }
@@ -45,13 +48,9 @@ export class PaneView extends UIElementView {
         const is_new = created_elements.has(element_view)
 
         if (is_new) {
-          element_view.render()
-        }
-
-        this.shadow_el.append(element_view.el)
-
-        if (is_new) {
-          element_view.after_render()
+          element_view.render_to(this.shadow_el)
+        } else {
+          this.shadow_el.append(element_view.el)
         }
       }
     }
@@ -74,9 +73,7 @@ export class PaneView extends UIElementView {
     super.render()
 
     for (const element_view of this.element_views) {
-      element_view.render()
-      this.shadow_el.append(element_view.el)
-      element_view.after_render()
+      element_view.render_to(this.shadow_el)
     }
   }
 

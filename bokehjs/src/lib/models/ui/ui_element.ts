@@ -162,11 +162,6 @@ export abstract class UIElementView extends DOMComponentView {
     this.finish()
   }
 
-  override render_to(target: globalThis.Node | null): void {
-    super.render_to(target)
-    this.after_render()
-  }
-
   override render(): void {
     super.render()
     this._apply_styles()

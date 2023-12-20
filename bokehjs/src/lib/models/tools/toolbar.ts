@@ -72,7 +72,7 @@ export class ToolbarView extends UIElementView {
     const reversed = location == "left" || location == "above"
     const orientation = this.model.horizontal ? "vertical" : "horizontal"
     this._overflow_menu = new ContextMenu([], {
-      target: this.root.el,
+      target: this.el,
       orientation,
       reversed,
       prevent_hide: (event) => {

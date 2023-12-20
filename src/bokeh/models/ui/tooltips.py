@@ -35,7 +35,7 @@ from ...core.properties import (
     String,
     Tuple,
 )
-from ..dom import HTML
+from ..dom import HTML, DOMNode
 from ..nodes import Node
 from ..selectors import Selector
 from .ui_element import UIElement
@@ -75,7 +75,7 @@ class Tooltip(UIElement):
     attachment can be inferred from its parent in ``"auto"`` mode.
     """)
 
-    content = Required(Either(String, Instance(HTML)), help="""
+    content = Required(Either(String, Instance(HTML), Instance(DOMNode), Instance(UIElement)), help="""
     The tooltip's content. Can be a plaintext string or a :class:`~bokeh.models.HTML`
     object.
     """)

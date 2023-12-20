@@ -41,10 +41,9 @@ export abstract class DOMView extends View {
   abstract render(): void
 
   render_to(target: Node | null): void {
-    if (target != null) {
-      target.appendChild(this.el)
-    }
     this.render()
+    target?.appendChild(this.el)
+    this.after_render()
   }
 
   after_render(): void {}
