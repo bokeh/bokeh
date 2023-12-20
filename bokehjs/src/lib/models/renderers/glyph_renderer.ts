@@ -127,8 +127,9 @@ export class GlyphRendererView extends DataRendererView {
     nonselection_glyph = glyph_from_mode(nonselection_defaults, nonselection_glyph)
     this.nonselection_glyph = await this.build_glyph_view(nonselection_glyph)
 
-    if (hover_glyph != null)
+    if (hover_glyph != null) {
       this.hover_glyph = await this.build_glyph_view(hover_glyph)
+    }
 
     muted_glyph = glyph_from_mode(muted_defaults, muted_glyph)
     this.muted_glyph = await this.build_glyph_view(muted_glyph)
@@ -142,7 +143,7 @@ export class GlyphRendererView extends DataRendererView {
     this.muted_glyph.set_base(this.glyph)
     this.decimated_glyph.set_base(this.glyph)
 
-    this.set_data()
+    await this.set_data()
   }
 
   async build_glyph_view<T extends Glyph>(glyph: T): Promise<GlyphView> {
@@ -208,10 +209,10 @@ export class GlyphRendererView extends DataRendererView {
     this.connect(this.model.properties.view.change, async () => {
       this.cds_view.remove()
       this.cds_view = await build_view(this.model.view, {parent: this})
-      update()
+      await update()
     })
     this.connect(this.model.view.properties.indices.change, update)
-    this.connect(this.model.view.properties.masked.change, () => this.set_visuals())
+    this.connect(this.model.view.properties.masked.change, async () => await this.set_visuals())
     this.connect(this.model.properties.visible.change, () => this.plot_view.invalidate_dataranges = true)
 
     const {x_ranges, y_ranges} = this.plot_view.frame
@@ -239,27 +240,27 @@ export class GlyphRendererView extends DataRendererView {
     return masked
   }
 
-  update_data(indices?: number[]): void {
-    this.set_data(indices)
+  async update_data(indices?: number[]): Promise<void> {
+    await this.set_data(indices)
     this.request_render()
   }
 
   // in case of partial updates like patching, the list of indices that actually
   // changed may be passed as the "indices" parameter to afford any optional optimizations
-  set_data(indices?: number[]): void {
+  async set_data(indices?: number[]): Promise<void> {
     const source = this.model.data_source
 
     this.all_indices = this.model.view.indices
     const {all_indices} = this
 
-    this.glyph.set_data(source, all_indices, indices)
-    this.decimated_glyph.set_data(source, all_indices, indices)
-    this.selection_glyph.set_data(source, all_indices, indices)
-    this.nonselection_glyph.set_data(source, all_indices, indices)
-    this.hover_glyph?.set_data(source, all_indices, indices)
-    this.muted_glyph.set_data(source, all_indices, indices)
+    await this.glyph.set_data(source, all_indices, indices)
+    await this.decimated_glyph.set_data(source, all_indices, indices)
+    await this.selection_glyph.set_data(source, all_indices, indices)
+    await this.nonselection_glyph.set_data(source, all_indices, indices)
+    await this.hover_glyph?.set_data(source, all_indices, indices)
+    await this.muted_glyph.set_data(source, all_indices, indices)
 
-    this.set_visuals()
+    await this.set_visuals()
 
     this._update_masked_indices()
 
@@ -273,27 +274,33 @@ export class GlyphRendererView extends DataRendererView {
     this.plot_view.invalidate_dataranges = true
   }
 
-  set_visuals(): void {
+  async set_visuals(): Promise<void> {
     const source = this.model.data_source
     const {all_indices} = this
 
     this.glyph.set_visuals(source, all_indices)
     this.glyph.after_visuals()
+    await this.glyph.after_lazy_visuals()
 
     this.decimated_glyph.set_visuals(source, all_indices)
     this.decimated_glyph.after_visuals()
+    await this.decimated_glyph.after_lazy_visuals()
 
     this.selection_glyph.set_visuals(source, all_indices)
     this.selection_glyph.after_visuals()
+    await this.selection_glyph.after_lazy_visuals()
 
     this.nonselection_glyph.set_visuals(source, all_indices)
     this.nonselection_glyph.after_visuals()
+    await this.nonselection_glyph.after_lazy_visuals()
 
     this.hover_glyph?.set_visuals(source, all_indices)
     this.hover_glyph?.after_visuals()
+    await this.hover_glyph?.after_lazy_visuals()
 
     this.muted_glyph.set_visuals(source, all_indices)
     this.muted_glyph.after_visuals()
+    await this.muted_glyph.after_lazy_visuals()
   }
 
   override get has_webgl(): boolean {

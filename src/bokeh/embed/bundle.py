@@ -442,9 +442,10 @@ def _use_mathjax(all_objs: set[HasProps]) -> bool:
     Returns:
         bool
     '''
+    from ..models.glyphs import MathTextGlyph
     from ..models.text import MathText
 
-    return _any(all_objs, lambda obj: isinstance(obj, MathText) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
+    return _any(all_objs, lambda obj: isinstance(obj, (MathTextGlyph, MathText)) or _model_requires_mathjax(obj)) or _ext_use_mathjax(all_objs)
 
 def _use_gl(all_objs: set[HasProps]) -> bool:
     ''' Whether a collection of Bokeh objects contains a plot requesting WebGL

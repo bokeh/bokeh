@@ -540,6 +540,35 @@ Examples:
 
 """
 
+    @glyph_method(glyphs.MathMLGlyph)
+    def mathml(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        p = figure(width=300, height=300)
+        p.mathml(x=[0], y=[0], text=['''
+          <math display="block">
+            <mrow>
+              <msup>
+                <mi>x</mi>
+                <mn>2</mn>
+              </msup>
+              <msup>
+                <mi>y</mi>
+                <mn>2</mn>
+              </msup>
+            </mrow>
+          </math>
+        '''])
+
+        show(p)
+
+"""
+
     @glyph_method(glyphs.MultiLine)
     def multi_line(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
         """
@@ -844,6 +873,22 @@ Examples:
                       color="#386CB0", fill_color=None, line_width=2)
 
         show(plot)
+
+"""
+
+    @glyph_method(glyphs.TeXGlyph)
+    def tex(self, *args: Any, **kwargs: Any) -> GlyphRenderer:
+        """
+Examples:
+
+    .. code-block:: python
+
+        from bokeh.plotting import figure, show
+
+        p = figure(width=300, height=300)
+        p.tex(x=[0], y=[0], text=["x^2 y^2])
+
+        show(p)
 
 """
 

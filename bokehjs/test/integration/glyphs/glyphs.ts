@@ -433,6 +433,103 @@ describe("Glyph models", () => {
     await display(row([p("canvas"), p("svg"), p("webgl")]))
   })
 
+  it("should support MathMLGlyph", async () => {
+    const p = fig([200, 200])
+    p.mathml({
+      anchor: "center",
+      x: [0],
+      y: [0],
+      text: [`
+        <math display="block">
+          <mrow>
+            <msup>
+              <mi>x</mi>
+              <mn>2</mn>
+            </msup>
+            <msup>
+              <mi>y</mi>
+              <mn>2</mn>
+            </msup>
+          </mrow>
+        </math>
+      `],
+      background_fill_color: "yellow", background_fill_alpha: 0.8,
+      padding: 10,
+      border_line_color: "black",
+    })
+    await display(p)
+  })
+
+  describe("should support TeXGlyph", () => {
+    const r = String.raw
+
+    it("with display=auto", async () => {
+      const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+      p.tex({
+        x: [1, 3, 3, 2],
+        y: [1, 3, 5, 6],
+        text: [
+          r`Prefix: $$x^2$$ (suffix)`,
+          r`$$\frac{1}{x^2\cdot y}$$`,
+          r`Prefix: $$\int_{-\infty}^{\infty} \frac{1}{x} dx$$ (suffix)`,
+          r`$$F = G \left( \frac{m_1 m_2}{r^2} \right)$$`,
+        ],
+        text_font_size: "10px",
+        angle: [0, 0, 0, 30],
+        angle_units: "deg",
+        background_fill_color: "white", background_fill_alpha: 0.8,
+        padding: 10,
+        border_line_color: "black",
+        display: "auto",
+      })
+      await display(p)
+    })
+
+    it("with display=block", async () => {
+      const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+      p.tex({
+        x: [1, 3, 5, 2],
+        y: [1, 3, 5, 6],
+        text: [
+          r`x^2`,
+          r`\frac{1}{x^2\cdot y}`,
+          r`\int_{-\infty}^{\infty} \frac{1}{x} dx`,
+          r`F = G \left( \frac{m_1 m_2}{r^2} \right)`,
+        ],
+        text_font_size: "10px",
+        angle: [0, 0, 0, 30],
+        angle_units: "deg",
+        background_fill_color: "yellow", background_fill_alpha: 0.8,
+        padding: 10,
+        border_line_color: "black",
+        display: "block",
+      })
+      await display(p)
+    })
+
+    it("with display=inline", async () => {
+      const p = fig([300, 300], {x_range: [0, 10], y_range: [0, 10]})
+      p.tex({
+        x: [1, 3, 5, 2],
+        y: [1, 3, 5, 6],
+        text: [
+          r`x^2`,
+          r`\frac{1}{x^2\cdot y}`,
+          r`\int_{-\infty}^{\infty} \frac{1}{x} dx`,
+          r`F = G \left( \frac{m_1 m_2}{r^2} \right)`,
+        ],
+        text_font_size: "10px",
+        angle: [0, 0, 0, 30],
+        angle_units: "deg",
+        background_fill_color: "pink", background_fill_alpha: 0.8,
+        padding: 10,
+        border_line_color: "black",
+        display: "inline",
+      })
+      await display(p)
+    })
+  })
+
   it("should support Text", async () => {
     function p(output_backend: OutputBackend) {
       const p = fig([200, 300], {

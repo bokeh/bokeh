@@ -11,6 +11,7 @@ import {BBox} from "core/util/bbox"
 import {enumerate} from "core/util/iterator"
 import type {Rect} from "core/util/affine"
 import {rotate_around, AffineTransform} from "core/util/affine"
+import type {GraphicsBox} from "core/graphics"
 import {TextBox} from "core/graphics"
 import type {TextAnchor} from "../common/kinds"
 import {BorderRadius, Padding} from "../common/kinds"
@@ -25,9 +26,7 @@ export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
 
-  override after_visuals(): void {
-    super.after_visuals()
-
+  protected async _build_labels(): Promise<void> {
     const {text} = this.base ?? this
     this.labels = Array.from(text, (value) => {
       if (value == null) {
@@ -37,6 +36,14 @@ export class TextView extends XYGlyphView {
         return new TextBox({text})
       }
     })
+  }
+
+  override async _set_lazy_data(): Promise<void> {
+    await this._build_labels()
+  }
+
+  override after_visuals(): void {
+    super.after_visuals()
 
     const n = this.data_size
     const {anchor} = this.base ?? this
@@ -67,8 +74,9 @@ export class TextView extends XYGlyphView {
     const {left, right, top, bottom} = this.padding
 
     for (const [label, i] of enumerate(this.labels)) {
-      if (label == null)
+      if (label == null) {
         continue
+      }
 
       label.visuals = this.visuals.text.values(i)
       label.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
@@ -250,7 +258,7 @@ export namespace Text {
   }
 
   export type Data = p.GlyphDataOf<Props> & {
-    labels: (TextBox | null)[]
+    labels: (GraphicsBox | null)[]
 
     swidth: Float32Array
     sheight: Float32Array

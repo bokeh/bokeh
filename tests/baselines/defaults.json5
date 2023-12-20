@@ -3468,6 +3468,12 @@
       type: "map",
     },
   },
+  MathMLGlyph: {
+    __extends__: "MathTextGlyph",
+  },
+  MathTextGlyph: {
+    __extends__: "Text",
+  },
   MultiLine: {
     __extends__: "LineGlyph",
     xs: {
@@ -4035,6 +4041,13 @@
     line_dash: [],
     line_dash_offset: 0,
     mode: "before",
+  },
+  TeXGlyph: {
+    __extends__: "MathTextGlyph",
+    macros: {
+      type: "map",
+    },
+    display: "auto",
   },
   Text: {
     __extends__: [

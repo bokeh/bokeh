@@ -36,7 +36,7 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
       const source = new ColumnDataSource()
-      image_url_view.set_data(source, indices)
+      await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
 
       // TODO await
@@ -57,7 +57,7 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
       const source = new ColumnDataSource()
-      image_url_view.set_data(source, indices)
+      await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
@@ -79,7 +79,7 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
       const source = new ColumnDataSource()
-      image_url_view.set_data(source, indices)
+      await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
@@ -99,7 +99,7 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
       const source = new ColumnDataSource()
-      image_url_view.set_data(source, indices)
+      await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
@@ -120,7 +120,7 @@ describe("ImageURL module", () => {
       const image_url_view = await create_glyph_view(image_url)
       const indices = Indices.all_set(1)
       const source = new ColumnDataSource()
-      image_url_view.set_data(source, indices)
+      await image_url_view.set_data(source, indices)
       image_url_view.set_visuals(source, indices)
       image_url_view.map_data()
 
