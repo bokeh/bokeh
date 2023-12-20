@@ -4836,7 +4836,7 @@
     spacing: 0,
   },
   LayoutDOM: {
-    __extends__: "UIElement",
+    __extends__: "Pane",
     disabled: false,
     width: null,
     height: null,
@@ -6495,7 +6495,7 @@
   },
   Pane: {
     __extends__: "UIElement",
-    children: [],
+    elements: [],
   },
   Tooltip: {
     __extends__: "UIElement",

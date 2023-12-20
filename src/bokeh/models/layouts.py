@@ -65,6 +65,7 @@ from ..core.validation.warnings import (
 )
 from ..model import Model
 from .ui.menus import Menu
+from .ui.panes import Pane
 from .ui.tooltips import Tooltip
 from .ui.ui_element import UIElement
 
@@ -92,7 +93,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class LayoutDOM(UIElement):
+class LayoutDOM(Pane):
     """ The base class for layoutable components.
 
     """

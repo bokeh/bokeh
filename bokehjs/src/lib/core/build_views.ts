@@ -23,12 +23,14 @@ export async function build_view<T extends HasProps>(model: T, options: Options<
   return view
 }
 
+export type BuildResult<T extends HasProps> = {created: ViewOf<T>[], removed: ViewOf<T>[]}
+
 export async function build_views<T extends HasProps>(
   view_storage: ViewStorage<T>,
   models: T[],
   options: Options<ViewOf<T>> = {parent: null},
   cls: (model: T) => T["default_view"] = (model) => model.default_view,
-): Promise<{created: ViewOf<T>[], removed: ViewOf<T>[]}> {
+): Promise<BuildResult<T>> {
 
   const to_remove = difference([...view_storage.keys()], models)
 

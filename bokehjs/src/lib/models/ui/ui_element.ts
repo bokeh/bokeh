@@ -175,7 +175,9 @@ export abstract class UIElementView extends DOMComponentView {
 
   protected _after_render(): void {}
 
-  after_render(): void {
+  override after_render(): void {
+    super.after_render()
+
     this.update_style()
     this.update_bbox()
 

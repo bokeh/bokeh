@@ -19,12 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.properties import (
-    Either,
-    Instance,
-    List,
-    String,
-)
+from ...core.properties import Instance, List
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -50,7 +45,11 @@ class Pane(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    children = List(Either(String, Instance(UIElement)), default=[], help="""
+    elements = List(Instance(UIElement), default=[], help="""
+    Children of any kind of this element.
+
+    This can include floating elements like tooltips, allowing to establish
+    parent <-> child relationship between elements.
     """)
 
 #-----------------------------------------------------------------------------

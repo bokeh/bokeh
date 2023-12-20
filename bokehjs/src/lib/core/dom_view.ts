@@ -13,7 +13,7 @@ export abstract class DOMView extends View {
 
   static tag_name: keyof HTMLElementTagNameMap = "div"
 
-  el: Node
+  el: ChildNode
   shadow_el?: ShadowRoot
 
   get children_el(): Node {
@@ -46,6 +46,8 @@ export abstract class DOMView extends View {
     }
     this.render()
   }
+
+  after_render(): void {}
 
   finish(): void {
     this._has_finished = true

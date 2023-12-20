@@ -162,7 +162,6 @@ export class HoverToolView extends InspectToolView {
         interactive: false,
         visible: true,
         position: null,
-        target: this.parent.canvas.events_el,
       })
 
       if (r instanceof GlyphRenderer) {

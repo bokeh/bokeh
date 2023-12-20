@@ -1,5 +1,5 @@
-import type {DOMBoxSizing} from "../ui/ui_element"
-import {UIElement, UIElementView} from "../ui/ui_element"
+import type {DOMBoxSizing, UIElement, UIElementView} from "../ui/ui_element"
+import {Pane, PaneView} from "../ui/pane"
 import {Menu} from "../menus/menu"
 import {logger} from "core/logging"
 import {Signal} from "core/signaling"
@@ -28,7 +28,7 @@ type OuterDisplay = "flow" | "flow-root" | "flex" | "grid" | "table"
 
 export type FullDisplay = {inner: InnerDisplay, outer: OuterDisplay}
 
-export abstract class LayoutDOMView extends UIElementView {
+export abstract class LayoutDOMView extends PaneView {
   declare model: LayoutDOM
   declare parent: DOMElementView | null
 
@@ -651,7 +651,7 @@ export abstract class LayoutDOMView extends UIElementView {
 export namespace LayoutDOM {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UIElement.Props & {
+  export type Props = Pane.Props & {
     width: p.Property<number | null>
     height: p.Property<number | null>
     min_width: p.Property<number | null>
@@ -673,7 +673,7 @@ export namespace LayoutDOM {
 
 export interface LayoutDOM extends LayoutDOM.Attrs {}
 
-export abstract class LayoutDOM extends UIElement {
+export abstract class LayoutDOM extends Pane {
   declare properties: LayoutDOM.Props
   declare __view_type__: LayoutDOMView
 

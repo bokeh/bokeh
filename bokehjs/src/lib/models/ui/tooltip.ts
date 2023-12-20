@@ -1,4 +1,5 @@
 import {UIElement, UIElementView} from "./ui_element"
+import {Node} from "../coordinates/node"
 import {Selector} from "../selectors/selector"
 import type {HTMLView} from "../dom/html"
 import {HTML} from "../dom/html"
@@ -7,13 +8,16 @@ import {Anchor, TooltipAttachment} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {div, bounding_box, box_size} from "core/dom"
 import {DOMElementView} from "core/dom_view"
-import {isString} from "core/util/types"
+import {isString, isArray} from "core/util/types"
 import {assert} from "core/util/assert"
 import {BBox} from "core/util/bbox"
 import {logger} from "core/logging"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import type * as p from "core/properties"
+
+type DOMNode = globalThis.Node
+const DOMNode = globalThis.Node
 
 import tooltips_css, * as tooltips from "styles/tooltips.css"
 import icons_css from "styles/icons.css"
@@ -40,7 +44,7 @@ export class TooltipView extends UIElementView {
         return this.owner.find_one(target)?.el ?? null
       } else if (target instanceof Selector) {
         return target.find_one(document)
-      } else if (target instanceof Node) {
+      } else if (target instanceof DOMNode) {
         return target
       } else {
         const {parent} = this
@@ -132,7 +136,7 @@ export class TooltipView extends UIElementView {
     return [...super.stylesheets(), tooltips_css, icons_css]
   }
 
-  get content(): Node {
+  get content(): DOMNode {
     const {content} = this.model
     if (isString(content)) {
       return document.createTextNode(content)
@@ -229,9 +233,12 @@ export class TooltipView extends UIElementView {
           }
         })()
         return [sx, sy]
-      } else {
+      } else if (isArray(position)) {
         const [x, y] = position
         return [bbox.left + x, bbox.top + y]
+      } else {
+        const {x, y} = this.resolve_node(position)
+        return [x, y]
       }
     })()
 
@@ -363,9 +370,9 @@ export namespace Tooltip {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = UIElement.Props & {
-    target: p.Property<UIElement | Selector | Node | "auto">
-    position: p.Property<Anchor | [number, number] | null>
-    content: p.Property<string | HTML | Node>
+    target: p.Property<UIElement | Selector | DOMNode | "auto">
+    position: p.Property<Anchor | [number, number] | Node | null>
+    content: p.Property<string | HTML | DOMNode>
     attachment: p.Property<TooltipAttachment | "auto">
     show_arrow: p.Property<boolean>
     closable: p.Property<boolean>
@@ -387,9 +394,9 @@ export class Tooltip extends UIElement {
     this.prototype.default_view = TooltipView
 
     this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
-      target: [ Or(Ref(UIElement), Ref(Selector), Ref(Node), Auto), "auto" ],
-      position: [ Nullable(Or(Anchor, Tuple(Number, Number))), null ],
-      content: [ Or(String, Ref(HTML), Ref(Node)) ],
+      target: [ Or(Ref(UIElement), Ref(Selector), Ref(DOMNode), Auto), "auto" ],
+      position: [ Nullable(Or(Anchor, Tuple(Number, Number), Ref(Node))), null ],
+      content: [ Or(String, Ref(HTML), Ref(DOMNode)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
       show_arrow: [ Boolean, true ],
       closable: [ Boolean, false ],

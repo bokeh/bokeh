@@ -26,8 +26,8 @@ describe("UIElement", () => {
     const p2 = new Pane({styles: {...common, backgroundColor: "blue"}})
     const p3 = new Pane({styles: {...common, "--bg-color": "yellow"}, stylesheets: [":host { background-color: var(--bg-color); }"]})
 
-    const layout = new Pane({styles: {display: "inline-flex"}, children: [p0, p1, p2, p3]})
-    await display(layout, [layout.children.length*width + 50, height + 50])
+    const layout = new Pane({styles: {display: "inline-flex"}, elements: [p0, p1, p2, p3]})
+    await display(layout, [layout.elements.length*width + 50, height + 50])
   })
 })
 
