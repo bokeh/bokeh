@@ -338,15 +338,15 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
 
   protected abstract _process_text(): HTMLElement | undefined
 
-  private async load_image(): Promise<CanvasImage | null> {
+  async request_image(): Promise<void> {
     if (this.provider.MathJax == null) {
-      return null
+      return
     }
 
     const mathjax_element = this._process_text()
     if (mathjax_element == null) {
       this._has_finished = true
-      return null
+      return
     }
 
     const svg_element = mathjax_element.children[0] as SVGElement
@@ -358,9 +358,11 @@ export abstract class MathTextView extends BaseTextView implements GraphicsBox {
     const svg = svg_element.outerHTML
     const src = `data:image/svg+xml;utf-8,${encodeURIComponent(svg)}`
     this.svg_image = await load_image(src)
+  }
 
+  private async load_image(): Promise<void> {
+    await this.request_image()
     this.parent.request_layout()
-    return this.svg_image
   }
 
   /**

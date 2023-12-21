@@ -40,10 +40,10 @@ export class GraphRendererView extends DataRendererView {
 
   override connect_signals(): void {
     super.connect_signals()
-    this.connect(this.model.layout_provider.change, () => {
+    this.connect(this.model.layout_provider.change, async () => {
       this.apply_coordinates()
-      this.edge_view.set_data()
-      this.node_view.set_data()
+      await this.edge_view.set_data()
+      await this.node_view.set_data()
       this.request_render()
     })
   }

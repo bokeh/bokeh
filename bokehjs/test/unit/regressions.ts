@@ -167,6 +167,7 @@ describe("Bug", () => {
 
       r1.glyph.x = 2
       await view.ready
+      await view.ready // wait for request_paint()
 
       expect(rv0_spy.callCount).to.be.equal(0)
       expect(rv1_spy.callCount).to.be.equal(1)
@@ -174,6 +175,7 @@ describe("Bug", () => {
 
       r1.glyph.y = 4
       await view.ready
+      await view.ready // wait for request_paint()
 
       expect(rv0_spy.callCount).to.be.equal(0)
       expect(rv1_spy.callCount).to.be.equal(2)
@@ -181,6 +183,7 @@ describe("Bug", () => {
 
       r2.left = 1
       await view.ready
+      await view.ready // wait for request_paint()
 
       expect(rv0_spy.callCount).to.be.equal(0)
       expect(rv1_spy.callCount).to.be.equal(3)

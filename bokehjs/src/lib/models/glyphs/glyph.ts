@@ -366,7 +366,7 @@ export abstract class GlyphView extends View {
     return final_array
   }
 
-  set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): void {
+  async set_data(source: ColumnarDataSource, indices: Indices, indices_to_update?: number[]): Promise<void> {
     const visuals = new Set(this._iter_visuals())
     const {base} = this
 
@@ -408,6 +408,7 @@ export abstract class GlyphView extends View {
     }
 
     this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
+    await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
     for (const decoration of this.decorations.values()) {
       decoration.marking.set_data(source, indices)
@@ -421,11 +422,14 @@ export abstract class GlyphView extends View {
   }
 
   protected _set_data(_indices: number[] | null): void {}
+  protected async _set_lazy_data(_indices: number[] | null): Promise<void> {}
 
   /**
    * Any data transformations that require visuals.
    */
   after_visuals(): void {}
+
+  async after_lazy_visuals(): Promise<void> {}
 
   protected get _index_size(): number {
     return this.data_size
