@@ -4,7 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' Demographic details of the passengers in the Titanic
+''' Demographic details of the passengers on board of the Titanic.
 
 License: `Public Domain`_
 

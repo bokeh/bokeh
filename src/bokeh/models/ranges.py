@@ -384,7 +384,7 @@ class FactorRange(Range):
 
         FactorRange(factors=[["foo", "1"], ["foo", "2"], ["bar", "1"]])
 
-    The top level groups correspond to ``"foo"` and ``"bar"``, and the
+    The top level groups correspond to ``"foo"`` and ``"bar"``, and the
     group padding will be applied between the factors ``["foo", "2"]`` and
     ``["bar", "1"]``
     """)

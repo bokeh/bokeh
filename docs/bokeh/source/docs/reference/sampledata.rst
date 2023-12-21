@@ -64,6 +64,13 @@ commits
 
 .. automodule:: bokeh.sampledata.commits
 
+.. _sampledata_cows:
+
+cows
+----
+
+.. automodule:: bokeh.sampledata.cows
+
 .. _sampledata_daylight:
 
 daylight
@@ -105,6 +112,13 @@ iris
 ----
 
 .. automodule:: bokeh.sampledata.iris
+
+.. _sampledata_lincoln:
+
+lincoln
+-------
+
+.. automodule:: bokeh.sampledata.lincoln
 
 .. _sampledata_les_mis:
 
@@ -189,6 +203,13 @@ sprint
 ------
 
 .. automodule:: bokeh.sampledata.sprint
+
+.. _sampledata_titanic:
+
+titanic
+-------
+
+.. automodule:: bokeh.sampledata.titanic
 
 .. _sampledata_stocks:
 
