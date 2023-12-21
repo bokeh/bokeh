@@ -816,6 +816,9 @@ renderer.
 
 .. _ug_interaction_tools_default_values:
 
+Interaction tools default values
+''''''''''''''''''''''''''''''''
+
 Columns' default values are computed based on (in order):
 
 1. Tool's ``default_overrides``, which are user provided.

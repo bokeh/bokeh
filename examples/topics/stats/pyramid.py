@@ -3,7 +3,7 @@
 .. bokeh-example-metadata::
     :sampledata: titanic
     :apis: bokeh.plotting.figure.hbar
-    :refs: :ref:`ug_topics_stats_pyramid`
+    :refs: :ref:`ug_topics_stats_histogram`
     :keywords: pyramid, hbar
 '''
 import numpy as np
