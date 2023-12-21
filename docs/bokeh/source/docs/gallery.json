@@ -476,55 +476,55 @@
       "name": "movies",
       "url": "https://demo.bokeh.org/movies",
       "alt": "Thumbnail featuring an interactive query tool for a set of IMDB data. Tool features a default graph of the Tomato Meter (x-axis) against the number of reviews (y-axis). Graph can be refined using multiple variables including cast names, director name, number of Oscar wins, year released, end year released, genre, dollar at the box office, and more.",
-      "desc": "An interactive query tool for a set of IMDB data.(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/movies'>source code</a>)</em>"
+      "desc": "An interactive query tool for a set of IMDB data.(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/movies'>source code</a>)</em>"
     },
     {
       "name": "selection_histogram",
       "url": "https://demo.bokeh.org/selection_histogram",
       "alt": "Thumbnail featuring axis histograms for selected and non-selected points in a scatter plot. Axes unlabeled.",
-      "desc": "Shows axis histograms for selected <em>and</em> non-selected points in a scatter plot. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/selection_histogram.py'>source code</a>)</em>"
+      "desc": "Shows axis histograms for selected <em>and</em> non-selected points in a scatter plot. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/selection_histogram.py'>source code</a>)</em>"
     },
     {
       "name": "weather",
       "url": "https://demo.bokeh.org/weather",
       "alt": "Thumbnail featuring interactive weather statistics for three cities. Features drop down for city and distribution. X-axis features date, the y-axis features temperature.",
-      "desc": "Interactive weather statistics for three cities. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/weather'>source code</a>)</em>"
+      "desc": "Interactive weather statistics for three cities. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/weather'>source code</a>)</em>"
     },
     {
       "name": "sliders",
       "url": "https://demo.bokeh.org/sliders",
       "alt": "Thumbnail of plotted trigonometric function with sliders for offset, amplitude, phase, and frequency.",
-      "desc": "A basic demo that has sliders for controlling a plotted trigonometric function. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/sliders.py'>source code</a>)</em>"
+      "desc": "A basic demo that has sliders for controlling a plotted trigonometric function. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/sliders.py'>source code</a>)</em>"
     },
     {
       "name": "crossfilter",
       "url": "https://demo.bokeh.org/crossfilter",
       "alt": "Thumbnail of example scatter plot with drop downs for x-axis, y-axis, color, and size. Default graph features mpg on the x-axis, hp on the y-axis, and shows a downward exponential trend.",
-      "desc": "Explore the autompg data set by selecting and highlighting different dimensions. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/crossfilter'>source code</a>)</em>"
+      "desc": "Explore the autompg data set by selecting and highlighting different dimensions. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/crossfilter'>source code</a>)</em>"
     },
     {
       "name": "gapminder",
       "url": "https://demo.bokeh.org/gapminder",
       "alt": "Thumbnail of a page featuring a reproduction of the Gapminder demo and containing an embedded TED talk video added using a custom page template. Gapminder demo shows children per woman (x-axis), life expectancy at birth in years (y-axis), by nation, over the years (slider), and a play button that allows data to play across slider range of 1964 - 2012.",
-      "desc": "A reproduction of the famous Gapminder demo, with embedded video added using a custom page template. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/gapminder'>source code</a>)</em>"
+      "desc": "A reproduction of the famous Gapminder demo, with embedded video added using a custom page template. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/gapminder'>source code</a>)</em>"
     },
     {
       "name": "stocks",
       "url": "https://demo.bokeh.org/stocks",
       "alt": "Thumbnail image of linked plots, summary statistics, and correlations for market data. Contains two drop down selections for different investment options. Left features a scatterplot of option one's returns vs option two's returns. Below features a line plot of each individual option. Right shows basic statistics of each option and each option's returns.",
-      "desc": "Linked plots, summary statistics, and correlations for market data. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/stocks'>source code</a>)</em>"
+      "desc": "Linked plots, summary statistics, and correlations for market data. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/stocks'>source code</a>)</em>"
     },
     {
       "name": "surface3d",
       "url": "https://demo.bokeh.org/surface3d",
       "alt": "Thumbnail for surface3d example. Axes are rotated slightly and shown with perspective. A 3D surface is plotted, and colored with a heat map corresponding to z axis value.",
-      "desc": "An updating 3d plot that demonstrates using Bokeh custom extensions to wrap third-party JavaScript libraries. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/surface3d'>source code</a>)</em>"
+      "desc": "An updating 3d plot that demonstrates using Bokeh custom extensions to wrap third-party JavaScript libraries. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/surface3d'>source code</a>)</em>"
     },
     {
       "name": "export_csv",
       "url": "https://demo.bokeh.org/export_csv",
       "alt": "Thumbnail for export_csv example. Image shows an interface for filtering data with a slider widget, and writing the results by clicking a button.",
-      "desc": "Link sliders filter a data table that can be saved as a CSV. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/tree/branch-3.0/examples/server/app/export_csv'>source code</a>)</em>"
+      "desc": "Link sliders filter a data table that can be saved as a CSV. <em>(<a target='_blank' href='https://github.com/bokeh/bokeh/blob/main/examples/server/app/export_csv'>source code</a>)</em>"
     }
   ]
 }
