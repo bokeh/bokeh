@@ -4,7 +4,8 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-''' CO2 emmisions of selected countries in the years 2000 and 2010.
+''' CO2 emmisions of selected countries in the years from 1950 to 2012.
+Note that not all countries have values for the whole time range.
 
 License: `Public Domain`_
 
