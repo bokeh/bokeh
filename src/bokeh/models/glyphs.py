@@ -1641,15 +1641,16 @@ class TeXGlyph(MathTextGlyph):
     Defines how the text is interpreted and what TeX display mode to use.
 
     The following values are allowed:
+
     * ``"auto"`` (the default)
-        The text is parsed, requiring TeX delimiters to enclose math content,
-        e.g. ``"$$x^2$$"`` or ``r"\\[\\frac{x}{y}\\]"``. This allows mixed
-        math text and regular text content. TeX display mode is inferred by
-        the parser.
+      The text is parsed, requiring TeX delimiters to enclose math content,
+      e.g. ``"$$x^2$$"`` or ``r"\\[\\frac{x}{y}\\]"``. This allows mixed
+      math text and regular text content. TeX display mode is inferred by
+      the parser.
     * ``"block"``
-        The text is taken verbatim and TeX's block mode is used.
-    * ``"linline"``
-        The text is taken verbatim and TeX's inline mode is used.
+      The text is taken verbatim and TeX's block mode is used.
+    * ``"inline"``
+      The text is taken verbatim and TeX's inline mode is used.
     """)
 
 class VArea(FillGlyph, HatchGlyph):
