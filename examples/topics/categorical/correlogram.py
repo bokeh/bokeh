@@ -9,7 +9,7 @@ The magnitude of each correlation is encoded in the size of the circles.
 .. bokeh-example-metadata::
     :sampledata: forensic_glass
     :apis: bokeh.plotting.figure.scatter
-    :refs: :ref:`ug_topics_categorical_scatters`
+    :refs: :ref:`ug_topics_categorical_correlograms`
     :keywords: scatter, correlogram
 
 '''
