@@ -85,6 +85,21 @@ degrees
 
 .. automodule:: bokeh.sampledata.degrees
 
+.. _sampledata_emissions:
+
+emissions
+---------
+
+.. automodule:: bokeh.sampledata.emissions
+
+
+.. _sampledata_forensic_glass:
+
+forensic_glass
+--------------
+
+.. automodule:: bokeh.sampledata.forensic_glass
+
 .. _sampledata_gapminder:
 
 gapminder

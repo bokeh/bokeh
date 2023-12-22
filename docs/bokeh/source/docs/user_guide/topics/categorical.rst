@@ -97,6 +97,8 @@ category:
 .. bokeh-plot:: __REPO__/examples/topics/categorical/ridgeplot.py
     :source-position: below
 
+.. _ug_topics_categorical_slope_graph:
+
 Slopegraphs
 ~~~~~~~~~~~
 
@@ -144,6 +146,8 @@ The following periodic table uses several of the techniques in this chapter:
 
 .. bokeh-plot:: __REPO__/examples/topics/categorical/periodic.py
     :source-position: below
+
+.. _ug_topics_categorical_correlograms:
 
 Correlograms
 ~~~~~~~~~~~~
