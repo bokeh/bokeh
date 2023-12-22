@@ -26,9 +26,8 @@ export class TextView extends XYGlyphView {
   declare model: Text
   declare visuals: Text.Visuals
 
-  protected async _build_labels(): Promise<void> {
-    const {text} = this.base ?? this
-    this.labels = Array.from(text, (value) => {
+  protected async _build_labels(text: p.Uniform<string | null>): Promise<(GraphicsBox | null)[]> {
+    return Array.from(text, (value) => {
       if (value == null) {
         return null
       } else {
@@ -39,7 +38,11 @@ export class TextView extends XYGlyphView {
   }
 
   override async _set_lazy_data(): Promise<void> {
-    await this._build_labels()
+    if (this.inherited_text) {
+      this._inherit_attr<Text.Data>("labels")
+    } else {
+      this._define_attr<Text.Data>("labels", await this._build_labels(this.text))
+    }
   }
 
   override after_visuals(): void {
@@ -130,6 +133,7 @@ export class TextView extends XYGlyphView {
       if (text.v_doit(i)) {
         const {left, top} = padding
         ctx.translate(left, top)
+        label_i.visuals = text.values(i)
         label_i.paint(ctx)
         ctx.translate(-left, -top)
       }
@@ -260,7 +264,7 @@ export namespace Text {
   }
 
   export type Data = p.GlyphDataOf<Props> & {
-    labels: (GraphicsBox | null)[]
+    readonly labels: (GraphicsBox | null)[]
 
     swidth: Float32Array
     sheight: Float32Array
