@@ -7,6 +7,7 @@ import type {Rect} from "core/types"
 import {to_screen} from "core/types"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import {PI} from "core/util/math"
 
 export interface RayView extends Ray.Data {}
 
@@ -64,11 +65,34 @@ export class RayView extends XYGlyphView {
       ctx.beginPath()
       ctx.moveTo(0, 0)
       ctx.lineTo(slength_i, 0)
-
       this.visuals.line.apply(ctx, i)
+
+      this._render_decorations(ctx, i, 0, 0, slength_i)
 
       ctx.rotate(-angle_i)
       ctx.translate(-sx_i, -sy_i)
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, sx0: number, sy0: number, slength: number): void {
+    const angle = PI/2
+    const sx1 = sx0 + slength
+    const sy1 = sy0
+
+    for (const decoration of this.decorations.values()) {
+      const {sx, sy, rotation=0} = (() => {
+        switch (decoration.model.node) {
+          case "start":  return {sx: sx0, sy: sy0, rotation: PI}
+          case "middle": return {sx: (sx0 + sx1)/2, sy: (sy0 + sy1)/2}
+          case "end":    return {sx: sx1, sy: sy1}
+        }
+      })()
+
+      ctx.translate(sx, sy)
+      ctx.rotate(angle + rotation)
+      decoration.marking.paint(ctx, i)
+      ctx.rotate(-angle - rotation)
+      ctx.translate(-sx, -sy)
     }
   }
 

@@ -5,8 +5,9 @@ import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
-import {cbb} from "core/util/algorithms"
 import * as p from "core/properties"
+import {PI} from "core/util/math"
+import {CubicBezier} from "core/util/curves"
 
 export interface BezierView extends Bezier.Data {}
 
@@ -35,17 +36,14 @@ export class BezierView extends GlyphView {
       if (!isFinite(x0_i + x1_i + y0_i + y1_i + cx0_i + cy0_i + cx1_i + cy1_i)) {
         index.add_empty()
       } else {
-        const {x0, y0, x1, y1} = cbb(x0_i, y0_i, cx0_i, cy0_i, cx1_i, cy1_i, x1_i, y1_i)
+        const curve = new CubicBezier(x0_i, y0_i, x1_i, y1_i, cx0_i, cy0_i, cx1_i, cy1_i)
+        const {x0, y0, x1, y1} = curve.bounding_box()
         index.add_rect(x0, y0, x1, y1)
       }
     }
   }
 
   protected _paint(ctx: Context2d, indices: number[], data?: Bezier.Data): void {
-    if (!this.visuals.line.doit) {
-      return
-    }
-
     const {sx0, sy0, sx1, sy1, scx0, scy0, scx1, scy1} = {...this, ...data}
 
     for (const i of indices) {
@@ -62,11 +60,47 @@ export class BezierView extends GlyphView {
         continue
       }
 
-      ctx.beginPath()
-      ctx.moveTo(sx0_i, sy0_i)
-      ctx.bezierCurveTo(scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
+      if (this.visuals.line.doit) {
+        ctx.beginPath()
+        ctx.moveTo(sx0_i, sy0_i)
+        ctx.bezierCurveTo(scx0_i, scy0_i, scx1_i, scy1_i, sx1_i, sy1_i)
+        this.visuals.line.apply(ctx, i)
+      }
 
-      this.visuals.line.apply(ctx, i)
+      if (this.has_decorations) {
+        const curve = new CubicBezier(sx0_i, sy0_i, sx1_i, sy1_i, scx0_i, scy0_i, scx1_i, scy1_i)
+        this._render_decorations(ctx, i, curve)
+      }
+    }
+  }
+
+  protected _render_decorations(ctx: Context2d, i: number, curve: CubicBezier): void {
+    for (const decoration of this.decorations.values()) {
+      const {sx, sy, angle} = (() => {
+        switch (decoration.model.node) {
+          case "start": {
+            const {x0: sx, y0: sy} = curve
+            const angle = curve.tangent(0.0) + PI/2 + PI
+            return {sx, sy, angle}
+          }
+          case "middle": {
+            const [sx, sy] = curve.evaluate(0.5)
+            const angle = curve.tangent(0.5) + PI/2
+            return {sx, sy, angle}
+          }
+          case "end": {
+            const {x1: sx, y1: sy} = curve
+            const angle = curve.tangent(1.0) + PI/2
+            return {sx, sy, angle}
+          }
+        }
+      })()
+
+      ctx.translate(sx, sy)
+      ctx.rotate(angle)
+      decoration.marking.paint(ctx, i)
+      ctx.rotate(-angle)
+      ctx.translate(-sx, -sy)
     }
   }
 
@@ -74,8 +108,17 @@ export class BezierView extends GlyphView {
     generic_line_vector_legend(this.visuals, ctx, bbox, index)
   }
 
-  scenterxy(): [number, number] {
-    throw new Error(`${this}.scenterxy() is not implemented`)
+  scenterxy(i: number): [number, number] {
+    const sx0_i = this.sx0[i]
+    const sy0_i = this.sy0[i]
+    const sx1_i = this.sx1[i]
+    const sy1_i = this.sy1[i]
+    const scx0_i = this.scx0[i]
+    const scy0_i = this.scy0[i]
+    const scx1_i = this.scx1[i]
+    const scy1_i = this.scy1[i]
+    const curve = new CubicBezier(sx0_i, sy0_i, sx1_i, sy1_i, scx0_i, scy0_i, scx1_i, scy1_i)
+    return curve.evaluate(0.5)
   }
 }
 

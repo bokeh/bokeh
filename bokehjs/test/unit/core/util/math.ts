@@ -64,14 +64,14 @@ describe("math module", () => {
     })
   })
 
-  describe("atan2", () => {
+  describe("slope", () => {
 
     it("should return the arctangent between 2 (x,y) points", () => {
-      expect(math.atan2([0, 0], [0, 1])).to.be.similar(PI/2) // vertical up
-      expect(math.atan2([0, 0], [0, -1])).to.be.similar(-PI/2) // vertical down
-      expect(math.atan2([0, 0], [1, 0])).to.be.similar(0) // horizontal right
-      expect(math.atan2([0, 0], [-1, 0])).to.be.similar(PI) // horizontal left
-      expect(math.atan2([1, 1], [2, 2])).to.be.similar(PI/4)
+      expect(math.slope([0, 0], [0, 1])).to.be.similar(PI/2) // vertical up
+      expect(math.slope([0, 0], [0, -1])).to.be.similar(-PI/2) // vertical down
+      expect(math.slope([0, 0], [1, 0])).to.be.similar(0) // horizontal right
+      expect(math.slope([0, 0], [-1, 0])).to.be.similar(PI) // horizontal left
+      expect(math.slope([1, 1], [2, 2])).to.be.similar(PI/4)
     })
   })
 
