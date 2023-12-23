@@ -593,8 +593,8 @@ export class GlyphRenderer<
     return this.data_source.selection_manager
   }
 
-  add_decoration(marking: Marking, node: "start" | "middle" | "end"): Decoration {
-    const decoration = new Decoration({marking, node})
+  add_decoration(marking: Marking, node: "start" | "middle" | "end" | number, reversed: boolean = false): Decoration {
+    const decoration = new Decoration({marking, node, reversed})
 
     const glyphs = [
       this.glyph,

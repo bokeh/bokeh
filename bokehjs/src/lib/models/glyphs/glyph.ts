@@ -9,7 +9,7 @@ import type {Context2d} from "core/util/canvas"
 import {DOMComponentView} from "core/dom_view"
 import {Model} from "../../model"
 import type {Anchor, WindowAxis} from "core/enums"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_views} from "core/build_views"
 import {logger} from "core/logging"
 import type {Arrayable, Rect, FloatArray} from "core/types"
@@ -98,16 +98,19 @@ export abstract class GlyphView extends DOMComponentView {
     this.visuals = new visuals.Visuals(this)
   }
 
-  readonly decorations: ViewStorage<Decoration> = new Map()
+  protected readonly _decorations: ViewStorage<Decoration> = new Map()
+  get decorations(): ViewOf<Decoration>[] {
+    return this.model.decorations.map((m) => this._decorations.get(m)).filter((v) => v != null)
+  }
 
   override *children(): IterViews {
     yield* super.children()
-    yield* this.decorations.values()
+    yield* this.decorations
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
-    await build_views(this.decorations, this.model.decorations, {parent: this.parent})
+    await build_views(this._decorations, this.model.decorations, {parent: this.parent})
 
     const {webgl} = this.canvas
     if (webgl != null && this.load_glglyph != null) {
@@ -481,7 +484,7 @@ export abstract class GlyphView extends DOMComponentView {
     this._set_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
     await this._set_lazy_data(indices_to_update ?? null) // TODO doesn't take subset indices into account
 
-    for (const decoration of this.decorations.values()) {
+    for (const decoration of this.decorations) {
       decoration.marking.set_data(source, indices)
     }
 
@@ -496,6 +499,10 @@ export abstract class GlyphView extends DOMComponentView {
     if (base == null) {
       this.index_data()
     }
+  }
+
+  get has_decorations(): boolean {
+    return this._decorations.size != 0
   }
 
   protected _set_data(_indices: number[] | null): void {}

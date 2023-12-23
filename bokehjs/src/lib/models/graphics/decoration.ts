@@ -24,6 +24,21 @@ export class DecorationView extends View {
     await super.lazy_initialize()
     this.marking = await build_view(this.model.marking, {parent: this.parent})
   }
+
+  get parametric(): number {
+    const {node} = this.model
+    switch (node) {
+      case "start":  return 0.0
+      case "middle": return 0.5
+      case "end":    return 1.0
+      default:       return node
+    }
+  }
+
+  get reversed(): boolean {
+    const reversed = this.model.node == "start"
+    return this.model.reversed ? !reversed : reversed
+  }
 }
 
 export namespace Decoration {
@@ -31,7 +46,8 @@ export namespace Decoration {
 
   export type Props = Model.Props & {
     marking: p.Property<Marking>
-    node: p.Property<"start" | "middle" | "end">
+    node: p.Property<"start" | "middle" | "end" | number>
+    reversed: p.Property<boolean>
   }
 
   export type Visuals = visuals.Visuals
@@ -50,9 +66,10 @@ export class Decoration extends Model {
   static {
     this.prototype.default_view = DecorationView
 
-    this.define<Decoration.Props>(({Enum, Ref}) => ({
+    this.define<Decoration.Props>(({Enum, Ref, Bool, Or, Float}) => ({
       marking: [ Ref(Marking) ],
-      node: [ Enum("start", "middle", "end") ],
+      node: [ Or(Enum("start", "middle", "end"), Float) ],
+      reversed: [ Bool, false ],
     }))
   }
 }

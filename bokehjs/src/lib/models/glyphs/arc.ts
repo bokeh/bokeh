@@ -8,6 +8,7 @@ import {to_screen} from "core/types"
 import {Direction} from "core/enums"
 import * as p from "core/properties"
 import type {Context2d} from "core/util/canvas"
+import {to_cartesian, PI} from "core/util/math"
 
 export interface ArcView extends Arc.Data {}
 
@@ -48,37 +49,25 @@ export class ArcView extends XYGlyphView {
         continue
       }
 
-      this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
       ctx.beginPath()
       ctx.arc(sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
-
       this.visuals.line.apply(ctx, i)
+
+      this._render_decorations(ctx, i, sx_i, sy_i, sradius_i, start_angle_i, end_angle_i, anticlock)
     }
   }
 
   protected _render_decorations(ctx: Context2d, i: number, sx: number, sy: number, sradius: number,
       start_angle: number, end_angle: number, _anticlock: boolean): void {
 
-    const {sin, cos, PI} = Math
+    for (const decoration of this.decorations) {
+      const {parametric: t, reversed} = decoration
 
-    for (const decoration of this.decorations.values()) {
-      ctx.save()
+      const angle = start_angle*(1 - t) + end_angle*t
+      const {x, y} = to_cartesian(sradius, angle)
 
-      if (decoration.model.node == "start") {
-        const x = sradius*cos(start_angle) + sx
-        const y = sradius*sin(start_angle) + sy
-        ctx.translate(x, y)
-        ctx.rotate(start_angle + PI)
-      } else if (decoration.model.node == "end") {
-        const x = sradius*Math.cos(end_angle) + sx
-        const y = sradius*Math.sin(end_angle) + sy
-        ctx.translate(x, y)
-        ctx.rotate(end_angle)
-      }
-
-      decoration.marking.paint(ctx, i)
-      ctx.restore()
+      const rotation = /*PI/2 +*/ angle + (reversed ? PI : 0)
+      decoration.marking.paint_at(ctx, i, {sx: sx + x, sy: sy + y}, rotation)
     }
   }
 

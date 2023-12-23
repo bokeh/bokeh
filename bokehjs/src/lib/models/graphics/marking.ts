@@ -6,6 +6,7 @@ import * as visuals from "core/visuals"
 import * as p from "core/properties"
 import type {RendererView} from "../renderers/renderer"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
+import type {SXY} from "core/util/bbox"
 
 export abstract class MarkingView extends DOMComponentView implements visuals.Paintable {
   declare model: Marking
@@ -39,6 +40,15 @@ export abstract class MarkingView extends DOMComponentView implements visuals.Pa
   }
 
   abstract paint(ctx: Context2d, i: number): void
+
+  paint_at(ctx: Context2d, i: number, at: SXY, rotation: number = 0): void {
+    const {sx, sy} = at
+    ctx.translate(sx, sy)
+    ctx.rotate(rotation)
+    this.paint(ctx, i)
+    ctx.rotate(-rotation)
+    ctx.translate(-sx, -sy)
+  }
 }
 
 export namespace Marking {

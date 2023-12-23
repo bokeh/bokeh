@@ -6,7 +6,7 @@ import type * as visuals from "core/visuals"
 import type {Arrayable, Rect} from "core/types"
 import type {SpatialIndex} from "core/util/spatial"
 import type {Context2d} from "core/util/canvas"
-import {atan2} from "core/util/math"
+import {slope, PI} from "core/util/math"
 import {Glyph, GlyphView} from "./glyph"
 import {generic_line_vector_legend} from "./utils"
 import {Selection} from "../selections/selection"
@@ -52,33 +52,26 @@ export class SegmentView extends GlyphView {
         continue
       }
 
-      this._render_decorations(ctx, i, sx0_i, sy0_i, sx1_i, sy1_i)
-
       ctx.beginPath()
       ctx.moveTo(sx0_i, sy0_i)
       ctx.lineTo(sx1_i, sy1_i)
-
       this.visuals.line.apply(ctx, i)
+
+      this._render_decorations(ctx, i, sx0_i, sy0_i, sx1_i, sy1_i)
     }
   }
 
   protected _render_decorations(ctx: Context2d, i: number, sx0: number, sy0: number, sx1: number, sy1: number): void {
-    const {PI} = Math
-    const angle = atan2([sx0, sy0], [sx1, sy1]) + PI/2
+    const tangent = slope([sx0, sy0], [sx1, sy1])
 
-    for (const decoration of this.decorations.values()) {
-      ctx.save()
+    for (const decoration of this.decorations) {
+      const {parametric: t, reversed} = decoration
 
-      if (decoration.model.node == "start") {
-        ctx.translate(sx0, sy0)
-        ctx.rotate(angle + PI)
-      } else if (decoration.model.node == "end") {
-        ctx.translate(sx1, sy1)
-        ctx.rotate(angle)
-      }
+      const sx = sx0*(1 - t) + sx1*t
+      const sy = sy0*(1 - t) + sy1*t
 
-      decoration.marking.paint(ctx, i)
-      ctx.restore()
+      const rotation = PI/2 + tangent + (reversed ? PI : 0)
+      decoration.marking.paint_at(ctx, i, {sx, sy}, rotation)
     }
   }
 
