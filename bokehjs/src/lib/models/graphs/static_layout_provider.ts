@@ -8,7 +8,7 @@ export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutProvider.Props & {
-    graph_layout: p.Property<Map<number, Arrayable<number>>>
+    graph_layout: p.Property<Map<number | string, Arrayable<number>>>
   }
 }
 
@@ -22,8 +22,8 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static {
-    this.define<StaticLayoutProvider.Props>(({Number, Int, Arrayable, Map}) => ({
-      graph_layout: [ Map(Int, Arrayable(Number)), new globalThis.Map() ], // TODO: length == 2
+    this.define<StaticLayoutProvider.Props>(({Number, String, Int, Arrayable, Map, Or}) => ({
+      graph_layout: [ Map(Or(Int, String), Arrayable(Number)), new globalThis.Map() ], // TODO: length == 2
     }))
   }
 

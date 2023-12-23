@@ -17,24 +17,30 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import TYPE_CHECKING, Any, Sequence
+
 # Bokeh imports
 from ..models.graphs import StaticLayoutProvider
 from ..models.renderers import GraphRenderer
 from ..util.warnings import warn
+
+if TYPE_CHECKING:
+    import networkx as nx
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    'from_networkx'
+    "from_networkx",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-def from_networkx(graph, layout_function, **kwargs):
+def from_networkx(graph: nx.Graph, layout_function: dict[int | str, Sequence[float]], **kwargs: Any) -> GraphRenderer:
         '''
         Generate a ``GraphRenderer`` from a ``networkx.Graph`` object and networkx
         layout function. Any keyword arguments will be passed to the

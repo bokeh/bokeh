@@ -262,6 +262,7 @@ __all__ = (
     'Nullable',
     'NumberSpec',
     'Object',
+    'OfLength',
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
@@ -322,6 +323,7 @@ from .property.container import ColumnData
 from .property.container import Dict
 from .property.container import List
 from .property.container import NonEmpty
+from .property.container import OfLength
 from .property.container import Seq
 from .property.container import Set
 from .property.container import Tuple

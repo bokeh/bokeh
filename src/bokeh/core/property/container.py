@@ -63,6 +63,7 @@ __all__ = (
     'Dict',
     'List',
     'NonEmpty',
+    'OfLength',
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
@@ -348,6 +349,21 @@ class NonEmpty(SingleParameterizedProperty[TSeq]):
 
         if not value:
             msg = "" if not detail else "Expected a non-empty container"
+            raise ValueError(msg)
+
+class OfLength(SingleParameterizedProperty[TSeq]):
+    """ Allows only containers of the given length. """
+
+    def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,
+            help: str | None = None) -> None:
+        super().__init__(type_param, default=default, help=help)
+        self.length = length
+
+    def validate(self, value: Any, detail: bool = True) -> None:
+        super().validate(value, detail)
+
+        if len(value) != self.length:
+            msg = "" if not detail else f"Expected a container of length #{self.length}, got #{len(value)}"
             raise ValueError(msg)
 
 #-----------------------------------------------------------------------------

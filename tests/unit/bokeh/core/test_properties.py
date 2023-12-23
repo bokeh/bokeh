@@ -111,6 +111,7 @@ ALL = (
     'Nullable',
     'NumberSpec',
     'Object',
+    'OfLength',
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
