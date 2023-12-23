@@ -3,14 +3,35 @@ import {concat, union} from "./array"
 
 const {hasOwnProperty} = Object.prototype
 
-export const {keys, values, entries, assign, fromEntries: to_object} = Object
+export const {assign, fromEntries: to_object} = Object
 export const extend = assign
 
-export const typed_keys: <T extends object>(obj: T) => (keyof T)[] = keys
+export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[]
+export function keys(obj: {}): string[]
 
-export const typed_values: <T extends object>(obj: T) => T[keyof T][] = values
+export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[] {
+  return obj instanceof Map ? [...obj.keys()] : Object.keys(obj)
+}
 
-export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = entries
+export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[]
+export function values(obj: {}): unknown[]
+
+export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[] {
+  return obj instanceof Map ? [...obj.values()] : Object.values(obj)
+}
+
+export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][]
+export function entries(obj: {}): [string, unknown][]
+
+export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][] {
+  return obj instanceof Map ? [...obj.entries()] : Object.entries(obj)
+}
+
+export const typed_keys: <T extends object>(obj: T) => (keyof T)[] = Object.keys
+
+export const typed_values: <T extends object>(obj: T) => T[keyof T][] = Object.values
+
+export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = Object.entries
 
 export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
   return {...obj}

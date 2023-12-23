@@ -1,7 +1,7 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, typed_values, typed_entries} from "./util/object"
+import {keys, typed_values, typed_entries, to_object} from "./util/object"
 import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
@@ -14,6 +14,8 @@ const {hasOwnProperty} = Object.prototype
 
 export abstract class Kind<T> {
   __type__: T
+
+  coerce?(value: unknown): unknown
 
   abstract valid(value: unknown): value is this["__type__"]
 
@@ -415,9 +417,14 @@ export namespace Kinds {
       super()
     }
 
+    override coerce(value: unknown): unknown {
+      return value instanceof ESMap ? to_object(value) : value
+    }
+
     valid(value: unknown): value is this["__type__"] {
-      if (!tp.isPlainObject(value))
+      if (!tp.isPlainObject(value)) {
         return false
+      }
 
       for (const key in value) {
         if (hasOwnProperty.call(value, key)) {

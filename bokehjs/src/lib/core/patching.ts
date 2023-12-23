@@ -1,4 +1,4 @@
-import type {Arrayable, Data} from "core/types"
+import type {Arrayable, Data, DataLike, DictLike} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import type {NDArray} from "core/util/ndarray"
 import {entries} from "core/util/object"
@@ -86,7 +86,7 @@ export function slice(ind: number | Slice, length: number): [number, number, num
 
 export type Patch<T> = [number, T] | [[number, number | Slice] | [number, number | Slice, number | Slice], T[]] | [Slice, T[]]
 
-export type PatchSet<T> = {[key: string]: Patch<T>[]}
+export type PatchSet<T> = DictLike<Patch<T>[]>
 
 // exported for testing
 export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]): Set<number> {
@@ -147,7 +147,7 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
   return patched
 }
 
-export function stream_to_columns(data: Data, new_data: Data, rollover?: number): void {
+export function stream_to_columns(data: Data, new_data: DataLike, rollover?: number): void {
   for (const [name, new_column] of entries(new_data)) {
     data[name] = stream_to_column(data[name], new_column, rollover)
   }

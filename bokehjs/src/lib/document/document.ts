@@ -16,7 +16,7 @@ import {isString} from "core/util/types"
 import type {Equatable, Comparator} from "core/util/eq"
 import {equals} from "core/util/eq"
 import {copy} from "core/util/array"
-import {entries} from "core/util/object"
+import {entries, keys} from "core/util/object"
 import * as sets from "core/util/set"
 import type {CallbackLike} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
@@ -542,9 +542,17 @@ export class Document implements Equatable {
           const {model, attr, cols, data} = event
           if (cols != null) {
             const current_data = model.property(attr).get_value() as Data
-            for (const k in current_data) {
-              if (!(k in data)) {
-                data[k] = current_data[k]
+            if (data instanceof Map) {
+              for (const key in keys(current_data)) {
+                if (!data.has(key)) {
+                  data.set(key, current_data[key])
+                }
+              }
+            } else {
+              for (const key in keys(current_data)) {
+                if (!(key in data)) {
+                  data[key] = current_data[key]
+                }
               }
             }
           }

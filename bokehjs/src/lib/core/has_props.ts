@@ -1,7 +1,7 @@
 //import {logger} from "./logging"
 import type {View} from "./view"
 import type {Class} from "./class"
-import type {Attrs, Data} from "./types"
+import type {Attrs, Data, DataLike} from "./types"
 import type {ISignalable} from "./signaling"
 import {Signal0, Signal, Signalable} from "./signaling"
 import type {Ref} from "./util/refs"
@@ -622,7 +622,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  stream_to(prop: Property<Data>, new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
+  stream_to(prop: Property<Data>, new_data: DataLike, rollover?: number, {sync}: {sync?: boolean} = {}): void {
     const data = prop.get_value()
     stream_to_columns(data, new_data, rollover)
     this._clear_watchers()
