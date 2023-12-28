@@ -2,7 +2,9 @@ import type * as p from "core/properties"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
+import type {DictLike} from "core/types"
 import {includes} from "core/util/array"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 import type {XYGlyph} from "../../glyphs/xy_glyph"
@@ -135,13 +137,13 @@ export abstract class EditToolView extends GestureToolView {
   _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
     // Pad ColumnDataSource non-coordinate columns with default values
     const {default_values, inferred_defaults} = cds
-    const {default_overrides} = this.model
+    const default_overrides = dict(this.model.default_overrides)
 
     for (const column of cds.columns()) {
       if (!includes(coord_columns, column)) {
         const default_value = (() => {
-          if (column in default_overrides) {
-            return default_overrides[column]
+          if (default_overrides.has(column)) {
+            return default_overrides.get(column)!
           } else if (column in default_values) {
             return default_values[column]
           } else if (column in inferred_defaults) {
@@ -184,7 +186,7 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    default_overrides: p.Property<{[key: string]: unknown}>
+    default_overrides: p.Property<DictLike<unknown>>
     empty_value: p.Property<unknown>
   }
 }

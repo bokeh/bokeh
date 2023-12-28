@@ -1,10 +1,15 @@
-import type {PlainObject, Arrayable} from "../types"
+import type {Arrayable, DictLike, PlainObject} from "../types"
+import {isPlainObject} from "./types"
 import {concat, union} from "./array"
 
 const {hasOwnProperty} = Object.prototype
 
-export const {assign, fromEntries: to_object} = Object
+export const {assign} = Object
 export const extend = assign
+
+export function to_object<T = any>(obj: PlainObject<T> | Iterable<readonly [PropertyKey, T]>): PlainObject<T> {
+  return isPlainObject(obj) ? obj : Object.fromEntries(obj)
+}
 
 export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[]
 export function keys(obj: {}): string[]
@@ -62,7 +67,7 @@ export function is_empty(obj: PlainObject): boolean {
   return size(obj) == 0
 }
 
-export class Dict<V> implements Map<string, V> {
+export class MapProxy<V> implements Map<string, V> {
   constructor(readonly obj: {[key: string]: V}) {}
 
   readonly [Symbol.toStringTag] = "Dict"
@@ -96,10 +101,6 @@ export class Dict<V> implements Map<string, V> {
     return size(this.obj)
   }
 
-  get is_empty(): boolean {
-    return this.size == 0
-  }
-
   [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries()
   }
@@ -123,6 +124,6 @@ export class Dict<V> implements Map<string, V> {
   }
 }
 
-export function dict<V>(o: {[key: string]: V}): Dict<V> {
-  return new Dict(o)
+export function dict<V>(obj: DictLike<V>): Map<string, V> {
+  return isPlainObject(obj) ? new MapProxy(obj) : obj
 }

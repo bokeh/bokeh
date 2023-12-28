@@ -1,5 +1,5 @@
 import * as p from "./properties"
-import type {Color} from "./types"
+import type {Color, DictLike} from "./types"
 import {LineJoin, LineCap, LineDash, FontStyle, HatchPatternType, TextAlign, TextBaseline} from "./enums"
 import * as k from "./kinds"
 import type {Texture} from "models/textures/texture"
@@ -8,7 +8,7 @@ import {isString} from "./util/types"
 import type {HasProps} from "./has_props"
 
 export type HatchPattern = HatchPatternType | string
-export type HatchExtra = {[key: string]: Texture | undefined}
+export type HatchExtra = DictLike<Texture>
 
 // Primitive
 
@@ -150,7 +150,7 @@ export const FillScalar: p.DefineOf<FillScalar> = {
 }
 
 export const ImageScalar: p.DefineOf<ImageScalar> = {
-  global_alpha:       [ p.NumberScalar,       1.0         ],
+  global_alpha:     [ p.NumberScalar,       1.0         ],
 }
 
 export const HatchScalar: p.DefineOf<HatchScalar> = {
@@ -159,7 +159,7 @@ export const HatchScalar: p.DefineOf<HatchScalar> = {
   hatch_scale:      [ p.NumberScalar,       12.0        ],
   hatch_pattern:    [ p.NullStringScalar,   null        ],
   hatch_weight:     [ p.NumberScalar,       1.0         ],
-  hatch_extra:      [ p.AnyScalar,          {}          ],
+  hatch_extra:      [ p.DictScalar,         {}          ],
 }
 
 export const TextScalar: p.DefineOf<TextScalar> = {
@@ -232,7 +232,7 @@ export const FillVector: p.DefineOf<FillVector> = {
 }
 
 export const ImageVector: p.DefineOf<ImageVector> = {
-  global_alpha:       [ p.NumberSpec,     1.0         ],
+  global_alpha:     [ p.NumberSpec,     1.0         ],
 }
 
 export const HatchVector: p.DefineOf<HatchVector> = {
@@ -241,7 +241,7 @@ export const HatchVector: p.DefineOf<HatchVector> = {
   hatch_scale:      [ p.NumberSpec,     12.0        ],
   hatch_pattern:    [ p.NullStringSpec, null        ],
   hatch_weight:     [ p.NumberSpec,     1.0         ],
-  hatch_extra:      [ p.AnyScalar,      {}          ],
+  hatch_extra:      [ p.DictScalar,     {}          ],
 }
 
 export const TextVector: p.DefineOf<TextVector> = {

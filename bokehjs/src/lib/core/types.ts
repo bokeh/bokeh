@@ -69,15 +69,15 @@ export type ArrayableNew = {new <T>(n: number): Arrayable<T>}
 
 export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 
-export type DictLike<T> = {[key: string]: T} | Map<string, T>
+export type PlainObject<T = unknown> = {[key: string]: T}
+
+export type DictLike<T> = PlainObject<T> | Map<string, T>
 
 export type Data<T = unknown> = {[key: string]: Arrayable<T>}
 
 export type DataLike<T = unknown> = DictLike<Arrayable<T>>
 
-export type Attrs = {[key: string]: unknown}
-
-export type PlainObject<T = unknown> = {[key: string]: T}
+export type Attrs = PlainObject<unknown>
 
 export type Size = {
   width: number

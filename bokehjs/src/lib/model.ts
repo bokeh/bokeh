@@ -1,5 +1,6 @@
 import {HasProps} from "./core/has_props"
 import type {Class} from "./core/class"
+import type {DictLike} from "./core/types"
 import type {ModelEvent, ModelEventType, BokehEventMap} from "./core/bokeh_events"
 import type * as p from "./core/properties"
 import {isString, isPlainObject} from "./core/util/types"
@@ -22,8 +23,8 @@ export namespace Model {
   export type Props = HasProps.Props & {
     tags: p.Property<unknown[]>
     name: p.Property<string | null>
-    js_property_callbacks: p.Property<{[key: string]: ChangeCallback[]}>
-    js_event_callbacks: p.Property<{[key: string]: EventCallback[]}>
+    js_property_callbacks: p.Property<DictLike<ChangeCallback[]>>
+    js_event_callbacks: p.Property<DictLike<EventCallback[]>>
     subscribed_events: p.Property<Set<string>>
     syncable: p.Property<boolean>
   }
@@ -123,7 +124,7 @@ export class Model extends HasProps {
   }
 
   protected override _doc_attached(): void {
-    if (!dict(this.js_event_callbacks).is_empty || this.subscribed_events.size != 0) {
+    if (this.js_event_callbacks.size != 0 || this.subscribed_events.size != 0) {
       this._update_event_callbacks()
     }
   }
@@ -170,6 +171,8 @@ export class Model extends HasProps {
 
   on_event(event: ModelEventType | Class<ModelEvent>, callback: EventCallback): void {
     const name = isString(event) ? event : event.prototype.event_name
-    this.js_event_callbacks[name] = [...dict(this.js_event_callbacks).get(name) ?? [], callback]
+    const js_event_callbacks = dict(this.js_event_callbacks)
+    const callbacks = js_event_callbacks.get(name) ?? []
+    js_event_callbacks.set(name, [...callbacks, callback])
   }
 }

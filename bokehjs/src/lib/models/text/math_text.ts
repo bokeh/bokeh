@@ -1,11 +1,12 @@
 import type * as p from "core/properties"
 import type * as visuals from "core/visuals"
+import {to_object} from "core/util/object"
 import {isNumber} from "core/util/types"
 import type {Context2d} from "core/util/canvas"
 import {load_image} from "core/util/image"
 import type {CanvasImage} from "models/glyphs/image_url"
 import {color2css, color2hexrgb, color2rgba} from "core/util/color"
-import type {Size} from "core/types"
+import type {Size, DictLike} from "core/types"
 import type {GraphicsBox, TextHeightMetric, Position} from "core/graphics"
 import {text_width} from "core/graphics"
 import {font_metrics, parse_css_font_size, parse_css_length} from "core/util/text"
@@ -565,7 +566,7 @@ export class TeXView extends MathTextView {
       display: !this.model.inline,
       em: this.base_font_size,
       ex: fmetrics.x_height,
-    }, this.model.macros)
+    }, to_object(this.model.macros))
   }
 }
 
@@ -573,7 +574,7 @@ export namespace TeX {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MathText.Props & {
-    macros: p.Property<{[key: string]: string | [string, number]}>
+    macros: p.Property<DictLike<string | [string, number]>>
     inline: p.Property<boolean>
   }
 }

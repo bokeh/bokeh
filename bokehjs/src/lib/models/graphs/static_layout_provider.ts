@@ -1,7 +1,7 @@
 import {LayoutProvider} from "./layout_provider"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Arrayable} from "core/types"
-import {Dict} from "core/util/object"
+import {dict} from "core/util/object"
 import type * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
@@ -28,7 +28,7 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
-    const data = new Dict(node_source.data)
+    const data = dict(node_source.data)
     const index = data.get("index") ?? []
     const n = index.length
     const xs = new Float64Array(n)
@@ -44,7 +44,7 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const data = new Dict(edge_source.data)
+    const data = dict(edge_source.data)
     const starts = data.get("start") ?? []
     const ends = data.get("end") ?? []
     const n = Math.min(starts.length, ends.length)

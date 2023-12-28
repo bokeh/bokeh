@@ -1,6 +1,6 @@
 import {Transform} from "./transform"
 import type * as p from "core/properties"
-import type {Arrayable} from "core/types"
+import type {Arrayable, DictLike} from "core/types"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
@@ -8,7 +8,7 @@ export namespace CustomJSTransform {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Transform.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<DictLike<unknown>>
     func: p.Property<string>
     v_func: p.Property<string>
   }
@@ -35,7 +35,7 @@ export class CustomJSTransform extends Transform {
     return keys(this.args)
   }
 
-  get values(): any[] {
+  get values(): unknown[] {
     return values(this.args)
   }
 
