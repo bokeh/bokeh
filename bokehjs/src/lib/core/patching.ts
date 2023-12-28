@@ -1,7 +1,7 @@
-import type {Arrayable, Data, DataLike, DictLike} from "core/types"
+import type {Arrayable, Data, DictLike} from "core/types"
 import {isTypedArray, isArray, isNumber} from "core/util/types"
 import type {NDArray} from "core/util/ndarray"
-import {entries} from "core/util/object"
+import {dict} from "core/util/object"
 import {union} from "core/util/set"
 import type {Slice} from "core/util/slice"
 import * as typed_array from "core/util/typed_array"
@@ -147,16 +147,20 @@ export function patch_to_column<T>(col: NDArray | NDArray[], patch: Patch<T>[]):
   return patched
 }
 
-export function stream_to_columns(data: Data, new_data: DataLike, rollover?: number): void {
-  for (const [name, new_column] of entries(new_data)) {
-    data[name] = stream_to_column(data[name], new_column, rollover)
+export function stream_to_columns(old_data: Data, new_data: Data, rollover?: number): void {
+  const data = dict(old_data)
+  for (const [name, new_column] of dict(new_data)) {
+    const old_column = data.get(name) ?? []
+    data.set(name, stream_to_column(old_column, new_column, rollover))
   }
 }
 
-export function patch_to_columns(data: Data, patches: PatchSet<unknown>): Set<number> {
+export function patch_to_columns(old_data: Data, patches: PatchSet<unknown>): Set<number> {
+  const data = dict(old_data)
   let patched: Set<number> = new Set()
-  for (const [column, patch] of entries(patches)) {
-    patched = union(patched, patch_to_column(data[column] as any, patch)) // XXX
+  for (const [name, patch] of dict(patches)) {
+    const old_column = data.get(name) ?? []
+    patched = union(patched, patch_to_column(old_column as any, patch)) // XXX: any
   }
   return patched
 }

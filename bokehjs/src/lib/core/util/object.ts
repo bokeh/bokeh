@@ -38,8 +38,8 @@ export const typed_values: <T extends object>(obj: T) => T[keyof T][] = Object.v
 
 export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = Object.entries
 
-export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
-  return {...obj}
+export function clone<T>(obj: DictLike<T>): DictLike<T> {
+  return obj instanceof Map ? new Map(obj) : {...obj}
 }
 
 export function merge<T>(obj1: PlainObject<Arrayable<T>>, obj2: PlainObject<Arrayable<T>>): PlainObject<T[]> {

@@ -1,5 +1,5 @@
 import type {Document} from "./document"
-import type {DataLike} from "core/types"
+import type {Data} from "core/types"
 import type {HasProps} from "core/has_props"
 import type {Ref} from "core/util/refs"
 import type {PatchSet} from "core/patching"
@@ -95,7 +95,7 @@ export namespace Decoded {
     kind: "ColumnDataChanged"
     model: HasProps
     attr: string
-    data: DataLike
+    data: Data
     cols?: string[]
   }
 
@@ -103,7 +103,7 @@ export namespace Decoded {
     kind: "ColumnsStreamed"
     model: HasProps
     attr: string
-    data: DataLike
+    data: Data
     rollover?: number
   }
 
@@ -208,7 +208,7 @@ export class ColumnDataChangedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly data: DataLike,
+      readonly data: Data,
       readonly cols?: string[]) {
     super(document)
   }
@@ -238,7 +238,7 @@ export class ColumnsStreamedEvent extends DocumentChangedEvent {
   constructor(document: Document,
       readonly model: HasProps,
       readonly attr: string,
-      readonly data: DataLike,
+      readonly data: Data,
       readonly rollover?: number) {
     super(document)
   }

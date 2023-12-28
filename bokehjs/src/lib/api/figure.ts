@@ -1,5 +1,5 @@
 import type {HasProps} from "../core/has_props"
-import type {Data, Attrs} from "../core/types"
+import type {Attrs} from "../core/types"
 import type {Value, Field, Vector} from "../core/vectorization"
 import type {Property} from "../core/properties"
 import {VectorSpec, UnitsSpec} from "../core/properties"
@@ -8,7 +8,7 @@ import {extend} from "../core/class"
 import type {Location} from "../core/enums"
 import {is_equal, Comparator} from "../core/util/eq"
 import {includes, uniq} from "../core/util/array"
-import {clone, keys, entries, is_empty} from "../core/util/object"
+import {clone, keys, entries, is_empty, dict} from "../core/util/object"
 import {isNumber, isString, isArray, isArrayOf} from "../core/util/types"
 import {enumerate} from "core/util/iterator"
 import * as nd from "core/util/ndarray"
@@ -414,11 +414,11 @@ export class Figure extends BaseFigure {
     return result
   }
 
-  _find_uniq_name(data: Data, name: string): string {
+  _find_uniq_name(data: Map<string, unknown>, name: string): string {
     let i = 1
     while (true) {
       const new_name = `${name}__${i}`
-      if (new_name in data) {
+      if (data.has(new_name)) {
         i += 1
       } else {
         return new_name
@@ -426,28 +426,27 @@ export class Figure extends BaseFigure {
     }
   }
 
-  _fixup_values(cls: Class<HasProps>, data: Data, attrs: Attrs): Set<string> {
+  _fixup_values(cls: Class<HasProps>, data: Map<string, unknown>, attrs: Attrs): Set<string> {
     const unresolved_attrs = new Set<string>()
-    const props = cls.prototype._props
+    const props = dict(cls.prototype._props)
 
     for (const [name, value] of entries(attrs)) {
-      if (name in props) {
-        const prop = cls.prototype._props[name]
-
+      const prop = props.get(name)
+      if (prop != null) {
         if (prop.type.prototype instanceof VectorSpec) {
           if (value != null) {
             if (isArray(value) || nd.is_NDArray(value)) {
               let field
-              if (name in data) {
-                if (data[name] !== value) {
+              if (data.has(name)) {
+                if (data.get(name) !== value) {
                   field = this._find_uniq_name(data, name)
-                  data[field] = value
+                  data.set(field, value)
                 } else {
                   field = name
                 }
               } else {
                 field = name
-                data[field] = value
+                data.set(field, value)
               }
 
               attrs[name] = {field}
@@ -547,13 +546,14 @@ export class Figure extends BaseFigure {
     const hglyph_ca = this._pop_visuals(cls, attrs, "hover_", glyph_ca)
     const mglyph_ca = this._pop_visuals(cls, attrs, "muted_", glyph_ca, {alpha: 0.2})
 
-    this._fixup_values(cls, data,  glyph_ca)
-    this._fixup_values(cls, data, nglyph_ca)
-    this._fixup_values(cls, data, sglyph_ca)
-    this._fixup_values(cls, data, hglyph_ca)
-    this._fixup_values(cls, data, mglyph_ca)
+    const data_dict = dict(data)
+    this._fixup_values(cls, data_dict,  glyph_ca)
+    this._fixup_values(cls, data_dict, nglyph_ca)
+    this._fixup_values(cls, data_dict, sglyph_ca)
+    this._fixup_values(cls, data_dict, hglyph_ca)
+    this._fixup_values(cls, data_dict, mglyph_ca)
 
-    this._fixup_values(cls, data, attrs)
+    this._fixup_values(cls, data_dict, attrs)
 
     source.data = data
 
@@ -754,12 +754,11 @@ export class Figure extends BaseFigure {
   }
 
   protected _handle_legend_group(name: string, legend: Legend, glyph_renderer: GlyphRenderer): void {
-    const source = glyph_renderer.data_source
-    if (!(name in source.data)) {
-      throw new Error("column to be grouped does not exist in glyph data source")
+    const data = dict(glyph_renderer.data_source.data)
+    if (!data.has(name)) {
+      throw new Error(`column to be grouped does not exist in glyph data source: ${name}`)
     }
-
-    const column = [...source.data[name]]
+    const column = data.get(name) ?? []
     const values = uniq(column).sort()
     for (const value of values) {
       const label = {value: `${value}`}

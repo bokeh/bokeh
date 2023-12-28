@@ -3,6 +3,7 @@ import * as palettes from "./palettes"
 import type {Color} from "core/types"
 import {is_dark, color2rgba} from "core/util/color"
 import {zip, unzip, sum, cumsum, copy, transpose} from "core/util/array"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {sprintf} from "core/util/templating"
 import type {Anchor, TooltipAttachment} from "core/enums"
@@ -300,9 +301,15 @@ export function bar(data: BarChartData, opts: BarChartOpts = {}): Plot {
     ;[xscale, yscale] = [yscale, xscale]
 
     for (const r of renderers) {
-      const data = (r.data_source as ColumnDataSource).data
-      ;[data.left, data.bottom] = [data.bottom, data.left]
-      ;[data.right, data.top] = [data.top, data.right]
+      const data = dict(r.data_source.data)
+      const left = data.get("left")!
+      const right = data.get("right")!
+      const top = data.get("top")!
+      const bottom = data.get("bottom")!
+      data.set("left", bottom)
+      data.set("bottom", left)
+      data.set("right", top)
+      data.set("top", right)
     }
   }
 

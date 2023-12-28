@@ -51,8 +51,8 @@ export class GeoJSONDataSource extends ColumnarDataSource {
       geojson: [ String ],
     }))
 
-    this.internal<GeoJSONDataSource.Props>(({Any, Dict, Arrayable}) => ({
-      data: [ Dict(Arrayable(Any)), {} ],
+    this.internal<GeoJSONDataSource.Props>(({Unknown, Dict, Arrayable}) => ({
+      data: [ Dict(Arrayable(Unknown)), {} ],
     }))
   }
 

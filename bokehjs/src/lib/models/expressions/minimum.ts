@@ -31,6 +31,6 @@ export class Minimum extends ScalarExpression<number> {
 
   protected _compute(source: ColumnarDataSource): number {
     const column = dict(source.data).get(this.field) ?? []
-    return Math.min(this.initial, min(column))
+    return Math.min(this.initial, min(column as number[]))
   }
 }

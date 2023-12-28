@@ -35,7 +35,7 @@ export class Stack extends Expression {
       if (column != null) {
         const k = Math.min(n, column.length)
         for (let i = 0; i < k; i++) {
-          result[i] += column[i]
+          result[i] += column[i] as number
         }
       }
     }

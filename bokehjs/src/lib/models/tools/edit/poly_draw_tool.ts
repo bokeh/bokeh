@@ -1,5 +1,6 @@
 import type {UIEvent, PanEvent, TapEvent, MoveEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {MultiLine} from "../../glyphs/multi_line"
 import type {Patches} from "../../glyphs/patches"
@@ -36,6 +37,7 @@ export class PolyDrawToolView extends PolyToolView {
     const [x, y] = this._snap_to_vertex(ev, ...point)
 
     const cds = renderer.data_source
+    const data = dict(cds.data)
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == "new") {
@@ -45,33 +47,37 @@ export class PolyDrawToolView extends PolyToolView {
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "edit") {
       if (xkey) {
-        const xs = cds.data[xkey][cds.data[xkey].length-1]
+        const column = data.get(xkey) ?? []
+        const xs = column[column.length-1] as number[]
         xs[xs.length-1] = x
       }
       if (ykey) {
-        const ys = cds.data[ykey][cds.data[ykey].length-1]
+        const column = data.get(ykey) ?? []
+        const ys = column[column.length-1] as number[]
         ys[ys.length-1] = y
       }
     } else if (mode == "add") {
       if (xkey) {
-        const xidx = cds.data[xkey].length-1
+        const column = data.get(xkey) ?? []
+        const xidx = column.length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
         const nx = xs[xs.length-1]
         xs[xs.length-1] = x
         if (!isArray(xs)) {
           xs = Array.from(xs)
-          cds.data[xkey][xidx] = xs
+          column[xidx] = xs
         }
         xs.push(nx)
       }
       if (ykey) {
-        const yidx = cds.data[ykey].length-1
+        const column = data.get(ykey) ?? []
+        const yidx = column.length-1
         let ys = cds.get_array<number[]>(ykey)[yidx]
         const ny = ys[ys.length-1]
         ys[ys.length-1] = y
         if (!isArray(ys)) {
           ys = Array.from(ys)
-          cds.data[ykey][yidx] = ys
+          column[yidx] = ys
         }
         ys.push(ny)
       }
@@ -130,15 +136,18 @@ export class PolyDrawToolView extends PolyToolView {
   _remove(): void {
     const renderer = this.model.renderers[0]
     const cds = renderer.data_source
+    const data = dict(cds.data)
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (xkey) {
-      const xidx = cds.data[xkey].length-1
+      const column = data.get(xkey) ?? []
+      const xidx = column.length-1
       const xs = cds.get_array<number[]>(xkey)[xidx]
       xs.splice(xs.length-1, 1)
     }
     if (ykey) {
-      const yidx = cds.data[ykey].length-1
+      const column = data.get(ykey) ?? []
+      const yidx = column.length-1
       const ys = cds.get_array<number[]>(ykey)[yidx]
       ys.splice(ys.length-1, 1)
     }
@@ -188,11 +197,16 @@ export class PolyDrawToolView extends PolyToolView {
       const [x, y] = point
       const [px, py] = basepoint
       const [dx, dy] = [x-px, y-py]
+      const data = dict(cds.data)
       for (const index of cds.selected.indices) {
-        let length, xs, ys
-        if (xkey) xs = cds.data[xkey][index]
+        let length, xs: any, ys: any
+        if (xkey) {
+          const column = data.get(xkey) ?? []
+          xs = column[index]
+        }
         if (ykey) {
-          ys = cds.data[ykey][index]
+          const column = data.get(ykey) ?? []
+          ys = column[index]
           length = ys.length
         } else {
           length = xs.length

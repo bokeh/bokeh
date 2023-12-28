@@ -3,11 +3,11 @@ import {logger} from "core/logging"
 import type * as p from "core/properties"
 import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
-import type {Arrayable, ArrayableNew, Data} from "core/types"
+import type {Arrayable, ArrayableNew, Data, DictLike} from "core/types"
 import type {PatchSet} from "core/patching"
 import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
-import {keys, values, entries} from "core/util/object"
+import {keys, values, entries, dict} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
@@ -21,8 +21,8 @@ export namespace ColumnarDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = DataSource.Props & {
-    data: p.Property<{[key: string]: Arrayable}> // XXX: this is hack!!!
-    default_values: p.Property<{[key: string]: unknown}>
+    data: p.Property<Data> // XXX: this is hack!!!
+    default_values: p.Property<DictLike<unknown>>
     selection_policy: p.Property<SelectionPolicy>
     inspected: p.Property<Selection>
   }
@@ -33,15 +33,17 @@ export interface ColumnarDataSource extends ColumnarDataSource.Attrs {}
 export abstract class ColumnarDataSource extends DataSource {
   declare properties: ColumnarDataSource.Props
 
-  declare data: {[key: string]: Arrayable}
+  declare data: Data
 
   get_array<T>(key: string): T[] {
-    let column = this.data[key] as Arrayable | undefined
+    const data = dict(this.data)
+    let column = data.get(key)
 
-    if (column == null)
-      this.data[key] = column = []
-    else if (!isArray(column))
-      this.data[key] = column = Array.from(column)
+    if (column == null) {
+      data.set(key, column = [])
+    } else if (!isArray(column)) {
+      data.set(key, column = Array.from(column))
+    }
 
     return column as T[]
   }
@@ -56,8 +58,8 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   static {
-    this.define<ColumnarDataSource.Props>(({Ref, Dict, Any}) => ({
-      default_values: [ Dict(Any), {} ],
+    this.define<ColumnarDataSource.Props>(({Ref, Dict, Unknown}) => ({
+      default_values: [ Dict(Unknown), {} ],
       selection_policy: [ Ref(SelectionPolicy), () => new UnionRenderers() ],
     }))
 
@@ -117,7 +119,8 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   get_column(name: string): Arrayable | null {
-    return name in this.data ? this.data[name] : null
+    const data = dict(this.data)
+    return data.get(name) ?? null
   }
 
   columns(): string[] {
@@ -140,8 +143,9 @@ export abstract class ColumnarDataSource extends DataSource {
         if (soft) {
           logger.warn(msg)
           return lengths.sort()[0]
-        } else
+        } else {
           throw new Error(msg)
+        }
       }
     }
   }
@@ -151,11 +155,12 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   clear(): void {
-    const empty: {[key: string]: Arrayable} = {}
-    for (const col of this.columns()) {
-      empty[col] = new (this.data[col].constructor as ArrayableNew)(0)
+    const data: Data = new Map()
+    for (const [name, column] of entries(this.data)) {
+      const empty =new (column.constructor as ArrayableNew)(0)
+      data.set(name, empty)
     }
-    this.data = empty
+    this.data = data
   }
 
   stream(new_data: Data, rollover?: number, {sync}: {sync?: boolean} = {}): void {
