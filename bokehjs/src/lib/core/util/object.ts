@@ -58,11 +58,11 @@ export function merge<K, V>(obj0: Map<K, Arrayable<V>>, obj1: Map<K, Arrayable<V
   return result
 }
 
-export function size(obj: PlainObject): number {
-  return Object.keys(obj).length
+export function size(obj: DictLike<unknown>): number {
+  return obj instanceof Map ? obj.size : Object.keys(obj).length
 }
 
-export function is_empty(obj: PlainObject): boolean {
+export function is_empty(obj: DictLike<unknown>): boolean {
   return size(obj) == 0
 }
 
