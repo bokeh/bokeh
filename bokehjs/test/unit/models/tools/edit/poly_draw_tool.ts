@@ -163,6 +163,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null],
       })
     })
 
@@ -187,6 +188,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null],
       })
     })
 
@@ -206,6 +208,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null, "Test"],
       })
     })
 
@@ -226,6 +229,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, "Test"],
       })
     })
 
@@ -268,6 +272,7 @@ describe("PolyDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null, "Test"],
       })
     })
 
@@ -278,7 +283,9 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null)
       testcase.draw_tool_view._press(make_tap_event(300, 300))
 
-      expect(testcase.data_source.data).to.be.equal({
+      expect(testcase.data_source.data).to.be.similar({
+        xs: [[0, 0.5, 1], [0, 0.5, 1], [0.04424778761061947, 0.04424778761061947]],
+        ys: [[0, -0.5, -1], [0, -0.5, -1], [0, 0]],
         z: [null, null, "Test"],
       })
     })

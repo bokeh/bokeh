@@ -162,6 +162,7 @@ describe("FreehandDrawTool", () => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null, "Test"],
       })
     })
 
@@ -180,6 +181,7 @@ describe("FreehandDrawTool", () => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: ["Test"],
       })
     })
 
@@ -192,7 +194,9 @@ describe("FreehandDrawTool", () => {
       testcase.draw_tool_view._pan(make_pan_event(290, 290))
       testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
 
-      expect(testcase.data_source.data).to.be.equal({
+      expect(testcase.data_source.data).to.be.similar({
+        xs: [[0, 0.5, 1], [0, 0.5, 1], [0.04424778761061947, 0.008849557522123894, 0.008849557522123894]],
+        ys: [[0, -0.5, -1], [0, -0.5, -1], [0, 0.03389830508474576, 0.03389830508474576]],
         z: [null, null, "Test"],
       })
     })
@@ -211,6 +215,7 @@ describe("FreehandDrawTool", () => {
       expect(testcase.data_source.data).to.be.equal({
         xs: xdata,
         ys: ydata,
+        z: [null, null],
       })
     })
   })

@@ -124,7 +124,7 @@ describe("column_data_source module", () => {
 
   describe("clear method", () => {
 
-    it("should clear plain arrys to plain arrays", () => {
+    it("should clear plain arrays to empty arrays", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       r.clear()
       expect(r.data).to.be.equal({foo: [], bar: []})

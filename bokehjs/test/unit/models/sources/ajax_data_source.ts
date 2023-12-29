@@ -67,9 +67,9 @@ describe("ajax_data_source module", () => {
         export default (_args, _obj, data) => {
           const foo = []
           const bar = []
-          for (const [p0, pt1] of data.response.points) {
-            result.foo.push(pt0)
-            result.bar.push(pt1)
+          for (const [pt0, pt1] of data.response.points) {
+            foo.push(pt0)
+            bar.push(pt1)
           }
           return {foo, bar}
         }

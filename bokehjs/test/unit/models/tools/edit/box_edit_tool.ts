@@ -133,6 +133,8 @@ describe("BoxEditTool", () => {
       expect(data).to.be.equal({
         x: [0, 1],
         y: [0, 1],
+        width: [0.1, 0.3],
+        height: [0.3, 0.1],
         a: [null, null],
         b: ["a", "c"],
         c: [100, 300],

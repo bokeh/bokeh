@@ -120,6 +120,7 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         x: [0, 0.5, 1, 0.04424778761061947],
         y: [0, 0.5, 1, 0.3389830508474576],
+        z: [null, null, null, "Test"],
       })
     })
 
@@ -136,6 +137,7 @@ describe("PointDrawTool", (): void => {
       expect(testcase.data_source.data).to.be.equal({
         x: [0.5, 1, 0.04424778761061947],
         y: [0.5, 1, 0.3389830508474576],
+        z: [null, null, "Test"],
       })
     })
 
@@ -147,7 +149,9 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.data).to.be.equal({
+      expect(testcase.data_source.data).to.be.similar({
+        x: [0, 0.5, 1, 0.04424778761061947],
+        y: [0, 0.5, 1, 0.3389830508474576],
         z: [null, null, null, "Test"],
       })
     })
