@@ -1,16 +1,23 @@
 import {SelectTool, SelectToolView} from "./select_tool"
 import type {CallbackLike1} from "core/util/callbacks"
+import {to_object} from "core/util/object"
 import {execute} from "core/util/callbacks"
 import type * as p from "core/properties"
 import type {TapEvent, KeyModifiers} from "core/ui_events"
-import * as events from "core/bokeh_events"
 import type {PointGeometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
 import {TapBehavior, TapGesture} from "core/enums"
+import {PartialStruct, Boolean, Or, Map, Enum} from "core/kinds"
 import {non_null} from "core/util/types"
 import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import type {DataRendererView} from "../../renderers/data_renderer"
 import {tool_icon_tap_select} from "styles/icons.css"
+
+export const Modifiers = Or(
+  PartialStruct({shift: Boolean, ctrl: Boolean, alt: Boolean}),
+  Map(Enum("shift", "ctrl", "alt"), Boolean),
+)
+export type Modifiers = typeof Modifiers["__type__"]
 
 export type TapToolCallback = CallbackLike1<TapTool, {
   geometries: PointGeometry & {x: number, y: number}
@@ -34,18 +41,22 @@ export class TapToolView extends SelectToolView {
   }
 
   _handle_tap(ev: TapEvent): void {
-    const {modifiers} = this.model
-    if (modifiers.shift != null && modifiers.shift != ev.modifiers.shift)
+    const modifiers: Partial<KeyModifiers> = to_object(this.model.modifiers)
+    if (modifiers.shift != null && modifiers.shift != ev.modifiers.shift) {
       return
-    if (modifiers.ctrl != null && modifiers.ctrl != ev.modifiers.ctrl)
+    }
+    if (modifiers.ctrl != null && modifiers.ctrl != ev.modifiers.ctrl) {
       return
-    if (modifiers.alt != null && modifiers.alt != ev.modifiers.alt)
+    }
+    if (modifiers.alt != null && modifiers.alt != ev.modifiers.alt) {
       return
+    }
 
     const {sx, sy} = ev
     const {frame} = this.plot_view
-    if (!frame.bbox.contains(sx, sy))
+    if (!frame.bbox.contains(sx, sy)) {
       return
+    }
 
     this._clear_other_overlays()
 
@@ -109,7 +120,7 @@ export namespace TapTool {
   export type Props = SelectTool.Props & {
     behavior: p.Property<TapBehavior>
     gesture: p.Property<TapGesture>
-    modifiers: p.Property<events.KeyModifiers>
+    modifiers: p.Property<Modifiers>
     callback: p.Property<TapToolCallback | null>
   }
 }
@@ -130,7 +141,7 @@ export class TapTool extends SelectTool {
     this.define<TapTool.Props>(({Any, Nullable}) => ({
       behavior:  [ TapBehavior, "select" ],
       gesture:   [ TapGesture, "tap"],
-      modifiers: [ events.KeyModifiers, {} ],
+      modifiers: [ Modifiers, {} ],
       callback:  [ Nullable(Any /*TODO*/), null ],
     }))
 

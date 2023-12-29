@@ -2,18 +2,11 @@ import type {HasProps} from "./has_props"
 import type {Attrs} from "./types"
 import type {GeometryData} from "./geometry"
 import type {Class} from "./class"
+import type {KeyModifiers} from "./ui_gestures"
 import type {Serializable, Serializer} from "./serialization"
 import {serialize} from "./serialization"
 import type {Equatable, Comparator} from "./util/eq"
 import {equals} from "./util/eq"
-import {PartialStruct, Boolean} from "./kinds"
-
-export type KeyModifiers = typeof KeyModifiers["__type__"]
-export const KeyModifiers = PartialStruct({
-  shift: Boolean,
-  ctrl: Boolean,
-  alt: Boolean,
-})
 
 export type BokehEventType =
   DocumentEventType |

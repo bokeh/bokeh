@@ -18,7 +18,7 @@ cr = p.circle(x[:N//2], y[:N//2], radius=radii[:N//2],
 rr = p.rect(x[N//2:], y[N//2:], width=3, height=3,
             fill_color=colors[N//2:], fill_alpha=0.6, line_color=None)
 
-div = Div()
+div = Div(stylesheets=[":host { white-space: pre; }"])
 
 tap_tool = TapTool(
     description="Tap (requires Ctrl modifier key)",
@@ -28,7 +28,7 @@ tap_tool = TapTool(
     callback=CustomJS(
         args=dict(div=div),
         code="""
-            div.text = `Inspected circle #${cb_data.source.inspected.indices}`
+            div.text = `${div.text}\nInspected circle #${cb_data.source.inspected.indices}`
         """,
     ),
 )
@@ -43,7 +43,7 @@ tap_tool = TapTool(
         code="""
             const {shift, ctrl, alt} = cb_data.event.modifiers
             const modifiers = `shift = ${shift}, ctrl = ${ctrl}, alt = ${alt}`
-            div.text = `Inspected rect #${cb_data.source.inspected.indices} using ${modifiers}`
+            div.text = `${div.text}\nInspected rect #${cb_data.source.inspected.indices} using ${modifiers}`
         """,
     ),
 )
