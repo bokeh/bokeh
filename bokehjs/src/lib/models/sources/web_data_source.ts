@@ -7,13 +7,15 @@ import type {Data} from "core/types"
 import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
 
+export type AdapterFn = CallbackLike1<WebDataSource, {response: any}, Data | Promise<Data>>
+
 export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnDataSource.Props & {
     max_size: p.Property<number | null>
     mode: p.Property<UpdateMode>
-    adapter: p.Property<CallbackLike1<WebDataSource, {response: Data}, Data> | null>
+    adapter: p.Property<AdapterFn | null>
     data_url: p.Property<string>
   }
 }

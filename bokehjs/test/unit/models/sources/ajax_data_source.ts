@@ -4,7 +4,7 @@ import * as sinon from "sinon"
 
 import {CustomJS} from "@bokehjs/models/callbacks/customjs"
 import {AjaxDataSource} from "@bokehjs/models/sources/ajax_data_source"
-import type {WebDataSource} from "@bokehjs/models/sources/web_data_source"
+import type {WebDataSource, AdapterFn} from "@bokehjs/models/sources/web_data_source"
 import type {Data} from "@bokehjs/core/types"
 import {last} from "@bokehjs/core/util/array"
 
@@ -64,16 +64,18 @@ describe("ajax_data_source module", () => {
 
       it("should use a CustomJS adapter", async () => {
         const code = `
-          const result = {foo: [], bar: []}
-          const pts = cb_data.response.points
-          for (let i = 0; i < pts.length; i++) {
-            result.foo.push(pts[i][0])
-            result.bar.push(pts[i][1])
+        export default (_args, _obj, data) => {
+          const foo = []
+          const bar = []
+          for (const [p0, pt1] of data.response.points) {
+            result.foo.push(pt0)
+            result.bar.push(pt1)
           }
-          return result
+          return {foo, bar}
+        }
         `
         const cb = new CustomJS({code})
-        const s = new AjaxDataSource({data_url: "http://foo.com", adapter: cb as any}) // XXX
+        const s = new AjaxDataSource({data_url: "http://foo.com", adapter: cb as AdapterFn})
         expect(s.data).to.be.equal({})
 
         const xhr = s.prepare_request()
@@ -83,10 +85,10 @@ describe("ajax_data_source module", () => {
       })
 
       it("should use a JavaScript function adapter", async () => {
-        function execute(_cb_obj: WebDataSource, cb_data: {response: Data}): Data {
+        function execute(_obj: WebDataSource, data: {response: {points: [number, number][]}}): Data {
           const foo: number[] = []
           const bar: number[] = []
-          for (const [pt0, pt1] of cb_data.response.points as [number, number][]) {
+          for (const [pt0, pt1] of data.response.points) {
             foo.push(pt0)
             bar.push(pt1)
           }
