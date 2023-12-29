@@ -53,7 +53,7 @@ export namespace HoverfulScatter {
     div.style.width = "200px"
     div.style.height = "75px"
     if (info.index != null) {
-      div.style.backgroundColor = ds.data.colors[info.index]
+      div.style.backgroundColor = ds.get("colors")[info.index] as string
     }
     return div
   }
