@@ -15,8 +15,6 @@ const {hasOwnProperty} = Object.prototype
 export abstract class Kind<T> {
   __type__: T
 
-  coerce?(value: unknown): unknown
-
   abstract valid(value: unknown): value is this["__type__"]
 
   abstract may_have_refs(): boolean

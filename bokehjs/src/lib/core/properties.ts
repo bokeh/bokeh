@@ -238,10 +238,6 @@ export abstract class Property<T = unknown> {
   //protected abstract _update(attr_value: T): void
 
   protected _update(attr_value: T): void {
-    const {coerce} = this.kind
-    if (coerce != null) {
-      attr_value = coerce(attr_value) as T
-    }
     this.validate(attr_value)
     if (this.convert != null) {
       const converted = this.convert(attr_value, this.obj)
