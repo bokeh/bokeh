@@ -474,11 +474,11 @@ export class GlyphRendererView extends DataRendererView {
       return
     }
     const subset_index = (() => {
-      if (index == null)
+      if (index == null) {
         return this.get_reference_point(field, label)
-      else {
+      } else {
         const {indices_map} = this.model.view
-        return index in indices_map ? indices_map[index] : null
+        return indices_map.get(index)
       }
     })()
     if (subset_index != null) {

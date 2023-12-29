@@ -2,7 +2,7 @@ import {Model} from "../../model"
 import type * as p from "core/properties"
 import type {SelectionMode} from "core/enums"
 import {union, intersection, difference, symmetric_difference} from "core/util/array"
-import {merge, entries, to_object} from "core/util/object"
+import {merge} from "core/util/object"
 import type {Glyph, GlyphView} from "../glyphs/glyph"
 import {Arrayable, Int} from "core/kinds"
 import {map} from "core/util/arrayable"
@@ -10,7 +10,7 @@ import {map} from "core/util/arrayable"
 export type OpaqueIndices = typeof OpaqueIndices["__type__"]
 export const OpaqueIndices = Arrayable(Int)
 
-export type MultiIndices = {[key: string]: OpaqueIndices}
+export type MultiIndices = Map<number, OpaqueIndices>
 
 export type ImageIndex = {
   index: number
@@ -47,10 +47,10 @@ export class Selection extends Model {
   }
 
   static {
-    this.define<Selection.Props>(({Int, Array, Dict, Struct}) => ({
+    this.define<Selection.Props>(({Int, Array, Map, Struct}) => ({
       indices:           [ OpaqueIndices, [] ],
       line_indices:      [ OpaqueIndices, [] ],
-      multiline_indices: [ Dict(OpaqueIndices), {} ],
+      multiline_indices: [ Map(Int, OpaqueIndices), new globalThis.Map() ],
       image_indices:     [ Array(Struct({index: Int, i: Int, j: Int, flat_index: Int})), [] ],
     }))
 
@@ -113,7 +113,7 @@ export class Selection extends Model {
   clear(): void {
     this.indices = []
     this.line_indices = []
-    this.multiline_indices = {}
+    this.multiline_indices = new Map()
     this.image_indices = []
     this.view = null
     this.selected_glyphs = []
@@ -124,8 +124,8 @@ export class Selection extends Model {
       ...this.attributes,
       indices: map(this.indices, mapper),
       // NOTE: line_indices don't support subset indexing
-      multiline_indices: to_object(entries(this.multiline_indices).map(([index, line_indices]) => [mapper(Number(index)), line_indices])),
-      image_indices: this.image_indices.map((ndx) => ({...ndx, index: mapper(ndx.index)})),
+      multiline_indices: new Map(map([...this.multiline_indices.entries()], ([index, line_indices]) => [mapper(index), line_indices])),
+      image_indices: this.image_indices.map((image_index) => ({...image_index, index: mapper(image_index.index)})),
     })
   }
 
