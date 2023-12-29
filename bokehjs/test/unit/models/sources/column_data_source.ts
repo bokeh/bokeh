@@ -170,22 +170,22 @@ describe("column_data_source module", () => {
         // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
       },
     })
-    expect(cds.inferred_defaults).to.be.equal({
-      d1: null,
-      d2: false,
-      d3: false,
-      d4: 0,
-      d5: 0,
-      d6: "",
-      d7: false,
-      d8: 0,
-      d9: 0,
-      d10: null,
-      d11: false,
-      d12: 0,
-      d13: 0,
-      d14: null,
-      // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
-    })
+    expect(cds.inferred_defaults).to.be.equal(new Map<string, unknown>([
+      ["d1", null],
+      ["d2", false],
+      ["d3", false],
+      ["d4", 0],
+      ["d5", 0],
+      ["d6", ""],
+      ["d7", false],
+      ["d8", 0],
+      ["d9", 0],
+      ["d10", null],
+      ["d11", false],
+      ["d12", 0],
+      ["d13", 0],
+      ["d14", null],
+      // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
+    ]))
   })
 })

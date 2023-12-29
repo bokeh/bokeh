@@ -148,11 +148,11 @@ export abstract class EditToolView extends GestureToolView {
       if (!includes(coord_columns, column)) {
         const default_value = (() => {
           if (default_overrides.has(column)) {
-            return default_overrides.get(column)!
+            return default_overrides.get(column)
           } else if (default_values.has(column)) {
-            return default_values.get(column)!
-          } else if (column in inferred_defaults) {
-            return inferred_defaults[column]
+            return default_values.get(column)
+          } else if (inferred_defaults.has(column)) {
+            return inferred_defaults.get(column)
           } else {
             return this.model.empty_value
           }

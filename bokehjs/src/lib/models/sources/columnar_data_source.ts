@@ -76,8 +76,8 @@ export abstract class ColumnarDataSource extends DataSource {
     this.inspect = new Signal(this, "inspect")
   }
 
-  get inferred_defaults(): {[key: string]: unknown} {
-    const defaults: {[key: string]: unknown} = {}
+  get inferred_defaults(): Map<string, unknown> {
+    const defaults: Map<string, unknown> = new Map()
     for (const [name, array] of entries(this.data)) {
       const value = (() => {
         if (is_NDArray(array)) {
@@ -113,7 +113,7 @@ export abstract class ColumnarDataSource extends DataSource {
         return undefined
       })()
       if (value !== undefined) {
-        defaults[name] = value
+        defaults.set(name, value)
       }
     }
     return defaults
