@@ -8,7 +8,7 @@ import type {PatchSet} from "core/patching"
 import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
-import {keys, values, entries, dict} from "core/util/object"
+import {keys, values, entries, dict, clone} from "core/util/object"
 import {isBoolean, isNumber, isString, isArray} from "core/util/types"
 import type {GlyphRenderer} from "../renderers/glyph_renderer"
 import {SelectionPolicy, UnionRenderers} from "../selections/interaction_policy"
@@ -166,10 +166,11 @@ export abstract class ColumnarDataSource extends DataSource {
   }
 
   clear(): void {
-    const data: Data = new Map()
-    for (const [name, column] of entries(this.data)) {
-      const empty =new (column.constructor as ArrayableNew)(0)
-      data.set(name, empty)
+    const data = clone(this.data)
+    const proxy = dict(data)
+    for (const [name, column] of proxy) {
+      const empty = new (column.constructor as ArrayableNew)(0)
+      proxy.set(name, empty)
     }
     this.data = data
   }
