@@ -117,7 +117,7 @@ describe("Examples", () => {
     const open_url = {
       execute() {
         for (const index of source.inspected.indices) {
-          const name = source.data.Name[index]
+          const name = source.get("Name")[index] as string
           const url = `http://en.wikipedia.org/wiki/${encodeURIComponent(name)}`
           window.open(url)
         }

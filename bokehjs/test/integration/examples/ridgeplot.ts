@@ -54,7 +54,7 @@ describe("Examples", () => {
     const p = figure({width: 900, x_range: [-5, 105], y_range, tools: [hover_tool], toolbar_location: null})
 
     for (const [[cat, data], i] of enumerate(probly.entries())) {
-      source.data[cat] = data
+      source.set(cat, data)
 
       const target_start = cats.indexOf(cat) + 0.5 // middle of the current category
       const target_end = target_start + 20         // arbitrary scaling to make plots pop
@@ -106,7 +106,7 @@ describe("Examples", () => {
     }
 
     for (const [[cat, data], i] of enumerate(probly.entries())) {
-      source.data[cat] = ridge(cat, data)
+      source.set(cat, ridge(cat, data))
       p.patch({field: "x"}, {field: cat}, {color: palette[i], alpha: 0.6, line_color: "black", source, name: cat})
     }
 

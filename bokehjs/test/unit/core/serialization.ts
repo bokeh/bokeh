@@ -6,6 +6,7 @@ import {Deserializer, DeserializationError} from "@bokehjs/core/serialization/de
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"
+import type {DictLike} from "@bokehjs/core/types"
 import type * as p from "@bokehjs/core/properties"
 import {Slice} from "@bokehjs/core/util/slice"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -23,7 +24,7 @@ namespace SomeModel {
   export type Props = HasProps.Props & {
     value: p.Property<number>
     array: p.Property<number[]>
-    dict: p.Property<{[key: string]: number}>
+    dict: p.Property<DictLike<number>>
     map: p.Property<Map<number[], number>>
     set: p.Property<Set<number[]>>
     obj: p.Property<SomeModel | null>

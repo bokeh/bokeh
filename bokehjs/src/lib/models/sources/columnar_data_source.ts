@@ -5,6 +5,7 @@ import {SelectionManager} from "core/selection_manager"
 import {Signal, Signal0} from "core/signaling"
 import type {Arrayable, ArrayableNew, Data, DictLike} from "core/types"
 import type {PatchSet} from "core/patching"
+import {assert} from "core/util/assert"
 import {uniq} from "core/util/array"
 import {is_NDArray} from "core/util/ndarray"
 import {keys, values, entries, dict} from "core/util/object"
@@ -116,6 +117,16 @@ export abstract class ColumnarDataSource extends DataSource {
       }
     }
     return defaults
+  }
+
+  get<T = unknown>(name: string): Arrayable<T> {
+    const column = this.get_column(name)
+    assert(column != null, `unknown column '${name}' in ${this}`)
+    return column
+  }
+
+  set(name: string, column: Arrayable<unknown>): void {
+    dict(this.data).set(name, column)
   }
 
   get_column(name: string): Arrayable | null {

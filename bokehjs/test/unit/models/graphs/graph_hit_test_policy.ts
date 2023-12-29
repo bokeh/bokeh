@@ -234,7 +234,7 @@ describe("GraphHitTestPolicy", () => {
       it("should clear edge selections if hit_test_result is empty", () => {
         // create initial inspection to clear
         const initial_selection = new Selection()
-        initial_selection.multiline_indices = {0: [0, 1], 1: [0]}
+        initial_selection.multiline_indices = new Map([[0, [0, 1]], [1, [0]]])
         edge_source.selected = initial_selection
 
         const hit_test_result = new Selection()
@@ -250,7 +250,7 @@ describe("GraphHitTestPolicy", () => {
 
         policy.do_selection(hit_test_result, gr, true, "replace")
 
-        expect(edge_source.selected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
+        expect(edge_source.selected.multiline_indices).to.be.equal(new Map([[0, [0]], [1, [0]]]))
       })
     })
 
@@ -259,7 +259,7 @@ describe("GraphHitTestPolicy", () => {
       it("should clear edge inspections if hit_test_result is empty", () => {
         // create initial inspection to clear
         const initial_inspection = new Selection()
-        initial_inspection.multiline_indices = {0: [0, 1], 1: [0]}
+        initial_inspection.multiline_indices = new Map([[0, [0, 1]], [1, [0]]])
         edge_source.inspected = initial_inspection
 
         const hit_test_result = new Selection()
@@ -276,7 +276,7 @@ describe("GraphHitTestPolicy", () => {
         const did_hit = policy.do_inspection(hit_test_result, {type: "point", sx: 0, sy: 0}, gv, true, "replace")
 
         expect(did_hit).to.be.true
-        expect(edge_source.inspected.multiline_indices).to.be.equal({0: [ 0 ], 1: [ 0 ]})
+        expect(edge_source.inspected.multiline_indices).to.be.equal(new Map([[0, [0]], [1, [0]]]))
       })
     })
   })

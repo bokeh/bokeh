@@ -150,9 +150,11 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1]])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data.z).to.be.equal([null])
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1]],
+        ys: [[0, -0.5, -1]],
+        z: [null],
+      })
     })
 
     it("should clear selection on escape key", async () => {
@@ -183,8 +185,10 @@ describe("PolyEditTool", (): void => {
       const tap_event = make_tap_event(300, 300)
       testcase.draw_tool_view._press(tap_event)
 
-      expect(testcase.vertex_source.data.x).to.be.equal(testcase.data.xs[1] as any) // XXX: null
-      expect(testcase.vertex_source.data.y).to.be.equal(testcase.data.ys[1] as any) // XXX: null
+      expect(testcase.vertex_source.data).to.be.equal({
+        x: testcase.data.xs[1] as any, // XXX: null
+        y: testcase.data.ys[1] as any, // XXX: null
+      })
       expect(testcase.draw_tool_view._selected_renderer).to.be.equal(testcase.glyph_renderer)
     })
 
@@ -221,11 +225,15 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.vertex_source.selected.indices).to.be.equal([])
-      expect(testcase.vertex_source.data.x).to.be.equal([0, 1])
-      expect(testcase.vertex_source.data.y).to.be.equal([0, -1])
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1], [0, 1]])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1], [0, -1]])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      expect(testcase.vertex_source.data).to.be.equal({
+        x: [0, 1],
+        y: [0, -1],
+      })
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1], [0, 1]],
+        ys: [[0, -0.5, -1], [0, -1]],
+        z: [null, null],
+      })
     })
 
     it("should drag vertex on pan", async () => {
@@ -245,11 +253,15 @@ describe("PolyEditTool", (): void => {
       testcase.draw_tool_view._pan_end(pan_event)
 
       expect(testcase.vertex_source.selected.indices).to.be.equal([])
-      expect(testcase.vertex_source.data.x).to.be.equal([0, 0.4646017699115044, 1])
-      expect(testcase.vertex_source.data.y).to.be.equal([0, -0.4661016949152542, -1])
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1], [0, 0.4646017699115044, 1]])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1], [0, -0.4661016949152542, -1]])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      expect(testcase.vertex_source.data).to.be.equal({
+        x: [0, 0.4646017699115044, 1],
+        y: [0, -0.4661016949152542, -1],
+      })
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1], [0, 0.4646017699115044, 1]],
+        ys: [[0, -0.5, -1], [0, -0.4661016949152542, -1]],
+        z: [null, null],
+      })
     })
 
     it("should add vertex on press", async () => {
@@ -269,11 +281,15 @@ describe("PolyEditTool", (): void => {
       const xs = [0, 0.5, 0.04424778761061947, 1]
       const ys = [0, -0.5, -0, -1]
       expect(testcase.vertex_source.selected.indices).to.be.equal([])
-      expect(testcase.vertex_source.data.x).to.be.equal(xs)
-      expect(testcase.vertex_source.data.y).to.be.equal(ys)
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1], xs])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1], ys])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      expect(testcase.vertex_source.data).to.be.equal({
+        x: xs,
+        y: ys,
+      })
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1], xs],
+        ys: [[0, -0.5, -1], ys],
+        z: [null, null],
+      })
     })
 
     it("should add vertex on tap after press ", async () => {
@@ -298,11 +314,15 @@ describe("PolyEditTool", (): void => {
       const xs = [0, 0.5, 0.04424778761061947, 1]
       const ys = [0, -0.5, -0, -1]
       expect(testcase.vertex_source.selected.indices).to.be.equal([])
-      expect(testcase.vertex_source.data.x).to.be.equal(xs)
-      expect(testcase.vertex_source.data.y).to.be.equal(ys)
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1], xs])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1], ys])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      expect(testcase.vertex_source.data).to.be.equal({
+        x: xs,
+        y: ys,
+      })
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1], xs],
+        ys: [[0, -0.5, -1], ys],
+        z: [null, null],
+      })
     })
   })
 })

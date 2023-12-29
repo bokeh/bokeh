@@ -123,9 +123,11 @@ describe("FreehandDrawTool", () => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1]])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data.z).to.be.equal([null])
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1]],
+        ys: [[0, -0.5, -1]],
+        z: [null],
+      })
     })
 
     it("should clear selection on escape key", async () => {
@@ -157,8 +159,10 @@ describe("FreehandDrawTool", () => {
       const new_ys = [-0, 0.03389830508474576, 0.03389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+      })
     })
 
     it("should draw and pop patch on drag", async () => {
@@ -173,8 +177,10 @@ describe("FreehandDrawTool", () => {
 
       const xdata = [[0.04424778761061947, 0.008849557522123894, 0.008849557522123894]]
       const ydata = [[-0, 0.03389830508474576, 0.03389830508474576]]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+      })
     })
 
     it("should insert default_overrides on other columns", async () => {
@@ -186,7 +192,9 @@ describe("FreehandDrawTool", () => {
       testcase.draw_tool_view._pan(make_pan_event(290, 290))
       testcase.draw_tool_view._pan_end(make_pan_event(290, 290))
 
-      expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
+      expect(testcase.data_source.data).to.be.equal({
+        z: [null, null, "Test"],
+      })
     })
 
     it("should not draw poly on doubletap when tool inactive", async () => {
@@ -199,8 +207,11 @@ describe("FreehandDrawTool", () => {
 
       const xdata = [[0, 0.5, 1], [0, 0.5, 1]]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1]]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+      })
     })
   })
 })

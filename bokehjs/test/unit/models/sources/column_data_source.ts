@@ -117,7 +117,7 @@ describe("column_data_source module", () => {
 
     it("should update if columns update", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
-      r.data.baz = [11, 21]
+      r.set("baz", [11, 21])
       expect(r.columns()).to.be.equal(keys(r.data))
     })
   })
@@ -141,8 +141,8 @@ describe("column_data_source module", () => {
     it("should clear columns added later", () => {
       for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
         const r = new ColumnDataSource({data: {foo: [10, 20]}})
-        r.data.bar = [100, 200]
-        r.data.baz = new typ([1, 2])
+        r.set("bar", [100, 200])
+        r.set("baz", new typ([1, 2]))
         r.clear()
         expect(r.data).to.be.equal({foo: [], bar: [], baz: new typ([])})
       }
