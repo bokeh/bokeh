@@ -35,7 +35,7 @@ export class StaticLayoutProvider extends LayoutProvider {
     const ys = new Float64Array(n)
     const {graph_layout} = this
     for (let i = 0; i < n; i++) {
-      const j = index[i]
+      const j = index[i] as string | number
       const [x, y] = graph_layout.get(j) ?? [NaN, NaN]
       xs[i] = x
       ys[i] = y
@@ -45,8 +45,8 @@ export class StaticLayoutProvider extends LayoutProvider {
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
     const data = dict(edge_source.data)
-    const starts = data.get("start") ?? []
-    const ends = data.get("end") ?? []
+    const starts = (data.get("start") ?? []) as Arrayable<string | number>
+    const ends = (data.get("end") ?? []) as Arrayable<string | number>
     const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
@@ -57,8 +57,8 @@ export class StaticLayoutProvider extends LayoutProvider {
     for (let i = 0; i < n; i++) {
       const in_layout = graph_layout.has(starts[i]) && graph_layout.has(ends[i])
       if (has_paths && in_layout) {
-        xs.push(edge_xs[i])
-        ys.push(edge_ys[i])
+        xs.push(edge_xs[i] as number[])
+        ys.push(edge_ys[i] as number[])
       } else {
         const start = graph_layout.get(starts[i]) ?? [NaN, NaN]
         const end = graph_layout.get(ends[i]) ?? [NaN, NaN]

@@ -1,6 +1,7 @@
 import {Model} from "../../model"
 import {index_of, map} from "core/util/arrayable"
 import {contains, uniq} from "core/util/array"
+import {dict} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionMode} from "core/enums"
@@ -164,16 +165,24 @@ export class NodesAndLinkedEdges extends GraphHitTestPolicy {
   }
 
   get_linked_edges(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+    const node_data = dict(node_source.data)
+    const index = node_data.get("index") ?? []
+
     const node_indices = (() => {
       switch (mode) {
-        case "selection":  return map(node_source.selected.indices, (i) => node_source.data.index[i])
-        case "inspection": return map(node_source.inspected.indices, (i) => node_source.data.index[i])
+        case "selection":  return map(node_source.selected.indices, (i) => index[i])
+        case "inspection": return map(node_source.inspected.indices, (i) => index[i])
       }
     })()
 
+    const edge_data = dict(edge_source.data)
+    const start = edge_data.get("start") ?? []
+    const end = edge_data.get("end") ?? []
+
     const edge_indices = []
-    for (let i = 0; i < edge_source.data.start.length; i++) {
-      if (contains(node_indices, edge_source.data.start[i]) || contains(node_indices, edge_source.data.end[i])) {
+    const n = start.length
+    for (let i = 0; i < n; i++) {
+      if (contains(node_indices, start[i]) || contains(node_indices, end[i])) {
         edge_indices.push(i)
       }
     }
@@ -252,13 +261,18 @@ export class EdgesAndLinkedNodes extends GraphHitTestPolicy {
       }
     })()
 
+    const edge_data = dict(edge_source.data)
+    const start = edge_data.get("start") ?? []
+    const end = edge_data.get("end") ?? []
+
     const nodes = []
     for (const i of edge_indices) {
-      nodes.push(edge_source.data.start[i])
-      nodes.push(edge_source.data.end[i])
+      nodes.push(start[i], end[i])
     }
 
-    const node_indices = uniq(nodes).map((i) => index_of(node_source.data.index, i))
+    const node_data = dict(node_source.data)
+    const index = node_data.get("index") ?? []
+    const node_indices = uniq(nodes).map((i) => index_of(index, i))
     return new Selection({indices: node_indices})
   }
 
@@ -320,30 +334,37 @@ export class NodesAndAdjacentNodes extends GraphHitTestPolicy {
   }
 
   get_adjacent_nodes(node_source: ColumnarDataSource, edge_source: ColumnarDataSource, mode: IndicesType): Selection {
+    const node_data = dict(node_source.data)
+    const index = node_data.get("index") ?? []
+
     const selected_node_indices = (() => {
       switch (mode) {
-        case "selection":  return map(node_source.selected.indices, (i) => node_source.data.index[i])
-        case "inspection": return map(node_source.inspected.indices, (i) => node_source.data.index[i])
+        case "selection":  return map(node_source.selected.indices, (i) => index[i])
+        case "inspection": return map(node_source.inspected.indices, (i) => index[i])
       }
     })()
 
+    const edge_data = dict(edge_source.data)
+    const start = edge_data.get("start") ?? []
+    const end = edge_data.get("end") ?? []
+
     const adjacent_nodes = []
     const selected_nodes = []
-    for (let i = 0; i < edge_source.data.start.length; i++) {
-      if (contains(selected_node_indices, edge_source.data.start[i])) {
-        adjacent_nodes.push(edge_source.data.end[i])
-        selected_nodes.push(edge_source.data.start[i])
+    for (let i = 0; i < start.length; i++) {
+      if (contains(selected_node_indices, start[i])) {
+        adjacent_nodes.push(end[i])
+        selected_nodes.push(start[i])
       }
-      if (contains(selected_node_indices, edge_source.data.end[i])) {
-        adjacent_nodes.push(edge_source.data.start[i])
-        selected_nodes.push(edge_source.data.end[i])
+      if (contains(selected_node_indices, end[i])) {
+        adjacent_nodes.push(start[i])
+        selected_nodes.push(end[i])
       }
     }
     for (let i = 0; i < selected_nodes.length; i++) {
       adjacent_nodes.push(selected_nodes[i])
     }
 
-    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => index_of(node_source.data.index, i))
+    const adjacent_node_indices = uniq(adjacent_nodes).map((i) => index_of(index, i))
     return new Selection({indices: adjacent_node_indices})
   }
 
