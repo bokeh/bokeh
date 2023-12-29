@@ -1,6 +1,8 @@
 import type * as p from "core/properties"
 import {span} from "core/dom"
+import {dict} from "core/util/object"
 import {is_nullish} from "core/util/types"
+import {assert} from "core/util/assert"
 import type {Formatter, Column, GroupTotals, RowMetadata, ColumnMetadata} from "@bokeh/slickgrid"
 import {Grid as SlickGrid, Group} from "@bokeh/slickgrid"
 import type {Item} from "./definitions"
@@ -11,7 +13,7 @@ import type {CDSView} from "../../sources/cds_view"
 import {RowAggregator} from "./row_aggregators"
 import {Model} from "model"
 
-interface GroupDataContext {
+type GroupDataContext = {
   collapsed: boolean
   level: number
   title: string
@@ -28,6 +30,7 @@ function groupCellFormatter(_row: number, _cell: number, _value: unknown, _colum
     class: "slick-group-title",
     level,
   }, title)
+
   return `${toggle.outerHTML}${titleElement.outerHTML}`
 }
 
@@ -116,29 +119,31 @@ export class DataCubeProvider extends TableDataProvider {
     this.refresh()
   }
 
-  private extractGroups(rows: number[], parentGroup?: Group<number>): Group<number>[] {
+  private extractGroups(rows: Iterable<number>, parent_group?: Group<number>): Group<number>[] {
     const groups: Group<number>[] = []
     const groupsByValue: Map<any, Group<number>> = new Map()
-    const level = (parentGroup != null) ? parentGroup.level + 1 : 0
+    const level = parent_group != null ? parent_group.level + 1 : 0
     const {comparer, getter} = this.groupingInfos[level]
 
-    rows.forEach((row) => {
-      const value = this.source.data[getter][row]
+    for (const row of rows) {
+      const column = dict(this.source.data).get(getter)
+      assert(column != null)
+      const value = column[row]
       let group = groupsByValue.get(value)
 
       if (group == null) {
-        const groupingKey = parentGroup != null ? `${parentGroup.groupingKey}${this.groupingDelimiter}${value}` : `${value}`
+        const groupingKey = parent_group != null ? `${parent_group.groupingKey}${this.groupingDelimiter}${value}` : `${value}`
         group = Object.assign(new Group(), {value, level, groupingKey}) as any
         groups.push(group!)
         groupsByValue.set(value, group!)
       }
       group!.rows.push(row)
-    })
+    }
 
     if (level < this.groupingInfos.length - 1) {
-      groups.forEach((group) => {
+      for (const group of groups) {
         group.groups = this.extractGroups(group.rows, group)
-      })
+      }
     }
 
     groups.sort(comparer)
@@ -147,15 +152,19 @@ export class DataCubeProvider extends TableDataProvider {
 
   private calculateTotals(group: Group<number>, aggregators: RowAggregator[]): GroupTotals<number> {
     const totals: GroupTotals<number> = {avg: {}, max: {}, min: {}, sum: {}} as any
-    const {source: {data}} = this
-    const keys = Object.keys(data)
-    const items = group.rows.map(i => keys.reduce((o, c) => ({...o, [c]: data[c][i]}), {}))
-
-    aggregators.forEach((aggregator) => {
-      aggregator.init()
-      items.forEach((item) => aggregator.accumulate(item))
-      aggregator.storeResult(totals)
+    const data = dict(this.source.data)
+    const names = [...data.keys()]
+    const items = group.rows.map((i) => {
+      return names.reduce((obj, name) => ({...obj, [name]: data.get(name)![i]}), {})
     })
+
+    for (const aggregator of aggregators) {
+      aggregator.init()
+      for (const item of items) {
+        aggregator.accumulate(item)
+      }
+      aggregator.storeResult(totals)
+    }
     return totals
   }
 
@@ -163,7 +172,7 @@ export class DataCubeProvider extends TableDataProvider {
     const {aggregators, collapsed: groupCollapsed} = this.groupingInfos[level]
     const toggledGroups = this.toggledGroupsByLevel[level]
 
-    groups.forEach((group) => {
+    for (const group of groups) {
       if (!is_nullish(group.groups)) { // XXX: bad typings
         this.addTotals(group.groups, level + 1)
       }
@@ -174,13 +183,13 @@ export class DataCubeProvider extends TableDataProvider {
 
       group.collapsed = groupCollapsed !== toggledGroups[group.groupingKey]
       group.title = group.value ? `${group.value}` : ""
-    })
+    }
   }
 
   private flattenedGroupedRows(groups: Group<number>[], level = 0): (Group<number> | number)[] {
     const rows: (Group<number> | number)[] = []
 
-    groups.forEach((group) => {
+    for (const group of groups) {
       rows.push(group)
       if (!group.collapsed) {
         const subRows = !is_nullish(group.groups) // XXX: bad typings
@@ -188,13 +197,15 @@ export class DataCubeProvider extends TableDataProvider {
           : group.rows
         rows.push(...subRows)
       }
-    })
+    }
     return rows
   }
 
   refresh(): void {
-    const groups = this.extractGroups([...this.view.indices])
-    const labels = this.source.data[this.columns[0].field!]
+    const groups = this.extractGroups(this.view.indices)
+    const data = dict(this.source.data)
+    const labels = data.get(this.columns[0].field!)
+    assert(labels != null)
 
     if (groups.length != 0) {
       this.addTotals(groups)
@@ -212,38 +223,37 @@ export class DataCubeProvider extends TableDataProvider {
 
   override getItem(i: number): Item {
     const item = this.rows[i]
-    const {source: {data}} = this
+    const data = dict(this.source.data)
 
     return item instanceof Group
       ? item as Item
-      : Object.keys(data)
-        .reduce((o, c) => ({...o, [c]: data[c][item]}), {[DTINDEX_NAME]: item})
+      : [...data.keys()].reduce((obj, name) => ({...obj, [name]: data.get(name)![item]}), {[DTINDEX_NAME]: item})
   }
 
   getItemMetadata(i: number): RowMetadata<Item> {
-    const myItem = this.rows[i]
+    const my_item = this.rows[i]
     const columns = this.columns.slice(1)
 
-    const aggregators = myItem instanceof Group
-      ? this.groupingInfos[myItem.level].aggregators
+    const aggregators = my_item instanceof Group
+      ? this.groupingInfos[my_item.level].aggregators
       : []
 
     function adapter(column: Column<Item>): ColumnMetadata<Item> {
-      const {field: myField, formatter} = column
-      const aggregator = aggregators.find(({field_}) => field_ === myField)
+      const {field: my_field, formatter} = column
+      const aggregator = aggregators.find(({field_}) => field_ === my_field)
 
       if (aggregator != null) {
         const {key} = aggregator
         return {
           formatter(row: number, cell: number, _value: unknown, columnDef: Column<Item>, dataContext: Item): string {
-            return formatter != null ? formatter(row, cell, dataContext.totals[key][myField!], columnDef, dataContext) : ""
+            return formatter != null ? formatter(row, cell, dataContext.totals[key][my_field!], columnDef, dataContext) : ""
           },
         }
       }
       return {}
     }
 
-    return myItem instanceof Group
+    return my_item instanceof Group
       ? {
         selectable: false,
         focusable: false,
@@ -253,17 +263,17 @@ export class DataCubeProvider extends TableDataProvider {
       : {}
   }
 
-  collapseGroup(groupingKey: string): void {
-    const level = groupingKey.split(this.groupingDelimiter).length - 1
+  collapseGroup(grouping_key: string): void {
+    const level = grouping_key.split(this.groupingDelimiter).length - 1
 
-    this.toggledGroupsByLevel[level][groupingKey] = !this.groupingInfos[level].collapsed
+    this.toggledGroupsByLevel[level][grouping_key] = !this.groupingInfos[level].collapsed
     this.refresh()
   }
 
-  expandGroup(groupingKey: string): void {
-    const level = groupingKey.split(this.groupingDelimiter).length - 1
+  expandGroup(grouping_key: string): void {
+    const level = grouping_key.split(this.groupingDelimiter).length - 1
 
-    this.toggledGroupsByLevel[level][groupingKey] = this.groupingInfos[level].collapsed
+    this.toggledGroupsByLevel[level][grouping_key] = this.groupingInfos[level].collapsed
     this.refresh()
   }
 }
