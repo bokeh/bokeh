@@ -65,7 +65,10 @@ from ...core.property_mixins import (
     ScalarTextProps,
 )
 from ...core.validation import error
-from ...core.validation.errors import BAD_COLUMN_NAME, NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS
+from ...core.validation.errors import (
+    BAD_COLUMN_NAME,
+    NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS,
+)
 from ...model import Model
 from ..formatters import TickFormatter
 from ..labeling import LabelingPolicy, NoOverlap

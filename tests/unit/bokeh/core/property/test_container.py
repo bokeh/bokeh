@@ -29,7 +29,11 @@ from bokeh.core.properties import (
     Seq,
     String,
 )
-from bokeh.core.property.wrappers import PropertyValueDict, PropertyValueList, PropertyValueSet
+from bokeh.core.property.wrappers import (
+    PropertyValueDict,
+    PropertyValueList,
+    PropertyValueSet,
+)
 from bokeh.models import ColumnDataSource
 from tests.support.util.api import verify_all
 
