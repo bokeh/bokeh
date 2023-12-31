@@ -234,6 +234,10 @@ WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH = Error(
     1030,
     "WEIGHTED_STACK_COLOR_MAPPER_LABEL_LENGTH_MISMATCH",
     "Number of stack labels does not match palette length")
+NON_MATCHING_SCALE_BAR_UNIT = Error(
+    1031,
+    "NON_MATCHING_SCALE_BAR_UNIT",
+    "ScaleBar.unit must be an element of ScaleBar's units of measurement basis")
 EXT = Error(
     9999,
     "EXT",

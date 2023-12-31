@@ -68,6 +68,7 @@ from ...core.validation import error
 from ...core.validation.errors import (
     BAD_COLUMN_NAME,
     NON_MATCHING_DATA_SOURCES_ON_LEGEND_ITEM_RENDERERS,
+    NON_MATCHING_SCALE_BAR_UNIT,
 )
 from ...model import Model
 from ..formatters import TickFormatter
@@ -524,6 +525,11 @@ class ScaleBar(Annotation):
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    @error(NON_MATCHING_SCALE_BAR_UNIT)
+    def _check_non_matching_scale_bar_unit(self):
+        if self.unit not in self.dimensional.basis:
+            return str(self)
 
     range = Either(Instance(Range), Auto, default="auto", help="""
     The range for which to display the scale.
