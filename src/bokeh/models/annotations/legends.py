@@ -585,8 +585,7 @@ class ScaleBar(Annotation):
 
     * ``@{value}`` The current value. Optionally can provide a number
       formatter with e.g. ``@{value}{%.2f}``.
-    * ``@{unit}`` The unit of measure, by default in the short form.
-      Optionally can provide a format ``@{unit}{short}`` or ``@{unit}{long}``.
+    * ``@{unit}`` The unit of measurement.
 
     """)
 
