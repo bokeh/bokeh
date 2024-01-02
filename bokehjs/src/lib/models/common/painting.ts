@@ -28,13 +28,21 @@ export function round_rect(ctx: Context2d, bbox: BBox, border_radius: Corners<nu
 
     ctx.moveTo(left + top_left, top)
     ctx.lineTo(right - top_right, top)
-    ctx.arcTo(right, top, right, top + top_right, top_right)
+    if (top_right != 0) {
+      ctx.arcTo(right, top, right, top + top_right, top_right)
+    }
     ctx.lineTo(right, bottom - bottom_right)
-    ctx.arcTo(right, bottom, right - bottom_right, bottom, bottom_right)
+    if (bottom_right != 0) {
+      ctx.arcTo(right, bottom, right - bottom_right, bottom, bottom_right)
+    }
     ctx.lineTo(left + bottom_left, bottom)
-    ctx.arcTo(left, bottom, left, bottom - bottom_left, bottom_left)
+    if (bottom_left != 0) {
+      ctx.arcTo(left, bottom, left, bottom - bottom_left, bottom_left)
+    }
     ctx.lineTo(left, top + top_left)
-    ctx.arcTo(left, top, left + top_left, top, top_left)
+    if (top_left != 0) {
+      ctx.arcTo(left, top, left + top_left, top, top_left)
+    }
     ctx.closePath()
   } else {
     const {left, top, width, height} = bbox
