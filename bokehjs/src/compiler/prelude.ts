@@ -1,6 +1,6 @@
 // TODO import license from "../../../LICENSE.txt"
 const license = `\
-Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors
+Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
