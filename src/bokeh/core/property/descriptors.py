@@ -97,6 +97,7 @@ from typing import (
     Any,
     Callable,
     Generic,
+    TypeGuard,
     TypeVar,
 )
 
@@ -106,8 +107,6 @@ from .singletons import Undefined
 from .wrappers import PropertyValueColumnData, PropertyValueContainer
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeGuard
-
     from ...document.events import DocumentPatchedEvent
     from ..has_props import HasProps, Setter
     from .alias import Alias, DeprecatedAlias
