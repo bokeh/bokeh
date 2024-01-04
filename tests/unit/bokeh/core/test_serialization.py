@@ -39,6 +39,7 @@ from bokeh.core.properties import (
     String,
 )
 from bokeh.core.property.descriptors import UnsetValueError
+from bokeh.core.property.wrappers import PropertyValueColumnData
 from bokeh.core.serialization import (
     Buffer,
     BytesRep,
@@ -229,6 +230,24 @@ class TestSerializer:
         encoder = Serializer()
         with pytest.raises(SerializationError):
             encoder.encode(val)
+
+    def test_dict_ColumnData(self) -> None:
+        val = {"data": PropertyValueColumnData({"col0": [1, 2, 3]})}
+
+        encoder = Serializer()
+        rep = encoder.encode(val)
+
+        assert rep == MapRep(
+            type="map",
+            entries=[(
+                "data",
+                MapRep(
+                    type="map",
+                    entries=[("col0", [1, 2, 3])],
+                    plain=True,
+                ),
+            )],
+        )
 
     def test_set(self) -> None:
         encoder = Serializer()

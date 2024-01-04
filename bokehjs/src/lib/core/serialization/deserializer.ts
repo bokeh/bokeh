@@ -191,8 +191,13 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_map(obj: MapRep): Map<unknown, unknown> {
-    return new Map(map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)]))
+  protected _decode_map(obj: MapRep): Map<unknown, unknown> | {[key: string]: unknown} {
+    const result = new Map(map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)]))
+    if (obj.plain ?? false) {
+      return Object.fromEntries(result)
+    } else {
+      return result
+    }
   }
 
   protected _decode_bytes(obj: BytesRep): ArrayBuffer {
