@@ -143,7 +143,7 @@ exclude = [
     'node_modules',
 ]
 per-file-ignores = {"__init__.py" = ["F403"]}
-select = ["B", "COM", "E", "F", "RUF", "UP", "W"]
+select = ["B", "COM", "E", "F", "RUF", "TID", "UP", "W"]
 ignore = [
     'B005', # Using .strip() with multi-character strings is misleading the reader
     'B006', # Do not use mutable data structures for argument defaults
@@ -167,9 +167,13 @@ ignore = [
     'UP035',  # Import from `collections.abc` instead: `Iterator`
     'RUF001', # String contains ambiguous unicode character `σ` (did you mean `o`?)
     'RUF012', # Mutable class attributes should be annotated with `typing.ClassVar`
+    'TID252', # Prefer absolute imports over relative imports from parent modules
 ]
 line-length = 165
 target-version = "py39"
+
+[tool.ruff.lint.flake8-tidy-imports]
+banned-module-level-imports = ["typing_extensions"]
 
 # For now enable each typed module individually.
 [[tool.mypy.overrides]]

@@ -75,7 +75,7 @@ dependencies:
     - sphinxext-opengraph
     # tests
     - pandas-stubs >=2.1
-    - ruff ==0.0.285
+    - ruff ==0.1.11
     - types-boto
     - types-colorama
     - types-mock
