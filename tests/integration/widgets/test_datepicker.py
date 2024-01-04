@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc. All rights reserved.
+# Copyright (c) 2012 - 2024, Anaconda, Inc. All rights reserved.
 #
 # Powered by the Bokeh Development Team.
 #
