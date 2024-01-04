@@ -4,6 +4,7 @@ import {expect} from "assertions"
 import {display} from "../../../_util"
 
 import {build_view} from "@bokehjs/core/build_views"
+import type {Arrayable} from "@bokehjs/core/types"
 
 import type {PatchesView} from "@bokehjs/models/glyphs/patches"
 import {Patches} from "@bokehjs/models/glyphs/patches"
@@ -122,9 +123,11 @@ describe("PolyDrawTool", (): void => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.xs).to.be.equal([[0, 0.5, 1]])
-      expect(testcase.data_source.data.ys).to.be.equal([[0, -0.5, -1]])
-      expect(testcase.data_source.data.z).to.be.equal([null])
+      expect(testcase.data_source.data).to.be.equal({
+        xs: [[0, 0.5, 1]],
+        ys: [[0, -0.5, -1]],
+        z: [null],
+      })
     })
 
     it("should clear selection on escape key", async () => {
@@ -157,8 +160,11 @@ describe("PolyDrawTool", (): void => {
 
       const xdata = [[0, 0.5, 1], [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0, -0.5, -1], [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+        z: [null, null],
+      })
     })
 
     it("should drag previously selected patch on pan", async () => {
@@ -179,8 +185,11 @@ describe("PolyDrawTool", (): void => {
                      [-0.035398230088495575, 0.4646017699115044, 0.9646017699115044]]
       const ydata = [[0.03389830508474576, -0.4661016949152542, -0.9661016949152542],
                      [0.03389830508474576, -0.4661016949152542, -0.9661016949152542]]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+        z: [null, null],
+      })
     })
 
     it("should draw patch on press", async () => {
@@ -196,8 +205,11 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+        z: [null, null, "Test"],
+      })
     })
 
     it("should draw and pop patch on press", async () => {
@@ -214,8 +226,11 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288, 0.3389830508474576]
       const xdata = [[0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+        z: [null, "Test"],
+      })
     })
 
     it("should draw patch despite typed array data", async () => {
@@ -224,18 +239,20 @@ describe("PolyDrawTool", (): void => {
 
       hit_test_stub.returns(null)
       testcase.draw_tool_view._press(make_tap_event(300, 300))
-      testcase.data_source.data.xs[2] = Float32Array.from(testcase.data_source.data.xs[2])
-      testcase.data_source.data.ys[2] = Float32Array.from(testcase.data_source.data.ys[2])
+      const xs = testcase.data_source.get<Arrayable<number>>("xs")
+      const ys = testcase.data_source.get<Arrayable<number>>("ys")
+      xs[2] = Float32Array.from(xs[2])
+      ys[2] = Float32Array.from(ys[2])
       testcase.draw_tool_view._tap(make_tap_event(250, 250))
       testcase.draw_tool_view._press(make_tap_event(200, 200))
 
       const new_xs = [0.044247787445783615, -0.13274335861206055, -0.30973451327433627]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
-      expect(testcase.data_source.data.xs).to.be.similar(xdata)
+      expect(xs).to.be.similar(xdata)
 
       const new_ys = [0, 0.16949152946472168, 0.3389830508474576]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.ys).to.be.similar(ydata)
+      expect(ys).to.be.similar(ydata)
     })
 
     it("should end draw patch on escape", async () => {
@@ -252,8 +269,11 @@ describe("PolyDrawTool", (): void => {
       const new_ys = [-0, 0.1694915254237288]
       const xdata = [[0, 0.5, 1], [0, 0.5, 1], new_xs]
       const ydata = [[0, -0.5, -1], [0, -0.5, -1], new_ys]
-      expect(testcase.data_source.data.xs).to.be.equal(xdata)
-      expect(testcase.data_source.data.ys).to.be.equal(ydata)
+      expect(testcase.data_source.data).to.be.equal({
+        xs: xdata,
+        ys: ydata,
+        z: [null, null, "Test"],
+      })
     })
 
     it("should insert default_overrides on other columns", async () => {
@@ -263,7 +283,11 @@ describe("PolyDrawTool", (): void => {
       hit_test_stub.returns(null)
       testcase.draw_tool_view._press(make_tap_event(300, 300))
 
-      expect(testcase.data_source.data.z).to.be.equal([null, null, "Test"])
+      expect(testcase.data_source.data).to.be.similar({
+        xs: [[0, 0.5, 1], [0, 0.5, 1], [0.04424778761061947, 0.04424778761061947]],
+        ys: [[0, -0.5, -1], [0, -0.5, -1], [0, 0]],
+        z: [null, null, "Test"],
+      })
     })
 
     it("should not draw poly on press when tool inactive", async () => {

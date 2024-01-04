@@ -1,4 +1,5 @@
 import {WebDataSource} from "./web_data_source"
+import type {DictLike} from "core/types"
 import type {UpdateMode} from "core/enums"
 import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
@@ -11,7 +12,7 @@ export namespace AjaxDataSource {
   export type Props = WebDataSource.Props & {
     polling_interval: p.Property<number | null>
     content_type: p.Property<string>
-    http_headers: p.Property<{[key: string]: string}>
+    http_headers: p.Property<DictLike<string>>
     method: p.Property<HTTPMethod>
     if_modified: p.Property<boolean>
   }
@@ -72,8 +73,7 @@ export class AjaxDataSource extends WebDataSource {
     xhr.withCredentials = false
     xhr.setRequestHeader("Content-Type", this.content_type)
 
-    const http_headers = this.http_headers
-    for (const [name, value] of entries(http_headers)) {
+    for (const [name, value] of entries(this.http_headers)) {
       xhr.setRequestHeader(name, value)
     }
 

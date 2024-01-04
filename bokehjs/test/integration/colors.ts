@@ -28,7 +28,7 @@ describe("Color support", () => {
     const source = new ColumnDataSource({data: {x, y, radius}})
     const fill_color: Vector<Color | null> = (() => {
       if (isArrayable(color) || nd.is_NDArray(color)) {
-        source.data.fill_color = color
+        source.set("fill_color", color)
         return {field: "fill_color"}
       } else {
         return color
@@ -36,7 +36,7 @@ describe("Color support", () => {
     })()
     const fill_alpha: Vector<number> | undefined = (() => {
       if (isArrayable(alpha) || nd.is_NDArray(alpha)) {
-        source.data.fill_alpha = alpha
+        source.set("fill_alpha", alpha)
         return {field: "fill_alpha"}
       } else {
         return alpha

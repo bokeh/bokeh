@@ -2,7 +2,7 @@ import type {TypedArray} from "../types"
 import {assert} from "../util/assert"
 import {entries} from "../util/object"
 import type {Ref} from "../util/refs"
-import {/*isBasicObject, */isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
+import {isPlainObject, isObject, isArray, isTypedArray, isBoolean, isNumber, isString, isSymbol} from "../util/types"
 import {map} from "../util/iterator"
 import {BYTE_ORDER} from "../util/platform"
 import {Buffer, Base64Buffer} from "./buffer"
@@ -131,16 +131,6 @@ export class Serializer {
         return {type: "map"}
       else
         return {type: "map", entries: [...map(items, ([key, val]) => [this.encode(key), this.encode(val)])]}
-    /*
-    } else if (isBasicObject(obj)) {
-      return {type: "map", entries: [...map(entries(obj), ([key, val]) => [this.encode(key), this.encode(val)])]}
-    } else if (isPlainObject(obj)) {
-      const result: {[key: string]: unknown} = {}
-      for (const [key, value] of entries(obj)) {
-        result[key] = this.encode(value)
-      }
-      return result
-    */
     } else if (obj === null || isBoolean(obj) || isString(obj)) {
       return obj
     } else if (isNumber(obj)) {

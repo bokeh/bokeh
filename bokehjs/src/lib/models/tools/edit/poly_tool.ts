@@ -1,5 +1,6 @@
 import type * as p from "core/properties"
 import type {UIEvent} from "core/ui_events"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {assert} from "core/util/assert"
 import type {MultiLine} from "../../glyphs/multi_line"
@@ -22,15 +23,16 @@ export abstract class PolyToolView extends EditToolView {
     const point_glyph: any = vertex_renderer.glyph
     const point_cds = vertex_renderer.data_source
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
+    const data = dict(point_cds.data)
     if (pxkey) {
       if (isArray(xs))
-        point_cds.data[pxkey] = xs
+        data.set(pxkey, xs)
       else
         point_glyph.x = {value: xs}
     }
     if (pykey) {
       if (isArray(ys))
-        point_cds.data[pykey] = ys
+        data.set(pykey, ys)
       else
         point_glyph.y = {value: ys}
     }
@@ -51,10 +53,11 @@ export abstract class PolyToolView extends EditToolView {
       const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
       if (vertex_selected.length != 0) {
         const index = point_ds.selected.indices[0]
+        const data = dict(point_ds.data)
         if (pxkey)
-          x = point_ds.data[pxkey][index]
+          x = data.get(pxkey)![index] as number
         if (pykey)
-          y = point_ds.data[pykey][index]
+          y = data.get(pykey)![index] as number
         point_ds.selection_manager.clear()
       }
     }

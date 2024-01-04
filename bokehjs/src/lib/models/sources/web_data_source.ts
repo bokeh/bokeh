@@ -2,9 +2,12 @@ import {ColumnDataSource} from "./column_data_source"
 import {UpdateMode} from "core/enums"
 import type {CallbackLike1} from "core/util/callbacks"
 import {execute} from "core/util/callbacks"
+import {dict} from "core/util/object"
 import type {Data} from "core/types"
 import type * as p from "core/properties"
 import type {Arrayable} from "core/types"
+
+export type AdapterFn = CallbackLike1<WebDataSource, {response: any}, Data | Promise<Data>>
 
 export namespace WebDataSource {
   export type Attrs = p.AttrsOf<Props>
@@ -12,7 +15,7 @@ export namespace WebDataSource {
   export type Props = ColumnDataSource.Props & {
     max_size: p.Property<number | null>
     mode: p.Property<UpdateMode>
-    adapter: p.Property<CallbackLike1<WebDataSource, {response: Data}, Data> | null>
+    adapter: p.Property<AdapterFn | null>
     data_url: p.Property<string>
   }
 }
@@ -27,7 +30,8 @@ export abstract class WebDataSource extends ColumnDataSource {
   }
 
   override get_column(name: string): Arrayable {
-    return name in this.data ? this.data[name] : []
+    const data = dict(this.data)
+    return data.get(name) ?? []
   }
 
   override get_length(): number {
@@ -53,22 +57,24 @@ export abstract class WebDataSource extends ColumnDataSource {
 
     switch (mode) {
       case "replace": {
-        this.data = data
         break
       }
       case "append": {
-        const original_data = this.data
+        const old_data = dict(this.data)
+        const new_data = dict(data)
+
         for (const column of this.columns()) {
           // XXX: support typed arrays
-          const old_col = Array.from(original_data[column])
-          const new_col = Array.from(data[column])
+          const old_col = Array.from(old_data.get(column) ?? [])
+          const new_col = Array.from(new_data.get(column) ?? [])
           const array = old_col.concat(new_col)
-          data[column] = max_size != null ? array.slice(-max_size) : array
+          new_data.set(column, max_size != null ? array.slice(-max_size) : array)
         }
-        this.data = data
         break
       }
     }
+
+    this.data = data
   }
 
   static {

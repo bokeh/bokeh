@@ -1,5 +1,6 @@
 import type {PanEvent, TapEvent} from "core/ui_events"
 import {Dimensions} from "core/enums"
+import {dict} from "core/util/object"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {LineTool, LineToolView} from "./line_tool"
 import type * as p from "core/properties"
@@ -79,12 +80,17 @@ export class LineEditToolView extends LineToolView {
       return
     const point_glyph: any = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
+    const data = dict(point_cds.data)
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey && pykey) {
-      const x = point_cds.data[pxkey]
-      const y = point_cds.data[pykey]
-      this._selected_renderer.data_source.data[pxkey] = x
-      this._selected_renderer.data_source.data[pykey] = y
+      const x = data.get(pxkey)
+      const y = data.get(pykey)
+      if (x != null) {
+        dict(this._selected_renderer.data_source.data).set(pxkey, x)
+      }
+      if (y != null) {
+        dict(this._selected_renderer.data_source.data).set(pykey, y)
+      }
     }
     this._emit_cds_changes(this._selected_renderer.data_source, true, true, false)
   }

@@ -26,8 +26,7 @@ import {Panel} from "core/layout/side_panel"
 import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {BBox} from "core/util/bbox"
-import {isString, isPlainObject} from "core/util/types"
-import {Dict} from "core/util/object"
+import {isString} from "core/util/types"
 import type {SerializableState} from "core/view"
 
 const MINOR_DIM = 25
@@ -594,11 +593,7 @@ export class BaseColorBar extends Annotation {
       scale_alpha:           [ Alpha, 1.0 ],
       ticker:                [ Or(Ref(Ticker), Auto), "auto" ],
       formatter:             [ Or(Ref(TickFormatter), Auto), "auto" ],
-      major_label_overrides: [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map(), {
-        convert(v: any) {
-          return isPlainObject(v) ? new Dict(v) : v
-        },
-      }],
+      major_label_overrides: [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
       major_label_policy:    [ Ref(LabelingPolicy), () => new NoOverlap() ],
       label_standoff:        [ Number, 5 ],
       margin:                [ Number, 30 ],

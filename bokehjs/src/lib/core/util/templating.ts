@@ -4,8 +4,10 @@ import type {ColumnarDataSource} from "models/sources/columnar_data_source"
 import type {CustomJSHover} from "models/tools/inspectors/customjs_hover"
 import {sprintf as sprintf_js} from "sprintf-js"
 import tz from "timezone"
+import type {DictLike} from "../types"
 import {Enum} from "../kinds"
 import {logger} from "../logging"
+import {dict} from "./object"
 import {is_NDArray} from "./ndarray"
 import {isArray, isNumber, isString, isTypedArray} from "./types"
 
@@ -13,7 +15,7 @@ export const FormatterType = Enum("numeral", "printf", "datetime")
 export type FormatterType = "numeral" | "printf" | "datetime"
 
 export type FormatterSpec = CustomJSHover | FormatterType
-export type Formatters = {[key: string]: FormatterSpec}
+export type Formatters = DictLike<FormatterSpec>
 export type FormatterFunc = (value: unknown, format: string, special_vars: Vars) => string
 export type Index = number | ImageIndex
 export type Vars = {[key: string]: unknown}
@@ -48,22 +50,25 @@ export function basic_formatter(value: unknown, _format: string, _special_vars: 
 
 export function get_formatter(raw_spec: string, format?: string, formatters?: Formatters): FormatterFunc {
   // no format, use default built in formatter
-  if (format == null)
+  if (format == null) {
     return basic_formatter
+  }
 
   // format spec in the formatters dict, use that
-  if (formatters != null && raw_spec in formatters) {
-    const formatter = formatters[raw_spec]
+  if (formatters != null) {
+    const formatter = dict(formatters).get(raw_spec)
+    if (formatter != null) {
+      if (isString(formatter)) {
+        if (formatter in DEFAULT_FORMATTERS) {
+          return DEFAULT_FORMATTERS[formatter]
+        } else {
+          throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
+        }
+      }
 
-    if (isString(formatter)) {
-      if (formatter in DEFAULT_FORMATTERS)
-        return DEFAULT_FORMATTERS[formatter]
-      else
-        throw new Error(`Unknown tooltip field formatter type '${formatter}'`)
-    }
-
-    return function(value: unknown, format: string, special_vars: Vars): string {
-      return formatter.format(value, format, special_vars)
+      return function(value: unknown, format: string, special_vars: Vars): string {
+        return formatter.format(value, format, special_vars)
+      }
     }
   }
 

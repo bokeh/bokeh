@@ -90,9 +90,9 @@ export class Surface3dView extends LayoutDOMView {
     const source = this.model.data_source
     for (let i = 0; i < source.get_length()!; i++) {
       data.add({
-        x: source.data[this.model.x][i],
-        y: source.data[this.model.y][i],
-        z: source.data[this.model.z][i],
+        x: source.get(this.model.x)[i],
+        y: source.get(this.model.y)[i],
+        z: source.get(this.model.z)[i],
       })
     }
     return data

@@ -3,6 +3,7 @@ import {Styles} from "./styles"
 import {UIElement} from "../ui/ui_element"
 import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
+import type {DictLike} from "core/types"
 import {entries} from "core/util/object"
 import {isString} from "core/util/types"
 import type * as p from "core/properties"
@@ -76,7 +77,7 @@ export abstract class DOMElementView extends DOMNodeView {
 export namespace DOMElement {
   export type Attrs = p.AttrsOf<Props>
   export type Props = DOMNode.Props & {
-    style: p.Property<Styles | {[key: string]: string} | null>
+    style: p.Property<Styles | DictLike<string> | null>
     children: p.Property<(string | DOMNode | UIElement)[]>
   }
 }

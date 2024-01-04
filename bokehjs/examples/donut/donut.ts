@@ -103,9 +103,11 @@ export namespace WebBrowserMarketShare {
     const half_angles = zip(start_angles, end_angles).map(([start, end]) => (start + end)/2)
     const colors = item.browsers.map((name) => info[name].color)
 
-    fig.wedge({x: 0, y: 0, radius: 1.5, source,
-               start_angle: start_angles, end_angle: end_angles,
-               line_color: "white", line_width: 1, fill_color: colors})
+    fig.wedge({
+      x: 0, y: 0, radius: 1.5, source,
+      start_angle: start_angles, end_angle: end_angles,
+      line_color: "white", line_width: 1, fill_color: colors,
+    })
 
     const icons = item.browsers.map((name) => info[name].icon)
     const [x0, y0] = unzip(half_angles.map((angle) => to_cartesian(1.7, angle)))
@@ -135,8 +137,8 @@ export namespace WebBrowserMarketShare {
       execute(_obj, {source: cds}): void {
         if (!paused) {
           const i = cds.inspected.indices[0]
-          const name = cds.data.names[i]
-          const share = Bokeh.sprintf("%.02f%%", cds.data.shares[i])
+          const name = cds.get("names")[i]
+          const share = Bokeh.sprintf("%.02f%%", cds.get("shares")[i])
           fig.title = `${name}: ${share}`
         }
         paused = !paused

@@ -1,5 +1,6 @@
 import type {PanEvent, TapEvent, MoveEvent, KeyEvent, UIEvent} from "core/ui_events"
 import {isArray} from "core/util/types"
+import {dict} from "core/util/object"
 import type {MultiLine} from "../../glyphs/multi_line"
 import type {Patches} from "../../glyphs/patches"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -79,7 +80,7 @@ export class PolyEditToolView extends PolyToolView {
 
   _update_vertices(renderer: GlyphRenderer): void {
     const glyph: any = renderer.glyph
-    const cds = renderer.data_source
+    const data = dict(renderer.data_source.data)
     const index = this._cur_index
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
 
@@ -89,17 +90,21 @@ export class PolyEditToolView extends PolyToolView {
     let xs: number[]
     let ys: number[]
     if (xkey && index != null) { // redundant xkey null check to satisfy build-time checks
-      xs = cds.data[xkey][index]
-      if (!isArray(xs))
-        cds.data[xkey][index] = xs = Array.from(xs)
+      const column = data.get(xkey) ?? []
+      xs = column[index] as number[]
+      if (!isArray(xs)) {
+        column[index] = xs = Array.from(xs)
+      }
     } else {
       xs = glyph.xs.value
     }
 
     if (ykey && index != null) {
-      ys = cds.data[ykey][index]
-      if (!isArray(ys))
-        cds.data[ykey][index] = ys = Array.from(ys)
+      const column = data.get(ykey) ?? []
+      ys = column[index] as number[]
+      if (!isArray(ys)) {
+        column[index] = ys = Array.from(ys)
+      }
     } else {
       ys = glyph.ys.value
     }
@@ -113,6 +118,7 @@ export class PolyEditToolView extends PolyToolView {
       if (renderer == null)
         return
       const cds = renderer.data_source
+      const data = dict(cds.data)
       const glyph: any = renderer.glyph
       const point = this._map_drag(ev.sx, ev.sy, renderer)
       if (point == null)
@@ -123,8 +129,8 @@ export class PolyEditToolView extends PolyToolView {
       cds.selected.indices = indices
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       const index = indices[0]
-      if (xkey) cds.data[xkey][index] = x
-      if (ykey) cds.data[ykey][index] = y
+      if (xkey) data.get(xkey)![index] = x
+      if (ykey) data.get(ykey)![index] = y
       cds.change.emit()
       this._selected_renderer.data_source.change.emit()
     }

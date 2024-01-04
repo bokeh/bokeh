@@ -1,7 +1,7 @@
 import type * as types from "./types"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
-import {keys, typed_values, typed_entries} from "./util/object"
+import {keys, values, typed_values, typed_entries} from "./util/object"
 import {has_refs} from "./util/refs"
 
 type ESMap<K, V> = globalThis.Map<K, V>
@@ -409,21 +409,20 @@ export namespace Kinds {
     }
   }
 
-  export class Dict<ItemType> extends Kind<{[key: string]: ItemType}> {
+  export class Dict<ItemType> extends Kind<types.DictLike<ItemType>> {
 
     constructor(readonly item_type: Kind<ItemType>) {
       super()
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!tp.isPlainObject(value))
+      if (!(value instanceof ESMap || tp.isPlainObject(value))) {
         return false
+      }
 
-      for (const key in value) {
-        if (hasOwnProperty.call(value, key)) {
-          const item = value[key]
-          if (!this.item_type.valid(item))
-            return false
+      for (const item of values(value)) {
+        if (!this.item_type.valid(item)) {
+          return false
         }
       }
 

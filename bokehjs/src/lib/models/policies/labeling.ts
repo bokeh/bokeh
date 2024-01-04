@@ -4,6 +4,7 @@ import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 import type {BBox} from "core/util/bbox"
 import {isIterable} from "core/util/types"
+import type {DictLike} from "core/types"
 import {Indices, GeneratorFunction} from "core/types"
 
 export type DistanceMeasure = (i: number, j: number) => number
@@ -84,7 +85,7 @@ export namespace CustomLabelingPolicy {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LabelingPolicy.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<DictLike<unknown>>
     code: p.Property<string>
   }
 }
@@ -109,7 +110,7 @@ export class CustomLabelingPolicy extends LabelingPolicy {
     return keys(this.args)
   }
 
-  get values(): any[] {
+  get values(): unknown[] {
     return values(this.args)
   }
 

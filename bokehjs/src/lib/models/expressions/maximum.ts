@@ -31,6 +31,6 @@ export class Maximum extends ScalarExpression<number> {
 
   protected _compute(source: ColumnarDataSource): number {
     const column = dict(source.data).get(this.field) ?? []
-    return Math.max(this.initial, max(column))
+    return Math.max(this.initial, max(column as number[]))
   }
 }

@@ -1,5 +1,5 @@
 import {ColumnarDataSource} from "./columnar_data_source"
-import type {Arrayable} from "core/types"
+import type {Data} from "core/types"
 import type * as p from "core/properties"
 
 // Data source where the data is defined column-wise, i.e. each key in the
@@ -9,7 +9,7 @@ export namespace ColumnDataSource {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = ColumnarDataSource.Props & {
-    data: p.Property<{[key: string]: Arrayable}>
+    data: p.Property<Data>
   }
 }
 
@@ -23,8 +23,8 @@ export class ColumnDataSource extends ColumnarDataSource {
   }
 
   static {
-    this.define<ColumnDataSource.Props>(({Any, Dict, Arrayable}) => ({
-      data: [ Dict(Arrayable(Any)), {} ],
+    this.define<ColumnDataSource.Props>(({Unknown, Dict, Arrayable}) => ({
+      data: [ Dict(Arrayable(Unknown)), {} ],
     }))
   }
 }

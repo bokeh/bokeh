@@ -2,7 +2,7 @@ import {Signal0} from "./signaling"
 import {logger} from "./logging"
 import type {HasProps} from "./has_props"
 import * as enums from "./enums"
-import type {Arrayable, IntArray, FloatArray, TypedArray, uint32} from "./types"
+import type {Arrayable, IntArray, FloatArray, TypedArray, uint32, DictLike} from "./types"
 import {RGBAArray, ColorArray} from "./types"
 import type * as types from "./types"
 import {includes, repeat} from "./util/array"
@@ -110,6 +110,8 @@ export type DefaultsOf<P> = {
   [K in keyof P]: P[K] extends Property<infer T> ? T | ((obj: HasProps) => T) : never
 }
 
+type DefaultFn<T> = (obj: HasProps) => T
+
 export type PropertyOptions<T> = {
   internal?: boolean
   readonly?: boolean
@@ -118,7 +120,7 @@ export type PropertyOptions<T> = {
 }
 
 export interface PropertyConstructor<T> {
-  new (obj: HasProps, attr: string, kind: Kind<T>, default_value: (obj: HasProps) => T, options?: PropertyOptions<T>): Property<T>
+  new (obj: HasProps, attr: string, kind: Kind<T>, default_value: DefaultFn<T>, options?: PropertyOptions<T>): Property<T>
   readonly prototype: Property<T>
 }
 
@@ -223,7 +225,7 @@ export abstract class Property<T = unknown> {
   constructor(readonly obj: HasProps,
               readonly attr: string,
               readonly kind: Kind<T>,
-              readonly default_value: (obj: HasProps) => T,
+              readonly default_value: DefaultFn<T>,
               options: PropertyOptions<T> = {}) {
     this.change = new Signal0(this.obj, "change")
     this.internal = options.internal ?? false
@@ -258,8 +260,9 @@ export abstract class Property<T = unknown> {
   }
 
   validate(value: unknown): void {
-    if (!this.valid(value))
+    if (!this.valid(value)) {
       throw new Error(`${this.obj}.${this.attr} given invalid value: ${valueToString(value)}`)
+    }
   }
 
   valid(value: unknown): boolean {
@@ -290,7 +293,7 @@ export class Font extends PrimitiveProperty<string> {
 // DataSpec properties
 //
 
-export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
+export abstract class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T | S> {
   declare __value__: T
   __scalar__: S
 
@@ -358,7 +361,9 @@ export class ScalarSpec<T, S extends Scalar<T> = Scalar<T>> extends Property<T |
   }
 }
 
+/** @deprecated */
 export class AnyScalar extends ScalarSpec<any> {}
+export class DictScalar<T> extends ScalarSpec<DictLike<T>> {}
 export class ColorScalar extends ScalarSpec<types.Color | null> {}
 export class NumberScalar extends ScalarSpec<number> {}
 export class StringScalar extends ScalarSpec<string> {}
@@ -715,6 +720,7 @@ export class ColorSpec extends DataSpec<types.Color | null> {
 
 export class NDArraySpec extends DataSpec<NDArrayType<number>> {}
 
+/** @deprecated */
 export class AnySpec extends DataSpec<any> {}
 export class StringSpec extends DataSpec<string> {}
 export class NullStringSpec extends DataSpec<string | null> {}

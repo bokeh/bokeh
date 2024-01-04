@@ -1071,7 +1071,7 @@ describe("Document", () => {
 
       expect(events.filter((e) => e.sync).length).to.be.equal(0)
       expect(events.filter((e) => !e.sync).length).to.be.equal(1)
-      expect(source.data).to.be.equal({col1: [4, 5, 6]})
+      expect(source.data).to.be.equal(new Map([["col1", [4, 5, 6]]]))
     })
 
     it("when streaming to a column", () => {

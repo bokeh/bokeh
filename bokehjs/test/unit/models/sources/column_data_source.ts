@@ -117,14 +117,14 @@ describe("column_data_source module", () => {
 
     it("should update if columns update", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
-      r.data.baz = [11, 21]
+      r.set("baz", [11, 21])
       expect(r.columns()).to.be.equal(keys(r.data))
     })
   })
 
   describe("clear method", () => {
 
-    it("should clear plain arrys to plain arrays", () => {
+    it("should clear plain arrays to empty arrays", () => {
       const r = new ColumnDataSource({data: {foo: [10, 20], bar: [10, 20]}})
       r.clear()
       expect(r.data).to.be.equal({foo: [], bar: []})
@@ -141,8 +141,8 @@ describe("column_data_source module", () => {
     it("should clear columns added later", () => {
       for (const typ of [Float32NDArray, Float64NDArray, Int32NDArray]) {
         const r = new ColumnDataSource({data: {foo: [10, 20]}})
-        r.data.bar = [100, 200]
-        r.data.baz = new typ([1, 2])
+        r.set("bar", [100, 200])
+        r.set("baz", new typ([1, 2]))
         r.clear()
         expect(r.data).to.be.equal({foo: [], bar: [], baz: new typ([])})
       }
@@ -170,22 +170,22 @@ describe("column_data_source module", () => {
         // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
       },
     })
-    expect(cds.inferred_defaults).to.be.equal({
-      d1: null,
-      d2: false,
-      d3: false,
-      d4: 0,
-      d5: 0,
-      d6: "",
-      d7: false,
-      d8: 0,
-      d9: 0,
-      d10: null,
-      d11: false,
-      d12: 0,
-      d13: 0,
-      d14: null,
-      // TODO d15: new Map([[0, "a"], [1, "b"], [2, "c"]]),
-    })
+    expect(cds.inferred_defaults).to.be.equal(new Map<string, unknown>([
+      ["d1", null],
+      ["d2", false],
+      ["d3", false],
+      ["d4", 0],
+      ["d5", 0],
+      ["d6", ""],
+      ["d7", false],
+      ["d8", 0],
+      ["d9", 0],
+      ["d10", null],
+      ["d11", false],
+      ["d12", 0],
+      ["d13", 0],
+      ["d14", null],
+      // TODO ["d15", new Map([[0, "a"], [1, "b"], [2, "c"]])],
+    ]))
   })
 })

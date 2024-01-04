@@ -28,6 +28,7 @@ export type SetRep = {
 export type MapRep = {
   type: "map"
   entries?: [AnyVal, AnyVal][]
+  plain?: boolean
 }
 
 export type BytesRep = {

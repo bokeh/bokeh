@@ -20,11 +20,14 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ..core.has_props import abstract
 from ..core.properties import (
-    Any,
     Dict,
+    Either,
+    Float,
     Instance,
     Int,
+    Len,
     Seq,
+    String,
 )
 from ..model import Model
 from .expressions import CoordinateTransform
@@ -82,11 +85,11 @@ class StaticLayoutProvider(LayoutProvider):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    # TODO: Seq(Any).length == 2
-    graph_layout = Dict(Int, Seq(Any), default={}, help="""
-    The coordinates of the graph nodes in cartesian space. The dictionary
-    keys correspond to a node index and the values are a two element sequence
-    containing the x and y coordinates of the node.
+    graph_layout = Dict(Either(Int, String), Len(Seq(Float), 2), default={}, help="""
+    The coordinates of the graph nodes in cartesian space. The keys of
+    the dictionary correspond to node indices or labels and the values
+    are two element sequences containing the x and y coordinates of
+    the nodes.
 
     .. code-block:: python
 

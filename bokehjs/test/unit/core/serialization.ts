@@ -3,9 +3,11 @@ import {expect} from "assertions"
 import type {AnyVal} from "@bokehjs/core/serialization"
 import {Serializer, SerializationError, Base64Buffer} from "@bokehjs/core/serialization"
 import {Deserializer, DeserializationError} from "@bokehjs/core/serialization/deserializer"
+import type {MapRep, NDArrayRep} from "@bokehjs/core/serialization/reps"
 import {default_resolver} from "@bokehjs/base"
 import {ModelResolver} from "@bokehjs/core/resolvers"
 import {HasProps} from "@bokehjs/core/has_props"
+import type {DictLike} from "@bokehjs/core/types"
 import type * as p from "@bokehjs/core/properties"
 import {Slice} from "@bokehjs/core/util/slice"
 import {ndarray} from "@bokehjs/core/util/ndarray"
@@ -23,7 +25,7 @@ namespace SomeModel {
   export type Props = HasProps.Props & {
     value: p.Property<number>
     array: p.Property<number[]>
-    dict: p.Property<{[key: string]: number}>
+    dict: p.Property<DictLike<number>>
     map: p.Property<Map<number[], number>>
     set: p.Property<Set<number[]>>
     obj: p.Property<SomeModel | null>
@@ -306,10 +308,29 @@ describe("core/serialization module", () => {
       expect(val).to.be.equal(new Date(iso))
     })
 
+    it("that supports maps", () => {
+      const rep: MapRep = {
+        type: "map",
+        entries: [
+          ["data", {
+            type: "map",
+            entries: [["col0", [1, 2, 3]]],
+            plain: true,
+          }],
+        ],
+      }
+
+      const resolver = new ModelResolver(default_resolver)
+      const deserializer = new Deserializer(resolver)
+
+      const val = deserializer.decode(rep)
+      expect(val).to.be.equal(new Map([["data", {col0: [1, 2, 3]}]]))
+    })
+
     it("that supports ndarrays", () => {
       const nd0 = ndarray([1, 2, 3], {dtype: "int32", shape: [1, 3]})
 
-      const rep = {
+      const rep: NDArrayRep = {
         type: "ndarray",
         array: {
           type: "bytes",

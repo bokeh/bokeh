@@ -187,6 +187,7 @@
         },
         data: {
           type: "map",
+          plain: true,
         },
       },
     },
@@ -5112,6 +5113,7 @@
                   [],
                 ],
               ],
+              plain: true,
             },
           },
         },
@@ -5166,6 +5168,7 @@
                   [],
                 ],
               ],
+              plain: true,
             },
           },
         },
@@ -5329,6 +5332,7 @@
     __extends__: "ColumnarDataSource",
     data: {
       type: "map",
+      plain: true,
     },
   },
   ColumnarDataSource: {
@@ -6908,6 +6912,7 @@
         },
         data: {
           type: "map",
+          plain: true,
         },
       },
     },

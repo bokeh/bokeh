@@ -1,47 +1,72 @@
-import type {PlainObject, Arrayable} from "../types"
-import {concat, union} from "./array"
+import type {Arrayable, DictLike, PlainObject} from "../types"
+import {isPlainObject} from "./types"
+import {union} from "./array"
 
-const {hasOwnProperty} = Object.prototype
-
-export const {keys, values, entries, assign, fromEntries: to_object} = Object
+export const {assign} = Object
 export const extend = assign
 
-export const typed_keys: <T extends object>(obj: T) => (keyof T)[] = keys
-
-export const typed_values: <T extends object>(obj: T) => T[keyof T][] = values
-
-export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = entries
-
-export function clone<T>(obj: PlainObject<T>): PlainObject<T> {
-  return {...obj}
+export function to_object<T = any>(obj: PlainObject<T> | Iterable<readonly [PropertyKey, T]>): PlainObject<T> {
+  return isPlainObject(obj) ? obj : Object.fromEntries(obj)
 }
 
-export function merge<T>(obj1: PlainObject<Arrayable<T>>, obj2: PlainObject<Arrayable<T>>): PlainObject<T[]> {
-  /*
-   * Returns an object with the array values for obj1 and obj2 unioned by key.
-   */
-  const result: PlainObject<T[]> = Object.create(Object.prototype)
+export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[]
+export function keys(obj: {}): string[]
 
-  const keys = concat([Object.keys(obj1), Object.keys(obj2)])
+export function keys<T = unknown>(obj: {[key: string]: T} | Map<string, T>): string[] {
+  return obj instanceof Map ? [...obj.keys()] : Object.keys(obj)
+}
+
+export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[]
+export function values(obj: {}): unknown[]
+
+export function values<T = unknown>(obj: {[key: string]: T} | Map<string, T>): T[] {
+  return obj instanceof Map ? [...obj.values()] : Object.values(obj)
+}
+
+export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][]
+export function entries(obj: {}): [string, unknown][]
+
+export function entries<T = unknown>(obj: {[key: string]: T} | Map<string, T>): [string, T][] {
+  return obj instanceof Map ? [...obj.entries()] : Object.entries(obj)
+}
+
+export const typed_keys: <T extends object>(obj: T) => (keyof T)[] = Object.keys
+
+export const typed_values: <T extends object>(obj: T) => T[keyof T][] = Object.values
+
+export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = Object.entries
+
+export function clone<T>(obj: DictLike<T>): DictLike<T> {
+  return obj instanceof Map ? new Map(obj) : {...obj}
+}
+
+export function merge<K, V>(obj0: Map<K, Arrayable<V>>, obj1: Map<K, Arrayable<V>>): Map<K, V[]> {
+  /*
+  * Returns an object with the array values for obj1 and obj2 unioned by key.
+  */
+  const result: Map<K, V[]> = new Map()
+  const keys = [...obj0.keys(), ...obj1.keys()]
 
   for (const key of keys) {
-    const arr1 = hasOwnProperty.call(obj1, key) ? obj1[key] : []
-    const arr2 = hasOwnProperty.call(obj2, key) ? obj2[key] : []
-    result[key] = union(arr1, arr2)
+    const v0 = obj0.get(key)
+    const v1 = obj1.get(key)
+    const arr0 = v0 === undefined ? [] : v0
+    const arr1 = v1 === undefined ? [] : v1
+    result.set(key, union(arr0, arr1))
   }
 
   return result
 }
 
-export function size(obj: PlainObject): number {
-  return Object.keys(obj).length
+export function size(obj: DictLike<unknown>): number {
+  return obj instanceof Map ? obj.size : Object.keys(obj).length
 }
 
-export function is_empty(obj: PlainObject): boolean {
+export function is_empty(obj: DictLike<unknown>): boolean {
   return size(obj) == 0
 }
 
-export class Dict<V> implements Map<string, V> {
+export class MapProxy<V> implements Map<string, V> {
   constructor(readonly obj: {[key: string]: V}) {}
 
   readonly [Symbol.toStringTag] = "Dict"
@@ -75,10 +100,6 @@ export class Dict<V> implements Map<string, V> {
     return size(this.obj)
   }
 
-  get is_empty(): boolean {
-    return this.size == 0
-  }
-
   [Symbol.iterator](): IterableIterator<[string, V]> {
     return this.entries()
   }
@@ -102,6 +123,6 @@ export class Dict<V> implements Map<string, V> {
   }
 }
 
-export function dict<V>(o: {[key: string]: V}): Dict<V> {
-  return new Dict(o)
+export function dict<V>(obj: DictLike<V>): Map<string, V> {
+  return isPlainObject(obj) ? new MapProxy(obj) : obj
 }

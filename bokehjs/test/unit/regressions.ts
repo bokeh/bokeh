@@ -55,7 +55,7 @@ import {Model} from "@bokehjs/model"
 import * as p from "@bokehjs/core/properties"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {linspace} from "@bokehjs/core/util/array"
-import {keys, entries} from "@bokehjs/core/util/object"
+import {keys} from "@bokehjs/core/util/object"
 import {ndarray} from "@bokehjs/core/util/ndarray"
 import {BitSet} from "@bokehjs/core/util/bitset"
 import {base64_to_buffer} from "@bokehjs/core/util/buffer"
@@ -1008,16 +1008,6 @@ describe("Bug", () => {
       return result as {[K in keyof T]: Field}
     }
 
-    // XXX This is needed to work around issues with pan detection in hammerjs.
-    function round<T extends object>(data: T, exclude: Set<string> = new Set(["color"])): T {
-      const {round} = Math
-      const result: {[key: string]: number[]} = {}
-      for (const [key, val] of entries(data)) {
-        result[key] = exclude.has(key) ? val : val.map(round)
-      }
-      return result as T
-    }
-
     describe("doesn't allow to correctly compute coordinates in BoxEditTool", () => {
       it("of Rect glyph", async () => {
         const p = fig([400, 400], {
@@ -1046,7 +1036,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           x:      [3.0, 8.0],
           y:      [2.0, 6.0],
           width:  [4.0, 2.0],
@@ -1082,7 +1072,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           x:      [3.0, 8.0],
           y:      [2.0, 6.0],
           width:  [4.0, 2.0],
@@ -1118,7 +1108,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           left:   [3.0, 7.0],
           right:  [2.0, 9.0],
           top:    [4.0, 8.0],
@@ -1154,7 +1144,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           y:      [3.0, 6.0],
           height: [2.0, 4.0],
           left:   [2.0, 7.0],
@@ -1190,7 +1180,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           x:      [3.0, 8.0],
           width:  [2.0, 2.0],
           top:    [4.0, 8.0],
@@ -1224,7 +1214,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           y0:    [1.0, 4.0],
           y1:    [3.0, 8.0],
           color: ["red", "green"],
@@ -1256,7 +1246,7 @@ describe("Bug", () => {
         await actions(view).pan_along(line(xy(7, 4), xy(9, 8)), {shift: true})
         await paint()
 
-        expect(round(data)).to.be.equal({
+        expect(data).to.be.equal({
           x0:    [2.0, 7.0],
           x1:    [4.0, 9.0],
           color: ["red", "green"],

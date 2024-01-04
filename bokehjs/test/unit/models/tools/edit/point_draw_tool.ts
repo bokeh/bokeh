@@ -117,8 +117,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0, 0.5, 1, 0.04424778761061947],
+        y: [0, 0.5, 1, 0.3389830508474576],
+        z: [null, null, null, "Test"],
+      })
     })
 
     it("should add and pop point on tap", async () => {
@@ -131,8 +134,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._tap(tap_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0.5, 1, 0.04424778761061947])
-      expect(testcase.data_source.data.y).to.be.equal([0.5, 1, 0.3389830508474576])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0.5, 1, 0.04424778761061947],
+        y: [0.5, 1, 0.3389830508474576],
+        z: [null, null, "Test"],
+      })
     })
 
     it("should insert default_overrides on other columns", async () => {
@@ -143,7 +149,11 @@ describe("PointDrawTool", (): void => {
       const tap_event = make_tap_event(300, 200)
       testcase.draw_tool_view._tap(tap_event)
 
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null, "Test"])
+      expect(testcase.data_source.data).to.be.similar({
+        x: [0, 0.5, 1, 0.04424778761061947],
+        y: [0, 0.5, 1, 0.3389830508474576],
+        z: [null, null, null, "Test"],
+      })
     })
 
     it("should delete selected on delete key", async () => {
@@ -160,9 +170,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._keyup(keyup_event)
 
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 1])
-      expect(testcase.data_source.data.y).to.be.equal([0, 1])
-      expect(testcase.data_source.data.z).to.be.equal([null, null])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0, 1],
+        y: [0, 1],
+        z: [null, null],
+      })
     })
 
     it("should clear selection on escape key", async () => {
@@ -199,9 +211,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0, 0.14601769911504425, 1],
+        y: [0, 0.8389830508474576, 1],
+        z: [null, null, null],
+      })
     })
 
     it("should drag previously selected on pan", async () => {
@@ -225,9 +239,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 1])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0, 0.14601769911504425, 1],
+        y: [0, 0.8389830508474576, 1],
+        z: [null, null, null],
+      })
     })
 
     it("should drag all selected points on pan", async () => {
@@ -251,9 +267,11 @@ describe("PointDrawTool", (): void => {
       testcase.draw_tool_view._pan_end(drag_event)
       expect(testcase.draw_tool_view._basepoint).to.be.null
       expect(testcase.data_source.selected.indices).to.be.equal([])
-      expect(testcase.data_source.data.x).to.be.equal([0, 0.14601769911504425, 0.6460176991150443])
-      expect(testcase.data_source.data.y).to.be.equal([0, 0.8389830508474576, 1.3389830508474576])
-      expect(testcase.data_source.data.z).to.be.equal([null, null, null])
+      expect(testcase.data_source.data).to.be.equal({
+        x: [0, 0.14601769911504425, 0.6460176991150443],
+        y: [0, 0.8389830508474576, 1.3389830508474576],
+        z: [null, null, null],
+      })
     })
   })
 })

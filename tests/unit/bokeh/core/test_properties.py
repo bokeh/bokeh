@@ -92,6 +92,7 @@ ALL = (
     'IntSpec',
     'Interval',
     'JSON',
+    'Len',
     'LineCapSpec',
     'LineJoinSpec',
     'List',

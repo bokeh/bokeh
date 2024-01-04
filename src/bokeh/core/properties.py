@@ -243,6 +243,7 @@ __all__ = (
     'IntSpec',
     'Interval',
     'JSON',
+    'Len',
     'LineCapSpec',
     'LineJoinSpec',
     'List',
@@ -320,6 +321,7 @@ from .property.constraints import TypeOfAttr
 from .property.container import Array
 from .property.container import ColumnData
 from .property.container import Dict
+from .property.container import Len
 from .property.container import List
 from .property.container import NonEmpty
 from .property.container import Seq

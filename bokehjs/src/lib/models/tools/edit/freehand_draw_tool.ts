@@ -1,5 +1,6 @@
 import type {UIEvent, PanEvent, TapEvent, KeyEvent} from "core/ui_events"
 import type * as p from "core/properties"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {HasXYGlyph} from "./edit_tool"
 import {EditTool, EditToolView} from "./edit_tool"
@@ -20,6 +21,7 @@ export class FreehandDrawToolView extends EditToolView {
 
     const [x, y] = point
     const cds = renderer.data_source
+    const data = dict(cds.data)
     const glyph: any = renderer.glyph
     const [xkey, ykey] = [glyph.xs.field, glyph.ys.field]
     if (mode == "new") {
@@ -29,20 +31,22 @@ export class FreehandDrawToolView extends EditToolView {
       this._pad_empty_columns(cds, [xkey, ykey])
     } else if (mode == "add") {
       if (xkey) {
-        const xidx = cds.data[xkey].length-1
+        const column = data.get(xkey) ?? []
+        const xidx = column.length-1
         let xs = cds.get_array<number[]>(xkey)[xidx]
         if (!isArray(xs)) {
           xs = Array.from(xs)
-          cds.data[xkey][xidx] = xs
+          column[xidx] = xs
         }
         xs.push(x)
       }
       if (ykey) {
-        const yidx = cds.data[ykey].length-1
+        const column = data.get(ykey) ?? []
+        const yidx = column.length-1
         let ys = cds.get_array<number[]>(ykey)[yidx]
         if (!isArray(ys)) {
           ys = Array.from(ys)
-          cds.data[ykey][yidx] = ys
+          column[yidx] = ys
         }
         ys.push(y)
       }

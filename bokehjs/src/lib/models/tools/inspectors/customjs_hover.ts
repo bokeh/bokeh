@@ -1,5 +1,6 @@
 import {Model} from "../../../model"
 import type * as p from "core/properties"
+import type {DictLike} from "core/types"
 import {keys, values} from "core/util/object"
 import {use_strict} from "core/util/string"
 
@@ -7,7 +8,7 @@ export namespace CustomJSHover {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Model.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<DictLike<unknown>>
     code: p.Property<string>
   }
 }
@@ -28,7 +29,7 @@ export class CustomJSHover extends Model {
     }))
   }
 
-  get values(): any[] {
+  get values(): unknown[] {
     return values(this.args)
   }
 
@@ -38,7 +39,7 @@ export class CustomJSHover extends Model {
     return new Function(...keys(this.args), valname, formatname, varsname, use_strict(fn))
   }
 
-  format(value: any, format: string, special_vars: {[key: string]: unknown}): string {
+  format(value: unknown, format: string, special_vars: {[key: string]: unknown}): string {
     const formatter = this._make_code("value", "format", "special_vars", this.code)
     return formatter(...this.values, value, format, special_vars)
   }

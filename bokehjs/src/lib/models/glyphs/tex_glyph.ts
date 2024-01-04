@@ -2,6 +2,7 @@ import {MathTextGlyph, MathTextGlyphView} from "./math_text_glyph"
 import type {BaseText} from "../text/base_text"
 import {TeX} from "../text/math_text"
 import type * as p from "core/properties"
+import type {DictLike} from "core/types"
 import {parse_delimited_string} from "../text/utils"
 
 export interface TeXGlyphView extends TeXGlyph.Data {}
@@ -28,7 +29,7 @@ export namespace TeXGlyph {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MathTextGlyph.Props & {
-    macros: p.Property<{[key: string]: string | [string, number]}>
+    macros: p.Property<DictLike<string | [string, number]>>
     display: p.Property<"inline" | "block" | "auto">
   }
 

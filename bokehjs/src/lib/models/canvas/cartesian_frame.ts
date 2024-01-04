@@ -10,9 +10,10 @@ import {BBox} from "core/util/bbox"
 import {entries} from "core/util/object"
 import {assert} from "core/util/assert"
 import {Signal0} from "core/signaling"
+import type {DictLike} from "core/types"
 
-type Ranges = {[key: string]: Range}
-type Scales = {[key: string]: Scale}
+type Ranges = DictLike<Range>
+type Scales = DictLike<Scale>
 
 export class CartesianFrame {
 
@@ -46,11 +47,11 @@ export class CartesianFrame {
   protected _y_scales: Map<string, Scale>
 
   protected _get_ranges(range: Range, extra_ranges: Ranges): Map<string, Range> {
-    return new Map(entries({...extra_ranges, default: range}))
+    return new Map([...entries(extra_ranges), ["default", range]])
   }
 
   /*protected*/ _get_scales(scale: Scale, extra_scales: Scales, ranges: Map<string, Range>, frame_range: Range): Map<string, Scale> {
-    const in_scales = new Map(entries({...extra_scales, default: scale}))
+    const in_scales = new Map([...entries(extra_scales), ["default", scale]])
     const scales: Map<string, Scale> = new Map()
 
     for (const [name, range] of ranges) {

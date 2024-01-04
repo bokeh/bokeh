@@ -16,7 +16,7 @@ import type {ColumnarDataSource} from "../../sources/columnar_data_source"
 import {EditTool, EditToolView} from "./edit_tool"
 import {tool_icon_box_edit} from "styles/icons.css"
 import {unreachable} from "core/util/assert"
-import {entries, keys} from "core/util/object"
+import {entries, keys, dict} from "core/util/object"
 
 export type BoxLikeGlyph = LRTB | Rect | HStrip | VStrip
 
@@ -59,6 +59,7 @@ export class BoxEditToolView extends EditToolView {
       return
     const {glyph} = renderer
     const cds = renderer.data_source
+    const data = dict(cds.data)
     const [dx0, dx1] = renderer_view.coordinates.x_scale.r_invert(sx0, sx1)
     const [dy0, dy1] = renderer_view.coordinates.y_scale.r_invert(sy0, sy1)
     const fields: {[key: string]: number} | null = (() => {
@@ -150,7 +151,7 @@ export class BoxEditToolView extends EditToolView {
         return
       const index = length - 1
       for (const [key, val] of entries(fields)) {
-        cds.data[key][index] = val
+        data.get(key)![index] = val
       }
     }
     this._emit_cds_changes(cds, true, false, emit)
@@ -227,6 +228,7 @@ export class BoxEditToolView extends EditToolView {
 
       const {glyph} = renderer
       const cds = renderer.data_source
+      const data = dict(cds.data)
 
       const fields: {[key: string]: number} = {}
       if (glyph instanceof XYGlyph) {
@@ -283,7 +285,8 @@ export class BoxEditToolView extends EditToolView {
 
       for (const index of cds.selected.indices) {
         for (const [key, val] of entries(fields)) {
-          cds.data[key][index] += val
+          const column = (data.get(key) ?? []) as number[]
+          column[index] += val
         }
       }
 

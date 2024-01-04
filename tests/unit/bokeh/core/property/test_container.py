@@ -50,6 +50,7 @@ ALL = (
     'Array',
     'ColumnData',
     'Dict',
+    'Len',
     'List',
     'NonEmpty',
     'RelativeDelta',
@@ -431,6 +432,26 @@ class Test_RestrictedDict:
 
         assert not prop.is_valid({"disallowed_key_1": [1,2,3]})
         assert not prop.is_valid({"disallowed_key_2": [1,2,3]})
+
+class Test_NonEmpty:
+    def test_valid(self) -> None:
+        prop = bcpc.NonEmpty(bcpc.List(Int))
+        assert prop.is_valid([1])
+
+    def test_invalid(self) -> None:
+        prop = bcpc.NonEmpty(bcpc.List(Int))
+        assert not prop.is_valid([])
+
+class Test_Len:
+    def test_valid(self) -> None:
+        prop = bcpc.Len(bcpc.List(Int), 2)
+        assert prop.is_valid([0, 1])
+
+    def test_invalid(self) -> None:
+        prop = bcpc.Len(bcpc.List(Int), 2)
+        assert not prop.is_valid([])
+        assert not prop.is_valid([0])
+        assert not prop.is_valid([0, 1, 2])
 
 #-----------------------------------------------------------------------------
 # Dev API

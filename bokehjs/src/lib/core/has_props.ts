@@ -11,7 +11,7 @@ import * as k from "./kinds"
 import type {Property} from "./properties"
 import {assert} from "./util/assert"
 import {unique_id} from "./util/string"
-import {keys, values, entries, extend, is_empty, Dict} from "./util/object"
+import {keys, values, entries, extend, is_empty, dict} from "./util/object"
 import {isObject, isIterable, isPlainObject, isArray, isFunction, isPrimitive} from "./util/types"
 import {is_equal} from "./util/eq"
 import type {Serializable, Serializer, ObjectRefRep, AnyVal} from "./serialization"
@@ -325,8 +325,7 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     if (deferred) {
       assert(keys(attrs).length == 1, "'id' cannot be used together with property initializers")
     } else {
-      const vals = attrs instanceof Map ? attrs : new Dict(attrs)
-      this.initialize_props(vals)
+      this.initialize_props(dict(attrs))
       this.finalize()
       this.connect_signals()
     }

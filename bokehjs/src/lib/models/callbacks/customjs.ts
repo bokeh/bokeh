@@ -1,11 +1,12 @@
 import {Callback} from "./callback"
 import type * as p from "core/properties"
-import {entries} from "core/util/object"
+import {entries, to_object} from "core/util/object"
 import {unzip} from "core/util/array"
 import {use_strict} from "core/util/string"
 
 import type {Model} from "../../model"
 import {logger} from "core/logging"
+import type {DictLike} from "core/types"
 import {isFunction} from "core/util/types"
 import type {ViewManager} from "core/view"
 import {index} from "embed/standalone"
@@ -25,7 +26,7 @@ export namespace CustomJS {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Callback.Props & {
-    args: p.Property<{[key: string]: unknown}>
+    args: p.Property<DictLike<unknown>>
     code: p.Property<string>
     module: p.Property<"auto" | boolean>
   }
@@ -112,7 +113,7 @@ export class CustomJS extends Callback {
     const {func, module} = await this.state()
     const context = {index}
     if (module) {
-      return func(this.args, obj, data, context)
+      return func(to_object(this.args), obj, data, context)
     } else {
       return func.call(obj, obj, data, context)
     }

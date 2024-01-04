@@ -14,6 +14,13 @@ import {BBox} from "core/util/bbox"
 import {isString} from "core/util/types"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
+import {Array, Or, Ref, String, Dict, Nullable} from "core/kinds"
+
+const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
+type StylesLike = typeof StylesLike["__type__"]
+
+const StyleSheets = Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike)))
+type StyleSheets = typeof StyleSheets["__type__"]
 
 export type DOMBoxSizing = {
   width_policy: SizingPolicy | "auto"
@@ -27,7 +34,7 @@ export type DOMBoxSizing = {
 
 const {round, floor} = Math
 
-function* _iter_styles(styles: CSSStyles | Styles): Iterable<[string, unknown]> {
+function* _iter_styles(styles: CSSStyles | Map<string, string | null> | Styles): Iterable<[string, unknown]> {
   if (styles instanceof Styles) {
     const model_attrs = new Set(keys(Model.prototype._props))
     for (const prop of styles) {
@@ -277,8 +284,8 @@ export namespace UIElement {
   export type Props = Model.Props & {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
-    styles: p.Property<CSSStyles | Styles>
-    stylesheets: p.Property<(BaseStyleSheet | string | {[key: string]: CSSStyles | Styles})[]>
+    styles: p.Property<CSSStyles | Map<string, string | null> | Styles>
+    stylesheets: p.Property<StyleSheets>
   }
 }
 
@@ -293,14 +300,11 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, Dict, String, Ref, Or, Nullable}) => {
-      const StylesLike = Or(Dict(Nullable(String)), Ref(Styles)) // TODO: add validation for CSSStyles
-      return {
-        visible: [ Boolean, true ],
-        css_classes: [ Array(String), [] ],
-        styles: [ StylesLike, {} ],
-        stylesheets: [ Array(Or(Ref(BaseStyleSheet), String, Dict(StylesLike))), [] ],
-      }
-    })
+    this.define<UIElement.Props>(({Boolean, Array, String}) => ({
+      visible: [ Boolean, true ],
+      css_classes: [ Array(String), [] ],
+      styles: [ StylesLike, {} ],
+      stylesheets: [ StyleSheets, [] ],
+    }))
   }
 }

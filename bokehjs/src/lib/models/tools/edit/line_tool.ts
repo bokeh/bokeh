@@ -1,4 +1,5 @@
 import type * as p from "core/properties"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import type {Line} from "../../glyphs/line"
 import type {GlyphRenderer} from "../../renderers/glyph_renderer"
@@ -15,16 +16,17 @@ export abstract class LineToolView extends EditToolView {
   _set_intersection(x: number[] | number, y: number[] | number): void {
     const point_glyph: any = this.model.intersection_renderer.glyph
     const point_cds = this.model.intersection_renderer.data_source
+    const data = dict(point_cds.data)
     const [pxkey, pykey] = [point_glyph.x.field, point_glyph.y.field]
     if (pxkey) {
       if (isArray(x))
-        point_cds.data[pxkey] = x
+        data.set(pxkey, x)
       else
         point_glyph.x = {value: x}
     }
     if (pykey) {
       if (isArray(y))
-        point_cds.data[pykey] = y
+        data.set(pykey, y)
       else
         point_glyph.y = {value: y}
     }

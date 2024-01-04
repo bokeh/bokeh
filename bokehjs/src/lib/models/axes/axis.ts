@@ -16,8 +16,7 @@ import type {Orient, Normal, Dimension} from "core/layout/side_panel"
 import {Panel, SideLayout} from "core/layout/side_panel"
 import type {Context2d} from "core/util/canvas"
 import {sum, repeat} from "core/util/array"
-import {Dict} from "core/util/object"
-import {isNumber, isPlainObject} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {GraphicsBoxes, TextBox} from "core/graphics"
 import type {Factor} from "models/ranges/factor_range"
 import {FactorRange} from "models/ranges/factor_range"
@@ -818,11 +817,7 @@ export class Axis extends GuideRenderer {
       axis_label_align:        [ Align, "center" ],
       major_label_standoff:    [ Int, 5 ],
       major_label_orientation: [ Or(LabelOrientation, Number), "horizontal" ],
-      major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map(), {
-        convert(v: any) {
-          return isPlainObject(v) ? new Dict(v) : v
-        },
-      }],
+      major_label_overrides:   [ Map(Or(String, Number), Or(String, Ref(BaseText))), new globalThis.Map() ],
       major_label_policy:      [ Ref(LabelingPolicy), () => new AllLabels() ],
       major_tick_in:           [ Number, 2 ],
       major_tick_out:          [ Number, 6 ],

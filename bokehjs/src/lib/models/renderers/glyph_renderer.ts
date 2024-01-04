@@ -14,7 +14,7 @@ import type {Color} from "core/types"
 import {Indices} from "core/types"
 import type * as p from "core/properties"
 import {filter} from "core/util/arrayable"
-import {extend, clone, entries} from "core/util/object"
+import {extend, clone} from "core/util/object"
 import type {HitTestResult} from "core/hittest"
 import type {Geometry} from "core/geometry"
 import type {SelectionManager} from "core/selection_manager"
@@ -460,9 +460,10 @@ export class GlyphRendererView extends DataRendererView {
     if (field != null) {
       const array = this.model.data_source.get_column(field)
       if (array != null) {
-        for (const [key, index] of entries(this.model.view.indices_map)) {
-          if (array[parseInt(key)] == value)
+        for (const [key, index] of this.model.view.indices_map) {
+          if (array[key] == value) {
             return index
+          }
         }
       }
     }
@@ -474,11 +475,11 @@ export class GlyphRendererView extends DataRendererView {
       return
     }
     const subset_index = (() => {
-      if (index == null)
+      if (index == null) {
         return this.get_reference_point(field, label)
-      else {
+      } else {
         const {indices_map} = this.model.view
-        return index in indices_map ? indices_map[index] : null
+        return indices_map.get(index)
       }
     })()
     if (subset_index != null) {

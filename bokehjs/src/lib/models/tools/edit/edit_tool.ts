@@ -2,7 +2,9 @@ import type * as p from "core/properties"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
+import type {DictLike} from "core/types"
 import {includes} from "core/util/array"
+import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
 import {unreachable} from "core/util/assert"
 import type {XYGlyph} from "../../glyphs/xy_glyph"
@@ -78,6 +80,7 @@ export abstract class EditToolView extends GestureToolView {
     const columns = cds.columns()
     if (num_objects == 0 || columns.length == 0)
       return
+    const data = dict(cds.data)
     for (const column of columns) {
       let array = cds.get_array(column)
       const drop = array.length-num_objects+1
@@ -85,7 +88,7 @@ export abstract class EditToolView extends GestureToolView {
         continue
       if (!isArray(array)) {
         array = Array.from(array)
-        cds.data[column] = array
+        data.set(column, array)
       }
       array.splice(0, drop)
     }
@@ -118,13 +121,16 @@ export abstract class EditToolView extends GestureToolView {
       // Type once dataspecs are typed
       const glyph: any = renderer.glyph
       const cds = renderer.data_source
+      const data = dict(cds.data)
       const [xkey, ykey] = [glyph.x.field, glyph.y.field]
       for (const index of cds.selected.indices) {
         if (xkey && (dim == "width" || dim == "both")) {
-          cds.data[xkey][index] += dx
+          const column = (data.get(xkey) ?? []) as number[]
+          column[index] += dx
         }
         if (ykey && (dim == "height" || dim == "both")) {
-          cds.data[ykey][index] += dy
+          const column = (data.get(ykey) ?? []) as number[]
+          column[index] += dy
         }
       }
       cds.change.emit()
@@ -134,18 +140,19 @@ export abstract class EditToolView extends GestureToolView {
 
   _pad_empty_columns(cds: ColumnarDataSource, coord_columns: string[]): void {
     // Pad ColumnDataSource non-coordinate columns with default values
-    const {default_values, inferred_defaults} = cds
-    const {default_overrides} = this.model
+    const {inferred_defaults} = cds
+    const default_values = dict(cds.default_values)
+    const default_overrides = dict(this.model.default_overrides)
 
     for (const column of cds.columns()) {
       if (!includes(coord_columns, column)) {
         const default_value = (() => {
-          if (column in default_overrides) {
-            return default_overrides[column]
-          } else if (column in default_values) {
-            return default_values[column]
-          } else if (column in inferred_defaults) {
-            return inferred_defaults[column]
+          if (default_overrides.has(column)) {
+            return default_overrides.get(column)
+          } else if (default_values.has(column)) {
+            return default_values.get(column)
+          } else if (inferred_defaults.has(column)) {
+            return inferred_defaults.get(column)
           } else {
             return this.model.empty_value
           }
@@ -184,7 +191,7 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    default_overrides: p.Property<{[key: string]: unknown}>
+    default_overrides: p.Property<DictLike<unknown>>
     empty_value: p.Property<unknown>
   }
 }

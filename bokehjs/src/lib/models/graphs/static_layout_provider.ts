@@ -1,14 +1,14 @@
 import {LayoutProvider} from "./layout_provider"
 import type {ColumnarDataSource} from "../sources/columnar_data_source"
 import type {Arrayable} from "core/types"
-import {Dict} from "core/util/object"
+import {dict} from "core/util/object"
 import type * as p from "core/properties"
 
 export namespace StaticLayoutProvider {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = LayoutProvider.Props & {
-    graph_layout: p.Property<Map<number, Arrayable<number>>>
+    graph_layout: p.Property<Map<number | string, Arrayable<number>>>
   }
 }
 
@@ -22,20 +22,20 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   static {
-    this.define<StaticLayoutProvider.Props>(({Number, Int, Arrayable, Map}) => ({
-      graph_layout: [ Map(Int, Arrayable(Number)), new globalThis.Map() ], // TODO: length == 2
+    this.define<StaticLayoutProvider.Props>(({Number, String, Int, Arrayable, Map, Or}) => ({
+      graph_layout: [ Map(Or(Int, String), Arrayable(Number)), new globalThis.Map() ], // TODO: length == 2
     }))
   }
 
   get_node_coordinates(node_source: ColumnarDataSource): [Arrayable<number>, Arrayable<number>] {
-    const data = new Dict(node_source.data)
+    const data = dict(node_source.data)
     const index = data.get("index") ?? []
     const n = index.length
     const xs = new Float64Array(n)
     const ys = new Float64Array(n)
     const {graph_layout} = this
     for (let i = 0; i < n; i++) {
-      const j = index[i]
+      const j = index[i] as string | number
       const [x, y] = graph_layout.get(j) ?? [NaN, NaN]
       xs[i] = x
       ys[i] = y
@@ -44,9 +44,9 @@ export class StaticLayoutProvider extends LayoutProvider {
   }
 
   get_edge_coordinates(edge_source: ColumnarDataSource): [Arrayable<number>[], Arrayable<number>[]] {
-    const data = new Dict(edge_source.data)
-    const starts = data.get("start") ?? []
-    const ends = data.get("end") ?? []
+    const data = dict(edge_source.data)
+    const starts = (data.get("start") ?? []) as Arrayable<string | number>
+    const ends = (data.get("end") ?? []) as Arrayable<string | number>
     const n = Math.min(starts.length, ends.length)
     const xs: number[][] = []
     const ys: number[][] = []
@@ -57,8 +57,8 @@ export class StaticLayoutProvider extends LayoutProvider {
     for (let i = 0; i < n; i++) {
       const in_layout = graph_layout.has(starts[i]) && graph_layout.has(ends[i])
       if (has_paths && in_layout) {
-        xs.push(edge_xs[i])
-        ys.push(edge_ys[i])
+        xs.push(edge_xs[i] as number[])
+        ys.push(edge_ys[i] as number[])
       } else {
         const start = graph_layout.get(starts[i]) ?? [NaN, NaN]
         const end = graph_layout.get(ends[i]) ?? [NaN, NaN]
