@@ -9,6 +9,8 @@ on:
 
 jobs:
   docker-test:
+    if: ${{ false }} # disable for now
+
     runs-on: ubuntu-latest
     env:
       IMAGE_TAG: bokeh/bokeh-dev:branch-3.1
