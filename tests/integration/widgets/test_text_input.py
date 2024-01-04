@@ -28,7 +28,11 @@ from bokeh.models import (
     Scatter,
     TextInput,
 )
-from tests.support.plugins.project import BokehModelPage, BokehServerPage, SinglePlotPage
+from tests.support.plugins.project import (
+    BokehModelPage,
+    BokehServerPage,
+    SinglePlotPage,
+)
 from tests.support.util.selenium import RECORD, enter_text_in_element, find_element_for
 
 #-----------------------------------------------------------------------------

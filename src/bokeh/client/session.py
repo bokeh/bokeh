@@ -51,7 +51,11 @@ from .states import ErrorReason
 from .util import server_url_for_websocket_url, websocket_url_for_server_url
 
 if TYPE_CHECKING:
-    from ..document.events import DocumentPatchedEvent, SessionCallbackAdded, SessionCallbackRemoved
+    from ..document.events import (
+        DocumentPatchedEvent,
+        SessionCallbackAdded,
+        SessionCallbackRemoved,
+    )
     from ..models.ui import UIElement
     from ..protocol.messages.patch_doc import patch_doc
     from ..protocol.messages.server_info_reply import ServerInfo

@@ -26,7 +26,11 @@ from unittest.mock import MagicMock, patch
 from bokeh.core.enums import HoldPolicy, HoldPolicyType
 from bokeh.core.types import ID
 from bokeh.document import Document
-from bokeh.document.events import DocumentChangedEvent, SessionCallbackAdded, SessionCallbackRemoved
+from bokeh.document.events import (
+    DocumentChangedEvent,
+    SessionCallbackAdded,
+    SessionCallbackRemoved,
+)
 from bokeh.document.locking import UnlockedDocumentProxy
 from bokeh.events import ButtonClick, DocumentReady
 from bokeh.io import curdoc
