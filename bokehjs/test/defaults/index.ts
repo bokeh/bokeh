@@ -6,7 +6,7 @@ import {ExpectationError} from "../unit/assertions"
 import {HasProps} from "@bokehjs/core/has_props"
 import {unset} from "@bokehjs/core/properties"
 import {isString, isArray, isPlainObject} from "@bokehjs/core/util/types"
-import {entries, dict} from "@bokehjs/core/util/object"
+import {values, entries, dict} from "@bokehjs/core/util/object"
 import {is_equal} from "@bokehjs/core/util/eq"
 import {to_string} from "@bokehjs/core/util/pretty"
 import {Serializer} from "@bokehjs/core/serialization"
@@ -23,7 +23,27 @@ import json5 from "json5"
 type KV<T = unknown> = {[key: string]: T}
 
 import defaults_json5 from "./defaults.json5"
-const all_defaults = dict<KV>(json5.parse(defaults_json5))
+
+function _transform_defaults(obj: unknown): void {
+  if (isPlainObject(obj)) {
+    if (obj.type == "map") {
+      delete obj.plain
+    }
+
+    for (const val of values(obj)) {
+      _transform_defaults(val)
+    }
+  } else if (isArray(obj)) {
+    for (const item of obj) {
+      _transform_defaults(item)
+    }
+  }
+}
+
+const raw_defaults = json5.parse(defaults_json5)
+_transform_defaults(raw_defaults)
+
+const all_defaults = dict<KV>(raw_defaults)
 
 function _resolve_defaults(name: string, defaults: KV) {
   const {__extends__} = defaults
