@@ -3,7 +3,7 @@
 set -eu
 
 CONDA_DIR=/home/docker/conda_bokeh
-DEFAULT_PY=3.9
+DEFAULT_PY=3.10
 ENV_NAME=bkdev
 MINICONDA_SCRIPT=Miniconda3-latest-Linux-x86_64.sh
 

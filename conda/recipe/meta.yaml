@@ -33,10 +33,10 @@ requirements:
     - yaml
 
   host:
-    - python >=3.9
+    - python >=3.10
 
   run:
-    - python >=3.9
+    - python >=3.10
 
     {% for dep in data['project']['dependencies'] %}
     - {{ dep.lower() }}
