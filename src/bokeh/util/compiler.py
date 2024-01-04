@@ -507,8 +507,7 @@ def _bundle_models(custom_models: dict[str, CustomModel]) -> str:
 
     for path in lib_dir.rglob("*.d.ts"):
         s = str(path.relative_to(lib_dir))
-        if s.endswith(".d.ts"):
-            s = s[:-5] # TODO: removesuffix() (Py 3.9+)
+        s = s.removesuffix(".d.ts")
         s = s.replace(os.path.sep, "/")
         known_modules.add(s)
 

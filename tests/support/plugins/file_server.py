@@ -59,9 +59,7 @@ class HtmlOnlyHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         """GET method handler."""
         # depending on Python version, leading / may be present or not
-        path = self.path.split("?")[0] # TODO: .removeprefix("/")
-        if path.startswith("/"):
-            path = path[1:]
+        path = self.path.split("?")[0].removeprefix("/")
         try:
             with open(HTML_ROOT / path, mode="rb") as f:  # lgtm [py/path-injection]
                 self.send_response(200)
