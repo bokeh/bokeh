@@ -1,8 +1,9 @@
 # Standard library imports
 import re
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 from ..common.by import _ByType
 from ..remote.webdriver import WebDriver

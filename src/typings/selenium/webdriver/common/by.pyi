@@ -1,8 +1,9 @@
 # Standard librarary imports
-from typing import ClassVar, Literal
+from typing import TYPE_CHECKING, ClassVar, Literal
 
 # External imports
-from typing_extensions import TypeAlias
+if TYPE_CHECKING:
+    from typing_extensions import TypeAlias
 
 _ByType: TypeAlias = Literal["class name", "css selector", "id", "link text", "name", "partial link text", "tag name"]
 
