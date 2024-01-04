@@ -281,8 +281,8 @@ class BokehTornado(TornadoApplication):
                  session_token_expiration: int = DEFAULT_SESSION_TOKEN_EXPIRATION,
                  **kwargs: Any):
 
-        from bokeh.application.handlers.document_lifecycle import DocumentLifecycleHandler
-        from bokeh.application.handlers.function import FunctionHandler
+        from ..application.handlers.document_lifecycle import DocumentLifecycleHandler
+        from ..application.handlers.function import FunctionHandler
 
         if callable(applications):
             applications = Application(FunctionHandler(applications))

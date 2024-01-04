@@ -70,7 +70,11 @@ from .git import (
     tag_release_version,
 )
 from .pipeline import StepType
-from .remote import download_deployment_tarball, publish_bokehjs_to_cdn, upload_deployment_tarball
+from .remote import (
+    download_deployment_tarball,
+    publish_bokehjs_to_cdn,
+    upload_deployment_tarball,
+)
 
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias

@@ -33,7 +33,11 @@ from bokeh.core.properties import (
     Required,
     String,
 )
-from bokeh.core.property.descriptors import DataSpecPropertyDescriptor, PropertyDescriptor, UnsetValueError
+from bokeh.core.property.descriptors import (
+    DataSpecPropertyDescriptor,
+    PropertyDescriptor,
+    UnsetValueError,
+)
 from bokeh.core.property.singletons import Intrinsic, Undefined
 from bokeh.core.property.vectorization import field, value
 

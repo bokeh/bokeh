@@ -51,7 +51,11 @@ from ..core.properties import (
 from ..core.property.struct import Optional
 from ..core.property_aliases import GridSpacing, Pixels, TracksSizing
 from ..core.validation import error, warning
-from ..core.validation.errors import MIN_PREFERRED_MAX_HEIGHT, MIN_PREFERRED_MAX_WIDTH, REPEATED_LAYOUT_CHILD
+from ..core.validation.errors import (
+    MIN_PREFERRED_MAX_HEIGHT,
+    MIN_PREFERRED_MAX_WIDTH,
+    REPEATED_LAYOUT_CHILD,
+)
 from ..core.validation.warnings import (
     BOTH_CHILD_AND_ROOT,
     EMPTY_LAYOUT,
