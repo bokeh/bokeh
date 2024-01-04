@@ -27,7 +27,6 @@ from typing import (
     Any,
     Iterable,
     TypeVar,
-    Union,
 )
 
 if TYPE_CHECKING:
@@ -62,7 +61,7 @@ class _UnspecifiedType:
 Unspecified = _UnspecifiedType()
 
 _T = TypeVar("_T")
-NotRequired: TypeAlias = Union[_UnspecifiedType, _T]
+NotRequired: TypeAlias = _UnspecifiedType | _T
 
 def entries(obj: Any) -> Iterable[tuple[str, Any]]:
     """ Iterate over a dataclass' fields and their values. """

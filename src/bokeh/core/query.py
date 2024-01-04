@@ -27,7 +27,6 @@ from typing import (
     Any,
     Callable,
     Iterable,
-    Union,
 )
 
 # Bokeh imports
@@ -55,7 +54,7 @@ __all__ = (
     'is_single_string_selector',
 )
 
-SelectorType: TypeAlias = dict[Union[str, type["_Operator"]], Any]
+SelectorType: TypeAlias = dict[str | type["_Operator"], Any]
 
 #-----------------------------------------------------------------------------
 # General API

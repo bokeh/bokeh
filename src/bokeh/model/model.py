@@ -343,7 +343,7 @@ class Model(HasProps, HasDocumentRef, PropertyCallbackManager, EventCallbackMana
             other_attr (str) :
                 The property on ``other`` to link together
 
-            attr_selector (Union[int, str]) :
+            attr_selector (int | str) :
                 The index to link an item in a subscriptable ``attr``
 
         Added in version 1.1

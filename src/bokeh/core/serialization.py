@@ -36,7 +36,6 @@ from typing import (
     Sequence,
     TypedDict,
     TypeVar,
-    Union,
     cast,
 )
 
@@ -111,7 +110,7 @@ class ArrayRep(TypedDict):
     type: Literal["array"]
     entries: NotRequired[list[AnyRep]]
 
-ArrayRepLike: TypeAlias = Union[ArrayRep, list[AnyRep]]
+ArrayRepLike: TypeAlias = ArrayRep | list[AnyRep]
 
 class SetRep(TypedDict):
     type: Literal["set"]
@@ -147,7 +146,7 @@ ModelRep = ObjectRefRep
 ByteOrder: TypeAlias = Literal["little", "big"]
 
 DataType: TypeAlias = Literal["uint8", "int8", "uint16", "int16", "uint32", "int32", "float32", "float64"] # "uint64", "int64"
-NDDataType: TypeAlias = Union[Literal["bool"], DataType, Literal["object"]]
+NDDataType: TypeAlias = Literal["bool"] | DataType | Literal["object"]
 
 class TypedArrayRep(TypedDict):
     type: Literal["typed_array"]

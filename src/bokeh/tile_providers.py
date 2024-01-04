@@ -124,7 +124,7 @@ class _TileProvidersModule(types.ModuleType):
             release. Use ``add_tile`` directly instead.
 
         Args:
-            provider_name (Union[str, Vendors, xyzservices.TileProvider]):
+            provider_name (str | Vendors | xyzservices.TileProvider):
                 Name of the tile provider to supply.
 
                 Use a ``tile_providers.Vendors`` enumeration value, or the string

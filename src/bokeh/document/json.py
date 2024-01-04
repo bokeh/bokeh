@@ -26,7 +26,6 @@ from typing import (
     Any,
     Literal,
     TypedDict,
-    Union,
 )
 
 if TYPE_CHECKING:
@@ -97,16 +96,16 @@ class ColumnsPatched(TypedDict):
     attr: str
     patches: Patches
 
-DocumentPatched: TypeAlias = Union[
-    MessageSent,
-    ModelChanged,
-    ColumnDataChanged,
-    ColumnsStreamed,
-    ColumnsPatched,
-    TitleChanged,
-    RootAdded,
-    RootRemoved,
-]
+DocumentPatched: TypeAlias = (
+    MessageSent |
+    ModelChanged |
+    ColumnDataChanged |
+    ColumnsStreamed |
+    ColumnsPatched |
+    TitleChanged |
+    RootAdded |
+    RootRemoved
+)
 
 DocumentChanged = DocumentPatched
 

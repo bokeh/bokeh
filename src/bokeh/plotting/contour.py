@@ -18,12 +18,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Sequence,
-    Union,
-    cast,
-)
+from typing import TYPE_CHECKING, Sequence, cast
 
 # External imports
 import numpy as np
@@ -45,8 +40,8 @@ if TYPE_CHECKING:
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike
 
-    ContourColor: TypeAlias = Union[ColorLike, Sequence[ColorLike]]
-    ContourColorOrPalette: TypeAlias = Union[ContourColor, Palette, PaletteCollection, ContourColor]
+    ContourColor: TypeAlias = ColorLike | Sequence[ColorLike]
+    ContourColorOrPalette: TypeAlias = ContourColor | Palette | PaletteCollection | ContourColor
 
 #-----------------------------------------------------------------------------
 # Globals and constants

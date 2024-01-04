@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import datetime
-from typing import Any, Union
+from typing import Any
 
 # Bokeh imports
 from ...util.serialization import (
@@ -49,7 +49,7 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-class Date(Property[Union[str, datetime.date]]):
+class Date(Property[str | datetime.date]):
     """ Accept ISO format Date (but not DateTime) values.
 
     """
@@ -78,7 +78,7 @@ class Date(Property[Union[str, datetime.date]]):
             msg = "" if not detail else f"Expected an ISO date string, got {value!r}"
             raise ValueError(msg)
 
-class Datetime(Property[Union[str, datetime.date, datetime.datetime]]):
+class Datetime(Property[str | datetime.date | datetime.datetime]):
     """ Accept ISO format Datetime values.
 
     """
@@ -124,7 +124,7 @@ class Datetime(Property[Union[str, datetime.date, datetime.datetime]]):
     def is_timestamp(value: Any) -> bool:
         return isinstance(value, (float, *bokeh_integer_types)) and not isinstance(value, bool)
 
-class Time(Property[Union[str, datetime.time]]):
+class Time(Property[str | datetime.time]):
     """ Accept ISO format time values.
 
     """

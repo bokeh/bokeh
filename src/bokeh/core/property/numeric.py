@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 # Bokeh imports
 from ...util.deprecation import deprecated
@@ -50,7 +50,7 @@ __all__ = (
     'Size',
 )
 
-T = TypeVar("T", bound=Union[int, float])
+T = TypeVar("T", bound=int | float)
 
 #-----------------------------------------------------------------------------
 # General API

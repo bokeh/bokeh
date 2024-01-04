@@ -34,7 +34,6 @@ from typing import (
     Callable,
     ClassVar,
     TypeVar,
-    Union,
 )
 
 # Bokeh imports
@@ -77,9 +76,9 @@ __all__ = (
 
 T = TypeVar("T")
 
-TypeOrInst: TypeAlias = Union[type[T], T]
+TypeOrInst: TypeAlias = type[T] | T
 
-Init: TypeAlias = Union[T, UndefinedType, IntrinsicType]
+Init: TypeAlias = T | UndefinedType | IntrinsicType
 
 class Property(PropertyDescriptorFactory[T]):
     """ Base class for Bokeh property instances, which can be added to Bokeh

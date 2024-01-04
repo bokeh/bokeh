@@ -47,7 +47,6 @@ from typing import (
     Literal,
     Protocol,
     TypedDict,
-    Union,
     cast,
     get_args,
 )
@@ -82,7 +81,7 @@ DEFAULT_SERVER_HTTP_URL = server_url()
 BaseMode: TypeAlias = Literal["inline", "cdn", "server", "relative", "absolute"]
 DevMode: TypeAlias = Literal["server-dev", "relative-dev", "absolute-dev"]
 
-ResourcesMode: TypeAlias = Union[BaseMode, DevMode]
+ResourcesMode: TypeAlias = BaseMode | DevMode
 
 Component = Literal["bokeh", "bokeh-gl", "bokeh-widgets", "bokeh-tables", "bokeh-mathjax", "bokeh-api"]
 
@@ -654,7 +653,7 @@ def _compute_single_hash(path: Path) -> str:
 # Code
 # -----------------------------------------------------------------------------
 
-ResourcesLike: TypeAlias = Union[Resources, ResourcesMode]
+ResourcesLike: TypeAlias = Resources | ResourcesMode
 
 CDN = Resources(mode="cdn")
 

@@ -29,7 +29,6 @@ from typing import (
     Any,
     Callable,
     Sequence,
-    Union,
     cast,
 )
 
@@ -63,7 +62,7 @@ __all__ = (
 # means auto-magically wrapping user-supplied callbacks for awhile.
 EventCallbackWithEvent: TypeAlias = Callable[[Event], None]
 EventCallbackWithoutEvent: TypeAlias = Callable[[], None]
-EventCallback: TypeAlias = Union[EventCallbackWithEvent, EventCallbackWithoutEvent]
+EventCallback: TypeAlias = EventCallbackWithEvent | EventCallbackWithoutEvent
 
 PropertyCallback: TypeAlias = Callable[[str, Any, Any], None]
 

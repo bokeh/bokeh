@@ -39,7 +39,6 @@ from typing import (
     NoReturn,
     TypedDict,
     TypeVar,
-    Union,
     overload,
 )
 from weakref import WeakSet
@@ -99,7 +98,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Setter: TypeAlias = Union[ClientSession, ServerSession]
+    Setter: TypeAlias = ClientSession | ServerSession
 
 C = TypeVar("C", bound=type["HasProps"])
 

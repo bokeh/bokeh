@@ -10,12 +10,7 @@
 from __future__ import annotations
 
 # Standard library imports
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING, Callable, Sequence
 
 # Bokeh imports
 from .enums import ActionResult
@@ -24,7 +19,7 @@ from .ui import failed, passed, skipped
 if TYPE_CHECKING:
     from typing_extensions import TypeAlias
 
-UIResultFuncType: TypeAlias = Callable[[str, Union[Sequence[str], None]], str]
+UIResultFuncType: TypeAlias = Callable[[str, Sequence[str] | None], str]
 
 class ActionReturn:
     """"""

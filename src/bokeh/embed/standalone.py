@@ -27,7 +27,6 @@ from typing import (
     Literal,
     Sequence,
     TypedDict,
-    Union,
     cast,
     overload,
 )
@@ -74,14 +73,14 @@ __all__ = (
     'json_item',
 )
 
-ModelLike: TypeAlias = Union[Model, Document]
-ModelLikeCollection: TypeAlias = Union[Sequence[ModelLike], dict[str, ModelLike]]
+ModelLike: TypeAlias = Model | Document
+ModelLikeCollection: TypeAlias = Sequence[ModelLike] | dict[str, ModelLike]
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
 
-ThemeLike: TypeAlias = Union[None, Theme, type[FromCurdoc]]
+ThemeLike: TypeAlias = None | Theme | type[FromCurdoc]
 
 def autoload_static(model: Model | Document, resources: Resources, script_path: str) -> tuple[str, str]:
     ''' Return JavaScript code and a script tag that can be used to embed

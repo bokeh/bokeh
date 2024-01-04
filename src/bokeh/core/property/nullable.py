@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import Any, TypeVar, Union
+from typing import Any, TypeVar
 
 # Bokeh imports
 from ...util.deprecation import deprecated
@@ -48,7 +48,7 @@ T = TypeVar("T")
 # General API
 #-----------------------------------------------------------------------------
 
-class Nullable(SingleParameterizedProperty[Union[T, None]]):
+class Nullable(SingleParameterizedProperty[T | None]):
     """ A property accepting ``None`` or a value of some other type. """
 
     def __init__(self, type_param: TypeOrInst[Property[T]], *, default: Init[T | None] = None, help: str | None = None) -> None:

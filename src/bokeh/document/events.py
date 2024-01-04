@@ -61,7 +61,6 @@ from typing import (
     Any,
     Callable,
     ClassVar,
-    Union,
     cast,
 )
 
@@ -119,7 +118,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Buffers: TypeAlias = Union[list[BufferRef], None]
+    Buffers: TypeAlias = list[BufferRef] | None
 
     Invoker: TypeAlias = Callable[..., Any] # TODO
 

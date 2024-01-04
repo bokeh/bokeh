@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence, Union
+from typing import TYPE_CHECKING, Sequence
 
 # Bokeh imports
 from .core.property.vectorization import Expr, Field
@@ -68,7 +68,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 if TYPE_CHECKING:
-    Factors: TypeAlias = Union[Sequence[str], Sequence[tuple[str, str]], Sequence[tuple[str, str, str]]]
+    Factors: TypeAlias = Sequence[str] | Sequence[tuple[str, str]] | Sequence[tuple[str, str, str]]
 
 def cumsum(field_name: str, include_zero: bool = False) -> Expr:
     ''' Create a ``DataSpec`` dict to generate a ``CumSum`` expression

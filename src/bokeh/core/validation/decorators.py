@@ -25,7 +25,6 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
-    Union,
     cast,
 )
 
@@ -49,7 +48,7 @@ __all__ = (
 # Private API
 #-----------------------------------------------------------------------------
 
-ValidationFunction: TypeAlias = Callable[..., Union[str, None]]
+ValidationFunction: TypeAlias = Callable[..., str | None]
 ValidationDecorator: TypeAlias = Callable[[ValidationFunction], Validator]
 
 def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -> ValidationDecorator:

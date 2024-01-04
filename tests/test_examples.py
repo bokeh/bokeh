@@ -35,7 +35,6 @@ from typing import (
     Iterator,
     Literal,
     NoReturn,
-    Union,
 )
 
 # External imports
@@ -245,7 +244,7 @@ def _run_in_browser(example: Example, url: str, report: list[Example], verbose: 
 
     assert no_errors, f"{example.relpath} failed with {len(errors)} errors"
 
-ProcStatus: TypeAlias = Union[int, Literal["timeout"]]
+ProcStatus: TypeAlias = int | Literal["timeout"]
 
 def _run_example(example: Example) -> tuple[ProcStatus, float, str, str]:
     code = f"""\
