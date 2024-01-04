@@ -25,7 +25,7 @@ from ..core.properties import (
     Float,
     Instance,
     Int,
-    OfLength,
+    Len,
     Seq,
     String,
 )
@@ -85,7 +85,7 @@ class StaticLayoutProvider(LayoutProvider):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    graph_layout = Dict(Either(Int, String), OfLength(Seq(Float), 2), default={}, help="""
+    graph_layout = Dict(Either(Int, String), Len(Seq(Float), 2), default={}, help="""
     The coordinates of the graph nodes in cartesian space. The keys of
     the dictionary correspond to node indices or labels and the values
     are two element sequences containing the x and y coordinates of

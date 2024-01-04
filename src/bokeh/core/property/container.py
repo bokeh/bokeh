@@ -61,9 +61,9 @@ __all__ = (
     'Array',
     'ColumnData',
     'Dict',
+    'Len',
     'List',
     'NonEmpty',
-    'OfLength',
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
@@ -351,7 +351,7 @@ class NonEmpty(SingleParameterizedProperty[TSeq]):
             msg = "" if not detail else "Expected a non-empty container"
             raise ValueError(msg)
 
-class OfLength(SingleParameterizedProperty[TSeq]):
+class Len(SingleParameterizedProperty[TSeq]):
     """ Allows only containers of the given length. """
 
     def __init__(self, type_param: TypeOrInst[TSeq], length: int, *, default: Init[TSeq] = Intrinsic,

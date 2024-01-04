@@ -46,9 +46,9 @@ ALL = (
     'Array',
     'ColumnData',
     'Dict',
+    'Len',
     'List',
     'NonEmpty',
-    'OfLength',
     'RelativeDelta',
     'RestrictedDict',
     'Seq',
@@ -438,13 +438,13 @@ class Test_NonEmpty:
         prop = bcpc.NonEmpty(bcpc.List(Int))
         assert not prop.is_valid([])
 
-class Test_OfLength:
+class Test_Len:
     def test_valid(self) -> None:
-        prop = bcpc.OfLength(bcpc.List(Int), 2)
+        prop = bcpc.Len(bcpc.List(Int), 2)
         assert prop.is_valid([0, 1])
 
     def test_invalid(self) -> None:
-        prop = bcpc.OfLength(bcpc.List(Int), 2)
+        prop = bcpc.Len(bcpc.List(Int), 2)
         assert not prop.is_valid([])
         assert not prop.is_valid([0])
         assert not prop.is_valid([0, 1, 2])

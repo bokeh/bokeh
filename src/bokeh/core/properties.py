@@ -243,6 +243,7 @@ __all__ = (
     'IntSpec',
     'Interval',
     'JSON',
+    'Len',
     'LineCapSpec',
     'LineJoinSpec',
     'List',
@@ -262,7 +263,6 @@ __all__ = (
     'Nullable',
     'NumberSpec',
     'Object',
-    'OfLength',
     'Override',
     'PandasDataFrame',
     'PandasGroupBy',
@@ -321,9 +321,9 @@ from .property.constraints import TypeOfAttr
 from .property.container import Array
 from .property.container import ColumnData
 from .property.container import Dict
+from .property.container import Len
 from .property.container import List
 from .property.container import NonEmpty
-from .property.container import OfLength
 from .property.container import Seq
 from .property.container import Set
 from .property.container import Tuple
