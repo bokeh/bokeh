@@ -20,8 +20,6 @@ from bokeh.plotting import figure
 
 np.random.seed(0)
 
-
-
 # define some helper functions
 def clustering(X, algorithm, n_clusters):
     # normalize dataset for easier parameter selection
@@ -37,64 +35,62 @@ def clustering(X, algorithm, n_clusters):
     connectivity = 0.5 * (connectivity + connectivity.T)
 
     # Generate the new colors:
-    if algorithm=='MiniBatchKMeans':
-        model = cluster.MiniBatchKMeans(n_clusters=n_clusters, n_init=3)
-
-    elif algorithm=='Birch':
-        model = cluster.Birch(n_clusters=n_clusters)
-
-    elif algorithm=='DBSCAN':
-        model = cluster.DBSCAN(eps=.2)
-
-    elif algorithm=='AffinityPropagation':
-        model = cluster.AffinityPropagation(damping=.9,
-                                            preference=-200)
-
-    elif algorithm=='MeanShift':
-        model = cluster.MeanShift(bandwidth=bandwidth,
-                                  bin_seeding=True)
-
-    elif algorithm=='SpectralClustering':
-        model = cluster.SpectralClustering(n_clusters=n_clusters,
-                                           eigen_solver='arpack',
-                                           affinity="nearest_neighbors")
-
-    elif algorithm=='Ward':
-        model = cluster.AgglomerativeClustering(n_clusters=n_clusters,
-                                                linkage='ward',
-                                                connectivity=connectivity)
-
-    elif algorithm=='AgglomerativeClustering':
-        model = cluster.AgglomerativeClustering(linkage="average",
-                                                affinity="cityblock",
-                                                n_clusters=n_clusters,
-                                                connectivity=connectivity)
+    match algorithm:
+        case "MiniBatchKMeans":
+            model = cluster.MiniBatchKMeans(n_clusters=n_clusters, n_init=3)
+        case "Birch":
+            model = cluster.Birch(n_clusters=n_clusters)
+        case "DBSCAN":
+            model = cluster.DBSCAN(eps=.2)
+        case "AffinityPropagation":
+            model = cluster.AffinityPropagation(
+                damping=.9,
+                preference=-200,
+            )
+        case "MeanShift":
+            model = cluster.MeanShift(
+                bandwidth=bandwidth,
+                bin_seeding=True,
+            )
+        case "SpectralClustering":
+            model = cluster.SpectralClustering(
+                n_clusters=n_clusters,
+                eigen_solver="arpack",
+                affinity="nearest_neighbors",
+            )
+        case "Ward":
+            model = cluster.AgglomerativeClustering(
+                n_clusters=n_clusters,
+                linkage="ward",
+                connectivity=connectivity,
+            )
+        case "AgglomerativeClustering":
+            model = cluster.AgglomerativeClustering(
+                linkage="average",
+                affinity="cityblock",
+                n_clusters=n_clusters,
+                connectivity=connectivity,
+            )
 
     model.fit(X)
 
     if hasattr(model, 'labels_'):
-            y_pred = model.labels_.astype(int)
+        y_pred = model.labels_.astype(int)
     else:
-            y_pred = model.predict(X)
+        y_pred = model.predict(X)
 
     return X, y_pred
 
-def get_dataset(dataset, n_samples):
-    if dataset == 'Noisy Circles':
-        return datasets.make_circles(n_samples=n_samples,
-                                    factor=0.5,
-                                    noise=0.05)
-
-    elif dataset == 'Noisy Moons':
-        return datasets.make_moons(n_samples=n_samples,
-                                   noise=0.05)
-
-    elif dataset == 'Blobs':
-        return datasets.make_blobs(n_samples=n_samples,
-                                   random_state=8)
-
-    elif dataset == "No Structure":
-        return np.random.rand(n_samples, 2), None
+def get_dataset(dataset: str, n_samples: int):
+    match dataset:
+        case "Noisy Circles":
+            return datasets.make_circles(n_samples=n_samples, factor=0.5, noise=0.05)
+        case "Noisy Moons":
+            return datasets.make_moons(n_samples=n_samples, noise=0.05)
+        case "Blobs":
+            return datasets.make_blobs(n_samples=n_samples, random_state=8)
+        case "No Structure":
+            return np.random.rand(n_samples, 2), None
 
 # set up initial data
 n_samples = 1500
