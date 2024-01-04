@@ -16,7 +16,7 @@ dependencies = [
     "pandas >=1.2",
     "pillow >=7.1.0",
     "PyYAML >=3.10",
-    "tornado >=5.1",
+    "tornado >=6.2",
     "xyzservices >=2021.09.1",
 ]
 authors = [

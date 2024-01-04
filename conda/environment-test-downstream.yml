@@ -12,7 +12,7 @@ dependencies:
   - pillow >=4.0
   - python-dateutil >=2.1
   - pyyaml >=3.10
-  - tornado >=5
+  - tornado >=6.2
   - xyzservices>=2021.09.1
 
   # tests
