@@ -23,11 +23,15 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, NoReturn
+from typing import (
+    TYPE_CHECKING,
+    Literal,
+    NoReturn,
+    TypeAlias,
+)
 
 if TYPE_CHECKING:
     from types import FrameType
-    from typing_extensions import TypeAlias
 
 # External imports
 import _pytest.config

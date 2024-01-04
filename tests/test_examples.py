@@ -31,10 +31,10 @@ from os.path import (
 )
 from types import FrameType
 from typing import (
-    TYPE_CHECKING,
     Iterator,
     Literal,
     NoReturn,
+    TypeAlias,
 )
 
 # External imports
@@ -56,9 +56,6 @@ from bokeh.util.terminal import (
 )
 from tests.support.util.examples import Example, Flags, collect_examples
 from tests.support.util.screenshot import JSResult, run_in_chrome
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Setup

@@ -22,12 +22,12 @@ import itertools
 import re
 from dataclasses import dataclass
 from typing import (
-    TYPE_CHECKING,
     Any,
     Callable,
     Iterator,
     Literal,
     Sequence,
+    TypeAlias,
     cast,
 )
 
@@ -46,9 +46,6 @@ from ..models.tools import (
     Tap,
 )
 from ..util.warnings import warn
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

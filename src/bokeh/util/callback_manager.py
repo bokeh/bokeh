@@ -29,6 +29,7 @@ from typing import (
     Any,
     Callable,
     Sequence,
+    TypeAlias,
     cast,
 )
 
@@ -37,8 +38,6 @@ from ..events import Event, ModelEvent
 from ..util.functions import get_param_info
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from ..core.has_props import Setter
     from ..core.types import ID
     from ..document.document import Document

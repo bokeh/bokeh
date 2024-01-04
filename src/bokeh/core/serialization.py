@@ -34,6 +34,7 @@ from typing import (
     Literal,
     NoReturn,
     Sequence,
+    TypeAlias,
     TypedDict,
     TypeVar,
     cast,
@@ -65,7 +66,7 @@ from .types import ID
 
 if TYPE_CHECKING:
     import numpy.typing as npt
-    from typing_extensions import NotRequired, TypeAlias
+    from typing_extensions import NotRequired
 
     from ..core.has_props import Setter
     from ..model import Model

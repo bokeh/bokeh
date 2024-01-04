@@ -23,15 +23,12 @@ log = logging.getLogger(__name__)
 # Standard library imports
 import os
 from typing import (
-    TYPE_CHECKING,
     Literal,
     NewType,
     Sequence,
+    TypeAlias,
     TypedDict,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

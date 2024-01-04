@@ -25,14 +25,14 @@ import colorsys
 from abc import ABCMeta, abstractmethod
 from math import sqrt
 from re import match
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 # Bokeh imports
 from ..core.serialization import AnyRep, Serializable, Serializer
 from ..util.deprecation import deprecated
 
 if TYPE_CHECKING:
-    from typing_extensions import Self, TypeAlias
+    from typing_extensions import Self
 
 #-----------------------------------------------------------------------------
 # Globals and constants

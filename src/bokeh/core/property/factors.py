@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # Standard library imports
 import typing as tp
+from typing import TypeAlias
 
 # Bokeh imports
 from .bases import Init, SingleParameterizedProperty
@@ -27,9 +28,6 @@ from .container import Seq, Tuple
 from .either import Either
 from .primitive import String
 from .singletons import Intrinsic
-
-if tp.TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

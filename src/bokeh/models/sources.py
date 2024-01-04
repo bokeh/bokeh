@@ -22,6 +22,7 @@ from typing import (
     TYPE_CHECKING,
     Any as TAny,
     Sequence,
+    TypeAlias,
     overload,
 )
 
@@ -57,7 +58,6 @@ from .selections import Selection, SelectionPolicy, UnionRenderers
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeAlias
 
     from ..core.has_props import Setter
 

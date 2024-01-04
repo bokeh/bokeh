@@ -41,11 +41,11 @@ import re
 from os.path import relpath
 from pathlib import Path
 from typing import (
-    TYPE_CHECKING,
     Callable,
     ClassVar,
     Literal,
     Protocol,
+    TypeAlias,
     TypedDict,
     cast,
     get_args,
@@ -61,9 +61,6 @@ from .util.dataclasses import dataclass, field
 from .util.paths import ROOT_DIR
 from .util.token import generate_session_id
 from .util.version import is_full_release
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 # -----------------------------------------------------------------------------
 # Globals and constants

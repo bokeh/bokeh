@@ -17,7 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, TypeAlias
 
 # External imports
 import numpy as np
@@ -31,8 +31,6 @@ from bokeh.plotting.contour import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     # The following type annotation is to make the fixture typing simpler.
     # The X, Y, Z and Levels are simple valid data passed to the contouring
     # functions to allow testing of visual properties.

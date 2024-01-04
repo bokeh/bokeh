@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING
+from typing import TypeAlias
 
 # Bokeh imports
 from ..core.json_encoder import serialize_json
@@ -31,9 +31,6 @@ from ..model import Model
 from ..themes import Theme
 from .elements import div_for_render_item
 from .util import FromCurdoc, OutputDocumentFor, standalone_docs_json_and_render_items
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

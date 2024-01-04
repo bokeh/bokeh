@@ -22,7 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence
+from typing import TYPE_CHECKING, Sequence, TypeAlias
 
 # Bokeh imports
 from .core.property.vectorization import Expr, Field
@@ -38,8 +38,6 @@ from .models.mappers import (
 from .models.transforms import Dodge, Jitter
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from .colors import ColorLike
     from .core.enums import JitterRandomDistributionType
     from .models.ranges import Range

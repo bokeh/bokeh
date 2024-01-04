@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Callable
+from typing import Any, Callable, TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -39,9 +39,6 @@ _type_links: dict[type[Any], Callable[[Any], str]] = {}
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 def model_link(fullname: str) -> str:
     # (double) escaped space at the end is to appease Sphinx

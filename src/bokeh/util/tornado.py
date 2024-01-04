@@ -30,6 +30,7 @@ from typing import (
     Any,
     Awaitable,
     Callable,
+    TypeAlias,
 )
 
 # External imports
@@ -41,7 +42,6 @@ from ..core.types import ID
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -37,6 +37,7 @@ from typing import (
     Iterable,
     Literal,
     NoReturn,
+    TypeAlias,
     TypedDict,
     TypeVar,
     overload,
@@ -50,7 +51,7 @@ else:
     from functools import lru_cache
 
 if TYPE_CHECKING:
-    from typing_extensions import Self
+    from typing_extensions import NotRequired, Self
 
 # Bokeh imports
 from ..settings import settings
@@ -70,8 +71,6 @@ from .serialization import (
 from .types import ID
 
 if TYPE_CHECKING:
-    from typing_extensions import NotRequired, TypeAlias
-
     from ..client.session import ClientSession
     from ..server.session import ServerSession
     from .property.bases import Property

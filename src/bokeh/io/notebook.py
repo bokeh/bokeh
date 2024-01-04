@@ -30,6 +30,7 @@ from typing import (
     Callable,
     Literal,
     Protocol,
+    TypeAlias,
     TypedDict,
     cast,
     overload,
@@ -39,7 +40,6 @@ from uuid import uuid4
 ## External imports
 if TYPE_CHECKING:
     from ipykernel.comm import Comm
-    from typing_extensions import TypeAlias
 
 # Bokeh imports
 from ..core.types import ID

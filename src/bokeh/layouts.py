@@ -31,6 +31,7 @@ from typing import (
     Iterator,
     Literal,
     Sequence,
+    TypeAlias,
     TypeVar,
     overload,
 )
@@ -58,9 +59,6 @@ from .models import (
 )
 from .util.dataclasses import dataclass
 from .util.warnings import warn
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

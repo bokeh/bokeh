@@ -34,15 +34,12 @@ import hmac
 import json
 import time
 import zlib
-from typing import TYPE_CHECKING, Any
+from typing import Any, TypeAlias
 
 # Bokeh imports
 from ..core.types import ID
 from ..settings import settings
 from .warnings import warn
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

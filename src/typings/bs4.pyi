@@ -1,8 +1,4 @@
-# Standard library imports
-from typing import IO, TYPE_CHECKING, Any, Literal
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+from typing import IO, Any, Literal, TypeAlias
 
 # XXX: this is incorrect
 class PageElement:

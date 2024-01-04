@@ -19,10 +19,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, TypeVar
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
+from typing import TypeAlias, TypeVar
 
 #-----------------------------------------------------------------------------
 # Globals and constants

@@ -18,7 +18,12 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Sequence, cast
+from typing import (
+    TYPE_CHECKING,
+    Sequence,
+    TypeAlias,
+    cast,
+)
 
 # External imports
 import numpy as np
@@ -35,7 +40,6 @@ from ..util.dataclasses import dataclass, entries
 if TYPE_CHECKING:
     from contourpy._contourpy import FillReturn_OuterOffset, LineReturn_ChunkCombinedNan
     from numpy.typing import ArrayLike, NDArray
-    from typing_extensions import TypeAlias
 
     from ..palettes import Palette, PaletteCollection
     from ..transform import ColorLike

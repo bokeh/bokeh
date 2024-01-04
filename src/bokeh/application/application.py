@@ -36,6 +36,7 @@ from typing import (
     Awaitable,
     Callable,
     ClassVar,
+    TypeAlias,
 )
 
 # Bokeh imports
@@ -45,7 +46,6 @@ from ..settings import settings
 
 if TYPE_CHECKING:
     from tornado.httputil import HTTPServerRequest
-    from typing_extensions import TypeAlias
 
     from ..server.session import ServerSession
     from .handlers.handler import Handler

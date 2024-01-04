@@ -26,6 +26,7 @@ from typing import (
     Any,
     Literal,
     Sequence,
+    TypeAlias,
     TypedDict,
     cast,
     overload,
@@ -57,7 +58,6 @@ from .wrappers import wrap_in_onload
 
 if TYPE_CHECKING:
     from jinja2 import Template
-    from typing_extensions import TypeAlias
 
     from ..core.types import ID
     from ..document.document import DocJson

@@ -61,6 +61,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    TypeAlias,
     cast,
 )
 
@@ -80,7 +81,6 @@ from .json import (
 
 if TYPE_CHECKING:
     import pandas as pd
-    from typing_extensions import TypeAlias
 
     from ..core.has_props import Setter
     from ..model import Model

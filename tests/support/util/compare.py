@@ -21,14 +21,11 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, Sequence
+from typing import Any, Sequence, TypeAlias
 
 # External imports
 import numpy as np
 import numpy.typing as npt
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

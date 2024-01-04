@@ -25,11 +25,11 @@ log = logging.getLogger(__name__)
 from abc import ABCMeta, abstractmethod
 from argparse import ArgumentParser, Namespace
 from typing import (
-    TYPE_CHECKING,
     Any,
     ClassVar,
     Literal,
     Sequence,
+    TypeAlias,
 )
 
 # Bokeh imports
@@ -39,9 +39,6 @@ from ..util.dataclasses import (
     dataclass,
     entries,
 )
-
-if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
 
 #-----------------------------------------------------------------------------
 # Globals and constants

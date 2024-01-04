@@ -33,6 +33,7 @@ from typing import (
     Any,
     Callable,
     ClassVar,
+    TypeAlias,
     TypeVar,
 )
 
@@ -51,8 +52,6 @@ from .singletons import (
 )
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from ...document.events import DocumentPatchedEvent
 
 #-----------------------------------------------------------------------------

@@ -127,6 +127,7 @@ from typing import (
     Generic,
     Literal,
     Sequence,
+    TypeAlias,
     TypeVar,
     cast,
 )
@@ -139,8 +140,6 @@ from .util.deprecation import deprecated
 from .util.paths import bokehjs_path, server_path
 
 if TYPE_CHECKING:
-    from typing_extensions import TypeAlias
-
     from .core.types import PathLike
     from .resources import ResourcesMode
 
