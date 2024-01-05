@@ -79,29 +79,34 @@ def div_for_render_item(item: RenderItem) -> str:
     '''
     return PLOT_DIV.render(doc=item, macros=MACROS)
 
-def html_page_for_render_items(bundle: Bundle | tuple[str, str], docs_json: dict[ID, DocJson],
-        render_items: list[RenderItem], title: str | None, template: Template | str | None = None,
-        template_variables: dict[str, Any] = {}) -> str:
+def html_page_for_render_items(
+    bundle: Bundle | tuple[str, str],
+    docs_json: dict[ID, DocJson],
+    render_items: list[RenderItem],
+    title: str | None,
+    template: Template | str | None = None,
+    template_variables: dict[str, Any] = {},
+) -> str:
     ''' Render an HTML page from a template and Bokeh render items.
 
     Args:
         bundle (tuple):
-            a tuple containing (bokeh_js, bokeh_css)
+            A tuple containing (bokeh_js, bokeh_css).
 
         docs_json (JSON-like):
-            Serialized Bokeh Document
+            Serialized Bokeh Document.
 
-        render_items (RenderItems)
-            Specific items to render from the document and where
+        render_items (RenderItems):
+            Specific items to render from the document and where.
 
-        title (str or None)
-            A title for the HTML page. If None, DEFAULT_TITLE is used
+        title (str or None):
+            A title for the HTML page. If None, DEFAULT_TITLE is used.
 
-        template (str or Template or None, optional) :
+        template (str or Template or None, optional):
             A Template to be used for the HTML page. If None, FILE is used.
 
         template_variables (dict, optional):
-            Any Additional variables to pass to the template
+            Any Additional variables to pass to the template.
 
     Returns:
         str
