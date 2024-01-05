@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 # Bokeh imports
 from ..core.templates import AUTOLOAD_REQUEST_TAG, FILE
 from ..resources import DEFAULT_SERVER_HTTP_URL
-from ..util.serialization import make_id
+from ..util.serialization import make_globally_unique_css_safe_id
 from ..util.strings import format_docstring
 from .bundle import bundle_for_objs_and_resources
 from .elements import html_page_for_render_items
@@ -107,7 +107,7 @@ def server_document(url: str = "default", relative_urls: bool = False, resources
 
     app_path = _get_app_path(url)
 
-    elementid = make_id()
+    elementid = make_globally_unique_css_safe_id()
     src_path = _src_path(url, elementid)
 
     src_path += _process_app_path(app_path)
@@ -197,7 +197,7 @@ def server_session(model: Model | None = None, session_id: ID | None = None, url
 
     app_path = _get_app_path(url)
 
-    elementid = make_id()
+    elementid = make_globally_unique_css_safe_id()
     modelid = "" if model is None else model.id
     src_path = _src_path(url, elementid)
 

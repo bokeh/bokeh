@@ -39,7 +39,7 @@ from ..core.templates import (
 )
 from ..document.document import DEFAULT_TITLE
 from ..settings import settings
-from ..util.serialization import make_id
+from ..util.serialization import make_globally_unique_css_safe_id
 from .util import RenderItem
 from .wrappers import wrap_in_onload, wrap_in_safely, wrap_in_script_tag
 
@@ -112,7 +112,7 @@ def html_page_for_render_items(bundle: Bundle | tuple[str, str], docs_json: dict
 
     bokeh_js, bokeh_css = bundle
 
-    json_id = make_id()
+    json_id = make_globally_unique_css_safe_id()
     json = escape(serialize_json(docs_json), quote=False)
     json = wrap_in_script_tag(json, "application/json", json_id)
 
