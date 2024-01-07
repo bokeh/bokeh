@@ -41,7 +41,6 @@ log = logging.getLogger(__name__)
 import importlib
 
 # External imports
-import pandas as pd
 from docutils import nodes
 from sphinx.errors import SphinxError
 
@@ -77,6 +76,8 @@ def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=
     http://docutils.sourceforge.net/docs/howto/rst-roles.html#define-the-role-function
 
     """
+    import pandas as pd
+
     module_name, df_name = text.rsplit(".", 1)
 
     try:

@@ -30,11 +30,13 @@ import atexit
 import os
 from os.path import devnull
 from shutil import which
-from typing import Literal
+from typing import TYPE_CHECKING, Literal
+
+if TYPE_CHECKING:
+    from selenium.webdriver.remote.webdriver import WebDriver
 
 # External imports
 from packaging.version import Version
-from selenium.webdriver.remote.webdriver import WebDriver
 
 # Bokeh imports
 from ..settings import settings
