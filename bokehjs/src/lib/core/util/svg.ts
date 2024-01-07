@@ -741,8 +741,12 @@ export class SVGRenderingContext2D implements BaseCanvasRenderingContext2D {
     if (this.__currentPosition == null)
       return
 
-    const x0 = this.__currentPosition.x
-    const y0 = this.__currentPosition.y
+    // Issue #12699.
+    // this.__currentPosition has already been transformed using this._transform.
+    // Arguments to this function have not been transformed, so to compare the two need
+    // to inverse transform this.__currentPosition.
+    const inverse = this._transform.inverse()
+    const [x0, y0] = inverse.apply(this.__currentPosition.x, this.__currentPosition.y)
 
     // Negative values for radius must cause the implementation to throw an IndexSizeError exception.
     if (radius < 0) {

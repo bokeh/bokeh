@@ -40,4 +40,19 @@ describe("core/util/affine", () => {
     tr0.translate(1, 1)
     expect(tr0.apply(0, 0)).to.be.equal([1, 1])
   })
+
+  it("should support AffineTransform.inverse()", () => {
+    function compare(transform: AffineTransform): void {
+      const xy = [1.1, -5.5]
+      const transformed_xy = transform.apply(xy[0], xy[1])
+      const xy2 = transform.inverse().apply(transformed_xy[0], transformed_xy[1])
+      expect(xy).to.be.similar(xy2)
+    }
+
+    compare(new AffineTransform().translate(1, 3))
+    compare(new AffineTransform().rotate(-0.5))
+    compare(new AffineTransform().scale(0.5, -1.5))
+    compare(new AffineTransform().skew(-0.8, 1.2))
+    compare(new AffineTransform().translate(1, 3).rotate(-0.5).translate(-3.3, -1.1))
+  })
 })
