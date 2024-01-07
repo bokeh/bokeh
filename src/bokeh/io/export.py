@@ -33,9 +33,6 @@ from typing import (
     cast,
 )
 
-# External imports
-from PIL import Image
-
 if TYPE_CHECKING:
     from selenium.webdriver.remote.webdriver import WebDriver
 
@@ -50,6 +47,8 @@ from .state import State, curstate
 from .util import default_filename
 
 if TYPE_CHECKING:
+    from PIL import Image
+
     from ..models.plots import Plot
     from ..models.ui import UIElement
 
@@ -279,6 +278,7 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         [width, height, dpr] = _maximize_viewport(web_driver)
         png = web_driver.get_screenshot_as_png()
 
+    from PIL import Image
     return (Image.open(io.BytesIO(png))
                  .convert("RGBA")
                  .crop((0, 0, width*dpr, height*dpr))
