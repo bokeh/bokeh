@@ -29,9 +29,6 @@ from io import BytesIO
 from pathlib import Path
 from typing import Any, BinaryIO
 
-# External imports
-import PIL.Image
-
 # Bokeh imports
 from ...util.serialization import convert_datetime_type
 from .. import enums
@@ -154,6 +151,7 @@ class Image(Property):
 
     def validate(self, value: Any, detail: bool = True) -> None:
         import numpy as np
+        import PIL.Image
 
         if isinstance(value, (str, Path, PIL.Image.Image)):
             return
@@ -167,6 +165,8 @@ class Image(Property):
 
     def transform(self, value):
         import numpy as np
+        import PIL.Image
+
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 

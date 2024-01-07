@@ -1,0 +1,10 @@
+extend = "../../pyproject.toml"
+
+[lint.flake8-tidy-imports]
+banned-module-level-imports = [
+    "ipython",
+    "pandas",
+    "PIL",
+    "selenium",
+    "typing_extensions",
+]
