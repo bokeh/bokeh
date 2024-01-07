@@ -156,6 +156,10 @@ export class AffineTransform implements Equatable {
   flip_y(): this {
     return this.scale(-1, 1)
   }
+
+  inverse(): AffineTransform {
+    return AffineTransform.from_DOMMatrix(this.to_DOMMatrix().inverse())
+  }
 }
 
 export function rotate_around(point: XY, center: XY, angle: number): XY {
