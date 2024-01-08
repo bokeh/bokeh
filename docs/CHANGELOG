@@ -1,3 +1,14 @@
+2024-01-08    3.3.3:
+--------------------
+  * bugfixes:
+    - #8890 [component: bokehjs] [BUG] Updating span in figure does not update display
+    - #13556 [component: bokehjs] [BUG] (Global)ImportedStyleSheet URL not being treated correctly
+    - #13574 [component: bokehjs] [BUG] AutocompleteInput: Arrow up/down skips 2 options, not one by one
+    - #13589 [component: tests] Unit tests fail in CI on Windows
+
+  * tasks:
+    - #13624 Backports for 3.3.3
+
 2023-12-01    3.3.2:
 --------------------
   * bugfixes:
