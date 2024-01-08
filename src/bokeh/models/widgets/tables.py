@@ -869,7 +869,7 @@ class DataTable(TableWidget):
 
         Returns:
         bokeh.models.widgets.tables.DataTable: The created DataTable.
-        
+
         """
         import pandas as pd
 
@@ -881,12 +881,12 @@ class DataTable(TableWidget):
             source = data
         else:
             raise ValueError("Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource.")
-        
+
         source.data = {col: source.data[col] for col in (columns or source.data.keys())} if columns else source.data
 
         table_columns = [TableColumn(field=c, title=c, formatter=formatters.get(c, CellFormatter())) for c in source.data]
         table = DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
-        
+
         return table
 
 class GroupingInfo(Model):
