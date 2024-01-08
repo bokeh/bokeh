@@ -13,6 +13,12 @@ Use |quad| glyphs to create a histogram plotted from ``np.histogram`` output
 .. bokeh-plot:: __REPO__/examples/topics/stats/histogram.py
     :source-position: above
 
+A population pyramid plot is a divergent horizontal bar plot that can be used to compare distributions between two groups.
+In Bokeh they can be created using |hbar| glyphs.
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/pyramid.py
+    :source-position: above
+
 .. _ug_topics_stats_boxplot:
 
 Boxplot
@@ -32,6 +38,11 @@ Kernel density estimation
 .. bokeh-plot:: __REPO__/examples/topics/stats/kde2d.py
     :source-position: above
 
+Kernel density estimates can also be plotted using |varea| glyphs:
+
+.. bokeh-plot:: __REPO__/examples/topics/stats/density.py
+    :source-position: above
+
 .. _ug_topics_stats_sinaplot:
 
 SinaPlot
@@ -45,7 +56,7 @@ SinaPlots can be assembled using the |harea| and |scatter| glyphs:
 .. _ug_topics_stats_splom:
 
 SPLOM
--------
+-----
 
 A SPLOM is "scatter plot matrix" that arranges multiple scatter plots in a
 grid fashion in order to highlight correlations between dimensions. Key
@@ -56,7 +67,9 @@ components of a SPLOM are :ref:`ug_interaction_linked_panning` and
     :source-position: above
 
 .. |harea|   replace:: :func:`~bokeh.plotting.figure.harea`
+.. |hbar|    replace:: :func:`~bokeh.plotting.figure.hbar`
 .. |quad|    replace:: :func:`~bokeh.plotting.figure.quad`
 .. |scatter| replace:: :func:`~bokeh.plotting.figure.scatter`
+.. |varea|   replace:: :func:`~bokeh.plotting.figure.varea`
 .. |vbar|    replace:: :func:`~bokeh.plotting.figure.vbar`
 .. |Whisker| replace:: :class:`~bokeh.models.annotations.Whisker`

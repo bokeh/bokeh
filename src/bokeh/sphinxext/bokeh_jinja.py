@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -17,8 +17,12 @@ Any template parameters will be displayed and the template source code will
 be rendered in a collapsible code block. For example, the usage above will
 generate the following output:
 
-    .. bokeh-jinja:: bokeh.core.templates.FILE
-        :noindex:
+=====
+
+.. bokeh-jinja:: bokeh.core.templates.FILE
+    :noindex:
+
+=====
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_jinja"` to the
 extensions list in your Sphinx configuration module.

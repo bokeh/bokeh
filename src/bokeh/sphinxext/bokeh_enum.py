@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -25,10 +25,14 @@ Examples
 
 The directive above will generate the following output:
 
-    .. bokeh-enum:: baz
-        :module: bokeh.sphinxext.sample
+=====
 
-        Specify a baz style
+.. bokeh-enum:: baz
+    :module: bokeh.sphinxext.sample
+
+    Specify a baz style
+
+=====
 
 Although ``bokeh-enum`` may be used explicitly, it is more often convenient in
 conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension. Together,

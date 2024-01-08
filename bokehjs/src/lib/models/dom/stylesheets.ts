@@ -113,8 +113,9 @@ export class GlobalImportedStyleSheet extends ImportedStyleSheet {
   private _underlying: dom.StyleSheet | null = null
 
   override underlying(): dom.StyleSheet {
-    if (this._underlying == null)
-      this._underlying = new dom.GlobalInlineStyleSheet(this.url)
+    if (this._underlying == null) {
+      this._underlying = new dom.GlobalImportedStyleSheet(this.url)
+    }
     return this._underlying
   }
 }

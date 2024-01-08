@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -32,8 +32,12 @@ For the following definition of ``bokeh.sphinxext.sample.Opts``:
 
 the above usage yields the output:
 
-    .. bokeh-options:: Opts
-        :module: bokeh.sphinxext.sample
+=====
+
+.. bokeh-options:: Opts
+    :module: bokeh.sphinxext.sample
+
+=====
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_options"` to the
 extensions list in your Sphinx configuration module.

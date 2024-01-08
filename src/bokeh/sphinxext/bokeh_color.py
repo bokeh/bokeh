@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -14,7 +14,11 @@ The ``bokeh-color`` directive accepts a named color as its argument:
 
 and generates a labeled color swatch as output.
 
-    .. bokeh-color:: aliceblue
+======
+
+.. bokeh-color:: aliceblue
+
+======
 
 The ``bokeh-color`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.

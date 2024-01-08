@@ -76,6 +76,10 @@ export type Options = {
   units: "data" | "screen"
 }
 
+export function actions(target: PlotView, options: Partial<Options> = {}): PlotActions {
+  return new PlotActions(target, options)
+}
+
 export class PlotActions {
   readonly options: Options
 

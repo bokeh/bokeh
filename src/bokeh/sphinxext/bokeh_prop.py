@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -31,9 +31,12 @@ For the following definition of ``bokeh.sphinxext.sample.Bar``:
 
 the above usage yields the output:
 
-    .. bokeh-prop:: Bar.thing
-        :module: bokeh.sphinxext.sample
+-----
 
+.. bokeh-prop:: Bar.thing
+    :module: bokeh.sphinxext.sample
+
+-----
 
 The ``bokeh-prop`` direction may be used explicitly, but it can also be used
 in conjunction with the :ref:`bokeh.sphinxext.bokeh_autodoc` extension.

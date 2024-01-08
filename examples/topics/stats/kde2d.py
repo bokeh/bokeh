@@ -1,5 +1,5 @@
 ''' A bivariate `kernel density estimation`_ plot of the "autompg" data using
-the `scipy.stats.gaussian_kde`_ funtion and Bokeh contour renderer.s
+the `scipy.stats.gaussian_kde`_ function and Bokeh contour renderers.
 
 .. bokeh-example-metadata::
     :sampledata: autompg

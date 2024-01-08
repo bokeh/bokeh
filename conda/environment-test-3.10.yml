@@ -36,7 +36,7 @@ dependencies:
   - pygments
   - pygraphviz
   - pytest >=7.0
-  - pytest-asyncio >=0.18.1
+  - pytest-asyncio ==0.21.1 # https://github.com/bokeh/bokeh/issues/13578
   - pytest-cov >=1.8.1
   - pytest-html
   - pytest-xdist
@@ -68,14 +68,14 @@ dependencies:
     # docs
     - pydata_sphinx_theme
     - requests-unixsocket >= 0.3.0
-    - sphinx
+    - sphinx >= 7.1.0
     - sphinx-copybutton
     - sphinx-design
     - sphinx-favicon
     - sphinxext-opengraph
     # tests
     - pandas-stubs >=2.1
-    - ruff ==0.0.285
+    - ruff ==0.1.11
     - types-boto
     - types-colorama
     - types-mock

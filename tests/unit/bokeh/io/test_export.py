@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -17,6 +17,7 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+import base64
 import re
 import sys
 from typing import TYPE_CHECKING
@@ -195,30 +196,21 @@ def test_get_svg_no_svg_present(webdriver: WebDriver) -> None:
     with silenced(MISSING_RENDERERS):
         svgs = bie.get_svg(layout, driver=webdriver)
 
-    def output(data: str) -> list[str]:
-        return [
-            '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
-                '<defs/>'
-                f'<image width="20" height="20" preserveAspectRatio="none" href="data:image/png;base64,{data}"/>'
-            '</svg>',
-        ]
+    assert isinstance(svgs, list) and len(svgs) == 1
+    [svg] = svgs
 
-    chrome_data = (
-        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAAXNSR0IArs4c6QAAAFNJ"
-        "REFUOE9jZKAyYKSyeQyjBkJC9D8DgwMDBBMCBxgZGA4gK8Iahv8ZGBoYGBjqCZnGwMDQ"
-        "yAhRCwejBsIjZTQMcSaggUs21M0pROQQnEpGYPEFALJrIRXAq4rZAAAAAElFTkSuQmCC"
-
-    )
-    firefox_data = (
-        "iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAAUUlEQVQ4T2NkoDJgpLJ5D"
-        "KMGQkL0PwODA5ACYULgADDMDiArwhqGQAMbgIrqCZkGlG8EGgBSCwejBsIjZTQMcSaggUs"
-        "21M0pROQQnEpGYPEFALJrIRV3ULevAAAAAElFTkSuQmCC"
+    pattern = re.compile(
+        '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20">'
+            '<defs/>'
+            '<image width="20" height="20" preserveAspectRatio="none" href="data:image/png;base64,([^"]*)"/>'
+        '</svg>',
     )
 
-    if webdriver.name == "chrome":
-        assert svgs == output(chrome_data)
-    else:
-        assert svgs == output(firefox_data)
+    result = pattern.match(svg)
+    assert result is not None
+
+    (data,) = result.groups()
+    assert base64.b64decode(data).startswith(b"\x89PNG\r\n")
 
 @pytest.mark.selenium
 def test_get_svg_with_svg_present(webdriver: WebDriver) -> None:

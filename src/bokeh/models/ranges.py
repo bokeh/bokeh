@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -384,7 +384,7 @@ class FactorRange(Range):
 
         FactorRange(factors=[["foo", "1"], ["foo", "2"], ["bar", "1"]])
 
-    The top level groups correspond to ``"foo"` and ``"bar"``, and the
+    The top level groups correspond to ``"foo"`` and ``"bar"``, and the
     group padding will be applied between the factors ``["foo", "2"]`` and
     ``["bar", "1"]``
     """)

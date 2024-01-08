@@ -3,7 +3,7 @@
     The line passes through the mean of the area covered by the band.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show,
+    :apis: bokeh.models.Band, bokeh.models.ColumnDataSource, bokeh.plotting.figure, bokeh.io.show
     :refs: :ref:`ug_basic_annotations_bands`
     :keywords: figure, scatter, line, band, layout
 

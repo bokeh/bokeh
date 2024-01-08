@@ -7,7 +7,7 @@ import {PlotActions, xy, click, press, mouseenter} from "../interactive"
 import type {ArrowHead, Line, Renderer, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
-  BoxAnnotation, LabelSet, ColorBar, Slope, Whisker,
+  BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
   Range1d, DataRange1d, FactorRange,
   ColumnDataSource, CDSView, BooleanFilter, IndexFilter, Selection,
   LinearAxis, CategoricalAxis,
@@ -33,7 +33,7 @@ import {
 
 import {
   Button, Toggle, Select, MultiSelect, MultiChoice, RadioGroup, RadioButtonGroup,
-  Div, TextInput, DatePicker,
+  Div, TextInput, DatePicker, AutocompleteInput,
 } from "@bokehjs/models/widgets"
 
 import {DataTable, TableColumn, DateFormatter} from "@bokehjs/models/widgets/tables"
@@ -56,6 +56,7 @@ import {Figure, figure, show} from "@bokehjs/api/plotting"
 import type {MarkerArgs} from "@bokehjs/api/glyph_api"
 import {Spectral11, turbo, plasma} from "@bokehjs/api/palettes"
 import {div, offset_bbox} from "@bokehjs/core/dom"
+import type {Keys} from "@bokehjs/core/dom"
 import type {XY, LRTB} from "@bokehjs/core/util/bbox"
 import {sprintf} from "@bokehjs/core/util/templating"
 
@@ -3713,6 +3714,30 @@ describe("Bug", () => {
       const p1 = make_plot("webgl")
 
       await display(row([p0, p1]))
+    })
+  })
+
+  describe("in issue #8890", () => {
+    it("doesn't allow to render newly added Span annotation", async () => {
+      const span0 = new Span({location: 0.5, dimension: "width", line_color: "red"})
+      const span1 = new Span({location: 0.5, dimension: "height", line_color: "blue"})
+
+      const plot = fig([200, 200], {x_range: [0, 1], y_range: [0, 1], renderers: [span0]})
+      const {view} = await display(plot)
+
+      plot.add_layout(span1)
+      await view.ready
+    })
+  })
+
+  describe("in issue #13574", () => {
+    it("doesn't allow to correctly change active menu item with arrows in AutocompleteInput", async () => {
+      const widget = new AutocompleteInput({completions: ["aaa", "aab", "aac", "aad", "aae"], min_characters: 0})
+      const {view} = await display(widget, [300, 200])
+      view.input_el.dispatchEvent(new FocusEvent("focusin"))
+      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
+      view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
+      await view.ready
     })
   })
 })

@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -17,7 +17,7 @@ For example:
 
 Will generate the output:
 
-    :bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
+:bokeh-dataframe:`bokeh.sampledata.sprint.sprint`
 
 To enable this extension, add `"bokeh.sphinxext.bokeh_dataframe"` to the
 extensions list in your Sphinx configuration module.
@@ -41,7 +41,6 @@ log = logging.getLogger(__name__)
 import importlib
 
 # External imports
-import pandas as pd
 from docutils import nodes
 from sphinx.errors import SphinxError
 
@@ -77,6 +76,8 @@ def bokeh_dataframe(name, rawtext, text, lineno, inliner, options=None, content=
     http://docutils.sourceforge.net/docs/howto/rst-roles.html#define-the-role-function
 
     """
+    import pandas as pd
+
     module_name, df_name = text.rsplit(".", 1)
 
     try:

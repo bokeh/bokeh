@@ -64,6 +64,13 @@ commits
 
 .. automodule:: bokeh.sampledata.commits
 
+.. _sampledata_cows:
+
+cows
+----
+
+.. automodule:: bokeh.sampledata.cows
+
 .. _sampledata_daylight:
 
 daylight
@@ -77,6 +84,21 @@ degrees
 -------
 
 .. automodule:: bokeh.sampledata.degrees
+
+.. _sampledata_emissions:
+
+emissions
+---------
+
+.. automodule:: bokeh.sampledata.emissions
+
+
+.. _sampledata_forensic_glass:
+
+forensic_glass
+--------------
+
+.. automodule:: bokeh.sampledata.forensic_glass
 
 .. _sampledata_gapminder:
 
@@ -105,6 +127,13 @@ iris
 ----
 
 .. automodule:: bokeh.sampledata.iris
+
+.. _sampledata_lincoln:
+
+lincoln
+-------
+
+.. automodule:: bokeh.sampledata.lincoln
 
 .. _sampledata_les_mis:
 
@@ -189,6 +218,13 @@ sprint
 ------
 
 .. automodule:: bokeh.sampledata.sprint
+
+.. _sampledata_titanic:
+
+titanic
+-------
+
+.. automodule:: bokeh.sampledata.titanic
 
 .. _sampledata_stocks:
 

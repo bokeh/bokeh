@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -28,9 +28,6 @@ import tempfile
 from io import BytesIO
 from pathlib import Path
 from typing import Any, BinaryIO
-
-# External imports
-import PIL.Image
 
 # Bokeh imports
 from ...util.serialization import convert_datetime_type
@@ -154,6 +151,7 @@ class Image(Property):
 
     def validate(self, value: Any, detail: bool = True) -> None:
         import numpy as np
+        import PIL.Image
 
         if isinstance(value, (str, Path, PIL.Image.Image)):
             return
@@ -167,6 +165,8 @@ class Image(Property):
 
     def transform(self, value):
         import numpy as np
+        import PIL.Image
+
         if isinstance(value, np.ndarray):
             value = PIL.Image.fromarray(value)
 

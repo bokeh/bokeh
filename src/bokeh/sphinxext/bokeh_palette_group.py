@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -19,7 +19,11 @@ As an example, the following usage of the the directive:
 
 Generates the output:
 
-    .. bokeh-palette-group:: mpl
+-----
+
+.. bokeh-palette-group:: mpl
+
+-----
 
 .. note::
    This extension assumes both Bootstrap and JQuery are present (which is the

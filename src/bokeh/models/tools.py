@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-# Copyright (c) 2012 - 2023, Anaconda, Inc., and Bokeh Contributors.
+# Copyright (c) 2012 - 2024, Anaconda, Inc., and Bokeh Contributors.
 # All rights reserved.
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
@@ -112,7 +112,7 @@ from .glyphs import (
     VStrip,
     XYGlyph,
 )
-from .ranges import Range1d
+from .ranges import Range
 from .renderers import DataRenderer, GlyphRenderer
 from .ui import UIElement
 
@@ -475,12 +475,12 @@ class RangeTool(Tool):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    x_range = Nullable(Instance(Range1d), help="""
+    x_range = Nullable(Instance(Range), help="""
     A range synchronized to the x-dimension of the overlay. If None, the overlay
     will span the entire x-dimension.
     """)
 
-    y_range = Nullable(Instance(Range1d), help="""
+    y_range = Nullable(Instance(Range), help="""
     A range synchronized to the y-dimension of the overlay. If None, the overlay
     will span the entire y-dimension.
     """)
@@ -1201,13 +1201,13 @@ class CustomJSHover(Model):
     The snippet will be made into the body of a function and therefore requires
     a return statement.
 
-    Example:
+    **Example**
 
-        .. code-block:: javascript
+    .. code-block:: javascript
 
-            code = '''
-            return value + " total"
-            '''
+        code = '''
+        return value + " total"
+        '''
     """)
 
 class HoverTool(InspectTool):
@@ -1254,19 +1254,19 @@ class HoverTool(InspectTool):
 
     Hover tool does not currently work with the following glyphs:
 
-        .. hlist::
-            :columns: 3
+    .. hlist::
+        :columns: 3
 
-            * annulus
-            * arc
-            * bezier
-            * image_url
-            * oval
-            * patch
-            * quadratic
-            * ray
-            * step
-            * text
+        * annulus
+        * arc
+        * bezier
+        * image_url
+        * oval
+        * patch
+        * quadratic
+        * ray
+        * step
+        * text
 
     .. |hover_icon| image:: /_images/icons/Hover.png
         :height: 24px
