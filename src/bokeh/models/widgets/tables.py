@@ -858,6 +858,37 @@ class DataTable(TableWidget):
     The height of each row in pixels.
     """)
 
+    @staticmethod
+    def to_data_table(data, columns=None, formatters={}, **kwargs) -> DataTable:
+        """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
+
+        Parameters:
+        data (pandas DataFrame or dict or ColumnDataSource): The data to create the table from.
+        columns (list, optional): A list of column names to use. If None, use all columns.
+        formatters (dict, optional): A formatter to be applied to all columns or specified columns.
+
+        Returns:
+        bokeh.models.widgets.tables.DataTable: The created DataTable.
+        
+        """
+        import pandas as pd
+
+        if isinstance(data, pd.DataFrame):
+            source = ColumnDataSource(data)
+        elif isinstance(data, dict):
+            source = ColumnDataSource(data)
+        elif isinstance(data, ColumnDataSource):
+            source = data
+        else:
+            raise ValueError("Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource.")
+        
+        source.data = {col: source.data[col] for col in (columns or source.data.keys())} if columns else source.data
+
+        table_columns = [TableColumn(field=c, title=c, formatter=formatters.get(c, CellFormatter())) for c in source.data]
+        table = DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
+        
+        return table
+
 class GroupingInfo(Model):
     '''Describes how to calculate totals and sub-totals
 
