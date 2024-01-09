@@ -786,31 +786,31 @@ Lime,Green,99,$0.39
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
 
 class TestDataTable:
-    def test_from_data_table_with_dataframe():
+    def test_from_data_table_with_dataframe(self):
         df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
         table = DataTable.from_data_table(df)
         assert isinstance(table, DataTable)
         assert list(table.source.data) == ['A', 'B']
 
-    def test_from_data_table_with_dict():
+    def test_from_data_table_with_dict(self):
         data = {'A': [1, 2, 3], 'B': [4, 5, 6]}
         table = DataTable.from_data_table(data)
         assert isinstance(table, DataTable)
         assert list(table.source.data) == ['A', 'B']
 
-    def test_from_data_table_with_columndatasource():
+    def test_from_data_table_with_columndatasource(self):
         data = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6]})
         table = DataTable.from_data_table(data)
         assert isinstance(table, DataTable)
         assert list(table.source.data) == ['A', 'B']
 
-    def test_from_data_table_with_columns():
+    def test_from_data_table_with_columns(self):
         df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
         table = DataTable.from_data_table(df, columns=['A', 'B'])
         assert isinstance(table, DataTable)
         assert list(table.source.data) == ['A', 'B']
 
-    def test_from_data_table_with_invalid_data():
+    def test_from_data_table_with_invalid_data(self):
         with pytest.raises(ValueError, match="Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource."):
             DataTable.from_data_table("invalid data")
 
