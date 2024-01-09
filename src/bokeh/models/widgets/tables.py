@@ -859,7 +859,7 @@ class DataTable(TableWidget):
     """)
 
     @staticmethod
-    def from_data_table(data, columns=None, formatters={}, **kwargs) -> DataTable:
+    def from_data(data, columns=None, formatters={}, **kwargs) -> DataTable:
         """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
 
         Args:
