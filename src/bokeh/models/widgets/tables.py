@@ -859,35 +859,45 @@ class DataTable(TableWidget):
     """)
 
     @staticmethod
-    def to_data_table(data, columns=None, formatters={}, **kwargs) -> DataTable:
+    def from_data_table(data, columns=None, formatters={}, **kwargs) -> DataTable:
         """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
 
-        Parameters:
-        data (pandas DataFrame or dict or ColumnDataSource): The data to create the table from.
-        columns (list, optional): A list of column names to use. If None, use all columns.
-        formatters (dict, optional): A formatter to be applied to all columns or specified columns.
+        Args:
+            data (DataFrame or dict or ColumnDataSource) :
+                The data to create the table from. If the data is a dataframe or dictionary, it will be converted to a ColumnDataSource
+            
+            columns (list, optional) :
+                A list of column names to use. If None, use all columns
+            
+            formatters (dict, optional) :
+                Formatters to be applied to specified columns
+            
+        Keyword arguments:
+            Any additional keyword arguments will be passed to DataTable
 
         Returns:
-        bokeh.models.widgets.tables.DataTable: The created DataTable.
+            DataTable
+        
+        Raises:
+            ValueError
+                If the data is not a pandas Dataframe, dictionary or ColumnDataSource
 
         """
         import pandas as pd
 
-        if isinstance(data, pd.DataFrame):
-            source = ColumnDataSource(data)
-        elif isinstance(data, dict):
+        if isinstance(data, (pd.DataFrame, dict)):
             source = ColumnDataSource(data)
         elif isinstance(data, ColumnDataSource):
             source = data
         else:
             raise ValueError("Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource.")
 
-        source.data = {col: source.data[col] for col in (columns or source.data.keys())} if columns else source.data
+        if columns is not None:
+            source.data = {col: source.data[col] for col in columns}
 
         table_columns = [TableColumn(field=c, title=c, formatter=formatters.get(c, CellFormatter())) for c in source.data]
-        table = DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
-
-        return table
+        
+        return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
 
 class GroupingInfo(Model):
     '''Describes how to calculate totals and sub-totals
