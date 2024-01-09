@@ -865,19 +865,19 @@ class DataTable(TableWidget):
         Args:
             data (DataFrame or dict or ColumnDataSource) :
                 The data to create the table from. If the data is a dataframe or dictionary, it will be converted to a ColumnDataSource
-            
+
             columns (list, optional) :
                 A list of column names to use. If None, use all columns
-            
+
             formatters (dict, optional) :
                 Formatters to be applied to specified columns
-            
+
         Keyword arguments:
             Any additional keyword arguments will be passed to DataTable
 
         Returns:
             DataTable
-        
+
         Raises:
             ValueError
                 If the data is not a pandas Dataframe, dictionary or ColumnDataSource
@@ -896,7 +896,7 @@ class DataTable(TableWidget):
             source.data = {col: source.data[col] for col in columns}
 
         table_columns = [TableColumn(field=c, title=c, formatter=formatters.get(c, CellFormatter())) for c in source.data]
-        
+
         return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
 
 class GroupingInfo(Model):
