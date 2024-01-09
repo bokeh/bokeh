@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 # Bokeh imports
-from bokeh.models import Selection
+from bokeh.models import ColumnDataSource, DataTable, Selection
 from bokeh.util.serialization import convert_datetime_array
 from bokeh.util.warnings import BokehDeprecationWarning
 
@@ -784,6 +784,35 @@ Lime,Green,99,$0.39
             ds.data.update(dict(a=[10, 11, 12]))
         assert len(warns) == 1
         assert str(warns[0].message) == "ColumnDataSource's columns must be of the same length. Current lengths: ('a', 3), ('b', 2)"
+
+class TestDataTable:
+    def test_from_data_table_with_dataframe():
+        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        table = DataTable.from_data_table(df)
+        assert isinstance(table, DataTable)
+        assert list(table.source.data) == ['A', 'B']
+
+    def test_from_data_table_with_dict():
+        data = {'A': [1, 2, 3], 'B': [4, 5, 6]}
+        table = DataTable.from_data_table(data)
+        assert isinstance(table, DataTable)
+        assert list(table.source.data) == ['A', 'B']
+
+    def test_from_data_table_with_columndatasource():
+        data = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        table = DataTable.from_data_table(data)
+        assert isinstance(table, DataTable)
+        assert list(table.source.data) == ['A', 'B']
+
+    def test_from_data_table_with_columns():
+        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+        table = DataTable.from_data_table(df, columns=['A', 'B'])
+        assert isinstance(table, DataTable)
+        assert list(table.source.data) == ['A', 'B']
+
+    def test_from_data_table_with_invalid_data():
+        with pytest.raises(ValueError, match="Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource."):
+            DataTable.from_data_table("invalid data")
 
 #-----------------------------------------------------------------------------
 # Dev API
