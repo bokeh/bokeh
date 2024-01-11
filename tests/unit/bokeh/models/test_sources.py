@@ -810,8 +810,13 @@ class TestDataTable:
         assert isinstance(table, DataTable)
         assert set(table.source.data) == {'A', 'B'}
 
+        source = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+        table = DataTable.from_data(source, columns=['A', 'C'])
+        assert isinstance(table, DataTable)
+        assert set(table.source.data) == {'A', 'C'}
+
     def test_from_data_with_invalid_data(self):
-        with pytest.raises(ValueError, match="Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource."):
+        with pytest.raises(ValueError, match="Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame"):
             DataTable.from_data("invalid data")
 
 #-----------------------------------------------------------------------------

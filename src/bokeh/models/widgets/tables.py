@@ -45,6 +45,7 @@ from ...core.properties import (
     Required,
     String,
 )
+from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
@@ -876,29 +877,33 @@ class DataTable(TableWidget):
                 apply to each column. (default: None)
 
         Keyword arguments:
-            Any additional keyword arguments will be passed to DataTable
+            Any additional keyword arguments will be passed to DataTable.
 
         Returns:
             DataTable
 
         Raises:
             ValueError
-                If the data is not a pandas Dataframe, dictionary or ColumnDataSource
+                If the provided data is not a ColumnDataSource
+                or a data source that a ColumnDataSource can be created from.
 
         """
-        import pandas as pd
 
-        if isinstance(data, (pd.DataFrame, dict)):
-            source = ColumnDataSource(data)
-        elif isinstance(data, ColumnDataSource):
+        if isinstance(data, ColumnDataSource):
             source = data
         else:
-            raise ValueError("Data should be a pandas DataFrame, dictionary, or a Bokeh ColumnDataSource.")
+            try:
+                source = ColumnDataSource(data)
+            except ValueError as e:
+                raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
 
         if columns is not None:
-            source.data = {col: source.data[col] for col in columns}
+            source = ColumnDataSource(data=dict((col, source.data[col]) for col in columns))
 
-        table_columns = [TableColumn(field=c, title=c, formatter=formatters.get(c, CellFormatter())) for c in source.data]
+        table_columns = []
+        for c in source.data.keys():
+            formatter = formatters.get(c, Intrinsic)
+            table_columns.append(TableColumn(field=c, title=c, formatter=formatter))
 
         return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
 
