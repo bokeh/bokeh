@@ -864,13 +864,16 @@ class DataTable(TableWidget):
 
         Args:
             data (DataFrame or dict or ColumnDataSource) :
-                The data to create the table from. If the data is a dataframe or dictionary, it will be converted to a ColumnDataSource
+                The data to create the table from. If the data is a dataframe
+                or dictionary, a ColumnDataSource will be created from it.
 
             columns (list, optional) :
-                A list of column names to use. If None, use all columns
+                A list of column names to use from the input data.
+                If None, use all columns. (default: None)
 
             formatters (dict, optional) :
-                Formatters to be applied to specified columns
+                A mapping of column names and corresponding Formatters to
+                apply to each column. (default: None)
 
         Keyword arguments:
             Any additional keyword arguments will be passed to DataTable
