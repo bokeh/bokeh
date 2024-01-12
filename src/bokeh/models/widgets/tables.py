@@ -896,7 +896,7 @@ class DataTable(TableWidget):
                 data = ColumnDataSource(data)
             except ValueError as e:
                 raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
-        source = ColumnDataSource(data.data)
+        source = data.clone()
 
         if columns is not None:
             source.data = {col: source.data[col] for col in columns}
