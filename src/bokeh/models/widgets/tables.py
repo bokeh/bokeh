@@ -890,13 +890,12 @@ class DataTable(TableWidget):
         """
 
         if isinstance(data, ColumnDataSource):
-            data = data
+            source = data.clone()
         else:
             try:
-                data = ColumnDataSource(data)
+                source = ColumnDataSource(data)
             except ValueError as e:
                 raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
-        source = data.clone()
 
         if columns is not None:
             source.data = {col: source.data[col] for col in columns}

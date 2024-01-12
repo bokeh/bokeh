@@ -799,34 +799,18 @@ class TestDataTable:
         assert set(table.source.data) == {'A', 'B'}
 
     def test_from_data_with_columndatasource(self):
-        data = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6]})
-        table = DataTable.from_data(data)
-        assert isinstance(table, DataTable)
-        assert set(table.source.data) == {'A', 'B'}
-
-    def test_from_data_with_columns(self):
-        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
-        table = DataTable.from_data(df, columns=['A', 'B'])
-        assert isinstance(table, DataTable)
-        assert set(table.source.data) == {'A', 'B'}
-
-        source = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
-        table = DataTable.from_data(source, columns=['A', 'C'])
-        assert isinstance(table, DataTable)
-        assert set(table.source.data) == {'A', 'C'}
-
-    def test_from_data_with_dataclone(self):
         source = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6]})
         table = DataTable.from_data(source)
+        assert isinstance(table, DataTable)
+        assert set(table.source.data) == {'A', 'B'}
         assert source is not table.source
 
-        data = {'A': [1, 2, 3], 'B': [4, 5, 6]}
-        table = DataTable.from_data(data)
-        assert data is not table.source
-
-        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
-        table = DataTable.from_data(df)
-        assert df is not table.source
+    @pytest.mark.parametrize("typ", (dict, pd.DataFrame, ColumnDataSource))
+    def test_from_data_with_columns(self, typ):
+        data = typ({'A': [1, 2, 3], 'B': [4, 5, 6], 'C': [7, 8, 9]})
+        table = DataTable.from_data(data, columns=['A', 'B'])
+        assert isinstance(table, DataTable)
+        assert set(table.source.data) == {'A', 'B'}
 
     def test_from_data_with_invalid_data(self):
         with pytest.raises(ValueError, match="Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame"):
