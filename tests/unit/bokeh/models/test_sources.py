@@ -815,6 +815,19 @@ class TestDataTable:
         assert isinstance(table, DataTable)
         assert set(table.source.data) == {'A', 'C'}
 
+    def test_from_data_with_dataclone(self):
+        data = ColumnDataSource({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        table = DataTable.from_data(data)
+        assert data is not table.source
+
+        data = {'A': [1, 2, 3], 'B': [4, 5, 6]}
+        table = DataTable.from_data(data)
+        assert data is not table.source
+
+        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        table = DataTable.from_data(df)
+        assert data is not table.source
+
     def test_from_data_with_invalid_data(self):
         with pytest.raises(ValueError, match="Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame"):
             DataTable.from_data("invalid data")

@@ -890,15 +890,16 @@ class DataTable(TableWidget):
         """
 
         if isinstance(data, ColumnDataSource):
-            source = data
+            data = data
         else:
             try:
-                source = ColumnDataSource(data)
+                data = ColumnDataSource(data)
             except ValueError as e:
                 raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
+        source = ColumnDataSource(data.data)
 
         if columns is not None:
-            source = ColumnDataSource(data=dict((col, source.data[col]) for col in columns))
+            source.data = {col: source.data[col] for col in columns}
 
         table_columns = []
         for c in source.data.keys():
