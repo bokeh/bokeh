@@ -124,17 +124,20 @@ class Metric(Dimensional):
     def _map_basis_item(cls: type[Self], name: str, factor: float, tex_name: str):
         return name, factor, tex_name
 
-    def __init__(self, base_unit: str, **kwargs: Any) -> None:
-        basis = {}
-        for item in self._basis:
-            name = f"{item.prefix}{base_unit}"
-            factor = item.factor
-            tex_name = f"{item.tex_prefix}{base_unit}" if item.tex_prefix is not None else name
+    def __init__(self, base_unit: str | None = None, **kwargs: Any) -> None:
+        if base_unit is None:
+            super().__init__(**kwargs)
+        else:
+            basis = {}
+            for item in self._basis:
+                name = f"{item.prefix}{base_unit}"
+                factor = item.factor
+                tex_name = f"{item.tex_prefix}{base_unit}" if item.tex_prefix is not None else name
 
-            name, factor, tex_name = self._map_basis_item(name, factor, tex_name)
-            basis[name] = (factor, tex_name)
+                name, factor, tex_name = self._map_basis_item(name, factor, tex_name)
+                basis[name] = (factor, tex_name)
 
-        super().__init__(basis=basis, **kwargs)
+            super().__init__(basis=basis, **kwargs)
 
     ticks = Override(default=[1, 2, 5, 10, 15, 20, 25, 50, 75, 100, 125, 150, 200, 250, 500, 750])
 
@@ -147,7 +150,7 @@ class ReciprocalMetric(Metric):
         return f"{name}⁻1", factor**-1, f"{tex_name}^{{-1}}"
 
     # explicit __init__ to support Init signatures
-    def __init__(self, base_unit: str, **kwargs: Any) -> None:
+    def __init__(self, base_unit: str | None = None, **kwargs: Any) -> None:
         super().__init__(base_unit, **kwargs)
 
 class MetricLength(Metric):
