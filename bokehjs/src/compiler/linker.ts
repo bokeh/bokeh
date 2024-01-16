@@ -749,7 +749,7 @@ export ${export_type} json;
       case "json5": {
         source = `\
 const json5 = \`
-${source}
+${source.replaceAll("\\", "\\\\")}
 \`;
 export ${export_type} json5;
 `
