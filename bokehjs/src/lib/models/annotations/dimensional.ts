@@ -1,4 +1,5 @@
 import {Model} from "../../model"
+import type {DictLike} from "core/types"
 import type * as p from "core/properties"
 import {assert} from "core/util/assert"
 import {entries} from "core/util/object"
@@ -24,7 +25,7 @@ export type PreferredValue = {
 export namespace Dimensional {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Model.Props & {
-    basis: p.Property<{[key: string]: [number, string]}>
+    basis: p.Property<DictLike<[number, string]>>
     ticks: p.Property<number[]>
     include: p.Property<string[] | null>
     exclude: p.Property<string[]>
