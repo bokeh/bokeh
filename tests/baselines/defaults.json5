@@ -395,7 +395,17 @@
     },
   },
   Angular: {
-    __extends__: "Dimensional",
+    __extends__: "CustomDimensional",
+    ticks: [
+      1,
+      3,
+      6,
+      12,
+      60,
+      120,
+      240,
+      360,
+    ],
     basis: {
       type: "map",
       entries: [
@@ -414,7 +424,7 @@
           ],
         ],
         [
-          "\"",
+          "''",
           [
             0.0002777777777777778,
             "^{\\prime\\prime}",
@@ -422,23 +432,16 @@
         ],
       ],
     },
-    ticks: [
-      1,
-      3,
-      6,
-      12,
-      60,
-      120,
-      240,
-      360,
-    ],
   },
-  Dimensional: {
-    __extends__: "Model",
+  CustomDimensional: {
+    __extends__: "Dimensional",
     basis: {
       type: "symbol",
       name: "unset",
     },
+  },
+  Dimensional: {
+    __extends__: "Model",
     ticks: {
       type: "symbol",
       name: "unset",
@@ -447,7 +450,14 @@
     exclude: [],
   },
   ImperialLength: {
-    __extends__: "Dimensional",
+    __extends__: "CustomDimensional",
+    ticks: [
+      1,
+      3,
+      6,
+      12,
+      60,
+    ],
     basis: {
       type: "map",
       entries: [
@@ -502,13 +512,6 @@
         ],
       ],
     },
-    ticks: [
-      1,
-      3,
-      6,
-      12,
-      60,
-    ],
   },
   Metric: {
     __extends__: "Dimensional",
@@ -530,6 +533,10 @@
       500,
       750,
     ],
+    base_unit: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   MetricLength: {
     __extends__: "Metric",
@@ -537,6 +544,7 @@
       "dm",
       "hm",
     ],
+    base_unit: "m",
   },
   ReciprocalMetric: {
     __extends__: "Metric",
@@ -547,6 +555,7 @@
       "dm",
       "hm",
     ],
+    base_unit: "m",
   },
   Band: {
     __extends__: "DataAnnotation",
@@ -1332,179 +1341,6 @@
       type: "object",
       name: "MetricLength",
       attributes: {
-        basis: {
-          type: "map",
-          entries: [
-            [
-              "Qm",
-              [
-                1e+30,
-                "Qm",
-              ],
-            ],
-            [
-              "Rm",
-              [
-                1e+27,
-                "Rm",
-              ],
-            ],
-            [
-              "Ym",
-              [
-                1e+24,
-                "Ym",
-              ],
-            ],
-            [
-              "Zm",
-              [
-                1e+21,
-                "Zm",
-              ],
-            ],
-            [
-              "Em",
-              [
-                1e+18,
-                "Em",
-              ],
-            ],
-            [
-              "Pm",
-              [
-                1000000000000000.0,
-                "Pm",
-              ],
-            ],
-            [
-              "Tm",
-              [
-                1000000000000.0,
-                "Tm",
-              ],
-            ],
-            [
-              "Gm",
-              [
-                1000000000.0,
-                "Gm",
-              ],
-            ],
-            [
-              "Mm",
-              [
-                1000000.0,
-                "Mm",
-              ],
-            ],
-            [
-              "km",
-              [
-                1000.0,
-                "km",
-              ],
-            ],
-            [
-              "hm",
-              [
-                100.0,
-                "hm",
-              ],
-            ],
-            [
-              "m",
-              [
-                1.0,
-                "m",
-              ],
-            ],
-            [
-              "dm",
-              [
-                0.1,
-                "dm",
-              ],
-            ],
-            [
-              "cm",
-              [
-                0.01,
-                "cm",
-              ],
-            ],
-            [
-              "mm",
-              [
-                0.001,
-                "mm",
-              ],
-            ],
-            [
-              "\u00b5m",
-              [
-                1e-06,
-                "\\mathrm{\\mu}m",
-              ],
-            ],
-            [
-              "nm",
-              [
-                1e-09,
-                "nm",
-              ],
-            ],
-            [
-              "pm",
-              [
-                1e-12,
-                "pm",
-              ],
-            ],
-            [
-              "fm",
-              [
-                1e-15,
-                "fm",
-              ],
-            ],
-            [
-              "am",
-              [
-                1e-18,
-                "am",
-              ],
-            ],
-            [
-              "zm",
-              [
-                1e-21,
-                "zm",
-              ],
-            ],
-            [
-              "ym",
-              [
-                1e-24,
-                "ym",
-              ],
-            ],
-            [
-              "rm",
-              [
-                1e-27,
-                "rm",
-              ],
-            ],
-            [
-              "qm",
-              [
-                1e-30,
-                "qm",
-              ],
-            ],
-          ],
-        },
         include: null,
       },
     },

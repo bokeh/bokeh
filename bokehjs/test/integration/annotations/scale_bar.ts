@@ -1,6 +1,6 @@
 import {display} from "../_util"
 
-import {ScaleBar, Plot, Range1d} from "@bokehjs/models"
+import {ScaleBar, Plot, Range1d, Metric} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 
 describe("ScaleBar annotation", () => {

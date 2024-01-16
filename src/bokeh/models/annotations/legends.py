@@ -528,7 +528,7 @@ class ScaleBar(Annotation):
 
     @error(NON_MATCHING_SCALE_BAR_UNIT)
     def _check_non_matching_scale_bar_unit(self):
-        if self.unit not in self.dimensional.basis:
+        if not self.dimensional.is_known(self.unit):
             return str(self)
 
     range = Either(Instance(Range), Auto, default="auto", help="""

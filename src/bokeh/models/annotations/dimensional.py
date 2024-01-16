@@ -21,11 +21,8 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-from typing import TYPE_CHECKING, Any, ClassVar
-
-if TYPE_CHECKING:
-    # External imports
-    from typing_extensions import Self
+from abc import abstractmethod
+from typing import Any
 
 # Bokeh imports
 from ...core.has_props import abstract
@@ -40,7 +37,6 @@ from ...core.properties import (
     Tuple,
 )
 from ...model import Model
-from ...util.dataclasses import dataclass
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -48,6 +44,7 @@ from ...util.dataclasses import dataclass
 
 __all__ = (
     "Angular",
+    "ImperialLength",
     "Metric",
     "MetricLength",
     "ReciprocalMetric",
@@ -67,10 +64,6 @@ class Dimensional(Model):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-    basis = Required(Dict(String, Tuple(Float, String)), help="""
-    TODO
-    """)
-
     ticks = Required(List(Float), help="""
     Preferred values to choose from in non-exact mode.
     """)
@@ -83,75 +76,52 @@ class Dimensional(Model):
     A subset of units from the basis to avoid.
     """)
 
-@dataclass
-class BasisItem:
-    prefix: str
-    factor: float
-    tex_prefix: str | None = None
+    @abstractmethod
+    def is_known(self, unit: str) -> bool:
+        pass
+
+@abstract
+class CustomDimensional(Dimensional):
+    """ A base class for units of measurement with an explicit basis.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
+
+    basis = Required(Dict(String, Tuple(Float, String)), help="""
+    TODO
+    """)
+
+    def is_known(self, unit: str) -> bool:
+        return unit in self.basis
 
 class Metric(Dimensional):
     """ Model for defining metric units of measurement.
     """
 
-    _basis: ClassVar = [
-        BasisItem("Q", 1e30),
-        BasisItem("R", 1e27),
-        BasisItem("Y", 1e24),
-        BasisItem("Z", 1e21),
-        BasisItem("E", 1e18),
-        BasisItem("P", 1e15),
-        BasisItem("T", 1e12),
-        BasisItem("G", 1e9),
-        BasisItem("M", 1e6),
-        BasisItem("k", 1e3),
-        BasisItem("h", 1e2),
-        BasisItem("" , 1e0),
-        BasisItem("d", 1e-1),
-        BasisItem("c", 1e-2),
-        BasisItem("m", 1e-3),
-        BasisItem("µ", 1e-6, "\\mathrm{\\mu}"),
-        BasisItem("n", 1e-9),
-        BasisItem("p", 1e-12),
-        BasisItem("f", 1e-15),
-        BasisItem("a", 1e-18),
-        BasisItem("z", 1e-21),
-        BasisItem("y", 1e-24),
-        BasisItem("r", 1e-27),
-        BasisItem("q", 1e-30),
-    ]
+    # explicit __init__ to support Init signatures
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
-    @classmethod
-    def _map_basis_item(cls: type[Self], name: str, factor: float, tex_name: str):
-        return name, factor, tex_name
-
-    def __init__(self, base_unit: str | None = None, **kwargs: Any) -> None:
-        if base_unit is None:
-            super().__init__(**kwargs)
-        else:
-            basis = {}
-            for item in self._basis:
-                name = f"{item.prefix}{base_unit}"
-                factor = item.factor
-                tex_name = f"{item.tex_prefix}{base_unit}" if item.tex_prefix is not None else name
-
-                name, factor, tex_name = self._map_basis_item(name, factor, tex_name)
-                basis[name] = (factor, tex_name)
-
-            super().__init__(basis=basis, **kwargs)
+    base_unit = Required(String, help="""
+    TODO
+    """)
 
     ticks = Override(default=[1, 2, 5, 10, 15, 20, 25, 50, 75, 100, 125, 150, 200, 250, 500, 750])
+
+    def is_known(self, unit: str) -> bool:
+        prefixes = ["Q", "R", "Y", "Z", "E", "P", "T", "G", "M", "k", "h", "", "d", "c", "m", "µ", "n", "p", "f", "a", "z", "y", "r", "q"]
+        basis = {f"{prefix}{unit}" for prefix in prefixes}
+        return unit in basis
 
 class ReciprocalMetric(Metric):
     """ Model for defining metric units of measurement.
     """
 
-    @classmethod
-    def _map_basis_item(cls: type[Self], name: str, factor: float, tex_name: str):
-        return f"{name}⁻1", factor**-1, f"{tex_name}^{{-1}}"
-
     # explicit __init__ to support Init signatures
-    def __init__(self, base_unit: str | None = None, **kwargs: Any) -> None:
-        super().__init__(base_unit, **kwargs)
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
 
 class MetricLength(Metric):
     """ Metric units of length measurement.
@@ -159,7 +129,9 @@ class MetricLength(Metric):
 
     # explicit __init__ to support Init signatures
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__("m", **kwargs)
+        super().__init__(**kwargs)
+
+    base_unit = Override(default="m")
 
     exclude = Override(default=["dm", "hm"])
 
@@ -169,11 +141,13 @@ class ReciprocalMetricLength(ReciprocalMetric):
 
     # explicit __init__ to support Init signatures
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__("m", **kwargs)
+        super().__init__(**kwargs)
+
+    base_unit = Override(default="m")
 
     exclude = Override(default=["dm", "hm"])
 
-class ImperialLength(Dimensional):
+class ImperialLength(CustomDimensional):
     """ Imperial units of length measurement.
     """
 
@@ -193,7 +167,7 @@ class ImperialLength(Dimensional):
 
     ticks = Override(default=[1, 3, 6, 12, 60])
 
-class Angular(Dimensional):
+class Angular(CustomDimensional):
     """ Units of angular measurement.
     """
 
@@ -204,7 +178,7 @@ class Angular(Dimensional):
     basis = Override(default={
         "°":  (1,      "^\\circ"          ),
         "'":  (1/60,   "^\\prime"         ),
-        "\"": (1/3600, "^{\\prime\\prime}"),
+        "''": (1/3600, "^{\\prime\\prime}"),
     })
 
     ticks = Override(default=[1, 3, 6, 12, 60, 120, 240, 360])
