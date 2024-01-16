@@ -1,11 +1,10 @@
 :host {
   --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   --mono-font: var(--bokeh-mono-font, monospace);
-  --font-size: var(--bokeh-font-size, 13px);
+  --font-size: var(--bokeh-font-size, 12px);
 
   --line-height: calc(20 / 14);
-  // TODO -1px is for backwards compatibility; remove in the near future
-  --line-height-computed: calc(calc(var(--font-size) - 1px) * var(--line-height));
+  --line-height-computed: calc(var(--font-size) * var(--line-height));
 
   --border-radius: 4px;
 
