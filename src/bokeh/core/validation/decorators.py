@@ -115,7 +115,7 @@ def error(code_or_name: int | str | Issue) -> ValidationDecorator:
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decorated should have a name that starts with
+    The function that is decorated must have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 
