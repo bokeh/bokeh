@@ -447,58 +447,33 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 #endif
 
 #if defined(USE_RECT)
-// From https://www.shadertoy.com/view/4llXD7 (MIT licensed)
-float rounded_box(in vec2 p, in vec2 size, in vec4 r)
-{
-  float width = size.x;
-  float height = size.y;
-
-  float top_left = r.x;
-  float top_right = r.y;
-  float bottom_right = r.z;
-  float bottom_left = r.w;
-
-  float top = top_left + top_right;
-  float right = top_right + bottom_right;
-  float bottom = bottom_right + bottom_left;
-  float left = top_left + bottom_left;
-
-  float top_scale    = top    == 0.0 ? 1.0 : width  / top;
-  float right_scale  = right  == 0.0 ? 1.0 : height / right;
-  float bottom_scale = bottom == 0.0 ? 1.0 : width  / bottom;
-  float left_scale   = left   == 0.0 ? 1.0 : height / left;
-
-  float scale = min(min(min(top_scale, right_scale), bottom_scale), left_scale);
-  if (scale < 1.0) {
-    r *= scale;
-  }
-
-  // tl r.x x=-1 y=-1
-  // tr r.y x=+1 y=-1
-  // br r.z x=+1 y=+1
-  // bl r.w x=-1 y=+1
-  vec2 rh = p.x > 0.0 ? r.yz : r.xw;
-  float rq = p.y > 0.0 ? rh.y : rh.x;
-
-  // special case for corner miter joins
-  vec2 half_size = size/2.0;
-  if (rq == 0.0) {
-    vec2 q = abs(p) - half_size;
-    return max(q.x, q.y);
-  } else {
-    vec2 q = abs(p) - half_size + rq;
-    return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - rq;
-  }
-}
-
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
-  float dist = rounded_box(p, v_size, v_border_radius);
+  vec2 halfsize = v_size/2.0;
+  vec2 p2 = abs(p) - halfsize;  // Offset from corner
+  float dist = max(p2.x, p2.y);
 
   if (line_join != miter_join) {
-    vec2 p2 = abs(p) - v_size/2.0; // Offset from corner
     dist = max(dist, line_join_distance_no_miter(
       p2, vec2(0.0, 0.0), vec2(1.0/SQRT2, 1.0/SQRT2), v_linewidth/(2.0*SQRT2), line_join));
+  }
+
+  // Need to consider distance to all 4 corners
+  // Order of border_radius is top_left, top_right, bottom_right, bottom_left
+  vec4 border_radius = v_border_radius;
+  vec4 xsign = vec4(-1.0, 1.0, 1.0, -1.0);
+  vec4 ysign = vec4(-1.0, -1.0, 1.0, 1.0);
+  for (int i = 0; i < 4; i++) {
+    float radius = border_radius.x;
+    p2 = p*vec2(xsign.x, ysign.x);  // In +ve quadrant
+    vec2 offset = p2 - halfsize + radius;
+    if (min(radius, min(offset.x, offset.y)) > 0.0) {
+      dist = max(dist, length(offset) - radius);
+    }
+    // Swizzle
+    border_radius.xyzw = border_radius.yzwx;
+    xsign.xyzw = xsign.yzwx;
+    ysign.xyzw = ysign.yzwx;
   }
 
   return dist;
