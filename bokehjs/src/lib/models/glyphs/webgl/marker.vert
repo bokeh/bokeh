@@ -155,7 +155,13 @@ void main()
 #endif
 
 #ifdef USE_RECT
-  v_border_radius = u_border_radius;
+  // Scale corner radii if they are too large, the same as canvas
+  // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-roundrect
+  // Order of border_radius is top_left, top_right, bottom_right, bottom_left
+  const vec2 unit2 = vec2(1.0, 1.0);
+  float scale = min(v_size.x / max(dot(u_border_radius.xy, unit2), dot(u_border_radius.zw, unit2)),
+                    v_size.y / max(dot(u_border_radius.yz, unit2), dot(u_border_radius.wx, unit2)));
+  v_border_radius = u_border_radius*min(scale, 1.0);
 #endif
 
   v_linewidth = a_linewidth;
