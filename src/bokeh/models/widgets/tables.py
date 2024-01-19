@@ -45,6 +45,7 @@ from ...core.properties import (
     Required,
     String,
 )
+from ...core.property.singletons import Intrinsic
 from ...model import Model
 from ..sources import CDSView, ColumnDataSource, DataSource
 from .widget import Widget
@@ -857,6 +858,54 @@ class DataTable(TableWidget):
     row_height = Int(25, help="""
     The height of each row in pixels.
     """)
+
+    @staticmethod
+    def from_data(data, columns=None, formatters={}, **kwargs) -> DataTable:
+        """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
+
+        Args:
+            data (DataFrame or dict or ColumnDataSource) :
+                The data to create the table from. If the data is a dataframe
+                or dictionary, a ColumnDataSource will be created from it.
+
+            columns (list, optional) :
+                A list of column names to use from the input data.
+                If None, use all columns. (default: None)
+
+            formatters (dict, optional) :
+                A mapping of column names and corresponding Formatters to
+                apply to each column. (default: None)
+
+        Keyword arguments:
+            Any additional keyword arguments will be passed to DataTable.
+
+        Returns:
+            DataTable
+
+        Raises:
+            ValueError
+                If the provided data is not a ColumnDataSource
+                or a data source that a ColumnDataSource can be created from.
+
+        """
+
+        if isinstance(data, ColumnDataSource):
+            source = data.clone()
+        else:
+            try:
+                source = ColumnDataSource(data)
+            except ValueError as e:
+                raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
+
+        if columns is not None:
+            source.data = {col: source.data[col] for col in columns}
+
+        table_columns = []
+        for c in source.data.keys():
+            formatter = formatters.get(c, Intrinsic)
+            table_columns.append(TableColumn(field=c, title=c, formatter=formatter))
+
+        return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
 
 class GroupingInfo(Model):
     '''Describes how to calculate totals and sub-totals
