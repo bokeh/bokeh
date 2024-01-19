@@ -23,10 +23,10 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
   }
 
   draw(indices: number[], main_glyph: SingleMarkerGlyphView, transform: Transform): void {
-    this._draw_impl(indices, transform, main_glyph.glglyph!, this.marker_type)
+    this._draw_impl(indices, transform, main_glyph.glglyph!)
   }
 
-  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL, marker_type: GLMarkerType): void {
+  protected _draw_impl(indices: number[], transform: Transform, main_gl_glyph: SingleMarkerGL): void {
     if (main_gl_glyph.data_changed || main_gl_glyph.data_mapped) {
       main_gl_glyph.set_data()
       main_gl_glyph.data_changed = false
@@ -58,6 +58,6 @@ export abstract class SingleMarkerGL extends BaseMarkerGL {
     }
     this._show.update()
 
-    this._draw_one_marker_type(marker_type, transform, main_gl_glyph)
+    this._draw_one_marker_type(main_gl_glyph.marker_type, transform, main_gl_glyph)
   }
 }
