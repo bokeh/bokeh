@@ -156,6 +156,13 @@ class BoxNodes:
     def bottom_right(self) -> Node:
         return self._node("bottom_right")
 
+    @property
+    def width(self) -> Node:
+        return self._node("width")
+    @property
+    def height(self) -> Node:
+        return self._node("height")
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

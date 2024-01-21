@@ -163,7 +163,7 @@
     syncable: true,
   },
   Annotation: {
-    __extends__: "Renderer",
+    __extends__: "CompositeRenderer",
     level: "annotation",
   },
   DataAnnotation: {
@@ -5364,6 +5364,10 @@
       attributes: {},
     },
   },
+  CompositeRenderer: {
+    __extends__: "Renderer",
+    elements: [],
+  },
   DataRenderer: {
     __extends__: "Renderer",
     level: "glyph",
@@ -6422,16 +6426,14 @@
     right_limit: null,
   },
   Panel: {
-    __extends__: "UIElement",
+    __extends__: "Pane",
     position: {
       type: "symbol",
       name: "unset",
     },
     anchor: "top_left",
-    content: {
-      type: "symbol",
-      name: "unset",
-    },
+    width: "auto",
+    height: "auto",
   },
   Examiner: {
     __extends__: "UIElement",
@@ -6515,6 +6517,9 @@
     __extends__: "Model",
     visible: true,
     css_classes: [],
+    css_variables: {
+      type: "map",
+    },
     styles: {
       type: "map",
     },

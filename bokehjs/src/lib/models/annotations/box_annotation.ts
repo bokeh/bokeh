@@ -116,7 +116,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     super.compute_geometry()
 
     const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
-      return value instanceof Node ? this.resolve_node(value)[dim] : mapper.compute(value)
+      return value instanceof Node ? this.resolve_node_as_xy(value)[dim] : mapper.compute(value)
     }
 
     const {left, right, top, bottom} = this.model
@@ -131,10 +131,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   }
 
   protected _render(): void {
-    this.compute_geometry() // TODO: remove this
-
-    if (!this.bbox.is_valid)
+    if (!this.bbox.is_valid) {
       return
+    }
 
     const {ctx} = this.layer
     ctx.save()
@@ -254,7 +253,7 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const resolve = (dim: "x" | "y", limit: Node | number | null, mapper: CoordinateMapper): number => {
       if (limit instanceof Node) {
-        return this.resolve_node(limit)[dim]
+        return this.resolve_node_as_xy(limit)[dim]
       } else if (limit == null) {
         return NaN
       } else {

@@ -1,7 +1,8 @@
 import {Model} from "../../model"
-import type {Node} from "../coordinates/node"
+import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
+import type {DictLike} from "core/types"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
 import {DOMComponentView} from "core/dom_view"
@@ -10,7 +11,10 @@ import type {StyleSheet, StyleSheetLike} from "core/dom"
 import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
+import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import {entries} from "core/util/object"
+import {isNumber} from "core/util/types"
 import type * as p from "core/properties"
 import ui_css from "styles/ui.css"
 import {Array, Or, Ref, String, Dict, Nullable} from "core/kinds"
@@ -42,6 +46,14 @@ export abstract class UIElementView extends DOMComponentView {
   protected override *_css_classes(): Iterable<string> {
     yield* super._css_classes()
     yield* this.model.css_classes
+  }
+
+  protected override *_css_variables(): Iterable<[string, string]> {
+    yield* super._css_variables()
+    for (const [name, node] of entries(this.model.css_variables)) {
+      const value = this.resolve_node_as_scalar(node)
+      yield [name, `${value}px`]
+    }
   }
 
   protected override *_stylesheets(): Iterable<StyleSheet> {
@@ -141,10 +153,11 @@ export abstract class UIElementView extends DOMComponentView {
   override connect_signals(): void {
     super.connect_signals()
 
-    const {visible, styles, css_classes, stylesheets} = this.model.properties
+    const {visible, styles, css_classes, css_variables, stylesheets} = this.model.properties
     this.on_change(visible, () => this._update_visible())
     this.on_change(styles, () => this._update_styles())
     this.on_change(css_classes, () => this._update_css_classes())
+    this.on_transitive_change(css_variables, () => this._update_css_variables())
     this.on_change(stylesheets, () => this._update_stylesheets())
   }
 
@@ -223,8 +236,15 @@ export abstract class UIElementView extends DOMComponentView {
     return {...super.serializable_state(), bbox: this.bbox}
   }
 
-  resolve_node(_node: Node): {x: number, y: number} {
-    return {x: NaN, y: NaN}
+  override resolve_symbol(node: Node): XY | number {
+    const value = this.bbox.resolve(node.symbol)
+    const {offset} = node
+    if (isNumber(value)) {
+      return value + offset
+    } else {
+      const {x, y} = value
+      return {x: x + offset, y: y + offset}
+    }
   }
 }
 
@@ -234,6 +254,7 @@ export namespace UIElement {
   export type Props = Model.Props & {
     visible: p.Property<boolean>
     css_classes: p.Property<string[]>
+    css_variables: p.Property<DictLike<Node>>
     styles: p.Property<StylesLike>
     stylesheets: p.Property<StyleSheets>
   }
@@ -250,9 +271,10 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, String}) => ({
+    this.define<UIElement.Props>(({Boolean, Array, String, Ref}) => ({
       visible: [ Boolean, true ],
       css_classes: [ Array(String), [] ],
+      css_variables: [ Dict(Ref(Node)), {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],
     }))

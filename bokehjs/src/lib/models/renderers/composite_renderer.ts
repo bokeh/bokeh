@@ -1,4 +1,5 @@
-import {UIElement, UIElementView} from "./ui_element"
+import {Renderer, RendererView} from "./renderer"
+import {UIElement} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {HTML} from "../dom/html"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
@@ -11,8 +12,8 @@ import {Ref, Or} from "core/kinds"
 const ElementLike = Or(Ref(UIElement), Ref(DOMNode), Ref(HTML))
 type ElementLike = typeof ElementLike["__type__"]
 
-export class PaneView extends UIElementView {
-  declare model: Pane
+export abstract class CompositeRendererView extends RendererView {
+  declare model: CompositeRenderer
 
   protected readonly _element_views: ViewStorage<ElementLike> = new Map()
   get element_views(): ViewOf<ElementLike>[] {
@@ -30,7 +31,7 @@ export class PaneView extends UIElementView {
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.model.elements, {parent: this})
+    return await build_views(this._element_views, this.model.elements, {parent: this.plot_view})
   }
 
   protected async _update_elements(): Promise<void> {
@@ -49,9 +50,9 @@ export class PaneView extends UIElementView {
         const is_new = created_elements.has(element_view)
 
         if (is_new) {
-          element_view.render_to(this.shadow_el)
+          element_view.render_to(this.plot_view.shadow_el)
         } else {
-          this.shadow_el.append(element_view.el)
+          this.plot_view.shadow_el.append(element_view.el)
         }
       }
     }
@@ -70,11 +71,21 @@ export class PaneView extends UIElementView {
     })
   }
 
+  private _has_rendered_elements: boolean = false
+
   override render(): void {
+    if (!this._has_rendered_elements) {
+      for (const element_view of this.element_views) {
+        element_view.render_to(this.plot_view.shadow_el)
+      }
+      this._has_rendered_elements = true
+    }
+
     super.render()
 
+    const {displayed} = this
     for (const element_view of this.element_views) {
-      element_view.render_to(this.shadow_el)
+      element_view.reposition(displayed)
     }
   }
 
@@ -101,28 +112,28 @@ export class PaneView extends UIElementView {
   }
 }
 
-export namespace Pane {
+export namespace CompositeRenderer {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UIElement.Props & {
+  export type Props = Renderer.Props & {
     elements: p.Property<ElementLike[]>
   }
+
+  export type Visuals = Renderer.Visuals
 }
 
-export interface Pane extends Pane.Attrs {}
+export interface CompositeRenderer extends CompositeRenderer.Attrs {}
 
-export class Pane extends UIElement {
-  declare properties: Pane.Props
-  declare __view_type__: PaneView
+export abstract class CompositeRenderer extends Renderer {
+  declare properties: CompositeRenderer.Props
+  declare __view_type__: CompositeRendererView
 
-  constructor(attrs?: Partial<Pane.Attrs>) {
+  constructor(attrs?: Partial<CompositeRenderer.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.prototype.default_view = PaneView
-
-    this.define<Pane.Props>(({Array}) => ({
+    this.define<CompositeRenderer.Props>(({Array}) => ({
       elements: [ Array(ElementLike), [] ],
     }))
   }

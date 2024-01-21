@@ -305,7 +305,7 @@ export class DialogView extends UIElementView {
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
     const resolve = (dim: "x" | "y", limit: Node | number | null): number => {
       if (limit instanceof Node) {
-        return this.resolve_node(limit)[dim]
+        return this.resolve_node_as_xy(limit)[dim]
       } else {
         return NaN
       }

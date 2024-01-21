@@ -34,6 +34,7 @@ from ...core.properties import (
 )
 from ...model import Model
 from ..css import Styles, StyleSheet
+from ..nodes import Node
 
 #-----------------------------------------------------------------------------
 # Globals and constants
@@ -67,6 +68,16 @@ class UIElement(Model):
     css_classes = List(String, default=[], help="""
     A list of additional CSS classes to add to the underlying DOM element.
     """).accepts(Seq(String), lambda x: list(x))
+
+    css_variables = Dict(String, Instance(Node), default={}, help="""
+    Allows to define dynamically computed CSS variables.
+
+    This can be used, for example, to coordinate positioning and styling
+    between canvas' renderers and/or visuals and HTML-based UI elements.
+
+    Variables defined here are equivalent to setting the same variables
+    under ``:host { ... }`` in a CSS stylesheet.
+    """)
 
     styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""
     Inline CSS styles applied to the underlying DOM element.

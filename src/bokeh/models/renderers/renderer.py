@@ -19,13 +19,18 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from typing import Any
+
 # Bokeh imports
 from ...core.enums import RenderLevel
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Either,
     Enum,
     Instance,
+    List,
     Nullable,
     Override,
     String,
@@ -38,6 +43,7 @@ from ..coordinates import CoordinateMapping
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "CompositeRenderer",
     "DataRenderer",
     "GuideRenderer",
     "Renderer",
@@ -58,7 +64,7 @@ class RendererGroup(Model):
         super().__init__(*args, **kwargs)
 
     visible = Bool(default=True, help="""
-    Makes all groupped renderers visible or not.
+    Makes all grouped renderers visible or not.
     """)
 
 #-----------------------------------------------------------------------------
@@ -102,6 +108,29 @@ class Renderer(Model):
 
     .. note::
         This property is experimental and may change at any point.
+    """)
+
+@abstract
+class CompositeRenderer(Renderer):
+    """ A renderer that allows attaching UI elements to it.
+
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    elements = List(
+        Either(
+            Instance(".models.ui.ui_element.UIElement"),
+            Instance(".models.dom.DOMNode"),
+            Instance(".models.dom.HTML"),
+        ),
+    )(default=[], help="""
+    A collection of UI elements attached to this renderer.
+
+    This can include floating elements like tooltips, allowing to establish
+    parent <-> child relationship between elements.
     """)
 
 @abstract

@@ -28,10 +28,10 @@ import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
 import {RangesUpdate} from "core/bokeh_events"
 import type {Side, RenderLevel} from "core/enums"
-import type {SerializableState} from "core/view"
+import type {SerializableState, View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
-import {isBoolean, isArray} from "core/util/types"
+import {isBoolean, isArray, isString} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
@@ -50,6 +50,7 @@ import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px} from "core/dom"
+import type {Node} from "../coordinates/node"
 
 import plots_css from "styles/plots.css"
 
@@ -1081,6 +1082,19 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this.pause()
     } else {
       this.unpause()
+    }
+  }
+
+  override resolve_target(node: Node): View | null {
+    if (isString(node.target)) {
+      switch (node.target) {
+        case "canvas": return this.canvas
+        case "frame":  return this.frame as any // TODO CartesianFrameView (PR #13286)
+        case "plot":   return this
+        case "parent": return this.parent
+      }
+    } else {
+      return super.resolve_target(node)
     }
   }
 }

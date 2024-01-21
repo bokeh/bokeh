@@ -1,67 +1,70 @@
-import {UIElement, UIElementView} from "../ui/ui_element"
+import {Pane, PaneView} from "../ui/pane"
 import {Node} from "../coordinates/node"
 import {Anchor} from "../common/kinds"
+import * as resolve from "../common/resolve"
 import type {StyleSheetLike} from "core/dom"
-import type {IterViews, ViewOf} from "core/build_views"
-import {build_view} from "core/build_views"
+import {px} from "core/dom"
 import type * as p from "core/properties"
 
 import panels_css, * as _panel from "styles/panels.css"
 
-export class PanelView extends UIElementView {
+export class PanelView extends PaneView {
   declare model: Panel
-
-  protected _content: ViewOf<UIElement>
-
-  override *children(): IterViews {
-    yield* super.children()
-    yield this._content
-  }
 
   override stylesheets(): StyleSheetLike[] {
     return [...super.stylesheets(), panels_css]
   }
 
-  override async lazy_initialize(): Promise<void> {
-    await super.lazy_initialize()
-
-    const {content} = this.model
-    this._content = await build_view(content, {parent: this})
-  }
-
   override connect_signals(): void {
     super.connect_signals()
-
-    const {visible} = this.model.properties
-    this.on_change(visible, () => this.render())
+    const {position, anchor, width, height} = this.model.properties
+    this.on_change([position, anchor, width, height], () => this.reposition())
   }
 
-  override remove(): void {
-    this._content.remove()
-    super.remove()
-  }
+  override reposition(displayed?: boolean): void {
+    super.reposition(displayed)
 
-  override render(): void {
-    super.render()
+    const {position, visible, anchor} = this.model
+    if (displayed == false || !visible) {
+      this.el.remove()
+      return
+    }
 
-    this._content.render_to(this.shadow_el)
-    document.body.append(this.el)
+    const {x: left, y: top} = this.resolve_node_as_xy(position)
+    if (!isFinite(left + top)) {
+      this.el.remove()
+      return
+    }
+
+    const parent_el = this.parent?.el ?? document.body
+    const target_el = parent_el.shadowRoot ?? parent_el
+
+    if (!this.el.isConnected) {
+      target_el.append(this.el)
+    }
+
+    this.el.style.left = px(left)
+    this.el.style.top = px(top)
+
+    const xy = resolve.anchor(anchor)
+    this.el.style.transform = `translate(${xy.x}%, ${xy.y}%)`
   }
 }
 
 export namespace Panel {
   export type Attrs = p.AttrsOf<Props>
 
-  export type Props = UIElement.Props & {
+  export type Props = Pane.Props & {
     position: p.Property<Node>
     anchor: p.Property<Anchor>
-    content: p.Property<UIElement>
+    width: p.Property<"auto" | number | Node>
+    height: p.Property<"auto" | number | Node>
   }
 }
 
 export interface Panel extends Panel.Attrs {}
 
-export class Panel extends UIElement {
+export class Panel extends Pane {
   declare properties: Panel.Props
   declare __view_type__: PanelView
 
@@ -72,10 +75,11 @@ export class Panel extends UIElement {
   static {
     this.prototype.default_view = PanelView
 
-    this.define<Panel.Props>(({Ref}) => ({
+    this.define<Panel.Props>(({Ref, Or, Auto, Int}) => ({
       position: [ Ref(Node) ],
       anchor: [ Anchor, "top_left" ],
-      content: [ Ref(UIElement) ],
+      width: [ Or(Auto, Int, Ref(Node)), "auto" ],
+      height: [ Or(Auto, Int, Ref(Node)), "auto" ],
     }))
   }
 }

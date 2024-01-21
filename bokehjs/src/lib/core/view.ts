@@ -2,8 +2,10 @@ import {HasProps} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
-import {isArray} from "./util/types"
-import type {BBox} from "./util/bbox"
+import {isArray, isString, isNumber} from "./util/types"
+import type {BBox, XY} from "./util/bbox"
+import {isXY} from "./util/bbox"
+import type {Node} from "../models/coordinates/node"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -176,6 +178,51 @@ export class View implements ISignalable {
         }
       }
     }
+  }
+
+  resolve_target(node: Node): View | null {
+    if (isString(node.target)) {
+      switch (node.target) {
+        case "parent": return this.parent
+        default:       return null
+      }
+    } else {
+      const queue: View[] = [this.root]
+      while (true) {
+        const child = queue.shift()
+        if (child == null) {
+          break
+        } else if (child.model == node.target) {
+          return child
+        } else {
+          queue.push(...child.children())
+        }
+      }
+      return null
+    }
+  }
+
+  resolve_symbol(_node: Node): XY | number {
+    return {x: NaN, y: NaN}
+  }
+
+  resolve_node(node: Node): XY | number {
+    const target = this.resolve_target(node)
+    if (target != null) {
+      return target.resolve_symbol(node)
+    } else {
+      return {x: NaN, y: NaN}
+    }
+  }
+
+  resolve_node_as_xy(node: Node): XY {
+    const value = this.resolve_node(node)
+    return isXY(value) ? value : {x: NaN, y: NaN}
+  }
+
+  resolve_node_as_scalar(node: Node): number {
+    const value = this.resolve_node(node)
+    return isNumber(value) ? value : NaN
   }
 }
 

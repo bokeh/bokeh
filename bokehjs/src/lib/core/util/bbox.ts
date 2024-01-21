@@ -4,6 +4,7 @@ import type {Equatable, Comparator} from "./eq"
 import {equals} from "./eq"
 import type * as affine from "./affine"
 import {map} from "./arrayable"
+import {isPlainObject} from "./types"
 
 const {min, max, round} = Math
 
@@ -64,6 +65,10 @@ export function union(a: Rect, b: Rect): Rect {
 export type XY<T = number> = {
   x: T
   y: T
+}
+
+export function isXY<T>(obj: unknown): obj is XY<T> {
+  return isPlainObject(obj) && "x" in obj && "y" in obj
 }
 
 export type SXY = {
@@ -322,6 +327,34 @@ export class BBox implements Rect, Equatable {
 
   get area(): number {
     return this.width*this.height
+  }
+
+  resolve(symbol: string): XY | number {
+    switch (symbol) {
+      case "top_left":      return {x: this.left, y: this.top}
+      case "top_center":    return {x: this.hcenter, y: this.top}
+      case "top_right":     return {x: this.right, y: this.top}
+
+      case "center_left":   return {x: this.left, y: this.vcenter}
+      case "center_center": return {x: this.hcenter, y: this.vcenter}
+      case "center_right":  return {x: this.right, y: this.vcenter}
+
+      case "bottom_left":   return {x: this.left, y: this.bottom}
+      case "bottom_center": return {x: this.hcenter, y: this.bottom}
+      case "bottom_right":  return {x: this.right, y: this.bottom}
+
+      case "center":        return {x: this.hcenter, y: this.vcenter}
+
+      case "top":           return this.top
+      case "left":          return this.left
+      case "right":         return this.right
+      case "bottom":        return this.bottom
+
+      case "width":         return this.width
+      case "height":        return this.height
+
+      default:              return {x: NaN, y: NaN}
+    }
   }
 
   round(): BBox {
