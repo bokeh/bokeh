@@ -1,0 +1,37 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+	"name": "Python 3",
+	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+	"image": "mcr.microsoft.com/devcontainers/python:1-3.12-bullseye",
+	
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/conda:1": {
+			"addCondaForge": true,
+			"version": "latest"
+		}
+	},
+
+	// Set suggested environment variables. Can be modified as needed for local development.
+	"containerEnv": {
+		"BOKEH_DEV": "true",
+		"GOOGLE_API_KEY": "some_value",
+		"BOKEH_DOCS_CDN": "local",
+		"SPHINXOPTS": "-j auto"
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [5009],  // should usually work automatically
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	"postCreateCommand": "bash -l .devcontainer/post-create.sh",
+	"postStartCommand": "conda init bash && . /root/.bashrc && conda activate bkdev",
+
+	// Configure tool-specific properties.
+	// "customizations": {},
+
+	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+	// root is required for conda to work inside container. More info: https://github.com/devcontainers/features/blob/main/src/conda/install.sh
+	"remoteUser": "root"
+}
