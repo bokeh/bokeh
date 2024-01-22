@@ -787,7 +787,7 @@ class BokehTornado(TornadoApplication):
         for c in list(self._clients):
             try:
                 c.send_ping()
-            except WebsocketClosedError:
+            except WebSocketClosedError:
                 self.client_lost(c)
 
 #-----------------------------------------------------------------------------
