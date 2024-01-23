@@ -28,6 +28,7 @@ from typing import Any
 from ...core.has_props import abstract
 from ...core.properties import (
     Dict,
+    Either,
     Float,
     List,
     Nullable,
@@ -89,7 +90,7 @@ class CustomDimensional(Dimensional):
     def __init__(self, **kwargs: Any) -> None:
         super().__init__(**kwargs)
 
-    basis = Required(Dict(String, Tuple(Float, String)), help="""
+    basis = Required(Dict(String, Either(Tuple(Float, String), Tuple(Float, String, String))), help="""
     TODO
     """)
 
@@ -105,6 +106,10 @@ class Metric(Dimensional):
         super().__init__(**kwargs)
 
     base_unit = Required(String, help="""
+    TODO
+    """)
+
+    full_unit = Nullable(String, default=None, help="""
     TODO
     """)
 
@@ -156,13 +161,13 @@ class ImperialLength(CustomDimensional):
         super().__init__(**kwargs)
 
     basis = Override(default={
-        "in":  ( 1/12, "in" ),
-        "ft":  (    1, "ft" ),
-        "yd":  (    3, "yd" ),
-        "ch":  (   66, "ch" ),
-        "fur": (  660, "fur"),
-        "mi":  ( 5280, "mi" ),
-        "lea": (15840, "lea"),
+        "in":  ( 1/12, "in",  "inch"   ),
+        "ft":  (    1, "ft",  "foot"   ),
+        "yd":  (    3, "yd",  "yard"   ),
+        "ch":  (   66, "ch",  "chain"  ),
+        "fur": (  660, "fur", "furlong"),
+        "mi":  ( 5280, "mi",  "mile"   ),
+        "lea": (15840, "lea", "league" ),
     })
 
     ticks = Override(default=[1, 3, 6, 12, 60])
@@ -176,9 +181,9 @@ class Angular(CustomDimensional):
         super().__init__(**kwargs)
 
     basis = Override(default={
-        "°":  (1,      "^\\circ"          ),
-        "'":  (1/60,   "^\\prime"         ),
-        "''": (1/3600, "^{\\prime\\prime}"),
+        "°":  (1,      "^\\circ",           "degree"),
+        "'":  (1/60,   "^\\prime",          "minute"),
+        "''": (1/3600, "^{\\prime\\prime}", "second"),
     })
 
     ticks = Override(default=[1, 3, 6, 12, 60, 120, 240, 360])

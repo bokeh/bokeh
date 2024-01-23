@@ -40,7 +40,7 @@ export abstract class Dimensional extends Model {
     super(attrs)
   }
 
-  abstract get_basis(): DictLike<[number, string]>
+  abstract get_basis(): DictLike<[number, string, string?]>
 
   static {
     this.define<Dimensional.Props>(({Nullable, Array, String, Number}) => ({
@@ -54,7 +54,7 @@ export abstract class Dimensional extends Model {
     const basis = (() => {
       const {include, exclude} = this
       const basis = entries(this.get_basis())
-        .map(([name, [factor, tex_name]]) => ({name, factor, tex_name}))
+        .map(([name, [factor, tex_name, long_name]]) => ({name, factor, tex_name, long_name}))
         .filter(({name}) => (include == null || include.includes(name)) && !exclude.includes(name))
       return sort_by(basis, ({factor}) => factor)
     })()
@@ -103,7 +103,7 @@ export abstract class Dimensional extends Model {
 export namespace CustomDimensional {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Dimensional.Props & {
-    basis: p.Property<DictLike<[number, string]>>
+    basis: p.Property<DictLike<[number, string, string?]>>
   }
 }
 
@@ -117,12 +117,12 @@ export abstract class CustomDimensional extends Dimensional {
   }
 
   static {
-    this.define<CustomDimensional.Props>(({Dict, Tuple, Number, String}) => ({
-      basis: [ Dict(Tuple(Number, String)) ],
+    this.define<CustomDimensional.Props>(({Dict, Tuple, Number, String, Or}) => ({
+      basis: [ Dict(Or(Tuple(Number, String), Tuple(Number, String, String))) ],
     }))
   }
 
-  get_basis(): DictLike<[number, string]> {
+  get_basis(): DictLike<[number, string, string?]> {
     return this.basis
   }
 }
@@ -131,6 +131,7 @@ export namespace Metric {
   export type Attrs = p.AttrsOf<Props>
   export type Props = Dimensional.Props & {
     base_unit: p.Property<string>
+    full_unit: p.Property<string | null>
   }
 }
 
@@ -144,8 +145,9 @@ export class Metric extends Dimensional {
   }
 
   static {
-    this.define<Metric.Props>(({String}) => ({
+    this.define<Metric.Props>(({String, Nullable}) => ({
       base_unit: [ String ],
+      full_unit: [ Nullable(String), null ],
     }))
 
     this.override<Metric.Props>({
@@ -154,40 +156,41 @@ export class Metric extends Dimensional {
   }
 
   static _metric_basis = [
-    ["Q", 1e30,  "Q"],
-    ["R", 1e27,  "R"],
-    ["Y", 1e24,  "Y"],
-    ["Z", 1e21,  "Z"],
-    ["E", 1e18,  "E"],
-    ["P", 1e15,  "P"],
-    ["T", 1e12,  "T"],
-    ["G", 1e9,   "G"],
-    ["M", 1e6,   "M"],
-    ["k", 1e3,   "k"],
-    ["h", 1e2,   "h"],
-    ["",  1e0,   ""],
-    ["d", 1e-1,  "d"],
-    ["c", 1e-2,  "c"],
-    ["m", 1e-3,  "m"],
-    ["µ", 1e-6,  "\\mu"],
-    ["n", 1e-9,  "n"],
-    ["p", 1e-12, "p"],
-    ["f", 1e-15, "f"],
-    ["a", 1e-18, "a"],
-    ["z", 1e-21, "z"],
-    ["y", 1e-24, "y"],
-    ["r", 1e-27, "r"],
-    ["q", 1e-30, "q"],
+    ["Q", 1e30,  "Q",    "quetta"],
+    ["R", 1e27,  "R",    "ronna" ],
+    ["Y", 1e24,  "Y",    "yotta" ],
+    ["Z", 1e21,  "Z",    "zetta" ],
+    ["E", 1e18,  "E",    "exa"   ],
+    ["P", 1e15,  "P",    "peta"  ],
+    ["T", 1e12,  "T",    "tera"  ],
+    ["G", 1e9,   "G",    "giga"  ],
+    ["M", 1e6,   "M",    "mega"  ],
+    ["k", 1e3,   "k",    "kilo"  ],
+    ["h", 1e2,   "h",    "hecto" ],
+    ["",  1e0,   "",     ""      ],
+    ["d", 1e-1,  "d",    "deci"  ],
+    ["c", 1e-2,  "c",    "centi" ],
+    ["m", 1e-3,  "m",    "milli" ],
+    ["µ", 1e-6,  "\\mu", "micro" ],
+    ["n", 1e-9,  "n",    "nano"  ],
+    ["p", 1e-12, "p",    "pico"  ],
+    ["f", 1e-15, "f",    "femto" ],
+    ["a", 1e-18, "a",    "atto"  ],
+    ["z", 1e-21, "z",    "zepto" ],
+    ["y", 1e-24, "y",    "yocto" ],
+    ["r", 1e-27, "r",    "ronto" ],
+    ["q", 1e-30, "q",    "quecto"],
   ] as const
 
-  get_basis(): DictLike<[number, string]> {
-    const {base_unit} = this
-    const basis: {[key: string]: [number, string]} = {}
+  get_basis(): DictLike<[number, string, string?]> {
+    const {base_unit, full_unit} = this
+    const basis: {[key: string]: [number, string, string?]} = {}
 
-    for (const [prefix, factor, tex_prefix] of Metric._metric_basis) {
+    for (const [prefix, factor, tex_prefix, long_prefix] of Metric._metric_basis) {
       const name = `${prefix}${base_unit}`
       const tex_name = `${tex_prefix}${base_unit}`
-      basis[name] = [factor, tex_name]
+      const long_name = full_unit != null ? `${long_prefix}${full_unit}` : undefined
+      basis[name] = [factor, tex_name, long_name]
     }
 
     return basis
@@ -208,7 +211,7 @@ export class ReciprocalMetric extends Metric {
     super(attrs)
   }
 
-  override get_basis(): DictLike<[number, string]> {
+  override get_basis(): DictLike<[number, string, string?]> {
     const basis = super.get_basis()
     const reciprocal_basis: {[key: string]: [number, string]} = {}
 
@@ -281,13 +284,13 @@ export abstract class ImperialLength extends CustomDimensional {
   static {
     this.override<ImperialLength.Props>({
       basis: {
-        in:  [ 1/12, "in" ],
-        ft:  [    1, "ft" ],
-        yd:  [    3, "yd" ],
-        ch:  [   66, "ch" ],
-        fur: [  660, "fur"],
-        mi:  [ 5280, "mi" ],
-        lea: [15840, "lea"],
+        in:  [ 1/12, "in",  "inch"   ],
+        ft:  [    1, "ft",  "foot"   ],
+        yd:  [    3, "yd",  "yard"   ],
+        ch:  [   66, "ch",  "chain"  ],
+        fur: [  660, "fur", "furlong"],
+        mi:  [ 5280, "mi",  "mile"   ],
+        lea: [15840, "lea", "league" ],
       },
       ticks: [1, 3, 6, 12, 60],
     })
@@ -311,9 +314,9 @@ export abstract class Angular extends CustomDimensional {
   static {
     this.override<Angular.Props>({
       basis: {
-        "°":  [1,      "^\\circ"          ],
-        "'":  [1/60,   "^\\prime"         ],
-        "''": [1/3600, "^{\\prime\\prime}"],
+        "°":  [1,      "^\\circ",           "degree"],
+        "'":  [1/60,   "^\\prime",          "minute"],
+        "''": [1/3600, "^{\\prime\\prime}", "second"],
       },
       ticks: [1, 3, 6, 12, 60, 120, 240, 360],
     })
