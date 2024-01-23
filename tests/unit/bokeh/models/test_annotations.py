@@ -18,6 +18,7 @@ import pytest ; pytest
 
 # Standard library imports
 from datetime import datetime
+from math import inf
 from unittest import mock
 
 # Bokeh imports
@@ -253,6 +254,10 @@ def test_BoxAnnotation() -> None:
     assert box.x_range_name == "default"
     assert box.y_range_name == "default"
     assert box.level == "annotation"
+    assert box.min_width == 0
+    assert box.min_height == 0
+    assert box.max_width == inf
+    assert box.max_height == inf
     assert box.editable is False
     check_line_properties(box, "", "#cccccc", 1, 0.3)
     check_fill_properties(box, "", "#fff9ba", 0.4)
@@ -274,6 +279,10 @@ def test_BoxAnnotation() -> None:
         "top",
         "top_units",
         "top_limit",
+        "min_width",
+        "min_height",
+        "max_width",
+        "max_height",
         "border_radius",
         "editable",
         "resizable",
