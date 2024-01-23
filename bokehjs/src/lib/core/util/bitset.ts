@@ -66,12 +66,17 @@ export class BitSet implements Equatable {
     return bits
   }
 
-  static from_booleans(size: number, booleans: boolean[]): BitSet {
+  static from_booleans(size: number, booleans: Iterable<boolean>): BitSet {
     const bits = new BitSet(size)
-    const n = Math.min(size, booleans.length)
-    for (let i = 0; i < n; i++) {
-      if (booleans[i])
+    let i = 0
+    for (const boolean of booleans) {
+      if (i == size) {
+        break
+      }
+      if (boolean) {
         bits.set(i)
+      }
+      i += 1
     }
     return bits
   }
