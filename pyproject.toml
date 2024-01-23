@@ -107,6 +107,7 @@ filterwarnings = [
     '''ignore:numba is not installed\. This example will be painfully slow\.:UserWarning''',
     '''ignore:Could not infer format, so each element will be parsed individually, falling back to `dateutil`\. To ensure parsing is consistent and as-expected, please specify a format\.:UserWarning''',
     '''ignore:datetime\.datetime\.utcfromtimestamp\(\) is deprecated and scheduled for removal in a future version:DeprecationWarning:dateutil''',
+    '''ignore:\s*Pyarrow will become a required dependency of pandas:DeprecationWarning''',
 ]
 
 [tool.coverage.run]
