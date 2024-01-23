@@ -29,8 +29,8 @@ export class RangeToolView extends ToolView {
 
     const update_overlay = () => this.model.update_overlay_from_ranges()
 
-    this.on_transitive_change(this.model.properties.x_range, (range) => range != null ? [range] : [], update_overlay)
-    this.on_transitive_change(this.model.properties.y_range, (range) => range != null ? [range] : [], update_overlay)
+    this.on_transitive_change(this.model.properties.x_range, update_overlay)
+    this.on_transitive_change(this.model.properties.y_range, update_overlay)
 
     this.model.overlay.pan.connect(([state, _]) => {
       if (state == "pan") {
