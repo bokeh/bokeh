@@ -1,4 +1,6 @@
+import type {ViewOf} from "core/view"
 import {View} from "core/view"
+import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
@@ -12,6 +14,7 @@ import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
+import {Menu} from "../menus/menu"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -42,6 +45,11 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   declare readonly parent: PlotView
 
+  protected _context_menu: ViewOf<Menu> | null = null
+  get context_menu(): ViewOf<Menu> | null {
+    return this._context_menu
+  }
+
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
     const {_coordinates} = this
@@ -59,6 +67,19 @@ export abstract class RendererView extends View implements visuals.Renderable {
   override initialize(): void {
     super.initialize()
     this.visuals = new visuals.Visuals(this)
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {context_menu} = this.model
+    if (context_menu != null) {
+      this._context_menu = await build_view(context_menu, {parent: this.plot_view})
+    }
+  }
+
+  override remove(): void {
+    this._context_menu?.remove()
+    super.remove()
   }
 
   override connect_signals(): void {
@@ -221,6 +242,7 @@ export namespace Renderer {
     y_range_name: p.Property<string>
     coordinates: p.Property<CoordinateMapping | null>
     propagate_hover: p.Property<boolean>
+    context_menu: p.Property<Menu | null>
   }
 
   export type Visuals = visuals.Visuals
@@ -245,6 +267,7 @@ export abstract class Renderer extends Model {
       y_range_name: [ String, "default" ],
       coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
       propagate_hover: [ Boolean, false ],
+      context_menu: [ Nullable(Ref(Menu)), null ],
     }))
   }
 }

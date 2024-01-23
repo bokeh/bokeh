@@ -110,6 +110,13 @@ class Renderer(Model):
         This property is experimental and may change at any point.
     """)
 
+    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    A menu to display when user right clicks on the component.
+
+    .. note::
+        Use shift key when right clicking to display the native context menu.
+    """)
+
 @abstract
 class CompositeRenderer(Renderer):
     """ A renderer that allows attaching UI elements to it.

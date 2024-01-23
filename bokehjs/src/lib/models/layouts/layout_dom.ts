@@ -1,6 +1,5 @@
 import type {DOMBoxSizing, UIElement, UIElementView} from "../ui/ui_element"
 import {Pane, PaneView} from "../ui/pane"
-import {Menu} from "../menus/menu"
 import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
@@ -81,12 +80,6 @@ export abstract class LayoutDOMView extends PaneView {
     })
     this.el.addEventListener("mouseleave", (event) => {
       this.mouseleave.emit(event)
-    })
-    this.el.addEventListener("contextmenu", (event) => {
-      if (this.model.context_menu != null) {
-        console.log("context menu")
-        event.preventDefault()
-      }
     })
 
     if (this.parent instanceof LayoutDOMView) {
@@ -666,7 +659,6 @@ export namespace LayoutDOM {
     sizing_mode: p.Property<SizingMode | null>
     disabled: p.Property<boolean>
     align: p.Property<Align | [Align, Align] | "auto">
-    context_menu: p.Property<Menu | null>
     resizable: p.Property<boolean | Dimensions>
   }
 }
@@ -683,7 +675,7 @@ export abstract class LayoutDOM extends Pane {
 
   static {
     this.define<LayoutDOM.Props>((types) => {
-      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable, Ref} = types
+      const {Boolean, Number, Auto, Tuple, Or, Null, Nullable} = types
       const Number2 = Tuple(Number, Number)
       const Number4 = Tuple(Number, Number, Number, Number)
       return {
@@ -701,7 +693,6 @@ export abstract class LayoutDOM extends Pane {
         sizing_mode:   [ Nullable(SizingMode), null ],
         disabled:      [ Boolean, false ],
         align:         [ Or(Align, Tuple(Align, Align), Auto), "auto" ],
-        context_menu:  [ Nullable(Ref(Menu)), null ],
         resizable:     [ Or(Boolean, Dimensions), false ],
       }
     })

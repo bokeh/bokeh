@@ -97,6 +97,13 @@ class UIElement(Model):
     the root DOM element.
     """)
 
+    context_menu = Nullable(Instance(".models.ui.Menu"), default=None, help="""
+    A menu to display when user right clicks on the component.
+
+    .. note::
+        Use shift key when right clicking to display the native context menu.
+    """)
+
 #-----------------------------------------------------------------------------
 # Private API
 #-----------------------------------------------------------------------------

@@ -1,13 +1,16 @@
 import {Model} from "../../model"
 import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
+import type {Menu} from "../menus/menu"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import type {DictLike} from "core/types"
 import type {Align} from "core/enums"
 import type {SizingPolicy} from "core/layout"
+import type {ViewOf} from "core/view"
 import {DOMComponentView} from "core/dom_view"
 import type {SerializableState} from "core/view"
 import type {StyleSheet, StyleSheetLike} from "core/dom"
+import {build_view} from "core/build_views"
 import {apply_styles} from "core/css"
 import {InlineStyleSheet} from "core/dom"
 import {CanvasLayer} from "core/util/canvas"
@@ -143,11 +146,21 @@ export abstract class UIElementView extends DOMComponentView {
 
   protected _resize_observer: ResizeObserver
 
+  protected _context_menu: ViewOf<Menu> | null = null
+
   override initialize(): void {
     super.initialize()
 
     this._resize_observer = new ResizeObserver((_entries) => this.after_resize())
     this._resize_observer.observe(this.el, {box: "border-box"})
+  }
+
+  override async lazy_initialize(): Promise<void> {
+    await super.lazy_initialize()
+    const {context_menu} = this.model
+    if (context_menu != null) {
+      this._context_menu = await build_view(context_menu, {parent: this})
+    }
   }
 
   override connect_signals(): void {
@@ -159,10 +172,27 @@ export abstract class UIElementView extends DOMComponentView {
     this.on_change(css_classes, () => this._update_css_classes())
     this.on_transitive_change(css_variables, () => this._update_css_variables())
     this.on_change(stylesheets, () => this._update_stylesheets())
+
+    this.el.addEventListener("contextmenu", (event) => {
+      if (!event.shiftKey) {
+        const {x, y} = event
+        const context_menu = this.get_context_menu({x, y})
+        if (context_menu != null) {
+          event.stopPropagation()
+          event.preventDefault()
+          context_menu.show({x, y})
+        }
+      }
+    })
+  }
+
+  get_context_menu(_xy: XY): ViewOf<Menu> | null {
+    return this._context_menu
   }
 
   override remove(): void {
     this._resize_observer.disconnect()
+    this._context_menu?.remove()
     super.remove()
   }
 
@@ -257,6 +287,7 @@ export namespace UIElement {
     css_variables: p.Property<DictLike<Node>>
     styles: p.Property<StylesLike>
     stylesheets: p.Property<StyleSheets>
+    context_menu: p.Property<Menu | null>
   }
 }
 
@@ -271,12 +302,13 @@ export abstract class UIElement extends Model {
   }
 
   static {
-    this.define<UIElement.Props>(({Boolean, Array, String, Ref}) => ({
+    this.define<UIElement.Props>(({Boolean, Array, String, Ref, AnyRef}) => ({
       visible: [ Boolean, true ],
       css_classes: [ Array(String), [] ],
       css_variables: [ Dict(Ref(Node)), {} ],
       styles: [ StylesLike, {} ],
       stylesheets: [ StyleSheets, [] ],
+      context_menu: [ Nullable(AnyRef<Menu>()), null ],
     }))
   }
 }

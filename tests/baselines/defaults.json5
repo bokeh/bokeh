@@ -4851,7 +4851,6 @@
     flow_mode: "block",
     sizing_mode: null,
     align: "auto",
-    context_menu: null,
     resizable: false,
   },
   Row: {
@@ -5385,6 +5384,7 @@
     y_range_name: "default",
     group: null,
     propagate_hover: false,
+    context_menu: null,
   },
   RendererGroup: {
     __extends__: "Model",
@@ -6524,6 +6524,7 @@
       type: "map",
     },
     stylesheets: [],
+    context_menu: null,
   },
   AbstractButton: {
     __extends__: [

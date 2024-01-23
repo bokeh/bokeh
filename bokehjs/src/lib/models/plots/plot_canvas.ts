@@ -19,9 +19,10 @@ import type {ToolbarPanelView} from "../annotations/toolbar_panel"
 import {ToolbarPanel} from "../annotations/toolbar_panel"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {is_auto_ranged} from "../ranges/data_range1d"
+import type {Menu} from "../menus/menu"
 
 import {Reset} from "core/bokeh_events"
-import type {ViewStorage, IterViews} from "core/build_views"
+import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
 import {build_view, build_views, remove_views} from "core/build_views"
 import type {Renderable} from "core/visuals"
 import {Visuals} from "core/visuals"
@@ -42,6 +43,7 @@ import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
 import {Panel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
+import type {XY} from "core/util/bbox"
 import {parse_css_font_size} from "core/util/text"
 import type {RangeInfo, RangeOptions} from "./range_manager"
 import {RangeManager} from "./range_manager"
@@ -251,6 +253,17 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     this.canvas_view.remove()
     super.remove()
+  }
+
+  override get_context_menu(xy: XY): ViewOf<Menu> | null {
+    const {x, y} = xy
+    for (const rv of reversed([...this.renderer_views.values()])) {
+      if (rv.context_menu != null && rv.interactive_hit?.(x, y) == true) {
+        return rv.context_menu
+      }
+    }
+
+    return super.get_context_menu(xy)
   }
 
   override render(): void {

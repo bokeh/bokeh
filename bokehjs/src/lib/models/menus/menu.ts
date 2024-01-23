@@ -6,6 +6,7 @@ import type {ViewStorage, IterViews} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import {reverse, map} from "core/util/iterator"
 import type * as p from "core/properties"
+import type {XY} from "core/util/bbox"
 
 import menus_css, * as menus from "styles/menus.css"
 
@@ -46,8 +47,11 @@ export class MenuView extends UIElementView {
 
     for (const item of items) {
       item.render()
-      this.shadow_el.appendChild(item.el)
+      this.shadow_el.append(item.el)
     }
+  }
+
+  show(_xy: XY): void {
   }
 }
 
@@ -72,6 +76,8 @@ export class Menu extends UIElement {
   }
 
   static {
+    this.prototype.default_view = MenuView
+
     this.define<Menu.Props>(({Boolean, Array, Ref}) => ({
       items: [ Array(Ref(MenuItem)), [] ],
       reversed: [ Boolean, false ],
