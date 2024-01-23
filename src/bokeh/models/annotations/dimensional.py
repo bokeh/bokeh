@@ -91,7 +91,19 @@ class CustomDimensional(Dimensional):
         super().__init__(**kwargs)
 
     basis = Required(Dict(String, Either(Tuple(Float, String), Tuple(Float, String, String))), help="""
-    TODO
+    The basis defining the units of measurement.
+
+    This consists of a mapping between short unit names and their corresponding
+    scaling factors, TeX names and optional long names. For example, the basis
+    for defining angular units of measurement is:
+
+    .. code-block:: python
+
+        basis = {
+            "°":  (1,      "^\\circ",           "degree"),
+            "'":  (1/60,   "^\\prime",          "minute"),
+            "''": (1/3600, "^{\\prime\\prime}", "second"),
+        }
     """)
 
     def is_known(self, unit: str) -> bool:
@@ -106,11 +118,11 @@ class Metric(Dimensional):
         super().__init__(**kwargs)
 
     base_unit = Required(String, help="""
-    TODO
+    The short name of the base unit, e.g. ``"m"`` for meters or ``"eV"`` for electron volts.
     """)
 
     full_unit = Nullable(String, default=None, help="""
-    TODO
+    The full name of the base unit, e.g. ``"meter"`` or ``"electronvolt"``.
     """)
 
     ticks = Override(default=[1, 2, 5, 10, 15, 20, 25, 50, 75, 100, 125, 150, 200, 250, 500, 750])
@@ -121,7 +133,7 @@ class Metric(Dimensional):
         return unit in basis
 
 class ReciprocalMetric(Metric):
-    """ Model for defining metric units of measurement.
+    """ Model for defining reciprocal metric units of measurement, e.g. ``m^{-1}``.
     """
 
     # explicit __init__ to support Init signatures
