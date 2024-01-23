@@ -399,7 +399,7 @@ Lime,Green,99,$0.39
 
     def test__stream_good_df_with_date_index_data(self) -> None:
         df = pd.DataFrame(
-            index=pd.date_range('now', periods=30, freq='T'),
+            index=pd.date_range('now', periods=30, freq='min'),
             columns=['A'],
             data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
@@ -423,7 +423,7 @@ Lime,Green,99,$0.39
 
     def test__stream_good_dict_of_index_and_series_data(self) -> None:
         df = pd.DataFrame(
-            index=pd.date_range('now', periods=30, freq='T'),
+            index=pd.date_range('now', periods=30, freq='min'),
             columns=['A'],
             data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
@@ -447,7 +447,7 @@ Lime,Green,99,$0.39
 
     def test__stream_good_dict_of_index_and_series_data_transformed(self) -> None:
         df = pd.DataFrame(
-            index=pd.date_range('now', periods=30, freq='T'),
+            index=pd.date_range('now', periods=30, freq='min'),
             columns=['A'],
             data=np.cumsum(np.random.standard_normal(30), axis=0),
         )
