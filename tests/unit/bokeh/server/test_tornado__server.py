@@ -17,10 +17,9 @@ import pytest ; pytest
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import asyncio
 import json
 import logging
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
@@ -264,7 +263,7 @@ def test_keep_alive_websocket_error(ManagedServerLoop: MSL) -> None:
             server._tornado._clients = {mock_client}
             server._tornado._keep_alive()
             assert client_lost.called
-        
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
