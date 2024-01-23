@@ -114,7 +114,7 @@ def test_is_datetime_type_non_pandas_types() -> None:
 
 def test_is_datetime_type_pandas_types() -> None:
     assert bus.is_datetime_type(pd.Timestamp(3000000))
-    assert bus.is_datetime_type(pd.Period('1900', 'A-DEC'))
+    assert bus.is_datetime_type(pd.Period('1900', 'Y-DEC'))
     assert bus.is_datetime_type(pd.NaT)
 
 def test_convert_datetime_type_non_pandas_types() -> None:
@@ -127,8 +127,8 @@ def test_convert_datetime_type_non_pandas_types() -> None:
 
 def test_convert_datetime_type_pandas_types() -> None:
     assert bus.convert_datetime_type(pd.Timestamp(3000000)) == 3.0
-    assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == -2208988800000.0
-    assert bus.convert_datetime_type(pd.Period('1900', 'A-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
+    assert bus.convert_datetime_type(pd.Period('1900', 'Y-DEC')) == -2208988800000.0
+    assert bus.convert_datetime_type(pd.Period('1900', 'Y-DEC')) == bus.convert_datetime_type(np.datetime64("1900-01-01"))
     assert np.isnan(bus.convert_datetime_type(pd.NaT))
 
 def test_convert_datetime_type_array_ignores_non_datetime_array() -> None:
