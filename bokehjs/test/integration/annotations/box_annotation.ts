@@ -276,4 +276,63 @@ describe("BoxAnnotation annotation", () => {
     describe("when non-symmetric resizing", () => test_resizing(false))
     describe("when symmetric resizing", () => test_resizing(true))
   })
+
+  describe("should support constraining", () => {
+    async function box() {
+      const box = new BoxAnnotation({
+        left: 2, right: 4, top: 4, bottom: 2,
+        min_width: 1,
+        max_width: 3,
+        min_height: 1,
+        max_height: 3,
+        editable: true,
+        line_color: "blue",
+      })
+
+      const p = fig([200, 200], {renderers: [box], x_range: [0, 6], y_range: [0, 6]})
+      const {view} = await display(p)
+      await paint()
+      return view
+    }
+
+    it("maximum width when dragging left edge", async () => {
+      const view = await box()
+      await pan(view, xy(2, 3), xy(0, 3))
+    })
+
+    it("minimum width when dragging left edge", async () => {
+      const view = await box()
+      await pan(view, xy(2, 3), xy(4, 3))
+    })
+
+    it("maximum width when dragging right edge", async () => {
+      const view = await box()
+      await pan(view, xy(4, 3), xy(6, 3))
+    })
+
+    it("minimum width when dragging right edge", async () => {
+      const view = await box()
+      await pan(view, xy(4, 3), xy(2, 3))
+    })
+
+    it("maximum height when dragging top edge", async () => {
+      const view = await box()
+      await pan(view, xy(3, 4), xy(3, 6))
+    })
+
+    it("minimum height when dragging top edge", async () => {
+      const view = await box()
+      await pan(view, xy(3, 4), xy(3, 2))
+    })
+
+    it("maximum height when dragging bottom edge", async () => {
+      const view = await box()
+      await pan(view, xy(3, 2), xy(3, 0))
+    })
+
+    it("minimum height when dragging bottom edge", async () => {
+      const view = await box()
+      await pan(view, xy(3, 2), xy(3, 4))
+    })
+  })
 })
