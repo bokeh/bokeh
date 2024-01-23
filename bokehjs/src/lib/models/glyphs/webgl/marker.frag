@@ -58,7 +58,7 @@ varying float v_end_angle;
 varying float v_radius;
 #endif
 
-#ifdef USE_RECT
+#ifdef USE_ROUND_RECT
 varying vec4 v_border_radius;
 #endif
 
@@ -446,7 +446,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
-#if defined(USE_RECT)
+#if defined(USE_ROUND_RECT)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   vec2 halfsize = v_size/2.0;
@@ -480,7 +480,7 @@ float marker_distance(in vec2 p, in int line_cap, in int line_join)
 }
 #endif
 
-#if defined(USE_SQUARE) || defined(USE_SQUARE_CROSS) || defined(USE_SQUARE_DOT) || defined(USE_SQUARE_X)
+#if defined(USE_RECT) || defined(USE_SQUARE) || defined(USE_SQUARE_CROSS) || defined(USE_SQUARE_DOT) || defined(USE_SQUARE_X)
 float marker_distance(in vec2 p, in int line_cap, in int line_join)
 {
   vec2 p2 = abs(p) - v_size/2.0;  // Offset from corner

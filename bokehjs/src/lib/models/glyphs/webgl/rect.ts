@@ -9,7 +9,7 @@ export class RectGL extends SXSYGlyphGL {
   }
 
   get marker_type(): GLMarkerType {
-    return "rect"
+    return this._border_radius_nonzero ? "round_rect" : "rect"
   }
 
   protected override _set_data(): void {
@@ -22,6 +22,7 @@ export class RectGL extends SXSYGlyphGL {
 
     const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
     this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+    this._border_radius_nonzero = Math.max(...this._border_radius) > 0.0
   }
 
   protected override _set_once(): void {

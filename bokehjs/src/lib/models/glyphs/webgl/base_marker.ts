@@ -30,6 +30,7 @@ export abstract class BaseMarkerGL extends BaseGLGlyph {
 
   // used by RectGL
   protected _border_radius: Vec4 = [0.0, 0.0, 0.0, 0.0]
+  protected _border_radius_nonzero: boolean = false
 
   // indices properties
   protected readonly _show = new Uint8Buffer(this.regl_wrapper)

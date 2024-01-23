@@ -28,7 +28,7 @@ uniform float u_antialias;
 uniform float u_size_hint;
 #endif
 
-#ifdef USE_RECT
+#ifdef USE_ROUND_RECT
 uniform vec4 u_border_radius;
 varying vec4 v_border_radius;
 #endif
@@ -118,7 +118,7 @@ vec2 enclosing_size() {
 
 void main()
 {
-#if defined(USE_RECT) || defined(USE_HEX_TILE)
+#if defined(USE_RECT) || defined(USE_ROUND_RECT) || defined(USE_HEX_TILE)
   v_size = vec2(a_width, a_height);
 #elif defined(USE_ANNULUS) || defined(USE_ANNULAR_WEDGE) || defined(USE_WEDGE)
   v_size = vec2(2.0*a_width, 2.0*a_width);
@@ -154,7 +154,7 @@ void main()
   v_radius = 0.5*a_width;
 #endif
 
-#ifdef USE_RECT
+#ifdef USE_ROUND_RECT
   // Scale corner radii if they are too large, the same as canvas
   // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-roundrect
   // Order of border_radius is top_left, top_right, bottom_right, bottom_left

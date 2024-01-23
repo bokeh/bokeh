@@ -21,7 +21,7 @@ export class LRTBGL extends SingleMarkerGL {
   }
 
   get marker_type(): GLMarkerType {
-    return "rect"
+    return this._border_radius_nonzero ? "round_rect" : "rect"
   }
 
   protected override _set_data(): void {
@@ -62,8 +62,10 @@ export class LRTBGL extends SingleMarkerGL {
     if (this.glyph.border_radius != null) {
       const {top_left, top_right, bottom_right, bottom_left} = this.glyph.border_radius
       this._border_radius = [top_left, top_right, bottom_right, bottom_left]
+      this._border_radius_nonzero = Math.max(...this._border_radius) > 0.0
     } else {
       this._border_radius = [0, 0, 0, 0]
+      this._border_radius_nonzero = false
     }
   }
 
