@@ -28,35 +28,9 @@ export class RangeToolView extends ToolView {
     super.connect_signals()
 
     const update_overlay = () => this.model.update_overlay_from_ranges()
-    let {x_range, y_range} = this.model
 
-    if (x_range != null) {
-      this.connect(x_range.change, update_overlay)
-    }
-    if (y_range != null) {
-      this.connect(y_range.change, update_overlay)
-    }
-
-    this.on_change(this.model.properties.x_range, () => {
-      if (x_range != null) {
-        this.disconnect(x_range.change, update_overlay)
-      }
-      x_range = this.model.x_range
-      if (x_range != null) {
-        this.connect(x_range.change, update_overlay)
-      }
-      this.model.update_constraints()
-    })
-    this.on_change(this.model.properties.y_range, () => {
-      if (y_range != null) {
-        this.disconnect(y_range.change, update_overlay)
-      }
-      y_range = this.model.y_range
-      if (y_range != null) {
-        this.connect(y_range.change, update_overlay)
-      }
-      this.model.update_constraints()
-    })
+    this.on_transitive_change(this.model.properties.x_range, (range) => range != null ? [range] : [], update_overlay)
+    this.on_transitive_change(this.model.properties.y_range, (range) => range != null ? [range] : [], update_overlay)
 
     this.model.overlay.pan.connect(([state, _]) => {
       if (state == "pan") {
