@@ -37,7 +37,7 @@ dependencies:
   - pip
   - pip:
     # docs
-    - pydata_sphinx_theme
+    - pydata_sphinx_theme=0.15.2
     - sphinx >= 7.1.0
     - sphinx-copybutton
     - sphinx-design
