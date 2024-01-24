@@ -177,6 +177,20 @@ describe("core/kinds module", () => {
     expect(tp1.may_have_refs()).to.be.equal(true)
   })
 
+  it("should support Iterable kind", () => {
+    const tp = k.Iterable(k.Int)
+    expect(`${tp}`).to.be.equal("Iterable(Int)")
+    expect(tp.valid([])).to.be.true
+    expect(tp.valid([0, 1, 2])).to.be.true
+    expect(tp.valid(new Set([1, 2, 3]))).to.be.true
+    expect(tp.valid((function* () { yield 1; yield 2 })())).to.be.true
+    expect(tp.valid([0, "a"])).to.be.true // no item validation
+    expect(tp.valid(["a"])).to.be.true    // no item validation
+
+    expect(tp.may_have_refs()).to.be.equal(false)
+    expect((k.Iterable(k.AnyRef())).may_have_refs()).to.be.equal(true)
+  })
+
   it("should support Arrayable kind", () => {
     const tp = k.Arrayable(k.Int)
     expect(`${tp}`).to.be.equal("Arrayable(Int)")

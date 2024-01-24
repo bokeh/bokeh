@@ -31,4 +31,10 @@ describe("Bug", () => {
       await test("regressions/issue_13134.json5")
     })
   })
+
+  describe("in issue #13660", () => {
+    it.no_image("doesn't allow using ndarrays in BooleanFilter.booleans", async () => {
+      await test("regressions/issue_13660.json5")
+    })
+  })
 })
