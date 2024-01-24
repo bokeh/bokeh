@@ -1,8 +1,10 @@
 import type {AngleUnits, Direction} from "../enums"
 import {isObject} from "./types"
 import {assert} from "./assert"
+import type {XY} from "./bbox"
 
-const {PI, abs, sign} = Math
+const {PI, abs, sign, sin, cos} = Math
+export {PI}
 
 export function angle_norm(angle: number): number {
   if (angle == 0) {
@@ -41,7 +43,13 @@ export function randomIn(min: number, max?: number): number {
   return min + Math.floor(Math.random()*(max - min + 1))
 }
 
-export function atan2(start: [number, number], end: [number, number]): number {
+export function to_cartesian(radius: number, angle: number): XY {
+  const x = radius*cos(angle)
+  const y = radius*sin(angle)
+  return {x, y}
+}
+
+export function slope(start: [number, number], end: [number, number]): number {
   /*
    * Calculate the angle between a line containing start and end points (composed
    * of [x, y] arrays) and the positive x-axis.

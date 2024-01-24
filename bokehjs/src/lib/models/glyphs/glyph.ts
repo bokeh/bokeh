@@ -421,6 +421,10 @@ export abstract class GlyphView extends View {
     }
   }
 
+  get has_decorations(): boolean {
+    return this.decorations.size != 0
+  }
+
   protected _set_data(_indices: number[] | null): void {}
   protected async _set_lazy_data(_indices: number[] | null): Promise<void> {}
 
