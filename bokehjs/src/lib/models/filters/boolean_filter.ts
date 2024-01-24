@@ -7,7 +7,7 @@ export namespace BooleanFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    booleans: p.Property<boolean[] | null>
+    booleans: p.Property<Iterable<boolean> | null>
   }
 }
 
@@ -21,8 +21,8 @@ export class BooleanFilter extends Filter {
   }
 
   static {
-    this.define<BooleanFilter.Props>(({Boolean, Array, Nullable}) => ({
-      booleans: [ Nullable(Array(Boolean)), null ],
+    this.define<BooleanFilter.Props>(({Boolean, Iterable, Nullable}) => ({
+      booleans: [ Nullable(Iterable(Boolean)), null ],
     }))
   }
 
