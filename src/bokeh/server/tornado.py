@@ -36,6 +36,7 @@ from urllib.parse import urljoin
 # External imports
 from tornado.ioloop import PeriodicCallback
 from tornado.web import Application as TornadoApplication, StaticFileHandler
+from tornado.websocket import WebSocketClosedError
 
 if TYPE_CHECKING:
     from tornado.ioloop import IOLoop
@@ -783,8 +784,11 @@ class BokehTornado(TornadoApplication):
 
     def _keep_alive(self) -> None:
         log.trace("Running keep alive job") # type: ignore[attr-defined]
-        for c in self._clients:
-            c.send_ping()
+        for c in list(self._clients):
+            try:
+                c.send_ping()
+            except WebSocketClosedError:
+                self.client_lost(c)
 
 #-----------------------------------------------------------------------------
 # Dev API
