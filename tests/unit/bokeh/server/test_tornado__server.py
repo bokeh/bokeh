@@ -19,10 +19,12 @@ import pytest ; pytest
 # Standard library imports
 import json
 import logging
+from unittest.mock import Mock, patch
 
 # External imports
 from _util_server import http_get, url
 from tornado.web import StaticFileHandler
+from tornado.websocket import WebSocketClosedError
 
 # Bokeh imports
 from bokeh.application import Application
@@ -251,6 +253,16 @@ async def test_metadata(ManagedServerLoop: MSL) -> None:
         meta_resp = await http_get(server.io_loop, meta_url)
         meta_json = json.loads(meta_resp.buffer.read().decode())
         assert meta_json == {'data': {'name': 'myname', 'value': 'no value'}, 'url': '/'}
+
+def test_keep_alive_websocket_error(ManagedServerLoop: MSL) -> None:
+    application = Application()
+    mock_client = Mock()
+    mock_client.send_ping.side_effect = WebSocketClosedError()
+    with ManagedServerLoop(application, keep_alive_milliseconds=100) as server:
+        with patch('bokeh.server.tornado.BokehTornado.client_lost') as client_lost:
+            server._tornado._clients = {mock_client}
+            server._tornado._keep_alive()
+            assert client_lost.called
 
 #-----------------------------------------------------------------------------
 # Dev API
