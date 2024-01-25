@@ -65,42 +65,6 @@ Tile Source for Open Street Map Mapnik.
 
     <img src="https://c.tile.openstreetmap.org/14/2627/6331.png" />
 
-Stadia/Stamen Terrain
-~~~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stadia/Stamen Terrain Service
-
-.. raw:: html
-
-    <img src="https://tiles.stadiamaps.com/tiles/stamen_terrain/14/2627/6331.png" />
-
-Stadia/Stamen Toner
-~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stadia/Stamen Toner Service
-
-.. raw:: html
-
-    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner/14/2627/6331.png" />
-
-Stadia/Stamen Toner Background
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stadia/Stamen Toner Background Service which does not include labels
-
-.. raw:: html
-
-    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_background/14/2627/6331.png" />
-
-Stadia/Stamen Toner Labels
-~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Tile Source for Stadia/Stamen Toner Service which includes only labels
-
-.. raw:: html
-
-    <img src="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/14/2627/6331.png" />
-
 .. _ug_topics_geo_google_maps:
 
 Google Maps
