@@ -4,7 +4,7 @@ the `sklearn.neighbors.KernelDensity`_ function and `Bokeh` varea glyph
 .. bokeh-example-metadata::
     :sampledata: cows
     :apis: bokeh.plotting.figure.varea
-    :refs: :ref:`ug_topics_stats_sinaplot`
+    :refs: :ref:`ug_topics_stats_kde`
     :keywords: density, varea
 
 .. _multiple kernel density estimation: https://en.wikipedia.org/wiki/Kernel_density_estimation
