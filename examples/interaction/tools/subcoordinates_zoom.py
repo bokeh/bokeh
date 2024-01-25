@@ -19,7 +19,7 @@ channels = [f"EEG {i}" for i in range(n_channels)]
 hover = HoverTool(tooltips=[
     ("Channel", "$name"),
     ("Time", "$x s"),
-    ("Amplitude", "$y µV"),
+    ("Amplitude", "$y μV"),
 ])
 
 x_range = Range1d(start=time.min(), end=time.max())
