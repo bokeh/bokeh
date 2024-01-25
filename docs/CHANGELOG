@@ -1,3 +1,20 @@
+2024-01-25    3.3.4:
+--------------------
+  * bugfixes:
+    - #13594 [component: docs] New glyphs are missing from TOCs, indexes
+    - #13654 [component: server] [BUG] Tornado client sometimes not correctly cleaned up leading to continuous keep alive ping failures
+    - #13656 [component: tests] Tests fail due to pandas' deprecation warning
+    - #13660 [component: bokehjs] [BUG] BooleanFilter doesn't work with np.array
+    - #13659 [component: docs] Fix missing User Guide sidebars
+
+  * tasks:
+    - #13502 [component: bokehjs] [FEATURE] Assist in measuring display and interaction latency
+    - #13587 [component: docs] [BUG] Update link to Jinja project in server documentation
+    - #13568 [component: examples] Add Metadata for airports_graph.py and geojson_source.py
+    - #13626 Force import line wrap by count and line length
+    - #13647 [component: docs] Update CoC to use reporting form
+    - #13664 [component: docs] Address missing image thumbnail
+
 2024-01-08    3.3.3:
 --------------------
   * bugfixes:
