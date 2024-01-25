@@ -32,12 +32,9 @@ y_range = (EN[1]-dN, EN[1]+dN) # (m) Northing y_lo, y_hi
 providers = [
     "CartoDB Positron",
     "CartoDB Positron retina",
-    "Stamen Terrain",
-    "Stamen Terrain retina",
-    "Stamen Toner",
-    "Stamen Toner Background",
-    "Stamen Toner Labels",
     "OpenStreetMap Mapnik",
+    "OpenTopoMap",
+    "USGS.USTopo",
     "Esri World Imagery",
 ]
 
@@ -57,7 +54,6 @@ layout = layout([
     [description],
     plots[0:3],
     plots[3:6],
-    plots[6:9],
 ])
 
 show(layout)
