@@ -38,7 +38,11 @@ from ..core.properties import (
     String,
 )
 from ..core.validation import error, warning
-from ..core.validation.errors import INCOMPATIBLE_MAP_RANGE_TYPE, MISSING_GOOGLE_API_KEY, REQUIRED_RANGE
+from ..core.validation.errors import (
+    INCOMPATIBLE_MAP_RANGE_TYPE,
+    MISSING_GOOGLE_API_KEY,
+    REQUIRED_RANGE,
+)
 from ..core.validation.warnings import MISSING_RENDERERS
 from ..model import Model
 from ..models.ranges import Range1d

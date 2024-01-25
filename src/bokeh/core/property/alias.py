@@ -30,7 +30,11 @@ from typing import ClassVar, TypeVar
 # Bokeh imports
 from ...util.deprecation import Version
 from .bases import Property
-from .descriptors import AliasPropertyDescriptor, DeprecatedAliasPropertyDescriptor, PropertyDescriptor
+from .descriptors import (
+    AliasPropertyDescriptor,
+    DeprecatedAliasPropertyDescriptor,
+    PropertyDescriptor,
+)
 
 #-----------------------------------------------------------------------------
 # Globals and constants

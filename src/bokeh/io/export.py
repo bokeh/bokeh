@@ -252,7 +252,11 @@ def get_screenshot_as_png(obj: UIElement | Document, *, driver: WebDriver | None
         aspect ratios. It is recommended to use the default ``fixed`` sizing mode.
 
     '''
-    from .webdriver import get_web_driver_device_pixel_ratio, scale_factor_less_than_web_driver_device_pixel_ratio, webdriver_control
+    from .webdriver import (
+        get_web_driver_device_pixel_ratio,
+        scale_factor_less_than_web_driver_device_pixel_ratio,
+        webdriver_control,
+    )
 
     with _tmp_html() as tmp:
         theme = (state or curstate()).document.theme

@@ -10,6 +10,8 @@ const ESMap = globalThis.Map
 type ESSet<V> = globalThis.Set<V>
 const ESSet = globalThis.Set
 
+type ESIterable<V> = globalThis.Iterable<V>
+
 const {hasOwnProperty} = Object.prototype
 
 export abstract class Kind<T> {
@@ -268,6 +270,24 @@ export namespace Kinds {
     }
   }
 
+  export class Iterable<ItemType> extends Kind<ESIterable<ItemType>> {
+    constructor(readonly item_type: Kind<ItemType>) {
+      super()
+    }
+
+    valid(value: unknown): value is ESIterable<ItemType> {
+      return tp.isIterable(value)
+    }
+
+    override toString(): string {
+      return `Iterable(${this.item_type.toString()})`
+    }
+
+    may_have_refs(): boolean {
+      return this.item_type.may_have_refs()
+    }
+  }
+
   export class Arrayable<ItemType> extends Kind<types.Arrayable<ItemType>> {
     constructor(readonly item_type: Kind<ItemType>) {
       super()
@@ -391,7 +411,7 @@ export namespace Kinds {
   export class Enum<T extends string | number> extends Primitive<T> {
     readonly values: ESSet<T>
 
-    constructor(values: Iterable<T>) {
+    constructor(values: ESIterable<T>) {
       super()
       this.values = new ESSet(values)
     }
@@ -599,6 +619,7 @@ export const Or = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<
 export const Tuple = <T extends [unknown, ...unknown[]]>(...types: Kinds.TupleKind<T>) => new Kinds.Tuple(types)
 export const Struct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.Struct(struct_type)
 export const PartialStruct = <T extends {[key: string]: unknown}>(struct_type: Kinds.ObjectKind<T>) => new Kinds.PartialStruct(struct_type)
+export const Iterable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Iterable(item_type)
 export const Arrayable = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Arrayable(item_type)
 export const Array = <ItemType>(item_type: Kind<ItemType>) => new Kinds.Array(item_type)
 export const Dict = <V>(item_type: Kind<V>) => new Kinds.Dict(item_type)

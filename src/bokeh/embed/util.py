@@ -38,7 +38,10 @@ from ..model import Model, collect_models
 from ..settings import settings
 from ..themes.theme import Theme
 from ..util.dataclasses import dataclass, field
-from ..util.serialization import make_globally_unique_css_safe_id, make_globally_unique_id
+from ..util.serialization import (
+    make_globally_unique_css_safe_id,
+    make_globally_unique_id,
+)
 
 if TYPE_CHECKING:
     from ..document.document import DocJson

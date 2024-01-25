@@ -36,14 +36,21 @@ from ..themes import default as default_theme
 from ..util.callback_manager import EventCallbackManager, PropertyCallbackManager
 from ..util.serialization import make_id
 from .docs import html_repr, process_example
-from .util import HasDocumentRef, collect_models, visit_value_and_its_immediate_references
+from .util import (
+    HasDocumentRef,
+    collect_models,
+    visit_value_and_its_immediate_references,
+)
 
 if TYPE_CHECKING:
     from ..core.has_props import Setter
     from ..core.query import SelectorType
     from ..document import Document
     from ..document.events import DocumentPatchedEvent
-    from ..models.callbacks import Callback as JSEventCallback, CustomCode as JSChangeCallback
+    from ..models.callbacks import (
+        Callback as JSEventCallback,
+        CustomCode as JSChangeCallback,
+    )
     from ..util.callback_manager import PropertyCallback
 
 #-----------------------------------------------------------------------------
