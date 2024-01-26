@@ -29,6 +29,7 @@ from ..core.properties import (
     Required,
     String,
 )
+from ..core.property.aliases import CoordinateLike
 from ..model import Model
 
 #-----------------------------------------------------------------------------
@@ -37,6 +38,7 @@ from ..model import Model
 
 __all__ = (
     "Node",
+    "XY",
 )
 
 #-----------------------------------------------------------------------------
@@ -45,7 +47,35 @@ __all__ = (
 
 ImplicitTarget = Literal["viewport", "canvas", "plot", "frame", "parent"]
 
-class Node(Model):
+class Coordinate(Model):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+class XY(Coordinate):
+    """
+    A point in a Cartesian coordinate system.
+
+    .. note::
+        This model is experimental and may change at any point.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    x = Required(CoordinateLike, help="""
+    The x component.
+    """)
+
+    y = Required(CoordinateLike, help="""
+    The y component.
+    """)
+
+class Node(Coordinate):
     """
     Represents a symbolic coordinate (by name).
 

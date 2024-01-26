@@ -35,7 +35,7 @@ from ...core.properties import (
 )
 from ...core.property_aliases import Anchor
 from ..dom import DOMNode
-from ..nodes import Node
+from ..nodes import Coordinate, Node
 from .panes import Pane
 from .ui_element import UIElement
 
@@ -61,7 +61,7 @@ class Panel(Pane):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    position = Required(Instance(Node))
+    position = Required(Instance(Coordinate))
     anchor = Anchor(default="top_left")
     width = Either(Auto, Int, Instance(Node))
     height = Either(Auto, Int, Instance(Node))

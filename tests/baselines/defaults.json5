@@ -5013,8 +5013,11 @@
     color_baseline: null,
     stack_labels: null,
   },
-  Node: {
+  Coordinate: {
     __extends__: "Model",
+  },
+  Node: {
+    __extends__: "Coordinate",
     target: {
       type: "symbol",
       name: "unset",
@@ -5024,6 +5027,17 @@
       name: "unset",
     },
     offset: 0,
+  },
+  XY: {
+    __extends__: "Coordinate",
+    x: {
+      type: "symbol",
+      name: "unset",
+    },
+    y: {
+      type: "symbol",
+      name: "unset",
+    },
   },
   GridPlot: {
     __extends__: [

@@ -236,7 +236,7 @@ export class TooltipView extends UIElementView {
         const [x, y] = position
         return [bbox.left + x, bbox.top + y]
       } else {
-        const {x, y} = this.resolve_node_as_xy(position)
+        const {x, y} = this.resolve_coordinate(position)
         return [x, y]
       }
     })()

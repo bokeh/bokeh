@@ -60,7 +60,7 @@ export class LabelView extends TextAnnotationView implements Pannable {
     const {x, y, x_offset, y_offset} = this.model
 
     const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
-      return value instanceof Node ? this.resolve_node_as_xy(value)[dim] : mapper.compute(value)
+      return value instanceof Node ? this.resolve_coordinate(value)[dim] : mapper.compute(value)
     }
 
     const sx = compute("x", x, mappers.x) + x_offset

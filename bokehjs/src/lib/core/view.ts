@@ -5,7 +5,9 @@ import {Signal0, Signal} from "./signaling"
 import {isArray, isString, isNumber} from "./util/types"
 import type {BBox, XY} from "./util/bbox"
 import {isXY} from "./util/bbox"
-import type {Node} from "../models/coordinates/node"
+import type {Coordinate} from "../models/coordinates/coordinate"
+import {Node} from "../models/coordinates/node"
+import {XY as XY_} from "../models/coordinates/xy"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -215,9 +217,16 @@ export class View implements ISignalable {
     }
   }
 
-  resolve_node_as_xy(node: Node): XY {
-    const value = this.resolve_node(node)
-    return isXY(value) ? value : {x: NaN, y: NaN}
+  resolve_coordinate(coord: Coordinate): XY {
+    if (coord instanceof XY_) {
+      const {x, y} = coord
+      return {x, y}
+    } else if (coord instanceof Node) {
+      const value = this.resolve_node(coord)
+      return isXY(value) ? value : {x: NaN, y: NaN}
+    } else {
+      return {x: NaN, y: NaN}
+    }
   }
 
   resolve_node_as_scalar(node: Node): number {

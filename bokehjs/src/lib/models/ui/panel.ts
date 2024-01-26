@@ -1,4 +1,5 @@
 import {Pane, PaneView} from "../ui/pane"
+import {Coordinate} from "../coordinates/coordinate"
 import {Node} from "../coordinates/node"
 import {Anchor} from "../common/kinds"
 import * as resolve from "../common/resolve"
@@ -30,7 +31,7 @@ export class PanelView extends PaneView {
       return
     }
 
-    const {x: left, y: top} = this.resolve_node_as_xy(position)
+    const {x: left, y: top} = this.resolve_coordinate(position)
     if (!isFinite(left + top)) {
       this.el.remove()
       return
@@ -47,7 +48,7 @@ export class PanelView extends PaneView {
     this.el.style.top = px(top)
 
     const xy = resolve.anchor(anchor)
-    this.el.style.transform = `translate(${xy.x}%, ${xy.y}%)`
+    this.el.style.transform = `translate(${100*xy.x}%, ${100*xy.y}%)`
   }
 }
 
@@ -55,7 +56,7 @@ export namespace Panel {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Pane.Props & {
-    position: p.Property<Node>
+    position: p.Property<Coordinate>
     anchor: p.Property<Anchor>
     width: p.Property<"auto" | number | Node>
     height: p.Property<"auto" | number | Node>
@@ -76,7 +77,7 @@ export class Panel extends Pane {
     this.prototype.default_view = PanelView
 
     this.define<Panel.Props>(({Ref, Or, Auto, Int}) => ({
-      position: [ Ref(Node) ],
+      position: [ Ref(Coordinate) ],
       anchor: [ Anchor, "top_left" ],
       width: [ Or(Auto, Int, Ref(Node)), "auto" ],
       height: [ Or(Auto, Int, Ref(Node)), "auto" ],
