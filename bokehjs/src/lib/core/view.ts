@@ -1,4 +1,4 @@
-import type {HasProps} from "./has_props"
+import {HasProps} from "./has_props"
 import type {Property} from "./properties"
 import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
@@ -127,6 +127,35 @@ export class View implements ISignalable {
     for (const property of isArray(properties) ? properties : [properties]) {
       this.connect(property.change, fn)
     }
+  }
+
+  on_transitive_change<T>(property: Property<T>, fn: () => void): void {
+    const collect = () => {
+      const value = property.is_unset ? [] : property.get_value()
+      return HasProps.references(value, {recursive: false})
+    }
+
+    const connect = (models: Iterable<HasProps>) => {
+      for (const model of models) {
+        this.connect(model.change, fn)
+      }
+    }
+
+    const disconnect = (models: Iterable<HasProps>) => {
+      for (const model of models) {
+        this.disconnect(model.change, fn)
+      }
+    }
+
+    let models = collect()
+    connect(models)
+
+    this.on_change(property, () => {
+      disconnect(models)
+      models = collect()
+      connect(models)
+      fn()
+    })
   }
 
   cursor(_sx: number, _sy: number): string | null {

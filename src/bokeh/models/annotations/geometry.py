@@ -20,6 +20,9 @@ log = logging.getLogger(__name__)
 # Imports
 #-----------------------------------------------------------------------------
 
+# Standard library imports
+from math import inf
+
 # Bokeh imports
 from ...core.enums import CoordinateUnits, Dimension
 from ...core.properties import (
@@ -30,9 +33,11 @@ from ...core.properties import (
     Include,
     Instance,
     InstanceDefault,
+    NonNegative,
     Null,
     Nullable,
     Override,
+    Positive,
     Seq,
     UnitsSpec,
     field,
@@ -141,6 +146,34 @@ class BoxAnnotation(Annotation):
 
     bottom_limit = Nullable(Coordinate, help="""
     Optional bottom limit for box movement.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    min_width = NonNegative(Float, default=0, help="""
+    Allows to set the minium width of the box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    min_height = NonNegative(Float, default=0, help="""
+    Allows to set the maximum width of the box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    max_width = Positive(Float, default=inf, help="""
+    Allows to set the minium height of the box.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
+
+    max_height = Positive(Float, default=inf, help="""
+    Allows to set the maximum height of the box.
 
     .. note::
         This property is experimental and may change at any point.

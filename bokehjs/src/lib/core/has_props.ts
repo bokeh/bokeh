@@ -539,10 +539,14 @@ export abstract class HasProps extends Signalable() implements Equatable, Printa
     }
   }
 
-  references(): Set<HasProps> {
+  static references(value: unknown, options: {recursive: boolean}): Set<HasProps> {
     const refs = new Set<HasProps>()
-    HasProps._value_record_references(this, refs, {recursive: true})
+    HasProps._value_record_references(value, refs, options)
     return refs
+  }
+
+  references(): Set<HasProps> {
+    return HasProps.references(this, {recursive: true})
   }
 
   protected _doc_attached(): void {}

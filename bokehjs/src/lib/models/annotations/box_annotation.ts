@@ -13,6 +13,7 @@ import {BBox, empty} from "core/util/bbox"
 import type {PanEvent, PinchEvent, Pannable, Pinchable, MoveEvent, Moveable, KeyModifiers} from "core/ui_events"
 import {Signal} from "core/signaling"
 import type {Rect} from "core/types"
+import {clamp} from "core/util/math"
 import {assert} from "core/util/assert"
 import {Enum, Number, Nullable, Ref, Or} from "core/kinds"
 import {BorderRadius} from "../common/kinds"
@@ -342,35 +343,68 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const Dl = left - slimits.left
       const Dr = slimits.right - right
 
-      const Dh = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
-      if (isFinite(Dh) && Dh < 0) {
-        left += -left_sign*(-Dh)
-        right += -right_sign*(-Dh)
+      const Dx = min(Dl < 0 ? Dl : NaN, Dr < 0 ? Dr : NaN)
+      if (isFinite(Dx) && Dx < 0) {
+        left += -left_sign*(-Dx)
+        right += -right_sign*(-Dx)
       }
 
       const Dt = top - slimits.top
       const Db = slimits.bottom - bottom
 
-      const Dv = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
-      if (isFinite(Dv) && Dv < 0) {
-        top += -top_sign*(-Dv)
-        bottom += -bottom_sign*(-Dv)
+      const Dy = min(Dt < 0 ? Dt : NaN, Db < 0 ? Db : NaN)
+      if (isFinite(Dy) && Dy < 0) {
+        top += -top_sign*(-Dy)
+        bottom += -bottom_sign*(-Dy)
       }
 
       return BBox.from_lrtb({left, right, top, bottom})
     })()
 
-    const lrtb = (() => {
-      const {left, right, top, bottom} = this.model
+    const {min_width, min_height, max_width, max_height} = this.model
+    const {left, right, top, bottom} = this.model
+
+    const lrtb = {
+      left:   mappers.left.invert(slrtb.left),
+      right:  mappers.right.invert(slrtb.right),
+      top:    mappers.top.invert(slrtb.top),
+      bottom: mappers.bottom.invert(slrtb.bottom),
+    }
+
+    if (0 < min_width || max_width < Infinity) {
+      if (dl != 0 && dr == 0) {
+        const min_left = lrtb.right - max_width
+        const max_left = lrtb.right - min_width
+        lrtb.left = clamp(lrtb.left, min_left, max_left)
+      } else if (dl == 0 && dr != 0) {
+        const min_right = lrtb.left + min_width
+        const max_right = lrtb.left + max_width
+        lrtb.right = clamp(lrtb.right, min_right, max_right)
+      }
+    }
+
+    if (0 < min_height || max_height < Infinity) {
+      if (dt != 0 && db == 0) {
+        const min_top = lrtb.bottom + max_height
+        const max_top = lrtb.bottom + min_height
+        lrtb.top = clamp(lrtb.top, min_top, max_top)
+      } else if (dt == 0 && db != 0) {
+        const min_bottom = lrtb.top - min_height
+        const max_bottom = lrtb.top - max_height
+        lrtb.bottom = clamp(lrtb.bottom, min_bottom, max_bottom)
+      }
+    }
+
+    const computed_lrtb = (() => {
       return {
-        left:   left   instanceof Node ? left   : mappers.left.invert(slrtb.left),
-        right:  right  instanceof Node ? right  : mappers.right.invert(slrtb.right),
-        top:    top    instanceof Node ? top    : mappers.top.invert(slrtb.top),
-        bottom: bottom instanceof Node ? bottom : mappers.bottom.invert(slrtb.bottom),
+        left:   left   instanceof Node ? left   : lrtb.left,
+        right:  right  instanceof Node ? right  : lrtb.right,
+        top:    top    instanceof Node ? top    : lrtb.top,
+        bottom: bottom instanceof Node ? bottom : lrtb.bottom,
       }
     })()
 
-    this.model.update(lrtb)
+    this.model.update(computed_lrtb)
     this.model.pan.emit(["pan", ev.modifiers])
   }
 
@@ -511,6 +545,11 @@ export namespace BoxAnnotation {
     left_limit: p.Property<Limit>
     right_limit: p.Property<Limit>
 
+    min_width: p.Property<number>
+    min_height: p.Property<number>
+    max_width: p.Property<number>
+    max_height: p.Property<number>
+
     border_radius: p.Property<BorderRadius>
 
     editable: p.Property<boolean>
@@ -563,7 +602,7 @@ export class BoxAnnotation extends Annotation {
       ["hover_", mixins.Hatch],
     ])
 
-    this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or}) => ({
+    this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or, NonNegative, Positive}) => ({
       top:          [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "top"}) ],
       bottom:       [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "bottom"}) ],
       left:         [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "left"}) ],
@@ -578,6 +617,11 @@ export class BoxAnnotation extends Annotation {
       bottom_limit: [ Limit, null ],
       left_limit:   [ Limit, null ],
       right_limit:  [ Limit, null ],
+
+      min_width:    [ NonNegative(Number), 0 ],
+      min_height:   [ NonNegative(Number), 0 ],
+      max_width:    [ Positive(Number), Infinity ],
+      max_height:   [ Positive(Number), Infinity ],
 
       border_radius: [ BorderRadius, 0 ],
 
