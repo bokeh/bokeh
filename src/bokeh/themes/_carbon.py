@@ -66,6 +66,8 @@ json = {
         "Title": {
             "text_font": "Courier New",
             "text_font_style": "normal",
+            "text_font_size": "1.15em",
+
             "text_color": "lightgrey",
         },
     }
