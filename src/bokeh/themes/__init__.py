@@ -14,6 +14,11 @@ CALIBER
 
 .. bokeh-plot:: __REPO__/examples/styling/themes/caliber.py
 
+CARBON
+~~~~~~
+
+.. bokeh-plot:: __REPO__/examples/styling/themes/carbon.py
+
 DARK_MINIMAL
 ~~~~~~~~~~~~
 
@@ -56,6 +61,7 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from . import (
     _caliber,
+    _carbon,
     _contrast,
     _dark_minimal,
     _light_minimal,
@@ -69,6 +75,7 @@ from .theme import Theme
 
 __all__ = (
     'CALIBER',
+    'CARBON',
     'DARK_MINIMAL',
     'LIGHT_MINIMAL',
     'NIGHT_SKY',
@@ -83,6 +90,7 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 CALIBER       = 'caliber'
+CARBON        = 'carbon'
 LIGHT_MINIMAL = 'light_minimal'
 DARK_MINIMAL  = 'dark_minimal'
 NIGHT_SKY  = 'night_sky'
@@ -92,6 +100,7 @@ default = Theme(json={})
 
 built_in_themes = {
     CALIBER       : Theme(json=_caliber.json),
+    CARBON        : Theme(json=_carbon.json),
     DARK_MINIMAL  : Theme(json=_dark_minimal.json),
     LIGHT_MINIMAL : Theme(json=_light_minimal.json),
     NIGHT_SKY : Theme(json=_night_sky.json),
