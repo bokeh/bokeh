@@ -183,7 +183,7 @@ export class CanvasView extends UIElementView {
       // Canvas is being managed by a plot, thus it should not attempt
       // self-resize, as it would result in inconsistent state and
       // possibly invalid layout and/or lack of repaint of a plot.
-      return
+      this.finish()
     } else {
       super.after_resize()
     }

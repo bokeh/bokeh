@@ -20,10 +20,11 @@ import {ToolbarPanel} from "../annotations/toolbar_panel"
 import type {AutoRanged} from "../ranges/data_range1d"
 import {is_auto_ranged} from "../ranges/data_range1d"
 import type {Menu} from "../menus/menu"
+import type {ElementLike} from "../ui/pane"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
-import {build_view, build_views, remove_views} from "core/build_views"
+import {build_views, remove_views} from "core/build_views"
 import type {Renderable} from "core/visuals"
 import {Visuals} from "core/visuals"
 import {logger} from "core/logging"
@@ -68,6 +69,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   private _render_count: number = 0
 
+  private _canvas: Canvas
   canvas_view: CanvasView
   get canvas(): CanvasView {
     return this.canvas_view
@@ -155,7 +157,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     yield* super.children()
     yield* this.renderer_views.values()
     yield* this.tool_views.values()
-    yield this.canvas
   }
 
   get is_paused(): boolean {
@@ -251,7 +252,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     remove_views(this.renderer_views)
     remove_views(this.tool_views)
 
-    this.canvas_view.remove()
     super.remove()
   }
 
@@ -264,13 +264,6 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
 
     return super.get_context_menu(xy)
-  }
-
-  override render(): void {
-    super.render()
-
-    this.shadow_el.appendChild(this.canvas_view.el)
-    this.canvas_view.render()
   }
 
   override initialize(): void {
@@ -318,14 +311,19 @@ export class PlotView extends LayoutDOMView implements Renderable {
       toolbar.location = toolbar_location
       toolbar.inner = toolbar_inner
     }
+
+    const {hidpi, output_backend} = this.model
+    this._canvas = new Canvas({hidpi, output_backend})
+  }
+
+  override get elements(): ElementLike[] {
+    return [this._canvas, ...super.elements]
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
 
-    const {hidpi, output_backend} = this.model
-    const canvas = new Canvas({hidpi, output_backend})
-    this.canvas_view = await build_view(canvas, {parent: this})
+    this.canvas_view = this._element_views.get(this._canvas)! as CanvasView
     this.canvas_view.plot_views = [this]
 
     await this.build_tool_views()

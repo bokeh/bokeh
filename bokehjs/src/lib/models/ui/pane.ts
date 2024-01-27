@@ -8,15 +8,18 @@ import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
 // TODO UIElement needs to inherit from DOMNode
-const ElementLike = Or(Ref(UIElement), Ref(DOMNode), Ref(HTML))
-type ElementLike = typeof ElementLike["__type__"]
+export const ElementLike = Or(Ref(UIElement), Ref(DOMNode), Ref(HTML))
+export type ElementLike = typeof ElementLike["__type__"]
 
 export class PaneView extends UIElementView {
   declare model: Pane
 
   protected readonly _element_views: ViewStorage<ElementLike> = new Map()
+  get elements(): ElementLike[] {
+    return this.model.elements
+  }
   get element_views(): ViewOf<ElementLike>[] {
-    return this.model.elements.map((element) => this._element_views.get(element)!)
+    return this.elements.map((element) => this._element_views.get(element)!)
   }
 
   override *children(): IterViews {
@@ -30,7 +33,7 @@ export class PaneView extends UIElementView {
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
-    return await build_views(this._element_views, this.model.elements, {parent: this})
+    return await build_views(this._element_views, this.elements, {parent: this})
   }
 
   protected async _update_elements(): Promise<void> {
