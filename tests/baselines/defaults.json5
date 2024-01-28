@@ -5016,6 +5016,17 @@
   Coordinate: {
     __extends__: "Model",
   },
+  Indexed: {
+    __extends__: "Coordinate",
+    i: {
+      type: "symbol",
+      name: "unset",
+    },
+    renderer: {
+      type: "symbol",
+      name: "unset",
+    },
+  },
   Node: {
     __extends__: "Coordinate",
     target: {

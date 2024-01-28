@@ -6,8 +6,10 @@ import {isArray, isString, isNumber} from "./util/types"
 import type {BBox, XY} from "./util/bbox"
 import {isXY} from "./util/bbox"
 import type {Coordinate} from "../models/coordinates/coordinate"
+import type {NodeTarget} from "../models/coordinates/node"
 import {Node} from "../models/coordinates/node"
 import {XY as XY_} from "../models/coordinates/xy"
+import {Indexed} from "../models/coordinates/indexed"
 
 export type ViewOf<T extends HasProps> = T["__view_type__"]
 
@@ -182,9 +184,9 @@ export class View implements ISignalable {
     }
   }
 
-  resolve_target(node: Node): View | null {
-    if (isString(node.target)) {
-      switch (node.target) {
+  resolve_target(target: NodeTarget): View | null {
+    if (isString(target)) {
+      switch (target) {
         case "parent": return this.parent
         default:       return null
       }
@@ -194,7 +196,7 @@ export class View implements ISignalable {
         const child = queue.shift()
         if (child == null) {
           break
-        } else if (child.model == node.target) {
+        } else if (child.model == target) {
           return child
         } else {
           queue.push(...child.children())
@@ -209,7 +211,7 @@ export class View implements ISignalable {
   }
 
   resolve_node(node: Node): XY | number {
-    const target = this.resolve_target(node)
+    const target = this.resolve_target(node.target)
     if (target != null) {
       return target.resolve_symbol(node)
     } else {
@@ -217,10 +219,22 @@ export class View implements ISignalable {
     }
   }
 
+  resolve_xy?(coord: XY_): XY
+  resolve_indexed?(coord: Indexed): XY
+
   resolve_coordinate(coord: Coordinate): XY {
     if (coord instanceof XY_) {
-      const {x, y} = coord
-      return {x, y}
+      let obj: View | null = this
+      while (obj != null && obj.resolve_xy == null) {
+        obj = obj.parent
+      }
+      return obj?.resolve_xy?.(coord) ?? {x: NaN, y: NaN}
+    } else if (coord instanceof Indexed) {
+      let obj: View | null = this
+      while (obj != null && obj.resolve_indexed == null) {
+        obj = obj.parent
+      }
+      return obj?.resolve_indexed?.(coord) ?? {x: NaN, y: NaN}
     } else if (coord instanceof Node) {
       const value = this.resolve_node(coord)
       return isXY(value) ? value : {x: NaN, y: NaN}

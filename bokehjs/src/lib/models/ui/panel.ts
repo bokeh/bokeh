@@ -48,7 +48,7 @@ export class PanelView extends PaneView {
     this.el.style.top = px(top)
 
     const xy = resolve.anchor(anchor)
-    this.el.style.transform = `translate(${100*xy.x}%, ${100*xy.y}%)`
+    this.el.style.transform = `translate(${-100*xy.x}%, ${-100*xy.y}%)`
   }
 }
 

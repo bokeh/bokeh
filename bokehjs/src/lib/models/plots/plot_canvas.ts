@@ -53,7 +53,9 @@ import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px} from "core/dom"
-import type {Node} from "../coordinates/node"
+import type {NodeTarget} from "../coordinates/node"
+import type {XY as XY_} from "../coordinates/xy"
+import type {Indexed} from "../coordinates/indexed"
 
 import plots_css from "styles/plots.css"
 
@@ -971,6 +973,10 @@ export class PlotView extends LayoutDOMView implements Renderable {
       this._initial_state.range = this._range_manager.compute_initial() ?? undefined
     }
 
+    for (const element_view of this.element_views) {
+      element_view.reposition()
+    }
+
     this._needs_paint = false
     this.repainted.emit()
 
@@ -1096,16 +1102,39 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  override resolve_target(node: Node): View | null {
-    if (isString(node.target)) {
-      switch (node.target) {
+  override resolve_target(target: NodeTarget): View | null {
+    if (isString(target)) {
+      switch (target) {
         case "canvas": return this.canvas
         case "frame":  return this.frame as any // TODO CartesianFrameView (PR #13286)
         case "plot":   return this
         case "parent": return this.parent
       }
     } else {
-      return super.resolve_target(node)
+      return super.resolve_target(target)
     }
+  }
+
+  override resolve_xy(coord: XY_): XY {
+    const {x, y} = coord
+    const sx = this.frame.x_scale.compute(x)
+    const sy = this.frame.y_scale.compute(y)
+    if (this.frame.bbox.contains(sx, sy)) {
+      return {x: sx, y: sy}
+    } else {
+      return {x: NaN, y: NaN}
+    }
+  }
+
+  override resolve_indexed(coord: Indexed): XY {
+    const {i, renderer} = coord
+    const rv = this.renderer_view(renderer)
+    if (rv != null && rv.has_finished()) {
+      const [sx, sy] = rv.glyph.scenterxy(i, NaN, NaN)
+      if (this.frame.bbox.contains(sx, sy)) {
+        return {x: sx, y: sy}
+      }
+    }
+    return {x: NaN, y: NaN}
   }
 }

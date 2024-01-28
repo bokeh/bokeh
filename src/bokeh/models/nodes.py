@@ -37,6 +37,7 @@ from ..model import Model
 #-----------------------------------------------------------------------------
 
 __all__ = (
+    "Indexed",
     "Node",
     "XY",
 )
@@ -74,6 +75,17 @@ class XY(Coordinate):
     y = Required(CoordinateLike, help="""
     The y component.
     """)
+
+class Indexed(Coordinate):
+    """
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+
+    i = Required(Int())
+    renderer = Instance(".models.renderers.GlyphRenderer")
 
 class Node(Coordinate):
     """
