@@ -184,11 +184,37 @@ export class View implements ISignalable {
     }
   }
 
+  resolve_frame(): View | null {
+    return null
+  }
+
+  resolve_canvas(): View | null {
+    return null
+  }
+
+  resolve_plot(): View | null {
+    return null
+  }
+
   resolve_target(target: NodeTarget): View | null {
     if (isString(target)) {
+      const ascend = (fn: (view: View) => View | null) => {
+        let obj: View | null = this
+        while (obj != null) {
+          const view = fn(obj)
+          if (view != null) {
+            return view
+          } else {
+            obj = obj.parent
+          }
+        }
+        return null
+      }
       switch (target) {
         case "parent": return this.parent
-        default:       return null
+        case "frame":  return ascend((view) => view.resolve_frame())
+        case "canvas": return ascend((view) => view.resolve_canvas())
+        case "plot":   return ascend((view) => view.resolve_plot())
       }
     } else {
       const queue: View[] = [this.root]

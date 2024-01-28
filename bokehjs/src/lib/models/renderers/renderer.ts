@@ -4,14 +4,14 @@ import {build_view} from "core/build_views"
 import * as visuals from "core/visuals"
 import {RenderLevel} from "core/enums"
 import type * as p from "core/properties"
-import {isString, isNumber} from "core/util/types"
+import {isNumber} from "core/util/types"
 import {Model} from "../../model"
 import type {CanvasLayer} from "core/util/canvas"
 import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
-import type {Node, NodeTarget} from "../coordinates/node"
+import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {Menu} from "../menus/menu"
@@ -200,17 +200,16 @@ export abstract class RendererView extends View implements visuals.Renderable {
    */
   compute_geometry(): void {}
 
-  override resolve_target(target: NodeTarget): View | null {
-    if (isString(target)) {
-      switch (target) {
-        case "canvas": return this.plot_view.canvas
-        case "frame":  return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
-        case "plot":   return this.plot_view
-        case "parent": return this.parent
-      }
-    } else {
-      return super.resolve_target(target)
-    }
+  override resolve_frame(): View | null {
+    return this.plot_view.frame as any // TODO CartesianFrameView (PR #13286)
+  }
+
+  override resolve_canvas(): View | null {
+    return this.plot_view.canvas
+  }
+
+  override resolve_plot(): View | null {
+    return this.plot_view
   }
 
   override resolve_symbol(node: Node): XY | number {

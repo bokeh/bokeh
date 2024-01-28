@@ -33,7 +33,7 @@ import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState, View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
-import {isBoolean, isArray, isString} from "core/util/types"
+import {isBoolean, isArray} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
@@ -53,7 +53,6 @@ import {StateManager} from "./state_manager"
 import {settings} from "core/settings"
 import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px} from "core/dom"
-import type {NodeTarget} from "../coordinates/node"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
 
@@ -1102,17 +1101,16 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
-  override resolve_target(target: NodeTarget): View | null {
-    if (isString(target)) {
-      switch (target) {
-        case "canvas": return this.canvas
-        case "frame":  return this.frame as any // TODO CartesianFrameView (PR #13286)
-        case "plot":   return this
-        case "parent": return this.parent
-      }
-    } else {
-      return super.resolve_target(target)
-    }
+  override resolve_frame(): View | null {
+    return this.frame as any // TODO CartesianFrameView (PR #13286)
+  }
+
+  override resolve_canvas(): View | null {
+    return this.canvas
+  }
+
+  override resolve_plot(): View | null {
+    return this
   }
 
   override resolve_xy(coord: XY_): XY {
