@@ -42,7 +42,7 @@ import type {Layoutable} from "core/layout"
 import {HStack, VStack, NodeLayout} from "core/layout/alignments"
 import {BorderLayout} from "core/layout/border"
 import {Row, Column} from "core/layout/grid"
-import {Panel} from "core/layout/side_panel"
+import {SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type {XY} from "core/util/bbox"
 import {parse_css_font_size} from "core/util/text"
@@ -431,7 +431,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const set_layout = (side: Side, model: Annotation | Axis): Layoutable | undefined => {
       const view = this.renderer_view(model)!
-      view.panel = new Panel(side)
+      view.panel = new SidePanel(side)
       view.update_layout?.()
       return view.layout
     }

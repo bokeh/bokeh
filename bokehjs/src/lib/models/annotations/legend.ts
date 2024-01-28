@@ -7,7 +7,7 @@ import * as mixins from "core/property_mixins"
 import type * as p from "core/properties"
 import {Signal0} from "core/signaling"
 import type {Size} from "core/layout"
-import {SideLayout, Panel} from "core/layout/side_panel"
+import {SideLayout, SidePanel} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import {every, some} from "core/util/array"
 import {enumerate} from "core/util/iterator"
@@ -104,7 +104,7 @@ export class LegendView extends AnnotationView {
     const title_box = new TextBox({text: title ?? ""})
     title_box.position = {sx: 0, sy: 0, x_anchor: "left", y_anchor: "top"}
     title_box.visuals = this.visuals.title_text.values()
-    const _title_panel = new Panel(this.model.title_location)
+    const _title_panel = new SidePanel(this.model.title_location)
     title_box.angle = _title_panel.get_label_angle_heuristic("parallel")
 
     const entries = []

@@ -1,7 +1,7 @@
 import {TextAnnotation, TextAnnotationView} from "./text_annotation"
 import {VerticalAlign, TextAlign} from "core/enums"
 import type {Size, Layoutable} from "core/layout"
-import type {Panel} from "core/layout/side_panel"
+import type {SidePanel} from "core/layout/side_panel"
 import type * as p from "core/properties"
 import type {XY, SXY} from "core/util/bbox"
 import type {Position} from "core/graphics"
@@ -11,7 +11,7 @@ export class TitleView extends TextAnnotationView {
   declare model: Title
   declare visuals: Title.Visuals
   declare layout: Layoutable
-  declare panel: Panel
+  declare panel: SidePanel
 
   protected _get_position(): Position {
     const hmargin = this.model.offset

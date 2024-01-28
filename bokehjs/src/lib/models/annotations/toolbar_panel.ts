@@ -5,7 +5,7 @@ import type {IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
 import {div, empty, position, display, undisplay, remove} from "core/dom"
 import type {Size, Layoutable} from "core/layout"
-import type {Panel} from "core/layout/side_panel"
+import type {SidePanel} from "core/layout/side_panel"
 import {SideLayout} from "core/layout/side_panel"
 import {BBox} from "core/util/bbox"
 import type * as p from "core/properties"
@@ -13,7 +13,7 @@ import type * as p from "core/properties"
 export class ToolbarPanelView extends AnnotationView {
   declare model: ToolbarPanel
 
-  declare panel: Panel
+  declare panel: SidePanel
   declare layout: Layoutable
 
   override update_layout(): void {
