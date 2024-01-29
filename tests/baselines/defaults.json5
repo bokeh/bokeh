@@ -5164,6 +5164,7 @@
     aspect_scale: 1,
     reset_policy: "standard",
     hold_render: false,
+    attribution: [],
   },
   DataRange: {
     __extends__: "NumericalRange",

@@ -15,6 +15,7 @@ import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
 import {Menu} from "../menus/menu"
+import type {HTML} from "../dom/html"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -227,6 +228,10 @@ export abstract class RendererView extends View implements visuals.Renderable {
         return {x: x + offset, y: y + offset}
       }
     }
+  }
+
+  get attribution(): HTML | string | null {
+    return null
   }
 }
 

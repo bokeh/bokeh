@@ -76,6 +76,7 @@ from ..util.strings import nice_join
 from ..util.warnings import warn
 from .annotations import Annotation, Legend, Title
 from .axes import Axis
+from .dom import HTML
 from .glyphs import Glyph
 from .grids import Grid
 from .layouts import GridCommon, LayoutDOM
@@ -854,6 +855,17 @@ class Plot(LayoutDOM):
                 line.stream(new_points())
 
     In this case we render newly appended points only after the last stream.
+    """)
+
+    attribution = List(Either(Instance(HTML), String), default=[], help="""
+    Allows to acknowledge or give credit to data, tile, etc. providers.
+
+    This can be in either HTML or plain text forms. Renderers, like
+    tile renderers, can provide additional attributions which will
+    be added after attributions provided here.
+
+    .. note::
+        This feature is experimental and may change in the short term.
     """)
 
 class GridPlot(LayoutDOM, GridCommon):

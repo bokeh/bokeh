@@ -45,7 +45,6 @@ export class HTMLView extends DOMNodeView {
 
   render(): void {
     empty(this.el)
-    this.el.style.display = "contents"
 
     const html = (() => {
       const {html} = this.model
@@ -65,6 +64,7 @@ export class HTMLView extends DOMNodeView {
     })()
 
     this.el.append(...nodes)
+    this.finish()
   }
 
   parse_html(html: string): Node[] {

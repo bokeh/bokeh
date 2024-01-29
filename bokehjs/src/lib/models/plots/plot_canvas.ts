@@ -21,6 +21,8 @@ import type {AutoRanged} from "../ranges/data_range1d"
 import {is_auto_ranged} from "../ranges/data_range1d"
 import type {Menu} from "../menus/menu"
 import type {ElementLike} from "../ui/pane"
+import {Panel} from "../ui/panel"
+import {Div} from "../dom/elements"
 
 import {Reset} from "core/bokeh_events"
 import type {ViewStorage, IterViews, ViewOf} from "core/build_views"
@@ -33,7 +35,7 @@ import type {Side, RenderLevel} from "core/enums"
 import type {SerializableState, View} from "core/view"
 import {Signal0} from "core/signaling"
 import {throttle} from "core/util/throttle"
-import {isBoolean, isArray} from "core/util/types"
+import {isBoolean, isArray, isString, isNotNull} from "core/util/types"
 import {copy, reversed} from "core/util/array"
 import {flat_map} from "core/util/iterator"
 import type {Context2d} from "core/util/canvas"
@@ -55,8 +57,10 @@ import type {StyleSheetLike} from "core/dom"
 import {InlineStyleSheet, px} from "core/dom"
 import type {XY as XY_} from "../coordinates/xy"
 import type {Indexed} from "../coordinates/indexed"
+import {Node} from "../coordinates/node"
 
 import plots_css from "styles/plots.css"
+import attribution_css from "styles/attribution.css"
 
 const {max} = Math
 
@@ -86,6 +90,7 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
   protected _title?: Title
   protected _toolbar?: ToolbarPanel
+  protected _attribution: Panel
 
   get toolbar_panel(): ToolbarPanelView | undefined {
     return this._toolbar != null ? this.renderer_view(this._toolbar) : undefined
@@ -315,10 +320,20 @@ export class PlotView extends LayoutDOMView implements Renderable {
 
     const {hidpi, output_backend} = this.model
     this._canvas = new Canvas({hidpi, output_backend})
+
+    this._attribution = new Panel({
+      position: new Node({target: "frame", symbol: "bottom_right"}),
+      anchor: "bottom_right",
+      elements: [],
+      css_variables: {
+        "--max-width": new Node({target: "frame", symbol: "width"}),
+      },
+      stylesheets: [attribution_css],
+    })
   }
 
   override get elements(): ElementLike[] {
-    return [this._canvas, ...super.elements]
+    return [this._canvas, this._attribution, ...super.elements]
   }
 
   override async lazy_initialize(): Promise<void> {
@@ -701,9 +716,20 @@ export class PlotView extends LayoutDOMView implements Renderable {
     }
   }
 
+  protected _update_attribution(): void {
+    const attribution = [
+      ...this.model.attribution,
+      ...this.computed_renderer_views.map((rv: RendererView | null) => rv?.attribution), // TODO race condition again
+    ].filter(isNotNull)
+    const elements = attribution.map((attrib) => isString(attrib) ? new Div({children: [attrib]}) : attrib)
+    this._attribution.elements = elements
+    // TODO this._attribution.title = contents_el.textContent!.replace(/\s*\n\s*/g, " ")
+  }
+
   async build_renderer_views(): Promise<void> {
     this.computed_renderers = [...this._compute_renderers()]
     await build_views(this.renderer_views, this.computed_renderers, {parent: this})
+    this._update_attribution()
   }
 
   async build_tool_views(): Promise<void> {
