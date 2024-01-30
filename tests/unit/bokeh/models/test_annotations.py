@@ -82,6 +82,8 @@ ANNOTATION = [
     "y_range_name",
     "group",
     "propagate_hover",
+    "context_menu",
+    "elements",
 ]
 
 #-----------------------------------------------------------------------------
