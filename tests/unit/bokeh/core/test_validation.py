@@ -44,48 +44,48 @@ import bokeh.core.validation as v # isort:skip
 def test_error_decorator_code() -> None:
     for error in Error.all():
         @v.error(error)
-        def good():
+        def _check_good():
             return None
-        assert good() == []
+        assert _check_good() == []
 
         @v.error(error)
-        def bad():
+        def _check_bad():
             return "bad"
-        assert bad() == [ValidationIssue(error.code, error.name, error.description, "bad")]
+        assert _check_bad() == [ValidationIssue(error.code, error.name, error.description, "bad")]
 
 def test_warning_decorator_code() -> None:
     for warning in Warning.all():
         @v.warning(warning)
-        def good():
+        def _check_good():
             return None
-        assert good() == []
+        assert _check_good() == []
 
         @v.warning(warning)
-        def bad():
+        def _check_bad():
             return "bad"
-        assert bad() == [ValidationIssue(warning.code, warning.name, warning.description, "bad")]
+        assert _check_bad() == [ValidationIssue(warning.code, warning.name, warning.description, "bad")]
 
 def test_error_decorator_custom() -> None:
     @v.error("E1")
-    def good():
+    def _check_good():
         return None
-    assert good() == []
+    assert _check_good() == []
 
     @v.error("E2")
-    def bad():
+    def _check_bad():
         return "bad"
-    assert bad() == [ValidationIssue(9999, "EXT:E2", "Custom extension reports error", "bad")]
+    assert _check_bad() == [ValidationIssue(9999, "EXT:E2", "Custom extension reports error", "bad")]
 
 def test_warning_decorator_custom() -> None:
     @v.warning("W1")
-    def good():
+    def _check_good():
         return None
-    assert good() == []
+    assert _check_good() == []
 
     @v.warning("W2")
-    def bad():
+    def _check_bad():
         return "bad"
-    assert bad() == [ValidationIssue(9999, "EXT:W2", "Custom extension reports warning", "bad")]
+    assert _check_bad() == [ValidationIssue(9999, "EXT:W2", "Custom extension reports warning", "bad")]
 
 class Mod(Model):
 

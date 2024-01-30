@@ -318,7 +318,7 @@ class LayoutDOM(UIElement):
             return str(self)
 
     @error(MIN_PREFERRED_MAX_WIDTH)
-    def _min_preferred_max_width(self):
+    def _check_min_preferred_max_width(self):
         min_width = self.min_width if self.min_width is not None else 0
         width     = self.width     if self.width     is not None else min_width
         max_width = self.max_width if self.max_width is not None else width
@@ -327,7 +327,7 @@ class LayoutDOM(UIElement):
             return str(self)
 
     @error(MIN_PREFERRED_MAX_HEIGHT)
-    def _min_preferred_max_height(self):
+    def _check_min_preferred_max_height(self):
         min_height = self.min_height if self.min_height is not None else 0
         height     = self.height     if self.height     is not None else min_height
         max_height = self.max_height if self.max_height is not None else height

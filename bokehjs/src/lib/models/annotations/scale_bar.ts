@@ -208,7 +208,7 @@ export class ScaleBarView extends AnnotationView {
       }
     })()
 
-    const {new_value, new_unit, new_long_unit, scale_factor, exact} = (() => {
+    const {new_value, new_unit, scale_factor, exact} = (() => {
       const {unit, dimensional} = this.model
       const value = this.range.span*bar_length_percent
       return dimensional.compute(value, unit, length_sizing == "exact")
@@ -235,7 +235,6 @@ export class ScaleBarView extends AnnotationView {
           case "unit": {
             switch (format ?? "short") {
               case "short": return new_unit
-              case "long":  return new_long_unit
             }
           }
           default: {

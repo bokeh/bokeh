@@ -1,6 +1,6 @@
 import {display} from "../_util"
 
-import {ScaleBar, Plot, Range1d} from "@bokehjs/models"
+import {ScaleBar, Plot, Range1d, Metric} from "@bokehjs/models"
 import type {Location, Align} from "@bokehjs/core/enums"
 
 describe("ScaleBar annotation", () => {
@@ -193,5 +193,28 @@ describe("ScaleBar annotation", () => {
         })
       })
     }
+  })
+
+  it("should support custom units of measurement", async () => {
+    const scale_bar = new ScaleBar({
+      range: new Range1d({start: 0, end: 1}),
+      unit: "MeV",
+      dimensional: new Metric({base_unit: "eV"}),
+      bar_length: 0.2,
+      orientation: "horizontal",
+      location: "center",
+    })
+
+    const plot = new Plot({
+      width: 100,
+      height: 100,
+      min_border: 0,
+      x_range: new Range1d({start: 0, end: 1}),
+      y_range: new Range1d({start: 0, end: 1}),
+      center: [scale_bar],
+      toolbar_location: null,
+    })
+
+    await display(plot)
   })
 })

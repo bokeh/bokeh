@@ -68,6 +68,8 @@ def _validator(code_or_name: int | str | Issue, validator_type: ValidatorType) -
         Error if validator_type == "error" else Warning
 
     def decorator(func: ValidationFunction) -> Validator:
+        assert func.__name__.startswith("_check"), f"validation function {func.__qualname__} must have '_check' prefix"
+
         def _wrapper(*args: Any, **kwargs: Any) -> list[ValidationIssue]:
             extra = func(*args, **kwargs)
             if extra is None:
@@ -113,7 +115,7 @@ def error(code_or_name: int | str | Issue) -> ValidationDecorator:
     Returns:
         callable : decorator for Bokeh model methods
 
-    The function that is decorated should have a name that starts with
+    The function that is decorated must have a name that starts with
     ``_check``, and return a string message in case a bad condition is
     detected, and ``None`` if no bad condition is detected.
 

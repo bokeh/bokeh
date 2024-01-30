@@ -31,14 +31,17 @@ from bokeh.models import (
     BoxAnnotation,
     ColorBar,
     ColumnDataSource,
+    FixedTicker,
     GlyphRenderer,
     Label,
     LabelSet,
     Legend,
     LegendItem,
     LinearColorMapper,
+    MetricLength,
     Node,
     PolyAnnotation,
+    ScaleBar,
     Slope,
     Span,
     Title,
@@ -206,6 +209,56 @@ def test_ColorBar() -> None:
         prefix('bar_', LINE),
         prefix('border_', LINE),
         prefix('background_', FILL),
+    )
+
+
+def test_ScaleBar() -> None:
+    scale_bar = ScaleBar()
+    assert scale_bar.range == "auto"
+    assert scale_bar.unit == "m"
+    assert isinstance(scale_bar.dimensional, MetricLength)
+    assert scale_bar.orientation == "horizontal"
+    assert scale_bar.location == "top_right"
+    assert scale_bar.length_sizing == "adaptive"
+    assert scale_bar.bar_length == 0.2
+    assert scale_bar.margin == 10
+    assert scale_bar.padding == 10
+    assert scale_bar.label == "@{value} @{unit}"
+    assert scale_bar.label_align == "center"
+    assert scale_bar.label_location == "below"
+    assert scale_bar.label_standoff == 5
+    assert scale_bar.title == ""
+    assert scale_bar.title_align == "center"
+    assert scale_bar.title_location == "above"
+    assert scale_bar.title_standoff == 5
+    assert isinstance(scale_bar.ticker, FixedTicker)
+    check_properties_existence(scale_bar, [
+        *ANNOTATION,
+        "range",
+        "unit",
+        "dimensional",
+        "orientation",
+        "location",
+        "length_sizing",
+        "bar_length",
+        "margin",
+        "padding",
+        "label",
+        "label_align",
+        "label_location",
+        "label_standoff",
+        "title",
+        "title_align",
+        "title_location",
+        "title_standoff",
+        "ticker",
+    ],
+        prefix("bar_", LINE),
+        prefix("label_", TEXT),
+        prefix("title_", TEXT),
+        prefix("border_", LINE),
+        prefix("background_", FILL),
+        prefix("background_", HATCH),
     )
 
 
