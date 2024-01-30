@@ -10,7 +10,7 @@ import {rotate_around} from "core/util/affine"
 import type {XY, SXY} from "core/util/bbox"
 import {TextAnchor} from "../common/kinds"
 import * as resolve from "../common/resolve"
-import {Node} from "../coordinates/node"
+import {Coordinate} from "../coordinates/coordinate"
 
 type HitTarget = "area"
 
@@ -59,8 +59,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
     const {mappers} = this
     const {x, y, x_offset, y_offset} = this.model
 
-    const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
-      return value instanceof Node ? this.resolve_coordinate(value)[dim] : mapper.compute(value)
+    const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
+      return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
     }
 
     const sx = compute("x", x, mappers.x) + x_offset
@@ -153,8 +153,8 @@ export class LabelView extends TextAnnotationView implements Pannable {
 export namespace Label {
   export type Props = TextAnnotation.Props & {
     anchor: p.Property<TextAnchor>
-    x: p.Property<number | Node>
-    y: p.Property<number | Node>
+    x: p.Property<number | Coordinate>
+    y: p.Property<number | Coordinate>
     x_units: p.Property<CoordinateUnits>
     y_units: p.Property<CoordinateUnits>
     x_offset: p.Property<number>
@@ -185,8 +185,8 @@ export class Label extends TextAnnotation {
 
     this.define<Label.Props>(({Boolean, Number, Angle, Or, Ref}) => ({
       anchor:      [ TextAnchor, "auto" ],
-      x:           [ Or(Number, Ref(Node)) ],
-      y:           [ Or(Number, Ref(Node)) ],
+      x:           [ Or(Number, Ref(Coordinate)) ],
+      y:           [ Or(Number, Ref(Coordinate)) ],
       x_units:     [ CoordinateUnits, "data" ],
       y_units:     [ CoordinateUnits, "data" ],
       x_offset:    [ Number, 0 ],

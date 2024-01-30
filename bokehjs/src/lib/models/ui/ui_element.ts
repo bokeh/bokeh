@@ -54,8 +54,10 @@ export abstract class UIElementView extends DOMComponentView {
   protected override *_css_variables(): Iterable<[string, string]> {
     yield* super._css_variables()
     for (const [name, node] of entries(this.model.css_variables)) {
-      const value = this.resolve_node_as_scalar(node)
-      yield [name, `${value}px`]
+      const value = this.resolve_coordinate(node)
+      if (isNumber(value)) {
+        yield [name, `${value}px`]
+      }
     }
   }
 

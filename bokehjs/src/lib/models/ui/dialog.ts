@@ -13,7 +13,7 @@ import {find, remove, min as amin} from "core/util/array"
 import {enumerate} from "core/util/iterator"
 import {assert} from "core/util/assert"
 import * as Box from "../common/box_kinds"
-import {Node} from "../coordinates/node"
+import {Coordinate} from "../coordinates/coordinate"
 import {Or, Ref} from "../../core/kinds"
 
 import dialogs_css, * as dialogs from "styles/dialogs.css"
@@ -303,9 +303,9 @@ export class DialogView extends UIElementView {
   }
 
   protected _move_bbox(target: Box.HitTarget, bbox: BBox, dx: number, dy: number): BBox {
-    const resolve = (dim: "x" | "y", limit: Node | number | null): number => {
-      if (limit instanceof Node) {
-        return this.resolve_coordinate(limit)[dim]
+    const resolve = (dim: "x" | "y", limit: Coordinate | number | null): number => {
+      if (limit instanceof Coordinate) {
+        return this.resolve_as_scalar(limit, dim)
       } else {
         return NaN
       }

@@ -31,7 +31,7 @@ export class PanelView extends PaneView {
       return
     }
 
-    const {x: left, y: top} = this.resolve_coordinate(position)
+    const {x: left, y: top} = this.resolve_as_xy(position)
     if (!isFinite(left + top)) {
       this.el.remove()
       return

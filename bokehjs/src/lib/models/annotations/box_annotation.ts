@@ -20,6 +20,7 @@ import * as Box from "../common/box_kinds"
 import {round_rect} from "../common/painting"
 import * as resolve from "../common/resolve"
 import {Node} from "../coordinates/node"
+import {Coordinate} from "../coordinates/coordinate"
 
 export const EDGE_TOLERANCE = 2.5
 
@@ -50,10 +51,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       bottom, bottom_units,
     } = this.model
 
-    const left_ok = left_units == "data" && !(left instanceof Node)
-    const right_ok = right_units == "data" && !(right instanceof Node)
-    const top_ok = top_units == "data" && !(top instanceof Node)
-    const bottom_ok = bottom_units == "data" && !(bottom instanceof Node)
+    const left_ok = left_units == "data" && !(left instanceof Coordinate)
+    const right_ok = right_units == "data" && !(right instanceof Coordinate)
+    const top_ok = top_units == "data" && !(top instanceof Coordinate)
+    const bottom_ok = bottom_units == "data" && !(bottom instanceof Coordinate)
 
     const [x0, x1] = (() => {
       if (left_ok && right_ok)
@@ -115,8 +116,8 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
   override compute_geometry(): void {
     super.compute_geometry()
 
-    const compute = (dim: "x" | "y", value: number | Node, mapper: CoordinateMapper): number => {
-      return value instanceof Node ? this.resolve_coordinate(value)[dim] : mapper.compute(value)
+    const compute = (dim: "x" | "y", value: number | Coordinate, mapper: CoordinateMapper): number => {
+      return value instanceof Coordinate ? this.resolve_as_scalar(value, dim) : mapper.compute(value)
     }
 
     const {left, right, top, bottom} = this.model
@@ -251,9 +252,9 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const {mappers} = this
 
-    const resolve = (dim: "x" | "y", limit: Node | number | null, mapper: CoordinateMapper): number => {
-      if (limit instanceof Node) {
-        return this.resolve_coordinate(limit)[dim]
+    const resolve = (dim: "x" | "y", limit: Coordinate | number | null, mapper: CoordinateMapper): number => {
+      if (limit instanceof Coordinate) {
+        return this.resolve_as_scalar(limit, dim)
       } else if (limit == null) {
         return NaN
       } else {
@@ -383,10 +384,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
 
     const computed_lrtb = (() => {
       return {
-        left:   left   instanceof Node ? left   : lrtb.left,
-        right:  right  instanceof Node ? right  : lrtb.right,
-        top:    top    instanceof Node ? top    : lrtb.top,
-        bottom: bottom instanceof Node ? bottom : lrtb.bottom,
+        left:   left   instanceof Coordinate ? left   : lrtb.left,
+        right:  right  instanceof Coordinate ? right  : lrtb.right,
+        top:    top    instanceof Coordinate ? top    : lrtb.top,
+        bottom: bottom instanceof Coordinate ? bottom : lrtb.bottom,
       }
     })()
 
@@ -445,10 +446,10 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       const {left, right, top, bottom} = this.model
       const {mappers} = this
       return {
-        left:   left   instanceof Node ? left   : mappers.left.invert(slrtb.left),
-        right:  right  instanceof Node ? right  : mappers.right.invert(slrtb.right),
-        top:    top    instanceof Node ? top    : mappers.top.invert(slrtb.top),
-        bottom: bottom instanceof Node ? bottom : mappers.bottom.invert(slrtb.bottom),
+        left:   left   instanceof Coordinate ? left   : mappers.left.invert(slrtb.left),
+        right:  right  instanceof Coordinate ? right  : mappers.right.invert(slrtb.right),
+        top:    top    instanceof Coordinate ? top    : mappers.top.invert(slrtb.top),
+        bottom: bottom instanceof Coordinate ? bottom : mappers.bottom.invert(slrtb.bottom),
       }
     })()
 
@@ -516,10 +517,10 @@ export namespace BoxAnnotation {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Annotation.Props & {
-    top: p.Property<number | Node>
-    bottom: p.Property<number | Node>
-    left: p.Property<number | Node>
-    right: p.Property<number | Node>
+    top: p.Property<number | Coordinate>
+    bottom: p.Property<number | Coordinate>
+    left: p.Property<number | Coordinate>
+    right: p.Property<number | Coordinate>
 
     top_units: p.Property<CoordinateUnits>
     bottom_units: p.Property<CoordinateUnits>
@@ -589,10 +590,10 @@ export class BoxAnnotation extends Annotation {
     ])
 
     this.define<BoxAnnotation.Props>(({Boolean, Number, Ref, Or, NonNegative, Positive}) => ({
-      top:          [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "top"}) ],
-      bottom:       [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "bottom"}) ],
-      left:         [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "left"}) ],
-      right:        [ Or(Number, Ref(Node)), () => new Node({target: "frame", symbol: "right"}) ],
+      top:          [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "top"}) ],
+      bottom:       [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "bottom"}) ],
+      left:         [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "left"}) ],
+      right:        [ Or(Number, Ref(Coordinate)), () => new Node({target: "frame", symbol: "right"}) ],
 
       top_units:    [ CoordinateUnits, "data" ],
       bottom_units: [ CoordinateUnits, "data" ],
@@ -641,7 +642,7 @@ export class BoxAnnotation extends Annotation {
 
   readonly pan = new Signal<["pan:start" | "pan" | "pan:end", KeyModifiers], this>(this, "pan")
 
-  update({left, right, top, bottom}: LRTB<number | Node>): void {
+  update({left, right, top, bottom}: LRTB<number | Coordinate>): void {
     this.setv({left, right, top, bottom, visible: true})
   }
 

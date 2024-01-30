@@ -4,7 +4,6 @@ import type {Slot, ISignalable} from "./signaling"
 import {Signal0, Signal} from "./signaling"
 import {isArray, isString, isNumber} from "./util/types"
 import type {BBox, XY} from "./util/bbox"
-import {isXY} from "./util/bbox"
 import type {Coordinate} from "../models/coordinates/coordinate"
 import type {NodeTarget} from "../models/coordinates/node"
 import {Node} from "../models/coordinates/node"
@@ -248,7 +247,7 @@ export class View implements ISignalable {
   resolve_xy?(coord: XY_): XY
   resolve_indexed?(coord: Indexed): XY
 
-  resolve_coordinate(coord: Coordinate): XY {
+  resolve_coordinate(coord: Coordinate): XY | number {
     if (coord instanceof XY_) {
       let obj: View | null = this
       while (obj != null && obj.resolve_xy == null) {
@@ -262,16 +261,20 @@ export class View implements ISignalable {
       }
       return obj?.resolve_indexed?.(coord) ?? {x: NaN, y: NaN}
     } else if (coord instanceof Node) {
-      const value = this.resolve_node(coord)
-      return isXY(value) ? value : {x: NaN, y: NaN}
+      return this.resolve_node(coord)
     } else {
       return {x: NaN, y: NaN}
     }
   }
 
-  resolve_node_as_scalar(node: Node): number {
-    const value = this.resolve_node(node)
-    return isNumber(value) ? value : NaN
+  resolve_as_xy(coord: Coordinate): XY {
+    const value = this.resolve_coordinate(coord)
+    return isNumber(value) ? {x: NaN, y: NaN} : value
+  }
+
+  resolve_as_scalar(coord: Coordinate, dim: "x" | "y"): number {
+    const value = this.resolve_coordinate(coord)
+    return isNumber(value) ? value : value[dim]
   }
 }
 
