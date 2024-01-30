@@ -4,6 +4,7 @@ from bokeh.io import show
 from bokeh.models import Button, Column, CustomJS, Dialog, OpenDialog
 from bokeh.plotting import figure
 
+
 def plot(N: int):
     x = np.random.random(size=N) * 100
     y = np.random.random(size=N) * 100

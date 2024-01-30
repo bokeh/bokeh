@@ -2,8 +2,9 @@ import numpy as np
 
 from bokeh.io import show
 from bokeh.models import BoxSelectTool, Button, CustomJS, PaletteSelect, Panel, Row
-from bokeh.plotting import figure
 from bokeh.palettes import Spectral11
+from bokeh.plotting import figure
+
 
 def plot(N: int):
     x = np.random.random(size=N) * 100

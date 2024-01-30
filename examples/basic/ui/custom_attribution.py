@@ -5,6 +5,7 @@ from bokeh.models import Node, Panel
 from bokeh.models.dom import HTML
 from bokeh.plotting import figure
 
+
 def plot(N: int):
     x = np.random.random(size=N) * 100
     y = np.random.random(size=N) * 100
