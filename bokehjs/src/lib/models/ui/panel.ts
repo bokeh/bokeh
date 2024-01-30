@@ -19,7 +19,8 @@ export class PanelView extends PaneView {
   override connect_signals(): void {
     super.connect_signals()
     const {position, anchor, width, height, elements} = this.model.properties
-    this.on_change([position, anchor, width, height, elements], () => this.reposition())
+    this.on_change([anchor, width, height, elements], () => this.reposition())
+    this.on_transitive_change(position, () => this.reposition())
   }
 
   override reposition(displayed?: boolean): void {
