@@ -76,13 +76,19 @@ class Either(ParameterizedProperty[Any]):
 
     """
 
+    _valid_param: Property[Any] | None # allows to determine the correct transform() method
+
     def __init__(self, type_param0: TypeOrInst[Property[Any]], *type_params: TypeOrInst[Property[Any]],
             default: Init[T] = Intrinsic, help: str | None = None) -> None:
         super().__init__(type_param0, *type_params, default=default, help=help)
+        self._valid_param = None
         for tp in self.type_params:
             self.alternatives.extend(tp.alternatives)
 
     def transform(self, value: Any) -> Any:
+        if self._valid_param is not None:
+            return self._valid_param.transform(value)
+
         for param in self.type_params:
             try:
                 return param.transform(value)
@@ -93,9 +99,12 @@ class Either(ParameterizedProperty[Any]):
 
     def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
+        self._valid_param = None
 
-        if any(param.is_valid(value) for param in self.type_params):
-            return
+        for param in self.type_params:
+            if param.is_valid(value):
+                self._valid_param = param
+                return
 
         msg = "" if not detail else f"expected an element of either {nice_join([ str(param) for param in self.type_params ])}, got {value!r}"
         raise ValueError(msg)
