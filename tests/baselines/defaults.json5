@@ -186,8 +186,7 @@
           attributes: {},
         },
         data: {
-          type: "map",
-          plain: true,
+          type: "struct",
         },
       },
     },
@@ -5256,14 +5255,13 @@
               attributes: {},
             },
             data: {
-              type: "map",
+              type: "struct",
               entries: [
                 [
                   "index",
                   [],
                 ],
               ],
-              plain: true,
             },
           },
         },
@@ -5307,7 +5305,7 @@
               attributes: {},
             },
             data: {
-              type: "map",
+              type: "struct",
               entries: [
                 [
                   "start",
@@ -5318,7 +5316,6 @@
                   [],
                 ],
               ],
-              plain: true,
             },
           },
         },
@@ -5481,8 +5478,7 @@
   ColumnDataSource: {
     __extends__: "ColumnarDataSource",
     data: {
-      type: "map",
-      plain: true,
+      type: "struct",
     },
   },
   ColumnarDataSource: {
@@ -6289,7 +6285,7 @@
     behavior: "select",
     gesture: "tap",
     modifiers: {
-      type: "map",
+      type: "struct",
     },
     callback: null,
   },
@@ -7061,8 +7057,7 @@
           attributes: {},
         },
         data: {
-          type: "map",
-          plain: true,
+          type: "struct",
         },
       },
     },
