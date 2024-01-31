@@ -22,6 +22,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
+from types import SimpleNamespace
 from typing import Any, Generic, TypeVar
 
 # Bokeh imports
@@ -40,6 +41,19 @@ T = TypeVar("T")
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class struct(SimpleNamespace):
+    """ Allow access unnamed struct with attributes and keys.
+    """
+
+    def __getitem__(self, key: str) -> Any:
+        return getattr(self, key)
+
+    def __setitem__(self, key: str, val: Any) -> None:
+        setattr(self, key, val)
+
+    def __delitem__(self, key: str) -> None:
+        delattr(self, key)
 
 class Optional(Generic[T]):
 
@@ -81,8 +95,19 @@ class Struct(ParameterizedProperty[T]):
     def type_params(self):
         return list(self._fields.values())
 
-    def validate(self, value: Any, detail: bool = True):
+    def transform(self, value: Any) -> Any:
+        if isinstance(value, dict):
+            return struct(**value)
+        elif isinstance(value, SimpleNamespace):
+            return struct(**value.__dict__)
+        else:
+            return super().transform(value)
+
+    def validate(self, value: Any, detail: bool = True) -> None:
         super().validate(value, detail)
+
+        if isinstance(value, SimpleNamespace):
+            value = value.__dict__
 
         if isinstance(value, dict) and len(value) <= len(self._fields):
             for name, type in self._fields.items():

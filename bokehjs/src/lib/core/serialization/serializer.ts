@@ -128,9 +128,9 @@ export class Serializer {
     } else if (isPlainObject(obj)) {
       const items = entries(obj)
       if (items.length == 0)
-        return {type: "map"}
+        return {type: "struct"}
       else
-        return {type: "map", entries: [...map(items, ([key, val]) => [this.encode(key), this.encode(val)])]}
+        return {type: "struct", entries: [...map(items, ([key, val]) => [this.encode(key), this.encode(val)])]}
     } else if (obj === null || isBoolean(obj) || isString(obj)) {
       return obj
     } else if (isNumber(obj)) {

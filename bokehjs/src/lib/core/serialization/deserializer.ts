@@ -15,7 +15,7 @@ import {Slice} from "../util/slice"
 import type {Value, Field, Expr} from "../vectorization"
 
 import type {
-  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, BytesRep, SliceRep, DateRep,
+  SymbolRep, NumberRep, ArrayRep, SetRep, MapRep, StructRep, BytesRep, SliceRep, DateRep,
   TypedArrayRep, NDArrayRep, ObjectRep, ObjectRefRep, ValueRep, FieldRep, ExprRep,
 } from "./reps"
 
@@ -107,6 +107,8 @@ export class Deserializer {
             return this._decode_set(obj as SetRep)
           case "map":
             return this._decode_map(obj as MapRep)
+          case "struct":
+            return this._decode_struct(obj as StructRep)
           case "bytes":
             return this._decode_bytes(obj as BytesRep)
           case "slice":
@@ -191,13 +193,14 @@ export class Deserializer {
     return decoded
   }
 
-  protected _decode_map(obj: MapRep): Map<unknown, unknown> | {[key: string]: unknown} {
+  protected _decode_map(obj: MapRep): Map<unknown, unknown> {
     const result = new Map(map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)]))
-    if (obj.plain ?? false) {
-      return Object.fromEntries(result)
-    } else {
-      return result
-    }
+    return result
+  }
+
+  protected _decode_struct(obj: StructRep): {[key: string]: unknown} {
+    const entries = map(obj.entries ?? [], ([key, val]) => [this._decode(key), this._decode(val)])
+    return Object.fromEntries(entries)
   }
 
   protected _decode_bytes(obj: BytesRep): ArrayBuffer {

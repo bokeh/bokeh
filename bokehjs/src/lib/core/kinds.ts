@@ -234,8 +234,9 @@ export namespace Kinds {
     }
 
     valid(value: unknown): value is this["__type__"] {
-      if (!tp.isPlainObject(value))
+      if (!tp.isPlainObject(value)) {
         return false
+      }
 
       const {struct_type} = this
 

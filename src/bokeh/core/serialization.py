@@ -24,6 +24,7 @@ import datetime as dt
 import sys
 from array import array as TypedArray
 from math import isinf, isnan
+from types import SimpleNamespace
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -120,7 +121,10 @@ class SetRep(TypedDict):
 class MapRep(TypedDict):
     type: Literal["map"]
     entries: NotRequired[list[tuple[AnyRep, AnyRep]]]
-    plain: NotRequired[bool]
+
+class StructRep(TypedDict):
+    type: Literal["struct"]
+    entries: NotRequired[list[tuple[str, AnyRep]]]
 
 class BytesRep(TypedDict):
     type: Literal["bytes"]
@@ -292,6 +296,8 @@ class Serializer:
                 return self._encode_ndarray(obj)
             else:
                 return self._encode(obj.item())
+        elif isinstance(obj, SimpleNamespace):
+            return self._encode_struct(obj)
         elif is_dataclass(obj):
             return self._encode_dataclass(obj)
         else:
@@ -333,7 +339,10 @@ class Serializer:
                 entries=[self.encode(entry) for entry in obj],
             )
 
-    def _encode_dict(self, obj: dict[Any, Any]) -> MapRep:
+    def _encode_dict(self, obj: dict[Any, Any]) -> MapRep | StructRep:
+        if isinstance(obj, PropertyValueColumnData):
+            return self._encode_struct(SimpleNamespace(**obj))
+
         if len(obj) == 0:
             result = MapRep(type="map")
         else:
@@ -342,13 +351,16 @@ class Serializer:
                 entries=[(self.encode(key), self.encode(val)) for key, val in obj.items()],
             )
 
-        # Allow to deserialize column data dicts as plain objects in JS. This
-        # is for backwards compatibility, in particular for usage in CustomJS.
-        # Consider removing in bokeh 4.0.
-        if isinstance(obj, PropertyValueColumnData):
-            result["plain"] = True
-
         return result
+
+    def _encode_struct(self, obj: SimpleNamespace) -> StructRep:
+        if len(obj.__dict__) == 0:
+            return StructRep(type="struct")
+        else:
+            return StructRep(
+                type="struct",
+                entries=[(self.encode(key), self.encode(val)) for key, val in obj.__dict__.items()],
+            )
 
     def _encode_dataclass(self, obj: Any) -> ObjectRep:
         cls = type(obj)
@@ -555,6 +567,8 @@ class Deserializer:
                     return self._decode_set(cast(SetRep, obj))
                 elif type == "map":
                     return self._decode_map(cast(MapRep, obj))
+                elif type == "struct":
+                    return self._decode_struct(cast(StructRep, obj))
                 elif type == "bytes":
                     return self._decode_bytes(cast(BytesRep, obj))
                 elif type == "slice":
@@ -606,6 +620,10 @@ class Deserializer:
     def _decode_map(self, obj: MapRep) -> dict[Any, Any]:
         entries = obj.get("entries", [])
         return { self._decode(key): self._decode(val) for key, val in entries }
+
+    def _decode_struct(self, obj: StructRep) -> SimpleNamespace:
+        entries = obj.get("entries", [])
+        return SimpleNamespace(**{ self._decode(key): self._decode(val) for key, val in entries })
 
     def _decode_bytes(self, obj: BytesRep) -> bytes:
         data = obj["data"]
