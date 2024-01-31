@@ -65,6 +65,7 @@ TextAnchor = Either(Anchor, Auto)
 BorderRadius = (
     Either(
         Pixels,
+        Tuple(Pixels, Pixels, Pixels, Pixels),
         Struct(
             top_left=Optional(Pixels),
             top_right=Optional(Pixels),
