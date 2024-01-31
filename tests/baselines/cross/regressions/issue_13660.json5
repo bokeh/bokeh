@@ -56,7 +56,7 @@
                     id: "p1003",
                   },
                   data: {
-                    type: "map",
+                    type: "struct",
                     entries: [
                       [
                         "x",
@@ -89,7 +89,6 @@
                         },
                       ],
                     ],
-                    plain: true,
                   },
                 },
               },

@@ -37,4 +37,10 @@ describe("Bug", () => {
       await test("regressions/issue_13660.json5")
     })
   })
+
+  describe("in issue #13637", () => {
+    it.no_image("doesn't allow using dict-based pseudo structs in model APIs", async () => {
+      await test("regressions/issue_13637.json5")
+    })
+  })
 })
