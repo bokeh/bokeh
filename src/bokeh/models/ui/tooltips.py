@@ -36,7 +36,7 @@ from ...core.properties import (
     Tuple,
 )
 from ..dom import HTML, DOMNode
-from ..nodes import Node
+from ..nodes import Coordinate
 from ..selectors import Selector
 from .ui_element import UIElement
 
@@ -63,7 +63,7 @@ class Tooltip(UIElement):
 
     visible = Override(default=False)
 
-    position = Nullable(Either(Enum(Anchor), Tuple(Float, Float), Instance(Node)), default=None, help="""
+    position = Nullable(Either(Enum(Anchor), Tuple(Float, Float), Instance(Coordinate)), default=None, help="""
     The position of the tooltip with respect to its parent. It can be either
     an absolute position within the parent or an anchor point for symbolic
     positioning.

@@ -1,6 +1,6 @@
 import {UIElement, UIElementView} from "./ui_element"
 import {DOMNode} from "../dom/dom_node"
-import {Node} from "../coordinates/node"
+import {Coordinate} from "../coordinates/coordinate"
 import {Selector} from "../selectors/selector"
 import type {VAlign, HAlign} from "core/enums"
 import {Anchor, TooltipAttachment} from "core/enums"
@@ -370,7 +370,7 @@ export namespace Tooltip {
 
   export type Props = UIElement.Props & {
     target: p.Property<UIElement | Selector | NativeNode | "auto">
-    position: p.Property<Anchor | [number, number] | Node | null>
+    position: p.Property<Anchor | [number, number] | Coordinate | null>
     content: p.Property<string | DOMNode | UIElement | NativeNode>
     attachment: p.Property<TooltipAttachment | "auto">
     show_arrow: p.Property<boolean>
@@ -394,7 +394,7 @@ export class Tooltip extends UIElement {
 
     this.define<Tooltip.Props>(({Boolean, Number, String, Tuple, Or, Ref, Nullable, Auto}) => ({
       target: [ Or(Ref(UIElement), Ref(Selector), Ref(NativeNode), Auto), "auto" ],
-      position: [ Nullable(Or(Anchor, Tuple(Number, Number), Ref(Node))), null ],
+      position: [ Nullable(Or(Anchor, Tuple(Number, Number), Ref(Coordinate))), null ],
       content: [ Or(String, Ref(DOMNode), Ref(UIElement), Ref(NativeNode)) ],
       attachment: [ Or(TooltipAttachment, Auto), "auto" ],
       show_arrow: [ Boolean, true ],
