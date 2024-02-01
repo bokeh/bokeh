@@ -2,11 +2,13 @@ import type * as p from "core/properties"
 import {ButtonType} from "core/enums"
 import type {StyleSheetLike} from "core/dom"
 import {prepend, nbsp, text, button, div} from "core/dom"
-import type {IterViews} from "core/build_views"
+import type {ViewOf, IterViews} from "core/build_views"
 import {build_view} from "core/build_views"
+import {isString} from "core/util/types"
 
 import {Control, ControlView} from "./control"
-import type {IconView} from "../ui/icons/icon"
+import {DOMNode} from "../dom/dom_node"
+import {Text} from "../dom/text"
 import {Icon} from "../ui/icons/icon"
 
 import buttons_css, * as buttons from "styles/buttons.css"
@@ -14,7 +16,8 @@ import buttons_css, * as buttons from "styles/buttons.css"
 export abstract class AbstractButtonView extends ControlView {
   declare model: AbstractButton
 
-  protected icon_view?: IconView
+  protected label_view: ViewOf<DOMNode>
+  protected icon_view?: ViewOf<Icon>
 
   button_el: HTMLButtonElement
   protected group_el: HTMLElement
@@ -25,6 +28,7 @@ export abstract class AbstractButtonView extends ControlView {
 
   override *children(): IterViews {
     yield* super.children()
+    yield this.label_view
     if (this.icon_view != null) {
       yield this.icon_view
     }
@@ -32,6 +36,13 @@ export abstract class AbstractButtonView extends ControlView {
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+
+    const label = (() => {
+      const {label} = this.model
+      return isString(label) ? new Text({content: label}) : label
+    })()
+    this.label_view = await this.owner.build_view(label, this)
+
     const {icon} = this.model
     if (icon != null) {
       this.icon_view = await build_view(icon, {parent: this})
@@ -44,6 +55,7 @@ export abstract class AbstractButtonView extends ControlView {
   }
 
   override remove(): void {
+    this.label_view.remove()
     this.icon_view?.remove()
     super.remove()
   }
@@ -52,7 +64,7 @@ export abstract class AbstractButtonView extends ControlView {
     return [...super.stylesheets(), buttons_css]
   }
 
-  _render_button(...children: (string | HTMLElement)[]): HTMLButtonElement {
+  _render_button(...children: (string | ChildNode)[]): HTMLButtonElement {
     return button({
       type: "button",
       disabled: this.model.disabled,
@@ -63,17 +75,18 @@ export abstract class AbstractButtonView extends ControlView {
   override render(): void {
     super.render()
 
-    this.button_el = this._render_button(this.model.label)
+    this.label_view.render_to(null)
+    this.button_el = this._render_button(this.label_view.el)
     this.button_el.addEventListener("click", () => this.click())
 
     if (this.icon_view != null) {
       const separator = this.model.label != "" ? nbsp() : text("")
       prepend(this.button_el, this.icon_view.el, separator)
-      this.icon_view.render()
+      this.icon_view.render_to(null)
     }
 
     this.group_el = div({class: buttons.btn_group}, this.button_el)
-    this.shadow_el.appendChild(this.group_el)
+    this.shadow_el.append(this.group_el)
   }
 
   click(): void {}
@@ -83,7 +96,7 @@ export namespace AbstractButton {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Control.Props & {
-    label: p.Property<string>
+    label: p.Property<DOMNode | string>
     icon: p.Property<Icon | null>
     button_type: p.Property<ButtonType>
   }
@@ -100,8 +113,8 @@ export abstract class AbstractButton extends Control {
   }
 
   static {
-    this.define<AbstractButton.Props>(({String, Ref, Nullable}) => ({
-      label:       [ String, "Button" ],
+    this.define<AbstractButton.Props>(({String, Ref, Or, Nullable}) => ({
+      label:       [ Or(Ref(DOMNode), String), "Button" ],
       icon:        [ Nullable(Ref(Icon)), null ],
       button_type: [ ButtonType, "default" ],
     }))
