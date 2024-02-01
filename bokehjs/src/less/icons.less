@@ -203,8 +203,15 @@
 .bk-tool-icon-pin      { .tool-icon-mask(var(--bokeh-icon-pin)); }
 .bk-tool-icon-unpin    { .tool-icon-mask(var(--bokeh-icon-unpin)); }
 
-.bk-tool-icon-pointer  { .tool-icon-mask(var(--bokeh-icon-hand)); }
+.bk-tool-icon-pointer  { .tool-icon-mask(var(--bokeh-icon-hand));  }
 .bk-tool-icon-delete   { .tool-icon-mask(var(--bokeh-icon-trash)); }
+
+.bk-tool-icon-bold   { .tool-icon-mask(var(--bokeh-icon-bold));   }
+.bk-tool-icon-italic { .tool-icon-mask(var(--bokeh-icon-italic)); }
+
+.bk-tool-icon-text-align-left   { .tool-icon-mask(var(--bokeh-icon-text-align-left));   }
+.bk-tool-icon-text-align-center { .tool-icon-mask(var(--bokeh-icon-text-align-center)); }
+.bk-tool-icon-text-align-right  { .tool-icon-mask(var(--bokeh-icon-text-align-right));  }
 
 :host {
   // Based on https://tabler-icons.io/ (MIT License)
@@ -274,5 +281,10 @@
   --bokeh-icon-hand: data-uri("icons/hand.svg");
   --bokeh-icon-trash: data-uri("icons/trash.svg");
 
+  --bokeh-icon-bold: data-uri("icons/bold.svg");
+  --bokeh-icon-italic: data-uri("icons/italic.svg");
 
+  --bokeh-icon-text-align-left: data-uri("icons/text-align-left.svg");
+  --bokeh-icon-text-align-center: data-uri("icons/text-align-center.svg");
+  --bokeh-icon-text-align-right: data-uri("icons/text-align-right.svg");
 }
