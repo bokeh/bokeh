@@ -1,5 +1,6 @@
 import type {HasProps} from "./has_props"
-import type {View, ViewOf, ViewManager} from "./view"
+import type {View, ViewOf} from "./view"
+import type {ViewManager} from "./view_manager"
 import {difference} from "./util/array"
 import {assert} from "./util/assert"
 
