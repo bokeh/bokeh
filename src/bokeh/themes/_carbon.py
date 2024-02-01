@@ -61,7 +61,7 @@ json = {
 
             "background_fill_color": "#1b1e23",
             "major_tick_line_alpha": 0,
-            "bar_line_alpha": 0
+            "bar_line_alpha": 0,
         },
         "Title": {
             "text_font": "Courier New",
@@ -70,5 +70,5 @@ json = {
 
             "text_color": "lightgrey",
         },
-    }
+    },
 }
