@@ -434,7 +434,8 @@ NumeralLanguage = enumeration("be-nl", "chs", "cs", "da-dk", "de-ch", "de", "en"
 Orientation = enumeration("horizontal", "vertical")
 
 #: Specify an output backend to render a plot area onto
-OutputBackend = enumeration("canvas", "svg", "webgl")
+OutputBackendType = Literal["canvas", "svg", "webgl"]
+OutputBackend = enumeration(OutputBackendType)
 
 #: Whether range padding should be interpreted a percentage or and absolute quantity
 PaddingUnits = enumeration("percent", "absolute")

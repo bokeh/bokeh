@@ -1,6 +1,5 @@
 import {Callback} from "./callback"
 import {Dialog} from "../ui/dialog"
-import type {ViewOf} from "core/build_views"
 import type * as p from "core/properties"
 
 export namespace OpenDialog {
@@ -26,15 +25,13 @@ export class OpenDialog extends Callback {
     }))
   }
 
-  protected _dialog_view: WeakRef<ViewOf<Dialog>> | null = null
   async execute(): Promise<void> {
     const {dialog} = this
     const views = dialog.document?.views_manager
     if (views != null) {
-      let dialog_view = this._dialog_view?.deref()
-      if (dialog_view == null || dialog_view.is_destroyed) {
+      let dialog_view = views.find_one(dialog)
+      if (dialog_view == null) {
         dialog_view = await views.build_view(dialog)
-        this._dialog_view = new WeakRef(dialog_view)
       }
       dialog_view.open()
     }

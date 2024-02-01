@@ -53,6 +53,7 @@ if TYPE_CHECKING:
 
 __all__ = (
     'Callback',
+    'CloseDialog',
     'CustomJS',
     'OpenDialog',
     'OpenURL',
@@ -256,7 +257,16 @@ class OpenDialog(Callback):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dialog = Required(Instance(Dialog)) # OwnedInstance
+    dialog = Required(Instance(Dialog))
+
+class CloseDialog(Callback):
+    """ Allows to close a dialog box. """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    dialog = Required(Instance(Dialog))
 
 # TODO: class Show(Callback): target = Required(Either(Instance(DOMNode), Instance(UIElement)))
 # TODO: class Hide(Callback): ...
