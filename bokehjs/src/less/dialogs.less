@@ -141,6 +141,10 @@
   --resize-depth: calc(2*var(--resize-radius));
 }
 
+:host(.bk-minimized) {
+  position: relative;
+}
+
 :host(.bk-minimized), :host(.bk-maximized) {
   .bk-handle {
     display: none;

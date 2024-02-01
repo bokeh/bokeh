@@ -2,7 +2,7 @@ import {UIElement, UIElementView} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
 import {Text} from "../dom/text"
 import type {StyleSheetLike, Keys} from "core/dom"
-import {InlineStyleSheet, px, div, bounding_box} from "core/dom"
+import {InlineStyleSheet, px, div, bounding_box, dom_ready} from "core/dom"
 import {isString} from "core/util/types"
 import type {IterViews, ViewOf} from "core/build_views"
 import {build_view} from "core/build_views"
@@ -24,11 +24,33 @@ type UIElementLike = typeof UIElementLike["__type__"]
 
 type CSSVal = number | string
 type Position<T> =
-  ({left: T, width: T} | {right: T, width: T} | {left: T, right: T}) &
-  ({top: T, height: T} | {bottom: T, height: T} | {top: T, bottom: T})
+  ({left: T, width: T} | {right: T, width: T}   | {left: T, right: T} | {width: T}) &
+  ({top: T, height: T} | {bottom: T, height: T} | {top: T, bottom: T} | {height: T})
 type CSSPosition = Position<CSSVal>
 
 const _stacking_order: DialogView[] = []
+const _minimization_area: HTMLElement = (() => {
+  const el = div()
+  const shadow_el = el.attachShadow({mode: "open"})
+  const stylesheet = new InlineStyleSheet(`
+:host {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: max-content;
+  height: max-content;
+}
+:host:empty {
+  display: none;
+}
+`)
+  stylesheet.install(shadow_el)
+  void dom_ready().then(() => document.body.append(el))
+  return el
+})()
 
 export class DialogView extends UIElementView {
   declare model: Dialog
@@ -455,7 +477,7 @@ export class DialogView extends UIElementView {
         if (this._normal_bbox == null) {
           this._normal_bbox = bounding_box(this.el)
         }
-        return {left: 0, bottom: 0, width: "max-content", height: "max-content"}
+        return {width: "auto", height: "max-content"}
       } else {
         const {_normal_bbox} = this
         assert(_normal_bbox != null)
@@ -469,6 +491,8 @@ export class DialogView extends UIElementView {
   protected _minimize(value: boolean): void {
     if (this._minimized != value) {
       this._minimized = value
+      const target = value ? (_minimization_area.shadowRoot ?? _minimization_area) : document.body
+      target.append(this.el)
       this.el.classList.toggle(dialogs.minimized, this._minimized)
       this._minimize_el.title = this._minimized ? "Restore" : "Minimize"
     }
