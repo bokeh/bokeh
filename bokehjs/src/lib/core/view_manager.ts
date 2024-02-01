@@ -1,16 +1,26 @@
 import type {HasProps} from "./has_props"
 import type {View, ViewOf, IterViews} from "./view"
+import type {Options} from "core/build_views"
+import {build_view} from "./build_views"
 
 export class ViewManager {
   protected readonly _roots: Set<View>
 
-  constructor(roots: Iterable<View> = [], protected drop?: (view: View) => void) {
+  constructor(roots: Iterable<View> = [], protected global?: ViewManager) {
     this._roots = new Set(roots)
   }
 
   toString(): string {
     const views = [...this._roots].map((view) => `${view}`).join(", ")
     return `ViewManager(${views})`
+  }
+
+  async build_view<T extends HasProps>(model: T, parent: Options<ViewOf<T>>["parent"] = null): Promise<ViewOf<T>> {
+    const view = await build_view(model, {owner: this, parent})
+    if (parent == null) {
+      this.add(view)
+    }
+    return view
   }
 
   get<T extends HasProps>(model: T): ViewOf<T> | null {
@@ -31,16 +41,21 @@ export class ViewManager {
 
   add(view: View): void {
     this._roots.add(view)
+    this.global?.add(view)
   }
 
   delete(view: View): void {
     this._roots.delete(view)
+    this.global?.delete(view)
+  }
+
+  remove(view: View): void {
+    this.delete(view)
   }
 
   clear(): void {
-    const drop = this.drop ?? ((view: View) => this.delete(view))
     for (const view of this) {
-      drop(view)
+      view.remove()
     }
   }
 

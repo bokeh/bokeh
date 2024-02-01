@@ -99,6 +99,7 @@ export class View implements ISignalable {
   protected _removed: boolean = false
   remove(): void {
     this.disconnect_signals()
+    this.owner.remove(this)
     this.removed.emit()
     this._removed = true
   }

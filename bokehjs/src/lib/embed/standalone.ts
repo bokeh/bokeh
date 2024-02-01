@@ -4,8 +4,8 @@ import type {HasProps} from "../core/has_props"
 import type {View} from "../core/view"
 import {ViewManager} from "../core/view_manager"
 import {DOMView} from "../core/dom_view"
-import {build_view} from "../core/build_views"
 import {isString} from "../core/util/types"
+import {assert} from "../core/util/assert"
 import type {EmbedTarget} from "./dom"
 
 type PropertyKey = string | symbol
@@ -48,10 +48,13 @@ export async function add_document_standalone(document: Document, element: Embed
     roots: (EmbedTarget | null)[] = [], use_for_title: boolean = false): Promise<ViewManager> {
   // this is a LOCAL index of views used only by this particular rendering
   // call, so we can remove the views we create.
-  const views = new ViewManager([], delete_view)
+  assert(document.views_manager == null)
+
+  const views = new ViewManager([], index)
+  document.views_manager = views
 
   async function render_view(model: HasProps): Promise<void> {
-    const view = await build_view(model, {parent: null, owner: views})
+    const view = await views.build_view(model)
 
     if (view instanceof DOMView) {
       const i = document.roots().indexOf(model)
@@ -59,7 +62,6 @@ export async function add_document_standalone(document: Document, element: Embed
       view.render_to(root_el)
     }
 
-    views.add(view)
     index.add(view)
   }
 
@@ -73,15 +75,7 @@ export async function add_document_standalone(document: Document, element: Embed
 
   function unrender_model(model: HasProps): void {
     const view = views.get(model)
-    if (view != null) {
-      delete_view(view)
-    }
-  }
-
-  function delete_view(view: View): void {
-    view.remove()
-    views.delete(view)
-    index.delete(view)
+    view?.remove()
   }
 
   for (const model of document.roots()) {
