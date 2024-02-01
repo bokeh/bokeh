@@ -303,7 +303,9 @@ export class PlotView extends LayoutDOMView implements Renderable {
     this._state_manager = new StateManager(this, this._initial_state)
 
     this.throttled_paint = throttle(() => {
-      if (!this._removed) this.repaint()
+      if (!this.is_destroyed) {
+        this.repaint()
+      }
     }, 1000/60)
 
     const {title_location, title} = this.model

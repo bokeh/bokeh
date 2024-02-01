@@ -96,12 +96,16 @@ export class View implements ISignalable {
 
   async lazy_initialize(): Promise<void> {}
 
-  protected _removed: boolean = false
+  protected _destroyed: boolean = false
   remove(): void {
     this.disconnect_signals()
     this.owner.remove(this)
     this.removed.emit()
-    this._removed = true
+    this._destroyed = true
+  }
+
+  get is_destroyed(): boolean {
+    return this._destroyed
   }
 
   toString(): string {

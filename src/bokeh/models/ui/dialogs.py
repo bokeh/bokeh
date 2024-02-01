@@ -84,6 +84,8 @@ class Dialog(UIElement):
     maximizable = Bool(default=True)
     closable = Bool(default=True)
 
+    close_action = Enum("hide", "destroy", default="destroy")
+
     resizable = Enum(Resizable, default="all")
     movable = Enum(Movable, default="both")
     symmetric = Bool(default=False)

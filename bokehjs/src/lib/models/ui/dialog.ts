@@ -534,7 +534,16 @@ export class DialogView extends UIElementView {
   }
 
   close(): void {
-    this.model.visible = false
+    switch (this.model.close_action) {
+      case "hide": {
+        this.model.visible = false
+        break
+      }
+      case "destroy": {
+        this.remove()
+        break
+      }
+    }
   }
 
   bring_to_front(): void {
@@ -569,6 +578,8 @@ export namespace Dialog {
     maximizable: p.Property<boolean>
     closable: p.Property<boolean>
 
+    close_action: p.Property<"hide" | "destroy">
+
     resizable: p.Property<Box.Resizable>
     movable: p.Property<Box.Movable>
     symmetric: p.Property<boolean>
@@ -593,7 +604,7 @@ export class Dialog extends UIElement {
   static {
     this.prototype.default_view = DialogView
 
-    this.define<Dialog.Props>(({Boolean, String, Ref, Or, Nullable}) => ({
+    this.define<Dialog.Props>(({Boolean, String, Ref, Or, Nullable, Enum}) => ({
       title: [ Nullable(Or(String, Ref(DOMNode), Ref(UIElement))), null ],
       content: [ Or(String, Ref(DOMNode), Ref(UIElement)) ],
 
@@ -602,6 +613,8 @@ export class Dialog extends UIElement {
       minimizable: [ Boolean, true ],
       maximizable: [ Boolean, true ],
       closable: [ Boolean, true ],
+
+      close_action: [ Enum("hide", "destroy"), "destroy" ],
 
       resizable: [ Box.Resizable, "all" ],
       movable: [ Box.Movable, "both" ],

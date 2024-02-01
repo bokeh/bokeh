@@ -32,13 +32,11 @@ export class OpenDialog extends Callback {
     const views = dialog.document?.views_manager
     if (views != null) {
       let dialog_view = this._dialog_view?.deref()
-      if (dialog_view == null) {
+      if (dialog_view == null || dialog_view.is_destroyed) {
         dialog_view = await views.build_view(dialog)
         this._dialog_view = new WeakRef(dialog_view)
       }
       dialog_view.open()
-    } else {
-      //logger.warning("TODO")
     }
   }
 }

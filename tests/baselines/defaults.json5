@@ -6443,6 +6443,7 @@
     minimizable: true,
     maximizable: true,
     closable: true,
+    close_action: "destroy",
     resizable: "all",
     movable: "both",
     symmetric: false,
