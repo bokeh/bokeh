@@ -3,7 +3,7 @@ import {Pane, PaneView} from "../ui/pane"
 import {logger} from "core/logging"
 import {Signal} from "core/signaling"
 import {Align, Dimensions, FlowMode, SizingMode} from "core/enums"
-import {remove, px} from "core/dom"
+import {px} from "core/dom"
 import type {Display, CSSStyles} from "core/css"
 import {isNumber, isArray, isNotNull} from "core/util/types"
 import type * as p from "core/properties"
@@ -156,19 +156,16 @@ export abstract class LayoutDOMView extends PaneView {
 
     if (created_children.size != 0) {
       for (const child_view of this.child_views) {
-        remove(child_view.el)
+        child_view.el.remove()
       }
 
       for (const child_view of this.child_views) {
-        this.shadow_el.append(child_view.el)
+        const is_new = created_children.has(child_view)
 
-        if (created_children.has(child_view)) {
-          child_view.render()
-          if (child_view instanceof LayoutDOMView) {
-            child_view.r_after_render()
-          } else {
-            child_view.after_render()
-          }
+        if (is_new) {
+          child_view.render_to(this.shadow_el)
+        } else {
+          this.shadow_el.append(child_view.el)
         }
       }
     }
