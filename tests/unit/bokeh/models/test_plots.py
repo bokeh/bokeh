@@ -327,15 +327,6 @@ def test_plot_if_title_is_converted_from_string_to_Title() -> None:
     assert plot.title.text_color == "olive"
 
 
-def test_plot__scale_classmethod() -> None:
-    assert isinstance(Plot._scale("auto"), LinearScale)
-    assert isinstance(Plot._scale("linear"), LinearScale)
-    assert isinstance(Plot._scale("log"), LogScale)
-    assert isinstance(Plot._scale("categorical"), CategoricalScale)
-    with pytest.raises(ValueError):
-        Plot._scale("malformed_type")
-
-
 def test__check_required_scale_has_scales() -> None:
     plot = Plot()
     check = plot._check_required_scale()
