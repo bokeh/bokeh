@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 # Bokeh imports
 from ...core.properties import Either, Instance, List
-from ..dom import HTML, DOMNode
+from ..dom import DOMNode
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -46,7 +46,7 @@ class Pane(UIElement):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    elements = List(Either(Instance(UIElement), Instance(DOMNode), Instance(HTML)), default=[], help="""
+    elements = List(Either(Instance(UIElement), Instance(DOMNode)), default=[], help="""
     A collection of UI elements attached to this pane.
 
     This can include floating elements like tooltips, allowing to establish
