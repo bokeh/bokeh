@@ -496,11 +496,6 @@ export abstract class LayoutDOMView extends PaneView {
     }
   }
 
-  async rebuild(): Promise<void> {
-    await this.build_child_views()
-    this.invalidate_render()
-  }
-
   invalidate_layout(): void {
     // TODO: it would be better and more efficient to do a localized
     // update, but for now this guarantees consistent state of layout.
