@@ -32,6 +32,7 @@ export class ExamineToolView extends ActionToolView {
       title: new HTML({html: div("Examine ", printer.to_html(target))}),
       content: new Examiner({target}),
       visible: false,
+      close_action: "hide",
     })
     this._dialog = await build_view(dialog, {parent: this.parent})
   }
