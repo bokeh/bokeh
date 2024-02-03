@@ -447,10 +447,6 @@ export abstract class LayoutDOMView extends PaneView {
 
   private _was_built: boolean = false
   override render_to(target: Node | null): void {
-    if (!this.is_layout_root) {
-      throw new Error(`${this.toString()} is not a root layout`)
-    }
-
     if (target != null) {
       target.appendChild(this.el)
     }
