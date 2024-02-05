@@ -14,7 +14,7 @@ import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_
 import type {Node} from "../coordinates/node"
 import type {XY} from "core/util/bbox"
 import {BBox} from "core/util/bbox"
-import {Menu} from "../menus/menu"
+import {Menu} from "../ui/menus/menu"
 import type {HTML} from "../dom/html"
 
 export namespace RendererGroup {

@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 import {Node} from "../coordinates/node"
 import {Styles} from "../dom/styles"
-import type {Menu} from "../menus/menu"
+import type {Menu} from "./menus/menu"
 import {StyleSheet as BaseStyleSheet} from "../dom/stylesheets"
 import type {DictLike} from "core/types"
 import type {Align} from "core/enums"

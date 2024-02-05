@@ -21,18 +21,22 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from ...core.enums import Orientation
+from ...core.enums import ToolIcon
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
+    Either,
     Enum,
+    Image,
     Instance,
     List,
     Nullable,
+    Regex,
     Required,
     String,
 )
-from .icons import Icon
+from ...model import Model
+from ..callbacks import Callback
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -40,10 +44,10 @@ from .ui_element import UIElement
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    "Action",
+    "CheckAction",
     "Menu",
-    "Section",
-    "Divider",
+    "MenuAction",
+    "MenuDivider",
 )
 
 #-----------------------------------------------------------------------------
@@ -55,33 +59,42 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 @abstract
-class MenuItem(UIElement):
+class MenuItem(Model):
     """ """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-class Action(MenuItem):
+class MenuAction(MenuItem):
     """ """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    icon = Nullable(Instance(Icon), default=None, help="""
+    icon = Nullable(Either(Image, Enum(ToolIcon), Regex(r"^--"), Regex(r"^\.")), help="""
     """)
 
     label = Required(String, help="""
     """)
 
-    description = Nullable(String, default=None, help="""
+    tooltip = Nullable(String, default=None, help="""
+    """)
+
+    shortcut = Nullable(String, default=None, help="""
     """)
 
     menu = Nullable(Instance(lambda: Menu), default=None, help="""
     """)
 
-class CheckAction(Action):
+    disabled = Bool(default=False, help="""
+    """)
+
+    action = Nullable(Instance(Callback), default=None, help="""
+    """)
+
+class CheckAction(MenuAction):
     """ """
 
     # explicit __init__ to support Init signatures
@@ -93,17 +106,7 @@ class CheckAction(Action):
 
     # group = Either(Instance(Group), Auto)
 
-class Section(MenuItem):
-    """ """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    items = List(Instance(Action), default=[], help="""
-    """)
-
-class Divider(MenuItem):
+class MenuDivider(MenuItem):
     """ """
 
     # explicit __init__ to support Init signatures
@@ -121,9 +124,6 @@ class Menu(UIElement):
     """)
 
     reversed = Bool(default=False, help="""
-    """)
-
-    orientation = Enum(Orientation, default="vertical", help="""
     """)
 
 #-----------------------------------------------------------------------------

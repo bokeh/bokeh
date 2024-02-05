@@ -42,7 +42,6 @@ from ..core.property.singletons import Intrinsic
 from ..core.validation import error
 from ..core.validation.errors import INVALID_PROPERTY_VALUE, NOT_A_PROPERTY_OF
 from ..model import Model
-from .ui import Dialog, UIElement
 
 if TYPE_CHECKING:
     from ..core.types import PathLike
@@ -248,7 +247,7 @@ class ToggleVisibility(Callback):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    target = Required(Instance(UIElement))
+    target = Required(Instance(".models.ui.UIElement"))
 
 class OpenDialog(Callback):
     """ Allows to open a dialog box. """
@@ -257,7 +256,7 @@ class OpenDialog(Callback):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dialog = Required(Instance(Dialog))
+    dialog = Required(Instance(".models.ui.Dialog"))
 
 class CloseDialog(Callback):
     """ Allows to close a dialog box. """
@@ -266,7 +265,7 @@ class CloseDialog(Callback):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    dialog = Required(Instance(Dialog))
+    dialog = Required(Instance(".models.ui.Dialog"))
 
 # TODO: class Show(Callback): target = Required(Either(Instance(DOMNode), Instance(UIElement)))
 # TODO: class Hide(Callback): ...

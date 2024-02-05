@@ -1,4 +1,5 @@
 export * from "./icons"
+export * from "./menus"
 
 export {Panel} from "./panel"
 export {Dialog} from "./dialog"
