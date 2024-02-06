@@ -66,6 +66,7 @@ __all__ = (
     'DateFormatter',
     'GroupingInfo',
     'HTMLTemplateFormatter',
+    'DynamicFormatter',
     'IntEditor',
     'MaxAggregator',
     'MinAggregator',
@@ -533,6 +534,32 @@ class HTMLTemplateFormatter(CellFormatter):
     Template string to be used by Underscore's template method.
     """)
 
+class DynamicFormatter(HTMLTemplateFormatter):
+    """
+    A custom HTML formatter that allows for dynamic cell formatting based on
+    other column values for background color, text color, and formatted value.
+    """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    background_color = String(help="""
+    The name of the column in the ColumnDataSource that contains the hex color code
+    for the cell background, or color as string.
+    """)
+
+    text_color = String(default='black', help="""
+    The name of the column in the ColumnDataSource that contains the hex color code
+    for the cell text color, or color as string.
+    """)
+
+    value_formatting = String(default='<%= value %>', help="""
+    Template string for value formatting, using Underscore's template syntax.
+    """)
+
+
+
 class StringEditor(CellEditor):
     ''' Basic string cell editor with auto-completion.
 
@@ -860,7 +887,7 @@ class DataTable(TableWidget):
     """)
 
     @staticmethod
-    def from_data(data, columns=None, formatters={}, **kwargs) -> DataTable:
+    def from_data(data, columns=None, formatters={}, include_pandas_index=True, **kwargs) -> DataTable:
         """ Create a simple table from a pandas dataframe, dictionary or ColumnDataSource.
 
         Args:
@@ -876,6 +903,9 @@ class DataTable(TableWidget):
                 A mapping of column names and corresponding Formatters to
                 apply to each column. (default: None)
 
+            include_pandas_index (bool, optional) :
+                Whether to include the index as a column. (default: True)
+
         Keyword arguments:
             Any additional keyword arguments will be passed to DataTable.
 
@@ -889,6 +919,8 @@ class DataTable(TableWidget):
 
         """
 
+        import pandas as pd
+
         if isinstance(data, ColumnDataSource):
             source = data.clone()
         else:
@@ -897,15 +929,20 @@ class DataTable(TableWidget):
             except ValueError as e:
                 raise ValueError("Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame") from e
 
+        if isinstance(data, pd.DataFrame):
+            if not include_pandas_index:
+                index_name = ColumnDataSource._df_index_name(data)
+                source.remove(index_name)
+
         if columns is not None:
             source.data = {col: source.data[col] for col in columns}
 
         table_columns = []
-        for c in source.data.keys():
-            formatter = formatters.get(c, Intrinsic)
-            table_columns.append(TableColumn(field=c, title=c, formatter=formatter))
+        for col in source.data.keys():
+            formatter = formatters.get(col, Intrinsic)
+            table_columns.append(TableColumn(field=col, title=col, formatter=formatter))
 
-        return DataTable(source=source, columns=table_columns, index_position=None, **kwargs)
+        return DataTable(source=source, columns=table_columns, **kwargs)
 
 class GroupingInfo(Model):
     '''Describes how to calculate totals and sub-totals
