@@ -6958,6 +6958,12 @@
     __extends__: "StringFormatter",
     format: "ISO-8601",
   },
+  DynamicFormatter: {
+    __extends__: "HTMLTemplateFormatter",
+    background_color: null,
+    text_color: null,
+    value_formatting: "<%= value %>",
+  },
   GroupingInfo: {
     __extends__: "Model",
     getter: "",
@@ -6967,12 +6973,6 @@
   HTMLTemplateFormatter: {
     __extends__: "CellFormatter",
     template: "<%= value %>",
-  },
-  DynamicFormatter: {
-    __extends__: "HTMLTemplateFormatter",
-    background_color: null,
-    text_color: null,
-    value_formatting: "<%= value %>",
   },
   IntEditor: {
     __extends__: "CellEditor",
