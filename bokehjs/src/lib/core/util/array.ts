@@ -45,12 +45,13 @@ export function nth<T>(array: T[], index: number): T {
   return array[index >= 0 ? index : array.length + index]
 }
 
-export function zip<A, B>(As: A[], Bs: B[]): [A, B][]
-export function zip<A, B, C>(As: A[], Bs: B[], Cs: C[]): [A, B, C][]
-export function zip<T>(...arrays: T[][]): T[][]
-export function zip(...arrays: unknown[][]): unknown[][] {
-  if (arrays.length == 0)
+export function zip<A, B>(As: Arrayable<A>, Bs: Arrayable<B>): [A, B][]
+export function zip<A, B, C>(As: Arrayable<A>, Bs: Arrayable<B>, Cs: Arrayable<C>): [A, B, C][]
+export function zip<T>(...arrays: Arrayable<T>[]): T[][]
+export function zip(...arrays: Arrayable<unknown>[]): unknown[][] {
+  if (arrays.length == 0) {
     return []
+  }
 
   const n = min(arrays.map((a) => a.length))
   const k = arrays.length
@@ -59,8 +60,9 @@ export function zip(...arrays: unknown[][]): unknown[][] {
 
   for (let i = 0; i < n; i++) {
     result[i] = new Array(k)
-    for (let j = 0; j < k; j++)
+    for (let j = 0; j < k; j++) {
       result[i][j] = arrays[j][i]
+    }
   }
 
   return result
