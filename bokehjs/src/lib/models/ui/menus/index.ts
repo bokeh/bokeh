@@ -1,4 +1,4 @@
 export {Menu} from "./menu"
-export {MenuAction} from "./menu_action"
-export {CheckAction} from "./check_action"
-export {MenuDivider} from "./menu_divider"
+export {ActionItem} from "./action_item"
+export {CheckableItem} from "./checkable_item"
+export {DividerItem} from "./divider_item"

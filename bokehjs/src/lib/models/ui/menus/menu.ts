@@ -1,8 +1,8 @@
 import {UIElement, UIElementView} from "../ui_element"
 import {MenuItem} from "./menu_item"
-import {MenuAction} from "./menu_action"
-import {CheckAction} from "./check_action"
-import {MenuDivider} from "./menu_divider"
+import {ActionItem} from "./action_item"
+import {CheckableItem} from "./checkable_item"
+import {DividerItem} from "./divider_item"
 import type * as p from "core/properties"
 import type {XY} from "core/util/bbox"
 import type {StyleSheetLike} from "core/dom"
@@ -29,7 +29,7 @@ export class MenuView extends UIElementView {
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
     const menus = this.model.items
-      .map((item) => item instanceof MenuAction ? item.menu : null)
+      .map((item) => item instanceof ActionItem ? item.menu : null)
       .filter(isNotNull)
     await build_views(this._menu_views, menus, {parent: this})
   }
@@ -41,7 +41,7 @@ export class MenuView extends UIElementView {
     return this._open
   }
 
-  protected _item_click = (item: MenuAction) => {
+  protected _item_click = (item: ActionItem) => {
     if (!item.disabled) {
       item.action?.execute(this.model, {item})
       this.hide()
@@ -98,10 +98,10 @@ export class MenuView extends UIElementView {
       return reversed ? reverse(items) : items
     })()
     for (const item of items) {
-      if (item instanceof MenuDivider) {
+      if (item instanceof DividerItem) {
         const item_el = div({class: menus.divider})
         this.shadow_el.append(item_el)
-      } else if (item instanceof MenuAction) {
+      } else if (item instanceof ActionItem) {
         const check_el = div({class: menus.check})
         const icon_el = div({class: menus.icon})
         const label_el = div({class: menus.label}, item.label)
@@ -132,7 +132,7 @@ export class MenuView extends UIElementView {
         item_el.classList.toggle(menus.menu, item.menu != null)
         item_el.classList.toggle(menus.disabled, item.disabled)
 
-        if (item instanceof CheckAction) {
+        if (item instanceof CheckableItem) {
           item_el.classList.add(menus.checkable)
           item_el.classList.toggle(menus.checked, item.checked)
         }

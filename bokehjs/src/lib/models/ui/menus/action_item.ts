@@ -8,7 +8,7 @@ import {Or, Regex} from "core/kinds"
 const IconLike = Or(ToolIcon, Regex(/^--/), Regex(/^\./), Regex(/^data:image/))
 type IconLike = typeof IconLike["__type__"]
 
-export namespace MenuAction {
+export namespace ActionItem {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = MenuItem.Props & {
@@ -22,17 +22,17 @@ export namespace MenuAction {
   }
 }
 
-export interface MenuAction extends MenuAction.Attrs {}
+export interface ActionItem extends ActionItem.Attrs {}
 
-export class MenuAction extends MenuItem {
-  declare properties: MenuAction.Props
+export class ActionItem extends MenuItem {
+  declare properties: ActionItem.Props
 
-  constructor(attrs?: Partial<MenuAction.Attrs>) {
+  constructor(attrs?: Partial<ActionItem.Attrs>) {
     super(attrs)
   }
 
   static {
-    this.define<MenuAction.Props>(({Boolean, String, Nullable, AnyRef, Ref}) => ({
+    this.define<ActionItem.Props>(({Boolean, String, Nullable, AnyRef, Ref}) => ({
       icon: [ Nullable(IconLike), null ],
       label: [ String ],
       tooltip: [ Nullable(String), null ],

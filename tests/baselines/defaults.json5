@@ -6490,30 +6490,30 @@
       name: "unset",
     },
   },
-  CheckAction: {
-    __extends__: "MenuAction",
-    checked: false,
-  },
-  Menu: {
-    __extends__: "UIElement",
-    items: [],
-    reversed: false,
-  },
-  MenuAction: {
+  ActionItem: {
     __extends__: "MenuItem",
     icon: null,
     label: {
       type: "symbol",
       name: "unset",
     },
-    tooltip: null,
     shortcut: null,
     menu: null,
+    tooltip: null,
     disabled: false,
     action: null,
   },
-  MenuDivider: {
+  CheckableItem: {
+    __extends__: "ActionItem",
+    checked: false,
+  },
+  DividerItem: {
     __extends__: "MenuItem",
+  },
+  Menu: {
+    __extends__: "UIElement",
+    items: [],
+    reversed: false,
   },
   MenuItem: {
     __extends__: "Model",

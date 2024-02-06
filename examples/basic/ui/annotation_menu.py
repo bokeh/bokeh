@@ -1,8 +1,8 @@
 import numpy as np
 
 from bokeh.io import show
-from bokeh.models import (BoxSelectTool, CheckAction, CustomJS,
-                          Menu, MenuAction, MenuDivider)
+from bokeh.models import (ActionItem, BoxSelectTool, CheckableItem,
+                          CustomJS, DividerItem, Menu)
 from bokeh.palettes import Spectral11
 from bokeh.plotting import figure
 
@@ -87,20 +87,20 @@ export default ({renderer, overlay}) => {
 
 menu = Menu(
     items=[
-        MenuAction(
+        ActionItem(
             label="Count",
             shortcut="Alt+C",
             disabled=True,
             action=CustomJS(code="""console.log("not implemented")"""),
         ),
-        MenuAction(
+        ActionItem(
             label="Delete",
             shortcut="Alt+Shift+D",
             icon="delete",
             action=delete_selected,
         ),
-        MenuDivider(),
-        MenuAction(
+        DividerItem(),
+        ActionItem(
             label="Choose color",
             menu=Menu(
                 stylesheets=[
@@ -108,7 +108,7 @@ menu = Menu(
                     ".bk-label { font-family: monospace; }",
                 ],
                 items=[
-                    MenuAction(
+                    ActionItem(
                         label=color,
                         icon=f".color-{color.removeprefix('#')}",
                         action=change_color,
@@ -116,19 +116,19 @@ menu = Menu(
                 ],
             ),
         ),
-        MenuDivider(),
-        CheckAction(
+        DividerItem(),
+        CheckableItem(
             label="Continuous selection",
             checked=box_select.continuous,
             action=change_continuous,
         ),
-        MenuDivider(),
-        MenuAction(
+        DividerItem(),
+        ActionItem(
             icon="invert_selection",
             label="Invert selection",
             action=invert_selection,
         ),
-        MenuAction(
+        ActionItem(
             icon="clear_selection",
             label="Clear selection",
             shortcut="Esc",
