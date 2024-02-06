@@ -6482,7 +6482,7 @@
     color: "gray",
   },
   Icon: {
-    __extends__: "Model",
+    __extends__: "UIElement",
     size: "1em",
   },
   SVGIcon: {
