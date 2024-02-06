@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 
-from bokeh.io import show
+from bokeh.io import save
 from bokeh.models import DataTable, DynamicFormatter
 
 np.random.seed(42)
@@ -75,5 +75,4 @@ data_table.columns[1].formatter = age_format
 data_table.columns[2].formatter = location_format
 data_table.columns[3].formatter = height_format
 
-# Show the DataTable
-show(data_table)
+save(data_table)
