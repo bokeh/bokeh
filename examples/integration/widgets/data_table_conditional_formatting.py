@@ -1,3 +1,4 @@
+### Imports and Data Generation
 import numpy as np
 import pandas as pd
 from bokeh.models import DataTable, DynamicFormatter
@@ -40,6 +41,8 @@ dataframe = pd.DataFrame({
     "Height": np.round(np.random.uniform(1.5, 2.0, size=sample_size), 2),
 })
 
+
+### DataTable with DynamicFormatters
 
 # Solid grey color for names column
 name_format = DynamicFormatter(background_color=GREY)

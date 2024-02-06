@@ -1,6 +1,6 @@
 import {expect} from "assertions"
 
-import {DateFormatter, NumberFormatter, ScientificFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
+import {DateFormatter, NumberFormatter, ScientificFormatter, DynamicFormatter} from "@bokehjs/models/widgets/tables/cell_formatters"
 
 describe("cell_formatters module", () => {
 
@@ -161,4 +161,49 @@ describe("cell_formatters module", () => {
       })
     })
   })
+
+  describe("DynamicFormatter functionality", () => {
+
+    it("should apply default formatting correctly", () => {
+      const df = new DynamicFormatter()
+      const output = df.doFormat(0, 0, "Sample Value", {}, {})
+      expect(output).to.be.equal('<div style="background: null; color: black;">Sample Value</div>')
+    })
+
+    it("should use dataContext for background color", () => {
+      const df = new DynamicFormatter({background_color: "background_color"})
+      const dataContext = {background_color: "yellow"}
+      const output = df.doFormat(0, 0, "Sample Value", {}, dataContext)
+      expect(output).to.be.equal('<div style="background: yellow; color: black;">Sample Value</div>')
+    })
+
+    it("should use dataContext for text color", () => {
+      const df = new DynamicFormatter({text_color: "text_color"})
+      const dataContext = {text_color: "red"}
+      const output = df.doFormat(0, 0, "Sample Value", {}, dataContext)
+      expect(output).to.be.equal('<div style="background: null; color: red;">Sample Value</div>')
+    })
+
+    it("should apply custom value formatting", () => {
+      const df = new DynamicFormatter({value_formatting: "<b><%= value %></b>"})
+      const output = df.doFormat(0, 0, "Bold Value", {}, {})
+      expect(output).to.be.equal('<div style="background: null; color: black;"><b>Bold Value</b></div>')
+    })
+
+    it("should handle missing background_color in dataContext", () => {
+      const df = new DynamicFormatter({background_color: "missing_color"})
+      const dataContext = {}
+      const output = df.doFormat(0, 0, "Sample Value", {}, dataContext)
+      expect(output).to.be.equal('<div style="background: missing_color; color: black;">Sample Value</div>')
+    })
+
+    it("should handle missing text_color in dataContext", () => {
+      const df = new DynamicFormatter({text_color: "missing_color"})
+      const dataContext = {}
+      const output = df.doFormat(0, 0, "Sample Value", {}, dataContext)
+      expect(output).to.be.equal('<div style="background: null; color: missing_color;">Sample Value</div>')
+    })
+
+  })
+
 })
