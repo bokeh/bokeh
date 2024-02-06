@@ -5398,6 +5398,7 @@
   },
   CompositeRenderer: {
     __extends__: "Renderer",
+    renderers: [],
     elements: [],
   },
   DataRenderer: {

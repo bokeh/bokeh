@@ -14,6 +14,11 @@ type ElementLike = typeof ElementLike["__type__"]
 export abstract class CompositeRendererView extends RendererView {
   declare model: CompositeRenderer
 
+  protected readonly _renderer_views: ViewStorage<Renderer> = new Map()
+  get renderer_views(): ViewOf<Renderer>[] {
+    return this.model.renderers.map((renderer) => this._renderer_views.get(renderer)!)
+  }
+
   protected readonly _element_views: ViewStorage<ElementLike> = new Map()
   get element_views(): ViewOf<ElementLike>[] {
     return this.model.elements.map((element) => this._element_views.get(element)!)
@@ -21,16 +26,26 @@ export abstract class CompositeRendererView extends RendererView {
 
   override *children(): IterViews {
     yield* super.children()
+    yield* this.renderer_views
     yield* this.element_views
   }
 
   override async lazy_initialize(): Promise<void> {
     await super.lazy_initialize()
+    await this._build_renderers()
     await this._build_elements()
+  }
+
+  protected async _build_renderers(): Promise<BuildResult<Renderer>> {
+    return await build_views(this._renderer_views, this.model.renderers, {parent: this.plot_view})
   }
 
   protected async _build_elements(): Promise<BuildResult<ElementLike>> {
     return await build_views(this._element_views, this.model.elements, {parent: this.plot_view})
+  }
+
+  protected async _update_renderers(): Promise<void> {
+    await this._build_renderers()
   }
 
   protected async _update_elements(): Promise<void> {
@@ -58,13 +73,17 @@ export abstract class CompositeRendererView extends RendererView {
   }
 
   override remove(): void {
+    remove_views(this._renderer_views)
     remove_views(this._element_views)
     super.remove()
   }
 
   override connect_signals(): void {
     super.connect_signals()
-    const {elements} = this.model.properties
+    const {renderers, elements} = this.model.properties
+    this.on_change(renderers, async () => {
+      await this._update_renderers()
+    })
     this.on_change(elements, async () => {
       await this._update_elements()
     })
@@ -93,6 +112,12 @@ export abstract class CompositeRendererView extends RendererView {
       return false
     }
 
+    for (const renderer_view of this.renderer_views) {
+      if (!renderer_view.has_finished()) {
+        return false
+      }
+    }
+
     for (const element_view of this.element_views) {
       if (!element_view.has_finished()) {
         return false
@@ -106,7 +131,11 @@ export abstract class CompositeRendererView extends RendererView {
     const {children, ...state} = super.serializable_state()
     return {
       ...state,
-      children: [...children ?? [], ...this.element_views.map((element) => element.serializable_state())],
+      children: [
+        ...children ?? [],
+        ...this.renderer_views.map((renderer) => renderer.serializable_state()),
+        ...this.element_views.map((element) => element.serializable_state()),
+      ],
     }
   }
 }
@@ -115,6 +144,7 @@ export namespace CompositeRenderer {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Renderer.Props & {
+    renderers: p.Property<Renderer[]>
     elements: p.Property<ElementLike[]>
   }
 
@@ -132,7 +162,8 @@ export abstract class CompositeRenderer extends Renderer {
   }
 
   static {
-    this.define<CompositeRenderer.Props>(({Array}) => ({
+    this.define<CompositeRenderer.Props>(({Array, Ref}) => ({
+      renderers: [ Array(Ref(Renderer)), [] ],
       elements: [ Array(ElementLike), [] ],
     }))
   }

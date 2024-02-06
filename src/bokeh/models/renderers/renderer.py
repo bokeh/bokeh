@@ -101,7 +101,10 @@ class Renderer(Model):
     rendering glyphs on the plot. If unset, use the default y-range.
     """)
 
-    group = Nullable(Instance(RendererGroup))
+    group = Nullable(Instance(RendererGroup), help="""
+    .. note::
+        This property is experimental and may change at any point.
+    """)
 
     propagate_hover = Bool(default=False, help="""
     Allows to propagate hover events to the parent renderer, frame or canvas.
@@ -119,13 +122,20 @@ class Renderer(Model):
 
 @abstract
 class CompositeRenderer(Renderer):
-    """ A renderer that allows attaching UI elements to it.
+    """ A renderer that allows attaching other renderers and DOM-based UIs.
 
     """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
+
+    renderers = List(Instance(Renderer), default=[], help="""
+    A collection of renderers attached to this renderer.
+
+    .. note::
+        This property is experimental and may change at any point.
+    """)
 
     elements = List(
         Either(
