@@ -386,11 +386,7 @@ export class DynamicFormatter extends HTMLTemplateFormatter {
     const formattedValue = compiledTemplate({value})
 
     // Construct the HTML string with the dynamically fetched background color and the formatted value
-    const template = `
-      <div style="background: ${backgroundColorValue}; color: ${textColor};">
-        ${formattedValue}
-      </div>
-    `
+    const template = `<div style="background: ${backgroundColorValue}; color: ${textColor};">${formattedValue}</div>`
 
     return template
   }
