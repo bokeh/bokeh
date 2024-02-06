@@ -1,7 +1,6 @@
 import {Renderer, RendererView} from "./renderer"
 import {UIElement} from "../ui/ui_element"
 import {DOMNode} from "../dom/dom_node"
-import {HTML} from "../dom/html"
 import type {ViewStorage, BuildResult, IterViews, ViewOf} from "core/build_views"
 import {build_views, remove_views} from "core/build_views"
 import type {SerializableState} from "core/view"
@@ -9,7 +8,7 @@ import type * as p from "core/properties"
 import {Ref, Or} from "core/kinds"
 
 // TODO UIElement needs to inherit from DOMNode
-const ElementLike = Or(Ref(UIElement), Ref(DOMNode), Ref(HTML))
+const ElementLike = Or(Ref(UIElement), Ref(DOMNode))
 type ElementLike = typeof ElementLike["__type__"]
 
 export abstract class CompositeRendererView extends RendererView {

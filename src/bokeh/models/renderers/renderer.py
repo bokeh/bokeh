@@ -129,15 +129,17 @@ class CompositeRenderer(Renderer):
 
     elements = List(
         Either(
-            Instance(".models.ui.ui_element.UIElement"),
+            Instance(".models.ui.UIElement"),
             Instance(".models.dom.DOMNode"),
-            Instance(".models.dom.HTML"),
         ),
     )(default=[], help="""
-    A collection of UI elements attached to this renderer.
+    A collection of DOM-based UI elements attached to this renderer.
 
     This can include floating elements like tooltips, allowing to establish
-    parent <-> child relationship between elements.
+    a parent-child relationship between this renderer and its UI elements.
+
+    .. note::
+        This property is an equivalent of ``Pane.elements`` in DOM-based UIs.
     """)
 
 @abstract
