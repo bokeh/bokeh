@@ -352,7 +352,7 @@ export namespace DynamicFormatter {
 
   export type Props = HTMLTemplateFormatter.Props & {
     background_color: p.Property<string | null>
-    text_color: p.Property<string>
+    text_color: p.Property<string | null>
     value_formatting: p.Property<string>
   }
 }
@@ -369,32 +369,42 @@ export class DynamicFormatter extends HTMLTemplateFormatter {
   static {
     this.define<DynamicFormatter.Props>(({String, Nullable}) => ({
       background_color: [Nullable(String), null],
-      text_color: [String, "black"],
+      text_color: [Nullable(String), null],
       value_formatting: [String, "<%= value %>"],
     }))
   }
 
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
-    // Initialize the style string for background color
-    let backgroundColorStyle = ""
+    // Initialize style components array
+    const styleComponents: string[] = []
 
-    // Check if `background_color` is provided
+    // Handle background color
     if (this.background_color != null) {
-      // Determine the background color value: first try to get it from `dataContext` using the key
-      // If not present in `dataContext`, use `background_color` directly as the value
-      const backgroundColorValue = dataContext.hasOwnProperty(this.background_color) ? dataContext[this.background_color] : this.background_color
-      backgroundColorStyle = `background: ${backgroundColorValue}; `
+      const backgroundColorValue = dataContext.hasOwnProperty(this.background_color) ?
+            dataContext[this.background_color] : this.background_color
+      // Only add to style if not null
+      if (backgroundColorValue != null) {
+        styleComponents.push(`background: ${backgroundColorValue};`)
+      }
     }
 
-    // Determine text color; use direct value or look up in `dataContext` if specified
-    const textColor = this.text_color in dataContext ? dataContext[this.text_color] : this.text_color
+    // Handle text color
+    if (this.text_color != null) {
+      const textColorValue = dataContext.hasOwnProperty(this.text_color) ?
+            dataContext[this.text_color] : this.text_color
+      // Apply default if not found in dataContext and not null
+      if (textColorValue != null) {
+        styleComponents.push(`color: ${textColorValue};`)
+      }
+    }
 
     // Compile and format the value using the provided template string
     const compiledTemplate = _.template(this.value_formatting)
     const formattedValue = compiledTemplate({value})
 
-    // Construct the HTML string, including background and text color styles
-    const template = `<div style="${backgroundColorStyle}color: ${textColor};">${formattedValue}</div>`
+    // Construct the HTML string, conditionally including style attribute
+    const styleAttribute = styleComponents.length > 0 ? ` style="${styleComponents.join(" ")}"` : ""
+    const template = `<div${styleAttribute}>${formattedValue}</div>`
 
     return template
   }
