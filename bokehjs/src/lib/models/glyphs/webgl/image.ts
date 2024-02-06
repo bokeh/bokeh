@@ -8,6 +8,7 @@ import type {Texture2D, Texture2DOptions} from "regl"
 import {assert} from "core/util/assert"
 
 export class ImageGL extends BaseGLGlyph {
+  // data properties
   protected _tex: Array<Texture2D | null> = []
   protected _bounds: Array<Float32Buffer | null> = []
 
@@ -45,7 +46,7 @@ export class ImageGL extends BaseGLGlyph {
     const {global_alpha} = this.glyph.visuals.image
 
     for (const i of indices) {
-      if (this._tex[i] == null || this._bounds[i] == null)
+      if (main_gl_glyph._tex[i] == null || main_gl_glyph._bounds[i] == null)
         continue
 
       const props: ImageProps = {
@@ -53,7 +54,7 @@ export class ImageGL extends BaseGLGlyph {
         viewport: this.regl_wrapper.viewport,
         canvas_size: [transform.width, transform.height],
         pixel_ratio: transform.pixel_ratio,
-        bounds: this._bounds[i]!,
+        bounds: main_gl_glyph._bounds[i]!,
         tex: main_gl_glyph._tex[i]!,
         global_alpha: global_alpha.get(i),
       }

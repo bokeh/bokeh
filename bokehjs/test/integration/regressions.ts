@@ -4,7 +4,7 @@ import {expect, expect_condition, expect_not_null} from "../unit/assertions"
 import {display, fig, row, column, grid, DelayedInternalProvider} from "./_util"
 import {PlotActions, actions, xy, tap, press, mouse_enter, mouse_down, mouse_click} from "../interactive"
 
-import type {ArrowHead, Line, BasicTickFormatter} from "@bokehjs/models"
+import type {ArrowHead, Image, Line, BasicTickFormatter} from "@bokehjs/models"
 import {
   Arrow, NormalHead, OpenHead,
   BoxAnnotation, LabelSet, ColorBar, Slope, Span, Whisker,
@@ -3676,6 +3676,27 @@ describe("Bug", () => {
       view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
       view.input_el.dispatchEvent(new KeyboardEvent("keyup", {key: "ArrowDown" satisfies Keys}))
       await view.ready
+    })
+  })
+
+  describe("in issue #13678", () => {
+    it("doesn't render unselected WebGL Image glyphs", async () => {
+      const data = scalar_image(5)
+      const selected = new Selection({indices: [1]})
+      const source = new ColumnDataSource({data: {image: [data, data], x: [0, 1.1]}, selected})
+
+      function make_plot(output_backend: OutputBackend) {
+        const p = fig([200, 200], {output_backend, title: output_backend})
+        const im = p.image({source, image: {field: "image"}, x: {field: "x"}, y: 0, dw: 1, dh: 1})
+        const glyph = im.nonselection_glyph as Image
+        glyph.global_alpha = 0.3
+        return p
+      }
+
+      const p0 = make_plot("canvas")
+      const p1 = make_plot("webgl")
+
+      await display(row([p0, p1]))
     })
   })
 })
