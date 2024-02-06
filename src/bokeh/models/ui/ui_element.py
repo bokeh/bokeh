@@ -77,6 +77,9 @@ class UIElement(Model):
 
     Variables defined here are equivalent to setting the same variables
     under ``:host { ... }`` in a CSS stylesheet.
+
+    .. note::
+        This property is experimental and may change at any point.
     """)
 
     styles = Either(Dict(String, Nullable(String)), Instance(Styles), default={}, help="""

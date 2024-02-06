@@ -4,9 +4,7 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-"""
-
-"""
+""" Various kinds of panels. """
 
 #-----------------------------------------------------------------------------
 # Boilerplate
@@ -45,22 +43,34 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 class Panel(Pane):
-    """  """
+    """ A DOM-based UI element that allows for controlling its bounding box. """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     position = Required(Instance(Coordinate), help="""
+    A computed coordinate representing the position of this panel, either
+    with respect to its parent or the viewport of a web browser.
     """)
 
     anchor = Anchor(default="top_left", help="""
+    The anchor point this panel is positioned at.
+
+    This can be either a named anchor like ``"top_left"`` or ``"center"``,
+    or a tuple of named positions or percentages along the axes of the panel
     """)
 
     width = Either(Auto, Int, Instance(Node), help="""
+    A computed value defining the width of the panel.
+
+    Use ``"auto"`` to let CSS determine the width (based on a stylesheet).
     """)
 
     height = Either(Auto, Int, Instance(Node), help="""
+    A computed value defining the height of the panel.
+
+    Use ``"auto"`` to let CSS determine the height (based on a stylesheet).
     """)
 
 #-----------------------------------------------------------------------------

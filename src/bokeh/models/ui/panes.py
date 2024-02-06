@@ -35,23 +35,31 @@ __all__ = (
 # General API
 #-----------------------------------------------------------------------------
 
-#-----------------------------------------------------------------------------
-# Dev API
-#-----------------------------------------------------------------------------
-
 class Pane(UIElement):
-    """ """
+    """
+    A UI element that can hold other DOM-based UI elements.
+
+    ``Pane`` is a basic block of building DOM-based UIs, and as such it
+    doesn't any properties for controlling its position and other visual
+    aspects. These must be set up by using CSS stylesheets. If finer
+    control is needed, use ``Panel`` or ``LayoutDOM`` derived models
+    instead.
+    """
 
     # explicit __init__ to support Init signatures
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
     elements = List(Either(Instance(UIElement), Instance(DOMNode)), default=[], help="""
-    A collection of UI elements attached to this pane.
+    A collection of DOM-based UI elements attached to this pane.
 
     This can include floating elements like tooltips, allowing to establish
-    parent <-> child relationship between elements.
+    a parent-child relationship between this and other UI elements.
     """)
+
+#-----------------------------------------------------------------------------
+# Dev API
+#-----------------------------------------------------------------------------
 
 #-----------------------------------------------------------------------------
 # Private API
