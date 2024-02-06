@@ -816,6 +816,17 @@ class TestDataTable:
         with pytest.raises(ValueError, match="Expected a ColumnDataSource or something a ColumnDataSource can be created from like a dict or a DataFrame"):
             DataTable.from_data("invalid data")
 
+    @pytest.mark.parametrize("include_index", [True, False])
+    def test_from_data_with_dataframe_and_index_param(self, include_index):
+        df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        table = DataTable.from_data(df, include_pandas_index=include_index)
+        assert isinstance(table, DataTable)
+        # When include_index is True, expect "index" in data, else not
+        if include_index:
+            assert 'index' in table.source.data
+        else:
+            assert 'index' not in table.source.data
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
