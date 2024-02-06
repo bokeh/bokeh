@@ -4,8 +4,10 @@
 #
 # The full license is in the file LICENSE.txt, distributed with this software.
 #-----------------------------------------------------------------------------
-""" Various UI elements such as buttons, menus, and tooltips.
 """
+
+"""
+
 #-----------------------------------------------------------------------------
 # Boilerplate
 #-----------------------------------------------------------------------------
@@ -19,43 +21,47 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Bokeh imports
-from . import (
-    dialogs,
-    examiner,
-    icons,
-    menus,
-    panels,
-    panes,
-    tooltips,
-    ui_element,
+from ...core.properties import (
+    Auto,
+    Either,
+    Instance,
+    Int,
+    Required,
 )
-from .dialogs import *
-from .examiner import *
-from .icons import *
-from .menus import *
-from .panels import *
-from .panes import *
-from .tooltips import *
-from .ui_element import *
+from ...core.property_aliases import Anchor
+from ..nodes import Coordinate, Node
+from .panes import Pane
 
 #-----------------------------------------------------------------------------
 # Globals and constants
 #-----------------------------------------------------------------------------
 
 __all__ = (
-    *dialogs.__all__,
-    *icons.__all__,
-    *examiner.__all__,
-    *menus.__all__,
-    *panels.__all__,
-    *panes.__all__,
-    *tooltips.__all__,
-    *ui_element.__all__,
+    "Panel",
 )
 
 #-----------------------------------------------------------------------------
 # General API
 #-----------------------------------------------------------------------------
+
+class Panel(Pane):
+    """  """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+    position = Required(Instance(Coordinate), help="""
+    """)
+
+    anchor = Anchor(default="top_left", help="""
+    """)
+
+    width = Either(Auto, Int, Instance(Node), help="""
+    """)
+
+    height = Either(Auto, Int, Instance(Node), help="""
+    """)
 
 #-----------------------------------------------------------------------------
 # Dev API

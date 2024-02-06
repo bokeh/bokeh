@@ -23,20 +23,16 @@ log = logging.getLogger(__name__)
 # Bokeh imports
 from ...core.enums import Movable, Resizable
 from ...core.properties import (
-    Auto,
     Bool,
     Either,
     Enum,
     Instance,
-    Int,
     Nullable,
     Required,
     String,
 )
-from ...core.property_aliases import Anchor
 from ..dom import DOMNode
-from ..nodes import Coordinate, Node
-from .panes import Pane
+from ..nodes import Node
 from .ui_element import UIElement
 
 #-----------------------------------------------------------------------------
@@ -45,7 +41,6 @@ from .ui_element import UIElement
 
 __all__ = (
     "Dialog",
-    "Panel",
 )
 
 #-----------------------------------------------------------------------------
@@ -53,20 +48,6 @@ __all__ = (
 #-----------------------------------------------------------------------------
 
 Limit = Instance(Node)
-
-class Panel(Pane):
-    """ """
-
-    # explicit __init__ to support Init signatures
-    def __init__(self, *args, **kwargs) -> None:
-        super().__init__(*args, **kwargs)
-
-    position = Required(Instance(Coordinate))
-    anchor = Anchor(default="top_left")
-    width = Either(Auto, Int, Instance(Node))
-    height = Either(Auto, Int, Instance(Node))
-
-    #content = Required(Either(String, Instance(DOMNode), Instance(UIElement)))
 
 class Dialog(UIElement):
     """ """
