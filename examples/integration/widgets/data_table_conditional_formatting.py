@@ -1,8 +1,9 @@
 ### Imports and Data Generation
 import numpy as np
 import pandas as pd
-from bokeh.models import DataTable, DynamicFormatter
+
 from bokeh.io import show
+from bokeh.models import DataTable, DynamicFormatter
 
 np.random.seed(42)
 

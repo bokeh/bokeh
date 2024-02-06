@@ -348,50 +348,50 @@ export class HTMLTemplateFormatter extends CellFormatter {
 }
 
 export namespace DynamicFormatter {
-  export type Attrs = p.AttrsOf<Props>;
+  export type Attrs = p.AttrsOf<Props>
 
   export type Props = HTMLTemplateFormatter.Props & {
-    background_color: p.Property<string>;
-    text_color: p.Property<string>;
-    value_formatting: p.Property<string>;
-  };
+    background_color: p.Property<string>
+    text_color: p.Property<string>
+    value_formatting: p.Property<string>
+  }
 }
 
 export interface DynamicFormatter extends DynamicFormatter.Attrs {}
 
 export class DynamicFormatter extends HTMLTemplateFormatter {
-  declare properties: DynamicFormatter.Props;
+  declare properties: DynamicFormatter.Props
 
   constructor(attrs?: Partial<DynamicFormatter.Attrs>) {
-    super(attrs);
+    super(attrs)
   }
 
   static {
     this.define<DynamicFormatter.Props>(({String}) => ({
       background_color: [String, "null"],
-      text_color: [String, "black"], 
+      text_color: [String, "black"],
       value_formatting: [String, "<%= value %>"],
-    }));
+    }))
   }
 
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
     // Assuming 'background_color' holds the COLUMN NAME to fetch the background color value from 'dataContext'
-    const backgroundColorKey = this.background_color;
-    const backgroundColorValue = dataContext[backgroundColorKey] || backgroundColorKey;
-    const textColorKey = this.text_color;
-    const textColor = dataContext[textColorKey] || textColorKey;
-    
+    const backgroundColorKey = this.background_color
+    const backgroundColorValue = dataContext[backgroundColorKey] || backgroundColorKey
+    const textColorKey = this.text_color
+    const textColor = dataContext[textColorKey] || textColorKey
+
     // Assuming 'value_formatting' is a template string that might include '<%= value %>' for interpolation
-    const compiledTemplate = _.template(this.value_formatting);
-    const formattedValue = compiledTemplate({ value });
+    const compiledTemplate = _.template(this.value_formatting)
+    const formattedValue = compiledTemplate({value})
 
     // Construct the HTML string with the dynamically fetched background color and the formatted value
     const template = `
       <div style="background: ${backgroundColorValue}; color: ${textColor};">
         ${formattedValue}
       </div>
-    `;
+    `
 
-    return template;
-}
+    return template
+  }
 }
