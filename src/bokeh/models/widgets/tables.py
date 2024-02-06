@@ -549,7 +549,7 @@ class DynamicFormatter(HTMLTemplateFormatter):
     for the cell background, or color as string.
     """)
 
-    text_color = Nullable(String, default='black', help="""
+    text_color = Nullable(String, help="""
     The name of the column in the ColumnDataSource that contains the hex color code
     for the cell text color, or color as string.
     """)
