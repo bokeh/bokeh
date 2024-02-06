@@ -6968,6 +6968,12 @@
     __extends__: "CellFormatter",
     template: "<%= value %>",
   },
+  DynamicFormatter: {
+    __extends__: "HTMLTemplateFormatter",
+    background_color: null,
+    text_color: "black",
+    value_formatting: "<%= value %>",
+  },
   IntEditor: {
     __extends__: "CellEditor",
     step: 1,

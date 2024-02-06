@@ -544,7 +544,7 @@ class DynamicFormatter(HTMLTemplateFormatter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    background_color = String(help="""
+    background_color = Nullable(String, help="""
     The name of the column in the ColumnDataSource that contains the hex color code
     for the cell background, or color as string.
     """)

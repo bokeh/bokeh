@@ -351,7 +351,7 @@ export namespace DynamicFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = HTMLTemplateFormatter.Props & {
-    background_color: p.Property<string>
+    background_color: p.Property<string | null>
     text_color: p.Property<string>
     value_formatting: p.Property<string>
   }
@@ -367,26 +367,34 @@ export class DynamicFormatter extends HTMLTemplateFormatter {
   }
 
   static {
-    this.define<DynamicFormatter.Props>(({String}) => ({
-      background_color: [String, "null"],
+    this.define<DynamicFormatter.Props>(({String, Nullable}) => ({
+      background_color: [Nullable(String), null],
       text_color: [String, "black"],
       value_formatting: [String, "<%= value %>"],
     }))
   }
 
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, dataContext: any): string {
-    // Assuming 'background_color' holds the COLUMN NAME to fetch the background color value from 'dataContext'
-    const backgroundColorKey = this.background_color
-    const backgroundColorValue = dataContext[backgroundColorKey] || backgroundColorKey
-    const textColorKey = this.text_color
-    const textColor = dataContext[textColorKey] || textColorKey
+    // Initialize the style string for background color
+    let backgroundColorStyle = ""
 
-    // Assuming 'value_formatting' is a template string that might include '<%= value %>' for interpolation
+    // Check if `background_color` is provided
+    if (this.background_color != null) {
+      // Determine the background color value: first try to get it from `dataContext` using the key
+      // If not present in `dataContext`, use `background_color` directly as the value
+      const backgroundColorValue = dataContext.hasOwnProperty(this.background_color) ? dataContext[this.background_color] : this.background_color
+      backgroundColorStyle = `background: ${backgroundColorValue}; `
+    }
+
+    // Determine text color; use direct value or look up in `dataContext` if specified
+    const textColor = this.text_color in dataContext ? dataContext[this.text_color] : this.text_color
+
+    // Compile and format the value using the provided template string
     const compiledTemplate = _.template(this.value_formatting)
     const formattedValue = compiledTemplate({value})
 
-    // Construct the HTML string with the dynamically fetched background color and the formatted value
-    const template = `<div style="background: ${backgroundColorValue}; color: ${textColor};">${formattedValue}</div>`
+    // Construct the HTML string, including background and text color styles
+    const template = `<div style="${backgroundColorStyle}color: ${textColor};">${formattedValue}</div>`
 
     return template
   }
