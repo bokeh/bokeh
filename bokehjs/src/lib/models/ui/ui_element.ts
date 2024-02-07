@@ -175,21 +175,26 @@ export abstract class UIElementView extends DOMComponentView {
     this.on_transitive_change(css_variables, () => this._update_css_variables())
     this.on_change(stylesheets, () => this._update_stylesheets())
 
-    this.el.addEventListener("contextmenu", (event) => {
-      if (!event.shiftKey) {
-        const {x, y} = event
-        const context_menu = this.get_context_menu({x, y})
-        if (context_menu != null) {
-          event.stopPropagation()
-          event.preventDefault()
-          context_menu.show({x, y})
-        }
-      }
-    })
+    this.el.addEventListener("contextmenu", (event) => this.show_context_menu(event))
   }
 
   get_context_menu(_xy: XY): ViewOf<Menu> | null {
     return this._context_menu
+  }
+
+  show_context_menu(event: MouseEvent): void {
+    if (!event.shiftKey) {
+      const rect = this.el.getBoundingClientRect()
+      const x = event.x - rect.x
+      const y = event.y - rect.y
+
+      const context_menu = this.get_context_menu({x, y})
+      if (context_menu != null) {
+        event.stopPropagation()
+        event.preventDefault()
+        context_menu.show({x, y})
+      }
+    }
   }
 
   override remove(): void {
