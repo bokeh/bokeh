@@ -147,11 +147,11 @@ export class MenuView extends UIElementView {
         })
         const {menu} = item
         if (menu != null) {
-          item_el.addEventListener("mouseenter", () => {
+          item_el.addEventListener("pointerenter", () => {
             const menu_view = this._menu_views.get(menu)!
             menu_view._show_submenu(item_el)
           })
-          item_el.addEventListener("mouseleave", () => {
+          item_el.addEventListener("pointerleave", () => {
             const menu_view = this._menu_views.get(menu)!
             menu_view.hide()
           })
