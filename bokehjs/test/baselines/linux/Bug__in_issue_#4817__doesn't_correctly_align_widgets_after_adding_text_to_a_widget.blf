@@ -1,5 +1,5 @@
-Column bbox=[0, 0, 268, 69]
+Column bbox=[0, 0, 268, 68]
   Row bbox=[0, 0, 268, 41]
     Button bbox=[5, 5, 45, 28]
     TextInput bbox=[60, 5, 203, 31]
-  Div bbox=[5, 46, 75, 18]
+  Div bbox=[5, 46, 69, 17]

@@ -1,8 +1,8 @@
 :host {
   --base-font: var(--bokeh-base-font, Helvetica, Arial, sans-serif);
   --mono-font: var(--bokeh-mono-font, monospace);
+  --font-size: var(--bokeh-font-size, 12px);
 
-  --font-size: 12px;
   --line-height: calc(20 / 14);
   --line-height-computed: calc(var(--font-size) * var(--line-height));
 
@@ -15,7 +15,7 @@
 :host {
   box-sizing: border-box;
   font-family: var(--base-font);
-  font-size: 13px; // 0.8em
+  font-size: var(--font-size);
   line-height: var(--line-height);
 }
 
