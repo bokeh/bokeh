@@ -84,7 +84,7 @@ export class StringFormatter extends CellFormatter {
 
     switch (resolvedFontStyle) {
       case "normal":
-        text.style.fontStyle = "normal"
+        // nothing to do
         break
       case "italic":
         text.style.fontStyle = "italic"
