@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.io import save
-from bokeh.models import DataTable, StringFormatter, DateFormatter
+from bokeh.models import DataTable, DateFormatter, StringFormatter
 
 # Sample size
 sample_size = 30
