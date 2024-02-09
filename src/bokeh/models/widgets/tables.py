@@ -24,18 +24,17 @@ log = logging.getLogger(__name__)
 from ...core.enums import (
     AutosizeMode,
     DateFormat,
-    FontStyle,
     NumeralLanguage,
     RoundingFunction,
-    TextAlign,
 )
 from ...core.has_props import abstract
 from ...core.properties import (
     Bool,
-    Color,
+    ColorSpec,
     Either,
     Enum,
     Float,
+    FontStyleSpec,
     Instance,
     InstanceDefault,
     Int,
@@ -44,6 +43,7 @@ from ...core.properties import (
     Override,
     Required,
     String,
+    TextAlignSpec,
 )
 from ...core.property.singletons import Intrinsic
 from ...model import Model
@@ -134,16 +134,20 @@ class StringFormatter(CellFormatter):
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
 
-    font_style = Enum(FontStyle, default="normal", help="""
+    font_style = FontStyleSpec(default="normal", help="""
     An optional text font style, e.g. bold, italic.
     """)
 
-    text_align = Enum(TextAlign, default="left", help="""
+    text_align = TextAlignSpec(default="left", help="""
     An optional text align, i.e. left, center or right.
     """)
 
-    text_color = Nullable(Color, help="""
+    text_color = ColorSpec(default=None, help="""
     An optional text color.
+    """)
+
+    background_color = ColorSpec(default=None, help="""
+    An optional background color.
     """)
 
     nan_format = String("-", help="""

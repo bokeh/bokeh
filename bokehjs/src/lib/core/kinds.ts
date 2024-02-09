@@ -1,4 +1,5 @@
 import type * as types from "./types"
+import type * as enums from "./enums"
 import * as tp from "./util/types"
 import {is_Color} from "./util/color"
 import {keys, values, typed_values, typed_entries} from "./util/object"
@@ -526,6 +527,64 @@ export namespace Kinds {
     }
   }
 
+  export class ColorSpecValue extends Kind<types.ColorSpecValue> {
+    valid(value: unknown): value is types.ColorSpecValue {
+      if (is_Color(value)) return true
+      if (typeof value === "object" && value !== null) {
+        // Should we check if field is in dataContext ?
+        if ("field" in value && typeof value.field === "string") return true
+        if ("value" in value && is_Color(value.value)) return true
+      }
+      return false
+    }
+
+    override toString(): string {
+      return "ColorSpecValue"
+    }
+
+    may_have_refs(): boolean {
+      return false
+    }
+  }
+
+  export class FontStyleSpecValue extends Kind<enums.FontStyleSpecValue> {
+    valid(value: unknown): value is enums.FontStyleSpecValue {
+      if (typeof value === "string") return true
+      if (typeof value === "object" && value !== null) {
+        if ("field" in value && typeof value.field === "string") return true
+        if ("value" in value && typeof value.value === "string") return true
+      }
+      return false
+    }
+
+    override toString(): string {
+      return "FontStyleSpecValue"
+    }
+
+    may_have_refs(): boolean {
+      return false
+    }
+  }
+
+  export class TextAlignSpecValue extends Kind<enums.TextAlignSpecValue> {
+    valid(value: unknown): value is enums.TextAlignSpecValue {
+      if (typeof value === "string") return true
+      if (typeof value === "object" && value !== null) {
+        if ("field" in value && typeof value.field === "string") return true
+        if ("value" in value && typeof value.value === "string") return true
+      }
+      return false
+    }
+
+    override toString(): string {
+      return "TextAlignSpecValue"
+    }
+
+    may_have_refs(): boolean {
+      return false
+    }
+  }
+
   export class CSSLength extends String {
     /*
     override valid(value: unknown): value is string {
@@ -636,10 +695,13 @@ export const Positive = <BaseType extends number>(base_type: Kind<BaseType>) => 
 export const Percent = new Kinds.Percent()
 export const Alpha = Percent
 export const Color = new Kinds.Color()
+export const ColorSpecValue = new Kinds.ColorSpecValue()
 export const Auto = Enum("auto")
 export const CSSLength = new Kinds.CSSLength()
 
 export const FontSize = String
+export const FontStyleSpecValue = new Kinds.FontStyleSpecValue
+export const TextAlignSpecValue = new Kinds.TextAlignSpecValue
 export const Font = String
 export const Angle = Number
 export const Float = Number

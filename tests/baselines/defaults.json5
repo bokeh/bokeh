@@ -7014,6 +7014,7 @@
     font_style: "normal",
     text_align: "left",
     text_color: null,
+    background_color: null,
     nan_format: "-",
   },
   SumAggregator: {

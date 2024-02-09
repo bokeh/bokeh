@@ -62,6 +62,8 @@ export const FlowMode = Enum("block", "inline")
 export type FontStyle = "normal" | "italic" | "bold" | "bold italic"
 export const FontStyle = Enum("normal", "italic", "bold", "bold italic")
 
+export type FontStyleSpecValue = {value: FontStyle} | {field: string}
+
 export type HatchPatternType =
   "blank" | "dot" | "ring" | "horizontal_line" | "vertical_line" | "cross" | "horizontal_dash" |
   "vertical_dash" | "spiral" | "right_diagonal_line" | "left_diagonal_line" | "diagonal_cross" |
@@ -195,6 +197,8 @@ export const TapGesture = Enum("tap", "doubletap")
 
 export type TextAlign = "left" | "right" | "center"
 export const TextAlign = Enum("left", "right", "center")
+
+export type TextAlignSpecValue = {value: TextAlign} | {field: string}
 
 export type TextBaseline = "top" | "middle" | "bottom" | "alphabetic" | "hanging" | "ideographic"
 export const TextBaseline = Enum("top", "middle", "bottom", "alphabetic", "hanging", "ideographic")

@@ -4,8 +4,9 @@ import {_} from "underscore.template"
 
 import type * as p from "core/properties"
 import {div, i} from "core/dom"
-import type {Color} from "core/types"
-import {FontStyle, TextAlign, RoundingFunction} from "core/enums"
+import type {ColorSpecValue} from "core/types"
+import {RoundingFunction} from "core/enums"
+import type {FontStyleSpecValue, TextAlignSpecValue} from "core/enums"
 import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
 import {color2css} from "core/util/color"
@@ -39,9 +40,10 @@ export namespace StringFormatter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = CellFormatter.Props & {
-    font_style: p.Property<FontStyle>
-    text_align: p.Property<TextAlign>
-    text_color: p.Property<Color | null>
+    font_style: p.Property<FontStyleSpecValue>
+    text_align: p.Property<TextAlignSpecValue>
+    text_color: p.Property<ColorSpecValue | null>
+    background_color: p.Property<ColorSpecValue | null>
     nan_format: p.Property<string>
   }
 }
@@ -56,39 +58,67 @@ export class StringFormatter extends CellFormatter {
   }
 
   static {
-    this.define<StringFormatter.Props>(({Color, Nullable, String}) => ({
-      font_style: [ FontStyle, "normal" ],
-      text_align: [ TextAlign, "left"   ],
-      text_color: [ Nullable(Color), null ],
+    this.define<StringFormatter.Props>(({ColorSpecValue, FontStyleSpecValue, TextAlignSpecValue, Nullable, String}) => ({
+      font_style: [ FontStyleSpecValue, {value: "normal"} ],
+      text_align: [ TextAlignSpecValue, {value: "left"}   ],
+      text_color: [ Nullable(ColorSpecValue), null ],
+      background_color: [ Nullable(ColorSpecValue), null ],
       nan_format: [ String, "-"],
     }))
   }
 
   override doFormat(_row: any, _cell: any, value: any, _columnDef: any, _dataContext: any): string {
-    const {font_style, text_align, text_color} = this
+    const {font_style, text_align, text_color, background_color} = this
 
     const text = div(value == null ? "" : `${value}`)
-    switch (font_style) {
+
+    let resolvedFontStyle
+
+    if ("value" in font_style) {
+      resolvedFontStyle = font_style.value
+    } else if ("field" in font_style) {
+      resolvedFontStyle = _dataContext[font_style.field]
+    } else {
+      resolvedFontStyle = "normal"
+    }
+
+    switch (resolvedFontStyle) {
       case "normal":
-        break
-      case "bold":
-        text.style.fontWeight = "bold"
+        text.style.fontStyle = "normal"
         break
       case "italic":
         text.style.fontStyle = "italic"
         break
-      case "bold italic":
+      case "bold":
         text.style.fontWeight = "bold"
+        break
+      case "bold italic":
         text.style.fontStyle = "italic"
+        text.style.fontWeight = "bold"
         break
     }
 
-    text.style.textAlign = text_align
-
-    if (text_color != null) {
-      text.style.color = color2css(text_color)
+    if ("value" in text_align) {
+      text.style.textAlign = text_align.value
+    } else if ("field" in text_align) {
+      text.style.textAlign = _dataContext[text_align.field]
     }
 
+    if (text_color != null) {
+      if ("value" in text_color) {
+        text.style.color = color2css(text_color.value)
+      } else if ("field" in text_color) {
+        text.style.color = _dataContext[text_color.field]
+      }
+    }
+
+    if (background_color != null) {
+      if ("value" in background_color) {
+        text.style.backgroundColor = color2css(background_color.value)
+      } else if ("field" in background_color) {
+        text.style.backgroundColor = _dataContext[background_color.field]
+      }
+    }
     return text.outerHTML
   }
 }
