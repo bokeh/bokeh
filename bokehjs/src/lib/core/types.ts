@@ -11,8 +11,6 @@ export type ID = string
 
 export type Color = string | [name: string, alpha: number] | uint32 | [R: uint8, G: uint8, B: uint8, A?: number]
 
-export type ColorSpecValue = {value: Color} | {field: string}
-
 export type ColorArray = Uint32Array
 export const ColorArray = Uint32Array
 
