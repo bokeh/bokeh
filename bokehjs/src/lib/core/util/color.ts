@@ -58,9 +58,13 @@ function hex(v: uint8): string {
   return _hex_table[v >> 4] + _hex_table[v & 0xf]
 }
 
+export function rgba2css([r, g, b, a]: RGBA): string {
+  return `rgba(${r}, ${g}, ${b}, ${a/255})`
+}
+
 export function color2css(color: Color | null, alpha?: number): string {
   const [r, g, b, a] = color2rgba(color, alpha)
-  return `rgba(${r}, ${g}, ${b}, ${a/255})`
+  return rgba2css([r, g, b, a])
 }
 
 export function color2hex(color: Color | null, alpha?: number): string {

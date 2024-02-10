@@ -7011,10 +7011,22 @@
   },
   StringFormatter: {
     __extends__: "CellFormatter",
-    font_style: "normal",
-    text_align: "left",
-    text_color: null,
-    background_color: null,
+    font_style: {
+      type: "value",
+      value: "normal",
+    },
+    text_align: {
+      type: "value",
+      value: "left",
+    },
+    text_color: {
+      type: "value",
+      value: null,
+    },
+    background_color: {
+      type: "value",
+      value: null,
+    },
     nan_format: "-",
   },
   SumAggregator: {

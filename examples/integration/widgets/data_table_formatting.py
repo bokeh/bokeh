@@ -1,39 +1,50 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 
 from bokeh.io import save
-from bokeh.models import DataTable, DateFormatter, StringFormatter
+from bokeh.models import (ColumnDataSource, DataTable, DateFormatter, 
+                          NumberFormatter, TableColumn)
+from bokeh.palettes import RdYlGn9
+from bokeh.transform import factor_cmap, linear_cmap
 
-# Sample size
-sample_size = 30
+np.random.seed(1)
 
-# Data generation
-dataframe = pd.DataFrame({
-    "text_color_col": np.random.choice(["red", "green", "blue", "black", "grey"], size=sample_size),
-    "other_text_color_col": ["some text"] * sample_size,
-    "background_color_col": np.random.choice(["red", "green", "blue", "yellow"], size=sample_size),
-    "other_background_color_col": ["some text"] * sample_size,
-    "font_style_col": np.random.choice(["normal", "italic", "bold", "bold italic"], size=sample_size),
-    "other_font_style_col": ["some text"] * sample_size,
-    "text_align_col": np.random.choice(["left", "center", "right"], size=sample_size),
-    "other_text_align_col": ["some text"] * sample_size,
-    "date_col": pd.date_range(start="2020-01-01", periods=sample_size),
-})
+sample_size = 10
 
-formatters = [
-    StringFormatter(text_color="text_color_col"),
-    StringFormatter(text_color="blue"),
-    StringFormatter(background_color="background_color_col"),
-    StringFormatter(background_color="yellow"),
-    StringFormatter(font_style="font_style_col"),
-    StringFormatter(font_style="bold"),
-    StringFormatter(text_align="text_align_col"),
-    StringFormatter(text_align="center"),
-    DateFormatter(format="%Y-%m-%d", text_color="text_color_col", font_style="font_style_col"),
-]
+mean, std, K_std = 1e6, 3e5, 2
 
-datatable = DataTable.from_data(dataframe)
-for i in range(len(formatters)):
-    datatable.columns[i+1].formatter = formatters[i]
+data = dict(
+    dates=pd.date_range(start=datetime.now().date(), periods=sample_size).tolist(),
+    downloads=np.random.normal(mean, std, sample_size),
+)
 
-save(datatable)
+data["is_weekend"] = [str(date.weekday() >= 5) for date in data["dates"]]
+data["weekend_bold"] = ["bold" if date.weekday() >= 5 else "normal" for date in data["dates"]]
+
+table = DataTable(
+    source=ColumnDataSource(data),
+    columns=[
+        TableColumn(
+            field="dates", 
+            title="Date", 
+            formatter=DateFormatter(
+                format="%A, %b %-d, %Y",
+                font_style="weekend_bold",
+                background_color=factor_cmap("is_weekend", ["lightgrey", "white"], ["True", "False"])
+            )
+        ),
+        TableColumn(
+            field="downloads", 
+            title="Downloads", 
+            formatter=NumberFormatter(
+                format="0.0a",
+                font_style="weekend_bold",
+                background_color=linear_cmap("downloads", RdYlGn9[::-1], mean - K_std*std, mean + K_std*std)
+            )
+        ),
+    ],
+)
+    
+save(table)

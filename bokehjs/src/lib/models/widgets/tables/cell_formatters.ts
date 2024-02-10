@@ -8,8 +8,9 @@ import {isField, isValue} from "core/vectorization"
 import {RoundingFunction} from "core/enums"
 import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
-import {color2css} from "core/util/color"
+import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
+import {ColorMapper} from "api"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -109,7 +110,13 @@ export class StringFormatter extends CellFormatter {
         text.style.color = color2css(text_color.value)
       }
     } else if (isField(text_color)) {
-      text.style.color = _dataContext[text_color.field]
+      if (text_color.transform != null && text_color.transform instanceof ColorMapper) {
+        const rgbaArray = text_color.transform.rgba_mapper.v_compute([_dataContext[text_color.field]])
+        const [r, g, b, a] = rgbaArray
+        text.style.color = rgba2css([r, g, b, a])
+      } else {
+        text.style.color = _dataContext[text_color.field]
+      }
     }
 
     // Background color
@@ -118,7 +125,13 @@ export class StringFormatter extends CellFormatter {
         text.style.backgroundColor = color2css(background_color.value)
       }
     } else if (isField(background_color)) {
-      text.style.backgroundColor = _dataContext[background_color.field]
+      if (background_color.transform != null && background_color.transform instanceof ColorMapper) {
+        const rgbaArray = background_color.transform.rgba_mapper.v_compute([_dataContext[background_color.field]])
+        const [r, g, b, a] = rgbaArray
+        text.style.backgroundColor = rgba2css([r, g, b, a])
+      } else {
+        text.style.backgroundColor = _dataContext[background_color.field]
+      }
     }
     return text.outerHTML
   }
