@@ -1,4 +1,4 @@
-from bokeh.models import ColumnDataSource, DataTable, PointDrawTool, TableColumn
+from bokeh.models import ColumnDataSource, DataTable, PointDrawTool, TableColumn, StringFormatter
 from bokeh.plotting import Column, figure, show
 
 p = figure(x_range=(0, 10), y_range=(0, 10), tools=[],
@@ -17,7 +17,7 @@ r = p.scatter(x='x', y='y', source=source, color='color', size=10)
 columns = [
     TableColumn(field="x", title="x"),
     TableColumn(field="y", title="y"),
-    TableColumn(field='color', title='color'),
+    TableColumn(field='color', title='color', formatter=StringFormatter(text_color="color")),
 ]
 table = DataTable(source=source, columns=columns, editable=True, height=200)
 
