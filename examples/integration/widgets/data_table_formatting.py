@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.io import save
-from bokeh.models import (ColumnDataSource, DataTable, DateFormatter, 
+from bokeh.models import (ColumnDataSource, DataTable, DateFormatter,
                           NumberFormatter, TableColumn)
 from bokeh.palettes import RdYlGn9
 from bokeh.transform import factor_cmap, linear_cmap
@@ -27,24 +27,33 @@ table = DataTable(
     source=ColumnDataSource(data),
     columns=[
         TableColumn(
-            field="dates", 
-            title="Date", 
+            field="dates",
+            title="Date",
             formatter=DateFormatter(
                 format="%A, %b %-d, %Y",
                 font_style="weekend_bold",
-                background_color=factor_cmap("is_weekend", ["lightgrey", "white"], ["True", "False"])
-            )
+                background_color=factor_cmap(
+                    field_name="is_weekend",
+                    palette=["lightgrey", "white"],
+                    factors=["True", "False"],
+                ),
+            ),
         ),
         TableColumn(
-            field="downloads", 
-            title="Downloads", 
+            field="downloads",
+            title="Downloads",
             formatter=NumberFormatter(
                 format="0.0a",
                 font_style="weekend_bold",
-                background_color=linear_cmap("downloads", RdYlGn9[::-1], mean - K_std*std, mean + K_std*std)
-            )
+                background_color=linear_cmap(
+                    field_name="downloads",
+                    palette=RdYlGn9[::-1],
+                    low=mean - K_std*std,
+                    high=mean + K_std*std,
+                ),
+            ),
         ),
     ],
 )
-    
+
 save(table)
