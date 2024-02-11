@@ -1,4 +1,5 @@
-from bokeh.models import ColumnDataSource, DataTable, PointDrawTool, TableColumn, StringFormatter
+from bokeh.models import (ColumnDataSource, DataTable, PointDrawTool,
+                          StringFormatter, TableColumn)
 from bokeh.plotting import Column, figure, show
 
 p = figure(x_range=(0, 10), y_range=(0, 10), tools=[],

@@ -3,8 +3,9 @@ from bokeh.models import (ColumnDataSource, DataTable, HTMLTemplateFormatter,
                           NumberFormatter, StringFormatter, TableColumn)
 from bokeh.sampledata.periodic_table import elements
 
+
 def get_text_color(hex_color):
-    """Get text color with high contrast v.s. the background color."""
+    """Get a text color with high contrast v.s. the background color."""
     r, g, b = int(hex_color[1:3], 16), int(hex_color[3:5], 16), int(hex_color[5:7], 16)
     luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255
     return '#000000' if luminance > 0.5 else '#ffffff'
