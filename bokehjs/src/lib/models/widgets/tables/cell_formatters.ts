@@ -10,7 +10,7 @@ import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
 import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
-import {ColorMapper} from "api"
+import {ColorMapper} from "../../mappers/color_mapper"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
