@@ -1,3 +1,12 @@
+''' An example demonstration the use of `hspan`, `wspan`, and `vstrip`.
+It also uses the `HoverTool`.
+
+.. bokeh-example-metadata::
+    :apis: bokeh.models.HoverTool
+    :refs: :ref:`ug_basic_hspan`
+    :keywords: hover tool, strips
+'''
+
 from bokeh.io import show
 from bokeh.models import HoverTool
 from bokeh.plotting import figure
