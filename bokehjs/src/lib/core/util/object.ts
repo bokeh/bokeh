@@ -71,7 +71,7 @@ const {hasOwnProperty} = Object.prototype
 export class PlainObjectProxy<V> implements Map<string, V> {
   constructor(readonly obj: {[key: string]: V}) {}
 
-  readonly [Symbol.toStringTag] = "Dict"
+  readonly [Symbol.toStringTag] = "PlainObjectProxy"
 
   clear(): void {
     for (const key of this.keys()) {
