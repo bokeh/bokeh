@@ -66,29 +66,33 @@ export function is_empty(obj: DictLike<unknown>): boolean {
   return size(obj) == 0
 }
 
-export class MapProxy<V> implements Map<string, V> {
+const {hasOwnProperty} = Object.prototype
+
+export class PlainObjectProxy<V> implements Map<string, V> {
   constructor(readonly obj: {[key: string]: V}) {}
 
   readonly [Symbol.toStringTag] = "Dict"
 
   clear(): void {
-    for (const key of keys(this.obj)) {
+    for (const key of this.keys()) {
       delete this.obj[key]
     }
   }
 
   delete(key: string): boolean {
-    const had = key in this
-    delete this.obj[key]
-    return had
-  }
-
-  get(key: string): V | undefined {
-    return key in this.obj ? this.obj[key] : undefined
+    const exists = this.has(key)
+    if (exists) {
+      delete this.obj[key]
+    }
+    return exists
   }
 
   has(key: string): boolean {
-    return key in this.obj
+    return hasOwnProperty.call(this.obj, key)
+  }
+
+  get(key: string): V | undefined {
+    return this.has(key) ? this.obj[key] : undefined
   }
 
   set(key: string, value: V): this {
@@ -124,5 +128,5 @@ export class MapProxy<V> implements Map<string, V> {
 }
 
 export function dict<V>(obj: DictLike<V>): Map<string, V> {
-  return isPlainObject(obj) ? new MapProxy(obj) : obj
+  return isPlainObject(obj) ? new PlainObjectProxy(obj) : obj
 }
