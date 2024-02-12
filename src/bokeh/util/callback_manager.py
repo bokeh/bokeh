@@ -205,13 +205,12 @@ def _nargs(fn: Callable[..., Any]) -> int:
 def _check_callback(callback: Callable[..., Any], fargs: Sequence[str], what: str ="Callback functions") -> None:
     '''Bokeh-internal function to check callback signature'''
     sig = signature(callback)
-    formatted_args = str(sig)
-    error_msg = what + " must have signature func(%s), got func%s"
-
     all_names, default_values = get_param_info(sig)
 
     nargs = len(all_names) - len(default_values)
     if nargs != len(fargs):
+        formatted_args = str(sig)
+        error_msg = what + " must have signature func(%s), got func%s"
         raise ValueError(error_msg % (", ".join(fargs), formatted_args))
 
 #-----------------------------------------------------------------------------
