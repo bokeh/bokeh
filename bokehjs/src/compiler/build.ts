@@ -200,6 +200,7 @@ export async function init(base_dir: Path, _bokehjs_dir: Path, base_setup: InitO
 }
 
 export type BuildOptions = {
+  verbose?: boolean
   rebuild?: boolean
   bokeh_version: string
 }
@@ -208,6 +209,7 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   print(`Working directory: ${cyan(base_dir)}`)
 
   const setup: Required<BuildOptions> = {
+    verbose: base_setup.verbose ?? false,
     rebuild: base_setup.rebuild ?? false,
     bokeh_version: base_setup.bokeh_version,
   }
@@ -323,6 +325,11 @@ export async function build(base_dir: Path, bokehjs_dir: Path, base_setup: Build
   const host = compiler_host(new Map(), options, tslib_dir)
 
   print(`Compiling TypeScript (${magenta(`${files.length} files`)})`)
+  if (setup.verbose) {
+    for (const file of files) {
+      print(`  ${file}`)
+    }
+  }
   const tsoutput = compile_files(files, options, transformers, host)
 
   if (is_failed(tsoutput)) {

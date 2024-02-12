@@ -37,14 +37,22 @@ __all__ = ("init", "build")
 # General API
 #-----------------------------------------------------------------------------
 
-def init(base_dir: PathLike, *, interactive: bool = False,
-         bokehjs_version: str | None = None, debug: bool = False) -> bool:
+def init(
+    base_dir: PathLike,
+    *,
+    interactive: bool = False,
+    verbose: bool = False,
+    bokehjs_version: str | None = None,
+    debug: bool = False,
+) -> bool:
     """ Initialize a directory as a new bokeh extension.
 
     Arguments:
         base_dir (str) : The location of the extension.
 
         interactive (bool) : Guide the user step-by-step.
+
+        verbose (bool) : Display detailed build information.
 
         bokehjs_version (str) : Use a specific version of bokehjs.
 
@@ -57,19 +65,23 @@ def init(base_dir: PathLike, *, interactive: bool = False,
     args: list[str] = []
     if interactive:
         args.append("--interactive")
+    if verbose:
+        args.append("--verbose")
     if bokehjs_version:
         args.extend(["--bokehjs-version", bokehjs_version])
     proc = _run_command("init", base_dir, args, debug)
     return proc.returncode == 0
 
 
-def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> bool:
+def build(base_dir: PathLike, *, rebuild: bool = False, verbose: bool = False, debug: bool = False) -> bool:
     """ Build a bokeh extension in the given directory.
 
     Arguments:
         base_dir (str) : The location of the extension.
 
         rebuild (bool) : Ignore caches and rebuild from scratch.
+
+        verbose (bool) : Display detailed build information.
 
         debug (bool) : Allow for remote debugging.
 
@@ -80,6 +92,8 @@ def build(base_dir: PathLike, *, rebuild: bool = False, debug: bool = False) -> 
     args: list[str] = []
     if rebuild:
         args.append("--rebuild")
+    if verbose:
+        args.append("--verbose")
     proc = _run_command("build", base_dir, args, debug)
     return proc.returncode == 0
 
