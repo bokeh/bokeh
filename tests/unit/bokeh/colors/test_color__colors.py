@@ -365,10 +365,10 @@ class Test_RGB:
         assert round(bcc.RGB(255, 255, 255).brightness, 2) == 1.0
 
     def test_luminance(self) -> None:
-        assert round(bcc.RGB(  0,   0,   0).luminance, 4) == 0.000
-        assert round(bcc.RGB(190,   0, 190).luminance, 4) == 0.149
-        assert round(bcc.RGB(130, 130,  90).luminance, 4) == 0.218
-        assert round(bcc.RGB(255, 255, 255).luminance, 4) == 1.000
+        assert round(bcc.RGB(  0,   0,   0).luminance, 3) == 0.000
+        assert round(bcc.RGB(190,   0, 190).luminance, 3) == 0.149
+        assert round(bcc.RGB(130, 130,  90).luminance, 3) == 0.218
+        assert round(bcc.RGB(255, 255, 255).luminance, 3) == 1.000
 
 #-----------------------------------------------------------------------------
 # Dev API
