@@ -1,6 +1,6 @@
 import {Filter} from "./filter"
 import type * as p from "core/properties"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {Indices} from "core/types"
 import {keys, values} from "core/util/object"
 import {isArrayOf, isBoolean, isInteger} from "core/util/types"
@@ -11,7 +11,7 @@ export namespace CustomJSFilter {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Filter.Props & {
-    args: p.Property<DictLike<unknown>>
+    args: p.Property<Dict<unknown>>
     code: p.Property<string>
   }
 }

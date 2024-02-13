@@ -427,7 +427,7 @@ export namespace Kinds {
     }
   }
 
-  export class Dict<ItemType> extends Kind<types.DictLike<ItemType>> {
+  export class Dict<ItemType> extends Kind<types.Dict<ItemType>> {
 
     constructor(readonly item_type: Kind<ItemType>) {
       super()

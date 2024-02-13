@@ -1,5 +1,5 @@
 import {WebDataSource} from "./web_data_source"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import type {UpdateMode} from "core/enums"
 import {HTTPMethod} from "core/enums"
 import {logger} from "core/logging"
@@ -12,7 +12,7 @@ export namespace AjaxDataSource {
   export type Props = WebDataSource.Props & {
     polling_interval: p.Property<number | null>
     content_type: p.Property<string>
-    http_headers: p.Property<DictLike<string>>
+    http_headers: p.Property<Dict<string>>
     method: p.Property<HTTPMethod>
     if_modified: p.Property<boolean>
   }

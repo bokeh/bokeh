@@ -2,7 +2,7 @@ import type * as p from "core/properties"
 import type {PointGeometry} from "core/geometry"
 import type {UIEvent, MoveEvent} from "core/ui_events"
 import type {Dimensions, SelectionMode} from "core/enums"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {includes} from "core/util/array"
 import {dict} from "core/util/object"
 import {isArray} from "core/util/types"
@@ -191,7 +191,7 @@ export namespace EditTool {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = GestureTool.Props & {
-    default_overrides: p.Property<DictLike<unknown>>
+    default_overrides: p.Property<Dict<unknown>>
     empty_value: p.Property<unknown>
   }
 }

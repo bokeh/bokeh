@@ -1,7 +1,7 @@
 import {Model} from "../../model"
 //import {DOMElement} from "../dom"
 import type {Extent, Bounds} from "./tile_utils"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {entries} from "core/util/object"
 import type * as p from "core/properties"
 
@@ -17,7 +17,7 @@ export namespace TileSource {
     tile_size: p.Property<number>
     max_zoom: p.Property<number>
     min_zoom: p.Property<number>
-    extra_url_vars: p.Property<DictLike<string>>
+    extra_url_vars: p.Property<Dict<string>>
     attribution: p.Property<string/* | DOMElement | (string | DOMElement)[] | null*/>
     x_origin_offset: p.Property<number>
     y_origin_offset: p.Property<number>
@@ -61,7 +61,7 @@ export abstract class TileSource extends Model {
     this.connect(this.change, () => this._clear_cache())
   }
 
-  string_lookup_replace(str: string, lookup: DictLike<string>): string {
+  string_lookup_replace(str: string, lookup: Dict<string>): string {
     let result_str = str
     for (const [key, value] of entries(lookup)) {
       result_str = result_str.replace(`{${key}}`, value)

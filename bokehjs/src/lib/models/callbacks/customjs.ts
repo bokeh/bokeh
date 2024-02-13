@@ -6,7 +6,7 @@ import {use_strict} from "core/util/string"
 
 import type {Model} from "../../model"
 import {logger} from "core/logging"
-import type {DictLike} from "core/types"
+import type {Dict} from "core/types"
 import {isFunction} from "core/util/types"
 import type {ViewManager} from "core/view"
 import {index} from "embed/standalone"
@@ -26,7 +26,7 @@ export namespace CustomJS {
   export type Attrs = p.AttrsOf<Props>
 
   export type Props = Callback.Props & {
-    args: p.Property<DictLike<unknown>>
+    args: p.Property<Dict<unknown>>
     code: p.Property<string>
     module: p.Property<"auto" | boolean>
   }

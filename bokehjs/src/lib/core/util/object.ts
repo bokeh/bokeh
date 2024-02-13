@@ -1,4 +1,4 @@
-import type {Arrayable, DictLike, PlainObject} from "../types"
+import type {Arrayable, Dict, PlainObject} from "../types"
 import {isPlainObject} from "./types"
 import {union} from "./array"
 
@@ -36,7 +36,7 @@ export const typed_values: <T extends object>(obj: T) => T[keyof T][] = Object.v
 
 export const typed_entries: <T extends object>(obj: T) => [keyof T, T[keyof T]][] = Object.entries
 
-export function clone<T>(obj: DictLike<T>): DictLike<T> {
+export function clone<T>(obj: Dict<T>): Dict<T> {
   return obj instanceof Map ? new Map(obj) : {...obj}
 }
 
@@ -58,11 +58,11 @@ export function merge<K, V>(obj0: Map<K, Arrayable<V>>, obj1: Map<K, Arrayable<V
   return result
 }
 
-export function size(obj: DictLike<unknown>): number {
+export function size(obj: Dict<unknown>): number {
   return obj instanceof Map ? obj.size : Object.keys(obj).length
 }
 
-export function is_empty(obj: DictLike<unknown>): boolean {
+export function is_empty(obj: Dict<unknown>): boolean {
   return size(obj) == 0
 }
 
@@ -127,6 +127,6 @@ export class PlainObjectProxy<V> implements Map<string, V> {
   }
 }
 
-export function dict<V>(obj: DictLike<V>): Map<string, V> {
+export function dict<V>(obj: Dict<V>): Map<string, V> {
   return isPlainObject(obj) ? new PlainObjectProxy(obj) : obj
 }

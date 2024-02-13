@@ -71,9 +71,9 @@ export type ArrayableOf<T> = T extends unknown ? Arrayable<T> : never
 
 export type PlainObject<T = unknown> = {[key: string]: T}
 
-export type DictLike<T> = PlainObject<T> | Map<string, T>
+export type Dict<T> = PlainObject<T> | Map<string, T>
 
-export type Data<T = unknown> = DictLike<Arrayable<T>>
+export type Data<T = unknown> = Dict<Arrayable<T>>
 
 export type Attrs = PlainObject<unknown>
 
