@@ -11,7 +11,7 @@ import {to_fixed} from "core/util/string"
 import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
 import {ColorMapper} from "../../mappers/color_mapper"
-import { unreachable } from "core/util/assert"
+import {unreachable} from "core/util/assert"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
