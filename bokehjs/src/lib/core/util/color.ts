@@ -241,3 +241,10 @@ export function brightness(color: Color): number {
   const [r, g, b] = color2rgba(color)
   return sqrt(0.299*r**2 + 0.587*g**2 + 0.114*b**2)/255
 }
+
+export function luminance(color: Color): number {
+  // Relative luminance of a color in [0, 1] range.
+  // https://en.wikipedia.org/wiki/Relative_luminance
+  const [r, g, b] = color2rgba(color)
+  return (0.2126*r**2.2 + 0.7152*g**2.2 + 0.0722*b**2.2) / 255**2.2
+}

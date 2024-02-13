@@ -4,13 +4,14 @@ import {_} from "underscore.template"
 
 import * as p from "core/properties"
 import {div, i} from "core/dom"
-import {isField, isValue} from "core/vectorization"
+import {isExpr, isField, isValue} from "core/vectorization"
 import {RoundingFunction} from "core/enums"
 import {isNumber, isString} from "core/util/types"
 import {to_fixed} from "core/util/string"
 import {color2css, rgba2css} from "core/util/color"
 import {Model} from "../../../model"
 import {ColorMapper} from "../../mappers/color_mapper"
+import { unreachable } from "core/util/assert"
 
 export namespace CellFormatter {
   export type Attrs = p.AttrsOf<Props>
@@ -73,14 +74,18 @@ export class StringFormatter extends CellFormatter {
     const text = div(value == null ? "" : `${value}`)
 
     // Font style
-    let resolvedFontStyle
+    let resolved_font_style
     if (isValue(font_style)) {
-      resolvedFontStyle = font_style.value
+      resolved_font_style = font_style.value
     } else if (isField(font_style)) {
-      resolvedFontStyle = _dataContext[font_style.field]
+      resolved_font_style = _dataContext[font_style.field]
+    } else if (isExpr(font_style)) {
+      // TODO
+    } else {
+      unreachable()
     }
 
-    switch (resolvedFontStyle) {
+    switch (resolved_font_style) {
       case "normal":
         // nothing to do
         break
@@ -101,6 +106,10 @@ export class StringFormatter extends CellFormatter {
       text.style.textAlign = text_align.value
     } else if (isField(text_align)) {
       text.style.textAlign = _dataContext[text_align.field]
+    } else if (isExpr(text_align)) {
+      // TODO
+    } else {
+      unreachable()
     }
 
     // Text color
@@ -117,6 +126,10 @@ export class StringFormatter extends CellFormatter {
       } else {
         text.style.color = _dataContext[text_color.field]
       }
+    } else if (isExpr(text_color)) {
+      // TODO
+    } else {
+      unreachable()
     }
 
     // Background color
@@ -132,7 +145,12 @@ export class StringFormatter extends CellFormatter {
       } else {
         text.style.backgroundColor = _dataContext[background_color.field]
       }
+    } else if (isExpr(background_color)) {
+      // TODO
+    } else {
+      unreachable()
     }
+
     return text.outerHTML
   }
 }
