@@ -85,8 +85,11 @@ describe("PlainObjectProxy", () => {
     const obj: PlainObject = {x: 1, y: 2, z: 3}
     const dict = new object.PlainObjectProxy(obj)
     dict.set("x", 10)
+    expect(obj).to.be.equal({x: 10, y: 2, z: 3})
     dict.set("y", 20)
+    expect(obj).to.be.equal({x: 10, y: 20, z: 3})
     dict.set("z", 30)
+    expect(obj).to.be.equal({x: 10, y: 20, z: 30})
     dict.set("t", 40)
     expect(obj).to.be.equal({x: 10, y: 20, z: 30, t: 40})
   })
