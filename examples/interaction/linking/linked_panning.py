@@ -1,7 +1,7 @@
 '''An example of linked panning with three scatter plots.
 
 .. bokeh-example-metadata::
-    :apis: bokeh.plotting.Figure.scatter
+    :apis: bokeh.plotting.figure.scatter
     :refs: :ref:`ug_basic_scatters_markers`
     :keywords: scatter, linked panning
 
